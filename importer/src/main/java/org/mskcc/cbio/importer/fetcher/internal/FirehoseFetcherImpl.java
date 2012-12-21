@@ -33,14 +33,13 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.Shell;
-import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,10 +55,10 @@ import java.io.InputStreamReader;
 
 import java.util.Set;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.lang.reflect.Method;
 
 /**
  * Class which implements the fetcher interface.
@@ -94,13 +93,13 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private FileUtils fileUtils;
 
 	// ref to import data
-	private ImportDataDAO importDataDAO;
+	private ImportDataRecordDAO importDataRecordDAO;
 
 	// ref to database utils
 	private DatabaseUtils databaseUtils;
 
 	// download directories
-	private DataSourceMetadata dataSourceMetadata;
+	private DataSourcesMetadata dataSourceMetadata;
 
 	// location of firehose get
 	private String firehoseGetScript;
@@ -113,16 +112,16 @@ final class FirehoseFetcherImpl implements Fetcher {
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
-	 * @param importDataDAO ImportDataDAO;
+	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
 	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils,
-							   final DatabaseUtils databaseUtils, final ImportDataDAO importDataDAO) {
+							   final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
 		this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
-		this.importDataDAO = importDataDAO;
+		this.importDataRecordDAO = importDataRecordDAO;
 	}
 
 	/**
@@ -140,15 +139,12 @@ final class FirehoseFetcherImpl implements Fetcher {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
 		}
 
-		// get our DataSourceMetadata object
-		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
-		if (!dataSources.isEmpty()) {
-			this.dataSourceMetadata = dataSources.iterator().next();
+		// get our DataSourcesMetadata object
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
+		if (dataSourcesMetadata.isEmpty()) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");			
 		}
-		// sanity check
-		if (this.dataSourceMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
-		}
+		this.dataSourceMetadata = dataSourcesMetadata.iterator().next();
 
 		// is the data source an analysis or stddata run?
 		String runType = null;
@@ -163,24 +159,17 @@ final class FirehoseFetcherImpl implements Fetcher {
 			throw new IllegalArgumentException("cannot determine runtype from dataSource: " + dataSource);
 		}
 
-		// get our latest run
-		Date ourLatestRunDownloaded = PORTAL_DATE_FORMAT.parse(dataSourceMetadata.getLatestRunDownload());
-
 		// get broad latest run
 		Date latestBroadRun = getLatestBroadRun(runType);
 
-		// process runDate  argument
+		// process runDate argument
 		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(Fetcher.LATEST_RUN_INDICATOR)) ?
 			latestBroadRun : PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
-		// grab latest analysis run
-		Boolean newBroadRun = grabLatestRun(runType, desiredRunDateDate, ourLatestRunDownloaded, latestBroadRun);
+		fetchLatestRun(runType, desiredRunDateDate);
 
-		// updata run date
-		if (newBroadRun) {
-			dataSourceMetadata.setLatestRunDownload(PORTAL_DATE_FORMAT.format(latestBroadRun));
-			config.setDataSourceMetadata(dataSourceMetadata);
-		}
+		dataSourceMetadata.setLatestRunDownload(PORTAL_DATE_FORMAT.format(latestBroadRun));
+		config.setDataSourcesMetadata(dataSourceMetadata);
 	}
 
 	/**
@@ -237,56 +226,6 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Helper function which conditionally fetchers latest firehose run
-	 * given the routines parameters.
-	 *
-	 * @param runType String
-	 * @param desiredRunDate Date
-	 * @param ourLatestRunDownloaded Date
-	 * @param latestBroadRun Date
-	 * @return Boolean
-	 * @throws Exception
-	 */
-	private Boolean grabLatestRun(final String runType, final Date desiredRunDate,
-								  final Date ourLatestRunDownloaded, final Date latestBroadRun) throws Exception {
-
-		Boolean toReturn = false;
-
-		// if we have already downloaded the desired run date, nothing to do
-		if (desiredRunDate.equals(ourLatestRunDownloaded)) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("we have the desired " + runType + "data, run: " + PORTAL_DATE_FORMAT.format(desiredRunDate));
-			}
-			return toReturn;
-		}
-
-		if (desiredRunDate != latestBroadRun) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("downloading desired " + runType + " data, run: " + PORTAL_DATE_FORMAT.format(desiredRunDate));
-			}
-			fetchLatestRun(runType, desiredRunDate);
-			// this next line is so the latest run downloaded config property is updated properly
-			latestBroadRun.setTime(desiredRunDate.getTime());
-			toReturn = true;
-		}
-		else if (latestBroadRun.after(ourLatestRunDownloaded)) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("fresh " + runType + " data to download, run: " + PORTAL_DATE_FORMAT.format(latestBroadRun));
-			}
-			fetchLatestRun(runType, latestBroadRun);
-			toReturn = true;
-		}
-		else {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("we have the desired " + runType + " data, run: " + PORTAL_DATE_FORMAT.format(ourLatestRunDownloaded));
-			}
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
 	 * Method fetches latest run.
 	 *
 	 * @param runType String
@@ -311,16 +250,14 @@ final class FirehoseFetcherImpl implements Fetcher {
         fileUtils.makeDirectory(downloadDirectory);
 
 		// download the data
-		Collection<TumorTypeMetadata> tumorTypeMetadata = config.getTumorTypeMetadata();
-		String tumorTypesToDownload = getTumorTypesToDownload(tumorTypeMetadata);
-		Collection<DatatypeMetadata> datatypeMetadata = config.getDatatypeMetadata();
-		String firehoseDatatypesToDownload = getFirehoseDatatypesToDownload(datatypeMetadata);
+		String[] tumorTypesToDownload = config.getTumorTypesToDownload();
+		String[] firehoseDatatypesToDownload = config.getDatatypesToDownload(dataSourceMetadata);
 		String[] command = new String[] { firehoseGetScript, "-b",
 										  "-tasks",
-										  firehoseDatatypesToDownload,
+										  Arrays.toString(firehoseDatatypesToDownload),
 										  runType,
 										  BROAD_DATE_FORMAT.format(runDate),
-										  tumorTypesToDownload };
+										  Arrays.toString(tumorTypesToDownload) };
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + Arrays.asList(command));
 			LOG.info("this may take a while...");
@@ -331,51 +268,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("download complete, storing in database.");
 			}
-			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, datatypeMetadata, runDate);
+			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, runDate);
 		}
-	}
-
-	/**
-	 * Helper function to get tumor types to download.
-	 *
-	 * @param tumorTypeMetadata Collection<TumorTypeMetadata>
-	 * @return String
-	 */
-	private String getTumorTypesToDownload(final Collection<TumorTypeMetadata> tumorTypeMetadata) {
-
-		String toReturn = "";
-		for (TumorTypeMetadata ttMetadata : tumorTypeMetadata) {
-			if (ttMetadata.getDownload()) {
-				toReturn += ttMetadata.getTumorTypeID() + " ";
-			}
-		}
-
-		// outta here
-		return toReturn.trim();
-	}
-
-	/**
-	 * Helper function to get firehose datatypes to download.
-	 *
-	 * @param datatypeMetadata Collection<DatatypeMetadata>
-	 * @return String
-	 */
-	private String getFirehoseDatatypesToDownload(final Collection<DatatypeMetadata> datatypeMetadata) {
-
-		String toReturn = "";
-		HashSet<String> archives = new HashSet<String>();
-		for (DatatypeMetadata dtMetadata : datatypeMetadata) {
-			if (dtMetadata.isDownloaded()) {
-				archives.addAll(dtMetadata.getDownloadArchives());
-			}
-		}
-		// cat all of our archives together
-		for (String archive : archives) {
-			toReturn += archive + " ";
-		}
-
-		// outta here
-		return toReturn.trim();
 	}
 
 	/**
@@ -384,16 +278,16 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 *
 	 * @param dataSource String
 	 * @param downloadDirectory File
-	 * @param datatypeMetadata Collection<DatatypeMetadata>
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void storeData(final String dataSource, final File downloadDirectory,
-						   final Collection<DatatypeMetadata> datatypeMetadata, final Date runDate) throws Exception {
+	private void storeData(final String dataSource, final File downloadDirectory, final Date runDate) throws Exception {
+
+		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
 
 		// first delete records in db with givin dataSource
 		// we do this in the event that the desired datatypes to download have changed
-		importDataDAO.deleteByDataSource(dataSource);
+		importDataRecordDAO.deleteByDataSource(dataSource);
 
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
@@ -423,7 +317,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), getting datatypes for dataFile: " + dataFile.getName());
 			}
-            Collection<DatatypeMetadata> datatypes = DatatypeMetadataUtils.getFileDatatype(dataFile.getName(), datatypeMetadata);
+            Collection<DatatypeMetadata> datatypes = config.getFileDatatype(dataSourceMetadata, dataFile.getName());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), found " + datatypes.size() + " datatypes found for dataFile: " + dataFile.getName());
 				if (datatypes.size() > 0) {
@@ -432,17 +326,19 @@ final class FirehoseFetcherImpl implements Fetcher {
 			}
             // url
             String canonicalPath = dataFile.getCanonicalPath();
-            // create an store a new ImportData object
+            // create an store a new ImportDataRecord object
             for (DatatypeMetadata datatype : datatypes) {
-				Set<String> archivedFiles = datatype.getArchivedFiles(dataFile.getName());
+				Method archivedFilesMethod = datatype.getArchivedFilesMethod(dataSource);
+				Set<String> archivedFiles = (Set<String>)archivedFilesMethod.invoke(datatype, (Object)dataFile.getName());
 				if (archivedFiles.size() == 0 && LOG.isInfoEnabled()) {
 					LOG.info("storeData(), cannot find any archivedFiles for archive: " + dataFile.getName());
 				}
 				for (String downloadFile : archivedFiles) {
-					ImportData importData = new ImportData(dataSource, tumorType.toLowerCase(), datatype.getDatatype(),
-														   PORTAL_DATE_FORMAT.format(runDate), canonicalPath, computedDigest,
-														   downloadFile, DatatypeMetadataUtils.getDatatypeOverrideFilename(datatype.getDatatype(), datatypeMetadata));
-					importDataDAO.importData(importData);
+					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, center,
+																			 tumorType.toLowerCase(), datatype.getDatatype(),
+                                                                             PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
+																			 computedDigest, downloadFile);
+					importDataRecordDAO.importDataRecord(importDataRecord);
 				}
             }
 		}

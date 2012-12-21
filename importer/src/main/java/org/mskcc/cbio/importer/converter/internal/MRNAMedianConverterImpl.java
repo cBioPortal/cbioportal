@@ -37,8 +37,9 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -107,37 +108,49 @@ public final class MRNAMedianConverterImpl implements Converter {
     }
 
 	/**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+     * @param portal String
+	 * @param dataSource String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+		throw new UnsupportedOperationException();
+    }
+
+	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 1) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		if (dataMatrices.length != 1) {
+			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+		DataMatrix dataMatrix = dataMatrices[0];
 
 		// add gene id column, rename gene symbol col
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		importDataMatrix.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
-		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		importDataMatrix.renameColumn("Hybridization REF", Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		dataMatrix.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
+		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		dataMatrix.renameColumn("Hybridization REF", Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// perform gene mapping, remove records as needed
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), calling MapperUtil.mapGeneSymbolToID()...");
 		}
-		MapperUtil.mapGeneSymbolToID(importDataMatrix, idMapper,
+		MapperUtil.mapGeneSymbolToID(dataMatrix, idMapper,
 									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		// convert case ids
@@ -145,24 +158,24 @@ public final class MRNAMedianConverterImpl implements Converter {
 			LOG.info("createStagingFile(), filtering & converting case ids");
 		}
 		String[] columnsToIgnore = { Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME };
-		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
+		dataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
 
 		// ensure the first two columns are symbol, id respectively
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
 		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
 		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
-		importDataMatrix.setColumnOrder(columnHeaders);
+		dataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

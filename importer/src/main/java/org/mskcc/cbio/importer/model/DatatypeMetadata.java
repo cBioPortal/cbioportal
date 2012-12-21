@@ -29,10 +29,13 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.util.ClassLoader;
+
 import java.util.Set;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.lang.reflect.Method;
 
 /**
  * Class which contains datatype metadata.
@@ -43,6 +46,9 @@ public final class DatatypeMetadata {
 	public static final String NUM_GENES_TAG = "<NUM_GENES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+	
+	// delimiter when specifying datatypes on worksheet
+    public static final String DATATYPES_DELIMITER = ":"; 
 
 	/*
 	 * The following is an example of a downloadArchive string which the following 
@@ -64,11 +70,10 @@ public final class DatatypeMetadata {
 	private String datatype;
 	private Boolean download;
 	private String[] dependencies;
-	// downloadArchive is parsed in constructor
-	private LinkedHashSet<String> archives;
+	// tcgadownloadArchive is parsed in constructor
+	private LinkedHashSet<String> tcgaArchives;
 	// key is archive file name, values is ARCHIVE_FILENAME_PAIR_DELIMITER filenames
-	private HashMap<String, String> archivedFiles;
-	private String overrideFilename;
+	private HashMap<String, String> tcgaArchivedFiles;
     private String stagingFilename;
     private String converterClassName;
     private String importerClassName;
@@ -87,8 +92,7 @@ public final class DatatypeMetadata {
      * @param datatype String
 	 * @param download Boolean
 	 * @param dependencies String
-	 * @param downloadArchive String
-     * @param overrideFilename String
+	 * @param tcgaDownloadArchive String
      * @param stagingFilename String
      * @param converterClassName String
      * @param importerClassName String
@@ -101,8 +105,8 @@ public final class DatatypeMetadata {
      * @param metaProfileName String
      * @param metaProfileDescription String
      */
-    public DatatypeMetadata(final String datatype, final Boolean download, final String dependencies,
-							final String downloadArchive, final String overrideFilename,
+    public DatatypeMetadata(final String datatype, final Boolean download,
+							final String dependencies, final String tcgaDownloadArchive, 
 							final String stagingFilename, final String converterClassName,
 							final String importerClassName, final Boolean requiresMetafile,
 							final String metaFilename, final String metaStableID,
@@ -122,30 +126,23 @@ public final class DatatypeMetadata {
 		this.dependencies = (dependencies != null) ?
 			this.dependencies = dependencies.split(DEPENDENCIES_DELIMITER) : new String[0];
 
-		archives = new LinkedHashSet<String>();
-		archivedFiles = new HashMap<String, String>();
-		if (downloadArchive != null) {
-			for (String archivePair : downloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+		tcgaArchives = new LinkedHashSet<String>();
+		tcgaArchivedFiles = new HashMap<String, String>();
+		if (tcgaDownloadArchive != null) {
+			for (String archivePair : tcgaDownloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
 				String archive = parts[0].trim();
 				String archivedFile = parts[1].trim();
-				archives.add(archive);
-				if (archivedFiles.containsKey(archive)) {
-					archivedFiles.put(archive, (archivedFiles.get(archive) +
+				tcgaArchives.add(archive);
+				if (tcgaArchivedFiles.containsKey(archive)) {
+					tcgaArchivedFiles.put(archive, (tcgaArchivedFiles.get(archive) +
 												ARCHIVE_FILENAME_PAIR_DELIMITER +
 												archivedFile));
 				}
 				else {
-					archivedFiles.put(archive, archivedFile);
+					tcgaArchivedFiles.put(archive, archivedFile);
 				}
 			}
-		}
-
-		if (overrideFilename == null) {
-			this.overrideFilename = "";
-		}
-		else {
-			this.overrideFilename = overrideFilename.trim();
 		}
 
 		if (stagingFilename == null) {
@@ -211,26 +208,25 @@ public final class DatatypeMetadata {
 	public String getDatatype() { return datatype; }
 	public Boolean isDownloaded() { return download; }
 	public String[] getDependencies() { return dependencies; }
-	public Set<String> getDownloadArchives() { return archives; }
-	public Set<String> getArchivedFiles(final String archive) {
-		if (archivedFiles.containsKey(archive)) {
-			return new LinkedHashSet<String>(Arrays.asList(archivedFiles.get(archive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
+	public Set<String> getTCGADownloadArchives() { return tcgaArchives; }
+	public Set<String> getTCGAArchivedFiles(final String archive) {
+		if (tcgaArchivedFiles.containsKey(archive)) {
+			return new LinkedHashSet<String>(Arrays.asList(tcgaArchivedFiles.get(archive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
 		}
 		else {
 			// we do the following juggling because archive may be:
 			// gdac.broadinstitute.org_BRCA.Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3.2012080400.0.0.tar.gz
 			// but keys could be of the form:
 			// Merge_transcriptome__agilentg4502a_07_3__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3
-			for (String possibleArchive : getDownloadArchives()) {
+			for (String possibleArchive : getTCGADownloadArchives()) {
 				if (archive.contains(possibleArchive)) {
-					return new LinkedHashSet<String>(Arrays.asList(archivedFiles.get(possibleArchive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
+					return new LinkedHashSet<String>(Arrays.asList(tcgaArchivedFiles.get(possibleArchive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
 				}
 			}
 		}
 		// should not get here
 		return new LinkedHashSet<String>();
 	}
-	public String getOverrideFilename() { return overrideFilename; }
 	public String getStagingFilename() { return stagingFilename; }
 	public String getConverterClassName() { return converterClassName; }
 	public String getImporterClassName() { return importerClassName; }
@@ -242,4 +238,34 @@ public final class DatatypeMetadata {
 	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
 	public String getMetaProfileName() { return metaProfileName; }
 	public String getMetaProfileDescription() { return metaProfileDescription; }
+
+	/**
+	 * Function used to get the appropriate download archive method.
+	 *
+	 * @param dataSourceName String
+	 * @return Method
+	 */
+	public Method getDownloadArchivesMethod(final String dataSourceName) {
+
+		// we need to determine correct download archive method on the DatatypeMetadata object
+		String downloadArchivesMethodName = ("get" +
+											 dataSourceName.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toUpperCase() +
+											 "DownloadArchives");
+		return ClassLoader.getMethod(this.getClass().getName(), downloadArchivesMethodName);
+	}
+
+	/**
+	 * Function used to get the appropriate archived files method.
+	 *
+	 * @param dataSourceName String
+	 * @return Method
+	 */
+	public Method getArchivedFilesMethod(final String dataSourceName) {
+
+		// we need to determine correct download archive method on the DatatypeMetadata object
+		String archivedFilesMethodName = ("get" +
+										  dataSourceName.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toUpperCase() +
+										  "ArchivedFiles");
+		return ClassLoader.getMethod(this.getClass().getName(), archivedFilesMethodName);
+	}
 }

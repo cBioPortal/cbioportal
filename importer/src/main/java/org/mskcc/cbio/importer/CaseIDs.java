@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import java.util.Collection;
 
@@ -57,7 +57,7 @@ public interface CaseIDs {
 	/**
 	 * Computes the number of case ids within the give import data matrix.
 	 *
-     * @param importDataMatrix ImportDataMatrix
+     * @param dataMatrix DataMatrix
 	 */
-	int getCaseCount(final ImportDataMatrix importDataMatrix);
+	int getCaseCount(final DataMatrix dataMatrix);
 }

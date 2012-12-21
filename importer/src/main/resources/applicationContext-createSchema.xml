@@ -17,7 +17,7 @@
 	<b:property name="dataSource" ref="createSchema" />
 	<b:property name="annotatedClasses">
 	  <b:list>
-		<b:value>org.mskcc.cbio.importer.model.ImportData</b:value>
+		<b:value>org.mskcc.cbio.importer.model.ImportDataRecord</b:value>
 	  </b:list>
 	</b:property>
 	<b:property name="hibernateProperties">

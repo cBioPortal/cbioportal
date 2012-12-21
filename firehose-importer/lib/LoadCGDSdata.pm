@@ -85,7 +85,7 @@ sub run{
 	# database parameters found in build.properties
 	my $c = "$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ResetDatabase";
 	print "Running: $c\n";
-	system ($c);
+	system ($c);n
 
 	$fileUtil = File::Util->new();
 
@@ -127,8 +127,8 @@ sub set_up_classpath{
 	}
     # import scripts
 	my $classpath = Env::Path->CLASSPATH;
-	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF classes ) ) );
-	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target portal WEB-INF lib *.jar ) ) );
+	$classpath->Append( File::Spec->catfile( $theCGDShome, qw(  target classes ) ) );
+	my @jar_files = glob( File::Spec->catfile( $theCGDShome, qw(  target *.jar ) ) );
 	foreach my $jar (@jar_files) {
 	    $classpath->Append( $jar );
 	}
@@ -178,7 +178,7 @@ sub load_cancer_data{
 	  my $fullCanonicalClinicalDataFile = File::Spec->catfile( @pathToDataFile, $clinicalDataFile );
 	  if ( $fileUtil->existent($fullCanonicalClinicalDataFile) ) {
 		print "importingClinicalData: $fullCanonicalClinicalDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportClinicalData " . $cancerDataDir . ' ' . $fullCanonicalClinicalDataFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportClinicalData " . $fullCanonicalClinicalDataFile . ' ' . $cancerDataDir ); 
 	  }
 	        
 	  # import a cancer's data
@@ -195,10 +195,10 @@ sub load_cancer_data{
 			
 	  # import mutsig
 	  my $fullCanonicalMutSigDataFile = File::Spec->catfile( @pathToDataFile, 'data_mutsig.txt' );
-	  my $fullCanonicalMutSigMetaFile = File::Spec->catfile( @pathToDataFile, 'meta_mutsig.txt' );
+	  # my $fullCanonicalMutSigMetaFile = File::Spec->catfile( @pathToDataFile, 'meta_mutsig.txt' );
 	  if ( $fileUtil->existent($fullCanonicalMutSigDataFile) && $fileUtil->existent($fullCanonicalMutSigMetaFile)) {
 		print "importingMutSigData: $fullCanonicalMutSigDataFile\n";
-		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $fullCanonicalMutSigMetaFile ); 
+		system ("$JAVA_HOME/bin/java -Xmx1524M -cp $cmdLineCP -DCGDS_HOME='$cgdsHome' org.mskcc.cbio.cgds.scripts.ImportMutSigData " . $fullCanonicalMutSigDataFile . ' ' . $cancerDataDir ); 
 	  }
 
 	  # import hg19 seg file

@@ -32,7 +32,7 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.cli.Option;
@@ -85,7 +85,7 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "print this message");
 
-        Option clobberImportDatabase = new Option("clobber_import_database", "clobber the import database");
+        Option clobberImportDataRecordbase = new Option("clobber_import_database", "clobber the import database");
 
         Option fetchData = (OptionBuilder.withArgName("datasource:run_date")
 							.hasArgs(2)
@@ -103,6 +103,12 @@ public class Admin implements Runnable {
                               .hasArg()
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
+
+        Option applyOverrides = (OptionBuilder.withArgName("portal:datasource")
+								 .hasArgs(2)
+								 .withValueSeparator(':')
+								 .withDescription("apply overrides for the given portal from the given datasource")
+								 .create("apply_overrides"));
 
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
 									.hasArg()
@@ -124,10 +130,11 @@ public class Admin implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
-		toReturn.addOption(clobberImportDatabase);
+		toReturn.addOption(clobberImportDataRecordbase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
+		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
@@ -174,7 +181,7 @@ public class Admin implements Runnable {
 			}
 			// clobber import database
 			else if (commandLine.hasOption("clobber_import_database")) {
-				clobberImportDatabase();
+				clobberImportDataRecordbase();
 			}
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
@@ -189,7 +196,12 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("convert_data")) {
 				convertData(commandLine.getOptionValue("convert_data"));
 			}
-			// convert data
+			// apply overrides
+			else if (commandLine.hasOption("apply_overrides")) {
+                String[] values = commandLine.getOptionValues("apply_overrides");
+				applyOverrides(values[0], values[1]);
+			}
+			// generate case lists
 			else if (commandLine.hasOption("generate_case_lists")) {
 				generateCaseLists(commandLine.getOptionValue("generate_case_lists"));
 			}
@@ -216,10 +228,10 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void clobberImportDatabase() throws Exception {
+	private void clobberImportDataRecordbase() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("clobberImportDatabase()");
+			LOG.info("clobberImportDataRecordbase()");
 		}
 
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
@@ -243,16 +255,16 @@ public class Admin implements Runnable {
 		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		DataSourceMetadata dataSourceMetadata = null;
-		Collection<DataSourceMetadata> dataSources = config.getDataSourceMetadata(dataSource);
+		DataSourcesMetadata dataSourcesMetadata = null;
+		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
 		if (!dataSources.isEmpty()) {
-			dataSourceMetadata = dataSources.iterator().next();
+			dataSourcesMetadata = dataSources.iterator().next();
 		}
 		// sanity check
-		if (dataSourceMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourceMetadata object.");
+		if (dataSourcesMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
 		}
-		Fetcher fetcher = (Fetcher)context.getBean(dataSourceMetadata.getFetcherBeanID());
+		Fetcher fetcher = (Fetcher)context.getBean(dataSourcesMetadata.getFetcherBeanID());
 		fetcher.fetch(dataSource, runDate);
 	}
 
@@ -301,6 +313,25 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Converter converter = (Converter)context.getBean("converter");
 		converter.convertData(portal);
+	}
+
+	/**
+	 * Helper function to apply overrides to a given portal
+	 * using a given datasource.
+	 *
+	 * @param portal String
+	 * @param dataSource String
+	 * @throws Exception
+	 */
+	private void applyOverrides(final String portal, final String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("applyOverrides(), portal:dateSource: " + portal + ":" + dataSource);
+		}
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Converter converter = (Converter)context.getBean("converter");
+		converter.applyOverrides(portal, dataSource);
 	}
 
 	/**

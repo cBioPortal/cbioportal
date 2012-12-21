@@ -33,26 +33,31 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains datasource metadata.
  */
-public final class DataSourceMetadata {
+public final class DataSourcesMetadata {
+
+	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties
 	private String dataSource;
     private String downloadDirectory;
-    private String latestRunDownload;
+    private String overrideDirectory;
     private String fetcherBeanID;
+    private String latestRunDownload;
 
     /**
-     * Create a DataSourceMetadata instance with specified properties.
+     * Create a DataSourcesMetadata instance with specified properties.
      *
 	 * @param dataSource String
 	 * @param downloadDirectory String
-     * @param latestRunDownload String
+	 * @param overrideDirectory String
 	 * @param fetcherBeanID String
+     * @param latestRunDownload String
      */
-    public DataSourceMetadata(final String dataSource,
+    public DataSourcesMetadata(final String dataSource,
 							  final String downloadDirectory,
-							  final String latestRunDownload,
-							  final String fetcherBeanID) {
+							  final String overrideDirectory,
+							  final String fetcherBeanID,
+							  final String latestRunDownload) {
 
 		if (dataSource == null) {
             throw new IllegalArgumentException("dataSource must not be null");
@@ -64,17 +69,21 @@ public final class DataSourceMetadata {
 		}
 		this.downloadDirectory = downloadDirectory.trim();
 
+		// can be null
+		this.overrideDirectory = (overrideDirectory == null) ? "" : overrideDirectory.trim();
+
+		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID.trim() : "";
+
 		if (latestRunDownload == null) {
             throw new IllegalArgumentException("latestRunDownload must not be null");
 		}
 		this.latestRunDownload = latestRunDownload.trim();
-
-		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID.trim() : "";
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
+	public String getOverrideDirectory() { return overrideDirectory; }
+	public String getFetcherBeanID() { return fetcherBeanID; }
 	public String getLatestRunDownload() { return latestRunDownload; }
 	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
-	public String getFetcherBeanID() { return fetcherBeanID; }
 }

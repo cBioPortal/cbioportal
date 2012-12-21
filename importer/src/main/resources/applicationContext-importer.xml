@@ -28,7 +28,7 @@
 	<b:property name="dataSource" ref="importerDataSource" />
 	<b:property name="annotatedClasses">
 	  <b:list>
-		<b:value>org.mskcc.cbio.importer.model.ImportData</b:value>
+		<b:value>org.mskcc.cbio.importer.model.ImportDataRecord</b:value>
 	  </b:list>
 	</b:property>
 	<b:property name="hibernateProperties">
@@ -60,20 +60,32 @@
 	<b:constructor-arg ref="config"/>
   </b:bean>
   <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl"/>
-  <b:bean id="importDataDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataHibernateDAO">
+  <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
   </b:bean>
-  <b:bean id="firehoseFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
+  <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataDAO"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
   <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataDAO"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
+  </b:bean>
+  <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
+  </b:bean>
+  <b:bean id="studiesFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
+	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
   <b:bean id="referenceDataFetcher" class="org.mskcc.cbio.importer.fetcher.internal.ReferenceDataFetcherImpl">
 	<b:constructor-arg ref="fileUtils"/>
@@ -87,7 +99,7 @@
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
-	<b:constructor-arg ref="importDataDAO"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
 	<b:constructor-arg ref="caseIDs"/>
 	<b:constructor-arg ref="idMapper"/>
   </b:bean>

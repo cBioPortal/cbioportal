@@ -29,56 +29,47 @@
 package org.mskcc.cbio.importer.dao;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import java.util.Collection;
 
 /**
  * Interface  used to input/output ImportData into database.
  */
-public interface ImportDataDAO {
+public interface ImportDataRecordDAO {
 
 	/**
-	 * Persists the given ImportData object.
+	 * Persists the given ImportDataRecord object.
 	 *
-	 * @param importData ImportData
+	 * @param importDataRecord ImportDataRecord
 	 */
-	void importData(final ImportData importData);
+	void importDataRecord(final ImportDataRecord importDataRecord);
 
     /**
-     * Functon to retrieve all ImportData.
+     * Functon to retrieve all ImportDataRecord.
 	 *
-	 * @return Collection<ImportData>
+	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportData> getImportData();
+    Collection<ImportDataRecord> getImportDataRecords();
 
     /**
-     * Functon to retrieve ImportData via tumor type and data type.
-	 *
-	 * @param tumorType String
-	 * @param dataType String
-	 * @return Collection<ImportData>
-     */
-    Collection<ImportData> getImportDataByTumorAndDatatype(final String tumorType, final String datatype);
-
-    /**
-     * Functon to retrieve ImportData via tumor type, data type, and data source.
+     * Functon to retrieve ImportDataRecord via tumor type, data type, and center.
 	 *
 	 * @param tumorType String
 	 * @param dataType String
-	 * @param dataSource String
-	 * @return Collection<ImportData>
+	 * @param center String
+	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportData> getImportDataByTumorAndDatatypeAndDataSource(final String tumorType, final String datatype, final String dataSource);
+    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(final String tumorType, final String datatype, final String center);
 
     /**
-     * Functon to retrieve ImportData via tumor type and data type and data filename
+     * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename
 	 *
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param dataFilename String
-	 * @return ImportData
+	 * @return ImportDataRecord
      */
-    ImportData getImportDataByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename);
+    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename);
 
 	/**
 	 * Function to delete records with the given dataSource.

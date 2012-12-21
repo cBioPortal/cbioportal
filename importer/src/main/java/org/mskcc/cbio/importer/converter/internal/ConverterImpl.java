@@ -36,15 +36,15 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.dao.ImportDataDAO;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.ClassLoader;
-import org.mskcc.cbio.importer.util.DatatypeMetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,7 +71,7 @@ final class ConverterImpl implements Converter {
 	private DatabaseUtils databaseUtils;
 
 	// ref to import data
-	private ImportDataDAO importDataDAO;
+	private ImportDataRecordDAO importDataRecordDAO;
 
 	// ref to caseids
 	private CaseIDs caseIDs;
@@ -79,35 +79,26 @@ final class ConverterImpl implements Converter {
 	// ref to IDMapper
 	private IDMapper idMapper;
 
-	// data sources
-	private Collection<DataSourceMetadata> dataSources;
-
 	/**
 	 * Constructor.
      *
      * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
-	 * @param importDataDAO ImportDataDAO;
+	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
 	public ConverterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils,
-						 final ImportDataDAO importDataDAO, final CaseIDs caseIDs, final IDMapper idMapper) throws Exception {
+						 final ImportDataRecordDAO importDataRecordDAO, final CaseIDs caseIDs, final IDMapper idMapper) throws Exception {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
 		this.databaseUtils = databaseUtils;
-		this.importDataDAO = importDataDAO;
+		this.importDataRecordDAO = importDataRecordDAO;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
-        this.dataSources = config.getDataSourceMetadata(Config.ALL_METADATA);
-
-		// sanity check
-		if (this.dataSources == null) {
-			throw new IllegalArgumentException("cannot instantiate the dataSources collection.");
-		}
 
 		// initialize mapper
 		initializeMapper();
@@ -140,32 +131,21 @@ final class ConverterImpl implements Converter {
             return;
         }
 
-		// get datatype metadata
-		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
-		// iterate over all cancer studies, tumor types
-		for (String cancerStudy : portalMetadata.getCancerStudies()) {
-
-			// tumor type
-			String tumorType = cancerStudy.split("_")[0];
-
+			// create cancer study metadata file
+			// note - we call this again after we compute the number of cases
+			fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, -1);
+				
 			// iterate over all datatypes
-			for (String datatype : portalMetadata.getDatatypes()) {
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
-				// get the DatatypeMetadata object
-				DatatypeMetadata datatypeMetadata = DatatypeMetadataUtils.getDatatypeMetadata(datatype, datatypeMetadatas);
-				if (datatypeMetadata == null) {
+				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
+				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata);
+				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
-						LOG.info("convertData(), unrecognized datatype: " + datatype + ", skipping");
-					}
-					continue;
-				}
-
-				// get ImportDataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				ImportDataMatrix[] importDataMatrices = getImportDataMatrices(portalMetadata, tumorType, datatypeMetadata);
-				if (importDataMatrices == null || importDataMatrices.length == 0) {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("convertData(), error getting importDataMatrices, skipping.");
+						LOG.info("convertData(), no dataMatrices to process, skipping.");
 					}
 					continue;
 				}
@@ -174,7 +154,7 @@ final class ConverterImpl implements Converter {
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter =
 					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-				converter.createStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrices);
+				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
 
 			}
 		}
@@ -211,11 +191,11 @@ final class ConverterImpl implements Converter {
 		Collection<CaseListMetadata> caseListMetadatas = config.getCaseListMetadata();
 
 		// iterate over all cancer studies
-		for (String cancerStudy : portalMetadata.getCancerStudies()) {
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 			// iterate over case lists
 			for (CaseListMetadata caseListMetadata : caseListMetadatas) {
 				if (LOG.isInfoEnabled()) {
-					LOG.info("generateCaseLists(), processing cancer study: " + cancerStudy + ", case list: " + caseListMetadata.getCaseListFilename());
+					LOG.info("generateCaseLists(), processing cancer study: " + cancerStudyMetadata + ", case list: " + caseListMetadata.getCaseListFilename());
 				}
 				// how many staging files are we working with?
 				String[] stagingFilenames = null;
@@ -239,7 +219,7 @@ final class ConverterImpl implements Converter {
 				for (String stagingFilename : stagingFilenames) {
 					// compute the case set
 					LinkedHashSet<String> thisSet = new LinkedHashSet<String>();
-					String[] stagingFileHeader = fileUtils.getStagingFileHeader(portalMetadata, cancerStudy, stagingFilename).split(CASE_DELIMITER);
+					String[] stagingFileHeader = fileUtils.getStagingFileHeader(portalMetadata, cancerStudyMetadata, stagingFilename).split(CASE_DELIMITER);
 					// we may not have this datatype in study
 					if (stagingFileHeader.length == 0) {
 						if (LOG.isInfoEnabled()) {
@@ -273,28 +253,85 @@ final class ConverterImpl implements Converter {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("generateCaseLists(), calling writeCaseListFile()...");
 					}
-					fileUtils.writeCaseListFile(portalMetadata, cancerStudy, caseListMetadata, caseSet.toArray(new String[0]));
+					fileUtils.writeCaseListFile(portalMetadata, cancerStudyMetadata, caseListMetadata, caseSet.toArray(new String[0]));
 
 				}
 				else if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
 				}
+				// if union, write out the cancer study metadata file
+				if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER)) {
+					fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, caseSet.size());
+				}
 			}
 		}
+
     }
+
+	/**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+     * @param portal String
+	 * @param dataSource String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("applyOverrides(), portal:dataSource: " + portal + ":" + dataSource);
+		}
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
+        if (dataSource == null) {
+            throw new IllegalArgumentException("dataSource must not be null");
+		}
+
+        // get portal metadata
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("applyOverrides(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+
+		// get dataSource
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
+		if (dataSourcesMetadata.isEmpty()) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("applyOverrides(), cannot find DataSourcesMetadata, returning");
+            }
+            return;
+		}
+		DataSourcesMetadata dataSourceMetadata = dataSourcesMetadata.iterator().next();
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+			// iterate over all datatypes
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
+				// apply override
+				fileUtils.applyOverride(portalMetadata, dataSourceMetadata, cancerStudyMetadata, datatypeMetadata);
+			}
+		}
+		
+	}
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -314,45 +351,56 @@ final class ConverterImpl implements Converter {
 	}
 
 	/**
-	 * Helper function to get ImportDataMatrix[] array.
+	 * Helper function to get DataMatrix[] array.
 	 *  - may return null.
 	 *
 	 * @param portalMetadata PortalMetadata
-	 * @param tumorType String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @return ImportDataMatrix[]
+	 * @return DataMatrix[]
 	 * @throws Exception
 	 */
-	private ImportDataMatrix[] getImportDataMatrices(final PortalMetadata portalMetadata, final String tumorType,
-													 final DatatypeMetadata datatypeMetadata) throws Exception {
+	private DataMatrix[] getDataMatrices(final PortalMetadata portalMetadata,
+										 final CancerStudyMetadata cancerStudyMetadata,
+										 final DatatypeMetadata datatypeMetadata) throws Exception {
+
 
 		// this is what we are returing
-		Vector<ImportDataMatrix> toReturn = new Vector<ImportDataMatrix>();
+		Vector<DataMatrix> toReturn = new Vector<DataMatrix>();
 
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrices(), looking for all ImportData matching: " + tumorType + ":" + datatype + ".");
+			LOG.info("getDataMatrices(), looking for all ImportDataRecord matching: " +
+					 cancerStudyMetadata.getTumorType() + ":" +
+					 datatype + ":" + 
+					 cancerStudyMetadata.getCenter() + ".");
 		}
-		Collection<ImportData> allImportData = importDataDAO.getImportDataByTumorAndDatatype(tumorType, datatype);
-		if (allImportData.size() > 0) {
+		Collection<ImportDataRecord> importDataRecords =
+			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenter(cancerStudyMetadata.getTumorType(),
+																				   datatype,
+																				   cancerStudyMetadata.getCenter());
+		if (importDataRecords.size() > 0) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("getImportDataMatrices(), found " + allImportData.size() + " ImportData objects matching: " + tumorType + ":" + datatype + ".");
+				LOG.info("getDataMatrices(), found " + importDataRecords.size() +
+						 " ImportDataRecord objects matching: " +
+						 cancerStudyMetadata.getTumorType() + ":" +
+						 datatype + ":" + 
+						 cancerStudyMetadata.getCenter() + ".");
 			}
-			// we will filter out ImportData with datasources not belonging to the portal
-			Collection portalDataSources = portalMetadata.getDataSources();
-			for (ImportData importData : allImportData) {
-				if (portalDataSources.contains(importData.getDataSource())) {
-					toReturn.add(fileUtils.getFileContents(portalMetadata, importData));
-				}
+			for (ImportDataRecord importData : importDataRecords) {
+				toReturn.add(fileUtils.getFileContents(importData));
 			}
 		}
 		else if (LOG.isInfoEnabled()) {
-			LOG.info("getImportDataMatrices(), cannot find any ImportData objects matching: " + tumorType + ":" + datatype + ".");
+			LOG.info("getDataMatrices(), cannot find any ImportDataRecord objects matching: " +
+					 cancerStudyMetadata.getTumorType() + ":" +
+					 datatype + ":" + 
+					 cancerStudyMetadata.getCenter() + ".");
 		}
 
 		// outta here
-		return toReturn.toArray(new ImportDataMatrix[0]);
+		return toReturn.toArray(new DataMatrix[0]);
 	}
 }

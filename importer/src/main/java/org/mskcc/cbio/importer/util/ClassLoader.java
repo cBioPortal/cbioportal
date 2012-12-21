@@ -44,30 +44,40 @@ public final class ClassLoader {
 	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
 
 	/**
-	 * Method to return the given class main method (if it exists), null otherwise.
+	 * Method to return the given class method (if it exists), null otherwise.
+	 * It assumes that there are no overloaded functions in the class.
 	 *
 	 * @param className String
+	 * @param methodName String
 	 * @return Method
 	 */
-	public static Method getMainMethod(final String className) {
+	public static Method getMethod(final String className, final String methodName) {
 
 		// sanity check
 		if (className == null || className.length() == 0) {
 			throw new IllegalArgumentException("className must not be null");
 		}
+		if (methodName == null || methodName.length() == 0) {
+			throw new IllegalArgumentException("methodName must not be null");
+		}
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getMainMethod(), className: " + className);
+			LOG.info("geMethod(), className:methodName " + className + ":" + methodName);
 		}
 		
 		Method toReturn = null;
 		try {
 			Class<?> clazz = Class.forName(className);
-			toReturn= clazz.getMethod("main", String[].class);
+			for (Method method : clazz.getMethods()) {
+				if (method.getName().equals(methodName)) {
+					toReturn = method;
+					break;
+				}
+			}
 		}
 		catch (Exception e) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("Cannot find class or main method in class.");
+				LOG.info("Cannot find class ormethod in class.");
 			}
 		}
 

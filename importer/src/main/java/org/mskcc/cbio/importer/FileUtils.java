@@ -29,12 +29,13 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import java.io.File;
 import java.util.Collection;
@@ -88,24 +89,23 @@ public interface FileUtils {
     Collection<File> listFiles(final File directory, String[] extensions, boolean recursive) throws Exception;
 
 	/**
-	 * Returns the given file contents in an ImportDataMatrix.
+	 * Returns the given file contents in an DataMatrix.
 	 *
-     * @param portalMetadata PortalMetadata
-	 * @param importData ImportData
-	 * @return ImportDataMatrix
+	 * @param importDataRecord ImportDataRecord
+	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	ImportDataMatrix getFileContents(final PortalMetadata portalMetadata, final ImportData importData) throws Exception;
+	DataMatrix getFileContents(final ImportDataRecord importDataRecord) throws Exception;
 
 	/**
 	 * Get staging file header.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @return stagingFile String
 	 * @throws Exception
 	 */
-	String getStagingFileHeader(final PortalMetadata portalMetadata, final String cancerStudy, final String stagingFile) throws Exception;
+	String getStagingFileHeader(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, final String stagingFile) throws Exception;
 
 	/**
 	 * Creates a temporary file with the given contents.
@@ -136,51 +136,76 @@ public interface FileUtils {
 	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
 
 	/**
-	 * Creates a staging file (and meta file) with contents from the given ImportDataMatrix.
+	 * Method which writes the cancer study metadata file.
 	 *
-	 * @param dataSourceMetadata DataSourceMetadata
-	 * @param datatypeMetadata DatatypeMetadata
      * @param portalMetadata PortalMetadata
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param numCases int
 	 * @throws Exception
+	 *
 	 */
-	void writeStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-						  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+	void writeCancerStudyMetadataFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
 	/**
-	 * Creates a staging file for mutation data (and meta file) with contents from the given ImportDataMatrix.
+	 * Creates a staging file (and meta file) with contents from the given DataMatrix.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataMatrix DataMatrix
+	 * @throws Exception
+	 */
+	void writeStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
+						  final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception;
+
+	/**
+	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
 	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudy CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
-	void writeMutationStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix importDataMatrix) throws Exception;
+	void writeMutationStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
+								  final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a z-score staging file from the given dependencies.  It assumes that the
 	 * dependency - staging files have already been created.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dependencies DatatypeMetadata[]
 	 * @throws Exception
 	 */
-	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
+	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
 								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
+
+	/**
+	 * If it exists, moves an override file into the proper
+	 * location in the given portals staging area
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 */
+	void applyOverride(final PortalMetadata portalMetadata, final DataSourcesMetadata dataSourcesMetadata,
+					   final CancerStudyMetadata cancerStudyMetadata, final DatatypeMetadata datatypeMetadata) throws Exception;
+
 
 	/**
 	 * Create a case list file from the given case list metadata file.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param caseListMetadata CaseListMetadata
 	 * @param caseList String[]
 	 * @throws Exception
 	 */
-	void writeCaseListFile(final PortalMetadata portalMetadata, final String cancerStudy, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
+	void writeCaseListFile(final PortalMetadata portalMetadata,
+						   final CancerStudyMetadata cancerStudyMetadata, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
 }

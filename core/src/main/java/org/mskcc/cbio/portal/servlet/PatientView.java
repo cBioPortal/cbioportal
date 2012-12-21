@@ -1,4 +1,3 @@
-
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.BufferedReader;
@@ -72,9 +71,9 @@ public class PatientView extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+                        ApplicationContext context = 
+                                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+                        accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -259,9 +258,17 @@ public class PatientView extends HttpServlet {
         }
         
         String gleason = guessClinicalData(clinicalFreeForms,
-                new String[]{"gleason score"});
+                new String[]{"gleason score","overall_gleason_score"});
         if (gleason!=null) {
             diseaseInfo.append(", Gleason: ").append(gleason);
+        } 
+        
+        String primaryGleason = guessClinicalData(clinicalFreeForms,
+                new String[]{"primary_gleason_grade"});
+        String secondaryGleason = guessClinicalData(clinicalFreeForms,
+                new String[]{"secondary_gleason_grade"});
+        if (primaryGleason!=null && secondaryGleason!=null) {
+            diseaseInfo.append(" (" + primaryGleason + "+" + secondaryGleason + ")");
         }
         
         String histology = guessClinicalData(clinicalFreeForms,

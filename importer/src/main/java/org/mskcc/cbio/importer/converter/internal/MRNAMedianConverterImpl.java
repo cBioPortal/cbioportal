@@ -108,13 +108,14 @@ public final class MRNAMedianConverterImpl implements Converter {
     }
 
 	/**
-	 * Applies overrides to the given portal.
+	 * Applies overrides to the given portal using the given data source.
 	 *
      * @param portal String
+	 * @param dataSource String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal) throws Exception {
+	public void applyOverrides(final String portal, final String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 

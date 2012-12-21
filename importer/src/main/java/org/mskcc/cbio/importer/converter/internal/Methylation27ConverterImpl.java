@@ -119,13 +119,14 @@ public final class Methylation27ConverterImpl implements Converter {
 	public void generateCaseLists(final String portal) throws Exception {}
 
 	/**
-	 * Applies overrides to the given portal.
+	 * Applies overrides to the given portal using the given data source.
 	 *
      * @param portal String
+	 * @param dataSource String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal) throws Exception {
+	public void applyOverrides(final String portal, final String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 

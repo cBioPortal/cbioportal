@@ -104,6 +104,12 @@ public class Admin implements Runnable {
                               .withDescription("convert data awaiting for import for the given portal")
                               .create("convert_data"));
 
+        Option applyOverrides = (OptionBuilder.withArgName("portal:datasource")
+								 .hasArgs(2)
+								 .withValueSeparator(':')
+								 .withDescription("apply overrides for the given portal from the given datasource")
+								 .create("apply_overrides"));
+
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
 									.hasArg()
 									.withDescription("generate case lists for the given portal")
@@ -128,6 +134,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(convertData);
+		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
@@ -189,7 +196,12 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("convert_data")) {
 				convertData(commandLine.getOptionValue("convert_data"));
 			}
-			// convert data
+			// apply overrides
+			else if (commandLine.hasOption("apply_overrides")) {
+                String[] values = commandLine.getOptionValues("apply_overrides");
+				applyOverrides(values[0], values[1]);
+			}
+			// generate case lists
 			else if (commandLine.hasOption("generate_case_lists")) {
 				generateCaseLists(commandLine.getOptionValue("generate_case_lists"));
 			}
@@ -301,6 +313,25 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Converter converter = (Converter)context.getBean("converter");
 		converter.convertData(portal);
+	}
+
+	/**
+	 * Helper function to apply overrides to a given portal
+	 * using a given datasource.
+	 *
+	 * @param portal String
+	 * @param dataSource String
+	 * @throws Exception
+	 */
+	private void applyOverrides(final String portal, final String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("applyOverrides(), portal:dateSource: " + portal + ":" + dataSource);
+		}
+
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Converter converter = (Converter)context.getBean("converter");
+		converter.applyOverrides(portal, dataSource);
 	}
 
 	/**

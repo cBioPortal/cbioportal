@@ -79,9 +79,6 @@ final class ConverterImpl implements Converter {
 	// ref to IDMapper
 	private IDMapper idMapper;
 
-	// data sources
-	private Collection<DataSourcesMetadata> dataSources;
-
 	/**
 	 * Constructor.
      *
@@ -102,12 +99,6 @@ final class ConverterImpl implements Converter {
 		this.importDataRecordDAO = importDataRecordDAO;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
-        this.dataSources = config.getDataSourcesMetadata(Config.ALL);
-
-		// sanity check
-		if (this.dataSources == null) {
-			throw new IllegalArgumentException("cannot instantiate the dataSources collection.");
-		}
 
 		// initialize mapper
 		initializeMapper();
@@ -154,7 +145,7 @@ final class ConverterImpl implements Converter {
 				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata);
 				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
-						LOG.info("convertData(), error getting dataMatrices, skipping.");
+						LOG.info("convertData(), no dataMatrices to process, skipping.");
 					}
 					continue;
 				}
@@ -278,13 +269,55 @@ final class ConverterImpl implements Converter {
     }
 
 	/**
-	 * Generates case lists for the given portal.
+	 * Applies overrides to the given portal using the given data source.
 	 *
      * @param portal String
+	 * @param dataSource String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal) throws Exception {
+	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("applyOverrides(), portal:dataSource: " + portal + ":" + dataSource);
+		}
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
+        if (dataSource == null) {
+            throw new IllegalArgumentException("dataSource must not be null");
+		}
+
+        // get portal metadata
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("applyOverrides(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+
+		// get dataSource
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
+		if (dataSourcesMetadata.isEmpty()) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("applyOverrides(), cannot find DataSourcesMetadata, returning");
+            }
+            return;
+		}
+		DataSourcesMetadata dataSourceMetadata = dataSourcesMetadata.iterator().next();
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+			// iterate over all datatypes
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
+				// apply override
+				fileUtils.applyOverride(portalMetadata, dataSourceMetadata, cancerStudyMetadata, datatypeMetadata);
+			}
+		}
+		
 	}
 
 	/**

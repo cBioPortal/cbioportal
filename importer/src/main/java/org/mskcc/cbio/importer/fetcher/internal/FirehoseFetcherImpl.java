@@ -99,7 +99,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private DatabaseUtils databaseUtils;
 
 	// download directories
-	private DataSourcesMetadata dataSourcesMetadata;
+	private DataSourcesMetadata dataSourceMetadata;
 
 	// location of firehose get
 	private String firehoseGetScript;
@@ -140,14 +140,11 @@ final class FirehoseFetcherImpl implements Fetcher {
 		}
 
 		// get our DataSourcesMetadata object
-		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
-		if (!dataSources.isEmpty()) {
-			this.dataSourcesMetadata = dataSources.iterator().next();
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
+		if (dataSourcesMetadata.isEmpty()) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");			
 		}
-		// sanity check
-		if (this.dataSourcesMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
-		}
+		this.dataSourceMetadata = dataSourcesMetadata.iterator().next();
 
 		// is the data source an analysis or stddata run?
 		String runType = null;
@@ -171,8 +168,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		fetchLatestRun(runType, desiredRunDateDate);
 
-		dataSourcesMetadata.setLatestRunDownload(PORTAL_DATE_FORMAT.format(latestBroadRun));
-		config.setDataSourcesMetadata(dataSourcesMetadata);
+		dataSourceMetadata.setLatestRunDownload(PORTAL_DATE_FORMAT.format(latestBroadRun));
+		config.setDataSourcesMetadata(dataSourceMetadata);
 	}
 
 	/**
@@ -238,7 +235,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
 
 		// determine download directory
-		String downloadDirectoryName = dataSourcesMetadata.getDownloadDirectory();
+		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
 		// clobber the directory
@@ -254,7 +251,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 
 		// download the data
 		String[] tumorTypesToDownload = config.getTumorTypesToDownload();
-		String[] firehoseDatatypesToDownload = config.getDatatypesToDownload(dataSourcesMetadata);
+		String[] firehoseDatatypesToDownload = config.getDatatypesToDownload(dataSourceMetadata);
 		String[] command = new String[] { firehoseGetScript, "-b",
 										  "-tasks",
 										  Arrays.toString(firehoseDatatypesToDownload),
@@ -271,7 +268,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("download complete, storing in database.");
 			}
-			storeData(dataSourcesMetadata.getDataSource(), downloadDirectory, runDate);
+			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, runDate);
 		}
 	}
 
@@ -320,7 +317,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), getting datatypes for dataFile: " + dataFile.getName());
 			}
-            Collection<DatatypeMetadata> datatypes = config.getFileDatatype(dataSourcesMetadata, dataFile.getName());
+            Collection<DatatypeMetadata> datatypes = config.getFileDatatype(dataSourceMetadata, dataFile.getName());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), found " + datatypes.size() + " datatypes found for dataFile: " + dataFile.getName());
 				if (datatypes.size() > 0) {

@@ -38,6 +38,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.util.NormalizeExpressionLevels;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
@@ -516,6 +517,44 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("writingZScoresStagingFile(), creating metadata file for staging file: " + zScoresFile.getCanonicalPath());
 			}
 			writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, null);
+		}
+	}
+
+	/**
+	 * If it exists, moves an override file into the proper
+	 * location in the given portals staging area
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 */
+	@Override
+	public void applyOverride(final PortalMetadata portalMetadata, final DataSourcesMetadata dataSourcesMetadata,
+							  final CancerStudyMetadata cancerStudyMetadata, final DatatypeMetadata datatypeMetadata) throws Exception {
+
+		// construct staging file (same in portal staging area or override directory)
+		String stagingFilename = datatypeMetadata.getStagingFilename();
+		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+
+		// check for override file
+		File overrideFile = org.apache.commons.io.FileUtils.getFile(dataSourcesMetadata.getOverrideDirectory(),
+																	cancerStudyMetadata.getStudyPath(),
+																	stagingFilename);
+		if (overrideFile.exists()) {
+			File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	   cancerStudyMetadata.getStudyPath(),
+																	   stagingFilename);
+			// sanity check
+			if (!stagingFile.exists()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("applyOverride(), overrideFile exists, but stagingFile is missing: " + stagingFile.getCanonicalPath());
+				}
+				return;
+			}
+
+			// copy override file to staging area
+			org.apache.commons.io.FileUtils.copyFile(overrideFile, stagingFile);
 		}
 	}
 

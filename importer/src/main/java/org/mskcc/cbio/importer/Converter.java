@@ -60,12 +60,13 @@ public interface Converter {
 	void generateCaseLists(final String portal) throws Exception;
 
 	/**
-	 * Applies overrides to the given portal.
+	 * Applies overrides to the given portal using the given data source.
 	 *
      * @param portal String
+	 * @param dataSource String
 	 * @throws Exception
 	 */
-	void applyOverrides(final String portal) throws Exception;
+	void applyOverrides(final String portal, final String dataSource) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.

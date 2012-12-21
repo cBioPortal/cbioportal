@@ -185,6 +185,19 @@ public interface FileUtils {
 								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
 
 	/**
+	 * If it exists, moves an override file into the proper
+	 * location in the given portals staging area
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 */
+	void applyOverride(final PortalMetadata portalMetadata, final DataSourcesMetadata dataSourcesMetadata,
+					   final CancerStudyMetadata cancerStudyMetadata, final DatatypeMetadata datatypeMetadata) throws Exception;
+
+
+	/**
 	 * Create a case list file from the given case list metadata file.
 	 *
      * @param portalMetadata PortalMetadata
@@ -193,5 +206,6 @@ public interface FileUtils {
 	 * @param caseList String[]
 	 * @throws Exception
 	 */
-	void writeCaseListFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
+	void writeCaseListFile(final PortalMetadata portalMetadata,
+						   final CancerStudyMetadata cancerStudyMetadata, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
 }

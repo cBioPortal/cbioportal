@@ -39,6 +39,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.Shell;
 
 import org.mskcc.cbio.cgds.scripts.ImportCaseList;
@@ -138,9 +139,7 @@ final class ImporterImpl implements Importer {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), importing reference data...");
 		}
-		//importAllReferenceData();
-
-		// move import overrides?
+		importAllReferenceData();
 
 		// load staging files
 		if (LOG.isInfoEnabled()) {
@@ -214,13 +213,24 @@ final class ImporterImpl implements Importer {
 	private void loadStagingFiles(final PortalMetadata portalMetadata) throws Exception {
 
 		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
 
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
+			// lets determine if cancer study is in staging directory or studies directory
+			String rootDirectory = getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
+
+			if (rootDirectory == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " skipping...");
+				}
+				continue;
+			}
+
 			// import cancer name / metadata
 			String[] args = { cancerStudyMetadata.toString(),
-							  (portalMetadata.getStagingDirectory() +
+							  (rootDirectory +
 							   cancerStudyMetadata.getStudyPath() +
 							   File.separator + cancerStudyMetadata.toString() +
 							   CancerStudyMetadata.CANCER_STUDY_METADATA_FILE_EXT) };
@@ -230,12 +240,12 @@ final class ImporterImpl implements Importer {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get the metafile/staging file for this cancer_study / datatype
-				String stagingFilename =  (portalMetadata.getStagingDirectory() +
+				String stagingFilename =  (rootDirectory +
 										   cancerStudyMetadata.getStudyPath() +
 										   File.separator + datatypeMetadata.getStagingFilename());
 				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 				if (datatypeMetadata.requiresMetafile()) {
-					String metaFilename = (portalMetadata.getStagingDirectory() +
+					String metaFilename = (rootDirectory +
 										   cancerStudyMetadata.getStudyPath() +
 										   File.separator + datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
@@ -248,9 +258,41 @@ final class ImporterImpl implements Importer {
 			}
 
 			// process case lists
-			args = new String[] { (portalMetadata.getStagingDirectory() + File.separator +
+			args = new String[] { (rootDirectory + File.separator +
 								   cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
 			ImportCaseList.main(args);
 		}
+	}
+
+	/**
+	 * Helper function to determine root directory for cancer study to install.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param dataSourcesMetadata Collection<DataSourcesMetadata>
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @return String
+	 */
+	private String getCancerStudyRootDirectory(PortalMetadata portalMetadata,
+											   Collection<DataSourcesMetadata> dataSourcesMetadata,
+											   CancerStudyMetadata cancerStudyMetadata) {
+
+		// check portal staging area - should work for all tcga
+		File cancerStudyDirectory =
+			new File(portalMetadata.getStagingDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
+		if (cancerStudyDirectory.exists()) {
+			return portalMetadata.getStagingDirectory();
+		}
+
+		// made it here, check other datasources 
+		for (DataSourcesMetadata dataSourceMetadata : dataSourcesMetadata) {
+			cancerStudyDirectory =
+				new File(dataSourceMetadata.getDownloadDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
+			if (cancerStudyDirectory.exists()) {
+				return dataSourceMetadata.getDownloadDirectory();
+			}
+		}
+
+		// outta here
+		return null;
 	}
 }

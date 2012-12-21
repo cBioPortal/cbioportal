@@ -195,6 +195,12 @@ public class GeneDataJSON extends HttpServlet {
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+
+        // remove duplicates
+        Set setOfGenes = new LinkedHashSet(listOfGenes);
+        listOfGenes.clear();
+        listOfGenes.addAll(setOfGenes);
+
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
 

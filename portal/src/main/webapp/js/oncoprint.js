@@ -2,6 +2,8 @@ var Oncoprint = function(wrapper, params) {
     var that = {};
 
     var RECT_HEIGHT = 23;
+    var TRACK_PADDING = 4;
+    var LABEL_PADDING = 40;
     var LITTLE_RECT_HEIGHT = RECT_HEIGHT / 3;
     var MRNA_STROKE_WIDTH = 1;
     var UPREGULATED = "UPREGULATED";
@@ -35,16 +37,6 @@ var Oncoprint = function(wrapper, params) {
         // can't have '/' in DOM id
         return hugo.replace("/", "_");
     };
-
-    var label_width = (function() {
-        var avg_char_width = 2;
-
-        var list_char_no = genes_list.map(function(i) {
-            return i.split("").length;
-        });
-
-        return 100 + d3.max(list_char_no) * avg_char_width;
-    })();
 
     // global state of the oncoprint
     var state = {
@@ -106,7 +98,9 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var getHeight = function() {
-        return (RECT_HEIGHT + 7) * no_genes;
+        return (RECT_HEIGHT + TRACK_PADDING) * no_genes;
+//        return RECT_HEIGHT * no_genes;
+        // for some reason, the CSS in the portal creates space between tracks
     };
 
     // scales
@@ -300,6 +294,33 @@ var Oncoprint = function(wrapper, params) {
 
     that.draw = function() {
 
+        label_width = (function() {
+            // calculate the length of the longest label,
+            // save it in the global variable for later use
+
+            var label_svg = d3.select('body').append('svg');
+            // put in a temporary svg for the sake of calculating text width
+
+            gene_data.forEach(function(gene_obj) {
+                var label = label_svg.append('text');
+                var cleaned_hugo = cleanHugo(gene_obj.hugo);
+
+                label.append('tspan')
+                    .text(cleaned_hugo);
+            });
+
+            var longest = d3.max(
+                label_svg.selectAll('text')[0]
+                    .map(function(text, i) {return text.getBBox().width; })
+            );
+
+            label_svg.remove();
+            // bye bye pretend svg
+
+            return LABEL_PADDING + longest;
+
+        })();
+
         var $header = $('<div>', {id:'oncoprint_header'});
         $(wrapper).append($header);
 
@@ -340,14 +361,13 @@ var Oncoprint = function(wrapper, params) {
                 .attr('class', 'track');
 
             var label = label_svg.append('text')
-                .attr('position', 'static')
-                .attr('left', 0)
                 .attr('x', 0)
                 .attr('y', y(hugo) + .75 * RECT_HEIGHT);
 
             label.append('tspan')
+                .attr('font-weight', 'bold')
                 .attr('text-anchor', 'start')
-                .text(gene_obj.hugo);
+                .text(cleaned_hugo);
 
             label.append('tspan')
                 .attr('text-anchor', 'end')
@@ -480,7 +500,6 @@ var Oncoprint = function(wrapper, params) {
         var export_svg = $('<svg>')
             .attr('width', getXScale(samples_all.length))
             .attr('height', getHeight());
-
 
         export_svg
             .append(labels)

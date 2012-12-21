@@ -377,19 +377,19 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, gp.`CANCER_STUDY_ID`, me1.`MUTATION_EVENT_ID`"
-                    + " FROM case_mutation_event cme, genetic_profile gp, mutation_event me1, mutation_event me2"
+            String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me1.`MUTATION_EVENT_ID`"
+                    + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
                     + " AND me1.`KEYWORD`=me2.`KEYWORD`"
-                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`"
-                    + " AND cme.`GENETIC_PROFILE_ID`=gp.`GENETIC_PROFILE_ID`";
+                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
-                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
                 Case _case = new Case(caseId, cancerStudyId);
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
                 Set<Long> events = map.get(_case);

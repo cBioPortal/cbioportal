@@ -42,48 +42,23 @@ public final class DataSourcesMetadata {
     private String downloadDirectory;
     private String overrideDirectory;
     private String fetcherBeanID;
-    private String latestRunDownload;
 
     /**
-     * Create a DataSourcesMetadata instance with specified properties.
+     * Create a DataSourcesMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param dataSource String
-	 * @param downloadDirectory String
-	 * @param overrideDirectory String
-	 * @param fetcherBeanID String
-     * @param latestRunDownload String
+	 * @param properties String[]
      */
-    public DataSourcesMetadata(final String dataSource,
-							  final String downloadDirectory,
-							  final String overrideDirectory,
-							  final String fetcherBeanID,
-							  final String latestRunDownload) {
+    public DataSourcesMetadata(final String[] properties) {
 
-		if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource must not be null");
-		}
-		this.dataSource = dataSource.trim();
-
-		if (downloadDirectory == null) {
-            throw new IllegalArgumentException("downloadDirectory must not be null");
-		}
-		this.downloadDirectory = downloadDirectory.trim();
-
-		// can be null
-		this.overrideDirectory = (overrideDirectory == null) ? "" : overrideDirectory.trim();
-
-		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID.trim() : "";
-
-		if (latestRunDownload == null) {
-            throw new IllegalArgumentException("latestRunDownload must not be null");
-		}
-		this.latestRunDownload = latestRunDownload.trim();
+		this.dataSource = properties[0].trim();
+		this.downloadDirectory = properties[1].trim();
+		this.overrideDirectory = properties[2].trim();
+		this.fetcherBeanID = properties[3].trim();
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
 	public String getOverrideDirectory() { return overrideDirectory; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
-	public String getLatestRunDownload() { return latestRunDownload; }
-	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
 }

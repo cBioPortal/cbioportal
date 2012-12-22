@@ -87,49 +87,25 @@ public final class DatatypeMetadata {
 	private String metaProfileDescription;
 
     /**
-     * Create a DatatypeMetadata instance with specified properties.
+     * Create a DatatypeMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-     * @param datatype String
-	 * @param download Boolean
-	 * @param dependencies String
-	 * @param tcgaDownloadArchive String
-     * @param stagingFilename String
-     * @param converterClassName String
-     * @param importerClassName String
-	 *
-	 * @param requiresMetafile Boolean
-     * @param metaFilename String
-     * @param metaStableID String
-     * @param metaGeneticAlterationType String
-     * @param metaShowProfileInAnalyisTab Boolean
-     * @param metaProfileName String
-     * @param metaProfileDescription String
+	 * @param properties String[]
      */
-    public DatatypeMetadata(final String datatype, final Boolean download,
-							final String dependencies, final String tcgaDownloadArchive, 
-							final String stagingFilename, final String converterClassName,
-							final String importerClassName, final Boolean requiresMetafile,
-							final String metaFilename, final String metaStableID,
-							final String metaGeneticAlterationType, final Boolean metaShowProfileInAnalysisTab,
-							final String metaProfileName, final String metaProfileDescription) {
+    public DatatypeMetadata(final String[] properties) {
 
-		if (datatype == null) {
-            throw new IllegalArgumentException("datatype must not be null");
+		if (properties.length != 14) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.datatype = datatype.trim();
 
-		if (download == null) {
-            throw new IllegalArgumentException("download must not be null");
-		}
-		this.download = download;
-
-		this.dependencies = (dependencies != null) ?
-			this.dependencies = dependencies.split(DEPENDENCIES_DELIMITER) : new String[0];
-
+		this.datatype = properties[0].trim();
+		this.download = new Boolean(properties[1].trim());
+		this.dependencies = (properties[2].trim() != null) ?
+			this.dependencies = properties[2].trim().split(DEPENDENCIES_DELIMITER) : new String[0];
 		tcgaArchives = new LinkedHashSet<String>();
 		tcgaArchivedFiles = new HashMap<String, String>();
-		if (tcgaDownloadArchive != null) {
-			for (String archivePair : tcgaDownloadArchive.split(DOWNLOAD_ARCHIVE_DELIMITER)) {
+		if (properties[3] != null && properties[3].length() > 0) {
+			for (String archivePair : properties[3].trim().split(DOWNLOAD_ARCHIVE_DELIMITER)) {
 				String[] parts = archivePair.split(ARCHIVE_FILENAME_PAIR_DELIMITER);
 				String archive = parts[0].trim();
 				String archivedFile = parts[1].trim();
@@ -144,65 +120,16 @@ public final class DatatypeMetadata {
 				}
 			}
 		}
-
-		if (stagingFilename == null) {
-            throw new IllegalArgumentException("stagingFilename must not be null");
-		}
-		this.stagingFilename = stagingFilename.trim();
-
-		if (converterClassName == null) {
-            throw new IllegalArgumentException("converterClassName must not be null");
-		}
-		this.converterClassName = converterClassName.trim();
-
-		if (importerClassName == null) {
-            throw new IllegalArgumentException("importerClassName must not be null");
-		}
-		this.importerClassName = importerClassName.trim();
-
-		if (requiresMetafile == null) {
-			throw new IllegalArgumentException("requires metaFilename must not be null");
-		}
-		this.requiresMetafile = requiresMetafile;
-
-		if (requiresMetafile) {
-			if (metaFilename == null) {
-				throw new IllegalArgumentException("metaFilename must not be null");
-			}
-			this.metaFilename = metaFilename;
-
-			if (metaStableID == null) {
-				throw new IllegalArgumentException("metaStableID must not be null");
-			}
-			this.metaStableID = metaStableID;
-
-			if (metaGeneticAlterationType == null) {
-				throw new IllegalArgumentException("metaGeneticAlterationType must not be null");
-			}
-			this.metaGeneticAlterationType = metaGeneticAlterationType;
-
-			if (metaShowProfileInAnalysisTab == null) {
-				throw new IllegalArgumentException("metaShowProfileInAnalysisTab must not be null");
-			}
-			this.metaShowProfileInAnalysisTab = metaShowProfileInAnalysisTab;
-
-			if (metaProfileName == null) {
-				throw new IllegalArgumentException("metaProfileName must not be null");
-			}
-			this.metaProfileName = metaProfileName;
-
-			if (metaProfileDescription == null) {
-				throw new IllegalArgumentException("metaProfileDescription must not be null");
-			}
-			this.metaProfileDescription = metaProfileDescription;
-		}
-		else {
-			this.metaFilename = "";
-			this.metaStableID = "";
-			this.metaGeneticAlterationType = "";
-			this.metaProfileName = "";
-			this.metaProfileDescription = "";
-		}
+		this.stagingFilename = properties[4].trim();
+		this.converterClassName = properties[5].trim();
+		this.importerClassName = properties[6].trim();
+		this.requiresMetafile = new Boolean(properties[7].trim());
+		this.metaFilename = properties[8].trim();
+		this.metaStableID = properties[9].trim();
+		this.metaGeneticAlterationType = properties[10];
+		this.metaShowProfileInAnalysisTab = new Boolean(properties[11].trim());
+		this.metaProfileName = properties[12].trim();
+		this.metaProfileDescription = properties[13].trim();
 	}
 
 	public String getDatatype() { return datatype; }

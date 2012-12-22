@@ -185,7 +185,7 @@ final class ImporterImpl implements Importer {
 
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
-		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata()) {
+		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata(Config.ALL)) {
 			cancerFileContents.append(tumorType.getType());
 			cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
 			cancerFileContents.append(tumorType.getName());
@@ -212,7 +212,7 @@ final class ImporterImpl implements Importer {
 	 */
 	private void loadStagingFiles(final PortalMetadata portalMetadata) throws Exception {
 
-		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata();
+		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata(Config.ALL);
 		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
 
 		// iterate over all cancer studies

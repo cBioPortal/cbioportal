@@ -49,19 +49,13 @@ public interface Config {
 	public static final String ALL = "all";
 
 	/**
-	 * Gets a collection of TumorTypeMetadata.
-	 *
-	 * @return Collection<TumorTypeMetadata>
-	 */
-	Collection<TumorTypeMetadata> getTumorTypeMetadata();
-
-	/**
-	 * Gets a TumorTypeMetadata object via tumorType
+	 * Gets a TumorTypeMetadata object via tumorType.
+	 * If tumorType == Config.ALL, all are returned.
 	 *
 	 * @param tumortype String
-	 * @return TumorTypeMetadata
+	 * @return Collection<TumorTypeMetadata>
 	 */
-	TumorTypeMetadata getTumorTypeMetadata(String tumorType);
+	Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType);
 
 	/**
 	 * Function to get tumor types to download as String[]
@@ -71,19 +65,13 @@ public interface Config {
 	String[] getTumorTypesToDownload();
 
 	/**
-	 * Gets a collection of DatatypeMetadata.
-	 *
-	 * @return Collection<DatatypeMetadata>
-	 */
-	Collection<DatatypeMetadata> getDatatypeMetadata();
-
-	/**
 	 * Gets a DatatypeMetadata object for the given datatype name.
+	 * If datatype == Config.ALL, all are returned.
 	 *
 	 * @param datatype String
-	 * @return DatatypeMetadata
+	 * @return Collection<DatatypeMetadata>
 	 */
-	DatatypeMetadata getDatatypeMetadata(String datatype);
+	Collection<DatatypeMetadata> getDatatypeMetadata(String datatype);
 
 	/**
 	 * Gets a collection of Datatype names for the given portal/cancer study.
@@ -155,17 +143,10 @@ public interface Config {
 	Collection<DataSourcesMetadata> getDataSourcesMetadata(String dataSource);
 
 	/**
-	 * Sets DataSourcesMetadata (currently only stores latest run downloaded).
-	 *
-     * @param dataSourcesMetadata DataSourcesMetadata
-	 */
-	void setDataSourcesMetadata(final DataSourcesMetadata dataSourcesMetadata);
-
-	/**
 	 * Gets all the cancer studies for a given portal.
 	 *
      * @param portal String
 	 * @return Collection<CancerStudyMetadata>
 	 */
-	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portal);
+	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName);
 }

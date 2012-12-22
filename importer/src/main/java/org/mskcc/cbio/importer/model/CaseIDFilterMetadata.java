@@ -40,22 +40,19 @@ public final class CaseIDFilterMetadata {
 	private String regex;
 
     /**
-     * Create a CaseIDFilterMetadata instance with specified properties.
+     * Create a CaseIDFilterMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param filterName String
-	 * @param regex String
+	 * @param properties String[]
      */
-    public CaseIDFilterMetadata(final String filterName, final String regex) {
+    public CaseIDFilterMetadata(final String[] properties) {
 
-		if (filterName == null) {
-            throw new IllegalArgumentException("filterName must not be null");
+		if (properties.length != 3) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.filterName = filterName.trim();
 
-		if (regex == null) {
-            throw new IllegalArgumentException("regex must not be null");
-		}
-		this.regex = regex.trim();
+		this.filterName = properties[0].trim();
+		this.regex = properties[1].trim();
 	}
 
 	public String getFilterName() { return filterName; }

@@ -186,7 +186,7 @@ public final class ZScoresConverterImpl implements Converter {
 
 		for (int lc = 0; lc < dependencies.length; lc++) {
 			String dependency = dependencies[lc];
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata()) {
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(Config.ALL)) {
 				if (dependency.equals(datatypeMetadata.getDatatype())) {
 					toReturn[lc] = datatypeMetadata;
 				}

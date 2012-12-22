@@ -45,40 +45,22 @@ public final class ReferenceMetadata {
 	private String importerClassName;
 
     /**
-     * Create a ReferenceMetadata instance with specified properties.
+     * Create a ReferenceMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param referenceType String
-	 * @param importIntoPortal Boolean
-	 * @param referenceFileSource String
-	 * @param referenceFile String
-	 * @param importerClassname String
+	 * @param properties String[]
      */
-    public ReferenceMetadata(final String referenceType, final Boolean importIntoPortal,
-							 final String referenceFileSource, final String referenceFile,
-							 final String importerClassName) {
+    public ReferenceMetadata(final String[] properties) {
 
-		if (referenceType == null) {
-            throw new IllegalArgumentException("referenceType must not be null");
+		if (properties.length != 5) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.referenceType = referenceType.trim();
 
-		if (importIntoPortal == null) {
-            throw new IllegalArgumentException("importIntoPortal must not be null");
-		}
-		this.importIntoPortal = importIntoPortal;
-
-		// reference file source can be null
-		this.referenceFileSource = (referenceFileSource == null) ? "" : referenceFileSource.trim();
-
-		if (referenceFile == null) {
-            throw new IllegalArgumentException("referenceFile must not be null");
-		}
-		this.referenceFile = referenceFile.trim();
-
-		if (importerClassName == null) {
-            throw new IllegalArgumentException("importerClassName must not be null");
-		}
-		this.importerClassName = importerClassName.trim();
+		this.referenceType = properties[0].trim();
+		this.importIntoPortal = new Boolean(properties[1].trim());
+		this.referenceFileSource = properties[2].trim();
+		this.referenceFile = properties[3].trim();
+		this.importerClassName = properties[4].trim();
 	}
 
 	public String getReferenceType() { return referenceType; }

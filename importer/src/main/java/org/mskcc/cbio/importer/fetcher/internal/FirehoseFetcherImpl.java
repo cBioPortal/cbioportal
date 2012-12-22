@@ -166,10 +166,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(Fetcher.LATEST_RUN_INDICATOR)) ?
 			latestBroadRun : PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
-		fetchLatestRun(runType, desiredRunDateDate);
-
-		dataSourceMetadata.setLatestRunDownload(PORTAL_DATE_FORMAT.format(latestBroadRun));
-		config.setDataSourcesMetadata(dataSourceMetadata);
+		fetchRun(runType, desiredRunDateDate);
 	}
 
 	/**
@@ -226,13 +223,13 @@ final class FirehoseFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Method fetches latest run.
+	 * Method te fetch the desired run.
 	 *
 	 * @param runType String
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void fetchLatestRun(final String runType, final Date runDate) throws Exception {
+	private void fetchRun(final String runType, final Date runDate) throws Exception {
 
 		// determine download directory
 		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();

@@ -38,6 +38,7 @@ import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,9 +58,9 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Set;
 import java.util.HashSet;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
@@ -74,9 +75,15 @@ final class GDataImpl implements Config {
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
 
-	// for performance optimization
-	Collection<DatatypeMetadata> datatypeMetadata;
-	Collection<TumorTypeMetadata> tumorTypeMetadata;
+	// for performance optimization - we only retreive worksheet data once
+	ArrayList<ArrayList<String>> cancerStudiesMetadata;
+	ArrayList<ArrayList<String>> caseIDFiltersMetadata;
+	ArrayList<ArrayList<String>> caseListMetadata;
+	ArrayList<ArrayList<String>> dataTypesMetadata;
+	ArrayList<ArrayList<String>> dataSourcesMetadata;
+	ArrayList<ArrayList<String>> portalsMetadata;
+	ArrayList<ArrayList<String>> referenceMetadata;
+	ArrayList<ArrayList<String>> tumorTypesMetadata;
 
 	// the following are vars set from importer.properties 
 
@@ -95,45 +102,45 @@ final class GDataImpl implements Config {
 	@Value("${spreadsheet}")
 	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
-	// tumor types metadata
-	private String tumorTypesMetadataProperty;
-	@Value("${tumor_types_metadata}")
-	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesMetadataProperty = property; }
+	// tumor types worksheet
+	private String tumorTypesWorksheet;
+	@Value("${tumor_types_worksheet}")
+	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesWorksheet = property; }
 
-	// datatype metadata
-	private String datatypesMetadataProperty;
-	@Value("${datatypes_metadata}")
-	public void setDatatypesMetadataProperty(final String property) { this.datatypesMetadataProperty = property; }
+	// datatype worksheet
+	private String datatypesWorksheet;
+	@Value("${datatypes_worksheet}")
+	public void setDatatypesMetadataProperty(final String property) { this.datatypesWorksheet = property; }
 
-	// case id filters metadata
-	private String caseIDFiltersMetadataProperty;
-	@Value("${case_id_filters_metadata}")
-	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersMetadataProperty = property; }
+	// case id filters worksheet
+	private String caseIDFiltersWorksheet;
+	@Value("${case_id_filters_worksheet}")
+	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersWorksheet = property; }
 
-	// case list metadata
-	private String caseListMetadataProperty;
-	@Value("${case_lists_metadata}")
-	public void setCaseListMetadataProperty(final String property) { this.caseListMetadataProperty = property; }
+	// case list worksheet
+	private String caseListWorksheet;
+	@Value("${case_lists_worksheet}")
+	public void setCaseListMetadataProperty(final String property) { this.caseListWorksheet = property; }
 
-	// portal metadata
-	private String portalsMetadataProperty;
-	@Value("${portals_metadata}")
-	public void setPortalsMetadataProperty(final String property) { this.portalsMetadataProperty = property; }
+	// portals worksheet
+	private String portalsWorksheet;
+	@Value("${portals_worksheet}")
+	public void setPortalsMetadataProperty(final String property) { this.portalsWorksheet = property; }
 
-	// reference metadata
-	private String referenceMetadataProperty;
-	@Value("${reference_metadata}")
-	public void setReferenceMetadataProperty(final String property) { this.referenceMetadataProperty = property; }
+	// reference data worksheet
+	private String referenceDataWorksheet;
+	@Value("${reference_data_worksheet}")
+	public void setReferenceMetadataProperty(final String property) { this.referenceDataWorksheet = property; }
 
-	// data source metadata
-	private String dataSourcesMetadataProperty;
-	@Value("${data_sources_metadata}")
-	public void setDataSourcesMetadataProperty(final String property) { this.dataSourcesMetadataProperty = property; }
+	// data sources worksheet
+	private String dataSourcesWorksheet;
+	@Value("${data_sources_worksheet}")
+	public void setDataSourcesMetadataProperty(final String property) { this.dataSourcesWorksheet = property; }
 
 	// cancer studies metadata
-	private String cancerStudiesProperty;
-	@Value("${cancer_studies}")
-	public void setCancerStudiesProperty(final String property) { this.cancerStudiesProperty = property; }
+	private String cancerStudiesWorksheet;
+	@Value("${cancer_studies_worksheet}")
+	public void setCancerStudiesProperty(final String property) { this.cancerStudiesWorksheet = property; }
 
 	/**
 	 * Constructor.
@@ -146,82 +153,38 @@ final class GDataImpl implements Config {
 
 		// set members
 		this.spreadsheetService = spreadsheetService;
-		this.datatypeMetadata = getDatatypeMetadata();
-		this.tumorTypeMetadata = getTumorTypeMetadata();
 	}
 
 	/**
-	 * Gets a collection of TumorTypeMetadata.
-	 *
-	 * @return Collection<TumorTypeMetadata>
-	 */
-	@Override
-	public Collection<TumorTypeMetadata> getTumorTypeMetadata() {
-
-		// short circuit if we've already been called
-		if (tumorTypeMetadata != null) {
-			return tumorTypeMetadata;
-		}
-
-		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getTumorTypeMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = tumorTypesMetadataProperty.split(":");
-		if (properties.length != 4) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getTumorTypeMetadata: " + tumorTypesMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-						toReturn.add(new TumorTypeMetadata(entry.getCustomElements().getValue(properties[2]),
-															 entry.getCustomElements().getValue(properties[3]),
-															 new Boolean(entry.getCustomElements().getValue(properties[1]))));
-					}
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
-	 * Gets a TumorTypeMetadata object via tumorType
+	 * Gets a TumorTypeMetadata object via tumorType.
+	 * If tumorType == Config.ALL, all are returned.
 	 *
 	 * @param tumortype String
 	 * @return TumorTypeMetadata
 	 */
 	@Override
-	public TumorTypeMetadata getTumorTypeMetadata(String tumorType) {
+	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
-		for (TumorTypeMetadata tumorTypeMetadata : getTumorTypeMetadata()) {
-            if (tumorTypeMetadata.getType().toLowerCase().equals(tumorType.toLowerCase())) {
-				return tumorTypeMetadata;
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
+
+		Collection<TumorTypeMetadata> tumorTypeMetadatas = 
+			(Collection<TumorTypeMetadata>)getMetadataCollection(tumorTypesMetadata,
+																 tumorTypesWorksheet,
+																 "org.mskcc.cbio.importer.model.TumorTypeMetadata");
+		// if user wants all, we're done
+		if (tumorType.equals(Config.ALL)) {
+			return tumorTypeMetadatas;
+		}
+
+		// iterate over all TumorTypeMetadata looking for match
+		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
+            if (tumorTypeMetadata.getType().equals(tumorType)) {
+				toReturn.add(tumorTypeMetadata);
             }
 		}
 
 		// outta here
-		return null;
+		return toReturn;
 	}
 
 	/**
@@ -233,7 +196,7 @@ final class GDataImpl implements Config {
 	public String[] getTumorTypesToDownload() {
 
 		String toReturn = "";
-		for (TumorTypeMetadata tumorTypeMetadata : getTumorTypeMetadata()) {
+		for (TumorTypeMetadata tumorTypeMetadata : getTumorTypeMetadata(Config.ALL)) {
 			if (tumorTypeMetadata.getDownload()) {
 				toReturn += tumorTypeMetadata.getType() + ":";
 			}
@@ -244,88 +207,34 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets a collection of DatatypeMetadata.
+	 * Gets a DatatypeMetadata object for the given datatype name.
+	 * If datatype == Config.ALL, all are returned.
 	 *
+	 * @param datatype String
 	 * @return Collection<DatatypeMetadata>
 	 */
-    @Override
-	public Collection<DatatypeMetadata> getDatatypeMetadata() {
-
-		// short circuit if we've already been called
-		if (datatypeMetadata != null) {
-			return datatypeMetadata;
-		}
+	@Override
+	public Collection<DatatypeMetadata> getDatatypeMetadata(String datatype) {
 
 		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatatypeMetadata()");
+		Collection<DatatypeMetadata> datatypeMetadatas = 
+			(Collection<DatatypeMetadata>)getMetadataCollection(dataTypesMetadata,
+																datatypesWorksheet,
+																"org.mskcc.cbio.importer.model.DatatypeMetadata");
+		// if user wants all, we're done
+		if (datatype.equals(Config.ALL)) {
+			return datatypeMetadatas;
 		}
 
-		// parse the property argument
-		String[] properties = datatypesMetadataProperty.split(":");
-		if (properties.length != 15) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDatatypeMetadata: " + datatypesMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-						toReturn.add(new DatatypeMetadata(entry.getCustomElements().getValue(properties[1]),
-														  new Boolean(entry.getCustomElements().getValue(properties[2])),
-                                                          entry.getCustomElements().getValue(properties[3]),
-                                                          entry.getCustomElements().getValue(properties[4]),
-                                                          entry.getCustomElements().getValue(properties[5]),
-                                                          entry.getCustomElements().getValue(properties[6]),
-                                                          entry.getCustomElements().getValue(properties[7]),
-														  new Boolean(entry.getCustomElements().getValue(properties[8])),
-                                                          entry.getCustomElements().getValue(properties[9]),
-                                                          entry.getCustomElements().getValue(properties[10]),
-                                                          entry.getCustomElements().getValue(properties[11]),
-														  new Boolean(entry.getCustomElements().getValue(properties[12])),
-														  entry.getCustomElements().getValue(properties[13]),
-                                                          entry.getCustomElements().getValue(properties[14])));
-					}
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
-	 * Gets a DatatypeMetadata object for the given datatype name.
-	 *
-	 * @param datatype String
-	 * @return DatatypeMetadata
-	 */
-	@Override
-	public DatatypeMetadata getDatatypeMetadata(String datatype) {
-
-		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata()) {
-            if (datatypeMetadata.getDatatype().toLowerCase().equals(datatype.toLowerCase())) {
-				return datatypeMetadata;
+		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
+            if (datatypeMetadata.getDatatype().equals(datatype)) {
+				toReturn.add(datatypeMetadata);
             }
 		}
 
 		// outta here
-		return null;
+		return toReturn;
 	}
 
 	/**
@@ -340,74 +249,37 @@ final class GDataImpl implements Config {
 
 		Collection<DatatypeMetadata> toReturn = null;
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDatatypeMetadata(): " + portalMetadata.getName());
-		}
+		Collection<CancerStudyMetadata> cancerStudyMetadatas =
+			(Collection<CancerStudyMetadata>)getMetadataCollection(cancerStudiesMetadata,
+																   cancerStudiesWorksheet,
+																   "org.mskcc.cbio.importer.model.CancerStudyMetadata");
 
-		// parse the property argument
-		String[] properties = cancerStudiesProperty.split(":");
-		if (properties.length != 5) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDatatypeMetadata(portalMetadata): " + cancerStudiesProperty);
-			}
-			return toReturn;
-		}
+		// get portal name which is column header in cancer studies matrix.  note: google strips out "-" from column headers
+		String portalName = (portalMetadata.getName().contains("-")) ?
+			portalMetadata.getName().replaceAll("-", "") : portalMetadata.getName();
 
-		// get portal name (google strips out "-" from column headers)
-		String portal = (portalMetadata.getName().contains("-")) ? portalMetadata.getName().replaceAll("-", "") : portalMetadata.getName();
+		// get portal-column index in the cancer studies worksheet
+		int portalColumnIndex = cancerStudiesMetadata.get(0).indexOf(portalName);
+		if (portalColumnIndex == -1) return toReturn;
 
-		// determine column number for portal
-		int portalColumnNumber = 0;
-		for (int lc = 2; lc < 5; lc++) {
-			if (portal.equalsIgnoreCase(properties[lc])) {
-				portalColumnNumber = lc;
-				break;
-			}
-		}
-		if (portalColumnNumber < 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Cannot find portal in cancerStudiesProperty, aborting: " + cancerStudiesProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-						// we are at right row/cancer study
-						if (entry.getCustomElements().getValue(properties[portalColumnNumber]).equals(cancerStudyMetadata.getStudyPath())) {
-							// check value at study/portal intersection
-							if (entry.getCustomElements().getValue(properties[portalColumnNumber]) != null &&
-								entry.getCustomElements().getValue(properties[portalColumnNumber]).length() > 0) {
-								String datatypesIndicator = entry.getCustomElements().getValue(properties[portalColumnNumber]);
-								if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
-									// all datatypes are desired
-									toReturn = getDatatypeMetadata();
-								}
-								else {
-									// a delimited list of datatypes have been requested
-									toReturn = new ArrayList<DatatypeMetadata>();
-									for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
-										toReturn.add(getDatatypeMetadata(datatype));
-									}
-								}
-							}
-						}
-                    }
+		// iterate over all studies in worksheet and find row whose first element is cancer study (path)
+		for (ArrayList<String> matrixRow : cancerStudiesMetadata) {
+			if (matrixRow.get(0).equals(cancerStudyMetadata.getStudyPath())) {
+				// the datatypes for the portal/cancer_study is the value of the cell
+				String datatypesIndicator = matrixRow.get(portalColumnIndex);
+				if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
+					// all datatypes are desired
+					toReturn = getDatatypeMetadata(Config.ALL);
 				}
 				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
+					// a delimited list of datatypes have been requested
+					toReturn = new ArrayList<DatatypeMetadata>();
+					for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
+						toReturn.add(getDatatypeMetadata(datatype).iterator().next());
 					}
 				}
+				break;
 			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		// outta here
@@ -425,7 +297,7 @@ final class GDataImpl implements Config {
 	public String[] getDatatypesToDownload(DataSourcesMetadata dataSourcesMetadata) throws Exception {
 
 		HashSet<String> toReturn = new HashSet<String>();
-		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata()) {
+		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
 			if (datatypeMetadata.isDownloaded()) {
 				Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
 				toReturn.addAll((Set<String>)downloadArchivesMethod.invoke(datatypeMetadata, null));
@@ -449,7 +321,7 @@ final class GDataImpl implements Config {
 	public Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, final String filename)  throws Exception {
 
 		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
-		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata()) {
+		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
 			Method downloadArchivesMethod = datatypeMetadata.getDownloadArchivesMethod(dataSourcesMetadata.getDataSource());
 			for (String archive : (Set<String>)downloadArchivesMethod.invoke(datatypeMetadata, null)) {
 				if (filename.contains(archive)) {
@@ -470,45 +342,9 @@ final class GDataImpl implements Config {
 	@Override
 	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata() {
 
-		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getCaseIDFilterMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = caseIDFiltersMetadataProperty.split(":");
-		if (properties.length != 4) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCaseIDFilterMetadata: " + caseIDFiltersMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-						toReturn.add(new CaseIDFilterMetadata(entry.getCustomElements().getValue(properties[1]),
-															  entry.getCustomElements().getValue(properties[2])));
-					}
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// outta here
-		return toReturn;
+		return (Collection<CaseIDFilterMetadata>)getMetadataCollection(caseIDFiltersMetadata,
+																	   caseIDFiltersWorksheet,
+																	   "org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
 	}
 
 	/**
@@ -519,51 +355,9 @@ final class GDataImpl implements Config {
 	@Override
 	public Collection<CaseListMetadata> getCaseListMetadata() {
 
-		Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getCaseListMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = caseListMetadataProperty.split(":");
-		if (properties.length != 8) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCaseListMetadata: " + caseListMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-						toReturn.add(new CaseListMetadata(entry.getCustomElements().getValue(properties[1]),
-														  entry.getCustomElements().getValue(properties[2]),
-														  entry.getCustomElements().getValue(properties[3]),
-														  entry.getCustomElements().getValue(properties[4]),
-														  entry.getCustomElements().getValue(properties[5]),
-														  entry.getCustomElements().getValue(properties[6]),
-														  entry.getCustomElements().getValue(properties[7])));
-															
-					}
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		// outta here
-		return toReturn;
+		return (Collection<CaseListMetadata>)getMetadataCollection(caseListMetadata,
+																   caseListWorksheet,
+																   "org.mskcc.cbio.importer.model.CaseListMetadata");
 	}
 
 	/**
@@ -575,52 +369,24 @@ final class GDataImpl implements Config {
     @Override
 	public PortalMetadata getPortalMetadata(String portal) {
 
-        PortalMetadata toReturn = null;
+		Collection<PortalMetadata> portalMetadatas =
+			(Collection<PortalMetadata>)getMetadataCollection(portalsMetadata,
+															  portalsWorksheet,
+															  "org.mskcc.cbio.importer.model.PortalMetadata");
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getPortalMetadata(), portal: " + portal);
-		}
-
-		// parse the property argument
-		String[] properties = portalsMetadataProperty.split(":");
-		if (properties.length != 3) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getPortalMetadata: " + portalsMetadataProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-                        if (entry.getCustomElements().getValue(properties[1]).equals(portal)) {
-                                toReturn = new PortalMetadata(entry.getCustomElements().getValue(properties[1]),
-                                                              entry.getCustomElements().getValue(properties[2]));
-                                break;
-                        }
-                    }
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
+		for (PortalMetadata portalMetadata : portalMetadatas) {
+			if (portalMetadata.getName().equals(portal)) {
+				return portalMetadata;
 			}
 		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
 
-        // outta here
-        return toReturn;
+		// outta here
+		return null;
     }
 
 	/**
 	 * Gets ReferenceMetadata for the given referenceType.
+	 * If referenceType == Config.ALL, all are returned.
 	 *
 	 * @param referenceType String
 	 * @return Collection<ReferenceMetadata>
@@ -630,49 +396,21 @@ final class GDataImpl implements Config {
 
 		Collection<ReferenceMetadata> toReturn = new ArrayList<ReferenceMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getReferenceMetadata()");
+		Collection<ReferenceMetadata> referenceMetadatas =
+			(Collection<ReferenceMetadata>)getMetadataCollection(referenceMetadata,
+																 referenceDataWorksheet,
+																 "org.mskcc.cbio.importer.model.ReferenceMetadata");
+		// if user wants all, we're done
+		if (referenceType.equals(Config.ALL)) {
+			return referenceMetadatas;
 		}
 
-		// parse the property argument
-		String[] properties = referenceMetadataProperty.split(":");
-		if (properties.length != 6) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getReferenceMetadata: " + referenceMetadataProperty);
+		// iterate over all ReferenceMetadata looking for match
+		for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
+			if (referenceMetadata.getReferenceType().equals(referenceType)) {
+				toReturn.add(referenceMetadata);
+				break;
 			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-                        if (referenceType.equals(Config.ALL) || entry.getCustomElements().getValue(properties[1]).equals(referenceType)) {
-							toReturn.add(new ReferenceMetadata(entry.getCustomElements().getValue(properties[1]),
-															   new Boolean(entry.getCustomElements().getValue(properties[2])),
-															   entry.getCustomElements().getValue(properties[3]),
-															   entry.getCustomElements().getValue(properties[4]),
-															   entry.getCustomElements().getValue(properties[5])));
-							if (!referenceType.equals(Config.ALL)) break;
-                        }
-                    }
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (toReturn.isEmpty() && LOG.isInfoEnabled()) {
-			LOG.info("getReferenceMetadata(), toReturn size is 0.");
 		}
 
         // outta here
@@ -680,7 +418,8 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets DataSourcesMetadata for the given datasource.
+	 * Gets DataSourcesMetadata for the given datasource.  If dataSource == Config.ALL,
+	 * all are returned.
 	 *
 	 * @param dataSource String
 	 * @return Collection<DataSourcesMetadata>
@@ -690,79 +429,26 @@ final class GDataImpl implements Config {
 
 		Collection<DataSourcesMetadata> toReturn = new ArrayList<DataSourcesMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getDataSourcesMetadata(): " + dataSource);
+		Collection<DataSourcesMetadata> dataSourceMetadatas =
+			(Collection<DataSourcesMetadata>)getMetadataCollection(dataSourcesMetadata,
+																   dataSourcesWorksheet,
+																   "org.mskcc.cbio.importer.model.DataSourcesMetadata");
+		// if user wants all, we're done
+		if (dataSource.equals(Config.ALL)) {
+			return dataSourceMetadatas;
 		}
 
-		// parse the property argument
-		String[] properties = dataSourcesMetadataProperty.split(":");
-		if (properties.length != 6) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getDataSourcesMetadata: " + dataSourcesMetadataProperty);
+		// iterate over all DataSourcesMetadata looking for match
+		for (DataSourcesMetadata dataSourceMetadata : dataSourceMetadatas) {
+			if (dataSourceMetadata.getDataSource().equals(dataSource)) {
+				toReturn.add(dataSourceMetadata);
+				break;
 			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-                        if (dataSource.equals(Config.ALL) || entry.getCustomElements().getValue(properties[1]).equals(dataSource)) {
-							toReturn.add(new DataSourcesMetadata(entry.getCustomElements().getValue(properties[1]),
-																entry.getCustomElements().getValue(properties[2]),
-																entry.getCustomElements().getValue(properties[3]),
-																entry.getCustomElements().getValue(properties[4]),
-																entry.getCustomElements().getValue(properties[5])));
-							if (!dataSource.equals(Config.ALL)) break;
-                        }
-                    }
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		if (toReturn.isEmpty() && LOG.isInfoEnabled()) {
-			LOG.info("getDataSourcesMetadata(), toReturn size is 0.");
 		}
 
         // outta here
         return toReturn;
 	}
-
-	/**
-	 * Sets DataSourcesMetadata (currently only stores latest run downloaded).
-	 *
-     * @param dataSourcesMetadata DataSourcesMetadata
-	 */
-    @Override
-	public 	void setDataSourcesMetadata(final DataSourcesMetadata dataSourcesMetadata) {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("setFirehoseDownloadMetadata()");
-		}
-
-		// parse the property argument
-		String[] properties = dataSourcesMetadataProperty.split(":");
-		if (properties.length != 5) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to setDataSourcesMetadata: " + dataSourcesMetadataProperty);
-			}
-			return;
-		}
-
-        setPropertyString(properties[0], properties[1], dataSourcesMetadata.getDataSource(),
-						  properties[3], dataSourcesMetadata.getLatestRunDownload());
-    }
 
 	/**
 	 * Gets all the cancer studies for a given portal.
@@ -771,67 +457,27 @@ final class GDataImpl implements Config {
 	 * @return Collection<CancerStudyMetadata>
 	 */
 	@Override
-	public Collection<CancerStudyMetadata> getCancerStudyMetadata(String portal) {
+	public Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName) {
 
 		Collection<CancerStudyMetadata> toReturn = new ArrayList<CancerStudyMetadata>();
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getCancerStudies(): " + portal);
+		if (cancerStudiesMetadata == null) {
+			cancerStudiesMetadata = getWorksheetData(cancerStudiesWorksheet);
 		}
 
-		// parse the property argument
-		String[] properties = cancerStudiesProperty.split(":");
-		if (properties.length != 5) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getCancerStudies: " + cancerStudiesProperty);
-			}
-			return toReturn;
-		}
+		// get portal-column index in the cancer studies worksheet
+		int portalColumnIndex = cancerStudiesMetadata.get(0).indexOf(portalName);
+		if (portalColumnIndex == -1) return toReturn;
 
-		// google strips out "-" from column headers
-		if (portal.contains("-")) {
-			portal = portal.replaceAll("-", "");
-		}
-		// determine column number for portal
-		int portalColumnNumber = 0;
-		for (int lc = 2; lc < 5; lc++) {
-			if (portal.equalsIgnoreCase(properties[lc])) {
-				portalColumnNumber = lc;
-				break;
+		// iterate over all studies in worksheet and determine if 
+		// the value at the row and portal/column intersection is not empty
+		// (we start at one, because row 0 is the column headers)
+		for (int lc = 1; lc < cancerStudiesMetadata.size(); lc++) {
+			ArrayList<String> matrixRow = cancerStudiesMetadata.get(lc);
+			String datatypesIndicator = matrixRow.get(portalColumnIndex);
+			if (datatypesIndicator != null && datatypesIndicator.length() > 0) {
+				toReturn.add(new CancerStudyMetadata(matrixRow.toArray(new String[0])));
 			}
-		}
-		if (portalColumnNumber < 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Cannot find portal in cancerStudiesProperty, aborting: " + cancerStudiesProperty);
-			}
-			return toReturn;
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				if (feed != null && feed.getEntries().size() > 0) {
-					for (ListEntry entry : feed.getEntries()) {
-                        if (entry.getCustomElements().getValue(properties[portalColumnNumber]) != null &&
-							entry.getCustomElements().getValue(properties[portalColumnNumber]).equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
-							CancerStudyMetadata cancerStudyMetadata = new CancerStudyMetadata(entry.getCustomElements().getValue(properties[1]),
-																							  entry.getCustomElements().getValue(properties[2]));
-							cancerStudyMetadata.setTumorTypeMetadata(getTumorTypeMetadata(cancerStudyMetadata.getTumorType()));
-							toReturn.add(cancerStudyMetadata);
-                        }
-                    }
-				}
-				else {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("Worksheet contains no entries!");
-					}
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
 		}
 
         // outta here
@@ -892,47 +538,77 @@ final class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the value of the desired property.
+	 * Constructs a collection of objects of the given classname from the given matrix.
 	 *
-	 * @param propertyName String
-	 * @return String
-	 *
-	 * Note, propertyName is worksheet:property_name pair
+	 * @param metadataMatrix ArrayList<ArrayList<String>>
+	 * @parma worksheet String
+	 * @param className String
+	 * @return Collection<?>
 	 */
-	private String getPropertyString(final String propertyName) {
+	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix,
+												String worksheet, String className) {
+
+		Collection<Object> toReturn = new ArrayList<Object>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getProperty(" + propertyName + ")");
+			LOG.info("getMetadataCollection(): " + worksheet + " : " + className);
 		}
 
-		// parse the property argument
-		String[] properties = propertyName.split(":");
-		if (properties.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("Invalid property passed to getProperty: " + propertyName + ".  Should be worsheet:property_name.");
+		// lazy loading  - if the matrix is null, load now
+		if (metadataMatrix == null) {
+			metadataMatrix = getWorksheetData(worksheet);
+		}
+
+		// we start at one, because row 0 is the column headers
+		for (int lc = 1; lc < metadataMatrix.size(); lc++) {
+			Object[] args = { metadataMatrix.get(lc).toArray(new String[0]) };
+			try {
+				toReturn.add(ClassLoader.getInstance(className, args));
 			}
-			return "";
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Helper function to retrieve the given google worksheet data matrix.
+	 * as a list of string lists.
+	 *
+	 * @param worksheet String
+	 * @return ArrayList<ArrayList<String>>
+	 */
+	private ArrayList<ArrayList<String>> getWorksheetData(String worksheetName) {
+
+		ArrayList<ArrayList<String>> toReturn = new ArrayList<ArrayList<String>>();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getWorksheetData(): " + worksheetName);
 		}
 
 		try {
 			login();
-			WorksheetEntry worksheet = getWorksheet(properties[0]);
+			WorksheetEntry worksheet = getWorksheet(worksheetName);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {
-					ListEntry entry = feed.getEntries().get(0);
-					String propertyValue = entry.getCustomElements().getValue(properties[1]);
-					if (propertyValue == null) {
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Cannot find property in entry list!");
+					boolean needHeaders = true;
+					for (ListEntry entry : feed.getEntries()) {
+						if (needHeaders) {
+							ArrayList<String> headers = new ArrayList<String>(entry.getCustomElements().getTags());
+							toReturn.add(headers);
+							needHeaders = false;
 						}
-						return "";
-					}
-					else {
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Returning propertyValue: " + propertyValue);
+						ArrayList<String> customElements = new ArrayList<String>();
+						for (String tag : toReturn.get(0)) {
+							String value = entry.getCustomElements().getValue(tag);
+							if (value == null) value = "";
+							customElements.add(value);
 						}
-						return propertyValue;
+						toReturn.add(customElements);
 					}
 				}
 				else {
@@ -946,49 +622,7 @@ final class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 
-		// should not get here
-		return "";
-	}
-
-	/**
-	 * Sets the property value.
-	 *
-	 * @param worksheetName String
-	 * @param key String
-	 * @param propertyName String
-	 * @param propertyValue String
-	 *
-	 * Note, propertyName is worksheet:property_name pair
-	 */
-	private void setPropertyString(final String worksheetName, final String keyColumn, final String key, final String propertyName, final String propertyValue) {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("setProperty(" + worksheetName + " : " + key + " : " + propertyName + " : " + propertyValue + ")");
-		}
-
-		try {
-			login();
-			WorksheetEntry worksheet = getWorksheet(worksheetName);
-			if (worksheet != null) {
-				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
-				for (ListEntry entry : feed.getEntries()) {
-					if (entry.getCustomElements().getValue(keyColumn).equals(key)) {
-						entry.getCustomElements().setValueLocal(propertyName, propertyValue);
-						entry.update();
-						if (LOG.isInfoEnabled()) {
-							LOG.info("Property has been successfully set!");
-						}
-					}
-				}
-			}
-			else {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("Worksheet contains no entries!");
-				}
-			}
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		// outta here
+		return toReturn;
 	}
 }

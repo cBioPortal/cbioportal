@@ -10,7 +10,7 @@
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
  
   <context:annotation-config />
-  <context:property-placeholder location="classpath:/portal.properties"/>
+  <context:property-placeholder location="classpath:/importer.properties"/>
 
   <!-- enable the configuration of transactional behavior based on annotations -->
   <tx:annotation-driven transaction-manager="importerTransactionManager"/>

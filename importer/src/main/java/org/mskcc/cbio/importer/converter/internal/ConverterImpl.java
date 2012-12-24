@@ -58,6 +58,9 @@ import java.util.LinkedHashSet;
  */
 final class ConverterImpl implements Converter {
 
+	// all cases indicator
+	private static final String ALL_CASES_FILENAME = "cases_all.txt";
+
 	// our logger
 	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
 
@@ -260,7 +263,10 @@ final class ConverterImpl implements Converter {
 					LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
 				}
 				// if union, write out the cancer study metadata file
-				if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER)) {
+				if (caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(ALL_CASES_FILENAME)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), processed all cases list, we can now update cancerStudyMetadata file()...");
+					}
 					fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, caseSet.size());
 				}
 			}

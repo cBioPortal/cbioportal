@@ -479,8 +479,10 @@ final class GDataImpl implements Config {
 				CancerStudyMetadata cancerStudyMetadata = 
 					new CancerStudyMetadata(matrixRow.toArray(new String[0]));
 				// get tumor type metadata
-				Collection<TumorTypeMetadata> tumorType = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
-				cancerStudyMetadata.setTumorTypeMetadata(tumorType.iterator().next());
+				Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
+				if (!tumorTypeCollection.isEmpty()) {
+					cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
+				}
 				// add to return set
 				toReturn.add(cancerStudyMetadata);
 			}

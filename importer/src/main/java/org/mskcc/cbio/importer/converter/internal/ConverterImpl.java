@@ -56,13 +56,13 @@ import java.util.LinkedHashSet;
 /**
  * Class which implements the Converter interface.
  */
-final class ConverterImpl implements Converter {
+class ConverterImpl implements Converter {
 
 	// all cases indicator
-	private static final String ALL_CASES_FILENAME = "cases_all.txt";
+	private static String ALL_CASES_FILENAME = "cases_all.txt";
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(ConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -92,8 +92,8 @@ final class ConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ConverterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils,
-						 final ImportDataRecordDAO importDataRecordDAO, final CaseIDs caseIDs, final IDMapper idMapper) throws Exception {
+	public ConverterImpl(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils,
+						 ImportDataRecordDAO importDataRecordDAO, CaseIDs caseIDs, IDMapper idMapper) throws Exception {
 
 		// set members
 		this.config = config;
@@ -114,7 +114,7 @@ final class ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
@@ -170,7 +170,7 @@ final class ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("generateCaseLists()");
@@ -282,7 +282,7 @@ final class ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal, String dataSource) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("applyOverrides(), portal:dataSource: " + portal + ":" + dataSource);
@@ -336,8 +336,8 @@ final class ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -366,9 +366,9 @@ final class ConverterImpl implements Converter {
 	 * @return DataMatrix[]
 	 * @throws Exception
 	 */
-	private DataMatrix[] getDataMatrices(final PortalMetadata portalMetadata,
-										 final CancerStudyMetadata cancerStudyMetadata,
-										 final DatatypeMetadata datatypeMetadata) throws Exception {
+	private DataMatrix[] getDataMatrices(PortalMetadata portalMetadata,
+										 CancerStudyMetadata cancerStudyMetadata,
+										 DatatypeMetadata datatypeMetadata) throws Exception {
 
 
 		// this is what we are returing

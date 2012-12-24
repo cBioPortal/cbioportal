@@ -33,9 +33,9 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains reference metadata.
  */
-public final class ReferenceMetadata {
+public class ReferenceMetadata {
 
-	public static final String REFERENCE_FILE_DELIMITER = ":";
+	public static String REFERENCE_FILE_DELIMITER = ":";
 
 	// bean properties
 	private String referenceType;
@@ -50,7 +50,7 @@ public final class ReferenceMetadata {
      *
 	 * @param properties String[]
      */
-    public ReferenceMetadata(final String[] properties) {
+    public ReferenceMetadata(String[] properties) {
 
 		if (properties.length != 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");

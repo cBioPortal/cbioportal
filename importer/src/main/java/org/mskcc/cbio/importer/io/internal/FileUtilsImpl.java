@@ -72,13 +72,13 @@ import java.util.zip.GZIPInputStream;
 /**
  * Class which implements the FileUtils interface.
  */
-final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
+class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
     // used in unzip method
-    private static final int BUFFER = 2048;
+    private static int BUFFER = 2048;
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(FileUtilsImpl.class);
+	private static Log LOG = LogFactory.getLog(FileUtilsImpl.class);
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -89,7 +89,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public String getMD5Digest(final File file) throws Exception {
+	public String getMD5Digest(File file) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getMD5Digest(): " + file.getCanonicalPath());
@@ -117,7 +117,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception 
 	 */
 	@Override
-	public String getPrecomputedMD5Digest(final File file) throws Exception {
+	public String getPrecomputedMD5Digest(File file) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getPrecomputedMD5Digest(): " + file.getCanonicalPath());
@@ -147,7 +147,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param directory File
      */
     @Override
-    public void makeDirectory(final File directory) throws Exception {
+    public void makeDirectory(File directory) throws Exception {
         
         org.apache.commons.io.FileUtils.forceMkdir(directory);
     }
@@ -158,7 +158,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param directory File
      */
     @Override
-    public void deleteDirectory(final File directory) throws Exception {
+    public void deleteDirectory(File directory) throws Exception {
 
         org.apache.commons.io.FileUtils.deleteDirectory(directory);
     }
@@ -172,7 +172,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @return Collection<File>
      */
     @Override
-    public Collection<File> listFiles(final File directory, final String[] extensions, final boolean recursive) throws Exception {
+    public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
     }
@@ -186,7 +186,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
     @Override
-	public DataMatrix getFileContents(final ImportDataRecord importDataRecord) throws Exception {
+	public DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getFileContents(): " + importDataRecord);
@@ -226,7 +226,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public String getStagingFileHeader(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, final String stagingFilename) throws Exception {
+	public String getStagingFileHeader(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getStagingFileHeader(): " + stagingFilename);
@@ -265,7 +265,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @return File
 	 */
 	@Override
-	public File createTmpFileWithContents(final String filename, final String fileContent) throws Exception {
+	public File createTmpFileWithContents(String filename, String fileContent) throws Exception {
 
 		return createFileWithContents(org.apache.commons.io.FileUtils.getTempDirectoryPath(), filename, fileContent);
 	}
@@ -279,7 +279,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @return File
 	 */
 	@Override
-	public File createFileWithContents(final String directory, final String filename, final String fileContent) throws Exception {
+	public File createFileWithContents(String directory, String filename, String fileContent) throws Exception {
 
 		File file = org.apache.commons.io.FileUtils.getFile(directory, filename);
 		org.apache.commons.io.FileUtils.writeStringToFile(file, fileContent, false);
@@ -296,7 +296,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public void downloadFile(final String urlString, final String canonicalDestination) throws Exception {
+	public void downloadFile(String urlString, String canonicalDestination) throws Exception {
 
 		// sanity check
 		if (urlString == null || urlString.length() == 0 ||
@@ -337,7 +337,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 *
 	 */
 	@Override
-	public void writeCancerStudyMetadataFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
+	public void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
@@ -368,8 +368,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public void writeStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								 final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
+	public void writeStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
@@ -406,8 +406,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public void writeMutationStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-										 final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
+	public void writeMutationStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+										 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 		// we only have data matrix at this point, we need to create a temp with its contents
 		File oncotatorInputFile =
@@ -467,8 +467,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public void writeZScoresStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-										final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception {
+	public void writeZScoresStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+										DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
 
 		// sanity check
 		if (dependencies.length != 2) {
@@ -530,8 +530,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param datatypeMetadata DatatypeMetadata
 	 */
 	@Override
-	public void applyOverride(final PortalMetadata portalMetadata, final DataSourcesMetadata dataSourcesMetadata,
-							  final CancerStudyMetadata cancerStudyMetadata, final DatatypeMetadata datatypeMetadata) throws Exception {
+	public void applyOverride(PortalMetadata portalMetadata, DataSourcesMetadata dataSourcesMetadata,
+							  CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception {
 
 		// construct staging file (same in portal staging area or override directory)
 		String stagingFilename = datatypeMetadata.getStagingFilename();
@@ -568,7 +568,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 */
 	@Override
-	public void writeCaseListFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception {
+	public void writeCaseListFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception {
 
 		File caseListFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
@@ -608,8 +608,8 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @throws Exception
 	 *
 	 */
-	private void writeMetadataFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								   final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception {
+	private void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
@@ -644,7 +644,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param is InputStream
      * @return byte[]
      */
-    private byte[] readContent(final ImportDataRecord importDataRecord, final InputStream is) throws Exception {
+    private byte[] readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
 
         byte[] toReturn = null;
         TarArchiveInputStream tis = null;
@@ -702,7 +702,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param data byte[]
      * @return DataMatrix
      */
-    private DataMatrix getDataMatrix(final byte[] data) throws Exception {
+    private DataMatrix getDataMatrix(byte[] data) throws Exception {
 
         // iterate over all lines in byte[]
         Vector<String> columnNames = null;
@@ -749,7 +749,7 @@ final class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param inFilePath String
 	 * @return String
 	 */
-	private static String gunzip(final String inFilePath) throws Exception {
+	private static String gunzip(String inFilePath) throws Exception {
 
 		// setup our gzip inputs tream
 		FileOutputStream out = null;

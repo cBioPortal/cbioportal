@@ -53,10 +53,10 @@ import java.io.OutputStream;
  * read, write, and manipulation of tabular data.
  * The given matrix must be square.
  */
-public final class DataMatrix {
+public class DataMatrix {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(DataMatrix.class);
+	private static Log LOG = LogFactory.getLog(DataMatrix.class);
 
 	// inner class which encapsulates a column header w/its column data
 	private class ColumnHeader {
@@ -90,7 +90,7 @@ public final class DataMatrix {
 	 * @param rowData Vector
 	 * @param columnNames Vector
 	 */
-	public DataMatrix(final Vector<Vector<String>> rowData, final Vector<String> columnNames) {
+	public DataMatrix(Vector<Vector<String>> rowData, Vector<String> columnNames) {
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
@@ -147,7 +147,7 @@ public final class DataMatrix {
 	 *
 	 * @param columnsToIgnore Collection<String>
 	 */
-	public void convertCaseIDs(final Collection<String> columnsToIgnore) {
+	public void convertCaseIDs(Collection<String> columnsToIgnore) {
 
 		// reset our caseIDs vector
 		caseIDs.clear();
@@ -180,7 +180,7 @@ public final class DataMatrix {
 	 * @param sortedColumnNames Collection<String>
 	 * @throws Exception
 	 */
-	public void setColumnOrder(final Collection<String> newColumnOrder) throws Exception {
+	public void setColumnOrder(Collection<String> newColumnOrder) throws Exception {
 
 		LinkedList<ColumnHeader> newColumnHeaderList = new LinkedList<ColumnHeader>();
 
@@ -209,7 +209,7 @@ public final class DataMatrix {
 	 * @param newColumnName String
 	 * @param columnData Vector<String>
 	 */
-	public void addColumn(final String newColumnName, final Vector<String> columnData) {
+	public void addColumn(String newColumnName, Vector<String> columnData) {
 
 		if (columnData.size() < numberOfRows) {
 			columnData.setSize(numberOfRows);
@@ -239,7 +239,7 @@ public final class DataMatrix {
 	 *
 	 * @param columnName String
 	 */
-	public void ignoreColumn(final String columnName, final boolean ignoreColumn) {
+	public void ignoreColumn(String columnName, boolean ignoreColumn) {
 
 		// find column header to remove
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -255,7 +255,7 @@ public final class DataMatrix {
 	 *
 	 * @param columnName String
 	 */
-	public void ignoreColumn(final int columnIndex, final boolean ignoreColumn) {
+	public void ignoreColumn(int columnIndex, boolean ignoreColumn) {
 		columnHeaders.get(columnIndex).ignoreColumn = ignoreColumn;
 	}
 
@@ -266,7 +266,7 @@ public final class DataMatrix {
 	 * @param newColumnName String
 	 * @throws Exception
 	 */
-	public void renameColumn(final String columnName, final String newColumnName) throws Exception {
+	public void renameColumn(String columnName, String newColumnName) throws Exception {
 		
 		boolean foundColumnHeader = false;
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -306,7 +306,7 @@ public final class DataMatrix {
 	 * @param columnName String
 	 * @return Vector<String>
 	 */
-	public Vector<Vector<String>> getColumnData(final String columnName) {
+	public Vector<Vector<String>> getColumnData(String columnName) {
 
 		Vector<Vector<String>> toReturn = new Vector<Vector<String>>();
 
@@ -329,7 +329,7 @@ public final class DataMatrix {
 	 * @param columnIndex int
 	 * @return Vector<String>
 	 */
-	public Vector<String> getColumnData(final int columnIndex) {
+	public Vector<String> getColumnData(int columnIndex) {
 
 		return columnHeaders.get(columnIndex).columnData;
 	}
@@ -352,7 +352,7 @@ public final class DataMatrix {
 	 *
 	 * @param geneIDColumnHeading String
 	 */
-	public void setGeneIDColumnHeading(final String geneIDColumnHeading) {
+	public void setGeneIDColumnHeading(String geneIDColumnHeading) {
 		this.geneIDColumnHeading = geneIDColumnHeading;
 	}
 
@@ -382,7 +382,7 @@ public final class DataMatrix {
 	 *
 	 * @param rowNumber int
 	 */
-	public void ignoreRow(final int rowNumber, final boolean ignoreColumn) {
+	public void ignoreRow(int rowNumber, boolean ignoreColumn) {
 		if (ignoreColumn) {
 			rowsToIgnore.add(rowNumber);
 		}
@@ -398,7 +398,7 @@ public final class DataMatrix {
 	 * @param out OutputStream
 	 * @throws Exception
 	 */
-	public void write(final OutputStream out) throws Exception {
+	public void write(OutputStream out) throws Exception {
 
 		PrintWriter writer = new PrintWriter(out);
 

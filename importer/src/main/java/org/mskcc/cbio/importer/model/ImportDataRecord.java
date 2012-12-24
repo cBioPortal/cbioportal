@@ -56,7 +56,7 @@ import org.hibernate.annotations.NaturalId;
                             query="delete from ImportDataRecord where dataSource = :datasource")
 
 })
-public final class ImportDataRecord {
+public class ImportDataRecord {
 
 	// bean properties
 	@Id
@@ -99,10 +99,10 @@ public final class ImportDataRecord {
 	 * @param digest String
      * @param dataFilename String
      */
-    public ImportDataRecord(final String dataSource, final String center,
-							final String tumorType, final String datatype,
-							final String runDate, final String canonicalPath,
-							final String digest, final String dataFilename) {
+    public ImportDataRecord(String dataSource, String center,
+							String tumorType, String datatype,
+							String runDate, String canonicalPath,
+							String digest, String dataFilename) {
         
 		setDataSource(dataSource);
 		setCenter(center);
@@ -119,7 +119,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param dataSource String
 	 */
-	public void setDataSource(final String dataSource) {
+	public void setDataSource(String dataSource) {
 
 		if (dataSource == null) {
             throw new IllegalArgumentException("data source must not be null");
@@ -139,7 +139,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param center String
 	 */
-	public void setCenter(final String center) {
+	public void setCenter(String center) {
 
 		if (center == null) {
             throw new IllegalArgumentException("center must not be null");
@@ -159,7 +159,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param tumorType String
 	 */
-	public void setTumorType(final String tumorType) {
+	public void setTumorType(String tumorType) {
 
 		if (tumorType == null) {
             throw new IllegalArgumentException("tumor type must not be null");
@@ -179,7 +179,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param datatype String
 	 */
-	public void setDatatype(final String datatype) {
+	public void setDatatype(String datatype) {
 
 		if (datatype == null) {
             throw new IllegalArgumentException("datatype must not be null");
@@ -199,7 +199,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param runDate String
 	 */
-	public void setRunDate(final String runDate) {
+	public void setRunDate(String runDate) {
 
 		if (runDate == null) {
             throw new IllegalArgumentException("run date must not be null");
@@ -239,7 +239,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param digest String
 	 */
-	public void setDigest(final String digest) {
+	public void setDigest(String digest) {
 
 		if (digest == null) {
             throw new IllegalArgumentException("digest must not be null");
@@ -259,7 +259,7 @@ public final class ImportDataRecord {
 	 *
 	 * @param dataFileName String
 	 */
-	public void setDataFilename(final String dataFilename) {
+	public void setDataFilename(String dataFilename) {
 
 		if (dataFilename == null) {
             throw new IllegalArgumentException("dataFilename must not be null");

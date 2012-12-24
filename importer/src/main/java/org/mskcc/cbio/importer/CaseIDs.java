@@ -44,7 +44,7 @@ public interface CaseIDs {
 	 * @param caseID String
 	 * @return String
 	 */
-	String convertCaseID(final String caseID);
+	String convertCaseID(String caseID);
 
 	/**
 	 * Determines if given case id is a tumor case id.
@@ -52,12 +52,12 @@ public interface CaseIDs {
      * @param caseID String
 	 * @return boolean
 	 */
-	boolean isTumorCaseID(final String caseID);
+	boolean isTumorCaseID(String caseID);
 
 	/**
 	 * Computes the number of case ids within the give import data matrix.
 	 *
      * @param dataMatrix DataMatrix
 	 */
-	int getCaseCount(final DataMatrix dataMatrix);
+	int getCaseCount(DataMatrix dataMatrix);
 }

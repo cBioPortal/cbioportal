@@ -47,10 +47,10 @@ import java.util.Arrays;
 /**
  * Class which implements the Importer interface, specifically for importing human gene info from BridgeDB.
  */
-public final class BridgeDBImporterImpl implements Importer {
+public class BridgeDBImporterImpl implements Importer {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(BridgeDBImporterImpl.class);
+	private static Log LOG = LogFactory.getLog(BridgeDBImporterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -70,7 +70,7 @@ public final class BridgeDBImporterImpl implements Importer {
 	 * @param fileUtils FileUtils
 	 * @param databaseUtils DatabaseUtils
 	 */
-	public BridgeDBImporterImpl(final Config config, final FileUtils fileUtils, final DatabaseUtils databaseUtils) {
+	public BridgeDBImporterImpl(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils) {
 
 		// set members
 		this.config = config;
@@ -85,7 +85,7 @@ public final class BridgeDBImporterImpl implements Importer {
 	 * @throws Exception
 	 */
     @Override
-	public void importData(final String portal) throws Exception {
+	public void importData(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -96,7 +96,7 @@ public final class BridgeDBImporterImpl implements Importer {
 	 * @throws Exception
 	 */
 	@Override
-	public void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), referenceMetadata: " + referenceMetadata.getReferenceType());

@@ -67,10 +67,10 @@ import java.lang.reflect.Method;
  * Class which implements the Config interface
  * using google docs as a backend.
  */
-final class GDataImpl implements Config {
+class GDataImpl implements Config {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(GDataImpl.class);
+	private static Log LOG = LogFactory.getLog(GDataImpl.class);
 
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
@@ -90,57 +90,57 @@ final class GDataImpl implements Config {
 	// google docs user
 	private String gdataUser;
 	@Value("${username}")
-	public void setUser(final String username) { this.gdataUser = username; }
+	public void setUser(String username) { this.gdataUser = username; }
 
 	// google docs password
 	private String gdataPassword;
 	@Value("${password}")
-	public void setPassword(final String password) { this.gdataPassword = password; }
+	public void setPassword(String password) { this.gdataPassword = password; }
 
 	// google docs spreadsheet
 	private String gdataSpreadsheet;
 	@Value("${spreadsheet}")
-	public void setSpreadsheet(final String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
+	public void setSpreadsheet(String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
 
 	// tumor types worksheet
 	private String tumorTypesWorksheet;
 	@Value("${tumor_types_worksheet}")
-	public void setTumorTypesMetadataProperty(final String property) { this.tumorTypesWorksheet = property; }
+	public void setTumorTypesMetadataProperty(String property) { this.tumorTypesWorksheet = property; }
 
 	// datatype worksheet
 	private String datatypesWorksheet;
 	@Value("${datatypes_worksheet}")
-	public void setDatatypesMetadataProperty(final String property) { this.datatypesWorksheet = property; }
+	public void setDatatypesMetadataProperty(String property) { this.datatypesWorksheet = property; }
 
 	// case id filters worksheet
 	private String caseIDFiltersWorksheet;
 	@Value("${case_id_filters_worksheet}")
-	public void setCaseIDFiltersMetadataProperty(final String property) { this.caseIDFiltersWorksheet = property; }
+	public void setCaseIDFiltersMetadataProperty(String property) { this.caseIDFiltersWorksheet = property; }
 
 	// case list worksheet
 	private String caseListWorksheet;
 	@Value("${case_lists_worksheet}")
-	public void setCaseListMetadataProperty(final String property) { this.caseListWorksheet = property; }
+	public void setCaseListMetadataProperty(String property) { this.caseListWorksheet = property; }
 
 	// portals worksheet
 	private String portalsWorksheet;
 	@Value("${portals_worksheet}")
-	public void setPortalsMetadataProperty(final String property) { this.portalsWorksheet = property; }
+	public void setPortalsMetadataProperty(String property) { this.portalsWorksheet = property; }
 
 	// reference data worksheet
 	private String referenceDataWorksheet;
 	@Value("${reference_data_worksheet}")
-	public void setReferenceMetadataProperty(final String property) { this.referenceDataWorksheet = property; }
+	public void setReferenceMetadataProperty(String property) { this.referenceDataWorksheet = property; }
 
 	// data sources worksheet
 	private String dataSourcesWorksheet;
 	@Value("${data_sources_worksheet}")
-	public void setDataSourcesMetadataProperty(final String property) { this.dataSourcesWorksheet = property; }
+	public void setDataSourcesMetadataProperty(String property) { this.dataSourcesWorksheet = property; }
 
 	// cancer studies metadata
 	private String cancerStudiesWorksheet;
 	@Value("${cancer_studies_worksheet}")
-	public void setCancerStudiesProperty(final String property) { this.cancerStudiesWorksheet = property; }
+	public void setCancerStudiesProperty(String property) { this.cancerStudiesWorksheet = property; }
 
 	/**
 	 * Constructor.
@@ -149,7 +149,7 @@ final class GDataImpl implements Config {
      *
      * @param spreadsheetService SpreadsheetService
 	 */
-	public GDataImpl(final SpreadsheetService spreadsheetService) {
+	public GDataImpl(SpreadsheetService spreadsheetService) {
 
 		// set members
 		this.spreadsheetService = spreadsheetService;
@@ -318,7 +318,7 @@ final class GDataImpl implements Config {
 	 * @throws Exception
 	 */
 	@Override
-	public Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, final String filename)  throws Exception {
+	public Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, String filename)  throws Exception {
 
 		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 		for (DatatypeMetadata datatypeMetadata : getDatatypeMetadata(Config.ALL)) {
@@ -518,7 +518,7 @@ final class GDataImpl implements Config {
 	 * @returns WorksheetFeed
 	 * @throws Exception
 	 */
-	private WorksheetEntry getWorksheet(final String gdataWorksheet) throws Exception {
+	private WorksheetEntry getWorksheet(String gdataWorksheet) throws Exception {
 
 		// first get the spreadsheet
 		SpreadsheetEntry spreadsheet = getSpreadsheet();

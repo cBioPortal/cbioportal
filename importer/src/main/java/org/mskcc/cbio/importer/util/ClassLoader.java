@@ -38,10 +38,10 @@ import java.lang.reflect.Constructor;
 /**
  * Class which provides class loader services.
  */
-public final class ClassLoader {
+public class ClassLoader {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
+	private static Log LOG = LogFactory.getLog(ClassLoader.class);
 
 	/**
 	 * Method to return the given class method (if it exists), null otherwise.
@@ -51,7 +51,7 @@ public final class ClassLoader {
 	 * @param methodName String
 	 * @return Method
 	 */
-	public static Method getMethod(final String className, final String methodName) {
+	public static Method getMethod(String className, String methodName) {
 
 		// sanity check
 		if (className == null || className.length() == 0) {
@@ -93,7 +93,7 @@ public final class ClassLoader {
 	 * @param args Object[]
 	 * @return Object
 	 */
-	public static Object getInstance(final String className, final Object[] args) throws Exception {
+	public static Object getInstance(String className, Object[] args) throws Exception {
 
 		// sanity check
 		if (className == null || className.length() == 0) {

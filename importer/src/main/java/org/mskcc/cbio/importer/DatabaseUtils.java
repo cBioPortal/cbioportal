@@ -91,5 +91,5 @@ public interface DatabaseUtils {
 	 * @param databaseName String
 	 * @param createSchema boolean
 	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	void createDatabase(String databaseName, boolean createSchema);
 }

@@ -40,15 +40,15 @@ import java.lang.reflect.Method;
 /**
  * Class which contains datatype metadata.
  */
-public final class DatatypeMetadata {
+public class DatatypeMetadata {
 
-	public static final String NUM_CASES_TAG = "<NUM_CASES>";
-	public static final String NUM_GENES_TAG = "<NUM_GENES>";
-	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
-	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+	public static String NUM_CASES_TAG = "<NUM_CASES>";
+	public static String NUM_GENES_TAG = "<NUM_GENES>";
+	public static String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
+	public static String CANCER_STUDY_TAG = "<CANCER_STUDY>";
 	
 	// delimiter when specifying datatypes on worksheet
-    public static final String DATATYPES_DELIMITER = ":"; 
+    public static String DATATYPES_DELIMITER = ":"; 
 
 	/*
 	 * The following is an example of a downloadArchive string which the following 
@@ -58,13 +58,13 @@ public final class DatatypeMetadata {
 	 */
 
 	// delimiter between download archive pairs
-	private static final String DOWNLOAD_ARCHIVE_DELIMITER = ";";
+	private static String DOWNLOAD_ARCHIVE_DELIMITER = ";";
  
 	// delimiter between archive and filename pair
-	private static final String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
+	private static String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
 
 	// delimiter between dependencies
-	private static final String DEPENDENCIES_DELIMITER = ":";
+	private static String DEPENDENCIES_DELIMITER = ":";
 
 	// bean properties
 	private String datatype;
@@ -92,7 +92,7 @@ public final class DatatypeMetadata {
      *
 	 * @param properties String[]
      */
-    public DatatypeMetadata(final String[] properties) {
+    public DatatypeMetadata(String[] properties) {
 
 		if (properties.length != 14) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
@@ -136,7 +136,7 @@ public final class DatatypeMetadata {
 	public Boolean isDownloaded() { return download; }
 	public String[] getDependencies() { return dependencies; }
 	public Set<String> getTCGADownloadArchives() { return tcgaArchives; }
-	public Set<String> getTCGAArchivedFiles(final String archive) {
+	public Set<String> getTCGAArchivedFiles(String archive) {
 		if (tcgaArchivedFiles.containsKey(archive)) {
 			return new LinkedHashSet<String>(Arrays.asList(tcgaArchivedFiles.get(archive).split(ARCHIVE_FILENAME_PAIR_DELIMITER)));
 		}
@@ -172,7 +172,7 @@ public final class DatatypeMetadata {
 	 * @param dataSourceName String
 	 * @return Method
 	 */
-	public Method getDownloadArchivesMethod(final String dataSourceName) {
+	public Method getDownloadArchivesMethod(String dataSourceName) {
 
 		// we need to determine correct download archive method on the DatatypeMetadata object
 		String downloadArchivesMethodName = ("get" +
@@ -187,7 +187,7 @@ public final class DatatypeMetadata {
 	 * @param dataSourceName String
 	 * @return Method
 	 */
-	public Method getArchivedFilesMethod(final String dataSourceName) {
+	public Method getArchivedFilesMethod(String dataSourceName) {
 
 		// we need to determine correct download archive method on the DatatypeMetadata object
 		String archivedFilesMethodName = ("get" +

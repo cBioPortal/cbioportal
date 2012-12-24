@@ -40,10 +40,10 @@ import java.util.Vector;
 /**
  * Class which provides mapping utility services.
  */
-public final class MapperUtil {
+public class MapperUtil {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(MapperUtil.class);
+	private static Log LOG = LogFactory.getLog(MapperUtil.class);
 
 	// type of mapping enum
 	private enum MappingDirection {
@@ -61,8 +61,8 @@ public final class MapperUtil {
 	 * @param geneSymbolColumnName String
 	 * @throws Exception
 	 */
-	public static void mapGeneIDToSymbol(final DataMatrix dataMatrix, final IDMapper idMapper,
-										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
+	public static void mapGeneIDToSymbol(DataMatrix dataMatrix, IDMapper idMapper,
+										 String geneIDColumnName, String geneSymbolColumnName) throws Exception {
 
 		doMapping(dataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.ID_TO_SYMBOL);
 	}
@@ -78,8 +78,8 @@ public final class MapperUtil {
 	 * @param geneSymbolColumnName String
 	 * @throws Exception
 	 */
-	public static void mapGeneSymbolToID(final DataMatrix dataMatrix, final IDMapper idMapper,
-										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
+	public static void mapGeneSymbolToID(DataMatrix dataMatrix, IDMapper idMapper,
+										 String geneIDColumnName, String geneSymbolColumnName) throws Exception {
 		doMapping(dataMatrix, idMapper, geneSymbolColumnName, geneIDColumnName, MappingDirection.SYMBOL_TO_ID);
 	}
 
@@ -93,9 +93,9 @@ public final class MapperUtil {
 	 * @param mappingDirection MappingDirectory
 	 * @throws Exception
 	 */
-	private static void doMapping(final DataMatrix dataMatrix, final IDMapper idMapper,
-								  final String srcColumnName, final String targetColumnName,
-								  final MappingDirection mappingDirection) throws Exception {
+	private static void doMapping(DataMatrix dataMatrix, IDMapper idMapper,
+								  String srcColumnName, String targetColumnName,
+								  MappingDirection mappingDirection) throws Exception {
 
 		// get refs to src and target columns
 		Vector<String> srcColumnData = dataMatrix.getColumnData(srcColumnName).get(0);

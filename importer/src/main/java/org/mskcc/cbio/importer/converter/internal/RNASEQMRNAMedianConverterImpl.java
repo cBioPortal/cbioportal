@@ -50,12 +50,12 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class RNASEQMRNAMedianConverterImpl implements Converter {
+public class RNASEQMRNAMedianConverterImpl implements Converter {
 
-	private static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+	private static String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -77,8 +77,8 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public RNASEQMRNAMedianConverterImpl(final Config config, final FileUtils fileUtils,
-										 final CaseIDs caseIDs, final IDMapper idMapper) {
+	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
+										 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -94,7 +94,7 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -105,7 +105,7 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -117,7 +117,7 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal, String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -131,8 +131,8 @@ public final class RNASEQMRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 1) {

@@ -49,60 +49,60 @@ import javax.sql.DataSource;
 public class DatabaseUtilsImpl implements DatabaseUtils {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(DatabaseUtilsImpl.class);
+	private static Log LOG = LogFactory.getLog(DatabaseUtilsImpl.class);
 
 	// some context files
-	private static final String importerContextFile = "classpath:applicationContext-importer.xml";
-	private static final String createSchemaContextFile = "classpath:applicationContext-createSchema.xml";
+	private static String importerContextFile = "classpath:applicationContext-importer.xml";
+	private static String createSchemaContextFile = "classpath:applicationContext-createSchema.xml";
 
 	// the follow db properties are set here for convenient access by our clients
 
 	// db user 
 	private String databaseUser;
 	@Value("${database_user}")
-    public void setDatabaseUser(final String databaseUser) { this.databaseUser = databaseUser; }
+    public void setDatabaseUser(String databaseUser) { this.databaseUser = databaseUser; }
 	@Override
     public String getDatabaseUser() { return this.databaseUser; }
 
 	// db password
 	private String databasePassword;
 	@Value("${database_password}")
-	public void setDatabasePassword(final String databasePassword) { this.databasePassword = databasePassword; }
+	public void setDatabasePassword(String databasePassword) { this.databasePassword = databasePassword; }
 	@Override
     public String getDatabasePassword() { return this.databasePassword; }
 
 	// db connection
 	private String databaseConnectionString;
 	@Value("${database_connection_string}")
-	public void setDatabaseConnectionString(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	public void setDatabaseConnectionString(String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
 	@Override
     public String getDatabaseConnectionString() { return this.databaseConnectionString; }
 
 	// db schema
 	private String databaseSchemaCanonicalPath;
 	@Value("${database_schema_canonical_path}")
-	public void setDatabaseSchemaCanonicalPath(final String databaseSchemaCanonicalPath) { this.databaseSchemaCanonicalPath = databaseSchemaCanonicalPath; }
+	public void setDatabaseSchemaCanonicalPath(String databaseSchemaCanonicalPath) { this.databaseSchemaCanonicalPath = databaseSchemaCanonicalPath; }
 	@Override
     public String getDatabaseSchemaCanonicalPath() { return this.databaseSchemaCanonicalPath; }
 
 	// importer database name
 	private String importerDatabaseName;
 	@Value("${importer_database_name}")
-	public void setImporterDatabaseName(final String importerDatabaseName) { this.importerDatabaseName = importerDatabaseName; }
+	public void setImporterDatabaseName(String importerDatabaseName) { this.importerDatabaseName = importerDatabaseName; }
 	@Override
     public String getImporterDatabaseName() { return this.importerDatabaseName; }
 
 	// gene information database name
 	private String geneInformationDatabaseName;
 	@Value("${gene_information_database_name}")
-	public void setGeneInformationDatabaseName(final String geneInformationDatabaseName) { this.geneInformationDatabaseName = geneInformationDatabaseName; }
+	public void setGeneInformationDatabaseName(String geneInformationDatabaseName) { this.geneInformationDatabaseName = geneInformationDatabaseName; }
 	@Override
     public String getGeneInformationDatabaseName() { return this.geneInformationDatabaseName; }
 
 	// portal database name
 	private String portalDatabaseName;
 	@Value("${portal_database_name}")
-	public void setPortalDatabaseName(final String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
+	public void setPortalDatabaseName(String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
 	@Override
     public String getPortalDatabaseName() { return this.portalDatabaseName; }
 
@@ -113,7 +113,7 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	 * @param createSchema boolean
 	 */
 	@Override
-	public void createDatabase(final String databaseName, final boolean createSchema) {
+	public void createDatabase(String databaseName, boolean createSchema) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createDatabase(): " + databaseName);
@@ -147,7 +147,7 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	 * @return boolean
 	 */
 	private boolean createDatabase(DataSourceFactoryBean dataSourceFactoryBean,
-								   String databaseName, final boolean dropDatabase) {
+								   String databaseName, boolean dropDatabase) {
 
 		boolean toReturn = true;
 

@@ -42,7 +42,7 @@ public interface ImportDataRecordDAO {
 	 *
 	 * @param importDataRecord ImportDataRecord
 	 */
-	void importDataRecord(final ImportDataRecord importDataRecord);
+	void importDataRecord(ImportDataRecord importDataRecord);
 
     /**
      * Functon to retrieve all ImportDataRecord.
@@ -59,7 +59,7 @@ public interface ImportDataRecordDAO {
 	 * @param center String
 	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(final String tumorType, final String datatype, final String center);
+    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(String tumorType, String datatype, String center);
 
     /**
      * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename
@@ -69,12 +69,12 @@ public interface ImportDataRecordDAO {
 	 * @param dataFilename String
 	 * @return ImportDataRecord
      */
-    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename);
+    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename);
 
 	/**
 	 * Function to delete records with the given dataSource.
 	 *
 	 * @param dataSource String
 	 */
-	void deleteByDataSource(final String dataSource);
+	void deleteByDataSource(String dataSource);
 }

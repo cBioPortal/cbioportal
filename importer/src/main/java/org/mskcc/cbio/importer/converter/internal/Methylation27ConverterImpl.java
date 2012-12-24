@@ -52,21 +52,21 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class Methylation27ConverterImpl implements Converter {
+public class Methylation27ConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(Methylation27ConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(Methylation27ConverterImpl.class);
 
 	// statics for column identifiers in correlate - methylation file
-	private static final String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
-	private static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
-	private static final String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
+	private static String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
+	private static String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
+	private static String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
 
 	// statics for column identifires in <CANCER>.methylation__humanmethylation27 file
-	private static final String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
-	private static final String METHYLATION_GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene_Symbol";
-	private static final String METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
-	private static final String METHYLATION_GENOMIC_COORDINATE_COLUMN_HEADER_NAME = "Genomic_Coordinate";
+	private static String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
+	private static String METHYLATION_GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene_Symbol";
+	private static String METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+	private static String METHYLATION_GENOMIC_COORDINATE_COLUMN_HEADER_NAME = "Genomic_Coordinate";
 
 	// ref to configuration
 	private Config config;
@@ -88,8 +88,8 @@ public final class Methylation27ConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public Methylation27ConverterImpl(final Config config, final FileUtils fileUtils,
-									  final CaseIDs caseIDs, final IDMapper idMapper) {
+	public Methylation27ConverterImpl(Config config, FileUtils fileUtils,
+									  CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -105,7 +105,7 @@ public final class Methylation27ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -116,7 +116,7 @@ public final class Methylation27ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {}
 
 	/**
 	 * Applies overrides to the given portal using the given data source.
@@ -126,7 +126,7 @@ public final class Methylation27ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal, String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -140,8 +140,8 @@ public final class Methylation27ConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 2) {

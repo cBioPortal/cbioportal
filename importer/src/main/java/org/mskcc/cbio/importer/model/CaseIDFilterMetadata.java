@@ -33,7 +33,7 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains caseID filter metadata.
  */
-public final class CaseIDFilterMetadata {
+public class CaseIDFilterMetadata {
 
 	// bean properties
 	private String filterName;
@@ -45,7 +45,7 @@ public final class CaseIDFilterMetadata {
      *
 	 * @param properties String[]
      */
-    public CaseIDFilterMetadata(final String[] properties) {
+    public CaseIDFilterMetadata(String[] properties) {
 
 		if (properties.length != 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");

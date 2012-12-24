@@ -63,10 +63,10 @@ import java.util.Properties;
 public class Admin implements Runnable {
 
 	// our context file
-	public static final String contextFile = "classpath:applicationContext-importer.xml";
+	public static String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(Admin.class);
+	private static Log LOG = LogFactory.getLog(Admin.class);
 
 	// options var
 	private static Options options = initializeOptions();
@@ -148,7 +148,7 @@ public class Admin implements Runnable {
 	 *
 	 * @param args String[]
 	 */
-	public void setCommandParameters(final String[] args) {
+	public void setCommandParameters(String[] args) {
 
 		// create our parser
 		CommandLineParser parser = new PosixParser();
@@ -246,7 +246,7 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(final String dataSource, final String runDate) throws Exception {
+	private void fetchData(String dataSource, String runDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
@@ -275,7 +275,7 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void fetchReferenceData(final String referenceType) throws Exception {
+	private void fetchReferenceData(String referenceType) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), referenceType: " + referenceType);
@@ -303,7 +303,7 @@ public class Admin implements Runnable {
      *
 	 * @throws Exception
 	 */
-	private void convertData(final String portal) throws Exception {
+	private void convertData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
@@ -323,7 +323,7 @@ public class Admin implements Runnable {
 	 * @param dataSource String
 	 * @throws Exception
 	 */
-	private void applyOverrides(final String portal, final String dataSource) throws Exception {
+	private void applyOverrides(String portal, String dataSource) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("applyOverrides(), portal:dateSource: " + portal + ":" + dataSource);
@@ -341,7 +341,7 @@ public class Admin implements Runnable {
      *
 	 * @throws Exception
 	 */
-	private void generateCaseLists(final String portal) throws Exception {
+	private void generateCaseLists(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("generateCaseLists(), portal: " + portal);
@@ -360,7 +360,7 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void importReferenceData(final String referenceType) throws Exception {
+	private void importReferenceData(String referenceType) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), referenceType: " + referenceType);
@@ -388,7 +388,7 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void importData(final String portal) throws Exception {
+	private void importData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
@@ -403,7 +403,7 @@ public class Admin implements Runnable {
 	/**
 	 * Helper function - prints usage
 	 */
-	public static void usage(final PrintWriter writer) {
+	public static void usage(PrintWriter writer) {
 
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(writer, HelpFormatter.DEFAULT_WIDTH,

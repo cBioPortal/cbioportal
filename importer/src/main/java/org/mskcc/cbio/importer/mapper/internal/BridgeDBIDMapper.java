@@ -47,10 +47,10 @@ import java.util.HashMap;
 /**
  * Class which provides bridgedb services.
  */
-public final class BridgeDBIDMapper implements IDMapper {
+public class BridgeDBIDMapper implements IDMapper {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
+	private static Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
 
 	// connection string
 	private String connectionString;
@@ -73,7 +73,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 * @throws Exception
 	 */
 	@Override
-	public void initMapper(final String connectionString) throws Exception {
+	public void initMapper(String connectionString) throws Exception {
 
 		// don't init if we already have with this connection string
 		if (this.connectionString.equals(connectionString)) return;
@@ -83,8 +83,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 		String bridgeDBConnectionString = "idmapper-" + connectionString;
 
 		if (LOG.isInfoEnabled()) {
-			//LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
-			System.out.println("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
+			LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
 		}
 
 		Class.forName("org.bridgedb.rdb.IDMapperRdb");
@@ -118,7 +117,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 * @throws Exception
 	 */
 	@Override
-	public String symbolToEntrezID(final String geneSymbol) throws Exception {
+	public String symbolToEntrezID(String geneSymbol) throws Exception {
 		return (symbolToIDMap.containsKey(geneSymbol)) ? symbolToIDMap.get(geneSymbol) : "";
 	}
 
@@ -130,7 +129,7 @@ public final class BridgeDBIDMapper implements IDMapper {
 	 * @throws Exception
 	 */
 	@Override
-	public String entrezIDToSymbol(final String entrezID) throws Exception {
+	public String entrezIDToSymbol(String entrezID) throws Exception {
 		return (idToSymbolMap.containsKey(entrezID)) ? idToSymbolMap.get(entrezID) : "";
 	}
 }

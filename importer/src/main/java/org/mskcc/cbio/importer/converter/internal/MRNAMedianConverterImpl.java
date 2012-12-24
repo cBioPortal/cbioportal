@@ -50,10 +50,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class MRNAMedianConverterImpl implements Converter {
+public class MRNAMedianConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(MRNAMedianConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(MRNAMedianConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -75,8 +75,8 @@ public final class MRNAMedianConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public MRNAMedianConverterImpl(final Config config, final FileUtils fileUtils,
-								   final CaseIDs caseIDs, final IDMapper idMapper) {
+	public MRNAMedianConverterImpl(Config config, FileUtils fileUtils,
+								   CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -92,7 +92,7 @@ public final class MRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -103,7 +103,7 @@ public final class MRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -115,7 +115,7 @@ public final class MRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal, String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -129,8 +129,8 @@ public final class MRNAMedianConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 1) {

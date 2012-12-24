@@ -33,9 +33,9 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains datasource metadata.
  */
-public final class DataSourcesMetadata {
+public class DataSourcesMetadata {
 
-	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
+	public static String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties
 	private String dataSource;
@@ -49,7 +49,7 @@ public final class DataSourcesMetadata {
      *
 	 * @param properties String[]
      */
-    public DataSourcesMetadata(final String[] properties) {
+    public DataSourcesMetadata(String[] properties) {
 
 		this.dataSource = properties[0].trim();
 		this.downloadDirectory = properties[1].trim();

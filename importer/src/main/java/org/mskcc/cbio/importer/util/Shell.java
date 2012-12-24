@@ -38,10 +38,10 @@ import java.util.List;
 /**
  * Class which provides commandline execution.
  */
-public final class Shell {
+public class Shell {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(Shell.class);
+	private static Log LOG = LogFactory.getLog(Shell.class);
 
 	/**
 	 * Executes the given command via java ProcessBuilder.
@@ -50,7 +50,7 @@ public final class Shell {
 	 * @param workingDirectory String
 	 * @return boolean
 	 */
-    public static boolean exec(final List<String> command, final String workingDirectory) {
+    public static boolean exec(List<String> command, String workingDirectory) {
        
 		try {
 			ProcessBuilder processBuilder = new ProcessBuilder(command);

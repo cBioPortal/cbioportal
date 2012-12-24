@@ -46,7 +46,7 @@ import java.util.Collection;
 public interface Config {
 
 	// const used when requesting all of something
-	public static final String ALL = "all";
+	public static String ALL = "all";
 
 	/**
 	 * Gets a TumorTypeMetadata object via tumorType.
@@ -100,7 +100,7 @@ public interface Config {
 	 * @return Collection<DatatypeMetadata>
 	 * @throws Exception
 	 */
-	Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, final String filename)  throws Exception;
+	Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, String filename)  throws Exception;
 
 	/**
 	 * Gets a collection of CaseIDFilterMetadata.

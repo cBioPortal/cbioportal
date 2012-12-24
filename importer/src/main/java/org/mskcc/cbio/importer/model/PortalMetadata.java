@@ -36,7 +36,7 @@ import java.util.Collection;
 /**
  * Class which contains portal metadata.
  */
-public final class PortalMetadata {
+public class PortalMetadata {
 
 	// bean properties
     private String name;
@@ -48,7 +48,7 @@ public final class PortalMetadata {
      *
 	 * @param properties String[]
      */
-    public PortalMetadata(final String[] properties) {
+    public PortalMetadata(String[] properties) {
 
 		if (properties.length != 2) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");

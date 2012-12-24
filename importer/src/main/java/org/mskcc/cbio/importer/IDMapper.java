@@ -41,7 +41,7 @@ public interface IDMapper {
 	 * @param connectionString String
 	 * @throws Exception
 	 */
-	void initMapper(final String connectionString) throws Exception;
+	void initMapper(String connectionString) throws Exception;
 
 	/**
 	 * For the given symbol, return id.
@@ -50,7 +50,7 @@ public interface IDMapper {
 	 * @return String
 	 * @throws Exception
 	 */
-	String symbolToEntrezID(final String geneSymbol) throws Exception;
+	String symbolToEntrezID(String geneSymbol) throws Exception;
 
 	/**
 	 * For the entrezID, return symbol.
@@ -59,5 +59,5 @@ public interface IDMapper {
 	 * @return String
 	 * @throws Exception
 	 */
-	String entrezIDToSymbol(final String entrezID) throws Exception;
+	String entrezIDToSymbol(String entrezID) throws Exception;
 }

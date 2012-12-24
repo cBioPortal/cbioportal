@@ -63,27 +63,27 @@ import java.lang.reflect.Method;
 /**
  * Class which implements the fetcher interface.
  */
-final class FirehoseFetcherImpl implements Fetcher {
+class FirehoseFetcherImpl implements Fetcher {
 
 	// conts for run types
-	private static final String ANALYSIS_RUN = "analyses";
-	private static final String STDDATA_RUN = "stddata";
+	private static String ANALYSIS_RUN = "analyses";
+	private static String STDDATA_RUN = "stddata";
 
 	// date formats
-	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
-	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+	public static SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
+	public static SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
+	private static Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
 
 	// regex used when getting firehose run dates from the broad
-    private static final Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
+    private static Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
 		Pattern.compile("^(\\w*)\\s*(\\w*)\\s*(\\w*)$");
 
-    private static final Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
+    private static Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
 		Pattern.compile("^(\\w*)__(\\w*)");
 
-    private static final Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
+    private static Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
 		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
 
 	// ref to configuration
@@ -114,8 +114,8 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @param databaseUtils DatabaseUtils
 	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
-	public FirehoseFetcherImpl(final Config config, final FileUtils fileUtils,
-							   final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
+	public FirehoseFetcherImpl(Config config, FileUtils fileUtils,
+							   DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
@@ -133,7 +133,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
@@ -176,7 +176,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -188,7 +188,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @return Date
 	 * @throws Exception
 	 */
-	private Date getLatestBroadRun(final String runType) throws Exception {
+	private Date getLatestBroadRun(String runType) throws Exception {
 
 		// steup a default date for comparision
 		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
@@ -229,7 +229,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void fetchRun(final String runType, final Date runDate) throws Exception {
+	private void fetchRun(String runType, Date runDate) throws Exception {
 
 		// determine download directory
 		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();
@@ -278,7 +278,7 @@ final class FirehoseFetcherImpl implements Fetcher {
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void storeData(final String dataSource, final File downloadDirectory, final Date runDate) throws Exception {
+	private void storeData(String dataSource, File downloadDirectory, Date runDate) throws Exception {
 
 		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
 

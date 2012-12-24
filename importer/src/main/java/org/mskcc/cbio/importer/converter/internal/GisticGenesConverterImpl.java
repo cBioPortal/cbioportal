@@ -52,23 +52,23 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class GisticGenesConverterImpl implements Converter {
+public class GisticGenesConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(GisticGenesConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(GisticGenesConverterImpl.class);
 
 	// statics for row identifiers in *_genes.conf_99.txt
-	private static final String GENES_CONF_CYTOBAND_ROW_HEADER_NAME = "cytoband";
-	private static final String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
-	private static final String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
+	private static String GENES_CONF_CYTOBAND_ROW_HEADER_NAME = "cytoband";
+	private static String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
+	private static String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
 	// statics for column identifiers in table_*.conf_99.txt
-	private static final String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
-	private static final String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
-	private static final String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
-	private static final String TABLE_CONF_GENES_IN_REGION_HEADER_NAME = "genes_in_region";
-	private static final String TABLE_CONF_GENES_IN_REGION_DELIMITER = ",";
+	private static String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
+	private static String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
+	private static String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
+	private static String TABLE_CONF_GENES_IN_REGION_HEADER_NAME = "genes_in_region";
+	private static String TABLE_CONF_GENES_IN_REGION_DELIMITER = ",";
 	// our GeneConfMap value delimiter
-	private static final String GENE_CONF_MAP_VALUE_DELIMITER = ":";
+	private static String GENE_CONF_MAP_VALUE_DELIMITER = ":";
 
 	// ref to configuration
 	private Config config;
@@ -90,8 +90,8 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public GisticGenesConverterImpl(final Config config, final FileUtils fileUtils,
-									final CaseIDs caseIDs, final IDMapper idMapper) {
+	public GisticGenesConverterImpl(Config config, FileUtils fileUtils,
+									CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -107,7 +107,7 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -118,7 +118,7 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -130,7 +130,7 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal, String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -144,8 +144,8 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
@@ -210,7 +210,7 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @return Map<String, String>
 	 * @throws Exception
 	 */
-	private Map<String,String> getGenesConfMap(final DataMatrix dataMatrixGenesConf) throws Exception {
+	private Map<String,String> getGenesConfMap(DataMatrix dataMatrixGenesConf) throws Exception {
 
 		// the map to return
 		Map<String,String> toReturn = new HashMap<String,String>();

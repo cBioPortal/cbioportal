@@ -53,19 +53,19 @@ import java.util.regex.Pattern;
 /**
  * Class which implements the fetcher interface.
  */
-final class FoundationFetcherImpl implements Fetcher {
+class FoundationFetcherImpl implements Fetcher {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
+	private static Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
 
 	// foundation data file extension
-	private static final String FOUNDATION_FILE_EXTENSION = ".xml";
+	private static String FOUNDATION_FILE_EXTENSION = ".xml";
 
 	// not all fields in ImportDataRecord will be used
-	private static final String UNUSED_IMPORT_DATA_FIELD = "NA";
+	private static String UNUSED_IMPORT_DATA_FIELD = "NA";
 
 	// regex used when getting a case list from the broad
-    private static final Pattern FOUNDATION_CASE_LIST_RECORD = 
+    private static Pattern FOUNDATION_CASE_LIST_RECORD = 
 		Pattern.compile("^\\s*\\<Case fmiCase=\\\"\\w*\\\" case=\\\"(\\w*-\\w*)\\\" \\/\\>$");
 
 	// ref to configuration
@@ -91,8 +91,8 @@ final class FoundationFetcherImpl implements Fetcher {
 	 * @param databaseUtils DatabaseUtils
 	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
-	public FoundationFetcherImpl(final Config config, final FileUtils fileUtils,
-								 final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
+	public FoundationFetcherImpl(Config config, FileUtils fileUtils,
+								 DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
@@ -110,7 +110,7 @@ final class FoundationFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
@@ -170,7 +170,7 @@ final class FoundationFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 }

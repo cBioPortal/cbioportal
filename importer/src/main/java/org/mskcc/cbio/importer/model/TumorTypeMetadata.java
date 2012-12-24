@@ -33,13 +33,13 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains tumor type  metadata.
  */
-public final class TumorTypeMetadata {
+public class TumorTypeMetadata {
 
     // delimiter between tumor type & name within the reference file
-	public static final String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
+	public static String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
 
     // name of reference file created to import into portal
-	public static final String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
+	public static String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
 
 	// bean properties
 	private String tumorType;
@@ -52,7 +52,7 @@ public final class TumorTypeMetadata {
      *
 	 * @param properties String[]
      */
-    public TumorTypeMetadata(final String[] properties) {
+    public TumorTypeMetadata(String[] properties) {
 		if (properties.length != 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}

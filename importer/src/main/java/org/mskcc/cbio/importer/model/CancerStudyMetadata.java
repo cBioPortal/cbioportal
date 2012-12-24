@@ -34,22 +34,22 @@ import java.io.File;
 /**
  * Class which contains cancer study metadata.
  */
-public final class CancerStudyMetadata {
+public class CancerStudyMetadata {
 	
     // delimiter between tumor type and center (used for find the path)
-	public static final String CANCER_STUDY_DELIMITER = "/"; 
+	public static String CANCER_STUDY_DELIMITER = "/"; 
 
 	// this is value in worsheet-matrix cell if cancer study is in a desired portal
-	public static final String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
+	public static String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
 
 	// file extension of metadata file
-	public static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	public static String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
 
 	// cancer study identifier delimiter (used in metadata files)
-	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
+	private static String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
 
 	// this is tag to replace in description
-	public static final String NUM_CASES_TAG = "<NUM_CASES>";
+	public static String NUM_CASES_TAG = "<NUM_CASES>";
 
 	// bean properties
 	private String tumorType;
@@ -68,7 +68,7 @@ public final class CancerStudyMetadata {
      *
 	 * @param properties String[]
      */
-    public CancerStudyMetadata(final String[] properties) {
+    public CancerStudyMetadata(String[] properties) {
 
 		if (properties.length != 4) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");

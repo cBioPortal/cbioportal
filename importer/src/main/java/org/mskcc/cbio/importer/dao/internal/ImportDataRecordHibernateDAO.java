@@ -55,7 +55,7 @@ import java.util.Collections;
 class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ImportDataRecordHibernateDAO.class);
+	private static Log LOG = LogFactory.getLog(ImportDataRecordHibernateDAO.class);
 
     // session factory prop/methods used by spring
     private SessionFactory sessionFactory;
@@ -72,7 +72,7 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 	 */
 	@Override
 	@Transactional(propagation=Propagation.REQUIRED)
-	public void importDataRecord(final ImportDataRecord importDataRecord) {
+	public void importDataRecord(ImportDataRecord importDataRecord) {
 
 		Session session = getSession();
 
@@ -134,7 +134,7 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(final String tumorType, final String datatype, final String center) {
+    public Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(String tumorType, String datatype, String center) {
 
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenter");
@@ -155,7 +155,7 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-	public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename) {
+	public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename) {
 
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndCenterAndDataFilename");
@@ -172,7 +172,7 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 	 */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-	public void deleteByDataSource(final String dataSource) {
+	public void deleteByDataSource(String dataSource) {
 
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.deleteByDataSource");

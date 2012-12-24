@@ -37,14 +37,14 @@ import java.util.LinkedHashSet;
 /**
  * Class which contains caselist metadata.
  */
-public final class CaseListMetadata {
+public class CaseListMetadata {
 
 	// if either delimiter changes, update ConverterImpl
 
 	// delimiter between download archive pairs
-	public static final String CASE_LIST_UNION_DELIMITER = "|";
+	public static String CASE_LIST_UNION_DELIMITER = "|";
 	// delimiter between download archive pairs
-	public static final String CASE_LIST_INTERSECTION_DELIMITER = "&";
+	public static String CASE_LIST_INTERSECTION_DELIMITER = "&";
 
 	// bean properties
 	private String caseListFilename;
@@ -61,7 +61,7 @@ public final class CaseListMetadata {
      *
 	 * @param properties String[]
      */
-    public CaseListMetadata(final String[] properties) {
+    public CaseListMetadata(String[] properties) {
 
 		if (properties.length != 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");

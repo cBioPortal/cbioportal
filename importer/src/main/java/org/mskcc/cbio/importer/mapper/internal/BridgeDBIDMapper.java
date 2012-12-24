@@ -52,6 +52,9 @@ public final class BridgeDBIDMapper implements IDMapper {
 	// our logger
 	private static final Log LOG = LogFactory.getLog(BridgeDBIDMapper.class);
 
+	// connection string
+	private String connectionString;
+
 	// our map of gene symbols to entrez ids
 	private HashMap<String, String> symbolToIDMap;
 	private HashMap<String, String> idToSymbolMap;
@@ -59,7 +62,9 @@ public final class BridgeDBIDMapper implements IDMapper {
 	/**
 	 * Default Constructor.
 	 */
-	public BridgeDBIDMapper() {}
+	public BridgeDBIDMapper() {
+		connectionString = "";
+	}
 
 	/**
 	 * Used to initialize the mapper.
@@ -70,11 +75,16 @@ public final class BridgeDBIDMapper implements IDMapper {
 	@Override
 	public void initMapper(final String connectionString) throws Exception {
 
+		// don't init if we already have with this connection string
+		if (this.connectionString.equals(connectionString)) return;
+		this.connectionString = connectionString;
+
 		// we need to prepend bridgedb protocol to connection string
 		String bridgeDBConnectionString = "idmapper-" + connectionString;
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
+			//LOG.info("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
+			System.out.println("initMapper(), bridgeDBConnectionString: " + bridgeDBConnectionString);
 		}
 
 		Class.forName("org.bridgedb.rdb.IDMapperRdb");

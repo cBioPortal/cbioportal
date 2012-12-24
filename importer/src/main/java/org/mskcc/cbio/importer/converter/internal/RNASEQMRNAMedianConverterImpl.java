@@ -44,8 +44,9 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
  * Class which implements the Converter interface.
@@ -146,7 +147,7 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 			LOG.info("createStagingFile(), removing  and keepng RPKM column per sample");
 		}
 		String previousHeader = "";
-		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 		for (int lc = columnHeaders.size()-1; lc >= 0; lc--) {
 			String columnHeader = columnHeaders.get(lc);
 			if (columnHeader.equals(previousHeader)) {
@@ -166,14 +167,14 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
 		}
-		Vector<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
+		List<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
 		for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + parts[1]);
 				}
-				pairs.setElementAt(parts[1], lc);
+				pairs.set(lc, parts[1]);
 			}
 		}
 
@@ -181,7 +182,7 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		dataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new Vector<String>());
+		dataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new ArrayList<String>());
 		dataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 
@@ -203,11 +204,11 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		Vector<String> headers = dataMatrix.getColumnHeaders();
-		headers.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		headers.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
-		headers.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		headers.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
+		List<String> headers = dataMatrix.getColumnHeaders();
+		headers.remove(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		headers.add(0, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		headers.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		headers.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setColumnOrder(headers);
 
 		// we need to write out the file

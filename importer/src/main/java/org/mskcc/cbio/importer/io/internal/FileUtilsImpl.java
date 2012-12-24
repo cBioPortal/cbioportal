@@ -65,8 +65,9 @@ import java.lang.reflect.Constructor;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Vector;
 import java.util.Collection;
+import java.util.List;
+import java.util.LinkedList;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -705,20 +706,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     private DataMatrix getDataMatrix(byte[] data) throws Exception {
 
         // iterate over all lines in byte[]
-        Vector<String> columnNames = null;
-        Vector<Vector<String>> rowData = null;
+        List<String> columnNames = null;
+        List<LinkedList<String>> rowData = null;
         LineIterator it = IOUtils.lineIterator(new ByteArrayInputStream(data), null);
         try {
             int count = -1;
             while (it.hasNext()) {
                 // first row is our column heading, create column vector
                 if (++count == 0) {
-                    columnNames = new Vector(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1)));
+                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1)));
                 }
                 // all other rows are rows in the table
                 else {
-                    rowData = (rowData == null) ? new Vector<Vector<String>>() : rowData;
-                    rowData.add(new Vector(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1))));
+                    rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
+                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1))));
                 }
             }
         }

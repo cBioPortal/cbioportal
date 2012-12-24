@@ -35,7 +35,7 @@ import org.mskcc.cbio.importer.model.DataMatrix;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * Class which provides mapping utility services.
@@ -98,8 +98,8 @@ public class MapperUtil {
 								  MappingDirection mappingDirection) throws Exception {
 
 		// get refs to src and target columns
-		Vector<String> srcColumnData = dataMatrix.getColumnData(srcColumnName).get(0);
-		Vector<String> targetColumnData = dataMatrix.getColumnData(targetColumnName).get(0);
+		List<String> srcColumnData = dataMatrix.getColumnData(srcColumnName).get(0);
+		List<String> targetColumnData = dataMatrix.getColumnData(targetColumnName).get(0);
 
 		// sanity check
 		if (targetColumnData.size() < srcColumnData.size()) {
@@ -111,7 +111,7 @@ public class MapperUtil {
 
 		// do the mapping, ignore rows that are missing id's
 		for (int lc = 0; lc < srcColumnData.size(); lc++) {
-			String src = srcColumnData.elementAt(lc);
+			String src = srcColumnData.get(lc);
 			if (src == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);
@@ -128,7 +128,7 @@ public class MapperUtil {
 				dataMatrix.ignoreRow(lc, true);
 				continue;
 			}
-			targetColumnData.setElementAt(target, lc);
+			targetColumnData.set(lc, target);
 		}
 	}
 }

@@ -43,8 +43,8 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
@@ -136,7 +136,7 @@ public class MutationConverterImpl implements Converter {
 			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
-		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");

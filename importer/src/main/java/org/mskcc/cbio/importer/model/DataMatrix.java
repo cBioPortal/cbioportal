@@ -39,9 +39,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.Vector;
+import java.util.Set;
 import java.util.HashSet;
-import java.util.Collection;
+import java.util.List;
 import java.util.LinkedList;
 
 import java.io.PrintWriter;
@@ -61,7 +61,7 @@ public class DataMatrix {
 	// inner class which encapsulates a column header w/its column data
 	private class ColumnHeader {
 		public String label;
-		public Vector<String> columnData;
+		public LinkedList<String> columnData;
 		public boolean ignoreColumn;
 	}
 
@@ -87,10 +87,10 @@ public class DataMatrix {
 	/**
 	 * Constructor.
 	 *
-	 * @param rowData Vector
-	 * @param columnNames Vector
+	 * @param rowData List<LinkedList<String>>
+	 * @param columnNames List<String>
 	 */
-	public DataMatrix(Vector<Vector<String>> rowData, Vector<String> columnNames) {
+	public DataMatrix(List<LinkedList<String>> rowData, List<String> columnNames) {
 
 		// set numberOfRows
 		numberOfRows = rowData.size();
@@ -118,13 +118,13 @@ public class DataMatrix {
 			// create a new ColumnHeader object
 			ColumnHeader columnHeader = new ColumnHeader();
 			columnHeader.label = columnName;
-			columnHeader.columnData = new Vector<String>();
+			columnHeader.columnData = new LinkedList<String>();
 			// interate over all rows and grab the data at column 'index'
 			++columnIndex;
-			for (Vector<String> row : rowData) {
+			for (List<String> row : rowData) {
 				// we may have a situation where there are more columns than data in a row (empty cells)
 				if (columnIndex < row.size()) {
-					columnHeader.columnData.add(row.elementAt(columnIndex));
+					columnHeader.columnData.add(row.get(columnIndex));
 				}
 				else {
 					columnHeader.columnData.add("");
@@ -145,11 +145,11 @@ public class DataMatrix {
 	 * Columns to ignore is used to specify columns not to process (like Gene Symbol).
 	 * which may be null.
 	 *
-	 * @param columnsToIgnore Collection<String>
+	 * @param columnsToIgnore List<String>
 	 */
-	public void convertCaseIDs(Collection<String> columnsToIgnore) {
+	public void convertCaseIDs(List<String> columnsToIgnore) {
 
-		// reset our caseIDs vector
+		// reset our caseIDs list
 		caseIDs.clear();
 
 		// iterate over columns 
@@ -177,10 +177,10 @@ public class DataMatrix {
 	 * Set column order.  Any columns in the data matrix
 	 * that are not in the given column order will be dropped.
 	 *
-	 * @param sortedColumnNames Collection<String>
+	 * @param sortedColumnNames List<String>
 	 * @throws Exception
 	 */
-	public void setColumnOrder(Collection<String> newColumnOrder) throws Exception {
+	public void setColumnOrder(List<String> newColumnOrder) throws Exception {
 
 		LinkedList<ColumnHeader> newColumnHeaderList = new LinkedList<ColumnHeader>();
 
@@ -195,7 +195,7 @@ public class DataMatrix {
 				}
 			}
 			if (!foundColumnHeader) {
-				throw new IllegalArgumentException("column not found in vector: " +  column);
+				throw new IllegalArgumentException("column not found in list: " +  column);
 			}
 		}
 
@@ -209,14 +209,11 @@ public class DataMatrix {
 	 * @param newColumnName String
 	 * @param columnData Vector<String>
 	 */
-	public void addColumn(String newColumnName, Vector<String> columnData) {
+	public void addColumn(String newColumnName, List<String> columnData) {
 
 		if (columnData.size() < numberOfRows) {
-			columnData.setSize(numberOfRows);
-			for (int lc = 0; lc < numberOfRows; lc++) {
-				if (columnData.get(lc) == null) {
-					columnData.add(lc, new String());
-				}
+			for (int lc = 0; lc < numberOfRows-columnData.size(); lc++) {
+				columnData.add(new String());
 			}
 		}
 		else if (columnData.size() > numberOfRows) {
@@ -226,7 +223,7 @@ public class DataMatrix {
 		// create new columnHeader object
 		ColumnHeader columnHeader = new ColumnHeader();
 		columnHeader.label = newColumnName;
-		columnHeader.columnData = columnData;
+		columnHeader.columnData = new LinkedList(columnData);
 		columnHeader.ignoreColumn = false;
 
 		// add columnHeader object to our list
@@ -284,11 +281,11 @@ public class DataMatrix {
 	 * Gets the column headers.
 	 * Returns a new copy.
 	 *
-	 * @return Vector<String>
+	 * @return List<String>
 	 */
-	public Vector<String> getColumnHeaders() {
+	public List<String> getColumnHeaders() {
 
-		Vector<String> toReturn = new Vector<String>();
+		LinkedList<String> toReturn = new LinkedList<String>();
 		for (ColumnHeader columnHeader : columnHeaders) {
 			toReturn.add(columnHeader.label);
 		}
@@ -300,15 +297,15 @@ public class DataMatrix {
 	/**
 	 * Gets the data for a given column name.  Returns
 	 * the data stored in the internal data structure,
-	 * so changes in the returned vector will be reflected
+	 * so changes in the returned List will be reflected
 	 * in subsequent calls into the class.
 	 *
 	 * @param columnName String
-	 * @return Vector<String>
+	 * @return List<LinkedList<String>>
 	 */
-	public Vector<Vector<String>> getColumnData(String columnName) {
+	public List<LinkedList<String>> getColumnData(String columnName) {
 
-		Vector<Vector<String>> toReturn = new Vector<Vector<String>>();
+		LinkedList<LinkedList<String>> toReturn = new LinkedList<LinkedList<String>>();
 
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.label.equals(columnName)) {
@@ -316,7 +313,7 @@ public class DataMatrix {
 			}
 		}
 
-		// should not make it here
+		// outta here
 		return toReturn;
 	}
 
@@ -327,22 +324,22 @@ public class DataMatrix {
 	 * *_genes.conf_99.txt may have multiple cytoband columns.
 	 *
 	 * @param columnIndex int
-	 * @return Vector<String>
+	 * @return List<String>
 	 */
-	public Vector<String> getColumnData(int columnIndex) {
+	public List<String> getColumnData(int columnIndex) {
 
 		return columnHeaders.get(columnIndex).columnData;
 	}
 
 	/**
-	 * Returns the collection of case id's within this matrix.
+	 * Returns the list of case id's within this matrix.
 	 * Note: filterAndConvertCaseIDs should be called before
 	 * this collection is returned or it will just return an
 	 * empty collection.
 	 *
-	 * @return Collection<String>
+	 * @return Set<String>
 	 */
-	public Collection<String> getCaseIDs() {
+	public Set<String> getCaseIDs() {
 		return caseIDs;
 	}
 
@@ -360,14 +357,14 @@ public class DataMatrix {
 	 * Returns the collection of Gene id's within this matrix.
 	 * setGeneIDColumnHeading() must be called prior to calling getGeneIDs().
 	 *
-	 * @return Collection<String>
+	 * @return List<String>
 	 */
-	public Collection<String> getGeneIDs() {
+	public Set<String> getGeneIDs() {
 
 		// collection we will return
 		HashSet<String> toReturn = new HashSet<String>();
 
-		Vector<String> geneColumnData = getColumnData(geneIDColumnHeading).get(0);
+		List<String> geneColumnData = getColumnData(geneIDColumnHeading).get(0);
 		for (String geneID : geneColumnData) {
 			toReturn.add(geneID);
 		}
@@ -445,11 +442,11 @@ public class DataMatrix {
 		java.util.List rowTwo = java.util.Arrays.asList("1", "2", "3");
 		java.util.List rowThree = java.util.Arrays.asList("X", "Y", "Z");
 
-		Vector columnNames = new Vector(columnHeaders);
-		Vector<Vector<String>> rowData = new Vector<Vector<String>>();
-		rowData.add(new Vector<String>(rowOne));
-		rowData.add(new Vector<String>(rowTwo));
-		rowData.add(new Vector<String>(rowThree));
+		LinkedList columnNames = new LinkedList(columnHeaders);
+		LinkedList<LinkedList<String>> rowData = new LinkedList<LinkedList<String>>();
+		rowData.add(new LinkedList<String>(rowOne));
+		rowData.add(new LinkedList<String>(rowTwo));
+		rowData.add(new LinkedList<String>(rowThree));
 
 		// create matrix and dump
 		DataMatrix dataMatrix = new DataMatrix(rowData, columnNames);
@@ -458,7 +455,7 @@ public class DataMatrix {
 		System.out.println();
 
 		// add a column and dump
-		dataMatrix.addColumn("H4", new Vector<String>());
+		dataMatrix.addColumn("H4", new LinkedList<String>());
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
@@ -471,14 +468,14 @@ public class DataMatrix {
 
 		// reorder the columns and dump
 		java.util.List newColumnOrder = java.util.Arrays.asList("H3", "H2", "H4");
-		dataMatrix.setColumnOrder(new Vector<String>(newColumnOrder));
+		dataMatrix.setColumnOrder(new LinkedList<String>(newColumnOrder));
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// reorder again and dump
 		java.util.List anotherNewColumnOrder = java.util.Arrays.asList("H4", "H3", "H2");
-		dataMatrix.setColumnOrder(new Vector<String>(anotherNewColumnOrder));
+		dataMatrix.setColumnOrder(new LinkedList<String>(anotherNewColumnOrder));
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
@@ -491,16 +488,16 @@ public class DataMatrix {
 
 		// reorder a last time
 		java.util.List lastNewColumnOrder = java.util.Arrays.asList("H2", "H3");
-		dataMatrix.setColumnOrder(new Vector<String>(lastNewColumnOrder));
+		dataMatrix.setColumnOrder(new LinkedList<String>(lastNewColumnOrder));
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
 
 		// change some values in a column
-		Vector<String> columnValues = dataMatrix.getColumnData("H2").get(0);
+		List<String> columnValues = dataMatrix.getColumnData("H2").get(0);
 		for (int lc = 0; lc < columnValues.size(); lc++) {
-			if (columnValues.elementAt(lc).equals("2")) {
-				columnValues.setElementAt("2.7", lc);
+			if (columnValues.get(lc).equals("2")) {
+				columnValues.set(lc, "2.7");
 			}
 		}
 
@@ -525,11 +522,11 @@ public class DataMatrix {
 		rowTwo = java.util.Arrays.asList("ACTRT2", "140625", "1p36.32", "1", "2", "3", "4",  "5");
 		rowThree = java.util.Arrays.asList("AGRN", "375790", "1p36.33", "1", "2", "3", "4", "5");
 
-		columnNames = new Vector(columnHeaders);
-		rowData = new Vector<Vector<String>>();
-		rowData.add(new Vector<String>(rowOne));
-		rowData.add(new Vector<String>(rowTwo));
-		rowData.add(new Vector<String>(rowThree));
+		columnNames = new LinkedList(columnHeaders);
+		rowData = new LinkedList<LinkedList<String>>();
+		rowData.add(new LinkedList<String>(rowOne));
+		rowData.add(new LinkedList<String>(rowTwo));
+		rowData.add(new LinkedList<String>(rowThree));
 
 		// create matrix and dump
 		dataMatrix = new DataMatrix(rowData, columnNames);

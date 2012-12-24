@@ -44,8 +44,9 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
@@ -142,7 +143,7 @@ public class MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), adding & renaming columns");
 		}
-		dataMatrix.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new Vector<String>());
+		dataMatrix.addColumn(Converter.GENE_ID_COLUMN_HEADER_NAME, new ArrayList<String>());
 		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.renameColumn("Hybridization REF", Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
@@ -164,11 +165,11 @@ public class MRNAMedianConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
-		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
-		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
+		columnHeaders.remove(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.add(0, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		columnHeaders.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file

@@ -45,9 +45,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
@@ -156,13 +156,13 @@ public class GisticGenesConverterImpl implements Converter {
 		// and which matrix is table_*.conf_90.txt
 		DataMatrix dataMatrixGenesConf = null;
 		DataMatrix dataMatrixTableConf = null;
-		if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
-			dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
+		if (dataMatrices[0].getColumnHeaders().get(0).equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
+			dataMatrices[1].getColumnHeaders().get(0).equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
 			dataMatrixGenesConf = dataMatrices[0];
 			dataMatrixTableConf = dataMatrices[1];
 		}
-		else if (dataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
-				 dataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
+		else if (dataMatrices[0].getColumnHeaders().get(0).equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
+				 dataMatrices[1].getColumnHeaders().get(0).equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
 			dataMatrixTableConf = dataMatrices[0];
 			dataMatrixGenesConf = dataMatrices[1];
 		}
@@ -175,8 +175,8 @@ public class GisticGenesConverterImpl implements Converter {
 
 		// now that we have *_genes.conf_99.txt map, we can process table_*.conf_90.txt
 		// - add cytoband and q_value columns to table_*.conf_90.txt
-		Vector<String> cytobandColumnData = new Vector<String>();
-		Vector<String> qValueColumnData = new Vector<String>();
+		List<String> cytobandColumnData = new ArrayList<String>();
+		List<String> qValueColumnData = new ArrayList<String>();
 		for (String geneSet : dataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME).get(0)) {
 			if (geneSet.endsWith(TABLE_CONF_GENES_IN_REGION_DELIMITER)) {
 				geneSet = geneSet.substring(0, geneSet.length()-1);
@@ -216,7 +216,7 @@ public class GisticGenesConverterImpl implements Converter {
 		Map<String,String> toReturn = new HashMap<String,String>();
 
 		// the column headers are actually the cytobands
-		Vector<String> geneConfColumnHeaders = dataMatrixGenesConf.getColumnHeaders();
+		List<String> geneConfColumnHeaders = dataMatrixGenesConf.getColumnHeaders();
 		int cytobandColumnIndex = geneConfColumnHeaders.indexOf(GENES_CONF_CYTOBAND_ROW_HEADER_NAME);
 		// sanity check - "cytoband" label should be first column header
 		if (cytobandColumnIndex != 0) {
@@ -224,7 +224,7 @@ public class GisticGenesConverterImpl implements Converter {
 		}
 
 		// get row headers and determine which row contains qValues and which contains genes-in-wide-peak
-		Vector<String> geneConfRowHeaders = dataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME).get(0);
+		List<String> geneConfRowHeaders = dataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME).get(0);
 		int qValueRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_Q_VALUE_ROW_HEADER_NAME);
 		int genesInWidePeakStartRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME);
 		// sanity check
@@ -237,9 +237,9 @@ public class GisticGenesConverterImpl implements Converter {
 			// the cytoband is the column header
 			String cytoband = geneConfColumnHeaders.get(lc);
 			// the column of data for this cytoband
-			Vector<String> columnDataForThisCytoband = dataMatrixGenesConf.getColumnData(lc);
+			List<String> columnDataForThisCytoband = dataMatrixGenesConf.getColumnData(lc);
 			// get the q-value, its in the column indexed by lc, and row qValueRowIndex
-			String qValue = columnDataForThisCytoband.elementAt(qValueRowIndex);
+			String qValue = columnDataForThisCytoband.get(qValueRowIndex);
 			// the wide peak gene set
 			StringBuilder genesInWidePeak = new StringBuilder();
 			for (String gene : columnDataForThisCytoband.subList(genesInWidePeakStartRowIndex, columnDataForThisCytoband.size())) {

@@ -281,13 +281,14 @@ public class Admin implements Runnable {
 			LOG.info("fetchReferenceData(), referenceType: " + referenceType);
 		}
 
-		// create an instance of Importer
+		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)context.getBean("config");
-		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (!referenceMetadata.isEmpty()) {
-			Fetcher fetcher = (Fetcher)context.getBean("referenceDataFetcher");
-			fetcher.fetchReferenceData(referenceMetadata.iterator().next());
+		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
+		if (!referenceMetadatas.isEmpty()) {
+			ReferenceMetadata referenceMetadata = referenceMetadatas.iterator().next();
+			Fetcher fetcher = (Fetcher)context.getBean(referenceMetadata.getFetcherBeanID());
+			fetcher.fetchReferenceData(referenceMetadata);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {

@@ -70,9 +70,6 @@ class ConverterImpl implements Converter {
 	// ref to file utils
 	private FileUtils fileUtils;
 
-	// ref to database utils
-	private DatabaseUtils databaseUtils;
-
 	// ref to import data
 	private ImportDataRecordDAO importDataRecordDAO;
 
@@ -87,24 +84,19 @@ class ConverterImpl implements Converter {
      *
      * @param config Config
 	 * @param fileUtils FileUtils
-	 * @param databaseUtils DatabaseUtils
 	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ConverterImpl(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils,
-						 ImportDataRecordDAO importDataRecordDAO, CaseIDs caseIDs, IDMapper idMapper) throws Exception {
+	public ConverterImpl(Config config, FileUtils fileUtils, ImportDataRecordDAO importDataRecordDAO,
+						 CaseIDs caseIDs, IDMapper idMapper) throws Exception {
 
 		// set members
 		this.config = config;
         this.fileUtils = fileUtils;
-		this.databaseUtils = databaseUtils;
 		this.importDataRecordDAO = importDataRecordDAO;
 		this.caseIDs = caseIDs;
 		this.idMapper = idMapper;
-
-		// initialize mapper
-		initializeMapper();
 	}
 
 	/**
@@ -339,21 +331,6 @@ class ConverterImpl implements Converter {
 	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
 								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Helper function to initialize IDMapper.
-	 *
-	 * @throws Exception
-	 */
-	private void initializeMapper() throws Exception {
-
-		// parse out locat
-		String connectionString = (databaseUtils.getDatabaseConnectionString() +
-								   databaseUtils.getGeneInformationDatabaseName() +
-								   "?user=" + databaseUtils.getDatabaseUser() +
-								   "&password=" + databaseUtils.getDatabasePassword());
-		idMapper.initMapper(connectionString);
 	}
 
 	/**

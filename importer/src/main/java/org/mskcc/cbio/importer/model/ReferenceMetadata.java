@@ -42,6 +42,7 @@ public class ReferenceMetadata {
 	private Boolean importIntoPortal;
 	private String referenceFileSource;
 	private String referenceFile;
+	private String fetcherBeanID;
 	private String importerClassName;
 
     /**
@@ -60,12 +61,14 @@ public class ReferenceMetadata {
 		this.importIntoPortal = new Boolean(properties[1].trim());
 		this.referenceFileSource = properties[2].trim();
 		this.referenceFile = properties[3].trim();
-		this.importerClassName = properties[4].trim();
+		this.fetcherBeanID = properties[4].trim();
+		this.importerClassName = properties[5].trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
 	public Boolean importIntoPortal() { return importIntoPortal; }
 	public String getReferenceFileSource() { return referenceFileSource; }
 	public String getReferenceFile() { return referenceFile; }
+	public String getFetcherBeanID() { return fetcherBeanID; }
 	public String getImporterClassName() { return importerClassName; }
 }

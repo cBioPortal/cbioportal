@@ -308,23 +308,40 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			return;
 		}
 
+		// this is the URL for the file to download
 		URL url = new URL(urlString);
-		File destinationFile = org.apache.commons.io.FileUtils.getFile(canonicalDestination);
-		if (LOG.isInfoEnabled()) {
-			LOG.info("downloadFile(), destination: " + destinationFile.getCanonicalPath());
-			LOG.info("downloadFile(), this may take a while...");
-		}
-		org.apache.commons.io.FileUtils.copyURLToFile(url, destinationFile);
 
-		// unzip if necessary
+		// we have a compressed file
 		if (GzipUtils.isCompressedFilename(urlString)) {
+			// downlod to temp destination
+			File tempDestinationFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+																			   new File(url.getFile()).getName());
 			if (LOG.isInfoEnabled()) {
-				LOG.info("downloadFile(), gunzip: " + destinationFile.getCanonicalPath());
+				LOG.info("downloadFile(), " + urlString + ", this may take a while...");
 			}
-			String unzipFile = gunzip(destinationFile.getCanonicalPath());
+			org.apache.commons.io.FileUtils.copyURLToFile(url, tempDestinationFile);
 			if (LOG.isInfoEnabled()) {
-				LOG.info("downloadFile(), gunzip complete: " + (new File(unzipFile)).getCanonicalPath());
+				LOG.info("downloadFile(), gunzip: we have compressed file, decompressing...");
 			}
+			// decompress the file
+			gunzip(tempDestinationFile.getCanonicalPath());
+			if (LOG.isInfoEnabled()) {
+				LOG.info("downloadFile(), gunzip complete...");
+			}
+			// move temp/decompressed file to final destination
+			org.apache.commons.io.FileUtils.moveFile(org.apache.commons.io.FileUtils.getFile(GzipUtils.getUncompressedFilename(tempDestinationFile.getCanonicalPath())),
+													 org.apache.commons.io.FileUtils.getFile(canonicalDestination));
+
+			// lets cleanup after ourselves - remove compressed file
+			tempDestinationFile.delete();
+		}
+		// uncompressed file, download directry to canonicalDestination
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("downloadFile(), " + urlString + ", this may take a while...");
+			}
+			org.apache.commons.io.FileUtils.copyURLToFile(url,
+														  org.apache.commons.io.FileUtils.getFile(canonicalDestination));
 		}
 	}
 
@@ -745,32 +762,26 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
-	 * Helper function to gunzip file.
+	 * Helper function to gunzip file.  gzipFile param is canonical path.
 	 *
-	 * @param inFilePath String
-	 * @return String
+	 * @param gzipFile String
 	 */
-	private static String gunzip(String inFilePath) throws Exception {
+	private static void gunzip(String gzipFile) throws Exception {
 
 		// setup our gzip inputs tream
-		FileOutputStream out = null;
-		String outFilePath = GzipUtils.getUncompressedFilename(inFilePath);
-		GZIPInputStream gzipInputStream = new GZIPInputStream(new FileInputStream(inFilePath));
+		FileOutputStream fos = null;
+		String outFilePath = GzipUtils.getUncompressedFilename(gzipFile);
+		GZIPInputStream gis = new GZIPInputStream(new FileInputStream(gzipFile));
  
 		try {
 			// unzip into file less the .gz
-			out = new FileOutputStream(outFilePath);
-			IOUtils.copy(gzipInputStream, out);
+			fos = new FileOutputStream(outFilePath);
+			IOUtils.copy(gis, fos);
 		}
 		finally {
 			// close up our streams
-			IOUtils.closeQuietly(gzipInputStream);
-			if (out != null) IOUtils.closeQuietly(out);
-			// delete gzipped file
-			new File(inFilePath).delete();
+			IOUtils.closeQuietly(gis);
+			if (fos != null) IOUtils.closeQuietly(fos);
 		}
-
-		// outta here
-		return outFilePath;
  	}
 }

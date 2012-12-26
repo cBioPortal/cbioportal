@@ -53,7 +53,7 @@ public class ReferenceMetadata {
      */
     public ReferenceMetadata(String[] properties) {
 
-		if (properties.length != 5) {
+		if (properties.length != 6) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 

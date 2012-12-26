@@ -29,7 +29,6 @@
 package org.mskcc.cbio.importer.mapper.internal;
 
 // imports
-import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
@@ -40,9 +39,6 @@ import org.bridgedb.Xref;
 import org.bridgedb.BridgeDb;
 import org.bridgedb.IDMapper;
 import org.bridgedb.DataSource;
-
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.Set;
 import java.util.Collection;
@@ -58,25 +54,26 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 	// some statics to gene info column headers
 	private static final String ENTREZ_COLUMN_HEADER = "GeneID";
 	private static final String SYMBOL_COLUMN_HEADER = "Symbol";
-
-	// connection string
-	private String connectionString;
+	private static final String FLAT_FILE_CONNECTION_STRING = "idmapper-text:dssep=\\t,idsep=;,idsep=,,transitivity=false@file:";
 
 	// bridge db refs
 	IDMapper idMapper;
 	DataSource entrezDataSource;
 	DataSource symbolDataSource;
+	String connectionString;
 
 	/**
 	 * Constructor.
 	 *
 	 * @param humanGeneReferenceType
 	 */
-	public BridgeDBIDMapper(String humanGeneReferenceType) {
+	public BridgeDBIDMapper(Config config, String humanGeneReferenceType) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("BridgeIDMapper(), human-gene ref-type: " + humanGeneReferenceType);
+		}
 
 		// get a ReferenceMetadata object for the given reference type.
-		ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
-		Config config = (Config)context.getBean("config");
 		Collection<ReferenceMetadata> referenceMetadata =
 			config.getReferenceMetadata(humanGeneReferenceType);
 
@@ -85,12 +82,11 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 			throw new IllegalArgumentException("cannot instantiate a proper ReferenceMetadata object for: " + humanGeneReferenceType);
 		}
 
-		// init our mapper
-		try {
-			initMapper(referenceMetadata.iterator().next());
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e.getMessage());
+		// used when we init mapper (must come after construction)
+		this.connectionString = FLAT_FILE_CONNECTION_STRING +
+			referenceMetadata.iterator().next().getReferenceFile();
+		if (LOG.isInfoEnabled()) {
+			LOG.info("BridgeDBIDMapper(), connectionString: " + connectionString);
 		}
 	}
 
@@ -104,6 +100,7 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 	@Override
 	public String symbolToEntrezID(String geneSymbol) throws Exception {
 
+		if (idMapper == null) initMapper();
 		Xref ref = new Xref(geneSymbol, symbolDataSource);
 		return (processResultSet(idMapper.mapID(ref, entrezDataSource)));
 	}
@@ -118,6 +115,7 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 	@Override
 	public String entrezIDToSymbol(String entrezID) throws Exception {
 
+		if (idMapper == null) initMapper();
 		Xref ref = new Xref(entrezID, entrezDataSource);
 		return (processResultSet(idMapper.mapID(ref, symbolDataSource)));
 	}
@@ -148,23 +146,15 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 	/**
 	 * Used to initialize the mapper.
 	 *
-	 * @param connectionString String
 	 * @throws Exception
 	 */
-	private void initMapper(ReferenceMetadata referenceMetadata) throws Exception {
-
-		String connectionString = "idmapper-text:dssep=\\t,idsep=;,idsep=,,transitivity=false@file:" +
-			referenceMetadata.getReferenceFile();
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("initMapper(), connectionString: " + connectionString);
-		}
+	private void initMapper() throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("initMapper(), building data sources");
 		}
 
-		Class.forName("org.bridgedb.rdb.IDMapperText");
+		Class.forName("org.bridgedb.file.IDMapperText");
 		idMapper = BridgeDb.connect(connectionString);
 		entrezDataSource = DataSource.getByFullName(ENTREZ_COLUMN_HEADER);
 		symbolDataSource = DataSource.getByFullName(SYMBOL_COLUMN_HEADER);

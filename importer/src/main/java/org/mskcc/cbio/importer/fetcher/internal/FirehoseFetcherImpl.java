@@ -244,14 +244,16 @@ class FirehoseFetcherImpl implements Fetcher {
         fileUtils.makeDirectory(downloadDirectory);
 
 		// download the data
-		String[] tumorTypesToDownload = config.getTumorTypesToDownload();
-		String[] firehoseDatatypesToDownload = config.getDatatypesToDownload(dataSourceMetadata);
+		String tumorTypesToDownload = Arrays.toString(config.getTumorTypesToDownload());
+		tumorTypesToDownload = tumorTypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
+		String firehoseDatatypesToDownload = Arrays.toString(config.getDatatypesToDownload(dataSourceMetadata));
+		firehoseDatatypesToDownload = firehoseDatatypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
 		String[] command = new String[] { firehoseGetScript, "-b",
 										  "-tasks",
-										  Arrays.toString(firehoseDatatypesToDownload),
+										  firehoseDatatypesToDownload,
 										  runType,
 										  BROAD_DATE_FORMAT.format(runDate),
-										  Arrays.toString(tumorTypesToDownload) };
+										  tumorTypesToDownload };
 		if (LOG.isInfoEnabled()) {
 			LOG.info("executing: " + Arrays.asList(command));
 			LOG.info("this may take a while...");

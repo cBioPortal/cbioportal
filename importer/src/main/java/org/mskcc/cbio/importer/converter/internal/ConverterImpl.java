@@ -118,7 +118,7 @@ class ConverterImpl implements Converter {
 		}
 
         // get portal metadata
-        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
         if (portalMetadata == null) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("convertData(), cannot find PortalMetadata, returning");
@@ -174,7 +174,7 @@ class ConverterImpl implements Converter {
 		}
 
         // get portal metadata
-        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
         if (portalMetadata == null) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("convertData(), cannot find PortalMetadata, returning");
@@ -183,7 +183,7 @@ class ConverterImpl implements Converter {
         }
 
 		// get CaseListMetadata
-		Collection<CaseListMetadata> caseListMetadatas = config.getCaseListMetadata();
+		Collection<CaseListMetadata> caseListMetadatas = config.getCaseListMetadata(Config.ALL);
 
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
@@ -289,7 +289,7 @@ class ConverterImpl implements Converter {
 		}
 
         // get portal metadata
-        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
         if (portalMetadata == null) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("applyOverrides(), cannot find PortalMetadata, returning");

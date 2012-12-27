@@ -105,7 +105,7 @@ class ImporterImpl implements Importer {
 		}
 
         // get portal metadata
-        PortalMetadata portalMetadata = config.getPortalMetadata(portal);
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
         if (portalMetadata == null) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("importData(), cannot find PortalMetadata, returning");

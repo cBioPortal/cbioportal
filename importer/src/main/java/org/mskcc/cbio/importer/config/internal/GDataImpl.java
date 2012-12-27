@@ -72,119 +72,62 @@ class GDataImpl implements Config {
 	// our logger
 	private static Log LOG = LogFactory.getLog(GDataImpl.class);
 
+	// google docs user
+	private String gdataUser;
+	// google docs password
+	private String gdataPassword;
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
 
 	// for performance optimization - we only retreive worksheet data once
-	ArrayList<ArrayList<String>> cancerStudiesMetadata;
-	ArrayList<ArrayList<String>> caseIDFiltersMetadata;
-	ArrayList<ArrayList<String>> caseListMetadata;
-	ArrayList<ArrayList<String>> dataTypesMetadata;
-	ArrayList<ArrayList<String>> dataSourcesMetadata;
-	ArrayList<ArrayList<String>> portalsMetadata;
-	ArrayList<ArrayList<String>> referenceMetadata;
-	ArrayList<ArrayList<String>> tumorTypesMetadata;
-
-	// the following are vars set from importer.properties 
-
-	// google docs user
-	private String gdataUser;
-	@Value("${username}")
-	public void setUser(String username) { this.gdataUser = username; }
-
-	// google docs password
-	private String gdataPassword;
-	@Value("${password}")
-	public void setPassword(String password) { this.gdataPassword = password; }
-
-	// google docs spreadsheet
-	private String gdataSpreadsheet;
-	@Value("${spreadsheet}")
-	public void setSpreadsheet(String spreadsheet) { this.gdataSpreadsheet = spreadsheet; }
-
-	// tumor types worksheet
-	private String tumorTypesWorksheet;
-	@Value("${tumor_types_worksheet}")
-	public void setTumorTypesMetadataProperty(String property) { this.tumorTypesWorksheet = property; }
-
-	// datatype worksheet
-	private String datatypesWorksheet;
-	@Value("${datatypes_worksheet}")
-	public void setDatatypesMetadataProperty(String property) { this.datatypesWorksheet = property; }
-
-	// case id filters worksheet
-	private String caseIDFiltersWorksheet;
-	@Value("${case_id_filters_worksheet}")
-	public void setCaseIDFiltersMetadataProperty(String property) { this.caseIDFiltersWorksheet = property; }
-
-	// case list worksheet
-	private String caseListWorksheet;
-	@Value("${case_lists_worksheet}")
-	public void setCaseListMetadataProperty(String property) { this.caseListWorksheet = property; }
-
-	// portals worksheet
-	private String portalsWorksheet;
-	@Value("${portals_worksheet}")
-	public void setPortalsMetadataProperty(String property) { this.portalsWorksheet = property; }
-
-	// reference data worksheet
-	private String referenceDataWorksheet;
-	@Value("${reference_data_worksheet}")
-	public void setReferenceMetadataProperty(String property) { this.referenceDataWorksheet = property; }
-
-	// data sources worksheet
-	private String dataSourcesWorksheet;
-	@Value("${data_sources_worksheet}")
-	public void setDataSourcesMetadataProperty(String property) { this.dataSourcesWorksheet = property; }
-
-	// cancer studies metadata
-	private String cancerStudiesWorksheet;
-	@Value("${cancer_studies_worksheet}")
-	public void setCancerStudiesProperty(String property) { this.cancerStudiesWorksheet = property; }
+	ArrayList<ArrayList<String>> cancerStudiesMatrix;
+	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
+	ArrayList<ArrayList<String>> caseListMatrix;
+	ArrayList<ArrayList<String>> datatypesMatrix;
+	ArrayList<ArrayList<String>> dataSourcesMatrix;
+	ArrayList<ArrayList<String>> portalsMatrix;
+	ArrayList<ArrayList<String>> referenceMatrix;
+	ArrayList<ArrayList<String>> tumorTypesMatrix;
 
 	/**
 	 * Constructor.
      *
-     * Takes a ref to the gdata spreadsheet service.
+     * Constructor args are passed viaw applicationContext.  We do this so that all our
+	 *  metadata objects can be retrieved during construction of this class.  Which will
+	 * prevent us from having to access google more than once.  Of course any changes to
+	 * the google docs will not be reflected in this class until its next instantiation.
      *
+	 * @param gdataUser String
+	 * @param gdataPassword String
      * @param spreadsheetService SpreadsheetService
+	 * @param gdataSpreadsheet String
+	 * @param tumorTypesWorksheet String
+	 * @param datatypesWorksheet String
+	 * @param caseIDFiltersWorksheet String
+	 * @param caseListWorksheet String
+	 * @param portalsWorksheet String
+	 * @param referenceDataWorksheet String
+	 * @param dataSourceseWorksheet String
+	 * @param cancerStudiesWorksheet String
 	 */
-	public GDataImpl(SpreadsheetService spreadsheetService) {
+	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
+					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
+					 String caseIDFiltersWorksheet, String caseListWorksheet, String portalsWorksheet,
+					 String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
 
 		// set members
+		this.gdataUser = gdataUser;
+		this.gdataPassword = gdataPassword;
 		this.spreadsheetService = spreadsheetService;
-	}
 
-	/**
-	 * Gets a TumorTypeMetadata object via tumorType.
-	 * If tumorType == Config.ALL, all are returned.
-	 *
-	 * @param tumortype String
-	 * @return TumorTypeMetadata
-	 */
-	@Override
-	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
-
-		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
-
-		Collection<TumorTypeMetadata> tumorTypeMetadatas = 
-			(Collection<TumorTypeMetadata>)getMetadataCollection(tumorTypesMetadata,
-																 tumorTypesWorksheet,
-																 "org.mskcc.cbio.importer.model.TumorTypeMetadata");
-		// if user wants all, we're done
-		if (tumorType.equals(Config.ALL)) {
-			return tumorTypeMetadatas;
-		}
-
-		// iterate over all TumorTypeMetadata looking for match
-		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
-            if (tumorTypeMetadata.getType().equals(tumorType)) {
-				toReturn.add(tumorTypeMetadata);
-            }
-		}
-
-		// outta here
-		return toReturn;
+		tumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tumorTypesWorksheet);
+		datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
+		caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
+		caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
+		portalsMatrix = getWorksheetData(gdataSpreadsheet, portalsWorksheet);
+		referenceMatrix = getWorksheetData(gdataSpreadsheet, referenceDataWorksheet);
+		dataSourcesMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
+		cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
 	}
 
 	/**
@@ -207,79 +150,30 @@ class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets a DatatypeMetadata object for the given datatype name.
-	 * If datatype == Config.ALL, all are returned.
+	 * Gets a TumorTypeMetadata object via tumorType.
+	 * If tumorType == Config.ALL, all are returned.
 	 *
-	 * @param datatype String
-	 * @return Collection<DatatypeMetadata>
+	 * @param tumortype String
+	 * @return TumorTypeMetadata
 	 */
 	@Override
-	public Collection<DatatypeMetadata> getDatatypeMetadata(String datatype) {
+	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
-		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
 
-		Collection<DatatypeMetadata> datatypeMetadatas = 
-			(Collection<DatatypeMetadata>)getMetadataCollection(dataTypesMetadata,
-																datatypesWorksheet,
-																"org.mskcc.cbio.importer.model.DatatypeMetadata");
+		Collection<TumorTypeMetadata> tumorTypeMetadatas = 
+			(Collection<TumorTypeMetadata>)getMetadataCollection(tumorTypesMatrix,
+																 "org.mskcc.cbio.importer.model.TumorTypeMetadata");
 		// if user wants all, we're done
-		if (datatype.equals(Config.ALL)) {
-			return datatypeMetadatas;
+		if (tumorType.equals(Config.ALL)) {
+			return tumorTypeMetadatas;
 		}
 
-		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
-            if (datatypeMetadata.getDatatype().equals(datatype)) {
-				toReturn.add(datatypeMetadata);
+		// iterate over all TumorTypeMetadata looking for match
+		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
+            if (tumorTypeMetadata.getType().equals(tumorType)) {
+				toReturn.add(tumorTypeMetadata);
             }
-		}
-
-		// outta here
-		return toReturn;
-	}
-
-	/**
-	 * Gets a collection of Datatype names for the given portal/cancer study.
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return Collection<String>
-	 */
-	@Override
-	public Collection<DatatypeMetadata> getDatatypeMetadata(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) {
-
-		Collection<DatatypeMetadata> toReturn = null;
-
-		Collection<CancerStudyMetadata> cancerStudyMetadatas =
-			(Collection<CancerStudyMetadata>)getMetadataCollection(cancerStudiesMetadata,
-																   cancerStudiesWorksheet,
-																   "org.mskcc.cbio.importer.model.CancerStudyMetadata");
-
-		// get portal name which is column header in cancer studies matrix.  note: google strips out "-" from column headers
-		String portalName = (portalMetadata.getName().contains("-")) ?
-			portalMetadata.getName().replaceAll("-", "") : portalMetadata.getName();
-
-		// get portal-column index in the cancer studies worksheet
-		int portalColumnIndex = cancerStudiesMetadata.get(0).indexOf(portalName);
-		if (portalColumnIndex == -1) return toReturn;
-
-		// iterate over all studies in worksheet and find row whose first element is cancer study (path)
-		for (ArrayList<String> matrixRow : cancerStudiesMetadata) {
-			if (matrixRow.get(0).equals(cancerStudyMetadata.getStudyPath())) {
-				// the datatypes for the portal/cancer_study is the value of the cell
-				String datatypesIndicator = matrixRow.get(portalColumnIndex);
-				if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
-					// all datatypes are desired
-					toReturn = getDatatypeMetadata(Config.ALL);
-				}
-				else {
-					// a delimited list of datatypes have been requested
-					toReturn = new ArrayList<DatatypeMetadata>();
-					for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
-						toReturn.add(getDatatypeMetadata(datatype).iterator().next());
-					}
-				}
-				break;
-			}
 		}
 
 		// outta here
@@ -335,53 +229,168 @@ class GDataImpl implements Config {
 	}
 
 	/**
+	 * Gets a DatatypeMetadata object for the given datatype name.
+	 * If datatype == Config.ALL, all are returned.
+	 *
+	 * @param datatype String
+	 * @return Collection<DatatypeMetadata>
+	 */
+	@Override
+	public Collection<DatatypeMetadata> getDatatypeMetadata(String datatype) {
+
+		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
+
+		Collection<DatatypeMetadata> datatypeMetadatas = 
+			(Collection<DatatypeMetadata>)getMetadataCollection(datatypesMatrix,
+																"org.mskcc.cbio.importer.model.DatatypeMetadata");
+		// if user wants all, we're done
+		if (datatype.equals(Config.ALL)) {
+			return datatypeMetadatas;
+		}
+
+		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
+            if (datatypeMetadata.getDatatype().equals(datatype)) {
+				toReturn.add(datatypeMetadata);
+            }
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of Datatype names for the given portal/cancer study.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @return Collection<String>
+	 */
+	@Override
+	public Collection<DatatypeMetadata> getDatatypeMetadata(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) {
+
+		Collection<DatatypeMetadata> toReturn = null;
+
+		// get portal name which is column header in cancer studies matrix.  note: google strips out "-" from column headers
+		String portalName = (portalMetadata.getName().contains("-")) ?
+			portalMetadata.getName().replaceAll("-", "") : portalMetadata.getName();
+
+		// get portal-column index in the cancer studies worksheet
+		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalName);
+		if (portalColumnIndex == -1) return toReturn;
+
+		// iterate over all studies in worksheet and find row whose first element is cancer study (path)
+		for (ArrayList<String> matrixRow : cancerStudiesMatrix) {
+			if (matrixRow.get(0).equals(cancerStudyMetadata.getStudyPath())) {
+				// the datatypes for the portal/cancer_study is the value of the cell
+				String datatypesIndicator = matrixRow.get(portalColumnIndex);
+				if (datatypesIndicator.equalsIgnoreCase(CancerStudyMetadata.CANCER_STUDY_IN_PORTAL_INDICATOR)) {
+					// all datatypes are desired
+					toReturn = getDatatypeMetadata(Config.ALL);
+				}
+				else {
+					// a delimited list of datatypes have been requested
+					toReturn = new ArrayList<DatatypeMetadata>();
+					for (String datatype : datatypesIndicator.split(DatatypeMetadata.DATATYPES_DELIMITER)) {
+						toReturn.add(getDatatypeMetadata(datatype).iterator().next());
+					}
+				}
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
 	 * Gets a collection of CaseIDFilterMetadata.
 	 *
+	 * @param filterName String
 	 * @return Collection<CaseIDFilterMetadata>
 	 */
 	@Override
-	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata() {
+	public Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata(String filterName) {
 
-		return (Collection<CaseIDFilterMetadata>)getMetadataCollection(caseIDFiltersMetadata,
-																	   caseIDFiltersWorksheet,
-																	   "org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
+		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
+
+		Collection<CaseIDFilterMetadata> caseIDFilterMetadatas = 
+			(Collection<CaseIDFilterMetadata>)getMetadataCollection(caseIDFiltersMatrix,
+																	"org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
+
+		// if user wants all, we're done
+		if (filterName.equals(Config.ALL)) {
+			return caseIDFilterMetadatas;
+		}
+
+		for (CaseIDFilterMetadata caseIDFilterMetadata : caseIDFilterMetadatas) {
+			if (caseIDFilterMetadata.getFilterName().equals(filterName)) {
+				toReturn.add(caseIDFilterMetadata);
+			}
+		}
+
+		// outta here
+		return toReturn;
 	}
 
 	/**
 	 * Gets a collection of CaseListMetadata.
+	 * If caseListFilename == Config.ALL, all are returned.
 	 *
+	 * @param caseListFilename String
 	 * @return Collection<CaseListMetadata>
 	 */
 	@Override
-	public Collection<CaseListMetadata> getCaseListMetadata() {
+	public Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename) {
 
-		return (Collection<CaseListMetadata>)getMetadataCollection(caseListMetadata,
-																   caseListWorksheet,
-																   "org.mskcc.cbio.importer.model.CaseListMetadata");
+		Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
+
+		Collection<CaseListMetadata> caseListMetadatas = 
+			(Collection<CaseListMetadata>)getMetadataCollection(caseListMatrix,
+																"org.mskcc.cbio.importer.model.CaseListMetadata");
+
+		// if user wants all, we're done
+		if (caseListFilename.equals(Config.ALL)) {
+			return caseListMetadatas;
+		}
+
+		for (CaseListMetadata caseListMetadata : caseListMetadatas) {
+			if (caseListMetadata.getCaseListFilename().equals(caseListFilename)) {
+				toReturn.add(caseListMetadata);
+			}
+		}
+
+		// outta here
+		return toReturn;
 	}
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.
 	 *
      * @param portal String
-	 * @return PortalMetadata
+	 * @return Collection<PortalMetadata>
 	 */
     @Override
-	public PortalMetadata getPortalMetadata(String portal) {
+	public Collection<PortalMetadata> getPortalMetadata(String portalName) {
+
+		Collection<PortalMetadata> toReturn = new ArrayList<PortalMetadata>();
 
 		Collection<PortalMetadata> portalMetadatas =
-			(Collection<PortalMetadata>)getMetadataCollection(portalsMetadata,
-															  portalsWorksheet,
+			(Collection<PortalMetadata>)getMetadataCollection(portalsMatrix,
 															  "org.mskcc.cbio.importer.model.PortalMetadata");
 
+		// if user wants all, we're done
+		if (portalName.equals(Config.ALL)) {
+			return portalMetadatas;
+		}
+
 		for (PortalMetadata portalMetadata : portalMetadatas) {
-			if (portalMetadata.getName().equals(portal)) {
-				return portalMetadata;
+			if (portalMetadata.getName().equals(portalName)) {
+				toReturn.add(portalMetadata);
 			}
 		}
 
 		// outta here
-		return null;
+		return toReturn;
     }
 
 	/**
@@ -397,8 +406,7 @@ class GDataImpl implements Config {
 		Collection<ReferenceMetadata> toReturn = new ArrayList<ReferenceMetadata>();
 
 		Collection<ReferenceMetadata> referenceMetadatas =
-			(Collection<ReferenceMetadata>)getMetadataCollection(referenceMetadata,
-																 referenceDataWorksheet,
+			(Collection<ReferenceMetadata>)getMetadataCollection(referenceMatrix,
 																 "org.mskcc.cbio.importer.model.ReferenceMetadata");
 		// if user wants all, we're done
 		if (referenceType.equals(Config.ALL)) {
@@ -430,8 +438,7 @@ class GDataImpl implements Config {
 		Collection<DataSourcesMetadata> toReturn = new ArrayList<DataSourcesMetadata>();
 
 		Collection<DataSourcesMetadata> dataSourceMetadatas =
-			(Collection<DataSourcesMetadata>)getMetadataCollection(dataSourcesMetadata,
-																   dataSourcesWorksheet,
+			(Collection<DataSourcesMetadata>)getMetadataCollection(dataSourcesMatrix,
 																   "org.mskcc.cbio.importer.model.DataSourcesMetadata");
 		// if user wants all, we're done
 		if (dataSource.equals(Config.ALL)) {
@@ -461,19 +468,15 @@ class GDataImpl implements Config {
 
 		Collection<CancerStudyMetadata> toReturn = new ArrayList<CancerStudyMetadata>();
 
-		if (cancerStudiesMetadata == null) {
-			cancerStudiesMetadata = getWorksheetData(cancerStudiesWorksheet);
-		}
-
 		// get portal-column index in the cancer studies worksheet
-		int portalColumnIndex = cancerStudiesMetadata.get(0).indexOf(portalName);
+		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalName);
 		if (portalColumnIndex == -1) return toReturn;
 
 		// iterate over all studies in worksheet and determine if 
 		// the value at the row and portal/column intersection is not empty
 		// (we start at one, because row 0 is the column headers)
-		for (int lc = 1; lc < cancerStudiesMetadata.size(); lc++) {
-			ArrayList<String> matrixRow = cancerStudiesMetadata.get(lc);
+		for (int lc = 1; lc < cancerStudiesMatrix.size(); lc++) {
+			ArrayList<String> matrixRow = cancerStudiesMatrix.get(lc);
 			String datatypesIndicator = matrixRow.get(portalColumnIndex);
 			if (datatypesIndicator != null && datatypesIndicator.length() > 0) {
 				CancerStudyMetadata cancerStudyMetadata = 
@@ -493,78 +496,18 @@ class GDataImpl implements Config {
 	}
 
 	/**
-	 * Gets the spreadsheet.
-	 *
-	 * @returns SpreadsheetEntry
-	 * @throws Exception
-	 */
-	private SpreadsheetEntry getSpreadsheet() throws Exception {
-
-		FeedURLFactory factory = FeedURLFactory.getDefault();
-		SpreadsheetFeed feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
-		for (SpreadsheetEntry entry : feed.getEntries()) {
-			if (entry.getTitle().getPlainText().equals(gdataSpreadsheet)) {
-				return entry;
-			}
-		}
-		
-		// outta here
-		return null;
-	}
-
-	/**
-	 * Gets the worksheet feed.
-	 *
-	 * @returns WorksheetFeed
-	 * @throws Exception
-	 */
-	private WorksheetEntry getWorksheet(String gdataWorksheet) throws Exception {
-
-		// first get the spreadsheet
-		SpreadsheetEntry spreadsheet = getSpreadsheet();
-		if (spreadsheet != null) {
-			WorksheetFeed worksheetFeed = spreadsheetService.getFeed(spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
-			for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
-				if (worksheet.getTitle().getPlainText().equals(gdataWorksheet)) {
-					return worksheet;
-				}
-			}
-		}
-
-		// outta here
-		return null;
-	}
-
-	/**
-	 * authenticate with google spreadsheet client
-	 *
-	 * @throws Exception
-	 */
-	private void login() throws Exception {
-
-		spreadsheetService.setUserCredentials(gdataUser, gdataPassword);
-	}
-
-	/**
 	 * Constructs a collection of objects of the given classname from the given matrix.
 	 *
 	 * @param metadataMatrix ArrayList<ArrayList<String>>
-	 * @parma worksheet String
 	 * @param className String
 	 * @return Collection<?>
 	 */
-	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix,
-												String worksheet, String className) {
+	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 
 		Collection<Object> toReturn = new ArrayList<Object>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getMetadataCollection(): " + worksheet + " : " + className);
-		}
-
-		// lazy loading  - if the matrix is null, load now
-		if (metadataMatrix == null) {
-			metadataMatrix = getWorksheetData(worksheet);
+			LOG.info("getMetadataCollection(): " + className);
 		}
 
 		// we start at one, because row 0 is the column headers
@@ -583,23 +526,80 @@ class GDataImpl implements Config {
 	}
 
 	/**
+	 * authenticate with google spreadsheet client
+	 *
+	 * @throws Exception
+	 */
+	private void login() throws Exception {
+
+		spreadsheetService.setUserCredentials(gdataUser, gdataPassword);
+	}
+
+	/**
+	 * Gets the spreadsheet.
+	 *
+	 * @param spreadsheetName String
+	 * @returns SpreadsheetEntry
+	 * @throws Exception
+	 */
+	private SpreadsheetEntry getSpreadsheet(String spreadsheetName) throws Exception {
+
+		FeedURLFactory factory = FeedURLFactory.getDefault();
+		SpreadsheetFeed feed = spreadsheetService.getFeed(factory.getSpreadsheetsFeedUrl(), SpreadsheetFeed.class);
+		for (SpreadsheetEntry entry : feed.getEntries()) {
+			if (entry.getTitle().getPlainText().equals(spreadsheetName)) {
+				return entry;
+			}
+		}
+		
+		// outta here
+		return null;
+	}
+
+	/**
+	 * Gets the worksheet feed.
+	 *
+	 * @param spreadsheetName String
+	 * @param worksheetName String
+	 * @returns WorksheetFeed
+	 * @throws Exception
+	 */
+	private WorksheetEntry getWorksheet(String spreadsheetName, String worksheetName) throws Exception {
+
+		// first get the spreadsheet
+		SpreadsheetEntry spreadsheet = getSpreadsheet(spreadsheetName);
+		if (spreadsheet != null) {
+			WorksheetFeed worksheetFeed = spreadsheetService.getFeed(spreadsheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+			for (WorksheetEntry worksheet : worksheetFeed.getEntries()) {
+				if (worksheet.getTitle().getPlainText().equals(worksheetName)) {
+					return worksheet;
+				}
+			}
+		}
+
+		// outta here
+		return null;
+	}
+
+	/**
 	 * Helper function to retrieve the given google worksheet data matrix.
 	 * as a list of string lists.
 	 *
+	 * @param spreadsheetName String
 	 * @param worksheet String
 	 * @return ArrayList<ArrayList<String>>
 	 */
-	private ArrayList<ArrayList<String>> getWorksheetData(String worksheetName) {
+	private ArrayList<ArrayList<String>> getWorksheetData(String spreadsheetName, String worksheetName) {
 
 		ArrayList<ArrayList<String>> toReturn = new ArrayList<ArrayList<String>>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getWorksheetData(): " + worksheetName);
+			LOG.info("getWorksheetData(): " + spreadsheetName + ", " + worksheetName);
 		}
 
 		try {
 			login();
-			WorksheetEntry worksheet = getWorksheet(worksheetName);
+			WorksheetEntry worksheet = getWorksheet(spreadsheetName, worksheetName);
 			if (worksheet != null) {
 				ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
 				if (feed != null && feed.getEntries().size() > 0) {

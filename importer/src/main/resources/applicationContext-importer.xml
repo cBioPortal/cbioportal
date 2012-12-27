@@ -53,7 +53,18 @@
 	<b:constructor-arg index="0"><b:value>${spreadsheet_service_appname}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
-	<b:constructor-arg ref="spreadsheetService"/>
+	<b:constructor-arg index="0"><b:value>${gdata_username}</b:value></b:constructor-arg>
+	<b:constructor-arg index="1"><b:value>${gdata_password}</b:value></b:constructor-arg>
+	<b:constructor-arg index="2" ref="spreadsheetService"/>
+	<b:constructor-arg index="3"><b:value>${spreadsheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="4"><b:value>${tumor_types_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="5"><b:value>${datatypes_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="6"><b:value>${case_id_filters_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="7"><b:value>${case_lists_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="8"><b:value>${portals_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="9"><b:value>${reference_data_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="10"><b:value>${data_sources_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="11"><b:value>${cancer_studies_worksheet}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.BridgeDBIDMapper">
 	<b:constructor-arg ref="config"/>

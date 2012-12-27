@@ -104,25 +104,30 @@ public interface Config {
 
 	/**
 	 * Gets a collection of CaseIDFilterMetadata.
+	 * If filterName == Config.ALL, all are returned.
 	 *
+	 * @param filterName String
 	 * @return Collection<CaseIDFilterMetadata>
 	 */
-	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
+	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata(String filterName);
 
 	/**
 	 * Gets a collection of CaseListMetadata.
+	 * If caseListFilename == Config.ALL, all are returned.
 	 *
+	 * @param caseListFilename String
 	 * @return Collection<CaseListMetadata>
 	 */
-	Collection<CaseListMetadata> getCaseListMetadata();
+	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.
+	 * If portalName == Config.ALL, all are returned.
 	 *
-     * @param portal String
-	 * @return PortalMetadata
+     * @param portalName String
+	 * @return Collection<PortalMetadata>
 	 */
-	PortalMetadata getPortalMetadata(String portal);
+	Collection<PortalMetadata> getPortalMetadata(String portalName);
 
 	/**
 	 * Gets ReferenceMetadata for the given referenceType.

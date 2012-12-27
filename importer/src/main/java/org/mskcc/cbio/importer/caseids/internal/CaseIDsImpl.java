@@ -58,7 +58,7 @@ public class CaseIDsImpl implements CaseIDs {
 	public CaseIDsImpl(Config config) {
 
 		// get all the filters
-		Collection<CaseIDFilterMetadata> caseIDFilters = config.getCaseIDFilterMetadata();
+		Collection<CaseIDFilterMetadata> caseIDFilters = config.getCaseIDFilterMetadata(Config.ALL);
 
 		// sanity check
 		if (caseIDFilters == null) {

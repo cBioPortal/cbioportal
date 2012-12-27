@@ -78,7 +78,7 @@ class FirehoseFetcherImpl implements Fetcher {
 
 	// regex used when getting firehose run dates from the broad
     private static Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
-		Pattern.compile("^(\\w*)\\s*(\\w*)\\s*(\\w*)$");
+		Pattern.compile("^(\\w*)$");
 
     private static Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
 		Pattern.compile("^(\\w*)__(\\w*)");
@@ -202,16 +202,13 @@ class FirehoseFetcherImpl implements Fetcher {
 			if (lineOfOutput.startsWith(runType)) {
 				Matcher lineMatcher = FIREHOSE_GET_RUNS_LINE_REGEX.matcher(lineOfOutput);
 				if (lineMatcher.find()) {
-					// column 3 is "Available_From_Broad_GDAC"
-					if (lineMatcher.group(3).equals("yes")) {
-						// column one is runtype__yyyy_mm_dd
-						Matcher columnMatcher = FIREHOSE_GET_RUNS_COL_REGEX.matcher(lineMatcher.group(1));
-						// parse date out of column one and compare to the current latestRun
-						if (columnMatcher.find()) {
-							Date thisRunDate = BROAD_DATE_FORMAT.parse(columnMatcher.group(2));
-							if (thisRunDate.after(latestRun)) {
-								latestRun = thisRunDate;
-							}
+					// column is runtype__yyyy_mm_dd
+					Matcher columnMatcher = FIREHOSE_GET_RUNS_COL_REGEX.matcher(lineMatcher.group(1));
+					// parse date out of column and compare to the current latestRun
+					if (columnMatcher.find()) {
+						Date thisRunDate = BROAD_DATE_FORMAT.parse(columnMatcher.group(2));
+						if (thisRunDate.after(latestRun)) {
+							latestRun = thisRunDate;
 						}
 					}
 				}

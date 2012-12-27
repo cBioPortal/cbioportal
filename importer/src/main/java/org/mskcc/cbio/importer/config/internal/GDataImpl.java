@@ -240,6 +240,10 @@ class GDataImpl implements Config {
 
 		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDatatypeMetadata(): " + datatype);
+		}
+
 		Collection<DatatypeMetadata> datatypeMetadatas = 
 			(Collection<DatatypeMetadata>)getMetadataCollection(datatypesMatrix,
 																"org.mskcc.cbio.importer.model.DatatypeMetadata");
@@ -268,14 +272,14 @@ class GDataImpl implements Config {
 	@Override
 	public Collection<DatatypeMetadata> getDatatypeMetadata(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata) {
 
-		Collection<DatatypeMetadata> toReturn = null;
+		Collection<DatatypeMetadata> toReturn = new ArrayList<DatatypeMetadata>();
 
-		// get portal name which is column header in cancer studies matrix.  note: google strips out "-" from column headers
-		String portalName = (portalMetadata.getName().contains("-")) ?
-			portalMetadata.getName().replaceAll("-", "") : portalMetadata.getName();
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getDatatypeMetadata(): " + portalMetadata.getName() + ":" + cancerStudyMetadata.toString());
+		}
 
 		// get portal-column index in the cancer studies worksheet
-		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalName);
+		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalMetadata.getName());
 		if (portalColumnIndex == -1) return toReturn;
 
 		// iterate over all studies in worksheet and find row whose first element is cancer study (path)

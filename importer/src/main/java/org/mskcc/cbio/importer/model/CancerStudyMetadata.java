@@ -90,7 +90,6 @@ public class CancerStudyMetadata {
 		}
 		// knock off trailing file separator
 		this.lab = (this.lab.length() > 0) ? this.lab.substring(0, this.lab.length()-1) : this.lab;
-
 		this.description = properties[1].trim();
 	}
 
@@ -101,9 +100,8 @@ public class CancerStudyMetadata {
 	public String getCenter() { return center; }
 	public String getLab() { return lab; }
 	public String getStudyPath() {
-		return (tumorType + File.separator +
-				center + File.separator +
-				lab);
+		String suffix = (lab.length() > 0) ? (File.separator + lab) : "";
+		return (tumorType + File.separator + center + suffix);
 	}
 	public String getDescription() { return description; }
 

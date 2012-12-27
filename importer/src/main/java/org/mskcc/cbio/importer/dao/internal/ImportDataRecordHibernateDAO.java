@@ -158,7 +158,7 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 	public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndCenterAndDataFilename");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("datafilename", dataFilename);

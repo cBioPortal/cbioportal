@@ -264,6 +264,11 @@ class FirehoseFetcherImpl implements Fetcher {
 			}
 			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, runDate);
 		}
+		else {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("error executing: " + Arrays.asList(command));
+			}
+		}
 	}
 
 	/**

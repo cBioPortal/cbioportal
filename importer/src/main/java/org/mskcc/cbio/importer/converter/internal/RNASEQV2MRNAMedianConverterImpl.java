@@ -49,7 +49,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for processing rna-seq (v2) RSEM files.
  */
 public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 
@@ -78,8 +78,8 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
-										 CaseIDs caseIDs, IDMapper idMapper) {
+	public RNASEQV2MRNAMedianConverterImpl(Config config, FileUtils fileUtils,
+										   CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;

@@ -49,78 +49,25 @@ import java.util.Arrays;
 import java.util.ArrayList;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for processing rna-seq (v1) - RPKM files.
  */
-public class RNASEQMRNAMedianConverterImpl implements Converter {
-
-	private static String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterImpl implements Converter {
 
 	// our logger
 	private static Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
 
-	// ref to configuration
-	private Config config;
-
-	// ref to file utils
-	private FileUtils fileUtils;
-
-	// ref to caseids
-	private CaseIDs caseIDs;
-
-	// ref to IDMapper
-	private IDMapper idMapper;
-
-	/**
+    /**
 	 * Constructor.
-     *
-     * @param config Config
+	 *
+	 * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
 	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
 										 CaseIDs caseIDs, IDMapper idMapper) {
-
-		// set members
-		this.config = config;
-        this.fileUtils = fileUtils;
-		this.caseIDs = caseIDs;
-		this.idMapper = idMapper;
+		super(config, fileUtils, caseIDs, idMapper);
 	}
-
-	/**
-	 * Converts data for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-    @Override
-	public void convertData(String portal) throws Exception {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Generates case lists for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-    @Override
-	public void generateCaseLists(String portal) throws Exception {
-		throw new UnsupportedOperationException();
-    }
-
-	/**
-	 * Applies overrides to the given portal using the given data source.
-	 *
-     * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-    @Override
-	public void applyOverrides(String portal, String dataSource) throws Exception {
-		throw new UnsupportedOperationException();
-    }
 
 	/**
 	 * Creates a staging file from the given import data.
@@ -141,7 +88,7 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
 
-		// rnaseq files have 3 columns per sample (first column is Hybridization REF).
+		// rnaseq v1 files have 3 columns per sample (first column is Hybridization REF).
 		// discard first & second columns and take third - RPKM
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), removing  and keepng RPKM column per sample");
@@ -157,68 +104,9 @@ public class RNASEQMRNAMedianConverterImpl implements Converter {
 				previousHeader = columnHeader;
 			}
 		}
-
-		// row one (zero offset) in file is another header:
-		// (gene, raw_counts, median_length_normalized, RPKM, raw_counts,  median_length_normalized, RPKM, raw_counts, ...)
-		dataMatrix.ignoreRow(0, true); // row data starts at 0
-
-		// rna seq data files has combination gene_symbol|id
-		// replace the combination with gene_symbol only
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
-		}
-		List<String> pairs = dataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
-		for (int lc = 0; lc < pairs.size(); lc++) {
-			String[] parts = pairs.get(lc).trim().split("\\|");
-			if (parts.length == 2) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + parts[1]);
-				}
-				pairs.set(lc, parts[1]);
-			}
-		}
-
-		// add gene symbol column, rename gene id col
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), adding & renaming columns");
-		}
-		dataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new ArrayList<String>());
-		dataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		dataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
-
-		// perform gene mapping, remove records as needed
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), calling MapperUtil.mapDataToGeneID()...");
-		}
-		MapperUtil.mapGeneIDToSymbol(dataMatrix, idMapper,
-									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-
-		// convert case ids
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), filtering & converting case ids");
-		}
-		String[] columnsToIgnore = { Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME };
-		dataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
-
-		// ensure the first two columns are symbol, id respectively
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), sorting column headers");
-		}
-		List<String> headers = dataMatrix.getColumnHeaders();
-		headers.remove(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		headers.add(0, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		headers.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		headers.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		dataMatrix.setColumnOrder(headers);
-
-		// we need to write out the file
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), writing staging file.");
-		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), complete.");
-		}
+		
+		// everything from here is the same for rna seq v2, lets pass processing to it
+		dataMatrices = new DataMatrix[] { dataMatrix };
+		super.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
 	}
 }

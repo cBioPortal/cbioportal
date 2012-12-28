@@ -52,17 +52,17 @@ import java.util.ArrayList;
 /**
  * Class which implements the Converter interface.
  */
-public class Methylation27ConverterImpl implements Converter {
+public class MethylationConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(Methylation27ConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(MethylationConverterImpl.class);
 
 	// statics for column identifiers in correlate - methylation file
 	private static String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
 	private static String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
 	private static String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
 
-	// statics for column identifires in <CANCER>.methylation__humanmethylation27 file
+	// statics for column identifiers in <CANCER>.methylation__humanmethylation[27|450] file
 	private static String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
 	private static String METHYLATION_GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene_Symbol";
 	private static String METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
@@ -88,8 +88,8 @@ public class Methylation27ConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public Methylation27ConverterImpl(Config config, FileUtils fileUtils,
-									  CaseIDs caseIDs, IDMapper idMapper) {
+	public MethylationConverterImpl(Config config, FileUtils fileUtils,
+									CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -207,14 +207,14 @@ public class Methylation27ConverterImpl implements Converter {
 
 		// remove extraneous columns:
 		//
-		// original methylation__humanmethylation27 file contains
+		// original methylation__humanmethylation[27|450] file contains
 		// multiple columns with the same name, in particular 4 columns (Beta_Value  Gene_Symbol Chromosome  Genomic_Coordinate)
 		// for each case.
-		// so, count the # of columns in methylation__humanmethylation27 and delete all columns but
+		// so, count the # of columns in methylation__humanmethylation[27|450] and delete all columns but
 		// 1, 2, 6, 10, ...,
 		List<String> columnHeaders = dataMatrixMethylationData.getColumnHeaders();
 		if ((columnHeaders.size()-1) % 4 != 0) {
-			throw new IllegalArgumentException(cancerStudyMetadata + ": methylation__humanmethylation27 does not have 4 columns per case, aborting...");
+			throw new IllegalArgumentException(cancerStudyMetadata + ": methylation__humanmethylation[27|450] does not have 4 columns per case, aborting...");
 		}
 		String previousHeader = "";
 		for (int lc = 1; lc < columnHeaders.size(); lc++) {

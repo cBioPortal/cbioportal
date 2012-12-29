@@ -69,6 +69,9 @@ class FirehoseFetcherImpl implements Fetcher {
 	private static String ANALYSIS_RUN = "analyses";
 	private static String STDDATA_RUN = "stddata";
 
+	// this indicates a "NORMAL" data file
+	private static String NORMAL_DATA_FILE = "-Normal.";
+
 	// date formats
 	public static SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
 	public static SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
@@ -293,7 +296,8 @@ class FirehoseFetcherImpl implements Fetcher {
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
-
+			// skip "normals"
+			if (md5File.getName().contains(NORMAL_DATA_FILE)) continue;
             // get precomputed digest (from .md5)
             String precomputedDigest = fileUtils.getPrecomputedMD5Digest(md5File);
             // compute md5 digest from respective data file

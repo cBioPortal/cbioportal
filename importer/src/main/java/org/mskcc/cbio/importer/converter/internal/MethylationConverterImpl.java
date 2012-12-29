@@ -55,18 +55,18 @@ import java.util.ArrayList;
 public class MethylationConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(MethylationConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(MethylationConverterImpl.class);
 
 	// statics for column identifiers in correlate - methylation file
-	private static String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
-	private static String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
-	private static String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
+	private static final String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
+	private static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
+	private static final String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
 
 	// statics for column identifiers in <CANCER>.methylation__humanmethylation[27|450] file
-	private static String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
-	private static String METHYLATION_GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene_Symbol";
-	private static String METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
-	private static String METHYLATION_GENOMIC_COORDINATE_COLUMN_HEADER_NAME = "Genomic_Coordinate";
+	private static final String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
+	private static final String METHYLATION_GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene_Symbol";
+	private static final String METHYLATION_HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+	private static final String METHYLATION_GENOMIC_COORDINATE_COLUMN_HEADER_NAME = "Genomic_Coordinate";
 
 	// ref to configuration
 	private Config config;

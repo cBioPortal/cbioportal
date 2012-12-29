@@ -35,7 +35,7 @@ package org.mskcc.cbio.importer.model;
  */
 public class ReferenceMetadata {
 
-	public static String REFERENCE_FILE_DELIMITER = ":";
+	public static final String REFERENCE_FILE_DELIMITER = ":";
 
 	// bean properties
 	private String referenceType;

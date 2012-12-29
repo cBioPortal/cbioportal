@@ -63,13 +63,13 @@ import java.util.Properties;
 public class Admin implements Runnable {
 
 	// our context file
-	public static String contextFile = "classpath:applicationContext-importer.xml";
+	public static final String contextFile = "classpath:applicationContext-importer.xml";
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(Admin.class);
+	private static final Log LOG = LogFactory.getLog(Admin.class);
 
 	// options var
-	private static Options options = initializeOptions();
+	private static final Options options = initializeOptions();
 
 	// parsed command line
 	private CommandLine commandLine;

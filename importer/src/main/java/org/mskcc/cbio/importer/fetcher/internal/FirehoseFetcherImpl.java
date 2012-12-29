@@ -66,27 +66,27 @@ import java.lang.reflect.Method;
 class FirehoseFetcherImpl implements Fetcher {
 
 	// conts for run types
-	private static String ANALYSIS_RUN = "analyses";
-	private static String STDDATA_RUN = "stddata";
-
-	// this indicates a "NORMAL" data file
-	private static String NORMAL_DATA_FILE = "-Normal.";
+	private static final String ANALYSIS_RUN = "analyses";
+	private static final String STDDATA_RUN = "stddata";
 
 	// date formats
-	public static SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
-	public static SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
+	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+
+	// this indicates a "NORMAL" data file
+	private static final String NORMAL_DATA_FILE = "-Normal.";
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
+	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
 
 	// regex used when getting firehose run dates from the broad
-    private static Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
+    private static final Pattern FIREHOSE_GET_RUNS_LINE_REGEX = 
 		Pattern.compile("^(\\w*)$");
 
-    private static Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
+    private static final Pattern FIREHOSE_GET_RUNS_COL_REGEX = 
 		Pattern.compile("^(\\w*)__(\\w*)");
 
-    private static Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
+    private static final Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
 		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
 
 	// ref to configuration

@@ -35,7 +35,7 @@ package org.mskcc.cbio.importer.model;
  */
 public class DataSourcesMetadata {
 
-	public static String DATA_SOURCE_NAME_DELIMITER = "-";
+	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties
 	private String dataSource;

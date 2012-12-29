@@ -42,13 +42,13 @@ import java.lang.reflect.Method;
  */
 public class DatatypeMetadata {
 
-	public static String NUM_CASES_TAG = "<NUM_CASES>";
-	public static String NUM_GENES_TAG = "<NUM_GENES>";
-	public static String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
-	public static String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+	public static final String NUM_CASES_TAG = "<NUM_CASES>";
+	public static final String NUM_GENES_TAG = "<NUM_GENES>";
+	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
+	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
 	
 	// delimiter when specifying datatypes on worksheet
-    public static String DATATYPES_DELIMITER = ":"; 
+    public static final String DATATYPES_DELIMITER = ":"; 
 
 	/*
 	 * The following is an example of a downloadArchive string which the following 
@@ -58,13 +58,13 @@ public class DatatypeMetadata {
 	 */
 
 	// delimiter between download archive pairs
-	private static String DOWNLOAD_ARCHIVE_DELIMITER = ";";
+	private static final String DOWNLOAD_ARCHIVE_DELIMITER = ";";
  
 	// delimiter between archive and filename pair
-	private static String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
+	private static final String ARCHIVE_FILENAME_PAIR_DELIMITER = ":";
 
 	// delimiter between dependencies
-	private static String DEPENDENCIES_DELIMITER = ":";
+	private static final String DEPENDENCIES_DELIMITER = ":";
 
 	// bean properties
 	private String datatype;

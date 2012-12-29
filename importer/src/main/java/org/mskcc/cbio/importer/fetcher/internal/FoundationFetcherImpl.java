@@ -56,16 +56,16 @@ import java.util.regex.Pattern;
 class FoundationFetcherImpl implements Fetcher {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
+	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
 
 	// foundation data file extension
-	private static String FOUNDATION_FILE_EXTENSION = ".xml";
+	private static final String FOUNDATION_FILE_EXTENSION = ".xml";
 
 	// not all fields in ImportDataRecord will be used
-	private static String UNUSED_IMPORT_DATA_FIELD = "NA";
+	private static final String UNUSED_IMPORT_DATA_FIELD = "NA";
 
 	// regex used when getting a case list from the broad
-    private static Pattern FOUNDATION_CASE_LIST_RECORD = 
+    private static final Pattern FOUNDATION_CASE_LIST_RECORD = 
 		Pattern.compile("^\\s*\\<Case fmiCase=\\\"\\w*\\\" case=\\\"(\\w*-\\w*)\\\" \\/\\>$");
 
 	// ref to configuration

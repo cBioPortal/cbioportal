@@ -37,19 +37,19 @@ import java.io.File;
 public class CancerStudyMetadata {
 	
     // delimiter between tumor type and center (used for find the path)
-	public static String CANCER_STUDY_DELIMITER = "/"; 
+	public static final String CANCER_STUDY_DELIMITER = "/"; 
 
 	// this is value in worsheet-matrix cell if cancer study is in a desired portal
-	public static String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
+	public static final String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
 
 	// file extension of metadata file
-	public static String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	public static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
 
 	// cancer study identifier delimiter (used in metadata files)
-	private static String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
+	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
 
 	// this is tag to replace in description
-	public static String NUM_CASES_TAG = "<NUM_CASES>";
+	public static final String NUM_CASES_TAG = "<NUM_CASES>";
 
 	// bean properties
 	private String tumorType;

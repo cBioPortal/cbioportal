@@ -37,7 +37,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 public interface Fetcher {
 
 	// latest run indicator
-	public static String LATEST_RUN_INDICATOR = "latest";
+	public static final String LATEST_RUN_INDICATOR = "latest";
 
 	/**
 	 * Fetchers genomic data from an external datasource and

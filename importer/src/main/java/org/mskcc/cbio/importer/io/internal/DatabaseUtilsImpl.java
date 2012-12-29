@@ -49,11 +49,11 @@ import javax.sql.DataSource;
 public class DatabaseUtilsImpl implements DatabaseUtils {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(DatabaseUtilsImpl.class);
+	private static final Log LOG = LogFactory.getLog(DatabaseUtilsImpl.class);
 
 	// some context files
-	private static String importerContextFile = "classpath:applicationContext-importer.xml";
-	private static String createSchemaContextFile = "classpath:applicationContext-createSchema.xml";
+	private static final String importerContextFile = "classpath:applicationContext-importer.xml";
+	private static final String createSchemaContextFile = "classpath:applicationContext-createSchema.xml";
 
 	// the follow db properties are set here for convenient access by our clients
 

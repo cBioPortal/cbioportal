@@ -52,11 +52,11 @@ import java.util.Arrays;
  */
 public class CNAConverterImpl implements Converter {
 
-	private static String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
-	private static String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
+	private static final String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
+	private static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(CNAConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(CNAConverterImpl.class);
 
 	// ref to configuration
 	private Config config;

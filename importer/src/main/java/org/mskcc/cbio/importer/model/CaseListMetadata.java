@@ -42,9 +42,9 @@ public class CaseListMetadata {
 	// if either delimiter changes, update ConverterImpl
 
 	// delimiter between download archive pairs
-	public static String CASE_LIST_UNION_DELIMITER = "|";
+	public static final String CASE_LIST_UNION_DELIMITER = "|";
 	// delimiter between download archive pairs
-	public static String CASE_LIST_INTERSECTION_DELIMITER = "&";
+	public static final String CASE_LIST_INTERSECTION_DELIMITER = "&";
 
 	// bean properties
 	private String caseListFilename;

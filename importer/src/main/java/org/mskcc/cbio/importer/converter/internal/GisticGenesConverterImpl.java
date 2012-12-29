@@ -55,20 +55,20 @@ import java.util.Arrays;
 public class GisticGenesConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(GisticGenesConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(GisticGenesConverterImpl.class);
 
 	// statics for row identifiers in *_genes.conf_99.txt
-	private static String GENES_CONF_CYTOBAND_ROW_HEADER_NAME = "cytoband";
-	private static String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
-	private static String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
+	private static final String GENES_CONF_CYTOBAND_ROW_HEADER_NAME = "cytoband";
+	private static final String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
+	private static final String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
 	// statics for column identifiers in table_*.conf_99.txt
-	private static String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
-	private static String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
-	private static String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
-	private static String TABLE_CONF_GENES_IN_REGION_HEADER_NAME = "genes_in_region";
-	private static String TABLE_CONF_GENES_IN_REGION_DELIMITER = ",";
+	private static final String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
+	private static final String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
+	private static final String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
+	private static final String TABLE_CONF_GENES_IN_REGION_HEADER_NAME = "genes_in_region";
+	private static final String TABLE_CONF_GENES_IN_REGION_DELIMITER = ",";
 	// our GeneConfMap value delimiter
-	private static String GENE_CONF_MAP_VALUE_DELIMITER = ":";
+	private static final String GENE_CONF_MAP_VALUE_DELIMITER = ":";
 
 	// ref to configuration
 	private Config config;

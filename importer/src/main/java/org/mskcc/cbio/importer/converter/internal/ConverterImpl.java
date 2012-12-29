@@ -59,10 +59,10 @@ import java.util.LinkedHashSet;
 class ConverterImpl implements Converter {
 
 	// all cases indicator
-	private static String ALL_CASES_FILENAME = "cases_all.txt";
+	private static final String ALL_CASES_FILENAME = "cases_all.txt";
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(ConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(ConverterImpl.class);
 
 	// ref to configuration
 	private Config config;

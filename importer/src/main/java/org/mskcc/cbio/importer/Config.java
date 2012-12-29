@@ -46,7 +46,7 @@ import java.util.Collection;
 public interface Config {
 
 	// const used when requesting all of something
-	public static String ALL = "all";
+	public static final String ALL = "all";
 
 	/**
 	 * Gets a TumorTypeMetadata object via tumorType.

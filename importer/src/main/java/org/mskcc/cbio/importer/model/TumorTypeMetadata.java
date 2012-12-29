@@ -36,10 +36,10 @@ package org.mskcc.cbio.importer.model;
 public class TumorTypeMetadata {
 
     // delimiter between tumor type & name within the reference file
-	public static String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
+	public static final String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
 
     // name of reference file created to import into portal
-	public static String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
+	public static final String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
 
 	// bean properties
 	private String tumorType;

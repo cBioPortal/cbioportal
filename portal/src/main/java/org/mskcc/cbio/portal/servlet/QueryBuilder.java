@@ -480,19 +480,19 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
 			// get oncoprint here - only if output == null or output = html
-			String oncoPrintHtml = "";
-			if (output == null || output.equals("html")) {
-				oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
-															geneListStr,
-															mergedProfile,
-															caseSetList,
-															caseSetId,
-															zScoreThreshold,
-															rppaScoreThreshold,
-															geneticProfileIdSet,
-															profileList,
-															true);
-			}
+//			String oncoPrintHtml = "";
+//			if (output == null || output.equals("html")) {
+//				oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
+//															geneListStr,
+//															mergedProfile,
+//															caseSetList,
+//															caseSetId,
+//															zScoreThreshold,
+//															rppaScoreThreshold,
+//															geneticProfileIdSet,
+//															profileList,
+//															true);
+//			}
 
             if (output != null) {
 				if (output.equals("text")) {
@@ -505,13 +505,14 @@ public class QueryBuilder extends HttpServlet {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
 				// (via LinkOut servlet - report=oncoprint_html arg)
-                } else if (output.equals("html")) {
-					outputOncoprintHtml(response, oncoPrintHtml);
-				}
+                }
+//                else if (output.equals("html")) {
+//					outputOncoprintHtml(response, oncoPrintHtml);
+//				}
             } else {
 
 				// set oncoprint html in session for use in visualize.jsp
-				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
+//				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
 				
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);

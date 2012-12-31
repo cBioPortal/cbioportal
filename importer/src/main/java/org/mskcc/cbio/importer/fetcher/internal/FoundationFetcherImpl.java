@@ -142,7 +142,8 @@ class FoundationFetcherImpl implements Fetcher {
 				}
 				try {
 					String caseRecord = foundationService.getCase(caseID);
-					File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory(),
+					File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+																	 File.pathSeparator + 
 																	 caseID + FOUNDATION_FILE_EXTENSION, caseRecord);
 					if (LOG.isInfoEnabled()) {
 						LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");

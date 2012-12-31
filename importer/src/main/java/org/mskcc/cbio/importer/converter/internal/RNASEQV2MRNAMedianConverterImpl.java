@@ -53,22 +53,22 @@ import java.util.ArrayList;
  */
 public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 
-	private static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+	protected static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(RNASEQV2MRNAMedianConverterImpl.class);
 
 	// ref to configuration
-	private Config config;
+	protected Config config;
 
 	// ref to file utils
-	private FileUtils fileUtils;
+	protected FileUtils fileUtils;
 
 	// ref to caseids
-	private CaseIDs caseIDs;
+	protected CaseIDs caseIDs;
 
 	// ref to IDMapper
-	private IDMapper idMapper;
+	protected IDMapper idMapper;
 
 	/**
 	 * Constructor.

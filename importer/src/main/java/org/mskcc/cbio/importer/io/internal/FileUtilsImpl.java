@@ -268,21 +268,23 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	@Override
 	public File createTmpFileWithContents(String filename, String fileContent) throws Exception {
 
-		return createFileWithContents(org.apache.commons.io.FileUtils.getTempDirectoryPath(), filename, fileContent);
+		return createFileWithContents(org.apache.commons.io.FileUtils.getTempDirectoryPath() +
+									  File.pathSeparator + filename,
+									  fileContent);
 	}
 
 	/**
-	 * Creates (or overwrites) the given file with the given contents.
+	 * Creates (or overwrites) the given file with the given contents. Filename
+	 * is canonical path/filename.
 	 *
-	 * @param directory String
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
 	 */
 	@Override
-	public File createFileWithContents(String directory, String filename, String fileContent) throws Exception {
+	public File createFileWithContents(String filename, String fileContent) throws Exception {
 
-		File file = org.apache.commons.io.FileUtils.getFile(directory, filename);
+		File file = org.apache.commons.io.FileUtils.getFile(filename);
 		org.apache.commons.io.FileUtils.writeStringToFile(file, fileContent, false);
 
 		// outta here
@@ -292,34 +294,35 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
-	 * @param urlString String
-	 * @param canonicalDestination String
+	 * @param urlSource String
+	 * @param urlDestination String
 	 * @throws Exception
 	 */
 	@Override
-	public void downloadFile(String urlString, String canonicalDestination) throws Exception {
+	public void downloadFile(String urlSource, String urlDestination) throws Exception {
 
 		// sanity check
-		if (urlString == null || urlString.length() == 0 ||
-			canonicalDestination == null || canonicalDestination.length() == 0) {
+		if (urlSource == null || urlSource.length() == 0 ||
+			urlDestination == null || urlDestination.length() == 0) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("downloadFile(): url or canonicalDestination argument is null, returning...");
+                LOG.info("downloadFile(): url or urlDestination argument is null, returning...");
             }
 			return;
 		}
 
-		// this is the URL for the file to download
-		URL url = new URL(urlString);
+		// URLs for given parameters
+		URL source = new URL(urlSource);
+		URL destination = new URL(urlDestination);
 
 		// we have a compressed file
-		if (GzipUtils.isCompressedFilename(urlString)) {
+		if (GzipUtils.isCompressedFilename(urlSource)) {
 			// downlod to temp destination
 			File tempDestinationFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			   new File(url.getFile()).getName());
+																			   new File(source.getFile()).getName());
 			if (LOG.isInfoEnabled()) {
-				LOG.info("downloadFile(), " + urlString + ", this may take a while...");
+				LOG.info("downloadFile(), " + urlSource + ", this may take a while...");
 			}
-			org.apache.commons.io.FileUtils.copyURLToFile(url, tempDestinationFile);
+			org.apache.commons.io.FileUtils.copyURLToFile(source, tempDestinationFile);
 			if (LOG.isInfoEnabled()) {
 				LOG.info("downloadFile(), gunzip: we have compressed file, decompressing...");
 			}
@@ -330,19 +333,30 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			// move temp/decompressed file to final destination
 			org.apache.commons.io.FileUtils.moveFile(org.apache.commons.io.FileUtils.getFile(GzipUtils.getUncompressedFilename(tempDestinationFile.getCanonicalPath())),
-													 org.apache.commons.io.FileUtils.getFile(canonicalDestination));
+													 org.apache.commons.io.FileUtils.getFile(destination.getFile()));
 
 			// lets cleanup after ourselves - remove compressed file
 			tempDestinationFile.delete();
 		}
-		// uncompressed file, download directry to canonicalDestination
+		// uncompressed file, download directry to urlDestination
 		else {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("downloadFile(), " + urlString + ", this may take a while...");
+				LOG.info("downloadFile(), " + urlSource + ", this may take a while...");
 			}
-			org.apache.commons.io.FileUtils.copyURLToFile(url,
-														  org.apache.commons.io.FileUtils.getFile(canonicalDestination));
+			org.apache.commons.io.FileUtils.copyURLToFile(source,
+														  org.apache.commons.io.FileUtils.getFile(destination.getFile()));
 		}
+	}
+
+	/**
+	 * Returns a line iterator over the given file.
+	 *
+	 * @param urlFile String
+	 * @throws Exception
+	 */
+	@Override
+	public LineIterator getFileContents(String urlFile) throws Exception {
+		return org.apache.commons.io.FileUtils.lineIterator(new File(new URL(urlFile).getFile()));
 	}
 
 	/**

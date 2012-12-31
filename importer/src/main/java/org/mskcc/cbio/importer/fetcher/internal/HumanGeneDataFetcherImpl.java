@@ -35,17 +35,20 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.LineIterator;
+
+import java.net.URL;
 
 /**
  * Class which implements the fetcher interface.
  */
-class ReferenceDataFetcherImpl implements Fetcher {
+class HumanGeneDataFetcherImpl extends ReferenceDataFetcherImpl implements Fetcher {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
+	private static final Log LOG = LogFactory.getLog(HumanGeneDataFetcherImpl.class);
 
-	// ref to file utils
-	protected FileUtils fileUtils;
+	// human taxid
+	private static final String HUMAN_TAXID = "9606";
 
 	/**
 	 * Constructor.
@@ -54,23 +57,8 @@ class ReferenceDataFetcherImpl implements Fetcher {
      *
 	 * @param fileUtils FileUtils
 	 */
-	public ReferenceDataFetcherImpl(FileUtils fileUtils) {
-
-		// set members
-		this.fileUtils = fileUtils;
-	}
-
-	/**
-	 * Fetchers genomic data from an external datasource and
-	 * places in database for processing.
-	 *
-	 * @param dataSource String
-	 * @param desiredRunDate String
-	 * @throws Exception
-	 */
-	@Override
-	public void fetch(String dataSource, String desiredRunDate) throws Exception {
-		throw new UnsupportedOperationException();
+	public HumanGeneDataFetcherImpl(FileUtils fileUtils) {
+		super(fileUtils);
 	}
 
 	/**
@@ -82,18 +70,27 @@ class ReferenceDataFetcherImpl implements Fetcher {
 	@Override
 	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
-		// sanity check
-		if (referenceMetadata.getReferenceFileSource() == null ||
-			referenceMetadata.getReferenceFileSource().length() == 0) {
-			throw new IllegalArgumentException("referenceMetadata.getReferenceFileSource() must not be null, aborting");
-		}
+		super.fetchReferenceData(referenceMetadata);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile());
+			LOG.info("fetchReferenceData(), filtering all gene data but human");
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource(),
-							   referenceMetadata.getReferenceFile());
+		StringBuilder builder = new StringBuilder();
+		LineIterator it = fileUtils.getFileContents(referenceMetadata.getReferenceFile());
+		try {
+			while (it.hasNext()) {
+				String nextLine = it.nextLine();
+				if (nextLine.startsWith(HUMAN_TAXID)) {
+					builder.append(nextLine + "\n");
+				}
+			}
+		}
+		finally {
+			it.close();
+		}
+
+		URL url = new URL(referenceMetadata.getReferenceFile());
+		fileUtils.createFileWithContents(url.getFile(), builder.toString());
 	}
 }

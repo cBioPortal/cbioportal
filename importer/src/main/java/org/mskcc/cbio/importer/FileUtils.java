@@ -37,6 +37,8 @@ import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
+import org.apache.commons.io.LineIterator;
+
 import java.io.File;
 import java.util.Collection;
 
@@ -117,23 +119,31 @@ public interface FileUtils {
 	File createTmpFileWithContents(String filename, String fileContent) throws Exception;
 
 	/**
-	 * Creates (or overwrites) the given file with the given contents.
+	 * Creates (or overwrites) the given file with the given contents.  Filename
+	 * is canonical path/filename.
 	 *
-	 * @param directory String
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
 	 */
-	File createFileWithContents(String directory, String filename, String fileContent) throws Exception;
+	File createFileWithContents(String filename, String fileContent) throws Exception;
 
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
-	 * @param urlString String
-	 * @param canonicalDestination String
+	 * @param uriSource String
+	 * @param uriDestination String
 	 * @throws Exception
 	 */
-	void downloadFile(String urlString, String canonicalDestination) throws Exception;
+	void downloadFile(String urlSource, String urlDestination) throws Exception;
+
+	/**
+	 * Returns a line iterator over the given file.
+	 *
+	 * @param urlFile String
+	 * @throws Exception
+	 */
+	LineIterator getFileContents(String urlFile) throws Exception;
 
 	/**
 	 * Method which writes the cancer study metadata file.

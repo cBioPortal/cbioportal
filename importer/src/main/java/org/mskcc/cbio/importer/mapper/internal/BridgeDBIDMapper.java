@@ -54,7 +54,7 @@ public class BridgeDBIDMapper implements org.mskcc.cbio.importer.IDMapper {
 	// some statics to gene info column headers
 	private static final String ENTREZ_COLUMN_HEADER = "GeneID";
 	private static final String SYMBOL_COLUMN_HEADER = "Symbol";
-	private static final String FLAT_FILE_CONNECTION_STRING = "idmapper-text:dssep=\\t,idsep=;,idsep=,,transitivity=false@file:";
+	private static final String FLAT_FILE_CONNECTION_STRING = "idmapper-text:file:";
 
 	// bridge db refs
 	IDMapper idMapper;

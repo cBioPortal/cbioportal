@@ -49,6 +49,7 @@
   <!-- importer beans -->
   <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
+  <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper"/>
   <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
 	<b:constructor-arg index="0"><b:value>${spreadsheet_service_appname}</b:value></b:constructor-arg>
   </b:bean>
@@ -65,10 +66,6 @@
 	<b:constructor-arg index="9"><b:value>${reference_data_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="10"><b:value>${data_sources_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="11"><b:value>${cancer_studies_worksheet}</b:value></b:constructor-arg>
-  </b:bean>
-  <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.BridgeDBIDMapper">
-	<b:constructor-arg ref="config"/>
-	<b:constructor-arg><b:value>${human_gene_reference_type}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
 	<b:constructor-arg ref="config"/>

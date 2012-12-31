@@ -50,6 +50,9 @@ public class DatatypeMetadata {
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
 
+	// MAF file extension - used (at least) by FileUtils.oncotateAllMAFs
+	public static final String MAF_FILE_EXT = ".maf.annotated";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:

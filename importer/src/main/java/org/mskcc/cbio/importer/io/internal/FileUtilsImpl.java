@@ -304,10 +304,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// sanity check
 		if (urlSource == null || urlSource.length() == 0 ||
 			urlDestination == null || urlDestination.length() == 0) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("downloadFile(): url or urlDestination argument is null, returning...");
-            }
-			return;
+			throw new IllegalArgumentException("downloadFile(): urlSource or urlDestination argument is null...");
 		}
 
 		// URLs for given parameters
@@ -448,35 +445,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
 		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
-		// create a temp output file from the oncotator
-		File oncotatorOutputFile = 
-			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"oncotatorOutputFile");
-		// call oncotator
-		String[] oncotatorArgs = { oncotatorInputFile.getCanonicalPath(),
-								   oncotatorOutputFile.getCanonicalPath() };
-		if (LOG.isInfoEnabled()) {
-			LOG.info("writingMutationStagingFile(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
-		}
-		OncotateTool.main(oncotatorArgs);
-		// we call OMA here -
-		// we already have input (oncotatorOutputFile)
+
 		// output should be the path/name of staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
-		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
-							 stagingFile.getCanonicalPath() };
-		if (LOG.isInfoEnabled()) {
-			LOG.info("writingMutationStagingFile(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
-		}
-		MutationAssessorTool.main(omaArgs);
+
+		// call oncotateMAF
+		oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
-		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
 
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
@@ -627,6 +609,75 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		writer.println();
 		writer.flush();
 		writer.close();
+	}
+
+	/**
+	 * Runs all MAFs for the given dataaSourcesMetadata through
+	 * the Oncotator and OMA tools.
+	 *
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @throws Exception
+	 */
+	@Override
+	public void oncotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception {
+
+		// iterate over datasource download directory and process all MAFs
+		String[] extensions = new String[] { DatatypeMetadata.MAF_FILE_EXT };
+		for (File maf : listFiles(new File(dataSourcesMetadata.getDownloadDirectory()), extensions, true)) {
+			// create temp for given maf
+			File oncotatorInputFile =
+				org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+														"oncotatorInputFile");
+			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
+			// input is tmp file we just created, we want output to go into the original maf
+			oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+						FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
+			// clean up
+			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		}
+	}
+
+	/**
+	 * Runs a MAF file through the Oncotator and OMA tools.
+	 *
+	 * @param inputMAFURL String
+	 * @param outputMAFURL String
+	 * @throws Exception 
+	 */
+	@Override
+	public void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception {
+
+		// sanity check
+		if (inputMAFURL == null || inputMAFURL.length() == 0 ||
+			outputMAFURL == null || outputMAFURL.length() == 0) {
+			throw new IllegalArgumentException("oncotateMAFdownloadFile(): url or urlDestination argument is null...");
+		}
+
+		URL inputMAF = new URL(inputMAFURL);
+		URL outputMAF = new URL(outputMAFURL);
+
+		// create a temp output file from the oncotator
+		File oncotatorOutputFile = 
+			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+													"oncotatorOutputFile");
+		// call oncotator
+		String[] oncotatorArgs = { inputMAF.getFile(),
+								   oncotatorOutputFile.getCanonicalPath() };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
+		}
+		OncotateTool.main(oncotatorArgs);
+		// we call OMA here -
+		// we use output from oncotator as input file
+		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
+							 outputMAF.getFile() };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
+		}
+		MutationAssessorTool.main(omaArgs);
+
+		// clean up
+		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
 	}
 
 	/**

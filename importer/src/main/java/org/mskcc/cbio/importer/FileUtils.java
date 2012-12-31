@@ -47,6 +47,8 @@ import java.util.Collection;
  */
 public interface FileUtils {
 
+	public static final String FILE_URL_PREFIX = "file://";
+
 	/**
 	 * Computes the MD5 digest for the given file.
 	 * Returns the 32 digit hexadecimal.
@@ -218,4 +220,22 @@ public interface FileUtils {
 	 */
 	void writeCaseListFile(PortalMetadata portalMetadata,
 						   CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception;
+
+	/**
+	 * Runs all MAFs for the given dataaSourcesMetadata through
+	 * the Oncotator and OMA tools.
+	 *
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @throws Exception
+	 */
+	void oncotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception;
+
+	/**
+	 * Runs a MAF file through the Oncotator and OMA tools.
+	 *
+	 * @param inputMAFURL String
+	 * @param outputMAFURL String
+	 * @throws Exception
+	 */
+	void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception;
 }

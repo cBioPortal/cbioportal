@@ -99,6 +99,16 @@ public class Admin implements Runnable {
 									  .withDescription("fetch reference data")
 									  .create("fetch_reference_data"));
 
+        Option oncotateMAF = (OptionBuilder.withArgName("maf_file")
+							  .hasArg()
+							  .withDescription("run the given MAF though Oncotator and OMA tools")
+							  .create("oncotate_maf"));
+
+        Option oncotateAllMAFs = (OptionBuilder.withArgName("datasource")
+							  .hasArg()
+							  .withDescription("run all MAFs in given datasource though Oncotator and OMA tools")
+							  .create("oncotate_mafs"));
+
         Option convertData = (OptionBuilder.withArgName("portal")
                               .hasArg()
                               .withDescription("convert data awaiting for import for the given portal")
@@ -133,6 +143,8 @@ public class Admin implements Runnable {
 		toReturn.addOption(clobberImportDataRecordbase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
+		toReturn.addOption(oncotateMAF);
+		toReturn.addOption(oncotateAllMAFs);
 		toReturn.addOption(convertData);
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
@@ -191,6 +203,14 @@ public class Admin implements Runnable {
 			// fetch reference data
 			else if (commandLine.hasOption("fetch_reference_data")) {
 				fetchReferenceData(commandLine.getOptionValue("fetch_reference_data"));
+			}
+			// oncotate MAF
+			else if (commandLine.hasOption("oncotate_maf")) {
+				oncotateMAF(commandLine.getOptionValue("oncotate_maf"));
+			}
+			// oncotate MAFs
+			else if (commandLine.hasOption("oncotate_mafs")) {
+				oncotateAllMAFs(commandLine.getOptionValue("oncotate_mafs"));
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
@@ -295,6 +315,73 @@ public class Admin implements Runnable {
 				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
+	}
+
+	/**
+	 * Helper function to oncotate the give MAF.
+     *
+     * @param mafFile String
+     *
+	 * @throws Exception
+	 */
+	private void oncotateMAF(String mafFileName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), mafFile: " + mafFileName);
+		}
+
+		// sanity check
+		File mafFile = new File(mafFileName);
+		if (!mafFile.exists()) {
+			throw new IllegalArgumentException("cannot find the give MAF: " + mafFileName);
+		}
+
+		// create fileUtils object
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Config config = (Config)context.getBean("config");
+		FileUtils fileUtils = (FileUtils)context.getBean("fileUtils");
+
+		// create tmp file for given MAF
+		File tmpMAF = 
+			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+													"tmpMAF");
+		org.apache.commons.io.FileUtils.copyFile(mafFile, tmpMAF);
+
+		// oncotate the MAF (input is tmp maf, output is original maf)
+		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath(),
+							  FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
+
+		// clean up
+		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+	}
+
+	/**
+	 * Helper function to oncotate MAFs.
+     *
+     * @param dataSource String
+     *
+	 * @throws Exception
+	 */
+	private void oncotateAllMAFs(String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateAllMAFs(), dataSource: " + dataSource);
+		}
+
+		// create an instance of Converter
+		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+		Config config = (Config)context.getBean("config");
+		DataSourcesMetadata dataSourcesMetadata = null;
+		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
+		if (!dataSources.isEmpty()) {
+			dataSourcesMetadata = dataSources.iterator().next();
+		}
+		// sanity check
+		if (dataSourcesMetadata == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
+		}
+		FileUtils fileUtils = (FileUtils)context.getBean("fileUtils");
+		fileUtils.oncotateAllMAFs(dataSourcesMetadata);
 	}
 
 	/**

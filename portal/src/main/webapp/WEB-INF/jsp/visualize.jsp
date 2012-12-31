@@ -99,7 +99,6 @@
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
-    String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 
 
@@ -344,7 +343,6 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-			<%= oncoprintHTML %>
             <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>

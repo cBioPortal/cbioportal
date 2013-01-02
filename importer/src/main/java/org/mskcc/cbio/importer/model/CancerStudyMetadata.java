@@ -44,7 +44,7 @@ public class CancerStudyMetadata {
 
 	// file/file extension of metadata file
 	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
-	private static final String CANCER_STUDY_METADATA_FILE = "study_metadata" + CANCER_STUDY_METADATA_FILE_EXT;
+	private static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
 
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";

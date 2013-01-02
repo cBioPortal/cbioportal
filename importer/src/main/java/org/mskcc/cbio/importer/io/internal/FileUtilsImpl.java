@@ -369,9 +369,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																	cancerStudyMetadata.getStudyPath(),
-																	cancerStudyMetadata.toString() +
-																	CancerStudyMetadata.CANCER_STUDY_METADATA_FILE_EXT);
+																	cancerStudyMetadata.getCancerStudyMetadataFilename());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeMetadataFile(), meta file: " + metaFile);
 			}

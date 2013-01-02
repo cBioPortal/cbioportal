@@ -42,8 +42,9 @@ public class CancerStudyMetadata {
 	// this is value in worsheet-matrix cell if cancer study is in a desired portal
 	public static final String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
 
-	// file extension of metadata file
-	public static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	// file/file extension of metadata file
+	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	private static final String CANCER_STUDY_METADATA_FILE = "study-metadata" + CANCER_STUDY_METADATA_FILE_EXT;
 
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
@@ -104,6 +105,11 @@ public class CancerStudyMetadata {
 		return (tumorType + File.separator + center + suffix);
 	}
 	public String getDescription() { return description; }
+
+	public String getCancerStudyMetadataFilename() {
+		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
+		return CANCER_STUDY_METADATA_FILE;
+	}
 
 	public String toString() {
 		return (tumorType + CANCER_STUDY_IDENTIFIER_DELIMITER +

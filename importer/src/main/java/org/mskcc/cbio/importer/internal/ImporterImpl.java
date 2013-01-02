@@ -230,10 +230,7 @@ class ImporterImpl implements Importer {
 
 			// import cancer name / metadata
 			String[] args = { cancerStudyMetadata.toString(),
-							  (rootDirectory +
-							   cancerStudyMetadata.getStudyPath() +
-							   File.separator + cancerStudyMetadata.toString() +
-							   CancerStudyMetadata.CANCER_STUDY_METADATA_FILE_EXT) };
+							  rootDirectory + cancerStudyMetadata.getCancerStudyMetadataFilename() };
 			ImportCancerStudy.main(args);
 
 			// iterate over all datatypes

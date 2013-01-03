@@ -302,8 +302,7 @@ class ConverterImpl implements Converter {
 			// iterate over all datatypes
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 				// apply staging override
-				String stagingFilename = datatypeMetadata.getStagingFilename();
-				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename);
 				// apply metadata override
 				if (datatypeMetadata.requiresMetafile()) {
@@ -374,7 +373,9 @@ class ConverterImpl implements Converter {
 			for (ImportDataRecord importData : importDataRecords) {
 				// do we have to check for an override file?
 				if (applyOverrides) {
-					File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, importData.getDataFilename());
+					String dataFilename =
+						importData.getDataFilename().replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
+					File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, dataFilename);
 					if (overrideFile != null) {
 						if (LOG.isInfoEnabled()) {
 							LOG.info("getDataMatrices(), found an override file for: " + 

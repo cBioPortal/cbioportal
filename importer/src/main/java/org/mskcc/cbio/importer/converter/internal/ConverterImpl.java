@@ -374,7 +374,7 @@ class ConverterImpl implements Converter {
 				// do we have to check for an override file?
 				if (applyOverrides) {
 					String dataFilename =
-						importData.getDataFilename().replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
+						importData.getDataFilename().replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType().toUpperCase());
 					File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, dataFilename);
 					if (overrideFile != null) {
 						if (LOG.isInfoEnabled()) {

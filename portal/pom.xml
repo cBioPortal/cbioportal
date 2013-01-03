@@ -130,7 +130,7 @@
 
 	<!-- properties file used for filtering our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/src/main/resources/build.properties</filter>
+        <filter>${PORTAL_HOME}/portal/src/main/resources/build.properties</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into war -->

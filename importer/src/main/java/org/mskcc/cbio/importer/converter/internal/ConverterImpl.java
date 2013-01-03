@@ -270,6 +270,51 @@ class ConverterImpl implements Converter {
 
     }
 
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+	 * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("applyOverrides(), portal: " + portal);
+		}
+
+        // check args
+        if (portal == null) {
+            throw new IllegalArgumentException("portal must not be null");
+		}
+
+        // get portal metadata
+        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
+        if (portalMetadata == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("applyOverrides(), cannot find PortalMetadata, returning");
+            }
+            return;
+        }
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+			// iterate over all datatypes
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
+				// apply staging override
+				String stagingFilename = datatypeMetadata.getStagingFilename();
+				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename);
+				// apply metadata override
+				if (datatypeMetadata.requiresMetafile()) {
+					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
+				}
+			}
+			// case lists
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists");
+		}
+	}
+
 	/**
 	 * Creates a staging file from the given import data.
 	 *

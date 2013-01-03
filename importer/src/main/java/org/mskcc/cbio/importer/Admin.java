@@ -127,6 +127,11 @@ public class Admin implements Runnable {
                               .withDescription("convert data awaiting for import for the given portal (if apply_overrides is 't', overrides will be substituted for data source data before staging files are created")
                               .create("convert_data"));
 
+		Option applyOverrides = (OptionBuilder.withArgName("portal")		
+								 .hasArg()		
+								 .withDescription("apply overrides for the given portal")		
+								 .create("apply_overrides"));
+
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
 									.hasArg()
 									.withDescription("generate case lists for the given portal")
@@ -137,10 +142,10 @@ public class Admin implements Runnable {
 									  .withDescription("import given reference data")
 									  .create("import_reference_data"));
 
-        Option importData = (OptionBuilder.withArgName("portal:apply_overrides")
-                             .hasArgs(2)
+        Option importData = (OptionBuilder.withArgName("portal")
+                             .hasArg()
 							 .withValueSeparator(':')
-                             .withDescription("import data for use in the given portal (if apply_overrides is 't', overrides will be substituted for staging files")
+                             .withDescription("import data for use in the given portal")
                              .create("import_data"));
 
 		// create an options instance
@@ -154,6 +159,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(oncotateMAF);
 		toReturn.addOption(oncotateAllMAFs);
 		toReturn.addOption(convertData);
+		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
@@ -219,6 +225,10 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("oncotate_mafs")) {
 				oncotateAllMAFs(commandLine.getOptionValue("oncotate_mafs"));
 			}
+            // apply overrides		
+			else if (commandLine.hasOption("apply_overrides")) {		
+				applyOverrides(commandLine.getOptionValue("apply_overrides"));
+			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
                 String[] values = commandLine.getOptionValues("convert_data");
@@ -234,8 +244,7 @@ public class Admin implements Runnable {
 			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
-                String[] values = commandLine.getOptionValues("import_data");
-				importData(values[0], (values.length == 2) ? values[1] : "");
+                importData(commandLine.getOptionValue("import_data"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -391,6 +400,22 @@ public class Admin implements Runnable {
 		converter.convertData(portal, applyOverridesBool);
 	}
 
+    /**		
+	 * Helper function to apply overrides to a given portal.
+	 *		
+	 * @param portal String		
+	 * @throws Exception		
+	 */		
+	private void applyOverrides(String portal) throws Exception {		
+			
+		if (LOG.isInfoEnabled()) {		
+			LOG.info("applyOverrides(), portal: " + portal);
+		}		
+			
+		Converter converter = (Converter)getBean("converter");		
+		converter.applyOverrides(portal);
+	}
+
 	/**
 	 * Helper function to generate case lists.
      *
@@ -440,22 +465,18 @@ public class Admin implements Runnable {
 	 * Helper function to import data.
      *
      * @param portal String
-	 * @param applyOverrides String
 	 *
 	 * @throws Exception
 	 */
-	private void importData(String portal, String applyOverrides) throws Exception {
-
-		Boolean applyOverridesBool = getBoolean(applyOverrides);
+	private void importData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
-			LOG.info("importData(), apply overrides: " + applyOverridesBool);
 		}
 
 		// create an instance of Importer
 		Importer importer = (Importer)getBean("importer");
-		importer.importData(portal, applyOverridesBool);
+		importer.importData(portal);
 	}
 
 	/**

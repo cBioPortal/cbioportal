@@ -117,7 +117,20 @@ public class MethylationConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+	 * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.

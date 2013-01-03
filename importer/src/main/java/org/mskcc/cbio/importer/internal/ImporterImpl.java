@@ -90,11 +90,10 @@ class ImporterImpl implements Importer {
 	 * Imports data for use in the given portal.
 	 *
      * @param portal String
-	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void importData(String portal, Boolean applyOverrides) throws Exception {
+	public void importData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData()");
@@ -146,7 +145,7 @@ class ImporterImpl implements Importer {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), loading staging files...");
 		}
-		loadStagingFiles(portalMetadata, applyOverrides);
+		loadStagingFiles(portalMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete!, exiting...");
@@ -210,9 +209,8 @@ class ImporterImpl implements Importer {
 	 * Helper function to import all staging data.
 	 *
 	 * @param portalMetadata PortalMetadata
-	 * @param applyOverrides Boolean
 	 */
-	private void loadStagingFiles(PortalMetadata portalMetadata, Boolean applyOverrides) throws Exception {
+	private void loadStagingFiles(PortalMetadata portalMetadata) throws Exception {
 
 		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata(Config.ALL);
 		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
@@ -239,12 +237,10 @@ class ImporterImpl implements Importer {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get the metafile/staging file for this cancer_study / datatype
-				String stagingFilename = getImportFilename(rootDirectory, portalMetadata, cancerStudyMetadata,
-														   datatypeMetadata.getStagingFilename(), applyOverrides);
+				String stagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename());
 				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 				if (datatypeMetadata.requiresMetafile()) {
-					String metaFilename = getImportFilename(rootDirectory, portalMetadata, cancerStudyMetadata,
-															datatypeMetadata.getMetaFilename(), applyOverrides);
+					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
 				else {
@@ -297,35 +293,12 @@ class ImporterImpl implements Importer {
 	 * Helper function to determine the proper staging or meta file to import.
 	 *
 	 * @param rootDirectory String
-	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param filename String
-	 * @param applyOverrides Boolean
 	 * @return String
 	 * @throws Exception
 	 */
-	private String getImportFilename(String rootDirectory, PortalMetadata portalMetadata,
-									 CancerStudyMetadata cancerStudyMetadata, String filename,
-									 Boolean applyOverrides) throws Exception {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getImportFilename(): " + cancerStudyMetadata.getStudyPath() + File.separator + filename);
-		}
-		
-		String toReturn = null;
-		if (applyOverrides) {
-			File overrideFile =
-				fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, filename);
-			if (overrideFile != null) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("getImportFilename(), found override file: " + overrideFile.getCanonicalPath());
-				}
-				toReturn = overrideFile.getCanonicalPath();
-			}
-		}
-
-		// outta here
-		return (toReturn == null) ?
-			(rootDirectory + cancerStudyMetadata.getStudyPath() + File.separator + filename) : toReturn;
+	private String getImportFilename(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
+		return (rootDirectory + cancerStudyMetadata.getStudyPath() + File.separator + filename);
 	}
 }

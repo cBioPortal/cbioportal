@@ -216,17 +216,16 @@ public interface FileUtils {
 
 	/**
 	 * If it exists, moves an override file into the proper
-	 * location in the given portals staging area
+	 * location in the given portals staging area.
+	 *
+	 * Note, filename can be the name of a file or directory (like case_lists)
 	 *
 	 * @param portalMetadata PortalMetadata
-	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
+	 * @param filename String
 	 * @throws Exception
 	 */
-	void applyOverride(PortalMetadata portalMetadata, DataSourcesMetadata dataSourcesMetadata,
-					   CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception;
-
+	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception;
 
 	/**
 	 * Create a case list file from the given case list metadata file.

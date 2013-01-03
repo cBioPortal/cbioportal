@@ -563,37 +563,34 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * location in the given portals staging area
 	 *
 	 * @param portalMetadata PortalMetadata
-	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
+	 * @param filename String
 	 * @throws Exception
 	 */
 	@Override
-	public void applyOverride(PortalMetadata portalMetadata, DataSourcesMetadata dataSourcesMetadata,
-							  CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception {
-
-		// construct staging file (same in portal staging area or override directory)
-		String stagingFilename = datatypeMetadata.getStagingFilename();
-		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
 
 		// check for override file
 		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
-																	stagingFilename);
+																	filename);
 		if (overrideFile.exists()) {
 			File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	   cancerStudyMetadata.getStudyPath(),
-																	   stagingFilename);
-			// sanity check
-			if (!stagingFile.exists()) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("applyOverride(), overrideFile exists, but stagingFile is missing: " + stagingFile.getCanonicalPath());
-				}
-				return;
+																	   filename);
+
+			if (LOG.isInfoEnabled()) {
+				LOG.info("applyOverride(), override file exists for " + stagingFile.getCanonicalPath() + ": " + 
+						 overrideFile.getCanonicalPath());
 			}
 
 			// copy override file to staging area
-			org.apache.commons.io.FileUtils.copyFile(overrideFile, stagingFile);
+			if (overrideFile.isFile()) {
+				org.apache.commons.io.FileUtils.copyFile(overrideFile, stagingFile);
+			}
+			else {
+				org.apache.commons.io.FileUtils.copyDirectory(overrideFile, stagingFile);
+			}
 		}
 	}
 

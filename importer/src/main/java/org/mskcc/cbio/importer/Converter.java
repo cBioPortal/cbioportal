@@ -47,9 +47,10 @@ public interface Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
-	void convertData(String portal) throws Exception;
+	void convertData(String portal, Boolean applyOverrides) throws Exception;
 
 	/**
 	 * Generates case lists for the given portal.
@@ -58,15 +59,6 @@ public interface Converter {
 	 * @throws Exception
 	 */
 	void generateCaseLists(String portal) throws Exception;
-
-	/**
-	 * Applies overrides to the given portal using the given data source.
-	 *
-     * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-	void applyOverrides(String portal, String dataSource) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.

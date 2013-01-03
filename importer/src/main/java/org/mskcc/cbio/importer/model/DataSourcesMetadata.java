@@ -40,7 +40,6 @@ public class DataSourcesMetadata {
 	// bean properties
 	private String dataSource;
     private String downloadDirectory;
-    private String overrideDirectory;
     private String fetcherBeanID;
 
     /**
@@ -53,12 +52,10 @@ public class DataSourcesMetadata {
 
 		this.dataSource = properties[0].trim();
 		this.downloadDirectory = properties[1].trim();
-		this.overrideDirectory = properties[2].trim();
 		this.fetcherBeanID = properties[3].trim();
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
-	public String getOverrideDirectory() { return overrideDirectory; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 }

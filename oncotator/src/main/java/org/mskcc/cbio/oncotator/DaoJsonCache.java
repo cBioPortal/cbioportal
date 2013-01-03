@@ -47,6 +47,12 @@ public class DaoJsonCache implements OncotatorCacheService
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
+		// do not allow null values to go into db
+		if (record.getRawJson() == null)
+		{
+			return -1;
+		}
+
 		try {
 			con = DatabaseUtil.getDbConnection();
 			pstmt = con.prepareStatement

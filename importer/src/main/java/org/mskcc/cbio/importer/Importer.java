@@ -40,9 +40,10 @@ public interface Importer {
 	 * Imports data for use in the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
-	void importData(String portal) throws Exception;
+	void importData(String portal, Boolean applyOverrides) throws Exception;
 
 	/**
 	 * Imports the given reference data.

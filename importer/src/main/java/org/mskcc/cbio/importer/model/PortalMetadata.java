@@ -41,6 +41,7 @@ public class PortalMetadata {
 	// bean properties
     private String name;
     private String stagingDirectory;
+    private String overrideDirectory;
 
     /**
      * Create a PortalMetadata instance with properties in given array.
@@ -50,14 +51,16 @@ public class PortalMetadata {
      */
     public PortalMetadata(String[] properties) {
 
-		if (properties.length != 2) {
+		if (properties.length != 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
         this.name = properties[0].trim();
 		this.stagingDirectory = properties[1].trim();
+		this.overrideDirectory = properties[2].trim();
 	}
 
 	public String getName() { return name; }
 	public String getStagingDirectory() { return stagingDirectory; }
+	public String getOverrideDirectory() { return overrideDirectory; }
 }

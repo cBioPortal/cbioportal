@@ -52,6 +52,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Vector;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.io.File;
 
 /**
  * Class which implements the Converter interface.
@@ -103,13 +104,15 @@ class ConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal) throws Exception {
+	public void convertData(String portal, Boolean applyOverrides) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), applyOverrides: " + applyOverrides);
 		}
 
         // check args
@@ -137,7 +140,8 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata);
+				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata,
+															datatypeMetadata, applyOverrides);
 				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), no dataMatrices to process, skipping.");
@@ -267,58 +271,6 @@ class ConverterImpl implements Converter {
     }
 
 	/**
-	 * Applies overrides to the given portal using the given data source.
-	 *
-     * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-    @Override
-	public void applyOverrides(String portal, String dataSource) throws Exception {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("applyOverrides(), portal:dataSource: " + portal + ":" + dataSource);
-		}
-
-        // check args
-        if (portal == null) {
-            throw new IllegalArgumentException("portal must not be null");
-		}
-        if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource must not be null");
-		}
-
-        // get portal metadata
-        PortalMetadata portalMetadata = config.getPortalMetadata(portal).iterator().next();
-        if (portalMetadata == null) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("applyOverrides(), cannot find PortalMetadata, returning");
-            }
-            return;
-        }
-
-		// get dataSource
-		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(dataSource);
-		if (dataSourcesMetadata.isEmpty()) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("applyOverrides(), cannot find DataSourcesMetadata, returning");
-            }
-            return;
-		}
-		DataSourcesMetadata dataSourceMetadata = dataSourcesMetadata.iterator().next();
-
-		// iterate over all cancer studies
-		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
-			// iterate over all datatypes
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
-				// apply override
-				fileUtils.applyOverride(portalMetadata, dataSourceMetadata, cancerStudyMetadata, datatypeMetadata);
-			}
-		}
-		
-	}
-
-	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
@@ -340,12 +292,14 @@ class ConverterImpl implements Converter {
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @param applyOverrides Boolean
 	 * @return DataMatrix[]
 	 * @throws Exception
 	 */
 	private DataMatrix[] getDataMatrices(PortalMetadata portalMetadata,
 										 CancerStudyMetadata cancerStudyMetadata,
-										 DatatypeMetadata datatypeMetadata) throws Exception {
+										 DatatypeMetadata datatypeMetadata,
+										 Boolean applyOverrides) throws Exception {
 
 
 		// this is what we are returing
@@ -373,6 +327,19 @@ class ConverterImpl implements Converter {
 						 cancerStudyMetadata.getCenter() + ".");
 			}
 			for (ImportDataRecord importData : importDataRecords) {
+				// do we have to check for an override file?
+				if (applyOverrides) {
+					File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, importData.getDataFilename());
+					if (overrideFile != null) {
+						if (LOG.isInfoEnabled()) {
+							LOG.info("getDataMatrices(), found an override file for: " + 
+									 cancerStudyMetadata.toString() + ", datatype: " + datatype + ": " + 
+									 overrideFile.getCanonicalPath());
+						}
+						// if an override file does exist, lets replace canonical path in importData
+						importData.setCanonicalPathToData(overrideFile.getCanonicalPath());
+					}
+				}
 				toReturn.add(fileUtils.getFileContents(importData));
 			}
 		}

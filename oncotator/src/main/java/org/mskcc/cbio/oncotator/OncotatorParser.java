@@ -51,6 +51,12 @@ public class OncotatorParser
         ObjectMapper m = new ObjectMapper();
 	    JsonNode rootNode = null;
 
+	    // check for invalid json value
+	    if (json == null)
+	    {
+		    return null;
+	    }
+
 	    // return null if cannot read root node
 	    try {
 		    rootNode = m.readValue(json, JsonNode.class);

@@ -72,6 +72,7 @@ public interface FileUtils {
      * Makes a directory, including parent directories if necessary.
      *
      * @param directory File
+	 * @throws Exception
      */
     void makeDirectory(File directory) throws Exception;
 
@@ -79,6 +80,7 @@ public interface FileUtils {
      * Deletes a directory recursively.
      *
      * @param directory File
+	 * @throws Exception
      */
     void deleteDirectory(File directory) throws Exception;
 
@@ -89,6 +91,7 @@ public interface FileUtils {
      * @param extensions String[]
      * @param recursize boolean
      * @return Collection<File>
+	 * @throws Exception
      */
     Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception;
 
@@ -117,6 +120,7 @@ public interface FileUtils {
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
 	File createTmpFileWithContents(String filename, String fileContent) throws Exception;
 
@@ -127,6 +131,7 @@ public interface FileUtils {
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
 	File createFileWithContents(String filename, String fileContent) throws Exception;
 
@@ -154,7 +159,6 @@ public interface FileUtils {
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param numCases int
 	 * @throws Exception
-	 *
 	 */
 	void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
@@ -197,6 +201,20 @@ public interface FileUtils {
 								 DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
 
 	/**
+	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case
+	 * is the override file that a DataMatrix is created from.
+	 *
+	 * Null is returned if an override file is not found.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param filename String
+	 * @return File
+	 * @throws Exception
+	 */
+	File getOverrideFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception;
+
+	/**
 	 * If it exists, moves an override file into the proper
 	 * location in the given portals staging area
 	 *
@@ -204,6 +222,7 @@ public interface FileUtils {
 	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @throws Exception
 	 */
 	void applyOverride(PortalMetadata portalMetadata, DataSourcesMetadata dataSourcesMetadata,
 					   CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception;

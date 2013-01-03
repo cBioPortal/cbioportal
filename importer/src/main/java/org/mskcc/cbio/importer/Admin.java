@@ -121,16 +121,11 @@ public class Admin implements Runnable {
 							  .withDescription("run all MAFs in given datasource though Oncotator and OMA tools")
 							  .create("oncotate_mafs"));
 
-        Option convertData = (OptionBuilder.withArgName("portal")
-                              .hasArg()
-                              .withDescription("convert data awaiting for import for the given portal")
+        Option convertData = (OptionBuilder.withArgName("portal:apply_overrides")
+                              .hasArgs(2)
+							  .withValueSeparator(':')
+                              .withDescription("convert data awaiting for import for the given portal (if apply_overrides is 't', overrides will be substituted for data source data before staging files are created")
                               .create("convert_data"));
-
-        Option applyOverrides = (OptionBuilder.withArgName("portal:datasource")
-								 .hasArgs(2)
-								 .withValueSeparator(':')
-								 .withDescription("apply overrides for the given portal from the given datasource")
-								 .create("apply_overrides"));
 
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
 									.hasArg()
@@ -142,9 +137,10 @@ public class Admin implements Runnable {
 									  .withDescription("import given reference data")
 									  .create("import_reference_data"));
 
-        Option importData = (OptionBuilder.withArgName("portal")
-                             .hasArg()
-                             .withDescription("import data for use in the given portal")
+        Option importData = (OptionBuilder.withArgName("portal:apply_overrides")
+                             .hasArgs(2)
+							 .withValueSeparator(':')
+                             .withDescription("import data for use in the given portal (if apply_overrides is 't', overrides will be substituted for staging files")
                              .create("import_data"));
 
 		// create an options instance
@@ -158,7 +154,6 @@ public class Admin implements Runnable {
 		toReturn.addOption(oncotateMAF);
 		toReturn.addOption(oncotateAllMAFs);
 		toReturn.addOption(convertData);
-		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
@@ -226,12 +221,8 @@ public class Admin implements Runnable {
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
-				convertData(commandLine.getOptionValue("convert_data"));
-			}
-			// apply overrides
-			else if (commandLine.hasOption("apply_overrides")) {
-                String[] values = commandLine.getOptionValues("apply_overrides");
-				applyOverrides(values[0], values[1]);
+                String[] values = commandLine.getOptionValues("convert_data");
+				convertData(values[0], (values.length == 2) ? values[1] : "");
 			}
 			// generate case lists
 			else if (commandLine.hasOption("generate_case_lists")) {
@@ -243,7 +234,8 @@ public class Admin implements Runnable {
 			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
-				importData(commandLine.getOptionValue("import_data"));
+                String[] values = commandLine.getOptionValues("import_data");
+				importData(values[0], (values.length == 2) ? values[1] : "");
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -381,36 +373,22 @@ public class Admin implements Runnable {
 	 * Helper function to convert data.
      *
      * @param portal String
+	 * @param applyOverrides String
      *
 	 * @throws Exception
 	 */
-	private void convertData(String portal) throws Exception {
+	private void convertData(String portal, String applyOverrides) throws Exception {
+
+		Boolean applyOverridesBool = getBoolean(applyOverrides);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), apply overrides: " + applyOverridesBool);
 		}
 
 		// create an instance of Converter
 		Converter converter = (Converter)getBean("converter");
-		converter.convertData(portal);
-	}
-
-	/**
-	 * Helper function to apply overrides to a given portal
-	 * using a given datasource.
-	 *
-	 * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-	private void applyOverrides(String portal, String dataSource) throws Exception {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("applyOverrides(), portal:dateSource: " + portal + ":" + dataSource);
-		}
-
-		Converter converter = (Converter)getBean("converter");
-		converter.applyOverrides(portal, dataSource);
+		converter.convertData(portal, applyOverridesBool);
 	}
 
 	/**
@@ -462,18 +440,22 @@ public class Admin implements Runnable {
 	 * Helper function to import data.
      *
      * @param portal String
+	 * @param applyOverrides String
 	 *
 	 * @throws Exception
 	 */
-	private void importData(String portal) throws Exception {
+	private void importData(String portal, String applyOverrides) throws Exception {
+
+		Boolean applyOverridesBool = getBoolean(applyOverrides);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
+			LOG.info("importData(), apply overrides: " + applyOverridesBool);
 		}
 
 		// create an instance of Importer
 		Importer importer = (Importer)getBean("importer");
-		importer.importData(portal);
+		importer.importData(portal, applyOverridesBool);
 	}
 
 	/**
@@ -499,6 +481,17 @@ public class Admin implements Runnable {
 
 		// outta here
 		return toReturn;
+	}
+
+	/**
+	 * Helper function to create boolean based on argument parameter.
+	 *
+	 * @param parameterValue String
+	 * @return Boolean
+	 */
+	private Boolean getBoolean(String parameterValue) {
+		return (parameterValue.equalsIgnoreCase("t")) ?
+			new Boolean("true") : new Boolean("false");
 	}
 
 	/**

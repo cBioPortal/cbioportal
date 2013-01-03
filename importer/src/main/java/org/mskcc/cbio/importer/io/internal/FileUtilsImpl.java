@@ -146,6 +146,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * Makes a directory, including parent directories if necessary.
      *
      * @param directory File
+	 * @throws Exception
      */
     @Override
     public void makeDirectory(File directory) throws Exception {
@@ -157,6 +158,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * Deletes a directory recursively.
      *
      * @param directory File
+	 * @throws Exception
      */
     @Override
     public void deleteDirectory(File directory) throws Exception {
@@ -171,6 +173,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param extensions String[]
      * @param recursize boolean
      * @return Collection<File>
+	 * @throws Exception
      */
     @Override
     public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
@@ -264,6 +267,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
 	@Override
 	public File createTmpFileWithContents(String filename, String fileContent) throws Exception {
@@ -280,6 +284,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
 	@Override
 	public File createFileWithContents(String filename, String fileContent) throws Exception {
@@ -533,6 +538,27 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
+	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case
+	 * is the override file that a DataMatrix is created from.
+	 *
+	 * Null is returned if an override file is not found.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param filename String
+	 * @return File
+	 * @throws Exception
+	 */
+	@Override
+	public File getOverrideFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
+
+		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
+																	cancerStudyMetadata.getStudyPath(),
+																	filename);
+		return (overrideFile.exists()) ? overrideFile : null;
+	}
+
+	/**
 	 * If it exists, moves an override file into the proper
 	 * location in the given portals staging area
 	 *
@@ -540,6 +566,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @throws Exception
 	 */
 	@Override
 	public void applyOverride(PortalMetadata portalMetadata, DataSourcesMetadata dataSourcesMetadata,
@@ -550,7 +577,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 
 		// check for override file
-		File overrideFile = org.apache.commons.io.FileUtils.getFile(dataSourcesMetadata.getOverrideDirectory(),
+		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
 																	stagingFilename);
 		if (overrideFile.exists()) {

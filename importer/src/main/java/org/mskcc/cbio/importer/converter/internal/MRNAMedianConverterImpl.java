@@ -90,10 +90,11 @@ public class MRNAMedianConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal) throws Exception {
+	public void convertData(String portal, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -105,18 +106,6 @@ public class MRNAMedianConverterImpl implements Converter {
 	 */
     @Override
 	public void generateCaseLists(String portal) throws Exception {
-		throw new UnsupportedOperationException();
-    }
-
-	/**
-	 * Applies overrides to the given portal using the given data source.
-	 *
-     * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-    @Override
-	public void applyOverrides(String portal, String dataSource) throws Exception {
 		throw new UnsupportedOperationException();
     }
 

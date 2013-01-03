@@ -80,12 +80,14 @@
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
+  <!--
   <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
+  -->
   <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>

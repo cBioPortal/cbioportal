@@ -18,7 +18,7 @@
 <script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script> 
 <script type="text/javascript" src="js/gene_set.js"></script>
-<script type="text/javascript" src="js/mutsig.js"></script>
-<script type="text/javascript" src="js/gistic.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/DataManagerFactory.js"></script>
+<script type="text/javascript" src="js/QueryGeneData.js"></script>
 <script type="text/javascript" src="js/cbio-util.js"></script>

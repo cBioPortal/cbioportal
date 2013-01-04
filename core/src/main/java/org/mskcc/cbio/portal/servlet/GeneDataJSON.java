@@ -53,34 +53,6 @@ public class GeneDataJSON extends HttpServlet {
     }
 
     /**
-     * todo: this is code duplication!
-     * Format percentage.
-     *
-     * <p/>
-     * if value == 0 return "--"
-     * case value
-     * 0: return "--"
-     * 0<value<=0.01: return "<1%"
-     * 1<value: return "<value>%"
-     *
-     * @param value double
-     *
-     * @return String
-     */
-    public static String alterationValueToString(double value) {
-
-        // in oncoPrint show 0 percent as 0%, not --
-        if (0.0 < value && value <= 0.01) {
-            return "<1%";
-        }
-
-        // if( 1.0 < value ){
-        Formatter f = new Formatter();
-        f.format("%.0f", value * 100.0);
-        return f.out().toString() + "%";
-    }
-
-    /**
      * Maps the matrix to a JSONArray of alterations
      * @param geneticEvents matrix M[case][gene]
      * @return
@@ -103,7 +75,7 @@ public class GeneDataJSON extends HttpServlet {
             GeneticEvent rowEvent = geneticEvents[i][0];
             String gene = rowEvent.getGene().toUpperCase();
             String percent_altered =
-                    alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
+                    OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
 
             JSONArray mutation = new JSONArray();
             JSONArray cna = new JSONArray();
@@ -187,8 +159,10 @@ public class GeneDataJSON extends HttpServlet {
         double zScoreThreshold = Double.valueOf(request.getParameter("z_score_threshold"));
         double rppaScoreThreshold = Double.valueOf(request.getParameter("rppa_score_threshold"));
 
-        // ... do a bunch of work to get the matrix, basically copying out of QueryBuilder ...
         // todo: this is code duplication!
+        // this is a duplication of work that is being done in QueryBuilder.
+        // For now, we cannot remove it from QueryBuilder because other parts use it...for now
+        // ...this is a temporary solution
         ParserOutput theOncoPrintSpecParserOutput =
                 OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(_geneList,
                         geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);

@@ -123,6 +123,17 @@ public class GisticGenesConverterImpl implements Converter {
 		throw new UnsupportedOperationException();
 	}
 
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+	 * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
+
 	/**
 	 * Creates a staging file from the given import data.
 	 *

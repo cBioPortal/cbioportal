@@ -19,7 +19,9 @@ String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
+String otherStudy = (String)request.getAttribute(PatientView.OTHER_STUDIES_WITH_SAME_PATIENT_ID);
 boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
+String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;
@@ -38,7 +40,7 @@ if (isDemoMode!=null) {
 boolean showPathways = showPlaceHoder & (showMutations | showCNA);
 boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
-boolean hasCnaSegmentData = cancerStudy.hasCnaSegmentData();
+boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA)) & showCNA;
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
@@ -46,6 +48,8 @@ double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOver
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;
 int numPatientInSameCnaProfile = 0;
+
+boolean noData = cnaProfile==null & mutationProfile==null;
 
 String mutationProfileStableId = null;
 String cnaProfileStableId = null;
@@ -75,6 +79,10 @@ if (patientViewError!=null) {
 
 <jsp:include page="../../global/header.jsp" flush="true" />
 
+<%if(otherStudy!=null) {%>
+    <p style="background-color: lightyellow;"><%=otherStudy%></p>
+<%}%>
+
 <table width="100%">
     <tr>
         <td><b><u><%=patient%></u></b>&nbsp;&nbsp;<%=patientInfo%></td>
@@ -102,6 +110,10 @@ if (patientViewError!=null) {
     
     <%if(showTissueImages){%>
     <li><a href='#images' class='patient-tab' title='Tissue Images'>Tissue Images</a></li>
+    <%}%>
+    
+    <%if(pathReportUrl!=null){%>
+    <li><a href='#path-report' class='patient-tab' title='Pathology Report'>Pathology Report</a></li>
     <%}%>
 
     <%if(showPathways){%>
@@ -133,6 +145,12 @@ if (patientViewError!=null) {
     <%if(showTissueImages){%>
     <div class="patient-section" id="images">
         <%@ include file="tissue_images.jsp" %>
+    </div>
+    <%}%>
+
+    <%if(pathReportUrl!=null){%>
+    <div class="patient-section" id="path-report">
+        <%@ include file="path_report.jsp" %>
     </div>
     <%}%>
 
@@ -175,6 +193,9 @@ if (patientViewError!=null) {
         .ColVis {
                 float: left;
                 margin-bottom: 0
+        }
+        .dataTables_filter {
+                width: 40%;
         }
         .dataTables_length {
                 width: auto;
@@ -246,7 +267,8 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
-var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>);
+var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 
 
 $(document).ready(function(){
@@ -388,6 +410,9 @@ function addDrugsTooltip(elem) {
                             if (drug[2]) {
                                 txtDrug.push("Drug name:</b></td><td><b>"+drug[2]+"</b>");
                             }
+                            if (drug[1]) {
+                                txtDrug.push("Target:</b></td><td><b>"+drug[1]+"</b>");
+                            }
                             if (drug[3]) {
                                 txtDrug.push("Synonyms:</b></td><td>"+drug[3]);
                             }
@@ -430,6 +455,10 @@ function addDrugsTooltip(elem) {
             position: {my:'top right',at:'bottom center'}
         });
     });
+}
+
+function formatPatientLink(caseId,cancerStudyId) {
+    return caseId==null?"":'<a title="Go to patient-centric view" href="tumormap.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
 }
 
 function trimHtml(html) {

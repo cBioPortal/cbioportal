@@ -21,6 +21,8 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $(".oncoprint_help").tipTip({defaultPosition: "right", delay:"100", edgeOffset: 25});
+
+
         });
     </script>
     <title><%= request.getAttribute(QueryBuilder.HTML_TITLE)%></title>
@@ -40,11 +42,6 @@
         <tr>
             <td class="navigation">
                <ul>
-                    <%if(request.getAttribute("tumormap")!=null){%>
-                        <li class="internal">
-                            <a href="<%=SkinUtil.getCbioPortalUrl()%>index.do">cBio Portal</a>
-                        </li>
-                    <%} else {%>
                         <li class="selected">
                             <a href="index.do">Home</a>
                         </li>
@@ -84,7 +81,6 @@
                         <li class="internal">
                             <a href="networks.jsp">Networks</a>
                         </li>
-                    <%}%>
                     <li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>

@@ -37,6 +37,8 @@ import java.util.List;
 
 /**
  * Main controller class for MAF processing and IO operations.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class Oncotator
 {
@@ -57,13 +59,27 @@ public class Oncotator
 	 */
 	public Oncotator()
 	{
-		// init default (HTTP) oncotator service
-		this.oncotatorService = new OncotatorService();
-
 		// init default settings
-		this.useCache = true;
 		this.sortColumns = false;
 		this.addMissingCols = false;
+		this.useCache = true;
+		this.oncotatorService = new CachedOncotatorService();
+	}
+
+	public Oncotator(boolean useCache)
+	{
+		this();
+		this.useCache = useCache;
+
+		// determine whether to use the DB cache or not
+		if (useCache)
+		{
+			this.oncotatorService = new CachedOncotatorService();
+		}
+		else
+		{
+			this.oncotatorService = new BasicOncotatorService();
+		}
 	}
 
 	/**
@@ -79,6 +95,20 @@ public class Oncotator
 	}
 
 	/**
+	 * Instantiates a new (default) MAF processor for this oncotator.
+	 *
+	 * Override this method in a child class to provide a custom MAF
+	 * processor for specific needs.
+	 *
+	 * @param headerLine    header line of the MAF containing column names
+	 * @return              default MAF processor instance
+	 */
+	protected OncoMafProcessor initMafProcessor(String headerLine)
+	{
+		return new OncoMafProcessor(headerLine);
+	}
+
+	/**
 	 * Oncotates the given input MAF file and creates a new MAF
 	 * file with new/updated oncotator columns.
 	 *
@@ -90,16 +120,13 @@ public class Oncotator
 	protected int oncotateMaf(File inputMafFile,
 			File outputMafFile) throws Exception
 	{
-		// determine whether to use the DB cache or not
-		this.oncotatorService.setUseCache(this.useCache);
-
 		this.outputFileNames(inputMafFile, outputMafFile);
 
 		FileReader reader = new FileReader(inputMafFile);
 		BufferedReader bufReader = new BufferedReader(reader);
 		String headerLine = bufReader.readLine();
 		MafUtil mafUtil = new MafUtil(headerLine);
-		OncoMafProcessor processor = new OncoMafProcessor(headerLine);
+		OncoMafProcessor processor = this.initMafProcessor(headerLine);
 
 		int numRecordsProcessed = 0;
 		FileWriter writer = new FileWriter(outputMafFile);
@@ -119,6 +146,7 @@ public class Oncotator
 			// skip empty lines
 			if (dataLine.trim().length() == 0)
 			{
+				dataLine = bufReader.readLine();
 				continue;
 			}
 
@@ -138,6 +166,7 @@ public class Oncotator
 				// just set the mutation type, all other data will be empty
 				oncotatorRecord = new OncotatorRecord("NA");
 				oncotatorRecord.getBestEffectTranscript().setVariantClassification("Silent");
+				oncotatorRecord.getBestCanonicalTranscript().setVariantClassification("Silent");
 			}
 
 			// get the data and update/add new oncotator columns

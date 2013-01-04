@@ -32,15 +32,59 @@ package org.mskcc.cbio.importer.util;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 
 /**
  * Class which provides class loader services.
  */
-public final class ClassLoader {
+public class ClassLoader {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ClassLoader.class);
+	private static Log LOG = LogFactory.getLog(ClassLoader.class);
+
+	/**
+	 * Method to return the given class method (if it exists), null otherwise.
+	 * It assumes that there are no overloaded functions in the class.
+	 *
+	 * @param className String
+	 * @param methodName String
+	 * @return Method
+	 */
+	public static Method getMethod(String className, String methodName) {
+
+		// sanity check
+		if (className == null || className.length() == 0) {
+			throw new IllegalArgumentException("className must not be null");
+		}
+		if (methodName == null || methodName.length() == 0) {
+			throw new IllegalArgumentException("methodName must not be null");
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("geMethod(), className:methodName " + className + ":" + methodName);
+		}
+		
+		Method toReturn = null;
+		try {
+			Class<?> clazz = Class.forName(className);
+			for (Method method : clazz.getMethods()) {
+				if (method.getName().equals(methodName)) {
+					toReturn = method;
+					break;
+				}
+			}
+		}
+		catch (Exception e) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("Cannot find class ormethod in class.");
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+	
 
 	/**
 	 * Creates a new instance of given class with given arguments.
@@ -49,7 +93,7 @@ public final class ClassLoader {
 	 * @param args Object[]
 	 * @return Object
 	 */
-	public static Object getInstance(final String className, final Object[] args) throws Exception {
+	public static Object getInstance(String className, Object[] args) throws Exception {
 
 		// sanity check
 		if (className == null || className.length() == 0) {

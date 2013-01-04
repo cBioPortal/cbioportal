@@ -167,7 +167,7 @@ function singleCancerStudySelected() {
     $("#step2").show();
     $('#step2cross').hide();
     $("#step3").show();
-    $("#step5").show();
+    //$("#step5").show();
     $("#cancer_study_desc").show();
 }
 
@@ -224,18 +224,18 @@ function reviewCurrentSelections(){
    }
 
    // determine whether optional arguments section should be shown or hidden
-   if ($("#optional_args > input").length >= 1){
-       $("#optional_args > input").each(function(){
-           if ($(this).attr('checked')){
-               // hide/show is ugly, but not sure exactly how toggle works
-               // and couldn't get it to work.. this will do for now
-               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
-               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
-               $("#optional_args").toggle();
-               return;
-           }
-       });
-   }
+//   if ($("#optional_args > input").length >= 1){
+//       $("#optional_args > input").each(function(){
+//           if ($(this).attr('checked')){
+//               // hide/show is ugly, but not sure exactly how toggle works
+//               // and couldn't get it to work.. this will do for now
+//               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
+//               $("#step5 > .step_header > .ui-icon-triangle-1-s").show();
+//               $("#optional_args").toggle();
+//               return;
+//           }
+//       });
+//   }
 }
 
 //  Determine whether to submit a cross-cancer query or

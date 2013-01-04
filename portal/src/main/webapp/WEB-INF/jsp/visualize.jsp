@@ -3,21 +3,15 @@
 <%@ page import="java.util.HashSet" %>
 <%@ page import="org.mskcc.cbio.portal.model.*" %>
 <%@ page import="java.text.NumberFormat" %>
-<%@ page import="java.text.DecimalFormat" %>                 
-<%@ page import="org.mskcc.cbio.portal.util.GeneSetUtil" %>
+<%@ page import="java.text.DecimalFormat" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="java.util.Iterator" %>
-<%@ page import="org.mskcc.cbio.portal.util.ZScoreUtil" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.util.Enumeration" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.CallOncoPrintSpecParser" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
-<%@ page import="org.mskcc.cbio.portal.util.HeatMapLegend" %>
-<%@ page import="org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
 <%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
@@ -25,6 +19,12 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 <%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
+<%@ page import="org.apache.commons.logging.LogFactory" %>
+<%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="java.lang.reflect.Array" %>
+<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
+<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
+<%@ page import="org.mskcc.cbio.portal.util.*" %>
 
 
 <%
@@ -51,11 +51,10 @@
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
 
     boolean showIGVtab = false;
-    DaoGeneticProfile dgp = new DaoGeneticProfile();
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
 	for (int lc = 0; lc < cnaTypes.length; lc++) {
 		String cnaProfileID = cancerTypeId + cnaTypes[lc];
-		if (dgp.getGeneticProfileByStableId(cnaProfileID) != null){
+		if (DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileID) != null){
 			showIGVtab = true;
 			break;
 	    }
@@ -88,11 +87,8 @@
     String bitlyKey = SkinUtil.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
-    String computeLogOddsRatioStr = request.getParameter(QueryBuilder.COMPUTE_LOG_ODDS_RATIO);
-    boolean computeLogOddsRatio = false;
-    if (computeLogOddsRatioStr != null) {
-        computeLogOddsRatio = true;
-    }
+    
+    boolean computeLogOddsRatio = true;
 
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
@@ -103,7 +99,6 @@
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
     boolean includeNetworks = SkinUtil.includeNetworks();
-    String oncoprintHTML = (String)request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
 %>
 
 
@@ -175,6 +170,33 @@
 
              });
              </script>
+
+            <%
+                /**
+                 * Put together parameters for an AJAX call to GeneAlterations.json
+                 *
+                 */
+
+                // put geneticProfileIds into the proper form for the JSON request
+                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+                geneticProfiles = geneticProfiles.trim();
+
+                // put gene string into a form that javascript can swallow
+                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+                genes = genes.replace("\n", " ");
+
+                // get cases
+                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+            %>
+
+<script type="text/javascript" src="js/MemoSort.js"></script>
+<script type="text/javascript">
+    //  make global variables
+
+        var genes = "<%=genes%>",
+            samples = "<%=samples%>",
+            geneticProfiles = "<%=geneticProfiles%>";
+</script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
@@ -321,7 +343,7 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-			<%= oncoprintHTML %>
+            <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
 

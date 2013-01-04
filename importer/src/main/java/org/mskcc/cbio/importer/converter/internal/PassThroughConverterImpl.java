@@ -37,7 +37,8 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,10 +49,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class PassThroughConverterImpl implements Converter {
+public class PassThroughConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(PassThroughConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(PassThroughConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -73,8 +74,8 @@ public final class PassThroughConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public PassThroughConverterImpl(final Config config, final FileUtils fileUtils,
-							 final CaseIDs caseIDs, final IDMapper idMapper) {
+	public PassThroughConverterImpl(Config config, FileUtils fileUtils,
+							 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -87,10 +88,11 @@ public final class PassThroughConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -101,31 +103,44 @@ public final class PassThroughConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+	 * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 1) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		if (dataMatrices.length != 1) {
+			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+		DataMatrix dataMatrix = dataMatrices[0];
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

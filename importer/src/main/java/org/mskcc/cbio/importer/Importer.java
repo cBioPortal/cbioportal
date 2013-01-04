@@ -42,7 +42,7 @@ public interface Importer {
      * @param portal String
 	 * @throws Exception
 	 */
-	void importData(final String portal) throws Exception;
+	void importData(String portal) throws Exception;
 
 	/**
 	 * Imports the given reference data.
@@ -50,5 +50,5 @@ public interface Importer {
      * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception
 	 */
-	void importReferenceData(final ReferenceMetadata referenceMetadata) throws Exception;
+	void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
 }

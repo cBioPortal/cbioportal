@@ -10,6 +10,7 @@
 <%@ page import="org.json.simple.JSONValue" %>
 
 <%
+request.setAttribute("tumormap", true);
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -159,7 +160,7 @@ if (cancerStudyViewError!=null) {
 <script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
-var studyId = '<%=cancerStudy.getCancerStudyStableId()%>';
+var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
@@ -200,8 +201,8 @@ function getRefererCaseId() {
     return match ? match[1] : null;
 }
 
-function formatPatientLink(caseId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="<%=SkinUtil.getTumorMapUrl()%>tumormap.do?case_id='+caseId+'">'+caseId+'</a>'
+function formatPatientLink(caseId,cancerStudyId) {
+    return caseId==null?"":'<a title="Go to patient-centric view" href="tumormap.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
 }
 
 </script>

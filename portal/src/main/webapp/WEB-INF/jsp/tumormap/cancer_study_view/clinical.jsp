@@ -11,11 +11,13 @@
 }
 #clinical-data-table-div {
     width: 1200px;
+    max-height: 500px;
     overflow-x:scroll;
-    overflow-y:hidden;
+    overflow-y:scroll;
 }
 #clinical-msg {
     background-color: lightyellow;
+    float: right;
 }
 </style>
 
@@ -26,15 +28,16 @@
     google.load('visualization', '1', {packages:['table','corechart']}); 
     $(document).ready(function(){
         $('#summary-plot-table').hide();
-        $('#clinical_wrapper_table').hide();
+        $('#clinical-data-table-div').hide();
         if (!mutationProfileId||!hasCnaSegmentData) {
             $('#summary-plot-table').html(""); // remove all if no cna-mut plot
                                                // small plots will be auto generated
         }
         $('#submit-patient-btn').attr("disabled", true);
         initMsgListener();
+        initCustomCaseSelectTooltip();
         loadClinicalData(caseSetId);
-        loadMutCountCnaFrac(caseIds,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
+        loadMutCountCnaFrac(caseIds,cancerStudyId,mutationProfileId,hasCnaSegmentData,mutCnaLoaded);
         csObs.fireSelection(getRefererCaseId(),null);
     });
     
@@ -42,10 +45,12 @@
         csObs.subscribe('clinical-msg',function(caseId) {
             if (caseId==null) {
                 $('#clinical-msg').hide();
+                $('#case-select-custom').show();
             } else if ((typeof caseId)==(typeof '')) {
-                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId)+
+                $('#clinical-msg').html("&nbsp;"+formatPatientLink(caseId,cancerStudyId)+
                     " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                 $('#clinical-msg').show();
+                $('#case-select-custom').hide();
             } else if ((typeof caseId)==(typeof {})) {
                 var numSelected = 0;
                 for (var id in caseId) {
@@ -53,10 +58,12 @@
                 }
                 if (numSelected==0) {
                     $('#clinical-msg').hide();
+                    $('#case-select-custom').show();
                 } else if (numSelected==1) {
-                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id)+
+                    $('#clinical-msg').html("&nbsp;"+formatPatientLink(id,cancerStudyId)+
                         " is selected. <button type='button' onclick='csObs.fireSelection(null,null);'>Clear selection</button>");
                     $('#clinical-msg').show();
+                    $('#case-select-custom').hide();
                 } else {
                     var ids = [];
                     for (var id in caseId) {
@@ -64,16 +71,49 @@
                     }
                     var form = '<form method="post" action="index.do">&nbsp;'
                             + numSelected+' cases are selected.'
-                            + '<input type="hidden" name="cancer_study_id" value="'+studyId
+                            + '<input type="hidden" name="cancer_study_id" value="'+cancerStudyId
                             + '"><input type="hidden" name="case_set_id" value="-1">'
                             + '<input type="hidden" name="case_ids" value="'+ids.join(" ")
                             + '"><input type="submit" value="Query selection">'
                             + '<input type="submit" onclick="csObs.fireSelection(null,null);return false;" value="Clear selection"></form>';
                     $('#clinical-msg').html(form);
                     $('#clinical-msg').show();
+                    $('#case-select-custom').hide();
                 }
             }
         },false);
+    }
+    
+    function initCustomCaseSelectTooltip() {
+        $('#case-select-custom-btn').qtip({
+            id: 'modal', // Since we're only creating one modal, give it an ID so we can style it
+            content: {
+                    text: $('#case-select-custom-dialog'),
+                    title: {
+                            text: 'Custom case selection',
+                            button: true
+                    }
+            },
+            position: {
+                    my: 'center', // ...at the center of the viewport
+                    at: 'center',
+                    target: $(window)
+            },
+            show: {
+                    event: 'click', // Show it on click...
+                    solo: true // ...and hide all other tooltips...
+            },
+            hide: false,
+            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+        });
+        
+        $("#case-select-custom-submit-btn").click(function() {
+            var caseIds = $('#case-select-custom-input').val().trim().split(/\s+/);
+            var ids = {};
+            for (var i in caseIds) ids[caseIds[i]]=true;
+            csObs.fireSelection(ids);
+            $('#case-select-custom-btn').qtip('toggle');
+        });
     }
     
     var clincialDataTable = null;
@@ -111,9 +151,9 @@
             var vLog = maxMut>1000;
             if (vLog) $('#mut-cna-vaxis-log').attr('checked',true);
 
-            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',mutCnaDt,null,2,1,caseMap,false,vLog);
+            plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',cancerStudyId,mutCnaDt,null,2,1,caseMap,false,vLog);
 
-            $('#mut-cna-config').show();
+            $('.mut-cna-config').show();
 
             $(".mut-cna-axis-log").change(function() {
                 mutCnaAxisScaleChanged(mutCnaDt,2,1,caseMap);
@@ -150,20 +190,29 @@
             $('#summary-plot-table').show();
             resetSmallPlots(dt);
             var caseMap = getCaseMap(dt);
-            drawDataTable('clinical_table',dt,caseMap);
-            $('#clinical_wrapper_table').show();
+            drawDataTable('clinical_table',dt,caseMap,cancerStudyId);
+            $('#clinical_table_filter').css('float', 'left')
+            $('#clinical_table_filter').css('text-align','left');
+            $('#clinical-data-table-div').show();
         }
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {
         var hLog = $('#mut-cna-haxis-log').is(":checked");
         var vLog = $('#mut-cna-vaxis-log').is(":checked");
-        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',dt,null,colCna,colMut,caseMap,hLog,vLog);
+        plotMutVsCna(csObs,'mut-cna-scatter-plot','case-id-div',cancerStudyId,dt,null,colCna,colMut,caseMap,hLog,vLog);
     }
     
     var csObs = new CaseSelectObserver();
 
 </script>
+
+<div id="case-select-custom"><button type='button' id="case-select-custom-btn" style="float:right;">Select cases by IDs</button></div>
+<div style="display: none;" id="case-select-custom-dialog">
+    Please input case IDs (one per line)
+    <textarea rows="20" cols="50" id="case-select-custom-input"></textarea><br/>
+    <button type='button' id="case-select-custom-submit-btn">Select</button>
+</div>
 
 <div id="clinical-msg"></div>
 
@@ -189,16 +238,10 @@
 &nbsp;<br/>        
       
 <div id="clinical-data-table-div">
-<table cellpadding="0" cellspacing="0" border="0" id="clinical_wrapper_table" width="100%">
-    <tr>
-        <td>
-            <table cellpadding="0" cellspacing="0" border="0" class="display" id="clinical_table">
-                <thead>
-                    <tr valign="bottom">
-                    </tr>
-                </thead>
-            </table>
-        </td>
-    </tr>
-</table>
+    <table cellpadding="0" cellspacing="0" border="0" class="display" id="clinical_table">
+        <thead>
+            <tr valign="bottom">
+            </tr>
+        </thead>
+    </table>
 </div>

@@ -58,18 +58,18 @@ public interface DatabaseUtils {
     public String getDatabaseConnectionString();
 
 	/**
+	 * Returns the database schema filename.
+	 *
+	 * @return String
+	 */
+    public String getDatabaseSchemaCanonicalPath();
+
+	/**
 	 * Returns the importer database name.
 	 *
 	 * @return String
 	 */
     public String getImporterDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
 
 	/**
 	 * Returns the portal database name.
@@ -84,5 +84,5 @@ public interface DatabaseUtils {
 	 * @param databaseName String
 	 * @param createSchema boolean
 	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	void createDatabase(String databaseName, boolean createSchema);
 }

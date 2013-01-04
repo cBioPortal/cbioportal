@@ -191,7 +191,7 @@ function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummar
  * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
-function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
+function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, cancerStudyId) {
 
 	// this is so row/col values are used in computation of x,y coords
 	oncoprint.use_immediate_coordinates = false;
@@ -245,16 +245,17 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations) {
 			drawRPPA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// tooltip
 			if (!oncoprint.remove_genomic_alteration_hpadding) {
-				var tooltipText = "<a href='"+tumapUrl+"tumormap.do?case_id="+thisSampleAlteration.sample+"'><b>"
-                                    + thisSampleAlteration.sample + "</b></a>";
+				var tooltipText = "";
 				if (thisSampleAlteration.mutation != null) {
-					tooltipText = tooltipText + "<br/>Amino Acid Change: ";
+					tooltipText = tooltipText + "Mutation: ";
 					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {
-						tooltipText = tooltipText + thisSampleAlteration.mutation[lc3] + ", ";
+						tooltipText = tooltipText + "<b>" + thisSampleAlteration.mutation[lc3] + "</b>, ";
 					}
 					// zap off last ', '
-					tooltipText = tooltipText.substring(0, tooltipText.length - 2);
+					tooltipText = tooltipText.substring(0, tooltipText.length - 2)+"<br/>";
 				}
+                                tooltipText += "<a href='"+"tumormap.do?case_id="+thisSampleAlteration.sample
+                                    +"&cancer_study_id="+cancerStudyId+"'>"+thisSampleAlteration.sample + "</a>";
 				createTooltip(oncoprint, lc, null, tooltipText);
 			}
 			// update some vars needed for next go-around
@@ -1061,7 +1062,7 @@ function addTooltipText(node, tooltipText) {
         content: {text: '<font size="2">'+tooltipText+'</font>'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-        position: {my:'top left',at:'bottom center'}
+        position: {my:'top center',at:'bottom center'}
     });
 }
 

@@ -33,8 +33,6 @@ import java.util.HashMap;
  * Utility Class for Parsing MAF Files.
  *
  * This utility class handles variable columns and column orderings within MAF Files.
- * (Comments next to data fields indicate corresponding database columns or
- * column headers in the MAF file).
  */
 public class MafUtil
 {
@@ -73,11 +71,31 @@ public class MafUtil
 	public static final String SEQUENCER = "Sequencer";
 
 	// oncotator column names
+	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
+	public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
+	public static final String ONCOTATOR_DBSNP_VAL_STATUS = "ONCOTATOR_DBSNP_VAL_STATUS";
+
 	public static final String ONCOTATOR_PROTEIN_CHANGE = "ONCOTATOR_PROTEIN_CHANGE";
 	public static final String ONCOTATOR_VARIANT_CLASSIFICATION = "ONCOTATOR_VARIANT_CLASSIFICATION";
-	public static final String ONCOTATOR_DBSNP_RS = "ONCOTATOR_DBSNP_RS";
-	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
 	public static final String ONCOTATOR_GENE_SYMBOL = "ONCOTATOR_GENE_SYMBOL";
+	public static final String ONCOTATOR_REFSEQ_MRNA_ID = "ONCOTATOR_REFSEQ_MRNA_ID";
+	public static final String ONCOTATOR_REFSEQ_PROT_ID = "ONCOTATOR_REFSEQ_PROT_ID";
+	public static final String ONCOTATOR_UNIPROT_ENTRY_NAME = "ONCOTATOR_UNIPROT_ENTRY_NAME";
+	public static final String ONCOTATOR_UNIPROT_ACCESSION = "ONCOTATOR_UNIPROT_ACCESSION";
+	public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
+	public static final String ONCOTATOR_TRANSCRIPT_CHANGE = "ONCOTATOR_TRANSCRIPT_CHANGE";
+	public static final String ONCOTATOR_EXON_AFFECTED = "ONCOTATOR_EXON_AFFECTED";
+
+	public static final String ONCOTATOR_PROTEIN_CHANGE_BE = "ONCOTATOR_PROTEIN_CHANGE_BEST_EFFECT";
+	public static final String ONCOTATOR_VARIANT_CLASSIFICATION_BE = "ONCOTATOR_VARIANT_CLASSIFICATION_BEST_EFFECT";
+	public static final String ONCOTATOR_GENE_SYMBOL_BE = "ONCOTATOR_GENE_SYMBOL_BEST_EFFECT";
+	public static final String ONCOTATOR_REFSEQ_MRNA_ID_BE = "ONCOTATOR_REFSEQ_MRNA_ID_BEST_EFFECT";
+	public static final String ONCOTATOR_REFSEQ_PROT_ID_BE = "ONCOTATOR_REFSEQ_PROT_ID_BEST_EFFECT";
+	public static final String ONCOTATOR_UNIPROT_ENTRY_NAME_BE = "ONCOTATOR_UNIPROT_ENTRY_NAME_BEST_EFFECT";
+	public static final String ONCOTATOR_UNIPROT_ACCESSION_BE = "ONCOTATOR_UNIPROT_ACCESSION_BEST_EFFECT";
+	public static final String ONCOTATOR_CODON_CHANGE_BE = "ONCOTATOR_CODON_CHANGE_BEST_EFFECT";
+	public static final String ONCOTATOR_TRANSCRIPT_CHANGE_BE = "ONCOTATOR_TRANSCRIPT_CHANGE_BEST_EFFECT";
+	public static final String ONCOTATOR_EXON_AFFECTED_BE = "ONCOTATOR_EXON_AFFECTED_BEST_EFFECT";
 
 	// mutation assessor column names
 	public static final String MA_FIMPACT = "MA:FImpact";
@@ -128,11 +146,29 @@ public class MafUtil
     private int normalRefCountIndex = -1; // NORMAL_REF_COUNT
 
 	// default Oncotator column indices
-    private int oncoProteinChangeIndex = -1; // ONCOTATOR_PROTEIN_CHANGE
-    private int oncoVariantClassificationIndex = -1; // ONCOTATOR_VARIANT_CLASSIFICATION
-    private int oncoCosmicOverlappingIndex = -1; // ONCOTATOR_DBSNP_RS
-    private int oncoDbSnpRsIndex = -1; // ONCOTATOR_COSMIC_OVERLAPPING
-	private int oncoGeneSymbolIndex = -1; // ONCOTATOR_GENE_SYMBOL
+	private int oncoCosmicOverlappingIndex = -1;
+	private int oncoDbSnpRsIndex = -1;
+	private int oncoDbSnpValStatusIndex = -1;
+	private int oncoProteinChangeIndex = -1;
+    private int oncoVariantClassificationIndex = -1;
+	private int oncoGeneSymbolIndex = -1;
+	private int oncoRefseqMrnaIdIndex = -1;
+	private int oncoRefseqProtIdIndex = -1;
+	private int oncoExonAffectedIndex = -1;
+	private int oncoTranscriptChangeIndex = -1;
+	private int oncoUniprotNameIndex = -1;
+	private int oncoUniprotAccessionIndex = -1;
+	private int oncoCodonChangeIndex = -1;
+	private int oncoProteinChangeBeIndex = -1;
+	private int oncoGeneSymbolBeIndex = -1;
+	private int oncoRefseqMrnaIdBeIndex = -1;
+	private int oncoRefseqProtIdBeIndex = -1;
+	private int oncoVariantClassificationBeIndex = -1;
+	private int oncoUniprotNameBeIndex = -1;
+	private int oncoUniprotAccessionBeIndex = -1;
+	private int oncoCodonChangeBeIndex = -1;
+	private int oncoTranscriptChangeBeIndex = -1;
+	private int oncoExonAffectedBeIndex = -1;
 
 	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
@@ -146,6 +182,8 @@ public class MafUtil
 
 	// mapping for all column names (both standard and custom columns)
 	private HashMap<String, Integer> columnIndexMap;
+
+
 
 	/**
      * Constructor.
@@ -174,7 +212,7 @@ public class MafUtil
 	        // determine standard & default column indices
             if (header.equalsIgnoreCase(CHROMOSOME)) {
                 chrIndex = i;        
-            } else if(header.equals(NCBI_BUILD)) {
+            } else if(header.equalsIgnoreCase(NCBI_BUILD)) {
                 ncbiIndex = i;   
             } else if(header.equalsIgnoreCase(START_POSITION)) {
                 startPositionIndex = i;
@@ -192,7 +230,7 @@ public class MafUtil
                 variantTypeIndex = i;
             } else if(header.equalsIgnoreCase(CENTER)) {
                 centerIndex = i;
-            } else if(header.equals(STRAND)) { // TODO ignore case?
+            } else if(header.equalsIgnoreCase(STRAND)) {
                 strandIndex = i;
             } else if(header.equalsIgnoreCase(TUMOR_SEQ_ALLELE_1)) {
                 tumorSeqAllele1Index = i;
@@ -236,16 +274,52 @@ public class MafUtil
 	        	scoreIndex = i;
 	        } else if(header.equalsIgnoreCase(BAM_FILE)) {
 	        	bamFileIndex = i;
-	        } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE)) {
-	        	oncoProteinChangeIndex = i;
-	        } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION)) {
-	        	oncoVariantClassificationIndex = i;
 	        } else if(header.equalsIgnoreCase(ONCOTATOR_COSMIC_OVERLAPPING)) {
 	        	oncoCosmicOverlappingIndex = i;
 	        } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_RS)) {
 	        	oncoDbSnpRsIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_DBSNP_VAL_STATUS)) {
+	            oncoDbSnpValStatusIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE)) {
+	            oncoProteinChangeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION)) {
+	            oncoVariantClassificationIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_GENE_SYMBOL)) {
 	            oncoGeneSymbolIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_MRNA_ID)) {
+	            oncoRefseqMrnaIdIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_PROT_ID)) {
+	            oncoRefseqProtIdIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ENTRY_NAME)) {
+	            oncoUniprotNameIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ACCESSION)) {
+	            oncoUniprotAccessionIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_CODON_CHANGE)) {
+	            oncoCodonChangeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_TRANSCRIPT_CHANGE)) {
+	            oncoTranscriptChangeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED)) {
+	            oncoExonAffectedIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE_BE)) {
+	            oncoProteinChangeBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION_BE)) {
+	            oncoVariantClassificationBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_GENE_SYMBOL_BE)) {
+	            oncoGeneSymbolBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_MRNA_ID_BE)) {
+	            oncoRefseqMrnaIdBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_REFSEQ_PROT_ID_BE)) {
+	            oncoRefseqProtIdBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ENTRY_NAME_BE)) {
+	            oncoUniprotNameBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_UNIPROT_ACCESSION_BE)) {
+	            oncoUniprotAccessionBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_CODON_CHANGE_BE)) {
+	            oncoCodonChangeBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_TRANSCRIPT_CHANGE_BE)) {
+	            oncoTranscriptChangeBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED_BE)) {
+	            oncoExonAffectedBeIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
 				maFImpactIndex = i;
             } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
@@ -276,6 +350,7 @@ public class MafUtil
         
         MafRecord record = new MafRecord();
 
+	    // standard MAF cols
         record.setCenter(getPartString(centerIndex, parts));
         record.setChr(getPartString(chrIndex, parts));
         record.setStartPosition(getPartLong(startPositionIndex, parts));
@@ -309,23 +384,45 @@ public class MafUtil
         record.setScore(getPartString(scoreIndex, parts));
         record.setBamFile(getPartString(bamFileIndex, parts));
 
+	    // TODO allele frequency columns
 	    record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
         record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
         record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
         record.setNormalRefCount(getPartInt(normalRefCountIndex, parts));
 
+	    // Mutation Assessor columns
 	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
 	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
 	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
 	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
 	    record.setMaProteinChange(getPartString(maProteinChangeIndex, parts));
 
+	    // Oncotator columns
+	    record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
+	    record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
+	    record.setOncotatorDbSnpValStatus(getPartString(oncoDbSnpValStatusIndex, parts));
+
 	    record.setOncotatorProteinChange(getPartString(oncoProteinChangeIndex, parts));
         record.setOncotatorVariantClassification(getPartString(oncoVariantClassificationIndex, parts));
-        record.setOncotatorCosmicOverlapping(getPartString(oncoCosmicOverlappingIndex, parts));
-        record.setOncotatorDbSnpRs(getPartString(oncoDbSnpRsIndex, parts));
 	    record.setOncotatorGeneSymbol(getPartString(oncoGeneSymbolIndex, parts));
+	    record.setOncotatorRefseqMrnaId(getPartString(oncoRefseqMrnaIdIndex, parts));
+	    record.setOncotatorRefseqProtId(getPartString(oncoRefseqProtIdIndex, parts));
+	    record.setOncotatorUniprotName(getPartString(oncoUniprotNameIndex, parts));
+	    record.setOncotatorUniprotAccession(getPartString(oncoUniprotAccessionIndex, parts));
+	    record.setOncotatorCodonChange(getPartString(oncoCodonChangeIndex, parts));
+	    record.setOncotatorTranscriptChange(getPartString(oncoTranscriptChangeIndex, parts));
+	    record.setOncotatorExonAffected(getPartInt(oncoExonAffectedIndex, parts));
 
+	    record.setOncotatorProteinChangeBestEffect(getPartString(oncoProteinChangeBeIndex, parts));
+	    record.setOncotatorVariantClassificationBestEffect(getPartString(oncoVariantClassificationBeIndex, parts));
+	    record.setOncotatorGeneSymbolBestEffect(getPartString(oncoGeneSymbolBeIndex, parts));
+	    record.setOncotatorRefseqMrnaIdBestEffect(getPartString(oncoRefseqMrnaIdBeIndex, parts));
+	    record.setOncotatorRefseqProtIdBestEffect(getPartString(oncoRefseqProtIdBeIndex, parts));
+	    record.setOncotatorUniprotNameBestEffect(getPartString(oncoUniprotNameBeIndex, parts));
+	    record.setOncotatorUniprotAccessionBestEffect(getPartString(oncoUniprotAccessionBeIndex, parts));
+	    record.setOncotatorCodonChangeBestEffect(getPartString(oncoCodonChangeBeIndex, parts));
+	    record.setOncotatorTranscriptChangeBestEffect(getPartString(oncoTranscriptChangeBeIndex, parts));
+	    record.setOncotatorExonAffectedBestEffect(getPartInt(oncoExonAffectedBeIndex, parts));
 
         return record;
     }
@@ -569,6 +666,10 @@ public class MafUtil
 		return oncoDbSnpRsIndex;
 	}
 
+	public int getOncoDbSnpValStatusIndex() {
+		return oncoDbSnpValStatusIndex;
+	}
+
 	public int getOncoGeneSymbolIndex() {
 		return oncoGeneSymbolIndex;
 	}
@@ -596,6 +697,111 @@ public class MafUtil
 	public int getMaProteinChangeIndex()
 	{
 		return maProteinChangeIndex;
+	}
+
+	public int getOncoRefseqMrnaIdIndex()
+	{
+		return oncoRefseqMrnaIdIndex;
+	}
+
+	public int getOncoExonAffectedIndex()
+	{
+		return oncoExonAffectedIndex;
+	}
+
+	public int getOncoTranscriptChangeIndex()
+	{
+		return oncoTranscriptChangeIndex;
+	}
+
+	public int getOncoUniprotNameIndex()
+	{
+		return oncoUniprotNameIndex;
+	}
+
+	public int getOncoCodonChangeIndex()
+	{
+		return oncoCodonChangeIndex;
+	}
+
+	public int getOncoRefseqProtIdIndex()
+	{
+		return oncoRefseqProtIdIndex;
+	}
+
+	public void setOncoRefseqProtIdIndex(int oncoRefseqProtIdIndex)
+	{
+		this.oncoRefseqProtIdIndex = oncoRefseqProtIdIndex;
+	}
+
+	public int getOncoUniprotAccessionIndex()
+	{
+		return oncoUniprotAccessionIndex;
+	}
+
+	public void setOncoUniprotAccessionIndex(int oncoUniprotAccessionIndex)
+	{
+		this.oncoUniprotAccessionIndex = oncoUniprotAccessionIndex;
+	}
+
+	public int getOncoProteinChangeBeIndex()
+	{
+		return oncoProteinChangeBeIndex;
+	}
+
+	public int getOncoGeneSymbolBeIndex()
+	{
+		return oncoGeneSymbolBeIndex;
+	}
+
+	public int getOncoRefseqMrnaIdBeIndex()
+	{
+		return oncoRefseqMrnaIdBeIndex;
+	}
+
+	public int getOncoVariantClassificationBeIndex()
+	{
+		return oncoVariantClassificationBeIndex;
+	}
+
+	public int getOncoUniprotNameBeIndex()
+	{
+		return oncoUniprotNameBeIndex;
+	}
+
+	public int getOncoCodonChangeBeIndex()
+	{
+		return oncoCodonChangeBeIndex;
+	}
+
+	public int getOncoTranscriptChangeBeIndex()
+	{
+		return oncoTranscriptChangeBeIndex;
+	}
+
+	public int getOncoExonAffectedBeIndex()
+	{
+		return oncoExonAffectedBeIndex;
+	}
+
+	public int getOncoRefseqProtIdBeIndex()
+	{
+		return oncoRefseqProtIdBeIndex;
+	}
+
+	public void setOncoRefseqProtIdBeIndex(int oncoRefseqProtIdBeIndex)
+	{
+		this.oncoRefseqProtIdBeIndex = oncoRefseqProtIdBeIndex;
+	}
+
+	public int getOncoUniprotAccessionBeIndex()
+	{
+		return oncoUniprotAccessionBeIndex;
+	}
+
+	public void setOncoUniprotAccessionBeIndex(int oncoUniprotAccessionBeIndex)
+	{
+		this.oncoUniprotAccessionBeIndex = oncoUniprotAccessionBeIndex;
 	}
 
 	public int getColumnIndex(String colName)

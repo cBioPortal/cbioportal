@@ -28,7 +28,9 @@
 package org.mskcc.cbio.oncotator;
 
 /**
- * Encapsulate a Single Record from Oncotator.
+ * Encapsulates a single record from the Oncotator service.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class OncotatorRecord
 {
@@ -36,17 +38,20 @@ public class OncotatorRecord
 	private String rawJson;
 	private String genomeChange;
 	private String dbSnpRs;
+	private String dbSnpValStatus;
 	private String cosmicOverlappingMutations;
 
 	private Transcript bestCanonicalTranscript;
 	private Transcript bestEffectTranscript;
 
-    public OncotatorRecord (String key)
+    public OncotatorRecord(String key)
     {
         this.key = key;
 	    this.bestCanonicalTranscript = new Transcript();
 	    this.bestEffectTranscript = new Transcript();
     }
+
+	// Getters and Setters
 
     public String getKey() {
         return key;
@@ -85,6 +90,16 @@ public class OncotatorRecord
     public void setDbSnpRs(String dbSnpRs) {
         this.dbSnpRs = dbSnpRs;
     }
+
+	public String getDbSnpValStatus()
+	{
+		return dbSnpValStatus;
+	}
+
+	public void setDbSnpValStatus(String dbSnpValStatus)
+	{
+		this.dbSnpValStatus = dbSnpValStatus;
+	}
 
 	public Transcript getBestCanonicalTranscript()
 	{

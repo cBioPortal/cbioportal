@@ -35,7 +35,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * DAO for oncotator json cache.
+ * DAO for oncotator JSON cache.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class DaoJsonCache implements OncotatorCacheService
 {
@@ -44,6 +46,12 @@ public class DaoJsonCache implements OncotatorCacheService
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
+
+		// do not allow null values to go into db
+		if (record.getRawJson() == null)
+		{
+			return -1;
+		}
 
 		try {
 			con = DatabaseUtil.getDbConnection();
@@ -67,16 +75,18 @@ public class DaoJsonCache implements OncotatorCacheService
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		try {
+
+		try
+		{
 			con = DatabaseUtil.getDbConnection();
 			pstmt = con.prepareStatement
 					("SELECT * FROM onco_json_cache WHERE CACHE_KEY = ?");
 			pstmt.setString(1, key);
 			rs = pstmt.executeQuery();
+
 			if (rs.next()) {
-				OncotatorRecord record = new OncotatorRecord(rs.getString("CACHE_KEY"));
-				record.setRawJson(rs.getString("RAW_JSON"));
-				return record;
+				return OncotatorParser.parseJSON(rs.getString("CACHE_KEY"),
+					rs.getString("RAW_JSON"));
 			} else {
 				return null;
 			}

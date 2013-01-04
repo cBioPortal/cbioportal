@@ -39,13 +39,13 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Class which implements the fetcher interface.
  */
-final class ReferenceDataFetcherImpl implements Fetcher {
+class ReferenceDataFetcherImpl implements Fetcher {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
+	private static Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
 
 	// ref to file utils
-	private FileUtils fileUtils;
+	protected FileUtils fileUtils;
 
 	/**
 	 * Constructor.
@@ -54,7 +54,7 @@ final class ReferenceDataFetcherImpl implements Fetcher {
      *
 	 * @param fileUtils FileUtils
 	 */
-	public ReferenceDataFetcherImpl(final FileUtils fileUtils) {
+	public ReferenceDataFetcherImpl(FileUtils fileUtils) {
 
 		// set members
 		this.fileUtils = fileUtils;
@@ -69,7 +69,7 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -80,14 +80,20 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFile());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFileDestination());
+		// sanity check
+		if (referenceMetadata.getReferenceFileSource() == null ||
+			referenceMetadata.getReferenceFileSource().length() == 0) {
+			throw new IllegalArgumentException("referenceMetadata.getReferenceFileSource() must not be null, aborting");
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFile(),
-							   referenceMetadata.getReferenceFileDestination());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource());
+			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile());
+		}
+
+		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource(),
+							   referenceMetadata.getReferenceFile());
 	}
 }

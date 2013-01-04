@@ -33,48 +33,42 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains reference metadata.
  */
-public final class ReferenceMetadata {
+public class ReferenceMetadata {
+
+	public static final String REFERENCE_FILE_DELIMITER = ":";
 
 	// bean properties
 	private String referenceType;
+	private Boolean importIntoPortal;
+	private String referenceFileSource;
 	private String referenceFile;
-	private String referenceFileDestination;
+	private String fetcherBeanID;
 	private String importerClassName;
 
     /**
-     * Create a ReferenceMetadata instance with specified properties.
+     * Create a ReferenceMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param referenceType String
-	 * @param referenceFile String
-	 * @param referenceFileDestination String
-	 * @param importerClassname String
+	 * @param properties String[]
      */
-    public ReferenceMetadata(final String referenceType, final String referenceFile,
-							 final String referenceFileDestination, final String importerClassName) {
+    public ReferenceMetadata(String[] properties) {
 
-		if (referenceType == null) {
-            throw new IllegalArgumentException("referenceType must not be null");
+		if (properties.length != 6) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.referenceType = referenceType.trim();
 
-		if (referenceFile == null) {
-            throw new IllegalArgumentException("referenceFile must not be null");
-		}
-		this.referenceFile = referenceFile.trim();
-
-		if (referenceFileDestination == null) {
-            throw new IllegalArgumentException("referenceFileDestination must not be null");
-		}
-		this.referenceFileDestination = referenceFileDestination.trim();
-
-		if (importerClassName == null) {
-            throw new IllegalArgumentException("importerClassName must not be null");
-		}
-		this.importerClassName = importerClassName.trim();
+		this.referenceType = properties[0].trim();
+		this.importIntoPortal = new Boolean(properties[1].trim());
+		this.referenceFileSource = properties[2].trim();
+		this.referenceFile = properties[3].trim();
+		this.fetcherBeanID = properties[4].trim();
+		this.importerClassName = properties[5].trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
+	public Boolean importIntoPortal() { return importIntoPortal; }
+	public String getReferenceFileSource() { return referenceFileSource; }
 	public String getReferenceFile() { return referenceFile; }
-	public String getReferenceFileDestination() { return referenceFileDestination; }
+	public String getFetcherBeanID() { return fetcherBeanID; }
 	public String getImporterClassName() { return importerClassName; }
 }

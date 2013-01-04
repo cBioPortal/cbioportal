@@ -29,7 +29,7 @@
                                 var gene = cnas.getValue(source[0], "gene");
                                 var entrez = cnas.getValue(source[0], "entrez");
                                 var tip = "<a href=\"http://www.ncbi.nlm.nih.gov/gene/"
-                                    +entrez+"\">NCBI GenBank</a>";
+                                    +entrez+"\">NCBI Gene</a>";
                                 var sanger = cnas.getValue(source[0], 'sanger');
                                 if (sanger) {
                                     tip += "<br/><a href=\"http://cancer.sanger.ac.uk/cosmic/gene/overview?ln="
@@ -112,7 +112,7 @@
                                     var tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
                                                 +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                                     ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
+                                        +tip+"' src='images/gistic.png' width=12 height=12>";
                                 }
                                 
                                 return ret;
@@ -197,16 +197,34 @@
                 
                 // summary table
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(true),
-                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pil>>',25, "No CNA events of interest");
-                $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' title='Show more copy number alterations of this patient'>Show all "
-                        +genomicEventObs.cnas.getNumEvents(false)+" CNAs</a>");
-                $('.cna-show-more').addClass('datatable-show-more');
+                        'cna_summary_table','<"H"<"cna-summary-table-name">fr>t<"F"<"cna-show-more"><"datatable-paging"pl>>',25, "No CNA events of interest");
+                var numFiltered = genomicEventObs.cnas.getNumEvents(true);
+                var numAll = genomicEventObs.cnas.getNumEvents(false);
+                if (numAll>0) {
+                    $('.cna-show-more').html("<a href='#cna' onclick='switchToTab(\"cna\");return false;' \n\
+                        title='Show more copy number alterations of this patient'>Show all "
+                        +numAll+" CNAs</a>");
+                    $('.cna-show-more').addClass('datatable-show-more');
+                } 
                 $('.cna-summary-table-name').html(
-                    "CNA of interest <img class='cna_help' src='images/help.png'\n\
-                     title='This table contains genes that are either annotated cancer genes\n\
-                     or recurrently copy number altered (contained in a Gistic peak with less than\n\
-                     10 genes and Q < 0.05; if Gistic results are not available,\n\
-                     genes are altered in >5% of samples in the study).'/>");
+                    "CNA of interest"
+                    +(numAll==0?"":(" ("
+                        +numFiltered
+                        +" of <a href='#cna' onclick='switchToTab(\"cna\");return false;'\n\
+                         title='Show more copy number alterations of this patient'>"
+                        +numAll
+                        +"</a>)"))
+                     +" <img id='cna-summary-help' src='images/help.png'\n\
+                     title='This table contains copy number altered genes that are \n\
+                     <ul><li>either annotated cancer genes</li>\n\
+                     <li>or recurrently copy number altered, namely\n\
+                        <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\
+                        <li>otherwise, altered in >5% of samples in the study).</li></ul></li></ul>'/>");
+                $('#cna-summary-help').qtip({
+                    content: { attr: 'title' },
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    position: { my:'top center',at:'bottom center' }
+                });
                 $('.cna-summary-table-name').addClass("datatable-name");
                 $('#cna_summary_wrapper_table').show();
                 $('#cna_summary_wait').remove();
@@ -219,9 +237,6 @@
                 $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();
-
-                // help
-                $('.cna_help').tipTip();
             }
             ,"json"
         );

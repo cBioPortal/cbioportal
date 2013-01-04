@@ -87,9 +87,9 @@ public class NormalizeExpressionLevels{
    static int SAMPLES;
    static String zScoresFile;
    static String SampleNamePrefix = "TCGA";
-   static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
+   static int DEFAULT_MIN_NUM_DIPLOIDS = 10;
    static int MIN_NUM_DIPLOIDS = DEFAULT_MIN_NUM_DIPLOIDS;
-   static final int MIN_NUM_ALLOWED_DIPLOIDS = 3;
+   static int MIN_NUM_ALLOWED_DIPLOIDS = 3;
    
    public static void main (String[]args){
 

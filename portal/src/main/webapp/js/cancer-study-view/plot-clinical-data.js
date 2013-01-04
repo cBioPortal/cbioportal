@@ -87,11 +87,11 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)|(mutation_count)|(copy_number_altered_fraction)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
 }
 
 // draw datatable
-function drawDataTable(tableId,dt,caseMap) {
+function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
     // set headers
     var nCol = dt.getNumberOfColumns();
     var headers = [];
@@ -148,7 +148,7 @@ function drawDataTable(tableId,dt,caseMap) {
                     if (type==='set') {
                         source[0]=value;
                     } else if (type==='display') {
-                        return formatPatientLink(source[0]);
+                        return formatPatientLink(source[0],cancerStudyId);
                     } else {
                         return source[0];
                     }
@@ -166,7 +166,7 @@ function drawDataTable(tableId,dt,caseMap) {
     }
     
     var oTable = $('#'+tableId).dataTable( {
-        "sDom": '<"H"<"clinical-table-name">fr>t<"F"<"datatable-paging"pil>>',
+        "sDom": '<"H"fr>t',
         "bJQueryUI": true,
         "bDestroy": true,
         "aaData": data,
@@ -175,8 +175,7 @@ function drawDataTable(tableId,dt,caseMap) {
             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
             "sLengthMenu": "Show _MENU_ per page"
         },
-        "iDisplayLength": 10,
-        "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
+        "iDisplayLength": -1
     });
 
     oTable.css("width","100%");

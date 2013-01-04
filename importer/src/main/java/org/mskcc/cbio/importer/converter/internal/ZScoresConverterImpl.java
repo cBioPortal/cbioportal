@@ -35,10 +35,11 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -53,10 +54,10 @@ import java.util.Collection;
 /**
  * Class which implements the Converter interface.
  */
-public final class ZScoresConverterImpl implements Converter {
+public class ZScoresConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -78,8 +79,8 @@ public final class ZScoresConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ZScoresConverterImpl(final Config config, final FileUtils fileUtils,
-								final CaseIDs caseIDs, final IDMapper idMapper) {
+	public ZScoresConverterImpl(Config config, FileUtils fileUtils,
+								CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -92,10 +93,11 @@ public final class ZScoresConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -106,20 +108,33 @@ public final class ZScoresConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 *
+	 * @param portal String
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// this code assumes dependencies have already been created
 		String[] dependencies = datatypeMetadata.getDependencies();
@@ -151,7 +166,7 @@ public final class ZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dependenciesMetadata);
+		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
@@ -164,14 +179,14 @@ public final class ZScoresConverterImpl implements Converter {
 	 * @param dependencies DatatypeMetadata[]
 	 * @return String[]
 	 */
-	private DatatypeMetadata[] getDependencies(final String[] dependencies) {
+	private DatatypeMetadata[] getDependencies(String[] dependencies) {
 
 		// this is what we return
 		DatatypeMetadata[] toReturn = new DatatypeMetadata[dependencies.length];
 
 		for (int lc = 0; lc < dependencies.length; lc++) {
 			String dependency = dependencies[lc];
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata()) {
+			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(Config.ALL)) {
 				if (dependency.equals(datatypeMetadata.getDatatype())) {
 					toReturn[lc] = datatypeMetadata;
 				}

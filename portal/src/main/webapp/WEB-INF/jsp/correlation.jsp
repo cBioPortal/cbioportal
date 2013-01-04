@@ -52,7 +52,7 @@
         //out.println("<P>R Code:  <br>" + util.getRCommand() + "</P>");
     } else if (geneWithScoreList.size() > 1) {
         //  Create Header
-        out.println("<table>");
+        out.println("<div id='mutex-wrapper'><table>");
         out.println("<tr><th>Gene</th>");
         for (GeneWithScore geneA : geneWithScoreList) {
             out.println("<th>" + geneA.getGene().toUpperCase() + "</th>");
@@ -108,7 +108,7 @@
             }
             out.println("</tr>");
         }
-        out.println("</table>");
+        out.println("</table></div>");
         pValues.append("</table>");
         out.println ("<P>" + pValues.toString() + "</P>");
         out.println("<P/>");
@@ -155,3 +155,12 @@
         }
     }
 %>
+
+<style type="text/css">
+#mutex-wrapper {
+    width: 1000px;
+    max-height: 600px;
+    overflow-x:scroll;
+    overflow-y:auto;
+}
+</style>

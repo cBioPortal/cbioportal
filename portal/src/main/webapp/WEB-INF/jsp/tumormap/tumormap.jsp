@@ -187,7 +187,7 @@ request.setAttribute("tumormap", true);
                         <th class="cancer-study-header" alt="Reference for published studies">Reference</th>
                         <th class="cancer-study-header" alt="Number of cases">Cases</th>
                         <th class="cancer-study-header" alt="Average number of mutations across samples">Avg. # Mut.</th>
-                        <th class="cancer-study-header" alt="Average copy-number-altered genome fraction across samples">Avg. % CNA</th>
+                        <th class="cancer-study-header" alt="Average fraction of copy number altered genome across samples">Avg. % CNA</th>
                     </tr>
                 </thead>
             </table>

@@ -104,7 +104,7 @@
             <param-name>db_password</param-name>
             <param-value>${db.password}</param-value>
         </init-param>
-        <load-on-startup/>
+        <load-on-startup>0</load-on-startup>
     </servlet>
 
     <servlet>
@@ -210,10 +210,15 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
-    
+
     <servlet>
         <servlet-name>histogram_converter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerHistogramConverter</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>GeneDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -350,6 +355,11 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
      </servlet-mapping>   
+
+    <servlet-mapping>
+        <servlet-name>GeneDataJSON</servlet-name>
+        <url-pattern>/GeneData.json</url-pattern>
+    </servlet-mapping>
      
      <!-- tumor map -->
     <servlet>

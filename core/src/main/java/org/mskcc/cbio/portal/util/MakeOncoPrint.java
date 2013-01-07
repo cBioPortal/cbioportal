@@ -867,7 +867,7 @@ public class MakeOncoPrint {
 	 *
      * @return String
      */
-    static String alterationValueToString(double value) {
+    public static String alterationValueToString(double value) {
 
         // in oncoPrint show 0 percent as 0%, not --
         if (0.0 < value && value <= 0.01) {
@@ -988,7 +988,7 @@ public class MakeOncoPrint {
 	 *
 	 * @return boolean
 	 */
-	private static boolean isSampleUnaltered(int column, GeneticEvent matrix[][]) {
+	public static boolean isSampleUnaltered(int column, GeneticEvent matrix[][]) {
 
 		boolean toReturn = true;
 
@@ -1010,7 +1010,7 @@ public class MakeOncoPrint {
 	 *
 	 * @return String
 	 */
-	private static String getGeneticEventAsString(GeneticEvent event) {
+	public static String getGeneticEventAsString(GeneticEvent event) {
 
 		String cnaName = "CNA_" + event.getCnaValue().name().toUpperCase();
 		String mrnaName = "MRNA_" + event.getMrnaValue().name().toUpperCase();

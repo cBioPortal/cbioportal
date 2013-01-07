@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.rmi.RemoteException;
 import java.util.*;
 
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -45,7 +46,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.mskcc.cbio.portal.model.*;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.remote.*;
 import org.mskcc.cbio.portal.util.*;
@@ -78,8 +78,10 @@ public class QueryBuilder extends HttpServlet {
     public static final String CASE_SET_ID = "case_set_id";
     public static final String CASE_IDS = "case_ids";
     public static final String CASE_IDS_KEY = "case_ids_key";
+    public static final String SET_OF_CASE_IDS = "set_of_case_ids";
     public static final String CLINICAL_PARAM_SELECTION = "clinical_param_selection";
     public static final String GENE_LIST = "gene_list";
+    public static final String RAW_GENE_STR = "raw_gene_str";
     public static final String ACTION_NAME = "Action";
     public static final String OUTPUT = "output";
     public static final String FORMAT = "format";
@@ -183,6 +185,10 @@ public class QueryBuilder extends HttpServlet {
 
         //  Get User Defined Gene List
         String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
+
+        // save the raw gene string as it was entered for other things to work on
+        httpServletRequest.setAttribute(RAW_GENE_STR, geneList);
+
         xdebug.logMsg(this, "Gene List is set to:  " + geneList);
 
         //  Get all Cancer Types
@@ -223,6 +229,7 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
             String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
+
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
             boolean errorsExist = validateForm(action, profileList, geneticProfileIdSet, geneList,
@@ -311,7 +318,7 @@ public class QueryBuilder extends HttpServlet {
        double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
        double rppaScore = ZScoreUtil.getRPPAScore(request);
        
-       ParserOutput theOncoPrintSpecParserOutput = 
+       ParserOutput theOncoPrintSpecParserOutput =
                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneListStr,
                 geneticProfileIdSet, profileList, zScore, rppaScore );
        
@@ -367,6 +374,8 @@ public class QueryBuilder extends HttpServlet {
             }
         }
         
+        request.setAttribute(SET_OF_CASE_IDS, caseIds);
+
         if (caseIdsKey == null)
         {
         	caseIdsKey = CaseSetUtil.shortenCaseIds(caseIds);
@@ -469,21 +478,6 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
             request.setAttribute(RPPA_SCORE_THRESHOLD, rppaScoreThreshold);
 
-			// get oncoprint here - only if output == null or output = html
-			String oncoPrintHtml = "";
-			if (output == null || output.equals("html")) {
-				oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerTypeId,
-															geneListStr,
-															mergedProfile,
-															caseSetList,
-															caseSetId,
-															zScoreThreshold,
-															rppaScoreThreshold,
-															geneticProfileIdSet,
-															profileList,
-															true);
-			}
-
             if (output != null) {
 				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
@@ -495,14 +489,9 @@ public class QueryBuilder extends HttpServlet {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
 				// (via LinkOut servlet - report=oncoprint_html arg)
-                } else if (output.equals("html")) {
-					outputOncoprintHtml(response, oncoPrintHtml);
-				}
+                }
             } else {
 
-				// set oncoprint html in session for use in visualize.jsp
-				request.setAttribute(ONCO_PRINT_HTML, oncoPrintHtml);
-				
                 // Store download links in session (for possible future retrieval).
                 request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
                 RequestDispatcher dispatcher =
@@ -542,31 +531,6 @@ public class QueryBuilder extends HttpServlet {
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         PrintWriter writer = response.getWriter();
         writer.write("" + dataSummary.getPercentCasesAffected());
-        writer.flush();
-        writer.close();
-    }
-
-	private void outputOncoprintHtml(HttpServletResponse response, String oncoPrintHtml) throws IOException {
-        response.setContentType("text/html");
-        PrintWriter writer = response.getWriter();
-        writer.write ("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" +
-                "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n");
-        writer.write ("<head>\n");
-        writer.write ("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=utf-8\" />\n");
-		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.min.js\"></script>\n");
-		writer.write ("<script type=\"text/javascript\" src=\"js/jquery.tipTip.minified.js\"></script>\n");
-        writer.write ("<title>OncoPrint::Results</title>\n");
-        writer.write ("<link href=\"css/tipTip.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-        writer.write ("<link href=\"css/global_portal.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-		writer.write ("<link href=\"css/redmond/jquery-ui-1.8.14.custom.css\" type=\"text/css\" rel=\"stylesheet\">\n");
-        writer.write ("</head>\n");
-        writer.write ("<body style=\"background-color:#FFFFFF\">\n");
-        writer.write ("<div id=\"content\">\n");
-        writer.write(oncoPrintHtml);
-        writer.write ("</div>\n");
-        writer.write ("</body>\n");
-        writer.write ("</html>\n");
         writer.flush();
         writer.close();
     }
@@ -641,29 +605,6 @@ public class QueryBuilder extends HttpServlet {
                 }
 
                 errorsExist = validateGenes(geneList, httpServletRequest, errorsExist);
-
-                if (geneList != null && geneList.trim().length() > 0) {
-                    // output any errors generated by the parser
-                    double zScore = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, httpServletRequest);
-                    double rppaScore = ZScoreUtil.getRPPAScore(httpServletRequest);
-                    ParserOutput theOncoPrintSpecParserOutput =
-                            OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-                            geneticProfileIdSet, profileList, zScore, rppaScore);
-                    
-                    if( 0<theOncoPrintSpecParserOutput.getSyntaxErrors().size() || 0
-                            <theOncoPrintSpecParserOutput.getSemanticsErrors().size() ){
-                       StringBuffer sb = new StringBuffer();
-                       for( String e: theOncoPrintSpecParserOutput.getSyntaxErrors() ){
-                          sb.append(e+"<br>");
-                       }
-                       for( OncoPrintLangException e:
-                               theOncoPrintSpecParserOutput.getSemanticsErrors() ){
-                          sb.append(e.getMessage()+"<br>");
-                       }
-                       httpServletRequest.setAttribute(STEP4_ERROR_MSG, sb.toString() );
-                       errorsExist = true;
-                    }
-                }
 
                 //  Additional validation rules
                 //  If we have selected mRNA Expression Data Check Box, but failed to

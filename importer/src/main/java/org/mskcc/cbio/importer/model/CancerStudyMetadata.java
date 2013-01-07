@@ -55,6 +55,7 @@ public class CancerStudyMetadata {
 	public static final String TUMOR_TYPE_NAME_TAG = "<TUMOR_TYPE_NAME>";
 
 	// bean properties
+	private String name;
 	private String tumorType;
 	private TumorTypeMetadata tumorTypeMetadata;
 	private String description;
@@ -75,7 +76,7 @@ public class CancerStudyMetadata {
      */
     public CancerStudyMetadata(String[] properties) {
 
-		if (properties.length < 4) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -95,11 +96,13 @@ public class CancerStudyMetadata {
 		}
 		// knock off trailing file separator
 		this.lab = (this.lab.length() > 0) ? this.lab.substring(0, this.lab.length()-1) : this.lab;
-		this.description = properties[1].trim();
-		this.citation = properties[2].trim();
-		this.pmid = properties[3].trim();
+		this.name = properties[1].trim();
+		this.description = properties[2].trim();
+		this.citation = properties[3].trim();
+		this.pmid = properties[4].trim();
 	}
 
+	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }
 	public TumorTypeMetadata getTumorTypeMetadata() { return tumorTypeMetadata; }
 	public void setTumorTypeMetadata(TumorTypeMetadata tumorTypeMetadata) { this.tumorTypeMetadata = tumorTypeMetadata; }

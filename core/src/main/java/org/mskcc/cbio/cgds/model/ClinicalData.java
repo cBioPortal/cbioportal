@@ -30,7 +30,8 @@ package org.mskcc.cbio.cgds.model;
 /**
  * Encapsulates Clinical Data.
  *
- * @author Gideon Dresdner <dresdnerg@cbio.mkscc.org>
+ * @author Ethan Cerami
+ * @author Gideon Dresdner dresdnerg@cbio.mkscc.org
  */
 public class ClinicalData {
     private int cancerStudyId;

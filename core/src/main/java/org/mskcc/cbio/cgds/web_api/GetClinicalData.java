@@ -52,13 +52,13 @@ public class GetClinicalData {
             throws DaoException {
         DaoClinicalData daoClinical = new DaoClinicalData();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-        
+
         List<ClinicalData> caseSurvivalList = daoClinical.getCases(caseIdList);
         Map<String,ClinicalData> mapClinicalData = new HashMap<String,ClinicalData>();
         for (ClinicalData cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);
         }
-        
+
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
         Set<String> freeFormParams = Collections.emptySet();
         if (includeFreeFormData) {
@@ -99,23 +99,23 @@ public class GetClinicalData {
                     append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalStatus());
                     append(buf, cd==null ? null : cd.getAgeAtDiagnosis());
                 }
-                
+
                 Map<String,String> cff = mapClinicalFreeForms.get(caseId);
                 for (String param : freeFormParams) {
                     append(buf, cff==null ? null : cff.get(param));
                 }
-                
+
                 buf.append('\n');
             }
             return buf.toString();
         } else {
-            buf.append("Error:  No clinical data available for the case set or " 
+            buf.append("Error:  No clinical data available for the case set or "
                     + "case lists specified.  Number of cases:  ")
                     .append(caseIdList.size()).append("\n");
             return buf.toString();
         }
     }
-    
+
     private static void append(StringBuilder buf, Object o) {
         buf.append(TAB).append(o==null ? NA : o);
     }

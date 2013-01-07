@@ -31,15 +31,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalDataNEW;
+
+import org.mskcc.cbio.cgds.model.Clinical;
 
 /**
  * Data access object for Clinical Data table
  *
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
-public class DaoClinicalDataNEW {
+public class DaoClinical {
 
     /**
      * add a new clinical datum
@@ -80,7 +80,7 @@ public class DaoClinicalDataNEW {
         }
     }
 
-    public ClinicalDataNEW getDatum(int cancerStudyId, String caseId, String attrId) throws DaoException {
+    public Clinical getDatum(int cancerStudyId, String caseId, String attrId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -98,7 +98,7 @@ public class DaoClinicalDataNEW {
             pstmt.setString(3, attrId);
             rs = pstmt.executeQuery();
 
-            ClinicalDataNEW clinicalData = new ClinicalDataNEW(rs.getInt("CANCER_STUDY_ID"),
+            Clinical clinicalData = new Clinical(rs.getInt("CANCER_STUDY_ID"),
                     rs.getString("CASE_ID"),
                     rs.getString("ATTR_ID"),
                     rs.getString("ATTR_VAL"));

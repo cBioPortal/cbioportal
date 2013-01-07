@@ -27,13 +27,8 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import junit.framework.TestCase;
 
@@ -51,10 +46,10 @@ public class TestDaoClinical extends TestCase {
      */
     public void testDaoCase() throws DaoException {
         ResetDatabase.resetDatabase();
-        DaoClinicalData daoClinical = new DaoClinicalData();
+        DaoClinical daoClinical = new DaoClinical();
 
         daoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
-        ClinicalData clinicalData = daoClinical.getDatum(1, "TCGA-A", "tumor-size");
+        Clinical clinicalData = daoClinical.getDatum(1, "TCGA-A", "tumor-size");
 
         assert(!clinicalData.equals(null));
     }

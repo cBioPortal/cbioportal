@@ -276,6 +276,7 @@ CREATE TABLE `case_profile` (
 --
 -- Table structure for table `clinical`
 --
+drop table IF EXISTS clinical;
 CREATE TABLE `clinical` (
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
@@ -289,13 +290,14 @@ CREATE TABLE `clinical` (
 --
 -- Table structure for table `clinical_attribute`
 --
+drop table IF EXISTS clinical_attribute;
 CREATE TABLE `clinical_attribute` (
   `ATTR_ID` varchar(255) NOT NULL,
   `DISPLAY_NAME` varchar(255) NOT NULL,
   `DESCRIPTION` varchar(255) NOT NULL,
   `DATATYPE` varchar(255) NOT NULL,
   PRIMARY KEY (`ATTR_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT=`DATATYPE can be NUMBER, BOOLEAN, STRING`;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';
 
 drop table IF EXISTS clinical_free_form;
 CREATE TABLE `clinical_free_form` (

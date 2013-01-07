@@ -32,7 +32,7 @@ package org.mskcc.cbio.cgds.model;
  *
  * @author Gideon Dresdner dresdnerg@cbio.mkscc.org
  */
-public class ClinicalDataNEW {
+public class Clinical {
     private int cancerStudyId;
     private String caseId;
     private String attrId;
@@ -46,10 +46,10 @@ public class ClinicalDataNEW {
      * @param attrId            database id of the attribute
      * @param attrVal           value of the clinical attribute given above
      */
-    public ClinicalDataNEW(int cancerStudyId,
-                        String caseId,
-                        String attrId,
-                        String attrVal ) {
+    public Clinical(int cancerStudyId,
+                    String caseId,
+                    String attrId,
+                    String attrVal) {
 
         this.cancerStudyId = cancerStudyId;
         this.caseId = caseId;

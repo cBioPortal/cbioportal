@@ -29,19 +29,18 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import java.net.URL;
 
 /**
  * Class which contains reference metadata.
  */
 public class ReferenceMetadata {
 
-	public static final String REFERENCE_FILE_DELIMITER = ":";
-
 	// bean properties
 	private String referenceType;
 	private Boolean importIntoPortal;
-	private String referenceFileSource;
-	private String referenceFile;
+	private URL referenceFileSource;
+	private URL referenceFile;
 	private String fetcherBeanID;
 	private String importerClassName;
 
@@ -59,16 +58,22 @@ public class ReferenceMetadata {
 
 		this.referenceType = properties[0].trim();
 		this.importIntoPortal = new Boolean(properties[1].trim());
-		this.referenceFileSource = properties[2].trim();
-		this.referenceFile = properties[3].trim();
+		try {
+			this.referenceFileSource = new URL(properties[2].trim());
+			this.referenceFile = new URL(properties[3].trim());
+		}
+		catch (Exception e) {
+			if (properties[2].trim().length() == 0) this.referenceFileSource = null;
+			if (properties[3].trim().length() == 0) this.referenceFile = null;
+		}
 		this.fetcherBeanID = properties[4].trim();
 		this.importerClassName = properties[5].trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
 	public Boolean importIntoPortal() { return importIntoPortal; }
-	public String getReferenceFileSource() { return referenceFileSource; }
-	public String getReferenceFile() { return referenceFile; }
+	public URL getReferenceFileSource() { return referenceFileSource; }
+	public URL getReferenceFile() { return referenceFile; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 	public String getImporterClassName() { return importerClassName; }
 }

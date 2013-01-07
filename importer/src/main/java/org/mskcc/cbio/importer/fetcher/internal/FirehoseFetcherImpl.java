@@ -289,10 +289,6 @@ class FirehoseFetcherImpl implements Fetcher {
 
 		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
 
-		// first delete records in db with givin dataSource
-		// we do this in the event that the desired datatypes to download have changed
-		importDataRecordDAO.deleteByDataSource(dataSource);
-
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {

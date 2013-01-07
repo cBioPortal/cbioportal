@@ -30,63 +30,89 @@ package org.mskcc.cbio.cgds.model;
 /**
  * Encapsulates Clinical Data.
  *
- * @author Ethan Cerami
- * @author Gideon Dresdner dresdnerg@cbio.mkscc.org
+ * @author Ethan Cerami.
  */
 public class ClinicalData {
-    private int cancerStudyId;
     private String caseId;
-    private String attrId;
-    private String attrVal;
+    private Double overallSurvivalMonths;
+    private String overallSurvivalStatus;
+    private Double diseaseFreeSurvivalMonths;
+    private String diseaseFreeSurvivalStatus;
+    private Double ageAtDiagnosis;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param cancerStudyId     database id of cancer study
-     * @param caseId            database id of the case
-     * @param attrId            database id of the attribute
-     * @param attrVal           value of the clinical attribute given above
+     * @param caseId                    Case ID.
+     * @param overallSurvivalMonths     Overall Survival Months.
+     * @param overallSurvivalStatus     Overall Survival Status.
+     * @param diseaseFreeSurvivalMonths Disease Free Survival Months.
+     * @param diseaseFreeSurvivalStatus Disease Free Survival Status.
      */
-    public ClinicalData(int cancerStudyId,
-                        String caseId,
-                        String attrId,
-                        String attrVal ) {
-
-        this.cancerStudyId = cancerStudyId;
+    public ClinicalData(String caseId, Double overallSurvivalMonths,
+            String overallSurvivalStatus, Double diseaseFreeSurvivalMonths,
+            String diseaseFreeSurvivalStatus, Double ageAtDiagnosis) {
         this.caseId = caseId;
-        this.attrId = attrId;
-        this.attrVal = attrVal;
+        this.overallSurvivalMonths = overallSurvivalMonths;
+        this.overallSurvivalStatus = overallSurvivalStatus;
+        this.diseaseFreeSurvivalMonths = diseaseFreeSurvivalMonths;
+        this.diseaseFreeSurvivalStatus = diseaseFreeSurvivalStatus;
+        this.ageAtDiagnosis = ageAtDiagnosis;
     }
 
-    public int getCancerStudyId() {
-        return cancerStudyId;
-    }
-
-    public void setCancerStudyId(int cancerStudyId) {
-        this.cancerStudyId = cancerStudyId;
-    }
-
+    /**
+     * Gets the Case ID.
+     * @return Case ID.
+     */
     public String getCaseId() {
         return caseId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    /**
+     * Gets the Overall Survival in Months.
+     * @return overall survival in months.  A null object indicates no data.
+     */
+    public Double getOverallSurvivalMonths() {
+        return overallSurvivalMonths;
     }
 
-    public String getAttrId() {
-        return attrId;
+    /**
+     * Sets the Overall Survival in Months.
+     * @param overallSurvivalMonths overall survival in months.  A null object indicates no data.
+     */
+    public void setOverallSurvivalMonths(Double overallSurvivalMonths) {
+        this.overallSurvivalMonths = overallSurvivalMonths;
     }
 
-    public void setAttrId(String attrId) {
-        this.attrId = attrId;
+    /**
+     * Gets the Overall Survival Status.
+     * @return overall survival status.  A null object indicates no data.
+     */
+    public String getOverallSurvivalStatus() {
+        return overallSurvivalStatus;
     }
 
-    public String getAttrVal() {
-        return attrVal;
+    /**
+     * Gets the Disease Free Survival in Months.
+     * @return disease free survival in months.  A null object indicates no data.
+     */
+    public Double getDiseaseFreeSurvivalMonths() {
+        return diseaseFreeSurvivalMonths;
     }
 
-    public void setAttrVal(String attrVal) {
-        this.attrVal = attrVal;
+    /**
+     * Gets the Disease Free Survival Stauts.
+     * @return disease free survival status.  A null object indicates no data.
+     */
+    public String getDiseaseFreeSurvivalStatus() {
+        return diseaseFreeSurvivalStatus;
+    }
+
+    /**
+     * Gets the Age at Diagnosis.
+     * @return age at diagnosis.  A null object indicates no data.
+     */
+    public Double getAgeAtDiagnosis() {
+        return ageAtDiagnosis;
     }
 }

@@ -271,16 +271,31 @@ CREATE TABLE `case_profile` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-drop table IF EXISTS clinical;
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clinical`
+--
 CREATE TABLE `clinical` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
-  `OVERALL_SURVIVAL_MONTHS` double default NULL,
-  `OVERALL_SURVIVAL_STATUS` varchar(50) default NULL,
-  `DISEASE_FREE_SURVIVAL_MONTHS` double default NULL,
-  `DISEASE_FREE_SURVIVAL_STATUS` varchar(50) default NULL,
-  `AGE_AT_DIAGNOSIS` double default NULL,
-  PRIMARY KEY (`CASE_ID`)
+  `ATTR_ID` varchar(255) NOT NULL,
+  `ATTR_VALUE` varchar(255) NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clinical_attribute`
+--
+CREATE TABLE `clinical_attribute` (
+  `ATTR_ID` varchar(255) NOT NULL,
+  `DISPLAY_NAME` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(255) NOT NULL,
+  `DATATYPE` varchar(255) NOT NULL,
+  PRIMARY KEY (`ATTR_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT=`DATATYPE can be NUMBER, BOOLEAN, STRING`;
 
 drop table IF EXISTS clinical_free_form;
 CREATE TABLE `clinical_free_form` (

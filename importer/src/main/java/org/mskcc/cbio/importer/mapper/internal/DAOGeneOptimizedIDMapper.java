@@ -77,6 +77,9 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 */
 	@Override
 	public String symbolToEntrezID(String geneSymbol) throws Exception {
+		if (LOG.isInfoEnabled()) {
+			LOG.info("symbolToEntrez(): " + geneSymbol);
+		}
 		CanonicalGene gene = guessGene(geneSymbol);
 		return (gene != null) ? Long.toString(gene.getEntrezGeneId()) : "";
 	}
@@ -90,6 +93,9 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 */
 	@Override
 	public String entrezIDToSymbol(String entrezID) throws Exception {
+		if (LOG.isInfoEnabled()) {
+			LOG.info("entrezIDToSymbol(): " + entrezID);
+		}
 		CanonicalGene gene = guessGene(entrezID);
 		return (gene != null) ? gene.getHugoGeneSymbolAllCaps() : "";
 	}
@@ -103,6 +109,9 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	private CanonicalGene guessGene(String IDOrSymbol) {
 
 		List<CanonicalGene> geneList = daoGeneOptimized.guessGene(IDOrSymbol);
-		return (geneList != null) ? geneList.get(0) : null;
+		if (geneList != null && LOG.isInfoEnabled()) {
+			LOG.info("guesGene(), returned list size: " + geneList.size());
+		}
+		return (geneList != null && geneList.size() > 0) ? geneList.get(0) : null;
 	}
 }

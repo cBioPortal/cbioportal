@@ -334,8 +334,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("downloadFile(), gunzip complete...");
 			}
 			// move temp/decompressed file to final destination
+			File destinationFile = new File(destination.getFile());
+			if (destinationFile.exists()) {
+				org.apache.commons.io.FileUtils.forceDelete(destinationFile);
+			}
 			org.apache.commons.io.FileUtils.moveFile(org.apache.commons.io.FileUtils.getFile(GzipUtils.getUncompressedFilename(tempDestinationFile.getCanonicalPath())),
-													 org.apache.commons.io.FileUtils.getFile(destination.getFile()));
+													 destinationFile);
 
 			// lets cleanup after ourselves - remove compressed file
 			tempDestinationFile.delete();
@@ -374,6 +378,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	cancerStudyMetadata.getStudyPath(),
 																	cancerStudyMetadata.getCancerStudyMetadataFilename());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeMetadataFile(), meta file: " + metaFile);

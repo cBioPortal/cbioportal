@@ -1,5 +1,5 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-<div id="oncoprint" style="padding:10px; border: 1px solid #CCC;">
+<div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
         <h4>OncoPrint

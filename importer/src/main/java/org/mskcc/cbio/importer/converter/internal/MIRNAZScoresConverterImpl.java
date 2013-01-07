@@ -35,29 +35,29 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Set;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Vector;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for use
+ * with firehose mirna data:
+ * Merge_mirnaseq__illuminahiseq_mirnaseq__bcgsc_ca__Level_3__miR_isoform_expression__data.Level_3:
+ * <TUMOR_TYPE>.mirnaseq__illuminahiseq_mirnaseq__bcgsc_ca__Level_3__miR_isoform_expression__data.data.txt
+ *
+ * to generate ZScores.
  */
-public class ZScoresConverterImpl implements Converter {
+public class MIRNAZScoresConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(MIRNAZScoresConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -79,8 +79,8 @@ public class ZScoresConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ZScoresConverterImpl(Config config, FileUtils fileUtils,
-								CaseIDs caseIDs, IDMapper idMapper) {
+	public MIRNAZScoresConverterImpl(Config config, FileUtils fileUtils,
+									 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -136,22 +136,16 @@ public class ZScoresConverterImpl implements Converter {
 	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
 								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
-		// this code assumes dependencies have already been created
-		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
-		if (dependencies.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependencies.length != 2, aborting...");
+		if (dataMatrices.length != 1) {
+			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
-
-		// we assume dependency staging files have already been created, get paths to dependencies
-		DatatypeMetadata[] dependenciesMetadata = new DatatypeMetadata[2];
-		dependenciesMetadata[0] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[0]).iterator().next();
-		dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
+		DataMatrix dataMatrix = dataMatrices[0];
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

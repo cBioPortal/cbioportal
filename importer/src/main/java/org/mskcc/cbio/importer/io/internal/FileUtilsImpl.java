@@ -36,7 +36,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.util.NormalizeExpressionLevels;
+import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 

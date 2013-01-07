@@ -52,12 +52,22 @@ import java.util.Arrays;
 import java.util.Collection;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for use
+ * with firehose mirna data:
+ * Merge_mirnaseq__illuminahiseq_mirnaseq__bcgsc_ca__Level_3__miR_isoform_expression__data.Level_3:
+ * <TUMOR_TYPE>.mirnaseq__illuminahiseq_mirnaseq__bcgsc_ca__Level_3__miR_isoform_expression__data.data.txt
+ *
+ * and
+ *
+ *Merge_rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.Level_3:
+ * <TUMOR_TYPE>.rnaseqv2__illuminahiseq_rnaseqv2__unc_edu__Level_3__RSEM_genes_normalized__data.data.txt;
+ *
+ * to generate merged median ZScores.
  */
-public class ZScoresConverterImpl implements Converter {
+public class MIRNAMergedMedianZScoresConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(MIRNAMergedMedianZScoresConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -79,8 +89,8 @@ public class ZScoresConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ZScoresConverterImpl(Config config, FileUtils fileUtils,
-								CaseIDs caseIDs, IDMapper idMapper) {
+	public MIRNAMergedMedianZScoresConverterImpl(Config config, FileUtils fileUtils,
+												 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -151,7 +161,9 @@ public class ZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
+		// place holder
+		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices[0]);
+		//fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

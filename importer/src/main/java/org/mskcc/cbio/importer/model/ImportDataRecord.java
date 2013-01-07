@@ -49,9 +49,9 @@ import org.hibernate.annotations.NaturalId;
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordAll",
                             query="from ImportDataRecord as importdatarecord order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenter",
-							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and center = :center order by tumortype"),
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and center = :center order by datatype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename",
-							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by tumortype"),
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by datafilename"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.deleteByDataSource",
                             query="delete from ImportDataRecord where dataSource = :datasource")
 

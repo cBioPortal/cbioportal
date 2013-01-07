@@ -230,11 +230,15 @@ function drawMutationTable(data)
 
     var cols = oTable.fnSettings().aoColumns.length;
 
-    // hide special gene columns by default
+    // hide special gene columns and less important columns by default
     for (var col=9; col<cols; col++)
     {
         oTable.fnSetColumnVis( col, false );
     }
+
+	// show frequency columns by default
+	oTable.fnSetColumnVis(12, true);
+	oTable.fnSetColumnVis(13, true);
 
     oTable.css("width", "100%");
 }
@@ -323,6 +327,12 @@ function _getMutationTableHeaders(data)
     headers.push(data.header.position);
     headers.push(data.header.referenceAllele);
     headers.push(data.header.variantAllele);
+    headers.push(data.header.tumorFreq);
+    headers.push(data.header.normalFreq);
+    headers.push(data.header.tumorRefCount);
+    headers.push(data.header.tumorAltCount);
+    headers.push(data.header.normalRefCount);
+    headers.push(data.header.normalAltCount);
 
     // special gene headers
     for (var i=0; i < data.header.specialGeneHeaders.length; i++)
@@ -353,7 +363,13 @@ function _getMutationTableHeaderTip(header)
         "build": "NCBI Build Number",
         "position": "Position",
         "ref": "Reference Allele",
-        "var": "Variant Allele"};
+        "var": "Variant Allele",
+        "var freq": "Variant Frequency",
+        "norm freq": "Normal Frequency",
+        "var ref": "Variant Ref Count",
+        "var alt": "Variant Alt Count",
+        "norm ref": "Normal Ref Count",
+        "norm alt": "Normal Alt Count"};
 
     return tooltipMap[header.toLowerCase()];
 }
@@ -551,11 +567,18 @@ function _getMutationTableRows(data)
                             data.mutations[i].msaLink));
         row.push(getPdbLinkHtml(data.mutations[i].pdbLink));
         row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
-        row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));// TODO "not tested"
+        row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));
         row.push(data.mutations[i].sequencingCenter);
         row.push(data.mutations[i].position);
         row.push(data.mutations[i].referenceAllele);
         row.push(data.mutations[i].variantAllele);
+        // TODO write get functions to convert 'null's to 'NA's
+        row.push(data.mutations[i].tumorFreq);
+        row.push(data.mutations[i].normalFreq);
+        row.push(data.mutations[i].tumorRefCount);
+        row.push(data.mutations[i].tumorAltCount);
+        row.push(data.mutations[i].normalRefCount);
+        row.push(data.mutations[i].normalAltCount);
 
         //special gene data
         for (var j=0; j < data.mutations[i].specialGeneData.length; j++)

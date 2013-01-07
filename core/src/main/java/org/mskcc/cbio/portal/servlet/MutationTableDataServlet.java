@@ -39,6 +39,7 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
@@ -107,7 +108,6 @@ public class MutationTableDataServlet extends HttpServlet
 			String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(),
 					cancerStudyStableId);
 
-			// TODO verify linkToPatientView...
 			rowData.put("caseId", mutation.getCaseId());
 			rowData.put("linkToPatientView", linkToPatientView);
 			rowData.put("proteinChange", mutation.getProteinChange());
@@ -125,6 +125,12 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("position", this.getChrPosition(mutation));
 			rowData.put("referenceAllele", mutation.getReferenceAllele());
 			rowData.put("variantAllele", this.getVariantAllele(mutation));
+			rowData.put("tumorFreq", this.getTumorFreq(mutation));
+			rowData.put("normalFreq", this.getNormalFreq(mutation));
+			rowData.put("tumorRefCount", this.getTumorRefCount(mutation));
+			rowData.put("tumorAltCount", this.getTumorAltCount(mutation));
+			rowData.put("normalRefCount", this.getNormalRefCount(mutation));
+			rowData.put("normalAltCount", this.getNormalAltCount(mutation));
 
 			JSONArray specialGeneData = new JSONArray();
 
@@ -369,6 +375,92 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 	}
 
+	private Integer getNormalAltCount(ExtendedMutation mutation)
+	{
+		// TODO consider other possible columns
+		Integer count = mutation.getNormalAltCount();
+
+		if (count == MafRecord.NA_INT)
+		{
+			count = null;
+		}
+
+		return count;
+	}
+
+	private Integer getNormalRefCount(ExtendedMutation mutation)
+	{
+		// TODO consider other possible columns
+		Integer count = mutation.getNormalRefCount();
+
+		if (count == MafRecord.NA_INT)
+		{
+			count = null;
+		}
+
+		return count;
+	}
+
+	private Integer getTumorAltCount(ExtendedMutation mutation)
+	{
+		// TODO consider other possible columns
+		Integer count = mutation.getTumorAltCount();
+
+		if (count == MafRecord.NA_INT)
+		{
+			count = null;
+		}
+
+		return count;
+	}
+
+	private Integer getTumorRefCount(ExtendedMutation mutation)
+	{
+		// TODO consider other possible columns
+		Integer count = mutation.getTumorRefCount();
+
+		if (count == MafRecord.NA_INT)
+		{
+			count = null;
+		}
+
+		return count;
+	}
+
+	private Double getNormalFreq(ExtendedMutation mutation)
+	{
+		Integer altCount = this.getNormalAltCount(mutation);
+		Integer refCount = this.getNormalRefCount(mutation);
+
+		return this.getFreq(altCount, refCount);
+	}
+
+	private Double getTumorFreq(ExtendedMutation mutation)
+	{
+		Integer altCount = this.getTumorAltCount(mutation);
+		Integer refCount = this.getTumorRefCount(mutation);
+
+		return this.getFreq(altCount, refCount);
+	}
+
+	private Double getFreq(Integer altCount, Integer refCount)
+	{
+		Double freq;
+
+		if (altCount == null ||
+		    refCount == null)
+		{
+			freq = null;
+		}
+		else
+		{
+			freq = altCount.doubleValue() /
+			       (altCount.doubleValue() + refCount.doubleValue());
+		}
+
+		return freq;
+	}
+
 	/**
 	 * Gets the footer message specific to the provided special gene.
 	 *
@@ -410,8 +502,12 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("position", "Position");
 		headerList.put("referenceAllele", "Ref");
 		headerList.put("variantAllele", "Var");
-		//TODO headerList.add("variantFrequency", "Var Freq");
-		//TODO headerList.add("normalFrequency", "Norm Freq");
+		headerList.put("tumorFreq", "Var Freq");
+		headerList.put("normalFreq", "Norm Freq");
+		headerList.put("tumorRefCount", "Var Ref");
+		headerList.put("tumorAltCount", "Var Alt");
+		headerList.put("normalRefCount", "Norm Ref");
+		headerList.put("normalAltCount", "Norm Alt");
 
 		JSONArray specialGeneHeaders = new JSONArray();
 

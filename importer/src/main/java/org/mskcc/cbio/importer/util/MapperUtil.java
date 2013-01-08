@@ -43,7 +43,8 @@ import java.util.List;
 public class MapperUtil {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(MapperUtil.class);
+	private static final Log LOG = LogFactory.getLog(MapperUtil.class);
+	private static final String UNKNOWN_ID_SYMBOL = "UNKNOWN"; 
 
 	// type of mapping enum
 	private enum MappingDirection {
@@ -101,14 +102,6 @@ public class MapperUtil {
 		List<String> srcColumnData = dataMatrix.getColumnData(srcColumnName).get(0);
 		List<String> targetColumnData = dataMatrix.getColumnData(targetColumnName).get(0);
 
-		// sanity check
-		if (targetColumnData.size() < srcColumnData.size()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("do(), target column size < src column size, aborting.");
-			}
-			return;
-		}
-
 		// do the mapping, ignore rows that are missing id's
 		for (int lc = 0; lc < srcColumnData.size(); lc++) {
 			String src = srcColumnData.get(lc);
@@ -120,18 +113,38 @@ public class MapperUtil {
 					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);
 				}
 				dataMatrix.ignoreRow(lc, true);
+				try {
+					targetColumnData.set(lc, UNKNOWN_ID_SYMBOL);
+				}
+				catch(IndexOutOfBoundsException e) {
+					targetColumnData.add(UNKNOWN_ID_SYMBOL);
+				}
 				continue;
 			}
 			String target = (mappingDirection == MappingDirection.SYMBOL_TO_ID) ?
 				idMapper.symbolToEntrezID(src) : idMapper.entrezIDToSymbol(src);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("doMapping(), target: " + target);
+			}
 			if (target == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), cannot find target for src: " + src + ", ignoring row: " + lc);
 				}
 				dataMatrix.ignoreRow(lc, true);
+				try {
+					targetColumnData.set(lc, UNKNOWN_ID_SYMBOL);
+				}
+				catch(IndexOutOfBoundsException e) {
+					targetColumnData.add(UNKNOWN_ID_SYMBOL);
+				}
 				continue;
 			}
-			targetColumnData.set(lc, target);
+			try {
+				targetColumnData.set(lc, target);
+			}
+			catch(IndexOutOfBoundsException e) {
+				targetColumnData.add(target);
+			}
 		}
 	}
 }

@@ -27,16 +27,16 @@
 
 package org.mskcc.cbio.cgds.model;
 
-public class ClinicalDataAttribute {
+public class ClinicalAttribute {
     private String attributeId;
     private String displayName;
     private String description;
     private String datatype;
 
-    public ClinicalDataAttribute(String attributeId,
-                                 String displayName,
-                                 String description,
-                                 String datatype) {
+    public ClinicalAttribute(String attributeId,
+                             String displayName,
+                             String description,
+                             String datatype) {
         this.attributeId = attributeId;
         this.displayName = displayName;
         this.description = description;

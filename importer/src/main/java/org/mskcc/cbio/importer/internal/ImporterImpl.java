@@ -168,7 +168,7 @@ class ImporterImpl implements Importer {
 
 		Method mainMethod = ClassLoader.getMethod(referenceMetadata.getImporterClassName(), "main");
 		if (mainMethod != null) {
-			String [] args = referenceMetadata.getReferenceFile().split(ReferenceMetadata.REFERENCE_FILE_DELIMITER);
+			String [] args = new String[] { referenceMetadata.getReferenceFile().getFile() };
 			mainMethod.invoke(null, (Object)args);
 		}
 		else {

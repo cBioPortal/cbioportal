@@ -84,16 +84,16 @@ class ReferenceDataFetcherImpl implements Fetcher {
 
 		// sanity check
 		if (referenceMetadata.getReferenceFileSource() == null ||
-			referenceMetadata.getReferenceFileSource().length() == 0) {
+			referenceMetadata.getReferenceFileSource().getFile().length() == 0) {
 			throw new IllegalArgumentException("referenceMetadata.getReferenceFileSource() must not be null, aborting");
 		}
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile());
+			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource().getFile());
+			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile().getFile());
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource(),
-							   referenceMetadata.getReferenceFile());
+		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource().getFile(),
+							   referenceMetadata.getReferenceFile().getFile());
 	}
 }

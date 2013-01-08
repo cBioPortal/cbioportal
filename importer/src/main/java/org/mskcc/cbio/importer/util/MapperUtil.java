@@ -112,6 +112,9 @@ public class MapperUtil {
 		// do the mapping, ignore rows that are missing id's
 		for (int lc = 0; lc < srcColumnData.size(); lc++) {
 			String src = srcColumnData.get(lc);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("doMapping(), src: " + src);
+			}
 			if (src == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);

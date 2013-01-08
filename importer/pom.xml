@@ -131,6 +131,13 @@
 	  <version>${project.version}</version>
 	</dependency>	
 
+	<!-- portal core -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>core</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
+
   </dependencies>
 
   <build>

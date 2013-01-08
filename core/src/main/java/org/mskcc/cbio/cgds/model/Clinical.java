@@ -88,4 +88,8 @@ public class Clinical {
     public void setAttrVal(String attrVal) {
         this.attrVal = attrVal;
     }
+
+    public String toString() {
+        return String.format("Clinical[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, caseId, attrId, attrVal);
+    }
 }

@@ -27,12 +27,12 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import org.mskcc.cbio.cgds.model.Clinical;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.mskcc.cbio.cgds.model.Clinical;
 
 /**
  * Data access object for Clinical Data table
@@ -80,30 +80,37 @@ public class DaoClinical {
         }
     }
 
-    public Clinical getDatum(int cancerStudyId, String caseId, String attrId) throws DaoException {
+    public Clinical getDatum(int cancerStudyId, String caseId, String attrId)
+            throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
 
-
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
-                    "CANCER_STUDY_ID = ? " +
-                    "AND CASE_ID = ? " +
-                    "AND ATTR_ID = ?");
+                    "CANCER_STUDY_ID=? " +
+                    "AND CASE_ID=? " +
+                    "AND ATTR_ID=?");
 
             pstmt.setInt(1, cancerStudyId);
             pstmt.setString(2, caseId);
             pstmt.setString(3, attrId);
+
             rs = pstmt.executeQuery();
 
-            Clinical clinicalData = new Clinical(rs.getInt("CANCER_STUDY_ID"),
-                    rs.getString("CASE_ID"),
-                    rs.getString("ATTR_ID"),
-                    rs.getString("ATTR_VAL"));
+            if (rs.next()) {
+                Clinical clinical = new Clinical(rs.getInt("CANCER_STUDY_ID"),
+                        rs.getString("CASE_ID"),
+                        rs.getString("ATTR_ID"),
+                        rs.getString("ATTR_VALUE"));
 
-            return clinicalData;
+                return clinical;
+            } else {
+                throw new DaoException(String.format("clincial not found for (%d, %s, %s)",
+                        cancerStudyId, caseId, attrId));
+            }
+
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

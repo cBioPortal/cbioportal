@@ -27,10 +27,9 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
-import junit.framework.TestCase;
 
 /**
  * Tests the DaoClinicalData Class.
@@ -44,13 +43,14 @@ public class TestDaoClinical extends TestCase {
      * Basic Unit Tests.
      * @throws DaoException Database Access Error.
      */
-    public void testDaoCase() throws DaoException {
+    public void testDaoClinical() throws DaoException {
         ResetDatabase.resetDatabase();
         DaoClinical daoClinical = new DaoClinical();
 
         daoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
         Clinical clinicalData = daoClinical.getDatum(1, "TCGA-A", "tumor-size");
 
-        assert(!clinicalData.equals(null));
+//        System.out.println(clinicalData);
+        assertNotNull(clinicalData);
     }
 }

@@ -235,16 +235,10 @@ class FirehoseFetcherImpl implements Fetcher {
 		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
-		// clobber the directory
-		if (downloadDirectory.exists()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("clobbering directory: " + downloadDirectoryName);
-			}
-            fileUtils.deleteDirectory(downloadDirectory);
-		}
-
 		// make the directory
-        fileUtils.makeDirectory(downloadDirectory);
+		if (!downloadDirectory.exists()) {
+			fileUtils.makeDirectory(downloadDirectory);
+		}
 
 		// download the data
 		String tumorTypesToDownload = Arrays.toString(config.getTumorTypesToDownload());

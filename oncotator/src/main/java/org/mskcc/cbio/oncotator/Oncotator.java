@@ -151,23 +151,9 @@ public class Oncotator
 			}
 
 			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
-			String variantClassification = mafRecord.getVariantClassification();
-			OncotatorRecord oncotatorRecord = null;
-
-			// do not oncotate silent mutations
-			if (!variantClassification.equalsIgnoreCase(SILENT_MUTATION))
-			{
-				oncotatorRecord = this.conditionallyOncotateRecord(mafRecord);
-				numRecordsProcessed++;
-				this.conditionallyAbort(numRecordsProcessed);
-			}
-			else
-			{
-				// just set the mutation type, all other data will be empty
-				oncotatorRecord = new OncotatorRecord("NA");
-				oncotatorRecord.getBestEffectTranscript().setVariantClassification("Silent");
-				oncotatorRecord.getBestCanonicalTranscript().setVariantClassification("Silent");
-			}
+			OncotatorRecord oncotatorRecord = this.conditionallyOncotateRecord(mafRecord);
+			numRecordsProcessed++;
+			this.conditionallyAbort(numRecordsProcessed);
 
 			// get the data and update/add new oncotator columns
 			List<String> data = processor.newDataList(dataLine);

@@ -100,7 +100,7 @@ public class DataMatrix {
 		caseIDs = new HashSet<String>();
 
 		// geneIDColumnHeading
-		geneIDColumnHeading = "";
+		geneIDColumnHeading = Converter.GENE_ID_COLUMN_HEADER_NAME;
 
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();

@@ -49,8 +49,10 @@ import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.net.URL;
 import java.io.File;
 import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.lang.reflect.Method;
 
@@ -168,8 +170,11 @@ class ImporterImpl implements Importer {
 
 		Method mainMethod = ClassLoader.getMethod(referenceMetadata.getImporterClassName(), "main");
 		if (mainMethod != null) {
-			String [] args = new String[] { referenceMetadata.getReferenceFile().getFile() };
-			mainMethod.invoke(null, (Object)args);
+			ArrayList<String> args = new ArrayList<String>();
+			for (URL url : referenceMetadata.getReferenceFiles()) {
+				args.add(url.getFile());
+			}
+			mainMethod.invoke(null, (Object)args.toArray(new String[0]));
 		}
 		else {
 			Object[] args = { config, fileUtils, databaseUtils };

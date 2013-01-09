@@ -77,7 +77,7 @@ class HumanGeneDataFetcherImpl extends ReferenceDataFetcherImpl implements Fetch
 		}
 
 		StringBuilder builder = new StringBuilder();
-		LineIterator it = fileUtils.getFileContents(referenceMetadata.getReferenceFile().getFile());
+		LineIterator it = fileUtils.getFileContents(referenceMetadata.getReferenceFiles().get(0).getFile());
 		try {
 			while (it.hasNext()) {
 				String nextLine = it.nextLine();
@@ -90,6 +90,6 @@ class HumanGeneDataFetcherImpl extends ReferenceDataFetcherImpl implements Fetch
 			it.close();
 		}
 
-		fileUtils.createFileWithContents(referenceMetadata.getReferenceFile().getFile(), builder.toString());
+		fileUtils.createFileWithContents(referenceMetadata.getReferenceFiles().get(0).getFile(), builder.toString());
 	}
 }

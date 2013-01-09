@@ -30,17 +30,22 @@ package org.mskcc.cbio.importer.model;
 
 // imports
 import java.net.URL;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Class which contains reference metadata.
  */
 public class ReferenceMetadata {
 
+    // delimiter between tumor type and center (used for find the path)
+	public static final String REFERENCE_FILE_DELIMITER = ":"; 
+
 	// bean properties
 	private String referenceType;
 	private Boolean importIntoPortal;
 	private URL referenceFileSource;
-	private URL referenceFile;
+	private List<URL> referenceFiles;
 	private String fetcherBeanID;
 	private String importerClassName;
 
@@ -60,12 +65,18 @@ public class ReferenceMetadata {
 		this.importIntoPortal = new Boolean(properties[1].trim());
 		try {
 			this.referenceFileSource = new URL(properties[2].trim());
-			this.referenceFile = new URL(properties[3].trim());
 		}
 		catch (Exception e) {
 			if (properties[2].trim().length() == 0) this.referenceFileSource = null;
-			if (properties[3].trim().length() == 0) this.referenceFile = null;
 		}
+		this.referenceFiles = new ArrayList<URL>();
+		try {
+			for (String url : properties[3].trim().split(REFERENCE_FILE_DELIMITER)) {
+				this.referenceFiles.add(new URL(url));
+			}
+		}
+		catch (Exception e) {}
+
 		this.fetcherBeanID = properties[4].trim();
 		this.importerClassName = properties[5].trim();
 	}
@@ -73,7 +84,7 @@ public class ReferenceMetadata {
 	public String getReferenceType() { return referenceType; }
 	public Boolean importIntoPortal() { return importIntoPortal; }
 	public URL getReferenceFileSource() { return referenceFileSource; }
-	public URL getReferenceFile() { return referenceFile; }
+	public List<URL> getReferenceFiles() { return referenceFiles; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 	public String getImporterClassName() { return importerClassName; }
 }

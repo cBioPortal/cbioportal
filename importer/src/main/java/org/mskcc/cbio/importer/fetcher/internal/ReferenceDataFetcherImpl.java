@@ -90,10 +90,10 @@ class ReferenceDataFetcherImpl implements Fetcher {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource().getFile());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFile().getFile());
+			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFiles().get(0).getFile());
 		}
 
 		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource().getFile(),
-							   referenceMetadata.getReferenceFile().getFile());
+							   referenceMetadata.getReferenceFiles().get(0).getFile());
 	}
 }

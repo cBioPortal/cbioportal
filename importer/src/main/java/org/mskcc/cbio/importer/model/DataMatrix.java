@@ -403,7 +403,9 @@ public class DataMatrix {
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.ignoreColumn) continue;
 			writer.print(columnHeader.label);
-			writer.print(Converter.CASE_DELIMITER);
+			if (columnHeader != columnHeaders.getLast()) {
+				writer.print(Converter.CASE_DELIMITER);
+			}
 		}
 		writer.println();
 

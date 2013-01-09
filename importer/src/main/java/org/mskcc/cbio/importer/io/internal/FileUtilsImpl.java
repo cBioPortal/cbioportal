@@ -200,7 +200,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         String fileCanonicalPath = importDataRecord.getCanonicalPathToData();
 
         // get filedata inputstream
-        byte[] fileContents;
+        InputStream fileContents;
 
         // data can be compressed
 		if (GzipUtils.isCompressedFilename(fileCanonicalPath.toLowerCase())) {
@@ -214,7 +214,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             if (LOG.isInfoEnabled()) {
                 LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
             }
-            fileContents = org.apache.commons.io.FileUtils.readFileToByteArray(new File(fileCanonicalPath));
+            fileContents = org.apache.commons.io.FileUtils.openInputStream(new File(fileCanonicalPath));
         }
 
         // outta here
@@ -759,18 +759,15 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
     /*
-     * Given a zip stream, unzips it and gets contents of desired data file.
-     * This routine will attempt to close the given input stream.
+     * Given a zip stream, unzips it and returns an input stream to the desired data file.
      *
      * @param importDataRecord ImportDataRecord
      * @param is InputStream
-     * @return byte[]
+     * @return InputStream
      */
-    private byte[] readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
+    private InputStream readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
 
-        byte[] toReturn = null;
-        TarArchiveInputStream tis = null;
-        GzipCompressorInputStream gzis = new GzipCompressorInputStream(is);
+        InputStream toReturn = null;
 
         try {
             // decompress .gz file
@@ -778,13 +775,13 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 LOG.info("readContent(), decompressing: " + importDataRecord.getCanonicalPathToData());
             }
 
-            InputStream unzippedContent = IOUtils.toBufferedInputStream((InputStream)gzis);
+            InputStream unzippedContent = new GzipCompressorInputStream(is);
             // if tarball, untar
             if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("readContent(), gzip file is a tarball, untarring");
                 }
-                tis = new TarArchiveInputStream(unzippedContent);
+                TarArchiveInputStream tis = new TarArchiveInputStream(unzippedContent);
                 TarArchiveEntry entry = null;
                 while ((entry = tis.getNextTarEntry()) != null) {
                     String entryName = entry.getName();
@@ -796,22 +793,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("Processing tar-archive: " + importDataRecord.getDataFilename());
                         }
-                        toReturn = IOUtils.toByteArray(tis, entry.getSize());
+                        toReturn = tis;
                         break;
                     }
                 }
             }
             else {
-                toReturn = IOUtils.toByteArray(gzis);
+                toReturn = unzippedContent;
             }
         }
         catch (Exception e) {
             throw e;
-        }
-        finally {
-            IOUtils.closeQuietly(tis);
-            IOUtils.closeQuietly(gzis);
-            IOUtils.closeQuietly(is);
         }
         
         // outta here
@@ -821,15 +813,15 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     /**
      * Helper function to create DataMatrix.
      *
-     * @param data byte[]
+     * @param data InputStream
      * @return DataMatrix
      */
-    private DataMatrix getDataMatrix(byte[] data) throws Exception {
+    private DataMatrix getDataMatrix(InputStream data) throws Exception {
 
         // iterate over all lines in byte[]
         List<String> columnNames = null;
         List<LinkedList<String>> rowData = null;
-        LineIterator it = IOUtils.lineIterator(new ByteArrayInputStream(data), null);
+        LineIterator it = IOUtils.lineIterator(data, null);
         try {
             int count = -1;
             while (it.hasNext()) {

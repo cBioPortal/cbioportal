@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -62,6 +64,53 @@ public class DaoClinicalAttribute {
 
             int rows = pstmt.executeUpdate();
             return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    public ClinicalAttribute getDatum(String attrId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+
+            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute WHERE ATTR_ID=? ");
+            pstmt.setString(1, attrId);
+
+            rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                ClinicalAttribute clinicalAttribute = new ClinicalAttribute(rs.getString("ATTR_ID"),
+                        rs.getString("DISPLAY_NAME"),
+                        rs.getString("DESCRIPTION"),
+                        rs.getString("DATATYPE"));
+                return clinicalAttribute;
+            } else {
+                throw new DaoException(String.format("clincial attribute not found for (%s)", attrId));
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+
+    /**
+     * Deletes all Records.
+     * @throws DaoException DAO Error.
+     */
+    public void deleteAllRecords() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_attribute");
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

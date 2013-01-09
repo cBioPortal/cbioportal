@@ -35,7 +35,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
- * Data access object for Clinical Data table
+ * Data Access Object for `clinical` table
  *
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */

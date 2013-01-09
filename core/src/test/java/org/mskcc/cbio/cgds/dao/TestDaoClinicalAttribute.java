@@ -27,45 +27,16 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
-/**
- * Data Access Object for `clinical_attribute` table
- *
- * @author Gideon Dresdner
- */
-public class DaoClinicalAttribute {
+public class TestDaoClinicalAttribute {
 
-    public int addDatum(String attrId,
-                        String displayName,
-                        String description,
-                        String datatype)  throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection();
-            pstmt = con.prepareStatement
-                    ("INSERT INTO clinical_attribute(" +
-                            "`ATTR_ID`," +
-                            "`DISPLAY_NAME`," +
-                            "`DESCRIPTION`," +
-                            "`DATATYPE`)" +
-                            " VALUES(?,?,?,?)");
-            pstmt.setString(1, attrId);
-            pstmt.setString(2, displayName);
-            pstmt.setString(3, description);
-            pstmt.setString(4, datatype);
+    public void testDaoClinicalAttribute() throws DaoException {
+        ResetDatabase.resetDatabase();
 
-            int rows = pstmt.executeUpdate();
-            return rows;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
-        }
+        DaoClinicalAttribute daoClinicalAttribute = new DaoClinicalAttribute();
+        daoClinicalAttribute.addDatum("attrId", "some attribute", "test attribute", "nonsense");
+
+        assert(true);
     }
 }

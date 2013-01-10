@@ -546,6 +546,39 @@ function _getMutationTableRows(data)
         return html;
     };
 
+    var getAlleleFreqHtml = function(frequency) {
+		var html;
+
+		console.log(frequency);
+        if (frequency == null)
+        {
+            html = "<label>NA</label>";
+        }
+        else
+        {
+            html = '<label class="mutation_table_allele_freq">' +
+                   + frequency.toFixed(2) + '</label>';
+        }
+
+        return html;
+    };
+
+	var getAlleleCountHtml = function(count) {
+        var html;
+
+        if (count == null)
+        {
+            html = "<label>NA</label>";
+        }
+        else
+        {
+            html = '<label class="mutation_table_allele_count">' +
+                   + count + '</label>';
+        }
+
+        return html;
+    };
+
     // generate rows as HTML
 
     var row;
@@ -572,13 +605,12 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].position);
         row.push(data.mutations[i].referenceAllele);
         row.push(data.mutations[i].variantAllele);
-        // TODO write get functions to convert 'null's to 'NA's
-        row.push(data.mutations[i].tumorFreq);
-        row.push(data.mutations[i].normalFreq);
-        row.push(data.mutations[i].tumorRefCount);
-        row.push(data.mutations[i].tumorAltCount);
-        row.push(data.mutations[i].normalRefCount);
-        row.push(data.mutations[i].normalAltCount);
+        row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq));
+        row.push(getAlleleFreqHtml(data.mutations[i].normalFreq));
+        row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
+        row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
+        row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
+        row.push(getAlleleCountHtml(data.mutations[i].normalAltCount));
 
         //special gene data
         for (var j=0; j < data.mutations[i].specialGeneData.length; j++)

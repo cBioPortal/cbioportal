@@ -51,8 +51,10 @@ import java.util.Arrays;
  */
 public class MutationConverterImpl implements Converter {
 
+
+
 	// our logger
-	private static Log LOG = LogFactory.getLog(MutationConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(MutationConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -136,6 +138,7 @@ public class MutationConverterImpl implements Converter {
 			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
+		dataMatrix.convertCaseIDs(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
 		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {

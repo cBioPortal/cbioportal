@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
@@ -40,6 +41,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.util.List;
 import java.util.Collection;
 
 /**
@@ -105,14 +107,16 @@ public interface FileUtils {
 	DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception;
 
 	/**
-	 * Get staging file header.
+	 * Get the case list from the staging file.
 	 *
+	 * @param caseIDs CaseIDs;
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return stagingFile String
+	 * @param stagingFilename String
+	 * @return List<String>
 	 * @throws Exception
 	 */
-	String getStagingFileHeader(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFile) throws Exception;
+	List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception;
 
 	/**
 	 * Creates a temporary file with the given contents.

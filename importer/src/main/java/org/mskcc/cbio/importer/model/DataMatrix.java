@@ -174,6 +174,28 @@ public class DataMatrix {
 	}
 
 	/**
+	 * Converts full TCGA bar code to abbreviated version for use in portal.
+	 * This routine is used when the case IDs exist not in the header row, but in a column.
+	 * This is true for MAF files.
+	 *
+	 * @param caseIDColumn String
+	 */
+	public void convertCaseIDs(String caseIDColumn) {
+
+		// reset our caseIDs list
+		caseIDs.clear();
+
+		List<String> caseIDColumnData = getColumnData(caseIDColumn).get(0);
+		for (int lc = 0; lc < caseIDColumnData.size(); lc++) {
+			String caseID = caseIDColumnData.get(lc);
+			if (caseIDsFilter.isTumorCaseID(caseID)) {
+				caseIDColumnData.set(lc, caseIDsFilter.convertCaseID(caseID));
+				caseIDs.add(caseID);
+			}
+		}
+	}
+
+	/**
 	 * Set column order.  Any columns in the data matrix
 	 * that are not in the given column order will be dropped.
 	 *
@@ -404,7 +426,7 @@ public class DataMatrix {
 			if (columnHeader.ignoreColumn) continue;
 			writer.print(columnHeader.label);
 			if (columnHeader != columnHeaders.getLast()) {
-				writer.print(Converter.CASE_DELIMITER);
+				writer.print(Converter.VALUE_DELIMITER);
 			}
 		}
 		writer.println();
@@ -418,7 +440,7 @@ public class DataMatrix {
 				if (columnHeader.ignoreColumn) continue;
 				writer.print(columnHeader.columnData.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
-					writer.print(Converter.CASE_DELIMITER);
+					writer.print(Converter.VALUE_DELIMITER);
 				}
 			}
 			writer.println();

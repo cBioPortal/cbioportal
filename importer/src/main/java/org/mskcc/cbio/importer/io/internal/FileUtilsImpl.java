@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
+import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
@@ -66,7 +67,9 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.zip.GZIPInputStream;
 
@@ -222,21 +225,24 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
-	 * Get staging file header.
+	 * Get the case list from the staging file.
 	 *
+	 * @param caseIDs CaseIDs;
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return stagingFilename String
+	 * @param stagingFilename String
+	 * @return List<String>
 	 * @throws Exception
 	 */
 	@Override
-	public String getStagingFileHeader(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
+	public List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getStagingFileHeader(): " + stagingFilename);
+			LOG.info("getCaseListFromStagingFile(): " + stagingFilename);
 		}
 
-		String toReturn = "";
+		// we use set here
+		HashSet<String> caseSet = new HashSet<String>();
 
 		// staging file
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
@@ -244,21 +250,42 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   stagingFilename);
 		// sanity check
 		if (!stagingFile.exists()) {
-			return toReturn;
+			return new ArrayList<String>();
 		}
 
+		// iterate over all rows in file
 		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(stagingFile);
 		try {
+			int mafCaseIDColumnIndex = 0;
+			boolean processHeader = true;
 			while (it.hasNext()) {
-				toReturn = it.nextLine();
-				break;
+				// create a string list from row in file
+				List<String> thisRow = Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER));
+				// is this the header file?
+				if (processHeader) {
+					// look for MAF file case id column header
+					mafCaseIDColumnIndex = thisRow.indexOf(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
+					// this is not a MAF file, header contains the case ids, return here
+					if (mafCaseIDColumnIndex  == -1) {
+						for (String potentialCaseID : thisRow) {
+							if (caseIDs.isTumorCaseID(potentialCaseID)) {
+								caseSet.add(potentialCaseID);
+							}
+						}
+						break;
+					}
+					processHeader = false;
+					continue;
+				}
+				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
+				caseSet.add(thisRow.get(mafCaseIDColumnIndex));
 			}
 		} finally {
 			it.close();
 		}
 
 		// outta here
-		return toReturn;
+		return new ArrayList<String>(caseSet);
 	}
 
 	/**
@@ -643,7 +670,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		writer.print("case_list_category: " + caseListMetadata.getMetaCaseListCategory() + "\n");
 		writer.print("case_list_ids: ");
 		for (String caseID : caseList) {
-			writer.print(caseID + Converter.CASE_DELIMITER);
+			writer.print(caseID + Converter.VALUE_DELIMITER);
 		}
 		writer.println();
 		writer.flush();
@@ -827,12 +854,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             while (it.hasNext()) {
                 // first row is our column heading, create column vector
                 if (++count == 0) {
-                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1)));
+                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
                 }
                 // all other rows are rows in the table
                 else {
                     rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
-                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1))));
+                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1))));
                 }
             }
         }

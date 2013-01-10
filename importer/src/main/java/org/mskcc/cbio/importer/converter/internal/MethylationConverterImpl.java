@@ -278,6 +278,14 @@ public class MethylationConverterImpl implements Converter {
 		columnHeaders.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		columnHeaders.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrixMethylationData.setColumnOrder(columnHeaders);
+
+		// ignore rows with hugo symbol of NA
+		List<String> rows = dataMatrixMethylationData.getColumnData(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME).get(0);
+		for (int lc = 0; lc < rows.size(); lc++) {
+			if (rows.get(lc).equals("NA")) {
+				dataMatrixMethylationData.ignoreRow(lc, true);
+			}
+		}
 		
 		if (LOG.isInfoEnabled()) {
 			//dataMatrixMethylationData.setGeneIDColumnHeading();

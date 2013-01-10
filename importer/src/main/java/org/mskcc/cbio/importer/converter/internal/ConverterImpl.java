@@ -49,7 +49,8 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Vector;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.io.File;
@@ -216,35 +217,30 @@ class ConverterImpl implements Converter {
 				// this is the set we will pass to writeCaseListFile
 				LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
 				for (String stagingFilename : stagingFilenames) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), processing stagingFile: " + stagingFilename);
+					}
 					// compute the case set
-					LinkedHashSet<String> thisSet = new LinkedHashSet<String>();
-					String[] stagingFileHeader = fileUtils.getStagingFileHeader(portalMetadata, cancerStudyMetadata, stagingFilename).split(CASE_DELIMITER);
+					List<String> caseList = fileUtils.getCaseListFromStagingFile(caseIDs, portalMetadata, cancerStudyMetadata, stagingFilename);
 					// we may not have this datatype in study
-					if (stagingFileHeader.length == 0) {
+					if (caseList.size() == 0) {
 						if (LOG.isInfoEnabled()) {
 							LOG.info("generateCaseLists(), stagingFileHeader is empty: " + stagingFilename + ", skipping...");
 						}
 						continue;
 					}
-					// filter out column headings that are not case ids (like gene symbol or gene id)
-					if (LOG.isInfoEnabled()) {
-						LOG.info("generateCaseLists(), filtering case ids...");
-					}
-					for (String caseID : stagingFileHeader) {
-						if (caseIDs.isTumorCaseID(caseID)) {
-							thisSet.add(caseID);
-						}
-					}
-					if (LOG.isInfoEnabled()) {
-						LOG.info("generateCaseLists(), filtering case ids complete, " + thisSet.size() + " remaining case ids...");
-					}
 					// if intersection 
 					if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
-						caseSet.retainAll(thisSet);
+						if (caseSet.isEmpty()) {
+							caseSet.addAll(caseList);
+						}
+						else {
+							caseSet.retainAll(caseList);
+						}
 					}
 					// otherwise union
 					else {
-						caseSet.addAll(thisSet);
+						caseSet.addAll(caseList);
 					}
 				}
 				// write the case list file (don't make empty case lists)
@@ -347,7 +343,7 @@ class ConverterImpl implements Converter {
 
 
 		// this is what we are returing
-		Vector<DataMatrix> toReturn = new Vector<DataMatrix>();
+		List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
 
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();

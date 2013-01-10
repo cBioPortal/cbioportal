@@ -29,9 +29,6 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Class which contains portal metadata.

@@ -62,6 +62,7 @@ public class GisticGenesConverterImpl implements Converter {
 	private static final String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
 	private static final String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
 	// statics for column identifiers in table_*.conf_99.txt
+	private static final String TABLE_CONF_AMP_COLUMN_HEADER_NAME = "amp";
 	private static final String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
 	private static final String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
 	private static final String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
@@ -174,9 +175,11 @@ public class GisticGenesConverterImpl implements Converter {
 		Map<String, String> geneConfMap = getGenesConfMap(dataMatrixGenesConf);
 
 		// now that we have *_genes.conf_99.txt map, we can process table_*.conf_90.txt
-		// - add cytoband and q_value columns to table_*.conf_90.txt
+		// - add amp, cytoband and q_value columns to table_*.conf_90.txt
+		List<String> amp = new ArrayList<String>();
 		List<String> cytobandColumnData = new ArrayList<String>();
 		List<String> qValueColumnData = new ArrayList<String>();
+		String ampFlag = (datatypeMetadata.getDatatype().contains("amp") || datatypeMetadata.getDatatype().contains("AMP")) ? "1" : "0";
 		for (String geneSet : dataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME).get(0)) {
 			if (geneSet.endsWith(TABLE_CONF_GENES_IN_REGION_DELIMITER)) {
 				geneSet = geneSet.substring(0, geneSet.length()-1);
@@ -185,11 +188,13 @@ public class GisticGenesConverterImpl implements Converter {
 				String[] cytobandQValuePair = geneConfMap.get(geneSet).split(GENE_CONF_MAP_VALUE_DELIMITER);
 				cytobandColumnData.add(cytobandQValuePair[0]);
 				qValueColumnData.add(cytobandQValuePair[1]);
+				amp.add(ampFlag);
 			}
 			else if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), cannot find GeneConfMap key: " + geneSet);
 			}
 		}
+		dataMatrixTableConf.addColumn(TABLE_CONF_AMP_COLUMN_HEADER_NAME, amp);
 		dataMatrixTableConf.addColumn(TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME, cytobandColumnData);
 		dataMatrixTableConf.addColumn(TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME, qValueColumnData);
 

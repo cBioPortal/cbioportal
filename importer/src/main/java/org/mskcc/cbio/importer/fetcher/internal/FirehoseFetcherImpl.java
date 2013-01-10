@@ -235,16 +235,10 @@ class FirehoseFetcherImpl implements Fetcher {
 		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
-		// clobber the directory
-		if (downloadDirectory.exists()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("clobbering directory: " + downloadDirectoryName);
-			}
-            fileUtils.deleteDirectory(downloadDirectory);
-		}
-
 		// make the directory
-        fileUtils.makeDirectory(downloadDirectory);
+		if (!downloadDirectory.exists()) {
+			fileUtils.makeDirectory(downloadDirectory);
+		}
 
 		// download the data
 		String tumorTypesToDownload = Arrays.toString(config.getTumorTypesToDownload());
@@ -288,10 +282,6 @@ class FirehoseFetcherImpl implements Fetcher {
 	private void storeData(String dataSource, File downloadDirectory, Date runDate) throws Exception {
 
 		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
-
-		// first delete records in db with givin dataSource
-		// we do this in the event that the desired datatypes to download have changed
-		importDataRecordDAO.deleteByDataSource(dataSource);
 
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};

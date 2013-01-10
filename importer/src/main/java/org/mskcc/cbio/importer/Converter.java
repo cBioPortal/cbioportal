@@ -39,9 +39,10 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
  */
 public interface Converter {
 
+	public static final String VALUE_DELIMITER = "\t";
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
-	public static final String CASE_DELIMITER = "\t";
+	public static final String MUTATION_CASE_ID_COLUMN_HEADER = "Tumor_Sample_Barcode";
 
 	/**
 	 * Converts data for the given portal.

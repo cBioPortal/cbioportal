@@ -38,6 +38,7 @@ import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
@@ -83,6 +84,7 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
 	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
 	ArrayList<ArrayList<String>> caseListMatrix;
+	ArrayList<ArrayList<String>> clinicalAttributesMatrix;
 	ArrayList<ArrayList<String>> datatypesMatrix;
 	ArrayList<ArrayList<String>> dataSourcesMatrix;
 	ArrayList<ArrayList<String>> portalsMatrix;
@@ -112,8 +114,8 @@ class GDataImpl implements Config {
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
-					 String caseIDFiltersWorksheet, String caseListWorksheet, String portalsWorksheet,
-					 String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
+					 String caseIDFiltersWorksheet, String caseListWorksheet, String clinicalAttributesWorksheet,
+					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
 
 		// set members
 		this.gdataUser = gdataUser;
@@ -124,6 +126,7 @@ class GDataImpl implements Config {
 		datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
 		caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
 		caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
+		clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
 		portalsMatrix = getWorksheetData(gdataSpreadsheet, portalsWorksheet);
 		referenceMatrix = getWorksheetData(gdataSpreadsheet, referenceDataWorksheet);
 		dataSourcesMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
@@ -173,6 +176,7 @@ class GDataImpl implements Config {
 		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
             if (tumorTypeMetadata.getType().equals(tumorType)) {
 				toReturn.add(tumorTypeMetadata);
+				break;
             }
 		}
 
@@ -255,6 +259,7 @@ class GDataImpl implements Config {
 		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
             if (datatypeMetadata.getDatatype().equals(datatype)) {
 				toReturn.add(datatypeMetadata);
+				break;
             }
 		}
 
@@ -329,6 +334,7 @@ class GDataImpl implements Config {
 		for (CaseIDFilterMetadata caseIDFilterMetadata : caseIDFilterMetadatas) {
 			if (caseIDFilterMetadata.getFilterName().equals(filterName)) {
 				toReturn.add(caseIDFilterMetadata);
+				break;
 			}
 		}
 
@@ -360,6 +366,39 @@ class GDataImpl implements Config {
 		for (CaseListMetadata caseListMetadata : caseListMetadatas) {
 			if (caseListMetadata.getCaseListFilename().equals(caseListFilename)) {
 				toReturn.add(caseListMetadata);
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of ClinicalAttributesMetadata.
+	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeColumnHeader String
+	 * @return Collection<ClinicalAttributesMetadata>
+	 */
+	@Override
+	public Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributesColumnHeader) {
+
+		Collection<ClinicalAttributesMetadata> toReturn = new ArrayList<ClinicalAttributesMetadata>();
+
+		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
+			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
+																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+
+		// if user wants all, we're done
+		if (clinicalAttributesColumnHeader.equals(Config.ALL)) {
+			return clinicalAttributesMetadatas;
+		}
+
+		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
+			if (clinicalAttributesMetadata.getColumnHeader().equals(clinicalAttributesColumnHeader)) {
+				toReturn.add(clinicalAttributesMetadata);
+				break;
 			}
 		}
 
@@ -390,6 +429,7 @@ class GDataImpl implements Config {
 		for (PortalMetadata portalMetadata : portalMetadatas) {
 			if (portalMetadata.getName().equals(portalName)) {
 				toReturn.add(portalMetadata);
+				break;
 			}
 		}
 

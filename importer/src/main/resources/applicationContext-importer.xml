@@ -62,10 +62,11 @@
 	<b:constructor-arg index="5"><b:value>${datatypes_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="6"><b:value>${case_id_filters_worksheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="7"><b:value>${case_lists_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="8"><b:value>${portals_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="9"><b:value>${reference_data_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="10"><b:value>${data_sources_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="11"><b:value>${cancer_studies_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="8"><b:value>${clinical_attributes_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="9"><b:value>${portals_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="10"><b:value>${reference_data_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="11"><b:value>${data_sources_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="12"><b:value>${cancer_studies_worksheet}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
 	<b:constructor-arg ref="config"/>

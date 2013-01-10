@@ -29,62 +29,35 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import java.net.URL;
-import java.util.List;
-import java.util.ArrayList;
 
 /**
- * Class which contains reference metadata.
+ * Class which contains clinical attributes metadata.
  */
-public class ReferenceMetadata {
-
-    // delimiter between tumor type and center (used for find the path)
-	public static final String REFERENCE_FILE_DELIMITER = ":"; 
+public class ClinicalAttributesMetadata {
 
 	// bean properties
-	private String referenceType;
-	private Boolean importIntoPortal;
-	private URL referenceFileSource;
-	private List<URL> referenceFiles;
-	private String fetcherBeanID;
-	private String importerClassName;
+    private String columnHeader;
+    private String displayName;
+    private String description;
 
     /**
-     * Create a ReferenceMetadata instance with properties in given array.
+     * Create a ClinicalAttributesMetadata instance with properties in given array.
 	 * Its assumed order of properties is that from google worksheet.
      *
 	 * @param properties String[]
      */
-    public ReferenceMetadata(String[] properties) {
+    public ClinicalAttributesMetadata(String[] properties) {
 
-		if (properties.length != 6) {
+		if (properties.length < 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
-		this.referenceType = properties[0].trim();
-		this.importIntoPortal = new Boolean(properties[1].trim());
-		try {
-			this.referenceFileSource = new URL(properties[2].trim());
-		}
-		catch (Exception e) {
-			if (properties[2].trim().length() == 0) this.referenceFileSource = null;
-		}
-		this.referenceFiles = new ArrayList<URL>();
-		try {
-			for (String url : properties[3].trim().split(REFERENCE_FILE_DELIMITER)) {
-				this.referenceFiles.add(new URL(url));
-			}
-		}
-		catch (Exception e) {}
-
-		this.fetcherBeanID = properties[4].trim();
-		this.importerClassName = properties[5].trim();
+        this.columnHeader = properties[0].trim();
+		this.displayName = properties[1].trim();
+		this.description = properties[2].trim();
 	}
 
-	public String getReferenceType() { return referenceType; }
-	public Boolean importIntoPortal() { return importIntoPortal; }
-	public URL getReferenceFileSource() { return referenceFileSource; }
-	public List<URL> getReferenceFiles() { return referenceFiles; }
-	public String getFetcherBeanID() { return fetcherBeanID; }
-	public String getImporterClassName() { return importerClassName; }
+	public String getColumnHeader() { return columnHeader; }
+	public String getDisplayName() { return displayName; }
+	public String getDescription() { return description; }
 }

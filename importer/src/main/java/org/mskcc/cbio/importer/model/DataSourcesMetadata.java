@@ -50,9 +50,13 @@ public class DataSourcesMetadata {
      */
     public DataSourcesMetadata(String[] properties) {
 
+		if (properties.length != 3) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
+		}
+
 		this.dataSource = properties[0].trim();
 		this.downloadDirectory = properties[1].trim();
-		this.fetcherBeanID = properties[3].trim();
+		this.fetcherBeanID = properties[2].trim();
 	}
 
 	public String getDataSource() { return dataSource; }

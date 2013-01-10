@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
+import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
@@ -66,7 +67,9 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.zip.GZIPInputStream;
 
@@ -200,7 +203,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         String fileCanonicalPath = importDataRecord.getCanonicalPathToData();
 
         // get filedata inputstream
-        byte[] fileContents;
+        InputStream fileContents;
 
         // data can be compressed
 		if (GzipUtils.isCompressedFilename(fileCanonicalPath.toLowerCase())) {
@@ -214,7 +217,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             if (LOG.isInfoEnabled()) {
                 LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
             }
-            fileContents = org.apache.commons.io.FileUtils.readFileToByteArray(new File(fileCanonicalPath));
+            fileContents = org.apache.commons.io.FileUtils.openInputStream(new File(fileCanonicalPath));
         }
 
         // outta here
@@ -222,21 +225,24 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
-	 * Get staging file header.
+	 * Get the case list from the staging file.
 	 *
+	 * @param caseIDs CaseIDs;
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return stagingFilename String
+	 * @param stagingFilename String
+	 * @return List<String>
 	 * @throws Exception
 	 */
 	@Override
-	public String getStagingFileHeader(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
+	public List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getStagingFileHeader(): " + stagingFilename);
+			LOG.info("getCaseListFromStagingFile(): " + stagingFilename);
 		}
 
-		String toReturn = "";
+		// we use set here
+		HashSet<String> caseSet = new HashSet<String>();
 
 		// staging file
 		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
@@ -244,21 +250,42 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   stagingFilename);
 		// sanity check
 		if (!stagingFile.exists()) {
-			return toReturn;
+			return new ArrayList<String>();
 		}
 
+		// iterate over all rows in file
 		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(stagingFile);
 		try {
+			int mafCaseIDColumnIndex = 0;
+			boolean processHeader = true;
 			while (it.hasNext()) {
-				toReturn = it.nextLine();
-				break;
+				// create a string list from row in file
+				List<String> thisRow = Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER));
+				// is this the header file?
+				if (processHeader) {
+					// look for MAF file case id column header
+					mafCaseIDColumnIndex = thisRow.indexOf(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
+					// this is not a MAF file, header contains the case ids, return here
+					if (mafCaseIDColumnIndex  == -1) {
+						for (String potentialCaseID : thisRow) {
+							if (caseIDs.isTumorCaseID(potentialCaseID)) {
+								caseSet.add(potentialCaseID);
+							}
+						}
+						break;
+					}
+					processHeader = false;
+					continue;
+				}
+				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
+				caseSet.add(thisRow.get(mafCaseIDColumnIndex));
 			}
 		} finally {
 			it.close();
 		}
 
 		// outta here
-		return toReturn;
+		return new ArrayList<String>(caseSet);
 	}
 
 	/**
@@ -334,8 +361,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("downloadFile(), gunzip complete...");
 			}
 			// move temp/decompressed file to final destination
+			File destinationFile = new File(destination.getFile());
+			if (destinationFile.exists()) {
+				org.apache.commons.io.FileUtils.forceDelete(destinationFile);
+			}
 			org.apache.commons.io.FileUtils.moveFile(org.apache.commons.io.FileUtils.getFile(GzipUtils.getUncompressedFilename(tempDestinationFile.getCanonicalPath())),
-													 org.apache.commons.io.FileUtils.getFile(destination.getFile()));
+													 destinationFile);
 
 			// lets cleanup after ourselves - remove compressed file
 			tempDestinationFile.delete();
@@ -374,6 +405,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
 			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	cancerStudyMetadata.getStudyPath(),
 																	cancerStudyMetadata.getCancerStudyMetadataFilename());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeMetadataFile(), meta file: " + metaFile);
@@ -638,7 +670,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		writer.print("case_list_category: " + caseListMetadata.getMetaCaseListCategory() + "\n");
 		writer.print("case_list_ids: ");
 		for (String caseID : caseList) {
-			writer.print(caseID + Converter.CASE_DELIMITER);
+			writer.print(caseID + Converter.VALUE_DELIMITER);
 		}
 		writer.println();
 		writer.flush();
@@ -754,18 +786,15 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
     /*
-     * Given a zip stream, unzips it and gets contents of desired data file.
-     * This routine will attempt to close the given input stream.
+     * Given a zip stream, unzips it and returns an input stream to the desired data file.
      *
      * @param importDataRecord ImportDataRecord
      * @param is InputStream
-     * @return byte[]
+     * @return InputStream
      */
-    private byte[] readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
+    private InputStream readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
 
-        byte[] toReturn = null;
-        TarArchiveInputStream tis = null;
-        GzipCompressorInputStream gzis = new GzipCompressorInputStream(is);
+        InputStream toReturn = null;
 
         try {
             // decompress .gz file
@@ -773,13 +802,13 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 LOG.info("readContent(), decompressing: " + importDataRecord.getCanonicalPathToData());
             }
 
-            InputStream unzippedContent = IOUtils.toBufferedInputStream((InputStream)gzis);
+            InputStream unzippedContent = new GzipCompressorInputStream(is);
             // if tarball, untar
             if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("readContent(), gzip file is a tarball, untarring");
                 }
-                tis = new TarArchiveInputStream(unzippedContent);
+                TarArchiveInputStream tis = new TarArchiveInputStream(unzippedContent);
                 TarArchiveEntry entry = null;
                 while ((entry = tis.getNextTarEntry()) != null) {
                     String entryName = entry.getName();
@@ -791,22 +820,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("Processing tar-archive: " + importDataRecord.getDataFilename());
                         }
-                        toReturn = IOUtils.toByteArray(tis, entry.getSize());
+                        toReturn = tis;
                         break;
                     }
                 }
             }
             else {
-                toReturn = IOUtils.toByteArray(gzis);
+                toReturn = unzippedContent;
             }
         }
         catch (Exception e) {
             throw e;
-        }
-        finally {
-            IOUtils.closeQuietly(tis);
-            IOUtils.closeQuietly(gzis);
-            IOUtils.closeQuietly(is);
         }
         
         // outta here
@@ -816,26 +840,26 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     /**
      * Helper function to create DataMatrix.
      *
-     * @param data byte[]
+     * @param data InputStream
      * @return DataMatrix
      */
-    private DataMatrix getDataMatrix(byte[] data) throws Exception {
+    private DataMatrix getDataMatrix(InputStream data) throws Exception {
 
         // iterate over all lines in byte[]
         List<String> columnNames = null;
         List<LinkedList<String>> rowData = null;
-        LineIterator it = IOUtils.lineIterator(new ByteArrayInputStream(data), null);
+        LineIterator it = IOUtils.lineIterator(data, null);
         try {
             int count = -1;
             while (it.hasNext()) {
                 // first row is our column heading, create column vector
                 if (++count == 0) {
-                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1)));
+                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
                 }
                 // all other rows are rows in the table
                 else {
                     rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
-                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.CASE_DELIMITER, -1))));
+                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1))));
                 }
             }
         }

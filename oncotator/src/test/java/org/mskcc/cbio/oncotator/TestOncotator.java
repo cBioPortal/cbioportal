@@ -311,90 +311,84 @@ public class TestOncotator extends TestCase
 	{
 		assertEquals("37", record.getNcbiBuild());
 
-		if (record.getVariantClassification().equalsIgnoreCase("Silent"))
-		{
-			// assert mutation type is copied to the oncotator column
-			assertEquals("Silent", record.getOncotatorVariantClassification());
-		}
-		else
-		{
-			// assert all oncotator columns have non empty values
 
-			assertTrue(record.getOncotatorCosmicOverlapping().length() > 0);
-			assertTrue(record.getOncotatorDbSnpRs().length() > 0);
-			assertTrue(record.getOncotatorDbSnpValStatus().length() > 0);
+		// assert all oncotator columns have non empty values
 
-			assertTrue(record.getOncotatorVariantClassification().length() > 0);
-			assertTrue(record.getOncotatorProteinChange().length() > 0);
-			assertTrue(record.getOncotatorGeneSymbol().length() > 0);
-			assertTrue(record.getOncotatorRefseqMrnaId().length() > 0);
-			assertTrue(record.getOncotatorRefseqProtId().length() > 0);
-			assertTrue(record.getOncotatorUniprotName().length() > 0);
-			assertTrue(record.getOncotatorUniprotAccession().length() > 0);
-			assertTrue(record.getOncotatorCodonChange().length() > 0);
-			assertTrue(record.getOncotatorTranscriptChange().length() > 0);
+		assertTrue(record.getOncotatorCosmicOverlapping().length() > 0);
+		assertTrue(record.getOncotatorDbSnpRs().length() > 0);
+		assertTrue(record.getOncotatorDbSnpValStatus().length() > 0);
 
-			assertTrue(record.getOncotatorVariantClassificationBestEffect().length() > 0);
-			assertTrue(record.getOncotatorProteinChangeBestEffect().length() > 0);
-			assertTrue(record.getOncotatorGeneSymbolBestEffect().length() > 0);
-			assertTrue(record.getOncotatorRefseqMrnaIdBestEffect().length() > 0);
-			assertTrue(record.getOncotatorRefseqProtIdBestEffect().length() > 0);
-			assertTrue(record.getOncotatorUniprotNameBestEffect().length() > 0);
-			assertTrue(record.getOncotatorUniprotAccessionBestEffect().length() > 0);
-			assertTrue(record.getOncotatorCodonChangeBestEffect().length() > 0);
-			assertTrue(record.getOncotatorTranscriptChangeBestEffect().length() > 0);
+		assertTrue(record.getOncotatorVariantClassification().length() > 0);
+		assertTrue(record.getOncotatorProteinChange().length() > 0);
+		assertTrue(record.getOncotatorGeneSymbol().length() > 0);
+		assertTrue(record.getOncotatorRefseqMrnaId().length() > 0);
+		assertTrue(record.getOncotatorRefseqProtId().length() > 0);
+		assertTrue(record.getOncotatorUniprotName().length() > 0);
+		assertTrue(record.getOncotatorUniprotAccession().length() > 0);
+		assertTrue(record.getOncotatorCodonChange().length() > 0);
+		assertTrue(record.getOncotatorTranscriptChange().length() > 0);
 
-			// assert all oncotator columns are overwritten with new values
+		assertTrue(record.getOncotatorVariantClassificationBestEffect().length() > 0);
+		assertTrue(record.getOncotatorProteinChangeBestEffect().length() > 0);
+		assertTrue(record.getOncotatorGeneSymbolBestEffect().length() > 0);
+		assertTrue(record.getOncotatorRefseqMrnaIdBestEffect().length() > 0);
+		assertTrue(record.getOncotatorRefseqProtIdBestEffect().length() > 0);
+		assertTrue(record.getOncotatorUniprotNameBestEffect().length() > 0);
+		assertTrue(record.getOncotatorUniprotAccessionBestEffect().length() > 0);
+		assertTrue(record.getOncotatorCodonChangeBestEffect().length() > 0);
+		assertTrue(record.getOncotatorTranscriptChangeBestEffect().length() > 0);
 
-			assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorDbSnpValStatus().equalsIgnoreCase("Unknown"));
+		// assert all oncotator columns are overwritten with new values
 
-			assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorRefseqMrnaId().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorRefseqProtId().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorUniprotName().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorUniprotAccession().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorCodonChange().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorTranscriptChange().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorDbSnpValStatus().equalsIgnoreCase("Unknown"));
 
-			assertTrue(!record.getOncotatorVariantClassificationBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorProteinChangeBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorGeneSymbolBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorRefseqMrnaIdBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorRefseqProtIdBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorUniprotNameBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorUniprotAccessionBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorCodonChangeBestEffect().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorTranscriptChangeBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorRefseqMrnaId().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorRefseqProtId().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorUniprotName().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorUniprotAccession().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorCodonChange().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorTranscriptChange().equalsIgnoreCase("Unknown"));
 
-			assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
-			assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorVariantClassificationBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorProteinChangeBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorGeneSymbolBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorRefseqMrnaIdBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorRefseqProtIdBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorUniprotNameBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorUniprotAccessionBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorCodonChangeBestEffect().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorTranscriptChangeBestEffect().equalsIgnoreCase("Unknown"));
 
-			// assert all best effect values are equal to best canonical values
-			assertTrue(record.getOncotatorVariantClassification().equals(
-					record.getOncotatorVariantClassificationBestEffect()));
-			assertTrue(record.getOncotatorProteinChange().equals(
-					record.getOncotatorProteinChangeBestEffect()));
-			assertTrue(record.getOncotatorGeneSymbol().equals(
-					record.getOncotatorGeneSymbolBestEffect()));
-			assertTrue(record.getOncotatorRefseqMrnaId().equals(
-					record.getOncotatorRefseqMrnaIdBestEffect()));
-			assertTrue(record.getOncotatorRefseqProtId().equals(
-					record.getOncotatorRefseqProtIdBestEffect()));
-			assertTrue(record.getOncotatorUniprotName().equals(
-					record.getOncotatorUniprotNameBestEffect()));
-			assertTrue(record.getOncotatorUniprotAccession().equals(
-					record.getOncotatorUniprotAccessionBestEffect()));
-			assertTrue(record.getOncotatorCodonChange().equals(
-					record.getOncotatorCodonChangeBestEffect()));
-			assertTrue(record.getOncotatorTranscriptChange().equals(
-					record.getOncotatorTranscriptChangeBestEffect()));
-		}
+		assertTrue(!record.getOncotatorVariantClassification().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorCosmicOverlapping().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorDbSnpRs().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorProteinChange().equalsIgnoreCase("Unknown"));
+		assertTrue(!record.getOncotatorGeneSymbol().equalsIgnoreCase("Unknown"));
+
+		// assert all best effect values are equal to best canonical values
+		assertTrue(record.getOncotatorVariantClassification().equals(
+				record.getOncotatorVariantClassificationBestEffect()));
+		assertTrue(record.getOncotatorProteinChange().equals(
+				record.getOncotatorProteinChangeBestEffect()));
+		assertTrue(record.getOncotatorGeneSymbol().equals(
+				record.getOncotatorGeneSymbolBestEffect()));
+		assertTrue(record.getOncotatorRefseqMrnaId().equals(
+				record.getOncotatorRefseqMrnaIdBestEffect()));
+		assertTrue(record.getOncotatorRefseqProtId().equals(
+				record.getOncotatorRefseqProtIdBestEffect()));
+		assertTrue(record.getOncotatorUniprotName().equals(
+				record.getOncotatorUniprotNameBestEffect()));
+		assertTrue(record.getOncotatorUniprotAccession().equals(
+				record.getOncotatorUniprotAccessionBestEffect()));
+		assertTrue(record.getOncotatorCodonChange().equals(
+				record.getOncotatorCodonChangeBestEffect()));
+		assertTrue(record.getOncotatorTranscriptChange().equals(
+				record.getOncotatorTranscriptChangeBestEffect()));
+
 	}
 }

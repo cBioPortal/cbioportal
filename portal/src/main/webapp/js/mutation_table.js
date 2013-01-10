@@ -549,7 +549,6 @@ function _getMutationTableRows(data)
     var getAlleleFreqHtml = function(frequency) {
 		var html;
 
-		console.log(frequency);
         if (frequency == null)
         {
             html = "<label>NA</label>";

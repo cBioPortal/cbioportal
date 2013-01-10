@@ -31,33 +31,33 @@ package org.mskcc.cbio.importer.model;
 // imports
 
 /**
- * Class which contains portal metadata.
+ * Class which contains clinical attributes metadata.
  */
-public class PortalMetadata {
+public class ClinicalAttributesMetadata {
 
 	// bean properties
-    private String name;
-    private String stagingDirectory;
-    private String overrideDirectory;
+    private String columnHeader;
+    private String displayName;
+    private String description;
 
     /**
-     * Create a PortalMetadata instance with properties in given array.
+     * Create a ClinicalAttributesMetadata instance with properties in given array.
 	 * Its assumed order of properties is that from google worksheet.
      *
 	 * @param properties String[]
      */
-    public PortalMetadata(String[] properties) {
+    public ClinicalAttributesMetadata(String[] properties) {
 
-		if (properties.length != 3) {
+		if (properties.length < 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
-        this.name = properties[0].trim();
-		this.stagingDirectory = properties[1].trim();
-		this.overrideDirectory = properties[2].trim();
+        this.columnHeader = properties[0].trim();
+		this.displayName = properties[1].trim();
+		this.description = properties[2].trim();
 	}
 
-	public String getName() { return name; }
-	public String getStagingDirectory() { return stagingDirectory; }
-	public String getOverrideDirectory() { return overrideDirectory; }
+	public String getColumnHeader() { return columnHeader; }
+	public String getDisplayName() { return displayName; }
+	public String getDescription() { return description; }
 }

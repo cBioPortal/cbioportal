@@ -131,6 +131,13 @@ public interface Config {
 	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
 
 	/**
+	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 *
+	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 */
+	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+
+	/**
 	 * Gets a PortalMetadata object given a portal name.
 	 * If portalName == Config.ALL, all are returned.
 	 *

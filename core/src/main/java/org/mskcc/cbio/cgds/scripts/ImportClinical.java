@@ -26,7 +26,6 @@
  **/
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.util.ClinicalReader;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
@@ -47,6 +46,6 @@ public class ImportClinical {
         // todo: look up cancerStudyId by cancerStudy name
         int cancerStudyId = 1;
 
-        ClinicalReader clinicalReader = new ClinicalReader(clinical_f, cancerStudy);
+//        ClinicalReader clinicalReader = new ClinicalReader(clinical_f, cancerStudy);
     }
 }

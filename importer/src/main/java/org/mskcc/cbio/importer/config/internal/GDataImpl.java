@@ -755,6 +755,9 @@ class GDataImpl implements Config {
 						row.getCustomElements().setValueLocal(key, properties.get(key));
 					}
 					spreadsheetService.insert(worksheet.getListFeedUrl(), row);
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet data hase been successfully inserted!");
+					}
 				}
 				// update the row
 				else {
@@ -767,7 +770,7 @@ class GDataImpl implements Config {
 							}
 							entry.update();
 							if (LOG.isInfoEnabled()) {
-								LOG.info("Property has been successfully set!");
+								LOG.info("Worksheet data hase been successfully updated!");
 							}
 						}
 					}

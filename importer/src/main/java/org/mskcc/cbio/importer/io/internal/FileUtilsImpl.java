@@ -269,7 +269,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						for (String potentialCaseID : thisRow) {
 							if (caseIDs.isTumorCaseID(potentialCaseID)) {
-								caseSet.add(potentialCaseID);
+								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 							}
 						}
 						break;
@@ -278,7 +278,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					continue;
 				}
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
-				caseSet.add(thisRow.get(mafCaseIDColumnIndex));
+				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
+				if (caseIDs.isTumorCaseID(potentialCaseID)) {
+					caseSet.add(caseIDs.convertCaseID(potentialCaseID));
+				}
 			}
 		} finally {
 			it.close();

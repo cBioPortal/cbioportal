@@ -167,6 +167,20 @@ public interface FileUtils {
 	void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
 	/**
+	 * Method which writes a metadata file for the
+	 * given DatatypeMetadata.  DataMatrix may be null.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataMatrix DataMatrix
+	 * @throws Exception
+	 *
+	 */
+	void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
+
+	/**
 	 * Creates a staging file (and meta file) with contents from the given DataMatrix.
 	 *
      * @param portalMetadata PortalMetadata

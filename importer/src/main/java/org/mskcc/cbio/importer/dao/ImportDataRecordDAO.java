@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.dao;
 
 // imports
 import org.mskcc.cbio.importer.model.ImportDataRecord;
+
 import java.util.Collection;
 
 /**
@@ -57,9 +58,10 @@ public interface ImportDataRecordDAO {
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param center String
+	 * @param runDate String
 	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(String tumorType, String datatype, String center);
+    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate);
 
     /**
      * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename

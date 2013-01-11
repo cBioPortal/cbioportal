@@ -342,7 +342,7 @@ var Oncoprint = function(wrapper, params) {
             .attr('height', getHeight());
 
         var body_wrap = table_wrap.append('td').append('div')
-            .style('width', $('#td-content').width() - 50 - label_width + 'px')     // buffer of, say, 50
+            .style('width', $('#td-content').width() - 70 - label_width + 'px')     // buffer of, say, 100
             .style('display', 'inline-block')
             .style('overflow-x', 'auto')
             .style('overflow-y', 'hidden');

@@ -64,8 +64,10 @@ public class TestDaoClinicalTrial extends TestCase {
         assertEquals(1, instance.searchClinicalTrials("k1").size());
         assertEquals(1, instance.searchClinicalTrials("k2").size());
         assertEquals(2, instance.searchClinicalTrials("k12").size());
+        assertEquals(2, instance.fuzzySearchClinicalTrials("k1").size());
         assertNotNull(instance.getClinicalTrialById("AID"));
         assertNotNull(instance.getClinicalTrialById("BID"));
         assertNull(instance.getClinicalTrialById("SID"));
+        assertTrue(instance.fuzzySearchClinicalTrials("k123").isEmpty());
     }
 }

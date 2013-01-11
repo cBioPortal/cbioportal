@@ -102,6 +102,59 @@ public class DaoClinicalTrial {
         return rows;
     }
 
+    /**
+     * Searches the secondary index table for a given keyword. Does *fuzzy* matching.
+     * The sql query looks like this: ... LIKE '%keyword%'.
+     * An official drug name from NCI Drugs or a portion of the diagnosis term can be used here.
+     *
+     * Works slower compared to @see #searchClinicalTrials
+     *
+     * @param keyword e.g. dexamethasone or malignant neoplasm
+     * @return a list of clinical trials
+     * @throws DaoException
+     */
+    public List<ClinicalTrial> fuzzySearchClinicalTrials(String keyword) throws DaoException {
+        ArrayList<ClinicalTrial> clinicalTrials = new ArrayList<ClinicalTrial>();
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection();
+            pstmt = con.prepareStatement(
+                    "SELECT * FROM `clinical_trial_keywords` WHERE keyword LIKE ?"
+            );
+            pstmt.setString(1, "%" + keyword + "%");
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                String id = rs.getString("PROTOCOLID");
+                ClinicalTrial clinicalTrial = getClinicalTrialById(id);
+                if(clinicalTrial != null) {
+                    if(!clinicalTrials.contains(clinicalTrial))
+                        clinicalTrials.add(clinicalTrial);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+
+        return clinicalTrials;
+    }
+
+    /**
+     * Searches the secondary index table for a given keyword. Does *exact* matching.
+     * An official drug name from NCI Drugs or diagnosis term can be used here.
+     *
+     * For fuzzy matching, @see #fuzzySearchClinicalTrials
+     *
+     * @param keyword e.g. dexamethasone or malignant neoplasm
+     * @return a list of clinical trials
+     * @throws DaoException
+     */
     public List<ClinicalTrial> searchClinicalTrials(String keyword) throws DaoException {
         ArrayList<ClinicalTrial> clinicalTrials = new ArrayList<ClinicalTrial>();
 
@@ -112,7 +165,7 @@ public class DaoClinicalTrial {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement(
-                "SELECT * FROM `clinical_trial_keywords` WHERE keyword = ?"
+                    "SELECT * FROM `clinical_trial_keywords` WHERE keyword = ?"
             );
             pstmt.setString(1, keyword);
             rs = pstmt.executeQuery();
@@ -133,7 +186,13 @@ public class DaoClinicalTrial {
         return clinicalTrials;
     }
 
-
+    /**
+     * Gets the clinical trial with the given id.
+     *
+     * @param id the clinical trial id, e.g. NCT00089167
+     * @return a list of clinical trials
+     * @throws DaoException
+     */
     public ClinicalTrial getClinicalTrialById(String id) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

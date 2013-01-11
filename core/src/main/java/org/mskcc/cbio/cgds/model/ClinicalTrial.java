@@ -77,4 +77,27 @@ public class ClinicalTrial {
     public boolean isActive() {
        return getStatus().equalsIgnoreCase("active");
     }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof ClinicalTrial) {
+            return getId().equals(((ClinicalTrial) o).getId());
+        }
+
+        return super.equals(o);    //To change body of overridden methods use File | Settings | File Templates.
+    }
+
+    @Override
+    public String toString() {
+        return getId() + ": "
+                + getStatus() + "; "
+                + getLocation() + "; "
+                + getPhase() + "; "
+                + getTitle();
+    }
 }

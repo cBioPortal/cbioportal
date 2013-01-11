@@ -148,6 +148,7 @@ public class MutationConverterImpl implements Converter {
 				LOG.info("createStagingFile(), MAF is already oncotated, create staging file straight-away.");
 			}
 			// optimization - if an override exists, just copy it over and don't create a staging file from the data matrix
+			// this code assumes all MAFs follow the same naming convention as MAFs from the firehose/tcga
 			String overrideFilename = datatypeMetadata.getTCGAArchivedFiles(datatypeMetadata.getTCGADownloadArchives()
 																			.iterator().next()).iterator().next();
 			overrideFilename = overrideFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType().toUpperCase());

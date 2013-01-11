@@ -136,11 +136,8 @@ class ConverterImpl implements Converter {
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
-			// create cancer study metadata file
-			// note - we call this again after we compute the number of cases
-			fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, -1);
-				
 			// iterate over all datatypes
+			boolean createCancerStudyMetadataFile = false;
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
@@ -153,12 +150,20 @@ class ConverterImpl implements Converter {
 					continue;
 				}
 
+				// we have at least 1 data matrix, we will need to create a cancer study metadata file
+				createCancerStudyMetadataFile = true;
+
 				// get converter and create staging file
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter =
 					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
 				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
+			}
 
+			if (createCancerStudyMetadataFile) {
+				// create cancer study metadata file
+				// note - we call this again after we compute the number of cases
+				fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, -1);
 			}
 		}
 	}

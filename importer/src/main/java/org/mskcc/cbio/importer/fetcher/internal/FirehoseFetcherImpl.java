@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
+import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
@@ -71,7 +72,6 @@ class FirehoseFetcherImpl implements Fetcher {
 
 	// date formats
 	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
-	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
 	// this indicates a "NORMAL" data file
 	private static final String NORMAL_DATA_FILE = "-Normal.";
@@ -167,7 +167,7 @@ class FirehoseFetcherImpl implements Fetcher {
 
 		// process runDate argument
 		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(Fetcher.LATEST_RUN_INDICATOR)) ?
-			latestBroadRun : PORTAL_DATE_FORMAT.parse(desiredRunDate);
+			latestBroadRun : Admin.PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
 		fetchRun(runType, desiredRunDateDate);
 	}
@@ -331,7 +331,7 @@ class FirehoseFetcherImpl implements Fetcher {
 				for (String downloadFile : archivedFiles) {
 					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, center,
 																			 tumorType.toLowerCase(), datatype.getDatatype(),
-                                                                             PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
+                                                                             Admin.PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
 																			 computedDigest, downloadFile);
 					importDataRecordDAO.importDataRecord(importDataRecord);
 				}

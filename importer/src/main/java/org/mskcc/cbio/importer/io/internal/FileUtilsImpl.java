@@ -415,6 +415,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
 			String name = (cancerStudyMetadata.getName().length() > 0) ?
 				cancerStudyMetadata.getName() : cancerStudyMetadata.getTumorTypeMetadata().getName();
+			name = name.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
+								   cancerStudyMetadata.getTumorTypeMetadata().getName());
 			writer.print("name: " + name + "\n");
 			String description = cancerStudyMetadata.getDescription();
 			description = description.replaceAll(CancerStudyMetadata.NUM_CASES_TAG, Integer.toString(numCases));

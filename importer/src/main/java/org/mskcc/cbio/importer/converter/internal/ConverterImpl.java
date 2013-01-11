@@ -299,14 +299,15 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 				// apply staging override
 				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename);
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
 				// apply metadata override
 				if (datatypeMetadata.requiresMetafile()) {
-					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
+					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata,
+											datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 				}
 			}
 			// case lists
-			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists");
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists", "case_lists");
 		}
 	}
 

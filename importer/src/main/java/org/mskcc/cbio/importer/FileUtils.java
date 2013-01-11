@@ -240,10 +240,12 @@ public interface FileUtils {
 	 *
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param filename String
+	 * @param overrideFilename String
+	 * @param stagingFilename String
 	 * @throws Exception
 	 */
-	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception;
+	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+					   String overrideFilename, String stagingFilename) throws Exception;
 
 	/**
 	 * Create a case list file from the given case list metadata file.

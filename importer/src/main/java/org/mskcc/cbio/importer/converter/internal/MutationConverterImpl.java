@@ -152,6 +152,7 @@ public class MutationConverterImpl implements Converter {
 			String overrideFilename = datatypeMetadata.getTCGAArchivedFiles(datatypeMetadata.getTCGADownloadArchives()
 																			.iterator().next()).iterator().next();
 			overrideFilename = overrideFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType().toUpperCase());
+			String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 			System.out.println("override filename: " + overrideFilename);
 			File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, overrideFilename);
 			// if we have an override file, just copy it over to the staging area
@@ -160,7 +161,7 @@ public class MutationConverterImpl implements Converter {
 					LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
 							 overrideFile.getPath());
 				}
-				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, overrideFilename);
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, overrideFilename, stagingFilename);
 				fileUtils.writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 			}
 			// we should almost always never get here - when do we have an oncated maf that doesn't exist

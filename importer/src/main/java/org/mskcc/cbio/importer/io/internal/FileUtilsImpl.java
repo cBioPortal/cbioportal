@@ -648,20 +648,22 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 *
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param filename String
+	 * @param overrideFilename String
+	 * @param stagingFilename String
 	 * @throws Exception
 	 */
 	@Override
-	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
+	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+							  String overrideFilename, String stagingFilename) throws Exception {
 
 		// check for override file
 		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
-																	filename);
+																	overrideFilename);
 		if (overrideFile.exists()) {
 			File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	   cancerStudyMetadata.getStudyPath(),
-																	   filename);
+																	   stagingFilename);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("applyOverride(), override file exists for " + stagingFile.getCanonicalPath() + ": " + 

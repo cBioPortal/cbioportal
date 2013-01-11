@@ -141,7 +141,10 @@ public class ZScoresConverterImpl implements Converter {
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependencies.length != 2, aborting...");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies

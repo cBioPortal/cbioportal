@@ -148,7 +148,10 @@ public class MethylationConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
-			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// determine which matrix is methylation data

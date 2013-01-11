@@ -151,7 +151,10 @@ public class GisticGenesConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
-			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// figure out which matrix is *_genes.conf_99.txt

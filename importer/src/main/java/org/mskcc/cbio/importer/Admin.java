@@ -274,6 +274,10 @@ public class Admin implements Runnable {
 
 		DatabaseUtils databaseUtils = (DatabaseUtils)getBean("databaseUtils");
 		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("clobberImportDataRecordbase(), complete");
+		}
 	}
 
 	/**
@@ -294,6 +298,10 @@ public class Admin implements Runnable {
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
 		fetcher.fetch(dataSource, runDate);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchData(), complete");
+		}
 	}
 
 	/**
@@ -322,6 +330,10 @@ public class Admin implements Runnable {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), complete");
 		}
 	}
 
@@ -360,6 +372,10 @@ public class Admin implements Runnable {
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), complete");
+		}
 	}
 
 	/**
@@ -381,6 +397,10 @@ public class Admin implements Runnable {
 		// oncotate all the files of the given data source
 		FileUtils fileUtils = (FileUtils)getBean("fileUtils");
 		fileUtils.oncotateAllMAFs(dataSourcesMetadata);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateAllMAFs(), complete");
+		}
 	}
 
 	/**
@@ -409,6 +429,10 @@ public class Admin implements Runnable {
 		// create an instance of Converter
 		Converter converter = (Converter)getBean("converter");
 		converter.convertData(portal, runDate, applyOverridesBool);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("convertData(), complete");
+		}
 	}
 
     /**		
@@ -421,10 +445,14 @@ public class Admin implements Runnable {
 			
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), portal: " + portal);
-		}		
+		}
 			
 		Converter converter = (Converter)getBean("converter");		
 		converter.applyOverrides(portal);
+
+		if (LOG.isInfoEnabled()) {		
+			LOG.info("applyOverrides(), complete");
+		}
 	}
 
 	/**
@@ -443,6 +471,10 @@ public class Admin implements Runnable {
 		// create an instance of Converter
 		Converter converter = (Converter)getBean("converter");
 		converter.generateCaseLists(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("generateCaseLists(), complete");
+		}
 	}
 
 	/**
@@ -470,6 +502,10 @@ public class Admin implements Runnable {
 				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
 	}
 
 	/**
@@ -488,6 +524,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		Importer importer = (Importer)getBean("importer");
 		importer.importData(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), complete");
+		}
 	}
 
 	/**

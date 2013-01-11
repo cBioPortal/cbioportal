@@ -514,3 +514,20 @@ CREATE TABLE `mutation_event_cosmic_mapping` (
   `COSMIC_MUTATION_ID` int(255) NOT NULL,
   PRIMARY KEY (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+drop table IF EXISTS clinical_trials; 
+CREATE TABLE `clinical_trials` (
+  `PROTOCOLID` char(50) NOT NULL,
+  `TITLE` varchar(512),
+  `PHASE` char(128),
+  `LOCATION` varchar(256),
+  `STATUS` char(50),
+  PRIMARY KEY (`PROTOCOLID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+drop table IF EXISTS clinical_trial_keywords; 
+CREATE TABLE `clinical_trial_keywords` (
+  `PROTOCOLID` char(50) NOT NULL,
+  `KEYWORD` varchar(50),
+  PRIMARY KEY (`PROTOCOLID`, `KEYWORD`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

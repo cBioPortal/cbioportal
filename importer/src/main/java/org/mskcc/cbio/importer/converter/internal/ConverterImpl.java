@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
-
+import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -49,6 +49,7 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -105,14 +106,16 @@ class ConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), runDate: " + runDate);
 			LOG.info("convertData(), applyOverrides: " + applyOverrides);
 		}
 
@@ -142,7 +145,7 @@ class ConverterImpl implements Converter {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
 				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata,
-															datatypeMetadata, applyOverrides);
+															datatypeMetadata, runDate, applyOverrides);
 				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), no dataMatrices to process, skipping.");
@@ -333,6 +336,7 @@ class ConverterImpl implements Converter {
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @return DataMatrix[]
 	 * @throws Exception
@@ -340,6 +344,7 @@ class ConverterImpl implements Converter {
 	private DataMatrix[] getDataMatrices(PortalMetadata portalMetadata,
 										 CancerStudyMetadata cancerStudyMetadata,
 										 DatatypeMetadata datatypeMetadata,
+										 String runDate,
 										 Boolean applyOverrides) throws Exception {
 
 
@@ -356,9 +361,10 @@ class ConverterImpl implements Converter {
 					 cancerStudyMetadata.getCenter() + ".");
 		}
 		Collection<ImportDataRecord> importDataRecords =
-			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenter(cancerStudyMetadata.getTumorType(),
-																				   datatype,
-																				   cancerStudyMetadata.getCenter());
+			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(cancerStudyMetadata.getTumorType(),
+																							 datatype,
+																							 cancerStudyMetadata.getCenter(),
+																							 runDate);
 		if (importDataRecords.size() > 0) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("getDataMatrices(), found " + importDataRecords.size() +

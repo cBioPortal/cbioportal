@@ -162,8 +162,6 @@ public class MIRNAMergedMedianZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		// place holder
-		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices[0]);
 		//fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {

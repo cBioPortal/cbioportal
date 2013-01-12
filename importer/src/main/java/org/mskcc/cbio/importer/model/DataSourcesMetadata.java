@@ -40,6 +40,7 @@ public class DataSourcesMetadata {
 	// bean properties
 	private String dataSource;
     private String downloadDirectory;
+	private Boolean additionalStudiesSource;
     private String fetcherBeanID;
 
     /**
@@ -50,16 +51,18 @@ public class DataSourcesMetadata {
      */
     public DataSourcesMetadata(String[] properties) {
 
-		if (properties.length != 3) {
+		if (properties.length != 4) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.dataSource = properties[0].trim();
 		this.downloadDirectory = properties[1].trim();
-		this.fetcherBeanID = properties[2].trim();
+		this.additionalStudiesSource = new Boolean(properties[2].trim());
+		this.fetcherBeanID = properties[3].trim();
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
+	public Boolean isAdditionalStudiesSource() { return additionalStudiesSource; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
 }

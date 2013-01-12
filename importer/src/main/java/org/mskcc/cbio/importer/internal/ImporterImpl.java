@@ -283,10 +283,12 @@ class ImporterImpl implements Importer {
 
 		// made it here, check other datasources 
 		for (DataSourcesMetadata dataSourceMetadata : dataSourcesMetadata) {
-			cancerStudyDirectory =
-				new File(dataSourceMetadata.getDownloadDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
-			if (cancerStudyDirectory.exists()) {
-				return dataSourceMetadata.getDownloadDirectory();
+			if (dataSourceMetadata.isAdditionalStudiesSource()) {
+				cancerStudyDirectory =
+					new File(dataSourceMetadata.getDownloadDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
+				if (cancerStudyDirectory.exists()) {
+					return dataSourceMetadata.getDownloadDirectory();
+				}
 			}
 		}
 

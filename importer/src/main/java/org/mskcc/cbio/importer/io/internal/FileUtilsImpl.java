@@ -876,9 +876,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // problem reading from data?
-        if (columnNames == null && rowData == null) {
+        if (columnNames == null || rowData == null) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getDataMatrix(), problem creating DataMatrix from file");
+                LOG.info("getDataMatrix(), problem creating DataMatrix from file, data file probably missing data, returning null");
             }
             return null;
         }

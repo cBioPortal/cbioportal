@@ -92,6 +92,11 @@ public class DataMatrix {
 	 */
 	public DataMatrix(List<LinkedList<String>> rowData, List<String> columnNames) {
 
+		// sanity checks
+		if (rowData == null || columnNames == null) {
+			throw new IllegalArgumentException("DataMatrix(): rowData or columnNames is null...");
+		}
+
 		// set numberOfRows
 		numberOfRows = rowData.size();
 

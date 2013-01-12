@@ -394,7 +394,10 @@ class ConverterImpl implements Converter {
 						importData.setCanonicalPathToData(overrideFile.getCanonicalPath());
 					}
 				}
-				toReturn.add(fileUtils.getFileContents(importData));
+				DataMatrix dataMatrix = fileUtils.getFileContents(importData);
+				if (dataMatrix != null) {
+					toReturn.add(fileUtils.getFileContents(importData));
+				}
 			}
 		}
 		else if (LOG.isInfoEnabled()) {

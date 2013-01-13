@@ -615,7 +615,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writingZScoresStagingFlie(), calling NormalizeExpressionLevels: " + Arrays.toString(args));
 		}
-		NormalizeExpressionLevels.main(args);
+		try {
+			NormalizeExpressionLevels.driver(args);
+		}
+		catch (RuntimeException e) {
+			// houston we have a problem...
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingZScoresStagingFlie(), exception thrown by NormalizeExpressionLevels: " +
+						 e.getMessage() + ", aborting...");
+			}
+			if (zScoresFile.exists()) {
+				org.apache.commons.io.FileUtils.forceDelete(zScoresFile);
+			}
+			return;
+		}
 		
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {

@@ -90,30 +90,44 @@ public class NormalizeExpressionLevels{
    static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
    static int MIN_NUM_DIPLOIDS = DEFAULT_MIN_NUM_DIPLOIDS;
    static final int MIN_NUM_ALLOWED_DIPLOIDS = 3;
-   
-   public static void main (String[]args){
 
-      // TODO, perhaps: use command line parser
-      if( args.length != 3 && args.length != 4){
-         fatalError( "incorrect number of arguments. Arguments should be '<copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]'." );
-      }
-      String copyNumberFile = args[0];
-      String expressionFile = args[1];
-      zScoresFile = args[2];
-      if( args.length == 4){
-         try {
-            MIN_NUM_DIPLOIDS = Integer.parseInt(args[3] );
-         } catch (NumberFormatException e) {
-            fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be an integer." );
-         }
-         if( MIN_NUM_DIPLOIDS < MIN_NUM_ALLOWED_DIPLOIDS ){
-            fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be at least " + MIN_NUM_ALLOWED_DIPLOIDS + "." );
-         }
-      }
+	public static void main (String[]args){
+		try {
+			driver(args);
+		}
+		catch (RuntimeException e) {
+			System.err.println(e.getMessage());
+			System.exit(1);
+		}
+	}
+
+	/**
+	 * Helper function which allows routine to be
+	 * called by other java code and get a return status code.
+	 */
+	public static void driver(String[] args) throws RuntimeException {
+
+		// TODO, perhaps: use command line parser
+		if( args.length != 3 && args.length != 4){
+			fatalError( "incorrect number of arguments. Arguments should be '<copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]'." );
+		}
+		String copyNumberFile = args[0];
+		String expressionFile = args[1];
+		zScoresFile = args[2];
+		if( args.length == 4){
+			try {
+				MIN_NUM_DIPLOIDS = Integer.parseInt(args[3] );
+			} catch (NumberFormatException e) {
+				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be an integer." );
+			}
+			if( MIN_NUM_DIPLOIDS < MIN_NUM_ALLOWED_DIPLOIDS ){
+				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be at least " + MIN_NUM_ALLOWED_DIPLOIDS + "." );
+			}
+		}
       
-      geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
-      computeZScoreXP(expressionFile); 
-   }
+		geneCopyNumberStatus = readCopyNumberFile(copyNumberFile);
+		computeZScoreXP(expressionFile); 
+	}
    
    private static void computeZScoreXP(String file){
       
@@ -501,8 +515,7 @@ public class NormalizeExpressionLevels{
    }
 
    private static void fatalError(String msg){
-      System.err.println( "NormalizeExpressionLevels: Fatal error: " + msg );
-      System.exit(1);
+      throw new RuntimeException("NormalizeExpressionLevels: Fatal error: " + msg );
    }
    
    private static void warning(String msg){

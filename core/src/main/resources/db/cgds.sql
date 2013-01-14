@@ -529,5 +529,7 @@ drop table IF EXISTS clinical_trial_keywords;
 CREATE TABLE `clinical_trial_keywords` (
   `PROTOCOLID` char(50) NOT NULL,
   `KEYWORD` varchar(256),
-  PRIMARY KEY (`PROTOCOLID`, `KEYWORD`)
+  PRIMARY KEY (`PROTOCOLID`, `KEYWORD`),
+  INDEX(`KEYWORD`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+

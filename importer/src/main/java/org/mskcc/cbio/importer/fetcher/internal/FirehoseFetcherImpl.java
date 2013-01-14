@@ -56,6 +56,8 @@ import java.io.InputStreamReader;
 
 import java.util.Set;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -75,6 +77,11 @@ class FirehoseFetcherImpl implements Fetcher {
 
 	// this indicates a "NORMAL" data file
 	private static final String NORMAL_DATA_FILE = "-Normal.";
+
+	// this is a list of files we want to ignore -
+	// motivated by OV which contains multiple microarray gene-expression
+	// files (Merge_transcriptome_agilent4502a_07_2*, Merge_transcriptome_agilent4502a_07_3*)
+	private static final List<String> blacklist = initializeBlackList();
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
@@ -108,6 +115,13 @@ class FirehoseFetcherImpl implements Fetcher {
 	private String firehoseGetScript;
 	@Value("${firehose_get_script}")
 	public void setFirehoseGetScript(String property) { this.firehoseGetScript = property; }
+
+	// initialize the blacklist
+	private static final List<String> initializeBlackList() {
+		List<String> toReturn = new ArrayList<String>();
+		toReturn.add("gdac.broadinstitute.org_OV.Merge_transcriptome__agilentg4502a_07_2__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3");
+		return toReturn;
+	}
 
 	/**
 	 * Constructor.
@@ -288,10 +302,12 @@ class FirehoseFetcherImpl implements Fetcher {
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
 			// skip "normals"
 			if (md5File.getName().contains(NORMAL_DATA_FILE)) continue;
+            File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
+			// skip blacklist files
+			if (blacklistContains(dataFile.getCanonicalPath())) continue;
+            // compute md5 digest from respective data file - 
             // get precomputed digest (from .md5)
             String precomputedDigest = fileUtils.getPrecomputedMD5Digest(md5File);
-            // compute md5 digest from respective data file
-            File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
             String computedDigest = fileUtils.getMD5Digest(dataFile);
             if (LOG.isInfoEnabled()) {
                 LOG.info("storeData(), file: " + md5File.getCanonicalPath());
@@ -337,5 +353,23 @@ class FirehoseFetcherImpl implements Fetcher {
 				}
             }
 		}
+	}
+
+	/**
+	 * Helper function to help filter out blacklist files.
+	 *
+	 * @param dataFile String
+	 * @return boolean
+	 */
+	private boolean blacklistContains(String dataFile) {
+
+		for (String blackListFile : blacklist) {
+			if (dataFile.contains(blackListFile)) {
+				return true;
+			}
+		}
+
+		// outta here
+		return false;
 	}
 }

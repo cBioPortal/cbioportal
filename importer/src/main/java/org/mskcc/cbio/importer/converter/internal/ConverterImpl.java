@@ -207,12 +207,17 @@ class ConverterImpl implements Converter {
 				}
 				// how many staging files are we working with?
 				String[] stagingFilenames = null;
-				// union (all cases)
-				if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER)) {
+				// setup union/intersection bools
+				boolean unionCaseList = 
+					caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+				boolean intersectionCaseList = 
+					caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
+				// union (like all cases)
+				if (unionCaseList) {
 					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
 				}
-				// intersection (like all complete or all cna & seq)
-				else if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
+				// intersection (like complete or cna-seq)
+				else if (intersectionCaseList) {
 					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
 				}
 				// just a single staging file
@@ -224,6 +229,9 @@ class ConverterImpl implements Converter {
 				}
 				// this is the set we will pass to writeCaseListFile
 				LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
+				// this indicates the number of staging files processed -
+				// used to verify that an intersection should be written
+				int numStagingFilesProcessed = 0;
 				for (String stagingFilename : stagingFilenames) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("generateCaseLists(), processing stagingFile: " + stagingFilename);
@@ -237,8 +245,8 @@ class ConverterImpl implements Converter {
 						}
 						continue;
 					}
-					// if intersection 
-					if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
+					// intersection 
+					if (intersectionCaseList) {
 						if (caseSet.isEmpty()) {
 							caseSet.addAll(caseList);
 						}
@@ -246,18 +254,25 @@ class ConverterImpl implements Converter {
 							caseSet.retainAll(caseList);
 						}
 					}
-					// otherwise union
+					// otherwise union or single staging (treat the same)
 					else {
 						caseSet.addAll(caseList);
 					}
+					++numStagingFilesProcessed;
 				}
 				// write the case list file (don't make empty case lists)
 				if (caseSet.size() > 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("generateCaseLists(), calling writeCaseListFile()...");
 					}
+					// do not write out complete cases file unless we've processed all the files required
+					if (intersectionCaseList && (numStagingFilesProcessed != stagingFilenames.length)) {
+						if (LOG.isInfoEnabled()) {
+							LOG.info("generateCaseLists(), number of staging files processed != number staging files required for cases_complete.txt, skipping call to writeCaseListFile()...");
+						}
+						continue;
+					}
 					fileUtils.writeCaseListFile(portalMetadata, cancerStudyMetadata, caseListMetadata, caseSet.toArray(new String[0]));
-
 				}
 				else if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");

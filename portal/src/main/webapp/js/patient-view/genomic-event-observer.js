@@ -119,5 +119,13 @@ GenomicEventContainer.prototype = {
             if (this.data[colName][i]!=null) return false;
         }
         return true;
+    },
+    getDrugIDs: function() {
+        var drugs = [];
+        for (var i=0; i<this.numEvents; i++) {
+            if (this.data['drug'][i]!=null) drugs.push(this.data[drug][i]);
+        }
+
+        return drugs;
     }
 }

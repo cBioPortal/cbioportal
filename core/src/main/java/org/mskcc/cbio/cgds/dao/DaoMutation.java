@@ -131,7 +131,12 @@ public class DaoMutation {
 						Integer.toString(mutation.getNormalAltCount()),
 						Integer.toString(mutation.getNormalRefCount()),
 						mutation.getOncotatorDbSnpRs(),
-						DaoMutationEvent.filterCosmic(mutation));
+						DaoMutationEvent.filterCosmic(mutation),
+						mutation.getOncotatorRefseqMrnaId(),
+						mutation.getOncotatorCodonChange(),
+						mutation.getOncotatorUniprotName(),
+						mutation.getOncotatorUniprotAccession(),
+						this.boolToStr(mutation.isCanonicalMutation()));
 
 				// return 1 because normal insert will return 1 if no error occurs
 				return 1;
@@ -152,8 +157,10 @@ public class DaoMutation {
 						 + " `MATCH_NORM_VALIDATION_ALLELE1`, `MATCH_NORM_VALIDATION_ALLELE2`,"
 						 + " `VERIFICATION_STATUS`, `SEQUENCING_PHASE`, `SEQUENCE_SOURCE`, `VALIDATION_METHOD`,"
 						 + " `SCORE`, `BAM_FILE`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`,"
-						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`)"
-						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`,"
+						 + " `ONCOTATOR_REFSEQ_MRNA_ID`, `ONCOTATOR_CODON_CHANGE`, `ONCOTATOR_UNIPROT_ENTRY_NAME`,"
+						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `CANONICAL_MUTATION`)"
+						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 				pstmt.setInt(1, mutation.getGeneticProfileId());
 				pstmt.setString(2, mutation.getCaseId());
@@ -198,6 +205,11 @@ public class DaoMutation {
 				pstmt.setInt(41, mutation.getNormalRefCount());
 				pstmt.setString(42, mutation.getOncotatorDbSnpRs());
 				pstmt.setString(43, DaoMutationEvent.filterCosmic(mutation));
+				pstmt.setString(44, mutation.getOncotatorRefseqMrnaId());
+				pstmt.setString(45, mutation.getOncotatorCodonChange());
+				pstmt.setString(46, mutation.getOncotatorUniprotName());
+				pstmt.setString(47, mutation.getOncotatorUniprotAccession());
+				pstmt.setBoolean(48, mutation.isCanonicalMutation());
 
 				return pstmt.executeUpdate();
 			}
@@ -505,6 +517,11 @@ public class DaoMutation {
 		mutation.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
 		mutation.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
 		mutation.setOncotatorCosmicOverlapping(rs.getString("ONCOTATOR_COSMIC_OVERLAPPING"));
+		mutation.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
+		mutation.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
+		mutation.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
+		mutation.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
+		mutation.setCanonicalMutation(rs.getBoolean("CANONICAL_MUTATION"));
 
 		return mutation;
 	}
@@ -527,6 +544,11 @@ public class DaoMutation {
 		} finally {
 			JdbcUtil.closeAll(con, pstmt, rs);
 		}
+	}
+
+	protected String boolToStr(boolean value)
+	{
+		return value ? "1" : "0";
 	}
 
 	public void deleteAllRecordsInGeneticProfile(long geneticProfileId) throws DaoException {

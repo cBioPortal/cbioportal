@@ -91,6 +91,12 @@ public class ExtendedMutation
 
 	private String oncotatorCosmicOverlapping;
 	private String oncotatorDbSnpRs;
+	private String oncotatorRefseqMrnaId;
+	private String oncotatorUniprotName;
+	private String oncotatorUniprotAccession;
+	private String oncotatorCodonChange;
+
+	private boolean canonicalMutation;
 
 	public ExtendedMutation() {
 	}
@@ -482,6 +488,56 @@ public class ExtendedMutation
 
 	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
 		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+	}
+
+	public String getOncotatorRefseqMrnaId()
+	{
+		return oncotatorRefseqMrnaId;
+	}
+
+	public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
+	{
+		this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+	}
+
+	public String getOncotatorUniprotName()
+	{
+		return oncotatorUniprotName;
+	}
+
+	public void setOncotatorUniprotName(String oncotatorUniprotName)
+	{
+		this.oncotatorUniprotName = oncotatorUniprotName;
+	}
+
+	public String getOncotatorUniprotAccession()
+	{
+		return oncotatorUniprotAccession;
+	}
+
+	public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
+	{
+		this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+	}
+
+	public String getOncotatorCodonChange()
+	{
+		return oncotatorCodonChange;
+	}
+
+	public void setOncotatorCodonChange(String oncotatorCodonChange)
+	{
+		this.oncotatorCodonChange = oncotatorCodonChange;
+	}
+
+	public boolean isCanonicalMutation()
+	{
+		return canonicalMutation;
+	}
+
+	public void setCanonicalMutation(boolean canonicalMutation)
+	{
+		this.canonicalMutation = canonicalMutation;
 	}
 
 	@JsonIgnore

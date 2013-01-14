@@ -64,12 +64,15 @@ public class TestImportClinicalTrialData extends TestCase {
         assertEquals(1, daoClinicalTrial.searchClinicalTrials("drug23").size());
 
         // Search by terms
-        assertEquals(1, daoClinicalTrial.searchClinicalTrials("cytokine therapy").size());
+        // trial 1
         assertEquals(1, daoClinicalTrial.searchClinicalTrials("primary systemic amyloidosis").size());
+        assertEquals(1, daoClinicalTrial.searchClinicalTrials("adult Burkitt lymphoma").size());
         assertEquals(1, daoClinicalTrial.fuzzySearchClinicalTrials("amyloidosis").size());
-        assertEquals(1, daoClinicalTrial.searchClinicalTrials("cytokine therapy").size());
-        assertEquals(1, daoClinicalTrial.searchClinicalTrials("cytokine therapy").size());
-
+        // trial 2
+        assertEquals(1,
+                daoClinicalTrial.searchClinicalTrials("multiple myeloma and other plasma cell neoplasms").size());
+        assertEquals(2, daoClinicalTrial.searchClinicalTrials("malignant neoplasm").size());
+        assertEquals(1, daoClinicalTrial.fuzzySearchClinicalTrials("myeloma").size());
 
         // Get By id and check fields
         ClinicalTrial trial1 = daoClinicalTrial.getClinicalTrialById("NCT00000001");

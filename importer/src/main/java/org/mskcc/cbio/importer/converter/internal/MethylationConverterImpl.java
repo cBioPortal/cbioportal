@@ -102,11 +102,12 @@ public class MethylationConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -147,7 +148,10 @@ public class MethylationConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
-			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// determine which matrix is methylation data

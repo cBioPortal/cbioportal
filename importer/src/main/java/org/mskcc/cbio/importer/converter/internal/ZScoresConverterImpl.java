@@ -93,11 +93,12 @@ public class ZScoresConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -140,7 +141,10 @@ public class ZScoresConverterImpl implements Converter {
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependencies.length != 2, aborting...");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies

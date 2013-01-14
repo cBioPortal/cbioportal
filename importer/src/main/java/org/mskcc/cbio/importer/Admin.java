@@ -55,6 +55,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Properties;
+import java.text.SimpleDateFormat;
 
 /**
  * Class which provides command line admin capabilities 
@@ -64,6 +65,9 @@ public class Admin implements Runnable {
 
 	// our context file
 	public static final String contextFile = "classpath:applicationContext-importer.xml";
+
+	// date format 
+	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
 	// context
 	private static final ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
@@ -121,10 +125,11 @@ public class Admin implements Runnable {
 							  .withDescription("run all MAFs in given datasource though Oncotator and OMA tools")
 							  .create("oncotate_mafs"));
 
-        Option convertData = (OptionBuilder.withArgName("portal:apply_overrides")
-                              .hasArgs(2)
+        Option convertData = (OptionBuilder.withArgName("portal:run_date:apply_overrides")
+                              .hasArgs(3)
 							  .withValueSeparator(':')
-                              .withDescription("convert data awaiting for import for the given portal (if apply_overrides is 't', overrides will be substituted for data source data before staging files are created")
+                              .withDescription("convert data from the given run date (mm/dd/yyyy) awaiting for import for the given portal " +
+											   "(if apply_overrides is 't', overrides will be substituted for data source data before staging files are created")
                               .create("convert_data"));
 
 		Option applyOverrides = (OptionBuilder.withArgName("portal")		
@@ -232,7 +237,7 @@ public class Admin implements Runnable {
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
                 String[] values = commandLine.getOptionValues("convert_data");
-				convertData(values[0], (values.length == 2) ? values[1] : "");
+				convertData(values[0], values[1], (values.length == 3) ? values[2] : "");
 			}
 			// generate case lists
 			else if (commandLine.hasOption("generate_case_lists")) {
@@ -269,6 +274,10 @@ public class Admin implements Runnable {
 
 		DatabaseUtils databaseUtils = (DatabaseUtils)getBean("databaseUtils");
 		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("clobberImportDataRecordbase(), complete");
+		}
 	}
 
 	/**
@@ -289,6 +298,10 @@ public class Admin implements Runnable {
 		// fetch the given data source
 		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
 		fetcher.fetch(dataSource, runDate);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchData(), complete");
+		}
 	}
 
 	/**
@@ -317,6 +330,10 @@ public class Admin implements Runnable {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), complete");
 		}
 	}
 
@@ -355,6 +372,10 @@ public class Admin implements Runnable {
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), complete");
+		}
 	}
 
 	/**
@@ -376,28 +397,42 @@ public class Admin implements Runnable {
 		// oncotate all the files of the given data source
 		FileUtils fileUtils = (FileUtils)getBean("fileUtils");
 		fileUtils.oncotateAllMAFs(dataSourcesMetadata);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateAllMAFs(), complete");
+		}
 	}
 
 	/**
 	 * Helper function to convert data.
      *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides String
      *
 	 * @throws Exception
 	 */
-	private void convertData(String portal, String applyOverrides) throws Exception {
-
-		Boolean applyOverridesBool = getBoolean(applyOverrides);
+	private void convertData(String portal, String runDate, String applyOverrides) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
-			LOG.info("convertData(), apply overrides: " + applyOverridesBool);
+			LOG.info("convertData(), run date: " + runDate);
+			LOG.info("convertData(), apply overrides: " + applyOverrides);
 		}
+
+		Boolean applyOverridesBool = getBoolean(applyOverrides);
+
+		// sanity check date format - doesn't work?
+		PORTAL_DATE_FORMAT.setLenient(false);
+		PORTAL_DATE_FORMAT.parse(runDate);
 
 		// create an instance of Converter
 		Converter converter = (Converter)getBean("converter");
-		converter.convertData(portal, applyOverridesBool);
+		converter.convertData(portal, runDate, applyOverridesBool);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("convertData(), complete");
+		}
 	}
 
     /**		
@@ -410,10 +445,14 @@ public class Admin implements Runnable {
 			
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), portal: " + portal);
-		}		
+		}
 			
 		Converter converter = (Converter)getBean("converter");		
 		converter.applyOverrides(portal);
+
+		if (LOG.isInfoEnabled()) {		
+			LOG.info("applyOverrides(), complete");
+		}
 	}
 
 	/**
@@ -432,6 +471,10 @@ public class Admin implements Runnable {
 		// create an instance of Converter
 		Converter converter = (Converter)getBean("converter");
 		converter.generateCaseLists(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("generateCaseLists(), complete");
+		}
 	}
 
 	/**
@@ -459,6 +502,10 @@ public class Admin implements Runnable {
 				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
+		}
 	}
 
 	/**
@@ -477,6 +524,10 @@ public class Admin implements Runnable {
 		// create an instance of Importer
 		Importer importer = (Importer)getBean("importer");
 		importer.importData(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), complete");
+		}
 	}
 
 	/**

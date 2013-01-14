@@ -130,17 +130,18 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param center String
+	 * @param runDate String
 	 * @return ImportDataRecord
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(String tumorType, String datatype, String center) {
-
+    public Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate) {
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenter");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("center", center);
+		query.setParameter("rundate", runDate);
         List<ImportDataRecord> toReturn = query.list();
         return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
     }

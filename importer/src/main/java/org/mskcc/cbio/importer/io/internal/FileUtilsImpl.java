@@ -269,7 +269,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					if (mafCaseIDColumnIndex  == -1) {
 						for (String potentialCaseID : thisRow) {
 							if (caseIDs.isTumorCaseID(potentialCaseID)) {
-								caseSet.add(potentialCaseID);
+								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 							}
 						}
 						break;
@@ -278,7 +278,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					continue;
 				}
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
-				caseSet.add(thisRow.get(mafCaseIDColumnIndex));
+				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
+				if (caseIDs.isTumorCaseID(potentialCaseID)) {
+					caseSet.add(caseIDs.convertCaseID(potentialCaseID));
+				}
 			}
 		} finally {
 			it.close();
@@ -415,6 +418,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
 			String name = (cancerStudyMetadata.getName().length() > 0) ?
 				cancerStudyMetadata.getName() : cancerStudyMetadata.getTumorTypeMetadata().getName();
+			name = name.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
+								   cancerStudyMetadata.getTumorTypeMetadata().getName());
 			writer.print("name: " + name + "\n");
 			String description = cancerStudyMetadata.getDescription();
 			description = description.replaceAll(CancerStudyMetadata.NUM_CASES_TAG, Integer.toString(numCases));
@@ -430,6 +435,46 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				writer.print("pmid: " + cancerStudyMetadata.getPMID() + "\n");
 			}
 
+			writer.flush();
+			writer.close();
+	}
+
+	/**
+	 * Method which writes a metadata file for the
+	 * given DatatypeMetadata.  DataMatrix may be null.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataMatrix DataMatrix
+	 * @throws Exception
+	 *
+	 */
+	@Override
+	public void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
+
+			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+																	cancerStudyMetadata.getStudyPath(),
+																	datatypeMetadata.getMetaFilename());
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writeMetadataFile(), meta file: " + metaFile);
+			}
+			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
+			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+			String stableID = datatypeMetadata.getMetaStableID();
+			stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			writer.print("stable_id: " + stableID + "\n");
+			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
+			String profileDescription = datatypeMetadata.getMetaProfileDescription();
+			if (dataMatrix != null) {
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
+				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(dataMatrix.getCaseIDs().size()));
+			}
+			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
+			writer.print("profile_description: " + profileDescription + "\n");
+			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
 			writer.flush();
 			writer.close();
 	}
@@ -570,7 +615,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writingZScoresStagingFlie(), calling NormalizeExpressionLevels: " + Arrays.toString(args));
 		}
-		NormalizeExpressionLevels.main(args);
+		try {
+			NormalizeExpressionLevels.driver(args);
+		}
+		catch (RuntimeException e) {
+			// houston we have a problem...
+			if (LOG.isInfoEnabled()) {
+				LOG.info("writingZScoresStagingFlie(), exception thrown by NormalizeExpressionLevels: " +
+						 e.getMessage() + ", aborting...");
+			}
+			if (zScoresFile.exists()) {
+				org.apache.commons.io.FileUtils.forceDelete(zScoresFile);
+			}
+			return;
+		}
 		
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
@@ -608,20 +666,22 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 *
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param filename String
+	 * @param overrideFilename String
+	 * @param stagingFilename String
 	 * @throws Exception
 	 */
 	@Override
-	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
+	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+							  String overrideFilename, String stagingFilename) throws Exception {
 
 		// check for override file
 		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
 																	cancerStudyMetadata.getStudyPath(),
-																	filename);
+																	overrideFilename);
 		if (overrideFile.exists()) {
 			File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
 																	   cancerStudyMetadata.getStudyPath(),
-																	   filename);
+																	   stagingFilename);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("applyOverride(), override file exists for " + stagingFile.getCanonicalPath() + ": " + 
@@ -746,45 +806,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
 	}
 
-	/**
-	 * Helper method which writes a metadata file for the
-	 * given DatatypeMetadata.  DataMatrix may be null.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataMatrix DataMatrix
-	 * @throws Exception
-	 *
-	 */
-	private void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
-								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
-
-			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																	cancerStudyMetadata.getStudyPath(),
-																	datatypeMetadata.getMetaFilename());
-			if (LOG.isInfoEnabled()) {
-				LOG.info("writeMetadataFile(), meta file: " + metaFile);
-			}
-			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
-			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
-			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
-			String stableID = datatypeMetadata.getMetaStableID();
-			stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-			writer.print("stable_id: " + stableID + "\n");
-			writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
-			String profileDescription = datatypeMetadata.getMetaProfileDescription();
-			if (dataMatrix != null) {
-				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
-				profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG, Integer.toString(dataMatrix.getCaseIDs().size()));
-			}
-			profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType());
-			writer.print("profile_description: " + profileDescription + "\n");
-			writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
-			writer.flush();
-			writer.close();
-	}
-
     /*
      * Given a zip stream, unzips it and returns an input stream to the desired data file.
      *
@@ -868,9 +889,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // problem reading from data?
-        if (columnNames == null && rowData == null) {
+        if (columnNames == null || rowData == null) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getDataMatrix(), problem creating DataMatrix from file");
+                LOG.info("getDataMatrix(), problem creating DataMatrix from file, data file probably missing data, returning null");
             }
             return null;
         }

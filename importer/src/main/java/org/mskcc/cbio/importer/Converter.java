@@ -48,10 +48,11 @@ public interface Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
-	void convertData(String portal, Boolean applyOverrides) throws Exception;
+	void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception;
 
 	/**
 	 * Generates case lists for the given portal.

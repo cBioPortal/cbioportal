@@ -528,6 +528,6 @@ CREATE TABLE `clinical_trials` (
 drop table IF EXISTS clinical_trial_keywords; 
 CREATE TABLE `clinical_trial_keywords` (
   `PROTOCOLID` char(50) NOT NULL,
-  `KEYWORD` varchar(50),
+  `KEYWORD` varchar(256),
   PRIMARY KEY (`PROTOCOLID`, `KEYWORD`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;

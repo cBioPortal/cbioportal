@@ -66,11 +66,6 @@ public class ImportClinicalTrialData {
             System.exit(-1);
         }
 
-        daoClinicalTrial = DaoClinicalTrial.getInstance();
-
-        log.debug("Reseting the clinical trials table. ");
-        daoClinicalTrial.deleteAllRecords();
-
         String path = args[0].trim();
         File folder = new File(path);
         if(!folder.isDirectory()) {
@@ -78,15 +73,37 @@ public class ImportClinicalTrialData {
             System.exit(-1);
         }
 
+        importFilesFromFolder(folder);
+    }
+
+    /**
+     * Iterates over the files within a given folder and imports them to the database.
+     *
+     * @param folder folder containing clinical trial data XMLs
+     * @throws DaoException if cannot connect to the database
+     * @throws IOException if cannot get/read the files
+     * @throws SAXException if XML file(s) are mis-formatted
+     * @throws ParserConfigurationException if there is a problem parsing the files
+     */
+    public static void importFilesFromFolder(File folder)
+            throws ParserConfigurationException, IOException, SAXException, DaoException
+    {
+        daoClinicalTrial = DaoClinicalTrial.getInstance();
+
+        log.debug("Reseting the clinical trials table. ");
+        daoClinicalTrial.deleteAllRecords();
+
         for (File file : folder.listFiles()) {
-            if(file.getName().startsWith(".")) continue;
+            if(file.getName().startsWith(".")) continue; // Skip hidden files
             processXmlFile(file);
         }
 
         log.debug("Clinical trial information import is done! (" + daoClinicalTrial.countClinicalStudies() + " trials imported)");
     }
 
-    private static void processXmlFile(File file) throws ParserConfigurationException, IOException, SAXException, DaoException {
+    private static void processXmlFile(File file)
+            throws ParserConfigurationException, IOException, SAXException, DaoException
+    {
         ClinicalTrial clinicalTrial = new ClinicalTrial();
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

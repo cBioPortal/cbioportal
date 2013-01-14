@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE CTGovProtocol >
+<CTGovProtocol id="CDR2">
+  <RequiredHeader>
+    <DownloadDate>Information obtained from ClinicalTrials.gov on November 20, 2012</DownloadDate>
+    <LinkText xref="http://clinicaltrials.gov/show/NCT0000002">Link to the current ClinicalTrials.gov record.</LinkText>
+  </RequiredHeader>
+  <IDInfo>
+    <OrgStudyID>Lorem ipsum</OrgStudyID>
+    <SecondaryID>Lorem ipsum</SecondaryID>
+    <NCTID>NCT00000002</NCTID>
+  </IDInfo>
+  
+  <BriefTitle>Lorem ipsum 2 brief</BriefTitle>
+  <OfficialTitle>Lorem ipsum 2</OfficialTitle>
+
+  <CurrentProtocolStatus>Active</CurrentProtocolStatus>
+  <StartDate DateType="Actual">May 2002</StartDate>
+  <ProtocolPhase>Phase II</ProtocolPhase>
+  <ProtocolDetail>
+    <StudyType>Clinical trial</StudyType>
+    <StudyCategory>
+      <StudyCategoryName>Treatment</StudyCategoryName>
+      <Intervention>
+        <InterventionType ref="CDR0000590339">parenteral chemotherapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000572365">systemic chemotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000039455">chemotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000042973">drug21</InterventionNameLink>
+        <InterventionNameLink ref="CDR0000039789">drug22</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000334702">high-dose chemotherapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000039455">chemotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000042973">drug23</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000040692">colony-stimulating factor therapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000041550">cytokine therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000579648">immunotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000040815">biological therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000041057">drug24</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000041730">antiangiogenesis therapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000040477">growth factor antagonist therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000041553">anti-cytokine therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000579648">immunotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000040815">biological therapy</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000042332">drug25</InterventionNameLink>
+      </Intervention>
+    </StudyCategory>
+  </ProtocolDetail>
+  <Eligibility>
+    <HealthyVolunteers>No</HealthyVolunteers>
+    <LowAge>18</LowAge>
+    <HighAge>120</HighAge>
+    <AgeText>18 and over</AgeText>
+    <Gender>Both</Gender>
+    <Diagnosis>
+      <SpecificDiagnosis ref="CDR0000041926">primary systemic amyloidosis</SpecificDiagnosis>
+      <DiagnosisParent ref="CDR0000618304">monoclonal immunoglobulin deposition disease</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000037974">multiple myeloma and other plasma cell neoplasms</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000039800">hematopoietic/lymphoid cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000043666">body system/site cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000041060">malignant neoplasm</DiagnosisParent>
+    </Diagnosis>
+  </Eligibility>
+  <Location>
+    <Facility>
+      <FacilityName>University of Lorem Ipsum</FacilityName>
+      <PostalAddress>
+        <City>Lorem City</City>
+        <PoliticalSubUnitName ref="CDR0000043861">Impsum Unit</PoliticalSubUnitName>
+
+        <CountryName ref="CDR0000043753">L.I.S.</CountryName>
+        <PostalCode_ZIP>11111</PostalCode_ZIP>
+      </PostalAddress>
+    </Facility>
+    <Status>Active</Status>
+  </Location>
+  <VerificationDate>Jan 1999</VerificationDate>
+  <LastChangedDate>Jan 15, 2009</LastChangedDate>
+</CTGovProtocol>

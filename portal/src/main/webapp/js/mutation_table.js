@@ -238,7 +238,7 @@ function drawMutationTable(data)
 
 	// show frequency columns by default
 	oTable.fnSetColumnVis(12, true);
-	oTable.fnSetColumnVis(13, true);
+	oTable.fnSetColumnVis(15, true);
 
     oTable.css("width", "100%");
 }
@@ -328,11 +328,11 @@ function _getMutationTableHeaders(data)
     headers.push(data.header.referenceAllele);
     headers.push(data.header.variantAllele);
     headers.push(data.header.tumorFreq);
-    headers.push(data.header.normalFreq);
-    headers.push(data.header.tumorRefCount);
     headers.push(data.header.tumorAltCount);
-    headers.push(data.header.normalRefCount);
+    headers.push(data.header.tumorRefCount);
+    headers.push(data.header.normalFreq);
     headers.push(data.header.normalAltCount);
+    headers.push(data.header.normalRefCount);
 
     // special gene headers
     for (var i=0; i < data.header.specialGeneHeaders.length; i++)
@@ -546,8 +546,9 @@ function _getMutationTableRows(data)
         return html;
     };
 
-    var getAlleleFreqHtml = function(frequency) {
+    var getAlleleFreqHtml = function(frequency, alt, ref) {
 		var html;
+        var tip = "<b>" + alt + "</b> out of " + "<b>" + (alt + ref) + "</b>";
 
         if (frequency == null)
         {
@@ -555,8 +556,8 @@ function _getMutationTableRows(data)
         }
         else
         {
-            html = '<label class="mutation_table_allele_freq">' +
-                   + frequency.toFixed(2) + '</label>';
+            html = '<label class="mutation_table_allele_freq simple-tip" alt="' + tip + '">' +
+                   frequency.toFixed(2) + '</label>';
         }
 
         return html;
@@ -604,12 +605,16 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].position);
         row.push(data.mutations[i].referenceAllele);
         row.push(data.mutations[i].variantAllele);
-        row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq));
-        row.push(getAlleleFreqHtml(data.mutations[i].normalFreq));
-        row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
+        row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,
+                data.mutations[i].tumorAltCount,
+                data.mutations[i].tumorRefCount));
         row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
-        row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
+        row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
+        row.push(getAlleleFreqHtml(data.mutations[i].normalFreq,
+                data.mutations[i].normalAltCount,
+                data.mutations[i].normalRefCount));
         row.push(getAlleleCountHtml(data.mutations[i].normalAltCount));
+        row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
 
         //special gene data
         for (var j=0; j < data.mutations[i].specialGeneData.length; j++)

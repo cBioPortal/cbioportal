@@ -31,10 +31,14 @@ package org.mskcc.cbio.importer.fetcher.internal;
 // imports
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.net.URL;
+import java.util.Arrays;
 
 /**
  * Class which implements the fetcher interface.
@@ -82,18 +86,27 @@ class ReferenceDataFetcherImpl implements Fetcher {
 	@Override
 	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
-		// sanity check
-		if (referenceMetadata.getReferenceFileSource() == null ||
-			referenceMetadata.getReferenceFileSource().getFile().length() == 0) {
-			throw new IllegalArgumentException("referenceMetadata.getReferenceFileSource() must not be null, aborting");
+		String fetcherName = referenceMetadata.getFetcherName();
+
+		if (fetcherName.length() == 0) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fetchReferenceData(), no fetcher name provided, exiting...");
+			}
+			return;
 		}
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFileSource().getFile());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFiles().get(0).getFile());
+			LOG.info("fetchReferenceData(), fetcherName: " + fetcherName);
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFileSource().getFile(),
-							   referenceMetadata.getReferenceFiles().get(0).getFile());
+		Object[] args = { fileUtils };
+		if (Shell.exec(referenceMetadata, this, args, ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fetchReferenceData(), successfully executed fetcher.");
+			}
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), failure executing importer.");
+		}
 	}
 }

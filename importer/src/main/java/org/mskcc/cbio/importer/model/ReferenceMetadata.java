@@ -29,9 +29,10 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which contains reference metadata.
@@ -39,15 +40,23 @@ import java.util.ArrayList;
 public class ReferenceMetadata {
 
     // delimiter between tumor type and center (used for find the path)
-	public static final String REFERENCE_FILE_DELIMITER = ":"; 
+	public static final String REFERENCE_DATA_ARGS_DELIMITER = ";";
+
+	// this environment var may appear in path to fetcher scripts
+	/*
+	private static final String PORTAL_HOME = "$PORTAL_HOME";
+	private static final String PORTAL_DATA_HOME = "$PORTAL_HOME";
+	private static final String[] ENV_VARS = { PORTAL_HOME, PORTAL_DATA_HOME };
+	*/
+
+	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
 	// bean properties
 	private String referenceType;
-	private Boolean importIntoPortal;
-	private URL referenceFileSource;
-	private List<URL> referenceFiles;
-	private String fetcherBeanID;
-	private String importerClassName;
+	private String fetcherName;
+	private List<String> fetcherArgs;
+	private String importerName;
+	private List<String> importerArgs;
 
     /**
      * Create a ReferenceMetadata instance with properties in given array.
@@ -57,34 +66,47 @@ public class ReferenceMetadata {
      */
     public ReferenceMetadata(String[] properties) {
 
-		if (properties.length != 6) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.referenceType = properties[0].trim();
-		this.importIntoPortal = new Boolean(properties[1].trim());
-		try {
-			this.referenceFileSource = new URL(properties[2].trim());
+		this.fetcherName = getCanonicalPath(properties[1].trim());
+		this.fetcherArgs = new ArrayList<String>();
+		for (String fetcherArg : properties[2].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.fetcherArgs.add(getCanonicalPath(fetcherArg));
 		}
-		catch (Exception e) {
-			if (properties[2].trim().length() == 0) this.referenceFileSource = null;
+		this.importerName = getCanonicalPath(properties[3].trim());
+		this.importerArgs = new ArrayList<String>();
+		for (String importerArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.importerArgs.add(getCanonicalPath(importerArg));
 		}
-		this.referenceFiles = new ArrayList<URL>();
-		try {
-			for (String url : properties[3].trim().split(REFERENCE_FILE_DELIMITER)) {
-				this.referenceFiles.add(new URL(url));
-			}
-		}
-		catch (Exception e) {}
-
-		this.fetcherBeanID = properties[4].trim();
-		this.importerClassName = properties[5].trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
-	public Boolean importIntoPortal() { return importIntoPortal; }
-	public URL getReferenceFileSource() { return referenceFileSource; }
-	public List<URL> getReferenceFiles() { return referenceFiles; }
-	public String getFetcherBeanID() { return fetcherBeanID; }
-	public String getImporterClassName() { return importerClassName; }
+	public String getFetcherName() { return fetcherName; }
+	public List<String> getFetcherArgs() { return fetcherArgs; }
+	public String getImporterName() { return importerName; }
+	public List<String> getImporterArgs() { return importerArgs; }
+
+	/**
+	 * Helper function used to get canonical path for given path.
+	 *
+	 * @param path String
+	 */
+	private String getCanonicalPath(String path) {
+	
+		String toReturn = path;
+
+		Matcher lineMatcher = ENVIRONMENT_VAR_REGEX.matcher(path);
+		if (lineMatcher.find()) {
+			String envValue = System.getenv(lineMatcher.group(1));
+			if (envValue != null) {
+				toReturn = path.replace("$" + lineMatcher.group(1), envValue);
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
 }

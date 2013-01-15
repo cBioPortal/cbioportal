@@ -91,10 +91,12 @@ class ImporterImpl implements Importer {
 	 * Imports data for use in the given portal.
 	 *
      * @param portal String
+	 * @param initPortalDatabase Boolean
+	 * @param importReferenceData Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void importData(String portal) throws Exception {
+	public void importData(String portal, Boolean initPortalDatabase, Boolean importReferenceData) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData()");
@@ -114,33 +116,37 @@ class ImporterImpl implements Importer {
             return;
         }
 
-		// clobber db
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), clobbering existing database...");
-		}
-		databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), true);
-
-		// use mysql to create new schema
-		String[] command = new String[] {"mysql",
-										 "--user=" + databaseUtils.getDatabaseUser(),
-										 "--password=" + databaseUtils.getDatabasePassword(),
-										 databaseUtils.getPortalDatabaseName(),
-										 "-e",
-										 "source " + databaseUtils.getDatabaseSchemaCanonicalPath()};
-		if (LOG.isInfoEnabled()) {
-			LOG.info("executing: " + Arrays.asList(command));
-		}
-		if (Shell.exec(Arrays.asList(command), ".")) {
+		// init portal db if desired
+		if (initPortalDatabase) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("create schema is complete.");
+				LOG.info("importData(), clobbering existing database...");
+			}
+			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), true);
+
+			// use mysql to create new schema
+			String[] command = new String[] {"mysql",
+											 "--user=" + databaseUtils.getDatabaseUser(),
+											 "--password=" + databaseUtils.getDatabasePassword(),
+											 databaseUtils.getPortalDatabaseName(),
+											 "-e",
+											 "source " + databaseUtils.getDatabaseSchemaCanonicalPath()};
+			if (LOG.isInfoEnabled()) {
+				LOG.info("executing: " + Arrays.asList(command));
+			}
+			if (Shell.exec(Arrays.asList(command), ".")) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("create schema is complete.");
+				}
 			}
 		}
 
-		// import reference data
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), importing reference data...");
+		// import reference data if desired
+		if (importReferenceData) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importData(), importing reference data...");
+			}
+			importAllReferenceData();
 		}
-		importAllReferenceData();
 
 		// load staging files
 		if (LOG.isInfoEnabled()) {
@@ -228,8 +234,13 @@ class ImporterImpl implements Importer {
 			}
 
 			// import cancer name / metadata
-			String[] args = { cancerStudyMetadata.toString(),
-							  rootDirectory + cancerStudyMetadata.getCancerStudyMetadataFilename() };
+			String cancerStudyMetadataFile = (rootDirectory + File.separator +
+											  cancerStudyMetadata.getStudyPath() + File.separator +
+											  cancerStudyMetadata.getCancerStudyMetadataFilename());
+			String[] args = { cancerStudyMetadataFile };
+			if (LOG.isInfoEnabled()) {
+				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
+			}
 			ImportCancerStudy.main(args);
 
 			// iterate over all datatypes

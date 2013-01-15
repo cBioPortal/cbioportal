@@ -40,9 +40,11 @@ public interface Importer {
 	 * Imports data for use in the given portal.
 	 *
      * @param portal String
+	 * @param initPortalDatabase Boolean
+	 * @param importReferenceData Boolean
 	 * @throws Exception
 	 */
-	void importData(String portal) throws Exception;
+	void importData(String portal, Boolean initPortalDatabase, Boolean importReferenceData) throws Exception;
 
 	/**
 	 * Imports the given reference data.

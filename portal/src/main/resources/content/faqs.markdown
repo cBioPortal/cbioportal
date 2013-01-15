@@ -59,7 +59,7 @@ The order of genes in the OncoPrint is determined by the order entered into the 
 
 # Does the portal work on all browsers and operating systems?
 
-We support and test on the following web browsers:  Internet Explorer 7.0 and above, Firefox 3.0 and above, Safari and Google Chrome.  Note hover that SVG images, which are used for downloadable OncoPrints, are not supported by Internet Explorer versions older than 9. If you notice any other incompatibilities, please let us know.
+We support and test on the following web browsers:  Internet Explorer 9.0 and above, Firefox 3.0 and above, Safari and Google Chrome. If you notice any other incompatibilities, please let us know.
 
 # How can I query phosphoprotein levels in the portal?
 

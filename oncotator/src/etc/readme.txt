@@ -3,7 +3,7 @@ GENERAL INFORMATION
 This tool is designed to oncotate MAF files by using the Oncotator web service
 provided by the Broad Institute (http://www.broadinstitute.org/oncotator/).
 
-This command line tool enhances a MAF file by adding 5 new columns for each line
+This command line tool enhances a MAF file by adding new oncotator columns for each line
 by processing the result of a oncotator query.
 
 USAGE
@@ -23,11 +23,34 @@ directly by using java -jar command:
 
 	java -jar <jar_file> <input_maf_file> <output_maf_file>
 
-It is also possible to run the oncotator tool without connecting to a database. In this case,
-it will access to the Oncotator Web Service for each entry. The execution syntax without
-a database connection is:
+ADVANCED OPTIONS
 
-	./oncotateMaf.sh -nodb <input_maf_file> <output_maf_file>
+There are 3 optional program arguments which provides more control beyond the basic usage.
+Usage of these 3 options are explained below.
+
+-nocache: Use this option to run the oncotator tool without connecting to a database.
+If nocache switch is used, the program will access to the Oncotator Web Service for each entry.
+The execution syntax without a database connection is:
+
+./oncotateMaf.sh -nocache <input_maf_file> <output_maf_file>
+
+-sort: Use this option to have the output MAF with sorted columns. The columns
+will be sorted as follows:
+	The standard MAF columns come first.
+	Oncotator columns come second.
+	Mutation Assessor columns come third.
+	Any other/custom column comes last.
+
+The execution syntax for a sorted output is:
+./oncotateMaf.sh -sort <input_maf_file> <output_maf_file>
+
+-std: You can use this option (when sort switch is provided) to include missing standard MAF
+columns in the output MAF file. If std switch is used, the output MAF file will always contain
+all 32 standard MAF columns. And the data under the missing columns will be empty. This option
+is useful if you want a specific column to be at the same index for all output MAFs.
+
+The execution syntax for this option is:
+./oncotateMaf.sh -sort -std <input_maf_file> <output_maf_file>
 
 INPUT FORMAT
 
@@ -36,16 +59,23 @@ In order to execute successfully, this tool needs the input MAF to satisfy the f
 	- NCBI build of the MAF should be 37 (hg19) because Broad's oncotator service works only with hg19.
 	If there are too many entries with incorrect build number, the program terminates without trying to
 	oncotate all entries.
-	- It must have these 6 standard column headers: Chromosome, Start_Position, End_Position,
+	- It must have these 7 standard column headers: Chromosome, Start_Position, End_Position,
 	Reference_Allele, Tumor_Seq_Allele1, Tumor_Seq_Allele2, and NCBI_Build.
-	- The data for each entry under these 6 data columns should conform to standard MAF specification.
+	- The data for each entry under these 7 data columns should conform to standard MAF specification.
 	See https://wiki.nci.nih.gov/display/TCGA/Mutation+Annotation+Format+%28MAF%29+Specification
 	for details.
 
 OUTPUT FORMAT
 
-The output produced by this tool will contain 5 additional columns named: ONCOTATOR_VARIANT_CLASSIFICATION,
-ONCOTATOR_PROTEIN_CHANGE, ONCOTATOR_COSMIC_OVERLAPPING, ONCOTATOR_DBSNP_RS, and ONCOTATOR_GENE_SYMBOL.
+The output produced by this tool will contain 23 additional columns named: ONCOTATOR_COSMIC_OVERLAPPING,
+ONCOTATOR_DBSNP_RS, ONCOTATOR_DBSNP_VAL_STATUS, ONCOTATOR_VARIANT_CLASSIFICATION,
+ONCOTATOR_PROTEIN_CHANGE, ONCOTATOR_GENE_SYMBOL, ONCOTATOR_REFSEQ_MRNA_ID, ONCOTATOR_REFSEQ_PROT_ID,
+ONCOTATOR_UNIPROT_ENTRY_NAME, ONCOTATOR_UNIPROT_ACCESSION, ONCOTATOR_CODON_CHANGE,
+ONCOTATOR_TRANSCRIPT_CHANGE, ONCOTATOR_EXON_AFFECTED, ONCOTATOR_VARIANT_CLASSIFICATION_BEST_EFFECT,
+ONCOTATOR_PROTEIN_CHANGE_BEST_EFFECT, ONCOTATOR_GENE_SYMBOL_BEST_EFFECT, ONCOTATOR_REFSEQ_MRNA_ID_BEST_EFFECT,
+ONCOTATOR_REFSEQ_PROT_ID_BEST_EFFECT, ONCOTATOR_UNIPROT_ENTRY_NAME_BEST_EFFECT,
+ONCOTATOR_UNIPROT_ACCESSION_BEST_EFFECT, ONCOTATOR_CODON_CHANGE_BEST_EFFECT,
+ONCOTATOR_TRANSCRIPT_CHANGE_BEST_EFFECT, and ONCOTATOR_EXON_AFFECTED_BEST_EFFECT.
 
 If the input file already contains these oncotator columns, the tool will overwrite the data under these
 columns.

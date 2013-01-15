@@ -91,17 +91,6 @@ var DEFAULTS = (function() {
 			'LEGEND_SPACING'                    : 5,  // space between alteration and description
 			'LEGEND_PADDING'                    : 15, // space between alteration / descriptions pairs
 			'LEGEND_FOOTNOTE_SPACING'           : 10, // space between alteration / descriptions pairs and footnote
-			// tooltip region
-			'TOOLTIP_REGION_WIDTH'              : 400, // width of tooltip region
-			'TOOLTIP_REGION_HEIGHT'             : 60,  // height of tooltip region
-			'TOOLTIP_TEXT_REGION_Y'             : 20,  // start of the rect within the tooltip region
-			'TOOLTIP_HORIZONTAL_PADDING'        : 10,  // space between header region and tooltip region
-			'TOOLTIP_TEXT_FONT'                 : "normal 12px arial",
-			'TOOLTIP_TEXT_COLOR'                : "#000000",
-			'TOOLTIP_FILL_COLOR'                : "#EEEEEE",
-			'TOOLTIP_MARGIN'                    : 10,
-			'TOOLTIP_TEXT'                      : "Move the mouse pointer over the OncoPrint below for more details\nabout cases and alterations.",
-			'ALT_TOOLTIP_TEXT'                  : "Details about cases and alterations are not available when the whitespace\nhas been removed from the OncoPrint.",
 			// header
 			'HEADER_VERTICAL_SPACING'           : 15, // space between sentences that wrap
 			'HEADER_VERTICAL_PADDING'           : 25, // space between header sentences
@@ -134,14 +123,11 @@ function OncoPrintInit(headerElement, bodyElement, legendElement) {
 	var caseSetDescriptionLabelLength = text.getBBox().width;
 
 	return {
-		// header element is used later to determine location of tooltip canvas
 		'header_element'                    : headerElement,
 		// setup canvases - these will be resized later
 		'header_canvas'                     : Raphael(headerElement, 1, 1),
 		'body_canvas'                       : Raphael(bodyElement, 1, 1),
 		'legend_canvas'                     : Raphael(legendElement, 1, 1),
-		'tooltip_title_canvas'              : null,
-		'tooltip_canvas'                    : null,
 		// longest label length
 		'longest_label_length'              : 0,
 		'case_set_description_label_length' : caseSetDescriptionLabelLength,
@@ -199,14 +185,13 @@ function DrawOncoPrintHeader(oncoprint, longestLabel, headerVariables, forSummar
  * oncoprint - opaque reference to oncoprint system
  * longestLabel - the longest label in the oncoprint (saves us some leg-work)
  * geneticAlterations - the set of geneticAlterations to draw
- * wantToolTip - flag indicating if we want tool tips (yes for Summary Tab no for Cross Cancer Summary)
  *
  * Note: geneticAlterations is a JSON object literal that is
  * created by:
  * org.mskcc.cbio.portal.util.MakeOncoPrint.writeOncoPrintGeneticAlterationVariable()
  * 
  */
-function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTooltip) {
+function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, cancerStudyId) {
 
 	// this is so row/col values are used in computation of x,y coords
 	oncoprint.use_immediate_coordinates = false;
@@ -220,13 +205,6 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 											   geneticAlterations[0].alterations.length);
 	oncoprint.body_canvas.setSize(dimension.width, dimension.height);
 	oncoprint.body_canvas.clear();
-
-	// we need to change the default tooltip text when genomic alteration padding is set
-	if (wantTooltip) {
-		var text = (oncoprint.remove_genomic_alteration_hpadding) ?
-			DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
-		addTooltipText(oncoprint, text);
-	}
 
 	// used to filter out unaltered samples in loop below
 	var unalteredSample = (CNA_NONE | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN);
@@ -266,16 +244,18 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, wantTool
 			// draw rppa triangle 
 			drawRPPA(oncoprint, oncoprint.body_canvas, lc, null, thisSampleAlteration.alteration);
 			// tooltip
-			if (wantTooltip & !oncoprint.remove_genomic_alteration_hpadding) {
-				var tooltipText = "Sample: " + thisSampleAlteration.sample;
+			if (!oncoprint.remove_genomic_alteration_hpadding) {
+				var tooltipText = "";
 				if (thisSampleAlteration.mutation != null) {
-					tooltipText = tooltipText + "\nAmino Acid Change: ";
+					tooltipText = tooltipText + "Mutation: ";
 					for (var lc3 = 0; lc3 < thisSampleAlteration.mutation.length; lc3++) {
-						tooltipText = tooltipText + thisSampleAlteration.mutation[lc3] + ", ";
+						tooltipText = tooltipText + "<b>" + thisSampleAlteration.mutation[lc3] + "</b>, ";
 					}
 					// zap off last ', '
-					tooltipText = tooltipText.substring(0, tooltipText.length - 2);
+					tooltipText = tooltipText.substring(0, tooltipText.length - 2)+"<br/>";
 				}
+                                tooltipText += "<a href='"+"tumormap.do?case_id="+thisSampleAlteration.sample
+                                    +"&cancer_study_id="+cancerStudyId+"'>"+thisSampleAlteration.sample + "</a>";
 				createTooltip(oncoprint, lc, null, tooltipText);
 			}
 			// update some vars needed for next go-around
@@ -343,61 +323,6 @@ function DrawOncoPrintLegend(oncoprint, longestLabel, geneticAlterations, legend
 		footnote.attr('font', DEFAULTS.get('LABEL_FONT'));
 		footnote.attr('fill', DEFAULTS.get('LABEL_COLOR'));
 		footnote.attr('text-anchor', 'start');
-	}
-}
-
-/*
- * Draws canvas used for "tooltips"
- *
- * oncoprint - opaque reference to oncoprint system
- * parentElement - element we live within (probably oncoprint_section div)
- *
- */
-function DrawOncoPrintTooltipRegion(oncoprint, parentElement) {
-
-	// compute pos and dimension of tooltip canvas
-	var parentElementPos = findPos(parentElement);
-	var parentElementWidth = $(parentElement).width();
-	var headerPos = findPos(oncoprint.header_element);
-	var x = headerPos[0] + oncoprint.header_canvas.width + DEFAULTS.get('TOOLTIP_HORIZONTAL_PADDING');
-
-	var width = DEFAULTS.get('TOOLTIP_REGION_WIDTH');
-	if (x + width > parentElementPos[0] + parentElementWidth) {
-		width = parentElementPos[0] + parentElementWidth - x;
-	}
-	var y = headerPos[1] + DEFAULTS.get('HEADER_VERTICAL_SPACING') / 2;
-	var height = DEFAULTS.get('TOOLTIP_REGION_HEIGHT');
-	if (oncoprint.tooltip_canvas != null) {
-		oncoprint.tooltip_canvas.remove();
-	}
-
-	// create the tooltip canvas
-	oncoprint.tooltip_canvas = Raphael(x, y, width, height);
-
-	// add background
-	var rect = oncoprint.tooltip_canvas.rect(0, 0, width, height);
-	rect.attr('stroke', 'none');
-	rect.attr('fill', DEFAULTS.get('TOOLTIP_FILL_COLOR'));
-	
-	// add place holder text
-	var tooltipText = (oncoprint.remove_genomic_alteration_hpadding) ?
-		DEFAULTS.get('ALT_TOOLTIP_TEXT') : DEFAULTS.get('TOOLTIP_TEXT')
-	addTooltipText(oncoprint, tooltipText);
-}
-
-/*
- * Clears canvas used for "tooltips"
- *
- * oncoprint - opaque reference to oncoprint system
- *
- */
-function ClearOncoPrintTooltipRegion(oncoprint) {
-
-	if (oncoprint.tooltip_title_canvas != null) {
-		oncoprint.tooltip_title_canvas.clear();
-	}
-	if (oncoprint.tooltip_canvas != null) {
-		oncoprint.tooltip_canvas.clear();
 	}
 }
 
@@ -1122,47 +1047,23 @@ function createTooltip(oncoprint, row, column, tooltipText) {
 	rect.attr('opacity', 0);
 
 	rect.node.style.cursor = "default";
-	rect.node.onmouseover = function () {
-		addTooltipText(oncoprint, tooltipText);
-	};
-
-	// on mouse out, reset text
-	rect.node.onmouseout = function () {
-		addTooltipText(oncoprint, DEFAULTS.get('TOOLTIP_TEXT'));
-	};
+        addTooltipText(rect.node, tooltipText);
 }
 
 /**
- * Routine which adds tooltip text tooltip canvas
+ * add qtip
  *
- * oncoprint - opaque reference to oncoprint system
+ * node - sample rect
  * tooltipText - the text to render in the tooltip
  *
  */
-function addTooltipText(oncoprint, tooltipText) {
-
-	// sanity check
-	if (oncoprint.tooltip_canvas == null) {
-		return;
-	}
-
-	// clear any existing text elements
-	if (oncoprint.tooltip_canvas != null) {
-		oncoprint.tooltip_canvas.forEach(function(obj) {
-			var node = obj.node;
-			if (obj.type == "text") {
-				obj.remove();
-			}
-		});
-	}
-
-	// create the text object
-	var text = oncoprint.tooltip_canvas.text(DEFAULTS.get('TOOLTIP_MARGIN'),
-											 oncoprint.tooltip_canvas.height / 2,
-											 tooltipText);
-	text.attr('font', DEFAULTS.get('TOOLTIP_TEXT_FONT'));
-	text.attr('fill', DEFAULTS.get('TOOLTIP_TEXT_COLOR'));
-	text.attr('text-anchor', 'start');
+function addTooltipText(node, tooltipText) {
+    $(node).qtip({
+        content: {text: '<font size="2">'+tooltipText+'</font>'},
+        hide: { fixed: true, delay: 100 },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        position: {my:'top center',at:'bottom center'}
+    });
 }
 
 /**
@@ -1242,35 +1143,6 @@ function addArrow(canvas, x1, y1, x2, y2, size) {
 				" L" + (x2 - size) + " " + (y2 + size) +
 				" L" + x2 + " " + y2 ).attr("fill","black").rotate((90+angle), x2, y2);
     canvas.path("M" + x1 + " " + y1 + " L" + x2 + " " + y2).attr("stroke-width", "2");
-}
-
-/*******************************************************************************
-//
-// The following functions were obtained from:
-//
-// http://www.greywyvern.com/?post=331
-//
-// They are used to determine the position of the tooltip canvas.
-//
-*******************************************************************************/
-
-function findPos(obj) {
-  var curleft = curtop = 0, scr = obj, fixed = false;
-  while ((scr = scr.parentNode) && scr != document.body) {
-    curleft -= scr.scrollLeft || 0;
-    curtop -= scr.scrollTop || 0;
-    if (getStyle(scr, "position") == "fixed") fixed = true;
-  }
-  if (fixed && !window.opera) {
-    var scrDist = scrollDist();
-    curleft += scrDist[0];
-    curtop += scrDist[1];
-  }
-  do {
-    curleft += obj.offsetLeft;
-    curtop += obj.offsetTop;
-  } while (obj = obj.offsetParent);
-  return [curleft, curtop];
 }
 
 function scrollDist() {

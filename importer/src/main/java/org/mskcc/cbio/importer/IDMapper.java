@@ -36,18 +36,20 @@ package org.mskcc.cbio.importer;
 public interface IDMapper {
 
 	/**
-	 * Used to initialize the mapper.
-	 *
-	 * @param connectionString String
-	 * @throws Exception
-	 */
-	void initMapper(final String connectionString) throws Exception;
-
-	/**
 	 * For the given symbol, return id.
 	 *
 	 * @param geneSymbol String
 	 * @return String
+	 * @throws Exception
 	 */
-	String entrezSymbolToNumber(final String geneSymbol);
+	String symbolToEntrezID(String geneSymbol) throws Exception;
+
+	/**
+	 * For the entrezID, return symbol.
+	 *
+	 * @param entrezID String
+	 * @return String
+	 * @throws Exception
+	 */
+	String entrezIDToSymbol(String entrezID) throws Exception;
 }

@@ -10,14 +10,14 @@
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
  
   <context:annotation-config />
-  <context:property-placeholder location="file:${PORTAL_HOME}/portal.properties"/>
+  <context:property-placeholder location="classpath:/importer.properties"/>
 
   <!-- hibernate session factory -->
   <b:bean id="importerSessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
 	<b:property name="dataSource" ref="createSchema" />
 	<b:property name="annotatedClasses">
 	  <b:list>
-		<b:value>org.mskcc.cbio.importer.model.ImportData</b:value>
+		<b:value>org.mskcc.cbio.importer.model.ImportDataRecord</b:value>
 	  </b:list>
 	</b:property>
 	<b:property name="hibernateProperties">

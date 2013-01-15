@@ -442,7 +442,7 @@ function addMouseOver(node, txt, id){
     $(node).qtip({
         content: {text: '<font size="2">'+txt+'</font>'},
         hide: { fixed: true, delay: 100 },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
+        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
         position: {my:'bottom center',at:'top center'}
     });
 }
@@ -452,7 +452,7 @@ function addRegionMouseOver(node, txt, id)
     $(node).qtip({
         content: {text: '<font size="2">'+txt+'</font>'},
         hide: {fixed: true, delay: 100 },
-        style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow small-font-tooltip' },
+        style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
         position: {my:'bottom left',at:'top center'}
     });
 }

@@ -29,32 +29,48 @@
 package org.mskcc.cbio.importer.caseids.internal;
 
 // imports
+import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Class which implements the CaseIDs interface.
  */
-public final class CaseIDsImpl implements CaseIDs {
+public class CaseIDsImpl implements CaseIDs {
 
-	// our logger
-	private static final Log LOG = LogFactory.getLog(CaseIDsImpl.class);
-
-	// regex used when getting firehose run dates from the broad
-    private static final Pattern STANDARD_TUMOR_PATTERN =
-		Pattern.compile("^(\\w*)\\s*(\\w*)\\s*(\\w*)$");
+	// ref to our matchers
+	private Collection<Pattern> patterns;
 
 	/**
-	 * Default Constructor.
+	 * Constructor.
+     *
+     * @param config Config
 	 */
-	public CaseIDsImpl() {}
+	public CaseIDsImpl(Config config) {
+
+		// get all the filters
+		Collection<CaseIDFilterMetadata> caseIDFilters = config.getCaseIDFilterMetadata(Config.ALL);
+
+		// sanity check
+		if (caseIDFilters == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper collection of CaseIDFilterMetadata objects.");
+		}
+
+		// setup our matchers
+		patterns = new ArrayList<Pattern>();
+		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
+			patterns.add(Pattern.compile(caseIDFilter.getRegex()));
+		}
+	}
 
 	/**
 	 * Converts the given case id to mskcc format.
@@ -63,7 +79,16 @@ public final class CaseIDsImpl implements CaseIDs {
 	 * @return String
 	 */
 	@Override
-	public String convertCaseID(final String caseID) {
+	public String convertCaseID(String caseID) {
+
+		for (Pattern pattern : patterns) {
+			Matcher matcher = pattern.matcher(caseID);
+			if (matcher.find()) {
+				return matcher.group(1);
+			}
+		}
+
+		// outta here
 		return caseID;
 	}
 
@@ -74,31 +99,30 @@ public final class CaseIDsImpl implements CaseIDs {
 	 * @return boolean
 	 */
 	@Override
-	public boolean isTumorCaseID(final String caseID) {
+	public boolean isTumorCaseID(String caseID) {
 
-		/*
-		Matcher lineMatcher = FIREHOSE_GET_RUNS_LINE_REGEX.matcher(lineOfOutput);
-		if (lineMatcher.find()) {
-			if (lineMatcher.group(3).equals("yes")) {
+		for (Pattern pattern : patterns) {
+			if (pattern.matcher(caseID).matches()) {
+				return true;
 			}
 		}
-		*/
 
-		return true;
+		// outta here
+		return false;
 	}
 
 	/**
 	 * Computes the number of case ids within the give import data matrix.
 	 *
-     * @param importDataMatrix ImportDataMatrix
+     * @param dataMatrix DataMatrix
 	 * @return int
 	 */
 	@Override
-	public int getCaseCount(final ImportDataMatrix importDataMatrix) {
+	public int getCaseCount(DataMatrix dataMatrix) {
 
 		int toReturn = 0;
 
-		Collection<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		Collection<String> columnHeaders = dataMatrix.getColumnHeaders();
 		for (String columnHeader : columnHeaders) {
 			if (isTumorCaseID(columnHeader)) {
 				++toReturn;

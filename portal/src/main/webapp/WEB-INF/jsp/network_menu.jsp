@@ -1,3 +1,9 @@
+<%
+Boolean includeNetLegend = (Boolean)request.getAttribute("include_network_legend");
+if (includeNetLegend==null) {
+    includeNetLegend = Boolean.TRUE;
+}
+%>
 <div id="network_menu_div" class="hidden-network-ui">
 	<ul id="network_menu">
 	    <li>
@@ -90,6 +96,7 @@
 	    		</li>
 	    	</ul>
 	    </li>
+            <%if(includeNetLegend){%>
 	    <li>
 	    	<a id="network_menu_legends">Legends</a>
 	    	<ul id="legends_menu">
@@ -110,6 +117,7 @@
 	    		</li>
 	    	</ul>
 	    </li>
+            <%}%>
 	</ul>
 </div>
 

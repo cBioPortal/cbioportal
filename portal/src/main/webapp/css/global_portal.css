@@ -1287,6 +1287,6 @@ cc-ie-message {
     text-align: center;
 }
 
-.wider-tooltip {
-    max-width: 800px;
+.ui-tooltip-lightyellow {
+    background-color: lightyellow;
 }

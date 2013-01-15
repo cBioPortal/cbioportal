@@ -200,6 +200,11 @@
         <servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
+	<servlet>
+		<servlet-name>mutation_table_data_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationTableDataServlet</servlet-class>
+	</servlet>
+
     <servlet>
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
@@ -218,6 +223,11 @@
     <servlet>
         <servlet-name>GisticJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GisticJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>GeneDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -249,6 +259,11 @@
         <servlet-name>mutation_diagram_data_json</servlet-name>
         <url-pattern>/mutation_diagram_data.json</url-pattern>
     </servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mutation_table_data_json</servlet-name>
+		<url-pattern>/mutation_table_data.json</url-pattern>
+	</servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>query_builder</servlet-name>
@@ -359,6 +374,98 @@
         <servlet-name>GisticJSON</servlet-name>
         <url-pattern>/Gistic.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GeneDataJSON</servlet-name>
+        <url-pattern>/GeneData.json</url-pattern>
+    </servlet-mapping>
+    
+     <!-- tumor map -->
+    <servlet>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.TumorMapServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <url-pattern>/index.tumormap</url-pattern>
+    </servlet-mapping>
+    
+    <servlet-mapping>
+        <servlet-name>TumorMapServlet</servlet-name>
+        <url-pattern>/tumormap.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>patient_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PatientView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/tumormap.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>MutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>MutationsJSON</servlet-name>
+        <url-pattern>/mutations.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CnaJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CnaJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>CnaJSON</servlet-name>
+        <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <url-pattern>/clinicaltrials.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SimilarPatientsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>SimilarPatientsJSON</servlet-name>
+        <url-pattern>/similar_patients.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>cancer_study_view</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CancerStudyView</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>cancer_study_view</servlet-name>
+        <url-pattern>/study.do</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DrugsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.DrugsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>DrugsJSON</servlet-name>
+        <url-pattern>/drugs.json</url-pattern>
+    </servlet-mapping>
+    <!-- end tumor map -->
     
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>

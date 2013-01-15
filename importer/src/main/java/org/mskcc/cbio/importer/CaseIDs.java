@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import java.util.Collection;
 
@@ -44,7 +44,7 @@ public interface CaseIDs {
 	 * @param caseID String
 	 * @return String
 	 */
-	String convertCaseID(final String caseID);
+	String convertCaseID(String caseID);
 
 	/**
 	 * Determines if given case id is a tumor case id.
@@ -52,12 +52,12 @@ public interface CaseIDs {
      * @param caseID String
 	 * @return boolean
 	 */
-	boolean isTumorCaseID(final String caseID);
+	boolean isTumorCaseID(String caseID);
 
 	/**
 	 * Computes the number of case ids within the give import data matrix.
 	 *
-     * @param importDataMatrix ImportDataMatrix
+     * @param dataMatrix DataMatrix
 	 */
-	int getCaseCount(final ImportDataMatrix importDataMatrix);
+	int getCaseCount(DataMatrix dataMatrix);
 }

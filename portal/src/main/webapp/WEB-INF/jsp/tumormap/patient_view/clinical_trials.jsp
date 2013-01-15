@@ -155,7 +155,7 @@
 
 <h2>Drugs of interest</h2>
 
-<table id="pv-drugs-table">
+<table id="pv-drugs-table" class="dataTable display">
    <thead>
     <tr>
         <th>Drug Name</th>
@@ -171,7 +171,7 @@
 
 <h2>Clinical trials of interest</h2>
 
-<table id="pv-trials-table">
+<table id="pv-trials-table" class="dataTable display">
    <thead>
     <tr>
         <th>Trial ID</th>

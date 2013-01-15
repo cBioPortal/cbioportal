@@ -19,7 +19,12 @@
         font-weight: bold;
         vertical-align: middle;
     }
+    .highlight {
+        font-weight: bold;
+        text-decoration: underline;
+    }
 </style>
+<script type="text/javascript" src="js/jquery.highlight-4.js"></script>
 <script type="text/javascript">
     var populateDrugTable = function() {
         var drugIds = [];
@@ -129,6 +134,8 @@
 
                     for(var i=0; i < data.length; i++) {
                         var trial = data[i];
+
+
                         $("#pv-trials-table").append(
                             '<tr>'
                                 + '<td align="center">'
@@ -146,6 +153,12 @@
                             + '</tr>'
                         );
                     }
+
+                    // highlight keywords within the table
+                    for(var k=0; k < keywords.length; k++) {
+                        $("#pv-trials-table").find("td").highlight(keywords[k]);
+                    }
+
 
                     $("#pv-trials-table").dataTable({
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',

@@ -72,13 +72,6 @@ public interface DatabaseUtils {
     public String getImporterDatabaseName();
 
 	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
-
-	/**
 	 * Returns the portal database name.
 	 *
 	 * @return String
@@ -91,5 +84,5 @@ public interface DatabaseUtils {
 	 * @param databaseName String
 	 * @param createSchema boolean
 	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	void createDatabase(String databaseName, boolean createSchema);
 }

@@ -39,17 +39,20 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
  */
 public interface Converter {
 
+	public static final String VALUE_DELIMITER = "\t";
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
-	public static final String CASE_DELIMITER = "\t";
+	public static final String MUTATION_CASE_ID_COLUMN_HEADER = "Tumor_Sample_Barcode";
 
 	/**
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
-	void convertData(final String portal) throws Exception;
+	void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception;
 
 	/**
 	 * Generates case lists for the given portal.
@@ -57,16 +60,15 @@ public interface Converter {
      * @param portal String
 	 * @throws Exception
 	 */
-	void generateCaseLists(final String portal) throws Exception;
+	void generateCaseLists(String portal) throws Exception;
 
-	/**
+    /**
 	 * Applies overrides to the given portal using the given data source.
 	 *
-     * @param portal String
-	 * @param dataSource String
+	 * @param portal String
 	 * @throws Exception
 	 */
-	void applyOverrides(final String portal, final String dataSource) throws Exception;
+	void applyOverrides(String portal) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.
@@ -77,6 +79,6 @@ public interface Converter {
 	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-						   final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception;
+	void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						   DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception;
 }

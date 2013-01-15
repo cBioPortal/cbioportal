@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <style>
+        @import url(css/jquery.qtip.min.css);
+    </style>
+
+  <title>Jasmine Spec Runner</title>
+
+  <link rel="shortcut icon" type="image/png" href="lib/jasmine-1.2.0/jasmine_favicon.png">
+  <link rel="stylesheet" type="text/css" href="lib/jasmine-1.2.0/jasmine.css">
+  <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine.js"></script>
+  <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
+  <script type="text/javascript" src="src/jquery.min.js"></script>
+  <script type="text/javascript" src="src/d3.v2.min.js"></script>
+  <script type="text/javascript" src="src/jquery.qtip.min.js"></script>
+  <script type="text/javascript" src="src/jquery-ui-1.8.14.custom.min.js"></script>
+
+  <!-- include source files here... -->
+  <!-- <script type="text/javascript" src="spec/SpecHelper.js"></script>
+  <script type="text/javascript" src="spec/PlayerSpec.js"></script> -->
+  <script type="text/javascript" src="src/DataManagerFactory.js"></script>
+  <script type="text/javascript" src="src/QueryGeneData.js"></script>
+  <script type="text/javascript" src="src/MemoSort.js"></script>
+  <script type="text/javascript" src="src/oncoprint.js"></script>
+
+  <!-- include spec files here... -->
+  <script type="text/javascript" src="spec/DataManagerFactorySpec.js"></script>
+  <script type="text/javascript" src="spec/QueryGeneDataSpec.js"></script>
+  <script type="text/javascript" src="spec/MemoSortSpec.js"></script>
+
+  <script type="text/javascript">
+    (function() {
+      var jasmineEnv = jasmine.getEnv();
+      jasmineEnv.updateInterval = 1000;
+
+      var htmlReporter = new jasmine.HtmlReporter();
+
+      jasmineEnv.addReporter(htmlReporter);
+
+      jasmineEnv.specFilter = function(spec) {
+        return htmlReporter.specFilter(spec);
+      };
+
+      var currentWindowOnload = window.onload;
+
+      window.onload = function() {
+        if (currentWindowOnload) {
+          currentWindowOnload();
+        }
+        execJasmine();
+      };
+
+      function execJasmine() {
+        jasmineEnv.execute();
+      }
+
+    })();
+  </script>
+</head>
+
+<body>
+
+<h4>OncoPrint</h4>
+
+<p onclick='$("#oncoprint_controls").toggle();'>
+<span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+<span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Customize</b>
+<p/>
+<table id='oncoprint_controls' style="padding-left:13px; padding-top:5px;">
+    <tr>
+        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Only Show Altered Cases</td>
+        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Unsort Cases</td>
+    </tr>
+
+    <tr>
+        <td style="padding-right: 15px;"><span>Adjust Width</span><div id="width_scroller" style="display: inline-table;"></div></td>
+        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+    </tr>
+</table>
+
+<div id='oncoprint'>
+</div>
+  <script type="text/javascript">
+// {{{ test data
+
+  var AMPLIFIED = "AMPLIFIED",
+  DELETED = "HOMODELETED";
+
+  var UPREGULATED = "UPREGULATED",
+  DOWNREGULATED = "DOWNREGULATED";
+
+  var cna1        = [AMPLIFIED, DELETED, null, null, null, null];
+  var mutations1  = [null, ['a'], null, ['1'], null, ['b']];
+
+  var GENE1 = { hugo: "GENE1",
+      cna: cna1,
+      mutations: mutations1,
+      mrna: [null, null, null, null, null, null],
+      rppa: [UPREGULATED, null, DOWNREGULATED, null, null, null],
+      percent_altered: "10%"
+  };
+
+  var cna2        = [null, null, DELETED, AMPLIFIED, null, null];
+  var mutations2  = [null, null, null, ['a'], null, null];
+
+  var GENE2 = { hugo: "MARCH8",
+      cna: cna2,
+      mutations: mutations2,
+      mrna: [UPREGULATED, null, DOWNREGULATED, null, null, null],
+      rppa: [null, DOWNREGULATED, null, UPREGULATED, null, null],
+      percent_altered: "10%"
+  };
+
+
+  var hugo_to_gene_index = {
+      "GENE1": 0,
+      "MARCH8": 1
+  };
+
+  var samples = { "CASE1": 0,
+      "CASE2": 1,
+      "CASE3": 2,
+      "CASE4": 3,
+      "CASE5": 4,
+      "CASE6": 5
+  };
+
+  var data = {
+      gene_data: [GENE1, GENE2],
+      hugo_to_gene_index: hugo_to_gene_index,
+      samples: samples
+  };
+
+  var params = {
+      data: data,
+      cancer_study_id: "tcga-test",
+      case_set_str: "case set description",
+      num_cases_affected: "-1",
+      percent_cases_affected: "-1%",
+      vis_key: true,
+      customize: true
+  };
+  // }}}
+  var oncoprint = Oncoprint($('#oncoprint')[0], params);
+  oncoprint.draw();
+  </script>
+
+</div>
+
+<div id='play'>
+    <script type='text/javascript'>
+        var data = d3.range(10);
+
+        var wrapper = d3.select('#play');
+
+        var svg = wrapper.append('svg')
+        .attr('width', 200)
+        .attr('height', 200);
+
+        var circles = svg.selectAll('circle')
+        .data(data);
+
+        var circles_enter = circles.enter()
+        .append('circle')
+        .attr('fill', 'orange')
+        .attr('r', function(d) { return d; })
+        .attr('cx', function(d, i) { return i * 20; })
+        .attr('cy', 50);
+
+        var circles_exit = circles.exit()
+        .remove('circle');
+    </script>
+</div>
+
+<svg width=100 height=100>
+    <text x="0" y="17.25">
+        <tspan font-weight="bold" text-anchor="start">GENE1</tspan>
+        <tspan text-anchor="end" x="89">10%</tspan>
+    </text>
+</svg>
+
+</body>
+</html>

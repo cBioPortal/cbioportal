@@ -37,6 +37,7 @@ import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 
 import java.util.Collection;
 
@@ -49,19 +50,13 @@ public interface Config {
 	public static final String ALL = "all";
 
 	/**
-	 * Gets a collection of TumorTypeMetadata.
-	 *
-	 * @return Collection<TumorTypeMetadata>
-	 */
-	Collection<TumorTypeMetadata> getTumorTypeMetadata();
-
-	/**
-	 * Gets a TumorTypeMetadata object via tumorType
+	 * Gets a TumorTypeMetadata object via tumorType.
+	 * If tumorType == Config.ALL, all are returned.
 	 *
 	 * @param tumortype String
-	 * @return TumorTypeMetadata
+	 * @return Collection<TumorTypeMetadata>
 	 */
-	TumorTypeMetadata getTumorTypeMetadata(String tumorType);
+	Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType);
 
 	/**
 	 * Function to get tumor types to download as String[]
@@ -71,19 +66,13 @@ public interface Config {
 	String[] getTumorTypesToDownload();
 
 	/**
-	 * Gets a collection of DatatypeMetadata.
-	 *
-	 * @return Collection<DatatypeMetadata>
-	 */
-	Collection<DatatypeMetadata> getDatatypeMetadata();
-
-	/**
 	 * Gets a DatatypeMetadata object for the given datatype name.
+	 * If datatype == Config.ALL, all are returned.
 	 *
 	 * @param datatype String
-	 * @return DatatypeMetadata
+	 * @return Collection<DatatypeMetadata>
 	 */
-	DatatypeMetadata getDatatypeMetadata(String datatype);
+	Collection<DatatypeMetadata> getDatatypeMetadata(String datatype);
 
 	/**
 	 * Gets a collection of Datatype names for the given portal/cancer study.
@@ -112,29 +101,50 @@ public interface Config {
 	 * @return Collection<DatatypeMetadata>
 	 * @throws Exception
 	 */
-	Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, final String filename)  throws Exception;
+	Collection<DatatypeMetadata> getFileDatatype(DataSourcesMetadata dataSourcesMetadata, String filename)  throws Exception;
 
 	/**
 	 * Gets a collection of CaseIDFilterMetadata.
+	 * If filterName == Config.ALL, all are returned.
 	 *
+	 * @param filterName String
 	 * @return Collection<CaseIDFilterMetadata>
 	 */
-	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata();
+	Collection<CaseIDFilterMetadata> getCaseIDFilterMetadata(String filterName);
 
 	/**
 	 * Gets a collection of CaseListMetadata.
+	 * If caseListFilename == Config.ALL, all are returned.
 	 *
+	 * @param caseListFilename String
 	 * @return Collection<CaseListMetadata>
 	 */
-	Collection<CaseListMetadata> getCaseListMetadata();
+	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
+
+	/**
+	 * Gets a collection of ClinicalAttributesMetadata.
+	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeColumnHeader String
+	 * @return Collection<ClinicalAttributesMetadata>
+	 */
+	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
+
+	/**
+	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 *
+	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 */
+	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.
+	 * If portalName == Config.ALL, all are returned.
 	 *
-     * @param portal String
-	 * @return PortalMetadata
+     * @param portalName String
+	 * @return Collection<PortalMetadata>
 	 */
-	PortalMetadata getPortalMetadata(String portal);
+	Collection<PortalMetadata> getPortalMetadata(String portalName);
 
 	/**
 	 * Gets ReferenceMetadata for the given referenceType.
@@ -155,17 +165,10 @@ public interface Config {
 	Collection<DataSourcesMetadata> getDataSourcesMetadata(String dataSource);
 
 	/**
-	 * Sets DataSourcesMetadata (currently only stores latest run downloaded).
-	 *
-     * @param dataSourcesMetadata DataSourcesMetadata
-	 */
-	void setDataSourcesMetadata(final DataSourcesMetadata dataSourcesMetadata);
-
-	/**
 	 * Gets all the cancer studies for a given portal.
 	 *
      * @param portal String
 	 * @return Collection<CancerStudyMetadata>
 	 */
-	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portal);
+	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName);
 }

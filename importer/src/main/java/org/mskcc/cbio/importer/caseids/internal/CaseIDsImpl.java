@@ -45,7 +45,7 @@ import java.util.regex.Pattern;
 /**
  * Class which implements the CaseIDs interface.
  */
-public final class CaseIDsImpl implements CaseIDs {
+public class CaseIDsImpl implements CaseIDs {
 
 	// ref to our matchers
 	private Collection<Pattern> patterns;
@@ -55,10 +55,10 @@ public final class CaseIDsImpl implements CaseIDs {
      *
      * @param config Config
 	 */
-	public CaseIDsImpl(final Config config) {
+	public CaseIDsImpl(Config config) {
 
 		// get all the filters
-		Collection<CaseIDFilterMetadata> caseIDFilters = config.getCaseIDFilterMetadata();
+		Collection<CaseIDFilterMetadata> caseIDFilters = config.getCaseIDFilterMetadata(Config.ALL);
 
 		// sanity check
 		if (caseIDFilters == null) {
@@ -79,7 +79,7 @@ public final class CaseIDsImpl implements CaseIDs {
 	 * @return String
 	 */
 	@Override
-	public String convertCaseID(final String caseID) {
+	public String convertCaseID(String caseID) {
 
 		for (Pattern pattern : patterns) {
 			Matcher matcher = pattern.matcher(caseID);
@@ -99,7 +99,7 @@ public final class CaseIDsImpl implements CaseIDs {
 	 * @return boolean
 	 */
 	@Override
-	public boolean isTumorCaseID(final String caseID) {
+	public boolean isTumorCaseID(String caseID) {
 
 		for (Pattern pattern : patterns) {
 			if (pattern.matcher(caseID).matches()) {
@@ -118,7 +118,7 @@ public final class CaseIDsImpl implements CaseIDs {
 	 * @return int
 	 */
 	@Override
-	public int getCaseCount(final DataMatrix dataMatrix) {
+	public int getCaseCount(DataMatrix dataMatrix) {
 
 		int toReturn = 0;
 

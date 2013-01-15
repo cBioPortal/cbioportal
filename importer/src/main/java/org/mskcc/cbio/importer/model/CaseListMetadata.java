@@ -37,7 +37,7 @@ import java.util.LinkedHashSet;
 /**
  * Class which contains caselist metadata.
  */
-public final class CaseListMetadata {
+public class CaseListMetadata {
 
 	// if either delimiter changes, update ConverterImpl
 
@@ -56,55 +56,24 @@ public final class CaseListMetadata {
 	private String metaCaseListDescription;
 
     /**
-     * Create a CaseListMetadata instance with specified properties.
+     * Create a CaseListMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param caseListFilename String
-     * @param stagingFilenames String
-     * @param metaStableID String
-	 * @param metaCaseListCategory String
-	 * @param metaCancerStudyIdentifier String
-	 * @param metaCaseListName String
-     * @param metaCaseListDescription String
+	 * @param properties String[]
      */
-    public CaseListMetadata(final String caseListFilename, final String stagingFilenames,
-							final String metaStableID, final String metaCaseListCategory,
-							final String metaCancerStudyIdentifier, final String metaCaseListName,
-							final String metaCaseListDescription) {
+    public CaseListMetadata(String[] properties) {
 
-		if (caseListFilename == null) {
-            throw new IllegalArgumentException("caseListFilename must not be null");
+		if (properties.length < 7) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.caseListFilename = caseListFilename;
 
-		if (stagingFilenames == null) {
-            throw new IllegalArgumentException("stagingFilenames must not be null");
-		}
-		this.stagingFilenames = stagingFilenames;
-
-		if (metaStableID == null) {
-            throw new IllegalArgumentException("metaStableID must not be null");
-		}
-		this.metaStableID = metaStableID;
-
-		if (metaCaseListCategory == null) {
-            throw new IllegalArgumentException("metaCaseListCategory must not be null");
-		}
-		this.metaCaseListCategory = metaCaseListCategory;
-
-		if (metaCancerStudyIdentifier == null) {
-            throw new IllegalArgumentException("metaCancerStudyIdentifier must not be null");
-		}
-		this.metaCancerStudyIdentifier = metaCancerStudyIdentifier;
-
-		if (metaCaseListName == null) {
-            throw new IllegalArgumentException("metaCaseListName must not be null");
-		}
-		this.metaCaseListName = metaCaseListName;
-
-		if (metaCaseListDescription == null) {
-            throw new IllegalArgumentException("metaCaseListDescription must not be null");
-		}
-		this.metaCaseListDescription = metaCaseListDescription;
+		this.caseListFilename = properties[0].trim();
+		this.stagingFilenames = properties[1].trim();
+		this.metaStableID = properties[2].trim();
+		this.metaCaseListCategory = properties[3].trim();
+		this.metaCancerStudyIdentifier = properties[4].trim();
+		this.metaCaseListName = properties[5].trim();
+		this.metaCaseListDescription = properties[6].trim();
 	}
 
 	public String getCaseListFilename() { return caseListFilename; }

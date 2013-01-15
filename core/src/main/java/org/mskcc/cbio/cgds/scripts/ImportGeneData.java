@@ -73,10 +73,10 @@ public class ImportGeneData {
                 int entrezGeneId = Integer.parseInt(parts[1]);
                 String geneSymbol = parts[2];
                 Set<String> aliases;
-                if (parts[3].equals("-")) {
+                if (parts[4].equals("-")) {
                     aliases = Collections.emptySet();
                 } else {
-                    aliases = new HashSet<String>(Arrays.asList(parts[3].split("\\|")));
+                    aliases = new HashSet<String>(Arrays.asList(parts[4].split("\\|")));
                 }
                 
                 CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,

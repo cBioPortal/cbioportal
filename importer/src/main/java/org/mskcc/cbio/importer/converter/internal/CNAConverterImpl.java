@@ -44,13 +44,13 @@ import org.mskcc.cbio.importer.model.DataMatrix;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
  */
-public final class CNAConverterImpl implements Converter {
+public class CNAConverterImpl implements Converter {
 
 	private static final String GENE_ID_COLUMN_HEADER_NAME = "Locus ID";
 	private static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Gene Symbol";
@@ -78,8 +78,8 @@ public final class CNAConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public CNAConverterImpl(final Config config, final FileUtils fileUtils,
-							final CaseIDs caseIDs, final IDMapper idMapper) {
+	public CNAConverterImpl(Config config, FileUtils fileUtils,
+							CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -92,10 +92,12 @@ public final class CNAConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -106,19 +108,18 @@ public final class CNAConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
-	/**
+    /**
 	 * Applies overrides to the given portal using the given data source.
 	 *
-     * @param portal String
-	 * @param dataSource String
+	 * @param portal String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -132,8 +133,8 @@ public final class CNAConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 1) {
@@ -167,11 +168,11 @@ public final class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), sorting column headers");
 		}
-		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
-		columnHeaders.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		columnHeaders.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
-		columnHeaders.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		columnHeaders.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
+		columnHeaders.remove(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.add(0, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
+		columnHeaders.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
+		columnHeaders.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrix.setColumnOrder(columnHeaders);
 
 		// we need to write out the file

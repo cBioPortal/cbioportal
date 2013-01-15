@@ -1,3 +1,9 @@
+//
+// AJAX and UI for making the Gistic dialog and table.
+//
+// Gideon Dresdner <gideond@gmail.com>
+// October 2012
+//
 var Gistic = function(gistics) {
     // store the DataTable object once it has been created
     Gistic.dt = '';

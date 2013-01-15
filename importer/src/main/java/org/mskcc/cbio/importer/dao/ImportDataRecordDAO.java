@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.dao;
 
 // imports
 import org.mskcc.cbio.importer.model.ImportDataRecord;
+
 import java.util.Collection;
 
 /**
@@ -42,7 +43,7 @@ public interface ImportDataRecordDAO {
 	 *
 	 * @param importDataRecord ImportDataRecord
 	 */
-	void importDataRecord(final ImportDataRecord importDataRecord);
+	void importDataRecord(ImportDataRecord importDataRecord);
 
     /**
      * Functon to retrieve all ImportDataRecord.
@@ -57,9 +58,10 @@ public interface ImportDataRecordDAO {
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param center String
+	 * @param runDate String
 	 * @return Collection<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenter(final String tumorType, final String datatype, final String center);
+    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate);
 
     /**
      * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename
@@ -69,12 +71,12 @@ public interface ImportDataRecordDAO {
 	 * @param dataFilename String
 	 * @return ImportDataRecord
      */
-    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(final String tumorType, final String datatype, final String dataFilename);
+    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename);
 
 	/**
 	 * Function to delete records with the given dataSource.
 	 *
 	 * @param dataSource String
 	 */
-	void deleteByDataSource(final String dataSource);
+	void deleteByDataSource(String dataSource);
 }

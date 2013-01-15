@@ -34,7 +34,7 @@ import java.io.File;
 /**
  * Class which contains cancer study metadata.
  */
-public final class CancerStudyMetadata {
+public class CancerStudyMetadata {
 	
     // delimiter between tumor type and center (used for find the path)
 	public static final String CANCER_STUDY_DELIMITER = "/"; 
@@ -42,38 +42,45 @@ public final class CancerStudyMetadata {
 	// this is value in worsheet-matrix cell if cancer study is in a desired portal
 	public static final String CANCER_STUDY_IN_PORTAL_INDICATOR = "x";
 
-	// file extension of metadata file
-	public static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	// file/file extension of metadata file
+	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
+	private static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
 
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
 
-	// this is tag to replace in description
+	// these are the tags to replace in description
 	public static final String NUM_CASES_TAG = "<NUM_CASES>";
+	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
+	public static final String TUMOR_TYPE_NAME_TAG = "<TUMOR_TYPE_NAME>";
 
 	// bean properties
+	private String name;
 	private String tumorType;
 	private TumorTypeMetadata tumorTypeMetadata;
 	private String description;
+	private String citation;
+	private String pmid;
 	private String center;
 	private String lab;
 
     /**
-     * Create a CancerStudyMetadata instance with specified properties.
+     * Create a CancerStudyMetadata instance with properties in given array.
+	 * ITs assumed order of properties is that from google worksheet.
 	 * cancerStudyPath is of the form brca/tcga/pub that you would find 
 	 * on the google spreadsheet cancer_studies worksheet.
+	 *
+	 * All portal columns are ignored (anything > 1)
      *
-	 * @param cancerStudyPath String
-	 * @param name String
-	 * @param description String
+	 * @param properties String[]
      */
-    public CancerStudyMetadata(final String cancerStudyPath, final String cancerStudyDescription) {
+    public CancerStudyMetadata(String[] properties) {
 
-		if (cancerStudyPath == null) {
-            throw new IllegalArgumentException("cancerStudyPath must not be null");
+		if (properties.length < 5) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
-		String[] parts = cancerStudyPath.split(CANCER_STUDY_DELIMITER);
+		String[] parts = properties[0].trim().split(CANCER_STUDY_DELIMITER);
 		if (parts.length < 2) {
 			throw new IllegalArgumentException("cancerStudyPath is missing tumor type and or center");
 		}
@@ -83,14 +90,19 @@ public final class CancerStudyMetadata {
 		this.center = parts[1];
 
 		// add remaining designations to lab
-		for (int lc = 2; lc < parts.length; lc++) {
+		this.lab = "";
+		for (int lc = 2; lc <= parts.length-1; lc++) {
 			this.lab = this.lab + parts[lc] + File.separator;
 		}
-		this.lab = this.lab.substring(0, this.lab.length()-1);
-
-		this.description = (cancerStudyDescription == null) ? "" : cancerStudyDescription;
+		// knock off trailing file separator
+		this.lab = (this.lab.length() > 0) ? this.lab.substring(0, this.lab.length()-1) : this.lab;
+		this.name = properties[1].trim();
+		this.description = properties[2].trim();
+		this.citation = properties[3].trim();
+		this.pmid = properties[4].trim();
 	}
 
+	public String getName() { return name; }
 	public String getTumorType() { return tumorType; }
 	public TumorTypeMetadata getTumorTypeMetadata() { return tumorTypeMetadata; }
 	public void setTumorTypeMetadata(TumorTypeMetadata tumorTypeMetadata) { this.tumorTypeMetadata = tumorTypeMetadata; }
@@ -98,11 +110,17 @@ public final class CancerStudyMetadata {
 	public String getCenter() { return center; }
 	public String getLab() { return lab; }
 	public String getStudyPath() {
-		return (tumorType + File.separator +
-				center + File.separator +
-				lab);
+		String suffix = (lab.length() > 0) ? (File.separator + lab) : "";
+		return (tumorType + File.separator + center + suffix);
 	}
 	public String getDescription() { return description; }
+	public String getCitation() { return citation; }
+	public String getPMID() { return pmid; }
+
+	public String getCancerStudyMetadataFilename() {
+		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
+		return CANCER_STUDY_METADATA_FILE;
+	}
 
 	public String toString() {
 		return (tumorType + CANCER_STUDY_IDENTIFIER_DELIMITER +

@@ -33,7 +33,7 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains tumor type  metadata.
  */
-public final class TumorTypeMetadata {
+public class TumorTypeMetadata {
 
     // delimiter between tumor type & name within the reference file
 	public static final String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
@@ -47,29 +47,19 @@ public final class TumorTypeMetadata {
 	private Boolean download; // download?
 
     /**
-     * Create a TumorTypeMetadata instance with specified properties.
+     * Create a TumorTypeMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param tumorType String
-	 * @param tumorTypeName String
-	 * @param download Boolean
+	 * @param properties String[]
      */
-    public TumorTypeMetadata(final String tumorType,
-							 final String tumorTypeName, final Boolean download) {
-
-		if (tumorType == null) {
-            throw new IllegalArgumentException("tumorType must not be null");
+    public TumorTypeMetadata(String[] properties) {
+		if (properties.length < 3) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.tumorType = tumorType.trim();
 
-		if (tumorTypeName == null) {
-            throw new IllegalArgumentException("tumorTypeName must not be null");
-		}
-		this.tumorTypeName = tumorTypeName.trim();
-
-		if (download == null) {
-            throw new IllegalArgumentException("download must not be null");
-		}
-		this.download = download;
+		this.download = new Boolean(properties[0].trim());
+		this.tumorType = properties[1].trim();
+		this.tumorTypeName = properties[2].trim();
 	}
 
 	public String getType() { return tumorType; }

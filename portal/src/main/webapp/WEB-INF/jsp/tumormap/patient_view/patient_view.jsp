@@ -42,6 +42,8 @@ boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA)) & showCNA;
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
+boolean showClinicalTrials = true; // no restrictions yet
+boolean showDrugs = true;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -123,7 +125,15 @@ if (patientViewError!=null) {
     <%if(showSimilarPatient){%>
     <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients</a></li>
     <%}%>
-    
+
+    <%if(showDrugs){%>
+    <li><a href='#drugs' class='patient-tab' title='Drugs'>Drugs</a></li>
+    <%}%>
+
+    <%if(showClinicalTrials){%>
+    <li><a href='#clinical-trials' class='patient-tab' title='Clinical Trials'>Clinical Trials</a></li>
+    <%}%>
+
     </ul>
 
     <div class="patient-section" id="summary">
@@ -164,6 +174,18 @@ if (patientViewError!=null) {
     <div class="patient-section" id="similar-patients">
         <%@ include file="similar_patients.jsp" %>
     </div>
+    <%}%>
+
+    <%if(showDrugs){%>
+    <div class="patient-section" id="drugs">
+        <%@ include file="drugs.jsp" %>
+    </div>
+    <%}%>
+
+    <%if(showClinicalTrials){%>
+        <div class="patient-section" id="clinical-trials">
+            <%@ include file="clinical_trials.jsp" %>
+        </div>
     <%}%>
 
 </div>

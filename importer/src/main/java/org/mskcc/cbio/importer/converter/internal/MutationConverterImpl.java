@@ -43,13 +43,14 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
 
 /**
  * Class which implements the Converter interface.
  */
-public final class MutationConverterImpl implements Converter {
+public class MutationConverterImpl implements Converter {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(MutationConverterImpl.class);
@@ -74,8 +75,8 @@ public final class MutationConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public MutationConverterImpl(final Config config, final FileUtils fileUtils,
-								 final CaseIDs caseIDs, final IDMapper idMapper) {
+	public MutationConverterImpl(Config config, FileUtils fileUtils,
+								 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -88,10 +89,12 @@ public final class MutationConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -102,19 +105,18 @@ public final class MutationConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
-	/**
+    /**
 	 * Applies overrides to the given portal using the given data source.
 	 *
-     * @param portal String
-	 * @param dataSource String
+	 * @param portal String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -128,21 +130,50 @@ public final class MutationConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
 		if (dataMatrices.length != 1) {
 			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
-		Vector<String> columnHeaders = dataMatrix.getColumnHeaders();
+		//dataMatrix.convertCaseIDs(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
 		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
-			fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), MAF is already oncotated, create staging file straight-away.");
+			}
+			// optimization - if an override exists, just copy it over and don't create a staging file from the data matrix
+			// this code assumes all MAFs follow the same naming convention as MAFs from the firehose/tcga
+			String overrideFilename = datatypeMetadata.getTCGAArchivedFiles(datatypeMetadata.getTCGADownloadArchives()
+																			.iterator().next()).iterator().next();
+			overrideFilename = overrideFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, cancerStudyMetadata.getTumorType().toUpperCase());
+			String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			System.out.println("override filename: " + overrideFilename);
+			File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, overrideFilename);
+			// if we have an override file, just copy it over to the staging area
+			if (overrideFile != null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
+							 overrideFile.getPath());
+				}
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, overrideFilename, stagingFilename);
+				fileUtils.writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			}
+			// we should almost always never get here - when do we have an oncated maf that doesn't exist
+			// in overrides?  ...when firehose starts providing oncotated mafs, thats when...
+			else {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("createStagingFile(), we have an oncoated MAF that doesn't exist in overrides, " +
+							 "creating staging file from DataMatrix");
+				}
+				fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			}
 		}
 		else {
 			if (LOG.isInfoEnabled()) {

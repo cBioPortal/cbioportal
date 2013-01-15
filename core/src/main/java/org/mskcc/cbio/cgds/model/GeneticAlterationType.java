@@ -64,7 +64,7 @@ public class GeneticAlterationType {
     /**
      * Get Type by Type Name.
      *
-     * @param type Type Name, e.g. "MUTATION", "COPY_NUMBER_ALERATION" or "MRNA_EXPRESSION", etc.
+     * @param type Type Name, e.g. "MUTATION", "COPY_NUMBER_ALTERATION" or "MRNA_EXPRESSION", etc.
      * @return correct GeneticAlterationType Object
      * @throws IllegalArgumentException if type is null
      * @throws NullPointerException if type is not a known genetic data type name

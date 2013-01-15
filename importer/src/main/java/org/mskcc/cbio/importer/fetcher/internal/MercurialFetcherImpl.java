@@ -48,10 +48,10 @@ import java.util.Collection;
 /**
  * Class which implements the fetcher interface.
  */
-final class MercurialFetcherImpl implements Fetcher {
+class MercurialFetcherImpl implements Fetcher {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(MercurialFetcherImpl.class);
+	private static Log LOG = LogFactory.getLog(MercurialFetcherImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -76,8 +76,8 @@ final class MercurialFetcherImpl implements Fetcher {
 	 * @param databaseUtils DatabaseUtils
 	 * @param importDataRecordDAO ImportDataRecordDAO;
 	 */
-	public MercurialFetcherImpl(final Config config, final FileUtils fileUtils,
-								final DatabaseUtils databaseUtils, final ImportDataRecordDAO importDataRecordDAO) {
+	public MercurialFetcherImpl(Config config, FileUtils fileUtils,
+								DatabaseUtils databaseUtils, ImportDataRecordDAO importDataRecordDAO) {
 
 		// set members
 		this.config = config;
@@ -95,7 +95,7 @@ final class MercurialFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), dateSource:runDate: " + dataSource + ":" + desiredRunDate);
@@ -128,7 +128,7 @@ final class MercurialFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 }

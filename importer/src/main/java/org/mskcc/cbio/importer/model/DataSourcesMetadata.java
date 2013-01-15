@@ -33,57 +33,36 @@ package org.mskcc.cbio.importer.model;
 /**
  * Class which contains datasource metadata.
  */
-public final class DataSourcesMetadata {
+public class DataSourcesMetadata {
 
 	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties
 	private String dataSource;
     private String downloadDirectory;
-    private String overrideDirectory;
+	private Boolean additionalStudiesSource;
     private String fetcherBeanID;
-    private String latestRunDownload;
 
     /**
-     * Create a DataSourcesMetadata instance with specified properties.
+     * Create a DataSourcesMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param dataSource String
-	 * @param downloadDirectory String
-	 * @param overrideDirectory String
-	 * @param fetcherBeanID String
-     * @param latestRunDownload String
+	 * @param properties String[]
      */
-    public DataSourcesMetadata(final String dataSource,
-							  final String downloadDirectory,
-							  final String overrideDirectory,
-							  final String fetcherBeanID,
-							  final String latestRunDownload) {
+    public DataSourcesMetadata(String[] properties) {
 
-		if (dataSource == null) {
-            throw new IllegalArgumentException("dataSource must not be null");
+		if (properties.length < 4) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.dataSource = dataSource.trim();
 
-		if (downloadDirectory == null) {
-            throw new IllegalArgumentException("downloadDirectory must not be null");
-		}
-		this.downloadDirectory = downloadDirectory.trim();
-
-		// can be null
-		this.overrideDirectory = (overrideDirectory == null) ? "" : overrideDirectory.trim();
-
-		this.fetcherBeanID = (fetcherBeanID != null) ? fetcherBeanID.trim() : "";
-
-		if (latestRunDownload == null) {
-            throw new IllegalArgumentException("latestRunDownload must not be null");
-		}
-		this.latestRunDownload = latestRunDownload.trim();
+		this.dataSource = properties[0].trim();
+		this.downloadDirectory = properties[1].trim();
+		this.additionalStudiesSource = new Boolean(properties[2].trim());
+		this.fetcherBeanID = properties[3].trim();
 	}
 
 	public String getDataSource() { return dataSource; }
 	public String getDownloadDirectory() { return downloadDirectory; }
-	public String getOverrideDirectory() { return overrideDirectory; }
+	public Boolean isAdditionalStudiesSource() { return additionalStudiesSource; }
 	public String getFetcherBeanID() { return fetcherBeanID; }
-	public String getLatestRunDownload() { return latestRunDownload; }
-	public void setLatestRunDownload(final String latestRunDownload) { this.latestRunDownload = latestRunDownload; }
 }

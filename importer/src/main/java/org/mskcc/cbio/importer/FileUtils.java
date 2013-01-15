@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
@@ -37,13 +38,18 @@ import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
+import org.apache.commons.io.LineIterator;
+
 import java.io.File;
+import java.util.List;
 import java.util.Collection;
 
 /**
  * Interface used to access some common file utils.
  */
 public interface FileUtils {
+
+	public static final String FILE_URL_PREFIX = "file://";
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -53,7 +59,7 @@ public interface FileUtils {
 	 * @return String
 	 * @throws Exception
 	 */
-	String getMD5Digest(final File file) throws Exception;
+	String getMD5Digest(File file) throws Exception;
 
 	/**
 	 * Reads the precomputed md5 digest out of a firehose .md5 file.
@@ -62,21 +68,23 @@ public interface FileUtils {
 	 * @return String
 	 * @throws Exception 
 	 */
-	String getPrecomputedMD5Digest(final File file) throws Exception;
+	String getPrecomputedMD5Digest(File file) throws Exception;
 
     /**
      * Makes a directory, including parent directories if necessary.
      *
      * @param directory File
+	 * @throws Exception
      */
-    void makeDirectory(final File directory) throws Exception;
+    void makeDirectory(File directory) throws Exception;
 
     /**
      * Deletes a directory recursively.
      *
      * @param directory File
+	 * @throws Exception
      */
-    void deleteDirectory(final File directory) throws Exception;
+    void deleteDirectory(File directory) throws Exception;
 
     /**
      * Lists all files in a given directory and its subdirectories.
@@ -85,8 +93,9 @@ public interface FileUtils {
      * @param extensions String[]
      * @param recursize boolean
      * @return Collection<File>
+	 * @throws Exception
      */
-    Collection<File> listFiles(final File directory, String[] extensions, boolean recursive) throws Exception;
+    Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception;
 
 	/**
 	 * Returns the given file contents in an DataMatrix.
@@ -95,17 +104,19 @@ public interface FileUtils {
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(final ImportDataRecord importDataRecord) throws Exception;
+	DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception;
 
 	/**
-	 * Get staging file header.
+	 * Get the case list from the staging file.
 	 *
+	 * @param caseIDs CaseIDs;
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return stagingFile String
+	 * @param stagingFilename String
+	 * @return List<String>
 	 * @throws Exception
 	 */
-	String getStagingFileHeader(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, final String stagingFile) throws Exception;
+	List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception;
 
 	/**
 	 * Creates a temporary file with the given contents.
@@ -113,27 +124,37 @@ public interface FileUtils {
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
-	File createTmpFileWithContents(final String filename, final String fileContent) throws Exception;
+	File createTmpFileWithContents(String filename, String fileContent) throws Exception;
 
 	/**
-	 * Creates (or overwrites) the given file with the given contents.
+	 * Creates (or overwrites) the given file with the given contents.  Filename
+	 * is canonical path/filename.
 	 *
-	 * @param directory String
 	 * @param filename String
 	 * @param fileContent String
 	 * @return File
+	 * @throws Exception
 	 */
-	File createFileWithContents(final String directory, final String filename, final String fileContent) throws Exception;
+	File createFileWithContents(String filename, String fileContent) throws Exception;
 
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.
 	 *
-	 * @param urlString String
-	 * @param canonicalDestination String
+	 * @param uriSource String
+	 * @param uriDestination String
 	 * @throws Exception
 	 */
-	void downloadFile(final String urlString, final String canonicalDestination) throws Exception;
+	void downloadFile(String urlSource, String urlDestination) throws Exception;
+
+	/**
+	 * Returns a line iterator over the given file.
+	 *
+	 * @param urlFile String
+	 * @throws Exception
+	 */
+	LineIterator getFileContents(String urlFile) throws Exception;
 
 	/**
 	 * Method which writes the cancer study metadata file.
@@ -142,9 +163,22 @@ public interface FileUtils {
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param numCases int
 	 * @throws Exception
+	 */
+	void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+
+	/**
+	 * Method which writes a metadata file for the
+	 * given DatatypeMetadata.  DataMatrix may be null.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataMatrix DataMatrix
+	 * @throws Exception
 	 *
 	 */
-	void writeCancerStudyMetadataFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+	void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a staging file (and meta file) with contents from the given DataMatrix.
@@ -155,8 +189,8 @@ public interface FileUtils {
 	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
-	void writeStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-						  final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception;
+	void writeStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						  DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
@@ -168,8 +202,8 @@ public interface FileUtils {
 	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
-	void writeMutationStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix dataMatrix) throws Exception;
+	void writeMutationStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a z-score staging file from the given dependencies.  It assumes that the
@@ -181,21 +215,37 @@ public interface FileUtils {
 	 * @param dependencies DatatypeMetadata[]
 	 * @throws Exception
 	 */
-	void writeZScoresStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								 final DatatypeMetadata datatypeMetadata, final DatatypeMetadata[] dependencies) throws Exception;
+	void writeZScoresStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								 DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
+
+	/**
+	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case
+	 * is the override file that a DataMatrix is created from.
+	 *
+	 * Null is returned if an override file is not found.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param filename String
+	 * @return File
+	 * @throws Exception
+	 */
+	File getOverrideFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception;
 
 	/**
 	 * If it exists, moves an override file into the proper
-	 * location in the given portals staging area
+	 * location in the given portals staging area.
+	 *
+	 * Note, filename can be the name of a file or directory (like case_lists)
 	 *
 	 * @param portalMetadata PortalMetadata
-	 * @param dataSourcesMetadata DataSourcesMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
+	 * @param overrideFilename String
+	 * @param stagingFilename String
+	 * @throws Exception
 	 */
-	void applyOverride(final PortalMetadata portalMetadata, final DataSourcesMetadata dataSourcesMetadata,
-					   final CancerStudyMetadata cancerStudyMetadata, final DatatypeMetadata datatypeMetadata) throws Exception;
-
+	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+					   String overrideFilename, String stagingFilename) throws Exception;
 
 	/**
 	 * Create a case list file from the given case list metadata file.
@@ -206,6 +256,24 @@ public interface FileUtils {
 	 * @param caseList String[]
 	 * @throws Exception
 	 */
-	void writeCaseListFile(final PortalMetadata portalMetadata,
-						   final CancerStudyMetadata cancerStudyMetadata, final CaseListMetadata caseListMetadata, final String[] caseList) throws Exception;
+	void writeCaseListFile(PortalMetadata portalMetadata,
+						   CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception;
+
+	/**
+	 * Runs all MAFs for the given dataaSourcesMetadata through
+	 * the Oncotator and OMA tools.
+	 *
+	 * @param dataSourcesMetadata DataSourcesMetadata
+	 * @throws Exception
+	 */
+	void oncotateAllMAFs(DataSourcesMetadata dataSourcesMetadata) throws Exception;
+
+	/**
+	 * Runs a MAF file through the Oncotator and OMA tools.
+	 *
+	 * @param inputMAFURL String
+	 * @param outputMAFURL String
+	 * @throws Exception
+	 */
+	void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception;
 }

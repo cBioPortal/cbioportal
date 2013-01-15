@@ -55,6 +55,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Properties;
+import java.text.SimpleDateFormat;
 
 /**
  * Class which provides command line admin capabilities 
@@ -65,15 +66,30 @@ public class Admin implements Runnable {
 	// our context file
 	public static final String contextFile = "classpath:applicationContext-importer.xml";
 
+	// date format 
+	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
+
+	// context
+	private static final ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
+
 	// our logger
 	private static final Log LOG = LogFactory.getLog(Admin.class);
 
 	// options var
-	private static Options options = initializeOptions();
+	private static final Options options = initializeOptions();
 
 	// parsed command line
 	private CommandLine commandLine;
-	
+
+	/**
+	 * Method to get beans by id
+	 *
+	 * @param String beanID
+	 * @return Object
+	 */
+	private static Object getBean(String beanID) {
+		return context.getBean(beanID);
+	}
 
 	/**
 	 * Method to initialize our static options var
@@ -99,15 +115,26 @@ public class Admin implements Runnable {
 									  .withDescription("fetch reference data")
 									  .create("fetch_reference_data"));
 
-        Option convertData = (OptionBuilder.withArgName("portal")
-                              .hasArg()
-                              .withDescription("convert data awaiting for import for the given portal")
+        Option oncotateMAF = (OptionBuilder.withArgName("maf_file")
+							  .hasArg()
+							  .withDescription("run the given MAF though Oncotator and OMA tools")
+							  .create("oncotate_maf"));
+
+        Option oncotateAllMAFs = (OptionBuilder.withArgName("datasource")
+							  .hasArg()
+							  .withDescription("run all MAFs in given datasource though Oncotator and OMA tools")
+							  .create("oncotate_mafs"));
+
+        Option convertData = (OptionBuilder.withArgName("portal:run_date:apply_overrides")
+                              .hasArgs(3)
+							  .withValueSeparator(':')
+                              .withDescription("convert data from the given run date (mm/dd/yyyy) awaiting for import for the given portal " +
+											   "(if apply_overrides is 't', overrides will be substituted for data source data before staging files are created")
                               .create("convert_data"));
 
-        Option applyOverrides = (OptionBuilder.withArgName("portal:datasource")
-								 .hasArgs(2)
-								 .withValueSeparator(':')
-								 .withDescription("apply overrides for the given portal from the given datasource")
+		Option applyOverrides = (OptionBuilder.withArgName("portal")		
+								 .hasArg()		
+								 .withDescription("apply overrides for the given portal")		
 								 .create("apply_overrides"));
 
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
@@ -122,6 +149,7 @@ public class Admin implements Runnable {
 
         Option importData = (OptionBuilder.withArgName("portal")
                              .hasArg()
+							 .withValueSeparator(':')
                              .withDescription("import data for use in the given portal")
                              .create("import_data"));
 
@@ -133,6 +161,8 @@ public class Admin implements Runnable {
 		toReturn.addOption(clobberImportDataRecordbase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
+		toReturn.addOption(oncotateMAF);
+		toReturn.addOption(oncotateAllMAFs);
 		toReturn.addOption(convertData);
 		toReturn.addOption(applyOverrides);
 		toReturn.addOption(generateCaseLists);
@@ -148,7 +178,7 @@ public class Admin implements Runnable {
 	 *
 	 * @param args String[]
 	 */
-	public void setCommandParameters(final String[] args) {
+	public void setCommandParameters(String[] args) {
 
 		// create our parser
 		CommandLineParser parser = new PosixParser();
@@ -192,14 +222,22 @@ public class Admin implements Runnable {
 			else if (commandLine.hasOption("fetch_reference_data")) {
 				fetchReferenceData(commandLine.getOptionValue("fetch_reference_data"));
 			}
+			// oncotate MAF
+			else if (commandLine.hasOption("oncotate_maf")) {
+				oncotateMAF(commandLine.getOptionValue("oncotate_maf"));
+			}
+			// oncotate MAFs
+			else if (commandLine.hasOption("oncotate_mafs")) {
+				oncotateAllMAFs(commandLine.getOptionValue("oncotate_mafs"));
+			}
+            // apply overrides		
+			else if (commandLine.hasOption("apply_overrides")) {		
+				applyOverrides(commandLine.getOptionValue("apply_overrides"));
+			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
-				convertData(commandLine.getOptionValue("convert_data"));
-			}
-			// apply overrides
-			else if (commandLine.hasOption("apply_overrides")) {
-                String[] values = commandLine.getOptionValues("apply_overrides");
-				applyOverrides(values[0], values[1]);
+                String[] values = commandLine.getOptionValues("convert_data");
+				convertData(values[0], values[1], (values.length == 3) ? values[2] : "");
 			}
 			// generate case lists
 			else if (commandLine.hasOption("generate_case_lists")) {
@@ -211,7 +249,7 @@ public class Admin implements Runnable {
 			}
 			// import data
 			else if (commandLine.hasOption("import_data")) {
-				importData(commandLine.getOptionValue("import_data"));
+                importData(commandLine.getOptionValue("import_data"));
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -234,9 +272,12 @@ public class Admin implements Runnable {
 			LOG.info("clobberImportDataRecordbase()");
 		}
 
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		DatabaseUtils databaseUtils = (DatabaseUtils)context.getBean("databaseUtils");
+		DatabaseUtils databaseUtils = (DatabaseUtils)getBean("databaseUtils");
 		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("clobberImportDataRecordbase(), complete");
+		}
 	}
 
 	/**
@@ -246,26 +287,21 @@ public class Admin implements Runnable {
 	 * @param runDate String
 	 * @throws Exception
 	 */
-	private void fetchData(final String dataSource, final String runDate) throws Exception {
+	private void fetchData(String dataSource, String runDate) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchData(), dateSource:runDate: " + dataSource + ":" + runDate);
 		}
 
 		// create an instance of fetcher
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Config config = (Config)context.getBean("config");
-		DataSourcesMetadata dataSourcesMetadata = null;
-		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
-		if (!dataSources.isEmpty()) {
-			dataSourcesMetadata = dataSources.iterator().next();
-		}
-		// sanity check
-		if (dataSourcesMetadata == null) {
-			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
-		}
-		Fetcher fetcher = (Fetcher)context.getBean(dataSourcesMetadata.getFetcherBeanID());
+		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
+		// fetch the given data source
+		Fetcher fetcher = (Fetcher)getBean(dataSourcesMetadata.getFetcherBeanID());
 		fetcher.fetch(dataSource, runDate);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchData(), complete");
+		}
 	}
 
 	/**
@@ -275,24 +311,100 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void fetchReferenceData(final String referenceType) throws Exception {
+	private void fetchReferenceData(String referenceType) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), referenceType: " + referenceType);
 		}
 
-		// create an instance of Importer
+		// create an instance of fetcher
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Config config = (Config)context.getBean("config");
-		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (!referenceMetadata.isEmpty()) {
-			Fetcher fetcher = (Fetcher)context.getBean("referenceDataFetcher");
-			fetcher.fetchReferenceData(referenceMetadata.iterator().next());
-		}
-		else {
+		Config config = (Config)getBean("config");
+		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
+		if (referenceMetadatas.isEmpty()) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
+		}
+		else {
+			Fetcher fetcher = (Fetcher)getBean("referenceDataFetcher");
+			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
+				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("fetchReferenceData(), calling fetcher for: " + referenceMetadata.getReferenceType());
+					}
+					fetcher.fetchReferenceData(referenceMetadata);
+				}
+			}
+		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to oncotate the give MAF.
+     *
+     * @param mafFile String
+     *
+	 * @throws Exception
+	 */
+	private void oncotateMAF(String mafFileName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), mafFile: " + mafFileName);
+		}
+
+		// sanity check
+		File mafFile = new File(mafFileName);
+		if (!mafFile.exists()) {
+			throw new IllegalArgumentException("cannot find the give MAF: " + mafFileName);
+		}
+
+		// create fileUtils object
+		Config config = (Config)getBean("config");
+		FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+
+		// create tmp file for given MAF
+		File tmpMAF = 
+			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+													"tmpMAF");
+		org.apache.commons.io.FileUtils.copyFile(mafFile, tmpMAF);
+
+		// oncotate the MAF (input is tmp maf, output is original maf)
+		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath(),
+							  FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath());
+
+		// clean up
+		org.apache.commons.io.FileUtils.forceDelete(tmpMAF);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateMAF(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to oncotate MAFs.
+     *
+     * @param dataSource String
+     *
+	 * @throws Exception
+	 */
+	private void oncotateAllMAFs(String dataSource) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateAllMAFs(), dataSource: " + dataSource);
+		}
+
+		// get the data source metadata object
+		DataSourcesMetadata dataSourcesMetadata = getDataSourcesMetadata(dataSource);
+
+		// oncotate all the files of the given data source
+		FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+		fileUtils.oncotateAllMAFs(dataSourcesMetadata);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("oncotateAllMAFs(), complete");
 		}
 	}
 
@@ -300,38 +412,52 @@ public class Admin implements Runnable {
 	 * Helper function to convert data.
      *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides String
      *
 	 * @throws Exception
 	 */
-	private void convertData(final String portal) throws Exception {
+	private void convertData(String portal, String runDate, String applyOverrides) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), run date: " + runDate);
+			LOG.info("convertData(), apply overrides: " + applyOverrides);
 		}
+
+		Boolean applyOverridesBool = getBoolean(applyOverrides);
+
+		// sanity check date format - doesn't work?
+		PORTAL_DATE_FORMAT.setLenient(false);
+		PORTAL_DATE_FORMAT.parse(runDate);
 
 		// create an instance of Converter
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Converter converter = (Converter)context.getBean("converter");
-		converter.convertData(portal);
-	}
-
-	/**
-	 * Helper function to apply overrides to a given portal
-	 * using a given datasource.
-	 *
-	 * @param portal String
-	 * @param dataSource String
-	 * @throws Exception
-	 */
-	private void applyOverrides(final String portal, final String dataSource) throws Exception {
+		Converter converter = (Converter)getBean("converter");
+		converter.convertData(portal, runDate, applyOverridesBool);
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("applyOverrides(), portal:dateSource: " + portal + ":" + dataSource);
+			LOG.info("convertData(), complete");
 		}
+	}
 
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Converter converter = (Converter)context.getBean("converter");
-		converter.applyOverrides(portal, dataSource);
+    /**		
+	 * Helper function to apply overrides to a given portal.
+	 *		
+	 * @param portal String		
+	 * @throws Exception		
+	 */		
+	private void applyOverrides(String portal) throws Exception {		
+			
+		if (LOG.isInfoEnabled()) {		
+			LOG.info("applyOverrides(), portal: " + portal);
+		}
+			
+		Converter converter = (Converter)getBean("converter");		
+		converter.applyOverrides(portal);
+
+		if (LOG.isInfoEnabled()) {		
+			LOG.info("applyOverrides(), complete");
+		}
 	}
 
 	/**
@@ -341,16 +467,19 @@ public class Admin implements Runnable {
      *
 	 * @throws Exception
 	 */
-	private void generateCaseLists(final String portal) throws Exception {
+	private void generateCaseLists(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("generateCaseLists(), portal: " + portal);
 		}
 
 		// create an instance of Converter
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Converter converter = (Converter)context.getBean("converter");
+		Converter converter = (Converter)getBean("converter");
 		converter.generateCaseLists(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("generateCaseLists(), complete");
+		}
 	}
 
 	/**
@@ -360,24 +489,33 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void importReferenceData(final String referenceType) throws Exception {
+	private void importReferenceData(String referenceType) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), referenceType: " + referenceType);
 		}
 
 		// create an instance of Importer
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Config config = (Config)context.getBean("config");
-		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (!referenceMetadata.isEmpty()) {
-			Importer importer = (Importer)context.getBean("importer");
-			importer.importReferenceData(referenceMetadata.iterator().next());
-		}
-		else {
+		Config config = (Config)getBean("config");
+		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
+		if (referenceMetadatas.isEmpty()) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
 			}
+		}
+		else {
+			Importer importer = (Importer)getBean("importer");
+			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
+				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("importReferenceData(), calling import for: " + referenceMetadata.getReferenceType());
+					}
+					importer.importReferenceData(referenceMetadata);
+				}
+			}
+		}
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), complete");
 		}
 	}
 
@@ -388,22 +526,61 @@ public class Admin implements Runnable {
 	 *
 	 * @throws Exception
 	 */
-	private void importData(final String portal) throws Exception {
+	private void importData(String portal) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
 		}
 
 		// create an instance of Importer
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
-		Importer importer = (Importer)context.getBean("importer");
+		Importer importer = (Importer)getBean("importer");
 		importer.importData(portal);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to get a DataSourcesMetadata from
+	 * a given datasource (name).
+	 *
+	 * @param dataSource String
+	 * @return DataSourcesMetadata
+	 */
+	private DataSourcesMetadata getDataSourcesMetadata(String dataSource) {
+
+		DataSourcesMetadata toReturn = null;
+		Config config = (Config)getBean("config");
+		Collection<DataSourcesMetadata> dataSources = config.getDataSourcesMetadata(dataSource);
+		if (!dataSources.isEmpty()) {
+			toReturn = dataSources.iterator().next();
+		}
+
+		// sanity check
+		if (toReturn == null) {
+			throw new IllegalArgumentException("cannot instantiate a proper DataSourcesMetadata object.");
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Helper function to create boolean based on argument parameter.
+	 *
+	 * @param parameterValue String
+	 * @return Boolean
+	 */
+	private Boolean getBoolean(String parameterValue) {
+		return (parameterValue.equalsIgnoreCase("t")) ?
+			new Boolean("true") : new Boolean("false");
 	}
 
 	/**
 	 * Helper function - prints usage
 	 */
-	public static void usage(final PrintWriter writer) {
+	public static void usage(PrintWriter writer) {
 
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp(writer, HelpFormatter.DEFAULT_WIDTH,

@@ -91,23 +91,6 @@
       <version>2.1</version>
     </dependency>
 
-	<!-- bridgedb -->
-	<dependency>
-	  <groupId>org.bridgedb</groupId>
-	  <artifactId>org.bridgedb</artifactId>
-	  <version>1.1.0</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.bridgedb</groupId>
-	  <artifactId>org.bridgedb.bio</artifactId>
-	  <version>1.1.0</version>
-	</dependency>
-	<dependency>
-	  <groupId>org.bridgedb</groupId>
-	  <artifactId>org.bridgedb.rdb</artifactId>
-	  <version>1.1.0</version>
-	</dependency>
-
 	<!-- for foundation -->
 	<dependency>
       <groupId>com.sun.xml.ws</groupId>
@@ -145,6 +128,13 @@
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>
 	  <artifactId>oncotator</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
+
+	<!-- portal core -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>core</artifactId>
 	  <version>${project.version}</version>
 	</dependency>	
 
@@ -232,7 +222,7 @@
 
 	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/importer.properties</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into package -->

@@ -49,10 +49,10 @@ import java.util.Vector;
 /**
  * Class which implements the Converter interface.
  */
-public final class NullConverterImpl implements Converter {
+public class NullConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(NullConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(NullConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -74,8 +74,8 @@ public final class NullConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public NullConverterImpl(final Config config, final FileUtils fileUtils,
-							 final CaseIDs caseIDs, final IDMapper idMapper) {
+	public NullConverterImpl(Config config, FileUtils fileUtils,
+							 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -88,10 +88,12 @@ public final class NullConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -102,19 +104,18 @@ public final class NullConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {
+	public void generateCaseLists(String portal) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
-	/**
+    /**
 	 * Applies overrides to the given portal using the given data source.
 	 *
-     * @param portal String
-	 * @param dataSource String
+	 * @param portal String
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(final String portal, final String dataSource) throws Exception {
+	public void applyOverrides(String portal) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -128,6 +129,6 @@ public final class NullConverterImpl implements Converter {
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final CancerStudyMetadata cancerStudyMetadata,
-								  final DatatypeMetadata datatypeMetadata, final DataMatrix[] dataMatrices) throws Exception {}
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {}
 }

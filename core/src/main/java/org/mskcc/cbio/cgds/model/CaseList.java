@@ -9,14 +9,14 @@
 ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
 ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
 ** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
+** Memorial Sloan-Kettering Cancer Center
 ** has no obligations to provide maintenance, support,
 ** updates, enhancements or modifications.  In no event shall
 ** Memorial Sloan-Kettering Cancer Center
 ** be liable to any party for direct, indirect, special,
 ** incidental or consequential damages, including lost profits, arising
 ** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
+** Memorial Sloan-Kettering Cancer Center
 ** has been advised of the possibility of such damage.  See
 ** the GNU Lesser General Public License for more details.
 **
@@ -118,6 +118,20 @@ public class CaseList {
    public void setCaseList(ArrayList<String> caseList) {
       this.caseList = caseList;
    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getName() + "{"
+                + "stableId " + this.stableId
+                + ", caseListId " + this.caseListId
+                + ", caseLIstId " + this.cancerStudyId
+                + ", name " + this.name
+                + ", description " + this.description
+                + ", CaseListCategory " + this.caseListCategory
+                + ", caseList " + this.caseList
+                + "}";
+    }
+
 
     /**
      * Gets list of all case IDs in the set as one string.

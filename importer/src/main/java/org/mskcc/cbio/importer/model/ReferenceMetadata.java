@@ -29,61 +29,84 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import java.util.List;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which contains reference metadata.
  */
-public final class ReferenceMetadata {
+public class ReferenceMetadata {
 
-	public static final String REFERENCE_FILE_DELIMITER = ":";
+    // delimiter between tumor type and center (used for find the path)
+	public static final String REFERENCE_DATA_ARGS_DELIMITER = ":";
+
+	// this environment var may appear in path to fetcher scripts
+	/*
+	private static final String PORTAL_HOME = "$PORTAL_HOME";
+	private static final String PORTAL_DATA_HOME = "$PORTAL_HOME";
+	private static final String[] ENV_VARS = { PORTAL_HOME, PORTAL_DATA_HOME };
+	*/
+
+	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
 	// bean properties
 	private String referenceType;
-	private Boolean importIntoPortal;
-	private String referenceFileSource;
-	private String referenceFile;
-	private String importerClassName;
+	private String fetcherName;
+	private List<String> fetcherArgs;
+	private String importerName;
+	private List<String> importerArgs;
 
     /**
-     * Create a ReferenceMetadata instance with specified properties.
+     * Create a ReferenceMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param referenceType String
-	 * @param importIntoPortal Boolean
-	 * @param referenceFileSource String
-	 * @param referenceFile String
-	 * @param importerClassname String
+	 * @param properties String[]
      */
-    public ReferenceMetadata(final String referenceType, final Boolean importIntoPortal,
-							 final String referenceFileSource, final String referenceFile,
-							 final String importerClassName) {
+    public ReferenceMetadata(String[] properties) {
 
-		if (referenceType == null) {
-            throw new IllegalArgumentException("referenceType must not be null");
+		if (properties.length < 5) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.referenceType = referenceType.trim();
 
-		if (importIntoPortal == null) {
-            throw new IllegalArgumentException("importIntoPortal must not be null");
+		this.referenceType = properties[0].trim();
+		this.fetcherName = getCanonicalPath(properties[1].trim());
+		this.fetcherArgs = new ArrayList<String>();
+		for (String fetcherArg : properties[2].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.fetcherArgs.add(getCanonicalPath(fetcherArg));
 		}
-		this.importIntoPortal = importIntoPortal;
-
-		// reference file source can be null
-		this.referenceFileSource = (referenceFileSource == null) ? "" : referenceFileSource.trim();
-
-		if (referenceFile == null) {
-            throw new IllegalArgumentException("referenceFile must not be null");
+		this.importerName = getCanonicalPath(properties[3].trim());
+		this.importerArgs = new ArrayList<String>();
+		for (String importerArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.importerArgs.add(getCanonicalPath(importerArg));
 		}
-		this.referenceFile = referenceFile.trim();
-
-		if (importerClassName == null) {
-            throw new IllegalArgumentException("importerClassName must not be null");
-		}
-		this.importerClassName = importerClassName.trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
-	public Boolean importIntoPortal() { return importIntoPortal; }
-	public String getReferenceFileSource() { return referenceFileSource; }
-	public String getReferenceFile() { return referenceFile; }
-	public String getImporterClassName() { return importerClassName; }
+	public String getFetcherName() { return fetcherName; }
+	public List<String> getFetcherArgs() { return fetcherArgs; }
+	public String getImporterName() { return importerName; }
+	public List<String> getImporterArgs() { return importerArgs; }
+
+	/**
+	 * Helper function used to get canonical path for given path.
+	 *
+	 * @param path String
+	 */
+	private String getCanonicalPath(String path) {
+	
+		String toReturn = path;
+
+		Matcher lineMatcher = ENVIRONMENT_VAR_REGEX.matcher(path);
+		if (lineMatcher.find()) {
+			String envValue = System.getenv(lineMatcher.group(1));
+			if (envValue != null) {
+				toReturn = path.replace("$" + lineMatcher.group(1), envValue);
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
 }

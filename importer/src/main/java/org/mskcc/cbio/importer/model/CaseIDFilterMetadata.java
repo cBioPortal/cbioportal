@@ -48,7 +48,7 @@ public class CaseIDFilterMetadata {
     public CaseIDFilterMetadata(String[] properties) {
 
 		if (properties.length < 2) {
-            throw new IllegalArgumentException("corrupt properties array passed to contructor");
+            throw new IllegalArgumentException("corrupt properties array passed to constructor");
 		}
 
 		this.filterName = properties[0].trim();

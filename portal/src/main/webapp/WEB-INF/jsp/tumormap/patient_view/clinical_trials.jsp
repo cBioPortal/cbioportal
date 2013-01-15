@@ -125,10 +125,14 @@
         );
     };
 
-    var populateClinicalTrialsTable = function(keywords) {
-        keywords.push("<%=cancerStudyName%>");
+    var populateClinicalTrialsTable = function(keywords, showAll) {
         $.post("clinicaltrials.json",
-                { keywords: keywords.join(",") },
+                {
+                    keywords: keywords.join(","),
+                    showall: showAll ? 1 : 0,
+                    study: "<%=cancerStudyName%>"
+                },
+
                 function(data) {
                     $("#trials_wait").hide();
 
@@ -195,22 +199,6 @@
         genomicEventObs.subscribeMutCna(populateDrugTable);
     });
 </script>
-
-<h2>Drugs of interest</h2>
-
-<table id="pv-drugs-table" class="dataTable display">
-   <thead>
-    <tr>
-        <th>Drug Name</th>
-        <th>Drug Target(s)</th>
-        <th class="drug-description">Description</th>
-        <th>FDA approved?</th>
-        <th>Data Sources</th>
-    </tr>
-   </thead>
-
-</table>
-<div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
 
 <h2>Clinical trials of interest</h2>
 

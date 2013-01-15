@@ -54,6 +54,9 @@ public class ClinicalTrialsJSON extends HttpServlet {
     {
         JSONArray table = new JSONArray();
         String keywordStr = request.getParameter("keywords");
+        String study = request.getParameter("study");
+        String showAll = request.getParameter("showall");
+        boolean isShowAll = (showAll != null) && showAll.equals("1");
 
         HashSet<ClinicalTrial> allTrials = new HashSet<ClinicalTrial>();
         try {
@@ -63,6 +66,9 @@ public class ClinicalTrialsJSON extends HttpServlet {
 
                 List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(keyword);
                 for (ClinicalTrial clinicalTrial : clinicalTrials) {
+                    // Skip non-active trials
+                    if(!isShowAll && !clinicalTrial.isActive()) continue;
+
                     if(!allTrials.contains(clinicalTrial)) {
                         JSONArray aRow = new JSONArray();
                         aRow.add(clinicalTrial.getId());

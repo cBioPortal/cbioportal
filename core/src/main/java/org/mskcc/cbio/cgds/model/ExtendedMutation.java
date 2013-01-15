@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -91,6 +89,12 @@ public class ExtendedMutation
 
 	private String oncotatorCosmicOverlapping;
 	private String oncotatorDbSnpRs;
+	private String oncotatorRefseqMrnaId;
+	private String oncotatorUniprotName;
+	private String oncotatorUniprotAccession;
+	private String oncotatorCodonChange;
+
+	private boolean canonicalTranscript;
 
 	public ExtendedMutation() {
 	}
@@ -482,6 +486,56 @@ public class ExtendedMutation
 
 	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
 		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
+	}
+
+	public String getOncotatorRefseqMrnaId()
+	{
+		return oncotatorRefseqMrnaId;
+	}
+
+	public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
+	{
+		this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+	}
+
+	public String getOncotatorUniprotName()
+	{
+		return oncotatorUniprotName;
+	}
+
+	public void setOncotatorUniprotName(String oncotatorUniprotName)
+	{
+		this.oncotatorUniprotName = oncotatorUniprotName;
+	}
+
+	public String getOncotatorUniprotAccession()
+	{
+		return oncotatorUniprotAccession;
+	}
+
+	public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
+	{
+		this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+	}
+
+	public String getOncotatorCodonChange()
+	{
+		return oncotatorCodonChange;
+	}
+
+	public void setOncotatorCodonChange(String oncotatorCodonChange)
+	{
+		this.oncotatorCodonChange = oncotatorCodonChange;
+	}
+
+	public boolean isCanonicalTranscript()
+	{
+		return canonicalTranscript;
+	}
+
+	public void setCanonicalTranscript(boolean canonicalTranscript)
+	{
+		this.canonicalTranscript = canonicalTranscript;
 	}
 
 	@JsonIgnore

@@ -139,7 +139,7 @@ public class MafUtil
     private int scoreIndex = -1; // SCORE
     private int bamFileIndex = -1; // BAM_FILE
 
-	// TODO Allele Frequency Columns
+	// Allele Frequency Columns
 	private int tumorAltCountIndex = -1; // TUMOR_ALT_COUNT
     private int tumorRefCountIndex = -1; // TUMOR_REF_COUNT
     private int normalAltCountIndex = -1; // NORMAL_ALT_COUNT
@@ -331,16 +331,16 @@ public class MafUtil
             } else if(header.equalsIgnoreCase(MA_PROTEIN_CHANGE)) {
 	            maProteinChangeIndex = i;
             }
-            // TODO will be decided later...
-//	        } else if(header.equalsIgnoreCase("t_ref_count")) {
-//	        	tumorRefCountIndex = i;
-//	        } else if(header.equalsIgnoreCase("t_alt_count")) {
-//	        	tumorAltCountIndex = i;
-//	        } else if(header.equalsIgnoreCase("i_t_ref_count")) {
-//	        	normalRefCountIndex= i;
-//	        } else if(header.equalsIgnoreCase("i_t_alt_count")) {
-//	        	normalAltCountIndex = i;
-//	        }
+            // TODO allele freq columns may have different headers
+	        else if(header.equalsIgnoreCase("t_ref_count")) {
+	        	tumorRefCountIndex = i;
+	        } else if(header.equalsIgnoreCase("t_alt_count")) {
+	        	tumorAltCountIndex = i;
+	        } else if(header.equalsIgnoreCase("n_ref_count")) {
+	        	normalRefCountIndex= i;
+	        } else if(header.equalsIgnoreCase("n_alt_count")) {
+	        	normalAltCountIndex = i;
+	        }
         }
     }
     
@@ -384,7 +384,7 @@ public class MafUtil
         record.setScore(getPartString(scoreIndex, parts));
         record.setBamFile(getPartString(bamFileIndex, parts));
 
-	    // TODO allele frequency columns
+	    // allele frequency (count) columns
 	    record.setTumorAltCount(getPartInt(tumorAltCountIndex, parts));
         record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
         record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
@@ -789,19 +789,9 @@ public class MafUtil
 		return oncoRefseqProtIdBeIndex;
 	}
 
-	public void setOncoRefseqProtIdBeIndex(int oncoRefseqProtIdBeIndex)
-	{
-		this.oncoRefseqProtIdBeIndex = oncoRefseqProtIdBeIndex;
-	}
-
 	public int getOncoUniprotAccessionBeIndex()
 	{
 		return oncoUniprotAccessionBeIndex;
-	}
-
-	public void setOncoUniprotAccessionBeIndex(int oncoUniprotAccessionBeIndex)
-	{
-		this.oncoUniprotAccessionBeIndex = oncoUniprotAccessionBeIndex;
 	}
 
 	public int getColumnIndex(String colName)

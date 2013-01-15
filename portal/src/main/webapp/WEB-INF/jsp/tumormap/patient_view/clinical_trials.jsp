@@ -1,6 +1,12 @@
 <%
     String cancerStudyName = "glioblastoma";
 %>
+
+<style type="text/css">
+    .drugs-summary-table-name, .trials-summary-table-name {
+
+    }
+</style>
 <script type="text/javascript">
     var populateDrugTable = function() {
         var drugIds = [];
@@ -32,11 +38,21 @@
                                 xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
                         }
 
+                        var drugTargets = "";
+                        var targets = drug[1].split(", ");
+                        if(targets.length > 3) {
+                            drugTargets = targets.slice(1, 4).join(", ");
+                            drugTargets += ' <small title="' + drug[1] + '" class="drug-targets">('
+                                    + (targets.length-3) + ' more)</small>';
+                        } else {
+                            drugTargets = drug[1];
+                        }
+
                         $("#pv-drugs-table").append(
                             '<tr>'
                                 + '<td>'
                                     + drug[2]
-                                    + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms">'
+                                    + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms"> <br/>'
                                         + "(" + drug[3].split(";").length + " more)"
                                     + '</small>'
                                 + '</td>'
@@ -51,6 +67,7 @@
                     }
 
                     $("#pv-drugs-table").dataTable({
+                        "sDom": '<"H"<"drugs-summary-table-name">fr>t<"F"<"drugs-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
                         "aaSorting": [[0, 'asc']],
@@ -67,10 +84,20 @@
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                        position: { my:'top center', at:'right' }
+                    });
+
+                    $(".drug-targets").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
                         position: { my:'top center', at:'bottom center' }
                     });
 
+
                     populateClinicalTrialsTable(keywords);
+
+                    $(".drugs-summary-table-name").html("Drugs of interest");
+                    $(".drugs-show-more").html("(" + data.length + " drugs)");
                 }
         );
     };
@@ -114,7 +141,8 @@
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
 
-                    $(".trials-summary-table-name").html("Clinical Trials of interest");
+                    $(".trials-summary-table-name").html("Clinical Trials of Interest");
+                    $(".trials-show-more").html("(" + data.length + " trials)");
                 }
         );
     };
@@ -124,8 +152,6 @@
     });
 </script>
 
-
-<h2 class="pv-drugs-header">Drugs of interest</h2>
 <table id="pv-drugs-table">
    <thead>
     <tr>
@@ -140,9 +166,6 @@
 </table>
 <div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
 
-
-
-<h2 class="pv-drugs-header">Clinical trials of interest</h2>
 <table id="pv-trials-table">
    <thead>
     <tr>

@@ -72,6 +72,7 @@ public class ClinicalTrialsJSON extends HttpServlet {
                         aRow.add(clinicalTrial.getLocation());
                         aRow.add(clinicalTrial.getSecondaryId());
                         table.add(aRow);
+                        allTrials.add(clinicalTrial);
                     }
                 }
             }

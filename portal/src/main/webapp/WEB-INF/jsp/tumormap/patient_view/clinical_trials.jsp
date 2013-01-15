@@ -131,7 +131,7 @@
                         var trial = data[i];
                         $("#pv-trials-table").append(
                             '<tr>'
-                                + '<td>'
+                                + '<td align="center">'
                                     + '<a href="http://clinicaltrials.gov/show/' + trial[0] + '" target="_blank">'
                                         + trial[0]
                                     + '</a><br />'
@@ -204,7 +204,7 @@
 <table id="pv-trials-table" class="dataTable display">
    <thead>
     <tr>
-        <th>Trial ID</th>
+        <th>Trial IDs</th>
         <th>Title</th>
         <th>Status</th>
         <th>Phase</th>

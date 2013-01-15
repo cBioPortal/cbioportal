@@ -407,6 +407,16 @@
     </servlet-mapping>
     
     <servlet>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <url-pattern>/clinicaltrials.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
         <servlet-name>SimilarPatientsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.SimilarPatientsJSON</servlet-class>
     </servlet>

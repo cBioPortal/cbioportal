@@ -123,7 +123,7 @@ GenomicEventContainer.prototype = {
     getDrugIDs: function() {
         var drugs = [];
         for (var i=0; i<this.numEvents; i++) {
-            if (this.data['drug'][i]!=null) drugs.push(this.data[drug][i]);
+            if (this.data['drug'][i]!=null) drugs.push(this.data['drug'][i]);
         }
 
         return drugs;

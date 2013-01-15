@@ -110,9 +110,6 @@ public class Shell {
 			// some type of script
 			else {
 				List<String> commandList = new ArrayList<String>();
-				if (command.endsWith(".py")) {
-					commandList.add("python");
-				}
 				commandList.add(command);
 				commandList.addAll(commandArgs);
 				return Shell.exec(commandList, workingDirectory);

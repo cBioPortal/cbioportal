@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Class which implements the Converter interface for use
@@ -155,6 +156,21 @@ public class ClinicalDataConverterImpl implements Converter {
                 }
             }
         }
+
+        // filter through the columns of the data matrix.
+        // grabbing only the ones that we are interested in.
+        // i.e. the ones who alias' has a corresponding column header.
+        List<String> columnHeaders = dataMatrix.getColumnData(0);
+
+        for (String columnHeader : columnHeaders) {
+            if (normalizedName.containsKey(columnHeader)) {
+                System.out.println(columnHeader);
+            }
+        }
+
+        dataMatrix.getColumnData("patient.ethnicity");
+
+        // dataMatrix.getRow
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");

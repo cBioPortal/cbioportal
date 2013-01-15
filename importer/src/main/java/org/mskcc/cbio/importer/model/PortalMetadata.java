@@ -48,7 +48,7 @@ public class PortalMetadata {
      */
     public PortalMetadata(String[] properties) {
 
-		if (properties.length != 3) {
+		if (properties.length < 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 

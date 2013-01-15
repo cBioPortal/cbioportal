@@ -162,7 +162,7 @@
                     var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
                             + "The following clinical trials are listed because they are associated "
                             + " with either the drugs or the cancer type of interest. <br/><br/> "
-                            + "The data was acquired from the <a href=\'http://cancer.gov\'>cancer.gov</a> website."
+                            + "The data was acquired from the <a href=\"http://cancer.gov\">cancer.gov</a> website."
                             + "'>";
 
                     $(".trials-summary-table-name").html(data.length + " clinical trials " + infoBox);

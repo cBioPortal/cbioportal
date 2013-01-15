@@ -4,7 +4,10 @@
 
 <style type="text/css">
     .drugs-summary-table-name, .trials-summary-table-name {
-
+        float: left;
+        font-weight: bold;
+        font-size: 120%;
+        vertical-align: middle;
     }
 </style>
 <script type="text/javascript">
@@ -39,9 +42,9 @@
                         }
 
                         var drugTargets = "";
-                        var targets = drug[1].split(", ");
+                        var targets = drug[1].split(",");
                         if(targets.length > 3) {
-                            drugTargets = targets.slice(1, 4).join(", ");
+                            drugTargets = targets.slice(1, 4).join(",");
                             drugTargets += ' <small title="' + drug[1] + '" class="drug-targets">('
                                     + (targets.length-3) + ' more)</small>';
                         } else {
@@ -96,8 +99,7 @@
 
                     populateClinicalTrialsTable(keywords);
 
-                    $(".drugs-summary-table-name").html("Drugs of interest");
-                    $(".drugs-show-more").html("(" + data.length + " drugs)");
+                    $(".drugs-summary-table-name").html("" + data.length + " drugs");
                 }
         );
     };
@@ -130,7 +132,7 @@
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
-                        "aaSorting": [[2, 'asc'], [1, 'asc']],
+                        "aaSorting": [[2, 'asc'], [0, 'desc']],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
@@ -141,8 +143,7 @@
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
 
-                    $(".trials-summary-table-name").html("Clinical Trials of Interest");
-                    $(".trials-show-more").html("(" + data.length + " trials)");
+                    $(".trials-summary-table-name").html(data.length + " clinical trials");
                 }
         );
     };
@@ -151,6 +152,8 @@
         genomicEventObs.subscribeMutCna(populateDrugTable);
     });
 </script>
+
+<h2>Drugs of interest</h2>
 
 <table id="pv-drugs-table">
    <thead>
@@ -165,6 +168,8 @@
 
 </table>
 <div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
+
+<h2>Clinical trials of interest</h2>
 
 <table id="pv-trials-table">
    <thead>

@@ -49,7 +49,6 @@ import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.net.URL;
 import java.io.File;
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -62,7 +61,7 @@ import java.lang.reflect.Method;
 class ImporterImpl implements Importer {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(ImporterImpl.class);
+	private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -163,23 +162,20 @@ class ImporterImpl implements Importer {
 	@Override
 	public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
-		// we are either going to use a cgds package importer which has a main method
-		// or one of our own classes which implements the Importer interface.
-		// Check for a main method, if found, use it, otherwise assume we have a class
-		// that implements the Importer interface.
+		String importerName = referenceMetadata.getImporterName();
 
-		Method mainMethod = ClassLoader.getMethod(referenceMetadata.getImporterClassName(), "main");
-		if (mainMethod != null) {
-			ArrayList<String> args = new ArrayList<String>();
-			for (URL url : referenceMetadata.getReferenceFiles()) {
-				args.add(url.getFile());
-			}
-			mainMethod.invoke(null, (Object)args.toArray(new String[0]));
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), importerName: " + importerName);
 		}
-		else {
-			Object[] args = { config, fileUtils, databaseUtils };
-			Importer importer = (Importer)ClassLoader.getInstance(referenceMetadata.getImporterClassName(), args);
-			importer.importReferenceData(referenceMetadata);
+
+		Object[] args = { config, fileUtils, databaseUtils };
+		if (Shell.exec(referenceMetadata, this, args, ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importReferenceData(), successfully executed importer.");
+			}
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("importReferenceData(), failure executing importer.");
 		}
 	}
 
@@ -204,9 +200,7 @@ class ImporterImpl implements Importer {
 		
 		// iterate over all other reference data types
 		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL)) {
-			if (referenceData.importIntoPortal()) {
-				importReferenceData(referenceData);
-			}
+			importReferenceData(referenceData);
 		}
 	}
 

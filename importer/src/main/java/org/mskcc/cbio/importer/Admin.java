@@ -321,17 +321,22 @@ public class Admin implements Runnable {
 		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)getBean("config");
 		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
-		if (!referenceMetadatas.isEmpty()) {
-			ReferenceMetadata referenceMetadata = referenceMetadatas.iterator().next();
-			Fetcher fetcher = (Fetcher)getBean(referenceMetadata.getFetcherBeanID());
-			fetcher.fetchReferenceData(referenceMetadata);
-		}
-		else {
+		if (referenceMetadatas.isEmpty()) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetchReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
-
+		else {
+			Fetcher fetcher = (Fetcher)getBean("referenceDataFetcher");
+			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
+				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("fetchReferenceData(), calling fetcher for: " + referenceMetadata.getReferenceType());
+					}
+					fetcher.fetchReferenceData(referenceMetadata);
+				}
+			}
+		}
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetchReferenceData(), complete");
 		}
@@ -492,17 +497,23 @@ public class Admin implements Runnable {
 
 		// create an instance of Importer
 		Config config = (Config)getBean("config");
-		Collection<ReferenceMetadata> referenceMetadata = config.getReferenceMetadata(referenceType);
-		if (!referenceMetadata.isEmpty()) {
-			Importer importer = (Importer)getBean("importer");
-			importer.importReferenceData(referenceMetadata.iterator().next());
-		}
-		else {
+		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
+		if (referenceMetadatas.isEmpty()) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importReferenceData(), unknown referenceType: " + referenceType);
 			}
 		}
-
+		else {
+			Importer importer = (Importer)getBean("importer");
+			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
+				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("importReferenceData(), calling import for: " + referenceMetadata.getReferenceType());
+					}
+					importer.importReferenceData(referenceMetadata);
+				}
+			}
+		}
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), complete");
 		}

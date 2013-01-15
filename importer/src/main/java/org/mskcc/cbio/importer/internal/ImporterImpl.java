@@ -249,12 +249,23 @@ class ImporterImpl implements Importer {
 				// get the metafile/staging file for this cancer_study / datatype
 				String stagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename());
 				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+				// datatype might not exists for cancer study
+				if (!(new File(stagingFilename)).exists()) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
+					}
+					continue;
+				}
 				if (datatypeMetadata.requiresMetafile()) {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
 				else {
 					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
+				}
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), attempting to run: " + datatypeMetadata.getImporterClassName() +
+							 ":main(), with args: " + Arrays.asList(args));
 				}
 				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
 				mainMethod.invoke(null, (Object)args);

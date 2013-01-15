@@ -62,7 +62,7 @@ public class ClassLoader {
 		}
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("geMethod(), className:methodName " + className + ":" + methodName);
+			LOG.info("getMethod(), className:methodName " + className + ":" + methodName);
 		}
 		
 		Method toReturn = null;

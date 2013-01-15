@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public class ReferenceMetadata {
 
     // delimiter between tumor type and center (used for find the path)
-	public static final String REFERENCE_DATA_ARGS_DELIMITER = ";";
+	public static final String REFERENCE_DATA_ARGS_DELIMITER = ":";
 
 	// this environment var may appear in path to fetcher scripts
 	/*

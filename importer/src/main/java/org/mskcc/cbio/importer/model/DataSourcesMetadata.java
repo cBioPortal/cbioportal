@@ -51,7 +51,7 @@ public class DataSourcesMetadata {
      */
     public DataSourcesMetadata(String[] properties) {
 
-		if (properties.length != 4) {
+		if (properties.length < 4) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 

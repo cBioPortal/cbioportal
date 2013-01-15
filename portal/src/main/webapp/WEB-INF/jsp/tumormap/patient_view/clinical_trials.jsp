@@ -134,6 +134,9 @@
                                 + '<td>'
                                     + '<a href="http://clinicaltrials.gov/show/' + trial[0] + '" target="_blank">'
                                         + trial[0]
+                                    + '</a><br />'
+                                    + '<a href="http://cancer.gov/clinicaltrials/search/view?version=healthprofessional&cdrid=' + trial[5] + '" target="_blank">'
+                                        + "CDR" + trial[5]
                                     + '</a>'
                                 + '</td>'
                                 + '<td>' + trial[1] + '</td>'

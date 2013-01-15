@@ -73,13 +73,14 @@ public class DaoClinicalTrial {
         try {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
-                    ("INSERT INTO clinical_trials (`PROTOCOLID`, `TITLE`, `PHASE`, `LOCATION`, `STATUS`) "
-                            + "VALUES (?,?,?,?,?)");
+                    ("INSERT INTO clinical_trials (`PROTOCOLID`, `TITLE`, `PHASE`, `LOCATION`, `STATUS`, `SECONDARYID`) "
+                            + "VALUES (?,?,?,?,?, ?)");
             pstmt.setString(1, clinicalTrial.getId());
             pstmt.setString(2, clinicalTrial.getTitle());
             pstmt.setString(3, clinicalTrial.getPhase());
             pstmt.setString(4, clinicalTrial.getLocation());
             pstmt.setString(5, clinicalTrial.getStatus());
+            pstmt.setString(6, clinicalTrial.getSecondaryId());
 
             rows = pstmt.executeUpdate();
 
@@ -222,6 +223,7 @@ public class DaoClinicalTrial {
         clinicalTrial.setPhase(rs.getString("PHASE"));
         clinicalTrial.setLocation(rs.getString("LOCATION"));
         clinicalTrial.setStatus(rs.getString("STATUS"));
+        clinicalTrial.setSecondaryId(rs.getString("SECONDARYID"));
         return clinicalTrial;
     }
 

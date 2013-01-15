@@ -518,6 +518,7 @@ CREATE TABLE `mutation_event_cosmic_mapping` (
 drop table IF EXISTS clinical_trials; 
 CREATE TABLE `clinical_trials` (
   `PROTOCOLID` char(50) NOT NULL,
+  `SECONDARYID` char(50) NOT NULL,
   `TITLE` varchar(512),
   `PHASE` char(128),
   `LOCATION` varchar(256),

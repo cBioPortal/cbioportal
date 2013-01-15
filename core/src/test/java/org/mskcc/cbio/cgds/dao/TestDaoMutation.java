@@ -107,7 +107,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setOncotatorRefseqMrnaId("NM_001904");
 		mutation.setOncotatorUniprotName("CTNB1_HUMAN");
 		mutation.setOncotatorUniprotAccession("P35222");
-		mutation.setCanonicalMutation(true);
+		mutation.setCanonicalTranscript(true);
 
 		dao.addMutation(mutation);
 
@@ -175,9 +175,9 @@ public class TestDaoMutation extends TestCase {
 		              mutation.getOncotatorCosmicOverlapping());
 		assertEquals ("rs149680468", mutation.getOncotatorDbSnpRs());
 		assertEquals ("c.(133-135)TCT>TTT", mutation.getOncotatorCodonChange());
-		assertEquals ("NM_001904", mutation.getOncotatorRefseqMrnaId());
-		assertEquals ("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
-		assertEquals ("P35222", mutation.getOncotatorUniprotAccession());
-		assertEquals (true, mutation.isCanonicalMutation());
+		assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());
+		assertEquals("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
+		assertEquals("P35222", mutation.getOncotatorUniprotAccession());
+		assertEquals (true, mutation.isCanonicalTranscript());
 	}
 }

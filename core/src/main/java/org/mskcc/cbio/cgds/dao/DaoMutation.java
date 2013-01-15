@@ -89,54 +89,26 @@ public class DaoMutation {
 				// write to the temp file maintained by the MySQLbulkLoader
 				myMySQLbulkLoader.insertRecord(
 
-						Integer.toString( mutation.getGeneticProfileId() ),
-						mutation.getCaseId(),
-						Long.toString( mutation.getGene().getEntrezGeneId()),
-						mutation.getSequencingCenter(),
-						mutation.getSequencer(),
-						mutation.getMutationStatus(),
-						mutation.getValidationStatus(),
-						mutation.getChr(),
-						Long.toString( mutation.getStartPosition() ),
-						Long.toString( mutation.getEndPosition() ),
-						mutation.getProteinChange(),
-						mutation.getMutationType(),
-						mutation.getFunctionalImpactScore(),
-						mutation.getLinkXVar(),
-						mutation.getLinkPdb(),
-						mutation.getLinkMsa(),
-						mutation.getNcbiBuild(),
-						mutation.getStrand(),
-						mutation.getVariantType(),
-						mutation.getReferenceAllele(),
-						mutation.getTumorSeqAllele1(),
-						mutation.getTumorSeqAllele2(),
-						mutation.getDbSnpRs(),
-						mutation.getDbSnpValStatus(),
-						mutation.getMatchedNormSampleBarcode(),
-						mutation.getMatchNormSeqAllele1(),
-						mutation.getMatchNormSeqAllele2(),
-						mutation.getTumorValidationAllele1(),
-						mutation.getTumorValidationAllele2(),
-						mutation.getMatchNormValidationAllele1(),
-						mutation.getMatchNormValidationAllele2(),
-						mutation.getVerificationStatus(),
-						mutation.getSequencingPhase(),
-						mutation.getSequenceSource(),
-						mutation.getValidationMethod(),
-						mutation.getScore(),
-						mutation.getBamFile(),
-						Integer.toString(mutation.getTumorAltCount()),
-						Integer.toString(mutation.getTumorRefCount()),
-						Integer.toString(mutation.getNormalAltCount()),
-						Integer.toString(mutation.getNormalRefCount()),
-						mutation.getOncotatorDbSnpRs(),
-						DaoMutationEvent.filterCosmic(mutation),
-						mutation.getOncotatorRefseqMrnaId(),
-						mutation.getOncotatorCodonChange(),
-						mutation.getOncotatorUniprotName(),
-						mutation.getOncotatorUniprotAccession(),
-						this.boolToStr(mutation.isCanonicalMutation()));
+						Integer.toString(mutation.getGeneticProfileId()), mutation.getCaseId(),
+						Long.toString(mutation.getGene().getEntrezGeneId()), mutation.getSequencingCenter(),
+						mutation.getSequencer(), mutation.getMutationStatus(), mutation.getValidationStatus(),
+						mutation.getChr(), Long.toString(mutation.getStartPosition()),
+						Long.toString(mutation.getEndPosition()), mutation.getProteinChange(),
+						mutation.getMutationType(), mutation.getFunctionalImpactScore(), mutation.getLinkXVar(),
+						mutation.getLinkPdb(), mutation.getLinkMsa(), mutation.getNcbiBuild(), mutation.getStrand(),
+						mutation.getVariantType(), mutation.getReferenceAllele(), mutation.getTumorSeqAllele1(),
+						mutation.getTumorSeqAllele2(), mutation.getDbSnpRs(), mutation.getDbSnpValStatus(),
+						mutation.getMatchedNormSampleBarcode(), mutation.getMatchNormSeqAllele1(),
+						mutation.getMatchNormSeqAllele2(), mutation.getTumorValidationAllele1(),
+						mutation.getTumorValidationAllele2(), mutation.getMatchNormValidationAllele1(),
+						mutation.getMatchNormValidationAllele2(), mutation.getVerificationStatus(),
+						mutation.getSequencingPhase(), mutation.getSequenceSource(), mutation.getValidationMethod(),
+						mutation.getScore(), mutation.getBamFile(), Integer.toString(mutation.getTumorAltCount()),
+						Integer.toString(mutation.getTumorRefCount()), Integer.toString(mutation.getNormalAltCount()),
+						Integer.toString(mutation.getNormalRefCount()), mutation.getOncotatorDbSnpRs(),
+						DaoMutationEvent.filterCosmic(mutation), mutation.getOncotatorRefseqMrnaId(),
+						mutation.getOncotatorCodonChange(), mutation.getOncotatorUniprotName(),
+						mutation.getOncotatorUniprotAccession(), this.boolToStr(mutation.isCanonicalTranscript()));
 
 				// return 1 because normal insert will return 1 if no error occurs
 				return 1;
@@ -159,7 +131,7 @@ public class DaoMutation {
 						 + " `SCORE`, `BAM_FILE`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`,"
 						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`,"
 						 + " `ONCOTATOR_REFSEQ_MRNA_ID`, `ONCOTATOR_CODON_CHANGE`, `ONCOTATOR_UNIPROT_ENTRY_NAME`,"
-						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `CANONICAL_MUTATION`)"
+						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `CANONICAL_TRANSCRIPT`)"
 						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 				pstmt.setInt(1, mutation.getGeneticProfileId());
@@ -209,7 +181,7 @@ public class DaoMutation {
 				pstmt.setString(45, mutation.getOncotatorCodonChange());
 				pstmt.setString(46, mutation.getOncotatorUniprotName());
 				pstmt.setString(47, mutation.getOncotatorUniprotAccession());
-				pstmt.setBoolean(48, mutation.isCanonicalMutation());
+				pstmt.setBoolean(48, mutation.isCanonicalTranscript());
 
 				return pstmt.executeUpdate();
 			}
@@ -521,7 +493,7 @@ public class DaoMutation {
 		mutation.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
 		mutation.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
 		mutation.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
-		mutation.setCanonicalMutation(rs.getBoolean("CANONICAL_MUTATION"));
+		mutation.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
 
 		return mutation;
 	}

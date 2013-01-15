@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -96,7 +94,7 @@ public class ExtendedMutation
 	private String oncotatorUniprotAccession;
 	private String oncotatorCodonChange;
 
-	private boolean canonicalMutation;
+	private boolean canonicalTranscript;
 
 	public ExtendedMutation() {
 	}
@@ -530,14 +528,14 @@ public class ExtendedMutation
 		this.oncotatorCodonChange = oncotatorCodonChange;
 	}
 
-	public boolean isCanonicalMutation()
+	public boolean isCanonicalTranscript()
 	{
-		return canonicalMutation;
+		return canonicalTranscript;
 	}
 
-	public void setCanonicalMutation(boolean canonicalMutation)
+	public void setCanonicalTranscript(boolean canonicalTranscript)
 	{
-		this.canonicalMutation = canonicalMutation;
+		this.canonicalTranscript = canonicalTranscript;
 	}
 
 	@JsonIgnore

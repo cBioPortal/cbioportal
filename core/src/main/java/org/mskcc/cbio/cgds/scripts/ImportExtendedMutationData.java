@@ -215,8 +215,15 @@ public class ImportExtendedMutationData{
 					linkPdb = getField(parts, "MA:link.PDB" );
 				}
 
-				String proteinChange = getProteinChange(parts, record);
+				// TODO do not always use canonical isoform mutation values;
+				// if mutation type for canonical isoform is Silent, use best effect values instead
 				String mutationType = getMutationType(record);
+				String proteinChange = getProteinChange(parts, record);
+				String codonChange = record.getOncotatorCodonChange();
+				String refseqMrnaId = record.getOncotatorRefseqMrnaId();
+				String uniprotName = record.getOncotatorUniprotName();
+				String uniprotAccession = record.getOncotatorUniprotAccession();
+				boolean canonicalTranscript = true;
 
 				if (mutationType != null && mutationType.equalsIgnoreCase("rna"))
 				{
@@ -291,6 +298,11 @@ public class ImportExtendedMutationData{
 					mutation.setNormalRefCount(record.getNormalRefCount());
 					mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
+					mutation.setOncotatorCodonChange(codonChange);
+					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
+					mutation.setOncotatorUniprotName(uniprotName);
+					mutation.setOncotatorUniprotAccession(uniprotAccession);
+					mutation.setCanonicalTranscript(canonicalTranscript);
 
 					sequencedCaseSet.add(caseId);
 

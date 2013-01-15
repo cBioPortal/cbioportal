@@ -63,6 +63,7 @@
 
 <h2 class="pv-drugs-header">Drugs of interest</h2>
 <table id="pv-drugs-table">
+   <thead>
     <tr>
         <th>Drug Name</th>
         <th>Drug Target</th>
@@ -70,11 +71,14 @@
         <th>FDA approved?</th>
         <th>Data Sources</th>
     </tr>
+   </thead>
+
 </table>
 
 
 <h2 class="pv-drugs-header">Clinical trials of interest</h2>
 <table id="pv-trials-table">
+   <thead>
     <tr>
         <th>Trial ID</th>
         <th>Title</th>
@@ -82,4 +86,5 @@
         <th>Phase</th>
         <th>Location</th>
     </tr>
+   </thead>
 </table>

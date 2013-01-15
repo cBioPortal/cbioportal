@@ -13,20 +13,39 @@
                 function(data) {
                     for(var i=0; i < data.length; i++) {
                         var drug = data[i];
+
+                        var xref = ["N/A"];
+                        if (drug[7]) { // xref
+                            xref = [];
+                            var nci = drug[7]['NCI_Drug'];
+                            if(nci)
+                                xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
+                            var pharmgkb = drug[7]['PharmGKB'];
+                            if(pharmgkb)
+                                xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
+                            var drugbank = drug[7]['DrugBank'];
+                            if(drugbank)
+                                xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
+                            var keggdrug = drug[7]['KEGG Drug'];
+                            if(keggdrug)
+                                xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
+                        }
+
                         $("#pv-drugs-table").append(
                             '<tr>'
                                 + '<td>' + drug[2] + '</td>'
+                                + '<td>' + drug[3] + '</td>'
                                 + '<td>' + drug[1] + '</td>'
-                                + '<td>' + drug[4] + '</td>'
-                                + '<td>' + (drug[3] ? "yes" : "no") + '</td>'
-                                + '<td>' + drug[7] + '</td>'
+                                + '<td>' + drug[5] + '</td>'
+                                + '<td>' + (drug[4] ? "Yes" : "No") + '</td>'
+                                + '<td>' + xref.join(",") + '</td>'
                             + '</tr>'
                         );
 
                         keywords.push(drug[2]);
                     }
 
-                    $("pv-drugs-table").dataTable();
+                    $("#pv-drugs-table").dataTable();
                     populateClinicalTrialsTable(keywords);
                 }
         );
@@ -41,7 +60,11 @@
                         var trial = data[i];
                         $("#pv-trials-table").append(
                             '<tr>'
-                                + '<td>' + trial[0] + '</td>'
+                                + '<td>'
+                                    + '<a href="http://clinicaltrials.gov/show/' + trial[0] + '" target="_blank">'
+                                        + trial[0]
+                                    + '</a>'
+                                + '</td>'
                                 + '<td>' + trial[1] + '</td>'
                                 + '<td>' + trial[2] + '</td>'
                                 + '<td>' + trial[3] + '</td>'
@@ -50,7 +73,7 @@
                         );
                     }
 
-                    $("pv-trials-table").dataTable();
+                    $("#pv-trials-table").dataTable();
                 }
         );
     };
@@ -66,7 +89,8 @@
    <thead>
     <tr>
         <th>Drug Name</th>
-        <th>Drug Target</th>
+        <th>Synonyms</th>
+        <th>Drug Target(s)</th>
         <th>Description</th>
         <th>FDA approved?</th>
         <th>Data Sources</th>

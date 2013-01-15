@@ -4,12 +4,12 @@
 <script type="text/javascript">
     var populateDrugTable = function() {
         var drugIds = [];
-        drugIds.push(genomicEventObs.cnas.getDrugIDs());
-        drugIds.push(genomicEventObs.mutations.getDrugIDs());
+        drugIds = drugIds.concat(genomicEventObs.cnas.getDrugIDs());
+        drugIds = drugIds.concat(genomicEventObs.mutations.getDrugIDs());
 
         var keywords = [];
         $.post("drugs.json",
-                { drug_ids: drugIds },
+                { drug_ids: drugIds.join(",") },
                 function(data) {
                     for(var i=0; i < data.length; i++) {
                         var drug = data[i];
@@ -35,7 +35,7 @@
     var populateClinicalTrialsTable = function(keywords) {
         keywords.push("<%=cancerStudyName%>");
         $.post("clinicaltrials.json",
-                { keywords: keywords },
+                { keywords: keywords.join(",") },
                 function(data) {
                     for(var i=0; i < data.length; i++) {
                         var trial = data[i];

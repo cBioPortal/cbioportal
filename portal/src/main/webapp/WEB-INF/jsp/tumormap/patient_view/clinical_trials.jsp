@@ -11,6 +11,7 @@
         $.post("drugs.json",
                 { drug_ids: drugIds.join(",") },
                 function(data) {
+                    $("#drugs_wait").hide();
                     for(var i=0; i < data.length; i++) {
                         var drug = data[i];
 
@@ -45,7 +46,11 @@
                         keywords.push(drug[2]);
                     }
 
-                    $("#pv-drugs-table").dataTable();
+                    $("#pv-drugs-table").dataTable({
+                        "bJQueryUI": true,
+                        "bDestroy": true,
+                        "aaSorting": [[0, 'asc']]
+                    });
                     populateClinicalTrialsTable(keywords);
                 }
         );
@@ -56,6 +61,8 @@
         $.post("clinicaltrials.json",
                 { keywords: keywords.join(",") },
                 function(data) {
+                    $("#trials_wait").hide();
+
                     for(var i=0; i < data.length; i++) {
                         var trial = data[i];
                         $("#pv-trials-table").append(
@@ -73,7 +80,11 @@
                         );
                     }
 
-                    $("#pv-trials-table").dataTable();
+                    $("#pv-trials-table").dataTable({
+                        "bJQueryUI": true,
+                        "bDestroy": true,
+                        "aaSorting": [[2, 'asc']]
+                    });
                 }
         );
     };
@@ -98,6 +109,8 @@
    </thead>
 
 </table>
+<div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
+
 
 
 <h2 class="pv-drugs-header">Clinical trials of interest</h2>
@@ -112,3 +125,4 @@
     </tr>
    </thead>
 </table>
+<div id="trials_wait"><img src="images/ajax-loader.gif"/></div>

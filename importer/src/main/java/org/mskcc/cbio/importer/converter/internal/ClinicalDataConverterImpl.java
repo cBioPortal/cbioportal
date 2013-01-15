@@ -34,17 +34,13 @@ import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Arrays;
-import java.util.Vector;
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * Class which implements the Converter interface for use
@@ -66,6 +62,9 @@ public class ClinicalDataConverterImpl implements Converter {
 
 	// ref to IDMapper
 	private IDMapper idMapper;
+
+    // string delimiter for aliases
+    public static final String ALIAS_DELIMITER = ",";
 
 	/**
 	 * Constructor.
@@ -139,9 +138,28 @@ public class ClinicalDataConverterImpl implements Converter {
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
 
+
+        Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
+
+        // get all the clinical attributes that go into the staging file and,
+        // make a map between the normalized column name and the aliases
+        HashMap<String, String> normalizedName = new HashMap<String, String>();
+
+        for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
+            if (!clinicalAttribute.getColumnHeader().equals("")) {
+                String columnHeader = clinicalAttribute.getColumnHeader();
+                String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
+
+                for (String alias : aliases) {
+                    normalizedName.put(alias, columnHeader);
+                }
+            }
+        }
+
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
+
 		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {

@@ -8,7 +8,7 @@
         drugIds.push(genomicEventObs.mutations.getDrugIDs());
 
         var keywords = [];
-        $.post("drug.json",
+        $.post("drugs.json",
                 { drug_ids: drugIds },
                 function(data) {
                     for(var i=0; i < data.length; i++) {

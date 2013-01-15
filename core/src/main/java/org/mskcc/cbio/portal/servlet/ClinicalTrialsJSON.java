@@ -58,6 +58,8 @@ public class ClinicalTrialsJSON extends HttpServlet {
         try {
             DaoClinicalTrial daoClinicalTrial = DaoClinicalTrial.getInstance();
             for (String keyword : keywordStr.split(",")) {
+                if(keyword.length() < 5) continue; // prevent overloads!
+
                 List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(keyword);
                 for (ClinicalTrial clinicalTrial : clinicalTrials) {
                     JSONArray aRow = new JSONArray();

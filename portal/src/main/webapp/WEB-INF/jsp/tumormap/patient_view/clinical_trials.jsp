@@ -1,12 +1,11 @@
 <%
-    String cancerStudyName = "glioblastoma";
+    String cancerStudyName = cancerStudy.getTypeOfCancerId();
 %>
 
 <style type="text/css">
     .drugs-summary-table-name, .trials-summary-table-name {
         float: left;
         font-weight: bold;
-        font-size: 120%;
         vertical-align: middle;
     }
 </style>
@@ -59,7 +58,7 @@
                                         + "(" + drug[3].split(";").length + " more)"
                                     + '</small>'
                                 + '</td>'
-                                + '<td>' + drug[1] + '</td>'
+                                + '<td>' + drugTargets + '</td>'
                                 + '<td>' + drug[5] + '</td>'
                                 + '<td>' + (drug[4] ? "Yes" : "No") + '</td>'
                                 + '<td>' + xref.join(", ") + '</td>'
@@ -86,20 +85,26 @@
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                        position: { my:'top center', at:'right' }
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
                     });
 
                     $(".drug-targets").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                        position: { my:'top center', at:'bottom center' }
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
                     });
 
 
                     populateClinicalTrialsTable(keywords);
 
-                    $(".drugs-summary-table-name").html("" + data.length + " drugs");
+                    var infoBox = "<img id='drug-summary-help' src='images/help.png title='"
+                            + "These drugs were selected based on the patient's genomic alteration. "
+                            + "'>";
+                    $(".drugs-summary-table-name").html("" + data.length + " drugs " + infoBox);
+                    $("#drug-summary-help").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    });
+
                 }
         );
     };
@@ -143,7 +148,18 @@
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
 
-                    $(".trials-summary-table-name").html(data.length + " clinical trials");
+                    var infoBox = "<img id='trial-summary-help' src='images/help.png title='"
+                            + "The following clinical trials are listed because they are associated "
+                            + " with either the drugs or the cancer type of interest. <br/><br/> "
+                            + "The data was acquired from the <a href=\'http://cancer.gov\'>cancer.gov</a> website."
+                            + "'>";
+
+                    $(".trials-summary-table-name").html(data.length + " clinical trials " + infoBox);
+                    $("#trial-summary-help").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    });
+
                 }
         );
     };
@@ -160,7 +176,7 @@
     <tr>
         <th>Drug Name</th>
         <th>Drug Target(s)</th>
-        <th>Description</th>
+        <th class="drug-description">Description</th>
         <th>FDA approved?</th>
         <th>Data Sources</th>
     </tr>

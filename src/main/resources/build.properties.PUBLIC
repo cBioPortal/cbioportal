@@ -64,3 +64,7 @@ patient_view_genomic_overview_cna_cutoff=0.2,1.5
 
 tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
+
+# this is for grabbing NCI's Clinical Trial Information
+nci.cancer.ftp.user=user
+nci.cancer.ftp.password=password

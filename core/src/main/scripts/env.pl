@@ -18,6 +18,7 @@ if ($#ARGV >= 0) {
 
 $cgdsHome = $ENV{CGDS_HOME};
 $cgdsDataHome = $ENV{CGDS_DATA_HOME};
+$portalDataHome = $ENV{PORTAL_DATA_HOME};
 my $osCheck = $ENV{OS};
 my $pathDelim;
 
@@ -33,6 +34,10 @@ if ($cgdsHome eq "") {
 
 if ($cgdsDataHome eq "") {
 	die "CGDS_DATA_HOME Environment Variable is not set.  Please set, and try again.\n";
+}
+
+if ($portalDataHome eq "") {
+	die "PORTAL_DATA_HOME Environment Variable is not set.  Please set, and try again.\n";
 }
 
 # Set up Classpath to use all JAR files in lib dir.

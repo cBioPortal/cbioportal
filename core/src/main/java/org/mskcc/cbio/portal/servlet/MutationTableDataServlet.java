@@ -122,7 +122,9 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("validationStatus", mutation.getValidationStatus());
 			rowData.put("sequencingCenter", this.getSequencingCenter(mutation));
 			rowData.put("ncbiBuildNo", this.getNcbiBuild(mutation));
-			rowData.put("position", this.getChrPosition(mutation));
+			rowData.put("chr", this.getChromosome(mutation));
+			rowData.put("startPos", mutation.getStartPosition());
+			rowData.put("endPos", mutation.getEndPosition());
 			rowData.put("referenceAllele", mutation.getReferenceAllele());
 			rowData.put("variantAllele", this.getVariantAllele(mutation));
 			rowData.put("tumorFreq", this.getTumorFreq(mutation));
@@ -358,20 +360,24 @@ public class MutationTableDataServlet extends HttpServlet
 	}
 
 	/**
-	 * Returns the corresponding chromosome and start position.
+	 * Returns the corresponding chromosome.
 	 *
 	 * @param mutation  mutation instance
-	 * @return          chromosome number and start position
+	 * @return          chromosome number
 	 */
-	protected String getChrPosition(ExtendedMutation mutation)
+	protected String getChromosome(ExtendedMutation mutation)
 	{
 		if (mutation.getChr() == null)
 		{
 			return null;
 		}
+		else if (mutation.getChr().equals("NA"))
+		{
+			return "NA";
+		}
 		else
 		{
-			return "chr" + mutation.getChr() + ":" + mutation.getStartPosition();
+			return "chr" + mutation.getChr();
 		}
 	}
 
@@ -499,7 +505,9 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("validationStatus", "VS");
 		headerList.put("sequencingCenter", "Center");
 		headerList.put("ncbiBuildNo", "Build");
-		headerList.put("position", "Position");
+		headerList.put("chr", "Chr");
+		headerList.put("startPos", "Start Pos");
+		headerList.put("endPos", "End Pos");
 		headerList.put("referenceAllele", "Ref");
 		headerList.put("variantAllele", "Var");
 		headerList.put("tumorFreq", "Var Freq");

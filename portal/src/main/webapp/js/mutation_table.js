@@ -237,8 +237,8 @@ function drawMutationTable(data)
     }
 
 	// show frequency columns by default
-	oTable.fnSetColumnVis(12, true);
-	oTable.fnSetColumnVis(15, true);
+	oTable.fnSetColumnVis(14, true);
+	oTable.fnSetColumnVis(17, true);
 
     oTable.css("width", "100%");
 }
@@ -324,7 +324,9 @@ function _getMutationTableHeaders(data)
     headers.push(data.header.mutationStatus);
     headers.push(data.header.validationStatus);
     headers.push(data.header.sequencingCenter);
-    headers.push(data.header.position);
+    headers.push(data.header.chr);
+    headers.push(data.header.startPos);
+    headers.push(data.header.endPos);
     headers.push(data.header.referenceAllele);
     headers.push(data.header.variantAllele);
     headers.push(data.header.tumorFreq);
@@ -361,7 +363,9 @@ function _getMutationTableHeaderTip(header)
         "vs": "Validation Status",
         "center": "Sequencing Center",
         "build": "NCBI Build Number",
-        "position": "Position",
+        "chr": "Chromosome",
+        "start pos": "Start Position",
+        "end pos": "End Position",
         "ref": "Reference Allele",
         "var": "Variant Allele",
         "var freq": "Variant Frequency",
@@ -602,7 +606,9 @@ function _getMutationTableRows(data)
         row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
         row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));
         row.push(data.mutations[i].sequencingCenter);
-        row.push(data.mutations[i].position);
+        row.push(data.mutations[i].chr);
+        row.push(data.mutations[i].startPos);
+        row.push(data.mutations[i].endPos);
         row.push(data.mutations[i].referenceAllele);
         row.push(data.mutations[i].variantAllele);
         row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,

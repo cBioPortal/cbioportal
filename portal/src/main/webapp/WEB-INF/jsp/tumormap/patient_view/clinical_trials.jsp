@@ -35,11 +35,16 @@
                         $("#pv-drugs-table").append(
                             '<tr>'
                                 + '<td>' + drug[2] + '</td>'
-                                + '<td>' + drug[3] + '</td>'
+                                + '<td>'
+                                    + drug[2]
+                                    + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms">'
+                                        + "(" + drug[3].split(";").length + " more)"
+                                    + '</small>'
+                                + '</td>'
                                 + '<td>' + drug[1] + '</td>'
                                 + '<td>' + drug[5] + '</td>'
                                 + '<td>' + (drug[4] ? "Yes" : "No") + '</td>'
-                                + '<td>' + xref.join(",") + '</td>'
+                                + '<td>' + xref.join(", ") + '</td>'
                             + '</tr>'
                         );
 
@@ -49,8 +54,23 @@
                     $("#pv-drugs-table").dataTable({
                         "bJQueryUI": true,
                         "bDestroy": true,
-                        "aaSorting": [[0, 'asc']]
+                        "aaSorting": [[0, 'asc']],
+                        "oLanguage": {
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                            "sInfoFiltered": "",
+                            "sLengthMenu": "Show _MENU_ per page",
+                            "sEmptyTable": "Could not find any drugs of interest."
+                        },
+                        "iDisplayLength": 25,
+                        "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+
+                    $(".drug-synoynms").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                        position: { my:'top center', at:'bottom center' }
+                    });
+
                     populateClinicalTrialsTable(keywords);
                 }
         );
@@ -83,7 +103,15 @@
                     $("#pv-trials-table").dataTable({
                         "bJQueryUI": true,
                         "bDestroy": true,
-                        "aaSorting": [[2, 'asc']]
+                        "aaSorting": [[2, 'asc'], [1, 'asc']],
+                        "oLanguage": {
+                            "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                            "sInfoFiltered": "",
+                            "sLengthMenu": "Show _MENU_ per page",
+                            "sEmptyTable": "Could not find any clinical trials of interest."
+                        },
+                        "iDisplayLength": 25,
+                        "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
                 }
         );
@@ -100,7 +128,6 @@
    <thead>
     <tr>
         <th>Drug Name</th>
-        <th>Synonyms</th>
         <th>Drug Target(s)</th>
         <th>Description</th>
         <th>FDA approved?</th>

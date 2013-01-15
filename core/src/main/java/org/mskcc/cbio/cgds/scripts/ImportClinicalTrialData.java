@@ -105,6 +105,8 @@ public class ImportClinicalTrialData {
             throws ParserConfigurationException, IOException, SAXException, DaoException
     {
         ClinicalTrial clinicalTrial = new ClinicalTrial();
+        String secondaryId = file.getName().split("\\.")[0].replace("CDR", "");
+        clinicalTrial.setSecondaryId(secondaryId);
 
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         DocumentBuilder db = dbf.newDocumentBuilder();

@@ -19,7 +19,12 @@
         font-weight: bold;
         vertical-align: middle;
     }
+    .highlight {
+        font-weight: bold;
+        text-decoration: underline;
+    }
 </style>
+<script type="text/javascript" src="js/jquery.highlight-4.js"></script>
 <script type="text/javascript">
     var populateDrugTable = function() {
         var drugIds = [];
@@ -120,20 +125,29 @@
         );
     };
 
-    var populateClinicalTrialsTable = function(keywords) {
-        keywords.push("<%=cancerStudyName%>");
+    var populateClinicalTrialsTable = function(keywords, showAll) {
         $.post("clinicaltrials.json",
-                { keywords: keywords.join(",") },
+                {
+                    keywords: keywords.join(","),
+                    showall: showAll ? 1 : 0,
+                    study: "<%=cancerStudyName%>"
+                },
+
                 function(data) {
                     $("#trials_wait").hide();
 
                     for(var i=0; i < data.length; i++) {
                         var trial = data[i];
+
+
                         $("#pv-trials-table").append(
                             '<tr>'
-                                + '<td>'
+                                + '<td align="center">'
                                     + '<a href="http://clinicaltrials.gov/show/' + trial[0] + '" target="_blank">'
                                         + trial[0]
+                                    + '</a><br />'
+                                    + '<a href="http://cancer.gov/clinicaltrials/search/view?version=healthprofessional&cdrid=' + trial[5] + '" target="_blank">'
+                                        + "CDR" + trial[5]
                                     + '</a>'
                                 + '</td>'
                                 + '<td>' + trial[1] + '</td>'
@@ -143,6 +157,12 @@
                             + '</tr>'
                         );
                     }
+
+                    // highlight keywords within the table
+                    for(var k=0; k < keywords.length; k++) {
+                        $("#pv-trials-table").find("td").highlight(keywords[k]);
+                    }
+
 
                     $("#pv-trials-table").dataTable({
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
@@ -180,28 +200,12 @@
     });
 </script>
 
-<h2>Drugs of interest</h2>
-
-<table id="pv-drugs-table" class="dataTable display">
-   <thead>
-    <tr>
-        <th>Drug Name</th>
-        <th>Drug Target(s)</th>
-        <th class="drug-description">Description</th>
-        <th>FDA approved?</th>
-        <th>Data Sources</th>
-    </tr>
-   </thead>
-
-</table>
-<div id="drugs_wait"><img src="images/ajax-loader.gif"/></div>
-
 <h2>Clinical trials of interest</h2>
 
 <table id="pv-trials-table" class="dataTable display">
    <thead>
     <tr>
-        <th>Trial ID</th>
+        <th>Trial IDs</th>
         <th>Title</th>
         <th>Status</th>
         <th>Phase</th>

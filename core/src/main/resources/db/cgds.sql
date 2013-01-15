@@ -242,8 +242,13 @@ CREATE TABLE `mutation` (
   `TUMOR_REF_COUNT` int(11),
   `NORMAL_ALT_COUNT` int(11),
   `NORMAL_REF_COUNT` int(11),
-  `ONCOTATOR_DBSNP_RS` varchar(256),
+  `ONCOTATOR_DBSNP_RS` varchar(255),
   `ONCOTATOR_COSMIC_OVERLAPPING` varchar(3072),
+  `ONCOTATOR_REFSEQ_MRNA_ID` varchar(64),
+  `ONCOTATOR_CODON_CHANGE` varchar(255),
+  `ONCOTATOR_UNIPROT_ENTRY_NAME` varchar(64),
+  `ONCOTATOR_UNIPROT_ACCESSION` varchar(64),
+  `CANONICAL_TRANSCRIPT` boolean,
   KEY `QUICK_LOOK_UP2` (`GENETIC_PROFILE_ID`,`ENTREZ_GENE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data Details';
 
@@ -518,6 +523,7 @@ CREATE TABLE `mutation_event_cosmic_mapping` (
 drop table IF EXISTS clinical_trials; 
 CREATE TABLE `clinical_trials` (
   `PROTOCOLID` char(50) NOT NULL,
+  `SECONDARYID` char(50) NOT NULL,
   `TITLE` varchar(512),
   `PHASE` char(128),
   `LOCATION` varchar(256),

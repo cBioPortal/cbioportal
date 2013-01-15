@@ -44,6 +44,7 @@ public class TestDaoClinicalTrial extends TestCase {
         clinicalTrial.setPhase("Phase III");
         clinicalTrial.setLocation("Location X");
         clinicalTrial.setTitle("A clinical trial");
+        clinicalTrial.setSecondaryId("AID2");
         HashSet<String> keywords1 = new HashSet<String>();
         keywords1.add("k1");
         keywords1.add("k12");
@@ -55,6 +56,7 @@ public class TestDaoClinicalTrial extends TestCase {
         clinicalTrial2.setPhase("Phase II");
         clinicalTrial2.setLocation("Location Y");
         clinicalTrial2.setTitle("Another clinical trial");
+        clinicalTrial2.setSecondaryId("BID2");
         HashSet<String> keywords2 = new HashSet<String>();
         keywords2.add("k2");
         keywords2.add("k12");
@@ -65,8 +67,12 @@ public class TestDaoClinicalTrial extends TestCase {
         assertEquals(1, instance.searchClinicalTrials("k2").size());
         assertEquals(2, instance.searchClinicalTrials("k12").size());
         assertEquals(2, instance.fuzzySearchClinicalTrials("k1").size());
-        assertNotNull(instance.getClinicalTrialById("AID"));
-        assertNotNull(instance.getClinicalTrialById("BID"));
+        ClinicalTrial aid = instance.getClinicalTrialById("AID");
+        assertNotNull(aid);
+        assertEquals("AID2", aid.getSecondaryId());
+        ClinicalTrial bid = instance.getClinicalTrialById("BID");
+        assertNotNull(bid);
+        assertEquals("BID2", bid.getSecondaryId());
         assertNull(instance.getClinicalTrialById("SID"));
         assertTrue(instance.fuzzySearchClinicalTrials("k123").isEmpty());
     }

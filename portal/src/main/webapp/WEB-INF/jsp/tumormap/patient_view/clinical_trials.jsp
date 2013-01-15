@@ -100,6 +100,7 @@
                     }
 
                     $("#pv-trials-table").dataTable({
+                        "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
                         "aaSorting": [[2, 'asc'], [1, 'asc']],
@@ -112,6 +113,8 @@
                         "iDisplayLength": 25,
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
+
+                    $(".trials-summary-table-name").html("Clinical Trials of interest");
                 }
         );
     };

@@ -29,7 +29,8 @@ wget --quiet --ftp-password=$FTPPASSWD --ftp-user=$FTPUSER ftp://cipsftp.nci.nih
 echo "[ done ]" &&
 echo -ne "Unzipping the archive...\t\t" &&
 tar -zxf CTGovProtocol.tar.gz &&
-mv CTGovProtocol clinicalTrials &&
+mv CTGovProtocol clinical-trials &&
+rm -f CTGovProtocol.tar.gz &&
 echo "[ done ]" &&
 
 # Go back to where we were

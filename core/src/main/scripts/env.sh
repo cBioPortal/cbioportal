@@ -8,5 +8,6 @@
 # checks to make sure the basic enviroment variables are set
 [ ! -z "${JAVA_HOME}" ] &&
 [ ! -z "${PORTAL_HOME}" ] &&
+[ ! -z "${PORTAL_DATA_HOME}" ] &&
 [ ! -z "${CGDS_HOME}" ] &&
 [ ! -z "${CGDS_DATA_HOME}" ] && exit 0 || exit -1

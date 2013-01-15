@@ -1,5 +1,16 @@
-<%
-    String cancerStudyName = cancerStudy.getTypeOfCancerId();
+<%@ page import="org.mskcc.cbio.cgds.dao.DaoTypeOfCancer" %>
+<%@ page import="org.mskcc.cbio.cgds.model.TypeOfCancer" %>
+<%@ page import="org.mskcc.cbio.cgds.dao.DaoException" %><%
+    String cancerStudyName = cancerStudy.getName();
+    // Try to find a better and general name for this one -- if any.
+    try {
+        for (TypeOfCancer typeOfCancer : DaoTypeOfCancer.getAllTypesOfCancer()) {
+            if(typeOfCancer.getTypeOfCancerId().equalsIgnoreCase(cancerStudy.getTypeOfCancerId()))
+                cancerStudyName = typeOfCancer.getName();
+        }
+    } catch (DaoException e) {
+        // Ignore it
+    }
 %>
 
 <style type="text/css">
@@ -43,8 +54,8 @@
                         var drugTargets = "";
                         var targets = drug[1].split(",");
                         if(targets.length > 3) {
-                            drugTargets = targets.slice(1, 4).join(",");
-                            drugTargets += ' <small title="' + drug[1] + '" class="drug-targets">('
+                            drugTargets = targets.slice(0, 3).join(",");
+                            drugTargets += ' <br/><small title="' + drug[1] + '" class="drug-targets">('
                                     + (targets.length-3) + ' more)</small>';
                         } else {
                             drugTargets = drug[1];
@@ -96,7 +107,7 @@
 
                     populateClinicalTrialsTable(keywords);
 
-                    var infoBox = "<img id='drug-summary-help' src='images/help.png title='"
+                    var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
                             + "These drugs were selected based on the patient's genomic alteration. "
                             + "'>";
                     $(".drugs-summary-table-name").html("" + data.length + " drugs " + infoBox);
@@ -148,7 +159,7 @@
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
 
-                    var infoBox = "<img id='trial-summary-help' src='images/help.png title='"
+                    var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
                             + "The following clinical trials are listed because they are associated "
                             + " with either the drugs or the cancer type of interest. <br/><br/> "
                             + "The data was acquired from the <a href=\'http://cancer.gov\'>cancer.gov</a> website."

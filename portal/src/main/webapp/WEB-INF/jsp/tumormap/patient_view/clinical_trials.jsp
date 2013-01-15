@@ -34,7 +34,6 @@
 
                         $("#pv-drugs-table").append(
                             '<tr>'
-                                + '<td>' + drug[2] + '</td>'
                                 + '<td>'
                                     + drug[2]
                                     + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms">'

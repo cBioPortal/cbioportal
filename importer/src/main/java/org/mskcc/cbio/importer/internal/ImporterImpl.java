@@ -261,8 +261,7 @@ class ImporterImpl implements Importer {
 			}
 
 			// process case lists
-			args = new String[] { (rootDirectory + File.separator +
-								   cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
+			args = new String[] { (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
 			ImportCaseList.main(args);
 		}
 	}
@@ -311,6 +310,6 @@ class ImporterImpl implements Importer {
 	 * @throws Exception
 	 */
 	private String getImportFilename(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
-		return (rootDirectory + cancerStudyMetadata.getStudyPath() + File.separator + filename);
+		return (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + filename);
 	}
 }

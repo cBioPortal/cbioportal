@@ -110,9 +110,6 @@ public class ImportProteinArrayData {
         
         // import profile
         addRPPAProfile(cases);
-        
-        // import case list
-        addRPPACaseList(cases);
     }
     
     private double[] convertToZscores(String[] strs) {

@@ -41,6 +41,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.MetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,6 +116,7 @@ class FirehoseFetcherImpl implements Fetcher {
 	private String firehoseGetScript;
 	@Value("${firehose_get_script}")
 	public void setFirehoseGetScript(String property) { this.firehoseGetScript = property; }
+	public String getFirehoseGetScript() { return MetadataUtils.getCanonicalPath(firehoseGetScript); }
 
 	// initialize the blacklist
 	private static final List<String> initializeBlackList() {
@@ -210,7 +212,7 @@ class FirehoseFetcherImpl implements Fetcher {
 		// steup a default date for comparision
 		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
 
-		Process process = Runtime.getRuntime().exec(firehoseGetScript + " -r");
+		Process process = Runtime.getRuntime().exec(getFirehoseGetScript() + " -r");
 		process.waitFor();
 		if (process.exitValue() != 0) { return latestRun; }
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -259,7 +261,7 @@ class FirehoseFetcherImpl implements Fetcher {
 		tumorTypesToDownload = tumorTypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
 		String firehoseDatatypesToDownload = Arrays.toString(config.getDatatypesToDownload(dataSourceMetadata));
 		firehoseDatatypesToDownload = firehoseDatatypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
-		String[] command = new String[] { firehoseGetScript, "-b",
+		String[] command = new String[] { getFirehoseGetScript(), "-b",
 										  "-tasks",
 										  firehoseDatatypesToDownload,
 										  runType,

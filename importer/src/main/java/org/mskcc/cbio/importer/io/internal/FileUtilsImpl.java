@@ -302,9 +302,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	@Override
 	public File createTmpFileWithContents(String filename, String fileContent) throws Exception {
 
-		return createFileWithContents(org.apache.commons.io.FileUtils.getTempDirectoryPath() +
-									  File.pathSeparator + filename,
-									  fileContent);
+		File tmpFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectoryPath(),
+															   filename);
+		org.apache.commons.io.FileUtils.writeStringToFile(tmpFile, fileContent, false);
+		return tmpFile;
 	}
 
 	/**

@@ -31,6 +31,8 @@ package org.mskcc.cbio.importer.io.internal;
 // imports
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean;
+import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.MetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +43,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Arrays;
 import javax.sql.DataSource;
 
 /**
@@ -83,7 +86,9 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	@Value("${database_schema_canonical_path}")
 	public void setDatabaseSchemaCanonicalPath(String databaseSchemaCanonicalPath) { this.databaseSchemaCanonicalPath = databaseSchemaCanonicalPath; }
 	@Override
-    public String getDatabaseSchemaCanonicalPath() { return this.databaseSchemaCanonicalPath; }
+    public String getDatabaseSchemaCanonicalPath() {
+		return MetadataUtils.getCanonicalPath(this.databaseSchemaCanonicalPath);
+	}
 
 	// importer database name
 	private String importerDatabaseName;
@@ -129,6 +134,32 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 			// load the context that auto-creates tables
 			context = new ClassPathXmlApplicationContext(createSchemaContextFile);
 		}
+	}
+
+	/**
+	 * Execute the given script on the given db.
+	 *
+	 * @param databaseName String
+	 * @param databaseScript String
+	 * @param databaseUser String
+	 * @param databasePassword String
+	 */
+	@Override
+	public boolean executeScript(String databaseName, String databaseScript,
+								 String databaseUser, String databasePassword) {
+
+		// use mysql to create new schema
+		String[] command = new String[] {"mysql",
+										 "--user=" + databaseUser,
+										 "--password=" + databasePassword,
+										 databaseName,
+										 "-e",
+										 "source " + databaseScript };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+		}
+
+		return Shell.exec(Arrays.asList(command), ".");
 	}
 
 	/**

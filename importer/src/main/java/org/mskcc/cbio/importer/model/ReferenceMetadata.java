@@ -29,10 +29,10 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.util.MetadataUtils;
+
 import java.util.List;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Class which contains reference metadata.
@@ -41,15 +41,6 @@ public class ReferenceMetadata {
 
     // delimiter between tumor type and center (used for find the path)
 	public static final String REFERENCE_DATA_ARGS_DELIMITER = ":";
-
-	// this environment var may appear in path to fetcher scripts
-	/*
-	private static final String PORTAL_HOME = "$PORTAL_HOME";
-	private static final String PORTAL_DATA_HOME = "$PORTAL_HOME";
-	private static final String[] ENV_VARS = { PORTAL_HOME, PORTAL_DATA_HOME };
-	*/
-
-	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
 	// bean properties
 	private String referenceType;
@@ -71,15 +62,15 @@ public class ReferenceMetadata {
 		}
 
 		this.referenceType = properties[0].trim();
-		this.fetcherName = getCanonicalPath(properties[1].trim());
+		this.fetcherName = MetadataUtils.getCanonicalPath(properties[1].trim());
 		this.fetcherArgs = new ArrayList<String>();
 		for (String fetcherArg : properties[2].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
-			this.fetcherArgs.add(getCanonicalPath(fetcherArg));
+			this.fetcherArgs.add(MetadataUtils.getCanonicalPath(fetcherArg));
 		}
-		this.importerName = getCanonicalPath(properties[3].trim());
+		this.importerName = MetadataUtils.getCanonicalPath(properties[3].trim());
 		this.importerArgs = new ArrayList<String>();
 		for (String importerArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
-			this.importerArgs.add(getCanonicalPath(importerArg));
+			this.importerArgs.add(MetadataUtils.getCanonicalPath(importerArg));
 		}
 	}
 
@@ -88,25 +79,4 @@ public class ReferenceMetadata {
 	public List<String> getFetcherArgs() { return fetcherArgs; }
 	public String getImporterName() { return importerName; }
 	public List<String> getImporterArgs() { return importerArgs; }
-
-	/**
-	 * Helper function used to get canonical path for given path.
-	 *
-	 * @param path String
-	 */
-	private String getCanonicalPath(String path) {
-	
-		String toReturn = path;
-
-		Matcher lineMatcher = ENVIRONMENT_VAR_REGEX.matcher(path);
-		if (lineMatcher.find()) {
-			String envValue = System.getenv(lineMatcher.group(1));
-			if (envValue != null) {
-				toReturn = path.replace("$" + lineMatcher.group(1), envValue);
-			}
-		}
-
-		// outta here
-		return toReturn;
-	}
 }

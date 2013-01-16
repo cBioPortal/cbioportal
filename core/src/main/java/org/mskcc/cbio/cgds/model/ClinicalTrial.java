@@ -29,6 +29,7 @@ package org.mskcc.cbio.cgds.model;
 
 public class ClinicalTrial {
     private String id;
+    private String secondaryId;
     private String title;
     private String phase;
     private String location;
@@ -76,6 +77,14 @@ public class ClinicalTrial {
 
     public boolean isActive() {
        return getStatus().equalsIgnoreCase("active");
+    }
+
+    public String getSecondaryId() {
+        return secondaryId;
+    }
+
+    public void setSecondaryId(String secondaryId) {
+        this.secondaryId = secondaryId;
     }
 
     @Override

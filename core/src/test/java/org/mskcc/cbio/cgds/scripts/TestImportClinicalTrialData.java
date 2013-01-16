@@ -80,6 +80,7 @@ public class TestImportClinicalTrialData extends TestCase {
         assertEquals("Phase III", trial1.getPhase());
         assertEquals("Completed", trial1.getStatus());
         assertEquals("Lorem ipsum 1 brief", trial1.getTitle());
+        assertEquals("1", trial1.getSecondaryId());
 
         ClinicalTrial trial2 = daoClinicalTrial.getClinicalTrialById("NCT00000002");
         assertNotNull(trial2);
@@ -88,5 +89,6 @@ public class TestImportClinicalTrialData extends TestCase {
         assertTrue(trial2.isActive());
         assertEquals("Lorem ipsum 2 brief", trial2.getTitle());
         assertEquals("Lorem City, L.I.S.", trial2.getLocation());
+        assertEquals("2", trial2.getSecondaryId());
     }
 }

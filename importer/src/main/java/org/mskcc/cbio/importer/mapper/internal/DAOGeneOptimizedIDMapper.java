@@ -53,25 +53,6 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	DaoGeneOptimized daoGeneOptimized;
 
 	/**
-	 * Constructor.
-	 *
-	 */
-	public DAOGeneOptimizedIDMapper() {
-
-		if (LOG.isDebugEnabled()) {
-			LOG.debug("DAOGeneOptimizedIDMapper(), getting reference to DaoGeneOptimized");
-		}
-
-		// used when we init mapper (must come after construction)
-		try {
-			this.daoGeneOptimized = DaoGeneOptimized.getInstance();
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	/**
 	 * For the given symbol, return id.
 	 *
 	 * @param geneSymbol String
@@ -112,10 +93,14 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 *
 	 * @param IDOrSymbol
 	 * @return CanonicalGene
+	 * @throws Exception
 	 */
-	private CanonicalGene guessGene(String IDOrSymbol) {
+	private CanonicalGene guessGene(String IDOrSymbol) throws Exception {
 
-
+		if (daoGeneOptimized == null) {
+			daoGeneOptimized = DaoGeneOptimized.getInstance();
+		}
+		
 		List<CanonicalGene> geneList = daoGeneOptimized.guessGene(IDOrSymbol);
 		if (geneList != null && LOG.isDebugEnabled()) {
 			LOG.debug("guessGene(), returned list size: " + geneList.size());

@@ -9,7 +9,7 @@
 
   <!-- module metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>portal-importer</artifactId>
+  <artifactId>importer</artifactId>
   <name>Portal Importer</name>
   <description>Importer Module for Portal</description>
 

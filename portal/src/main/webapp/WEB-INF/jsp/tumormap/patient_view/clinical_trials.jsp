@@ -23,15 +23,23 @@
         font-weight: bold;
         text-decoration: underline;
     }
+    #trial-filtering {
+        float: right;
+    }
+
 </style>
 <script type="text/javascript" src="js/jquery.highlight-4.js"></script>
 <script type="text/javascript">
+    var keywords = [];
+
     var populateDrugTable = function() {
         var drugIds = [];
         drugIds = drugIds.concat(genomicEventObs.cnas.getDrugIDs());
         drugIds = drugIds.concat(genomicEventObs.mutations.getDrugIDs());
 
-        var keywords = [];
+        // reset the keywords
+        keywords = [];
+
         $.post("drugs.json",
                 { drug_ids: drugIds.join(",") },
                 function(data) {
@@ -44,16 +52,16 @@
                             xref = [];
                             var nci = drug[7]['NCI_Drug'];
                             if(nci)
-                                xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"'>NCI</a>");
+                                xref.push("<a href='http://www.cancer.gov/drugdictionary?CdrID="+nci+"' target='_blank'>NCI</a>");
                             var pharmgkb = drug[7]['PharmGKB'];
                             if(pharmgkb)
-                                xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"'>PharmGKB</a>");
+                                xref.push("<a href='http://www.pharmgkb.org/views/index.jsp?objId="+pharmgkb+"' target='_blank'>PharmGKB</a>");
                             var drugbank = drug[7]['DrugBank'];
                             if(drugbank)
-                                xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"'>DrugBank</a>");
+                                xref.push("<a href='http://www.drugbank.ca/drugs/"+drugbank+"' target='_blank'>DrugBank</a>");
                             var keggdrug = drug[7]['KEGG Drug'];
                             if(keggdrug)
-                                xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"'>KEGG Drug</a>");
+                                xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"' target='_blank'>KEGG Drug</a>");
                         }
 
                         var drugTargets = "";
@@ -110,7 +118,7 @@
                     });
 
 
-                    populateClinicalTrialsTable(keywords);
+                    populateClinicalTrialsTable(keywords, true);
 
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
                             + "These drugs were selected based on the patient's genomic alteration. "
@@ -125,29 +133,36 @@
         );
     };
 
+    var clinicalTrialsDataTable = null;
     var populateClinicalTrialsTable = function(keywords, showAll) {
+        // Remove all the current rows from the table before population it
+        $(".trials-row").remove();
+        if(clinicalTrialsDataTable != null) {
+            clinicalTrialsDataTable.fnClearTable();
+            clinicalTrialsDataTable.fnDestroy();
+        }
+        $("#trials_wait").show();
+
+        var studyOfInterest = "<%=cancerStudyName%>";
+        var studyTokens = studyOfInterest.split(" ");
+        var studyTerms = (studyOfInterest.search(" and ") > 0) ? studyTokens[0] + "," + studyTokens[2] : studyTokens[0];
         $.post("clinicaltrials.json",
                 {
                     keywords: keywords.join(","),
                     showall: showAll ? 1 : 0,
-                    study: "<%=cancerStudyName%>"
+                    study: studyTerms
                 },
 
                 function(data) {
-                    $("#trials_wait").hide();
 
                     for(var i=0; i < data.length; i++) {
                         var trial = data[i];
 
-
                         $("#pv-trials-table").append(
-                            '<tr>'
+                            '<tr class="trial-row">'
                                 + '<td align="center">'
-                                    + '<a href="http://clinicaltrials.gov/show/' + trial[0] + '" target="_blank">'
-                                        + trial[0]
-                                    + '</a><br />'
                                     + '<a href="http://cancer.gov/clinicaltrials/search/view?version=healthprofessional&cdrid=' + trial[5] + '" target="_blank">'
-                                        + "CDR" + trial[5]
+                                        + trial[0]
                                     + '</a>'
                                 + '</td>'
                                 + '<td>' + trial[1] + '</td>'
@@ -163,8 +178,19 @@
                         $("#pv-trials-table").find("td").highlight(keywords[k]);
                     }
 
+                    // and now the cancer keywords
+                    var studyTermsTokens = studyTerms.split(",");
+                    for(var k=0; k < studyTermsTokens.length; k++) {
+                        $("#pv-trials-table").find("td").highlight(studyTermsTokens[k]);
+                    }
 
-                    $("#pv-trials-table").dataTable({
+                    $(".highlight").qtip({
+                            content: "this term was one of the " +
+                                        "keywords used for searching clinical trials.",
+                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    });
+
+                    clinicalTrialsDataTable = $("#pv-trials-table").dataTable({
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,
                         "bDestroy": true,
@@ -179,13 +205,15 @@
                         "aLengthMenu": [[5,10, 25, 50, 100, -1], [5, 10, 25, 50, 100, "All"]]
                     });
 
+                    // Done with the loading. Hide the image.
+                    $("#trials_wait").hide();
+
                     var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
                             + "The following clinical trials are listed because they are associated "
-                            + " with either the drugs or the cancer type of interest. <br/><br/> "
-                            + "The data was acquired from the <a href=\"http://cancer.gov\">cancer.gov</a> website."
-                            + "'>";
+                            + " with the drugs of interest within the context of the cancer type: " + studyOfInterest
+                            + ". The data for the clinical trials listed on this page was kindly provided by NCI, Cancer.gov'>";
 
-                    $(".trials-summary-table-name").html(data.length + " clinical trials " + infoBox);
+                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
@@ -197,15 +225,28 @@
 
     $(document).ready(function() {
         genomicEventObs.subscribeMutCna(populateDrugTable);
+
+        $("#trial-filtering-options").change(function() {
+            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val() == "all");
+        });
     });
 </script>
 
+<!-- Too few studies when only active ones are shown. Just hiding this functionality for now.
+<div id="trial-filtering">
+    <select id="trial-filtering-options">
+        <option value="all" selected="true">Show all studies</option>
+        <option value="active">Show active studies only</option>
+    </select>
+</div>
+-->
+
 <h2>Clinical trials of interest</h2>
 
-<table id="pv-trials-table" class="dataTable display">
+<table id="pv-trials-table" class="dataTable display" style="width: 100%;">
    <thead>
     <tr>
-        <th>Trial IDs</th>
+        <th>Trial ID</th>
         <th>Title</th>
         <th>Status</th>
         <th>Phase</th>
@@ -214,3 +255,8 @@
    </thead>
 </table>
 <div id="trials_wait"><img src="images/ajax-loader.gif"/></div>
+<p><small><b>*</b> The data for the clinical trials listed on this page was kindly provided
+    by NCI's <a href="http://cancer.gov">Cancer.Gov</a> website
+    through <a href="http://www.cancer.gov/global/syndication/content-use">the content dissemination program</a>.
+    </small>
+</p>

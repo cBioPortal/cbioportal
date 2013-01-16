@@ -27,7 +27,7 @@
 
 <h2>Drugs of interest</h2>
 
-<table id="pv-drugs-table" class="dataTable display">
+<table id="pv-drugs-table" class="dataTable display" style="width: 100%;">
     <thead>
     <tr>
         <th>Drug Name</th>

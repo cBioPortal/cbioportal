@@ -29,12 +29,17 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.util.MetadataUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which contains datasource metadata.
  */
 public class DataSourcesMetadata {
 
+	// delimiter between datasource names (like tcga-stddata)
 	public static final String DATA_SOURCE_NAME_DELIMITER = "-";
 
 	// bean properties
@@ -56,7 +61,7 @@ public class DataSourcesMetadata {
 		}
 
 		this.dataSource = properties[0].trim();
-		this.downloadDirectory = properties[1].trim();
+		this.downloadDirectory = MetadataUtils.getCanonicalPath(properties[1].trim());
 		this.additionalStudiesSource = new Boolean(properties[2].trim());
 		this.fetcherBeanID = properties[3].trim();
 	}

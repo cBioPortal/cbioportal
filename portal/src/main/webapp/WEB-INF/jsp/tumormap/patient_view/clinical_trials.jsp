@@ -193,7 +193,7 @@
                             $(this).attr("alt", drugId);
                         }
                     });
-                    addDrugsTooltip(".highlight", 'top center', 'bottom center');
+                    addDrugsTooltip(".highlight", 'top left', 'bottom center');
 
                     // Build the table
                     clinicalTrialsDataTable = $("#pv-trials-table").dataTable({
@@ -219,7 +219,7 @@
                             + " with the drugs of interest within the context of the cancer type: " + studyOfInterest
                             + ". The data for the clinical trials listed on this page was kindly provided by NCI, Cancer.gov'>";
 
-                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials of interest" + infoBox);
+                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }

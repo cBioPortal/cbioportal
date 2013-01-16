@@ -65,7 +65,7 @@ public class DataMatrix {
 		public boolean ignoreColumn;
 	}
 
-	// keeps track of number of rows of tabular data
+    // keeps track of number of rows of tabular data
 	private int numberOfRows;
 
 	// this is a list of rows to ignore when dumping the matrix
@@ -361,22 +361,40 @@ public class DataMatrix {
 
     /**
      *
-     * Gets the data for a given row name.  Returns
+     * Gets the data for a given row by index.  Returns
      * the data stored in the internal data structure,
      * so changes in the returned List will be reflected
      * in subsequent calls into the class.
      *
-     * @param rowName String
+     * @param rowIndex String
      * @return
      */
-    public List<LinkedList<String>> getRowData(String rowName) {
+    public LinkedList<String> getRowData(int rowIndex) {
+        // todo: someday this might beg for refactoring
+        // w.r.t a DataMatrix class that is row/column agnostic,
+        // i.e. a two level hashmap
+        // this would be a good idea especially if this class moves
+        // to the core module, since it's so handy.
+        // Check out Google Guava Tables.
 
-        LinkedList<LinkedList<String>> toReturn = new LinkedList<LinkedList<String>>();
+        LinkedList<String> toReturn = new LinkedList<String>();
 
-        // look at the other row functions to get an idea of how to loop over the column data
+        for (int col = 0 ; col < columnHeaders.size(); col++) {
+            List<String> columnData = getColumnData(col);
+            String datum =  columnData.get(rowIndex);
 
+            toReturn.add(datum);
+        }
 
         return toReturn;
+    }
+
+    /**
+     *
+     * @return number of rows in the dataMatrix
+     */
+    public int getNumberOfRows() {
+        return numberOfRows;
     }
 
 	/**
@@ -625,6 +643,9 @@ public class DataMatrix {
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
+
+        // get a row
+        dataMatrix.getRowData(0);
 
 		// ignore a few rows
 		dataMatrix.ignoreRow(0, true);

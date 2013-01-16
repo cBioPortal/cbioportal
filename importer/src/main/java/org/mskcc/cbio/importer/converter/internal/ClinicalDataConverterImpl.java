@@ -39,9 +39,7 @@ import org.mskcc.cbio.importer.model.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /**
  * Class which implements the Converter interface for use
@@ -66,6 +64,12 @@ public class ClinicalDataConverterImpl implements Converter {
 
     // string delimiter for aliases
     public static final String ALIAS_DELIMITER = ",";
+
+    // string that indicates that the attribute should be imported
+    public static final String OK = "OK";
+
+    // name of the case id column
+    public static final String CASE_ID = "CASE_ID";
 
 	/**
 	 * Constructor.
@@ -141,35 +145,84 @@ public class ClinicalDataConverterImpl implements Converter {
 
         Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
 
-        // get all the clinical attributes that go into the staging file and,
-        // make a map between the normalized column name and the aliases
-        HashMap<String, String> normalizedName = new HashMap<String, String>();
+        // make a map between the normalized attribute name and the aliases,
+        // for all attributes that have been okayed
+        HashMap<String, String> normalizeName = new HashMap<String, String>();
 
         for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
-            if (!clinicalAttribute.getColumnHeader().equals("")) {
-                String columnHeader = clinicalAttribute.getColumnHeader();
-                String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
 
+            String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
+            String columnHeader = clinicalAttribute.getColumnHeader().trim();
+            String status = clinicalAttribute.getAnnotationStatus().trim();
+
+            if (status.equals(OK)) {
                 for (String alias : aliases) {
-                    normalizedName.put(alias, columnHeader);
+                    // add to map
+                    alias = alias.trim();
+                    normalizeName.put(alias, columnHeader.trim());
+
+                    if (columnHeader.equals("")) {
+                        if (LOG.isInfoEnabled()) { LOG.info("Okayed annotation doesn't have a column header: " + alias ); }
+                    }
                 }
             }
         }
 
-        // filter through the columns of the data matrix.
-        // grabbing only the ones that we are interested in.
-        // i.e. the ones who alias' has a corresponding column header.
-        List<String> columnHeaders = dataMatrix.getColumnData(0);
+        // filter through the rows of the data matrix (clinical data is row oriented),
+        // returning only the rows that we are interested in.
+        // i.e. the ones whose alias' have a corresponding normalized name
+        List<LinkedList<String>> filteredRows  = new LinkedList<LinkedList<String>>();
 
-        for (String columnHeader : columnHeaders) {
-            if (normalizedName.containsKey(columnHeader)) {
-                System.out.println(columnHeader);
+        for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
+            LinkedList<String> rowData =  dataMatrix.getRowData(r);
+
+            String rowName = rowData.get(0);
+
+            if (normalizeName.containsKey(rowName)) {
+                filteredRows.add(rowData);
             }
         }
 
-        dataMatrix.getColumnData("patient.ethnicity");
+        // make a column oriented data matrix out of filteredRows
+        ArrayList<String> colNames = new ArrayList<String>();
 
-//        dataMatrix.getRow("");
+        for (List<String> row : filteredRows) {
+            // add the normalized name of each data vector
+            // and remove the name since names metadata, are not data
+
+            String rowName = row.remove(0);
+            String normalName = normalizeName.get(rowName);
+            colNames.add(normalName);
+        }
+
+        // convert rows to columns, transpose
+        List<LinkedList<String>> columns  = new LinkedList<LinkedList<String>>();
+        int numberOfCols = filteredRows.get(0).size();
+        for (int c = 0; c < numberOfCols; c++) {
+            LinkedList<String> column = new LinkedList<String>();
+            for (List<String> row : filteredRows) {
+                String datum = row.get(c);
+                column.add(datum);
+            }
+
+            columns.add(column);
+        }
+
+        DataMatrix outMatrix = new DataMatrix(columns, colNames);
+
+        // case id should be the first column
+        int caseIdIndex = colNames.indexOf(CASE_ID);
+        String currFirstCol = colNames.get(0);
+        colNames.set(0, CASE_ID);
+        colNames.set(caseIdIndex, currFirstCol);
+        outMatrix.setColumnOrder(colNames);
+
+        //insert meta data
+        for(String colName : colNames) {
+
+        }
+
+        outMatrix.write(System.out);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");

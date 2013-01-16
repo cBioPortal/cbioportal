@@ -18,7 +18,6 @@
         float: left;
         font-weight: bold;
         vertical-align: middle;
-        font-size: 120%;
     }
     .highlight {
         font-weight: bold;

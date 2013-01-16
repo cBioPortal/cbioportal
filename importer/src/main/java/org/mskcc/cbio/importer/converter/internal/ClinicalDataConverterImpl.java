@@ -139,7 +139,6 @@ public class ClinicalDataConverterImpl implements Converter {
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
 
-
         Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
 
         // get all the clinical attributes that go into the staging file and,
@@ -170,7 +169,7 @@ public class ClinicalDataConverterImpl implements Converter {
 
         dataMatrix.getColumnData("patient.ethnicity");
 
-        // dataMatrix.getRow
+//        dataMatrix.getRow("");
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");

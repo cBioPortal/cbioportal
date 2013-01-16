@@ -359,6 +359,26 @@ public class DataMatrix {
 		return columnHeaders.get(columnIndex).columnData;
 	}
 
+    /**
+     *
+     * Gets the data for a given row name.  Returns
+     * the data stored in the internal data structure,
+     * so changes in the returned List will be reflected
+     * in subsequent calls into the class.
+     *
+     * @param rowName String
+     * @return
+     */
+    public List<LinkedList<String>> getRowData(String rowName) {
+
+        LinkedList<LinkedList<String>> toReturn = new LinkedList<LinkedList<String>>();
+
+        // look at the other row functions to get an idea of how to loop over the column data
+
+
+        return toReturn;
+    }
+
 	/**
 	 * Returns the list of case id's within this matrix.
 	 * Note: filterAndConvertCaseIDs should be called before

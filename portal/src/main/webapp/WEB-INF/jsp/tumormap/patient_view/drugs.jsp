@@ -25,8 +25,6 @@
   ~ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
   --%>
 
-<h2>Drugs of interest</h2>
-
 <table id="pv-drugs-table" class="dataTable display" style="width: 100%;">
     <thead>
     <tr>

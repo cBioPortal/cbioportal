@@ -18,6 +18,7 @@
         float: left;
         font-weight: bold;
         vertical-align: middle;
+        font-size: 120%;
     }
     .highlight {
         font-weight: bold;
@@ -129,7 +130,7 @@
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
                             + "These drugs were selected based on the patient's genomic alteration. "
                             + "'>";
-                    $(".drugs-summary-table-name").html("" + data.length + " drugs " + infoBox);
+                    $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
@@ -192,7 +193,7 @@
                             $(this).attr("alt", drugId);
                         }
                     });
-                    addDrugsTooltip(".highlight");
+                    addDrugsTooltip(".highlight", 'top center', 'bottom center');
 
                     // Build the table
                     clinicalTrialsDataTable = $("#pv-trials-table").dataTable({
@@ -218,7 +219,7 @@
                             + " with the drugs of interest within the context of the cancer type: " + studyOfInterest
                             + ". The data for the clinical trials listed on this page was kindly provided by NCI, Cancer.gov'>";
 
-                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials " + infoBox);
+                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials of interest" + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
@@ -245,8 +246,6 @@
     </select>
 </div>
 -->
-
-<h2>Clinical trials of interest</h2>
 
 <table id="pv-trials-table" class="dataTable display" style="width: 100%;">
    <thead>

@@ -140,6 +140,12 @@ class ImporterImpl implements Importer {
 			}
 		}
 
+		// import tumor types
+		if (LOG.isInfoEnabled()) {
+			LOG.info("importData(), importing tumor types...");
+		}
+		importTumorTypes();
+
 		// import reference data if desired
 		if (importReferenceData) {
 			if (LOG.isInfoEnabled()) {
@@ -186,10 +192,9 @@ class ImporterImpl implements Importer {
 	}
 
 	/**
-	 * Helper function to import all reference data.
+	 * Helper function to import tumor type metadata.
 	 */
-	private void importAllReferenceData() throws Exception {
-
+	private void importTumorTypes() throws Exception {
 		// tumor types
 		StringBuilder cancerFileContents = new StringBuilder();
 		for (TumorTypeMetadata tumorType : config.getTumorTypeMetadata(Config.ALL)) {
@@ -203,7 +208,12 @@ class ImporterImpl implements Importer {
 		String[] importCancerTypesArgs = { cancerFile.getCanonicalPath() };
 		ImportTypesOfCancers.main(importCancerTypesArgs);
 		cancerFile.delete();
-		
+	}
+
+	/**
+	 * Helper function to import all reference data.
+	 */
+	private void importAllReferenceData() throws Exception {
 		// iterate over all other reference data types
 		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL)) {
 			importReferenceData(referenceData);
@@ -273,6 +283,9 @@ class ImporterImpl implements Importer {
 
 			// process case lists
 			args = new String[] { (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
+			if (LOG.isInfoEnabled()) {
+				LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
+			}
 			ImportCaseList.main(args);
 		}
 	}

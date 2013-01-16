@@ -145,23 +145,22 @@ public class ClinicalDataConverterImpl implements Converter {
 
         Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
 
-        // make a map between the normalized attribute name and the aliases,
+        // make a map between the normalized attribute name and the clinicalAttribute,
         // for all attributes that have been okayed
-        HashMap<String, String> normalizeName = new HashMap<String, String>();
+        HashMap<String, ClinicalAttributesMetadata> normalizeName = new HashMap<String, ClinicalAttributesMetadata>();
 
         for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
 
             String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
-            String columnHeader = clinicalAttribute.getColumnHeader().trim();
             String status = clinicalAttribute.getAnnotationStatus().trim();
 
             if (status.equals(OK)) {
                 for (String alias : aliases) {
                     // add to map
                     alias = alias.trim();
-                    normalizeName.put(alias, columnHeader.trim());
+                    normalizeName.put(alias, clinicalAttribute);
 
-                    if (columnHeader.equals("")) {
+                    if (clinicalAttribute.getColumnHeader().equals("")) {
                         if (LOG.isInfoEnabled()) { LOG.info("Okayed annotation doesn't have a column header: " + alias ); }
                     }
                 }
@@ -191,7 +190,7 @@ public class ClinicalDataConverterImpl implements Converter {
             // and remove the name since names metadata, are not data
 
             String rowName = row.remove(0);
-            String normalName = normalizeName.get(rowName);
+            String normalName = normalizeName.get(rowName).getColumnHeader();
             colNames.add(normalName);
         }
 
@@ -218,9 +217,12 @@ public class ClinicalDataConverterImpl implements Converter {
         outMatrix.setColumnOrder(colNames);
 
         //insert meta data
-        for(String colName : colNames) {
-
-        }
+//        for(String colName : colNames) {
+//            ClinicalAttributesMetadata meetaData = normalizeName.get(colName);
+//            LinkedList<String> metaDataRow = new LinkedList<String>();
+//
+//            metaDataRow.add();
+//        }
 
         outMatrix.write(System.out);
 

@@ -31,6 +31,8 @@
 <script type="text/javascript" src="js/jquery.highlight-4.js"></script>
 <script type="text/javascript">
     var keywords = [];
+    // A map from drug names to drug ids
+    var drugMap = {};
 
     var populateDrugTable = function() {
         var drugIds = [];
@@ -43,6 +45,9 @@
         $.post("drugs.json",
                 { drug_ids: drugIds.join(",") },
                 function(data) {
+                    // Reset the map
+                    drugMap = {};
+
                     $("#drugs_wait").hide();
                     for(var i=0; i < data.length; i++) {
                         var drug = data[i];
@@ -89,6 +94,7 @@
                             + '</tr>'
                         );
 
+                        drugMap[drug[2]] = drug[0];
                         keywords.push(drug[2]);
                     }
 
@@ -178,18 +184,17 @@
                         $("#pv-trials-table").find("td").highlight(keywords[k]);
                     }
 
-                    // and now the cancer keywords
-                    var studyTermsTokens = studyTerms.split(",");
-                    for(var k=0; k < studyTermsTokens.length; k++) {
-                        $("#pv-trials-table").find("td").highlight(studyTermsTokens[k]);
-                    }
-
-                    $(".highlight").qtip({
-                            content: "this term was one of the " +
-                                        "keywords used for searching clinical trials.",
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    // Add tooltips to the drug-keywords
+                    $(".highlight").each(function(idx) {
+                        var drugName = $(this).text();
+                        var drugId = drugMap[drugName];
+                        if(drugId != undefined) {
+                            $(this).attr("alt", drugId);
+                        }
                     });
+                    addDrugsTooltip(".highlight");
 
+                    // Build the table
                     clinicalTrialsDataTable = $("#pv-trials-table").dataTable({
                         "sDom": '<"H"<"trials-summary-table-name">fr>t<"F"<"trials-show-more"><"datatable-paging"pl>>',
                         "bJQueryUI": true,

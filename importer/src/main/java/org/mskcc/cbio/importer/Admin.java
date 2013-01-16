@@ -78,6 +78,10 @@ public class Admin implements Runnable {
 	// options var
 	private static final Options options = initializeOptions();
 
+	// identifiers for init db command
+	private static final String PORTAL_DATABASE = "portal";
+	private static final String IMPORTER_DATABASE = "importer";
+
 	// parsed command line
 	private CommandLine commandLine;
 
@@ -101,7 +105,14 @@ public class Admin implements Runnable {
 		// create each option
 		Option help = new Option("help", "Print this message.");
 
-        Option initializeImportDataRecordbase = new Option("init_importer_db", "Initialize the importer database.");
+        Option initializeDatabase = (OptionBuilder.withArgName("db_name")
+									 .hasArg()
+									 .withDescription("Initialize database(s).  Valid " +
+													  "database identifiers are: " +
+													  "\"" + PORTAL_DATABASE + "\" and \"" +
+													  IMPORTER_DATABASE + "\" or " +
+													  "\"" + Config.ALL + "\".")
+									 .create("init_db"));
 
         Option fetchData = (OptionBuilder.withArgName("data_source:run_date")
 							.hasArgs(2)
@@ -167,7 +178,7 @@ public class Admin implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
-		toReturn.addOption(initializeImportDataRecordbase);
+		toReturn.addOption(initializeDatabase);
 		toReturn.addOption(fetchData);
 		toReturn.addOption(fetchReferenceData);
 		toReturn.addOption(oncotateMAF);
@@ -219,8 +230,8 @@ public class Admin implements Runnable {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
 			// initialize import database
-			else if (commandLine.hasOption("init_importer_db")) {
-				initializeImportDataRecordbase();
+			else if (commandLine.hasOption("init_db")) {
+				initializeDatabase(commandLine.getOptionValue("init_db"));
 			}
 			// fetch
 			else if (commandLine.hasOption("fetch_data")) {
@@ -276,19 +287,38 @@ public class Admin implements Runnable {
 	/**
 	 * Helper function to initialize import database.
 	 *
+	 * @param databaseName String
 	 * @throws Exception
 	 */
-	private void initializeImportDataRecordbase() throws Exception {
+	private void initializeDatabase(String databaseName) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("initializeImportDataRecordbase()");
+			LOG.info("initializeDatabase(): " + databaseName);
 		}
 
+		boolean unknownDB = true;
 		DatabaseUtils databaseUtils = (DatabaseUtils)getBean("databaseUtils");
-		databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+		if (databaseName.equals(Config.ALL) || databaseName.equals(IMPORTER_DATABASE)) {
+			unknownDB = false;
+			databaseUtils.createDatabase(databaseUtils.getImporterDatabaseName(), true);
+		}
+		if (databaseName.equals(Config.ALL) || databaseName.equals(PORTAL_DATABASE)) {
+			unknownDB = false;
+			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), false);
+			boolean success = databaseUtils.executeScript(databaseUtils.getPortalDatabaseName(),
+														  databaseUtils.getDatabaseSchemaCanonicalPath(),
+														  databaseUtils.getDatabaseUser(),
+														  databaseUtils.getDatabasePassword());
+			if (!success) {
+				System.err.println("Error creating database schema.");
+			} 
+		}
+		if (unknownDB && LOG.isInfoEnabled()) {
+			LOG.info("initializeDatabase(), unknown database: " + databaseName);
+		}
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("initializeImportDataRecordbase(), complete");
+			LOG.info("initializeDatabase(), complete");
 		}
 	}
 

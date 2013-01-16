@@ -121,22 +121,18 @@ class ImporterImpl implements Importer {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("importData(), clobbering existing database...");
 			}
-			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), true);
-
-			// use mysql to create new schema
-			String[] command = new String[] {"mysql",
-											 "--user=" + databaseUtils.getDatabaseUser(),
-											 "--password=" + databaseUtils.getDatabasePassword(),
-											 databaseUtils.getPortalDatabaseName(),
-											 "-e",
-											 "source " + databaseUtils.getDatabaseSchemaCanonicalPath()};
-			if (LOG.isInfoEnabled()) {
-				LOG.info("executing: " + Arrays.asList(command));
-			}
-			if (Shell.exec(Arrays.asList(command), ".")) {
+			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), false);
+			if (databaseUtils.executeScript(databaseUtils.getPortalDatabaseName(),
+											databaseUtils.getDatabaseSchemaCanonicalPath(),
+											databaseUtils.getDatabaseUser(),
+											databaseUtils.getDatabasePassword())) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("create schema is complete.");
 				}
+			}
+			else if (LOG.isInfoEnabled()) {
+				LOG.info("error creating schema, aborting...");
+				return;
 			}
 		}
 

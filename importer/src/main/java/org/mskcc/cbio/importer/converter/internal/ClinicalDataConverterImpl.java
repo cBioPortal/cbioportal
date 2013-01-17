@@ -71,6 +71,9 @@ public class ClinicalDataConverterImpl implements Converter {
     // name of the case id column
     public static final String CASE_ID = "CASE_ID";
 
+    // "commented out" string, i.e.metadata
+    public static final String IGNORE_LINE_PREFIX = "#";
+
 	/**
 	 * Constructor.
      *
@@ -182,16 +185,29 @@ public class ClinicalDataConverterImpl implements Converter {
             }
         }
 
-        // make a column oriented data matrix out of filteredRows
+        // normalize the names,
+        // and put together the metaData
         ArrayList<String> colNames = new ArrayList<String>();
+        LinkedList<String> displayNames = new LinkedList<String>();
+        LinkedList<String> descriptions = new LinkedList<String>();
 
         for (List<String> row : filteredRows) {
-            // add the normalized name of each data vector
-            // and remove the name since names metadata, are not data
 
             String rowName = row.remove(0);
-            String normalName = normalizeName.get(rowName).getColumnHeader();
+            ClinicalAttributesMetadata metaData = normalizeName.get(rowName);
+
+            // normalized name
+            String normalName = metaData.getColumnHeader();
             colNames.add(normalName);
+
+            // case id is always the first column
+            String prefix = normalName.equals(CASE_ID) ? IGNORE_LINE_PREFIX : "";
+
+            String displayName = metaData.getDisplayName();
+            displayNames.add(prefix + displayName);
+
+            String description = metaData.getDescription();
+            descriptions.add(prefix + description);
         }
 
         // convert rows to columns, transpose
@@ -207,6 +223,10 @@ public class ClinicalDataConverterImpl implements Converter {
             columns.add(column);
         }
 
+        // add in the metadata
+        columns.add(0, displayNames);
+        columns.add(0, descriptions);
+
         DataMatrix outMatrix = new DataMatrix(columns, colNames);
 
         // case id should be the first column
@@ -216,21 +236,14 @@ public class ClinicalDataConverterImpl implements Converter {
         colNames.set(caseIdIndex, currFirstCol);
         outMatrix.setColumnOrder(colNames);
 
-        //insert meta data
-//        for(String colName : colNames) {
-//            ClinicalAttributesMetadata meetaData = normalizeName.get(colName);
-//            LinkedList<String> metaDataRow = new LinkedList<String>();
-//
-//            metaDataRow.add();
-//        }
-
-        outMatrix.write(System.out);
+//        outMatrix.write(System.out);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
 
-		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+//		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+        fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

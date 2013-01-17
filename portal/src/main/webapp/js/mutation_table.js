@@ -368,8 +368,8 @@ function _getMutationTableHeaderTip(header)
         "end pos": "End Position",
         "ref": "Reference Allele",
         "var": "Variant Allele",
-        "var freq": "Variant Frequency",
-        "norm freq": "Normal Frequency",
+        "tumor freq": "Variant frequency in the tumor sample",
+        "normal freq": "Variant frequency in the normal sample",
         "var ref": "Variant Ref Count",
         "var alt": "Variant Alt Count",
         "norm ref": "Normal Ref Count",
@@ -552,7 +552,7 @@ function _getMutationTableRows(data)
 
     var getAlleleFreqHtml = function(frequency, alt, ref) {
 		var html;
-        var tip = "<b>" + alt + "</b> out of " + "<b>" + (alt + ref) + "</b>";
+        var tip = "<b>" + alt + "</b> variant reads out of <b>" + (alt + ref) + "</b> total";
 
         if (frequency == null)
         {

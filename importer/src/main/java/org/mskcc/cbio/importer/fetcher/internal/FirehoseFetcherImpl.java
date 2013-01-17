@@ -76,8 +76,8 @@ class FirehoseFetcherImpl implements Fetcher {
 	// date formats
 	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
 
-	// this indicates a "NORMAL" data file
-	private static final String NORMAL_DATA_FILE = "-Normal.";
+	// this indicates a "NORMAL" data file (can be -NORMALS)
+	private static final Pattern NORMAL_DATA_FILE_REGEX = Pattern.compile("^.*normal|Normal|NORMAL.*$");
 
 	// this is a list of files we want to ignore -
 	// motivated by OV which contains multiple microarray gene-expression
@@ -303,7 +303,8 @@ class FirehoseFetcherImpl implements Fetcher {
         String exts[] = {"md5"};
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
 			// skip "normals"
-			if (md5File.getName().contains(NORMAL_DATA_FILE)) continue;
+			Matcher normalsMatcher = NORMAL_DATA_FILE_REGEX.matcher(md5File.getName());
+			if (normalsMatcher.find()) continue;
             File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
 			// skip blacklist files
 			if (blacklistContains(dataFile.getCanonicalPath())) continue;

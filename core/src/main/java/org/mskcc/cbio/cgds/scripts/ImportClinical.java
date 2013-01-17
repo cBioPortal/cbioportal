@@ -26,26 +26,55 @@
  **/
 package org.mskcc.cbio.cgds.scripts;
 
+import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
-import java.io.File;
+import java.io.*;
 
 public class ImportClinical {
     private ProgressMonitor pMonitor;
     private File clincalFile;
 
+    public static String readCancerStudyId(String filename) throws IOException {
+
+        FileReader metadata_f = new FileReader(filename);
+        BufferedReader metadata = new BufferedReader(metadata_f);
+
+        String line = metadata.readLine();
+        while (line != null) {
+
+            String[] fields = line.split(":");
+
+            if (fields[0].trim().equals("cancer_study_identifier")) {
+                return fields[1].trim();
+            }
+
+            line = metadata.readLine();
+        }
+
+        throw new IOException("cannot find cancer_study_identifier");
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
-            System.out.println("command line usage:  importClinical.pl <clinical.txt> <cancer-study-identifier>");
+            System.out.println("command line usage:  importClinical.pl <clinical.txt> <metadata.txt>");
             System.exit(1);
         }
 
-        File clinical_f = new File(args[0]);
-        String cancerStudy = args[1];
+        FileReader clinical_f = new FileReader(args[0]);
+        BufferedReader clinical = new BufferedReader(clinical_f);
 
-        // todo: look up cancerStudyId by cancerStudy name
-        int cancerStudyId = 1;
+        String cancerStudyId = readCancerStudyId(args[1]);
 
-//        ClinicalReader clinicalReader = new ClinicalReader(clinical_f, cancerStudy);
+        System.out.println(cancerStudyId);
+
+        DaoClinical daoClinical = new DaoClinical();
+
+        String fieldNames = clinical.readLine();
+        String[] fields = fieldNames.split("\t");
+
+        System.out.println(fields[2]);
+
+        // make a map of attributes to ClinicalAttribute objects
     }
 }

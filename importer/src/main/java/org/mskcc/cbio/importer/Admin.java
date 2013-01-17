@@ -306,7 +306,7 @@ public class Admin implements Runnable {
 			unknownDB = false;
 			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), false);
 			boolean success = databaseUtils.executeScript(databaseUtils.getPortalDatabaseName(),
-														  databaseUtils.getDatabaseSchemaCanonicalPath(),
+														  databaseUtils.getPortalDatabaseSchema(),
 														  databaseUtils.getDatabaseUser(),
 														  databaseUtils.getDatabasePassword());
 			if (!success) {

@@ -55,7 +55,7 @@
   </b:bean>
   <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
 	<b:constructor-arg index="0"><b:value>${google.id}</b:value></b:constructor-arg>
-	<b:constructor-arg index="1"><b:value>${google.password}</b:value></b:constructor-arg>
+	<b:constructor-arg index="1"><b:value>${google.pw}</b:value></b:constructor-arg>
 	<b:constructor-arg index="2" ref="spreadsheetService"/>
 	<b:constructor-arg index="3"><b:value>${importer.spreadsheet}</b:value></b:constructor-arg>
 	<b:constructor-arg index="4"><b:value>${importer.tumor_types_worksheet}</b:value></b:constructor-arg>

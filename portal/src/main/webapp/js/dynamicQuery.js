@@ -301,8 +301,14 @@ function genomicProfileRadioButtonSelected(subgroupClicked) {
 function profileGroupCheckBoxSelected(profileGroup) {
     var profileClass = profileGroup.attr('class');
     $("input."+profileClass+"[type=radio]").prop('checked',false);
-    if (profileGroup.prop('checked'))
-        $("input."+profileClass+"[type=radio]").first().prop('checked',true);
+    if (profileGroup.prop('checked')) {
+        var rnaSeqRadios = $("input."+profileClass+"[type=radio][value*='rna_seq']");
+        if (rnaSeqRadios.length>0) {
+            rnaSeqRadios.first().prop('checked',true);
+        } else {
+            $("input."+profileClass+"[type=radio]").first().prop('checked',true);
+        }
+    }
     updateDefaultCaseList();
 }
 

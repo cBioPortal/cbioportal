@@ -19,7 +19,7 @@
   <context:annotation-config/>
 
 <!--
-        Should come from another file with value conditional based on build.properties
+        Should come from another file with value conditional based on portal.properties
 -->
   <global-method-security pre-post-annotations="enabled">
         <expression-handler ref="expressionHandler"/>

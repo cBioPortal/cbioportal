@@ -26,39 +26,39 @@
 **/
 
 // package
-package org.mskcc.cbio.importer.model;
+package org.mskcc.cbio.importer.util;
 
 // imports
-import org.mskcc.cbio.importer.util.MetadataUtils;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
- * Class which contains portal metadata.
+ * Class which provides utilities shared across metadata objects (yes this could be in an abstract class).
  */
-public class PortalMetadata {
+public class MetadataUtils {
 
-	// bean properties
-    private String name;
-    private String stagingDirectory;
-    private String overrideDirectory;
+	// the reference metadata worksheet can contain environment vars
+	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
 
-    /**
-     * Create a PortalMetadata instance with properties in given array.
-	 * Its assumed order of properties is that from google worksheet.
-     *
-	 * @param properties String[]
-     */
-    public PortalMetadata(String[] properties) {
+	/**
+	 * Helper function used to get canonical path for given path. It will translate
+	 * environment variables.
+	 *
+	 * @param path String
+	 */
+	public static String getCanonicalPath(String path) {
+	
+		String toReturn = path;
 
-		if (properties.length < 3) {
-            throw new IllegalArgumentException("corrupt properties array passed to contructor");
+		Matcher lineMatcher = ENVIRONMENT_VAR_REGEX.matcher(path);
+		if (lineMatcher.find()) {
+			String envValue = System.getenv(lineMatcher.group(1));
+			if (envValue != null) {
+				toReturn = path.replace("$" + lineMatcher.group(1), envValue);
+			}
 		}
 
-        this.name = properties[0].trim();
-		this.stagingDirectory = MetadataUtils.getCanonicalPath(properties[1].trim());
-		this.overrideDirectory = MetadataUtils.getCanonicalPath(properties[2].trim());
+		// outta here
+		return toReturn;
 	}
-
-	public String getName() { return name; }
-	public String getStagingDirectory() { return stagingDirectory; }
-	public String getOverrideDirectory() { return overrideDirectory; }
 }

@@ -415,7 +415,7 @@ function addMoreCinicalTooltip() {
     }
 }
 
-function addDrugsTooltip(elem) {
+function addDrugsTooltip(elem, my, at) {
     $(elem).each(function(){
         $(this).qtip({
             content: {
@@ -474,7 +474,7 @@ function addDrugsTooltip(elem) {
             },
             hide: { fixed: true, delay: 100 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
-            position: {my:'top right',at:'bottom center'}
+            position: { my: my, at: at }
         });
     });
 }

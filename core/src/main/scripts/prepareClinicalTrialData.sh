@@ -11,10 +11,10 @@ else
 	echo "[ done ]"
 fi
 
-# Check if the build.properties file is passed as an argument
+# Check if the portal.properties file is passed as an argument
 if [ "$1" == "" ]
 then
-	echo "Usage: prepareClinicalTrialData.sh /path/to/build.properties"
+	echo "Usage: prepareClinicalTrialData.sh /path/to/portal.properties"
 	exit -1
 fi
 
@@ -29,7 +29,8 @@ wget --quiet --ftp-password=$FTPPASSWD --ftp-user=$FTPUSER ftp://cipsftp.nci.nih
 echo "[ done ]" &&
 echo -ne "Unzipping the archive...\t\t" &&
 tar -zxf CTGovProtocol.tar.gz &&
-mv CTGovProtocol clinicalTrials &&
+mv CTGovProtocol clinical-trials &&
+rm -f CTGovProtocol.tar.gz &&
 echo "[ done ]" &&
 
 # Go back to where we were

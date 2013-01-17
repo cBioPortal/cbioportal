@@ -36,11 +36,15 @@ public final class DaoMutationEvent {
             
             pstmt = con.prepareStatement
 		("INSERT INTO case_mutation_event (`MUTATION_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`, "
-                    + "`VALIDATION_STATUS`) VALUES(?,?,?,?)");
+                    + "`VALIDATION_STATUS`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`, `NORMAL_REF_COUNT`) VALUES(?,?,?,?)");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setInt(3, mutation.getGeneticProfileId());
             pstmt.setString(4, mutation.getValidationStatus());
+            pstmt.setInt(5, mutation.getTumorAltCount());
+            pstmt.setInt(6, mutation.getTumorRefCount());
+            pstmt.setInt(7, mutation.getNormalAltCount());
+            pstmt.setInt(8, mutation.getNormalRefCount());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -189,7 +193,8 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
-                    + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
+                    + " VALIDATION_STATUS, TUMOR_ALT_COUNT, TUMOR_REF_COUNT, NORMAL_ALT_COUNT, NORMAL_REF_COUNT,"
+                    + " ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
                     + " CHR, START_POSITION, END_POSITION, FUNCTIONAL_IMPACT_SCORE, LINK_XVAR, LINK_PDB,"
                     + " LINK_MSA, KEYWORD"
                     + " FROM case_mutation_event, mutation_event"
@@ -227,6 +232,10 @@ public final class DaoMutationEvent {
             event.setLinkPdb(rs.getString("LINK_PDB"));
             event.setLinkMsa(rs.getString("LINK_MSA"));
             event.setKeyword(rs.getString("KEYWORD"));
+            event.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
+            event.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
+            event.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
+            event.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
             events.add(event);
         }
         return events;

@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
- * Reads build.properties file and makes key/value pairs accessible.
+ * Reads portal.properties file and makes key/value pairs accessible.
  */
 public class Config {
     private static Config config = null;
@@ -40,7 +40,7 @@ public class Config {
 
     private Config () {
         try {
-           String props = "build.properties";
+           String props = "portal.properties";
 		   InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
 
             if( null == in ){

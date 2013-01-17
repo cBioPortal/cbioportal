@@ -11,10 +11,10 @@ else
 	echo "[ done ]"
 fi
 
-# Check if the build.properties file is passed as an argument
+# Check if the portal.properties file is passed as an argument
 if [ "$1" == "" ]
 then
-	echo "Usage: prepareClinicalTrialData.sh /path/to/build.properties"
+	echo "Usage: prepareClinicalTrialData.sh /path/to/portal.properties"
 	exit -1
 fi
 

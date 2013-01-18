@@ -77,7 +77,7 @@ class FirehoseFetcherImpl implements Fetcher {
 	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
 
 	// this indicates a "NORMAL" data file (can be -NORMALS)
-	private static final Pattern NORMAL_DATA_FILE_REGEX = Pattern.compile("^.*normal|Normal|NORMAL.*$");
+	private static final Pattern NORMAL_DATA_FILE_REGEX = Pattern.compile("^.*\\-Normal|\\-NORMAL.*$");
 
 	// this is a list of files we want to ignore -
 	// motivated by OV which contains multiple microarray gene-expression

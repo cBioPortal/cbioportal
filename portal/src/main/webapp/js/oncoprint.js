@@ -499,8 +499,10 @@ var Oncoprint = function(wrapper, params) {
             });
         });
 
+        var number_of_samples = $(tracks[0]).children().length;
+
         var export_svg = $('<svg>')
-            .attr('width', getXScale(samples_all.length))
+            .attr('width', getXScale(number_of_samples) + label_width)
             .attr('height', getHeight());
 
         export_svg

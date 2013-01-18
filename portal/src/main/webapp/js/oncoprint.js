@@ -272,7 +272,7 @@ var Oncoprint = function(wrapper, params) {
 
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                position: {my:'top center',at:'bottom center'}
+                position: {my:'left top',at:'bottom center'}
             });
         });
     };

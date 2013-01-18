@@ -87,33 +87,68 @@ jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
 };
 
 /**
- * Ascending sort function for COSMIC column.
+ * Ascending sort function for columns having int within label tag.
  */
-jQuery.fn.dataTableExt.oSort['cosmic-col-asc'] = function(a,b) {
-    var av = _getCosmicTextValue(a);
-    var bv = _getCosmicTextValue(b);
+jQuery.fn.dataTableExt.oSort['label-int-col-asc'] = function(a,b) {
+    var av = _getLabelTextIntValue(a);
+    var bv = _getLabelTextIntValue(b);
 
     return _compareSortAsc(a, b, av, bv);
 };
 
 /**
- * Descending sort function for COSMIC column.
+ * Descending sort function for columns having int within label tag.
  */
-jQuery.fn.dataTableExt.oSort['cosmic-col-desc'] = function(a,b) {
-    var av = _getCosmicTextValue(a);
-    var bv = _getCosmicTextValue(b);
+jQuery.fn.dataTableExt.oSort['label-int-col-desc'] = function(a,b) {
+    var av = _getLabelTextIntValue(a);
+    var bv = _getLabelTextIntValue(b);
 
     return _compareSortDesc(a, b, av, bv);
 };
 
 /**
- * Helper function for COSMIC sorting.
+ * Ascending sort function for columns having float within label tag.
  */
-function _getCosmicTextValue(a)
+jQuery.fn.dataTableExt.oSort['label-float-col-asc'] = function(a,b) {
+    var av = _getLabelTextFloatValue(a);
+    var bv = _getLabelTextFloatValue(b);
+
+    return _compareSortAsc(a, b, av, bv);
+};
+
+/**
+ * Descending sort function for columns having float within label tag.
+ */
+jQuery.fn.dataTableExt.oSort['label-float-col-desc'] = function(a,b) {
+    var av = _getLabelTextFloatValue(a);
+    var bv = _getLabelTextFloatValue(b);
+
+    return _compareSortDesc(a, b, av, bv);
+};
+
+/**
+ * Helper function for sorting int values within label tag.
+ */
+function _getLabelTextIntValue(a)
 {
     if (a.indexOf("label") != -1)
     {
         return parseInt($(a).text());
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+/**
+ * Helper function for sorting float values within label tag.
+ */
+function _getLabelTextFloatValue(a)
+{
+    if (a.indexOf("label") != -1)
+    {
+        return parseFloat($(a).text());
     }
     else
     {
@@ -214,9 +249,12 @@ function drawMutationTable(data)
         "aoColumnDefs":[
             {"sType": 'aa-change-col',
                 "aTargets": [ 1 ]},
-            {"sType": 'cosmic-col',
+            {"sType": 'label-int-col',
                 "sClass": "right-align-td",
-                "aTargets": [ 3 ]},
+                "aTargets": [3,15,16,18,19]},
+            {"sType": 'label-float-col',
+                "sClass": "right-align-td",
+                "aTargets": [14,17]},
             {"sType": 'predicted-impact-col',
                 "aTargets": [ 4 ]},
             {"asSorting": ["desc", "asc"],

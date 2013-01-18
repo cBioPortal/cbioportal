@@ -15,11 +15,17 @@
         </form>
 
         <div id="oncoprint_controls">
-            <p onclick="$('#oncoprint_controls table').toggle();
-    $('#oncoprint_controls .query-toggle').toggle();" style="margin-bottom: 0px;">
-                <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-                <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
-                <b style="color:#2153AA;">Customize</b>
+            <style>
+                .onco-customize {
+                    color:#2153AA; font-weight: bold; cursor: pointer;
+                }
+                .onco-customize:hover { text-decoration: underline; }
+            </style>
+            <p onclick="$('#oncoprint_controls table').toggle(); $('#oncoprint_controls .triangle').toggle();"
+               style="margin-bottom: 0px;">
+                <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+                <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
+                <span class='onco-customize' style="">Customize</span>
             </p>
             <table style="padding-left:13px; padding-top:5px; display:none;">
                 <tr>

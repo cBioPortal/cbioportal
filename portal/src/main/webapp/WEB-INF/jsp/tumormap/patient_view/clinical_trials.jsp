@@ -27,6 +27,9 @@
         float: right;
         margin-bottom: 10px;
     }
+    .annotated-target, .drug-synoynms {
+        font-weight: bold;
+    }
 
 </style>
 <script type="text/javascript" src="js/jquery.highlight-4.js"></script>
@@ -35,10 +38,29 @@
     // A map from drug names to drug ids
     var drugMap = {};
 
+    var cnaDrugs;
+    var mutDrugs;
+
+    var extractTargetsOfInterests = function(id, drugs) {
+        var genes = [];
+
+        for(var i=0; i < drugs.ids.length; i++) {
+            if(drugs.ids[i] == id) {
+                genes.push(drugs.genes[i]);
+            }
+        }
+
+        return genes;
+    };
+
     var populateDrugTable = function() {
         var drugIds = [];
-        drugIds = drugIds.concat(genomicEventObs.cnas.getDrugIDs());
-        drugIds = drugIds.concat(genomicEventObs.mutations.getDrugIDs());
+
+        cnaDrugs = genomicEventObs.cnas.getDrugs();
+        mutDrugs = genomicEventObs.mutations.getDrugs();
+
+        drugIds = drugIds.concat(cnaDrugs.ids);
+        drugIds = drugIds.concat(mutDrugs.ids);
 
         // reset the keywords
         keywords = [];
@@ -70,14 +92,62 @@
                                 xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"' target='_blank'>KEGG Drug</a>");
                         }
 
+                        var upstreamTxt = " and the gene is upstream of at least one of the indicated target genes for this drug.";
                         var drugTargets = "";
-                        var targets = drug[1].split(",");
-                        if(targets.length > 3) {
-                            drugTargets = targets.slice(0, 3).join(",");
-                            drugTargets += ' <br/><small title="' + drug[1] + '" class="drug-targets">('
-                                    + (targets.length-3) + ' more)</small>';
-                        } else {
-                            drugTargets = drug[1];
+                        var cnaTargets = extractTargetsOfInterests(drug[0], cnaDrugs);
+                        var mutTargets = extractTargetsOfInterests(drug[0], mutDrugs);
+                        var targets = drug[1].split(", ");
+                        var usedTargets = [];
+                        var j, aTarget, altText;
+                        for(j=0; j < cnaTargets.length; j++) {
+                            aTarget = cnaTargets[j];
+                            usedTargets.push(aTarget);
+                            if($.inArray(aTarget, mutTargets) > 0) {
+                                altText = "Sample has both a mutation and a copy-number alteration in this gene";
+                            } else {
+                                altText = "Sample has a copy-number alteration in this gene";
+                            }
+
+                            if($.inArray(aTarget, targets) < 0) {
+                                altText += upstreamTxt;
+                            } else {
+                                altText += ".";
+                            }
+
+                            drugTargets += "<span class='annotated-target' title='" + altText + "'>" + aTarget + "</span><br/>";
+                        }
+
+                        for(j=0; j < mutTargets.length; j++) {
+                            aTarget = mutTargets[j];
+                            if($.inArray(aTarget, usedTargets) > 0) {
+                                continue;
+                            } else {
+                                usedTargets.push(aTarget);
+                            }
+
+                            altText = "Sample has a mutation in this gene.";
+
+                            if($.inArray(aTarget, targets) < 0) {
+                                altText += upstreamTxt;
+                            } else {
+                                altText += ".";
+                            }
+
+                            drugTargets += "<span class='annotated-target' title='" + altText + "'>" + aTarget + "</span><br/>";
+                        }
+
+                        var leftDrugs = [];
+                        for(j=0; j < targets.length; j++) {
+                            if($.inArray(targets[j], usedTargets) > 0) {
+                                continue;
+                            }
+
+                            leftDrugs.push(targets[j]);
+                        }
+
+                        var moreText = "";
+                        if(leftDrugs.length > 0) {
+                            moreText = "<small class='drug-targets' title='" + leftDrugs.join(", ") + "'>(" + leftDrugs.length + " more)</small>";
                         }
 
                         $("#pv-drugs-table").append(
@@ -87,7 +157,7 @@
                                         + drug[2]
                                     + '</span>'
                                 + '</td>'
-                                + '<td>' + drugTargets + '</td>'
+                                + '<td align="center">' + drugTargets + moreText + '</td>'
                                 + '<td>' + drug[5] + '</td>'
                                 + '<td>' + (drug[4] ? "Yes" : "No") + '</td>'
                                 + '<td>' + xref.join(", ") + '</td>'
@@ -123,11 +193,16 @@
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
                     });
 
+                    $(".annotated-target").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    });
 
                     populateClinicalTrialsTable(keywords, 'both');
 
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
-                            + "These drugs were selected based on the patient's genomic alteration. "
+                            + "These drugs were selected based on the patient\'s "
+                            + "genomic alterations (mutations and copy-number alterations)."
                             + "'>";
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({

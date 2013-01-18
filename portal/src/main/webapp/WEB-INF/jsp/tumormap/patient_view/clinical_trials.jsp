@@ -83,10 +83,9 @@
                         $("#pv-drugs-table").append(
                             '<tr>'
                                 + '<td>'
-                                    + drug[2]
-                                    + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms"> <br/>'
-                                        + "(" + drug[3].split(";").length + " more)"
-                                    + '</small>'
+                                    + '<span title="<b>Synonyms: </b>' + drug[3].replace(";", ",") + '" class="drug-synoynms"> <br/>'
+                                        + drug[2]
+                                    + '</span>'
                                 + '</td>'
                                 + '<td>' + drugTargets + '</td>'
                                 + '<td>' + drug[5] + '</td>'

@@ -25,6 +25,10 @@
     }
     #trial-filtering {
         float: right;
+        margin-bottom: 10px;
+    }
+    .annotated-target, .drug-synoynms {
+        font-weight: bold;
     }
 
 </style>
@@ -34,10 +38,29 @@
     // A map from drug names to drug ids
     var drugMap = {};
 
+    var cnaDrugs;
+    var mutDrugs;
+
+    var extractTargetsOfInterests = function(id, drugs) {
+        var genes = [];
+
+        for(var i=0; i < drugs.ids.length; i++) {
+            if(drugs.ids[i] == id) {
+                genes.push(drugs.genes[i]);
+            }
+        }
+
+        return genes;
+    };
+
     var populateDrugTable = function() {
         var drugIds = [];
-        drugIds = drugIds.concat(genomicEventObs.cnas.getDrugIDs());
-        drugIds = drugIds.concat(genomicEventObs.mutations.getDrugIDs());
+
+        cnaDrugs = genomicEventObs.cnas.getDrugs();
+        mutDrugs = genomicEventObs.mutations.getDrugs();
+
+        drugIds = drugIds.concat(cnaDrugs.ids);
+        drugIds = drugIds.concat(mutDrugs.ids);
 
         // reset the keywords
         keywords = [];
@@ -69,25 +92,72 @@
                                 xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"' target='_blank'>KEGG Drug</a>");
                         }
 
+                        var upstreamTxt = " and the gene is upstream of at least one of the indicated target genes for this drug.";
                         var drugTargets = "";
-                        var targets = drug[1].split(",");
-                        if(targets.length > 3) {
-                            drugTargets = targets.slice(0, 3).join(",");
-                            drugTargets += ' <br/><small title="' + drug[1] + '" class="drug-targets">('
-                                    + (targets.length-3) + ' more)</small>';
-                        } else {
-                            drugTargets = drug[1];
+                        var cnaTargets = extractTargetsOfInterests(drug[0], cnaDrugs);
+                        var mutTargets = extractTargetsOfInterests(drug[0], mutDrugs);
+                        var targets = drug[1].split(", ");
+                        var usedTargets = [];
+                        var j, aTarget, altText;
+                        for(j=0; j < cnaTargets.length; j++) {
+                            aTarget = cnaTargets[j];
+                            usedTargets.push(aTarget);
+                            if($.inArray(aTarget, mutTargets) > 0) {
+                                altText = "Sample has both a mutation and a copy-number alteration in this gene";
+                            } else {
+                                altText = "Sample has a copy-number alteration in this gene";
+                            }
+
+                            if($.inArray(aTarget, targets) < 0) {
+                                altText += upstreamTxt;
+                            } else {
+                                altText += ".";
+                            }
+
+                            drugTargets += "<span class='annotated-target' title='" + altText + "'>" + aTarget + "</span><br/>";
+                        }
+
+                        for(j=0; j < mutTargets.length; j++) {
+                            aTarget = mutTargets[j];
+                            if($.inArray(aTarget, usedTargets) > 0) {
+                                continue;
+                            } else {
+                                usedTargets.push(aTarget);
+                            }
+
+                            altText = "Sample has a mutation in this gene.";
+
+                            if($.inArray(aTarget, targets) < 0) {
+                                altText += upstreamTxt;
+                            } else {
+                                altText += ".";
+                            }
+
+                            drugTargets += "<span class='annotated-target' title='" + altText + "'>" + aTarget + "</span><br/>";
+                        }
+
+                        var leftDrugs = [];
+                        for(j=0; j < targets.length; j++) {
+                            if($.inArray(targets[j], usedTargets) > 0) {
+                                continue;
+                            }
+
+                            leftDrugs.push(targets[j]);
+                        }
+
+                        var moreText = "";
+                        if(leftDrugs.length > 0) {
+                            moreText = "<small class='drug-targets' title='" + leftDrugs.join(", ") + "'>(" + leftDrugs.length + " more)</small>";
                         }
 
                         $("#pv-drugs-table").append(
                             '<tr>'
                                 + '<td>'
-                                    + drug[2]
-                                    + '<small title="' + drug[3].replace(";", ",") + '" class="drug-synoynms"> <br/>'
-                                        + "(" + drug[3].split(";").length + " more)"
-                                    + '</small>'
+                                    + '<span title="<b>Synonyms: </b>' + drug[3].replace(";", ",") + '" class="drug-synoynms"> <br/>'
+                                        + drug[2]
+                                    + '</span>'
                                 + '</td>'
-                                + '<td>' + drugTargets + '</td>'
+                                + '<td align="center">' + drugTargets + moreText + '</td>'
                                 + '<td>' + drug[5] + '</td>'
                                 + '<td>' + (drug[4] ? "Yes" : "No") + '</td>'
                                 + '<td>' + xref.join(", ") + '</td>'
@@ -123,11 +193,16 @@
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
                     });
 
+                    $(".annotated-target").qtip({
+                        content: { attr: 'title' },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                    });
 
-                    populateClinicalTrialsTable(keywords, true);
+                    populateClinicalTrialsTable(keywords, 'both');
 
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
-                            + "These drugs were selected based on the patient's genomic alteration. "
+                            + "These drugs were selected based on the patient\'s "
+                            + "genomic alterations (mutations and copy-number alterations)."
                             + "'>";
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
@@ -140,12 +215,13 @@
     };
 
     var clinicalTrialsDataTable = null;
-    var populateClinicalTrialsTable = function(keywords, showAll) {
+    var populateClinicalTrialsTable = function(keywords, filterBy) {
         // Remove all the current rows from the table before population it
         $(".trials-row").remove();
         if(clinicalTrialsDataTable != null) {
             clinicalTrialsDataTable.fnClearTable();
             clinicalTrialsDataTable.fnDestroy();
+            $("#pv-trials-table").css({ width: "100%"});
         }
         $("#trials_wait").show();
 
@@ -155,7 +231,7 @@
         $.post("clinicaltrials.json",
                 {
                     keywords: keywords.join(","),
-                    showall: showAll ? 1 : 0,
+                    filter: filterBy,
                     study: studyTerms
                 },
 
@@ -214,11 +290,14 @@
                     $("#trials_wait").hide();
 
                     var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
-                            + "The following clinical trials are listed because they are associated "
-                            + " with the drugs of interest within the context of the cancer type: " + studyOfInterest
-                            + ". The data for the clinical trials listed on this page was kindly provided by NCI, Cancer.gov'>";
+                            + "The following clinical trials are listed because they match with "
+                            + (filterBy == "both" ? "both the drugs and the cancer type" : (filterBy == "study") ? "the cancer type" : "the drugs")
+                            + " of interest. <br/><br/>"
+                            + "The data for the clinical trials listed on this page was "
+                            + "kindly provided by NCI, Cancer.gov through the content dissemination program."
+                            + "'>";
 
-                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials of interest " + infoBox);
+                    $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
@@ -237,14 +316,14 @@
     });
 </script>
 
-<!-- Too few studies when only active ones are shown. Just hiding this functionality for now.
 <div id="trial-filtering">
+    <b>Filter trials by</b>:
     <select id="trial-filtering-options">
-        <option value="all" selected="true">Show all studies</option>
-        <option value="active">Show active studies only</option>
+        <option value="both" selected="true">Drugs and cancer type</option>
+        <option value="drugs">Drugs</option>
+        <option value="study">Cancer type</option>
     </select>
 </div>
--->
 
 <table id="pv-trials-table" class="dataTable display" style="width: 100%;">
    <thead>

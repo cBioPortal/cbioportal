@@ -25,6 +25,7 @@
     }
     #trial-filtering {
         float: right;
+        margin-bottom: 10px;
     }
 
 </style>
@@ -124,7 +125,7 @@
                     });
 
 
-                    populateClinicalTrialsTable(keywords, true);
+                    populateClinicalTrialsTable(keywords, 'both');
 
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
                             + "These drugs were selected based on the patient's genomic alteration. "
@@ -140,12 +141,13 @@
     };
 
     var clinicalTrialsDataTable = null;
-    var populateClinicalTrialsTable = function(keywords, showAll) {
+    var populateClinicalTrialsTable = function(keywords, filterBy) {
         // Remove all the current rows from the table before population it
         $(".trials-row").remove();
         if(clinicalTrialsDataTable != null) {
             clinicalTrialsDataTable.fnClearTable();
             clinicalTrialsDataTable.fnDestroy();
+            $("#pv-trials-table").css({ width: "100%"});
         }
         $("#trials_wait").show();
 
@@ -155,7 +157,7 @@
         $.post("clinicaltrials.json",
                 {
                     keywords: keywords.join(","),
-                    showall: showAll ? 1 : 0,
+                    filter: filterBy,
                     study: studyTerms
                 },
 
@@ -214,11 +216,14 @@
                     $("#trials_wait").hide();
 
                     var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
-                            + "The following clinical trials are listed because they are associated "
-                            + " with the drugs of interest within the context of the cancer type: " + studyOfInterest
-                            + ". The data for the clinical trials listed on this page was kindly provided by NCI, Cancer.gov'>";
+                            + "The following clinical trials are listed because they match with "
+                            + (filterBy == "both" ? "both the drugs and the cancer type" : (filterBy == "study") ? "the cancer type" : "the drugs")
+                            + " of interest. <br/><br/>"
+                            + "The data for the clinical trials listed on this page was "
+                            + "kindly provided by NCI, Cancer.gov through the content dissemination program."
+                            + "'>";
 
-                    $(".trials-summary-table-name").html(data.length + (showAll ? "" : " active") + " clinical trials of interest " + infoBox);
+                    $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
@@ -237,14 +242,14 @@
     });
 </script>
 
-<!-- Too few studies when only active ones are shown. Just hiding this functionality for now.
 <div id="trial-filtering">
+    <b>Filter trials by</b>:
     <select id="trial-filtering-options">
-        <option value="all" selected="true">Show all studies</option>
-        <option value="active">Show active studies only</option>
+        <option value="both" selected="true">Drugs and cancer type</option>
+        <option value="drugs">Drugs</option>
+        <option value="study">Cancer type</option>
     </select>
 </div>
--->
 
 <table id="pv-trials-table" class="dataTable display" style="width: 100%;">
    <thead>

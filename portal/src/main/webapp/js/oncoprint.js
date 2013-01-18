@@ -289,7 +289,7 @@ var Oncoprint = function(wrapper, params) {
 //                    console.log(ui.value);
                     oncoprint.scaleWidth(ui.value);
                 }
-            }).appendTo($('#oncoprint_controls #width_scroller'));
+            }).appendTo($('#oncoprint_controls #zoom'));
     };
 
     that.draw = function() {

@@ -30,6 +30,7 @@ package org.mskcc.cbio.oncotator;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Oncotator altered to build JSON cache for existing oncotator key values.
@@ -50,8 +51,8 @@ public class CacheBuilderOncotator extends Oncotator
 		this.oncotatorService = new CachedOncotatorService(cacheService);
 	}
 
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
+	protected int oncotateMaf(File inputMafFile, File outputMafFile)
+			throws IOException, OncotatorServiceException
 	{
 		FileReader reader = new FileReader(inputMafFile);
 		BufferedReader bufReader = new BufferedReader(reader);

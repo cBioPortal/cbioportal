@@ -28,27 +28,12 @@
 package org.mskcc.cbio.oncotator;
 
 /**
- * Interface to define a Cache Service for Oncotator records.
- *
- * @author Selcuk Onur Sumer
+ * Exception class designed for OncotatorService instances
  */
-public interface OncotatorCacheService
+public class OncotatorServiceException extends Exception
 {
-	/**
-	 * Adds a new oncotator record to the cache.
-	 *
-	 * @param record    oncotator record to add
-	 * @return          number of records successfully added
-	 */
-	public int put(OncotatorRecord record) throws OncotatorCacheException;
-
-
-	/**
-	 * Gets the oncotator record for the given key.
-	 *
-	 * @param key   cache key
-	 * @return      corresponding record for the given key
-	 */
-	public OncotatorRecord get(String key) throws OncotatorCacheException;
-
+	public OncotatorServiceException(String message)
+	{
+		super(message);
+	}
 }

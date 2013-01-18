@@ -41,7 +41,7 @@ import java.sql.SQLException;
  */
 public class DaoJsonCache implements OncotatorCacheService
 {
-	public int put(OncotatorRecord record) throws SQLException
+	public int put(OncotatorRecord record) throws OncotatorCacheException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -63,14 +63,15 @@ public class DaoJsonCache implements OncotatorCacheService
 			int rows = pstmt.executeUpdate();
 			return rows;
 		} catch (SQLException e) {
-			throw e;
+			e.printStackTrace();
+			throw new OncotatorCacheException(e.getMessage());
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);
 		}
 	}
 
 
-	public OncotatorRecord get(String key) throws SQLException
+	public OncotatorRecord get(String key) throws OncotatorCacheException
 	{
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -91,7 +92,8 @@ public class DaoJsonCache implements OncotatorCacheService
 				return null;
 			}
 		} catch (SQLException e) {
-			throw e;
+			e.printStackTrace();
+			throw new OncotatorCacheException(e.getMessage());
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);
 		}

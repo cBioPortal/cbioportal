@@ -115,10 +115,11 @@ public class Oncotator
 	 * @param inputMafFile  input MAF
 	 * @param outputMafFile output MAF
 	 * @return              number of errors (if any) during the process
-	 * @throws Exception    if an (IO or service) Exception occurs
+	 * @throws IOException                  if an IO exception occurs
+	 * @throws OncotatorServiceException    if a service exception occurs
 	 */
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
+	protected int oncotateMaf(File inputMafFile, File outputMafFile)
+			throws IOException, OncotatorServiceException
 	{
 		this.outputFileNames(inputMafFile, outputMafFile);
 
@@ -181,7 +182,7 @@ public class Oncotator
 	 * @return          oncotator data retrieved from oncotator service
 	 */
 	protected OncotatorRecord conditionallyOncotateRecord(MafRecord mafRecord)
-			throws Exception
+			throws OncotatorServiceException
 	{
 		String ncbiBuild = mafRecord.getNcbiBuild();
 		OncotatorRecord oncotatorRecord = null;
@@ -212,7 +213,8 @@ public class Oncotator
 	 * @param mafRecord MAF record representing a single line of a MAF file
 	 * @return          oncotator data retrieved from oncotator service
 	 */
-	protected OncotatorRecord oncotateRecord(MafRecord mafRecord) throws Exception
+	protected OncotatorRecord oncotateRecord(MafRecord mafRecord)
+			throws OncotatorServiceException
 	{
 		String key = MafUtil.generateKey(mafRecord);
 
@@ -229,9 +231,11 @@ public class Oncotator
 		return oncotatorRecord;
 	}
 
-	protected void abortDueToBuildNumErrors() {
-		System.out.println("Too many records with wrong build #.  Aborting...");
-		System.exit(1);
+	protected void abortDueToBuildNumErrors()
+	{
+		throw new RuntimeException("Too many records with wrong build #.  Aborting...");
+		//System.out.println("Too many records with wrong build #.  Aborting...");
+		//System.exit(1);
 	}
 
 	protected void outputBuildNumErrorMessage(String ncbiBuild) {

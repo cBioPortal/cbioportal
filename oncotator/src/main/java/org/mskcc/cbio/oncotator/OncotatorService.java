@@ -57,7 +57,7 @@ public abstract class OncotatorService
 	 * @param key   key for the service query
 	 * @return      oncotator record containing the query result
 	 */
-    public abstract OncotatorRecord getOncotatorRecord(String key) throws Exception;
+    public abstract OncotatorRecord getOncotatorRecord(String key) throws OncotatorServiceException;
 
 	/**
 	 * Retrieves the record from the oncotator web service.

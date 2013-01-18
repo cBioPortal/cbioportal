@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.oncotator;
 
+import java.io.IOException;
+
 /**
  * Basic Oncotator Service implementaion with no cache or database.
  *
@@ -40,10 +42,17 @@ public class BasicOncotatorService extends OncotatorService
 	 * @param key   key for the service query
 	 * @return      oncotator record containing the query result
 	 */
-	public OncotatorRecord getOncotatorRecord(String key) throws Exception
+	public OncotatorRecord getOncotatorRecord(String key) throws OncotatorServiceException
 	{
 		// get record directly from the oncotator web service
-		OncotatorRecord record = this.getRecordFromService(key);
+		OncotatorRecord record = null;
+
+		try {
+			record = this.getRecordFromService(key);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new OncotatorServiceException(e.getMessage());
+		}
 
 		// if record is null, then there is an error with JSON parsing
 		if (record == null)

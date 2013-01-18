@@ -480,6 +480,8 @@ var Oncoprint = function(wrapper, params) {
             redraw(samples_visualized, track, gene.hugo);
             transition();
         });
+
+        makeQtip();
     };
 
 //  For the given oncoprint reference, returns the SVG Dom as string

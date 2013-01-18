@@ -142,8 +142,8 @@ public class ZScoresConverterImpl implements Converter {
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
 			}
 			return;
 		}
@@ -155,8 +155,8 @@ public class ZScoresConverterImpl implements Converter {
 			dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
 		}
 		catch (NoSuchElementException e) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("createStagingFile(), not all dependencies found: " + Arrays.asList(dependencies) + ", aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), not all dependencies found: " + Arrays.asList(dependencies) + ", aborting...");
 			}
 			return;
 		}

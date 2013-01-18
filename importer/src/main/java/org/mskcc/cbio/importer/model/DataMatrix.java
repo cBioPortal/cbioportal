@@ -42,6 +42,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import java.io.PrintWriter;
@@ -62,6 +63,7 @@ public class DataMatrix {
 	private class ColumnHeader {
 		public String label;
 		public LinkedList<String> columnData;
+		public ArrayList<String> columnDataAsArray;
 		public boolean ignoreColumn;
 	}
 
@@ -452,6 +454,8 @@ public class DataMatrix {
 			if (columnHeader != columnHeaders.getLast()) {
 				writer.print(Converter.VALUE_DELIMITER);
 			}
+			// create ArrayList version of data for speedy writing below
+			columnHeader.columnDataAsArray = new ArrayList<String>(columnHeader.columnData);
 		}
 		writer.println();
 
@@ -462,7 +466,7 @@ public class DataMatrix {
 			}
 			for (ColumnHeader columnHeader : columnHeaders) {
 				if (columnHeader.ignoreColumn) continue;
-				writer.print(columnHeader.columnData.get(rowIndex));
+				writer.print(columnHeader.columnDataAsArray.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
 					writer.print(Converter.VALUE_DELIMITER);
 				}

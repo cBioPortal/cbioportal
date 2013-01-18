@@ -342,6 +342,7 @@ class FirehoseFetcherImpl implements Fetcher {
             String canonicalPath = dataFile.getCanonicalPath();
             // create an store a new ImportDataRecord object
             for (DatatypeMetadata datatype : datatypes) {
+				if (!datatype.isDownloaded()) continue;
 				Method archivedFilesMethod = datatype.getArchivedFilesMethod(dataSource);
 				Set<String> archivedFiles = (Set<String>)archivedFilesMethod.invoke(datatype, (Object)dataFile.getName());
 				if (archivedFiles.size() == 0 && LOG.isInfoEnabled()) {

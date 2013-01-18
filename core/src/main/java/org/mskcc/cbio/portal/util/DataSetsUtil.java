@@ -126,11 +126,11 @@ public class DataSetsUtil {
 			// get genetic profiles
 			int sequenced = getCount(cancerStudy, "_sequenced");
 			int aCGH = getCount(cancerStudy, "_acgh");
-			int RNASEQ = getCount(cancerStudy, "_rna_seq_mrna");
+			int RNASEQ = getCount(cancerStudy, "_rna_seq_v2_mrna");
 			int tumorMRNA = getCount(cancerStudy, "_mrna");
 			int normal = getCount(cancerStudy, "_normal_mrna");
 			int tumorMIRNA = getCount(cancerStudy, "_microrna");
-			int methylation = getCount(cancerStudy, "_methylation");
+			int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
 			int rppa = getCount(cancerStudy, "_rppa");
 			int complete = getComplete(cancerStudy);
 			int all = getAll(cancerStudy);
@@ -139,7 +139,7 @@ public class DataSetsUtil {
 			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
 											  cancerStudy.getName(), citation, all, sequenced,
 											  aCGH, RNASEQ, tumorMRNA, normal, tumorMIRNA,
-											  methylation, rppa, complete));
+											  methylationHM27, rppa, complete));
 		}
 
 		// outta here
@@ -169,7 +169,7 @@ public class DataSetsUtil {
 		String caseListID;
 		CaseList desiredCaseList;
 		HashSet<String> union = new HashSet<String>();
-		String[] dataTypes = {"_sequenced", "_acgh", "_rna_seq_mrna", "_mrna", "_methylation", "_rppa"};
+		String[] dataTypes = {"_sequenced", "_acgh", "_rna_seq_v2_mrna", "_mrna", "_methylation_hm27", "_rppa"};
 
 		for (String dataType : dataTypes) {
 			caseListID = cancerStudy.getCancerStudyStableId() + dataType;
@@ -192,7 +192,7 @@ public class DataSetsUtil {
 		
 		// tumorMRNA - use rna seq first, if not exist, use mrna
 		String rnaDataType = null;
-		String[] rnaDataTypes = {"_rna_seq_mrna", "_mrna"};
+		String[] rnaDataTypes = {"_rna_seq_v2_mrna", "_mrna"};
 		for (String dataType : rnaDataTypes) {
 			caseListID = cancerStudy.getCancerStudyStableId() + dataType;
 			desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);

@@ -3,16 +3,34 @@ app.name=public-portal
 app.version=0.1
 
 # Database Settings
-db.name=cgds_public
 db.user=
 db.password=
 db.host=localhost
+db.portal_db_name=cgds_public
+# props used by importer
+db.importer_db_name=cgds_importer
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost/
+db.portal_schema=$PORTAL_HOME/core/src/main/resources/db/cgds.sql
 
 # google settings
 google.id=
 google.pw=
+# portal users spreadsheet properties
 users.spreadsheet=
 users.worksheet=
+# importer spreadsheet properties
+importer.spreadsheet_service_appname=cBio Portal Importer Tool
+importer.spreadsheet=
+importer.cancer_studies_worksheet=
+importer.case_id_filters_worksheet=
+importer.case_lists_worksheet=
+importer.clinical_attributes_worksheet=
+importer.datatypes_worksheet=
+importer.data_sources_worksheet=
+importer.portals_worksheet=
+importer.reference_data_worksheet=
+importer.tumor_types_worksheet=
 
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/public-portal.log
@@ -68,3 +86,8 @@ tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftp
 # this is for grabbing NCI's Clinical Trial Information
 nci.cancer.ftp.user=user
 nci.cancer.ftp.password=password
+
+# additional props used by importer
+
+# firehose_get script
+firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get

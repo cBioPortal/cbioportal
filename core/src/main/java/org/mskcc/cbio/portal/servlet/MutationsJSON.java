@@ -308,6 +308,11 @@ public class MutationsJSON extends HttpServlet {
         map.put("impact", new ArrayList());
         map.put("drug", new ArrayList());
         map.put("ma", new ArrayList());
+        map.put("alt-count", new ArrayList());
+        map.put("ref-count", new ArrayList());
+        map.put("normal-alt-count", new ArrayList());
+        map.put("normal-ref-count", new ArrayList());
+        
         return map;
     }
     
@@ -326,6 +331,10 @@ public class MutationsJSON extends HttpServlet {
         data.get("aa").add(mutation.getProteinChange());
         data.get("type").add(mutation.getMutationType());
         data.get("status").add(mutation.getMutationStatus());
+        data.get("alt-count").add(mutation.getTumorAltCount());
+        data.get("ref-count").add(mutation.getTumorRefCount());
+        data.get("normal-alt-count").add(mutation.getNormalAltCount());
+        data.get("normal-ref-count").add(mutation.getNormalRefCount());
         
         // cosmic
         data.get("cosmic").add(cosmic);

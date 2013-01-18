@@ -123,7 +123,7 @@ class ImporterImpl implements Importer {
 			}
 			databaseUtils.createDatabase(databaseUtils.getPortalDatabaseName(), false);
 			if (databaseUtils.executeScript(databaseUtils.getPortalDatabaseName(),
-											databaseUtils.getDatabaseSchemaCanonicalPath(),
+											databaseUtils.getPortalDatabaseSchema(),
 											databaseUtils.getDatabaseUser(),
 											databaseUtils.getDatabasePassword())) {
 				if (LOG.isInfoEnabled()) {

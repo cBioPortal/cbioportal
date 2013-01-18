@@ -62,7 +62,7 @@ public interface DatabaseUtils {
 	 *
 	 * @return String
 	 */
-    String getDatabaseSchemaCanonicalPath();
+    String getPortalDatabaseSchema();
 
 	/**
 	 * Returns the importer database name.

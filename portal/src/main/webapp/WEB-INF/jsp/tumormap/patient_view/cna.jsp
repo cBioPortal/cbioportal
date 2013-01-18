@@ -160,7 +160,7 @@
                 ],
                 "fnDrawCallback": function( oSettings ) {
                     addNoteTooltip("."+table_id+"-tip");
-                    addDrugsTooltip("."+table_id+"-drug-tip");
+                    addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                 },
                 "aaSorting": [[cnaTableIndices['altrate'],'desc']],
                 "oLanguage": {

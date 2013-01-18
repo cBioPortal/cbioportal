@@ -15,8 +15,5 @@ HOST=$1
 USER=$2
 REV=$3
 
-# Note, this script was intended to be run via cron.  Please ensure that the path to build.properties.*
-$PORTAL_HOME/portal/scripts/hotDeploy.py --credentials $PORTAL_HOME/cgds-data/build-properties/properties.txt --portal-properties $PORTAL_HOME/portal/build.properties.GDAC --rev $REV --host $HOST --user $USER
-$PORTAL_HOME/portal/scripts/hotDeploy.py --credentials $PORTAL_HOME/cgds-data/build-properties/properties.txt --portal-properties $PORTAL_HOME/portal/build.properties.SU2C --rev $REV --host $HOST --user $USER
-$PORTAL_HOME/portal/scripts/hotDeploy.py --credentials $PORTAL_HOME/cgds-data/build-properties/properties.txt --portal-properties $PORTAL_HOME/portal/build.properties.PUBLIC --rev $REV --host $HOST --user $USER
-$PORTAL_HOME/portal/scripts/hotDeploy.py --credentials $PORTAL_HOME/cgds-data/build-properties/properties.txt --portal-properties $PORTAL_HOME/portal/build.properties.PRIVATE --rev $REV --host $HOST --user $USER
+# Note, this script was intended to be run via cron.  Please ensure that the path to portal.properties.*
+$PORTAL_HOME/portal/scripts/hotDeploy.py --credentials $PORTAL_HOME/src/main/resources/properties.txt --portal-properties $PORTAL_HOME/src/main/resources/portal.properties.GDAC --rev $REV --host $HOST --user $USER

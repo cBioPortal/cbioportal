@@ -85,7 +85,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<excludes>
-					<exclude>build.properties.*</exclude>
+					<exclude>portal.properties.*</exclude>
 					<exclude>db.properties.EXAMPLE</exclude>
 					<exclude>*.sql</exclude>
 				</excludes>

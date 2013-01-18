@@ -54,34 +54,50 @@ public class ClinicalTrialsJSON extends HttpServlet {
     {
         JSONArray table = new JSONArray();
         String keywordStr = request.getParameter("keywords");
-        String study = request.getParameter("study");
-        String showAll = request.getParameter("showall");
-        boolean isShowAll = (showAll != null) && showAll.equals("1");
+        if(keywordStr == null) keywordStr = "";
 
-        HashSet<ClinicalTrial> allTrials = new HashSet<ClinicalTrial>();
+        String study = request.getParameter("study");
+        if(study == null) study = "";
+        String studyTokens[] = study.trim().split(",");
+
+        String filter = request.getParameter("filter");
+        if(filter == null) filter = "";
+
+        // We are going to do an AND operation on these two sets to narrow the list down
+        HashSet<ClinicalTrial> studyTrials = new HashSet<ClinicalTrial>();
+        HashSet<ClinicalTrial> drugTrials = new HashSet<ClinicalTrial>();
+
         try {
             DaoClinicalTrial daoClinicalTrial = DaoClinicalTrial.getInstance();
+            for (String studyToken : studyTokens) {
+                if(studyToken.length() < 5) continue; // prevent overloads!
+                List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(studyToken);
+                studyTrials.addAll(clinicalTrials);
+            }
+
             for (String keyword : keywordStr.split(",")) {
                 if(keyword.length() < 5) continue; // prevent overloads!
-
                 List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(keyword);
-                for (ClinicalTrial clinicalTrial : clinicalTrials) {
-                    // Skip non-active trials
-                    if(!isShowAll && !clinicalTrial.isActive()) continue;
-
-                    if(!allTrials.contains(clinicalTrial)) {
-                        JSONArray aRow = new JSONArray();
-                        aRow.add(clinicalTrial.getId());
-                        aRow.add(clinicalTrial.getTitle());
-                        aRow.add(clinicalTrial.getStatus());
-                        aRow.add(clinicalTrial.getPhase());
-                        aRow.add(clinicalTrial.getLocation());
-                        aRow.add(clinicalTrial.getSecondaryId());
-                        table.add(aRow);
-                        allTrials.add(clinicalTrial);
-                    }
-                }
+                drugTrials.addAll(clinicalTrials);
             }
+
+            // Show A or B or AnB
+            HashSet<ClinicalTrial> finalSet;
+            if(filter.equals("study")) finalSet = studyTrials;
+            else if(filter.equals("drugs")) finalSet = drugTrials;
+            else { finalSet = drugTrials; finalSet.retainAll(studyTrials); }
+
+            for (ClinicalTrial clinicalTrial: finalSet) {
+                JSONArray aRow = new JSONArray();
+                aRow.add(clinicalTrial.getId());
+                aRow.add(clinicalTrial.getTitle());
+                aRow.add(clinicalTrial.getStatus());
+                aRow.add(clinicalTrial.getPhase());
+                aRow.add(clinicalTrial.getLocation());
+                aRow.add(clinicalTrial.getSecondaryId());
+                table.add(aRow);
+            }
+
         } catch (DaoException e) {
             throw new ServletException(e);
         }

@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # Script which hot deploys cbio portal fixes.  Script assumes
 # properties file argument lives within $PORTAL_HOME/portal.  This
-# script will clobber any existing build.properties file within $PORTAL_HOME/portal.
+# script will clobber any existing portal.properties file within $PORTAL_HOME/portal.
 
 # ------------------------------------------------------------------------------
 # imports
@@ -29,7 +29,7 @@ PORTAL_PROJECT = PORTAL_HOME + os.sep + "portal"
 
 WAR_FILE_DEST = "/srv/www/sander-tomcat/tomcat6/webapps/"
 
-# fields in credentials - should match portal build.properties
+# fields in credentials - should match portal portal.properties
 CGDS_DATABASE_USER = 'db.user'
 CGDS_DATABASE_PW = 'db.password'
 BITLY_USER = 'bitly.user'
@@ -104,14 +104,14 @@ def deploy_war(host, user):
 
 def build_war(portal_credentials, portal_properties):
 
-	# setup build.properties
-	build_properties = PORTAL_PROJECT + os.sep + "build.properties"
-	if os.path.exists(build_properties):
-		print >> OUTPUT_FILE, "Clobbering %s" % build_properties
+	# setup portal.properties
+	portal_properties = PORTAL_PROJECT + os.sep + "portal.properties"
+	if os.path.exists(portal_properties):
+		print >> OUTPUT_FILE, "Clobbering %s" % portal_properties
 
-	# we are going to create a new build.properties file using
+	# we are going to create a new portal.properties file using
 	# portal_properties as the template and get credentials from portal_credentials
-	build_properties_file = open(build_properties, 'w')
+	portal_properties_file = open(portal_properties, 'w')
 	portal_properties_file = open(portal_properties, 'r')
 	for line in portal_properties_file:
 		new_line = line
@@ -123,8 +123,8 @@ def build_war(portal_credentials, portal_properties):
 			new_line = '%s=%s\n' % (BITLY_USER, portal_credentials.bitly_user)
 		elif line.startswith(BITLY_KEY):
 			new_line = '%s=%s\n' % (BITLY_KEY, portal_credentials.bitly_key)
-		build_properties_file.write(new_line);
-	build_properties_file.close()
+		portal_properties_file.write(new_line);
+	portal_properties_file.close()
 	portal_properties_file.close()
 
 	# run ant

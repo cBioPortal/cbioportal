@@ -151,8 +151,8 @@ public class GisticGenesConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
 			}
 			return;
 		}
@@ -172,11 +172,23 @@ public class GisticGenesConverterImpl implements Converter {
 			dataMatrixGenesConf = dataMatrices[1];
 		}
 		else {
-			throw new IllegalArgumentException("Cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");
+			}
+			return;
 		}
 
 		// process *_genes.conf_99.txt file first - get map, geneset is key, cytoband:q-value is value
-		Map<String, String> geneConfMap = getGenesConfMap(dataMatrixGenesConf);
+		Map<String, String> geneConfMap = null;
+		try {
+			geneConfMap = getGenesConfMap(dataMatrixGenesConf);
+		}
+		catch (Exception e) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error(e.getMessage());
+			}
+			return;
+		}
 
 		// now that we have *_genes.conf_99.txt map, we can process table_*.conf_90.txt
 		// - add amp, cytoband and q_value columns to table_*.conf_90.txt

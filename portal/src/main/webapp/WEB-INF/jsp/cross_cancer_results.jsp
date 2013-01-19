@@ -30,19 +30,23 @@
 
     int skippedCancerStudies = 0;
     // Now pool the cancer studies
-    ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
-                           cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
+    ArrayList<CancerStudy> primaryStudies = new ArrayList<CancerStudy>(),
+                           secondaryStudies = new ArrayList<CancerStudy>();
     for(CancerStudy cancerStudy: cancerStudies) {
         if(!divideHistograms) {
-          // A dirty maneuver to show all studies within a single histogram
-          cancerStudiesWithMutations.add(cancerStudy);
+            // A dirty maneuver to show all studies within a single histogram
+            if(cancerStudy.hasCnaData()) {
+                primaryStudies.add(cancerStudy);
+            } else {
+                skippedCancerStudies++;
+            }
         } else if(cancerStudy.hasMutationData()) {
-            cancerStudiesWithMutations.add(cancerStudy);
+            primaryStudies.add(cancerStudy);
         } else {
             // If user wants to get only the mutation data
             // don't even add these studies to the list since they don't have any
             if(!onlyMutationData) {
-                cancerStudiesWithOutMutations.add(cancerStudy);
+                secondaryStudies.add(cancerStudy);
             } else {
                 skippedCancerStudies++;
             }
@@ -51,8 +55,8 @@
 
     // Now let's reorder the loads
     cancerStudies.clear();
-    cancerStudies.addAll(cancerStudiesWithMutations);
-    cancerStudies.addAll(cancerStudiesWithOutMutations);
+    cancerStudies.addAll(primaryStudies);
+    cancerStudies.addAll(secondaryStudies);
 
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
@@ -145,7 +149,7 @@
 
         var cancerStudies = [<%=studiesList%>];
         var cancerStudyNames = [<%=studiesNames%>];
-        var numOfStudiesWithMutData = <%=cancerStudiesWithMutations.size()%>;
+        var numOfStudiesWithMutData = <%=primaryStudies.size()%>;
 
         if(!multipleGenes) {
             histogramData.addColumn('string', 'Cancer Study');
@@ -561,7 +565,7 @@
                     <p id="crosscancer_summary_message"><span class="ui-icon ui-icon-info"
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>
                         Results are available for <strong><%= (cancerStudies.size()) %>
-                        cancer studies</strong>. Click each cancer study below to view a summary of
+                        cancer studies</strong>. Click on a cancer study below to view a summary of
                         results<span id="queried-genes"></span>.
                     </p>
                     <p id="crosscancer_summary_loading">
@@ -709,8 +713,8 @@
                     <% } %>
 
                     <div>
-                    <% outputCancerStudies(cancerStudiesWithMutations, out); %>
-                    <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
+                    <% outputCancerStudies(primaryStudies, out); %>
+                    <% if( !secondaryStudies.isEmpty() ) {
                     %>
                     </div>
                     <div>
@@ -719,24 +723,39 @@
                             <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
                             <% }
 
-                            outputCancerStudies(cancerStudiesWithOutMutations, out);
+                            outputCancerStudies(secondaryStudies, out);
 
                         } else if(onlyMutationData) { // Show a message to the user if only mutation data is wanted
                     %>
 
                         <br/>
                         <br/>
-                        <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
+                        <div class="ui-state-highlight ui-corner-all">
                             <p>
                                 <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
                                 </span>
-                                Since the data priority is set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
-                                studies</b> that do not have mutation data are excluded from this view.
+                                Since the data priority was set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have mutation data were excluded from this view.
                             </p>
                         </div>
                         <br/>
 
                     <%
+                        } else {
+                    %>
+                        <br/>
+                        <br/>
+                        <div class="ui-state-highlight ui-corner-all">
+                            <p>
+                                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
+                                </span>
+                                Since the data priority was set to 'Only CNA', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have CNA data were excluded from this view.
+                            </p>
+                        </div>
+                        <br/>
+
+                        <%
                         }
                     %>
                     </div>

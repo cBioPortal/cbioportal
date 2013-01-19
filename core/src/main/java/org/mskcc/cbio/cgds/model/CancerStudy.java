@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.model;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoMutSig;
@@ -243,7 +245,12 @@ public class CancerStudy {
             throws DaoException {
         return getCopyNumberAlterationProfile(null,showInAnalysisOnly);
     }
-    
+
+    public boolean hasCnaData() throws DaoException {
+        GeneticProfile copyNumberAlterationProfile = getCopyNumberAlterationProfile(true);
+        return copyNumberAlterationProfile != null;
+    }
+
     /**
      * Get copy number alteration profile if any; otherwise, return null.
      *
@@ -343,4 +350,5 @@ public class CancerStudy {
     public boolean hasGisticData() throws DaoException {
         return DaoGistic.hasGistic(this);
     }
+
 }

@@ -242,7 +242,7 @@
 
         loadStudiesWithIndex(0);
         function formatPercent(number) {
-            return parseFloat(number.toFixed(1));
+            return parseFloat(number.toFixed(3));
         }
 
         function updateHistograms(bundleIndex, cancerID) {
@@ -314,14 +314,17 @@
             }
 
             if(!multipleGenes) {
-                hist1.setValue(bundleIndex, 1, formatPercent((numOfCombo/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
-                tmpTotal = hist1.getValue(bundleIndex, 1) + hist1.getValue(bundleIndex, 2) + hist1.getValue(bundleIndex, 3) + hist1.getValue(bundleIndex, 4);
+                hist1.setValue(bundleIndex, 1, formatPercent(numOfCombo/numOfCases));
+                hist1.setValue(bundleIndex, 2, formatPercent(numOfMuts/numOfCases));
+                hist1.setValue(bundleIndex, 3, formatPercent(numOfDels/numOfCases));
+                hist1.setValue(bundleIndex, 4, formatPercent(numOfAmp/numOfCases));
+                tmpTotal = hist1.getValue(bundleIndex, 1)
+                        + hist1.getValue(bundleIndex, 2)
+                        + hist1.getValue(bundleIndex, 3)
+                        + hist1.getValue(bundleIndex, 4);
                 if(maxAlterationPercent < tmpTotal) {
                     maxAlterationPercent = tmpTotal;
-                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent*10) / 10;
                 }
 
                 hist2.setValue(bundleIndex, 1, numOfCombo);
@@ -330,10 +333,10 @@
                 hist2.setValue(bundleIndex, 4, numOfAmp);
                 hist2.setValue(bundleIndex, 5, numOfCases-numOfAltered);
             } else {
-                hist1.setValue(bundleIndex, 1, formatPercent((numOfAltered/numOfCases) * 100.0));
+                hist1.setValue(bundleIndex, 1, formatPercent(numOfAltered/numOfCases));
                 if(maxAlterationPercent < hist1.getValue(bundleIndex, 1)) {
                     maxAlterationPercent = hist1.getValue(bundleIndex, 1);
-                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent*10) / 10;
                 }
                 hist2.setValue(bundleIndex, 1, numOfAltered);
                 hist2.setValue(bundleIndex, 2, numOfCases-numOfAltered);
@@ -394,6 +397,21 @@
 
        var sortPermanently = false;
        function drawChart() {
+           var formatter = new google.visualization.NumberFormat({ pattern: "#.#%"});
+           if(multipleGenes) {
+               formatter.format(histogramData, 1);
+               formatter.format(histogramData2, 1);
+           } else {
+               formatter.format(histogramData, 1);
+               formatter.format(histogramData, 2);
+               formatter.format(histogramData, 3);
+               formatter.format(histogramData, 4);
+               formatter.format(histogramData2, 1);
+               formatter.format(histogramData2, 2);
+               formatter.format(histogramData2, 3);
+               formatter.format(histogramData2, 4);
+           }
+
            var histogramView = new google.visualization.DataView(histogramData);
            var histogramView2 = new google.visualization.DataView(histogramData2);
            var histogramView3 = new google.visualization.DataView(histogramData3);
@@ -427,8 +445,9 @@
               },
               vAxis: {
                     title: 'Percent Altered',
-                    maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
-                    minValue: 0
+                    maxValue: lastStudyLoaded ? maxAlterationPercent : 1,
+                    minValue: 0,
+                    format: '#.#%'
               },
     	      animation: {
                   duration: 750,
@@ -453,8 +472,9 @@
               },
               vAxis: {
 	            title: 'Percent Altered',
-                maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
-                minValue: 0
+                maxValue: lastStudyLoaded ? maxAlterationPercent : 1,
+                minValue: 0,
+                format: '#.#%'
               },
               animation: {
                     duration: 750,
@@ -477,8 +497,8 @@
                 easing: 'linear'
         	  },
               hAxis: {
-		slantedText: true,
-		showTextEvery: 1,
+		         slantedText: true,
+		         showTextEvery: 1,
                  slantedTextAngle: 45,
                  maxTextLines: 2
                },

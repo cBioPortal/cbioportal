@@ -1,4 +1,3 @@
-
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.BufferedReader;
@@ -72,9 +71,9 @@ public class PatientView extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+                        ApplicationContext context = 
+                                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+                        accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException (e);
         }

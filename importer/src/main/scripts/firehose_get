@@ -1,0 +1,437 @@
+#!/bin/bash
+
+#===============================================================================
+# The Broad Institute
+# SOFTWARE COPYRIGHT NOTICE AGREEMENT
+# This software and its documentation are copyright 2012 by the
+# Broad Institute/Massachusetts Institute of Technology. All rights reserved.
+#
+# This software is supplied without any warranty or guaranteed support whatsoever.
+# Neither the Broad Institute nor MIT can be responsible for its use, misuse, or
+# functionality.
+# 
+# @author: Michael S. Noble
+# @date:   Dec 22, 2012
+# 
+#===============================================================================
+
+#  Front matter: env setup, command line args, etc {{{
+
+FilterString="^http|^Length|saved|html|^$|robots|resolv|connect"
+Capture="2>&1 | egrep -vi \"$FilterString\""
+Version=0.3.9
+This=`basename $0`
+DataRun=stddata
+AnalysisRun=analyses
+GDACRootURL=http://gdac.broadinstitute.org/runs
+KindOfRun=$AnalysisRun	                # Default to analysis run
+Downloaders="wget curl"
+Tumors1="BLCA BRCA CESC COAD READ COADREAD DLBC GBM HNSC KICH KIRC KIRP LAML LGG"
+Tumors2="LIHC LUAD LUSC OV PAAD PRAD SARC SKCM STAD THCA UCEC PANCANCER PANCAN8"
+AllTumors="$Tumors1 $Tumors2"
+BatchMode=0
+YYYYMMDD="[2-9][0-9][0-9][0-9]_[0-1][0-9]_[0-3][0-9]"
+
+shopt -s expand_aliases extglob
+alias ToUpper="tr '[:lower:]' '[:upper:]'"
+alias ToLower="tr '[:upper:]' '[:lower:]'"
+
+# }}}
+
+UniqueSuffix()  # {{{
+{
+   # This allows multiple inodes to safely co-exist in same top-level
+   # dir, by tagging each with unique numeric suffix (starting at 2).
+
+   if [ ! -e $1 ] ; then	# can be file/directory/link/etc
+	echo $1
+	return
+   fi
+
+   i=2
+   while [ $i -lt 999999 ] ; do
+	if [ -e ${1}.$i ] ; then
+	   i=`expr $i + 1`
+ 	else 
+	   break
+	fi
+   done
+   echo ${1}.$i
+
+}  # }}}
+
+Do()  # {{{
+{
+    eval $Echo "$@" $Capture
+}   # }}}
+
+Download()  # {{{
+{
+    eval $Downloader "$@"
+}   # }}}
+
+wget_downloader()  # {{{
+{            
+    case $1 in
+        -f) Opts="-q -O -" ; shift ;;       # quietly send straight to stdout
+         *) Opts="--progress=dot:mega -l 2 --no-parent -nH --cut-dirs=3 -P $WhichRun -r"
+    esac
+
+    eval wget --cache=off $Opts $Tasks $@
+
+}   # }}}
+
+look_for_downloader()  # {{{
+{
+    for Downloader in $Downloaders ; do
+        Loc=`type $Downloader 2>/dev/null | awk '{print $NF}'`
+        if [ -n "$Loc" ] ; then
+            break
+        fi
+    done
+
+    case $Loc in
+        */curl)
+
+            echo "curl not supported yet: please find wget on your system"
+            echo "and make sure it is in your \$PATH"
+            exit 5
+            ;;
+
+        */wget)
+            Downloader=wget_downloader
+
+            Tasks=
+            for Task in $TasksToDownload ; do
+                Tasks=",*${Task}*${Tasks}"
+            done
+
+            if [ -n "$Tasks" ] ; then
+                # First see if -tasks was to include or reject (-A /-R) matches
+                IncludeExclude="`echo $Tasks | sed 's/~//g'`"
+                if [ "$Tasks" = "$IncludeExclude" ] ; then
+                    Tasks="-A \"`echo $Tasks | cut -d, -f2-`\""
+                else
+                    Tasks="-R \"`echo $IncludeExclude | cut -d, -f2-`\""
+                fi
+            fi
+
+            ;;
+
+        *)
+            echo "Couldn't find one of <$Downloaders> in your \$PATH, aborting"
+            exit 4
+            ;;
+    esac
+
+}   # }}}
+
+list_runs()  # {{{
+{
+    if [ -z "$Downloader" ] ; then
+        look_for_downloader
+    fi
+
+    RunList=$GDACRootURL/info/firehose_get_public_runs_list.txt
+    Download -f $RunList | sed 's/^[ 	]*#.*$//g ; s/^$//g ; s/^[ 	][ 	]*$//g'
+}   # }}}
+
+list_run_types()  # {{{
+{
+    for t in `list_runs | awk -F__ '{print $1}' | sort -u` ; do
+        echo "    $t"
+    done
+}   # }}}
+
+list_tasks()  # {{{
+{
+    # Note that validate_and_prepare() must be called first; and
+    # that extraneous arguments (like tumor type) are ignored
+
+    # Fabricate date without underscores, then find all tasks for that run/date
+
+    TumorList=$TumorsToDownload
+    UDate=`echo $RunDate | tr -d _`
+
+    if [ "$TumorList " = "$AllTumors" ] ; then
+        # If subset of tumor types has NOT been selected, use OV, BRCA, and
+        # PANCANCER as representative, because none have all data types/analyses
+        TumorList="OV BRCA PANCANCER"
+    fi
+
+    for tumor in $TumorList ; do
+        List="${List}`Download -f $DataURL/$tumor/$UDate`"
+    done
+
+    Tasks=`echo "${List}" | sed 's/.*"\(gdac.*.Level_.*\)".*/\1/g' | \
+            egrep -v "<|>|md5" | cut -d. -f4 | sort -u -f`
+
+    if [ -z "$Tasks" ] ; then
+        echo "No tasks/archives found in $WhichRun for selected tumors."
+    else
+        echo "$Tasks"
+    fi
+}   # }}}
+
+finalize()  # {{{
+{
+    # Clean up anything superfluous, but do it VERY SAFELY
+    test -z "$Echo" && cd ./$WhichRun
+    if [ -z "$Echo" ] && [ "`basename $PWD`" != "$WhichRun" ] ; then
+        echo "Could not enter $WhichRun output directory, aborting now ..."
+        exit 6
+    fi
+
+    Do "find . -name index.html -exec \rm -f {} \;"
+    Do "find . -name robots.txt -exec \rm -f {} \;"
+
+    for tumor in $TumorsToDownload ; do
+        Downloaded=`find $tumor -name 'gdac.*'`
+        if [ -z "$Downloaded" ] ; then
+            printf "\n\nNothing downloaded.  Please check your inputs, or use"
+            printf "\n-runs and/or -tasks to see what's available for $RunDate.\n"
+        fi
+    done
+
+}   # }}}
+
+validate_and_prepare()  # {{{
+{
+    case $1 in
+
+        $AnalysisRun | analysis)
+                KindOfRun=$AnalysisRun
+                ;;
+
+        $DataRun | data)
+                KindOfRun=$DataRun
+                ;;
+
+        awg_pancan8)
+                AllTumors="BRCA COADREAD GBM KIRC LUSC OV UCEC PANCAN8"
+                KindOfRun=$1
+                ;;
+
+        *)
+                if [ -z "$1" ] ; then instruct ; fi
+
+                echo "Validating run selection against Broad Institute website ..."
+                Runs=`list_runs`
+                if [ -z "`echo $Runs | egrep \"$1\"`" ] ; then
+                    printf "\nPlease use -help or select exactly 1 run type from\n"
+                    printf "\n`list_run_types`\n"
+                    printf "\nand note that 'analysis' and 'data' are accepted as"
+                    printf "\nsynonyms for 'analyses' and 'stddata', respectively.\n"
+                    exit 7
+                fi
+
+                KindOfRun=$1
+
+                # Guess disease type from run name
+                AllTumors=`echo $1 | cut -d_ -f2 | ToUpper`
+                ;;
+    esac
+
+    case $2 in
+        latest)
+            printf "# Mapping ${KindOfRun}__latest to exact version: " >&2
+            RunDate=`list_runs | grep $KindOfRun | tail -1 | cut -d" " -f1` 
+            RunDate=`echo $RunDate | awk -F__ '{print $2}'`
+            echo "${KindOfRun}__${RunDate}" >&2
+            ;;
+        *)
+            RunDate=`echo $2 | sed -n "/^${YYYYMMDD}$/p"`
+            if [ -z "$RunDate" ] ; then
+                echo "Please supply a valid date in YYYY_MM_DD format."
+                exit 3
+            fi
+            ;;
+    esac
+
+    shift 2
+    TumorsToDownload=
+    for t in "$@" ; do
+        t=`echo $t | ToUpper`
+        TumorsToDownload="$TumorsToDownload $t"
+    done
+
+    if [ -z "$TumorsToDownload" ] ; then
+        TumorsToDownload=$AllTumors
+    fi
+
+    WhichRun=${KindOfRun}__${RunDate}
+    DataURL=$GDACRootURL/$WhichRun/data
+    look_for_downloader
+
+    if [ -n "$TasksToDownload" ] ; then
+        TasksToDownload=`echo $TasksToDownload | tr -s ' '`
+        if [ -z "$TasksToDownload" ] ; then
+            Do list_tasks $@
+            exit 0
+        fi
+    fi
+
+    printf "You've asked to download archives for the following "
+    if [ -n "$TasksToDownload" ] ; then
+        printf "tasks\n\n"
+        printf "     $TasksToDownload\n\n"
+        printf "run against the "
+    fi
+    printf "tumor datasets \n\n"
+    printf "     $TumorsToDownload\n\n"
+    printf "from the $WhichRun Firehose run. "
+   
+    if (($BatchMode)) ; then return ; fi
+
+    printf "If this is correct,\n"
+    read -p "shall we continue with download? (y|yes|n|no) [no] " answer
+    case "${answer}" in
+        y|yes) ;;
+        *)
+            printf "Ok, we'll try again some other time.\n"
+            exit 0
+            ;;
+    esac
+}   # }}}
+
+instruct()  # {{{
+{
+    echo "$This : retrieve open-access results of Broad Institute TCGA GDAC runs"
+    echo "Version: $Version (Author: Michael S. Noble)"
+    echo
+    echo "Usage: `basename $0` [flags]  RunType  Date  [tumor_type, ... ]"
+    echo
+    echo "Two arguments are required; the first must be one of"
+    echo
+    echo "`list_run_types`"
+    echo
+    echo "while the second must EITHER be a date (in YYYY_MM_DD form) of an"
+    echo "existing GDAC run of the given type OR 'latest'.  An optional third,"
+    echo "fourth etc argument may be specified to prune the retrieval, given"
+    echo "as a subset of these case-insensitive TCGA tumor type abbreviations:"
+    echo
+    echo "  $Tumors1"
+    echo "  $Tumors2"
+    echo
+    echo "Note that as a convenience 'analysis' and 'data' are accepted as"
+    echo "synonyms for the 'analyses' and 'stddata' run types"
+    echo
+    echo "Flags:"
+    echo
+    echo "  -b | -batch         do not prompt: assume YES answer to all queries"
+    echo "  -e | -echo          show commands that would be run, but do nothing"
+    echo "  -h | -help | --help this message"
+    echo "  -l | -log           write output to log file, instead of stdout"
+    echo "  -r | -runs          display list of all available Firehose runs"
+    echo "  -t | -tasks <list>  further prune the set of archives retrieved, by"
+    echo "                      INCLUDING only the tasks (pipelines) whose"
+    echo "                      names match the given space-delimited list of"
+    echo "                      patterns; matching is performed with glob-style"
+    echo "                      wildcards; if a tilde ~ is prepended to a task"
+    echo "                      name then matching tasks will be EXCLUDED; when"
+    echo "                      no pattern list is given $This will display"
+    echo "                      all tasks in the selected run"
+    echo
+    echo "                      NOTE: not all tasks will execute for all tumor"
+    echo "                            sets; what tasks are run depends upon the"
+    echo "                            data available for that tumor type"
+    echo "  -v                  display the version of $This"
+    echo "  -x                  debugging: turn on bash set -x (warning: very verbose)"
+    echo 
+    echo "For more information see the Broad GDAC website or send an email to"
+    echo "          http://gdac.broadinstitute.org"
+    echo "          gdac@broadinstitute.org"
+    echo
+    exit 2
+}  # }}}
+
+# Command line processing {{{
+while true ; do
+    case $1 in 
+
+        -b|-batch)  BatchMode=1 ;;
+
+        -e|-echo)
+
+            Echo=echo
+            echo "Echo mode: commands that would be performed are echoed to"
+            echo "stdout, but Broad GDAC archives will not be retrieved"
+            echo
+            Capture=
+            ;;
+
+        -h|-help|--help)
+        
+            instruct
+            ;;
+
+        -l|-log)
+
+            if [ -z "$Echo" ] ; then
+                Logfile=./`UniqueSuffix ${This}-${LOGNAME}.log`
+                echo Logging output to $Logfile ...
+                Capture=">> $Logfile 2>&1"
+            fi
+            ;;
+
+        -r|-runs)
+
+            Do list_runs
+            exit 0
+            ;;
+
+        -t|-tasks)
+
+            TasksToDownload=" "
+            while [ $# -gt 3 ] ; do
+                case $2 in
+                    -*)             break ;;
+                    stddata|data)   break ;;
+                    analys[ie]s)    break ;;
+                    awg*)           break ;;        # incomplete, but enough for now
+                    *)              shift
+                                    TasksToDownload="$TasksToDownload $1"
+                                    ;;
+                esac
+            done
+            ;;
+
+        -v|-version|--version)
+
+            echo $Version
+            exit 0
+            ;;
+
+        -x|-verbose)
+
+            set -x
+            ;;
+
+        *)  break ;;
+
+    esac
+    shift
+done
+# }}}
+
+# Main {{{
+
+validate_and_prepare "$@"
+
+printf "\nAttempting to retrieve data for Broad GDAC run $WhichRun ...\n"
+
+# Grab archives by iterating over each tumor type
+for tumor in $TumorsToDownload ; do
+    Do Download $DataURL/$tumor/
+done
+
+if [ -z "$Echo" ] && [ ! -d ./$WhichRun ] ; then
+    echo "Uh oh: there seems to have been an error, aborting now ..."
+    exit 5
+fi
+
+printf "\n\nNow performing post-processing on retrieved files ...\n"
+
+finalize
+
+# }}}

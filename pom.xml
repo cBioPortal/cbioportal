@@ -67,8 +67,12 @@
 	<module>oncotator</module>
 	<module>liftover</module>
 	<module>mutation-assessor</module>
+	<!-- The Cy3 app is disabled for the time being (Cy3 API/Servers unstable)
+	     Jan 18, 2013
 	<module>cbioportal-client</module>
 	<module>mondrian-cy3-app</module>
+	--> 
+    <module>importer</module>
   </modules>
 
   <!-- dependencies -->

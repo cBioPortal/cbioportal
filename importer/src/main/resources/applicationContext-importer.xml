@@ -10,17 +10,17 @@
 							 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
  
   <context:annotation-config />
-  <context:property-placeholder location="classpath:/importer.properties"/>
+  <context:property-placeholder location="classpath:/portal.properties"/>
 
   <!-- enable the configuration of transactional behavior based on annotations -->
   <tx:annotation-driven transaction-manager="importerTransactionManager"/>
 
   <!-- datasource -->
    <b:bean id="importerDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-     <b:property name="driverClassName" value="${database_driver}"/>
-     <b:property name="url" value="${database_connection_string}${importer_database_name}?max_allowed_packet=256M"/>
-     <b:property name="username" value="${database_user}"/>
-     <b:property name="password" value="${database_password}"/>
+     <b:property name="driverClassName" value="${db.driver}"/>
+     <b:property name="url" value="${db.connection_string}${db.importer_db_name}?max_allowed_packet=256M"/>
+     <b:property name="username" value="${db.user}"/>
+     <b:property name="password" value="${db.password}"/>
    </b:bean>
 
   <!-- hibernate session factory -->
@@ -51,22 +51,22 @@
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
   <b:bean id="idMapper" class="org.mskcc.cbio.importer.mapper.internal.DAOGeneOptimizedIDMapper"/>
   <b:bean id="spreadsheetService" class="com.google.gdata.client.spreadsheet.SpreadsheetService">
-	<b:constructor-arg index="0"><b:value>${spreadsheet_service_appname}</b:value></b:constructor-arg>
+	<b:constructor-arg index="0"><b:value>${importer.spreadsheet_service_appname}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="config" class="org.mskcc.cbio.importer.config.internal.GDataImpl">
-	<b:constructor-arg index="0"><b:value>${gdata_username}</b:value></b:constructor-arg>
-	<b:constructor-arg index="1"><b:value>${gdata_password}</b:value></b:constructor-arg>
+	<b:constructor-arg index="0"><b:value>${google.id}</b:value></b:constructor-arg>
+	<b:constructor-arg index="1"><b:value>${google.pw}</b:value></b:constructor-arg>
 	<b:constructor-arg index="2" ref="spreadsheetService"/>
-	<b:constructor-arg index="3"><b:value>${spreadsheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="4"><b:value>${tumor_types_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="5"><b:value>${datatypes_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="6"><b:value>${case_id_filters_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="7"><b:value>${case_lists_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="8"><b:value>${clinical_attributes_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="9"><b:value>${portals_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="10"><b:value>${reference_data_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="11"><b:value>${data_sources_worksheet}</b:value></b:constructor-arg>
-	<b:constructor-arg index="12"><b:value>${cancer_studies_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="3"><b:value>${importer.spreadsheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="4"><b:value>${importer.tumor_types_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="5"><b:value>${importer.datatypes_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="6"><b:value>${importer.case_id_filters_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="7"><b:value>${importer.case_lists_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="8"><b:value>${importer.clinical_attributes_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="9"><b:value>${importer.portals_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="10"><b:value>${importer.reference_data_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="11"><b:value>${importer.data_sources_worksheet}</b:value></b:constructor-arg>
+	<b:constructor-arg index="12"><b:value>${importer.cancer_studies_worksheet}</b:value></b:constructor-arg>
   </b:bean>
   <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
 	<b:constructor-arg ref="config"/>
@@ -81,14 +81,12 @@
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
-  <!--
   <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
-  -->
   <b:bean id="tcgaOverrideFetcher" class="org.mskcc.cbio.importer.fetcher.internal.MercurialFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>

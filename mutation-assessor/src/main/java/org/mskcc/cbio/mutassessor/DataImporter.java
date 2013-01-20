@@ -83,7 +83,7 @@ public class DataImporter
 	 * @throws SQLException
 	 */
 	public void addMutAssessorInfo(File inputMaf,
-			File outputMaf) throws Exception
+			File outputMaf) throws IOException, MutationAssessorServiceException
 	{
 		BufferedReader reader = new BufferedReader(new FileReader(inputMaf));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputMaf));

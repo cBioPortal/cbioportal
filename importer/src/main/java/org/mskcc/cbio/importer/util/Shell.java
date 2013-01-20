@@ -92,6 +92,7 @@ public class Shell {
 			LOG.info("exec(), commandArgs: " + commandArgs);
 		}
 
+		boolean toReturn = false;
 		try {
 			if (command.contains("org.mskcc.cbio")) {
 				// we are either going to use a cgds package importer which has a main method
@@ -106,13 +107,14 @@ public class Shell {
 					Importer importer = (Importer)ClassLoader.getInstance(command, classArgs);
 					importer.importReferenceData(referenceMetadata);
 				}
+				toReturn = true;
 			}
 			// some type of script
 			else {
 				List<String> commandList = new ArrayList<String>();
 				commandList.add(command);
 				commandList.addAll(commandArgs);
-				return Shell.exec(commandList, workingDirectory);
+				toReturn = Shell.exec(commandList, workingDirectory);
 			}
 		}
 		catch(Exception e) {
@@ -122,7 +124,7 @@ public class Shell {
 		}
 
 		// should not get here
-		return false;
+		return toReturn;
 	}
 
 	/**

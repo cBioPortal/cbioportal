@@ -24,7 +24,7 @@ use Getopt::Long;
 
 # on laptop: ./compareDirectAndBulkDBMSload.pl --outputDir "/Users/goldbera/Documents/Projects/TCGA Portal/Fast DBMS load/data/" --MySQLdbParams h=localhost,u=root,p=anOKpwd --database cgds
 # on toro: nohup ./compareDirectAndBulkDBMSload.pl --outputDir "/home/goldberg/data" --MySQLdbParams h=localhost,u=cbio,p=cbio --database cgds_arthur &> stdout.txt&
-# on toro: uses ./build/WEB-INF/classes/org/mskcc/cgds/util/build.properties 
+# on toro: uses ./build/WEB-INF/classes/org/mskcc/cgds/util/portal.properties 
 
 
 # CONSTANTS

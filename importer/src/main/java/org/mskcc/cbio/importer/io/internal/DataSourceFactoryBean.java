@@ -61,26 +61,26 @@ public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSou
 	// the reference which holds our bean name (BeanNameAware interface)
 	private String beanName;
 
-	// the following are vars set from importer.properties 
+	// the following are vars set from portal.properties 
 
 	// db user
 	private String databaseUser;
-	@Value("${database_user}")
+	@Value("${db.user}")
     public void setDatabaseUser(String databaseUser) { this.databaseUser = databaseUser; }
 
 	// db password
 	private String databasePassword;
-	@Value("${database_password}")
+	@Value("${db.password}")
 	public void setDatabasePassword(String databasePassword) { this.databasePassword = databasePassword; }
 
 	// db driver
 	private String databaseDriver;
-	@Value("${database_driver}")
+	@Value("${db.driver}")
 	public void setDatabaseDriver(String databaseDriver) { this.databaseDriver = databaseDriver; }
 
 	// db connection
 	private String databaseConnectionString;
-	@Value("${database_connection_string}")
+	@Value("${db.connection_string}")
 	public void setDatabaseConnection(String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
 
 	/**

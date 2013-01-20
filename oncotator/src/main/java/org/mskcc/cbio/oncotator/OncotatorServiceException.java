@@ -25,35 +25,15 @@
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
 
-package org.mskcc.cbio.mutassessor;
-
-import java.sql.SQLException;
+package org.mskcc.cbio.oncotator;
 
 /**
- * Default Mutation Assessor Service based on a DB cache.
- *
- * @author Selcuk Onur Sumer
+ * Exception class designed for OncotatorService instances
  */
-public class MutationAssessorService
+public class OncotatorServiceException extends Exception
 {
-	protected DaoMutAssessorCache cache;
-
-	public MutationAssessorService()
+	public OncotatorServiceException(String message)
 	{
-		this.cache = DaoMutAssessorCache.getInstance();
-	}
-
-	public MutationAssessorRecord getMaRecord(String key)
-			throws MutationAssessorServiceException
-	{
-		try
-		{
-			return this.cache.get(key);
-		}
-		catch (SQLException e)
-		{
-			e.printStackTrace();
-			throw new MutationAssessorServiceException(e.getMessage());
-		}
+		super(message);
 	}
 }

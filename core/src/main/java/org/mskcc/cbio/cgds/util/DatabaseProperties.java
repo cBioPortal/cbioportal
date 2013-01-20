@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.util;
 
 /**
- * Stores db props (name, id, pw, host) from build.properties
+ * Stores db props (name, id, pw, host) from portal.properties
  * and makes them accessible.
  */
 public class DatabaseProperties {
@@ -44,10 +44,10 @@ public class DatabaseProperties {
     public static DatabaseProperties getInstance() {
         if (dbProperties == null) {
             dbProperties = new DatabaseProperties();
-            //  Get DB Properties from build.properties.
+            //  Get DB Properties from portal.properties.
             Config config = Config.getInstance();
             dbProperties.setDbHost(config.getProperty("db.host"));
-            dbProperties.setDbName(config.getProperty("db.name"));
+            dbProperties.setDbName(config.getProperty("db.portal_db_name"));
             dbProperties.setDbUser(config.getProperty("db.user"));
             dbProperties.setDbPassword(config.getProperty("db.password"));
             dbProperties.setDbEncryptedKey(config.getProperty("db.encryptedKey"));

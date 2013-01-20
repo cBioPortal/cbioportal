@@ -61,8 +61,8 @@ public class ClassLoader {
 			throw new IllegalArgumentException("methodName must not be null");
 		}
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getMethod(), className:methodName " + className + ":" + methodName);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("getMethod(), className:methodName " + className + ":" + methodName);
 		}
 		
 		Method toReturn = null;
@@ -100,8 +100,8 @@ public class ClassLoader {
 			throw new IllegalArgumentException("className must not be null");
 		}
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("getInstance(), className: " + className);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("getInstance(), className: " + className);
 		}
 
 		try {

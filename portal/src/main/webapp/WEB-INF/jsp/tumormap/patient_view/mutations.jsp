@@ -199,7 +199,7 @@
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
-                                var tip = altCount + " variant reads out of " + refCount + " total";
+                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
                                 return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
@@ -224,10 +224,11 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
+                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
-                                var tip = altCount + " variant reads out of " + refCount + " total";
+                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
                                 return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');

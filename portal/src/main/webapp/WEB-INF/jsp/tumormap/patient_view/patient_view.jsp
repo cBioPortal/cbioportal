@@ -361,7 +361,7 @@ function addNoteTooltip(elem) {
         content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top center',at:'bottom center'}
+        position: {my:'top left',at:'bottom right'}
     });
 }
 

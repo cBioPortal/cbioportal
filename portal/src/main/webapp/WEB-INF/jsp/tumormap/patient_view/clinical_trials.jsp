@@ -92,7 +92,7 @@
                                 xref.push("<a href='http://www.genome.jp/dbget-bin/www_bget?dr:"+keggdrug+"' target='_blank'>KEGG Drug</a>");
                         }
 
-                        var upstreamTxt = " and the gene is upstream of at least one of the indicated target genes for this drug.";
+                        var upstreamTxt = ", which is upstream of at least one of the indicated target genes for this drug.";
                         var drugTargets = "";
                         var cnaTargets = extractTargetsOfInterests(drug[0], cnaDrugs);
                         var mutTargets = extractTargetsOfInterests(drug[0], mutDrugs);
@@ -103,9 +103,9 @@
                             aTarget = cnaTargets[j];
                             usedTargets.push(aTarget);
                             if($.inArray(aTarget, mutTargets) > 0) {
-                                altText = "Sample has both a mutation and a copy-number alteration in this gene";
+                                altText = "This tumor has both a mutation and a copy-number alteration in this gene";
                             } else {
-                                altText = "Sample has a copy-number alteration in this gene";
+                                altText = "This tumor has a copy-number alteration in this gene";
                             }
 
                             if($.inArray(aTarget, targets) < 0) {
@@ -125,7 +125,7 @@
                                 usedTargets.push(aTarget);
                             }
 
-                            altText = "Sample has a mutation in this gene.";
+                            altText = "This tumor has a mutation in this gene.";
 
                             if($.inArray(aTarget, targets) < 0) {
                                 altText += upstreamTxt;

@@ -1,5 +1,5 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
-<div id="oncoprint" style="padding:10px; border: 1px solid #CCC;">
+<div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img id="loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
         <h4>OncoPrint
@@ -15,11 +15,17 @@
         </form>
 
         <div id="oncoprint_controls">
-            <p onclick="$('#oncoprint_controls table').toggle();
-    $('#oncoprint_controls .query-toggle').toggle();" style="margin-bottom: 0px;">
-                <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-                <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
-                <b style="color:#2153AA;">Customize</b>
+            <style>
+                .onco-customize {
+                    color:#2153AA; font-weight: bold; cursor: pointer;
+                }
+                .onco-customize:hover { text-decoration: underline; }
+            </style>
+            <p onclick="$('#oncoprint_controls table').toggle(); $('#oncoprint_controls .triangle').toggle();"
+               style="margin-bottom: 0px;">
+                <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+                <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
+                <span class='onco-customize' style="">Customize</span>
             </p>
             <table style="padding-left:13px; padding-top:5px; display:none;">
                 <tr>
@@ -28,7 +34,7 @@
                 </tr>
 
                 <tr>
-                    <td style="padding-right: 15px;"><span>Adjust Width</span><div id="width_scroller" style="display: inline-table;"></div></td>
+                    <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                     <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
                 </tr>
             </table>

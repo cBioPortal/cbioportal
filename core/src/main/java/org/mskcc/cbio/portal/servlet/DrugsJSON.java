@@ -84,7 +84,10 @@ public class DrugsJSON extends HttpServlet {
                     dis = new ArrayList<String>();
                     drugInteractions.put(di.getDrug(), dis);
                 }
-                dis.add(daoGene.getGene(di.getTargetGene()).getHugoGeneSymbolAllCaps());
+
+                String symbolAllCaps = daoGene.getGene(di.getTargetGene()).getHugoGeneSymbolAllCaps();
+                if(!dis.contains(symbolAllCaps))
+                    dis.add(symbolAllCaps);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);

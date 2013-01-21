@@ -63,7 +63,7 @@ public class CaseListMetadata {
      */
     public CaseListMetadata(String[] properties) {
 
-		if (properties.length != 7) {
+		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 

@@ -29,9 +29,7 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
+import org.mskcc.cbio.importer.util.MetadataUtils;
 
 /**
  * Class which contains portal metadata.
@@ -51,13 +49,13 @@ public class PortalMetadata {
      */
     public PortalMetadata(String[] properties) {
 
-		if (properties.length != 3) {
+		if (properties.length < 3) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
         this.name = properties[0].trim();
-		this.stagingDirectory = properties[1].trim();
-		this.overrideDirectory = properties[2].trim();
+		this.stagingDirectory = MetadataUtils.getCanonicalPath(properties[1].trim());
+		this.overrideDirectory = MetadataUtils.getCanonicalPath(properties[2].trim());
 	}
 
 	public String getName() { return name; }

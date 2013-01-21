@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.fetcher.internal;
 
 // imports
+import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
@@ -40,6 +41,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.MetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +57,8 @@ import java.io.InputStreamReader;
 
 import java.util.Set;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,10 +75,14 @@ class FirehoseFetcherImpl implements Fetcher {
 
 	// date formats
 	public static final SimpleDateFormat BROAD_DATE_FORMAT = new SimpleDateFormat("yyyy_MM_dd");
-	public static final SimpleDateFormat PORTAL_DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
-	// this indicates a "NORMAL" data file
-	private static final String NORMAL_DATA_FILE = "-Normal.";
+	// this indicates a "NORMAL" data file (can be -NORMALS)
+	private static final Pattern NORMAL_DATA_FILE_REGEX = Pattern.compile("^.*\\-Normal|\\-NORMAL.*$");
+
+	// this is a list of files we want to ignore -
+	// motivated by OV which contains multiple microarray gene-expression
+	// files (Merge_transcriptome_agilent4502a_07_2*, Merge_transcriptome_agilent4502a_07_3*)
+	private static final List<String> blacklist = initializeBlackList();
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(FirehoseFetcherImpl.class);
@@ -108,6 +116,14 @@ class FirehoseFetcherImpl implements Fetcher {
 	private String firehoseGetScript;
 	@Value("${firehose_get_script}")
 	public void setFirehoseGetScript(String property) { this.firehoseGetScript = property; }
+	public String getFirehoseGetScript() { return MetadataUtils.getCanonicalPath(firehoseGetScript); }
+
+	// initialize the blacklist
+	private static final List<String> initializeBlackList() {
+		List<String> toReturn = new ArrayList<String>();
+		toReturn.add("gdac.broadinstitute.org_OV.Merge_transcriptome__agilentg4502a_07_2__unc_edu__Level_3__unc_lowess_normalization_gene_level__data.Level_3");
+		return toReturn;
+	}
 
 	/**
 	 * Constructor.
@@ -167,7 +183,7 @@ class FirehoseFetcherImpl implements Fetcher {
 
 		// process runDate argument
 		Date desiredRunDateDate = (desiredRunDate.equalsIgnoreCase(Fetcher.LATEST_RUN_INDICATOR)) ?
-			latestBroadRun : PORTAL_DATE_FORMAT.parse(desiredRunDate);
+			latestBroadRun : Admin.PORTAL_DATE_FORMAT.parse(desiredRunDate);
 
 		fetchRun(runType, desiredRunDateDate);
 	}
@@ -196,7 +212,7 @@ class FirehoseFetcherImpl implements Fetcher {
 		// steup a default date for comparision
 		Date latestRun = BROAD_DATE_FORMAT.parse("1918_05_11");
 
-		Process process = Runtime.getRuntime().exec(firehoseGetScript + " -r");
+		Process process = Runtime.getRuntime().exec(getFirehoseGetScript() + " -r");
 		process.waitFor();
 		if (process.exitValue() != 0) { return latestRun; }
 		BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -235,23 +251,17 @@ class FirehoseFetcherImpl implements Fetcher {
 		String downloadDirectoryName = dataSourceMetadata.getDownloadDirectory();
 		File downloadDirectory = new File(downloadDirectoryName);
 
-		// clobber the directory
-		if (downloadDirectory.exists()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("clobbering directory: " + downloadDirectoryName);
-			}
-            fileUtils.deleteDirectory(downloadDirectory);
-		}
-
 		// make the directory
-        fileUtils.makeDirectory(downloadDirectory);
+		if (!downloadDirectory.exists()) {
+			fileUtils.makeDirectory(downloadDirectory);
+		}
 
 		// download the data
 		String tumorTypesToDownload = Arrays.toString(config.getTumorTypesToDownload());
 		tumorTypesToDownload = tumorTypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
 		String firehoseDatatypesToDownload = Arrays.toString(config.getDatatypesToDownload(dataSourceMetadata));
 		firehoseDatatypesToDownload = firehoseDatatypesToDownload.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll(", ", " ");
-		String[] command = new String[] { firehoseGetScript, "-b",
+		String[] command = new String[] { getFirehoseGetScript(), "-b",
 										  "-tasks",
 										  firehoseDatatypesToDownload,
 										  runType,
@@ -289,19 +299,18 @@ class FirehoseFetcherImpl implements Fetcher {
 
 		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
 
-		// first delete records in db with givin dataSource
-		// we do this in the event that the desired datatypes to download have changed
-		importDataRecordDAO.deleteByDataSource(dataSource);
-
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
 			// skip "normals"
-			if (md5File.getName().contains(NORMAL_DATA_FILE)) continue;
+			Matcher normalsMatcher = NORMAL_DATA_FILE_REGEX.matcher(md5File.getName());
+			if (normalsMatcher.find()) continue;
+            File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
+			// skip blacklist files
+			if (blacklistContains(dataFile.getCanonicalPath())) continue;
+            // compute md5 digest from respective data file - 
             // get precomputed digest (from .md5)
             String precomputedDigest = fileUtils.getPrecomputedMD5Digest(md5File);
-            // compute md5 digest from respective data file
-            File dataFile = new File(md5File.getCanonicalPath().replace(".md5", ""));
             String computedDigest = fileUtils.getMD5Digest(dataFile);
             if (LOG.isInfoEnabled()) {
                 LOG.info("storeData(), file: " + md5File.getCanonicalPath());
@@ -333,6 +342,7 @@ class FirehoseFetcherImpl implements Fetcher {
             String canonicalPath = dataFile.getCanonicalPath();
             // create an store a new ImportDataRecord object
             for (DatatypeMetadata datatype : datatypes) {
+				if (!datatype.isDownloaded()) continue;
 				Method archivedFilesMethod = datatype.getArchivedFilesMethod(dataSource);
 				Set<String> archivedFiles = (Set<String>)archivedFilesMethod.invoke(datatype, (Object)dataFile.getName());
 				if (archivedFiles.size() == 0 && LOG.isInfoEnabled()) {
@@ -341,11 +351,29 @@ class FirehoseFetcherImpl implements Fetcher {
 				for (String downloadFile : archivedFiles) {
 					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, center,
 																			 tumorType.toLowerCase(), datatype.getDatatype(),
-                                                                             PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
+                                                                             Admin.PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
 																			 computedDigest, downloadFile);
 					importDataRecordDAO.importDataRecord(importDataRecord);
 				}
             }
 		}
+	}
+
+	/**
+	 * Helper function to help filter out blacklist files.
+	 *
+	 * @param dataFile String
+	 * @return boolean
+	 */
+	private boolean blacklistContains(String dataFile) {
+
+		for (String blackListFile : blacklist) {
+			if (dataFile.contains(blackListFile)) {
+				return true;
+			}
+		}
+
+		// outta here
+		return false;
 	}
 }

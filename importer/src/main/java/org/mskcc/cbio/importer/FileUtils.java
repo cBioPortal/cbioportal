@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
@@ -40,6 +41,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.util.List;
 import java.util.Collection;
 
 /**
@@ -105,14 +107,16 @@ public interface FileUtils {
 	DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception;
 
 	/**
-	 * Get staging file header.
+	 * Get the case list from the staging file.
 	 *
+	 * @param caseIDs CaseIDs;
      * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return stagingFile String
+	 * @param stagingFilename String
+	 * @return List<String>
 	 * @throws Exception
 	 */
-	String getStagingFileHeader(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFile) throws Exception;
+	List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception;
 
 	/**
 	 * Creates a temporary file with the given contents.
@@ -161,6 +165,20 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+
+	/**
+	 * Method which writes a metadata file for the
+	 * given DatatypeMetadata.  DataMatrix may be null.
+	 *
+     * @param portalMetadata PortalMetadata
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param dataMatrix DataMatrix
+	 * @throws Exception
+	 *
+	 */
+	void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a staging file (and meta file) with contents from the given DataMatrix.
@@ -222,10 +240,12 @@ public interface FileUtils {
 	 *
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param filename String
+	 * @param overrideFilename String
+	 * @param stagingFilename String
 	 * @throws Exception
 	 */
-	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception;
+	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+					   String overrideFilename, String stagingFilename) throws Exception;
 
 	/**
 	 * Create a case list file from the given case list metadata file.

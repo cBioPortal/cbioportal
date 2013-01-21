@@ -29,21 +29,25 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.util.MetadataUtils;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Class which contains reference metadata.
  */
 public class ReferenceMetadata {
 
-	public static final String REFERENCE_FILE_DELIMITER = ":";
+    // delimiter between tumor type and center (used for find the path)
+	public static final String REFERENCE_DATA_ARGS_DELIMITER = ":";
 
 	// bean properties
 	private String referenceType;
-	private Boolean importIntoPortal;
-	private String referenceFileSource;
-	private String referenceFile;
-	private String fetcherBeanID;
-	private String importerClassName;
+	private String fetcherName;
+	private List<String> fetcherArgs;
+	private String importerName;
+	private List<String> importerArgs;
 
     /**
      * Create a ReferenceMetadata instance with properties in given array.
@@ -53,22 +57,26 @@ public class ReferenceMetadata {
      */
     public ReferenceMetadata(String[] properties) {
 
-		if (properties.length != 6) {
+		if (properties.length < 5) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.referenceType = properties[0].trim();
-		this.importIntoPortal = new Boolean(properties[1].trim());
-		this.referenceFileSource = properties[2].trim();
-		this.referenceFile = properties[3].trim();
-		this.fetcherBeanID = properties[4].trim();
-		this.importerClassName = properties[5].trim();
+		this.fetcherName = MetadataUtils.getCanonicalPath(properties[1].trim());
+		this.fetcherArgs = new ArrayList<String>();
+		for (String fetcherArg : properties[2].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.fetcherArgs.add(MetadataUtils.getCanonicalPath(fetcherArg));
+		}
+		this.importerName = MetadataUtils.getCanonicalPath(properties[3].trim());
+		this.importerArgs = new ArrayList<String>();
+		for (String importerArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.importerArgs.add(MetadataUtils.getCanonicalPath(importerArg));
+		}
 	}
 
 	public String getReferenceType() { return referenceType; }
-	public Boolean importIntoPortal() { return importIntoPortal; }
-	public String getReferenceFileSource() { return referenceFileSource; }
-	public String getReferenceFile() { return referenceFile; }
-	public String getFetcherBeanID() { return fetcherBeanID; }
-	public String getImporterClassName() { return importerClassName; }
+	public String getFetcherName() { return fetcherName; }
+	public List<String> getFetcherArgs() { return fetcherArgs; }
+	public String getImporterName() { return importerName; }
+	public List<String> getImporterArgs() { return importerArgs; }
 }

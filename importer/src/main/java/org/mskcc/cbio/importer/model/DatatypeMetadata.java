@@ -97,7 +97,7 @@ public class DatatypeMetadata {
      */
     public DatatypeMetadata(String[] properties) {
 
-		if (properties.length != 14) {
+		if (properties.length < 14) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 

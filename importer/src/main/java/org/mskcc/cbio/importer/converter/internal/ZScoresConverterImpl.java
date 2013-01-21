@@ -50,6 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Class which implements the Converter interface.
@@ -93,11 +94,12 @@ public class ZScoresConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -140,27 +142,23 @@ public class ZScoresConverterImpl implements Converter {
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependencies.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies
-		DatatypeMetadata[] dependenciesMetadata = getDependencies(dependencies);
-		// sanity check
-		if (dependenciesMetadata.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependenciesMetadata.length != 2, aborting...");
+		DatatypeMetadata[] dependenciesMetadata = new DatatypeMetadata[2];
+		try {
+			dependenciesMetadata[0] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[0]).iterator().next();
+			dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
 		}
-
-		// verify order is copy number followed by gistic
-		if ((dependenciesMetadata[0].getDatatype().contains("expression") || dependenciesMetadata[0].getDatatype().contains("EXPRESSION")) &&
-			(dependenciesMetadata[1].getDatatype().contains("cna") || dependenciesMetadata[1].getDatatype().contains("CNA"))) {
-			DatatypeMetadata tmp = dependenciesMetadata[0];
-			dependenciesMetadata[0] = dependenciesMetadata[1];
-			dependenciesMetadata[1] = tmp;
-		}
-		// sanity check
-		if (!(dependenciesMetadata[0].getDatatype().contains("cna") || dependenciesMetadata[0].getDatatype().contains("CNA")) ||
-			!(dependenciesMetadata[1].getDatatype().contains("expression") || dependenciesMetadata[1].getDatatype().contains("EXPRESSION"))) {
-			throw new IllegalArgumentException("createStagingFile(), cannot determine cna and expression datatype order, aborting...");
+		catch (NoSuchElementException e) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), not all dependencies found: " + Arrays.asList(dependencies) + ", aborting...");
+			}
+			return;
 		}
 
 		if (LOG.isInfoEnabled()) {
@@ -171,30 +169,5 @@ public class ZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}
-	}
-
-	/**
-	 * Helper function to determine DatatypeMetadata dependencies.
-	 *
-	 * @param dependencies DatatypeMetadata[]
-	 * @return String[]
-	 */
-	private DatatypeMetadata[] getDependencies(String[] dependencies) {
-
-		// this is what we return
-		DatatypeMetadata[] toReturn = new DatatypeMetadata[dependencies.length];
-
-		for (int lc = 0; lc < dependencies.length; lc++) {
-			String dependency = dependencies[lc];
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(Config.ALL)) {
-				if (dependency.equals(datatypeMetadata.getDatatype())) {
-					toReturn[lc] = datatypeMetadata;
-				}
-			}
-		}
-
-
-		// outta here
-		return toReturn;
 	}
 }

@@ -21,6 +21,8 @@ var PROFILE_PROTEIN = "PROFILE_PROTEIN";
 var PROFILE_RPPA = "PROFILE_RPPA";
 var PROFILE_METHYLATION = "PROFILE_METHYLATION"
 
+var caseSetSelectionOverriddenByUser = false;
+
 //  Create Log Function, if FireBug is not Installed.
 if(typeof(console) === "undefined" || typeof(console.log) === "undefined")
     var console = { log: function() { } };
@@ -33,15 +35,20 @@ $(document).ready(function(){
 
      //  Set up Event Handler for User Selecting Cancer Study from Pull-Down Menu
      $("#select_cancer_type").change(function() {
+         caseSetSelectionOverriddenByUser = false; // reset
          console.log("#select_cancer_type change ( cancerStudySelected() )");
          cancerStudySelected();
          console.log("#select_cancer_type change ( reviewCurrentSelections() )");
          reviewCurrentSelections();
+         
+         caseSetSelected();
+         $('#custom_case_set_ids').val(''); // reset the custom case set textarea
      });
 
     // Set up Event Handler for User Selecting a Case Set
     $("#select_case_set").change(function() {
         caseSetSelected();
+        caseSetSelectionOverriddenByUser = true;
     });
 
     // Set up Event Handler for User Selecting a Get Set
@@ -174,9 +181,9 @@ function singleCancerStudySelected() {
 //  Select default genomic profiles
 function makeDefaultSelections(){
 
-    $('.' + PROFILE_MUTATION_EXTENDED).attr('checked',true);
-    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':checkbox').attr('checked',true);
-    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':radio').first().attr('checked',true);
+    $('.' + PROFILE_MUTATION_EXTENDED).prop('checked',true);
+    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':checkbox').prop('checked',true);
+    $('.' + PROFILE_COPY_NUMBER_ALTERATION +':radio').first().prop('checked',true);
 
 }
 
@@ -194,7 +201,7 @@ function reviewCurrentSelections(){
 
         // if no checkboxes are checked, make default selections
         $('input:checkbox').each(function(){
-            if ($(this).attr('checked')){
+            if ($(this).prop('checked')){
                 setDefaults = false;
                 return;
             }
@@ -206,27 +213,19 @@ function reviewCurrentSelections(){
         }
    } 
 
+   updateDefaultCaseList();
+
    // determine whether mRNA threshold field should be shown or hidden
    // based on which, if any mRNA profiles are selected
-   if ($("." + PROFILE_MRNA_EXPRESSION).length >= 1){
-        $("." + PROFILE_MRNA_EXPRESSION).each(function(){
-            console.log("reviewCurrentSelections ( toggleThresholdPanel() )");
-            toggleThresholdPanel($(this), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
-        });
-   }
-   
+   toggleThresholdPanel($("." + PROFILE_MRNA_EXPRESSION+"[type=checkbox]"), PROFILE_MRNA_EXPRESSION, "#z_score_threshold");
+
    // similarly with RPPA
-   if ($("." + PROFILE_RPPA).length >= 1){
-        $("." + PROFILE_RPPA).each(function(){
-            console.log("reviewCurrentSelections ( toggleThresholdPanel() )");
-            toggleThresholdPanel($(this), PROFILE_RPPA, "#rppa_score_threshold");
-        });
-   }
+   toggleThresholdPanel($("." + PROFILE_RPPA+"[type=checkbox]"), PROFILE_RPPA, "#rppa_score_threshold");
 
    // determine whether optional arguments section should be shown or hidden
 //   if ($("#optional_args > input").length >= 1){
 //       $("#optional_args > input").each(function(){
-//           if ($(this).attr('checked')){
+//           if ($(this).prop('checked')){
 //               // hide/show is ugly, but not sure exactly how toggle works
 //               // and couldn't get it to work.. this will do for now
 //               $("#step5 > .step_header > .ui-icon-triangle-1-e").hide();
@@ -257,7 +256,7 @@ function chooseAction() {
         if ( haveExpInQuery ) {
             var expCheckBox = $("." + PROFILE_MRNA_EXPRESSION);
 
-            if( expCheckBox.length > 0 && expCheckBox.attr('checked') == false) {
+            if( expCheckBox.length > 0 && expCheckBox.prop('checked') == false) {
                     createAnEXPError("Expression specified in the list of genes, but not selected in the" +
                                         " Genetic Profile Checkboxes.");
                     return false;
@@ -292,16 +291,58 @@ function genomicProfileRadioButtonSelected(subgroupClicked) {
     if (subgroupClass != undefined && subgroupClass != "") {
         var checkboxSelector = "input."+subgroupClass+"[type=checkbox]";
         if (checkboxSelector != undefined) {
-            $(checkboxSelector).attr('checked',true);
+            $(checkboxSelector).prop('checked',true);
         }
     }
+    updateDefaultCaseList();
 }
 
 //  Triggered when a genomic profile group check box is selected.
 function profileGroupCheckBoxSelected(profileGroup) {
     var profileClass = profileGroup.attr('class');
-    var radioSelector = "input."+profileClass+"[type=radio]";
-    $(radioSelector).attr('checked',false);
+    $("input."+profileClass+"[type=radio]").prop('checked',false);
+    if (profileGroup.prop('checked')) {
+        var rnaSeqRadios = $("input."+profileClass+"[type=radio][value*='rna_seq']");
+        if (rnaSeqRadios.length>0) {
+            rnaSeqRadios.first().prop('checked',true);
+        } else {
+            $("input."+profileClass+"[type=radio]").first().prop('checked',true);
+        }
+    }
+    updateDefaultCaseList();
+}
+
+// update default case list based on selected profiles
+function updateDefaultCaseList() {
+    if (caseSetSelectionOverriddenByUser) return;
+    var mutSelect = $("input.PROFILE_MUTATION_EXTENDED[type=checkbox]").prop('checked');
+    var cnaSelect = $("input.PROFILE_COPY_NUMBER_ALTERATION[type=checkbox]").prop('checked');
+    var expSelect = $("input.PROFILE_MRNA_EXPRESSION[type=checkbox]").prop('checked');
+    var rppaSelect = $("input.PROFILE_RPPA[type=checkbox]").prop('checked');
+    var selectedCancerStudy = $('#select_cancer_type').val();
+    var defaultCaseList = selectedCancerStudy+"_all";
+    if (mutSelect && cnaSelect && !expSelect && !rppaSelect) {
+        defaultCaseList = selectedCancerStudy+"_cnaseq";
+        if ($("#select_case_set option[value='"+defaultCaseList+"']").length == 0) {
+            defaultCaseList = selectedCancerStudy+"_cna_seq";  //TODO: Better to unify to this one
+        }
+    } else if (mutSelect && !cnaSelect && !expSelect && !rppaSelect) {
+        defaultCaseList = selectedCancerStudy+"_sequenced";
+    } else if (!mutSelect && cnaSelect && !expSelect && !rppaSelect) {
+        defaultCaseList = selectedCancerStudy+"_acgh";
+    } else if (!mutSelect && !cnaSelect && expSelect && !rppaSelect) {
+        if ($('#'+selectedCancerStudy+'_mrna_median_Zscores').prop('checked')) {
+            defaultCaseList = selectedCancerStudy+"_mrna";
+        } else {
+            defaultCaseList = selectedCancerStudy+"_rna_seq_mrna";
+        }
+    } else if ((mutSelect || cnaSelect) && expSelect && !rppaSelect) {
+        defaultCaseList = selectedCancerStudy+"_3way_complete";
+    } else if (!mutSelect && !cnaSelect && !expSelect && rppaSelect) {
+        defaultCaseList = selectedCancerStudy+"_rppa";
+    }
+    
+    $('#select_case_set').val(defaultCaseList);
 }
 
 //  Print message and disable submit if use choosed a cancer type
@@ -324,15 +365,13 @@ function toggleThresholdPanel(profileClicked, profile, threshold_div) {
             $(threshold_div).slideUp();
         }
     } else if(inputType == 'checkbox'){
-        var subgroup = $("input." + profile + "[type=radio]");
 
         // if there are NO subgroups, show threshold input when mRNA checkbox is selected.
-        // if there ARE subgroups, do nothing when checkbox is selected. Wait until subgroup is chosen.
-        if (profileClicked.attr('checked') && (subgroup = null || subgroup.length==0)){
+        if (profileClicked.prop('checked')){
             $(threshold_div).slideDown();
         }
         // if checkbox is unselected, hide threshold input regardless of whether there are subgroups
-        else if(!profileClicked.attr('checked')){
+        else {
             $(threshold_div).slideUp();
         }
     }
@@ -614,6 +653,7 @@ function addMetaDataToPage() {
     //   Set things up, based on currently selected case set id
     if (window.case_set_id_selected != null && window.case_set_id_selected != "") {
         $("#select_case_set").val(window.case_set_id_selected);
+        caseSetSelectionOverriddenByUser = true;
     }
     caseSetSelected();
 
@@ -633,7 +673,7 @@ function addMetaDataToPage() {
         //  if the user has this stable ID already selected, mark it as checked
         if (window.genomic_profile_id_selected[currentValue] == 1) {
             console.log("Checking " + $(this).attr('id') + "... (inside addMetaDataToPage())");
-            $(this).attr('checked','checked');
+            $(this).prop('checked',true);
             //  Select the surrounding checkbox
             genomicProfileRadioButtonSelected($(this));
         }

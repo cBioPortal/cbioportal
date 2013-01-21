@@ -38,6 +38,7 @@ import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
@@ -56,6 +57,7 @@ import com.google.gdata.client.spreadsheet.FeedURLFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.ArrayList;
@@ -83,11 +85,16 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
 	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
 	ArrayList<ArrayList<String>> caseListMatrix;
+	ArrayList<ArrayList<String>> clinicalAttributesMatrix;
 	ArrayList<ArrayList<String>> datatypesMatrix;
 	ArrayList<ArrayList<String>> dataSourcesMatrix;
 	ArrayList<ArrayList<String>> portalsMatrix;
 	ArrayList<ArrayList<String>> referenceMatrix;
 	ArrayList<ArrayList<String>> tumorTypesMatrix;
+
+	// worksheet names we need for updates
+	private String gdataSpreadsheet;
+	private String clinicalAttributesWorksheet;
 
 	/**
 	 * Constructor.
@@ -112,8 +119,8 @@ class GDataImpl implements Config {
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
-					 String caseIDFiltersWorksheet, String caseListWorksheet, String portalsWorksheet,
-					 String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
+					 String caseIDFiltersWorksheet, String caseListWorksheet, String clinicalAttributesWorksheet,
+					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
 
 		// set members
 		this.gdataUser = gdataUser;
@@ -124,10 +131,15 @@ class GDataImpl implements Config {
 		datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
 		caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
 		caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
+		clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
 		portalsMatrix = getWorksheetData(gdataSpreadsheet, portalsWorksheet);
 		referenceMatrix = getWorksheetData(gdataSpreadsheet, referenceDataWorksheet);
 		dataSourcesMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
 		cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+
+		// save name(s) of worksheet we update later
+		this.gdataSpreadsheet = gdataSpreadsheet;
+		this.clinicalAttributesWorksheet = clinicalAttributesWorksheet;
 	}
 
 	/**
@@ -173,6 +185,7 @@ class GDataImpl implements Config {
 		for (TumorTypeMetadata tumorTypeMetadata : tumorTypeMetadatas) {
             if (tumorTypeMetadata.getType().equals(tumorType)) {
 				toReturn.add(tumorTypeMetadata);
+				break;
             }
 		}
 
@@ -255,6 +268,7 @@ class GDataImpl implements Config {
 		for (DatatypeMetadata datatypeMetadata : datatypeMetadatas) {
             if (datatypeMetadata.getDatatype().equals(datatype)) {
 				toReturn.add(datatypeMetadata);
+				break;
             }
 		}
 
@@ -329,6 +343,7 @@ class GDataImpl implements Config {
 		for (CaseIDFilterMetadata caseIDFilterMetadata : caseIDFilterMetadatas) {
 			if (caseIDFilterMetadata.getFilterName().equals(filterName)) {
 				toReturn.add(caseIDFilterMetadata);
+				break;
 			}
 		}
 
@@ -360,11 +375,75 @@ class GDataImpl implements Config {
 		for (CaseListMetadata caseListMetadata : caseListMetadatas) {
 			if (caseListMetadata.getCaseListFilename().equals(caseListFilename)) {
 				toReturn.add(caseListMetadata);
+				break;
 			}
 		}
 
 		// outta here
 		return toReturn;
+	}
+
+	/**
+	 * Gets a collection of ClinicalAttributesMetadata.
+	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeColumnHeader String
+	 * @return Collection<ClinicalAttributesMetadata>
+	 */
+	@Override
+	public Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributesColumnHeader) {
+
+		Collection<ClinicalAttributesMetadata> toReturn = new ArrayList<ClinicalAttributesMetadata>();
+
+		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
+			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
+																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+
+		// if user wants all, we're done
+		if (clinicalAttributesColumnHeader.equals(Config.ALL)) {
+			return clinicalAttributesMetadatas;
+		}
+
+		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
+			if (clinicalAttributesMetadata.getColumnHeader().equals(clinicalAttributesColumnHeader)) {
+				toReturn.add(clinicalAttributesMetadata);
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
+	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 *
+	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 */
+	@Override
+	public void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
+
+		// vars used in call to updateWorksheet below
+		boolean insertRow = true;
+		String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
+		String key = clinicalAttributesMetadata.getColumnHeader();
+
+		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
+			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
+																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+
+		// iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
+		// object already exists - this would indicate an update is to take place, not an insert
+		for (ClinicalAttributesMetadata potentialClinicalAttributeMetadataMatch : clinicalAttributesMetadatas) {
+			if (potentialClinicalAttributeMetadataMatch.getColumnHeader().equals(clinicalAttributesMetadata.getColumnHeader())) {
+				insertRow = false;
+				break;
+			}
+		}
+
+		updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+						insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
+		
 	}
 
 	/**
@@ -390,6 +469,7 @@ class GDataImpl implements Config {
 		for (PortalMetadata portalMetadata : portalMetadatas) {
 			if (portalMetadata.getName().equals(portalName)) {
 				toReturn.add(portalMetadata);
+				break;
 			}
 		}
 
@@ -636,5 +716,74 @@ class GDataImpl implements Config {
 
 		// outta here
 		return toReturn;
+	}
+
+	/**
+	 * Insert (or update) a worksheet row.  If insertRow is true,
+	 * a new row will be inserted into the database.  If insertRow is
+	 * false, the row will be updated.  Note, if update is to occur,
+	 * keyColumn (worksheet column header) and key (key to identify row)
+	 * must be set, otherwise they will be ignored (and can be null).
+	 *
+	 * @param spreadsheetName String
+	 * @param worksheetName String
+	 * @param insertRow boolean
+	 * @param keyColumn String
+	 * @param key String
+	 * @param propertyMap Map<String,String>
+	 */
+	private void updateWorksheet(String spreadsheetName, String worksheetName,
+								 boolean insertRow, String keyColumn, String keyValue,
+								 Map<String,String> properties) {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("insertWorksheetProperty(): " + spreadsheetName + ", " + worksheetName);
+			LOG.info("insertWorksheetProperty(), insertRow: " + insertRow);
+			LOG.info("insertWorksheetProperty(), keyColumn: " + keyColumn);
+			LOG.info("insertWorksheetProperty(), keyValue: " + keyValue);
+			LOG.info("insertWorksheetProperty(), properties: " + properties);
+		}
+		
+		try {
+			login();
+			WorksheetEntry worksheet = getWorksheet(spreadsheetName, worksheetName);
+			if (worksheet != null) {
+				// insert the row
+				if (insertRow) {
+					ListEntry row = new ListEntry();
+					for (String key : properties.keySet()) {
+						row.getCustomElements().setValueLocal(key, properties.get(key));
+					}
+					spreadsheetService.insert(worksheet.getListFeedUrl(), row);
+					if (LOG.isInfoEnabled()) {
+						LOG.info("Worksheet data hase been successfully inserted!");
+					}
+				}
+				// update the row
+				else {
+					ListFeed feed = spreadsheetService.getFeed(worksheet.getListFeedUrl(), ListFeed.class);
+					for (ListEntry entry : feed.getEntries()) {
+						if (entry.getCustomElements().getValue(keyColumn) != null &&
+							entry.getCustomElements().getValue(keyColumn).equals(keyValue)) {
+							for (String key : properties.keySet()) {
+								entry.getCustomElements().setValueLocal(key, properties.get(key));
+							}
+							entry.update();
+							if (LOG.isInfoEnabled()) {
+								LOG.info("Worksheet data hase been successfully updated!");
+							}
+						}
+					}
+				}
+			}
+			else {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("Worksheet contains no entries!");
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

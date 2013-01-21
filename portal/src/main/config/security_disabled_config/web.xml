@@ -93,7 +93,7 @@
         </init-param>
          <init-param>
             <param-name>db_name</param-name>
-            <param-value>${db.name}</param-value>
+            <param-value>${db.portal_db_name}</param-value>
         </init-param>
         <init-param>
             <param-name>db_user</param-name>
@@ -404,6 +404,16 @@
     <servlet-mapping>
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalTrialsJSON</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>ClinicalTrialsJSON</servlet-name>
+        <url-pattern>/clinicaltrials.json</url-pattern>
     </servlet-mapping>
     
     <servlet>

@@ -41,12 +41,12 @@ public class HashCacheService implements OncotatorCacheService
 		this.cache = this.initCache();
 	}
 
-	public int put(OncotatorRecord record) throws Exception
+	public int put(OncotatorRecord record) throws OncotatorCacheException
 	{
 		if (this.cache.get(record.getKey()) != null)
 		{
 			// simulate insertion error
-			throw new Exception("duplicate entry for " + record.getKey());
+			throw new OncotatorCacheException("duplicate entry for " + record.getKey());
 		}
 		else
 		{
@@ -56,7 +56,7 @@ public class HashCacheService implements OncotatorCacheService
 		return 1;
 	}
 
-	public OncotatorRecord get(String key) throws Exception
+	public OncotatorRecord get(String key) throws OncotatorCacheException
 	{
 		return this.cache.get(key);
 	}

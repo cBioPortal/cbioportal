@@ -272,7 +272,7 @@ var Oncoprint = function(wrapper, params) {
 
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                position: {my:'top center',at:'bottom center'}
+                position: {my:'left top',at:'bottom center'}
             });
         });
     };
@@ -289,7 +289,7 @@ var Oncoprint = function(wrapper, params) {
 //                    console.log(ui.value);
                     oncoprint.scaleWidth(ui.value);
                 }
-            }).appendTo($('#oncoprint_controls #width_scroller'));
+            }).appendTo($('#oncoprint_controls #zoom'));
     };
 
     that.draw = function() {
@@ -341,8 +341,9 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', label_width)
             .attr('height', getHeight());
 
+        // td-content is some parent td
         var body_wrap = table_wrap.append('td').append('div')
-            .style('width', (1200 - label_width) + 'px')
+            .style('width', $('#td-content').width() - 70 - label_width + 'px') // buffer of, say, 70
             .style('display', 'inline-block')
             .style('overflow-x', 'auto')
             .style('overflow-y', 'hidden');
@@ -480,6 +481,8 @@ var Oncoprint = function(wrapper, params) {
             redraw(samples_visualized, track, gene.hugo);
             transition();
         });
+
+        makeQtip();
     };
 
 //  For the given oncoprint reference, returns the SVG Dom as string
@@ -497,8 +500,10 @@ var Oncoprint = function(wrapper, params) {
             });
         });
 
+        var number_of_samples = $(tracks[0]).children().length;
+
         var export_svg = $('<svg>')
-            .attr('width', getXScale(samples_all.length))
+            .attr('width', getXScale(number_of_samples) + label_width)
             .attr('height', getHeight());
 
         export_svg

@@ -84,7 +84,10 @@ public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterIm
 
 		// sanity check
 		if (dataMatrices.length != 1) {
-			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 1, aborting...");
+			}
+			return;
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
 

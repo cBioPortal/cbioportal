@@ -19,7 +19,7 @@
   <context:annotation-config/>
 
 <!--
-        Should come from another file with value conditional based on build.properties
+        Should come from another file with value conditional based on portal.properties
 -->
   <global-method-security pre-post-annotations="enabled">
         <expression-handler ref="expressionHandler"/>
@@ -85,6 +85,7 @@
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->
@@ -138,7 +139,7 @@
 -->
    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
      <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-     <b:property name="url" value="jdbc:mysql://${db.host}/${db.name}"/>
+     <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
      <b:property name="username" value="${db.user}"/>
      <b:property name="password" value="${db.password}"/>
    </b:bean>

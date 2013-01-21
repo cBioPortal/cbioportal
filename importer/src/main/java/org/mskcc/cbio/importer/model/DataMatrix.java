@@ -42,6 +42,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import java.io.PrintWriter;
@@ -62,6 +63,7 @@ public class DataMatrix {
 	private class ColumnHeader {
 		public String label;
 		public LinkedList<String> columnData;
+		public ArrayList<String> columnDataAsArray;
 		public boolean ignoreColumn;
 	}
 
@@ -92,6 +94,11 @@ public class DataMatrix {
 	 */
 	public DataMatrix(List<LinkedList<String>> rowData, List<String> columnNames) {
 
+		// sanity checks
+		if (rowData == null || columnNames == null) {
+			throw new IllegalArgumentException("DataMatrix(): rowData or columnNames is null...");
+		}
+
 		// set numberOfRows
 		numberOfRows = rowData.size();
 
@@ -100,7 +107,7 @@ public class DataMatrix {
 		caseIDs = new HashSet<String>();
 
 		// geneIDColumnHeading
-		geneIDColumnHeading = "";
+		geneIDColumnHeading = Converter.GENE_ID_COLUMN_HEADER_NAME;
 
 		// create our linked list of column header objects
 		columnHeaders = new LinkedList<ColumnHeader>();
@@ -174,6 +181,28 @@ public class DataMatrix {
 	}
 
 	/**
+	 * Converts full TCGA bar code to abbreviated version for use in portal.
+	 * This routine is used when the case IDs exist not in the header row, but in a column.
+	 * This is true for MAF files.
+	 *
+	 * @param caseIDColumn String
+	 */
+	public void convertCaseIDs(String caseIDColumn) {
+
+		// reset our caseIDs list
+		caseIDs.clear();
+
+		List<String> caseIDColumnData = getColumnData(caseIDColumn).get(0);
+		for (int lc = 0; lc < caseIDColumnData.size(); lc++) {
+			String caseID = caseIDColumnData.get(lc);
+			if (caseIDsFilter.isTumorCaseID(caseID)) {
+				caseIDColumnData.set(lc, caseIDsFilter.convertCaseID(caseID));
+				caseIDs.add(caseID);
+			}
+		}
+	}
+
+	/**
 	 * Set column order.  Any columns in the data matrix
 	 * that are not in the given column order will be dropped.
 	 *
@@ -212,7 +241,8 @@ public class DataMatrix {
 	public void addColumn(String newColumnName, List<String> columnData) {
 
 		if (columnData.size() < numberOfRows) {
-			for (int lc = 0; lc < numberOfRows-columnData.size(); lc++) {
+			int columnDataSize = columnData.size();
+			for (int lc = 0; lc < numberOfRows-columnDataSize; lc++) {
 				columnData.add(new String());
 			}
 		}
@@ -374,6 +404,24 @@ public class DataMatrix {
 	}
 
 	/**
+	 * Inserts row data to beginning of matrix.
+	 * 
+	 * @param List<String> rowData
+	 */
+	public void insertRow(List<String> rowData) {
+		addRow(rowData, 0);
+	}
+
+	/**
+	 * Appends a row to the end of the matrix.
+	 * 
+	 * @param List<String> rowData
+	 */
+	public void appendRow(List<String> rowData) {
+		addRow(rowData, -1);
+	}
+
+	/**
 	 * Adds the given row number into our rowsToIgnore set.
 	 * Note row indices start an 0.
 	 *
@@ -403,7 +451,11 @@ public class DataMatrix {
 		for (ColumnHeader columnHeader : columnHeaders) {
 			if (columnHeader.ignoreColumn) continue;
 			writer.print(columnHeader.label);
-			writer.print(Converter.CASE_DELIMITER);
+			if (columnHeader != columnHeaders.getLast()) {
+				writer.print(Converter.VALUE_DELIMITER);
+			}
+			// create ArrayList version of data for speedy writing below
+			columnHeader.columnDataAsArray = new ArrayList<String>(columnHeader.columnData);
 		}
 		writer.println();
 
@@ -414,9 +466,9 @@ public class DataMatrix {
 			}
 			for (ColumnHeader columnHeader : columnHeaders) {
 				if (columnHeader.ignoreColumn) continue;
-				writer.print(columnHeader.columnData.get(rowIndex));
+				writer.print(columnHeader.columnDataAsArray.get(rowIndex));
 				if (columnHeader != columnHeaders.getLast()) {
-					writer.print(Converter.CASE_DELIMITER);
+					writer.print(Converter.VALUE_DELIMITER);
 				}
 			}
 			writer.println();
@@ -424,6 +476,45 @@ public class DataMatrix {
 
 		// clean up
 		writer.flush();
+	}
+
+	/**
+	 * Private helper function to insert row at a given given index.
+	 *
+	 * @param List<String> rowData
+	 * @param rowIndex long
+	 */
+	private void addRow(List<String> rowData, int rowIndex) {
+
+		// sanity checks
+		if (rowData.size() < columnHeaders.size()) {
+			throw new IllegalArgumentException("rowData size < number in matrix, aborting.");
+		}
+
+		// iterate across all column headers
+		for (int lc = 0; lc < columnHeaders.size(); lc++) {
+			ColumnHeader columnHeader = columnHeaders.get(lc);
+			// for each columnHeader->columnData, insert row data at rowIndex
+			if (rowIndex == 0) {
+				columnHeader.columnData.addFirst(rowData.get(lc));
+			}
+			else {
+				columnHeader.columnData.addLast(rowData.get(lc));
+			}
+		}
+
+		// adjust ignoreRow set
+		// we just inserted at beginning, increment all values in existing set by 1.
+		if (rowIndex == 0) {
+			HashSet<Integer> rowsToIgnoreCopy = (HashSet<Integer>)rowsToIgnore.clone();
+			rowsToIgnore.clear();
+			for (Integer integer : rowsToIgnoreCopy) {
+				rowsToIgnore.add(++integer);
+			}
+		}
+
+		// inc number of rows property
+		++numberOfRows;
 	}
 
 	/**
@@ -450,6 +541,20 @@ public class DataMatrix {
 
 		// create matrix and dump
 		DataMatrix dataMatrix = new DataMatrix(rowData, columnNames);
+		dataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// insert a row
+		List<String> newRowToInsert = java.util.Arrays.asList("-2", "-1", "0");
+		dataMatrix.insertRow(newRowToInsert);
+		dataMatrix.write(System.out);
+		System.out.println();
+		System.out.println();
+
+		// append a row
+		List<String> newRowToAppend = java.util.Arrays.asList("d", "e", "f");
+		dataMatrix.appendRow(newRowToAppend);
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
@@ -513,7 +618,6 @@ public class DataMatrix {
 		System.out.println();
 
 		// test case id filtering & conversion
-
 		columnHeaders = java.util.Arrays.asList("Gene Symbol", "Locus ID", "Cytoband",
 												"TCGA-A1-A0SB-01A-11D-A141-01", "TCGA-A1-A0SD-Tumor",
 												"TCGA-A1-A0SE-01A-11D-A087-01", "TCGA-A1-A0SF-Normal",

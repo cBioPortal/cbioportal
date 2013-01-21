@@ -42,6 +42,8 @@ boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA)) & showCNA;
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
+boolean showClinicalTrials = true; // no restrictions yet
+boolean showDrugs = true;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
 
@@ -98,32 +100,40 @@ if (patientViewError!=null) {
 <div id="patient-tabs">
     <ul>
         
-    <li><a href='#summary' class='patient-tab' title='Events of Interest'>Summary</a></li>
+    <li><a href='#summary' class='patient-tab'>Summary</a></li>
     
     <%if(showMutations){%>
-    <li><a href='#mutations' class='patient-tab' title='Mutations'>Mutations</a></li>
+    <li><a href='#mutations' class='patient-tab'>Mutations</a></li>
     <%}%>
     
     <%if(showCNA){%>
-    <li><a href='#cna' class='patient-tab' title='Copy Number Alterations'>Copy Number Alterations</a></li>
+    <li><a href='#cna' class='patient-tab'>Copy Number Alterations</a></li>
+    <%}%>
+
+    <%if(showDrugs){%>
+    <li><a href='#drugs' class='patient-tab'>Drugs</a></li>
+    <%}%>
+
+    <%if(showClinicalTrials){%>
+    <li><a href='#clinical-trials' class='patient-tab'>Clinical Trials</a></li>
     <%}%>
     
     <%if(showTissueImages){%>
-    <li><a href='#images' class='patient-tab' title='Tissue Images'>Tissue Images</a></li>
+    <li><a href='#images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
     
     <%if(pathReportUrl!=null){%>
-    <li><a href='#path-report' class='patient-tab' title='Pathology Report'>Pathology Report</a></li>
+    <li><a href='#path-report' class='patient-tab'>Pathology Report</a></li>
     <%}%>
 
     <%if(showPathways){%>
-    <li><a href='#pathways' class='patient-tab' title='Pathway View'>Network</a></li>
+    <li><a href='#pathways' class='patient-tab'>Network</a></li>
     <%}%>
     
     <%if(showSimilarPatient){%>
-    <li><a href='#similar-patients' class='patient-tab' title='Similar Patients'>Similar Patients</a></li>
+    <li><a href='#similar-patients' class='patient-tab'>Similar Patients</a></li>
     <%}%>
-    
+
     </ul>
 
     <div class="patient-section" id="summary">
@@ -164,6 +174,18 @@ if (patientViewError!=null) {
     <div class="patient-section" id="similar-patients">
         <%@ include file="similar_patients.jsp" %>
     </div>
+    <%}%>
+
+    <%if(showDrugs){%>
+    <div class="patient-section" id="drugs">
+        <%@ include file="drugs.jsp" %>
+    </div>
+    <%}%>
+
+    <%if(showClinicalTrials){%>
+        <div class="patient-section" id="clinical-trials">
+            <%@ include file="clinical_trials.jsp" %>
+        </div>
     <%}%>
 
 </div>
@@ -339,7 +361,7 @@ function addNoteTooltip(elem) {
         content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top center',at:'bottom center'}
+        position: {my:'top left',at:'bottom right'}
     });
 }
 
@@ -393,7 +415,7 @@ function addMoreCinicalTooltip() {
     }
 }
 
-function addDrugsTooltip(elem) {
+function addDrugsTooltip(elem, my, at) {
     $(elem).each(function(){
         $(this).qtip({
             content: {
@@ -452,7 +474,7 @@ function addDrugsTooltip(elem) {
             },
             hide: { fixed: true, delay: 100 },
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
-            position: {my:'top right',at:'bottom center'}
+            position: { my: my, at: at }
         });
     });
 }

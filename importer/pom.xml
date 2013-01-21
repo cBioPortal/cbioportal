@@ -9,7 +9,7 @@
 
   <!-- module metadata -->
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>portal-importer</artifactId>
+  <artifactId>importer</artifactId>
   <name>Portal Importer</name>
   <description>Importer Module for Portal</description>
 
@@ -131,6 +131,13 @@
 	  <version>${project.version}</version>
 	</dependency>	
 
+	<!-- portal core -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>core</artifactId>
+	  <version>${project.version}</version>
+	</dependency>	
+
   </dependencies>
 
   <build>
@@ -200,7 +207,7 @@
 					<include>**/*.properties</include>
 				  </includes>
 				  <excludes>
-					<exclude>**/build.properties.*</exclude>
+					<exclude>**/portal.properties.*</exclude>
 					<exclude>**/log4j.properties.*</exclude>
 					<exclude>**/*.EXAMPLE</exclude>
 				  </excludes>
@@ -215,7 +222,7 @@
 
 	<!-- properties file used for filter our context file in resources -->
 	<filters>
-	  <filter>${PORTAL_HOME}/src/main/resources/importer.properties</filter>
+	  <filter>${PORTAL_HOME}/src/main/resources/portal.properties</filter>
 	</filters>
 
 	<!-- prevent some resources from getting into package -->

@@ -43,6 +43,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
 import java.util.List;
 import java.util.Arrays;
 
@@ -52,7 +53,7 @@ import java.util.Arrays;
 public class MutationConverterImpl implements Converter {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(MutationConverterImpl.class);
+	private static final Log LOG = LogFactory.getLog(MutationConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -88,11 +89,12 @@ public class MutationConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -133,23 +135,49 @@ public class MutationConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 1) {
-			throw new IllegalArgumentException("dataMatrices.length != 1, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 1, aborting...");
+			}
+			return;
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
+		//dataMatrix.convertCaseIDs(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
 		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+
+		// optimization - if an override exists, just copy it over and don't create a staging file from the data matrix
+		String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, stagingFilename);
+		// if we have an override file, just copy it over to the staging area
+		if (overrideFile != null) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
+						 overrideFile.getPath());
+			}
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, 
+									datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
+		}
+		// override file does not exist, we will have to create a staging file - check if file needs to be oncotated
+		else if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+			// we should almost always never get here - when do we have an oncated maf that doesn't exist
+			// in overrides?  ...when firehose starts providing oncotated mafs, thats when...
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), MAF is already oncotated, create staging file straight-away.");
+			}
 			fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
+		// override file does not exist, and we need to oncotate
 		else {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
 			}
 			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
+
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}

@@ -39,27 +39,30 @@ public class SimilarPatientsJSON extends HttpServlet {
         String strMutations = request.getParameter(MUTATION);
         String strCna = request.getParameter(CNA);
         String patient = request.getParameter(PatientView.PATIENT_ID);
-        int cancerStudyId = Integer.parseInt(request.getParameter(QueryBuilder.CANCER_STUDY_ID));
+        String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         try {
-            Case _case = DaoCase.getCase(patient, cancerStudyId);
-            if (_case!=null) {
-                Map<Case, Set<Long>> similarMutations;
-                if (strMutations==null||strMutations.isEmpty()) {
-                    similarMutations = Collections.emptyMap();
-                } else {
-                    similarMutations = DaoMutationEvent.getSimilarCasesWithMutationsByKeywords(strMutations);
-                    similarMutations.remove(_case);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+            if (cancerStudy!=null) {
+                Case _case = DaoCase.getCase(patient, cancerStudy.getInternalId());
+                if (_case!=null) {
+                    Map<Case, Set<Long>> similarMutations;
+                    if (strMutations==null||strMutations.isEmpty()) {
+                        similarMutations = Collections.emptyMap();
+                    } else {
+                        similarMutations = DaoMutationEvent.getSimilarCasesWithMutationsByKeywords(strMutations);
+                        similarMutations.remove(_case);
+                    }
+                    Map<Case, Set<Long>> similarCnas;
+                    if (strCna==null||strCna.isEmpty()) {
+                        similarCnas = Collections.emptyMap();
+                    } else {
+                        similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
+                        similarCnas.remove(_case);
+                    }
+
+                    export(table, similarMutations, similarCnas);
                 }
-                Map<Case, Set<Long>> similarCnas;
-                if (strCna==null||strCna.isEmpty()) {
-                    similarCnas = Collections.emptyMap();
-                } else {
-                    similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
-                    similarCnas.remove(_case);
-                }
-            
-                export(table, similarMutations, similarCnas);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -94,7 +97,7 @@ public class SimilarPatientsJSON extends HttpServlet {
         patients.addAll(similarCnas.keySet());
         for (Case patient : patients) {
             JSONArray row = new JSONArray();
-            row.add(patient);
+            row.add(patient.getCaseId());
             
             String[] cancerStudy = {"unknown","unknown"};
             try {

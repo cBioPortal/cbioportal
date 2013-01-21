@@ -60,7 +60,9 @@ public class MethylationConverterImpl implements Converter {
 	// statics for column identifiers in correlate - methylation file
 	private static final String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
 	private static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
+	// in runs up to 7/25/2012, Corr_Spearman appears, from 10/24/2012 Corr_Coeff exists
 	private static final String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
+	private static final String CORRELATE_COEFF_COLUMN_HEADER_NAME = "Corr_Coeff"; 
 
 	// statics for column identifiers in <CANCER>.methylation__humanmethylation[27|450] file
 	private static final String METHYLATION_CHROMOSOME_COLUMN_HEADER_NAME = "Chromosome";
@@ -102,11 +104,12 @@ public class MethylationConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -147,7 +150,10 @@ public class MethylationConverterImpl implements Converter {
 
 		// sanity check
 		if (dataMatrices.length != 2) {
-			throw new IllegalArgumentException("dataMatrices.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// determine which matrix is methylation data
@@ -165,18 +171,35 @@ public class MethylationConverterImpl implements Converter {
 			dataMatrixCorrelationData = dataMatrices[1];
 		}
 		else {
-			throw new IllegalArgumentException("Cannot determine correlation & methylation data matrices, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), cannot determine correlation & methylation data matrices, aborting...");
+			}
+			return;
 		}
 
 		// get probe with lowest Spearman correlation for each gene in dataMatrixCorrelationData
 		// (this works whether or not dataMatrixCorrelationData is sorted by correlation value)
 		HashMap<String,String[]> lowestCorrelationMap = new HashMap<String,String[]>();
-		List<String> genes = dataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).get(0);
-		List<String> methProbes = dataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0);
-		List<String> corrSpearman = dataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).get(0);
-		// sanity check
-		if (genes.size() != methProbes.size() && methProbes.size() != corrSpearman.size()) {
-			throw new IllegalArgumentException("Genes, probs, and corrSpearman vectors are different sizes, aborting...");
+		List<String> genes = null; List<String>methProbes = null; List<String>corrSpearman = null;
+		if (dataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).size() > 0) {
+			genes = dataMatrixCorrelationData.getColumnData(CORRELATE_GENE_COLUMN_HEADER_NAME).get(0);
+		}
+		if (dataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).size() > 0) {
+			methProbes = dataMatrixCorrelationData.getColumnData(CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0);
+		}
+		if (dataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).size() > 0) {
+			corrSpearman = dataMatrixCorrelationData.getColumnData(CORRELATE_SPEARMAN_COLUMN_HEADER_NAME).get(0);
+		}
+		else if (dataMatrixCorrelationData.getColumnData(CORRELATE_COEFF_COLUMN_HEADER_NAME).size() > 0) {
+			corrSpearman = dataMatrixCorrelationData.getColumnData(CORRELATE_COEFF_COLUMN_HEADER_NAME).get(0);
+		}
+		// sanity checks
+		if (genes == null || methProbes == null || corrSpearman == null ||
+			(genes.size() != methProbes.size() && methProbes.size() != corrSpearman.size())) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), errors processing correlation file, aborting...");
+			}
+			return;
 		}
 		// iterate over all records
 		for (int lc = 0; lc < genes.size(); lc++) {
@@ -216,7 +239,10 @@ public class MethylationConverterImpl implements Converter {
 		// 1, 2, 6, 10, ...,
 		List<String> columnHeaders = dataMatrixMethylationData.getColumnHeaders();
 		if ((columnHeaders.size()-1) % 4 != 0) {
-			throw new IllegalArgumentException(cancerStudyMetadata + ": methylation__humanmethylation[27|450] does not have 4 columns per case, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), methylation__humanmethylation[27|450] does not have 4 columns per case, aborting...");
+			}
+			return;
 		}
 		String previousHeader = "";
 		for (int lc = 1; lc < columnHeaders.size(); lc++) {
@@ -278,6 +304,14 @@ public class MethylationConverterImpl implements Converter {
 		columnHeaders.remove(Converter.GENE_ID_COLUMN_HEADER_NAME);
 		columnHeaders.add(1, Converter.GENE_ID_COLUMN_HEADER_NAME);
 		dataMatrixMethylationData.setColumnOrder(columnHeaders);
+
+		// ignore rows with hugo symbol of NA
+		List<String> rows = dataMatrixMethylationData.getColumnData(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME).get(0);
+		for (int lc = 0; lc < rows.size(); lc++) {
+			if (rows.get(lc).equals("NA")) {
+				dataMatrixMethylationData.ignoreRow(lc, true);
+			}
+		}
 		
 		if (LOG.isInfoEnabled()) {
 			//dataMatrixMethylationData.setGeneIDColumnHeading();

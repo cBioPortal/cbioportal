@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
-
+import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -49,7 +49,9 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Vector;
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.io.File;
@@ -104,14 +106,16 @@ class ConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(String portal, Boolean applyOverrides) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("convertData(), portal: " + portal);
+			LOG.info("convertData(), runDate: " + runDate);
 			LOG.info("convertData(), applyOverrides: " + applyOverrides);
 		}
 
@@ -132,16 +136,13 @@ class ConverterImpl implements Converter {
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
-			// create cancer study metadata file
-			// note - we call this again after we compute the number of cases
-			fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, -1);
-				
 			// iterate over all datatypes
+			boolean createCancerStudyMetadataFile = false;
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
 				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata,
-															datatypeMetadata, applyOverrides);
+															datatypeMetadata, runDate, applyOverrides);
 				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), no dataMatrices to process, skipping.");
@@ -149,12 +150,20 @@ class ConverterImpl implements Converter {
 					continue;
 				}
 
+				// we have at least 1 data matrix, we will need to create a cancer study metadata file
+				createCancerStudyMetadataFile = true;
+
 				// get converter and create staging file
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter =
 					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
 				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
+			}
 
+			if (createCancerStudyMetadataFile) {
+				// create cancer study metadata file
+				// note - we call this again after we compute the number of cases
+				fileUtils.writeCancerStudyMetadataFile(portalMetadata, cancerStudyMetadata, -1);
 			}
 		}
 	}
@@ -198,12 +207,17 @@ class ConverterImpl implements Converter {
 				}
 				// how many staging files are we working with?
 				String[] stagingFilenames = null;
-				// union (all cases)
-				if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER)) {
+				// setup union/intersection bools
+				boolean unionCaseList = 
+					caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+				boolean intersectionCaseList = 
+					caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
+				// union (like all cases)
+				if (unionCaseList) {
 					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
 				}
-				// intersection (like all complete or all cna & seq)
-				else if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
+				// intersection (like complete or cna-seq)
+				else if (intersectionCaseList) {
 					stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
 				}
 				// just a single staging file
@@ -215,45 +229,50 @@ class ConverterImpl implements Converter {
 				}
 				// this is the set we will pass to writeCaseListFile
 				LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
+				// this indicates the number of staging files processed -
+				// used to verify that an intersection should be written
+				int numStagingFilesProcessed = 0;
 				for (String stagingFilename : stagingFilenames) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), processing stagingFile: " + stagingFilename);
+					}
 					// compute the case set
-					LinkedHashSet<String> thisSet = new LinkedHashSet<String>();
-					String[] stagingFileHeader = fileUtils.getStagingFileHeader(portalMetadata, cancerStudyMetadata, stagingFilename).split(CASE_DELIMITER);
+					List<String> caseList = fileUtils.getCaseListFromStagingFile(caseIDs, portalMetadata, cancerStudyMetadata, stagingFilename);
 					// we may not have this datatype in study
-					if (stagingFileHeader.length == 0) {
+					if (caseList.size() == 0) {
 						if (LOG.isInfoEnabled()) {
 							LOG.info("generateCaseLists(), stagingFileHeader is empty: " + stagingFilename + ", skipping...");
 						}
 						continue;
 					}
-					// filter out column headings that are not case ids (like gene symbol or gene id)
-					if (LOG.isInfoEnabled()) {
-						LOG.info("generateCaseLists(), filtering case ids...");
-					}
-					for (String caseID : stagingFileHeader) {
-						if (caseIDs.isTumorCaseID(caseID)) {
-							thisSet.add(caseID);
+					// intersection 
+					if (intersectionCaseList) {
+						if (caseSet.isEmpty()) {
+							caseSet.addAll(caseList);
+						}
+						else {
+							caseSet.retainAll(caseList);
 						}
 					}
-					if (LOG.isInfoEnabled()) {
-						LOG.info("generateCaseLists(), filtering case ids complete, " + thisSet.size() + " remaining case ids...");
-					}
-					// if intersection 
-					if (caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER)) {
-						caseSet.retainAll(thisSet);
-					}
-					// otherwise union
+					// otherwise union or single staging (treat the same)
 					else {
-						caseSet.addAll(thisSet);
+						caseSet.addAll(caseList);
 					}
+					++numStagingFilesProcessed;
 				}
 				// write the case list file (don't make empty case lists)
 				if (caseSet.size() > 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("generateCaseLists(), calling writeCaseListFile()...");
 					}
+					// do not write out complete cases file unless we've processed all the files required
+					if (intersectionCaseList && (numStagingFilesProcessed != stagingFilenames.length)) {
+						if (LOG.isInfoEnabled()) {
+							LOG.info("generateCaseLists(), number of staging files processed != number staging files required for cases_complete.txt, skipping call to writeCaseListFile()...");
+						}
+						continue;
+					}
 					fileUtils.writeCaseListFile(portalMetadata, cancerStudyMetadata, caseListMetadata, caseSet.toArray(new String[0]));
-
 				}
 				else if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
@@ -303,14 +322,15 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 				// apply staging override
 				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename);
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
 				// apply metadata override
 				if (datatypeMetadata.requiresMetafile()) {
-					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
+					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata,
+											datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 				}
 			}
 			// case lists
-			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists");
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists", "case_lists");
 		}
 	}
 
@@ -336,6 +356,7 @@ class ConverterImpl implements Converter {
 	 * @param portalMetadata PortalMetadata
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
+	 * @param runDate String
 	 * @param applyOverrides Boolean
 	 * @return DataMatrix[]
 	 * @throws Exception
@@ -343,11 +364,12 @@ class ConverterImpl implements Converter {
 	private DataMatrix[] getDataMatrices(PortalMetadata portalMetadata,
 										 CancerStudyMetadata cancerStudyMetadata,
 										 DatatypeMetadata datatypeMetadata,
+										 String runDate,
 										 Boolean applyOverrides) throws Exception {
 
 
 		// this is what we are returing
-		Vector<DataMatrix> toReturn = new Vector<DataMatrix>();
+		List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
 
 		// the data type we are interested in...
 		String datatype = datatypeMetadata.getDatatype();
@@ -359,9 +381,10 @@ class ConverterImpl implements Converter {
 					 cancerStudyMetadata.getCenter() + ".");
 		}
 		Collection<ImportDataRecord> importDataRecords =
-			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenter(cancerStudyMetadata.getTumorType(),
-																				   datatype,
-																				   cancerStudyMetadata.getCenter());
+			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(cancerStudyMetadata.getTumorType(),
+																							 datatype,
+																							 cancerStudyMetadata.getCenter(),
+																							 runDate);
 		if (importDataRecords.size() > 0) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("getDataMatrices(), found " + importDataRecords.size() +
@@ -386,7 +409,10 @@ class ConverterImpl implements Converter {
 						importData.setCanonicalPathToData(overrideFile.getCanonicalPath());
 					}
 				}
-				toReturn.add(fileUtils.getFileContents(importData));
+				DataMatrix dataMatrix = fileUtils.getFileContents(importData);
+				if (dataMatrix != null) {
+					toReturn.add(fileUtils.getFileContents(importData));
+				}
 			}
 		}
 		else if (LOG.isInfoEnabled()) {

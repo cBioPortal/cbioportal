@@ -37,6 +37,7 @@ import org.mskcc.cbio.importer.model.TumorTypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 
 import java.util.Collection;
 
@@ -119,6 +120,22 @@ public interface Config {
 	 * @return Collection<CaseListMetadata>
 	 */
 	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
+
+	/**
+	 * Gets a collection of ClinicalAttributesMetadata.
+	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeColumnHeader String
+	 * @return Collection<ClinicalAttributesMetadata>
+	 */
+	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
+
+	/**
+	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+	 *
+	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+	 */
+	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

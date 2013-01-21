@@ -44,29 +44,13 @@ import java.util.List;
 public class DAOGeneOptimizedIDMapper implements IDMapper {
 
 	// our logger
-	private static Log LOG = LogFactory.getLog(DAOGeneOptimizedIDMapper.class);
+	private static final Log LOG = LogFactory.getLog(DAOGeneOptimizedIDMapper.class);
+
+	// identifier for start of miRNA
+	private static final String MIRNA_PREFIX = "hsa-";
 
 	// ref to DAOGeneOptimized
 	DaoGeneOptimized daoGeneOptimized;
-
-	/**
-	 * Constructor.
-	 *
-	 */
-	public DAOGeneOptimizedIDMapper() {
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("DAOGeneOptimizedIDMapper(), getting reference to DaoGeneOptimized");
-		}
-
-		// used when we init mapper (must come after construction)
-		try {
-			this.daoGeneOptimized = DaoGeneOptimized.getInstance();
-		}
-		catch (Exception e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
 
 	/**
 	 * For the given symbol, return id.
@@ -77,6 +61,13 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 */
 	@Override
 	public String symbolToEntrezID(String geneSymbol) throws Exception {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("symbolToEntrez(): " + geneSymbol);
+		}
+		if (geneSymbol.startsWith(MIRNA_PREFIX) ||
+			geneSymbol.startsWith(MIRNA_PREFIX.toUpperCase())) {
+			return geneSymbol;
+		}
 		CanonicalGene gene = guessGene(geneSymbol);
 		return (gene != null) ? Long.toString(gene.getEntrezGeneId()) : "";
 	}
@@ -90,6 +81,9 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 */
 	@Override
 	public String entrezIDToSymbol(String entrezID) throws Exception {
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("entrezIDToSymbol(): " + entrezID);
+		}
 		CanonicalGene gene = guessGene(entrezID);
 		return (gene != null) ? gene.getHugoGeneSymbolAllCaps() : "";
 	}
@@ -99,10 +93,18 @@ public class DAOGeneOptimizedIDMapper implements IDMapper {
 	 *
 	 * @param IDOrSymbol
 	 * @return CanonicalGene
+	 * @throws Exception
 	 */
-	private CanonicalGene guessGene(String IDOrSymbol) {
+	private CanonicalGene guessGene(String IDOrSymbol) throws Exception {
 
+		if (daoGeneOptimized == null) {
+			daoGeneOptimized = DaoGeneOptimized.getInstance();
+		}
+		
 		List<CanonicalGene> geneList = daoGeneOptimized.guessGene(IDOrSymbol);
-		return (geneList != null) ? geneList.get(0) : null;
+		if (geneList != null && LOG.isDebugEnabled()) {
+			LOG.debug("guessGene(), returned list size: " + geneList.size());
+		}
+		return (geneList != null && geneList.size() > 0) ? geneList.get(0) : null;
 	}
 }

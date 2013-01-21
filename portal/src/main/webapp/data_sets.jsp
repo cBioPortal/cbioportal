@@ -50,11 +50,11 @@
 				 out.println("<th>All</th>");
 				 out.println("<th>Sequenced</th>");
 				 out.println("<th>aCGH</th>");
-				 out.println("<th>Tumor mRNA (RNA-Seq)</th>");
+				 out.println("<th>Tumor mRNA (RNA-Seq V2)</th>");
 				 out.println("<th>Tumor mRNA (microarray)</th>");
 				 //out.println("<th>Normal mRNA</th>");
 				 out.println("<th>Tumor miRNA</th>");
-				 out.println("<th>Methylation</th>");
+				 out.println("<th>Methylation (HM27)</th>");
 				 out.println("<th>RPPA</th>");
 				 out.println("<th>Complete</th>");
 				 out.println("</tr></thead>");

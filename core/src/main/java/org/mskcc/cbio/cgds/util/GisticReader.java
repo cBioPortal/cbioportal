@@ -161,7 +161,14 @@ public class GisticReader {
             Gistic gistic = new Gistic();
             gistic.setCancerStudyId(cancerStudyId);
 
-            gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+			try {
+				gistic.setChromosome(Integer.parseInt(fields[chromosomeField]));
+			}
+			catch (NumberFormatException e) {
+				System.err.println("Ignoring row with chromosome number: " + fields[chromosomeField]);
+				line = buf.readLine();
+				continue;
+			}
             gistic.setPeakStart(Integer.parseInt(fields[peakStartField]));
             gistic.setPeakEnd(Integer.parseInt(fields[peakEndField]));
 

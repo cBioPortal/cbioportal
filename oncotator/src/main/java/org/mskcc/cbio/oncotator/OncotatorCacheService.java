@@ -40,7 +40,7 @@ public interface OncotatorCacheService
 	 * @param record    oncotator record to add
 	 * @return          number of records successfully added
 	 */
-	public int put(OncotatorRecord record) throws Exception;
+	public int put(OncotatorRecord record) throws OncotatorCacheException;
 
 
 	/**
@@ -49,6 +49,6 @@ public interface OncotatorCacheService
 	 * @param key   cache key
 	 * @return      corresponding record for the given key
 	 */
-	public OncotatorRecord get(String key) throws Exception;
+	public OncotatorRecord get(String key) throws OncotatorCacheException;
 
 }

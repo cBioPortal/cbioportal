@@ -195,6 +195,7 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
                                 var altCount = mutations.getValue(source[0], 'alt-count');
+                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);

@@ -407,7 +407,7 @@ function _getMutationTableHeaderTip(header)
         "ref": "Reference Allele",
         "var": "Variant Allele",
         "allele freq (t)": "Variant allele frequency in the tumor sample",
-        "allele freq (f)": "Variant allele frequency in the normal sample",
+        "allele freq (n)": "Variant allele frequency in the normal sample",
         "var ref": "Variant Ref Count",
         "var alt": "Variant Alt Count",
         "norm ref": "Normal Ref Count",

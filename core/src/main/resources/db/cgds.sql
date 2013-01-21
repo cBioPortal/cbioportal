@@ -319,7 +319,8 @@ CREATE TABLE `mut_sig` (
   `NumBasesCovered` int(11) NOT NULL,
   `NumMutations` int(11) NOT NULL,
   `P_VALUE` float NOT NULL,
-  `Q_VALUE` float NOT NULL
+  `Q_VALUE` float NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`, `ENTREZ_GENE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS protein_array_info;

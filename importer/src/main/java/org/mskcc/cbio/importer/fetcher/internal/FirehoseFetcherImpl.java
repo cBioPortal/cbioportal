@@ -277,7 +277,7 @@ class FirehoseFetcherImpl implements Fetcher {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("download complete, storing in database.");
 			}
-			storeData(dataSourceMetadata.getDataSource(), downloadDirectory, runDate);
+			storeData(runType, dataSourceMetadata.getDataSource(), downloadDirectory, runDate);
 		}
 		else {
 			if (LOG.isInfoEnabled()) {
@@ -290,17 +290,20 @@ class FirehoseFetcherImpl implements Fetcher {
 	 * Helper method to store downloaded data.  If md5 digest is correct,
 	 * import data, else skip it
 	 *
+	 * @param runType String
 	 * @param dataSource String
 	 * @param downloadDirectory File
 	 * @param runDate Date
 	 * @throws Exception
 	 */
-	private void storeData(String dataSource, File downloadDirectory, Date runDate) throws Exception {
+	private void storeData(String runType, String dataSource, File downloadDirectory, Date runDate) throws Exception {
 
 		String center = dataSource.split(DataSourcesMetadata.DATA_SOURCE_NAME_DELIMITER)[0].toLowerCase();
 
         // we only want to process files with md5 checksums
         String exts[] = {"md5"};
+		downloadDirectory = new File(downloadDirectory.getCanonicalPath() + File.separator +
+									 runType + "__" + BROAD_DATE_FORMAT.format(runDate));
         for (File md5File : fileUtils.listFiles(downloadDirectory, exts, true)) {
 			// skip "normals"
 			Matcher normalsMatcher = NORMAL_DATA_FILE_REGEX.matcher(md5File.getName());

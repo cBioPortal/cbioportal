@@ -276,4 +276,14 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception;
+
+	/**
+	 * Copy's the given portal's seg files to location used for linking to IGV from cBio Portal web site.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param datatypeMetadata DatatypeMetadata
+	 * @param remoteUserName String
+	 * @throws Exception
+	 */
+	void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata, String remoteUserName) throws Exception;
 }

@@ -71,7 +71,9 @@
   <b:bean id="caseIDs" class="org.mskcc.cbio.importer.caseids.internal.CaseIDsImpl">
 	<b:constructor-arg ref="config"/>
   </b:bean>
-  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl"/>
+  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
+	<b:constructor-arg ref="config"/>
+  </b:bean>
   <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
   </b:bean>

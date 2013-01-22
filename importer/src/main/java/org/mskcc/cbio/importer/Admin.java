@@ -32,6 +32,8 @@ package org.mskcc.cbio.importer;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
@@ -173,6 +175,14 @@ public class Admin implements Runnable {
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
 
+        Option copySegFiles = (OptionBuilder.withArgName("portal:seg_datatype:remote_user_name")
+							   .hasArgs(3)
+							   .withValueSeparator(':')
+							   .withDescription("Copy's given portal's .seg files to location used for linking to IGV " + 
+												"from cBio Portal web site. 'ssh-add' should be executed prior to this " +
+												"command to add your identity to the authentication agent.")
+							   .create("copy_seg_files"));
+
 		// create an options instance
 		Options toReturn = new Options();
 
@@ -188,6 +198,7 @@ public class Admin implements Runnable {
 		toReturn.addOption(generateCaseLists);
 		toReturn.addOption(importReferenceData);
 		toReturn.addOption(importData);
+		toReturn.addOption(copySegFiles);
 
 		// outta here
 		return toReturn;
@@ -273,6 +284,11 @@ public class Admin implements Runnable {
                 importData(values[0],
 						   (values.length >= 2) ? values[1] : "",
 						   (values.length == 3) ? values[2] : "");
+			}
+			// copy seg files
+			else if (commandLine.hasOption("copy_seg_files")) {
+                String[] values = commandLine.getOptionValues("copy_seg_files");
+                copySegFiles(values[0], values[1], values[2]);
 			}
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
@@ -360,7 +376,6 @@ public class Admin implements Runnable {
 		}
 
 		// create an instance of fetcher
-		ApplicationContext context = new ClassPathXmlApplicationContext(contextFile);
 		Config config = (Config)getBean("config");
 		Collection<ReferenceMetadata> referenceMetadatas = config.getReferenceMetadata(referenceType);
 		if (referenceMetadatas.isEmpty()) {
@@ -588,6 +603,46 @@ public class Admin implements Runnable {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete");
+		}
+	}
+
+	/**
+	 * Helper function to copy seg files for IGV linking.
+     *
+     * @param portalName String
+     * @param segDatatype String
+	 * @param removeUserName String
+	 *
+	 * @throws Exception
+	 */
+	private void copySegFiles(String portalName, String segDatatype, String remoteUserName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("copySegFiles(), portal: " + portalName);
+			LOG.info("copySegFiles(), segDatatype: " + segDatatype);
+			LOG.info("copySegFiles(), remoteUserName: " + remoteUserName);
+		}
+
+		Config config = (Config)getBean("config");
+		Collection<PortalMetadata> portalMetadatas = config.getPortalMetadata(portalName);
+		Collection<DatatypeMetadata> datatypeMetadatas = config.getDatatypeMetadata(segDatatype);
+
+		// sanity check args
+		if (remoteUserName.length() == 0 || portalMetadatas.isEmpty() || datatypeMetadatas.isEmpty()) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("copySegFiles(), error processing arguments, aborting....");
+			}
+		}
+		else {
+			// create an instance of Importer
+			FileUtils fileUtils = (FileUtils)getBean("fileUtils");
+			fileUtils.copySegFiles(portalMetadatas.iterator().next(),
+								   datatypeMetadatas.iterator().next(),
+								   remoteUserName);
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("copySegFiles(), complete");
 		}
 	}
 

@@ -29,6 +29,12 @@
 package org.mskcc.cbio.importer.util;
 
 // imports
+import org.mskcc.cbio.importer.model.PortalMetadata;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+
+import java.io.File;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +45,40 @@ public class MetadataUtils {
 
 	// the reference metadata worksheet can contain environment vars
 	private static final Pattern ENVIRONMENT_VAR_REGEX = Pattern.compile("\\$(\\w*)");
+
+	/**
+	 * Helper function to determine root directory for cancer study to install.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param dataSourcesMetadata Collection<DataSourcesMetadata>
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @return String
+	 */
+	public static String getCancerStudyRootDirectory(PortalMetadata portalMetadata,
+													 Collection<DataSourcesMetadata> dataSourcesMetadata,
+													 CancerStudyMetadata cancerStudyMetadata) {
+
+		// check portal staging area - should work for all tcga
+		File cancerStudyDirectory =
+			new File(portalMetadata.getStagingDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
+		if (cancerStudyDirectory.exists()) {
+			return portalMetadata.getStagingDirectory();
+		}
+
+		// made it here, check other datasources 
+		for (DataSourcesMetadata dataSourceMetadata : dataSourcesMetadata) {
+			if (dataSourceMetadata.isAdditionalStudiesSource()) {
+				cancerStudyDirectory =
+					new File(dataSourceMetadata.getDownloadDirectory() + File.separator + cancerStudyMetadata.getStudyPath());
+				if (cancerStudyDirectory.exists()) {
+					return dataSourceMetadata.getDownloadDirectory();
+				}
+			}
+		}
+
+		// outta here
+		return null;
+	}
 
 	/**
 	 * Helper function used to get canonical path for given path. It will translate

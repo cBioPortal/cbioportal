@@ -93,11 +93,12 @@ class ImporterImpl implements Importer {
 	 *
      * @param portal String
 	 * @param initPortalDatabase Boolean
+	 * @param initTumorTypes Boolean
 	 * @param importReferenceData Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void importData(String portal, Boolean initPortalDatabase, Boolean importReferenceData) throws Exception {
+	public void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData()");
@@ -138,10 +139,12 @@ class ImporterImpl implements Importer {
 		}
 
 		// import tumor types
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importData(), importing tumor types...");
+		if (initTumorTypes) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importData(), importing tumor types...");
+			}
+			importTumorTypes();
 		}
-		importTumorTypes();
 
 		// import reference data if desired
 		if (importReferenceData) {

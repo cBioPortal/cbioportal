@@ -167,11 +167,12 @@ public class Admin implements Runnable {
 													   "Use \"" + Config.ALL + "\" to import all reference data.")
 									  .create("import_reference_data"));
 
-        Option importData = (OptionBuilder.withArgName("portal:init_portal_db:ref_data")
-                             .hasArgs(3)
+        Option importData = (OptionBuilder.withArgName("portal:init_portal_db:init_tumor_types:ref_data")
+                             .hasArgs(4)
 							 .withValueSeparator(':')
                              .withDescription("Import data for the given portal.  " +
 											  "If init_portal_db is 't' a portal db will be created (an existing one will be clobbered.  " +
+											  "If init_tumor_types is 't' tumor types will be imported  " + 
 											  "If ref_data is 't', all reference data will be imported prior to importing staging files.")
                              .create("import_data"));
 
@@ -281,9 +282,7 @@ public class Admin implements Runnable {
 			// import data
 			else if (commandLine.hasOption("import_data")) {
                 String[] values = commandLine.getOptionValues("import_data");
-                importData(values[0],
-						   (values.length >= 2) ? values[1] : "",
-						   (values.length == 3) ? values[2] : "");
+                importData(values[0], values[1], values[2], values[3]);
 			}
 			// copy seg files
 			else if (commandLine.hasOption("copy_seg_files")) {
@@ -581,25 +580,28 @@ public class Admin implements Runnable {
      *
      * @param portal String
 	 * @param initPortalDatabase String
+	 * @param initTumorTypes String
 	 * @param importReferenceData String
 	 *
 	 * @throws Exception
 	 */
-	private void importData(String portal, String initPortalDatabase, String importReferenceData) throws Exception {
+	private void importData(String portal, String initPortalDatabase, String initTumorTypes, String importReferenceData) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), portal: " + portal);
 			LOG.info("importData(), initPortalDatabase: " + initPortalDatabase);
+			LOG.info("importData(), initTumorTypes: " + initTumorTypes);
 			LOG.info("importData(), importReferenceData: " + importReferenceData);
 		}
 
 		// get booleans
 		Boolean initPortalDatabaseBool = getBoolean(initPortalDatabase);
+		Boolean initTumorTypesBool = getBoolean(initTumorTypes);
 		Boolean importReferenceDataBool = getBoolean(importReferenceData);
 
 		// create an instance of Importer
 		Importer importer = (Importer)getBean("importer");
-		importer.importData(portal, initPortalDatabaseBool, importReferenceDataBool);
+		importer.importData(portal, initPortalDatabaseBool, initTumorTypesBool, importReferenceDataBool);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importData(), complete");
@@ -678,8 +680,8 @@ public class Admin implements Runnable {
 	 * @return Boolean
 	 */
 	private Boolean getBoolean(String parameterValue) {
-		return (parameterValue.equalsIgnoreCase("t")) ?
-			new Boolean("true") : new Boolean("false");
+		if (parameterValue.length() == 0) return new Boolean("false");
+		return (parameterValue.equalsIgnoreCase("t")) ?	new Boolean("true") : new Boolean("false");
 	}
 
 	/**

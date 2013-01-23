@@ -218,7 +218,11 @@ function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId)
             color: "#FFFFFF",
             //shape: {customMapper: {functionName: "shapeFunction"}},
             labelVerticalAnchor: "middle",
-            labelHorizontalAnchor: "center"
+            labelHorizontalAnchor: "center",
+            compoundLabelVerticalAnchor: "middle",
+            compoundLabelHorizontalAnchor: "center",
+            compoundLabelYOffset: 7.0
+            	
         },
 
         edges:

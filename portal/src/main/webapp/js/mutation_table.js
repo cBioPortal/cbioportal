@@ -621,6 +621,20 @@ function _getMutationTableRows(data)
         return html;
     };
 
+    var getProteinChangeHtml = function(mutation) {
+        var style = "protein_change";
+
+        if (!mutation.canonicalTranscript)
+        {
+            style += " best_effect_transcript";
+            //TODO also add tooltip
+        }
+
+        return '<span class="' + style + '">' +
+            mutation.proteinChange +
+            '</span>';
+    };
+
     // generate rows as HTML
 
     var row;
@@ -632,9 +646,7 @@ function _getMutationTableRows(data)
 
         row.push('<a href="' + data.mutations[i].linkToPatientView + '">' +
                  '<b>' + data.mutations[i].caseId + "</b></a>");
-        row.push('<span class="protein_change">' +
-                 data.mutations[i].proteinChange +
-                '</span>');
+        row.push(getProteinChangeHtml(data.mutations[i]));
         row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
         row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
         row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),

@@ -133,6 +133,10 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("tumorAltCount", this.getTumorAltCount(mutation));
 			rowData.put("normalRefCount", this.getNormalRefCount(mutation));
 			rowData.put("normalAltCount", this.getNormalAltCount(mutation));
+			rowData.put("canonicalTranscript", mutation.isCanonicalTranscript());
+			rowData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
+			rowData.put("codonChange", mutation.getOncotatorCodonChange());
+			rowData.put("uniprotId", this.getUniprotId(mutation));
 
 			JSONArray specialGeneData = new JSONArray();
 
@@ -381,9 +385,8 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 	}
 
-	private Integer getNormalAltCount(ExtendedMutation mutation)
+	protected Integer getNormalAltCount(ExtendedMutation mutation)
 	{
-		// TODO consider other possible columns
 		Integer count = mutation.getNormalAltCount();
 
 		if (count == MafRecord.NA_INT)
@@ -394,9 +397,8 @@ public class MutationTableDataServlet extends HttpServlet
 		return count;
 	}
 
-	private Integer getNormalRefCount(ExtendedMutation mutation)
+	protected Integer getNormalRefCount(ExtendedMutation mutation)
 	{
-		// TODO consider other possible columns
 		Integer count = mutation.getNormalRefCount();
 
 		if (count == MafRecord.NA_INT)
@@ -407,9 +409,8 @@ public class MutationTableDataServlet extends HttpServlet
 		return count;
 	}
 
-	private Integer getTumorAltCount(ExtendedMutation mutation)
+	protected Integer getTumorAltCount(ExtendedMutation mutation)
 	{
-		// TODO consider other possible columns
 		Integer count = mutation.getTumorAltCount();
 
 		if (count == MafRecord.NA_INT)
@@ -420,9 +421,8 @@ public class MutationTableDataServlet extends HttpServlet
 		return count;
 	}
 
-	private Integer getTumorRefCount(ExtendedMutation mutation)
+	protected Integer getTumorRefCount(ExtendedMutation mutation)
 	{
-		// TODO consider other possible columns
 		Integer count = mutation.getTumorRefCount();
 
 		if (count == MafRecord.NA_INT)
@@ -433,7 +433,7 @@ public class MutationTableDataServlet extends HttpServlet
 		return count;
 	}
 
-	private Double getNormalFreq(ExtendedMutation mutation)
+	protected Double getNormalFreq(ExtendedMutation mutation)
 	{
 		Integer altCount = this.getNormalAltCount(mutation);
 		Integer refCount = this.getNormalRefCount(mutation);
@@ -441,7 +441,7 @@ public class MutationTableDataServlet extends HttpServlet
 		return this.getFreq(altCount, refCount);
 	}
 
-	private Double getTumorFreq(ExtendedMutation mutation)
+	protected Double getTumorFreq(ExtendedMutation mutation)
 	{
 		Integer altCount = this.getTumorAltCount(mutation);
 		Integer refCount = this.getTumorRefCount(mutation);
@@ -449,7 +449,7 @@ public class MutationTableDataServlet extends HttpServlet
 		return this.getFreq(altCount, refCount);
 	}
 
-	private Double getFreq(Integer altCount, Integer refCount)
+	protected Double getFreq(Integer altCount, Integer refCount)
 	{
 		Double freq;
 
@@ -465,6 +465,12 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 
 		return freq;
+	}
+
+	protected String getUniprotId(ExtendedMutation mutation)
+	{
+		// TODO uniprot name or uniprot accession
+		return mutation.getOncotatorUniprotName();
 	}
 
 	/**

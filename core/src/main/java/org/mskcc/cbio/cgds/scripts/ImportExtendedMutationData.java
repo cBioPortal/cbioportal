@@ -256,9 +256,17 @@ public class ImportExtendedMutationData{
 				// set values according to the selected transcript
 				if (bestEffectTranscript)
 				{
-					// remove starting "p." if any
-					proteinChange = this.normalizeProteinChange(
-						record.getOncotatorProteinChangeBestEffect());
+
+					if (!isValidProteinChange(record.getOncotatorProteinChangeBestEffect()))
+					{
+						proteinChange = "MUTATED";
+					}
+					else
+					{
+						// remove starting "p." if any
+						proteinChange = this.normalizeProteinChange(
+							record.getOncotatorProteinChangeBestEffect());
+					}
 
 					codonChange = record.getOncotatorCodonChangeBestEffect();
 					refseqMrnaId = record.getOncotatorRefseqMrnaIdBestEffect();

@@ -235,7 +235,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
     var rows = dt.getNumberOfRows();
     var t = dt.getColumnType(col);
     if (t=="number") {
-        if (bins==null) bins = 10;
+        if (bins==null) bins = Math.min(10,Math.ceil(dt.getNumberOfRows()/5));
         if ((typeof bins)==(typeof 1)) {
             var r = dt.getColumnRange(col);
             var step = Math.pow(10,Math.floor(Math.log((r.max-r.min)/2)*Math.LOG10E));

@@ -92,7 +92,7 @@ public class NetworkSbgnServlet extends HttpServlet
 				//convertedList.add(HGNC_GENE_PREFIX + HGNCUtil.getID(gene).replace(":", "%253A"));
                 //convertedList.add(ENTREZ_GENE_PREFIX.replace("+", "%2B") + cGene.getEntrezGeneId());
                 String hgncId = HGNC.getID(cGene.getHugoGeneSymbolAllCaps());
-                convertedList.add(ENTREZ_GENE_PREFIX.replace("+", "%2B") + hgncId);
+                convertedList.add(HGNC_GENE_PREFIX.replace("+", "%2B") + hgncId);
             }
 		}
 		catch (DaoException e)

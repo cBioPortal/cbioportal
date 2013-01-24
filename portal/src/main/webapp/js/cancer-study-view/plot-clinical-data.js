@@ -239,11 +239,17 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         if ((typeof bins)==(typeof 1)) {
             var r = dt.getColumnRange(col);
             var step = Math.pow(10,Math.floor(Math.log((r.max-r.min)/2)*Math.LOG10E));
-            var start = step*Math.floor(r.min/step);
-            bins = [];
-            for (var bin=start; bin<=r.max; bin+=step) {
-                bins.push(bin);
-            }
+            
+            if (step==0) {
+                bins.push(r.min-Number.MIN_VALUE);
+                bins.push(r.max+Number.MAX_VALUE);
+            } else {
+                var start = step*Math.floor(r.min/step);
+                bins = [];
+                for (var bin=start; bin<=r.max; bin+=step) {
+                    bins.push(bin);
+                }
+            }            
         }
 
         var count = [];
@@ -277,7 +283,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         }
         hist.push(['>'+bins[bins.length-1],count[i].length]);
         histCaseIdMap[i]=count[i];
-        if (count[++i].length>0) { // including unknow if positive
+        if (count[++i] && count[i].length>0) { // including unknow if positive
             hist.push(['Unknown',count[i].length]);
             histCaseIdMap[i]=count[i];
         }

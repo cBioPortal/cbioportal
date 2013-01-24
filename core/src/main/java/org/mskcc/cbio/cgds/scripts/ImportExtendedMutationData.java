@@ -342,10 +342,10 @@ public class ImportExtendedMutationData{
 					mutation.setValidationMethod(record.getValidationMethod());
 					mutation.setScore(record.getScore());
 					mutation.setBamFile(record.getBamFile());
-					mutation.setTumorAltCount(record.getTumorAltCount());
-					mutation.setTumorRefCount(record.getTumorRefCount());
-					mutation.setNormalAltCount(record.getNormalAltCount());
-					mutation.setNormalRefCount(record.getNormalRefCount());
+                    mutation.setTumorAltCount(getTumorAltCount(record));
+                    mutation.setTumorRefCount(getTumorRefCount(record));
+					mutation.setNormalAltCount(getNormalAltCount(record));
+					mutation.setNormalRefCount(getNormalRefCount(record));
 					mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 					mutation.setOncotatorCodonChange(codonChange);
@@ -557,6 +557,62 @@ public class ImportExtendedMutationData{
 
 		return mutationType;
 	}
+
+    private int getTumorAltCount(MafRecord record) {
+        int result = MafRecord.NA_INT ;
+
+        if (record.getTumorAltCount() != MafRecord.NA_INT) {
+            result = record.getTumorAltCount();
+        } else if(record.getTVarCov() != MafRecord.NA_INT) {
+            result = record.getTVarCov();
+        } else if((record.getTumorDepth() != MafRecord.NA_INT) && (record.getTumorVaf() != MafRecord.NA_INT)) {
+            result = Math.round(record.getTumorDepth() * record.getTumorVaf());
+        }
+
+        return result;
+    }
+
+    private int getTumorRefCount(MafRecord record) {
+        int result = MafRecord.NA_INT;
+
+        if (record.getTumorRefCount() != MafRecord.NA_INT) {
+            result = record.getTumorRefCount();
+        } else if((record.getTVarCov() != MafRecord.NA_INT) && (record.getTTotCov() != MafRecord.NA_INT)) {
+            result = record.getTTotCov()-record.getTVarCov();
+        } else if((record.getTumorDepth() != MafRecord.NA_INT) && (record.getTumorVaf() != MafRecord.NA_INT)) {
+            result = record.getTumorDepth() - Math.round(record.getTumorDepth() * record.getTumorVaf());
+        }
+
+        return result;
+    }
+
+    private int getNormalAltCount(MafRecord record) {
+        int result = MafRecord.NA_INT ;
+
+        if (record.getNormalAltCount() != MafRecord.NA_INT) {
+            result = record.getNormalAltCount();
+        } else if(record.getNVarCov() != MafRecord.NA_INT) {
+            result = record.getNVarCov();
+        } else if((record.getNormalDepth() != MafRecord.NA_INT) && (record.getNormalVaf() != MafRecord.NA_INT)) {
+            result = Math.round(record.getNormalDepth() * record.getNormalVaf());
+        }
+
+        return result;
+    }
+
+    private int getNormalRefCount(MafRecord record) {
+        int result = MafRecord.NA_INT;
+
+        if (record.getNormalRefCount() != MafRecord.NA_INT) {
+            result = record.getNormalRefCount();
+        } else if((record.getNVarCov() != MafRecord.NA_INT) && (record.getNTotCov() != MafRecord.NA_INT)) {
+            result = record.getNTotCov()-record.getNVarCov();
+        } else if((record.getNormalDepth() != MafRecord.NA_INT) && (record.getNormalVaf() != MafRecord.NA_INT)) {
+            result = record.getNormalDepth() - Math.round(record.getNormalDepth() * record.getNormalVaf());
+        }
+
+        return result;
+    }
 
 	@Override
 	public String toString(){

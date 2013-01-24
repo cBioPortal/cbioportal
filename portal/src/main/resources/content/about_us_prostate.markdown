@@ -27,7 +27,7 @@ Funding for the cBio Cancer Genomics Portal is provided in part from:
 <table border='0px'>
 <tr valign='middle'><td><img src='images/institutes/DFCI.gif' height='20px' width='20px'></td><td>Dana-Farber Cancer Institute</td></tr>
 <tr valign='middle'><td><img src='images/institutes/BIDMC.gif' height='20px' width='20px'></td><td>Beth Israel Deaconess Medical Center</td></tr>
-<tr valign='middle'><td><img src='images/institutes/UM.gif' height='20px' width='20px'></td><td>University of Michigan</td></tr>
+<tr valign='middle'><td><img src='images/institutes/UM.jpg' height='20px' width='20px'></td><td>University of Michigan</td></tr>
 <tr valign='middle'><td><img src='images/institutes/ICR.jpg' height='20px' width='20px'></td><td>Institute of Cancer Research</td></tr>
 <tr valign='middle'><td><img src='images/institutes/UW.jpg' height='20px' width='20px'></td><td>University of Washington</td></tr>
 <tr valign='middle'><td><img src='images/institutes/RM.png' height='20px' width='20px'></td><td>The Royal Marsden</td></tr>

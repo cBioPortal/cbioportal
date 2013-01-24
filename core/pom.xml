@@ -14,11 +14,31 @@
   <version>1.0-SNAPSHOT</version>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
+    <repositories>
+        <repository>
+            <id>biopax.releases</id>
+            <name>BioPAX Repository at Sourceforge</name>
+            <url>http://biopax.sourceforge.net/m2repo/releases/</url>
+        </repository>
+        <repository>
+            <id>biopax.snapshots</id>
+            <name>BioPAX Repository at Sourceforge</name>
+            <url>http://biopax.sourceforge.net/m2repo/snapshots/</url>
+        </repository>
+    </repositories>
+
 
   <!-- dependencies -->
   <dependencies>
 
-	<!-- antisamy -->
+      <!-- hgnc id mapping services -->
+      <dependency>
+          <groupId>org.biopax.paxtools</groupId>
+          <artifactId>sbgn-converter</artifactId>
+          <version>4.1.5</version>
+      </dependency>
+
+      <!-- antisamy -->
 	<dependency>
 	  <groupId>org.owasp</groupId>
 	  <artifactId>antisamy</artifactId>

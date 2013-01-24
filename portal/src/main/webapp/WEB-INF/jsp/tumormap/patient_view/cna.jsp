@@ -219,7 +219,7 @@
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\
                         <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\
-                        <li>otherwise, altered in >5% of samples in the study).</li></ul></li></ul>'/>");
+                        <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },

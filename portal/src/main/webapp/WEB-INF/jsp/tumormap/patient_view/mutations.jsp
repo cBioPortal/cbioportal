@@ -540,7 +540,7 @@
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
-                            <li>otherwise, mutated in > 5% of samples in the study</li></ul> </li>\n\
+                            <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
                         <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },

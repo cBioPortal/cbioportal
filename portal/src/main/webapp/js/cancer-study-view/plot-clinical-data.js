@@ -239,13 +239,12 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         if ((typeof bins)==(typeof 1)) {
             var r = dt.getColumnRange(col);
             var step = Math.pow(10,Math.floor(Math.log((r.max-r.min)/2)*Math.LOG10E));
-            
+            bins = [];
             if (step==0) {
                 bins.push(r.min-Number.MIN_VALUE);
                 bins.push(r.max+Number.MAX_VALUE);
             } else {
                 var start = step*Math.floor(r.min/step);
-                bins = [];
                 for (var bin=start; bin<=r.max; bin+=step) {
                     bins.push(bin);
                 }

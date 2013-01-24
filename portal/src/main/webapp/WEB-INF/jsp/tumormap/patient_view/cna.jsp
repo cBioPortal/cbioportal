@@ -245,6 +245,7 @@
     var patient_view_gistic_qvalue_threhold = 0.05;
     var patient_view_gistic_number_genes_threshold = 10;
     var patient_view_cnaaltrate_threhold = 0.05;
+    var patient_view_cnaaltrate_apply_cohort_count = 50;
     function determineOverviewCNAs(data) {
         var overview = [];
         var len = data['id'].length;
@@ -271,7 +272,8 @@
                 if (altrate[i][-2]) rate += altrate[i][-2];
                 if (altrate[i][2]) rate += altrate[i][2];
                 
-                if (rate/numPatientInSameCnaProfile>=patient_view_cnaaltrate_threhold) {
+                if (numPatientInSameCnaProfile>=patient_view_cnaaltrate_apply_cohort_count
+                  && rate/numPatientInSameCnaProfile>=patient_view_cnaaltrate_threhold) {
                     overview.push(true);
                     continue;
                 }

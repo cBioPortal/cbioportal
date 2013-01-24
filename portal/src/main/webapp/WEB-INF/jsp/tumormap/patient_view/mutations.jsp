@@ -566,6 +566,7 @@
     
     var patient_view_mutsig_qvalue_threhold = 0.05;
     var patient_view_genemutrate_threhold = 0.05;
+    var patient_view_genemutrate_apply_cohort_count = 50;
     var patient_view_cosmic_threhold = 5;
     function determineOverviewMutations(data) {
         var overview = [];
@@ -590,7 +591,8 @@
             }
             
             if (noMutsig) {
-                if (mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
+                if (numPatientInSameMutationProfile>=patient_view_genemutrate_apply_cohort_count
+                  && mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
                     overview.push(true);
                     continue;
                 }

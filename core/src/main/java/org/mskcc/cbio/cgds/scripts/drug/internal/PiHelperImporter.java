@@ -151,6 +151,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
 
             String[] t = line.split(separator);
             assert t.length ==  12;
+            if(t.length < 12) continue;
             /*
                 0 PiHelper_Drug_ID
                 1 Drug_Name

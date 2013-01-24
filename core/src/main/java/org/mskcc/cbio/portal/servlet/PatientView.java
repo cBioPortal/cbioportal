@@ -325,7 +325,7 @@ public class PatientView extends HttpServlet {
         Double osm = clinicalData==null?null:clinicalData.getOverallSurvivalMonths();
         Double dfsm = clinicalData==null?null:clinicalData.getDiseaseFreeSurvivalMonths();
         StringBuilder patientStatus = new StringBuilder();
-        if (oss!=null && oss.equalsIgnoreCase("unknown")) {
+        if (oss!=null && !oss.equalsIgnoreCase("unknown")) {
             patientStatus.append("<font color='")
                     .append(oss.equalsIgnoreCase("Living")||oss.equalsIgnoreCase("Alive") ? "green":"red")
                     .append("'>")

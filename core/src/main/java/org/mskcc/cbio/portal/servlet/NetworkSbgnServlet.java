@@ -1,9 +1,12 @@
 package org.mskcc.cbio.portal.servlet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.biopax.paxtools.io.sbgn.idmapping.HGNC;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.util.XDebug;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -23,7 +26,9 @@ import java.util.List;
  */
 public class NetworkSbgnServlet extends HttpServlet
 {
-	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_";
+    private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
+
+	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%253A";
 	public final static String ENTREZ_GENE_PREFIX = "urn:biopax:RelationshipXref:NCBI+GENE_";
 	// TODO do not use awabi! use the proper cpath webservice instead
 	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/graph";
@@ -62,8 +67,9 @@ public class NetworkSbgnServlet extends HttpServlet
 		URL pc2 = new URL(url);
 		URLConnection pc2cxn = pc2.openConnection();
 		BufferedReader in = new BufferedReader(new InputStreamReader(pc2cxn.getInputStream()));
+        log.debug("PC2 SBGN request URL:" + url);
 
-		String line;
+        String line;
 		StringBuilder xml = new StringBuilder();
 
 		// Read all
@@ -122,24 +128,17 @@ public class NetworkSbgnServlet extends HttpServlet
 			HttpServletResponse httpServletResponse)throws ServletException, IOException
 	{
 		PrintWriter out = httpServletResponse.getWriter();
-//		String sourceSymbols = httpServletRequest.getParameter("source");
-//		String targetSymbols = httpServletRequest.getParameter("target");
-//		String method = httpServletRequest.getParameter("kind");
-//		String format = httpServletRequest.getParameter("format");
-//		String direction = httpServletRequest.getParameter("direction");
-//		String limit = httpServletRequest.getParameter("limit");
-
 		String sourceSymbols = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
 
-		// TODO temporary test values, if there is only one gene pathsbetween returns empty...
+        // > 1 genes: pathsbetween, = 1 gene: neighborhood
 		String targetSymbols = "";
-		String method = "pathsbetween";
 		String format = "sbgn";
 		String direction = "NA";
 		String limit = "1";
 
 		String[] sourceGeneSet = sourceSymbols.split("\\s");
-		String[] targetGeneSet = targetSymbols.split("\\s");
+        String method = sourceGeneSet.length > 1 ? "pathsbetween" : "neighborhood";
+        String[] targetGeneSet = targetSymbols.split("\\s");
 
 		String sourceGenes = joinStrings(convert(sourceGeneSet), ",");
 		String targetGenes = null;

@@ -42,7 +42,7 @@ $(document).ready(function(){
          reviewCurrentSelections();
          
          caseSetSelected();
-         $('#custom_case_set_ids').val(''); // reset the custom case set textarea
+         $('#custom_case_set_ids').empty(); // reset the custom case set textarea
      });
 
     // Set up Event Handler for User Selecting a Case Set

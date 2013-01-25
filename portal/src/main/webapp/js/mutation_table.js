@@ -623,14 +623,20 @@ function _getMutationTableRows(data)
 
     var getProteinChangeHtml = function(mutation) {
         var style = "protein_change";
+        var tip = "";
 
         if (!mutation.canonicalTranscript)
         {
-            style += " best_effect_transcript";
-            //TODO also add tooltip
+            style = "best_effect_transcript " + style;
+            // TODO find a better way to display isoform information
+            tip = "Specified protein change is for the best effect transcript " +
+                "instead of the canonical transcript.<br>" +
+                "<br>RefSeq mRNA id: " + "<b>" + mutation.refseqMrnaId + "</b>" +
+                "<br>Codon change: " + "<b>" + mutation.codonChange + "</b>" +
+                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
         }
 
-        return '<span class="' + style + '">' +
+        return '<span class="' + style + '" alt="' + tip + '">' +
             mutation.proteinChange +
             '</span>';
     };
@@ -726,6 +732,7 @@ function addMutationTableTooltips(tableId)
     //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
     $('#' + tableId + ' .simple-tip').qtip(qTipOptions);
+    $('#' + tableId + ' .best_effect_transcript').qtip(qTipOptions);
 
     // copy default qTip options and modify "content" to customize for cosmic
     var qTipOptsCosmic = new Object();

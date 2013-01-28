@@ -50,9 +50,11 @@ public class DatabaseProperties
             File configFile = new File(configFilename);
             InputStream in = (configFile.exists()) ? new FileInputStream(configFile) : this.getClass().getClassLoader().getResourceAsStream(configFilename);
             if (in == null) {
-                System.err.println( "Properties file '" + configFilename + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
+//                System.err.println( "Properties file '" + configFilename + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
+//                                    "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");
+//                System.exit(1);
+	            throw new RuntimeException("Properties file '" + configFilename + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
                                     "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");
-                System.exit(1);
             }
         	Properties props = new Properties();
 			props.load(in);

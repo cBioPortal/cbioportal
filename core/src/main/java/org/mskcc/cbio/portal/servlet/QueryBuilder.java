@@ -373,7 +373,8 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
         }
-        
+
+        caseIds = caseIds.replaceAll("\\s+", " ");
         request.setAttribute(SET_OF_CASE_IDS, caseIds);
 
         if (caseIdsKey == null)

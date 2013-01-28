@@ -63,6 +63,13 @@ public class CnaJSON extends HttpServlet {
             throws ServletException, IOException {
         String patient = request.getParameter(PatientView.PATIENT_ID);
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
+        String drugType = request.getParameter(PatientView.DRUG_TYPE);
+        boolean fdaOnly = false;
+        boolean cancerDrug = true;
+        if (drugType!=null && drugType.equalsIgnoreCase(PatientView.DRUG_TYPE_FDA_ONLY)) {
+            fdaOnly = true;
+            cancerDrug = false;
+        }
                 
         GeneticProfile cnaProfile;
         CancerStudy cancerStudy = null;
@@ -77,7 +84,7 @@ public class CnaJSON extends HttpServlet {
                 cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
                 String concatEventIds = getConcatEventIds(cnaEvents);
                 int profileId = cnaProfile.getGeneticProfileId();
-                drugs = getDrugs(cnaEvents);
+                drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
                 contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
             }
         } catch (DaoException ex) {
@@ -170,7 +177,7 @@ public class CnaJSON extends HttpServlet {
         return sb.toString();
     }
     
-    private Map<String, Set<String>> getDrugs(List<CnaEvent> cnaEvents)
+    private Map<String, Set<String>> getDrugs(List<CnaEvent> cnaEvents, boolean fdaOnly, boolean cancerDrug)
             throws DaoException {
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         Set<Long> genes = new HashSet<Long>();
@@ -200,7 +207,7 @@ public class CnaJSON extends HttpServlet {
             // end Temporary way of handling cases such as akt inhibitor for pten loss
         }
         
-        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,false,true);
+        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,fdaOnly,cancerDrug);
         Map<String, Set<String>> ret = new HashMap<String, Set<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())

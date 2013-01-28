@@ -45,11 +45,6 @@ public class MutationsJSON extends HttpServlet {
                 return;
             }
             
-            if (cmd.equalsIgnoreCase(GET_DRUG_CMD)) {
-                processGetDrugsRequest(request, response);
-                return;
-            }
-            
             if (cmd.equalsIgnoreCase(COUNT_MUTATIONS_CMD)) {
                 processCountMutationsRequest(request, response);
                 return;
@@ -64,6 +59,13 @@ public class MutationsJSON extends HttpServlet {
             throws ServletException, IOException {
         String patient = request.getParameter(PatientView.PATIENT_ID);
         String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        String drugType = request.getParameter(PatientView.DRUG_TYPE);
+        boolean fdaOnly = false;
+        boolean cancerDrug = true;
+        if (drugType!=null && drugType.equalsIgnoreCase(PatientView.DRUG_TYPE_FDA_ONLY)) {
+            fdaOnly = true;
+            cancerDrug = false;
+        }
         
         GeneticProfile mutationProfile;
         List<ExtendedMutation> mutations = Collections.emptyList();
@@ -82,7 +84,7 @@ public class MutationsJSON extends HttpServlet {
                 cosmic = getCosmic(mutations);
                 String concatEventIds = getConcatEventIds(mutations);
                 int profileId = mutationProfile.getGeneticProfileId();
-                drugs = getDrugs(concatEventIds, profileId);
+                drugs = getDrugs(concatEventIds, profileId, fdaOnly, cancerDrug);
                 geneContextMap = getGeneContextMap(concatEventIds, profileId);
                 keywordContextMap = getKeywordContextMap(concatEventIds, profileId);
                 
@@ -147,34 +149,6 @@ public class MutationsJSON extends HttpServlet {
         }
     }
     
-    private void processGetDrugsRequest(HttpServletRequest request,
-            HttpServletResponse response)
-            throws ServletException, IOException {
-        String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
-        String eventIds = request.getParameter(MUTATION_EVENT_ID);
-        
-        GeneticProfile mutationProfile;
-        Map<String, Set<String>> drugs = Collections.emptyMap();
-        
-        try {
-            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
-            if (mutationProfile!=null) {
-                drugs = getDrugs(eventIds, mutationProfile.getGeneticProfileId());
-            }
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
-        }
-
-        response.setContentType("application/json");
-        
-        PrintWriter out = response.getWriter();
-        try {
-            JSONValue.writeJSONString(drugs, out);
-        } finally {            
-            out.close();
-        }
-    }
-    
     private void processCountMutationsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
@@ -217,7 +191,7 @@ public class MutationsJSON extends HttpServlet {
         return sb.toString();
     }
     
-    private Map<String, Set<String>> getDrugs(String eventIds, int profileId)
+    private Map<String, Set<String>> getDrugs(String eventIds, int profileId, boolean fdaOnly, boolean cancerDrug)
             throws DaoException {
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
@@ -240,7 +214,7 @@ public class MutationsJSON extends HttpServlet {
         genes.addAll(moreTargets);
         // end Temporary way of handling cases such as akt inhibitor for pten loss
         
-        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,false,true);
+        Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,fdaOnly,cancerDrug);
         Map<String, Set<String>> ret = new HashMap<String, Set<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
             String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())

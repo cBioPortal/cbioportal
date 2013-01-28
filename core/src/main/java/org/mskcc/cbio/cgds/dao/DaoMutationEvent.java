@@ -36,7 +36,7 @@ public final class DaoMutationEvent {
             
             pstmt = con.prepareStatement
 		("INSERT INTO case_mutation_event (`MUTATION_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`, "
-                    + "`VALIDATION_STATUS`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`, `NORMAL_REF_COUNT`) VALUES(?,?,?,?)");
+                    + "`VALIDATION_STATUS`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`, `NORMAL_REF_COUNT`) VALUES(?,?,?,?,?,?,?,?)");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setInt(3, mutation.getGeneticProfileId());

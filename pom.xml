@@ -39,11 +39,11 @@
 	  </properties>
 	</profile>
 	<profile>
-	  <id>patient-view</id>
+	  <id>prostate</id>
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
-		<final-war-name>patient-view-portal</final-war-name>
+		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
   </profiles>
@@ -67,8 +67,11 @@
 	<module>oncotator</module>
 	<module>liftover</module>
 	<module>mutation-assessor</module>
+	<!-- The Cy3 app is disabled for the time being (Cy3 API/Servers unstable)
+	     Jan 18, 2013
 	<module>cbioportal-client</module>
 	<module>mondrian-cy3-app</module>
+	--> 
     <module>importer</module>
   </modules>
 

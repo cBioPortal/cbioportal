@@ -41,10 +41,11 @@ public interface Importer {
 	 *
      * @param portal String
 	 * @param initPortalDatabase Boolean
+	 * @param initTumorTypes Boolean
 	 * @param importReferenceData Boolean
 	 * @throws Exception
 	 */
-	void importData(String portal, Boolean initPortalDatabase, Boolean importReferenceData) throws Exception;
+	void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception;
 
 	/**
 	 * Imports the given reference data.

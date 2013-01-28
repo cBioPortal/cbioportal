@@ -41,7 +41,7 @@ public class HashMaService extends MutationAssessorService
 		this.cache = this.initCache();
 	}
 
-	public MutationAssessorRecord getMaRecord(String key) throws Exception
+	public MutationAssessorRecord getMaRecord(String key) throws MutationAssessorServiceException
 	{
 		return this.cache.get(key);
 	}

@@ -54,10 +54,14 @@ public class ClinicalTrialsJSON extends HttpServlet {
     {
         JSONArray table = new JSONArray();
         String keywordStr = request.getParameter("keywords");
+        if(keywordStr == null) keywordStr = "";
+
         String study = request.getParameter("study");
+        if(study == null) study = "";
         String studyTokens[] = study.trim().split(",");
-        String showAll = request.getParameter("showall");
-        boolean isShowAll = (showAll != null) && showAll.equals("1");
+
+        String filter = request.getParameter("filter");
+        if(filter == null) filter = "";
 
         // We are going to do an AND operation on these two sets to narrow the list down
         HashSet<ClinicalTrial> studyTrials = new HashSet<ClinicalTrial>();
@@ -77,10 +81,13 @@ public class ClinicalTrialsJSON extends HttpServlet {
                 drugTrials.addAll(clinicalTrials);
             }
 
-            drugTrials.retainAll(studyTrials);
-            for (ClinicalTrial clinicalTrial: drugTrials) {
-                if(!isShowAll && !clinicalTrial.isActive()) continue;
+            // Show A or B or AnB
+            HashSet<ClinicalTrial> finalSet;
+            if(filter.equals("study")) finalSet = studyTrials;
+            else if(filter.equals("drugs")) finalSet = drugTrials;
+            else { finalSet = drugTrials; finalSet.retainAll(studyTrials); }
 
+            for (ClinicalTrial clinicalTrial: finalSet) {
                 JSONArray aRow = new JSONArray();
                 aRow.add(clinicalTrial.getId());
                 aRow.add(clinicalTrial.getTitle());

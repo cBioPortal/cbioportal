@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
+import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Converter;
@@ -40,6 +41,8 @@ import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.util.MetadataUtils;
+import org.mskcc.cbio.importer.util.Shell;
 
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
@@ -83,6 +86,20 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	// our logger
 	private static Log LOG = LogFactory.getLog(FileUtilsImpl.class);
+
+	// ref to config
+	private Config config;
+
+	/**
+	 * Constructor.
+     *
+     * @param config Config
+	 */
+	public FileUtilsImpl(Config config) {
+
+		// set members
+		this.config = config;
+	}
 
 	/**
 	 * Computes the MD5 digest for the given file.
@@ -546,7 +563,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
 
-		// call oncotateMAF
+		// call oncotateAF
 		oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
 					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
@@ -805,6 +822,70 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
+	}
+
+	/**
+	 * Copy's the given portal's seg files to location used for linking to IGV from cBio Portal web site.
+	 *
+	 * @param portalMetadata PortalMetadata
+	 * @param datatypeMetadata DatataypeMetadata
+	 * @param remoteUserName String
+	 * @throws Exception
+	 */
+	@Override
+	public void copySegFiles(PortalMetadata portalMetadata, DatatypeMetadata datatypeMetadata, String remoteUserName) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("copySegFiles()");
+		}
+
+        // check args
+        if (portalMetadata == null || remoteUserName == null) {
+            throw new IllegalArgumentException("portal or remoteUserName must not be null");
+		}
+
+		// seg file location
+		URL segFileLocation = portalMetadata.getIGVSegFileLinkingLocation();
+
+		// we need this to determine location 
+		Collection<DataSourcesMetadata> dataSourcesMetadata = config.getDataSourcesMetadata(Config.ALL);
+
+		// iterate over all cancer studies
+		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+
+			// lets determine if cancer study is in staging directory or studies directory
+			String rootDirectory = MetadataUtils.getCancerStudyRootDirectory(portalMetadata, dataSourcesMetadata, cancerStudyMetadata);
+
+			if (rootDirectory == null) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFiles(), cannot find root directory for study: " + cancerStudyMetadata + " skipping...");
+				}
+				continue;
+			}
+
+			// construct staging filename for seg
+			String sourceFilename = (rootDirectory + File.separator +
+									  cancerStudyMetadata.getStudyPath() +
+									  File.separator + datatypeMetadata.getStagingFilename());
+			sourceFilename = sourceFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+			String destinationFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+
+			String[] command = new String[] { "scp",
+											  sourceFilename,
+											  remoteUserName + "@" + segFileLocation.getHost() + ":" +
+											  segFileLocation.getFile() + destinationFilename };
+			if (LOG.isInfoEnabled()) {
+				LOG.info("executing: " + Arrays.asList(command));
+			}
+			if (Shell.exec(Arrays.asList(command), ".")) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("copy successful.");
+				}
+			}
+			else if (LOG.isInfoEnabled()) {
+				LOG.info("copy unsucessful.");
+			}
+		}
 	}
 
     /*

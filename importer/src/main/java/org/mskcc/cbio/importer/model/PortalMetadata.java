@@ -31,6 +31,8 @@ package org.mskcc.cbio.importer.model;
 // imports
 import org.mskcc.cbio.importer.util.MetadataUtils;
 
+import java.net.URL;
+
 /**
  * Class which contains portal metadata.
  */
@@ -40,6 +42,7 @@ public class PortalMetadata {
     private String name;
     private String stagingDirectory;
     private String overrideDirectory;
+	private URL igvSegFileLinkingLocation;
 
     /**
      * Create a PortalMetadata instance with properties in given array.
@@ -49,16 +52,23 @@ public class PortalMetadata {
      */
     public PortalMetadata(String[] properties) {
 
-		if (properties.length < 3) {
+		if (properties.length < 4) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
         this.name = properties[0].trim();
 		this.stagingDirectory = MetadataUtils.getCanonicalPath(properties[1].trim());
 		this.overrideDirectory = MetadataUtils.getCanonicalPath(properties[2].trim());
+		try {
+			this.igvSegFileLinkingLocation = new URL(properties[3].trim());
+		}
+		catch (Exception e) {
+			throw new IllegalArgumentException("corrupt properties array passed to constructor");
+		}
 	}
 
 	public String getName() { return name; }
 	public String getStagingDirectory() { return stagingDirectory; }
 	public String getOverrideDirectory() { return overrideDirectory; }
+	public URL getIGVSegFileLinkingLocation() { return igvSegFileLinkingLocation; }
 }

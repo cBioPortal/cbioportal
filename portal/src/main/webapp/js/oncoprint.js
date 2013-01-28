@@ -262,17 +262,20 @@ var Oncoprint = function(wrapper, params) {
             return "<a href='" + href + "'>" + sample_id + "</a>";
         };
 
+
         // make qtip
         d3.selectAll('.sample').each(function(d, i) {
             $(this).qtip({
-                content: {text: '<font size="2">'
-                    + formatMutation(d.sample, d.hugo)
-                    + patientViewUrl(d.sample)
-                    + '</font>'},
-
+                content: {text: 'oncoprint qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
+                        api.set('content.text', content);
+                    }
+                },
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                position: {my:'top center',at:'bottom center'}
+                position: {my:'left top',at:'bottom center'}
             });
         });
     };
@@ -289,7 +292,7 @@ var Oncoprint = function(wrapper, params) {
 //                    console.log(ui.value);
                     oncoprint.scaleWidth(ui.value);
                 }
-            }).appendTo($('#oncoprint_controls #width_scroller'));
+            }).appendTo($('#oncoprint_controls #zoom'));
     };
 
     that.draw = function() {
@@ -341,8 +344,9 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', label_width)
             .attr('height', getHeight());
 
+        // td-content is some parent td
         var body_wrap = table_wrap.append('td').append('div')
-            .style('width', $('#td-content').width() - 70 - label_width + 'px')     // buffer of, say, 100
+            .style('width', $('#td-content').width() - 70 - label_width + 'px') // buffer of, say, 70
             .style('display', 'inline-block')
             .style('overflow-x', 'auto')
             .style('overflow-y', 'hidden');
@@ -480,6 +484,8 @@ var Oncoprint = function(wrapper, params) {
             redraw(samples_visualized, track, gene.hugo);
             transition();
         });
+
+        makeQtip();
     };
 
 //  For the given oncoprint reference, returns the SVG Dom as string
@@ -497,8 +503,10 @@ var Oncoprint = function(wrapper, params) {
             });
         });
 
+        var number_of_samples = $(tracks[0]).children().length;
+
         var export_svg = $('<svg>')
-            .attr('width', getXScale(samples_all.length))
+            .attr('width', getXScale(number_of_samples) + label_width)
             .attr('height', getHeight());
 
         export_svg

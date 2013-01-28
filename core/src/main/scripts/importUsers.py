@@ -61,6 +61,7 @@ CGDS_USERS_WORKSHEET = 'users.worksheet'
 GDAC_DATABASE_NAME = 'cgds_gdac'
 PRIVATE_DATABASE_NAME = 'cgds_private'
 SU2C_DATABASE_NAME = 'cgds_su2c'
+PROSTATE_DATABASE_NAME = 'cgds_prostate'
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -81,6 +82,7 @@ MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
 MESSAGE_BCC = ["cerami@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
 MESSAGE_SUBJECT = { GDAC_DATABASE_NAME : "cBio GDAC Cancer Genomics Portal Access",
                     PRIVATE_DATABASE_NAME : "cBio Private Cancer Genomics Portal Access",
+                    PROSTATE_DATABASE_NAME : "cBio Prostate Cancer Genomics Portal Access",
                     SU2C_DATABASE_NAME : "cBio SU2C Cancer Genomics Portal Access" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
 
@@ -97,8 +99,14 @@ SU2C_MESSAGE_BODY = """Thank you for your interest in the cBio SU2C Cancer Genom
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
+PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBio Prostate Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/prostate-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
 MESSAGE_BODY = { GDAC_DATABASE_NAME : GDAC_MESSAGE_BODY,
                  PRIVATE_DATABASE_NAME : PRIVATE_MESSAGE_BODY,
+                 PROSTATE_DATABASE_NAME : PROSTATE_MESSAGE_BODY,
                  SU2C_DATABASE_NAME : SU2C_MESSAGE_BODY }
 
 
@@ -314,6 +322,7 @@ def get_portal_properties(portal_properties_filename):
 	# extra verification for database names
 	if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
 		properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
+        properties[CGDS_DATABASE_NAME] != PROSTATE_DATABASE_NAME and
 		properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
 		print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
 		return None

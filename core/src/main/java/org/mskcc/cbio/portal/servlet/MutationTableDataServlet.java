@@ -510,8 +510,8 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("endPos", "End Pos");
 		headerList.put("referenceAllele", "Ref");
 		headerList.put("variantAllele", "Var");
-		headerList.put("tumorFreq", "Var Freq");
-		headerList.put("normalFreq", "Norm Freq");
+		headerList.put("tumorFreq", "Allele Freq (T)");
+		headerList.put("normalFreq", "Allele Freq (N)");
 		headerList.put("tumorRefCount", "Var Ref");
 		headerList.put("tumorAltCount", "Var Alt");
 		headerList.put("normalRefCount", "Norm Ref");

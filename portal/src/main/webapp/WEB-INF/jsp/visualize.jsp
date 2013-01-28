@@ -23,7 +23,6 @@
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="java.lang.reflect.Array" %>
 <%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
-<%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 
 
@@ -192,7 +191,6 @@
 <script type="text/javascript" src="js/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
-
         var genes = "<%=genes%>",
             samples = "<%=samples%>",
             geneticProfiles = "<%=geneticProfiles%>";

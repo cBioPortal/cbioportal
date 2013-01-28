@@ -186,6 +186,10 @@
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
+        
+        if (drugType) {
+            params['<%=PatientView.DRUG_TYPE%>'] = drugType;
+        }
                         
         $.post("cna.json", 
             params,
@@ -219,7 +223,7 @@
                      <ul><li>either annotated cancer genes</li>\n\
                      <li>or recurrently copy number altered, namely\n\
                         <ul><li>contained in a Gistic peak with less than 10 genes and Q < 0.05, if Gistic results are available</li>\n\
-                        <li>otherwise, altered in >5% of samples in the study).</li></ul></li></ul>'/>");
+                        <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
                     style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
@@ -245,6 +249,7 @@
     var patient_view_gistic_qvalue_threhold = 0.05;
     var patient_view_gistic_number_genes_threshold = 10;
     var patient_view_cnaaltrate_threhold = 0.05;
+    var patient_view_cnaaltrate_apply_cohort_count = 50;
     function determineOverviewCNAs(data) {
         var overview = [];
         var len = data['id'].length;
@@ -271,7 +276,8 @@
                 if (altrate[i][-2]) rate += altrate[i][-2];
                 if (altrate[i][2]) rate += altrate[i][2];
                 
-                if (rate/numPatientInSameCnaProfile>=patient_view_cnaaltrate_threhold) {
+                if (numPatientInSameCnaProfile>=patient_view_cnaaltrate_apply_cohort_count
+                  && rate/numPatientInSameCnaProfile>=patient_view_cnaaltrate_threhold) {
                     overview.push(true);
                     continue;
                 }

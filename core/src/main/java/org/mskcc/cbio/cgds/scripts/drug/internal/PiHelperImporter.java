@@ -141,7 +141,6 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
     private void importDrugs() throws Exception {
         nameToDrugMap.clear();
 
-
         Scanner scanner = new Scanner(getDrugInfoFile());
         int lineNo = 0;
         while (scanner.hasNextLine()) {
@@ -151,6 +150,7 @@ public class PiHelperImporter extends AbstractDrugInfoImporter {
 
             String[] t = line.split(separator);
             assert t.length ==  12;
+            if(t.length < 12) continue;
             /*
                 0 PiHelper_Drug_ID
                 1 Drug_Name

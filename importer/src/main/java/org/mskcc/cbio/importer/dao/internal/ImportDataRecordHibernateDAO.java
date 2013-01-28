@@ -77,35 +77,34 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 		Session session = getSession();
 
 		// check for existing object
-		ImportDataRecord existing = getImportDataRecordByTumorAndDatatypeAndDataFilename(importDataRecord.getTumorType(),
-																						 importDataRecord.getDatatype(),
-																						 importDataRecord.getDataFilename());
-		if (existing != null) {
+		ImportDataRecord existing = getImportDataRecordByTumorAndDatatypeAndDataFilenameAndRunDate(importDataRecord.getTumorType(),
+																								   importDataRecord.getDatatype(),
+																								   importDataRecord.getDataFilename(),
+																								   importDataRecord.getRunDate());
+		if (existing == null) {
 			if (LOG.isInfoEnabled()) {
-				LOG.info("importDataRecord(), ImportDataRecord object for tumor type: " + importDataRecord.getTumorType() +
-						 " and datatype: " + importDataRecord.getDatatype() + " already exists, manually merging.");
-			}
-			existing.setDataSource(importDataRecord.getDataSource());
-			existing.setCenter(importDataRecord.getCenter());
-			existing.setTumorType(importDataRecord.getTumorType());
-			existing.setDatatype(importDataRecord.getDatatype());
-			existing.setRunDate(importDataRecord.getRunDate());
-			existing.setCanonicalPathToData(importDataRecord.getCanonicalPathToData());
-			existing.setDigest(importDataRecord.getDigest());
-			session.update(existing);
-		}
-		else {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("importDataRecord(), ImportDataRecord object for tumor type: " + importDataRecord.getTumorType() +
-						 " and datatype: " + importDataRecord.getDatatype() + " does not exist, saving.");
+				LOG.info("importDataRecord(), ImportDataRecord object for" +
+						 " tumor type: " + importDataRecord.getTumorType() +
+						 " datatype: " + importDataRecord.getDatatype() +
+						 " data filename: " + importDataRecord.getDataFilename() +
+						 " run date: " + importDataRecord.getRunDate() +
+						 " does not exist, saving.");
 				session.save(importDataRecord);
 			}
-		}
+			session.flush();
+			session.clear();
 
-		session.flush();
-		session.clear();
-		if (LOG.isInfoEnabled()) {
-			LOG.info("importDataRecord(), importDataRecord object has been successfully saved or merged.");
+			if (LOG.isInfoEnabled()) {
+				LOG.info("importDataRecord(), importDataRecord object has been successfully saved.");
+			}
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("ImportDataRecord object for" +
+					 " tumor type: " + importDataRecord.getTumorType() +
+					 " datatype: " + importDataRecord.getDatatype() +
+					 " data filename: " + importDataRecord.getDataFilename() +
+					 " run date: " + importDataRecord.getRunDate() +
+					 " already exists, not saving.");
 		}
 	}
 
@@ -152,17 +151,19 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param dataFilename String
+	 * @param runDate String
 	 * @return ImportDataRecord
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-	public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename) {
+	public ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilenameAndRunDate(String tumorType, String datatype, String dataFilename, String runDate) {
 
 		Session session = getSession();
-		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename");
+		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilenameAndRunDate");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("datafilename", dataFilename);
+		query.setParameter("rundate", runDate);
         return (ImportDataRecord)query.uniqueResult();
     }
 

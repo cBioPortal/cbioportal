@@ -235,20 +235,16 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
     var rows = dt.getNumberOfRows();
     var t = dt.getColumnType(col);
     if (t=="number") {
-        if (bins==null) bins = Math.min(10,Math.ceil(dt.getNumberOfRows()/5));
-        if ((typeof bins)==(typeof 1)) {
+        if (bins==null) {
             var r = dt.getColumnRange(col);
-            var step = Math.pow(10,Math.floor(Math.log((r.max-r.min)/2)*Math.LOG10E));
+            var rmax = r.max>0 ? r.max*1.1 : r.max*0.9;
+            var rmin = r.min>0 ? r.min*0.9 : r.min*1.1;
+            var step = Math.pow(10,Math.floor(Math.log((rmax-rmin)/2)*Math.LOG10E));
             bins = [];
-            if (step==0) {
-                bins.push(r.min-Number.MIN_VALUE);
-                bins.push(r.max+Number.MAX_VALUE);
-            } else {
-                var start = step*Math.floor(r.min/step);
-                for (var bin=start; bin<=r.max; bin+=step) {
-                    bins.push(bin);
-                }
-            }            
+            var start = step*Math.floor(rmin/step);
+            for (var bin=start; bin<=rmax; bin+=step) {
+                bins.push(bin);
+            }       
         }
 
         var count = [];
@@ -282,7 +278,7 @@ function calcHistogram(dt,col,bins,caseIdsFilter) {
         }
         hist.push(['>'+bins[bins.length-1],count[i].length]);
         histCaseIdMap[i]=count[i];
-        if (count[++i] && count[i].length>0) { // including unknow if positive
+        if (count[++i] && count[i].length>0) { // including unknown if positive
             hist.push(['Unknown',count[i].length]);
             histCaseIdMap[i]=count[i];
         }

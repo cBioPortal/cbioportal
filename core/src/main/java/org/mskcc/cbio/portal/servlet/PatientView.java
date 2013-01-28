@@ -335,7 +335,7 @@ public class PatientView extends HttpServlet {
                 patientStatus.append(" (").append(osm.intValue()).append(" months)");
             }
         }
-        if (dfss!=null && oss.equalsIgnoreCase("unknown")) {
+        if (dfss!=null && !dfss.equalsIgnoreCase("unknown")) {
             if (patientStatus.length()!=0) {
                 patientStatus.append(", ");
             }

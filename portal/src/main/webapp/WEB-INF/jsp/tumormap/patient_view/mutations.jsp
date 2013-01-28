@@ -47,6 +47,7 @@
                     },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
+                        "sClass": "no-wrap-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -54,10 +55,14 @@
                                 var aa = mutations.getValue(source[0], 'aa');
                                 if (aa.length>2&&aa.substring(0,2)=='p.')
                                     aa = aa.substring(2);
-                                var ret = "<b><i>"+aa+"</i></b>";
+                                var ret = "";
+                                if (mutations.getValue(source[0],'validation')!="Valid")
+                                    ret += "<img src='images/warning.gif' class='"
+                                            +table_id+"-tip' alt='Not a validated somatic mutation'>&nbsp;";
+                                ret += "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
-                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>"
+                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>";
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], 'aa');

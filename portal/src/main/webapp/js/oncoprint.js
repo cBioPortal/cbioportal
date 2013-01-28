@@ -262,14 +262,17 @@ var Oncoprint = function(wrapper, params) {
             return "<a href='" + href + "'>" + sample_id + "</a>";
         };
 
+
         // make qtip
         d3.selectAll('.sample').each(function(d, i) {
             $(this).qtip({
-                content: {text: '<font size="2">'
-                    + formatMutation(d.sample, d.hugo)
-                    + patientViewUrl(d.sample)
-                    + '</font>'},
-
+                content: {text: 'oncoprint qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
+                        api.set('content.text', content);
+                    }
+                },
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left top',at:'bottom center'}

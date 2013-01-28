@@ -186,6 +186,10 @@
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
+        
+        if (drugType) {
+            params['<%=PatientView.DRUG_TYPE%>'] = drugType;
+        }
                         
         $.post("cna.json", 
             params,

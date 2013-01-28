@@ -510,6 +510,10 @@
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (drugType) {
+            params['<%=PatientView.DRUG_TYPE%>'] = drugType;
+        }
                         
         $.post("mutations.json", 
             params,

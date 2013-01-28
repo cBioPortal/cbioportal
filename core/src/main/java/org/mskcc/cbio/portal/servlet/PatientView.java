@@ -53,6 +53,11 @@ public class PatientView extends HttpServlet {
     public static final String CLINICAL_DATA = "clinical_data";
     public static final String TISSUE_IMAGES = "tissue_images";
     public static final String PATH_REPORT_URL = "path_report_url";
+    
+    public static final String DRUG_TYPE = "drug_type";
+    public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
+    public static final String DRUG_TYPE_FDA_ONLY = "fda_approved";
+    
     private ServletXssUtil servletXssUtil;
     
     private static final DaoClinicalData daoClinicalData = new DaoClinicalData();

@@ -21,6 +21,7 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="java.lang.reflect.Array" %>
 <%@ page import="static org.mskcc.cbio.portal.servlet.QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
@@ -182,10 +183,12 @@
 
                 // put gene string into a form that javascript can swallow
                 String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-                genes = genes.replace("\n", " ");
+                genes = StringEscapeUtils.escapeJavaScript(genes);
+//                genes = genes.replace("\n", " ");
 
                 // get cases
                 String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+                samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
 <script type="text/javascript" src="js/MemoSort.js"></script>

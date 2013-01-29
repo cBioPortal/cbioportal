@@ -3,7 +3,7 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,type:6,tumor_freq:7,norm_freq:8,altrate:9,cosmic:10,ma:11,'3d':12,drug:13};
+    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,validation:6,type:7,tumor_freq:8,norm_freq:9,altrate:10,cosmic:11,ma:12,'3d':13,drug:14};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -11,6 +11,7 @@
         }
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
+                "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
                 "bJQueryUI": true,
                 "bDestroy": true,
                 "aaData": data,
@@ -55,11 +56,7 @@
                                 var aa = mutations.getValue(source[0], 'aa');
                                 if (aa.length>2&&aa.substring(0,2)=='p.')
                                     aa = aa.substring(2);
-                                var ret = "";
-                                if (mutations.getValue(source[0],'validation')!="Valid")
-                                    ret += "<img src='images/warning.gif' class='"
-                                            +table_id+"-tip' alt='Not a validated somatic mutation'>&nbsp;";
-                                ret += "<b><i>"+aa+"</i></b>";
+                                var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
                                             +table_id+"-tip' alt='Germline mutation'>Germline</span>";
@@ -113,6 +110,19 @@
                             }
                         },
                         "bSortable" : false
+                    },
+                    {// validation
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["validation"] ],
+                        "sClass": "no-wrap-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else {
+                                var val = mutations.getValue(source[0],'validation');
+                                return val ? val : "";
+                            }
+                        }
                     },
                     {// type
                         "aTargets": [ mutTableIndices["type"] ],

@@ -42,7 +42,28 @@
 <script type="text/javascript" src="js/network/network-sbgn-vis.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
+<!-- for genomic data post request -->
+<script type="text/javascript" src="js/oncoprint.js"></script>
+<script type="text/javascript" src="js/d3.v2.min.js"></script>
+
 <script type="text/javascript">
+
+			var genomicData = {};
+			// Send genomic data query again
+		    var geneDataQuery = {
+		        genes: genes,
+		        samples: samples,
+		        geneticProfileIds: geneticProfiles,
+		        z_score_threshold: <%=zScoreThreshold%>,
+		        rppa_score_threshold: <%=rppaScoreThreshold%>
+		    };
+	
+		    $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
+				genomicData = data;
+		        var geneDataManager = DataManagerFactory.getGeneDataManager();
+		        geneDataManager.fire(data);
+		    });
+
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
                 var msgbegin = "<!--messages begin:";
@@ -113,7 +134,7 @@
 				                   sbgnml = (new XMLSerializer()).serializeToString(sbgnml);
 			                   }
 		                   }
-		                   send2cytoscapewebSbgn(sbgnml, "cytoscapeweb_sbgn", "network_sbgn");
+		                   send2cytoscapewebSbgn(sbgnml, "cytoscapeweb_sbgn", "network_sbgn", genomicData);
 		                   // TODO these methods do not work with sbgnml
 		                   //showXDebug(sbgnml);
 		                   //showNetworkMessage(sbgnml, "#network_sbgn #netmsg");

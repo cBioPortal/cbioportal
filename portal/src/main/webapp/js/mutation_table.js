@@ -588,7 +588,7 @@ function _getMutationTableRows(data)
         return html;
     };
 
-    var getAlleleFreqHtml = function(frequency, alt, ref) {
+    var getAlleleFreqHtml = function(frequency, alt, ref, tipClass) {
 		var html;
         var tip = "<b>" + alt + "</b> variant reads out of <b>" + (alt + ref) + "</b> total";
 
@@ -598,7 +598,7 @@ function _getMutationTableRows(data)
         }
         else
         {
-            html = '<label class="mutation_table_allele_freq simple-tip" alt="' + tip + '">' +
+            html = '<label class="mutation_table_allele_freq ' + tipClass + '" alt="' + tip + '">' +
                    frequency.toFixed(2) + '</label>';
         }
 
@@ -669,12 +669,14 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].variantAllele);
         row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,
                 data.mutations[i].tumorAltCount,
-                data.mutations[i].tumorRefCount));
+                data.mutations[i].tumorRefCount,
+                "simple-tip"));
         row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
         row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
         row.push(getAlleleFreqHtml(data.mutations[i].normalFreq,
                 data.mutations[i].normalAltCount,
-                data.mutations[i].normalRefCount));
+                data.mutations[i].normalRefCount,
+                "simple-tip-left"));
         row.push(getAlleleCountHtml(data.mutations[i].normalAltCount));
         row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
 
@@ -726,13 +728,18 @@ function addMutationTableTooltips(tableId)
     var qTipOptions = {content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top center',at:'bottom center'}};
+        position: {my:'top left', at:'bottom right'}};
+
+    var qTipOptionsLeft = new Object();
+    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
 
     $('#' + tableId + ' th').qtip(qTipOptions);
     //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
     $('#' + tableId + ' .simple-tip').qtip(qTipOptions);
     $('#' + tableId + ' .best_effect_transcript').qtip(qTipOptions);
+    $('#' + tableId + ' .simple-tip-left').qtip(qTipOptionsLeft);
 
     // copy default qTip options and modify "content" to customize for cosmic
     var qTipOptsCosmic = new Object();

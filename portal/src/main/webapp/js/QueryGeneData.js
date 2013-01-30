@@ -201,40 +201,9 @@ QueryGeneData = function(data) {
             }
         });
 
-        console.log(range);
+//        console.log(range);
 
         return range;
-
-//        var rppa_merged = [];
-//        var mutations_merged = [];
-//        var mrna_merged = [];
-//        var cna_merged = [];
-//
-//        // get all the data for each data type
-//        gene_data.forEach(function(val, i) {
-//            rppa_merged = rppa_merged.concat(val.rppa)
-//            mutations_merged = mutations_merged.concat(val.mutations);
-//            mrna_merged = mrna_merged.concat(val.mrna);
-//            cna_merged = cna_merged.concat(val.cna);
-//        });
-//
-//        // remove duplicate helper function
-//        var remove_duplicates = function(array) {
-//            return array.filter(function(val, i) { return array.indexOf(val) === i;});
-//        };
-//
-//        // remove duplicates
-//        rppa_merged = remove_duplicates(rppa_merged);
-//        mutations_merged = remove_duplicates(mutations_merged);
-//        mrna_merged = remove_duplicates(mrna_merged);
-//        cna_merged = remove_duplicates(cna_merged);
-//
-//        return {
-//            rppa: rppa_merged,
-//            mutation: mutations_merged,
-//            mrna: mrna_merged,
-//            cna: cna_merged
-//        };
     };
 
     that.getDataRange();

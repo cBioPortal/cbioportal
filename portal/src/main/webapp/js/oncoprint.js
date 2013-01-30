@@ -10,6 +10,10 @@ var Oncoprint = function(wrapper, params) {
     var DOWNREGULATED = "DOWNREGULATED";
     var MRNA_UP_COLOR = "#FF9999";
     var MRNA_DOWN_COLOR = "#6699CC";
+    var mrna_fills = {
+        UPREGULATED: "#FF9999",
+        DOWNREGULATED: "#6699CC"
+    };
     var MUT_COLOR = "#008000";
     var RPPA_LIGHT = "#D3D3D3";
     var RPPA_DARK = "#000000";
@@ -225,22 +229,110 @@ var Oncoprint = function(wrapper, params) {
 
     // oncoprint legend
     //
-    var visualizedKeys = function(data_types) {
-        // helper function
-        return $('#oncoprint_key').children().filter(function(i, el) {
-            return data_types.indexOf($(el).attr('id')) !== -1;
-        });
-    };
+    var legend = function(data_types) {
+        var range = query.getDataRange();
 
-    var visKeySetup = function() {
-        // hide/show keys for relevant data types
-        var data_types = query.data_types;
+        var legend_el = d3.select('#oncoprint_legend')
+        var rect_width = getRectWidth();
 
-        d3.select('#oncoprint_key').style('padding-left', (label_width + getRectWidth()) + "px");
+        for (var cnv in range.cna) {
+            var svg = legend_el.append('svg');
 
-        // NB. not hiding keys that don't have data,
-        // relying on the page to refresh for that
-//        visualizedKeys(data_types).show();
+            svg.append('rect')
+                .attr('fill', function(d) {
+                    return cna_fills[cnv];
+                })
+                .attr('width', rect_width)
+                .attr('height', RECT_HEIGHT);
+
+            var text = svg.append('text')
+                .attr('fill', 'black')
+                .attr('x', 0)
+                .attr('y', .75 * RECT_HEIGHT)
+                .text('hello world');
+
+            svg.attr('height', RECT_HEIGHT);
+            svg.attr('width', 200);
+        }
+
+        for (var mrna in range.mrna) {
+            var svg = legend_el.append('svg');
+
+            svg.append('rect')
+                .attr('fill', cna_fills['none'])
+                .attr('stroke-width', MRNA_STROKE_WIDTH)
+                .attr('stroke-opacity', 1)
+                .attr('width', rect_width)
+                .attr('height', RECT_HEIGHT)
+                .attr('stroke', mrna_fills[mrna]);
+
+            var text = svg.append('text')
+                .attr('fill', 'black')
+                .attr('x', 0)
+                .attr('y', .75 * RECT_HEIGHT)
+                .text('hello world');
+
+            svg.attr('height', RECT_HEIGHT);
+            svg.attr('width', 200);
+        }
+
+        if (!$.isEmptyObject(range.mutations)) {
+            var svg = legend_el.append('svg');
+
+            // background of none
+            svg.append('rect')
+                .attr('fill', cna_fills['none'])
+                .attr('width', rect_width)
+                .attr('height', RECT_HEIGHT);
+
+            // little mutation square
+            svg.append('rect')
+                .attr('class', 'mut')
+                .attr('fill', MUT_COLOR)
+                .attr('y', LITTLE_RECT_HEIGHT)
+                .attr('width', rect_width)
+                .attr('height', LITTLE_RECT_HEIGHT);
+
+            var text = svg.append('text')
+                .attr('fill', 'black')
+                .attr('x', 0)
+                .attr('y', .75 * RECT_HEIGHT)
+                .text('hello world');
+
+            svg.attr('height', RECT_HEIGHT);
+            svg.attr('width', 200);
+        }
+
+//        for (var rppa in range.rppa) {
+//            var svg = legend_el.append('svg');
+//
+//            var up_triangle = getTrianglePath(rect_width, true);
+//            var down_triangle = getTrianglePath(rect_width, false);
+//
+//            var rppa = svg.append('path')
+//                .attr('class', 'rppa')
+//                .attr('fill', black)
+//                .attr('d', function(d) {
+//                    if (rppa === UPREGULATED) {
+//                        return up_triangle;
+//                    }
+//                    if (rppa === DOWNREGULATED) {
+//                        return down_triangle;
+//                    }
+//                    if (rppa === null) {
+//                        return 'M 0 0';
+//                    }
+//                });
+//
+//            var text = svg.append('text')
+//                .attr('fill', 'black')
+//                .attr('x', 0)
+//                .attr('y', .75 * RECT_HEIGHT)
+//                .text('hello world');
+//
+//            svg.attr('height', RECT_HEIGHT);
+//            svg.attr('width', 200);
+//        }
     };
     //
     // end oncoprint legend
@@ -380,14 +472,14 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', label_width)
                 .text(gene_obj.percent_altered);
 
-            if (params.vis_key) {       // toggle the key to the visualization
-                visKeySetup();
-            }
-
             redraw(visualized_samples, track, hugo);
         });
 
         makeQtip();
+
+        if (params.vis_key) {       // toggle the key to the visualization
+            legend();
+        }
 
         if (params.customize) {         // toggle the setup of the customization controls
             widthScrollerSetup();

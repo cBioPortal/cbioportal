@@ -230,33 +230,76 @@ var Oncoprint = function(wrapper, params) {
     // oncoprint legend
     //
     var legend = function(data_types) {
+
+        var captions = {
+            cna: {
+                AMPLIFIED: "Amplification",
+                GAINED: "Gain",
+                DIPLOID: "Diploid",
+                HEMIZYGOUSLYDELETED: "Hemizygous Deletion",
+                HOMODELETED: "Homozygous Deletion"
+            },
+            mrna: {
+                UPREGULATED: "mRNA Upregulation",
+                DOWNREGULATED: "mRNA Downregulation"
+            },
+            rppa: {
+                UPREGULATED: "RPPA Upregulation",
+                DOWNREGULATED: "RPPA Downregulation"
+            },
+            mutation: "Mutation"
+        };
+
+
+        var text_padding = 10;
+
+        var legend_el = d3.select('#oncoprint_legend');
+        legend_el.style('margin-left', getRectWidth() + label_width + 2 + "px");
+
+        var getSvg = function(label_str) {
+            var svg = legend_el.append('svg');
+
+            var el_width = function(label_str) {
+                var l = label_str.split("");
+                var scalar = 7;
+                var affine = 25;
+                return affine + scalar * l.length;
+            };
+
+            svg.attr('height', RECT_HEIGHT);
+            svg.attr('width', el_width(label_str));
+            return svg;
+        };
+
         var range = query.getDataRange();
 
-        var legend_el = d3.select('#oncoprint_legend')
         var rect_width = getRectWidth();
 
-        for (var cnv in range.cna) {
-            var svg = legend_el.append('svg');
+        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0};
+        var cnas = _.keys(range.cna);
+        cnas = cnas.sort(function(a,b) {
+            return cna_order[b] - cna_order[a];
+        });
+
+        cnas.forEach(function(cna) {
+            var svg = getSvg(captions.cna[cna]);
 
             svg.append('rect')
                 .attr('fill', function(d) {
-                    return cna_fills[cnv];
+                    return cna_fills[cna];
                 })
                 .attr('width', rect_width)
                 .attr('height', RECT_HEIGHT);
 
             var text = svg.append('text')
                 .attr('fill', 'black')
-                .attr('x', 0)
+                .attr('x', text_padding)
                 .attr('y', .75 * RECT_HEIGHT)
-                .text('hello world');
-
-            svg.attr('height', RECT_HEIGHT);
-            svg.attr('width', 200);
-        }
+                .text(captions.cna[cna]);
+        });
 
         for (var mrna in range.mrna) {
-            var svg = legend_el.append('svg');
+            var svg = getSvg(captions.mrna[mrna]);
 
             svg.append('rect')
                 .attr('fill', cna_fills['none'])
@@ -268,16 +311,13 @@ var Oncoprint = function(wrapper, params) {
 
             var text = svg.append('text')
                 .attr('fill', 'black')
-                .attr('x', 0)
+                .attr('x', text_padding)
                 .attr('y', .75 * RECT_HEIGHT)
-                .text('hello world');
-
-            svg.attr('height', RECT_HEIGHT);
-            svg.attr('width', 200);
+                .text(captions.mrna[mrna]);
         }
 
         if (!$.isEmptyObject(range.mutations)) {
-            var svg = legend_el.append('svg');
+            var svg = getSvg(captions.mutation);
 
             // background of none
             svg.append('rect')
@@ -287,7 +327,6 @@ var Oncoprint = function(wrapper, params) {
 
             // little mutation square
             svg.append('rect')
-                .attr('class', 'mut')
                 .attr('fill', MUT_COLOR)
                 .attr('y', LITTLE_RECT_HEIGHT)
                 .attr('width', rect_width)
@@ -295,44 +334,47 @@ var Oncoprint = function(wrapper, params) {
 
             var text = svg.append('text')
                 .attr('fill', 'black')
-                .attr('x', 0)
+                .attr('x', text_padding)
                 .attr('y', .75 * RECT_HEIGHT)
-                .text('hello world');
+                .text(captions.mutation);
 
-            svg.attr('height', RECT_HEIGHT);
-            svg.attr('width', 200);
+            console.log(
+            text[0][0].clientWidth
+            );
         }
 
-//        for (var rppa in range.rppa) {
-//            var svg = legend_el.append('svg');
-//
-//            var up_triangle = getTrianglePath(rect_width, true);
-//            var down_triangle = getTrianglePath(rect_width, false);
-//
-//            var rppa = svg.append('path')
-//                .attr('class', 'rppa')
-//                .attr('fill', black)
-//                .attr('d', function(d) {
-//                    if (rppa === UPREGULATED) {
-//                        return up_triangle;
-//                    }
-//                    if (rppa === DOWNREGULATED) {
-//                        return down_triangle;
-//                    }
-//                    if (rppa === null) {
-//                        return 'M 0 0';
-//                    }
-//                });
-//
-//            var text = svg.append('text')
-//                .attr('fill', 'black')
-//                .attr('x', 0)
-//                .attr('y', .75 * RECT_HEIGHT)
-//                .text('hello world');
-//
-//            svg.attr('height', RECT_HEIGHT);
-//            svg.attr('width', 200);
-//        }
+        for (var rppa in range.rppa) {
+            var svg = getSvg(captions.rppa[rppa]);
+
+            var up_triangle = getTrianglePath(rect_width, true);
+            var down_triangle = getTrianglePath(rect_width, false);
+
+            var rppa = svg.append('path')
+                .attr('fill', black)
+                .attr('d', function(d) {
+                    if (rppa === UPREGULATED) {
+                        return up_triangle;
+                    }
+                    if (rppa === DOWNREGULATED) {
+                        return down_triangle;
+                    }
+                    if (rppa === null) {
+                        return 'M 0 0';
+                    }
+                });
+
+            var text = svg.append('text')
+                .attr('fill', 'black')
+                .attr('x', text_padding)
+                .attr('y', .75 * RECT_HEIGHT)
+                .text(captions.rppa[rppa]);
+        }
+
+        legend_el.append('p')
+            .style('font-size', '12px')
+            .style('margin-bottom', 0)
+            .style('margin-top', 7 + 'px')
+            .text('Copy number alterations are putative.');
     };
     //
     // end oncoprint legend

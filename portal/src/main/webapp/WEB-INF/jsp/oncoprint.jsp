@@ -70,16 +70,16 @@
                     oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
                     oncoprint.draw();
+                    var geneDataManager = DataManagerFactory.getGeneDataManager();
+                    geneDataManager.fire(data);
 
                     $('#oncoprint #loader_img').hide();
                     $('#oncoprint #everything').show();
-                    var geneDataManager = DataManagerFactory.getGeneDataManager();
-                    geneDataManager.fire(data);
                 });
             </script>
         </div>
 
-        <div id="oncoprint_key">
+        <div id="oncoprint_legend">
             <svg id="cna" style="display:none;width:280px;" height=40>
                 <g transform="translate(0,10)">
                     <rect fill="#FF0000" width="5.5" height="23"></rect>

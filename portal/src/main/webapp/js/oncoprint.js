@@ -223,8 +223,8 @@ var Oncoprint = function(wrapper, params) {
     var svg;        // global scope
     that.getSvg = function() { return svg; };
 
-    // ** icing on the cake functions **
-
+    // oncoprint legend
+    //
     var visualizedKeys = function(data_types) {
         // helper function
         return $('#oncoprint_key').children().filter(function(i, el) {
@@ -240,8 +240,10 @@ var Oncoprint = function(wrapper, params) {
 
         // NB. not hiding keys that don't have data,
         // relying on the page to refresh for that
-        visualizedKeys(data_types).show();
+//        visualizedKeys(data_types).show();
     };
+    //
+    // end oncoprint legend
 
     var makeQtip = function() {
         var formatMutation = function(sample, hugo) {

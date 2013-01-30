@@ -11,6 +11,13 @@ QueryGeneData = function(data) {
 
     var that = {};
 
+    var data_values = {     // unfortunately, this is copied right out of GeneEventImpl.java
+        cna: [ "AMPLIFIED", "GAINED", "DIPLOID", "HEMIZYGOUSLYDELETED", "HOMODELETED", "NONE" ],
+        mrna: [ "UPREGULATED", "NORMAL", "DOWNREGULATED", "NOTSHOWN" ],
+        rppa: [ "UPREGULATED", "NORMAL", "DOWNREGULATED", "NOTSHOWN" ],
+        mutations: [ "MUTATED", "UNMUTATED", "NONE" ]
+    };
+
     var gene_data = data.gene_data;
 
     that.byHugo = function(hugo) {
@@ -97,7 +104,7 @@ QueryGeneData = function(data) {
 
     that.percent_altered = that.altered_samples.length / sample_list.length;
 
-    that.data_types = (function() {
+    that.data_types = function() {
         // returns all the datatypes that are represented in the data set
         // that is, all the ones that have non null values
 
@@ -152,7 +159,85 @@ QueryGeneData = function(data) {
         }
 
         return to_return;
-    })();
+    };
+
+    that.getDataRange = function(samples_l) {
+        // returns the range of values in data per data type
+        // list of samples, nothing -> range of samples, range of all samples
+        // i.e. defaults to all samples
+
+        // samples_l defaults to the entire list
+        samples_l === undefined ? samples_l = sample_list : samples_l = samples_l;
+
+        // value to return
+        var range = {
+            cna: {},
+            mrna: {},
+            rppa: {},
+            mutations: {}
+        };
+
+        var appendToMap = function(map, item) {
+            if (item === null) {
+                // null items don't count
+                return 0;
+            }
+
+            if (map[item] === undefined) {
+                map[item] = 1;
+                return 0;
+            }
+            return 1;
+        };
+
+        samples_l.forEach(function(i) {
+            var genes = that.bySampleId(i);
+
+            for (var g in genes) {
+                appendToMap(range.cna, genes[g].cna);
+                appendToMap(range.mrna, genes[g].mrna);
+                appendToMap(range.rppa, genes[g].rppa);
+                if ($.isEmptyObject(range.mutations)) { appendToMap(range.mutations, genes[g].mutation); }
+            }
+        });
+
+        console.log(range);
+
+        return range;
+
+//        var rppa_merged = [];
+//        var mutations_merged = [];
+//        var mrna_merged = [];
+//        var cna_merged = [];
+//
+//        // get all the data for each data type
+//        gene_data.forEach(function(val, i) {
+//            rppa_merged = rppa_merged.concat(val.rppa)
+//            mutations_merged = mutations_merged.concat(val.mutations);
+//            mrna_merged = mrna_merged.concat(val.mrna);
+//            cna_merged = cna_merged.concat(val.cna);
+//        });
+//
+//        // remove duplicate helper function
+//        var remove_duplicates = function(array) {
+//            return array.filter(function(val, i) { return array.indexOf(val) === i;});
+//        };
+//
+//        // remove duplicates
+//        rppa_merged = remove_duplicates(rppa_merged);
+//        mutations_merged = remove_duplicates(mutations_merged);
+//        mrna_merged = remove_duplicates(mrna_merged);
+//        cna_merged = remove_duplicates(cna_merged);
+//
+//        return {
+//            rppa: rppa_merged,
+//            mutation: mutations_merged,
+//            mrna: mrna_merged,
+//            cna: cna_merged
+//        };
+    };
+
+    that.getDataRange();
 
     return that;
 };

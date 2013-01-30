@@ -337,10 +337,6 @@ var Oncoprint = function(wrapper, params) {
                 .attr('x', text_padding)
                 .attr('y', .75 * RECT_HEIGHT)
                 .text(captions.mutation);
-
-            console.log(
-            text[0][0].clientWidth
-            );
         }
 
         for (var rppa in range.rppa) {
@@ -349,8 +345,14 @@ var Oncoprint = function(wrapper, params) {
             var up_triangle = getTrianglePath(rect_width, true);
             var down_triangle = getTrianglePath(rect_width, false);
 
-            var rppa = svg.append('path')
-                .attr('fill', black)
+            // background of none
+            svg.append('rect')
+                .attr('fill', cna_fills['none'])
+                .attr('width', rect_width)
+                .attr('height', RECT_HEIGHT);
+
+            svg.append('path')
+                .attr('fill', 'black')
                 .attr('d', function(d) {
                     if (rppa === UPREGULATED) {
                         return up_triangle;

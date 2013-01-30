@@ -148,6 +148,9 @@
                                 } else if (mutType==='In_Frame_Del') {
                                     abbr = 'IFD';
                                     color = 'black';
+                                } else if (mutType==='Fusion') {
+                                    abbr = 'Fusion';
+                                    color = 'black';
                                 } else if (mutType==='Frame_Shift_Del') {
                                     abbr = 'FS';
                                     color = 'red';

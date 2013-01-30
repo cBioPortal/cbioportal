@@ -7,6 +7,7 @@
                         <th class="mut-header" alt="Chromosome">Chr</th>
                         <th class="mut-header" alt="Start postion on chromosome">Start</th>
                         <th class="mut-header" alt="End postion on chromosome">End</th>
+                        <th class="mut-header" alt="Validation status">Validation</th>
                         <th class="mut-header" alt="Mutation type">Type</th>
                         <th class="mut-header" alt="Variant allele frequency in the tumor sample">Allele Freq (T)</th>
                         <th class="mut-header" alt="Variant allele frequency in the normal sample">Allele Freq (N)</th>

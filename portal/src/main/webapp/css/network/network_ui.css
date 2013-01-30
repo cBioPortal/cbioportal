@@ -405,7 +405,7 @@
 
 #network_tabs
 {
-	width: 270px;
+	width: 280px;
 	height: 666px;
 }
 
@@ -485,7 +485,7 @@
 #genes_tab select
 {
 	/* dimensions of the select box */
-	width: 235px;
+	width: 245px;
 	height: 380px;
 	
 	font-size: 12px;
@@ -627,10 +627,10 @@
 	white-space: nowrap;
 }
 
-#relations_tab, #genes_tab, #help_tab
+#relations_tab, #genes_tab, #help_tab, #node_details_tab
 {
 	height: 575px;
-	width: 235px;
+	width: 245px;
 }
 
 #relations_tab #edge_source_filter
@@ -720,6 +720,49 @@
 #help_tab .bold
 {
 	font-weight: bold;
+}
+
+/*
+ * ########################################################
+ * ##################### Details Tab ######################
+ * ########################################################
+ */
+
+#node_details_tab
+{
+	overflow-y: auto;
+}
+
+#node_details_tab p
+{
+	text-align: left;
+}
+
+#node_details_tab p
+{
+	color: #666666;
+	font-family: verdana,arial,sans-serif;
+	font-size: 11px;
+}
+
+#node_details_tab .title
+{
+	text-align: center;
+}
+
+#node_details_tab .title label
+{
+	font-weight: bold;
+}
+
+#node_details_tab td
+{
+	vertical-align: top;
+}
+
+#node_details_tab .node-details-summary
+{
+	margin-top: 15px;
 }
 
 /*

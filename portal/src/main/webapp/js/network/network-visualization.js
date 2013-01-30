@@ -24,6 +24,7 @@ function NetworkVis(divId)
     this.networkTabsSelector = "#" + this.divId + " #network_tabs";
     this.relationsTabSelector = "#" + this.divId + " #relations_tab";
     this.genesTabSelector = "#" + this.divId + " #genes_tab";
+    this.nodeDetailsTabSelector = "#" + this.divId + " #node_details_tab";
     this.geneListAreaSelector = "#" + this.divId + " #gene_list_area";
     this.drugFilterSelector = "#" + this.divId + " #drop_down_select";
 
@@ -175,6 +176,8 @@ NetworkVis.prototype.initNetworkUI = function(vis)
 
     // init tabs
     $(this.networkTabsSelector).tabs();
+    $(this.networkTabsSelector + " .network-tab-ref").tipTip(
+        {defaultPosition: "top", delay:"100", edgeOffset: 10, maxWidth: 200});
 
     this._initGenesTab();
     this._refreshGenesTab();
@@ -525,9 +528,6 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 
         // add percentage information
         this._addPercentages(data);
-
-        // TODO enable to have BioGene info in a new tab in the inspector
-        //this.updateBioGeneContent(data);
     }
 
     // add cross references
@@ -574,14 +574,37 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 };
 
 
-NetworkVis.prototype.updateBioGeneContent = function(data)
+NetworkVis.prototype.updateBioGeneContent = function(evt)
 {
+    var selected = this._vis.selected("nodes");
+    var data;
+
     var self = this;
 
     // clean previous content
-    $(self.nodeInspectorSelector + " .node_inspector_biogene").empty();
-    $(self.nodeInspectorSelector + " .node_inspector_biogene").append(
+    $(self.nodeDetailsTabSelector).empty();
+    $(self.nodeDetailsTabSelector).append(
         '<img src="images/ajax-loader.gif">');
+
+    if (selected.length == 1)
+    {
+        data = selected[0].data
+    }
+    else if (selected.length > 1)
+    {
+        $(self.nodeDetailsTabSelector).empty();
+        $(self.nodeDetailsTabSelector).append(
+            "Currently more than one node is selected. Please, select only one node to see details.");
+        return;
+    }
+    else
+    {
+        $(self.nodeDetailsTabSelector).empty();
+        $(self.nodeDetailsTabSelector).append(
+            "Currently there is no selected node. Please, select a node to see details.");
+        return;
+    }
+
 
     var handler = function(queryResult) {
         if (typeof queryResult !== "string") {
@@ -608,15 +631,53 @@ NetworkVis.prototype.updateBioGeneContent = function(data)
 
         var bioGene = _parseBioGeneXml(xmlDoc);
 
-        // TODO update content (temporary test values)
-        $(self.nodeInspectorSelector + " .node_inspector_biogene").empty();
-        $(self.nodeInspectorSelector + " .node_inspector_biogene").append("<table>" +
-            "<tr><td>Gene ID:</td><td>" + bioGene.geneId + "</td></tr>" +
-            "<tr><td>Gene Symbol:</td><td>" + bioGene.geneSymbol + "</td></tr>" +
-            "<tr><td>Chromosome:</td><td>" + bioGene.geneChromosome + "</td></tr>" +
-            "<tr><td>Location:</td><td>" + bioGene.geneLocation + "</td></tr>" +
-            "<tr><td>Description:</td><td>" + bioGene.geneDescription + "</td></tr>" +
-            "</table>");
+        // update tab content
+        $(self.nodeDetailsTabSelector).empty();
+
+        if (bioGene.returnCode != "SUCCESS")
+        {
+            $(self.nodeDetailsTabSelector).append("Error retrieving data: " + bioGene.returnCode);
+        }
+        else
+        {
+            var html = "<div class='node-details-info'><table>";
+
+            if (bioGene.geneSymbol != undefined)
+                html += "<tr><td><b>Gene Symbol:</b></td><td>" + bioGene.geneSymbol + "</td></tr>";
+
+            if (bioGene.geneDescription != undefined)
+                html += "<tr><td><b>Description:</b></td><td>" + bioGene.geneDescription + "</td></tr>";
+
+            if (bioGene.geneAliases != undefined)
+                html += "<tr><td><b>Aliases:</b></td><td>" + bioGene.geneAliases + "</td></tr>";
+
+            if (bioGene.geneDesignations != undefined)
+                html += "<tr><td><b>Designations:</b></td><td>" + bioGene.geneDesignations + "</td></tr>";
+
+            if (bioGene.geneChromosome != undefined)
+                html += "<tr><td><b>Chromosome:</b></td><td>" + bioGene.geneChromosome + "</td></tr>";
+
+            if (bioGene.geneLocation != undefined)
+                html += "<tr><td><b>Location:</b></td><td>" + bioGene.geneLocation + "</td></tr>";
+
+            if (bioGene.geneMIM != undefined)
+                html += "<tr><td><b>MIM:</b></td><td>" + bioGene.geneMIM + "</td></tr>";
+
+            if (bioGene.geneId != undefined)
+                html += "<tr><td><b>Gene ID:</b></td><td>" + bioGene.geneId + "</td></tr>";
+
+            html += "</table></div>";
+
+            if (bioGene.geneSummary != undefined)
+            {
+                html += "<div class='node-details-summary'>";
+                html += "<span class='title'><label>Gene Summary:</label></span>";
+                html += "<p class='regular'>" + bioGene.geneSummary + "</p>";
+                html += "</div>";
+            }
+
+            $(self.nodeDetailsTabSelector).append(html);
+        }
     };
 
     var queryParams = {"query": data.label, "org": "human"};
@@ -2295,9 +2356,6 @@ NetworkVis.prototype._initDialogs = function()
                                     width: 366,
                                     maxHeight: 300});
 
-    // TODO enable to have BioGene info in a new tab in the inspector
-    //$(this.nodeInspectorSelector + "_tabs").tabs();
-
     // adjust edge inspector
     $(this.edgeInspectorSelector).dialog({autoOpen: false,
                                     resizable: false,
@@ -3035,8 +3093,9 @@ NetworkVis.prototype._initControlFunctions = function()
         self.showEdgeInspector(evt);
     };
 
-    var updateGenesTab = function(evt) {
+    var handleNodeSelect = function(evt) {
         self.updateGenesTab(evt);
+        self.updateBioGeneContent(evt);
     };
 
     var filterSelectedGenes = function() {
@@ -3139,6 +3198,10 @@ NetworkVis.prototype._initControlFunctions = function()
         self.handleMenuEvent(evt.target.id);
     };
 
+    var updateNodeDetails = function(evt){
+        self.updateBioGeneContent(evt);
+    };
+
     this._controlFunctions = new Array();
 
     //_controlFunctions["hide_selected"] = _hideSelected;
@@ -3194,11 +3257,11 @@ NetworkVis.prototype._initControlFunctions = function()
 
     this._vis.addListener("select",
                      "nodes",
-                     updateGenesTab);
+                     handleNodeSelect);
 
     this._vis.addListener("deselect",
                      "nodes",
-                     updateGenesTab);
+                     handleNodeSelect);
 
     // TODO temp debug option, remove when done
     //_vis.addContextMenuItem("node details", "nodes", jokerAction);
@@ -3602,26 +3665,6 @@ NetworkVis.prototype._createNodeInspector = function(divId)
             '</div>' +
         '</div>';
 
-    // TODO enable to have BioGene info in a new tab in the inspector
-//    html =
-//        '<div id="' + id + '" class="network_node_inspector hidden-network-ui" title="Node Inspector">' +
-//            '<div id="' + id + '_tabs">' +
-//                '<ul>' +
-//                    '<li><a href="#node_inspector_main"><span>Main</span></a></li>' +
-//                    '<li><a href="#node_inspector_biogene"><span>BioGene</span></a></li>' +
-//                '</ul>' +
-//                '<div id="node_inspector_main" class="node_inspector_content content ui-widget-content">' +
-//                    '<table class="data"></table>' +
-//                    '<table class="profile-header"></table>' +
-//                    '<table class="profile"></table>' +
-//                    '<table class="xref"></table>' +
-//                '</div>' +
-//                '<div id="node_inspector_biogene" class="node_inspector_biogene content ui-widget-content">' +
-//                    '<img src="images/ajax-loader.gif">' +
-//                '</div>' +
-//            '</div>' +
-//        '</div>';
-
     $("#" + divId).append(html);
 
     return "#" + id;
@@ -3810,16 +3853,75 @@ function _parseBioGeneXml(xmlDoc)
 {
     var json = new Object();
 
+    // check the return code
+    var returnCode = xmlDoc.getElementsByTagName("return_code")[0].childNodes[0].nodeValue;
+
+    json.returnCode = returnCode;
+
+    if(returnCode != "SUCCESS")
+    {
+        return json;
+    }
+
     // work on the first result only
     var geneInfo = xmlDoc.getElementsByTagName("gene_info")[0];
 
-    json.geneId = geneInfo.getElementsByTagName("gene_id")[0].childNodes[0].nodeValue;
-    json.geneSymbol = geneInfo.getElementsByTagName("gene_symbol")[0].childNodes[0].nodeValue;
-    json.geneLocation = geneInfo.getElementsByTagName("gene_location")[0].childNodes[0].nodeValue;
-    json.geneChromosome = geneInfo.getElementsByTagName("gene_chromosome")[0].childNodes[0].nodeValue;
-    json.geneDescription = geneInfo.getElementsByTagName("gene_description")[0].childNodes[0].nodeValue;
+    var geneIdNode = geneInfo.getElementsByTagName("gene_id");
+    var geneSymbolNode = geneInfo.getElementsByTagName("gene_symbol");
+    var geneLocationNode = geneInfo.getElementsByTagName("gene_location");
+    var geneChromosomeNode = geneInfo.getElementsByTagName("gene_chromosome");
+    var geneDescriptionNode = geneInfo.getElementsByTagName("gene_description");
+    var geneAliasesNode = geneInfo.getElementsByTagName("gene_aliases");
+    var geneSummaryNode = geneInfo.getElementsByTagName("gene_summary");
+    var geneDesignationsNode = geneInfo.getElementsByTagName("gene_designations");
+    var geneMIMNode = geneInfo.getElementsByTagName("gene_mim");
+
+    if (geneIdNode.length > 0)
+        json.geneId = geneIdNode[0].childNodes[0].nodeValue;
+
+    if (geneSymbolNode.length > 0)
+        json.geneSymbol = geneSymbolNode[0].childNodes[0].nodeValue;
+
+    if (geneLocationNode.length > 0)
+        json.geneLocation = geneLocationNode[0].childNodes[0].nodeValue;
+
+    if (geneChromosomeNode.length > 0)
+        json.geneChromosome = geneChromosomeNode[0].childNodes[0].nodeValue;
+
+    if (geneDescriptionNode.length > 0)
+        json.geneDescription = geneDescriptionNode[0].childNodes[0].nodeValue;
+
+    if (geneAliasesNode.length > 0)
+        json.geneAliases = _parseDelimitedInfo(geneAliasesNode[0].childNodes[0].nodeValue, ":", ",");
+
+    if (geneSummaryNode.length > 0)
+        json.geneSummary = geneSummaryNode[0].childNodes[0].nodeValue;
+
+    if (geneDesignationsNode.length > 0)
+        json.geneDesignations = _parseDelimitedInfo(geneDesignationsNode[0].childNodes[0].nodeValue, ":", ",");
+
+    if (geneMIMNode.length > 0)
+        json.geneMIM = geneMIMNode[0].childNodes[0].nodeValue;
 
     return json;
+}
+
+function _parseDelimitedInfo(info, delimiter, separator)
+{
+    var text = "";
+    var parts = info.split(delimiter);
+
+    if (parts.length > 0)
+    {
+        text = parts[0];
+    }
+
+    for (var i=1; i < parts.length; i++)
+    {
+        text += separator + " " + parts[i];
+    }
+
+    return text;
 }
 
 /**

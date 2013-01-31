@@ -216,7 +216,9 @@ class ImporterImpl implements Importer {
 	private void importAllReferenceData() throws Exception {
 		// iterate over all other reference data types
 		for (ReferenceMetadata referenceData : config.getReferenceMetadata(Config.ALL)) {
-			importReferenceData(referenceData);
+			if (referenceData.getImport()) {
+				importReferenceData(referenceData);
+			}
 		}
 	}
 

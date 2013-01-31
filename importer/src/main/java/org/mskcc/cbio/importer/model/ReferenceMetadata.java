@@ -44,6 +44,7 @@ public class ReferenceMetadata {
 
 	// bean properties
 	private String referenceType;
+	private Boolean importData; // import?
 	private String fetcherName;
 	private List<String> fetcherArgs;
 	private String importerName;
@@ -57,24 +58,26 @@ public class ReferenceMetadata {
      */
     public ReferenceMetadata(String[] properties) {
 
-		if (properties.length < 5) {
+		if (properties.length < 6) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
 		this.referenceType = properties[0].trim();
-		this.fetcherName = MetadataUtils.getCanonicalPath(properties[1].trim());
+		this.importData = new Boolean(properties[1].trim());
+		this.fetcherName = MetadataUtils.getCanonicalPath(properties[2].trim());
 		this.fetcherArgs = new ArrayList<String>();
-		for (String fetcherArg : properties[2].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+		for (String fetcherArg : properties[3].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
 			this.fetcherArgs.add(MetadataUtils.getCanonicalPath(fetcherArg));
 		}
-		this.importerName = MetadataUtils.getCanonicalPath(properties[3].trim());
+		this.importerName = MetadataUtils.getCanonicalPath(properties[4].trim());
 		this.importerArgs = new ArrayList<String>();
-		for (String importerArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+		for (String importerArg : properties[5].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
 			this.importerArgs.add(MetadataUtils.getCanonicalPath(importerArg));
 		}
 	}
 
 	public String getReferenceType() { return referenceType; }
+	public Boolean getImport() { return importData; }
 	public String getFetcherName() { return fetcherName; }
 	public List<String> getFetcherArgs() { return fetcherArgs; }
 	public String getImporterName() { return importerName; }

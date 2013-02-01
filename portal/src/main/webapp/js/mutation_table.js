@@ -214,7 +214,7 @@ function delayedMutationTable(data)
 {
     //TODO temporary work-around for the missing columns in the filter (issue 429)
     setTimeout(function(){drawMutationTable(data);},
-               3500);
+               4000);
 }
 
 /**

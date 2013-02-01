@@ -57,8 +57,8 @@ public class ExtendedMutation
 	private String linkPdb;
 	private String linkMsa;
         
-        private long mutationEventId;
-        private String keyword;
+    private long mutationEventId;
+    private String keyword;
 
 	private String ncbiBuild;
 	private String strand;

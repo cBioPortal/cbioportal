@@ -35,6 +35,7 @@ public class MafRecord
     public final static String NA_STRING = "NA";
     public final static long NA_LONG = -1L;
     public final static int NA_INT = -1;
+    public final static float NA_FLOAT = -1;
 
 	// standard MAF cols
     private String chr;
@@ -75,6 +76,14 @@ public class MafRecord
     private int tumorRefCount;
     private int normalAltCount;
     private int normalRefCount;
+    private int tTotCov;
+    private int tVarCov;
+    private int nTotCov;
+    private int nVarCov;
+    private int tumorDepth;
+    private float tumorVaf;
+    private int normalDepth;
+    private float normalVaf;
 
 	// Mutation Assessor cols
 	private String maFuncImpact;
@@ -396,6 +405,70 @@ public class MafRecord
 	public void setNormalRefCount(int normalRefCount) {
 		this.normalRefCount = normalRefCount;
 	}
+
+    public int getTTotCov() {
+        return tTotCov;
+    }
+
+    public void setTTotCov(int tTotCov) {
+        this.tTotCov = tTotCov;
+    }
+
+    public int getTVarCov() {
+        return tVarCov;
+    }
+
+    public void setTVarCov(int tVarCov) {
+        this.tVarCov = tVarCov;
+    }
+
+    public int getNTotCov() {
+        return nTotCov;
+    }
+
+    public void setNTotCov(int nTotCov) {
+        this.nTotCov = nTotCov;
+    }
+
+    public int getNVarCov() {
+        return nVarCov;
+    }
+
+    public void setNVarCov(int nVarCov) {
+        this.nVarCov = nVarCov;
+    }
+
+    public int getTumorDepth() {
+        return tumorDepth;
+    }
+
+    public void setTumorDepth(int tumorDepth) {
+        this.tumorDepth = tumorDepth;
+    }
+
+    public float getTumorVaf() {
+        return tumorVaf;
+    }
+
+    public void setTumorVaf(float tumorVaf) {
+        this.tumorVaf = tumorVaf;
+    }
+
+    public int getNormalDepth() {
+        return normalDepth;
+    }
+
+    public void setNormalDepth(int normalDepth) {
+        this.normalDepth = normalDepth;
+    }
+
+    public float getNormalVaf() {
+        return normalVaf;
+    }
+
+    public void setNormalVaf(float normalVaf) {
+        this.normalVaf = normalVaf;
+    }
 
 	public String getOncotatorProteinChange()
 	{

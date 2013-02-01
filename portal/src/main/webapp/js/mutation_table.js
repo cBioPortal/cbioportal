@@ -214,7 +214,7 @@ function delayedMutationTable(data)
 {
     //TODO temporary work-around for the missing columns in the filter (issue 429)
     setTimeout(function(){drawMutationTable(data);},
-               3000);
+               3500);
 }
 
 /**
@@ -238,6 +238,28 @@ function drawMutationTable(data)
 //    var rows = _getMutationTableRows(data);
 //    var columns = _getMutationTableColumns(data);
 
+    // set hidden column indices
+    var hiddenCols = [];
+    var count = 0;
+
+    for (var key in data.header)
+    {
+        count++;
+    }
+
+    // -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
+    count += data.header.specialGeneHeaders.length - 2;
+
+    // hide special gene columns and less important columns by default
+    for (var col=9; col<count; col++)
+    {
+        // do not hide frequency columns
+        if (!(col == 14 || col == 17))
+        {
+            hiddenCols.push(col);
+        }
+    }
+
     // format the table with the dataTable plugin
     var oTable = $("#mutation_details #" + tableId).dataTable({
         "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
@@ -258,25 +280,15 @@ function drawMutationTable(data)
             {"sType": 'predicted-impact-col',
                 "aTargets": [ 4 ]},
             {"asSorting": ["desc", "asc"],
-                "aTargets": [3,4,5]}
+                "aTargets": [3,4,5]},
+            {"bVisible": false,
+                "aTargets": hiddenCols}
         ],
         "fnDrawCallback": function(oSettings) {
             // add tooltips to the table
             addMutationTableTooltips(tableId);
         }
     });
-
-    var cols = oTable.fnSettings().aoColumns.length;
-
-    // hide special gene columns and less important columns by default
-    for (var col=9; col<cols; col++)
-    {
-        oTable.fnSetColumnVis( col, false );
-    }
-
-	// show frequency columns by default
-	oTable.fnSetColumnVis(14, true);
-	oTable.fnSetColumnVis(17, true);
 
     oTable.css("width", "100%");
 }
@@ -588,7 +600,7 @@ function _getMutationTableRows(data)
         return html;
     };
 
-    var getAlleleFreqHtml = function(frequency, alt, ref) {
+    var getAlleleFreqHtml = function(frequency, alt, ref, tipClass) {
 		var html;
         var tip = "<b>" + alt + "</b> variant reads out of <b>" + (alt + ref) + "</b> total";
 
@@ -598,7 +610,7 @@ function _getMutationTableRows(data)
         }
         else
         {
-            html = '<label class="mutation_table_allele_freq simple-tip" alt="' + tip + '">' +
+            html = '<label class="mutation_table_allele_freq ' + tipClass + '" alt="' + tip + '">' +
                    frequency.toFixed(2) + '</label>';
         }
 
@@ -621,6 +633,27 @@ function _getMutationTableRows(data)
         return html;
     };
 
+    var getProteinChangeHtml = function(mutation) {
+        var style = "protein_change";
+        var tip = "";
+
+        // TODO disabled temporarily, enable when isoform support completely ready
+//        if (!mutation.canonicalTranscript)
+//        {
+//            style = "best_effect_transcript " + style;
+//            // TODO find a better way to display isoform information
+//            tip = "Specified protein change is for the best effect transcript " +
+//                "instead of the canonical transcript.<br>" +
+//                "<br>RefSeq mRNA id: " + "<b>" + mutation.refseqMrnaId + "</b>" +
+//                "<br>Codon change: " + "<b>" + mutation.codonChange + "</b>" +
+//                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
+//        }
+
+        return '<span class="' + style + '" alt="' + tip + '">' +
+            mutation.proteinChange +
+            '</span>';
+    };
+
     // generate rows as HTML
 
     var row;
@@ -632,9 +665,7 @@ function _getMutationTableRows(data)
 
         row.push('<a href="' + data.mutations[i].linkToPatientView + '">' +
                  '<b>' + data.mutations[i].caseId + "</b></a>");
-        row.push('<span class="protein_change">' +
-                 data.mutations[i].proteinChange +
-                '</span>');
+        row.push(getProteinChangeHtml(data.mutations[i]));
         row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
         row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
         row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),
@@ -651,12 +682,14 @@ function _getMutationTableRows(data)
         row.push(data.mutations[i].variantAllele);
         row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,
                 data.mutations[i].tumorAltCount,
-                data.mutations[i].tumorRefCount));
+                data.mutations[i].tumorRefCount,
+                "simple-tip"));
         row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
         row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
         row.push(getAlleleFreqHtml(data.mutations[i].normalFreq,
                 data.mutations[i].normalAltCount,
-                data.mutations[i].normalRefCount));
+                data.mutations[i].normalRefCount,
+                "simple-tip-left"));
         row.push(getAlleleCountHtml(data.mutations[i].normalAltCount));
         row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
 
@@ -708,12 +741,21 @@ function addMutationTableTooltips(tableId)
     var qTipOptions = {content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top center',at:'bottom center'}};
+        position: {my:'top left', at:'bottom right'}};
 
-    $('#' + tableId + ' th').qtip(qTipOptions);
+    var qTipOptionsHeader = new Object();
+    var qTipOptionsLeft = new Object();
+    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+    qTipOptionsHeader.position = {my:'top center', at:'bottom center'};
+    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+
+    $('#' + tableId + ' th').qtip(qTipOptionsHeader);
     //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
     $('#' + tableId + ' .simple-tip').qtip(qTipOptions);
+    $('#' + tableId + ' .best_effect_transcript').qtip(qTipOptions);
+    $('#' + tableId + ' .simple-tip-left').qtip(qTipOptionsLeft);
 
     // copy default qTip options and modify "content" to customize for cosmic
     var qTipOptsCosmic = new Object();

@@ -139,6 +139,16 @@ public class OncotateTool
 		finally {
 			Date end = new Date();
 			double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
+
+			System.out.println("Total number of records processed: " +
+			                   tool.getNumRecordsProcessed());
+
+			if (tool.getBuildNumErrors() > 0)
+			{
+				System.out.println("Number of records skipped due to incompatible build no: " +
+				                   tool.getBuildNumErrors());
+			}
+
 			System.out.println("Total time: " + timeElapsed + " seconds.");
 		}
 

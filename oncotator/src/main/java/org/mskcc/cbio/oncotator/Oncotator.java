@@ -48,6 +48,7 @@ public class Oncotator
 	protected OncotatorService oncotatorService;
 
 	protected int buildNumErrors = 0;
+	protected int numRecordsProcessed = 0;
 
 	// config params (TODO create a config class instead?)
 	protected boolean useCache;
@@ -166,8 +167,8 @@ public class Oncotator
 			dataLine = bufReader.readLine();
 		}
 
-		System.out.println("Total number of records processed: " +
-		                   numRecordsProcessed);
+		// update total number of records processed with the final result
+		this.numRecordsProcessed = numRecordsProcessed;
 
 		reader.close();
 		writer.close();
@@ -191,16 +192,12 @@ public class Oncotator
 		    !ncbiBuild.equalsIgnoreCase("hg19") &&
 		    !ncbiBuild.equalsIgnoreCase("GRCh37"))
 		{
-			outputBuildNumErrorMessage(ncbiBuild);
-			buildNumErrors++;
-
-			if (buildNumErrors > 10) {
-				abortDueToBuildNumErrors();
-			}
+			this.outputBuildNumErrorMessage(ncbiBuild);
+			this.buildNumErrors++;
 		}
 		else
 		{
-			oncotatorRecord = oncotateRecord(mafRecord);
+			oncotatorRecord = this.oncotateRecord(mafRecord);
 		}
 
 		return oncotatorRecord;
@@ -285,5 +282,15 @@ public class Oncotator
 	public void setAddMissingCols(boolean addMissingCols)
 	{
 		this.addMissingCols = addMissingCols;
+	}
+
+	public int getBuildNumErrors()
+	{
+		return buildNumErrors;
+	}
+
+	public int getNumRecordsProcessed()
+	{
+		return numRecordsProcessed;
 	}
 }

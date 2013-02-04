@@ -1,4 +1,3 @@
-
 package org.mskcc.cbio.portal.servlet;
 
 import java.io.BufferedReader;
@@ -54,6 +53,11 @@ public class PatientView extends HttpServlet {
     public static final String CLINICAL_DATA = "clinical_data";
     public static final String TISSUE_IMAGES = "tissue_images";
     public static final String PATH_REPORT_URL = "path_report_url";
+    
+    public static final String DRUG_TYPE = "drug_type";
+    public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
+    public static final String DRUG_TYPE_FDA_ONLY = "fda_approved";
+    
     private ServletXssUtil servletXssUtil;
     
     private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
@@ -72,9 +76,9 @@ public class PatientView extends HttpServlet {
         super.init();
         try {
             servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
+                        ApplicationContext context = 
+                                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+                        accessControl = (AccessControl)context.getBean("accessControl");
         } catch (PolicyException e) {
             throw new ServletException (e);
         }
@@ -326,7 +330,7 @@ public class PatientView extends HttpServlet {
         Double osm = clinicalData==null?null:clinicalData.getOverallSurvivalMonths();
         Double dfsm = clinicalData==null?null:clinicalData.getDiseaseFreeSurvivalMonths();
         StringBuilder patientStatus = new StringBuilder();
-        if (oss!=null) {
+        if (oss!=null && !oss.equalsIgnoreCase("unknown")) {
             patientStatus.append("<font color='")
                     .append(oss.equalsIgnoreCase("Living")||oss.equalsIgnoreCase("Alive") ? "green":"red")
                     .append("'>")
@@ -336,7 +340,7 @@ public class PatientView extends HttpServlet {
                 patientStatus.append(" (").append(osm.intValue()).append(" months)");
             }
         }
-        if (dfss!=null) {
+        if (dfss!=null && !dfss.equalsIgnoreCase("unknown")) {
             if (patientStatus.length()!=0) {
                 patientStatus.append(", ");
             }

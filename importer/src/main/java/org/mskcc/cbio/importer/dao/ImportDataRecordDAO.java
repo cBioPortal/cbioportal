@@ -69,9 +69,10 @@ public interface ImportDataRecordDAO {
 	 * @param tumorType String
 	 * @param dataType String
 	 * @param dataFilename String
+	 * @param runDate String
 	 * @return ImportDataRecord
      */
-    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilename(String tumorType, String datatype, String dataFilename);
+    ImportDataRecord getImportDataRecordByTumorAndDatatypeAndDataFilenameAndRunDate(String tumorType, String datatype, String dataFilename, String runDate);
 
 	/**
 	 * Function to delete records with the given dataSource.

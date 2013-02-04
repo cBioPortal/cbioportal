@@ -50,8 +50,8 @@ import org.hibernate.annotations.NaturalId;
                             query="from ImportDataRecord as importdatarecord order by tumortype"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate",
 							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and center = :center and rundate = :rundate order by datatype"),
-                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilename",
-							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename order by datafilename"),
+                @NamedQuery(name="org.mskcc.cbio.import.model.importDataRecordByTumorAndDatatypeAndDataFilenameAndRunDate",
+							query="from ImportDataRecord as importdatarecord where tumorType = :tumortype and datatype = :datatype and datafilename = :datafilename and rundate = :rundate order by datafilename"),
                 @NamedQuery(name="org.mskcc.cbio.import.model.deleteByDataSource",
                             query="delete from ImportDataRecord where dataSource = :datasource")
 
@@ -67,12 +67,13 @@ public class ImportDataRecord {
 	@Column(nullable=false)
 	private String center;
 	@NaturalId
-	@Column(nullable=false)
+	@Column(nullable=false, length=25)
 	private String tumorType;
 	@NaturalId
-	@Column(nullable=false)
+	@Column(nullable=false, length=100)
 	private String datatype;
-	@Column(nullable=false)
+	@NaturalId
+	@Column(nullable=false, length=10)
 	private String runDate;
 	@Column(nullable=false)
 	private String canonicalPath;

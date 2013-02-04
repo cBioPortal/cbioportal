@@ -1287,6 +1287,10 @@ cc-ie-message {
     text-align: center;
 }
 
+.no-wrap-td {
+    white-space: nowrap;
+}
+
 .ui-tooltip-lightyellow {
     background-color: lightyellow;
 }

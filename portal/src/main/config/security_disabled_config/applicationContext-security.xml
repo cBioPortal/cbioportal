@@ -11,7 +11,7 @@
                         http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd">
 
 <!--
-	Should come from another file with value conditional based on build.properties
+	Should come from another file with value conditional based on portal.properties
 -->
   <global-method-security pre-post-annotations="disabled"/>
 

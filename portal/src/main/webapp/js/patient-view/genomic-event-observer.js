@@ -120,17 +120,26 @@ GenomicEventContainer.prototype = {
         }
         return true;
     },
-    getDrugIDs: function() {
-        var drugs = [];
+    getDrugs: function() {
+        var drugs = {
+            ids: [],
+            genes: []
+        };
+
         for (var i=0; i<this.numEvents; i++) {
-            var tmpDrugs = this.data['drug'][i];
-            if (tmpDrugs != null) {
-                for(var j=0; j < tmpDrugs.length; j++) {
-                    drugs.push(tmpDrugs[j]);
+            var drugSet = this.data['drug'][i];
+            var gene = this.data['gene'][i];
+
+            if (drugSet != null) {
+                for(var j=0; j < drugSet.length; j++) {
+                    var aDrug = drugSet[j];
+                    drugs.ids.push(aDrug);
+                    drugs.genes.push(gene);
                 }
             }
         }
 
         return drugs;
     }
+
 }

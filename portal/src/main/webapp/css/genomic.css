@@ -47,6 +47,11 @@
 	font-style: italic;
 }
 
+#mutation_details .best_effect_transcript
+{
+	color: red;
+}
+
 #mutation_details .mutation_details_table
 {
 	font-size: 90%;

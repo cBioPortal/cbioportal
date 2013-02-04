@@ -2,17 +2,17 @@ The cBio SU2C Cancer Genomics Portal is developed and maintained by the [Computa
 
 ## The team
 
- * Ethan Cerami, MSKCC
- * Nikolaus Schultz, MSKCC
- * Benjamin Gross, MSKCC
- * Arthur Goldberg, MSKCC
- * Caitlin Byrne, MSKCC
- * Anders Jacobsen, MSKCC
  * Jianjiong Gao, MSKCC
+ * Benjamin Gross, MSKCC
+ * B. Arman Aksoy, MSKCC
+ * Gideon Dresdner, MSKCC
+ * Anders Jacobsen, MSKCC
  * Erik Larsson, MSKCC
  * Selcuk Onur Sumer, Bilkent University
  * Sinan Sonlu, Bilkent University
  * Ugur Dogrusoz, Bilkent University
+ * Ethan Cerami, MSKCC
+ * Nikolaus Schultz, MSKCC
  * Chris Sander, MSKCC
 
 Protein data provided by:

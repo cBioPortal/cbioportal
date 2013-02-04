@@ -93,7 +93,7 @@
         </init-param>
          <init-param>
             <param-name>db_name</param-name>
-            <param-value>${db.name}</param-value>
+            <param-value>${db.portal_db_name}</param-value>
         </init-param>
         <init-param>
             <param-name>db_user</param-name>

@@ -336,7 +336,8 @@ CREATE TABLE `mut_sig` (
   `NumBasesCovered` int(11) NOT NULL,
   `NumMutations` int(11) NOT NULL,
   `P_VALUE` float NOT NULL,
-  `Q_VALUE` float NOT NULL
+  `Q_VALUE` float NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`, `ENTREZ_GENE_ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS protein_array_info;
@@ -485,6 +486,10 @@ CREATE TABLE `case_mutation_event` (
   `CASE_ID` varchar(255) NOT NULL,
   `MUTATION_EVENT_ID` int(255) NOT NULL,
   `VALIDATION_STATUS` varchar(25) NOT NULL,
+  `TUMOR_ALT_COUNT` int(11),
+  `TUMOR_REF_COUNT` int(11),
+  `NORMAL_ALT_COUNT` int(11),
+  `NORMAL_REF_COUNT` int(11),
   PRIMARY KEY  (`GENETIC_PROFILE_ID`, `MUTATION_EVENT_ID`, `CASE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data for patient view';
 

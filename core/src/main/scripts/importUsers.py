@@ -2,7 +2,7 @@
 
 # ------------------------------------------------------------------------------
 # Script which adds new users fram google spreadsheet into the the cgds
-# user table.  The following properties must be specified in build.properties:
+# user table.  The following properties must be specified in portal.properties:
 #
 # db.name
 # db.user
@@ -47,9 +47,9 @@ from email import Encoders
 ERROR_FILE = sys.stderr
 OUTPUT_FILE = sys.stdout
 
-# fields in build.properties
+# fields in portal.properties
 CGDS_DATABASE_HOST = 'db.host'
-CGDS_DATABASE_NAME = 'db.name'
+CGDS_DATABASE_NAME = 'db.portal_db_name'
 CGDS_DATABASE_USER = 'db.user'
 CGDS_DATABASE_PW = 'db.password'
 GOOGLE_ID = 'google.id'
@@ -61,6 +61,7 @@ CGDS_USERS_WORKSHEET = 'users.worksheet'
 GDAC_DATABASE_NAME = 'cgds_gdac'
 PRIVATE_DATABASE_NAME = 'cgds_private'
 SU2C_DATABASE_NAME = 'cgds_su2c'
+PROSTATE_DATABASE_NAME = 'cgds_prostate'
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -81,6 +82,7 @@ MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
 MESSAGE_BCC = ["cerami@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
 MESSAGE_SUBJECT = { GDAC_DATABASE_NAME : "cBio GDAC Cancer Genomics Portal Access",
                     PRIVATE_DATABASE_NAME : "cBio Private Cancer Genomics Portal Access",
+                    PROSTATE_DATABASE_NAME : "cBio Prostate Cancer Genomics Portal Access",
                     SU2C_DATABASE_NAME : "cBio SU2C Cancer Genomics Portal Access" }
 GDAC_MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
 
@@ -97,15 +99,21 @@ SU2C_MESSAGE_BODY = """Thank you for your interest in the cBio SU2C Cancer Genom
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
+PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBio Prostate Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/prostate-portal/. Please let us know if you have any problems logging in.
+
+Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
+"""
+
 MESSAGE_BODY = { GDAC_DATABASE_NAME : GDAC_MESSAGE_BODY,
                  PRIVATE_DATABASE_NAME : PRIVATE_MESSAGE_BODY,
+                 PROSTATE_DATABASE_NAME : PROSTATE_MESSAGE_BODY,
                  SU2C_DATABASE_NAME : SU2C_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------
 # class definitions
 
-class BuildProperties(object):
+class PortalProperties(object):
     def __init__(self,
                  cgds_database_host,
                  cgds_database_name, cgds_database_user, cgds_database_pw,
@@ -261,14 +269,14 @@ def get_new_user_map(worksheet_feed, current_user_map):
     
 # ------------------------------------------------------------------------------
 # get db connection
-def get_db_connection(build_properties):
+def get_db_connection(portal_properties):
 
     # try and create a connection to the db
     try:
-        connection = MySQLdb.connect(host=build_properties.cgds_database_host, port=3306,
-                                     user=build_properties.cgds_database_user,
-                                     passwd=build_properties.cgds_database_pw,
-                                     db=build_properties.cgds_database_name)
+        connection = MySQLdb.connect(host=portal_properties.cgds_database_host, port=3306,
+                                     user=portal_properties.cgds_database_user,
+                                     passwd=portal_properties.cgds_database_pw,
+                                     db=portal_properties.cgds_database_name)
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return None
@@ -277,13 +285,13 @@ def get_db_connection(build_properties):
 
 
 # ------------------------------------------------------------------------------
-# parse build.properties
+# parse portal.properties
 
-def get_build_properties(build_properties_filename):
+def get_portal_properties(portal_properties_filename):
 
 	properties = {}
-	build_properties_file = open(build_properties_filename, 'r')
-	for line in build_properties_file:
+	portal_properties_file = open(portal_properties_filename, 'r')
+	for line in portal_properties_file:
 		line = line.strip()
 		# skip line if its blank or a comment
 		if len(line) == 0 or line.startswith('#'):
@@ -297,7 +305,7 @@ def get_build_properties(build_properties_filename):
 			print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
 			continue
 		properties[property[0]] = property[1].strip()
-	build_properties_file.close()
+	portal_properties_file.close()
 
     # error check
 	if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
@@ -314,19 +322,20 @@ def get_build_properties(build_properties_filename):
 	# extra verification for database names
 	if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
 		properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
+        properties[CGDS_DATABASE_NAME] != PROSTATE_DATABASE_NAME and
 		properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
 		print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
 		return None
     
-    # return an instance of BuildProperties
-	return BuildProperties(properties[CGDS_DATABASE_HOST],
-						   properties[CGDS_DATABASE_NAME],
-						   properties[CGDS_DATABASE_USER],
-						   properties[CGDS_DATABASE_PW],
-						   properties[GOOGLE_ID],
-						   properties[GOOGLE_PW],
-						   properties[CGDS_USERS_SPREADSHEET],
-						   properties[CGDS_USERS_WORKSHEET])
+    # return an instance of PortalProperties
+	return PortalProperties(properties[CGDS_DATABASE_HOST],
+                            properties[CGDS_DATABASE_NAME],
+                            properties[CGDS_DATABASE_USER],
+                            properties[CGDS_DATABASE_PW],
+                            properties[GOOGLE_ID],
+                            properties[GOOGLE_PW],
+                            properties[CGDS_USERS_SPREADSHEET],
+                            properties[CGDS_USERS_WORKSHEET])
 
 # ------------------------------------------------------------------------------
 # adds new users from the google spreadsheet into the cgds portal database
@@ -397,16 +406,16 @@ def main():
         print >> ERROR_FILE, 'properties file cannot be found: ' + properties_filename
         sys.exit(2)
 
-    # parse/get relevant build properties
-    print >> OUTPUT_FILE, 'Reading build properties file: ' + properties_filename
-    build_properties = get_build_properties(properties_filename)
-    if not build_properties:
+    # parse/get relevant portal properties
+    print >> OUTPUT_FILE, 'Reading portal properties file: ' + properties_filename
+    portal_properties = get_portal_properties(properties_filename)
+    if not portal_properties:
         print >> OUTPUT_FILE, 'Error reading %s, exiting' % properties_filename
         return
 
     # get db connection & create cursor
-    print >> OUTPUT_FILE, 'Connecting to database: ' + build_properties.cgds_database_name
-    connection = get_db_connection(build_properties)
+    print >> OUTPUT_FILE, 'Connecting to database: ' + portal_properties.cgds_database_name
+    connection = get_db_connection(portal_properties)
     if connection is not None:
         cursor = connection.cursor()
     else:
@@ -414,9 +423,9 @@ def main():
         return
 
     # login to google and get spreadsheet feed
-    google_login(build_properties.google_id, build_properties.google_pw)
-    worksheet_feed = get_worksheet_feed(build_properties.google_spreadsheet,
-                                        build_properties.google_worksheet)
+    google_login(portal_properties.google_id, portal_properties.google_pw)
+    worksheet_feed = get_worksheet_feed(portal_properties.google_spreadsheet,
+                                        portal_properties.google_worksheet)
 
     # the 'guts' of the script
     new_user_map = manage_users(cursor, worksheet_feed)
@@ -431,8 +440,8 @@ def main():
                 print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
                                        (new_user.name, new_user.inst_email))
                 send_mail([new_user.inst_email],
-                          MESSAGE_SUBJECT[build_properties.cgds_database_name],
-                          MESSAGE_BODY[build_properties.cgds_database_name])
+                          MESSAGE_SUBJECT[portal_properties.cgds_database_name],
+                          MESSAGE_BODY[portal_properties.cgds_database_name])
     connection.close()
 
 

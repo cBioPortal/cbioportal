@@ -37,7 +37,7 @@ public class Config {
 
     private Config() {
         try {
-			String props = "build.properties";
+			String props = "portal.properties";
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
             properties = new Properties();
             if (in != null) {

@@ -126,20 +126,20 @@ public class DataSetsUtil {
 			// get genetic profiles
 			int sequenced = getCount(cancerStudy, "_sequenced");
 			int aCGH = getCount(cancerStudy, "_acgh");
-			int RNASEQ = getCount(cancerStudy, "_rna_seq_mrna");
+			int RNASEQ = getCount(cancerStudy, "_rna_seq_v2_mrna");
 			int tumorMRNA = getCount(cancerStudy, "_mrna");
 			int normal = getCount(cancerStudy, "_normal_mrna");
 			int tumorMIRNA = getCount(cancerStudy, "_microrna");
-			int methylation = getCount(cancerStudy, "_methylation");
+			int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
 			int rppa = getCount(cancerStudy, "_rppa");
-			int complete = getComplete(cancerStudy);
-			int all = getAll(cancerStudy);
+			int complete = getCount(cancerStudy, "_complete");
+			int all = getCount(cancerStudy, "_all");
 			totalNumberOfSamples += all;
 			// add to return list
 			toReturn.add(new CancerStudyStats(cancerStudy.getCancerStudyStableId(), 
 											  cancerStudy.getName(), citation, all, sequenced,
 											  aCGH, RNASEQ, tumorMRNA, normal, tumorMIRNA,
-											  methylation, rppa, complete));
+											  methylationHM27, rppa, complete));
 		}
 
 		// outta here
@@ -162,67 +162,5 @@ public class DataSetsUtil {
 		
 		// outta here
 		return (desiredCaseList != null) ? desiredCaseList.getCaseList().size() : 0;
-	}
-
-	private int getAll(CancerStudy cancerStudy) throws DaoException {
-
-		String caseListID;
-		CaseList desiredCaseList;
-		HashSet<String> union = new HashSet<String>();
-		String[] dataTypes = {"_sequenced", "_acgh", "_rna_seq_mrna", "_mrna", "_methylation", "_rppa"};
-
-		for (String dataType : dataTypes) {
-			caseListID = cancerStudy.getCancerStudyStableId() + dataType;
-			desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);
-			if (desiredCaseList != null) {
-				union.addAll(desiredCaseList.getCaseList());
-			}
-		}
-
-		// outta here
-		return union.size();
-	}
-
-	private int getComplete(CancerStudy cancerStudy) throws DaoException {
-
-		// used below
-		String caseListID;
-		CaseList desiredCaseList;
-		HashSet<String> intersection = null;
-		
-		// tumorMRNA - use rna seq first, if not exist, use mrna
-		String rnaDataType = null;
-		String[] rnaDataTypes = {"_rna_seq_mrna", "_mrna"};
-		for (String dataType : rnaDataTypes) {
-			caseListID = cancerStudy.getCancerStudyStableId() + dataType;
-			desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);
-			if (desiredCaseList != null) {
-				rnaDataType = dataType;
-				break;
-			}
-		}
-		// if either expression file is missing, no complete study, bail...
-		if (rnaDataType == null) {
-			return 0;
-		}
-
-		// do be complete, we require acgh, sequenced, and expression data for the sample
-		String[] dataTypes = {"_acgh", "_sequenced", rnaDataType};
-		for (String dataType : dataTypes) {
-			caseListID = cancerStudy.getCancerStudyStableId() + dataType;
-			desiredCaseList = daoCaseList.getCaseListByStableId(caseListID);
-			if (desiredCaseList == null) {
-				return 0;
-			}
-			else if (intersection == null) {
-				intersection = new HashSet<String>(desiredCaseList.getCaseList());
-			}
-			else {
-				intersection.retainAll(desiredCaseList.getCaseList());
-			}
-		}
-
-		// outta here
-		return (intersection == null) ? 0 : intersection.size();
 	}
 }

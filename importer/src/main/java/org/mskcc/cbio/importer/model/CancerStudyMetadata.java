@@ -123,7 +123,9 @@ public class CancerStudyMetadata {
 	}
 
 	public String toString() {
+		String centerLabDelimiter = (lab.length() > 0) ? CANCER_STUDY_IDENTIFIER_DELIMITER : "";
 		return (tumorType + CANCER_STUDY_IDENTIFIER_DELIMITER +
-				center + lab.replaceAll(CANCER_STUDY_DELIMITER, CANCER_STUDY_IDENTIFIER_DELIMITER));
+				center + centerLabDelimiter +
+				lab.replaceAll(CANCER_STUDY_DELIMITER, CANCER_STUDY_IDENTIFIER_DELIMITER));
 	}
 }

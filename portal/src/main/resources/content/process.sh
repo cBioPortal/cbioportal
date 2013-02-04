@@ -19,6 +19,11 @@ $MARKDOWN -x toc data_sets_su2c_right_column.markdown > ../../webapp/content/dat
 $MARKDOWN -x toc examples_su2c.markdown > ../../webapp/content/examples_su2c.html
 $MARKDOWN -x toc about_us_su2c.markdown > ../../webapp/content/about_us_su2c.html
 
+$MARKDOWN -x toc news_prostate.markdown > ../../webapp/content/news_prostate.html
+$MARKDOWN -x toc faqs_prostate.markdown > ../../webapp/content/faq_prostate.html
+$MARKDOWN -x toc examples_prostate.markdown > ../../webapp/content/examples_prostate.html
+$MARKDOWN -x toc about_us_prostate.markdown > ../../webapp/content/about_us_prostate.html
+
 $MARKDOWN -x toc data_sets_public_right_column.markdown > ../../webapp/content/data_sets_public_right_column.html
 
 cp data_sets_tcga.html ../../webapp/content/

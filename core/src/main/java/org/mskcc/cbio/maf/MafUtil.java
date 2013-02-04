@@ -144,8 +144,16 @@ public class MafUtil
     private int tumorRefCountIndex = -1; // TUMOR_REF_COUNT
     private int normalAltCountIndex = -1; // NORMAL_ALT_COUNT
     private int normalRefCountIndex = -1; // NORMAL_REF_COUNT
+    private int tTotCovIndex  = -1;
+    private int tVarCovIndex  = -1;
+    private int nTotCovIndex  = -1;
+    private int nVarCovIndex  = -1;
+    private int tumorDepthIndex = -1;
+    private int tumorVafIndex = -1;
+    private int normalDepthIndex = -1;
+    private int normalVafIndex = -1;
 
-	// default Oncotator column indices
+    // default Oncotator column indices
 	private int oncoCosmicOverlappingIndex = -1;
 	private int oncoDbSnpRsIndex = -1;
 	private int oncoDbSnpValStatusIndex = -1;
@@ -187,7 +195,7 @@ public class MafUtil
 
 	/**
      * Constructor.
-     * 
+     *
      * @param headerLine    Header Line.
      */
     public MafUtil(String headerLine)
@@ -197,10 +205,10 @@ public class MafUtil
 
         // split header names
     	String parts[] = headerLine.split("\t");
-        
+
     	// update header count
         this.headerCount = parts.length;
-        
+
         // find required header indices
         for (int i=0; i<parts.length; i++)
         {
@@ -211,9 +219,9 @@ public class MafUtil
 
 	        // determine standard & default column indices
             if (header.equalsIgnoreCase(CHROMOSOME)) {
-                chrIndex = i;        
+                chrIndex = i;
             } else if(header.equalsIgnoreCase(NCBI_BUILD)) {
-                ncbiIndex = i;   
+                ncbiIndex = i;
             } else if(header.equalsIgnoreCase(START_POSITION)) {
                 startPositionIndex = i;
             } else if(header.equalsIgnoreCase(END_POSITION)) {
@@ -332,22 +340,38 @@ public class MafUtil
 	            maProteinChangeIndex = i;
             }
             // TODO allele freq columns may have different headers
-	        else if(header.equalsIgnoreCase("t_ref_count")) {
+	        else if( header.equalsIgnoreCase("t_ref_count")||header.equalsIgnoreCase("i_t_ref_count")||header.equalsIgnoreCase("AD_Ref")) {
 	        	tumorRefCountIndex = i;
-	        } else if(header.equalsIgnoreCase("t_alt_count")) {
-	        	tumorAltCountIndex = i;
-	        } else if(header.equalsIgnoreCase("n_ref_count")) {
-	        	normalRefCountIndex= i;
-	        } else if(header.equalsIgnoreCase("n_alt_count")) {
-	        	normalAltCountIndex = i;
-	        }
+            } else if(header.equalsIgnoreCase("t_alt_count")||header.equalsIgnoreCase("i_t_alt_count")||header.equalsIgnoreCase("AD_Alt")) {
+                tumorAltCountIndex = i;
+            } else if(header.equalsIgnoreCase("n_ref_count")||header.equalsIgnoreCase("Norm_AD_Ref")) {
+                normalRefCountIndex= i;
+            } else if(header.equalsIgnoreCase("n_alt_count")||header.equalsIgnoreCase("Norm_AD_Alt")) {
+                normalAltCountIndex = i;
+            } else if(header.equalsIgnoreCase("TTotCov")) {
+                tTotCovIndex = i;
+            } else if(header.equalsIgnoreCase("TVarCov")) {
+                tVarCovIndex = i;
+            } else if(header.equalsIgnoreCase("NTotCov")) {
+                nTotCovIndex = i;
+            } else if(header.equalsIgnoreCase("NVarCov")) {
+                nVarCovIndex = i;
+            } else if(header.equalsIgnoreCase("tumor_depth")) {
+                tumorDepthIndex = i;
+            } else if(header.equalsIgnoreCase("tumor_vaf")) {
+                tumorVafIndex = i;
+            } else if(header.equalsIgnoreCase("normal_depth")) {
+                normalDepthIndex = i;
+            } else if(header.equalsIgnoreCase("normal_vaf")) {
+                normalVafIndex = i;
+            }
         }
     }
-    
+
     public MafRecord parseRecord(String line)
     {
         String parts[] = line.split("\t", -1);
-        
+
         MafRecord record = new MafRecord();
 
 	    // standard MAF cols
@@ -389,8 +413,16 @@ public class MafUtil
         record.setTumorRefCount(getPartInt(tumorRefCountIndex, parts));
         record.setNormalAltCount(getPartInt(normalAltCountIndex, parts));
         record.setNormalRefCount(getPartInt(normalRefCountIndex, parts));
+        record.setTTotCov(getPartInt(tTotCovIndex, parts));
+        record.setTVarCov(getPartInt(tVarCovIndex, parts));
+        record.setNTotCov(getPartInt(nTotCovIndex, parts));
+        record.setNVarCov(getPartInt(nVarCovIndex, parts));
+        record.setTumorDepth(getPartInt(tumorDepthIndex, parts));
+        record.setTumorVaf(getPartPercentage(tumorVafIndex, parts));
+        record.setNormalDepth(getPartInt(normalDepthIndex, parts));
+        record.setNormalVaf(getPartPercentage(normalVafIndex, parts));
 
-	    // Mutation Assessor columns
+        // Mutation Assessor columns
 	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
 	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
 	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
@@ -426,7 +458,7 @@ public class MafUtil
 
         return record;
     }
-    
+
     private String getPartString(int index, String[] parts)
     {
         try
@@ -456,16 +488,34 @@ public class MafUtil
             return MafRecord.NA_LONG;
         }
     }
-    
+
     private Integer getPartInt(int index, String[] parts)
     {
         try {
             String part = parts[index];
-            return Integer.parseInt(part);
+            return (int)(Float.parseFloat(part));
         } catch (ArrayIndexOutOfBoundsException e) {
             return MafRecord.NA_INT;
         } catch (NumberFormatException e) {
             return MafRecord.NA_INT;
+        }
+    }
+
+    private Float getPartPercentage(int index, String[] parts)
+    {
+        try {
+            float result = MafRecord.NA_FLOAT;
+            String part = parts[index];
+            if (part.contains("%")) {
+                result = Float.parseFloat(part.replace("%", "")) / Float.parseFloat("100");
+            } else {
+                result = Float.parseFloat(part);
+            }
+            return result;
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return MafRecord.NA_FLOAT;
+        } catch (NumberFormatException e) {
+            return MafRecord.NA_FLOAT;
         }
     }
 
@@ -649,6 +699,14 @@ public class MafUtil
 	public int getNormalRefCountIndex() {
 		return normalRefCountIndex;
 	}
+
+    public int getTumorTotCovIndex() {
+        return tTotCovIndex;
+    }
+
+    public int getTumorVarCovIndex() {
+        return tVarCovIndex;
+    }
 
 	public int getOncoProteinChangeIndex() {
 		return oncoProteinChangeIndex;

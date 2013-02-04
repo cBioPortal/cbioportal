@@ -50,6 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Class which implements the Converter interface.
@@ -141,16 +142,24 @@ public class ZScoresConverterImpl implements Converter {
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("createStagingFile(), dataMatrices.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
 			}
 			return;
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies
 		DatatypeMetadata[] dependenciesMetadata = new DatatypeMetadata[2];
-		dependenciesMetadata[0] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[0]).iterator().next();
-		dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
+		try {
+			dependenciesMetadata[0] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[0]).iterator().next();
+			dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
+		}
+		catch (NoSuchElementException e) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), not all dependencies found: " + Arrays.asList(dependencies) + ", aborting...");
+			}
+			return;
+		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");

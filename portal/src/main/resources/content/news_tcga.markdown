@@ -1,3 +1,11 @@
+# January 21, 2012
+
+* All data updated to the __October Firehose run__ (October 24, 2012), plus updated mutation data for many tumor types.
+* __Sequencing read counts and frequencies__ are now shown in the Mutation Details table when available.
+* __Support for gene fusions__ in lung adenocarcinoma (RET/ROS1/ALK fusions are shown as mutations, other tumor types coming soon).
+* Improved visualization of drugs and clinical trials for individual patients
+* Improved OncoPrints, resulting in performance improvements
+
 # November 21, 2012
 
 * Major new feature: Users can now visualize __genomic alterations and clinical data of individual tumors__, including:

@@ -36,11 +36,15 @@ public final class DaoMutationEvent {
             
             pstmt = con.prepareStatement
 		("INSERT INTO case_mutation_event (`MUTATION_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`, "
-                    + "`VALIDATION_STATUS`) VALUES(?,?,?,?)");
+                    + "`VALIDATION_STATUS`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`, `NORMAL_REF_COUNT`) VALUES(?,?,?,?,?,?,?,?)");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, mutation.getCaseId());
             pstmt.setInt(3, mutation.getGeneticProfileId());
             pstmt.setString(4, mutation.getValidationStatus());
+            pstmt.setInt(5, mutation.getTumorAltCount());
+            pstmt.setInt(6, mutation.getTumorRefCount());
+            pstmt.setInt(7, mutation.getNormalAltCount());
+            pstmt.setInt(8, mutation.getNormalRefCount());
             return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -189,7 +193,8 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
-                    + " VALIDATION_STATUS, ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
+                    + " VALIDATION_STATUS, TUMOR_ALT_COUNT, TUMOR_REF_COUNT, NORMAL_ALT_COUNT, NORMAL_REF_COUNT,"
+                    + " ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
                     + " CHR, START_POSITION, END_POSITION, FUNCTIONAL_IMPACT_SCORE, LINK_XVAR, LINK_PDB,"
                     + " LINK_MSA, KEYWORD"
                     + " FROM case_mutation_event, mutation_event"
@@ -227,6 +232,10 @@ public final class DaoMutationEvent {
             event.setLinkPdb(rs.getString("LINK_PDB"));
             event.setLinkMsa(rs.getString("LINK_MSA"));
             event.setKeyword(rs.getString("KEYWORD"));
+            event.setTumorAltCount(rs.getInt("TUMOR_ALT_COUNT"));
+            event.setTumorRefCount(rs.getInt("TUMOR_REF_COUNT"));
+            event.setNormalAltCount(rs.getInt("NORMAL_ALT_COUNT"));
+            event.setNormalRefCount(rs.getInt("NORMAL_REF_COUNT"));
             events.add(event);
         }
         return events;
@@ -377,7 +386,7 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection();
-            String sql = "SELECT `CASE_ID`, `CANCER_STUDY_ID`, me1.`MUTATION_EVENT_ID`"
+            String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me1.`MUTATION_EVENT_ID`"
                     + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
                     + " AND me1.`KEYWORD`=me2.`KEYWORD`"
@@ -388,7 +397,8 @@ public final class DaoMutationEvent {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
-                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
                 Case _case = new Case(caseId, cancerStudyId);
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
                 Set<Long> events = map.get(_case);
@@ -397,6 +407,51 @@ public final class DaoMutationEvent {
                     map.put(_case, events);
                 }
                 events.add(eventId);
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    
+    /**
+     * @param concatEventIds event ids concatenated by comma (,)
+     * @return Map &lt; case id, list of event ids &gt;
+     * @throws DaoException 
+     */
+    public static Map<Case, Set<Long>> getSimilarCasesWithMutatedGenes(
+            Collection<Long> entrezGeneIds) throws DaoException {
+        if (entrezGeneIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me.`ENTREZ_GENE_ID`"
+                    + " FROM case_mutation_event cme, mutation_event me"
+                    + " WHERE me.`ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")"
+                    + " AND cme.`MUTATION_EVENT_ID`=me.`MUTATION_EVENT_ID`";
+            pstmt = con.prepareStatement(sql);
+            
+            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                String caseId = rs.getString("CASE_ID");
+                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
+                Case _case = new Case(caseId, cancerStudyId);
+                long entrez = rs.getLong("ENTREZ_GENE_ID");
+                Set<Long> genes = map.get(_case);
+                if (genes == null) {
+                    genes = new HashSet<Long>();
+                    map.put(_case, genes);
+                }
+                genes.add(entrez);
             }
             return map;
         } catch (SQLException e) {
@@ -512,6 +567,31 @@ public final class DaoMutationEvent {
                 map.put(rs.getString(1), rs.getInt(2));
             }
             return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(con, pstmt, rs);
+        }
+    }
+    
+    public static Set<Long> getMutatedGenesForACase(String caseId, int profileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection();
+            String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
+                    + " FROM mutation_event, case_mutation_event,"
+                    + " WHERE case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " AND CASE_ID='" + caseId + "'";
+            pstmt = con.prepareStatement(sql);
+            
+            Set<Long> set = new HashSet<Long>();
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                set.add(rs.getLong(1));
+            }
+            return set;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

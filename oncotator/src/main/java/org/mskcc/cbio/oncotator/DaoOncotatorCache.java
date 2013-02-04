@@ -65,7 +65,7 @@ public class DaoOncotatorCache implements OncotatorCacheService
      * @return          number of records successfully added.
      * @throws          SQLException Database Error.
      */
-    public int put(OncotatorRecord record) throws SQLException {
+    public int put(OncotatorRecord record) throws OncotatorCacheException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -88,7 +88,8 @@ public class DaoOncotatorCache implements OncotatorCacheService
             int rows = pstmt.executeUpdate();
             return rows;
         } catch (SQLException e) {
-            throw e;
+	        e.printStackTrace();
+	        throw new OncotatorCacheException(e.getMessage());
         } finally {
             DatabaseUtil.closeAll(con, pstmt, rs);
         }
@@ -101,7 +102,7 @@ public class DaoOncotatorCache implements OncotatorCacheService
 	 * @return                  corresponding record for the given key
 	 * @throws SQLException
 	 */
-    public OncotatorRecord get(String key) throws SQLException {
+    public OncotatorRecord get(String key) throws OncotatorCacheException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -125,7 +126,8 @@ public class DaoOncotatorCache implements OncotatorCacheService
                 return null;
             }
         } catch (SQLException e) {
-            throw e;
+            e.printStackTrace();
+	        throw new OncotatorCacheException(e.getMessage());
         } finally {
             DatabaseUtil.closeAll(con, pstmt, rs);
         }

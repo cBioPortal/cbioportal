@@ -364,12 +364,12 @@ public class DataMatrix {
     /**
      *
      * Gets the data for a given row by index.  Returns
-     * the data stored in the internal data structure,
-     * so changes in the returned List will be reflected
+     * a copy of the data stored in the internal data structure,
+     * so changes in the returned List will *not* be reflected
      * in subsequent calls into the class.
      *
      * @param rowIndex String
-     * @return
+     * @return LinkedList<String>
      */
     public LinkedList<String> getRowData(int rowIndex) {
         // todo: someday this might beg for refactoring
@@ -649,7 +649,16 @@ public class DataMatrix {
 		System.out.println();
 
         // get a row
-        dataMatrix.getRowData(0);
+        LinkedList<String> aRow = dataMatrix.getRowData(0);
+        LinkedList<String> bRow = dataMatrix.getRowData(1);
+        System.out.println("Row 0:");
+        System.out.println(aRow);
+        System.out.println("Row 1:");
+        System.out.println(bRow);
+        System.out.println("From:");
+        dataMatrix.write(System.out);
+        System.out.println();
+        System.out.println();
 
 		// ignore a few rows
 		dataMatrix.ignoreRow(0, true);

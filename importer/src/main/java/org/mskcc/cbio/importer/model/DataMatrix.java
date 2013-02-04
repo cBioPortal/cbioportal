@@ -369,9 +369,9 @@ public class DataMatrix {
      * in subsequent calls into the class.
      *
      * @param rowIndex String
-     * @return LinkedList<String>
+     * @return List<String>
      */
-    public LinkedList<String> getRowData(int rowIndex) {
+    public List<String> getRowData(int rowIndex) {
         // todo: someday this might beg for refactoring
         // w.r.t a DataMatrix class that is row/column agnostic,
         // i.e. a two level hashmap
@@ -649,8 +649,8 @@ public class DataMatrix {
 		System.out.println();
 
         // get a row
-        LinkedList<String> aRow = dataMatrix.getRowData(0);
-        LinkedList<String> bRow = dataMatrix.getRowData(1);
+        List<String> aRow = dataMatrix.getRowData(0);
+        List<String> bRow = dataMatrix.getRowData(1);
         System.out.println("Row 0:");
         System.out.println(aRow);
         System.out.println("Row 1:");

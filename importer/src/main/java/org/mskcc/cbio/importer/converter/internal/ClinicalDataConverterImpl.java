@@ -173,10 +173,10 @@ public class ClinicalDataConverterImpl implements Converter {
         // filter through the rows of the data matrix (clinical data is row oriented),
         // returning only the rows that we are interested in.
         // i.e. the ones whose alias' have a corresponding normalized name
-        List<LinkedList<String>> filteredRows  = new LinkedList<LinkedList<String>>();
+        List<List<String>> filteredRows = new LinkedList<List<String>>();
 
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
-            LinkedList<String> rowData =  dataMatrix.getRowData(r);
+            List<String> rowData = dataMatrix.getRowData(r);
 
             String rowName = rowData.get(0);
 
@@ -224,8 +224,8 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         // add in the metadata
-        columns.add(0, displayNames);
         columns.add(0, descriptions);
+        columns.add(0, displayNames);
 
         DataMatrix outMatrix = new DataMatrix(columns, colNames);
 

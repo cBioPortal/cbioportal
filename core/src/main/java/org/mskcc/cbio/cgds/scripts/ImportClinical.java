@@ -55,6 +55,23 @@ public class ImportClinical {
         throw new IOException("cannot find cancer_study_identifier");
     }
 
+    /**
+     *
+     * Import clinical data.
+     *
+     * Go over every attribute and check whether it exists in the db (clinical_attribute table).  If it exist, then
+     * assume that it has been OKayed in the google doc.  If not, check the google doc.
+     *
+     * If it exists in the google doc and has been OKayed,
+     * import it into the database.
+     * If it exists in the google doc but has not been OKayed,
+     * ignore.
+     * If it does not exist in the google doc,
+     * add it to the google doc with status "Unannotated" (but do not add to database)
+     *
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importClinical.pl <clinical.txt> <metadata.txt>");
@@ -73,8 +90,13 @@ public class ImportClinical {
         String fieldNames = clinical.readLine();
         String[] fields = fieldNames.split("\t");
 
-        System.out.println(fields[2]);
+        for (String field : fields) {
+            System.out.println(field);
+        }
 
         // make a map of attributes to ClinicalAttribute objects
+
+        // check to see whether or not the ClinicalAttribute is in the database, if not,
+        // it should be and add it to the clinical attribute table.
     }
 }

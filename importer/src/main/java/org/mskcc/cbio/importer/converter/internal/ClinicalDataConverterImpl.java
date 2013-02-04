@@ -148,24 +148,21 @@ public class ClinicalDataConverterImpl implements Converter {
 
         Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
 
-        // make a map between the normalized attribute name and the clinicalAttribute,
-        // for all attributes that have been okayed
-        HashMap<String, ClinicalAttributesMetadata> normalizeName = new HashMap<String, ClinicalAttributesMetadata>();
-
+        // convert the Collection of clinicalAttributes into a hash map:
+        // alias -> ClinicalAttributeMetadata
+        HashMap<String, ClinicalAttributesMetadata> aliasToAttribute = new HashMap<String, ClinicalAttributesMetadata>();
         for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
 
             String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
             String status = clinicalAttribute.getAnnotationStatus().trim();
 
-            if (status.equals(OK)) {
-                for (String alias : aliases) {
-                    // add to map
-                    alias = alias.trim();
-                    normalizeName.put(alias, clinicalAttribute);
+            for (String alias : aliases) {
+                alias = alias.trim();
+                // add to map
+                aliasToAttribute.put(alias, clinicalAttribute);
 
-                    if (clinicalAttribute.getColumnHeader().equals("")) {
-                        if (LOG.isInfoEnabled()) { LOG.info("Okayed annotation doesn't have a column header: " + alias ); }
-                    }
+                if (clinicalAttribute.getColumnHeader().equals("")) {
+                    if (LOG.isInfoEnabled()) { LOG.info("Okayed annotation doesn't have a column header: " + alias ); }
                 }
             }
         }
@@ -174,15 +171,45 @@ public class ClinicalDataConverterImpl implements Converter {
         // returning only the rows that we are interested in.
         // i.e. the ones whose alias' have a corresponding normalized name
         List<List<String>> filteredRows = new LinkedList<List<String>>();
+        List<ClinicalAttributesMetadata> newAttributes = new ArrayList<ClinicalAttributesMetadata>();
 
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
 
             String rowName = rowData.get(0);
 
-            if (normalizeName.containsKey(rowName)) {
+            if (!aliasToAttribute.containsKey(rowName)) {
+                // new clinical attribute
+                String UNANNOTATED = "Unannotated";
+
+                String[] props = new String[9];
+                props[0] = "";
+                props[1] = "";
+                props[2] = "";
+                props[3] = "";
+                props[4] = rowName;
+                props[5] = "";
+                props[6] = UNANNOTATED;
+                props[7] = cancerStudyMetadata.getTumorType();
+                props[8] = "";
+
+                newAttributes.add( new ClinicalAttributesMetadata(props) );
+
+                if (LOG.isInfoEnabled()) { LOG.info("added new clinical attribute: " + rowName); }
+            }
+
+            else if (aliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
+                // it's been OKayed
                 filteredRows.add(rowData);
             }
+            // else : neither is it new, nor is it OKayed,
+            // so it is ignored or Unannotated,
+            // ignore it
+        }
+
+        // update the google doc with new clinical attributes
+        for (ClinicalAttributesMetadata attr : newAttributes) {
+            config.updateClinicalAttributesMetadata(attr);
         }
 
         // normalize the names,
@@ -194,7 +221,7 @@ public class ClinicalDataConverterImpl implements Converter {
         for (List<String> row : filteredRows) {
 
             String rowName = row.remove(0);
-            ClinicalAttributesMetadata metaData = normalizeName.get(rowName);
+            ClinicalAttributesMetadata metaData = aliasToAttribute.get(rowName);
 
             // normalized name
             String normalName = metaData.getColumnHeader();

@@ -80,3 +80,7 @@ nci.cancer.ftp.password=password
 
 # firehose_get script
 firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
+
+# liftover tool
+liftover_binary=
+liftover_chain_file=

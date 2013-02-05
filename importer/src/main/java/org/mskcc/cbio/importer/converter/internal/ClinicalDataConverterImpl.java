@@ -179,17 +179,18 @@ public class ClinicalDataConverterImpl implements Converter {
             // prevent unnecessary duplication                                      //
             // specifically, "version" numbers don't count as different attributes  //
             //////////////////////////////////////////////////////////////////////////
-            if (rowName.contains("drugs.drug")) {
-                rowName = rowName.replaceAll("\\-\\d+.", ".");
+            if (rowName.contains("radiations.radiation")
+                    || rowName.contains("drugs.drug")
+                    || rowName.contains("fishtestcomponentresults.fishtestcomponentresult")
+                    || rowName.contains("immunophenotypecytochemistrytestingresults.immunophenotypecytochemistrytestingresultvalues")
+                    || rowName.contains("molecularanalysisabnormalitytestingresults.molecularanalysisabnormalitytestingresultvalues")) {
+                rowName = rowName.replaceAll("-\\d+.", ".");
             }
 
             if (rowName.contains("followups.followup")) {
                 rowName = rowName.replaceAll("v\\d+.\\d+(-\\d+)?.",".");
             }
 
-            if (rowName.contains("radiations.radiation")) {
-                rowName = rowName.replaceAll("-\\d+.", ".");
-            }
             // - followed by numbers at the end of the line should never count as new
             rowName = rowName.replaceAll("-\\d+$", "");
 

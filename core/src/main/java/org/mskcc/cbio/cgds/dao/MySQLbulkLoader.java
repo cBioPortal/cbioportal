@@ -156,7 +156,7 @@ public class MySQLbulkLoader {
             throw new DaoException(e);
          }
 
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(MySQLbulkLoader.class);
          stmt = con.createStatement();
          
          // will throw error if attempts to overwrite primary keys in table
@@ -174,7 +174,7 @@ public class MySQLbulkLoader {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(MySQLbulkLoader.class, con, pstmt, rs);
       }
    }
 

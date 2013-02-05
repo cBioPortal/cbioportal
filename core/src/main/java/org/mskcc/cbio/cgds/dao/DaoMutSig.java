@@ -98,7 +98,7 @@ public class DaoMutSig {
                 return 1;
             } else {
                 if (mutSig != null) {
-                    con = JdbcUtil.getDbConnection();
+                    con = JdbcUtil.getDbConnection(DaoMutSig.class);
 
                     pstmt = con.prepareStatement
                             ("INSERT INTO mut_sig (`CANCER_STUDY_ID`," +
@@ -131,7 +131,7 @@ public class DaoMutSig {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
             return 0;
         }
 
@@ -150,7 +150,7 @@ public class DaoMutSig {
         } else {
             long entrezGeneID = gene.getEntrezGeneId();
             try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMutSig.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ? AND CANCER_STUDY_ID = ?");
                 pstmt.setLong(1, entrezGeneID);
@@ -165,7 +165,7 @@ public class DaoMutSig {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
+                JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
             }
         }
     }
@@ -176,7 +176,7 @@ public class DaoMutSig {
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutSig.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mut_sig WHERE ENTREZ_GENE_ID = ? AND CANCER_STUDY_ID = ?");
             pstmt.setLong(1, entrezGeneID);
@@ -193,7 +193,7 @@ public class DaoMutSig {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
         }
     }
 
@@ -205,7 +205,7 @@ public class DaoMutSig {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutSig.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudy);
@@ -222,7 +222,7 @@ public class DaoMutSig {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
         }
     }
 
@@ -232,7 +232,7 @@ public class DaoMutSig {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutSig.class);
             pstmt = con.prepareStatement
                     ("SELECT count(*) FROM mut_sig WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudy);
@@ -247,7 +247,7 @@ public class DaoMutSig {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
         }
     }
 
@@ -258,7 +258,7 @@ public class DaoMutSig {
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutSig.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mut_sig WHERE CANCER_STUDY_ID = ? AND Q_Value < ?");
             pstmt.setInt(1, cancerStudy);
@@ -273,7 +273,7 @@ public class DaoMutSig {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
         }
     }
 
@@ -282,13 +282,13 @@ public class DaoMutSig {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutSig.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE mut_sig");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
         }
     }
 

@@ -50,7 +50,7 @@ public class DaoCaseList {
         ResultSet rs = null;
         int rows;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
 
             pstmt = con.prepareStatement("INSERT INTO case_list (`STABLE_ID`, `CANCER_STUDY_ID`, `NAME`, `CATEGORY`," +
                     "`DESCRIPTION`)" + " VALUES (?,?,?,?,?)");
@@ -65,7 +65,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
         
         // added to _case
@@ -84,7 +84,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list WHERE STABLE_ID = ?");
             pstmt.setString(1, stableId);
@@ -98,7 +98,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -110,7 +110,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list WHERE LIST_ID = ?");
             pstmt.setInt(1, id);
@@ -124,7 +124,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -136,7 +136,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
 
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list WHERE CANCER_STUDY_ID = ? ORDER BY NAME");
@@ -155,7 +155,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -167,7 +167,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list");
             rs = pstmt.executeQuery();
@@ -184,7 +184,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -196,7 +196,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_list_list WHERE CASE_ID = ?");
             pstmt.setString(1, caseID);
@@ -205,7 +205,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -217,7 +217,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE case_list");
             pstmt.executeUpdate();
             pstmt = con.prepareStatement("TRUNCATE TABLE case_list_list");
@@ -225,7 +225,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
     }
 
@@ -237,7 +237,7 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseList.class);
             pstmt = con.prepareStatement("SELECT LIST_ID FROM case_list WHERE STABLE_ID=?");
             pstmt.setString(1, caseList.getStableId());
             rs = pstmt.executeQuery();
@@ -248,7 +248,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
 	}
 

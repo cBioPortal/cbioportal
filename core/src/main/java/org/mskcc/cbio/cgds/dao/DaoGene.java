@@ -113,7 +113,7 @@ class DaoGene {
                 int rows = 0;
                 CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
                 if (existingGene == null) {
-                    con = JdbcUtil.getDbConnection();
+                    con = JdbcUtil.getDbConnection(DaoGene.class);
                     pstmt = con.prepareStatement
                             ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`) "
                                     + "VALUES (?,?)");
@@ -130,7 +130,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     
@@ -157,7 +157,7 @@ class DaoGene {
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
-                    con = JdbcUtil.getDbConnection();
+                    con = JdbcUtil.getDbConnection(DaoGene.class);
                     Set<String> aliases = gene.getAliases();
                     Set<String> existingAliases = getAliases(gene.getEntrezGeneId());
                     int rows = 0;
@@ -176,7 +176,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
 
@@ -210,7 +210,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM gene WHERE ENTREZ_GENE_ID = ?");
             pstmt.setLong(1, entrezGeneId);
@@ -226,7 +226,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     
@@ -241,7 +241,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null, rs1 = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM gene_alias WHERE ENTREZ_GENE_ID = ?");
             pstmt.setLong(1, entrezGeneId);
@@ -254,7 +254,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     
@@ -268,7 +268,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null, rs1 = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM gene_alias");
             rs = pstmt.executeQuery();
@@ -286,7 +286,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
 
@@ -303,7 +303,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM gene");
             rs = pstmt.executeQuery();
@@ -318,7 +318,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
 
@@ -335,7 +335,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM gene WHERE HUGO_GENE_SYMBOL = ?");
             pstmt.setString(1, hugoGeneSymbol);
@@ -352,7 +352,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
 
@@ -367,7 +367,7 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM gene");
             rs = pstmt.executeQuery();
@@ -378,7 +378,7 @@ class DaoGene {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     
@@ -391,14 +391,14 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement("DELETE FROM gene WHERE ENTREZ_GENE_ID=?");
             pstmt.setLong(1, entrezGeneId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
         
         deleteGeneAlias(entrezGeneId);
@@ -413,14 +413,14 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement("DELETE FROM gene_alias WHERE ENTREZ_GENE_ID=?");
             pstmt.setLong(1, entrezGeneId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
 
@@ -434,13 +434,13 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE gene");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
         deleteAllAliasRecords();
     }
@@ -450,13 +450,13 @@ class DaoGene {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE gene_alias");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     

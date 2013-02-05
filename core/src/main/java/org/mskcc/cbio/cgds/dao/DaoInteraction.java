@@ -119,7 +119,7 @@ public class DaoInteraction {
                 // return 1 because normal insert will return 1 if no error occurs
                 return 1;
             } else {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoInteraction.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO interaction (`GENE_A`,`GENE_B`, `INTERACTION_TYPE`," +
                                 "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
@@ -135,7 +135,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -164,13 +164,13 @@ public class DaoInteraction {
         throws DaoException {
         Connection con = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
                     false, true, dataSources, con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeConnection(con);
+            JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
 
@@ -188,13 +188,13 @@ public class DaoInteraction {
         throws DaoException {
         Connection con = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             return getInteractions(Collections.singleton(gene.getEntrezGeneId()),
                     seedGeneOnly, includeEdgesAmongLinkerGenes, dataSources, con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeConnection(con);
+            JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
     
@@ -209,12 +209,12 @@ public class DaoInteraction {
             Collection<String> dataSources) throws DaoException {
         Connection con = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             return getInteractions(entrezGeneIds, false, true, dataSources, con); 
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeConnection(con);
+            JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
     
@@ -229,12 +229,12 @@ public class DaoInteraction {
         throws DaoException {
         Connection con = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             return getInteractions(entrezGeneIds, true, false, dataSources, con); 
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeConnection(con);
+            JdbcUtil.closeConnection(DaoInteraction.class, con);
         }
     }
 
@@ -330,7 +330,7 @@ public class DaoInteraction {
         ResultSet rs = null;
         ArrayList <Interaction> interactionList = new ArrayList <Interaction>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM interaction");
             rs = pstmt.executeQuery();
@@ -342,7 +342,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -363,7 +363,7 @@ public class DaoInteraction {
         ResultSet rs = null;
         ArrayList <String> interactionList = new ArrayList <String>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             pstmt = con.prepareStatement
                     ("SELECT DISTINCT DATA_SOURCE FROM interaction");
             rs = pstmt.executeQuery();
@@ -374,7 +374,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -389,7 +389,7 @@ public class DaoInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM interaction");
             rs = pstmt.executeQuery();
@@ -400,7 +400,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -414,13 +414,13 @@ public class DaoInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoInteraction.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE interaction");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoInteraction.class, con, pstmt, rs);
         }
     }
 }

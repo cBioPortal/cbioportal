@@ -71,7 +71,7 @@ public class DaoClinicalTrial {
         ResultSet rs = null;
         int rows = 0;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO clinical_trials (`PROTOCOLID`, `TITLE`, `PHASE`, `LOCATION`, `STATUS`, `SECONDARYID`) "
                             + "VALUES (?,?,?,?,?, ?)");
@@ -97,7 +97,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
 
         return rows;
@@ -122,7 +122,7 @@ public class DaoClinicalTrial {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement(
                     "SELECT * FROM `clinical_trial_keywords` WHERE keyword LIKE ?"
             );
@@ -140,7 +140,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
 
         return clinicalTrials;
@@ -164,7 +164,7 @@ public class DaoClinicalTrial {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement(
                     "SELECT * FROM `clinical_trial_keywords` WHERE keyword = ?"
             );
@@ -181,7 +181,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
 
         return clinicalTrials;
@@ -199,7 +199,7 @@ public class DaoClinicalTrial {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM clinical_trials WHERE PROTOCOLID = ?");
             pstmt.setString(1, id);
@@ -212,7 +212,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
     }
 
@@ -232,7 +232,7 @@ public class DaoClinicalTrial {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement
                     ("SELECT count(*) FROM clinical_trials");
             rs = pstmt.executeQuery();
@@ -245,7 +245,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
     }
 
@@ -254,7 +254,7 @@ public class DaoClinicalTrial {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical_trials");
             pstmt.executeUpdate();
 
@@ -263,7 +263,7 @@ public class DaoClinicalTrial {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalTrial.class, con, pstmt, rs);
         }
     }
 }

@@ -98,7 +98,7 @@ public class DaoDrugInteraction {
 
                 return 1;
             } else {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO drug_interaction (`DRUG`,`TARGET`, `INTERACTION_TYPE`," +
                                 "`DATA_SOURCE`, `EXPERIMENT_TYPES`, `PMIDS`)"
@@ -115,7 +115,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -137,7 +137,7 @@ public class DaoDrugInteraction {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             Set<Long> entrezGeneIds = new HashSet<Long>();
 
             for (Object gene : genes) {
@@ -164,7 +164,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
     
@@ -178,7 +178,7 @@ public class DaoDrugInteraction {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             
             String sql;
             if (fdaOnly || cancerSpecific) {
@@ -218,7 +218,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -236,7 +236,7 @@ public class DaoDrugInteraction {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             Set<String> drugIDs = new HashSet<String>();
             for (Drug drug : drugs)
                 drugIDs.add("'" + drug.getId() + "'");
@@ -256,7 +256,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -268,7 +268,7 @@ public class DaoDrugInteraction {
         ArrayList<DrugInteraction> interactionList = new ArrayList <DrugInteraction>();
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM drug_interaction");
             rs = pstmt.executeQuery();
@@ -282,7 +282,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -307,7 +307,7 @@ public class DaoDrugInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM drug_interaction");
             rs = pstmt.executeQuery();
@@ -318,7 +318,7 @@ public class DaoDrugInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 
@@ -327,13 +327,13 @@ public class DaoDrugInteraction {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrugInteraction.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE drug_interaction");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
         }
     }
 

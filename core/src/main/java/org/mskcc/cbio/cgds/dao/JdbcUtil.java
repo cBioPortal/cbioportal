@@ -27,11 +27,12 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
 import org.mskcc.cbio.cgds.util.DatabaseProperties;
-
-import java.sql.*;
 
 /**
  * Connection Utility for JDBC.
@@ -41,24 +42,47 @@ import java.sql.*;
 public class JdbcUtil {
     private static BasicDataSource ds;
     private static int MAX_JDBC_CONNECTIONS = 100;
+    private static Map<String,Integer> activeConnectionCount; // keep track of the number of active connection per class/requester
 
     /**
-     * Gets Connection to the CPath Database.
-     *
+     * Gets Connection to the Database.
+     * 
+     * @param requester class
      * @return Live Connection to Database.
      * @throws java.sql.SQLException Error Connecting to Database.
      */
-    public static Connection getDbConnection() throws SQLException {
+    public static Connection getDbConnection(Class clazz) throws SQLException {
+        return getDbConnection(clazz.getName());
+    }
+    
+    /**
+     * Gets Connection to the Database.
+     * 
+     * @param requester name
+     * @return Live Connection to Database.
+     * @throws java.sql.SQLException Error Connecting to Database.
+     */
+    public static Connection getDbConnection(String requester) throws SQLException {
         if (ds == null) {
             initDataSource();
         } else if (ds.getNumActive()>=MAX_JDBC_CONNECTIONS) {
             ds.close();
             initDataSource();
-            System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS);
+            System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS
+                    + "\n" + activeConnectionCount.toString());
         }
         
         Connection con = ds.getConnection();
-        //System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive());
+        
+        if (requester!=null) {
+            Integer count = activeConnectionCount.get(requester);
+            activeConnectionCount.put(requester, count==null ? 1 : (count+1));
+        }
+        
+        if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
+            System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive()
+                        + "\n" + activeConnectionCount.toString());
+        }
         return con;
     }
 
@@ -87,6 +111,8 @@ public class JdbcUtil {
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
         ds.setMaxActive(MAX_JDBC_CONNECTIONS);
+        
+        activeConnectionCount = new HashMap<String,Integer>();
     }
 
     /**
@@ -94,11 +120,23 @@ public class JdbcUtil {
      *
      * @param con Connection Object.
      */
-    public static void closeConnection(Connection con) {
+    public static void closeConnection(Class clazz, Connection con) {
+        closeConnection(clazz.getName(), con);
+    }
+    
+    public static void closeConnection(String requester, Connection con) {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
-                //System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive());
+                
+                if (requester!=null) {
+                    activeConnectionCount.put(requester, activeConnectionCount.get(requester)-1);
+                }
+                
+                if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
+                    System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive()
+                        + "\n" + activeConnectionCount.toString());
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,7 +150,7 @@ public class JdbcUtil {
      * @param rs  ResultSet Object.
      */
     public static void closeAll(PreparedStatement ps, ResultSet rs) {
-                JdbcUtil.closeAll(null, ps, rs);
+                JdbcUtil.closeAll((String)null, null, ps, rs);
         }
 
     /**
@@ -122,18 +160,21 @@ public class JdbcUtil {
      * @param ps  Prepared Statement Object.
      * @param rs  ResultSet Object.
      */
-    public static void closeAll(Connection con, PreparedStatement ps,
+    public static void closeAll(Class clazz, Connection con, PreparedStatement ps,
             ResultSet rs) {
-        closeConnection(con);
-        //  Don't close PreparedStatements, as we have configured DBCP to pool/reuse
-        //  PreparedStatements.
-        //        if (ps != null) {
-        //            try {
-        //                ps.close();
-        //            } catch (SQLException e) {
-        //                e.printStackTrace();
-        //            }
-        //        }
+        closeAll(clazz.getName(), con, ps, rs);
+    }
+
+    /**
+     * Frees Database Connection.
+     *
+     * @param con Connection Object.
+     * @param ps  Prepared Statement Object.
+     * @param rs  ResultSet Object.
+     */
+    public static void closeAll(String requester, Connection con, PreparedStatement ps,
+            ResultSet rs) {
+        closeConnection(requester, con);
         if (rs != null) {
             try {
                 rs.close();

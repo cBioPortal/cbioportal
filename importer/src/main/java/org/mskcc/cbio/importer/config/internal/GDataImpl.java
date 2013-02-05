@@ -415,6 +415,21 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
+    /**
+     * inserts without asking questions
+     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+     */
+    @Override
+    public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
+
+        // vars used in call to updateWorksheet below
+        boolean insertRow = true;
+        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
+        String key = clinicalAttributesMetadata.getColumnHeader();
+
+        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
+    }
 
 	/**
 	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
@@ -426,6 +441,7 @@ class GDataImpl implements Config {
 	@Override
 	public void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
 
+		// vars used in call to updateWorksheet below
 		boolean insertRow = true;
 
 		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =

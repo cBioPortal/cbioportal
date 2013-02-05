@@ -211,6 +211,7 @@ public class ClinicalDataConverterImpl implements Converter {
                 break;
             }
             config.insertClinicalAttributesMetadata(attr);
+            i++;
         }
 
         // normalize the names,

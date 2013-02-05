@@ -44,6 +44,7 @@ import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.Shell;
 
+import org.mskcc.cbio.liftover.Hg18ToHg19;
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
@@ -800,21 +801,34 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		URL inputMAF = new URL(inputMAFURL);
 		URL outputMAF = new URL(outputMAFURL);
 
+		// determine if we have to call liftover
+		boolean cleanOncotatorInputFile = false;
+		File oncotatorInputFile = new File(inputMAF.getFile());
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(oncotatorInputFile).nextLine();
+		String[] parts = it.nextLine().split("\t");
+		if (parts[3].contains("36") || parts[3].equals("hg18")) {
+			it.close();
+			oncotatorInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+																		 "oncotatorInputFile");
+			// call lift over
+			String[] liftoverArgs = { inputMAF.getFile(), oncotatorInputFile.getCanonicalPath() };
+			Hg18ToHg19.driver(liftoverArgs);
+			cleanOncotatorInputFile = true;
+		}
+
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 													"oncotatorOutputFile");
 		// call oncotator
-		String[] oncotatorArgs = { inputMAF.getFile(),
-								   oncotatorOutputFile.getCanonicalPath() };
+		String[] oncotatorArgs = { oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), "true", "true", "true" };
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
 		}
-		OncotateTool.main(oncotatorArgs);
+		OncotateTool.driver(oncotatorArgs);
 		// we call OMA here -
 		// we use output from oncotator as input file
-		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
-							 outputMAF.getFile() };
+		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(), outputMAF.getFile(), "false", "true", "true" };
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
 		}
@@ -822,6 +836,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
+		if (cleanOncotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
 	}
 
 	/**

@@ -43,9 +43,9 @@ public class Hg18ToHg19
 	public static final String IN_FILE = "oldfile.txt";
 	public static final String MAPPED_FILE = "newfile.txt";
 	public static final String UNMAPPED_FILE = "unmapped.txt";
-	public static final String CHAIN_FILE = "hg18ToHg19.over.chain";
 	public static final String AUX_FILE = "auxfile.txt";
-	public static final String LIFT_OVER = "./liftOver";
+	public static final String DEFAULT_CHAIN_FILE = "hg18ToHg19.over.chain";
+	public static final String DEFAULT_LIFT_OVER = "./liftOver";
 
 
 	/**
@@ -63,7 +63,8 @@ public class Hg18ToHg19
 
 		try
 		{
-			driver(args[0], args[1]);
+			// TODO try to use args first, then hardcoded binary and chain
+			driver(args[0], args[1], DEFAULT_LIFT_OVER, DEFAULT_CHAIN_FILE);
 		}
 		catch (IOException e)
 		{
@@ -76,12 +77,17 @@ public class Hg18ToHg19
 	/**
 	 * Driver method for the lift over process.
 	 *
-	 * @param inputMaf      input MAF file (assumed to be build 36 / hg18)
-	 * @param outputMaf     output MAF file with updated coordinates
-	 * @return              zero if no error, positive value on error
+	 * @param inputMaf          input MAF file (assumed to be build 36 / hg18)
+	 * @param outputMaf         output MAF file with updated coordinates
+	 * @param liftOverBinary    executable (external) liftover binary filename
+	 * @param chainFile         chain file required by the liftover binary
+	 * @return                  zero if no error, positive value on error
 	 * @throws IOException
 	 */
-	public static int driver(String inputMaf, String outputMaf) throws IOException
+	public static int driver(String inputMaf,
+			String outputMaf,
+			String liftOverBinary,
+			String chainFile) throws IOException
 	{
 		// extract required information from the MAF file
 		System.out.println("[info] Creating input files for lift over tool...");
@@ -92,7 +98,7 @@ public class Hg18ToHg19
 
 		// system call with required arguments
 		// ./liftOver oldfile.txt hg18ToHg19.over.chain newfile.txt unmapped.txt
-		String[] liftOverArgs = {LIFT_OVER, IN_FILE, CHAIN_FILE, MAPPED_FILE, UNMAPPED_FILE};
+		String[] liftOverArgs = {liftOverBinary, IN_FILE, chainFile, MAPPED_FILE, UNMAPPED_FILE};
 
 		if (liftOver(liftOverArgs) != 0)
 		{

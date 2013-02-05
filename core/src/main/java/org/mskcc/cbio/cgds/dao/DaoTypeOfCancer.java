@@ -50,7 +50,7 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, " + "`NAME` ) VALUES (?,?)");
          pstmt.setString(1, typeOfCancer.getTypeOfCancerId());
          pstmt.setString(2, typeOfCancer.getName());
@@ -59,7 +59,7 @@ public class DaoTypeOfCancer {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 
@@ -68,7 +68,7 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("SELECT * FROM type_of_cancer WHERE TYPE_OF_CANCER_ID=?");
          pstmt.setString(1, typeOfCancerId);
          rs = pstmt.executeQuery();
@@ -80,7 +80,7 @@ public class DaoTypeOfCancer {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 
@@ -89,7 +89,7 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("SELECT * FROM type_of_cancer");
          rs = pstmt.executeQuery();
          ArrayList<TypeOfCancer> list = new ArrayList<TypeOfCancer>();
@@ -101,7 +101,7 @@ public class DaoTypeOfCancer {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 
@@ -110,7 +110,7 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("SELECT COUNT(*) FROM type_of_cancer");
          rs = pstmt.executeQuery();
          if (rs.next()) {
@@ -120,7 +120,7 @@ public class DaoTypeOfCancer {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 
@@ -129,13 +129,13 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("TRUNCATE TABLE type_of_cancer");
          pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 
@@ -144,14 +144,14 @@ public class DaoTypeOfCancer {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
          pstmt = con.prepareStatement("DELETE from " + "type_of_cancer WHERE TYPE_OF_CANCER_ID=?");
          pstmt.setString(1, typeOfCancerId);
          pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoTypeOfCancer.class, con, pstmt, rs);
       }
    }
 

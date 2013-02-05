@@ -54,7 +54,7 @@ public final class DaoCase {
                 return 0;
             }
             
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO _case (`CASE_ID`, `CANCER_STUDY_ID`) "
                             + "VALUES (?,?)");
@@ -65,7 +65,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
 
@@ -74,7 +74,7 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ? AND CANCER_STUDY_ID=?");
             pstmt.setString(1, caseId );
             pstmt.setInt(2, cancerStudyId);
@@ -89,7 +89,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
 
@@ -98,7 +98,7 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
@@ -107,7 +107,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
 
@@ -116,7 +116,7 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM _case WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudyId);
@@ -125,7 +125,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
 
@@ -134,7 +134,7 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM _case");
             rs = pstmt.executeQuery();
@@ -142,7 +142,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
     
@@ -151,7 +151,7 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
                     ("SELECT count(*) FROM _case WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudyId);
@@ -164,7 +164,7 @@ public final class DaoCase {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
 
@@ -173,13 +173,13 @@ public final class DaoCase {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE _case");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCase.class, con, pstmt, rs);
         }
     }
     

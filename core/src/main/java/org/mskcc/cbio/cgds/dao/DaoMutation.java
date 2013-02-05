@@ -115,7 +115,7 @@ public class DaoMutation {
 			} else {
 
 
-				con = JdbcUtil.getDbConnection();
+				con = JdbcUtil.getDbConnection(DaoMutation.class);
 				pstmt = con.prepareStatement
 						("INSERT INTO mutation (`GENETIC_PROFILE_ID`, `CASE_ID`,"
 						 + " `ENTREZ_GENE_ID`,"
@@ -188,7 +188,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 	}
 
@@ -215,7 +215,7 @@ public class DaoMutation {
 		ResultSet rs = null;
 		ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT * FROM mutation WHERE CASE_ID IN ('"
 					 +org.apache.commons.lang.StringUtils.join(targetCaseList, "','")+
@@ -230,7 +230,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 		return mutationList;
 	}
@@ -242,7 +242,7 @@ public class DaoMutation {
 		ResultSet rs = null;
 		ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT * FROM mutation WHERE CASE_ID = ? AND" +
 					 " GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
@@ -257,7 +257,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 		return mutationList;
 	}
@@ -276,7 +276,7 @@ public class DaoMutation {
 		Set<CanonicalGene> geneSet = new HashSet<CanonicalGene>();
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT * FROM mutation WHERE GENETIC_PROFILE_ID = ?");
 			pstmt.setInt(1, geneticProfileId);
@@ -288,7 +288,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 		return geneSet;
 	}
@@ -299,7 +299,7 @@ public class DaoMutation {
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
             try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation WHERE" +
                                 " ENTREZ_GENE_ID = ?");
@@ -312,7 +312,7 @@ public class DaoMutation {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
             }
             return mutationList;
         }
@@ -323,7 +323,7 @@ public class DaoMutation {
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
             try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation WHERE" +
                                 " ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
@@ -337,7 +337,7 @@ public class DaoMutation {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
             }
             return mutationList;
         }
@@ -348,7 +348,7 @@ public class DaoMutation {
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
             try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ?");
                 pstmt.setInt(1, geneticProfileId);
@@ -361,7 +361,7 @@ public class DaoMutation {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
             }
             return mutationList;
         }
@@ -372,7 +372,7 @@ public class DaoMutation {
             ResultSet rs = null;
             ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
             try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation WHERE" +
                                 " ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
@@ -387,7 +387,7 @@ public class DaoMutation {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(con, pstmt, rs);
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
             }
             return mutationList;
         }
@@ -399,7 +399,7 @@ public class DaoMutation {
 		ResultSet rs = null;
 		ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT * FROM mutation WHERE" +
 					 " GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
@@ -413,7 +413,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 		return mutationList;
 	}
@@ -424,7 +424,7 @@ public class DaoMutation {
 		ResultSet rs = null;
 		ArrayList <ExtendedMutation> mutationList = new ArrayList <ExtendedMutation>();
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT * FROM mutation");
 			rs = pstmt.executeQuery();
@@ -435,7 +435,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 		return mutationList;
 	}
@@ -503,7 +503,7 @@ public class DaoMutation {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement
 					("SELECT COUNT(*) FROM mutation");
 			rs = pstmt.executeQuery();
@@ -514,7 +514,7 @@ public class DaoMutation {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 	}
 
@@ -528,14 +528,14 @@ public class DaoMutation {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement("DELETE from mutation WHERE GENETIC_PROFILE_ID=?");
 			pstmt.setLong(1, geneticProfileId);
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 	}
 
@@ -544,13 +544,13 @@ public class DaoMutation {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoMutation.class);
 			pstmt = con.prepareStatement("TRUNCATE TABLE mutation");
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
 		}
 	}
 }

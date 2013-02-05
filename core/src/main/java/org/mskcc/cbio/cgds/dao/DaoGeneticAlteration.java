@@ -113,7 +113,7 @@ public class DaoGeneticAlteration {
               // return 1 because normal insert will return 1 if no error occurs
               return 1;
            } else {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO genetic_alteration (`GENETIC_PROFILE_ID`, " +
                                 " `ENTREZ_GENE_ID`," +
@@ -128,7 +128,7 @@ public class DaoGeneticAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
     
@@ -189,7 +189,7 @@ public class DaoGeneticAlteration {
                     " profile ID:  " + geneticProfileId);
         }
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM genetic_alteration WHERE" +
                             " ENTREZ_GENE_ID = ? AND GENETIC_PROFILE_ID = ?");
@@ -211,7 +211,7 @@ public class DaoGeneticAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -229,7 +229,7 @@ public class DaoGeneticAlteration {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM genetic_alteration WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
@@ -243,7 +243,7 @@ public class DaoGeneticAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -257,7 +257,7 @@ public class DaoGeneticAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM genetic_alteration");
             rs = pstmt.executeQuery();
@@ -268,7 +268,7 @@ public class DaoGeneticAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -283,7 +283,7 @@ public class DaoGeneticAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement("DELETE from " +
                     "genetic_alteration WHERE GENETIC_PROFILE_ID=?");
             pstmt.setLong(1, geneticProfileId);
@@ -291,7 +291,7 @@ public class DaoGeneticAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -305,13 +305,13 @@ public class DaoGeneticAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE genetic_alteration");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
         }
     }
 }

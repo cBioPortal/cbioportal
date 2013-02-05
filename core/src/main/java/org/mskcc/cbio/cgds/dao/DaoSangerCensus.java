@@ -62,7 +62,7 @@ public class DaoSangerCensus {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoSangerCensus.class);
             pstmt = con.prepareStatement ("INSERT INTO sanger_cancer_census ("
                  + "`ENTREZ_GENE_ID`, `CANCER_SOMATIC_MUT`, `CANCER_GERMLINE_MUT`,"
                  + "`TUMOR_TYPES_SOMATIC_MUT`, `TUMOR_TYPES_GERMLINE_MUT`, `CANCER_SYNDROME`,"
@@ -84,7 +84,7 @@ public class DaoSangerCensus {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoSangerCensus.class, con, pstmt, rs);
         }
     }
 
@@ -101,7 +101,7 @@ public class DaoSangerCensus {
         ResultSet rs = null;
         HashMap<String, SangerCancerGene> geneCenusus = new HashMap<String, SangerCancerGene>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoSangerCensus.class);
             pstmt = con.prepareStatement ("SELECT * FROM sanger_cancer_census");
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -112,7 +112,7 @@ public class DaoSangerCensus {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoSangerCensus.class, con, pstmt, rs);
         }
     }
 
@@ -141,13 +141,13 @@ public class DaoSangerCensus {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoSangerCensus.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE sanger_cancer_census");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoSangerCensus.class, con, pstmt, rs);
         }
     }
 }

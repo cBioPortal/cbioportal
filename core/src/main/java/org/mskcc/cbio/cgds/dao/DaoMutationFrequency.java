@@ -46,7 +46,7 @@ public class DaoMutationFrequency {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
 
             pstmt = con.prepareStatement
                     ("INSERT INTO mutation_frequency (`ENTREZ_GENE_ID`,`SOMATIC_MUTATION_RATE`, `CANCER_STUDY_ID`) "
@@ -59,7 +59,7 @@ public class DaoMutationFrequency {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationFrequency.class, con, pstmt, rs);
         }
     }
 
@@ -70,7 +70,7 @@ public class DaoMutationFrequency {
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
 
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation_frequency WHERE CANCER_STUDY_ID = ? " +
@@ -87,7 +87,7 @@ public class DaoMutationFrequency {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationFrequency.class, con, pstmt, rs);
         }
     }
 
@@ -97,7 +97,7 @@ public class DaoMutationFrequency {
         ResultSet rs = null;
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation_frequency WHERE ENTREZ_GENE_ID=?");
             pstmt.setLong(1, entrezGeneId);
@@ -111,7 +111,7 @@ public class DaoMutationFrequency {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationFrequency.class, con, pstmt, rs);
         }
     }
 
@@ -120,13 +120,13 @@ public class DaoMutationFrequency {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationFrequency.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE mutation_frequency");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationFrequency.class, con, pstmt, rs);
         }
     }
 }

@@ -64,7 +64,7 @@ public final class DaoGeneticProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
 
             pstmt = con.prepareStatement
                     ("SELECT * FROM genetic_profile");
@@ -76,7 +76,7 @@ public final class DaoGeneticProfile {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
     }
     
@@ -97,7 +97,7 @@ public final class DaoGeneticProfile {
         ResultSet rs = null;
         int rows = 0;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
 
             pstmt = con.prepareStatement
                     ("INSERT INTO genetic_profile (`STABLE_ID`, `CANCER_STUDY_ID`, `GENETIC_ALTERATION_TYPE`," +
@@ -113,7 +113,7 @@ public final class DaoGeneticProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
         
         reCache();
@@ -135,7 +135,7 @@ public final class DaoGeneticProfile {
         ResultSet rs = null;
         boolean ret = false;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
             pstmt = con.prepareStatement("UPDATE genetic_profile SET NAME=?, DESCRIPTION=? " +
                     "WHERE GENETIC_PROFILE_ID=?");
             pstmt.setString(1, name);
@@ -145,7 +145,7 @@ public final class DaoGeneticProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
         
         reCache();
@@ -158,14 +158,14 @@ public final class DaoGeneticProfile {
        PreparedStatement pstmt = null;
        ResultSet rs = null;
        try {
-           con = JdbcUtil.getDbConnection();
+           con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
            pstmt = con.prepareStatement("DELETE FROM genetic_profile WHERE STABLE_ID = ?");
            pstmt.setString(1, profile.getStableId());
            rows = pstmt.executeUpdate();
        } catch (SQLException e) {
            throw new DaoException(e);
        } finally {
-           JdbcUtil.closeAll(con, pstmt, rs);
+           JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
        }
        
        reCache();
@@ -237,13 +237,13 @@ public final class DaoGeneticProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGeneticProfile.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGeneticProfile.class, con, pstmt, rs);
         }
     }
 }

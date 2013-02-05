@@ -60,7 +60,7 @@ public final class DaoCancerStudy {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             pstmt = con.prepareStatement("SELECT * FROM cancer_study");
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -70,7 +70,7 @@ public final class DaoCancerStudy {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
     }
     
@@ -102,7 +102,7 @@ public final class DaoCancerStudy {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             // CANCER_STUDY_IDENTIFIER may be null
             if (cancerStudy.getCancerStudyStableId() != null) {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study " +
@@ -139,7 +139,7 @@ public final class DaoCancerStudy {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         
         reCache();
@@ -214,13 +214,13 @@ public final class DaoCancerStudy {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE cancer_study");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
     }
 
@@ -235,14 +235,14 @@ public final class DaoCancerStudy {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
             pstmt = con.prepareStatement("DELETE from " + "cancer_study WHERE CANCER_STUDY_ID=?");
             pstmt.setInt(1, internalCancerStudyId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCancerStudy.class, con, pstmt, rs);
         }
         reCache();
     }

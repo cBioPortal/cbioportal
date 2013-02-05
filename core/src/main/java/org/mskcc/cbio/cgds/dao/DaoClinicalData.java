@@ -64,7 +64,7 @@ public class DaoClinicalData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoClinicalData.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO clinical (`CASE_ID`, `OVERALL_SURVIVAL_MONTHS`, " +
                                 "`OVERALL_SURVIVAL_STATUS`, " +
@@ -109,7 +109,7 @@ public class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
     }
     
@@ -130,7 +130,7 @@ public class DaoClinicalData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement ("SELECT * FROM clinical WHERE CASE_ID IN('"
                     + StringUtils.join(caseSet, "','") + "')");
             rs = pstmt.executeQuery();
@@ -173,7 +173,7 @@ public class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
     }
 
@@ -186,13 +186,13 @@ public class DaoClinicalData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
     }
 }

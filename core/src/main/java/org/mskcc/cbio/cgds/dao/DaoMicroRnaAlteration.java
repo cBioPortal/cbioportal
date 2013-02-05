@@ -109,7 +109,7 @@ public class DaoMicroRnaAlteration {
                 return 1;
              } else {
 
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO micro_rna_alteration (`GENETIC_PROFILE_ID`, " +
                                 " `MICRO_RNA_ID`,`VALUES`) VALUES (?,?,?)");
@@ -122,7 +122,7 @@ public class DaoMicroRnaAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -179,7 +179,7 @@ public class DaoMicroRnaAlteration {
         }
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM micro_rna_alteration WHERE" +
                             " MICRO_RNA_ID = ? AND GENETIC_PROFILE_ID = ?");
@@ -199,7 +199,7 @@ public class DaoMicroRnaAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -217,7 +217,7 @@ public class DaoMicroRnaAlteration {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM micro_rna_alteration WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
@@ -231,7 +231,7 @@ public class DaoMicroRnaAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -245,7 +245,7 @@ public class DaoMicroRnaAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM micro_rna_alteration");
             rs = pstmt.executeQuery();
@@ -256,7 +256,7 @@ public class DaoMicroRnaAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -271,7 +271,7 @@ public class DaoMicroRnaAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
             pstmt = con.prepareStatement("DELETE from " +
                     "micro_rna_alteration WHERE GENETIC_PROFILE_ID=?");
             pstmt.setLong(1, geneticProfileId);
@@ -279,7 +279,7 @@ public class DaoMicroRnaAlteration {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 
@@ -292,13 +292,13 @@ public class DaoMicroRnaAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE micro_rna_alteration");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
         }
     }
 }

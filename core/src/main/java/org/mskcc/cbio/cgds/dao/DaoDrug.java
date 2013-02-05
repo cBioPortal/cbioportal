@@ -88,7 +88,7 @@ public class DaoDrug {
             } else {
                 Drug existingDrug = getDrug(drug.getId());
                 if (existingDrug == null) {
-                    con = JdbcUtil.getDbConnection();
+                    con = JdbcUtil.getDbConnection(DaoDrug.class);
                     pstmt = con.prepareStatement(
                             "INSERT INTO drug "
                                     + "(`DRUG_ID`, `DRUG_RESOURCE`, `DRUG_NAME`, "
@@ -117,7 +117,7 @@ public class DaoDrug {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
 
@@ -126,7 +126,7 @@ public class DaoDrug {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrug.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM drug WHERE DRUG_ID = ?");
             pstmt.setString(1, drugID);
@@ -139,7 +139,7 @@ public class DaoDrug {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
 
@@ -149,7 +149,7 @@ public class DaoDrug {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrug.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM drug WHERE DRUG_ID in ('"
                     + StringUtils.join(drugIds, "','")+"')");
@@ -161,7 +161,7 @@ public class DaoDrug {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
 
@@ -172,7 +172,7 @@ public class DaoDrug {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrug.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM drug");
             rs = pstmt.executeQuery();
@@ -183,7 +183,7 @@ public class DaoDrug {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
     
@@ -209,7 +209,7 @@ public class DaoDrug {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrug.class);
             pstmt = con.prepareStatement
                     ("SELECT COUNT(*) FROM drug");
             rs = pstmt.executeQuery();
@@ -220,7 +220,7 @@ public class DaoDrug {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
 
@@ -229,13 +229,13 @@ public class DaoDrug {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoDrug.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE drug");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
         }
     }
 

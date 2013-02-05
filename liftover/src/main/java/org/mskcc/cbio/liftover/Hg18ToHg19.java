@@ -35,6 +35,8 @@ import java.io.*;
  * It is available at http://hgdownload.cse.ucsc.edu/admin/exe/
  * Detailed information about liftOver tool can be found at
  * http://genome.ucsc.edu/cgi-bin/hgLiftOver
+ *
+ * @author Selcuk Onur Sumer
  */
 public class Hg18ToHg19
 {
@@ -51,7 +53,7 @@ public class Hg18ToHg19
 	 *  1) original input (MAF) file.
 	 *  2) name of the new output file to be created.
 	 */
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		if (args.length < 2)
 		{
@@ -59,9 +61,31 @@ public class Hg18ToHg19
 			System.exit(1);
 		}
 
+		try
+		{
+			driver(args[0], args[1]);
+		}
+		catch (IOException e)
+		{
+			System.out.println("[error] IO error while processing the input MAF");
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Driver method for the lift over process.
+	 *
+	 * @param inputMaf      input MAF file (assumed to be build 36 / hg18)
+	 * @param outputMaf     output MAF file with updated coordinates
+	 * @return              zero if no error, positive value on error
+	 * @throws IOException
+	 */
+	public static int driver(String inputMaf, String outputMaf) throws IOException
+	{
 		// extract required information from the MAF file
 		System.out.println("[info] Creating input files for lift over tool...");
-		PreLiftOver.prepareInput(args[0], IN_FILE, AUX_FILE);
+		PreLiftOver.prepareInput(inputMaf, IN_FILE, AUX_FILE);
 
 		// run the liftOver tool for conversion
 		System.out.println("[info] Running liftOver tool...");
@@ -78,17 +102,19 @@ public class Hg18ToHg19
 		// process files created by liftOver to update old MAF
 		System.out.println("[info] Updating positions and creating the new MAF...");
 
-		PostLiftOver.updateMaf(args[0],
-			MAPPED_FILE,
-			UNMAPPED_FILE,
-			AUX_FILE,
-			args[1]);
+		int updateResult = PostLiftOver.updateMaf(inputMaf,
+		                       MAPPED_FILE,
+		                       UNMAPPED_FILE,
+		                       AUX_FILE,
+		                       outputMaf);
 
 		// clean intermediate files
 		(new File(IN_FILE)).delete();
 		(new File(AUX_FILE)).delete();
 		(new File(MAPPED_FILE)).delete();
 		(new File(UNMAPPED_FILE)).delete();
+
+		return updateResult;
 	}
 
 	/**

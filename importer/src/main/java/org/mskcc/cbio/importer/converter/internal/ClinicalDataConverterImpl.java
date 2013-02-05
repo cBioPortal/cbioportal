@@ -168,7 +168,7 @@ public class ClinicalDataConverterImpl implements Converter {
         // returning only the rows that we are interested in.
         // i.e. the ones whose alias' have a corresponding normalized name
         List<List<String>> filteredRows = new LinkedList<List<String>>();
-        List<ClinicalAttributesMetadata> newAttributes = new ArrayList<ClinicalAttributesMetadata>();
+        HashMap<String, ClinicalAttributesMetadata> newAttributes = new HashMap<String, ClinicalAttributesMetadata>();
 
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
@@ -194,8 +194,9 @@ public class ClinicalDataConverterImpl implements Converter {
             // - followed by numbers at the end of the line should never count as new
             rowName = rowName.replaceAll("-\\d+$", "");
 
-            if (!aliasToAttribute.containsKey(rowName)) {
-                // new clinical attribute
+            if (!aliasToAttribute.containsKey(rowName)
+                    || !newAttributes.containsKey(rowName)) {
+                // make new clinical attribute
                 String UNANNOTATED = "Unannotated";
 
                 String[] props = new String[9];
@@ -209,7 +210,7 @@ public class ClinicalDataConverterImpl implements Converter {
                 props[6] = "";                                                              // DISEASE_SPECIFICITY
                 props[7] = "";                                                              // NIKI_ANNOTATION
 
-                newAttributes.add( new ClinicalAttributesMetadata(props) );
+                newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
 
 //                if (LOG.isInfoEnabled()) { LOG.info("added new clinical attribute: " + rowName); }
             }
@@ -224,7 +225,7 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         // insert the new clinical attributes into google doc
-        for (ClinicalAttributesMetadata attr : newAttributes) {
+        for (ClinicalAttributesMetadata attr : newAttributes.values()) {
             config.insertClinicalAttributesMetadata(attr);
         }
 

@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+import com.google.gdata.util.common.base.StringUtil;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -174,20 +175,38 @@ public class ClinicalDataConverterImpl implements Converter {
 
             String rowName = rowData.get(0);
 
+            //////////////////////////////////////////////////////////////////////////
+            // prevent unnecessary duplication                                      //
+            // specifically, "version" numbers don't count as different attributes  //
+            //////////////////////////////////////////////////////////////////////////
+            if (rowName.contains("drugs.drug")) {
+                rowName = rowName.replaceAll("\\-\\d+.", ".");
+            }
+
+            if (rowName.contains("followups.followup")) {
+                rowName = rowName.replaceAll("v\\d+.\\d+(-\\d+)?.",".");
+            }
+
+            if (rowName.contains("radiations.radiation")) {
+                rowName = rowName.replaceAll("-\\d+.", ".");
+            }
+            // - followed by numbers at the end of the line should never count as new
+            rowName = rowName.replaceAll("-\\d+$", "");
+
             if (!aliasToAttribute.containsKey(rowName)) {
                 // new clinical attribute
                 String UNANNOTATED = "Unannotated";
 
                 String[] props = new String[9];
-                props[0] = "";
-                props[1] = "";
-                props[2] = "";
-                props[3] = "";
-                props[4] = rowName;
-                props[5] = UNANNOTATED;
-                props[6] = "";
-                props[7] = "";
-                props[8] = cancerStudyMetadata.getTumorType();
+                props[0] = "";                                                              // COLUMN_HEADER
+                props[1] = "";                                                              // DISPLAY_NAME
+                props[2] = "";                                                              // DESCRIPTION
+                props[3] = "";                                                              // DATATYPE
+                props[4] = rowName;                                                         // ALIASES
+                props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
+//                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
+                props[6] = "";                                                              // DISEASE_SPECIFICITY
+                props[7] = "";                                                              // NIKI_ANNOTATION
 
                 newAttributes.add( new ClinicalAttributesMetadata(props) );
 
@@ -204,14 +223,8 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         // insert the new clinical attributes into google doc
-        int i = 0;
         for (ClinicalAttributesMetadata attr : newAttributes) {
-            System.out.println("new clinical attribute: " + attr.getAliases());
-            if (i > 10) {
-                break;
-            }
             config.insertClinicalAttributesMetadata(attr);
-            i++;
         }
 
         // normalize the names,

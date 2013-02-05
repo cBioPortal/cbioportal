@@ -40,7 +40,7 @@ import java.sql.*;
  */
 public class JdbcUtil {
     private static BasicDataSource ds;
-    private static int MAX_JDBC_CONNECTIONS = 100;
+    private static int MAX_JDBC_CONNECTIONS = 1500;
 
     /**
      * Gets Connection to the CPath Database.

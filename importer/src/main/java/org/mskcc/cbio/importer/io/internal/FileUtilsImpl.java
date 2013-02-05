@@ -812,11 +812,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			oncotatorInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 																		 "oncotatorInputFile");
 			// call lift over
-			String[] liftoverArgs = { inputMAF.getFile(), oncotatorInputFile.getCanonicalPath() };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("oncotateMAF(), calling Hg18ToHg19...");
 			}
-			Hg18ToHg19.main(liftoverArgs);
+			Hg18ToHg19.driver(inputMAF.getFile(), oncotatorInputFile.getCanonicalPath());
 			cleanOncotatorInputFile = true;
 		}
 
@@ -834,7 +833,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling MutationAssessorTool...");
 		}
-		MutationAssessorTool.main(oncotatorOutputFile.getCanonicalPath(), outputMAF.getFile(), false, true, true);
+		MutationAssessorTool.driver(oncotatorOutputFile.getCanonicalPath(), outputMAF.getFile(), false, true, true);
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);

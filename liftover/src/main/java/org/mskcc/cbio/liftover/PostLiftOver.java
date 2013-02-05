@@ -56,7 +56,7 @@ public class PostLiftOver
 	 * @param auxFile       aux file to store modified rows
 	 * @param outputMaf     name of the new output file to be created
 	 */
-	public static void updateMaf(String originalFile,
+	public static int updateMaf(String originalFile,
 		String mappedFile,
 		String unmappedFile,
 		String auxFile,
@@ -72,6 +72,7 @@ public class PostLiftOver
 					unmappedFile))
 			{
 				System.out.println("Input sizes do not match! Error while lifting over?");
+				return 1;
 			}
 			else
 			{
@@ -87,7 +88,10 @@ public class PostLiftOver
 		{
 			System.out.println("Error while processing files: " + e.getMessage());
 			e.printStackTrace();
+			return 2;
 		}
+
+		return 0;
 	}
 	
 	/**

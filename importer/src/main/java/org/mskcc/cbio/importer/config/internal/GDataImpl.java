@@ -415,20 +415,20 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
+
 	/**
 	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
+     * Comparison is done by COLUMN_HEADER (whether it be the empty string
+     * or otherwise)
 	 *
 	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
 	 */
 	@Override
 	public void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
 
-		// vars used in call to updateWorksheet below
 		boolean insertRow = true;
-		String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
-		String key = clinicalAttributesMetadata.getColumnHeader();
 
-		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
+		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
 			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
 																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
@@ -441,9 +441,7 @@ class GDataImpl implements Config {
 			}
 		}
 
-		updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-						insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
-		
+        insertClinicalAttributesMetadata(clinicalAttributesMetadata);
 	}
 
 	/**

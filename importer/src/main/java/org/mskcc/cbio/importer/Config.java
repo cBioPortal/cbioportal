@@ -137,6 +137,13 @@ public interface Config {
 	 */
 	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
 
+    /**
+     * Inserts the given ClinicalAttributesMetadata object without asking questions
+     *
+     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+     */
+    void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+
 	/**
 	 * Gets a PortalMetadata object given a portal name.
 	 * If portalName == Config.ALL, all are returned.

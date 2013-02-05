@@ -160,10 +160,6 @@ public class ClinicalDataConverterImpl implements Converter {
                 alias = alias.trim();
                 // add to map
                 aliasToAttribute.put(alias, clinicalAttribute);
-
-                if (clinicalAttribute.getColumnHeader().equals("")) {
-                    if (LOG.isInfoEnabled()) { LOG.info("Okayed annotation doesn't have a column header: " + alias ); }
-                }
             }
         }
 
@@ -188,14 +184,14 @@ public class ClinicalDataConverterImpl implements Converter {
                 props[2] = "";
                 props[3] = "";
                 props[4] = rowName;
-                props[5] = "";
-                props[6] = UNANNOTATED;
-                props[7] = cancerStudyMetadata.getTumorType();
-                props[8] = "";
+                props[5] = UNANNOTATED;
+                props[6] = "";
+                props[7] = "";
+                props[8] = cancerStudyMetadata.getTumorType();
 
                 newAttributes.add( new ClinicalAttributesMetadata(props) );
 
-                if (LOG.isInfoEnabled()) { LOG.info("added new clinical attribute: " + rowName); }
+//                if (LOG.isInfoEnabled()) { LOG.info("added new clinical attribute: " + rowName); }
             }
 
             else if (aliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
@@ -207,9 +203,14 @@ public class ClinicalDataConverterImpl implements Converter {
             // ignore it
         }
 
-        // update the google doc with new clinical attributes
+        // insert the new clinical attributes into google doc
+        int i = 0;
         for (ClinicalAttributesMetadata attr : newAttributes) {
-            config.updateClinicalAttributesMetadata(attr);
+            System.out.println("new clinical attribute: " + attr.getAliases());
+            if (i > 10) {
+                break;
+            }
+            config.insertClinicalAttributesMetadata(attr);
         }
 
         // normalize the names,

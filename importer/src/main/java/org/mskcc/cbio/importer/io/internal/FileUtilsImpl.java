@@ -812,7 +812,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																		 "oncotatorInputFile");
 			// call lift over
 			String[] liftoverArgs = { inputMAF.getFile(), oncotatorInputFile.getCanonicalPath() };
-			Hg18ToHg19.driver(liftoverArgs);
+			Hg18ToHg19.main(liftoverArgs);
 			cleanOncotatorInputFile = true;
 		}
 

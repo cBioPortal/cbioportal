@@ -34,6 +34,8 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
+import java.util.Set;
+
 /**
  * Interface used to convert portal data.
  */
@@ -64,11 +66,13 @@ public interface Converter {
 
     /**
 	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
 	 *
 	 * @param portal String
+	 * @param excludeDatatypes Set<String>
 	 * @throws Exception
 	 */
-	void applyOverrides(String portal) throws Exception;
+	void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.

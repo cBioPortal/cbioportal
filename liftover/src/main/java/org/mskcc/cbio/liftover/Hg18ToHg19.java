@@ -57,14 +57,30 @@ public class Hg18ToHg19
 	{
 		if (args.length < 2)
 		{
-			System.out.println("command line usage: hg18to19.sh <input_maf_file> <output_maf_file>");
+			System.out.println("command line usage: " +
+			                   "hg18to19.sh <input_maf_file> <output_maf_file> " +
+			                   "[liftover_binary_file] [chain_file]");
 			System.exit(1);
+		}
+
+		String input = args[0];
+		String output = args[1];
+		String binary = DEFAULT_LIFT_OVER;
+		String chain = DEFAULT_CHAIN_FILE;
+
+		if (args.length > 2)
+		{
+			binary = args[2];
+		}
+
+		if (args.length > 3)
+		{
+			chain = args[3];
 		}
 
 		try
 		{
-			// TODO try to use args first, then hardcoded binary and chain
-			driver(args[0], args[1], DEFAULT_LIFT_OVER, DEFAULT_CHAIN_FILE);
+			driver(input, output, binary, chain);
 		}
 		catch (IOException e)
 		{

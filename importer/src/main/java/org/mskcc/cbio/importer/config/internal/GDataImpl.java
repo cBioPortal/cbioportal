@@ -81,7 +81,7 @@ class GDataImpl implements Config {
 	// ref to spreadsheet client
 	private SpreadsheetService spreadsheetService;
 
-	// for performance optimization - we only retreive worksheet data once
+	// for performance optimization - we try to limit the number of accesses to google
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
 	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
 	ArrayList<ArrayList<String>> caseListMatrix;
@@ -94,7 +94,15 @@ class GDataImpl implements Config {
 
 	// worksheet names we need for updates
 	private String gdataSpreadsheet;
+	private String tumorTypesWorksheet;
+	private String datatypesWorksheet;
+	private String caseIDFiltersWorksheet;
+	private String caseListWorksheet;
 	private String clinicalAttributesWorksheet;
+	private String portalsWorksheet;
+	private String referenceDataWorksheet;
+	private String dataSourcesWorksheet;
+	private String cancerStudiesWorksheet;
 
 	/**
 	 * Constructor.
@@ -127,19 +135,17 @@ class GDataImpl implements Config {
 		this.gdataPassword = gdataPassword;
 		this.spreadsheetService = spreadsheetService;
 
-		tumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tumorTypesWorksheet);
-		datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
-		caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
-		caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
-		clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-		portalsMatrix = getWorksheetData(gdataSpreadsheet, portalsWorksheet);
-		referenceMatrix = getWorksheetData(gdataSpreadsheet, referenceDataWorksheet);
-		dataSourcesMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
-		cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
-
 		// save name(s) of worksheet we update later
 		this.gdataSpreadsheet = gdataSpreadsheet;
+		this.tumorTypesWorksheet = tumorTypesWorksheet;
+		this.datatypesWorksheet = datatypesWorksheet;
+		this.caseIDFiltersWorksheet = caseIDFiltersWorksheet;
+		this.caseListWorksheet = caseListWorksheet;
 		this.clinicalAttributesWorksheet = clinicalAttributesWorksheet;
+		this.portalsWorksheet = portalsWorksheet;
+		this.referenceDataWorksheet = referenceDataWorksheet;
+		this.dataSourcesWorksheet = dataSourcesWorksheet;
+		this.cancerStudiesWorksheet = cancerStudiesWorksheet;
 	}
 
 	/**
@@ -172,6 +178,10 @@ class GDataImpl implements Config {
 	public Collection<TumorTypeMetadata> getTumorTypeMetadata(String tumorType) {
 
 		Collection<TumorTypeMetadata> toReturn = new ArrayList<TumorTypeMetadata>();
+
+		if (tumorTypesMatrix == null) {
+			tumorTypesMatrix = getWorksheetData(gdataSpreadsheet, tumorTypesWorksheet);
+		}
 
 		Collection<TumorTypeMetadata> tumorTypeMetadatas = 
 			(Collection<TumorTypeMetadata>)getMetadataCollection(tumorTypesMatrix,
@@ -257,6 +267,10 @@ class GDataImpl implements Config {
 			LOG.info("getDatatypeMetadata(): " + datatype);
 		}
 
+		if (datatypesMatrix == null) {
+			datatypesMatrix = getWorksheetData(gdataSpreadsheet, datatypesWorksheet);
+		}
+
 		Collection<DatatypeMetadata> datatypeMetadatas = 
 			(Collection<DatatypeMetadata>)getMetadataCollection(datatypesMatrix,
 																"org.mskcc.cbio.importer.model.DatatypeMetadata");
@@ -290,6 +304,10 @@ class GDataImpl implements Config {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getDatatypeMetadata(): " + portalMetadata.getName() + ":" + cancerStudyMetadata.toString());
+		}
+
+		if (cancerStudiesMatrix == null) {
+			cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
 		}
 
 		// get portal-column index in the cancer studies worksheet
@@ -331,6 +349,10 @@ class GDataImpl implements Config {
 
 		Collection<CaseIDFilterMetadata> toReturn = new ArrayList<CaseIDFilterMetadata>();
 
+		if (caseIDFiltersMatrix == null) {
+			caseIDFiltersMatrix = getWorksheetData(gdataSpreadsheet, caseIDFiltersWorksheet);
+		}
+
 		Collection<CaseIDFilterMetadata> caseIDFilterMetadatas = 
 			(Collection<CaseIDFilterMetadata>)getMetadataCollection(caseIDFiltersMatrix,
 																	"org.mskcc.cbio.importer.model.CaseIDFilterMetadata");
@@ -363,6 +385,10 @@ class GDataImpl implements Config {
 
 		Collection<CaseListMetadata> toReturn = new ArrayList<CaseListMetadata>();
 
+		if (caseListMatrix == null) {
+			caseListMatrix = getWorksheetData(gdataSpreadsheet, caseListWorksheet);
+		}
+
 		Collection<CaseListMetadata> caseListMetadatas = 
 			(Collection<CaseListMetadata>)getMetadataCollection(caseListMatrix,
 																"org.mskcc.cbio.importer.model.CaseListMetadata");
@@ -394,6 +420,10 @@ class GDataImpl implements Config {
 	public Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributesColumnHeader) {
 
 		Collection<ClinicalAttributesMetadata> toReturn = new ArrayList<ClinicalAttributesMetadata>();
+
+		if (clinicalAttributesMatrix == null) {
+			clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+		}
 
 		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
 			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
@@ -428,6 +458,10 @@ class GDataImpl implements Config {
 		String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
 		String key = clinicalAttributesMetadata.getColumnHeader();
 
+		if (clinicalAttributesMatrix == null) {
+			clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+		}
+
 		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
 			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
 																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
@@ -443,7 +477,9 @@ class GDataImpl implements Config {
 
 		updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
 						insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
-		
+
+		// this will force a refresh the next time clinicalAttributes
+		clinicalAttributesMatrix = null;
 	}
 
 	/**
@@ -456,6 +492,10 @@ class GDataImpl implements Config {
 	public Collection<PortalMetadata> getPortalMetadata(String portalName) {
 
 		Collection<PortalMetadata> toReturn = new ArrayList<PortalMetadata>();
+
+		if (portalsMatrix == null) {
+			portalsMatrix = getWorksheetData(gdataSpreadsheet, portalsWorksheet);
+		}
 
 		Collection<PortalMetadata> portalMetadatas =
 			(Collection<PortalMetadata>)getMetadataCollection(portalsMatrix,
@@ -489,6 +529,10 @@ class GDataImpl implements Config {
 
 		Collection<ReferenceMetadata> toReturn = new ArrayList<ReferenceMetadata>();
 
+		if (referenceMatrix == null) {
+			referenceMatrix = getWorksheetData(gdataSpreadsheet, referenceDataWorksheet);
+		}
+
 		Collection<ReferenceMetadata> referenceMetadatas =
 			(Collection<ReferenceMetadata>)getMetadataCollection(referenceMatrix,
 																 "org.mskcc.cbio.importer.model.ReferenceMetadata");
@@ -520,6 +564,10 @@ class GDataImpl implements Config {
 	public Collection<DataSourcesMetadata> getDataSourcesMetadata(String dataSource) {
 
 		Collection<DataSourcesMetadata> toReturn = new ArrayList<DataSourcesMetadata>();
+
+		if (dataSourcesMatrix == null) {
+			dataSourcesMatrix = getWorksheetData(gdataSpreadsheet, dataSourcesWorksheet);
+		}
 
 		Collection<DataSourcesMetadata> dataSourceMetadatas =
 			(Collection<DataSourcesMetadata>)getMetadataCollection(dataSourcesMatrix,

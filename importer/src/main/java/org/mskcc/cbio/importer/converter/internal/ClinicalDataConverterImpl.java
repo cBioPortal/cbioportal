@@ -155,11 +155,10 @@ public class ClinicalDataConverterImpl implements Converter {
         for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
 
             String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
-            String status = clinicalAttribute.getAnnotationStatus().trim();
 
+            // add to map
             for (String alias : aliases) {
                 alias = alias.trim();
-                // add to map
                 knownAliasToAttribute.put(alias, clinicalAttribute);
             }
         }
@@ -222,32 +221,6 @@ public class ClinicalDataConverterImpl implements Converter {
                     newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
                 }
             }
-
-//            if (knownAliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
-//                // it's been OKayed
-//                filteredRows.add(rowData);
-//            }
-//
-//            else if (!(knownAliasToAttribute.containsKey(rowName) || newAttributes.containsKey(rowName)) ) {
-//                // make new clinical attribute
-//                String UNANNOTATED = "Unannotated";
-//
-//                String[] props = new String[9];
-//                props[0] = "";                                                              // COLUMN_HEADER
-//                props[1] = "";                                                              // DISPLAY_NAME
-//                props[2] = "";                                                              // DESCRIPTION
-//                props[3] = "";                                                              // DATATYPE
-//                props[4] = rowName;                                                         // ALIASES
-//                props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
-////                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
-//                props[6] = "";                                                              // DISEASE_SPECIFICITY
-//                props[7] = "";                                                              // NIKI_ANNOTATION
-//
-//                newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
-//            }
-//            // else : neither is it new, nor is it OKayed,
-//            // so it is ignored or Unannotated,
-//            // ignore it
         }
 
         // insert the new clinical attributes into google doc

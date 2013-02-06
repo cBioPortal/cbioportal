@@ -151,7 +151,7 @@ public class ClinicalDataConverterImpl implements Converter {
 
         // convert the Collection of clinicalAttributes into a hash map:
         // alias -> ClinicalAttributeMetadata
-        HashMap<String, ClinicalAttributesMetadata> aliasToAttribute = new HashMap<String, ClinicalAttributesMetadata>();
+        HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute = new HashMap<String, ClinicalAttributesMetadata>();
         for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
 
             String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
@@ -160,7 +160,7 @@ public class ClinicalDataConverterImpl implements Converter {
             for (String alias : aliases) {
                 alias = alias.trim();
                 // add to map
-                aliasToAttribute.put(alias, clinicalAttribute);
+                knownAliasToAttribute.put(alias, clinicalAttribute);
             }
         }
 
@@ -194,34 +194,60 @@ public class ClinicalDataConverterImpl implements Converter {
             // - followed by numbers at the end of the line should never count as new
             rowName = rowName.replaceAll("-\\d+$", "");
 
-            if (!aliasToAttribute.containsKey(rowName)
-                    || !newAttributes.containsKey(rowName)) {
-                // make new clinical attribute
-                String UNANNOTATED = "Unannotated";
+            rowName = rowName.trim();
 
-                String[] props = new String[9];
-                props[0] = "";                                                              // COLUMN_HEADER
-                props[1] = "";                                                              // DISPLAY_NAME
-                props[2] = "";                                                              // DESCRIPTION
-                props[3] = "";                                                              // DATATYPE
-                props[4] = rowName;                                                         // ALIASES
-                props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
+            boolean isKnown = knownAliasToAttribute.containsKey(rowName);
+
+            if (isKnown) {
+                if (knownAliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
+                    // it's been OKayed
+                    filteredRows.add(rowData);
+                }
+            } else {
+                if (!newAttributes.containsKey(rowName)) {
+                    // haven't seen before so make a new clinical attribute
+                    String UNANNOTATED = "Unannotated";
+
+                    String[] props = new String[9];
+                    props[0] = "";                                                              // COLUMN_HEADER
+                    props[1] = "";                                                              // DISPLAY_NAME
+                    props[2] = "";                                                              // DESCRIPTION
+                    props[3] = "";                                                              // DATATYPE
+                    props[4] = rowName;                                                         // ALIASES
+                    props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
 //                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
-                props[6] = "";                                                              // DISEASE_SPECIFICITY
-                props[7] = "";                                                              // NIKI_ANNOTATION
+                    props[6] = "";                                                              // DISEASE_SPECIFICITY
+                    props[7] = "";                                                              // NIKI_ANNOTATION
 
-                newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
-
-//                if (LOG.isInfoEnabled()) { LOG.info("added new clinical attribute: " + rowName); }
+                    newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
+                }
             }
 
-            else if (aliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
-                // it's been OKayed
-                filteredRows.add(rowData);
-            }
-            // else : neither is it new, nor is it OKayed,
-            // so it is ignored or Unannotated,
-            // ignore it
+//            if (knownAliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
+//                // it's been OKayed
+//                filteredRows.add(rowData);
+//            }
+//
+//            else if (!(knownAliasToAttribute.containsKey(rowName) || newAttributes.containsKey(rowName)) ) {
+//                // make new clinical attribute
+//                String UNANNOTATED = "Unannotated";
+//
+//                String[] props = new String[9];
+//                props[0] = "";                                                              // COLUMN_HEADER
+//                props[1] = "";                                                              // DISPLAY_NAME
+//                props[2] = "";                                                              // DESCRIPTION
+//                props[3] = "";                                                              // DATATYPE
+//                props[4] = rowName;                                                         // ALIASES
+//                props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
+////                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
+//                props[6] = "";                                                              // DISEASE_SPECIFICITY
+//                props[7] = "";                                                              // NIKI_ANNOTATION
+//
+//                newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
+//            }
+//            // else : neither is it new, nor is it OKayed,
+//            // so it is ignored or Unannotated,
+//            // ignore it
         }
 
         // insert the new clinical attributes into google doc
@@ -238,7 +264,7 @@ public class ClinicalDataConverterImpl implements Converter {
         for (List<String> row : filteredRows) {
 
             String rowName = row.remove(0);
-            ClinicalAttributesMetadata metaData = aliasToAttribute.get(rowName);
+            ClinicalAttributesMetadata metaData = knownAliasToAttribute.get(rowName);
 
             // normalized name
             String normalName = metaData.getColumnHeader();
@@ -275,9 +301,15 @@ public class ClinicalDataConverterImpl implements Converter {
 
         // case id should be the first column
         int caseIdIndex = colNames.indexOf(CASE_ID);
-        String currFirstCol = colNames.get(0);
-        colNames.set(0, CASE_ID);
-        colNames.set(caseIdIndex, currFirstCol);
+        if (caseIdIndex != -1) {
+            String currFirstCol = colNames.get(0);
+            colNames.set(0, CASE_ID);
+            colNames.set(caseIdIndex, currFirstCol);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("clinical data has no column that maps to a CASE_ID column!");
+            }
+        }
+
         outMatrix.setColumnOrder(colNames);
 
 //        outMatrix.write(System.out);

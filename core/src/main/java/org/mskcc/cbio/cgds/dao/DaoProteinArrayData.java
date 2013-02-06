@@ -86,19 +86,20 @@ public class DaoProteinArrayData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`ABUNDANCE`) "
-                            + "VALUES (?,?,?)");
+                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`CASE_ID`,`ABUNDANCE`) "
+                            + "VALUES (?,?,?,?)");
             pstmt.setString(1, pad.getArrayId());
-            pstmt.setString(2, pad.getCaseId());
-            pstmt.setDouble(3, pad.getAbundance());
+            pstmt.setInt(2, pad.getCancerStudyId());
+            pstmt.setString(3, pad.getCaseId());
+            pstmt.setDouble(4, pad.getAbundance());
             int rows = pstmt.executeUpdate();
             return rows;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayData.class, con, pstmt, rs);
         }
     }
     
@@ -142,7 +143,7 @@ public class DaoProteinArrayData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             if (caseIds==null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID IN ('"
@@ -156,6 +157,7 @@ public class DaoProteinArrayData {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 ProteinArrayData pad = new ProteinArrayData(
+                        rs.getInt("CANCER_STUDY_ID"),
                         rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getDouble("ABUNDANCE"));
@@ -166,7 +168,7 @@ public class DaoProteinArrayData {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayData.class, con, pstmt, rs);
         }
     }
 
@@ -182,12 +184,14 @@ public class DaoProteinArrayData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM protein_array_data");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                ProteinArrayData pai = new ProteinArrayData(rs.getString("PROTEIN_ARRAY_ID"),
+                ProteinArrayData pai = new ProteinArrayData(
+                        rs.getInt("CANCER_STUDY_ID"),
+                        rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getDouble("ABUNDANCE"));
                 list.add(pai);
@@ -196,7 +200,7 @@ public class DaoProteinArrayData {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayData.class, con, pstmt, rs);
         }
     }
 
@@ -210,13 +214,13 @@ public class DaoProteinArrayData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE protein_array_data");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayData.class, con, pstmt, rs);
         }
     }
 }

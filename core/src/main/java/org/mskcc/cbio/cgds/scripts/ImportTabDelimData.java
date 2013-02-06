@@ -182,6 +182,12 @@ public class ImportTabDelimData {
                         //  we cannot currently handle this.
                         logger.debug("Ignoring gene ID:  " + geneId);
                     } else {
+                        // deal with multiple symbols separate by |, use the first one
+                        int ix = geneId.indexOf("|");
+                        if (ix>0) {
+                            geneId = geneId.substring(0, ix);
+                        }
+
                         //  Assume we are dealing with Entrez Gene Ids or Symbols.
                         List<CanonicalGene> genes = daoGene.guessGene(geneId);
 

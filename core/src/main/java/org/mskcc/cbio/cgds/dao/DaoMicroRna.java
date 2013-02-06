@@ -63,7 +63,7 @@ public class DaoMicroRna {
               return 1;
            } else {
 
-              con = JdbcUtil.getDbConnection();
+              con = JdbcUtil.getDbConnection(DaoMicroRna.class);
               pstmt = con.prepareStatement
                       ("INSERT INTO micro_rna (`ID`,`VARIANT_ID`) "
                               + "VALUES (?,?)");
@@ -77,7 +77,7 @@ public class DaoMicroRna {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
         }
     }
 
@@ -101,7 +101,7 @@ public class DaoMicroRna {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRna.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM micro_rna WHERE ID = ?");
             pstmt.setString (1, id);
@@ -114,7 +114,7 @@ public class DaoMicroRna {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
         }
     }
 
@@ -124,7 +124,7 @@ public class DaoMicroRna {
         ResultSet rs = null;
         HashSet<String> microRnaIdSet = new HashSet<String>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRna.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM micro_rna");
             rs = pstmt.executeQuery();
@@ -136,7 +136,7 @@ public class DaoMicroRna {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
         }
     }
 
@@ -146,7 +146,7 @@ public class DaoMicroRna {
         ResultSet rs = null;
         HashSet<String> variantMicroRnaSet = new HashSet<String>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRna.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM micro_rna");
             rs = pstmt.executeQuery();
@@ -157,7 +157,7 @@ public class DaoMicroRna {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
         }
     }
 
@@ -166,13 +166,13 @@ public class DaoMicroRna {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMicroRna.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE micro_rna");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
         }
     }
 }

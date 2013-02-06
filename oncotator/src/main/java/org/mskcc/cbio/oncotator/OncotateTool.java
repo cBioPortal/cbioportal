@@ -56,15 +56,15 @@ public class OncotateTool
 	    {
 		    if (args[i].startsWith("-"))
 		    {
-			    if (args[0].equalsIgnoreCase("-nocache"))
+			    if (args[i].equalsIgnoreCase("-nocache"))
 			    {
 				    useCache = false;
 			    }
-			    else if (args[0].equalsIgnoreCase("-sort"))
+			    else if (args[i].equalsIgnoreCase("-sort"))
 			    {
 				    sort = true;
 			    }
-			    else if (args[0].equalsIgnoreCase("-std"))
+			    else if (args[i].equalsIgnoreCase("-std"))
 			    {
 				    addMissing = true;
 			    }

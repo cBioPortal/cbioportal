@@ -51,7 +51,7 @@ public class DaoUserAuthorities {
 		ResultSet rs = null;
 		int toReturn = 0;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 			String email = userAuthorities.getEmail();
 			for (String authority : userAuthorities.getAuthorities()) {
                 pstmt = con.prepareStatement("INSERT INTO authorities (`EMAIL`, `AUTHORITY`) VALUES (?,?)");
@@ -62,7 +62,7 @@ public class DaoUserAuthorities {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoUserAuthorities.class, con, pstmt, rs);
 		}
 
 		// outta here
@@ -75,7 +75,7 @@ public class DaoUserAuthorities {
 		ResultSet rs = null;
 		UserAuthorities toReturn;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 			pstmt = con.prepareStatement("SELECT * FROM authorities where EMAIL=?");
 			pstmt.setString(1, user.getEmail());
 			rs = pstmt.executeQuery();
@@ -87,7 +87,7 @@ public class DaoUserAuthorities {
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoUserAuthorities.class, con, pstmt, rs);
 		}
 	}
 
@@ -97,14 +97,14 @@ public class DaoUserAuthorities {
 		ResultSet rs = null;
 		UserAuthorities toReturn;
 		try {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 			pstmt = con.prepareStatement("DELETE FROM authorities where EMAIL=?");
 			pstmt.setString(1, user.getEmail());
 			pstmt.executeUpdate();
 		} catch (SQLException e) {
 			throw new DaoException(e);
 		} finally {
-			JdbcUtil.closeAll(con, pstmt, rs);
+			JdbcUtil.closeAll(DaoUserAuthorities.class, con, pstmt, rs);
 		}
 	}
 
@@ -113,13 +113,13 @@ public class DaoUserAuthorities {
 	   PreparedStatement pstmt = null;
 	   ResultSet rs = null;
       try {
-		  con = JdbcUtil.getDbConnection();
+		  con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 		  pstmt = con.prepareStatement("TRUNCATE TABLE authorities");
 		  pstmt.executeUpdate();
       } catch (SQLException e) {
 		  throw new DaoException(e);
       } finally {
-		  JdbcUtil.closeAll(con, pstmt, rs);
+		  JdbcUtil.closeAll(DaoUserAuthorities.class, con, pstmt, rs);
       }
    }
 }

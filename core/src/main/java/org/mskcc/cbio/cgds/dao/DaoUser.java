@@ -50,7 +50,7 @@ public class DaoUser {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoUser.class);
          pstmt = con.prepareStatement("INSERT INTO users ( `EMAIL`, `NAME`, `ENABLED` ) VALUES (?,?,?)");
          pstmt.setString(1, user.getEmail());
          pstmt.setString(2, user.getName());
@@ -60,7 +60,7 @@ public class DaoUser {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoUser.class, con, pstmt, rs);
       }
    }
 
@@ -77,7 +77,7 @@ public class DaoUser {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoUser.class);
          pstmt = con.prepareStatement("SELECT * FROM users WHERE EMAIL=?");
          pstmt.setString(1, email);
          rs = pstmt.executeQuery();
@@ -89,7 +89,7 @@ public class DaoUser {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoUser.class, con, pstmt, rs);
       }
    }
 
@@ -98,7 +98,7 @@ public class DaoUser {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoUser.class);
          pstmt = con.prepareStatement("SELECT * FROM users");
          rs = pstmt.executeQuery();
          ArrayList<User> list = new ArrayList<User>();
@@ -110,7 +110,7 @@ public class DaoUser {
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoUser.class, con, pstmt, rs);
       }
    }
 
@@ -119,13 +119,13 @@ public class DaoUser {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoUser.class);
          pstmt = con.prepareStatement("TRUNCATE TABLE users");
          pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoUser.class, con, pstmt, rs);
       }
    }
 
@@ -134,14 +134,14 @@ public class DaoUser {
       PreparedStatement pstmt = null;
       ResultSet rs = null;
       try {
-         con = JdbcUtil.getDbConnection();
+         con = JdbcUtil.getDbConnection(DaoUser.class);
          pstmt = con.prepareStatement("DELETE FROM users WHERE EMAIL=?");
          pstmt.setString(1, email);
          pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
-         JdbcUtil.closeAll(con, pstmt, rs);
+         JdbcUtil.closeAll(DaoUser.class, con, pstmt, rs);
       }
    }
 

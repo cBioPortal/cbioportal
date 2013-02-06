@@ -45,6 +45,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.Set;
 
 /**
  * Class which implements the Converter interface.
@@ -110,12 +111,14 @@ public class PassThroughConverterImpl implements Converter {
 
     /**
 	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
 	 *
 	 * @param portal String
+	 * @param excludeDatatypes Set<String>
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(String portal) throws Exception {
+	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
 		throw new UnsupportedOperationException();
     }
 

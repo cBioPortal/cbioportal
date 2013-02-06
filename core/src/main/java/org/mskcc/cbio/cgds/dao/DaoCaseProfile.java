@@ -23,7 +23,7 @@ public final class DaoCaseProfile {
         ResultSet rs = null;
         try {
             if (!caseExistsInGeneticProfile(caseId, geneticProfileId)) {
-                con = JdbcUtil.getDbConnection();
+                con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
                 pstmt = con.prepareStatement
                         ("INSERT INTO case_profile (`CASE_ID`, `GENETIC_PROFILE_ID`) "
                                 + "VALUES (?,?)");
@@ -37,7 +37,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 
@@ -47,7 +47,7 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_profile WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ?");
             pstmt.setString(1, caseId);
@@ -61,7 +61,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
     
@@ -70,7 +70,7 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
                     ("SELECT count(*) FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
@@ -82,7 +82,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 
@@ -91,7 +91,7 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM case_profile WHERE CASE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
@@ -104,7 +104,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 
@@ -113,7 +113,7 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
@@ -126,7 +126,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 
@@ -135,7 +135,7 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM case_profile");
             rs = pstmt.executeQuery();
@@ -147,7 +147,7 @@ public final class DaoCaseProfile {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 
@@ -156,13 +156,13 @@ public final class DaoCaseProfile {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE case_profile");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCaseProfile.class, con, pstmt, rs);
         }
     }
 }

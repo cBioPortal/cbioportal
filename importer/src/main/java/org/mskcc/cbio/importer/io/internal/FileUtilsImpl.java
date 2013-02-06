@@ -91,6 +91,18 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	// ref to config
 	private Config config;
 
+	// location of lift over binary
+	private String liftoverBinary;
+	@Value("${liftover_binary}")
+	public void setLiftOverBinary(String property) { this.liftoverBinary = property; }
+	public String getLiftOverBinary() { return MetadataUtils.getCanonicalPath(liftoverBinary); }
+
+	// location of lift over chain
+	private String liftoverChain;
+	@Value("${liftover_chain_file}")
+	public void setLiftOverChain(String property) { this.liftoverChain = property; }
+	public String getLiftOverChain() { return MetadataUtils.getCanonicalPath(liftoverChain); }
+
 	/**
 	 * Constructor.
      *
@@ -815,7 +827,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("oncotateMAF(), calling Hg18ToHg19...");
 			}
-			Hg18ToHg19.driver(inputMAF.getFile(), oncotatorInputFile.getCanonicalPath());
+			Hg18ToHg19.driver(inputMAF.getFile(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
 			cleanOncotatorInputFile = true;
 		}
 

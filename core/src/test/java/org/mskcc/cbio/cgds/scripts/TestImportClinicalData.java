@@ -30,8 +30,6 @@ package org.mskcc.cbio.cgds.scripts;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.model.ClinicalData;
 
@@ -39,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.ArrayList;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 
 /**
  * Tests Import of Clinical Data.
@@ -58,7 +57,8 @@ public class TestImportClinicalData extends TestCase {
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/clinical_test.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(file, pMonitor);
+        CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
         importClinicalData.importData();
 
         DaoClinicalData dao = new DaoClinicalData();

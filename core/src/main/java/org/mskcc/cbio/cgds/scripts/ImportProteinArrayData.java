@@ -102,7 +102,7 @@ public class ImportProteinArrayData {
             
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                ProteinArrayData pad = new ProteinArrayData(arrayId, cases.get(i), zscores[i]);
+                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, cases.get(i), zscores[i]);
                 daoPAD.addProteinArrayData(pad);
             }
             
@@ -330,7 +330,7 @@ public class ImportProteinArrayData {
                                 continue;
                             }
                             double abud = pad.getAbundance() - proteinPAD.getAbundance(); // minus
-                            ProteinArrayData norm = new ProteinArrayData(id, caseid, abud);
+                            ProteinArrayData norm = new ProteinArrayData(studyId, id, caseid, abud);
                             daoPAD.addProteinArrayData(norm);
                         }
                         

@@ -89,11 +89,11 @@ public class DaoProteinArrayData {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`CASE_ID`,`ABUNDANCE`) "
-                            + "VALUES (?,?,?)");
+                            + "VALUES (?,?,?,?)");
             pstmt.setString(1, pad.getArrayId());
             pstmt.setInt(2, pad.getCancerStudyId());
-            pstmt.setString(2, pad.getCaseId());
-            pstmt.setDouble(3, pad.getAbundance());
+            pstmt.setString(3, pad.getCaseId());
+            pstmt.setDouble(4, pad.getAbundance());
             int rows = pstmt.executeUpdate();
             return rows;
         } catch (SQLException e) {

@@ -600,6 +600,10 @@ class GDataImpl implements Config {
 
 		Collection<CancerStudyMetadata> toReturn = new ArrayList<CancerStudyMetadata>();
 
+		if (cancerStudiesMatrix == null) {
+			cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+		}
+
 		// get portal-column index in the cancer studies worksheet
 		int portalColumnIndex = cancerStudiesMatrix.get(0).indexOf(portalName);
 		if (portalColumnIndex == -1) return toReturn;

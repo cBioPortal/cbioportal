@@ -53,7 +53,7 @@ public class DaoClinicalData {
      * @return number of cases added.
      * @throws DaoException Error Adding new Record.
      */
-    public int addCase(String caseId, Double overallSurvivalMonths, String overallSurvivalStatus,
+    public int addCase(int cancerStudyId, String caseId, Double overallSurvivalMonths, String overallSurvivalStatus,
             Double diseaseFreeSurvivalMonths, String diseaseFreeSurvivalStatus,
             Double ageAtDiagnosis)
             throws DaoException {
@@ -66,42 +66,43 @@ public class DaoClinicalData {
         try {
                 con = JdbcUtil.getDbConnection(DaoClinicalData.class);
                 pstmt = con.prepareStatement
-                        ("INSERT INTO clinical (`CASE_ID`, `OVERALL_SURVIVAL_MONTHS`, " +
+                        ("INSERT INTO clinical (`CANCER_STUDY_ID`, `CASE_ID`, `OVERALL_SURVIVAL_MONTHS`, " +
                                 "`OVERALL_SURVIVAL_STATUS`, " +
                                 "`DISEASE_FREE_SURVIVAL_MONTHS`, `DISEASE_FREE_SURVIVAL_STATUS`," +
                                 "`AGE_AT_DIAGNOSIS`) "
-                                + "VALUES (?,?,?,?,?,?)");
-                pstmt.setString(1, caseId);
+                                + "VALUES (?,?,?,?,?,?,?)");
+                pstmt.setInt(1, cancerStudyId);
+                pstmt.setString(2, caseId);
 
                 //  Make sure to set to Null if we are missing data.
                 if (overallSurvivalMonths == null) {
-                    pstmt.setNull(2, java.sql.Types.DOUBLE);
+                    pstmt.setNull(3, java.sql.Types.DOUBLE);
                 } else {
-                    pstmt.setDouble(2, overallSurvivalMonths);
+                    pstmt.setDouble(3, overallSurvivalMonths);
                 }
 
                 if (overallSurvivalStatus == null) {
-                    pstmt.setNull(3, java.sql.Types.VARCHAR);
+                    pstmt.setNull(4, java.sql.Types.VARCHAR);
                 } else {
-                    pstmt.setString(3, overallSurvivalStatus);
+                    pstmt.setString(4, overallSurvivalStatus);
                 }
 
                 if (diseaseFreeSurvivalMonths == null) {
-                    pstmt.setNull(4, java.sql.Types.DOUBLE);
+                    pstmt.setNull(5, java.sql.Types.DOUBLE);
                 } else {
-                    pstmt.setDouble(4, diseaseFreeSurvivalMonths);
+                    pstmt.setDouble(5, diseaseFreeSurvivalMonths);
                 }
 
                 if (diseaseFreeSurvivalStatus == null) {
-                    pstmt.setNull(5, java.sql.Types.VARCHAR);
+                    pstmt.setNull(6, java.sql.Types.VARCHAR);
                 } else {
-                    pstmt.setString(5, diseaseFreeSurvivalStatus);
+                    pstmt.setString(6, diseaseFreeSurvivalStatus);
                 }
 
                 if (ageAtDiagnosis == null) {
-                    pstmt.setNull(6, java.sql.Types.DOUBLE);
+                    pstmt.setNull(7, java.sql.Types.DOUBLE);
                 } else {
-                    pstmt.setDouble(6, ageAtDiagnosis);
+                    pstmt.setDouble(7, ageAtDiagnosis);
                 }
 
                 int rows = pstmt.executeUpdate();
@@ -136,6 +137,7 @@ public class DaoClinicalData {
             rs = pstmt.executeQuery();
             ArrayList<ClinicalData> caseList = new ArrayList<ClinicalData>();
             while (rs.next()) {
+                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
                 String caseId = rs.getString("CASE_ID");
 
                 //  Must check for NULL Data via rs.wasNull
@@ -164,7 +166,7 @@ public class DaoClinicalData {
                     ageAtDiagnosis = null;
                 }
 
-                ClinicalData caseSurvival = new ClinicalData(caseId, overallSurvivalMonths,
+                ClinicalData caseSurvival = new ClinicalData(cancerStudyId, caseId, overallSurvivalMonths,
                         overallSurvivalStatus, diseaseFreeSurvivalMonths,
                         diseaseFreeSurvivalStatus, ageAtDiagnosis);
                 caseList.add(caseSurvival);

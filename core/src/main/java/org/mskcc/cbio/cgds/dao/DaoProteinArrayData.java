@@ -88,9 +88,10 @@ public class DaoProteinArrayData {
         try {
             con = JdbcUtil.getDbConnection(DaoProteinArrayData.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CASE_ID`,`ABUNDANCE`) "
+                    ("INSERT INTO protein_array_data (`PROTEIN_ARRAY_ID`,`CANCER_STUDY_ID`,`CASE_ID`,`ABUNDANCE`) "
                             + "VALUES (?,?,?)");
             pstmt.setString(1, pad.getArrayId());
+            pstmt.setInt(2, pad.getCancerStudyId());
             pstmt.setString(2, pad.getCaseId());
             pstmt.setDouble(3, pad.getAbundance());
             int rows = pstmt.executeUpdate();
@@ -156,6 +157,7 @@ public class DaoProteinArrayData {
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 ProteinArrayData pad = new ProteinArrayData(
+                        rs.getInt("CANCER_STUDY_ID"),
                         rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getDouble("ABUNDANCE"));
@@ -187,7 +189,9 @@ public class DaoProteinArrayData {
                     ("SELECT * FROM protein_array_data");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                ProteinArrayData pai = new ProteinArrayData(rs.getString("PROTEIN_ARRAY_ID"),
+                ProteinArrayData pai = new ProteinArrayData(
+                        rs.getInt("CANCER_STUDY_ID"),
+                        rs.getString("PROTEIN_ARRAY_ID"),
                         rs.getString("CASE_ID"),
                         rs.getDouble("ABUNDANCE"));
                 list.add(pai);

@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.converter.internal;
 
 // imports
 import com.google.gdata.util.common.base.StringUtil;
+import static org.mskcc.cbio.cgds.scripts.ImportClinical.IGNORE_LINE_PREFIX;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -71,9 +72,6 @@ public class ClinicalDataConverterImpl implements Converter {
 
     // name of the case id column
     public static final String CASE_ID = "CASE_ID";
-
-    // "commented out" string, i.e.metadata
-    public static final String IGNORE_LINE_PREFIX = "#";
 
 	/**
 	 * Constructor.

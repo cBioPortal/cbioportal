@@ -27,13 +27,24 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.DaoClinical;
+import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
+import java.util.HashMap;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public class ImportClinical {
     private ProgressMonitor pMonitor;
     private File clincalFile;
+
+    // our logger
+    private static Log LOG = LogFactory.getLog(ImportClinical.class);
+
+    // "commented out" string, i.e.metadata
+    public static final String IGNORE_LINE_PREFIX = "#";
 
     public static String readCancerStudyId(String filename) throws IOException {
 
@@ -53,6 +64,31 @@ public class ImportClinical {
         }
 
         throw new IOException("cannot find cancer_study_identifier");
+    }
+
+    /**
+     * reads a line from a clinical staging file given the ordering of the fields
+     * @param line
+     * @param colnames
+     * @param delim
+     * @return
+     */
+    public static HashMap<String, String> hashLine(String line, String[] colnames, String delim) {
+        String[] lineSplit = line.split(delim);
+
+        HashMap<String, String> toReturn = new HashMap<String, String>();
+
+        if ( lineSplit.length != colnames.length ) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(lineSplit.length + " fields in line out of " + colnames.length + " of columns in file");
+            }
+        }
+
+        for (int i = 0; i < colnames.length; i++) {
+            toReturn.put( colnames[i], lineSplit[i] );
+        }
+
+        return toReturn;
     }
 
     /**
@@ -83,15 +119,28 @@ public class ImportClinical {
 
         String cancerStudyId = readCancerStudyId(args[1]);
 
-        System.out.println(cancerStudyId);
-
         DaoClinical daoClinical = new DaoClinical();
 
-        String fieldNames = clinical.readLine();
-        String[] fields = fieldNames.split("\t");
+        String line = clinical.readLine();
 
-        for (String field : fields) {
-            System.out.println(field);
+        String[] colnames = line.split("\t");
+
+        line = clinical.readLine();
+        while (line != null) {
+
+            if (line.substring(0,1).equals(IGNORE_LINE_PREFIX)) {
+                line = clinical.readLine();
+                continue;
+            }
+
+            HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
+            // go through everything in the hashmap
+            // except for the case id
+            // look for the clinicalAttribute
+            // create it if it doesn't exist
+            // return Clinical object with the correct ids and whatnot
+
+            line = clinical.readLine();
         }
 
         // make a map of attributes to ClinicalAttribute objects

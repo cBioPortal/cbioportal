@@ -32,6 +32,7 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -91,6 +92,14 @@ public class ImportClinical {
         return toReturn;
     }
 
+//    public static Clinical hashToClinical(HashMap<String, String> hash) {
+//        for (Map.Entry<String, String> entry : hashedLine.entrySet()) {
+//            if (entry.getKey().equals(caseIdColName)) {
+//                continue;
+//            }
+//        }
+//    }
+
     /**
      *
      * Import clinical data.
@@ -114,16 +123,19 @@ public class ImportClinical {
             System.exit(1);
         }
 
+        // make methods not static
+        // importClinical with be a dump of functions
+        // does that mean it should be a singleton?
+        // yes
+        ImportClinical importClinical = new ImportClinical();
+
         FileReader clinical_f = new FileReader(args[0]);
         BufferedReader clinical = new BufferedReader(clinical_f);
-
-        String cancerStudyId = readCancerStudyId(args[1]);
-
-        DaoClinical daoClinical = new DaoClinical();
-
         String line = clinical.readLine();
-
         String[] colnames = line.split("\t");
+
+        // ASSUME : the first column in the column of case_ids
+        String caseIdColName = colnames[0];
 
         line = clinical.readLine();
         while (line != null) {
@@ -134,6 +146,9 @@ public class ImportClinical {
             }
 
             HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
+//            hashToClinical(hashedLine);
+
+
             // go through everything in the hashmap
             // except for the case id
             // look for the clinicalAttribute

@@ -117,6 +117,13 @@
 	  <version>${hibernate.version}</version>
 	</dependency>
 
+	<!-- lift over tool -->
+	<dependency>
+	  <groupId>org.mskcc.cbio</groupId>
+	  <artifactId>liftover</artifactId>
+	  <version>${project.version}</version>
+	</dependency>
+
 	<!-- mutation assessor tool -->
 	<dependency>
 	  <groupId>org.mskcc.cbio</groupId>

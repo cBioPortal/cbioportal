@@ -55,6 +55,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.Collection;
 import java.util.Properties;
 import java.text.SimpleDateFormat;
@@ -149,10 +150,11 @@ public class Admin implements Runnable {
 											   "before staging files are created.")
                               .create("convert_data"));
 
-		Option applyOverrides = (OptionBuilder.withArgName("portal")		
-								 .hasArg()		
+		Option applyOverrides = (OptionBuilder.withArgName("portal:exclude_datatype")		
+								 .hasArgs(2)		
 								 .withDescription("Replace staging files for the given portal " +
-												  "with any exisiting overrides.")
+												  "with any exisiting overrides.  If exclude_datatype is set, " +
+												  "the datatype provided will not have overrides applied.")
 								 .create("apply_overrides"));
 
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
@@ -264,7 +266,8 @@ public class Admin implements Runnable {
 			}
             // apply overrides		
 			else if (commandLine.hasOption("apply_overrides")) {		
-				applyOverrides(commandLine.getOptionValue("apply_overrides"));
+				String[] values = commandLine.getOptionValues("apply_overrides");
+				applyOverrides(values[0], (values.length == 2) ? values[1] : "");
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
@@ -500,16 +503,20 @@ public class Admin implements Runnable {
 	 * Helper function to apply overrides to a given portal.
 	 *		
 	 * @param portal String		
+	 * @param excludeDatatype String
 	 * @throws Exception		
 	 */		
-	private void applyOverrides(String portal) throws Exception {		
+	private void applyOverrides(String portal, String excludeDatatype) throws Exception {		
 			
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), portal: " + portal);
+			LOG.info("applyOverrides(), exclude_datatype: " + excludeDatatype);
 		}
-			
+
 		Converter converter = (Converter)getBean("converter");		
-		converter.applyOverrides(portal);
+		HashSet<String> excludeDatatypes = new HashSet<String>();
+		if (excludeDatatype.length() > 0) excludeDatatypes.add(excludeDatatype);
+		converter.applyOverrides(portal, excludeDatatypes);
 
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), complete");

@@ -319,7 +319,10 @@ var updateMutSigTable = function() {
     }
 
     else {
-        gene_list = gene_list.split(" ");
+        // split on " " and "\n"
+        gene_list = gene_list.split(" ").map(function(i) { return i.split("\n"); });
+        // flatten the list of lists
+        gene_list = gene_list.reduce(function(x,y) { return x.concat(y); });
     }
 
     // clear all checks

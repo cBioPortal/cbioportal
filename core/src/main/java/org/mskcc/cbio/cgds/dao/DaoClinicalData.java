@@ -137,7 +137,7 @@ public class DaoClinicalData {
             rs = pstmt.executeQuery();
             ArrayList<ClinicalData> caseList = new ArrayList<ClinicalData>();
             while (rs.next()) {
-                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
+                int cancerStudyId = -1;//rs.getInt("CANCER_STUDY_ID");
                 String caseId = rs.getString("CASE_ID");
 
                 //  Must check for NULL Data via rs.wasNull

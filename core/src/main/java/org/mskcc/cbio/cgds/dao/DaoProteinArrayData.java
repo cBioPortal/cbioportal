@@ -155,16 +155,7 @@ public class DaoProteinArrayData {
                         + " AND CASE_ID IN ('"+StringUtils.join(caseIds,"','") +"')");
             }
             rs = pstmt.executeQuery();
-            while (rs.next()) {
-                ProteinArrayData pad = new ProteinArrayData(
-                        rs.getInt("CANCER_STUDY_ID"),
-                        rs.getString("PROTEIN_ARRAY_ID"),
-                        rs.getString("CASE_ID"),
-                        rs.getDouble("ABUNDANCE"));
-                list.add(pad);
-            }
-            
-            return list;
+            return extractData(rs);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -179,7 +170,7 @@ public class DaoProteinArrayData {
      * @throws DaoException Database Error.
      */
     public ArrayList<ProteinArrayData> getAllProteinArrayData() throws DaoException {
-        ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
+        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -188,20 +179,25 @@ public class DaoProteinArrayData {
             pstmt = con.prepareStatement
                     ("SELECT * FROM protein_array_data");
             rs = pstmt.executeQuery();
-            while (rs.next()) {
-                ProteinArrayData pai = new ProteinArrayData(
-                        rs.getInt("CANCER_STUDY_ID"),
-                        rs.getString("PROTEIN_ARRAY_ID"),
-                        rs.getString("CASE_ID"),
-                        rs.getDouble("ABUNDANCE"));
-                list.add(pai);
-            }
-            return list;
+            return extractData(rs);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoProteinArrayData.class, con, pstmt, rs);
         }
+    }
+    
+    private ArrayList<ProteinArrayData> extractData(ResultSet rs) throws SQLException {
+        ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
+        while (rs.next()) {
+            ProteinArrayData pai = new ProteinArrayData(
+                    -1,//rs.getInt("CANCER_STUDY_ID"),
+                    rs.getString("PROTEIN_ARRAY_ID"),
+                    rs.getString("CASE_ID"),
+                    rs.getDouble("ABUNDANCE"));
+            list.add(pai);
+        }
+        return list;
     }
 
     /**

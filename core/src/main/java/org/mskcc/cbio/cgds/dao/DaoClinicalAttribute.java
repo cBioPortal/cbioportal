@@ -49,7 +49,7 @@ public class DaoClinicalAttribute {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO clinical_attribute(" +
                             "`ATTR_ID`," +
@@ -67,7 +67,7 @@ public class DaoClinicalAttribute {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
     }
 
@@ -76,7 +76,7 @@ public class DaoClinicalAttribute {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
 
             pstmt = con.prepareStatement("SELECT * FROM clinical_attribute WHERE ATTR_ID=? ");
             pstmt.setString(1, attrId);
@@ -90,12 +90,12 @@ public class DaoClinicalAttribute {
                         rs.getString("DATATYPE"));
                 return clinicalAttribute;
             } else {
-                throw new DaoException(String.format("clincial attribute not found for (%s)", attrId));
+                throw new DaoException(String.format("clinical attribute not found for (%s)", attrId));
             }
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
     }
 
@@ -108,13 +108,13 @@ public class DaoClinicalAttribute {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical_attribute");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
     }
 }

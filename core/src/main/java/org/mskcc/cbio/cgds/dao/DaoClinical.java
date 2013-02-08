@@ -39,7 +39,8 @@ import java.sql.SQLException;
  *
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
-public class DaoClinical {
+
+public final class DaoClinical {
 
     /**
      * add a new clinical datum
@@ -50,7 +51,7 @@ public class DaoClinical {
      * @param attrVal
      * @return number of rows added to the database
      */
-    public int addDatum(int cancerStudyId,
+    public static int addDatum(int cancerStudyId,
                         String caseId,
                         String attrId,
                         String attrVal) throws DaoException {
@@ -58,7 +59,7 @@ public class DaoClinical {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO clinical(" +
                             "`CANCER_STUDY_ID`," +
@@ -76,17 +77,17 @@ public class DaoClinical {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
         }
     }
 
-    public Clinical getDatum(int cancerStudyId, String caseId, String attrId)
+    public static Clinical getDatum(int cancerStudyId, String caseId, String attrId)
             throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
 
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
                     "CANCER_STUDY_ID=? " +
@@ -114,7 +115,7 @@ public class DaoClinical {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
         }
     }
 
@@ -122,19 +123,18 @@ public class DaoClinical {
      * Deletes all Records.
      * @throws DaoException DAO Error.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE clinical");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
         }
     }
 }
-

@@ -45,10 +45,9 @@ public class TestDaoClinical extends TestCase {
      */
     public void testDaoClinical() throws DaoException {
         ResetDatabase.resetDatabase();
-        DaoClinical daoClinical = new DaoClinical();
 
-        daoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
-        Clinical clinicalData = daoClinical.getDatum(1, "TCGA-A", "tumor-size");
+        DaoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
+        Clinical clinicalData = DaoClinical.getDatum(1, "TCGA-A", "tumor-size");
 
 //        System.out.println(clinicalData);
         assertNotNull(clinicalData);

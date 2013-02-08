@@ -128,6 +128,77 @@ public class ClinicalDataConverterImpl implements Converter {
 		throw new UnsupportedOperationException();
     }
 
+    /**
+     * helper function for internal use
+     *
+     * converts the Collection of clinicalAttributes into this hash map:
+     * { alias -> ClinicalAttributeMetadata }
+     *
+     * @param clinicalAttributes
+     * @return
+     */
+    public HashMap<String, ClinicalAttributesMetadata>  createStringToClinicalAttributeMetaData(Collection<ClinicalAttributesMetadata> clinicalAttributes) {
+        HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute = new HashMap<String, ClinicalAttributesMetadata>();
+        for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
+
+            String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
+
+            // add to map
+            for (String alias : aliases) {
+                alias = alias.trim();
+                knownAliasToAttribute.put(alias, clinicalAttribute);
+            }
+        }
+
+        return knownAliasToAttribute;
+    }
+
+    /**
+     * helper function for internal use
+     *
+     * cleans up the alias string, but more importantly, reduces "similar" aliases to a single alias.
+     *
+     * e.g. patient.followups.followupv2.0-2.radiationtherapy -> patient.followups.followup.radiationtherapy
+     *
+     * the idea being that each followup doesn't counter as a different alias.  Put another way, "version"
+     * numbers don't count as different attributes
+     *
+     * @param alias
+     * @return
+     */
+    public String cleanUpAlias(String alias) {
+        if (alias.contains("radiations.radiation")
+                || alias.contains("drugs.drug")
+                || alias.contains("fishtestcomponentresults.fishtestcomponentresult")
+                || alias.contains("immunophenotypecytochemistrytestingresults.immunophenotypecytochemistrytestingresultvalues")
+                || alias.contains("molecularanalysisabnormalitytestingresults.molecularanalysisabnormalitytestingresultvalues")) {
+            alias = alias.replaceAll("-\\d+.", ".");
+        }
+
+        if (alias.contains("followups.followup")) {
+            alias = alias.replaceAll("v\\d+.\\d+(-\\d+)?.",".");
+        }
+
+        // - followed by numbers at the end of the line should never count as new
+        alias = alias.replaceAll("-\\d+$", "");
+
+        return alias.trim();
+    }
+
+    /**
+     * Updates the filteredRows accordingly.
+     * @param knownAliasToAttribute
+     * @param alias
+     * @param filteredRows
+     * @return
+     */
+    public List<List<String>> appendToFilteredRows(HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute,
+                                                   String alias,
+                                                   List<List<String>> filteredRows) {
+
+        return filteredRows;
+    }
+
 	/**
 	 * Creates a staging file from the given import data.
 	 *
@@ -149,51 +220,22 @@ public class ClinicalDataConverterImpl implements Converter {
 
         Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
 
-        // convert the Collection of clinicalAttributes into a hash map:
-        // alias -> ClinicalAttributeMetadata
-        HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute = new HashMap<String, ClinicalAttributesMetadata>();
-        for (ClinicalAttributesMetadata clinicalAttribute : clinicalAttributes) {
-
-            String[] aliases = clinicalAttribute.getAliases().split(ALIAS_DELIMITER);
-
-            // add to map
-            for (String alias : aliases) {
-                alias = alias.trim();
-                knownAliasToAttribute.put(alias, clinicalAttribute);
-            }
-        }
+        HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute
+                = createStringToClinicalAttributeMetaData(clinicalAttributes);
 
         // filter through the rows of the data matrix (clinical data is row oriented),
         // returning only the rows that we are interested in.
         // i.e. the ones whose alias' have a corresponding normalized name
         List<List<String>> filteredRows = new LinkedList<List<String>>();
+
         HashMap<String, ClinicalAttributesMetadata> newAttributes = new HashMap<String, ClinicalAttributesMetadata>();
 
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
 
-            String rowName = rowData.get(0);
+            String rowName = cleanUpAlias(rowData.get(0));
 
-            //////////////////////////////////////////////////////////////////////////
-            // prevent unnecessary duplication                                      //
-            // specifically, "version" numbers don't count as different attributes  //
-            //////////////////////////////////////////////////////////////////////////
-            if (rowName.contains("radiations.radiation")
-                    || rowName.contains("drugs.drug")
-                    || rowName.contains("fishtestcomponentresults.fishtestcomponentresult")
-                    || rowName.contains("immunophenotypecytochemistrytestingresults.immunophenotypecytochemistrytestingresultvalues")
-                    || rowName.contains("molecularanalysisabnormalitytestingresults.molecularanalysisabnormalitytestingresultvalues")) {
-                rowName = rowName.replaceAll("-\\d+.", ".");
-            }
-
-            if (rowName.contains("followups.followup")) {
-                rowName = rowName.replaceAll("v\\d+.\\d+(-\\d+)?.",".");
-            }
-
-            // - followed by numbers at the end of the line should never count as new
-            rowName = rowName.replaceAll("-\\d+$", "");
-
-            rowName = rowName.trim();
+            appendToFilteredRows(knownAliasToAttribute, rowName, filteredRows);
 
             boolean isKnown = knownAliasToAttribute.containsKey(rowName);
 

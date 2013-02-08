@@ -583,7 +583,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		if (oncotatorInputFile.exists()) {
+			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		}
 
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
@@ -823,13 +825,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		String[] parts = it.nextLine().split("\t");
 		if (parts[3].contains("36") || parts[3].equals("hg18")) {
 			it.close();
-			oncotatorInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																		 "oncotatorInputFile");
+			File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+																			 "liftoverInputFile");
+			org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
+			oncotatorInputFile = new File(inputMAF.getFile());
 			// call lift over
 			if (LOG.isInfoEnabled()) {
 				LOG.info("oncotateMAF(), calling Hg18ToHg19...");
 			}
-			Hg18ToHg19.driver(inputMAF.getFile(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
+			Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
+			org.apache.commons.io.FileUtils.forceDelete(liftoverInputFile);
 			cleanOncotatorInputFile = true;
 		}
 
@@ -847,7 +852,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling MutationAssessorTool...");
 		}
-		MutationAssessorTool.driver(oncotatorOutputFile.getCanonicalPath(), outputMAF.getFile(), false, true, true);
+		File outputMAFFile = new File(outputMAF.getFile());
+		outputMAFFile.createNewFile();
+		MutationAssessorTool.driver(oncotatorOutputFile.getCanonicalPath(), outputMAFFile.getCanonicalPath(), false, true, true);
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);

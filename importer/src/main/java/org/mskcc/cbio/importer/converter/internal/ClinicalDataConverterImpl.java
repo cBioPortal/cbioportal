@@ -30,7 +30,6 @@ package org.mskcc.cbio.importer.converter.internal;
 
 // imports
 //import static org.mskcc.cbio.cgds.scripts.ImportClinical.IGNORE_LINE_PREFIX;
-import org.mskcc.cbio.cgds.scripts.ImportClinical;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -284,7 +283,8 @@ public class ClinicalDataConverterImpl implements Converter {
             colNames.add(normalName);
 
             // case id is always the first column
-            String prefix = normalName.equals(CASE_ID) ? ImportClinical.IGNORE_LINE_PREFIX : "";
+            String IGNORE_LINE_PREFIX = "#";        // should be able to get this from ImportClinical?
+            String prefix = normalName.equals(CASE_ID) ? IGNORE_LINE_PREFIX : "";
 
             String displayName = metaData.getDisplayName();
             displayNames.add(prefix + displayName);

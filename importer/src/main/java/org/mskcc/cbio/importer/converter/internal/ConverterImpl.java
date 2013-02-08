@@ -137,6 +137,14 @@ class ConverterImpl implements Converter {
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 
+			// short circuit if this is a published study
+			if (cancerStudyMetadata.toString().equals(CancerStudyMetadata.PUBLISHED_TCGA_STUDY_SUFFIX)) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("convertData(), skipping conversion of published study: " + cancerStudyMetadata);
+				}
+				continue;
+			}
+
 			// iterate over all datatypes
 			boolean createCancerStudyMetadataFile = false;
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {

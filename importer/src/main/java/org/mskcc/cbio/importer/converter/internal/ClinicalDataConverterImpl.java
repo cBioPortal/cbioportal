@@ -295,7 +295,7 @@ public class ClinicalDataConverterImpl implements Converter {
 
         List<LinkedList<String>> columns = transpose(vectors);
 
-        // add in the metadata
+        // add in the metadata (in the correct order)
         columns.add(0, descriptions);
         columns.add(0, displayNames);
 
@@ -357,7 +357,6 @@ public class ClinicalDataConverterImpl implements Converter {
 //        outMatrix.write(System.out);
 
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
-//		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
         fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), complete."); }
 

@@ -186,18 +186,135 @@ public class ClinicalDataConverterImpl implements Converter {
     }
 
     /**
-     * Updates the filteredRows accordingly.
+     *
+     * helper function for internal use
+     *
+     * Updates the filteredRows according to the dictionary knownAliasToAttribute
      * @param knownAliasToAttribute
      * @param alias
      * @param filteredRows
      * @return
      */
-    public List<List<String>> appendToFilteredRows(HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute,
-                                                   String alias,
-                                                   List<List<String>> filteredRows) {
+    public void appendToFilteredRows(HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute,
+                                     List<String> rowData,
+                                     String alias,
+                                     List<List<String>> filteredRows) {
 
-        return filteredRows;
+        ClinicalAttributesMetadata attr = knownAliasToAttribute.get(alias);
+
+        if (attr != null && attr.getAnnotationStatus().equals(OK)) {
+            // it's been OKayed
+            filteredRows.add(rowData);
+        }
     }
+
+    public void appendToNewAttributes(HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute,
+                                      List<String> rowData,
+                                      String alias,
+                                      HashMap<String, ClinicalAttributesMetadata> newAttributes) {
+//            boolean isKnown = knownAliasToAttribute.containsKey(rowName);
+
+        if ( !( knownAliasToAttribute.containsKey(alias) || newAttributes.containsKey(alias)) ) {
+            // nor have we see it so far in this session,
+            // nor have we seen it in the past (i.e. not in google doc)
+            String UNANNOTATED = "Unannotated";
+
+            String[] props = new String[9];
+            props[0] = "";                                                              // COLUMN_HEADER
+            props[1] = "";                                                              // DISPLAY_NAME
+            props[2] = "";                                                              // DESCRIPTION
+            props[3] = "";                                                              // DATATYPE
+            props[4] = alias;                                                           // ALIASES
+            props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
+//                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
+            props[6] = "";                                                              // DISEASE_SPECIFICITY
+            props[7] = "";                                                              // NIKI_ANNOTATION
+
+            newAttributes.put(alias, new ClinicalAttributesMetadata(props));
+        }
+    }
+
+    /**
+     *
+     * helper function for internal use
+     *
+     * transposes "rows" to "columns"
+     *
+     * @param vectors
+     * @return
+     */
+    public List<LinkedList<String>> transpose(List<List<String>> vectors) {
+        // convert rows to columns, transpose
+        List<LinkedList<String>> transposed = new LinkedList<LinkedList<String>>();
+        int numberOfCols = vectors.get(0).size();
+
+        for (int c = 0; c < numberOfCols; c++) {
+            LinkedList<String> column = new LinkedList<String>();
+            for (List<String> row : vectors) {
+                String datum = row.get(c);
+                column.add(datum);
+            }
+
+            transposed.add(column);
+        }
+        return transposed;
+    }
+
+    /**
+     * oooo, making out with a matrix, oooo (helper function for internal use *only*, ha ha ha)
+     *
+     * do the necessary massage (ha ha ha very funny) to prepare the vectors for writing out
+     *
+     * @param vectors
+     * @return
+     */
+    public DataMatrix makeOutMatrix(List<List<String>> vectors,
+                                    HashMap<String, ClinicalAttributesMetadata> aliasToAttribute) throws Exception {
+        ArrayList<String> colNames = new ArrayList<String>();
+        LinkedList<String> displayNames = new LinkedList<String>();
+        LinkedList<String> descriptions = new LinkedList<String>();
+
+        for (List<String> vec : vectors) {
+
+            String rowName = vec.remove(0);
+            ClinicalAttributesMetadata metaData = aliasToAttribute.get(rowName);
+
+            // normalized name
+            String normalName = metaData.getColumnHeader();
+            colNames.add(normalName);
+
+            // case id is always the first column
+            String prefix = normalName.equals(CASE_ID) ? IGNORE_LINE_PREFIX : "";
+
+            String displayName = metaData.getDisplayName();
+            displayNames.add(prefix + displayName);
+
+            String description = metaData.getDescription();
+            descriptions.add(prefix + description);
+        }
+
+        List<LinkedList<String>> columns = transpose(vectors);
+
+        // add in the metadata
+        columns.add(0, descriptions);
+        columns.add(0, displayNames);
+
+        // case id should be the first column
+        int caseIdIndex = colNames.indexOf(CASE_ID);
+        if (caseIdIndex != -1) {
+            String currFirstCol = colNames.get(0);
+            colNames.set(0, CASE_ID);
+            colNames.set(caseIdIndex, currFirstCol);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("clinical data has no column that maps to a CASE_ID column!");
+            }
+        }
+
+        DataMatrix outMatrix = new DataMatrix(columns, colNames);
+        outMatrix.setColumnOrder(colNames);
+        return outMatrix;
+    }
+
 
 	/**
 	 * Creates a staging file from the given import data.
@@ -223,121 +340,34 @@ public class ClinicalDataConverterImpl implements Converter {
         HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute
                 = createStringToClinicalAttributeMetaData(clinicalAttributes);
 
-        // filter through the rows of the data matrix (clinical data is row oriented),
-        // returning only the rows that we are interested in.
-        // i.e. the ones whose alias' have a corresponding normalized name
-        List<List<String>> filteredRows = new LinkedList<List<String>>();
-
+        // iterate through the rows of the data matrix
+        // adding the row either to a list of keepers, rows (i.e. attribute) that will be added to the staging file,
+        // or adding the row/attribute to a list of new attributes that are not in the google doc
+        // (and therefore need to be added)
+        List<List<String>> keepers = new LinkedList<List<String>>();
         HashMap<String, ClinicalAttributesMetadata> newAttributes = new HashMap<String, ClinicalAttributesMetadata>();
-
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
-
-            String rowName = cleanUpAlias(rowData.get(0));
-
-            appendToFilteredRows(knownAliasToAttribute, rowName, filteredRows);
-
-            boolean isKnown = knownAliasToAttribute.containsKey(rowName);
-
-            if (isKnown) {
-                if (knownAliasToAttribute.get(rowName).getAnnotationStatus().equals(OK)) {
-                    // it's been OKayed
-                    filteredRows.add(rowData);
-                }
-            } else {
-                if (!newAttributes.containsKey(rowName)) {
-                    // haven't seen before so make a new clinical attribute
-                    String UNANNOTATED = "Unannotated";
-
-                    String[] props = new String[9];
-                    props[0] = "";                                                              // COLUMN_HEADER
-                    props[1] = "";                                                              // DISPLAY_NAME
-                    props[2] = "";                                                              // DESCRIPTION
-                    props[3] = "";                                                              // DATATYPE
-                    props[4] = rowName;                                                         // ALIASES
-                    props[5] = UNANNOTATED;                                                     // ANNOTATION_STATUS
-//                props[6] =  StringUtil.toUpperCase(cancerStudyMetadata.getTumorType());     // DISEASE_SPECIFICITY
-                    props[6] = "";                                                              // DISEASE_SPECIFICITY
-                    props[7] = "";                                                              // NIKI_ANNOTATION
-
-                    newAttributes.put(rowName, new ClinicalAttributesMetadata(props));
-                }
-            }
+            String rowName = cleanUpAlias(rowData.get(0));      // assuming that alias is the first item in the row
+            appendToFilteredRows(knownAliasToAttribute, rowData, rowName, keepers);
+            appendToNewAttributes(knownAliasToAttribute, rowData, rowName, newAttributes);
         }
+
+        DataMatrix outMatrix = makeOutMatrix(keepers, knownAliasToAttribute);
+//        outMatrix.write(System.out);
+
+		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
+//		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+        fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
+		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), complete."); }
 
         // insert the new clinical attributes into google doc
         for (ClinicalAttributesMetadata attr : newAttributes.values()) {
             config.insertClinicalAttributesMetadata(attr);
         }
 
-        // normalize the names,
-        // and put together the metaData
-        ArrayList<String> colNames = new ArrayList<String>();
-        LinkedList<String> displayNames = new LinkedList<String>();
-        LinkedList<String> descriptions = new LinkedList<String>();
-
-        for (List<String> row : filteredRows) {
-
-            String rowName = row.remove(0);
-            ClinicalAttributesMetadata metaData = knownAliasToAttribute.get(rowName);
-
-            // normalized name
-            String normalName = metaData.getColumnHeader();
-            colNames.add(normalName);
-
-            // case id is always the first column
-            String prefix = normalName.equals(CASE_ID) ? IGNORE_LINE_PREFIX : "";
-
-            String displayName = metaData.getDisplayName();
-            displayNames.add(prefix + displayName);
-
-            String description = metaData.getDescription();
-            descriptions.add(prefix + description);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("updates to clinical_attributes google doc complete.");
         }
-
-        // convert rows to columns, transpose
-        List<LinkedList<String>> columns  = new LinkedList<LinkedList<String>>();
-        int numberOfCols = filteredRows.get(0).size();
-        for (int c = 0; c < numberOfCols; c++) {
-            LinkedList<String> column = new LinkedList<String>();
-            for (List<String> row : filteredRows) {
-                String datum = row.get(c);
-                column.add(datum);
-            }
-
-            columns.add(column);
-        }
-
-        // add in the metadata
-        columns.add(0, descriptions);
-        columns.add(0, displayNames);
-
-        DataMatrix outMatrix = new DataMatrix(columns, colNames);
-
-        // case id should be the first column
-        int caseIdIndex = colNames.indexOf(CASE_ID);
-        if (caseIdIndex != -1) {
-            String currFirstCol = colNames.get(0);
-            colNames.set(0, CASE_ID);
-            colNames.set(caseIdIndex, currFirstCol);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("clinical data has no column that maps to a CASE_ID column!");
-            }
-        }
-
-        outMatrix.setColumnOrder(colNames);
-
-//        outMatrix.write(System.out);
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), writing staging file.");
-		}
-
-//		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
-        fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), complete.");
-		}
 	}
 }

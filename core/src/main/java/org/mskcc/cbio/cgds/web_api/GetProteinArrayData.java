@@ -101,9 +101,9 @@ public class GetProteinArrayData {
         Map<String,ProteinArrayInfo> mapArrayIdArray = new HashMap<String,ProteinArrayInfo>();
         DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         ArrayList<ProteinArrayInfo> pais;
+        int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId();
         if (arrayIds==null || arrayIds.isEmpty()) {
-            pais = daoPAI.getProteinArrayInfo(DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId)
-                    .getInternalId());
+            pais = daoPAI.getProteinArrayInfo(studyId);
         } else {
             pais = daoPAI.getProteinArrayInfo(arrayIds, null);
         }
@@ -115,7 +115,7 @@ public class GetProteinArrayData {
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
         Map<String, Map<String,Double>> mapArrayCaseAbun = new HashMap<String,Map<String,Double>>();
         Set<String> caseIds = new HashSet<String>();
-        for (ProteinArrayData pad : daoPAD.getProteinArrayData(arrays, targetCaseList)) {
+        for (ProteinArrayData pad : daoPAD.getProteinArrayData(studyId, arrays, targetCaseList)) {
             String arrayId = pad.getArrayId();
             String caseId = pad.getCaseId();
             caseIds.add(caseId);

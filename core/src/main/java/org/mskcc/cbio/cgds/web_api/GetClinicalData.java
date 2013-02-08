@@ -48,12 +48,12 @@ public class GetClinicalData {
      * @return String of Output.
      * @throws DaoException Database Error.
      */
-    public static String getClinicalData(Set<String> caseIdList, boolean includeFreeFormData)
+    public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
         DaoClinicalData daoClinical = new DaoClinicalData();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
         
-        List<ClinicalData> caseSurvivalList = daoClinical.getCases(caseIdList);
+        List<ClinicalData> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
         Map<String,ClinicalData> mapClinicalData = new HashMap<String,ClinicalData>();
         for (ClinicalData cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);

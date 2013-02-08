@@ -100,9 +100,11 @@ public class GetProteinArrayData {
      * @return Map &lt; arrayId, Map &lt; caseId,Abundance &gt; &gt;
      * @throws RemoteException 
      */
-    public static Map<String,Map<String,Double>> getProteinArrayData(Collection<String> proteinArrayIds,
-            Collection<String> caseIds) throws RemoteException, DaoException {
-        List<ProteinArrayData> pads = DaoProteinArrayData.getInstance().getProteinArrayData(proteinArrayIds, caseIds);
+    public static Map<String,Map<String,Double>> getProteinArrayData(int cancerStudyId, 
+            Collection<String> proteinArrayIds, Collection<String> caseIds)
+            throws RemoteException, DaoException {
+        List<ProteinArrayData> pads = DaoProteinArrayData.getInstance()
+                .getProteinArrayData(cancerStudyId, proteinArrayIds, caseIds);
         
         Map<String,Map<String,Double>> ret = new HashMap<String,Map<String,Double>>();
         

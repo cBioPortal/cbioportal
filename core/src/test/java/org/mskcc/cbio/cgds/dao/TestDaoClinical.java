@@ -59,7 +59,7 @@ public class TestDaoClinical extends TestCase {
         HashSet<String> caseSet = new HashSet<String>();
         caseSet.add("TCGA-12-1234");
         caseSet.add("TCGA-12-1235");
-        ArrayList <ClinicalData> caseList = daoClinical.getCases(caseSet);
+        ArrayList <ClinicalData> caseList = daoClinical.getCases(1,caseSet);
 
         assertEquals (2, caseList.size());
         ClinicalData caseSurvival = caseList.get(0);

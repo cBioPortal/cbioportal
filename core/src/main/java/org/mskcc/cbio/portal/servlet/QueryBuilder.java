@@ -40,6 +40,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -456,7 +457,8 @@ public class QueryBuilder extends HttpServlet {
             //  Get Clinical Data
             xdebug.logMsg(this, "Getting Clinical Data:");
             ArrayList <ClinicalData> clinicalDataList =
-                    GetClinicalData.getClinicalData(setOfCaseIds);
+                    GetClinicalData.getClinicalData(DaoCancerStudy
+                    .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
             xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
                 +  " cases.");
             request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);

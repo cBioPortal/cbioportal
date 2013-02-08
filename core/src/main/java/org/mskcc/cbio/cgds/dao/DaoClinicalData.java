@@ -114,8 +114,8 @@ public class DaoClinicalData {
         }
     }
     
-    public ClinicalData getCase(String _case)  throws DaoException {
-        ArrayList<ClinicalData> list = getCases(Collections.singleton(_case));
+    public ClinicalData getCase(int cancerStudyId, String _case)  throws DaoException {
+        ArrayList<ClinicalData> list = getCases(cancerStudyId, Collections.singleton(_case));
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -126,18 +126,18 @@ public class DaoClinicalData {
      * @return  ArrayList of CaseSurvival Objects.
      * @throws DaoException Error Accessing Database.
      */
-    public ArrayList<ClinicalData> getCases(Set<String> caseSet) throws DaoException {
+    public ArrayList<ClinicalData> getCases(int cancerStudyId, Set<String> caseSet) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-            pstmt = con.prepareStatement ("SELECT * FROM clinical WHERE CASE_ID IN('"
+            pstmt = con.prepareStatement ("SELECT * FROM clinical WHERE CANCER_STUDY_ID='"
+                    + cancerStudyId + "' AND CASE_ID IN('"
                     + StringUtils.join(caseSet, "','") + "')");
             rs = pstmt.executeQuery();
             ArrayList<ClinicalData> caseList = new ArrayList<ClinicalData>();
             while (rs.next()) {
-                int cancerStudyId = -1;//rs.getInt("CANCER_STUDY_ID");
                 String caseId = rs.getString("CASE_ID");
 
                 //  Must check for NULL Data via rs.wasNull

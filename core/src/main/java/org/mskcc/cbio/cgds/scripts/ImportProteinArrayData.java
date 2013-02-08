@@ -314,9 +314,9 @@ public class ImportProteinArrayData {
                         daoPAI.addProteinArrayCancerStudy(id, Collections.singleton(studyId));
                         
                         ArrayList<ProteinArrayData> phosphoData = daoPAD.getProteinArrayData(
-                                Collections.singleton(phosphoArray.getId()), cases);
+                                studyId, Collections.singleton(phosphoArray.getId()), cases);
                         ArrayList<ProteinArrayData> proteinData = daoPAD.getProteinArrayData(
-                                Collections.singleton(proteinArray.getId()), cases);
+                                studyId, Collections.singleton(proteinArray.getId()), cases);
                         HashMap<String,ProteinArrayData> mapProteinData = new HashMap<String,ProteinArrayData>();
                         for (ProteinArrayData pad : proteinData) {
                             mapProteinData.put(pad.getCaseId(), pad);

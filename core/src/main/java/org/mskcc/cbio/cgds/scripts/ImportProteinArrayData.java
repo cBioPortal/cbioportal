@@ -74,7 +74,6 @@ public class ImportProteinArrayData {
         MySQLbulkLoader.bulkLoadOff();
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);

@@ -28,18 +28,15 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.ProteinArrayData;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.io.IOException;
-
 import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.ProteinArrayData;
 
 /**
  *
@@ -78,7 +75,8 @@ public class DaoProteinArrayData {
     public int addProteinArrayData(ProteinArrayData pad) throws DaoException {
         if (getProteinArrayData(pad.getCancerStudyId(), pad.getArrayId(),pad.getCaseId())!=null) {
             System.err.println("RPPA data of "+pad.getArrayId()+" for case "
-                    +pad.getCaseId()+" has already been added.");
+                    +pad.getCaseId()+" in cancer study "
+                    +pad.getCancerStudyId()+ " has already been added.");
             return 0;
         }
         
@@ -138,7 +136,6 @@ public class DaoProteinArrayData {
      */
     public ArrayList<ProteinArrayData> getProteinArrayData(int cancerStudyId, Collection<String> arrayIds, Collection<String> caseIds)
             throws DaoException {
-        ArrayList<ProteinArrayData> list = new ArrayList<ProteinArrayData>();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -151,7 +148,8 @@ public class DaoProteinArrayData {
                         + StringUtils.join(arrayIds, "','") + "')");
             } else {
                 pstmt = con.prepareStatement
-                        ("SELECT * FROM protein_array_data WHERE PROTEIN_ARRAY_ID IN ('"
+                        ("SELECT * FROM protein_array_data WHERE CANCER_STUDY_ID='"
+                        + cancerStudyId + "' AND PROTEIN_ARRAY_ID IN ('"
                         + StringUtils.join(arrayIds, "','") + "')"
                         + " AND CASE_ID IN ('"+StringUtils.join(caseIds,"','") +"')");
             }
@@ -171,7 +169,6 @@ public class DaoProteinArrayData {
      * @throws DaoException Database Error.
      */
     public ArrayList<ProteinArrayData> getAllProteinArrayData() throws DaoException {
-        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

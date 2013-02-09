@@ -98,7 +98,7 @@ public class DaoGistic {
                 int autoId = rs.getInt(1);
                 gistic.setInternalId(autoId);
             }
-            addGisticGenes(gistic);
+            addGisticGenes(gistic, con);
 
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -113,13 +113,11 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    public static void addGisticGenes(Gistic gistic) throws SQLException, DaoException {
+    private static void addGisticGenes(Gistic gistic, Connection con) throws SQLException, DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
         PreparedStatement pstmt = null;
-        Connection con = null;
 
         try {
-            con = JdbcUtil.getDbConnection(DaoGistic.class);
             if (!genes.isEmpty()) {
                 for (CanonicalGene g : genes) {
 

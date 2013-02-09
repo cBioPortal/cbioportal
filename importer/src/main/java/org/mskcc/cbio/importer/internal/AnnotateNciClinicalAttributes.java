@@ -28,15 +28,15 @@
 package org.mskcc.cbio.importer.internal;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-class AnnotateNciClinicalAttributes implements Importer {
+public class AnnotateNciClinicalAttributes implements Importer {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -47,9 +47,22 @@ class AnnotateNciClinicalAttributes implements Importer {
     // ref to file utils
     private FileUtils fileUtils;
 
-    public AnnotateNciClinicalAttributes(Config config, FileUtils fileUtils) {
+    // ref to database utils
+    private DatabaseUtils databaseUtils;
+
+    /**
+     * Constructor.
+     *
+     * @param config Config
+     * @param fileUtils FileUtils
+     * @param databaseUtils DatabaseUtils
+     */
+    public AnnotateNciClinicalAttributes(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils) {
+
+        // set members
         this.config = config;
         this.fileUtils = fileUtils;
+        this.databaseUtils = databaseUtils;
     }
 
     @Override
@@ -59,6 +72,7 @@ class AnnotateNciClinicalAttributes implements Importer {
 
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
-        referenceMetadata.getFetcherName();
+        System.out.println("hello world");
     }
+
 }

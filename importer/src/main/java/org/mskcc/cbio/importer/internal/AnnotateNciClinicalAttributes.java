@@ -35,6 +35,19 @@ import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.util.Shell;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 public class AnnotateNciClinicalAttributes implements Importer {
 
@@ -49,6 +62,9 @@ public class AnnotateNciClinicalAttributes implements Importer {
 
     // ref to database utils
     private DatabaseUtils databaseUtils;
+
+    public static final String DICT_ENTRY = "dictEntry";
+    public static final String NAME = "name";
 
     /**
      * Constructor.
@@ -72,7 +88,42 @@ public class AnnotateNciClinicalAttributes implements Importer {
 
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
-        System.out.println("hello world");
-    }
 
+        String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
+
+        FileInputStream in = new FileInputStream(bcrXmlFilename);
+
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
+
+        while (eventReader.hasNext()) {
+            XMLEvent xmlEvent = eventReader.nextEvent();
+
+            if (xmlEvent.isStartElement()) {
+                StartElement startElement = xmlEvent.asStartElement();
+                // If we have a item element we create a new item
+                if (startElement.getName().getLocalPart() == (DICT_ENTRY)) {
+
+                    Iterator<Attribute> attributes = startElement.getAttributes();
+
+                    while (attributes.hasNext()) {
+                        Attribute attribute = attributes.next();
+//                        if (attribute.getName().toString().equals(DATE)) {
+//                            item.setDate(attribute.getValue());
+//                        }
+
+                        System.out.println();
+                        if (attribute.getName().toString().equals((NAME))) {
+                            System.out.println(attribute.getValue());
+                        }
+
+//                        private String attributeId;
+//                        private String displayName;
+//                        private String description;
+//                        private String datatype;
+                    }
+                }
+            }
+        }
+    }
 }

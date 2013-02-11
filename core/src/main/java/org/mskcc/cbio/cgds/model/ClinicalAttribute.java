@@ -33,10 +33,7 @@ public class ClinicalAttribute {
     private String description;
     private String datatype;
 
-    public ClinicalAttribute(String attributeId,
-                             String displayName,
-                             String description,
-                             String datatype) {
+    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype) {
         this.attributeId = attributeId;
         this.displayName = displayName;
         this.description = description;

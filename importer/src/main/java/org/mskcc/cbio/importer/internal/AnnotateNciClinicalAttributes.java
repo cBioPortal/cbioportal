@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.internal;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
@@ -98,29 +99,27 @@ public class AnnotateNciClinicalAttributes implements Importer {
 
         while (eventReader.hasNext()) {
             XMLEvent xmlEvent = eventReader.nextEvent();
+            String attributeId;
+            String displayName;
+            String description;
+            String datatype;
 
             if (xmlEvent.isStartElement()) {
                 StartElement startElement = xmlEvent.asStartElement();
-                // If we have a item element we create a new item
-                if (startElement.getName().getLocalPart() == (DICT_ENTRY)) {
 
-                    Iterator<Attribute> attributes = startElement.getAttributes();
+                Iterator<Attribute> attributes =  startElement.getAttributes();
 
-                    while (attributes.hasNext()) {
-                        Attribute attribute = attributes.next();
-//                        if (attribute.getName().toString().equals(DATE)) {
-//                            item.setDate(attribute.getValue());
-//                        }
+                while (attributes.hasNext()) {
+                    Attribute attr = attributes.next();
 
-                        System.out.println();
-                        if (attribute.getName().toString().equals((NAME))) {
-                            System.out.println(attribute.getValue());
-                        }
+                    if (attr.getName().getLocalPart().equals(NAME)) {
+                        displayName = attr.getValue();
+                    }
+                }
 
-//                        private String attributeId;
-//                        private String displayName;
-//                        private String description;
-//                        private String datatype;
+                if (xmlEvent.isStartElement()) {
+                    if (xmlEvent.asStartElement().getName().getLocalPart().equals("caDSRdefinition")) {
+                        System.out.println("Hello World");
                     }
                 }
             }

@@ -36,31 +36,14 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Importer;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.util.Shell;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 
 public class AnnotateNciClinicalAttributes implements Importer {
 
@@ -79,7 +62,7 @@ public class AnnotateNciClinicalAttributes implements Importer {
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
 
-    private List<ClinicalAttribute> attributes = new ArrayList<ClinicalAttribute>();
+    private List<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
 
     /**
      * Constructor.
@@ -107,7 +90,7 @@ public class AnnotateNciClinicalAttributes implements Importer {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BcrDictHandler handler = new BcrDictHandler(attributes);
+        BcrDictHandler handler = new BcrDictHandler(metadatas);
         saxParser.parse(bcrXmlFilename, handler);
     }
 }

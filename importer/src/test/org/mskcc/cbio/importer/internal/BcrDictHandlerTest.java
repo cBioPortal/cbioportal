@@ -32,6 +32,7 @@ import org.junit.runners.JUnit4;
 import static org.junit.Assert.assertTrue;
 
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,16 +48,16 @@ public class BcrDictHandlerTest {
     @Test
     public void parseTest() throws ParserConfigurationException, SAXException, IOException {
 
-        List<ClinicalAttribute> attributes = new ArrayList<ClinicalAttribute>();
+        List<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BcrDictHandler handler = new BcrDictHandler(attributes);
+        BcrDictHandler handler = new BcrDictHandler(metadatas);
 
         String testXml = "<dictionary></dictionary>";
         InputStream stream = new ByteArrayInputStream(testXml.getBytes());
         saxParser.parse(stream, handler);
-        assertTrue(attributes.isEmpty());
+        assertTrue(metadatas.isEmpty());
 
         testXml = "<dictionary>" +
                 "<dictEntry name=\"The OFFICIAL name\">" +
@@ -69,13 +70,13 @@ public class BcrDictHandlerTest {
         stream = new ByteArrayInputStream(testXml.getBytes());
         saxParser.parse(stream, handler);
 
-        assertTrue(attributes.size() == 1);
+        assertTrue(metadatas.size() == 1);
 
-        ClinicalAttribute attr = attributes.get(0);
+        ClinicalAttributesMetadata metadata = metadatas.get(0);
 
-        assertTrue(attr.getAttributeId().equals("anattributeid"));
-        assertTrue(attr.getDatatype().equals(""));
-        assertTrue(attr.getDescription().equals("the great thing about standards is that there are so many of them"));
-        assertTrue(attr.getDisplayName().equals("The OFFICIAL name"));
+        assertTrue(metadata.getAliases().equals("anattributeid"));
+        assertTrue(metadata.getDatatype().equals(""));
+        assertTrue(metadata.getDescription().equals("the great thing about standards is that there are so many of them"));
+        assertTrue(metadata.getDisplayName().equals("The OFFICIAL name"));
     }
 }

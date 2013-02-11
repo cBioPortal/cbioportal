@@ -27,6 +27,7 @@
 package org.mskcc.cbio.importer.internal;
 
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -36,17 +37,17 @@ import java.util.List;
  * Handles SAX XML element events for parsing data from the Biospecimen Core Resource (BCR) Data Dictionary
  */
 public class BcrDictHandler extends DefaultHandler {
-    private List<ClinicalAttribute> attributes;
-    private ClinicalAttribute currentAttr;
+    private List<ClinicalAttributesMetadata> metadatas;
+    private ClinicalAttributesMetadata currMetadata;
     private boolean inAttr = false;
     private StringBuilder content;
 
     /**
      * Constructor
-     * @param attributes    the list to add parsed clinical attributes to
+     * @param metadatas    the list to add parsed clinical attributes to
      */
-    public BcrDictHandler(List<ClinicalAttribute> attributes) {
-        this.attributes = attributes;
+    public BcrDictHandler(List<ClinicalAttributesMetadata> metadatas) {
+        this.metadatas = metadatas;
         this.content = new StringBuilder();
     }
 
@@ -64,12 +65,12 @@ public class BcrDictHandler extends DefaultHandler {
         content.setLength(0);
         if ("dictEntry".equals(qName)) {
             inAttr = true;
-            currentAttr = new ClinicalAttribute();
-            currentAttr.setDisplayName(attributes.getValue("name"));
+            currMetadata = new ClinicalAttributesMetadata();
+            currMetadata.setDisplayName(attributes.getValue("name"));
         }
         else if ("XMLeltInfo".equals(qName)){
             // the broad replaces all "_" with "" in their firehose runs
-            currentAttr.setAttributeId( attributes.getValue("xml_elt_name").replaceAll("_","") );
+            currMetadata.setAliases(attributes.getValue("xml_elt_name").replaceAll("_", ""));
         }
     }
 
@@ -84,11 +85,11 @@ public class BcrDictHandler extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (inAttr) {
             if ("caDSRdefinition".equals(qName)) {
-                currentAttr.setDescription(content.toString());
+                currMetadata.setDescription(content.toString());
             }
             else if ("dictEntry".equals(qName)) {
                 this.inAttr = false;
-                attributes.add(currentAttr);
+                metadatas.add(currMetadata);
             }
         }
     }

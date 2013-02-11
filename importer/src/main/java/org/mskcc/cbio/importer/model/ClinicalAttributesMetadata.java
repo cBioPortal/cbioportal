@@ -69,18 +69,35 @@ public class ClinicalAttributesMetadata {
 		this.aliases = properties[4].trim();
 		this.annotationStatus = properties[5].trim();
 		this.diseaseSpecificity = properties[6].trim();
-
-		// properties map - used by code that updates row in the worksheet
-		// (google spreadsheet api, removes certain symbols (including spaces) from column headings)
-		propertiesMap = new HashMap<String, String>();
-		propertiesMap.put("COLUMNHEADER", this.columnHeader);
-		propertiesMap.put("DISPLAYNAME", this.displayName);
-		propertiesMap.put("DESCRIPTION", this.description);
-		propertiesMap.put("DATATYPE", this.datatype);
-		propertiesMap.put("ALIASES", this.aliases);
-		propertiesMap.put("ANNOTATIONSTATUS", this.annotationStatus);
-		propertiesMap.put("DISEASESPECIFICITY", this.diseaseSpecificity);
+        makePropertiesMap();
 	}
+
+    public ClinicalAttributesMetadata() {
+        this.columnHeader = "";
+        this.displayName = "";
+        this.description = "";
+        this.datatype = "";
+        this.aliases = "";
+        this.annotationStatus = "";
+        this.diseaseSpecificity = "";
+        makePropertiesMap();
+    }
+
+    /**
+     * properties map - used by code that updates row in the worksheet
+     * (google spreadsheet api, removes certain symbols (including spaces) from column headings)
+     */
+    public void makePropertiesMap() {
+        propertiesMap = new HashMap<String, String>();
+        propertiesMap.put("COLUMNHEADER", this.columnHeader);
+        propertiesMap.put("DISPLAYNAME", this.displayName);
+        propertiesMap.put("DESCRIPTION", this.description);
+        propertiesMap.put("DATATYPE", this.datatype);
+        propertiesMap.put("ALIASES", this.aliases);
+        propertiesMap.put("ANNOTATIONSTATUS", this.annotationStatus);
+        propertiesMap.put("DISEASESPECIFICITY", this.diseaseSpecificity);
+
+    }
 
 	public String getColumnHeader() { return columnHeader; }
 	public void setColumnHeader(String columnHeader) { this.columnHeader = columnHeader; }

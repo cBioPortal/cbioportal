@@ -47,6 +47,16 @@ public class ClinicalAttribute {
         this.datatype = datatype;
     }
 
+    @Override
+    public String toString() {
+        return "ClinicalAttribute[" +
+                attributeId + "," +
+                displayName + "," +
+                description + "," +
+                datatype + "," +
+                "]";
+    }
+
     public String getAttributeId() {
         return attributeId;
     }

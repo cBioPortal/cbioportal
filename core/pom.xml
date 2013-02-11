@@ -45,7 +45,7 @@
       <dependency>
           <groupId>pathwaycommons.cpath</groupId>
           <artifactId>cpath-client</artifactId>
-          <version>3.1.0-SNAPSHOT</version>
+          <version>3.2.0-SNAPSHOT</version>
       </dependency>
 
       <!-- antisamy -->

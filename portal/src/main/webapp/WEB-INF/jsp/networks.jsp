@@ -126,15 +126,10 @@
                 // TODO get the SBGN-ML data from pathway commons and pass it to cytoscapeweb
 	            $.post("networkSbgn.do",
 	                   networkParams,
-	                   function(sbgnml){
-		                   if (typeof sbgnml !== "string") {
-			                   if (window.ActiveXObject) { // IE
-				                   sbgnml = sbgnml.xml;
-			                   } else { // Other browsers
-				                   sbgnml = (new XMLSerializer()).serializeToString(sbgnml);
-			                   }
-		                   }
-		                   send2cytoscapewebSbgn(sbgnml, "cytoscapeweb_sbgn", "network_sbgn", genomicData);
+	                   function(graphData){
+                           // All genes coming from SBGN view are in graphData.sbgn
+                           // All attributes can be accessed via: graphData.attributes[rdfid]
+		                   send2cytoscapewebSbgn(graphData.sbgn, "cytoscapeweb_sbgn", "network_sbgn", genomicData);
 		                   // TODO these methods do not work with sbgnml
 		                   //showXDebug(sbgnml);
 		                   //showNetworkMessage(sbgnml, "#network_sbgn #netmsg");

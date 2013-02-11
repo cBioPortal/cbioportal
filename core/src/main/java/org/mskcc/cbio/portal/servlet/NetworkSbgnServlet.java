@@ -39,7 +39,6 @@ import org.biopax.paxtools.io.sbgn.idmapping.HGNC;
 import org.biopax.paxtools.model.BioPAXElement;
 import org.biopax.paxtools.model.Model;
 import org.biopax.paxtools.model.level3.Xref;
-import org.biopax.paxtools.query.algorithm.Direction;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
@@ -59,7 +58,7 @@ public class NetworkSbgnServlet extends HttpServlet
 {
     private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
 
-	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%253A";
+	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%3A";
 	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/";
 	public final static String NA = "NA";
     public final static Integer GRAPH_QUERY_LIMIT = 1;
@@ -103,11 +102,12 @@ public class NetworkSbgnServlet extends HttpServlet
         CPath2Client client = CPath2Client.newInstance();
         client.setEndPointURL(CPATH_SERVICE);
         client.setGraphQueryLimit(GRAPH_QUERY_LIMIT);
+        client.setDirection(CPath2Client.Direction.BOTHSTREAM);
 
         ArrayList<String> convertedList = convert(sourceGeneSet);
         Model model = convertedList.size() > 1
                 ? client.getPathsBetween(convertedList)
-                : client.getNeighborhood(convertedList, Direction.BOTHSTREAM);
+                : client.getNeighborhood(convertedList);
 
         L3ToSBGNPDConverter converter
                 = new L3ToSBGNPDConverter(new ListUbiqueDetector(new HashSet<String>()), null, true);
@@ -122,7 +122,7 @@ public class NetworkSbgnServlet extends HttpServlet
         outputMap.put(GENES_FIELD, extractGenes(model));
 
         // The following will include RDF Id -> attributes map
-        HashMap<String, Map<String, String>> attrMap = new HashMap<String, Map<String, String>>();
+        HashMap<String, Map<String, List<String>>> attrMap = new HashMap<String, Map<String, List<String>>>();
         for (BioPAXElement bpe : model.getObjects())
             attrMap.put(bpe.getRDFId(), extractAttributes(bpe));
         outputMap.put(ATTRIBUTES_FIELD, attrMap);
@@ -135,7 +135,7 @@ public class NetworkSbgnServlet extends HttpServlet
         HashSet<String> genes = new HashSet<String>();
 
         for (Xref xref : model.getObjects(Xref.class)) {
-            if(xref.getDb().equalsIgnoreCase("HGNC")) {
+            if(xref.getDb() != null && xref.getDb().equalsIgnoreCase("HGNC")) {
                 String rawId = xref.getId();
                 String id = rawId.split(":")[1].trim();
                 String symbol = HGNC.getSymbol(id);
@@ -147,15 +147,19 @@ public class NetworkSbgnServlet extends HttpServlet
         return new ArrayList<String>(genes);
     }
 
-    private Map<String, String> extractAttributes(BioPAXElement bpe) {
+    private Map<String, List<String>> extractAttributes(BioPAXElement bpe) {
         EditorMap editorMap = SimpleEditorMap.L3;
         Set<org.biopax.paxtools.controller.PropertyEditor> editors = editorMap.getEditorsOf(bpe);
 
-        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, List<String>> attributes = new HashMap<String, List<String>>();
         for (PropertyEditor editor : editors) {
             String key = editor.getProperty();
-            String value = editor.getValueFromBean(bpe).toString();
-            attributes.put(key, value);
+            Set valueFromBean = editor.getValueFromBean(bpe);
+            ArrayList<String> strings = new ArrayList<String>();
+            for (Object o : valueFromBean) {
+                strings.add(o.toString());
+            }
+            attributes.put(key, strings);
         }
 
         return attributes;

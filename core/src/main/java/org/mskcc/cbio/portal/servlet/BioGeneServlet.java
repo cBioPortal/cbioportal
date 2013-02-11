@@ -21,13 +21,16 @@ public class BioGeneServlet extends HttpServlet
 	public final static String NA = "NA";
 	public final static String PATHSFROMTO = "PATHSFROMTO";
 
-	private static String makeRequest(String query, String org) throws IOException
+	private static String makeRequest(String query,
+			String org,
+			String format) throws IOException
 	{
 		StringBuilder urlBuilder = new StringBuilder();
 
 		urlBuilder.append(BIO_GENE_SERVICE);
 		urlBuilder.append("?query=").append(query);
 		urlBuilder.append("&org=").append(org);
+		urlBuilder.append("&format=").append(format);
 
 		String url = urlBuilder.toString();
 
@@ -37,17 +40,17 @@ public class BioGeneServlet extends HttpServlet
 				new InputStreamReader(bioGeneCxn.getInputStream()));
 
 		String line;
-		StringBuilder xml = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 
 		// Read all
 		while((line = in.readLine()) != null)
 		{
-			xml.append(line);
+			sb.append(line);
 		}
 
 		in.close();
 
-		return xml.toString();
+		return sb.toString();
 	}
 
 
@@ -61,18 +64,22 @@ public class BioGeneServlet extends HttpServlet
 			HttpServletResponse httpServletResponse)throws ServletException, IOException
 	{
 		PrintWriter out = httpServletResponse.getWriter();
-//		String sourceSymbols = httpServletRequest.getParameter("source");
-//		String targetSymbols = httpServletRequest.getParameter("target");
-//		String method = httpServletRequest.getParameter("kind");
-//		String format = httpServletRequest.getParameter("format");
-//		String direction = httpServletRequest.getParameter("direction");
-//		String limit = httpServletRequest.getParameter("limit");
 
 		String query = httpServletRequest.getParameter("query");
 		String org = httpServletRequest.getParameter("org");
+		String format = httpServletRequest.getParameter("format");
 
-		String xml = makeRequest(query, org);
-		httpServletResponse.setContentType("text/xml;charset=UTF-8");
+		String xml = makeRequest(query, org, format);
+
+		if (format.equalsIgnoreCase("json"))
+		{
+			httpServletResponse.setContentType("application/json");
+		}
+		else
+		{
+			httpServletResponse.setContentType("text/xml;charset=UTF-8");
+		}
+
 		out.write(xml);
 	}
 }

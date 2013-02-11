@@ -680,7 +680,9 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
         }
     };
 
-    var queryParams = {"query": data.label, "org": "human"};
+    var queryParams = {"query": data.label,
+        "org": "human",
+        "format": "xml"};
 
     $.post("bioGeneQuery.do",
            queryParams,

@@ -1,25 +1,56 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 package org.mskcc.cbio.portal.servlet;
 
+import cpath.client.CPath2Client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.biopax.paxtools.controller.EditorMap;
+import org.biopax.paxtools.controller.PropertyEditor;
+import org.biopax.paxtools.controller.SimpleEditorMap;
+import org.biopax.paxtools.io.sbgn.L3ToSBGNPDConverter;
+import org.biopax.paxtools.io.sbgn.ListUbiqueDetector;
 import org.biopax.paxtools.io.sbgn.idmapping.HGNC;
+import org.biopax.paxtools.model.BioPAXElement;
+import org.biopax.paxtools.model.Model;
+import org.biopax.paxtools.model.level3.Xref;
+import org.biopax.paxtools.query.algorithm.Direction;
+import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.portal.util.XDebug;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 
 /**
  * Servlet class to request SBGN directly from cpath web service.
@@ -29,93 +60,30 @@ public class NetworkSbgnServlet extends HttpServlet
     private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
 
 	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%253A";
-	public final static String ENTREZ_GENE_PREFIX = "urn:biopax:RelationshipXref:NCBI+GENE_";
-	// TODO do not use awabi! use the proper cpath webservice instead
-	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/graph";
-	//public final static String separator = "\t";
+	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/";
 	public final static String NA = "NA";
-	public final static String PATHSFROMTO = "PATHSFROMTO";
+    public final static Integer GRAPH_QUERY_LIMIT = 1;
+    public final static String ATTRIBUTES_FIELD = "attributes";
+    public final static String SBGN_FIELD = "sbgn";
+    public final static String GENES_FIELD = "genes";
 
-	private static String makePC2Request(String sourceGenes,
-			String targetGenes,
-			String method,
-			String format,
-			String direction,
-			Integer limit)
-			throws IOException
-	{
-		StringBuilder urlBuilder = new StringBuilder();
-
-		urlBuilder.append(CPATH_SERVICE);
-		urlBuilder.append("?source=").append(sourceGenes);
-		urlBuilder.append("&kind=").append(method);
-		urlBuilder.append("&format=").append(format);
-		urlBuilder.append("&limit=").append(limit);
-
-		if (!direction.equalsIgnoreCase(NA))
-		{
-			urlBuilder.append("&direction=").append(direction);
-		}
-
-		if (method.equals(PATHSFROMTO))
-		{
-			urlBuilder.append("&target=").append(targetGenes);
-		}
-
-		String url = urlBuilder.toString();
-
-		URL pc2 = new URL(url);
-		URLConnection pc2cxn = pc2.openConnection();
-		BufferedReader in = new BufferedReader(new InputStreamReader(pc2cxn.getInputStream()));
-        log.debug("PC2 SBGN request URL:" + url);
-
-        String line;
-		StringBuilder xml = new StringBuilder();
-
-		// Read all
-		while((line = in.readLine()) != null)
-		{
-			xml.append(line);
-		}
-
-		in.close();
-
-		return xml.toString();
-	}
-
-	private static ArrayList<String> convert(String[] geneList)
-	{
+    private static ArrayList<String> convert(String[] geneList) {
 		ArrayList<String> convertedList = new ArrayList<String>();
 		DaoGeneOptimized daoGeneOptimized;
 
-        try
-		{
+        try {
 			daoGeneOptimized = DaoGeneOptimized.getInstance();
 
-			for(String gene: geneList)
-			{
+			for(String gene: geneList) {
 				CanonicalGene cGene = daoGeneOptimized.getGene(gene);
-				//convertedList.add(HGNC_GENE_PREFIX + HGNCUtil.getID(gene).replace(":", "%253A"));
-                //convertedList.add(ENTREZ_GENE_PREFIX.replace("+", "%2B") + cGene.getEntrezGeneId());
                 String hgncId = HGNC.getID(cGene.getHugoGeneSymbolAllCaps());
                 convertedList.add(HGNC_GENE_PREFIX.replace("+", "%2B") + hgncId);
             }
-		}
-		catch (DaoException e)
-		{
+		} catch (DaoException e) {
 			 e.printStackTrace();
 		}
 
 		return convertedList;
-	}
-
-	private static String joinStrings(List<String> strings, String delimiter) {
-		String finalString = "";
-
-		for(String s: strings)
-			finalString += s + delimiter;
-
-		return finalString.substring(0, finalString.length() - delimiter.length());
 	}
 
 	protected void doGet(HttpServletRequest httpServletRequest,
@@ -130,31 +98,67 @@ public class NetworkSbgnServlet extends HttpServlet
 		PrintWriter out = httpServletResponse.getWriter();
 		String sourceSymbols = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
 
-        // > 1 genes: pathsbetween, = 1 gene: neighborhood
-		String targetSymbols = "";
-		String format = "sbgn";
-		String direction = "NA";
-		String limit = "1";
-
 		String[] sourceGeneSet = sourceSymbols.split("\\s");
-        String method = sourceGeneSet.length > 1 ? "pathsbetween" : "neighborhood";
-        String[] targetGeneSet = targetSymbols.split("\\s");
 
-		String sourceGenes = joinStrings(convert(sourceGeneSet), ",");
-		String targetGenes = null;
+        CPath2Client client = CPath2Client.newInstance();
+        client.setEndPointURL(CPATH_SERVICE);
+        client.setGraphQueryLimit(GRAPH_QUERY_LIMIT);
 
-		if (targetSymbols.length() > 0)
-		{
-			targetGenes = joinStrings(convert(targetGeneSet), ",");
-		}
+        ArrayList<String> convertedList = convert(sourceGeneSet);
+        Model model = convertedList.size() > 1
+                ? client.getPathsBetween(convertedList)
+                : client.getNeighborhood(convertedList, Direction.BOTHSTREAM);
 
-		String xml = makePC2Request(sourceGenes,
-		                            targetGenes,
-		                            method,
-		                            format,
-		                            direction,
-		                            Integer.parseInt(limit));
-		httpServletResponse.setContentType("text/xml;charset=UTF-8");
-		out.write(xml);
+        L3ToSBGNPDConverter converter
+                = new L3ToSBGNPDConverter(new ListUbiqueDetector(new HashSet<String>()), null, true);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        converter.writeSBGN(model, byteArrayOutputStream);
+
+        // This is going to be our ultimate output
+        HashMap<String, Object> outputMap = new HashMap<String, Object>();
+        outputMap.put(SBGN_FIELD, byteArrayOutputStream.toString());
+
+        // This will populate the genes field with all the genes found in the BioPAX model
+        outputMap.put(GENES_FIELD, extractGenes(model));
+
+        // The following will include RDF Id -> attributes map
+        HashMap<String, Map<String, String>> attrMap = new HashMap<String, Map<String, String>>();
+        for (BioPAXElement bpe : model.getObjects())
+            attrMap.put(bpe.getRDFId(), extractAttributes(bpe));
+        outputMap.put(ATTRIBUTES_FIELD, attrMap);
+
+        httpServletResponse.setContentType("application/json");
+		JSONValue.writeJSONString(outputMap, out);
 	}
+
+    private List<String> extractGenes(Model model) {
+        HashSet<String> genes = new HashSet<String>();
+
+        for (Xref xref : model.getObjects(Xref.class)) {
+            if(xref.getDb().equalsIgnoreCase("HGNC")) {
+                String rawId = xref.getId();
+                String id = rawId.split(":")[1].trim();
+                String symbol = HGNC.getSymbol(id);
+                if(symbol != null)
+                    genes.add(symbol);
+            }
+        }
+
+        return new ArrayList<String>(genes);
+    }
+
+    private Map<String, String> extractAttributes(BioPAXElement bpe) {
+        EditorMap editorMap = SimpleEditorMap.L3;
+        Set<org.biopax.paxtools.controller.PropertyEditor> editors = editorMap.getEditorsOf(bpe);
+
+        Map<String, String> attributes = new HashMap<String, String>();
+        for (PropertyEditor editor : editors) {
+            String key = editor.getProperty();
+            String value = editor.getValueFromBean(bpe).toString();
+            attributes.put(key, value);
+        }
+
+        return attributes;
+    }
+
 }

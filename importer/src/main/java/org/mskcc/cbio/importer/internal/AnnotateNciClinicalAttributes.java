@@ -28,6 +28,7 @@
 package org.mskcc.cbio.importer.internal;
 
 
+import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
@@ -37,6 +38,9 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.util.Shell;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xml.sax.helpers.DefaultHandler;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,11 +48,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
 public class AnnotateNciClinicalAttributes implements Importer {
 
@@ -66,6 +78,8 @@ public class AnnotateNciClinicalAttributes implements Importer {
 
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
+
+    private List<ClinicalAttribute> attributes = new ArrayList<ClinicalAttribute>();
 
     /**
      * Constructor.
@@ -87,42 +101,13 @@ public class AnnotateNciClinicalAttributes implements Importer {
         throw new UnsupportedOperationException();
     }
 
+
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
-
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
-
-        FileInputStream in = new FileInputStream(bcrXmlFilename);
-
-        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-        XMLEventReader eventReader = inputFactory.createXMLEventReader(in);
-
-        while (eventReader.hasNext()) {
-            XMLEvent xmlEvent = eventReader.nextEvent();
-            String attributeId;
-            String displayName;
-            String description;
-            String datatype;
-
-            if (xmlEvent.isStartElement()) {
-                StartElement startElement = xmlEvent.asStartElement();
-
-                Iterator<Attribute> attributes =  startElement.getAttributes();
-
-                while (attributes.hasNext()) {
-                    Attribute attr = attributes.next();
-
-                    if (attr.getName().getLocalPart().equals(NAME)) {
-                        displayName = attr.getValue();
-                    }
-                }
-
-                if (xmlEvent.isStartElement()) {
-                    if (xmlEvent.asStartElement().getName().getLocalPart().equals("caDSRdefinition")) {
-                        System.out.println("Hello World");
-                    }
-                }
-            }
-        }
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser saxParser = factory.newSAXParser();
+        BcrDictHandler handler = new BcrDictHandler(attributes);
+        saxParser.parse(bcrXmlFilename, handler);
     }
 }

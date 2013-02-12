@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import java.util.Comparator;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -39,6 +40,8 @@ public class ClinicalAttributesMetadata {
 
 	// worksheet column header that is used as key to find row to update
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "COLUMNHEADER";
+
+    public static final String WORKSHEET_ALIAS_KEY = "ALIASES";
 
 	// bean properties
     private String columnHeader;
@@ -114,4 +117,5 @@ public class ClinicalAttributesMetadata {
 	public String getDiseaseSpecificity() { return diseaseSpecificity; }
 	public void setDiseaseSpecificity(String diseaseSpecificity) { this.diseaseSpecificity = diseaseSpecificity; }
 	public Map<String, String> getPropertiesMap() { return propertiesMap; }
+
 }

@@ -29,6 +29,7 @@ package org.mskcc.cbio.importer.internal;
 
 
 import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
@@ -38,14 +39,19 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.xml.sax.SAXException;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class AnnotateNciClinicalAttributes implements Importer {
+public class AnnotateNciClinicalAttributes extends CollectionUtils implements Importer {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -62,7 +68,6 @@ public class AnnotateNciClinicalAttributes implements Importer {
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
 
-    private List<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
 
     /**
      * Constructor.
@@ -84,13 +89,25 @@ public class AnnotateNciClinicalAttributes implements Importer {
         throw new UnsupportedOperationException();
     }
 
-
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
+        List<ClinicalAttributesMetadata> bcrMetadatas = parseXML(bcrXmlFilename);
+
+        for (ClinicalAttributesMetadata metadata : bcrMetadatas) {
+            config.updateClinicalAttributesMetadata(metadata);
+        }
+    }
+
+    public List<ClinicalAttributesMetadata> parseXML(String xmlFilename)
+            throws ParserConfigurationException, SAXException, IOException {
+        List<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
+
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
         BcrDictHandler handler = new BcrDictHandler(metadatas);
-        saxParser.parse(bcrXmlFilename, handler);
+        saxParser.parse(xmlFilename, handler);
+
+        return metadatas;
     }
 }

@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
@@ -445,10 +446,6 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
-    /**
-     * inserts without asking questions
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
     public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata, boolean insertRow) {
 
         // vars used in call to updateWorksheet below
@@ -461,6 +458,10 @@ class GDataImpl implements Config {
         clinicalAttributesMatrix = null;
     }
 
+    /**
+     * inserts without asking questions
+     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+     */
     @Override
     public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
         insertClinicalAttributesMetadata(clinicalAttributesMetadata, true);
@@ -484,7 +485,7 @@ class GDataImpl implements Config {
 		}
 
 		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
-			(Collection<ClinicalAttributesMetadata>)getMetadataCollection(clinicalAttributesMatrix,
+			(Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
 																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
 		// iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
@@ -495,9 +496,60 @@ class GDataImpl implements Config {
 				break;
 			}
 		}
-
         insertClinicalAttributesMetadata(clinicalAttributesMetadata, insertRow);
-	}
+    }
+
+    /**
+     * Special case of updating the clinical attributes worksheet with a Biospecimen Core Resource (BCR).
+     *
+     * In this case, a row in the worksheet should keep the columns specific to our system:
+     * COLUMN_HEADER, DATATYPE, ALIASES, ANNOTATION_STATUS.
+     *
+     * But should should update columns that should be synced with the "standard" BCR dictionary:
+     * DISPLAY_NAME, DESCRIPTION, DISEASE SPECIFICITY.
+     *
+     * A bcr matches iff. its alias has a match in the list of aliases of the row in the worksheet
+     * If it doesn't match, it gets added.
+     *
+     * @param bcr
+     */
+    public void updateClinicalAttributesMetadataByBcr(ClinicalAttributesMetadata bcr) {
+        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
+                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
+                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+
+        // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
+        // object already exists - this would indicate an update is to take place, not an insert
+        // exists means that the first alias matches
+        for (ClinicalAttributesMetadata worksheetAttr : clinicalAttributesMetadatas) {
+            String[] aliases = worksheetAttr.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
+
+            // a bcr should only have 1 alias,
+            // since it is coming from a standard dictionary, not a mapping
+            String bcrAlias = bcr.getAliases().trim();
+
+            for (String alias : aliases) {
+                 if (alias.trim().equals(bcrAlias)) {
+                     // match!
+                     bcr.setAnnotationStatus(worksheetAttr.getAnnotationStatus());
+                     bcr.setAliases(worksheetAttr.getAliases());
+                     bcr.setDatatype(worksheetAttr.getDatatype());
+                     bcr.setColumnHeader(worksheetAttr.getColumnHeader());
+
+                     // vars used in call to updateWorksheet below
+                     String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;
+                     String key = bcr.getAliases();
+
+                     boolean insertRow = false;
+
+                     updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                             insertRow, keyColumn, key, bcr.getPropertiesMap());
+                     return;
+                 }
+            }
+            insertClinicalAttributesMetadata(bcr);
+        }
+    }
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.
@@ -835,7 +887,6 @@ class GDataImpl implements Config {
 						if (entry.getCustomElements().getValue(keyColumn) != null &&
 							entry.getCustomElements().getValue(keyColumn).equals(keyValue)) {
 							for (String key : properties.keySet()) {
-								entry.getCustomElements().setValueLocal(key, properties.get(key));
 							}
 							entry.update();
 							if (LOG.isInfoEnabled()) {

@@ -30,6 +30,8 @@ package org.mskcc.cbio.importer.converter.internal;
 
 // imports
 //import static org.mskcc.cbio.cgds.scripts.ImportClinical.IGNORE_LINE_PREFIX;
+import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -189,6 +191,7 @@ public class ClinicalDataConverterImpl implements Converter {
      * helper function for internal use
      *
      * Updates the filteredRows according to the dictionary knownAliasToAttribute
+     *
      * @param knownAliasToAttribute
      * @param alias
      * @param filteredRows
@@ -260,7 +263,8 @@ public class ClinicalDataConverterImpl implements Converter {
     }
 
     /**
-     * oooo, making out with a matrix, oooo (helper function for internal use *only*, ha ha ha)
+     * oooo, making out with a matrix, oooo
+     * helper function for internal use only
      *
      * do the necessary massage (ha ha ha very funny) to prepare the vectors for writing out
      *
@@ -346,6 +350,7 @@ public class ClinicalDataConverterImpl implements Converter {
         // (and therefore need to be added)
         List<List<String>> keepers = new LinkedList<List<String>>();
         HashMap<String, ClinicalAttributesMetadata> newAttributes = new HashMap<String, ClinicalAttributesMetadata>();
+        List<ClinicalAttribute> keeperAttrs = new ArrayList<ClinicalAttribute>();
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
             String rowName = cleanUpAlias(rowData.get(0));      // assuming that alias is the first item in the row
@@ -353,8 +358,25 @@ public class ClinicalDataConverterImpl implements Converter {
             appendToNewAttributes(knownAliasToAttribute, rowData, rowName, newAttributes);
         }
 
+        // ** insert into ClinicalAttributes db table **
+        // todo: this is done on every staging file. wasteful
+        for (List<String> row : keepers) {
+            String rowName = row.get(0);
+            ClinicalAttributesMetadata metadata = knownAliasToAttribute.get(rowName);
+            ClinicalAttribute attr =  new ClinicalAttribute(metadata.getColumnHeader(),
+                    metadata.getDisplayName(), metadata.getDescription(), metadata.getDatatype());
+            keeperAttrs.add(attr);
+        }
+
+        DaoClinicalAttribute.deleteAllRecords();        // N.B. the db reflects what is in the spreadsheet
+        for (ClinicalAttribute attr : keeperAttrs) {
+            DaoClinicalAttribute.addDatum(attr);
+        }
+        // **
+
         DataMatrix outMatrix = makeOutMatrix(keepers, knownAliasToAttribute);
 //        outMatrix.write(System.out);
+
 
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
         fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);

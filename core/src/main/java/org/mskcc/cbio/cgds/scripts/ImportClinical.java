@@ -123,12 +123,6 @@ public class ImportClinical {
             System.exit(1);
         }
 
-        // make methods not static
-        // importClinical with be a dump of functions
-        // does that mean it should be a singleton?
-        // yes
-        ImportClinical importClinical = new ImportClinical();
-
         FileReader clinical_f = new FileReader(args[0]);
         BufferedReader clinical = new BufferedReader(clinical_f);
         String line = clinical.readLine();
@@ -148,13 +142,11 @@ public class ImportClinical {
             HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
 //            hashToClinical(hashedLine);
 
-
             // go through everything in the hashmap
             // except for the case id
             // look for the clinicalAttribute
             // create it if it doesn't exist
             // return Clinical object with the correct ids and whatnot
-
             line = clinical.readLine();
         }
 

@@ -41,10 +41,7 @@ import java.sql.SQLException;
  */
 public class DaoClinicalAttribute {
 
-    public int addDatum(String attrId,
-                        String displayName,
-                        String description,
-                        String datatype)  throws DaoException {
+    public static int addDatum(ClinicalAttribute attr)  throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -57,10 +54,10 @@ public class DaoClinicalAttribute {
                             "`DESCRIPTION`," +
                             "`DATATYPE`)" +
                             " VALUES(?,?,?,?)");
-            pstmt.setString(1, attrId);
-            pstmt.setString(2, displayName);
-            pstmt.setString(3, description);
-            pstmt.setString(4, datatype);
+            pstmt.setString(1, attr.getAttributeId());
+            pstmt.setString(2, attr.getDisplayName());
+            pstmt.setString(3, attr.getDescription());
+            pstmt.setString(4, attr.getDatatype());
 
             int rows = pstmt.executeUpdate();
             return rows;
@@ -71,7 +68,7 @@ public class DaoClinicalAttribute {
         }
     }
 
-    public ClinicalAttribute getDatum(String attrId) throws DaoException {
+    public static ClinicalAttribute getDatum(String attrId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -103,7 +100,7 @@ public class DaoClinicalAttribute {
      * Deletes all Records.
      * @throws DaoException DAO Error.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

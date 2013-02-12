@@ -47,8 +47,7 @@ public class ClinicalAttribute extends ClinicalAttributeAbstract {
                 attributeId + "," +
                 super.getDisplayName() + "," +
                 super.getDescription() + "," +
-                datatype + "," +
-                "]";
+                datatype + "]";
     }
 
     public String getAttributeId() {

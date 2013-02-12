@@ -27,32 +27,26 @@
 
 package org.mskcc.cbio.cgds.model;
 
-public class ClinicalAttribute {
+public class ClinicalAttribute extends ClinicalAttributeAbstract {
     private String attributeId;
-    private String displayName;
-    private String description;
     private String datatype;
 
-    public ClinicalAttribute() {
-        this.attributeId = "";
-        this.displayName = "";
-        this.description = "";
-        this.datatype = "";
+    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype) {
+        super(displayName, description);
+        this.attributeId = attributeId;
+        this.datatype = datatype;
     }
 
-    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype) {
-        this.attributeId = attributeId;
-        this.displayName = displayName;
-        this.description = description;
-        this.datatype = datatype;
+    public ClinicalAttribute() {
+        this("", "", "", "");
     }
 
     @Override
     public String toString() {
         return "ClinicalAttribute[" +
                 attributeId + "," +
-                displayName + "," +
-                description + "," +
+                super.getDisplayName() + "," +
+                super.getDescription() + "," +
                 datatype + "," +
                 "]";
     }
@@ -63,22 +57,6 @@ public class ClinicalAttribute {
 
     public void setAttributeId(String attributeId) {
         this.attributeId = attributeId;
-    }
-
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    public void setDisplayName(String displayName) {
-        this.displayName = displayName;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public String getDatatype() {

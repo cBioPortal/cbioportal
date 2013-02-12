@@ -29,24 +29,22 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import java.util.Comparator;
+import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
+
 import java.util.Map;
 import java.util.HashMap;
 
 /**
  * Class which contains clinical attributes metadata.
  */
-public class ClinicalAttributesMetadata {
+public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
 
 	// worksheet column header that is used as key to find row to update
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "COLUMNHEADER";
-
     public static final String WORKSHEET_ALIAS_KEY = "ALIASES";
 
 	// bean properties
     private String columnHeader;
-    private String displayName;
-    private String description;
 	private String datatype;
 	private String aliases;
 	private String annotationStatus;
@@ -60,14 +58,13 @@ public class ClinicalAttributesMetadata {
 	 * @param properties String[]
      */
     public ClinicalAttributesMetadata(String[] properties) {
+        super(properties[1].trim(), properties[2].trim());
 
 		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
         this.columnHeader = properties[0].trim();
-		this.displayName = properties[1].trim();
-		this.description = properties[2].trim();
 		this.datatype = properties[3].trim();
 		this.aliases = properties[4].trim();
 		this.annotationStatus = properties[5].trim();
@@ -76,9 +73,8 @@ public class ClinicalAttributesMetadata {
 	}
 
     public ClinicalAttributesMetadata() {
+        super("","");
         this.columnHeader = "";
-        this.displayName = "";
-        this.description = "";
         this.datatype = "";
         this.aliases = "";
         this.annotationStatus = "";
@@ -93,8 +89,8 @@ public class ClinicalAttributesMetadata {
     public void makePropertiesMap() {
         propertiesMap = new HashMap<String, String>();
         propertiesMap.put("COLUMNHEADER", this.columnHeader);
-        propertiesMap.put("DISPLAYNAME", this.displayName);
-        propertiesMap.put("DESCRIPTION", this.description);
+        propertiesMap.put("DISPLAYNAME", super.getDisplayName());
+        propertiesMap.put("DESCRIPTION", super.getDescription());
         propertiesMap.put("DATATYPE", this.datatype);
         propertiesMap.put("ALIASES", this.aliases);
         propertiesMap.put("ANNOTATIONSTATUS", this.annotationStatus);
@@ -104,10 +100,6 @@ public class ClinicalAttributesMetadata {
 
 	public String getColumnHeader() { return columnHeader; }
 	public void setColumnHeader(String columnHeader) { this.columnHeader = columnHeader; }
-	public String getDisplayName() { return displayName; }
-	public void setDisplayName(String displayName) { this.displayName = displayName; }
-	public String getDescription() { return description; }
-	public void setDescription(String description) { this.description = description; }
 	public String getDatatype() { return datatype; }
 	public void setDatatype(String datatype) { this.datatype = datatype; }
 	public String getAliases() { return aliases; }
@@ -117,5 +109,4 @@ public class ClinicalAttributesMetadata {
 	public String getDiseaseSpecificity() { return diseaseSpecificity; }
 	public void setDiseaseSpecificity(String diseaseSpecificity) { this.diseaseSpecificity = diseaseSpecificity; }
 	public Map<String, String> getPropertiesMap() { return propertiesMap; }
-
 }

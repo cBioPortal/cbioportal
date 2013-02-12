@@ -32,6 +32,7 @@ import org.junit.runners.JUnit4;
 import static org.junit.Assert.assertTrue;
 
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
 import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.xml.sax.SAXException;
 
@@ -48,21 +49,22 @@ public class BcrDictHandlerTest {
     @Test
     public void parseTest() throws ParserConfigurationException, SAXException, IOException {
 
-        List<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
+        List<BcrClinicalAttributeEntry> bcrs = new ArrayList<BcrClinicalAttributeEntry>();
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BcrDictHandler handler = new BcrDictHandler(metadatas);
+        BcrDictHandler handler = new BcrDictHandler(bcrs);
 
         String testXml = "<dictionary></dictionary>";
         InputStream stream = new ByteArrayInputStream(testXml.getBytes());
         saxParser.parse(stream, handler);
-        assertTrue(metadatas.isEmpty());
+        assertTrue(bcrs.isEmpty());
 
         testXml = "<dictionary>" +
                 "<dictEntry name=\"The OFFICIAL name\">" +
                 "<caDSRdefinition>the great thing about standards is that there are so many of them</caDSRdefinition>" +
                 "<XMLeltInfo xml_elt_name=\"an_attribute_id\"/>" +
+                "<studies><study>TCGA1</study><study>TCGA2</study></studies>" +
                 "<random name=\"nonesense\"/>" +
                 "<random>Lots of sense </random>" +
                 "</dictEntry>" +
@@ -70,13 +72,13 @@ public class BcrDictHandlerTest {
         stream = new ByteArrayInputStream(testXml.getBytes());
         saxParser.parse(stream, handler);
 
-        assertTrue(metadatas.size() == 1);
+        assertTrue(bcrs.size() == 1);
 
-        ClinicalAttributesMetadata metadata = metadatas.get(0);
+        BcrClinicalAttributeEntry bcr = bcrs.get(0);
 
-        assertTrue(metadata.getAliases().equals("anattributeid"));
-        assertTrue(metadata.getDatatype().equals(""));
-        assertTrue(metadata.getDescription().equals("the great thing about standards is that there are so many of them"));
-        assertTrue(metadata.getDisplayName().equals("The OFFICIAL name"));
+        assertTrue(bcr.getId().equals("anattributeid"));
+        assertTrue(bcr.getDescription().equals("the great thing about standards is that there are so many of them"));
+        assertTrue(bcr.getDisplayName().equals("The OFFICIAL name"));
+        assertTrue(bcr.getDiseaseSpecificity().equals("TCGA1 TCGA2"));
     }
 }

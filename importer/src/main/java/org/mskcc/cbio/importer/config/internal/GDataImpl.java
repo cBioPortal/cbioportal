@@ -31,15 +31,7 @@ package org.mskcc.cbio.importer.config.internal;
 // imports
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
-import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
+import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.apache.commons.logging.Log;
@@ -508,12 +500,12 @@ class GDataImpl implements Config {
      * But should should update columns that should be synced with the "standard" BCR dictionary:
      * DISPLAY_NAME, DESCRIPTION, DISEASE SPECIFICITY.
      *
-     * A bcr matches iff. its alias has a match in the list of aliases of the row in the worksheet
+     * A bcr matches iff. its id has a match in the list of aliases of the row in the worksheet
      * If it doesn't match, it gets added.
      *
-     * @param bcr
+     * @param bcr BcrClinicalAttributeEntry
      */
-    public void updateClinicalAttributesMetadataByBcr(ClinicalAttributesMetadata bcr) {
+    public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
         Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
                 (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
                         "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
@@ -521,33 +513,31 @@ class GDataImpl implements Config {
         // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
         // object already exists - this would indicate an update is to take place, not an insert
         // exists means that the first alias matches
-        for (ClinicalAttributesMetadata worksheetAttr : clinicalAttributesMetadatas) {
-            String[] aliases = worksheetAttr.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
+        for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
+            String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
 
-            // a bcr should only have 1 alias,
-            // since it is coming from a standard dictionary, not a mapping
-            String bcrAlias = bcr.getAliases().trim();
+            // you say tomaito, i say tomaato
+            String bcrAlias = bcr.getId();
 
             for (String alias : aliases) {
                  if (alias.trim().equals(bcrAlias)) {
                      // match!
-                     bcr.setAnnotationStatus(worksheetAttr.getAnnotationStatus());
-                     bcr.setAliases(worksheetAttr.getAliases());
-                     bcr.setDatatype(worksheetAttr.getDatatype());
-                     bcr.setColumnHeader(worksheetAttr.getColumnHeader());
+                     attribute.setDescription(bcr.getDescription());
+                     attribute.setDisplayName(bcr.getDisplayName());
+                     attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
 
                      // vars used in call to updateWorksheet below
                      String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;
-                     String key = bcr.getAliases();
+                     String key = bcrAlias;
 
                      boolean insertRow = false;
 
                      updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                             insertRow, keyColumn, key, bcr.getPropertiesMap());
+                             insertRow, keyColumn, key, attribute.getPropertiesMap());
                      return;
                  }
             }
-            insertClinicalAttributesMetadata(bcr);
+            insertClinicalAttributesMetadata(attribute);
         }
     }
 

@@ -26,28 +26,31 @@
  */
 package org.mskcc.cbio.importer.internal;
 
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
 import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handles SAX XML element events for parsing data from the Biospecimen Core Resource (BCR) Data Dictionary
  */
 public class BcrDictHandler extends DefaultHandler {
-    private List<ClinicalAttributesMetadata> metadatas;
-    private ClinicalAttributesMetadata currMetadata;
+    private List<BcrClinicalAttributeEntry> bcrs;
+    private BcrClinicalAttributeEntry currBcr;
     private boolean inAttr = false;
     private StringBuilder content;
+    private ArrayList<String> diseaseSpecificities = new ArrayList<String>();
 
     /**
      * Constructor
-     * @param metadatas    the list to add parsed clinical attributes to
+     * @param bcrs    the list to add parsed clinical attributes to
      */
-    public BcrDictHandler(List<ClinicalAttributesMetadata> metadatas) {
-        this.metadatas = metadatas;
+    public BcrDictHandler(List<BcrClinicalAttributeEntry> bcrs) {
+        this.bcrs = bcrs;
         this.content = new StringBuilder();
     }
 
@@ -65,12 +68,12 @@ public class BcrDictHandler extends DefaultHandler {
         content.setLength(0);
         if ("dictEntry".equals(qName)) {
             inAttr = true;
-            currMetadata = new ClinicalAttributesMetadata();
-            currMetadata.setDisplayName(attributes.getValue("name"));
+            currBcr = new BcrClinicalAttributeEntry();
+            currBcr.setDisplayName(attributes.getValue("name"));
         }
         else if ("XMLeltInfo".equals(qName)){
             // the broad replaces all "_" with "" in their firehose runs
-            currMetadata.setAliases(attributes.getValue("xml_elt_name").replaceAll("_", ""));
+            currBcr.setId(attributes.getValue("xml_elt_name").replaceAll("_", ""));
         }
     }
 
@@ -85,11 +88,18 @@ public class BcrDictHandler extends DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
         if (inAttr) {
             if ("caDSRdefinition".equals(qName)) {
-                currMetadata.setDescription(content.toString());
+                currBcr.setDescription(content.toString());
+            }
+            else if ("study".equals(qName)) {
+                diseaseSpecificities.add( content.toString().trim() );
+            }
+            else if ("studies".equals(qName)) {
+                currBcr.setDiseaseSpecificity(StringUtils.join(diseaseSpecificities, " "));
             }
             else if ("dictEntry".equals(qName)) {
+                // this goes last
                 this.inAttr = false;
-                metadatas.add(currMetadata);
+                bcrs.add(currBcr);
             }
         }
     }

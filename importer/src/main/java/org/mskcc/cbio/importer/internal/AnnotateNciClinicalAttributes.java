@@ -42,6 +42,7 @@ import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +53,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class AnnotateNciClinicalAttributes extends CollectionUtils implements Importer {
+public class AnnotateNciClinicalAttributes implements Importer {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -69,6 +70,16 @@ public class AnnotateNciClinicalAttributes extends CollectionUtils implements Im
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
 
+
+    public static void main(String[] args) throws Exception {
+        if(args.length != 1) {
+            System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
+            System.exit(-1);
+        }
+
+        String path = args[0].trim();
+        File xml = new File(path);
+    }
 
     /**
      * Constructor.
@@ -93,10 +104,14 @@ public class AnnotateNciClinicalAttributes extends CollectionUtils implements Im
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
-        List<BcrClinicalAttributeEntry> bcrMetadatas = parseXML(bcrXmlFilename);
+        importReferenceData(bcrXmlFilename);
+    }
 
-        for (BcrClinicalAttributeEntry bcr : bcrMetadatas) {
-//            config.updateClinicalAttributesMetadata(metadata);
+    public void importReferenceData(String bcrXmlFilename) throws IOException, SAXException, ParserConfigurationException {
+        List<BcrClinicalAttributeEntry> bcrs = parseXML(bcrXmlFilename);
+
+        for (BcrClinicalAttributeEntry bcr : bcrs) {
+            config.updateClinicalAttributesMetadata(bcr);
         }
     }
 

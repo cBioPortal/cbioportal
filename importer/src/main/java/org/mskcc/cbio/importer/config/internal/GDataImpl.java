@@ -510,14 +510,15 @@ class GDataImpl implements Config {
                 (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
                         "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
+        // you say tomaito, i say tomaato
+        String bcrAlias = bcr.getId();
+        System.out.println(bcrAlias);
+
         // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
         // object already exists - this would indicate an update is to take place, not an insert
         // exists means that the first alias matches
         for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
             String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-
-            // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId();
 
             for (String alias : aliases) {
                  if (alias.trim().equals(bcrAlias)) {
@@ -527,9 +528,8 @@ class GDataImpl implements Config {
                      attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
 
                      // vars used in call to updateWorksheet below
-                     String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;
+                     String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
                      String key = bcrAlias;
-
                      boolean insertRow = false;
 
                      updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,

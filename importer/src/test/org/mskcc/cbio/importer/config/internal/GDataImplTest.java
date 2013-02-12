@@ -26,15 +26,69 @@
  */
 package org.mskcc.cbio.importer.config.internal;
 
+import com.google.gdata.client.spreadsheet.SpreadsheetService;
+import com.google.gdata.data.BaseFeed;
+import com.google.gdata.data.IFeed;
+import com.google.gdata.data.spreadsheet.ListEntry;
+import com.google.gdata.data.spreadsheet.ListFeed;
+import com.google.gdata.util.ServiceException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.mockito.stubbing.OngoingStubbing;
+import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class GDataImplTest {
 
     @Test
-    public void updateClinicalAttributeTest() {
-
+    public void updateClinicalAttributeTest() throws IOException, ServiceException {
+//        SpreadsheetService mockService = mock(SpreadsheetService.class);
+//
+//        List<ListEntry> testEntries = new ArrayList<ListEntry>();
+//        ListEntry testEntry = new ListEntry("id", "v1");
+//        testEntries.add(testEntry);
+//        testEntries.add(testEntry);
+//        testEntries.add(testEntry);
+//        testEntries.add(testEntry);
+//
+//        ListFeed mockFeed = mock(ListFeed.class);
+//        when(mockFeed.getEntries()).thenReturn(testEntries);
+//
+//        URL www = new URL("http://www.whatismyip.com");
+//        when(mockService.getFeed(www, ListFeed.class)).thenReturn(mockFeed);
+//
+//        String gdataUser = "test_user";
+//        String gdataPassword = "test_password";
+//        String gdataSpreadsheet = "gdata_spreadsheet";
+//        String tumorTypesWorksheet = "test_tumor_types_spreadsheet";
+//        String datatypesWorksheet = "datatypes_worksheet";
+//        String caseIDFiltersWorksheet = "case_id_filter_worksheet";
+//        String caseListWorksheet = "caselist_worksheet";
+//        String clinicalAttributesWorksheet = "clinical_attributes_worksheet";
+//        String portalsWorksheet = "portals_worksheet";
+//        String referenceDataWorksheet = "reference_data_worksheet";
+//        String dataSourcesWorksheet = "datasource_worksheet";
+//        String cancerStudiesWorksheet = "cancerstudies_worksheet";
+//
+//        GDataImpl testGDataImpl = new GDataImpl(gdataUser, gdataPassword, mockService,
+//                gdataSpreadsheet, tumorTypesWorksheet, datatypesWorksheet,
+//                caseIDFiltersWorksheet, caseListWorksheet, clinicalAttributesWorksheet,
+//                portalsWorksheet, referenceDataWorksheet, dataSourcesWorksheet, cancerStudiesWorksheet);
+//        BcrClinicalAttributeEntry testBcr = new BcrClinicalAttributeEntry("disease", "id", "name", "description");
+//        testGDataImpl.getCancerStudyMetadata(Config.ALL);
+//        testGDataImpl.updateClinicalAttributesMetadata(testBcr);
     }
 }

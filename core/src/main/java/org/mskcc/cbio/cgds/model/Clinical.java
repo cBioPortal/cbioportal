@@ -57,6 +57,10 @@ public class Clinical {
         this.attrVal = attrVal;
     }
 
+    public Clinical() {
+        this(-1, "", "", "");
+    }
+
     public int getCancerStudyId() {
         return cancerStudyId;
     }

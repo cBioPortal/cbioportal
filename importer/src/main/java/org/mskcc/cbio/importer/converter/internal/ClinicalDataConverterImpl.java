@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.converter.internal;
 //import static org.mskcc.cbio.cgds.scripts.ImportClinical.IGNORE_LINE_PREFIX;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.cgds.scripts.ImportClinical;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -72,7 +73,6 @@ public class ClinicalDataConverterImpl implements Converter {
     public static final String OK = "OK";
 
     // name of the case id column
-    public static final String CASE_ID = "CASE_ID";
 
 	/**
 	 * Constructor.
@@ -287,8 +287,7 @@ public class ClinicalDataConverterImpl implements Converter {
             colNames.add(normalName);
 
             // case id is always the first column
-            String IGNORE_LINE_PREFIX = "#";        // should be able to get this from ImportClinical?
-            String prefix = normalName.equals(CASE_ID) ? IGNORE_LINE_PREFIX : "";
+            String prefix = normalName.equals(ImportClinical.CASE_ID) ? ImportClinical.IGNORE_LINE_PREFIX : "";
 
             String displayName = metaData.getDisplayName();
             displayNames.add(prefix + displayName);
@@ -303,18 +302,20 @@ public class ClinicalDataConverterImpl implements Converter {
         columns.add(0, descriptions);
         columns.add(0, displayNames);
 
-        // case id should be the first column
-        int caseIdIndex = colNames.indexOf(CASE_ID);
-        if (caseIdIndex != -1) {
-            String currFirstCol = colNames.get(0);
-            colNames.set(0, CASE_ID);
-            colNames.set(caseIdIndex, currFirstCol);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("clinical data has no column that maps to a CASE_ID column!");
-            }
-        }
 
         DataMatrix outMatrix = new DataMatrix(columns, colNames);
+
+        // case id should be the first column
+        // N.B. don't put this block before creating the outMatrix
+        int caseIdIndex = colNames.indexOf(ImportClinical.CASE_ID);
+        if (caseIdIndex != -1) {
+            String currFirstCol = colNames.get(0);
+            colNames.set(0, ImportClinical.CASE_ID);       // flip
+            colNames.set(caseIdIndex, currFirstCol);
+        } else if (LOG.isInfoEnabled()) {
+            LOG.info("clinical data has no column that maps to a CASE_ID column!");
+        }
+
         outMatrix.setColumnOrder(colNames);
         return outMatrix;
     }

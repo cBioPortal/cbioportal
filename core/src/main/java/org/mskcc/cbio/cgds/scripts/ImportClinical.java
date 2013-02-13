@@ -27,11 +27,15 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.DaoClinical;
+import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -46,6 +50,9 @@ public class ImportClinical {
 
     // "commented out" string, i.e.metadata
     public static final String IGNORE_LINE_PREFIX = "#";
+
+    public static final String DELIMITER = "\t";
+    public static final String CASE_ID = "CASE_ID";
 
     public static String readCancerStudyId(String filename) throws IOException {
 
@@ -124,22 +131,45 @@ public class ImportClinical {
         }
 
         FileReader clinical_f = new FileReader(args[0]);
-        BufferedReader clinical = new BufferedReader(clinical_f);
-        String line = clinical.readLine();
-        String[] colnames = line.split("\t");
+        BufferedReader reader = new BufferedReader(clinical_f);
+        String line = reader.readLine();
+        String[] colnames = line.split(DELIMITER);
 
-        // ASSUME : the first column in the column of case_ids
-        String caseIdColName = colnames[0];
+        // List of ClinicalAttributes corresponds to the names of the columns
+        List<ClinicalAttribute> columnAttrs = new ArrayList<ClinicalAttribute>();
+        for (String colname : colnames) {
+            ClinicalAttribute attr = DaoClinicalAttribute.getDatum(colname);
+            columnAttrs.add(attr);
+        }
 
-        line = clinical.readLine();
+        line = reader.readLine();
         while (line != null) {
 
             if (line.substring(0,1).equals(IGNORE_LINE_PREFIX)) {
-                line = clinical.readLine();
+                line = reader.readLine();
                 continue;
             }
 
-            HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
+            int cancerStudyid = -1; //todo:fix
+
+            String[] fields = line.split(DELIMITER);
+
+            for (int i = 0; i < fields.length; i++) {
+                Clinical clinical = new Clinical();
+                clinical.setCancerStudyId(cancerStudyid);
+
+                if (columnAttrs.get(i).equals(CASE_ID)) {
+                    clinical.setCaseId(fields[i]);
+                } else {
+                    ClinicalAttribute currentAttr = columnAttrs.get(i);
+                    clinical.setAttrId(currentAttr.getAttributeId());
+                    clinical.setAttrVal(fields[i]);
+                }
+            }
+
+//            System.out.println(line);
+
+//            HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
 //            hashToClinical(hashedLine);
 
             // go through everything in the hashmap
@@ -147,7 +177,7 @@ public class ImportClinical {
             // look for the clinicalAttribute
             // create it if it doesn't exist
             // return Clinical object with the correct ids and whatnot
-            line = clinical.readLine();
+            line = reader.readLine();
         }
 
         // make a map of attributes to ClinicalAttribute objects

@@ -293,9 +293,6 @@
                         out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) data'>"
                         + "RPPA</a></li>");
                     }
-
-                    out.println ("<li><a href='#event_map' class='result-tab' title='Detailed event map of all genomic alterations'>"
-                        + "Event Map</a></li>");
                     %>
 
                     <%@ include file="image_tabs.jsp" %>
@@ -373,17 +370,6 @@
                     <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
-            <div class="section" id="event_map">
-            <div class="map">
-            <% 
-            out.println( HeatMapLegend.outputHeatMapLegend( theOncoPrintSpecification.getUnionOfPossibleLevels()) );
-            %>
-			</div>            
-                <br>
-            <%@ include file="heatmap.jsp" %>
-            </div>   <!-- end heat map div -->
-            <%@ include file="image_tabs_data.jsp" %>
-
             <%
             if (rppaExists) { %>
                 <%@ include file="protein_exp.jsp" %>
@@ -393,6 +379,10 @@
             if (includeNetworks) { %>
                 <%@ include file="networks.jsp" %>
             <% } %>
+
+            <%@ include file="data_download.jsp" %>
+            
+            <%@ include file="image_tabs_data.jsp" %>
             
             </div> <!-- end tabs div -->
             <% } %>

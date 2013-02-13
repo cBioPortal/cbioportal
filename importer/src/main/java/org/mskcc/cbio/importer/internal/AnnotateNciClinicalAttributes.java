@@ -111,6 +111,7 @@ public class AnnotateNciClinicalAttributes implements Importer {
         List<BcrClinicalAttributeEntry> bcrs = parseXML(bcrXmlFilename);
 
         for (BcrClinicalAttributeEntry bcr : bcrs) {
+//            System.out.println(bcr);
             config.updateClinicalAttributesMetadata(bcr);
         }
     }

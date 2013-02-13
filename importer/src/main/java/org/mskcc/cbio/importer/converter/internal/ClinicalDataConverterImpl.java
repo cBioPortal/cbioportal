@@ -29,7 +29,6 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
-//import static org.mskcc.cbio.cgds.scripts.ImportClinical.IGNORE_LINE_PREFIX;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.scripts.ImportClinical;

@@ -26,24 +26,20 @@
  **/
 package org.mskcc.cbio.cgds.scripts;
 
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class ImportClinical {
-    private ProgressMonitor pMonitor;
-    private File clincalFile;
 
     // our logger
     private static Log LOG = LogFactory.getLog(ImportClinical.class);
@@ -73,39 +69,6 @@ public class ImportClinical {
 
         throw new IOException("cannot find cancer_study_identifier");
     }
-
-    /**
-     * reads a line from a clinical staging file given the ordering of the fields
-     * @param line
-     * @param colnames
-     * @param delim
-     * @return
-     */
-    public static HashMap<String, String> hashLine(String line, String[] colnames, String delim) {
-        String[] lineSplit = line.split(delim);
-
-        HashMap<String, String> toReturn = new HashMap<String, String>();
-
-        if ( lineSplit.length != colnames.length ) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info(lineSplit.length + " fields in line out of " + colnames.length + " of columns in file");
-            }
-        }
-
-        for (int i = 0; i < colnames.length; i++) {
-            toReturn.put( colnames[i], lineSplit[i] );
-        }
-
-        return toReturn;
-    }
-
-//    public static Clinical hashToClinical(HashMap<String, String> hash) {
-//        for (Map.Entry<String, String> entry : hashedLine.entrySet()) {
-//            if (entry.getKey().equals(caseIdColName)) {
-//                continue;
-//            }
-//        }
-//    }
 
     /**
      *
@@ -151,13 +114,14 @@ public class ImportClinical {
                 continue;
             }
 
-            int cancerStudyid = -1; //todo:fix
+            String cancer_study_identifier = readCancerStudyId(args[1]);
+            int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancer_study_identifier).getInternalId();
 
             String[] fields = line.split(DELIMITER);
             String caseId = null;
             for (int i = 0; i < fields.length; i++) {
                 Clinical clinical = new Clinical();
-                clinical.setCancerStudyId(cancerStudyid);
+                clinical.setCancerStudyId(cancerStudyId);
 
                 if (columnAttrs.get(i).getAttributeId().equals(CASE_ID)) {
                     caseId = fields[i];

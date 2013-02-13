@@ -28,7 +28,7 @@ if( $osCheck =~ /win/i){
 }
 
 if ($portalHome eq "") {
-	die "CGDS_HOME Environment Variable is not set.  Please set, and try again.\n";
+	die "PORTAL_HOME Environment Variable is not set.  Please set, and try again.\n";
 }
 
 if ($portalDataHome eq "") {
@@ -36,8 +36,8 @@ if ($portalDataHome eq "") {
 }
 
 # Set up Classpath to use all JAR files in lib dir.
-$cp="$portalHome/core/target/portal/WEB-INF/classes";
-@jar_files = glob ("$portalHome/core/target/portal/WEB-INF/lib/*.jar");
+$cp="$portalHome/portal/target/portal/WEB-INF/classes";
+@jar_files = glob ("$portalHome/portal/target/portal/WEB-INF/lib/*.jar");
 foreach my $jar (@jar_files) {
   $cp="$cp$pathDelim$jar"
 }

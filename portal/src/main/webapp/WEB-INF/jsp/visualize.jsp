@@ -280,22 +280,22 @@
                         + "Plots</a></li>");
                     
                     if (rppaExists) {
-                        out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) data'>"
-                        + "RPPA</a></li>");
+                        out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
+                        + "Protein Changes</a></li>");
                     }
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
                         out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
-                    
-                    if (showIGVtab){
-                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
-                    }
 
                     if (includeNetworks) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
                         + "Network</a></li>");
+                    }
+                    
+                    if (showIGVtab){
+                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
                     }
                     %>
 

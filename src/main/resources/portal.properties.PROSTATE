@@ -39,7 +39,7 @@ skin.title=cBio Prostate Cancer Portal
 skin.email_contact=cbioportal at googlegroups dot com
 skin.tag_line_image=SU2C-PCF-logo.png
 skin.blurb=This portal contains genomic data from several published and unpublished prostate cancer studies.
-skin.authorization_message=The SU2C/PCF Prostate Cancer Portal is currently only open to investigators involved in the SU2C/PCF Prostate Cancer Dream Team. All others please go to <a href="http://cbioportal.org/">http://cbioportal.org/</a> to browse and analyze publicly available prostate cancer data. [<a href="https://docs.google.com/spreadsheet/viewform?formkey=dDJmWXVPVHZwQ1BQQnotWkhkZUxhS0E6MA#gid=0">Request Access</a>].
+skin.authorization_message=The SU2C/PCF Prostate Cancer Portal is currently only open to investigators involved in the SU2C/PCF Prostate Cancer Dream Team. All others please go to <a href="http://cbioportal.org/">cbioportal.org</a> to browse and analyze publicly available prostate cancer data. [<a href="https://docs.google.com/spreadsheet/viewform?formkey=dDJmWXVPVHZwQ1BQQnotWkhkZUxhS0E6MA#gid=0">Request Access</a>].
 skin.right_nav.show_testimonials=true
 skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
 skin.data_sets_footer=

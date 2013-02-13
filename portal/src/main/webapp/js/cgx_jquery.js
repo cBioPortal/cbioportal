@@ -13,7 +13,7 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-    $('#tabs').tabs({cookie:{expires:1, name:"results-tab"}});
+    $('#tabs').tabs({cookie:{expires:1, name:("results-tab-"+document.URL)}});
     $('#tabs').show();
 }
 

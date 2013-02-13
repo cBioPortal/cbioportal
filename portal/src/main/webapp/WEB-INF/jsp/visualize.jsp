@@ -265,19 +265,6 @@
 
                     out.println ("<li><a href='#summary' class='result-tab' title='Summary of genomic alterations'>Summary</a></li>");
 
-                    if (includeNetworks) {
-                        out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
-                        + "Network</a></li>");
-                    }
-
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
-                        + "Plots</a></li>");
-
-                    if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
-                        + "Survival</a></li>");
-                    }
-
                     if (computeLogOddsRatio && geneWithScoreList.size() > 1) {
                         out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                         + "Mutual Exclusivity</a></li>");
@@ -288,19 +275,33 @@
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
                     }
+
+                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
+                        + "Plots</a></li>");
                     
                     if (rppaExists) {
                         out.println ("<li><a href='#protein_exp' class='result-tab' title='Reverse Phase Protein Array (RPPA) data'>"
                         + "RPPA</a></li>");
+                    }
+
+                    if (clinicalDataList != null && clinicalDataList.size() > 0) {
+                        out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
+                        + "Survival</a></li>");
+                    }
+                    
+                    if (showIGVtab){
+                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
+                    }
+
+                    if (includeNetworks) {
+                        out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
+                        + "Network</a></li>");
                     }
                     %>
 
                     <%@ include file="image_tabs.jsp" %>
 
                     <%
-                    if (showIGVtab){
-                        out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
-                    }
                     out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
                     out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");

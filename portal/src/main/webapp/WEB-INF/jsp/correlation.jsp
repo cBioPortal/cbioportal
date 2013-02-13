@@ -15,8 +15,8 @@
 
     DoubleRange range0 = new DoubleRange (0.0, 0.1);
     DoubleRange range1 = new DoubleRange (0.1, 0.5);
-    DoubleRange range2 = new DoubleRange (0.5, 1.5);
-    DoubleRange range3 = new DoubleRange (1.5, 100);
+    DoubleRange range2 = new DoubleRange (0.5, 2);
+    DoubleRange range3 = new DoubleRange (2, 100);
 
     //OddsRatioTemp utilTemp = new OddsRatioTemp(dataSummary);
     //out.println("<P>R Code:  <br>" + utilTemp.getRCommand() + "</P>");

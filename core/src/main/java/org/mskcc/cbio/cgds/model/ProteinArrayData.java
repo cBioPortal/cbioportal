@@ -39,6 +39,7 @@ public class ProteinArrayData {
     private double abundance;
 
     public ProteinArrayData(int cancerStudyId, String arrayId, String caseId, double abundance) {
+        this.cancerStudyId = cancerStudyId;
         this.arrayId = arrayId;
         this.caseId = caseId;
         this.abundance = abundance;

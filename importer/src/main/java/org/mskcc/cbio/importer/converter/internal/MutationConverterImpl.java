@@ -154,8 +154,8 @@ public class MutationConverterImpl implements Converter {
 		// optimization - if an override exists, just copy it over and don't create a staging file from the data matrix
 		String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, stagingFilename);
-		// if we have an override file, just copy it over to the staging area
-		if (overrideFile != null) {
+		// if we have an override file, just copy it over to the staging area - unless this is public portal
+		if (!portalMetadata.getName().contains("public") && overrideFile != null) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
 						 overrideFile.getPath());

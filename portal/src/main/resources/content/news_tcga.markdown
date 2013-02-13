@@ -1,4 +1,4 @@
-# January 21, 2012
+# January 21, 2013
 
 * All data updated to the __October Firehose run__ (October 24, 2012), plus updated mutation data for many tumor types.
 * __Sequencing read counts and frequencies__ are now shown in the Mutation Details table when available.

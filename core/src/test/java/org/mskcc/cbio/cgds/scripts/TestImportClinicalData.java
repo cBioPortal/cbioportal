@@ -58,6 +58,7 @@ public class TestImportClinicalData extends TestCase {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/clinical_test.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
+        cancerStudy.setInternalId(1);
         ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
         importClinicalData.importData();
 
@@ -68,7 +69,7 @@ public class TestImportClinicalData extends TestCase {
         caseSet.add("TCGA-24-2030");
         caseSet.add("TCGA-24-2261");
 
-        ArrayList<ClinicalData> clinicalCaseList = dao.getCases(caseSet);
+        ArrayList<ClinicalData> clinicalCaseList = dao.getCases(1,caseSet);
         assertEquals (3, clinicalCaseList.size());
 
         ClinicalData clinical0 = clinicalCaseList.get(0);

@@ -180,6 +180,14 @@ class ImporterImpl implements Importer {
 			LOG.info("importReferenceData(), importerName: " + importerName);
 		}
 
+		// we may be dealing with a class that implements the importer interface
+		Class<?> clazz = Class.forName(importerName);
+		if (Class.forName("org.mskcc.cbio.importer.Importer").isAssignableFrom(clazz)) {
+			Object[] importerArgs = { config, fileUtils, databaseUtils };
+			Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
+			importer.importReferenceData(referenceMetadata);
+		}
+
 		Object[] args = { config, fileUtils, databaseUtils };
 		if (Shell.exec(referenceMetadata, this, args, ".")) {
 			if (LOG.isInfoEnabled()) {

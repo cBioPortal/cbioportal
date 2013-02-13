@@ -152,6 +152,7 @@ public class Admin implements Runnable {
 
 		Option applyOverrides = (OptionBuilder.withArgName("portal:exclude_datatype")		
 								 .hasArgs(2)		
+								 .withValueSeparator(':')
 								 .withDescription("Replace staging files for the given portal " +
 												  "with any exisiting overrides.  If exclude_datatype is set, " +
 												  "the datatype provided will not have overrides applied.")

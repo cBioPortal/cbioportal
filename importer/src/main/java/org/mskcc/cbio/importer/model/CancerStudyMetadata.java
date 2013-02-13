@@ -54,6 +54,9 @@ public class CancerStudyMetadata {
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String TUMOR_TYPE_NAME_TAG = "<TUMOR_TYPE_NAME>";
 
+	// these suffix identifies a published study
+	public static final String PUBLISHED_TCGA_STUDY_SUFFIX = "tcga_pub";
+
 	// bean properties
 	private String name;
 	private String tumorType;

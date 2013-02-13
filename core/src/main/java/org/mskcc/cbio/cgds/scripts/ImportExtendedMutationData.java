@@ -359,12 +359,12 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
-                                            try {
-						daoMutation.addMutation(mutation);
-                                                DaoMutationEvent.addMutation(mutation);
-                                            } catch (DaoException ex) {
-                                                ex.printStackTrace();
-                                            }
+						try {
+							daoMutation.addMutation(mutation);
+						    DaoMutationEvent.addMutation(mutation);
+						} catch (DaoException ex) {
+						    ex.printStackTrace();
+						}
 					}
 				}
 			}
@@ -413,6 +413,8 @@ public class ImportExtendedMutationData{
 			return "L";
 		} else if( omaScore.equalsIgnoreCase("N") || omaScore.equalsIgnoreCase("neutral")) {
 			return "N";
+		} else if( omaScore.equalsIgnoreCase("[sent]")) {
+			return NOT_AVAILABLE; // TODO temp workaround for invalid sent values
 		} else {
 			return omaScore;
 		}

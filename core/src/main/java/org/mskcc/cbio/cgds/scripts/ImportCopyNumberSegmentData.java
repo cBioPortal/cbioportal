@@ -75,6 +75,11 @@ public class ImportCopyNumberSegmentData {
         
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
         
+        if (DaoCopyNumberSegment.segmentDataExistForCancerStudy(cancerStudyId)) {
+            System.err.println("Ignore this file since seg data for cancer study "+args[1]+" has already been imported.");
+            return;
+        }
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
         

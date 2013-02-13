@@ -209,7 +209,7 @@ public class PatientView extends HttpServlet {
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
         String patient = (String)request.getAttribute(PATIENT_ID);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        ClinicalData clinicalData = daoClinicalData.getCase(patient);
+        ClinicalData clinicalData = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
         Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
         
         request.setAttribute(CLINICAL_DATA, mergeClinicalData(clinicalData, clinicalFreeForms));

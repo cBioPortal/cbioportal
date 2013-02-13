@@ -127,11 +127,10 @@ public final class DaoClinical {
 
         for (Clinical clinical : clinicals) {
             sql = sql + "(" +
-                    clinical.getCancerStudyId() +
-                    clinical.getCaseId() +
-                    clinical.getAttrId() +
-                    clinical.getAttrVal() +
-                    "),";
+                    "'" + clinical.getCancerStudyId() + "'," +
+                    "'" + clinical.getCaseId() + "'," +
+                    "'" + clinical.getAttrId() + "'," +
+                    "'" + clinical.getAttrVal() + "'),";
         }
         sql = sql.substring(0, sql.length()-1); // get rid of that last comma
         try {
@@ -143,7 +142,7 @@ public final class DaoClinical {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoClinical.class, con, (PreparedStatement) stmt, rs);
+            JdbcUtil.closeAll(DaoClinical.class, con, null, rs);
         }
     }
 

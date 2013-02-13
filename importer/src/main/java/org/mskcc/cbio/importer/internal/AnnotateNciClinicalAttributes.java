@@ -28,32 +28,31 @@
 package org.mskcc.cbio.importer.internal;
 
 
-import com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-public class AnnotateNciClinicalAttributes implements Importer {
+//quick and dirty
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+
+//public class AnnotateNciClinicalAttributes implements Importer {
+public class AnnotateNciClinicalAttributes {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -70,12 +69,16 @@ public class AnnotateNciClinicalAttributes implements Importer {
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
 
-
     public static void main(String[] args) throws Exception {
         if(args.length != 1) {
             System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
             System.exit(-1);
         }
+
+//        ApplicationContext context =
+//                new ClassPathXmlApplicationContext("/Users/dresdneg/dev/cbio-cancer-genomics-portal/importer/src/main/resources/applicationContext-importer.xml");
+//        Config config = (Config) context.getBean("config");
+//                        "$PORTAL_HOME/importer/src/main/resources/applicationContext-importer.xml");
 
         String path = args[0].trim();
         File xml = new File(path);
@@ -96,12 +99,12 @@ public class AnnotateNciClinicalAttributes implements Importer {
         this.databaseUtils = databaseUtils;
     }
 
-    @Override
+//    @Override
     public void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception {
         throw new UnsupportedOperationException();
     }
 
-    @Override
+//    @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
         importReferenceData(bcrXmlFilename);

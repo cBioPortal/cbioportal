@@ -846,7 +846,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling OncotateTool...");
 		}
-//		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
+		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
 		// we call OMA here -
 		// we use output from oncotator as input file
 		if (LOG.isInfoEnabled()) {

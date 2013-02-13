@@ -268,6 +268,14 @@ class ImporterImpl implements Importer {
 					}
 					continue;
 				}
+				// we may be dealing with a class that implements the importer interface
+				Class<?> clazz = Class.forName(datatypeMetadata.getImporterClassName());
+				if (Class.forName("org.mskcc.cbio.importer.Importer").isAssignableFrom(clazz)) {
+					Object[] importerArgs = { config, fileUtils, databaseUtils };
+					Importer importer = (Importer)ClassLoader.getInstance(datatypeMetadata.getImporterClassName(), importerArgs);
+					importer.importData(portalMetadata.getName(), false, false, false);
+					continue;
+				}
 				if (datatypeMetadata.requiresMetafile()) {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };

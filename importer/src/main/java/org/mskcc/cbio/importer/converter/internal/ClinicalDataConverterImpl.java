@@ -71,6 +71,8 @@ public class ClinicalDataConverterImpl implements Converter {
     // string that indicates that the attribute should be imported
     public static final String OK = "OK";
 
+    public static final String UNANNOTATED = "Unannotated";
+
     // name of the case id column
 
 	/**
@@ -218,7 +220,6 @@ public class ClinicalDataConverterImpl implements Converter {
         if ( !( knownAliasToAttribute.containsKey(alias) || newAttributes.containsKey(alias)) ) {
             // nor have we see it so far in this session,
             // nor have we seen it in the past (i.e. not in google doc)
-            String UNANNOTATED = "Unannotated";
 
             String[] props = new String[9];
             props[0] = "";                                                              // COLUMN_HEADER

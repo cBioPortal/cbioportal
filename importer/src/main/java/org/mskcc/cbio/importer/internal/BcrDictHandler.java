@@ -95,6 +95,7 @@ public class BcrDictHandler extends DefaultHandler {
             }
             else if ("studies".equals(qName)) {
                 currBcr.setDiseaseSpecificity(StringUtils.join(diseaseSpecificities, " "));
+                diseaseSpecificities.clear();
             }
             else if ("dictEntry".equals(qName)) {
                 // this goes last

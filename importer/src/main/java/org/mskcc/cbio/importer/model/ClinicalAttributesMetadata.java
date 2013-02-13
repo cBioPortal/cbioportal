@@ -41,7 +41,7 @@ public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
 
 	// worksheet column header that is used as key to find row to update
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "COLUMNHEADER";
-    public static final String WORKSHEET_ALIAS_KEY = "ALIASES";
+    public static final String WORKSHEET_ALIAS_KEY = "aliases";
 
 	// bean properties
     private String columnHeader;

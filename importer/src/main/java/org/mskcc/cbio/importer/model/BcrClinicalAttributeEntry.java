@@ -27,10 +27,16 @@
 package org.mskcc.cbio.importer.model;
 
 import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
+import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class BcrClinicalAttributeEntry extends ClinicalAttributeAbstract {
     private String diseaseSpecificity;
     private String id;
+
+    private HashMap<String, String> propertiesMap = null;
 
     public BcrClinicalAttributeEntry(String diseaseSpecificity,
                                      String id,
@@ -59,5 +65,25 @@ public class BcrClinicalAttributeEntry extends ClinicalAttributeAbstract {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Map<String, String> getPropertiesMap() {
+        if (propertiesMap == null) {
+            propertiesMap = makePropertiesMap();
+        }
+        return propertiesMap;
+    }
+
+    public HashMap<String, String> makePropertiesMap() {
+        HashMap<String, String> propertiesMap = new HashMap<String, String>();
+        propertiesMap.put("COLUMNHEADER", "");
+        propertiesMap.put("DISPLAYNAME", super.getDisplayName());
+        propertiesMap.put("DESCRIPTION", super.getDescription());
+        propertiesMap.put("DATATYPE", "");
+        propertiesMap.put("ALIASES", this.getId());
+        propertiesMap.put("ANNOTATIONSTATUS", ClinicalDataConverterImpl.UNANNOTATED);
+        propertiesMap.put("DISEASESPECIFICITY", this.diseaseSpecificity);
+
+        return propertiesMap;
     }
 }

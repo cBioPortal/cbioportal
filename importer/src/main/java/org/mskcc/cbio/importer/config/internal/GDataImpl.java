@@ -29,6 +29,7 @@
 package org.mskcc.cbio.importer.config.internal;
 
 // imports
+import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.*;
@@ -506,13 +507,20 @@ class GDataImpl implements Config {
      * @param bcr BcrClinicalAttributeEntry
      */
     public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
+
+        if (clinicalAttributesMatrix == null) {
+            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+        }
+
         Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
                 (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
                         "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
         // you say tomaito, i say tomaato
         String bcrAlias = bcr.getId();
-        String key = bcrAlias;
+
+        // vars used in call to updateWorksheet below
+        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
 
         // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
         // object already exists - this would indicate an update is to take place, not an insert
@@ -520,28 +528,33 @@ class GDataImpl implements Config {
         for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
             String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
 
-            // vars used in call to updateWorksheet below
-            String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
-            boolean insertRow = true;
+            if (attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
+                // N.B. don't overwrite if it's been OKayed
+                continue;
+            }
 
             for (String alias : aliases) {
-                 if (alias.trim().equals(bcrAlias)) {
+//                 if (alias.trim().equals(bcrAlias)) {
+                 if (alias.trim().matches(".*" + bcrAlias + ".*")) {
+
                      // match!
                      attribute.setDescription(bcr.getDescription());
                      attribute.setDisplayName(bcr.getDisplayName());
                      attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
 
-                     insertRow = false;
-
+                     boolean insertRow = false;
+                     String key = alias;
                      updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
                              insertRow, keyColumn, key, attribute.getPropertiesMap());
-                     return;
+                     break;
                  }
             }
-
-            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                    insertRow, keyColumn, key, attribute.getPropertiesMap());
         }
+        // else: insert into worksheet
+        String key = bcrAlias;
+        boolean insertRow = true;
+        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                insertRow, keyColumn, key, bcr.getPropertiesMap());
     }
 
 	/**
@@ -879,8 +892,9 @@ class GDataImpl implements Config {
 					for (ListEntry entry : feed.getEntries()) {
 						if (entry.getCustomElements().getValue(keyColumn) != null &&
 							entry.getCustomElements().getValue(keyColumn).equals(keyValue)) {
-							for (String key : properties.keySet()) {
-							}
+                            for (String key : properties.keySet()) {
+                                entry.getCustomElements().setValueLocal(key, properties.get(key));
+                            }
 							entry.update();
 							if (LOG.isInfoEnabled()) {
 								LOG.info("Worksheet data hase been successfully updated!");

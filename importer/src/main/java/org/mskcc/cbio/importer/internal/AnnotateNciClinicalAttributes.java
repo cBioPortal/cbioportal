@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.xml.sax.SAXException;
@@ -51,8 +52,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 
-//public class AnnotateNciClinicalAttributes implements Importer {
-public class AnnotateNciClinicalAttributes {
+public class AnnotateNciClinicalAttributes implements Importer {
+//public class AnnotateNciClinicalAttributes {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -69,22 +70,22 @@ public class AnnotateNciClinicalAttributes {
     public static final String DICT_ENTRY = "dictEntry";
     public static final String NAME = "name";
 
-    public static void main(String[] args) throws Exception {
-
-        System.err.println("NCI Clinical Attributes are not being annotated as of now.");
-//        if(args.length != 1) {
-//            System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
-//            System.exit(-1);
-//        }
+//    public static void main(String[] args) throws Exception {
 //
-//        ApplicationContext context =
-//                new ClassPathXmlApplicationContext("/Users/dresdneg/dev/cbio-cancer-genomics-portal/importer/src/main/resources/applicationContext-importer.xml");
-//        Config config = (Config) context.getBean("config");
-//                        "$PORTAL_HOME/importer/src/main/resources/applicationContext-importer.xml");
-//
-//        String path = args[0].trim();
-//        File xml = new File(path);
-    }
+//        System.err.println("NCI Clinical Attributes are not being annotated as of now.");
+////        if(args.length != 1) {
+////            System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
+////            System.exit(-1);
+////        }
+////
+////        ApplicationContext context =
+////                new ClassPathXmlApplicationContext("/Users/dresdneg/dev/cbio-cancer-genomics-portal/importer/src/main/resources/applicationContext-importer.xml");
+////        Config config = (Config) context.getBean("config");
+////                        "$PORTAL_HOME/importer/src/main/resources/applicationContext-importer.xml");
+////
+////        String path = args[0].trim();
+////        File xml = new File(path);
+//    }
 
     /**
      * Constructor.

@@ -16,7 +16,7 @@ if ($#ARGV >= 0) {
 	}
 }
 
-$cgdsHome = $ENV{PORTAL_HOME}/core;
+$cgdsHome = $ENV{PORTAL_HOME}."/core";
 $cgdsDataHome = $ENV{CGDS_DATA_HOME};
 $portalDataHome = $ENV{PORTAL_DATA_HOME};
 my $osCheck = $ENV{OS};

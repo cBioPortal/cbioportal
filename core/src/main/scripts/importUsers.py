@@ -69,7 +69,7 @@ GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
 INST_EMAIL_KEY = "institutionalemailaddress"
-OPENID_EMAIL_KEY = "gmailaddressorotheropenidaddresssuchasyahooemailaddress"
+OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 

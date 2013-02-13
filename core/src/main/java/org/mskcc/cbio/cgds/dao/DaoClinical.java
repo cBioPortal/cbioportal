@@ -29,10 +29,8 @@ package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cbio.cgds.model.Clinical;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.Collection;
 
 /**
  * Data Access Object for `clinical` table
@@ -116,6 +114,36 @@ public final class DaoClinical {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
+        }
+    }
+
+    public static int addAllData(Collection<Clinical> clinicals) throws DaoException {
+        Connection con = null;
+        ResultSet rs = null;
+        Statement stmt = null;
+
+        String sql = "INSERT INTO clinical (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`, `ATTR_VALUE`)";
+        sql += "VALUES";
+
+        for (Clinical clinical : clinicals) {
+            sql = sql + "(" +
+                    clinical.getCancerStudyId() +
+                    clinical.getCaseId() +
+                    clinical.getAttrId() +
+                    clinical.getAttrVal() +
+                    "),";
+        }
+        sql = sql.substring(0, sql.length()-1); // get rid of that last comma
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
+            stmt = con.createStatement();
+            int rows = stmt.executeUpdate(sql);
+
+            return rows;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinical.class, con, (PreparedStatement) stmt, rs);
         }
     }
 

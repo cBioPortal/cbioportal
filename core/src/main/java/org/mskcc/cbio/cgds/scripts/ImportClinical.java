@@ -143,6 +143,7 @@ public class ImportClinical {
         }
 
         line = reader.readLine();
+        List<Clinical> clinicals = new ArrayList<Clinical>();
         while (line != null) {
 
             if (line.substring(0,1).equals(IGNORE_LINE_PREFIX)) {
@@ -153,36 +154,26 @@ public class ImportClinical {
             int cancerStudyid = -1; //todo:fix
 
             String[] fields = line.split(DELIMITER);
-
+            String caseId = null;
             for (int i = 0; i < fields.length; i++) {
                 Clinical clinical = new Clinical();
                 clinical.setCancerStudyId(cancerStudyid);
 
-                if (columnAttrs.get(i).equals(CASE_ID)) {
-                    clinical.setCaseId(fields[i]);
+                if (columnAttrs.get(i).getAttributeId().equals(CASE_ID)) {
+                    caseId = fields[i];
+                    continue;
                 } else {
-                    ClinicalAttribute currentAttr = columnAttrs.get(i);
-                    clinical.setAttrId(currentAttr.getAttributeId());
+                    clinical.setCaseId(caseId);
+                    clinical.setAttrId(columnAttrs.get(i).getAttributeId());
                     clinical.setAttrVal(fields[i]);
+                    clinicals.add(clinical);
+//                    System.out.println(clinical);
                 }
             }
 
-//            System.out.println(line);
-
-//            HashMap<String, String> hashedLine = hashLine(line, colnames, "\t");
-//            hashToClinical(hashedLine);
-
-            // go through everything in the hashmap
-            // except for the case id
-            // look for the clinicalAttribute
-            // create it if it doesn't exist
-            // return Clinical object with the correct ids and whatnot
             line = reader.readLine();
         }
 
-        // make a map of attributes to ClinicalAttribute objects
-
-        // check to see whether or not the ClinicalAttribute is in the database, if not,
-        // it should be and add it to the clinical attribute table.
+        DaoClinical.addAllData(clinicals);
     }
 }

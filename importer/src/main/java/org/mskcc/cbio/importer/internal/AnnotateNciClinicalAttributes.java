@@ -70,18 +70,20 @@ public class AnnotateNciClinicalAttributes {
     public static final String NAME = "name";
 
     public static void main(String[] args) throws Exception {
-        if(args.length != 1) {
-            System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
-            System.exit(-1);
-        }
 
+        System.err.println("NCI Clinical Attributes are not being annotated as of now.");
+//        if(args.length != 1) {
+//            System.err.println("Wrong number of arguments (expected 1, got " + args.length + ")" );
+//            System.exit(-1);
+//        }
+//
 //        ApplicationContext context =
 //                new ClassPathXmlApplicationContext("/Users/dresdneg/dev/cbio-cancer-genomics-portal/importer/src/main/resources/applicationContext-importer.xml");
 //        Config config = (Config) context.getBean("config");
 //                        "$PORTAL_HOME/importer/src/main/resources/applicationContext-importer.xml");
-
-        String path = args[0].trim();
-        File xml = new File(path);
+//
+//        String path = args[0].trim();
+//        File xml = new File(path);
     }
 
     /**

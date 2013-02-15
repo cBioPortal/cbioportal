@@ -51,11 +51,7 @@ import com.google.gdata.client.spreadsheet.FeedURLFactory;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
@@ -506,7 +502,7 @@ class GDataImpl implements Config {
      *
      * @param bcr BcrClinicalAttributeEntry
      */
-    public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
+    public void updateClinicalAttributesMetadatas(List<BcrClinicalAttributeEntry> bcrs) {
 
         if (clinicalAttributesMatrix == null) {
             clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
@@ -516,16 +512,26 @@ class GDataImpl implements Config {
                 (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
                         "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
 
-        // you say tomaito, i say tomaato
-        String bcrAlias = bcr.getId();
+        // create a hashmap for filtering the bcrs
+        HashMap<String, ClinicalAttributesMetadata> fromSpreadSheet = new HashMap<String, ClinicalAttributesMetadata>();
+        for (ClinicalAttributesMetadata clinical : clinicalAttributesMetadatas) {
+            fromSpreadSheet.put(clinical.getAliases(), clinical);
+        }
 
-        // vars used in call to updateWorksheet below
+        for (BcrClinicalAttributeEntry bcr : bcrs) {
+
+        }
+
+        // you say tomaito, i say tomaato
+        String bcrAlias = bcr.getId().replaceAll("_", "");
+
         String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
 
         // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
         // object already exists - this would indicate an update is to take place, not an insert
         // exists means that the first alias matches
         for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
+
             String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
 
             if (attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
@@ -534,27 +540,29 @@ class GDataImpl implements Config {
             }
 
             for (String alias : aliases) {
-//                 if (alias.trim().equals(bcrAlias)) {
-                 if (alias.trim().matches(".*" + bcrAlias + ".*")) {
+                if (alias.trim().matches(".*" + bcrAlias + ".*")) {
 
-                     // match!
-                     attribute.setDescription(bcr.getDescription());
-                     attribute.setDisplayName(bcr.getDisplayName());
-                     attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
+                    // match!
+                    attribute.setDescription(bcr.getDescription());
+                    attribute.setDisplayName(bcr.getDisplayName());
+                    attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
+                    attribute.setColumnHeader(bcr.getId().toUpperCase());
 
-                     boolean insertRow = false;
-                     String key = alias;
-                     updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                             insertRow, keyColumn, key, attribute.getPropertiesMap());
-                     break;
-                 }
+                    boolean insertRow = false;
+                    String key = attribute.getAliases();
+                    updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                            insertRow, keyColumn, key, attribute.getPropertiesMap());
+                    break;
+                }
             }
         }
         // else: insert into worksheet
-        String key = bcrAlias;
+        String key = null;
         boolean insertRow = true;
         updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
                 insertRow, keyColumn, key, bcr.getPropertiesMap());
+
+        clinicalAttributesMatrix = null;
     }
 
 	/**

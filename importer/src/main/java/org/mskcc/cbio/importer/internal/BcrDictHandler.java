@@ -73,7 +73,7 @@ public class BcrDictHandler extends DefaultHandler {
         }
         else if ("XMLeltInfo".equals(qName)){
             // the broad replaces all "_" with "" in their firehose runs
-            currBcr.setId(attributes.getValue("xml_elt_name").replaceAll("_", ""));
+            currBcr.setId(attributes.getValue("xml_elt_name"));
         }
     }
 

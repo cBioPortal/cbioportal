@@ -76,11 +76,11 @@ public class BcrClinicalAttributeEntry extends ClinicalAttributeAbstract {
 
     public HashMap<String, String> makePropertiesMap() {
         HashMap<String, String> propertiesMap = new HashMap<String, String>();
-        propertiesMap.put("COLUMNHEADER", "");
+        propertiesMap.put("COLUMNHEADER", id.toUpperCase());
         propertiesMap.put("DISPLAYNAME", super.getDisplayName());
         propertiesMap.put("DESCRIPTION", super.getDescription());
         propertiesMap.put("DATATYPE", "");
-        propertiesMap.put("ALIASES", this.getId());
+        propertiesMap.put("ALIASES", id.replaceAll("_",""));
         propertiesMap.put("ANNOTATIONSTATUS", ClinicalDataConverterImpl.UNANNOTATED);
         propertiesMap.put("DISEASESPECIFICITY", this.diseaseSpecificity);
 

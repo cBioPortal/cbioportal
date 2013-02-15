@@ -41,7 +41,7 @@ public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
 
 	// worksheet column header that is used as key to find row to update
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "COLUMNHEADER";
-    public static final String WORKSHEET_ALIAS_KEY = "aliases";
+    public static final String WORKSHEET_ALIAS_KEY = "ALIASES";
 
 	// bean properties
     private String columnHeader;
@@ -69,7 +69,17 @@ public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
 		this.aliases = properties[4].trim();
 		this.annotationStatus = properties[5].trim();
 		this.diseaseSpecificity = properties[6].trim();
-        makePropertiesMap();
+
+        // properties map - used by code that updates row in the worksheet
+        // (google spreadsheet api, removes certain symbols (including spaces) from column headings)
+        propertiesMap = new HashMap<String, String>();
+        propertiesMap.put("COLUMNHEADER", this.columnHeader);
+        propertiesMap.put("DISPLAYNAME", super.getDisplayName());
+        propertiesMap.put("DESCRIPTION", super.getDescription());
+        propertiesMap.put("DATATYPE", this.datatype);
+        propertiesMap.put("ALIASES", this.aliases);
+        propertiesMap.put("ANNOTATIONSTATUS", this.annotationStatus);
+        propertiesMap.put("DISEASESPECIFICITY", this.diseaseSpecificity);
 	}
 
     public ClinicalAttributesMetadata() {
@@ -99,14 +109,14 @@ public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
     }
 
 	public String getColumnHeader() { return columnHeader; }
-	public void setColumnHeader(String columnHeader) { this.columnHeader = columnHeader; }
+	public void setColumnHeader(String columnHeader) { this.columnHeader = columnHeader; makePropertiesMap(); }
 	public String getDatatype() { return datatype; }
-	public void setDatatype(String datatype) { this.datatype = datatype; }
+	public void setDatatype(String datatype) { this.datatype = datatype; makePropertiesMap(); }
 	public String getAliases() { return aliases; }
-	public void setAliases(String aliases) { this.aliases = aliases; }
+	public void setAliases(String aliases) { this.aliases = aliases; makePropertiesMap(); }
 	public String getAnnotationStatus() { return annotationStatus; }
-	public void setAnnotationStatus(String annotationStatus) { this.annotationStatus = annotationStatus; }
+	public void setAnnotationStatus(String annotationStatus) { this.annotationStatus = annotationStatus; makePropertiesMap(); }
 	public String getDiseaseSpecificity() { return diseaseSpecificity; }
-	public void setDiseaseSpecificity(String diseaseSpecificity) { this.diseaseSpecificity = diseaseSpecificity; }
+	public void setDiseaseSpecificity(String diseaseSpecificity) { this.diseaseSpecificity = diseaseSpecificity; makePropertiesMap(); }
 	public Map<String, String> getPropertiesMap() { return propertiesMap; }
 }

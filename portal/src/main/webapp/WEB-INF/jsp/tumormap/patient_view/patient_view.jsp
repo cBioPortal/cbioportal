@@ -44,7 +44,7 @@ boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
-boolean showClinicalTrials = true; // no restrictions yet
+boolean showClinicalTrials = showPlaceHoder;
 boolean showDrugs = true;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();

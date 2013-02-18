@@ -293,7 +293,7 @@ var caseId = '<%=patient%>';
 var cancerStudyName = '<%=cancerStudy.getName()%>';
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
-var drugType = '<%=drugType%>';
+var drugType = drugType?'<%=drugType%>':null;
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');

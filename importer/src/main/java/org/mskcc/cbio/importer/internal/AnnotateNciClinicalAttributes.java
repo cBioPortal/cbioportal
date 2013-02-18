@@ -94,12 +94,10 @@ public class AnnotateNciClinicalAttributes implements Importer {
     public void importReferenceData(String bcrXmlFilename) throws IOException, SAXException, ParserConfigurationException {
         List<BcrClinicalAttributeEntry> bcrs = parseXML(bcrXmlFilename);
 
-        config.updateClinicalAttributesMetadatas(bcrs);
-
-//        for (BcrClinicalAttributeEntry bcr : bcrs) {
-////            System.out.println(bcr);
-//            config.updateClinicalAttributesMetadata(bcr);
-//        }
+        for (BcrClinicalAttributeEntry bcr : bcrs) {
+//            System.out.println(bcr);
+            config.updateClinicalAttributesMetadata(bcr);
+        }
     }
 
     public List<BcrClinicalAttributeEntry> parseXML(String xmlFilename)

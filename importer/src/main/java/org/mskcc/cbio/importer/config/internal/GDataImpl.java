@@ -502,7 +502,7 @@ class GDataImpl implements Config {
      *
      * @param bcr BcrClinicalAttributeEntry
      */
-    public void updateClinicalAttributesMetadatas(List<BcrClinicalAttributeEntry> bcrs) {
+    public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
 
         if (clinicalAttributesMatrix == null) {
             clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
@@ -511,16 +511,6 @@ class GDataImpl implements Config {
         Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
                 (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
                         "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-        // create a hashmap for filtering the bcrs
-        HashMap<String, ClinicalAttributesMetadata> fromSpreadSheet = new HashMap<String, ClinicalAttributesMetadata>();
-        for (ClinicalAttributesMetadata clinical : clinicalAttributesMetadatas) {
-            fromSpreadSheet.put(clinical.getAliases(), clinical);
-        }
-
-        for (BcrClinicalAttributeEntry bcr : bcrs) {
-
-        }
 
         // you say tomaito, i say tomaato
         String bcrAlias = bcr.getId().replaceAll("_", "");
@@ -552,7 +542,7 @@ class GDataImpl implements Config {
                     String key = attribute.getAliases();
                     updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
                             insertRow, keyColumn, key, attribute.getPropertiesMap());
-                    break;
+                    return;
                 }
             }
         }
@@ -562,7 +552,7 @@ class GDataImpl implements Config {
         updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
                 insertRow, keyColumn, key, bcr.getPropertiesMap());
 
-        clinicalAttributesMatrix = null;
+//        clinicalAttributesMatrix = null;
     }
 
 	/**

@@ -30,9 +30,7 @@ package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.model.*;
-
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Interface used to get/set configuration properties.
@@ -178,6 +176,4 @@ public interface Config {
 	 * @return Collection<CancerStudyMetadata>
 	 */
 	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName);
-
-    void updateClinicalAttributesMetadatas(List<BcrClinicalAttributeEntry> bcrs);
 }

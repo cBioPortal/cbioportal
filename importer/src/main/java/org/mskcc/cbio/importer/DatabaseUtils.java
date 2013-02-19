@@ -41,42 +41,42 @@ public interface DatabaseUtils {
 	 *
 	 * @return String
 	 */
-    public String getDatabaseUser();
+    String getDatabaseUser();
 
 	/**
 	 * Returns the database password credential.
 	 *
 	 * @return String
 	 */
-    public String getDatabasePassword();
+    String getDatabasePassword();
 
 	/**
 	 * Returns the database connection string.
 	 *
 	 * @return String
 	 */
-    public String getDatabaseConnectionString();
+    String getDatabaseConnectionString();
+
+	/**
+	 * Returns the database schema filename.
+	 *
+	 * @return String
+	 */
+    String getPortalDatabaseSchema();
 
 	/**
 	 * Returns the importer database name.
 	 *
 	 * @return String
 	 */
-    public String getImporterDatabaseName();
-
-	/**
-	 * Returns the gene information database name.
-	 *
-	 * @return String
-	 */
-    public String getGeneInformationDatabaseName();
+    String getImporterDatabaseName();
 
 	/**
 	 * Returns the portal database name.
 	 *
 	 * @return String
 	 */
-    public String getPortalDatabaseName();
+    String getPortalDatabaseName();
 
     /**
 	 * Creates a database and optional schema.
@@ -84,5 +84,16 @@ public interface DatabaseUtils {
 	 * @param databaseName String
 	 * @param createSchema boolean
 	 */
-	void createDatabase(final String databaseName, final boolean createSchema);
+	void createDatabase(String databaseName, boolean createSchema);
+
+	/**
+	 * Execute the given script on the given db.
+	 *
+	 * @param databaseName String
+	 * @param databaseScript String
+	 * @param databaseUser String
+	 * @param databasePassword String
+	 */
+	boolean executeScript(String databaseName, String databaseScript,
+						  String databaseUser, String databasePassword);
 }

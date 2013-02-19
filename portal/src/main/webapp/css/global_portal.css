@@ -673,7 +673,7 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 
 #content p {
-  margin-top:15px; margin-bottom: 15px;
+  margin-top:0px; margin-bottom: 15px;
   font-family: verdana, arial, sans-serif;
   font-size: 14px;
   line-height: 18px;
@@ -1285,6 +1285,10 @@ cc-ie-message {
 
 .center-align-td {
     text-align: center;
+}
+
+.no-wrap-td {
+    white-space: nowrap;
 }
 
 .ui-tooltip-lightyellow {

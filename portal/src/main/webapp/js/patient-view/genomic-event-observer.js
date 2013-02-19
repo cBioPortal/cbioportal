@@ -119,5 +119,27 @@ GenomicEventContainer.prototype = {
             if (this.data[colName][i]!=null) return false;
         }
         return true;
+    },
+    getDrugs: function() {
+        var drugs = {
+            ids: [],
+            genes: []
+        };
+
+        for (var i=0; i<this.numEvents; i++) {
+            var drugSet = this.data['drug'][i];
+            var gene = this.data['gene'][i];
+
+            if (drugSet != null) {
+                for(var j=0; j < drugSet.length; j++) {
+                    var aDrug = drugSet[j];
+                    drugs.ids.push(aDrug);
+                    drugs.genes.push(gene);
+                }
+            }
+        }
+
+        return drugs;
     }
+
 }

@@ -37,18 +37,21 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.Set;
 
 /**
  * Class which implements the Converter interface.
  */
-public final class MutationConverterImpl implements Converter {
+public class MutationConverterImpl implements Converter {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(MutationConverterImpl.class);
@@ -73,8 +76,8 @@ public final class MutationConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public MutationConverterImpl(final Config config, final FileUtils fileUtils,
-								 final CaseIDs caseIDs, final IDMapper idMapper) {
+	public MutationConverterImpl(Config config, FileUtils fileUtils,
+								 CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -87,10 +90,12 @@ public final class MutationConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -101,40 +106,81 @@ public final class MutationConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
+	 *
+	 * @param portal String
+	 * @param excludeDatatypes Set<String>
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 1) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		if (dataMatrices.length != 1) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 1, aborting...");
+			}
+			return;
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
-		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		DataMatrix dataMatrix = dataMatrices[0];
+		//dataMatrix.convertCaseIDs(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
-			fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+
+		// optimization - if an override exists, just copy it over and don't create a staging file from the data matrix
+		String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, stagingFilename);
+		// if we have an override file, just copy it over to the staging area - unless this is public portal
+		if (!portalMetadata.getName().contains("public") && overrideFile != null) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
+						 overrideFile.getPath());
+			}
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
+			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, 
+									datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 		}
+		// override file does not exist, we will have to create a staging file - check if file needs to be oncotated
+		else if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+			// we should almost always never get here - when do we have an oncated maf that doesn't exist
+			// in overrides?  ...when firehose starts providing oncotated mafs, thats when...
+			if (LOG.isInfoEnabled()) {
+				LOG.info("createStagingFile(), MAF is already oncotated, create staging file straight-away.");
+			}
+			fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+		}
+		// override file does not exist, and we need to oncotate
 		else {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
 			}
-			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
+			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
+
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}

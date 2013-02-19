@@ -76,28 +76,35 @@
 				</configuration>
 			</plugin>
 
+			<!-- use this instead of maven-assembly-plugin -->
+			<!-- to prevent inclusion of org-apache-commons-dbcp -->
+			<!-- which now lives in core and causes jar creation -->
+			<!-- issues when using maven-assembly-plugin -->
 			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2-beta-5</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-					<archive>
-						<manifest>
-							<mainClass>org.mskcc.cbio.oncotator.OncotateTool</mainClass>
-						</manifest>
-					</archive>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-shade-plugin</artifactId>
+			  <version>2.0</version>
+			  <executions>
+				<execution>
+				  <phase>package</phase>
+				  <goals>
+					<goal>shade</goal>
+				  </goals>
+				  <configuration>
+					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<artifactSet>
+					  <excludes>
+						<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+					  </excludes>
+					</artifactSet>
+					<transformers>
+					  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+						<mainClass>org.mskcc.cbio.oncotator.OncotateTool</mainClass>
+					  </transformer>
+					</transformers>
+				  </configuration>
+				</execution>
+			  </executions>
 			</plugin>
 
 		</plugins>
@@ -108,7 +115,7 @@
 				<directory>src/main/resources</directory>
 				<filtering>true</filtering>
 				<excludes>
-					<exclude>build.properties.*</exclude>
+					<exclude>portal.properties.*</exclude>
 					<exclude>db.properties.EXAMPLE</exclude>
 					<exclude>*.sql</exclude>
 				</excludes>

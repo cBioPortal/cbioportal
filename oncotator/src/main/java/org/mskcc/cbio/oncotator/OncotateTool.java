@@ -56,15 +56,15 @@ public class OncotateTool
 	    {
 		    if (args[i].startsWith("-"))
 		    {
-			    if (args[0].equalsIgnoreCase("-nocache"))
+			    if (args[i].equalsIgnoreCase("-nocache"))
 			    {
 				    useCache = false;
 			    }
-			    else if (args[0].equalsIgnoreCase("-sort"))
+			    else if (args[i].equalsIgnoreCase("-sort"))
 			    {
 				    sort = true;
 			    }
-			    else if (args[0].equalsIgnoreCase("-std"))
+			    else if (args[i].equalsIgnoreCase("-std"))
 			    {
 				    addMissing = true;
 			    }
@@ -85,29 +85,24 @@ public class OncotateTool
 	    inputMaf = args[i];
 	    outputMaf = args[i+1];
 
-        Date start = new Date();
 	    int oncoResult = 0;
 
         try
         {
-            Oncotator tool = new Oncotator(useCache);
-	        tool.setSortColumns(sort);
-	        tool.setAddMissingCols(addMissing);
-
-	        oncoResult = tool.oncotateMaf(new File(inputMaf),
-	                                      new File(outputMaf));
+	        oncoResult = driver(inputMaf,
+				outputMaf,
+				useCache,
+				sort,
+				addMissing);
         }
-        catch (Exception e)
+        catch (RuntimeException e)
         {
-            System.out.println("Error occurred:  " + e.getMessage());
+            System.out.println("Fatal error: " + e.getMessage());
             e.printStackTrace();
+	        System.exit(1);
         }
         finally
         {
-            Date end = new Date();
-            double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
-            System.out.println("Total time:  " + timeElapsed + " seconds.");
-
 	        // check errors at the end
 	        if (oncoResult != 0)
 	        {
@@ -117,4 +112,46 @@ public class OncotateTool
 	        }
         }
     }
+
+	public static int driver(String inputMaf,
+			String outputMaf,
+			boolean useCache,
+			boolean sort,
+			boolean addMissing)
+	{
+		Date start = new Date();
+		int oncoResult = 0;
+
+		Oncotator tool = new Oncotator(useCache);
+		tool.setSortColumns(sort);
+		tool.setAddMissingCols(addMissing);
+
+		try {
+			oncoResult = tool.oncotateMaf(new File(inputMaf),
+			                 new File(outputMaf));
+		} catch (IOException e) {
+			System.out.println("IO error occurred: " + e.getMessage());
+			e.printStackTrace();
+		} catch (OncotatorServiceException e) {
+			System.out.println("Service error occurred: " + e.getMessage());
+			e.printStackTrace();
+		}
+		finally {
+			Date end = new Date();
+			double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
+
+			System.out.println("Total number of records processed: " +
+			                   tool.getNumRecordsProcessed());
+
+			if (tool.getBuildNumErrors() > 0)
+			{
+				System.out.println("Number of records skipped due to incompatible build no: " +
+				                   tool.getBuildNumErrors());
+			}
+
+			System.out.println("Total time: " + timeElapsed + " seconds.");
+		}
+
+		return oncoResult;
+	}
 }

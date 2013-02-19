@@ -79,14 +79,14 @@ An included tutorial ("showdemo cgdstutorial") shows how to use all the function
 	% Show toolbox help ('helpwin cgds' will open in the Help window)
 	help cgds;
 
-	% Get list of cancer types at server
-	cancerTypes = getcancertypes(cgdsURL);
+	% Get list of cancer studies at server
+	cancerStudies = getcancerstudies(cgdsURL);
 
 	% Get available genetic profiles for a given cancer type (GBM below)
-	geneticProfiles = getgeneticprofiles(cgdsURL, cancerTypes.cancerTypeId{2});
+	geneticProfiles = getgeneticprofiles(cgdsURL, cancerStudies.cancerStudyId{2});
 
 	% Get available case lists (collections of samples)
-	caseLists = getcaselists(cgdsURL, cancerTypes.cancerTypeId{2});
+	caseLists = getcaselists(cgdsURL, cancerStudies.cancerStudyId{2});
 
 	% Get multiple types of genetic profile data for p53 in GBM
 	profileData = getprofiledata(cgdsURL, caseLists.caseListId{2}, ...
@@ -101,4 +101,4 @@ An included tutorial ("showdemo cgdstutorial") shows how to use all the function
 	clinicalData = getclinicaldata(cgdsURL, caseLists.caseListId{2});
 
 	% Run a function in non-verbose mode
-	cancerTypes = getcancertypes(cgdsURL, 'silent');
+	cancerStudies = getcancerstudies(cgdsURL, 'silent');

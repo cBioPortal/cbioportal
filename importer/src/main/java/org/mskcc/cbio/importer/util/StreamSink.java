@@ -39,10 +39,10 @@ import java.io.OutputStream;
 /**
  * Class which provides commandline execution.
  */
-public final class StreamSink extends Thread {
+public class StreamSink extends Thread {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(StreamSink.class);
+	private static Log LOG = LogFactory.getLog(StreamSink.class);
 
 	// private members
 	private InputStream in;
@@ -55,7 +55,7 @@ public final class StreamSink extends Thread {
 	 *
 	 * @param inStream InputStream
 	 */
-	public StreamSink(final InputStream inStream) {
+	public StreamSink(InputStream inStream) {
 
 		// init members
         in = inStream;

@@ -284,6 +284,13 @@ public class MafProcessor
 		return dataList;
 	}
 
+	/**
+	 * Initializes standard MAF columns list.
+	 * The order of the elements in this list is directly related
+	 * to the order of the oncotator columns in the output MAF file.
+	 *
+	 * @return  a list of standard column names
+	 */
 	protected List<String> initStandardHeaderList()
 	{
 		List<String> headers = new ArrayList<String>();
@@ -325,20 +332,56 @@ public class MafProcessor
 		return headers;
 	}
 
+
+	/**
+	 * Initializes the Oncotator header list.
+	 * The order of the elements in this list is directly related
+	 * to the order of the oncotator columns in the output MAF file.
+	 *
+	 * @return  a list of oncotator column names
+	 */
 	protected List<String> initOncoHeaderList()
 	{
 		List<String> headers = new ArrayList<String>();
 
 		// Oncotator columns
-		headers.add(MafUtil.ONCOTATOR_VARIANT_CLASSIFICATION);
-		headers.add(MafUtil.ONCOTATOR_PROTEIN_CHANGE);
+
 		headers.add(MafUtil.ONCOTATOR_COSMIC_OVERLAPPING);
 		headers.add(MafUtil.ONCOTATOR_DBSNP_RS);
+		headers.add(MafUtil.ONCOTATOR_DBSNP_VAL_STATUS);
+
+		headers.add(MafUtil.ONCOTATOR_VARIANT_CLASSIFICATION);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_CHANGE);
 		headers.add(MafUtil.ONCOTATOR_GENE_SYMBOL);
+		headers.add(MafUtil.ONCOTATOR_REFSEQ_MRNA_ID);
+		headers.add(MafUtil.ONCOTATOR_REFSEQ_PROT_ID);
+		headers.add(MafUtil.ONCOTATOR_UNIPROT_ENTRY_NAME);
+		headers.add(MafUtil.ONCOTATOR_UNIPROT_ACCESSION);
+		headers.add(MafUtil.ONCOTATOR_CODON_CHANGE);
+		headers.add(MafUtil.ONCOTATOR_TRANSCRIPT_CHANGE);
+		headers.add(MafUtil.ONCOTATOR_EXON_AFFECTED);
+
+		headers.add(MafUtil.ONCOTATOR_VARIANT_CLASSIFICATION_BE);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_CHANGE_BE);
+		headers.add(MafUtil.ONCOTATOR_GENE_SYMBOL_BE);
+		headers.add(MafUtil.ONCOTATOR_REFSEQ_MRNA_ID_BE);
+		headers.add(MafUtil.ONCOTATOR_REFSEQ_PROT_ID_BE);
+		headers.add(MafUtil.ONCOTATOR_UNIPROT_ENTRY_NAME_BE);
+		headers.add(MafUtil.ONCOTATOR_UNIPROT_ACCESSION_BE);
+		headers.add(MafUtil.ONCOTATOR_CODON_CHANGE_BE);
+		headers.add(MafUtil.ONCOTATOR_TRANSCRIPT_CHANGE_BE);
+		headers.add(MafUtil.ONCOTATOR_EXON_AFFECTED_BE);
 
 		return headers;
 	}
 
+	/**
+	 * Initializes the Mutation Assessor header list.
+	 * The order of the elements in this list is directly related
+	 * to the order of the MA columns in the output MAF file.
+	 *
+	 * @return  a list of MA column names
+	 */
 	protected List<String> initMaHeaderList()
 	{
 		List<String> headers = new ArrayList<String>();
@@ -353,6 +396,11 @@ public class MafProcessor
 		return headers;
 	}
 
+	/**
+	 * String representation of the new header line.
+	 *
+	 * @return  header line as single string
+	 */
 	protected String newHeaderLineAsString()
 	{
 		String newHeaderLine = "";

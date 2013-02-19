@@ -58,17 +58,20 @@ $(document).ready(function(){
                 <table>
                 <tr>
                    <td valign=top>
-	                  <div style="position: relative; z-index: 999;">
-                      <P><%= SkinUtil.getBlurb() %></p>
-                      <p>The portal is developed and maintained by
-                      the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
-                      at <a href="http://www.mskcc.org/">Memorial
-                      Sloan-Kettering Cancer Center</a>. </p>
-					  <p><i>Cancer Discovery</i>. May 2012 2; 401. [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</p>
-					  </div>
+	              <div style="position: relative; z-index: 999;">
+                        <p><%= SkinUtil.getBlurb() %></p>
+                        <p>Please adhere to <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
+                            the TCGA publication guidelines</a> when using any TCGA data in your publications.</p>
+                        <p>The portal is developed and maintained by
+                            the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
+                            at <a href="http://www.mskcc.org/">Memorial
+                            Sloan-Kettering Cancer Center</a>. </p>
+                        <p><i>Cancer Discovery</i>. May 2012 2; 401. [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</p>
+                        </div>
+                        <br/>
                    </td>
                    <td valign=top>
-					  <jsp:include page="<%= popeye %>" flush="true" />
+			<jsp:include page="<%= popeye %>" flush="true" />
                    </td>
                 </tr>
                 </table>

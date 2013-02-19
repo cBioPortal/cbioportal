@@ -32,7 +32,8 @@
 <link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
 <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
 
-<script type="text/javascript" src="js/cytoscape_web/json2.min.js"></script>
+<!-- json2 is now a global library! -->
+<script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
 

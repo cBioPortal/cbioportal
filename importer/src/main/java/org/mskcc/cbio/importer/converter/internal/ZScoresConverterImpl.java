@@ -35,10 +35,11 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
-import org.mskcc.cbio.importer.model.ImportData;
+import org.mskcc.cbio.importer.model.ImportDataRecord;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -49,14 +50,15 @@ import org.apache.commons.logging.LogFactory;
 import java.util.Set;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  * Class which implements the Converter interface.
  */
-public final class ZScoresConverterImpl implements Converter {
+public class ZScoresConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(ZScoresConverterImpl.class);
 
 	// ref to configuration
 	private Config config;
@@ -78,8 +80,8 @@ public final class ZScoresConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public ZScoresConverterImpl(final Config config, final FileUtils fileUtils,
-								final CaseIDs caseIDs, final IDMapper idMapper) {
+	public ZScoresConverterImpl(Config config, FileUtils fileUtils,
+								CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -92,10 +94,12 @@ public final class ZScoresConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -106,80 +110,66 @@ public final class ZScoresConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
+	 *
+	 * @param portal String
+	 * @param excludeDatatypes Set<String>
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// this code assumes dependencies have already been created
 		String[] dependencies = datatypeMetadata.getDependencies();
 		// sanity check
 		if (dependencies.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependencies.length != 2, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// we assume dependency staging files have already been created, get paths to dependencies
-		DatatypeMetadata[] dependenciesMetadata = getDependencies(dependencies);
-		// sanity check
-		if (dependenciesMetadata.length != 2) {
-			throw new IllegalArgumentException("createStagingFile(), dependenciesMetadata.length != 2, aborting...");
+		DatatypeMetadata[] dependenciesMetadata = new DatatypeMetadata[2];
+		try {
+			dependenciesMetadata[0] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[0]).iterator().next();
+			dependenciesMetadata[1] = (DatatypeMetadata)config.getDatatypeMetadata(dependencies[1]).iterator().next();
 		}
-
-		// verify order is copy number followed by gistic
-		if ((dependenciesMetadata[0].getDatatype().contains("expression") || dependenciesMetadata[0].getDatatype().contains("EXPRESSION")) &&
-			(dependenciesMetadata[1].getDatatype().contains("cna") || dependenciesMetadata[1].getDatatype().contains("CNA"))) {
-			DatatypeMetadata tmp = dependenciesMetadata[0];
-			dependenciesMetadata[0] = dependenciesMetadata[1];
-			dependenciesMetadata[1] = tmp;
-		}
-		// sanity check
-		if (!(dependenciesMetadata[0].getDatatype().contains("cna") || dependenciesMetadata[0].getDatatype().contains("CNA")) ||
-			!(dependenciesMetadata[1].getDatatype().contains("expression") || dependenciesMetadata[1].getDatatype().contains("EXPRESSION"))) {
-			throw new IllegalArgumentException("createStagingFile(), cannot determine cna and expression datatype order, aborting...");
+		catch (NoSuchElementException e) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), not all dependencies found: " + Arrays.asList(dependencies) + ", aborting...");
+			}
+			return;
 		}
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudy, datatypeMetadata, dependenciesMetadata);
+		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
 		}
-	}
-
-	/**
-	 * Helper function to determine DatatypeMetadata dependencies.
-	 *
-	 * @param dependencies DatatypeMetadata[]
-	 * @return String[]
-	 */
-	private DatatypeMetadata[] getDependencies(final String[] dependencies) {
-
-		// this is what we return
-		DatatypeMetadata[] toReturn = new DatatypeMetadata[dependencies.length];
-
-		for (int lc = 0; lc < dependencies.length; lc++) {
-			String dependency = dependencies[lc];
-			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata()) {
-				if (dependency.equals(datatypeMetadata.getDatatype())) {
-					toReturn[lc] = datatypeMetadata;
-				}
-			}
-		}
-
-
-		// outta here
-		return toReturn;
 	}
 }

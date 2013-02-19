@@ -29,52 +29,57 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import org.mskcc.cbio.importer.util.MetadataUtils;
+
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Class which contains reference metadata.
  */
-public final class ReferenceMetadata {
+public class ReferenceMetadata {
+
+    // delimiter between tumor type and center (used for find the path)
+	public static final String REFERENCE_DATA_ARGS_DELIMITER = ":";
 
 	// bean properties
 	private String referenceType;
-	private String referenceFile;
-	private String referenceFileDestination;
-	private String importerClassName;
+	private Boolean importData; // import?
+	private String fetcherName;
+	private List<String> fetcherArgs;
+	private String importerName;
+	private List<String> importerArgs;
 
     /**
-     * Create a ReferenceMetadata instance with specified properties.
+     * Create a ReferenceMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param referenceType String
-	 * @param referenceFile String
-	 * @param referenceFileDestination String
-	 * @param importerClassname String
+	 * @param properties String[]
      */
-    public ReferenceMetadata(final String referenceType, final String referenceFile,
-							 final String referenceFileDestination, final String importerClassName) {
+    public ReferenceMetadata(String[] properties) {
 
-		if (referenceType == null) {
-            throw new IllegalArgumentException("referenceType must not be null");
+		if (properties.length < 6) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.referenceType = referenceType.trim();
 
-		if (referenceFile == null) {
-            throw new IllegalArgumentException("referenceFile must not be null");
+		this.referenceType = properties[0].trim();
+		this.importData = new Boolean(properties[1].trim());
+		this.fetcherName = MetadataUtils.getCanonicalPath(properties[2].trim());
+		this.fetcherArgs = new ArrayList<String>();
+		for (String fetcherArg : properties[3].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.fetcherArgs.add(MetadataUtils.getCanonicalPath(fetcherArg));
 		}
-		this.referenceFile = referenceFile.trim();
-
-		if (referenceFileDestination == null) {
-            throw new IllegalArgumentException("referenceFileDestination must not be null");
+		this.importerName = MetadataUtils.getCanonicalPath(properties[4].trim());
+		this.importerArgs = new ArrayList<String>();
+		for (String importerArg : properties[5].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+			this.importerArgs.add(MetadataUtils.getCanonicalPath(importerArg));
 		}
-		this.referenceFileDestination = referenceFileDestination.trim();
-
-		if (importerClassName == null) {
-            throw new IllegalArgumentException("importerClassName must not be null");
-		}
-		this.importerClassName = importerClassName.trim();
 	}
 
 	public String getReferenceType() { return referenceType; }
-	public String getReferenceFile() { return referenceFile; }
-	public String getReferenceFileDestination() { return referenceFileDestination; }
-	public String getImporterClassName() { return importerClassName; }
+	public Boolean getImport() { return importData; }
+	public String getFetcherName() { return fetcherName; }
+	public List<String> getFetcherArgs() { return fetcherArgs; }
+	public String getImporterName() { return importerName; }
+	public List<String> getImporterArgs() { return importerArgs; }
 }

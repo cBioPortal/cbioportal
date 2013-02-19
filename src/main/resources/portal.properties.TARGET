@@ -1,0 +1,82 @@
+# Application Name and Version
+app.name=target-portal
+app.version=1.0
+
+# Database Settings
+db.user=
+db.password=
+db.host=localhost
+db.portal_db_name=cgds_target
+# props used by importer
+db.importer_db_name=cgds_importer
+db.driver=com.mysql.jdbc.Driver
+db.connection_string=jdbc:mysql://localhost/
+db.portal_schema=$PORTAL_HOME/core/src/main/resources/db/cgds.sql
+
+# google settings
+google.id=
+google.pw=
+# portal users spreadsheet properties
+users.spreadsheet=
+users.worksheet=
+# importer spreadsheet properties
+importer.spreadsheet_service_appname=cBio Portal Importer Tool
+importer.spreadsheet=
+importer.cancer_studies_worksheet=
+importer.case_id_filters_worksheet=
+importer.case_lists_worksheet=
+importer.clinical_attributes_worksheet=
+importer.datatypes_worksheet=
+importer.data_sources_worksheet=
+importer.portals_worksheet=
+importer.reference_data_worksheet=
+importer.tumor_types_worksheet=
+
+# Location of log file
+log.file.path=/srv/www/sander-tomcat/tomcat6/logs/target-portal.log
+
+skin.title=cBio NCI-TARGET Portal
+skin.email_contact=cbioportal at googlegroups dot com
+skin.blurb=The cBio Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
+skin.tag_line_image=target-logo.png
+skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/target-form">Request Access</a>].
+skin.right_nav.show_testimonials=true
+skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
+skin.data_sets_footer=
+# Manager webapp username and password
+manager.username=tomcat
+manager.password=tomcat
+
+pathway_commons.url=http://www.pathwaycommons.org/pc2
+segfile.url=http://cbio.mskcc.org/cancergenomics/target-portal/seg/
+
+r_installed=true
+authenticate=true
+authorization=true
+include_networks=true
+
+faq=faq_tcga.html
+about=about_us.html
+news=news_tcga.html
+examples_right_column=examples_nci_target.html
+
+# Bitly API username and api key
+bitly.user=[put your bitly user name here]
+bitly.api_key=[put your bitly api key here]
+
+patient_view_placeholder=false
+patient_view_genomic_overview_cna_cutoff=0.2,1.5
+tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
+
+# this is for grabbing NCI's Clinical Trial Information
+nci.cancer.ftp.user=user
+nci.cancer.ftp.password=password
+
+# additional props used by importer
+
+# firehose_get script
+firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
+
+# liftover tool
+liftover_binary=
+liftover_chain_file=

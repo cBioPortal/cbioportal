@@ -31,6 +31,8 @@ package org.mskcc.cbio.importer.io.internal;
 // imports
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean;
+import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.util.MetadataUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,6 +43,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.Arrays;
 import javax.sql.DataSource;
 
 /**
@@ -59,43 +62,45 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 
 	// db user 
 	private String databaseUser;
-	@Value("${database_user}")
-    public void setDatabaseUser(final String databaseUser) { this.databaseUser = databaseUser; }
+	@Value("${db.user}")
+    public void setDatabaseUser(String databaseUser) { this.databaseUser = databaseUser; }
 	@Override
     public String getDatabaseUser() { return this.databaseUser; }
 
 	// db password
 	private String databasePassword;
-	@Value("${database_password}")
-	public void setDatabasePassword(final String databasePassword) { this.databasePassword = databasePassword; }
+	@Value("${db.password}")
+	public void setDatabasePassword(String databasePassword) { this.databasePassword = databasePassword; }
 	@Override
     public String getDatabasePassword() { return this.databasePassword; }
 
 	// db connection
 	private String databaseConnectionString;
-	@Value("${database_connection_string}")
-	public void setDatabaseConnectionString(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	@Value("${db.connection_string}")
+	public void setDatabaseConnectionString(String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
 	@Override
     public String getDatabaseConnectionString() { return this.databaseConnectionString; }
 
+	// db schema
+	private String portalDatabaseSchema;
+	@Value("${db.portal_schema}")
+	public void setPortalDatabaseSchema(String portalDatabaseSchema) { this.portalDatabaseSchema = portalDatabaseSchema; }
+	@Override
+    public String getPortalDatabaseSchema() {
+		return MetadataUtils.getCanonicalPath(this.portalDatabaseSchema);
+	}
+
 	// importer database name
 	private String importerDatabaseName;
-	@Value("${importer_database_name}")
-	public void setImporterDatabaseName(final String importerDatabaseName) { this.importerDatabaseName = importerDatabaseName; }
+	@Value("${db.importer_db_name}")
+	public void setImporterDatabaseName(String importerDatabaseName) { this.importerDatabaseName = importerDatabaseName; }
 	@Override
     public String getImporterDatabaseName() { return this.importerDatabaseName; }
 
-	// gene information database name
-	private String geneInformationDatabaseName;
-	@Value("${gene_information_database_name}")
-	public void setGeneInformationDatabaseName(final String geneInformationDatabaseName) { this.geneInformationDatabaseName = geneInformationDatabaseName; }
-	@Override
-    public String getGeneInformationDatabaseName() { return this.geneInformationDatabaseName; }
-
 	// portal database name
 	private String portalDatabaseName;
-	@Value("${portal_database_name}")
-	public void setPortalDatabaseName(final String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
+	@Value("${db.portal_db_name}")
+	public void setPortalDatabaseName(String portalDatabaseName) { this.portalDatabaseName = portalDatabaseName; }
 	@Override
     public String getPortalDatabaseName() { return this.portalDatabaseName; }
 
@@ -106,7 +111,7 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	 * @param createSchema boolean
 	 */
 	@Override
-	public void createDatabase(final String databaseName, final boolean createSchema) {
+	public void createDatabase(String databaseName, boolean createSchema) {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createDatabase(): " + databaseName);
@@ -132,6 +137,32 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	}
 
 	/**
+	 * Execute the given script on the given db.
+	 *
+	 * @param databaseName String
+	 * @param databaseScript String
+	 * @param databaseUser String
+	 * @param databasePassword String
+	 */
+	@Override
+	public boolean executeScript(String databaseName, String databaseScript,
+								 String databaseUser, String databasePassword) {
+
+		// use mysql to create new schema
+		String[] command = new String[] {"mysql",
+										 "--user=" + databaseUser,
+										 "--password=" + databasePassword,
+										 databaseName,
+										 "-e",
+										 "source " + databaseScript };
+		if (LOG.isInfoEnabled()) {
+			LOG.info("executing: " + Arrays.asList(command));
+		}
+
+		return Shell.exec(Arrays.asList(command), ".");
+	}
+
+	/**
 	 * Creates a database with the given name.
 	 *
 	 * @param dataSourceFactoryBean DataSourceFactoryBean
@@ -140,7 +171,7 @@ public class DatabaseUtilsImpl implements DatabaseUtils {
 	 * @return boolean
 	 */
 	private boolean createDatabase(DataSourceFactoryBean dataSourceFactoryBean,
-								   String databaseName, final boolean dropDatabase) {
+								   String databaseName, boolean dropDatabase) {
 
 		boolean toReturn = true;
 

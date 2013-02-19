@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.oncotator;
 
+import java.io.IOException;
+
 /**
  * Oncotator service implementation with caching option.
  *
@@ -41,7 +43,7 @@ public class CachedOncotatorService extends OncotatorService
 	 */
 	public CachedOncotatorService()
 	{
-		this.cache = DaoOncotatorCache.getInstance();
+		this.cache = new DaoJsonCache();
 	}
 
 	/**
@@ -60,17 +62,30 @@ public class CachedOncotatorService extends OncotatorService
 	 * @param key   key for the service query
 	 * @return      oncotator record containing the query result
 	 */
-	public OncotatorRecord getOncotatorRecord(String key) throws Exception
+	public OncotatorRecord getOncotatorRecord(String key) throws OncotatorServiceException
 	{
 		boolean addToCache = false;
 
 		// first try to get the record from cache
-		OncotatorRecord record = cache.get(key);
+		OncotatorRecord record = null;
+
+		try {
+			record = cache.get(key);
+		} catch (OncotatorCacheException e) {
+			e.printStackTrace();
+			throw new OncotatorServiceException(e.getMessage());
+		}
 
 		// if record is null, then it is not cached yet
 		if (record == null)
 		{
-			record = getRecordFromService(key);
+			try {
+				record = getRecordFromService(key);
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new OncotatorServiceException(e.getMessage());
+			}
+
 			addToCache = true;
 		}
 

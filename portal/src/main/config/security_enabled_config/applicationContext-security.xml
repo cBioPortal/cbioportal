@@ -19,7 +19,7 @@
   <context:annotation-config/>
 
 <!--
-        Should come from another file with value conditional based on build.properties
+        Should come from another file with value conditional based on portal.properties
 -->
   <global-method-security pre-post-annotations="enabled">
         <expression-handler ref="expressionHandler"/>
@@ -54,6 +54,7 @@
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
@@ -75,6 +76,8 @@
 	  <intercept-url pattern="/histogram_converter.svg*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/MutSig.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/webservice.do*" access="isAuthenticated() or hasIpAddress('127.0.0.1')"/>
+	  <intercept-url pattern="/Gistic.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/Oncoprint.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/study.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/drugs.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
@@ -82,9 +85,9 @@
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
-      <intercept-url pattern="/Gistic.json*" access="isAuthenticated()"/>
-
+      <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
@@ -136,7 +139,7 @@
 -->
    <b:bean id="dataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
      <b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-     <b:property name="url" value="jdbc:mysql://${db.host}/${db.name}"/>
+     <b:property name="url" value="jdbc:mysql://${db.host}/${db.portal_db_name}"/>
      <b:property name="username" value="${db.user}"/>
      <b:property name="password" value="${db.password}"/>
    </b:bean>

@@ -35,15 +35,17 @@ import java.io.*;
  * It is available at http://hgdownload.cse.ucsc.edu/admin/exe/
  * Detailed information about liftOver tool can be found at
  * http://genome.ucsc.edu/cgi-bin/hgLiftOver
+ *
+ * @author Selcuk Onur Sumer
  */
 public class Hg18ToHg19
 {
 	public static final String IN_FILE = "oldfile.txt";
 	public static final String MAPPED_FILE = "newfile.txt";
 	public static final String UNMAPPED_FILE = "unmapped.txt";
-	public static final String CHAIN_FILE = "hg18ToHg19.over.chain";
 	public static final String AUX_FILE = "auxfile.txt";
-	public static final String LIFT_OVER = "./liftOver";
+	public static final String DEFAULT_CHAIN_FILE = "hg18ToHg19.over.chain";
+	public static final String DEFAULT_LIFT_OVER = "./liftOver";
 
 
 	/**
@@ -51,24 +53,68 @@ public class Hg18ToHg19
 	 *  1) original input (MAF) file.
 	 *  2) name of the new output file to be created.
 	 */
-	public static void main(String[] args) throws IOException
+	public static void main(String[] args)
 	{
 		if (args.length < 2)
 		{
-			System.out.println("command line usage: hg18to19.sh <input_maf_file> <output_maf_file>");
+			System.out.println("command line usage: " +
+			                   "hg18to19.sh <input_maf_file> <output_maf_file> " +
+			                   "[liftover_binary_file] [chain_file]");
 			System.exit(1);
 		}
 
+		String input = args[0];
+		String output = args[1];
+		String binary = DEFAULT_LIFT_OVER;
+		String chain = DEFAULT_CHAIN_FILE;
+
+		if (args.length > 2)
+		{
+			binary = args[2];
+		}
+
+		if (args.length > 3)
+		{
+			chain = args[3];
+		}
+
+		try
+		{
+			driver(input, output, binary, chain);
+		}
+		catch (IOException e)
+		{
+			System.out.println("[error] IO error while processing the input MAF");
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Driver method for the lift over process.
+	 *
+	 * @param inputMaf          input MAF file (assumed to be build 36 / hg18)
+	 * @param outputMaf         output MAF file with updated coordinates
+	 * @param liftOverBinary    executable (external) liftover binary filename
+	 * @param chainFile         chain file required by the liftover binary
+	 * @return                  zero if no error, positive value on error
+	 * @throws IOException
+	 */
+	public static int driver(String inputMaf,
+			String outputMaf,
+			String liftOverBinary,
+			String chainFile) throws IOException
+	{
 		// extract required information from the MAF file
 		System.out.println("[info] Creating input files for lift over tool...");
-		PreLiftOver.prepareInput(args[0], IN_FILE, AUX_FILE);
+		PreLiftOver.prepareInput(inputMaf, IN_FILE, AUX_FILE);
 
 		// run the liftOver tool for conversion
 		System.out.println("[info] Running liftOver tool...");
 
 		// system call with required arguments
 		// ./liftOver oldfile.txt hg18ToHg19.over.chain newfile.txt unmapped.txt
-		String[] liftOverArgs = {LIFT_OVER, IN_FILE, CHAIN_FILE, MAPPED_FILE, UNMAPPED_FILE};
+		String[] liftOverArgs = {liftOverBinary, IN_FILE, chainFile, MAPPED_FILE, UNMAPPED_FILE};
 
 		if (liftOver(liftOverArgs) != 0)
 		{
@@ -78,17 +124,19 @@ public class Hg18ToHg19
 		// process files created by liftOver to update old MAF
 		System.out.println("[info] Updating positions and creating the new MAF...");
 
-		PostLiftOver.updateMaf(args[0],
-			MAPPED_FILE,
-			UNMAPPED_FILE,
-			AUX_FILE,
-			args[1]);
+		int updateResult = PostLiftOver.updateMaf(inputMaf,
+		                       MAPPED_FILE,
+		                       UNMAPPED_FILE,
+		                       AUX_FILE,
+		                       outputMaf);
 
 		// clean intermediate files
 		(new File(IN_FILE)).delete();
 		(new File(AUX_FILE)).delete();
 		(new File(MAPPED_FILE)).delete();
 		(new File(UNMAPPED_FILE)).delete();
+
+		return updateResult;
 	}
 
 	/**

@@ -28,6 +28,8 @@
 package org.mskcc.cbio.mutassessor;
 
 import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Main class with the main method.
@@ -51,15 +53,15 @@ public class MutationAssessorTool
 		{
 			if (args[i].startsWith("-"))
 			{
-				if (args[0].equalsIgnoreCase("-db"))
+				if (args[i].equalsIgnoreCase("-db"))
 				{
 					db = true;
 				}
-				else if (args[0].equalsIgnoreCase("-sort"))
+				else if (args[i].equalsIgnoreCase("-sort"))
 				{
 					sort = true;
 				}
-				else if (args[0].equalsIgnoreCase("-std"))
+				else if (args[i].equalsIgnoreCase("-std"))
 				{
 					addMissing = true;
 				}
@@ -93,6 +95,19 @@ public class MutationAssessorTool
 			output = args[i+1];
 		}
 
+		driver(input,
+		       output,
+		       db,
+		       sort,
+		       addMissing);
+	}
+
+	public static void driver(String input,
+			String output,
+			boolean db,
+			boolean sort,
+			boolean addMissing)
+	{
 		try
 		{
 			// if the switch -db is provided,
@@ -127,9 +142,19 @@ public class MutationAssessorTool
 						new File(input), new File(output));
 			}
 		}
-		catch (Exception e)
+		catch (SQLException e)
 		{
-			System.out.println("Error occurred: " + e.getMessage());
+			System.out.println("SQL error occurred: " + e.getMessage());
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			System.out.println("IO error occurred: " + e.getMessage());
+			e.printStackTrace();
+		}
+		catch (MutationAssessorServiceException e)
+		{
+			System.out.println("Service error occurred: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

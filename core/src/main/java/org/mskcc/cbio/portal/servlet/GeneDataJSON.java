@@ -35,7 +35,6 @@ public class GeneDataJSON extends HttpServlet {
     public static final String PERCENT_ALTERED = "percent_altered";
     public static final String MUTATION = "mutation";
 
-
     private static Log log = LogFactory.getLog(GeneDataJSON.class);
 
     /**

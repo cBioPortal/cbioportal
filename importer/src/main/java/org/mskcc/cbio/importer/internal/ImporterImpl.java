@@ -180,13 +180,10 @@ class ImporterImpl implements Importer {
 			LOG.info("importReferenceData(), importerName: " + importerName);
 		}
 
-		// we may be dealing with a class that implements the importer interface
-		Class<?> clazz = Class.forName(importerName);
-		if (Class.forName("org.mskcc.cbio.importer.Importer").isAssignableFrom(clazz)) {
-			Object[] importerArgs = { config, fileUtils, databaseUtils };
-			Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
-			importer.importReferenceData(referenceMetadata);
-		}
+		if (importByImporter(referenceMetadata)) {
+			// if imported by Importer
+			return;
+                }
 
 		Object[] args = { config, fileUtils, databaseUtils };
 		if (Shell.exec(referenceMetadata, this, args, ".")) {
@@ -196,6 +193,27 @@ class ImporterImpl implements Importer {
 		}
 		else if (LOG.isInfoEnabled()) {
 			LOG.info("importReferenceData(), failure executing importer.");
+		}
+	}
+        
+        private boolean importByImporter(ReferenceMetadata referenceMetadata) throws Exception {
+		// we may be dealing with a class that implements the importer interface
+		String importerName = referenceMetadata.getImporterName();
+		try {
+			Class<?> clazz = Class.forName(importerName);
+			if (Class.forName("org.mskcc.cbio.importer.Importer").isAssignableFrom(clazz)) {
+				Object[] importerArgs = { config, fileUtils, databaseUtils };
+				Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
+				importer.importReferenceData(referenceMetadata);
+                                if (LOG.isInfoEnabled()) {
+					LOG.info("importReferenceData(), successfully executed " + clazz + ".");
+				}
+				return true;
+			}
+                
+			return false;
+		} catch (java.lang.ClassNotFoundException ex) {
+			return false;
 		}
 	}
 

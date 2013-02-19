@@ -270,14 +270,14 @@
                         + "Mutual Exclusivity</a></li>");
                     }
 
+                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
+                        + "Plots</a></li>");
+
                     if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
                     }
-
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
-                        + "Plots</a></li>");
                     
                     if (rppaExists) {
                         out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"

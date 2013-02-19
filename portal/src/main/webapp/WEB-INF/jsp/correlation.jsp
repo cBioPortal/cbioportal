@@ -16,7 +16,7 @@
     DoubleRange range0 = new DoubleRange (0.0, 0.1);
     DoubleRange range1 = new DoubleRange (0.1, 0.5);
     DoubleRange range2 = new DoubleRange (0.5, 2);
-    DoubleRange range3 = new DoubleRange (2, 100);
+    DoubleRange range3 = new DoubleRange (2, 10);
 
     //OddsRatioTemp utilTemp = new OddsRatioTemp(dataSummary);
     //out.println("<P>R Code:  <br>" + utilTemp.getRCommand() + "</P>");
@@ -38,7 +38,7 @@
             out.println(" [no association]");
         } else if (range3.containsDouble(util.getOddsRatio())) {
             out.println(" [tendency toward co-occurrence]");
-        } else if (util.getOddsRatio() > 100.0) {
+        } else if (util.getOddsRatio() > 10.0) {
             out.println(" [strong tendendency towards co-occurrence]");
         }
 
@@ -117,17 +117,17 @@
         out.println("<table >");
         out.println("<tr><th>Legend</th></tr>");
         out.println("<tr bgcolor=#6666FF>");
-        out.println("<td><font color='white'>strong tendency toward mutual exclusivity</font></td></tr>");
+        out.println("<td><font color='white'>Strong tendency towards mutual exclusivity (0 &lt; Odds Ratio &lt; 0.1)</font></td></tr>");
         out.println("<tr bgcolor=#9999FF>");
-        out.println("<td>some tendency toward mutual exclusivity</td></tr>");
+        out.println("<td>Some tendency towards mutual exclusivity (0.1 &lt; Odds Ratio &lt; 0.5)</td></tr>");
         out.println("<tr bgcolor=white>");
-        out.println("<td>no association</td></tr>");
+        out.println("<td>No association (0.5 &lt; Odds Ratio &lt; 2)</td></tr>");
         out.println("<tr bgcolor=#FFFF99>");
-        out.println("<td>tendency toward co-occurrence</td></tr>");
+        out.println("<td>Tendency toward co-occurrence (2 &lt; Odds Ratio &lt; 10)</td></tr>");
         out.println("<tr bgcolor=#FF9933>");
-        out.println("<td>strong tendendency towards co-occurrence</td></tr>");
+        out.println("<td>Strong tendendency towards co-occurrence (Odds Ratio &gt; 10)</td></tr>");
         out.println("<tr bgcolor=#FFCCCC>");
-        out.println("<td>zero events recorded for one or both genes</td></tr>");
+        out.println("<td>No events recorded for one or both genes</td></tr>");
         out.println("</table>");
     }
     out.println("</div>");

@@ -570,7 +570,9 @@ function _getMutationTableRows(data)
     var getPdbLinkHtml = function(value) {
         var html;
 
-        if (value != null)
+        if (value != null &&
+            value.length > 0 &&
+            value != "NA")
         {
             html = '<a href="' + value + '">' +
                      '<span style="background-color:#88C;color:white;">&nbsp;3D&nbsp;</span>' +

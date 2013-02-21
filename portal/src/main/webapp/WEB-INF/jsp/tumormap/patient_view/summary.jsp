@@ -27,7 +27,7 @@
 
 <%
 String jsonCaseIds = "[]";
-if (mutationProfile!=null && cnaProfile!=null) {
+if (mutationProfile!=null && hasCnaSegmentData) {
     List<Case> cases = DaoCase.getAllCaseIdsInCancer(cancerStudy.getInternalId());
     List<String> caseIds = new ArrayList<String>(cases.size());
     for (Case c : cases) {

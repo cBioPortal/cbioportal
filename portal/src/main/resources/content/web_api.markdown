@@ -250,7 +250,7 @@ A tab-delimited file with the following columns:
 
 ### Example
 
-[Get Clinical Data for All TCGA Ovarian Cases.](webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_pub_all)
+[Get Clinical Data for All TCGA Ovarian Cases.](webservice.do?cmd=getClinicalData&case_set_id=ov_tcga_all)
 
 ## Get Protein/Phosphoprotein Antibody Information
 

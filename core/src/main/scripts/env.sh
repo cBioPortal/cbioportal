@@ -10,4 +10,4 @@
 [ ! -z "${PORTAL_HOME}" ] &&
 #[ ! -z "${PORTAL_DATA_HOME}" ] &&
 [ ! -z "${CGDS_HOME}" ] &&
-[ ! -z "${CGDS_DATA_HOME}" ] && exit 0 || exit -1
+[ ! -z "${PORTAL_DATA_HOME}" ] && exit 0 || exit -1

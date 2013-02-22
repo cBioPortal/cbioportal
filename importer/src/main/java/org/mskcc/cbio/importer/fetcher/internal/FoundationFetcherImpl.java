@@ -38,7 +38,7 @@ import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 
-//import org.foundation.*;
+import org.foundation.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,9 +46,15 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.xml.ws.fault.ServerSOAPFaultException;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * Class which implements the fetcher interface.
@@ -63,10 +69,6 @@ class FoundationFetcherImpl implements Fetcher {
 
 	// not all fields in ImportDataRecord will be used
 	private static final String UNUSED_IMPORT_DATA_FIELD = "NA";
-
-	// regex used when getting a case list from the broad
-    private static final Pattern FOUNDATION_CASE_LIST_RECORD = 
-		Pattern.compile("^\\s*\\<Case fmiCase=\\\"\\w*\\\" case=\\\"(\\w*-\\w*)\\\" \\/\\>$");
 
 	// ref to configuration
 	private Config config;
@@ -126,42 +128,50 @@ class FoundationFetcherImpl implements Fetcher {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("fetch(), creating CaseInfoService endpoint.");
 		}
-//		CaseInfoService caseInfoService = new CaseInfoService();
-//		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
-//
-//		if (LOG.isInfoEnabled()) {
-//			LOG.info("fetch(), fetching case list.");
-//		}
-//		String[] caseList = foundationService.getCaseList().split("\n");
-//		for (String caseListRecord : caseList) {
-//			Matcher matcher = FOUNDATION_CASE_LIST_RECORD.matcher(caseListRecord);
-//			if (matcher.find()) {
-//				String caseID = matcher.group(1);
-//				if (LOG.isInfoEnabled()) {
-//					LOG.info("fetch(), fetching case : " + caseID);
-//				}
-//				try {
-//					String caseRecord = foundationService.getCase(caseID);
-//					File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-//																	 File.pathSeparator + 
-//																	 caseID + FOUNDATION_FILE_EXTENSION, caseRecord);
-//					if (LOG.isInfoEnabled()) {
-//						LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");
-//					}
-//					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, dataSource, UNUSED_IMPORT_DATA_FIELD,
-//                                                                             UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
-//                                                                             caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
-//                                                                             caseID + FOUNDATION_FILE_EXTENSION);
-//					importDataRecordDAO.importDataRecord(importDataRecord);
-//				}
-//				catch (ServerSOAPFaultException e) {
-//					// we get here if record does not exist on server side (yet)
-//					if (LOG.isInfoEnabled()) {
-//						LOG.info("fetch(), Cannot fetch case record for case: " + caseID);
-//					}
-//				}
-//			}
-//		}
+		CaseInfoService caseInfoService = new CaseInfoService();
+		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetch(), fetching case list.");
+		}
+
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		Document doc = dBuilder.parse(new InputSource(new StringReader(foundationService.getCaseList())));
+		NodeList cases = doc.getElementsByTagName("Case");
+		for (int lc = 0; lc < cases.getLength(); lc++) {
+			Node aCase = cases.item(lc);
+			if (aCase.getNodeType() == Node.ELEMENT_NODE) {
+				String fmiCaseID = ((Element)aCase).getAttribute("fmiCase");
+				String caseID = ((Element)aCase).getAttribute("case");
+				System.out.println(caseID);
+				if (LOG.isInfoEnabled()) {
+					LOG.info("fetch(), fetching case : " + caseID);
+				}
+				try {
+					String caseRecord = foundationService.getCase(caseID);
+					if (caseRecord.length() > 250) {
+						File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+																		 File.separator + 
+																		 fmiCaseID + FOUNDATION_FILE_EXTENSION, caseRecord);
+						if (LOG.isInfoEnabled()) {
+							LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");
+						}
+						ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, dataSource, UNUSED_IMPORT_DATA_FIELD,
+																				 UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
+																				 caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
+																				 fmiCaseID + FOUNDATION_FILE_EXTENSION);
+						importDataRecordDAO.importDataRecord(importDataRecord);
+					}
+				}
+				catch (ServerSOAPFaultException e) {
+					// we get here if record does not exist on server side (yet)
+					if (LOG.isInfoEnabled()) {
+						LOG.info("fetch(), Cannot fetch case record for case: " + caseID);
+					}
+				}
+			}
+		}
 	}
 
 	/**

@@ -8,7 +8,7 @@
 ./importGenes.pl $PORTAL_DATA_HOME/reference-data/human-genes.txt
 
 # Load up MicroRNA IDs
-./importMicroRNAIDs.pl $PORTAL_DATA_HOME/reference-data/id_mapping_mirbase.txt
+./importMicroRNAIDs.pl $PORTAL_DATA_HOME/reference-data/id-mapping-mirbase.txt
 
 # Load up Cancer Types
 ./importTypesOfCancer.pl $PORTAL_DATA_HOME/reference-data/public-cancers.txt

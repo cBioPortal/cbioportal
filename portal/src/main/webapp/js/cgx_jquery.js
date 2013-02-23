@@ -13,7 +13,8 @@ $(document).ready(function(){
 function setUpTabs() {
      // generate tabs for results page; set cookies to preserve
     // state of tabs when user navigates away from page and back
-    $('#tabs').tabs({cookie:{expires:1, name:("results-tab-" + (cancer_study_id_selected?cancer_study_id_selected:""))}});
+    $('#tabs').tabs({cookie:{expires:1, name:("results-tab-" + 
+                    (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))}});
     $('#tabs').show();
 }
 

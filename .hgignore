@@ -52,3 +52,4 @@ importer/target/*
 mutation-assessor/target/*
 cbioportal-client/target/*
 mondrian-cy3-app/target/*
+nbactions.xml

@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-require "../scripts/env.pl";
+require "$PORTAL_HOME/core/src/main/scripts/env.pl";
 
 $startTime = time;
 my $loadTypeFile = '/tmp/loadTypeFile.txt';

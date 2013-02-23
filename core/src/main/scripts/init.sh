@@ -5,7 +5,7 @@
 ./resetDb.pl
 
 # Load up Entrez Genes
-./importGenes.pl $PORTAL_DATA_HOME/reference-data/human_genes.txt
+./importGenes.pl $PORTAL_DATA_HOME/reference-data/human-genes.txt
 
 # Load up MicroRNA IDs
 ./importMicroRNAIDs.pl $PORTAL_DATA_HOME/reference-data/id_mapping_mirbase.txt
@@ -18,7 +18,7 @@
 
 # Load UniProt Mapping Data
 # You must run:  ./prepareUniProtIdMapping.sh first.
-./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot_id_mapping.txt
+./importUniProtIdMapping.pl $PORTAL_DATA_HOME/reference-data/uniprot-id-mapping.txt
 
 # Network
 ./loadNetwork.sh

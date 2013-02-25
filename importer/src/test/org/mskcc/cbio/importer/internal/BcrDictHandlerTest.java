@@ -31,9 +31,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import static org.junit.Assert.assertTrue;
 
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;

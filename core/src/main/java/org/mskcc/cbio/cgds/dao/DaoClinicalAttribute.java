@@ -54,7 +54,7 @@ public class DaoClinicalAttribute {
                             "`DESCRIPTION`," +
                             "`DATATYPE`)" +
                             " VALUES(?,?,?,?)");
-            pstmt.setString(1, attr.getAttributeId());
+            pstmt.setString(1, attr.getAttrId());
             pstmt.setString(2, attr.getDisplayName());
             pstmt.setString(3, attr.getDescription());
             pstmt.setString(4, attr.getDatatype());

@@ -123,12 +123,12 @@ public class ImportClinical {
                 Clinical clinical = new Clinical();
                 clinical.setCancerStudyId(cancerStudyId);
 
-                if (columnAttrs.get(i).getAttributeId().equals(CASE_ID)) {
+                if (columnAttrs.get(i).getAttrId().equals(CASE_ID)) {
                     caseId = fields[i];
                     continue;
                 } else {
                     clinical.setCaseId(caseId);
-                    clinical.setAttrId(columnAttrs.get(i).getAttributeId());
+                    clinical.setAttrId(columnAttrs.get(i).getAttrId());
                     clinical.setAttrVal(fields[i]);
                     clinicals.add(clinical);
 //                    System.out.println(clinical);

@@ -26,8 +26,6 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.cgds.dao.DaoClinical;
-import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.owasp.validator.html.PolicyException;
@@ -77,7 +75,7 @@ public class ClinicalJSON extends HttpServlet {
     public Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
         Map<String, String> map = new HashMap<String, String>();
 
-        map.put("attr_id", clinicalAttribute.getAttributeId());
+        map.put("attr_id", clinicalAttribute.getAttrId());
         map.put("datatype", clinicalAttribute.getDatatype());
         map.put("description", clinicalAttribute.getDescription());
         map.put("display_name", clinicalAttribute.getDisplayName());

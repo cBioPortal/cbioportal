@@ -50,7 +50,7 @@ public class ClinicalAttribute extends ClinicalAttributeAbstract {
                 datatype + "]";
     }
 
-    public String getAttributeId() {
+    public String getAttrId() {
         return attributeId;
     }
 

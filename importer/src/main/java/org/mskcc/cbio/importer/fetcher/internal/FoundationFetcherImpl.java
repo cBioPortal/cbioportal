@@ -33,7 +33,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
@@ -46,11 +46,10 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.xml.ws.fault.ServerSOAPFaultException;
 
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -144,8 +143,16 @@ class FoundationFetcherImpl implements Fetcher {
 
 		NodeList cases = this.fetchCaseList(foundationService);
 
+		// clinical data content
 		StringBuilder dataClinicalContent = new StringBuilder();
+
+		// mutation data content
 		StringBuilder dataMutationsContent = new StringBuilder();
+
+		// CNA data content
+		HashMap<String, Integer> valueMap = new HashMap<String, Integer>();
+		Set<String> caseSet = new HashSet<String>();
+		Set<String> geneSet = new HashSet<String>();
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -155,15 +162,16 @@ class FoundationFetcherImpl implements Fetcher {
 			String caseRecord = this.fetchCaseRecord(cases.item(lc),
 				foundationService);
 
-			// TODO check for empty records instead of size comparison
-			if (caseRecord != null)
+			// check for empty records
+			if (caseRecord != null &&
+			    caseRecord.contains("variant-report"))
 			{
 				Document doc = dBuilder.parse(new InputSource(
-						new StringReader(foundationService.getCaseList())));
+						new StringReader(caseRecord)));
 
 				this.addClinicalData(doc, dataClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
-				// TODO CNA data?
+				this.addCNAData(doc, valueMap, caseSet, geneSet);
 			}
 
 //			if (caseRecord != null && caseRecord.length() > 250) {
@@ -181,47 +189,62 @@ class FoundationFetcherImpl implements Fetcher {
 //			}
 		}
 
-		// TODO write contents of the lists to corresponding files
-		this.generateClinicalFile(dataClinicalContent);
-		this.generateMutationFile(dataMutationsContent);
-		//this.generateCNAFile(); // TODO param? matrix?
+		// generate data files
+		this.generateClinicalDataFile(dataClinicalContent);
+		this.generateMutationDataFile(dataMutationsContent);
+		this.generateCNADataFile(valueMap, caseSet, geneSet);
+
+		// TODO generate meta files
+		this.generateStudyMetaFile();
+		this.generateMutationMetaFile();
+		this.generateCNAMetaFile();
 	}
 
 	// TODO temporary test function (remove when ready)
 	protected boolean testXMLParsers() throws Exception
 	{
-		String xmlString = "<?xml version=\"1.0\" encoding=\"utf-16\"?><ClientCaseInfo xmlns=\"http://www" +
-		                   ".foundationmedicine.com/entities\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
-		                   "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><Cases><Case fmiCase=\"TRF001147\"" +
-		                   " case=\"S09-18586\"><variant-report disease-ontology=\"Soft tissue fibromatosis\" " +
-		                   "gender=\"male\" test-request=\"TRF001147\" study=\"CLINICAL\" pipeline-version=\"v1.2" +
-		                   ".2\"><samples><sample name=\"TRF001147.02\" percent-tumor-nuclei=\"90\" " +
-		                   "/></samples><quality-control status=\"Pass\"><metrics><metric name=\"Median coverage\" " +
-		                   "value=\"1098\" criterion=\"&gt;=350\" status=\"Pass\" /><metric name=\"Coverage &gt;100X\"" +
-		                   " value=\"100%\" criterion=\"&gt;=85%\" status=\"Pass\" /><metric name=\"Error\" value=\"0" +
-		                   ".32%\" criterion=\"&lt;1%\" status=\"Pass\" " +
-		                   "/></metrics></quality-control><short-variants><short-variant depth=\"1680\" gene=\"CTNNB1\" " +
-		                   "percent-reads=\"45.0\" position=\"chr3:41266124\" protein-effect=\"T41A\" status=\"known\" />" +
-		                   "</short-variants><copy-number-alterations /><rearrangements /></variant-report>" +
-		                   "</Case></Cases></ClientCaseInfo>";
+		File dataDir = new File("foundation");
+
+		String[] extensions = {"xml"};
+		Collection<File> dirContent = fileUtils.listFiles(dataDir, extensions, false);
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-		Document doc = dBuilder.parse(new InputSource(new StringReader(xmlString)));
 
 		StringBuilder dataClinicalContent = new StringBuilder();
 		StringBuilder dataMutationsContent = new StringBuilder();
 
-		this.addClinicalData(doc, dataClinicalContent);
-		this.addMutationData(doc, dataMutationsContent);
+		HashMap<String, Integer> valueMap = new HashMap<String, Integer>();
+		Set<String> caseSet = new HashSet<String>();
+		Set<String> geneSet = new HashSet<String>();
 
-		this.generateClinicalFile(dataClinicalContent);
-		this.generateMutationFile(dataMutationsContent);
+		for (File xmlFile : dirContent)
+		{
+			char[] buffer = new char[(int)xmlFile.length()]; // assuming a short file
+			FileReader reader = new FileReader(xmlFile);
+			reader.read(buffer, 0, (int)xmlFile.length());
+			reader.close();
+
+			String xmlString = new String(buffer);
+			Document doc = dBuilder.parse(new InputSource(new StringReader(xmlString)));
+
+			this.addClinicalData(doc, dataClinicalContent);
+			this.addMutationData(doc, dataMutationsContent);
+			this.addCNAData(doc, valueMap, caseSet, geneSet);
+		}
+
+		this.generateClinicalDataFile(dataClinicalContent);
+		this.generateMutationDataFile(dataMutationsContent);
+		this.generateCNADataFile(valueMap, caseSet, geneSet);
+
+		this.generateStudyMetaFile();
+		this.generateMutationMetaFile();
+		this.generateCNAMetaFile();
 
 		return true;
 	}
 
-	protected File generateClinicalFile(StringBuilder content) throws Exception
+	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
 		String header = "case_id\tgender\tfmi_case_id\tpipeline_ver\t" +
 		                "tumor_nuclei_percent\tmedian cov\tcov>100x\terror_percent\n";
@@ -232,16 +255,97 @@ class FoundationFetcherImpl implements Fetcher {
 		return clinicalFile;
 	}
 
-	protected File generateMutationFile(StringBuilder content) throws Exception
+	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
 		String header = "hugo_symbol\tchromosome\tstart_position\tend_position\t" +
 		                "strand\tvariant_classification\tmutation_status?\tamino_acid_change\t" +
 		                "transcript\tt_ref_count\tt_alt_count\n";
 
 		File mafFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "data_mutations.txt", header + content.toString());
+			File.separator + "data_mutations_extended.txt", header + content.toString());
 
 		return mafFile;
+	}
+
+	protected File generateCNADataFile(HashMap<String, Integer> valueMap, Set<String> caseSet,
+			Set<String> geneSet) throws Exception
+	{
+		StringBuilder content = new StringBuilder();
+
+		// generate header line
+
+		content.append("Gene Symbol");
+
+		for (String caseID : caseSet)
+		{
+			content.append("\t");
+			content.append(caseID);
+		}
+
+		content.append("\n");
+
+		// generate line for each gene
+		for (String gene : geneSet)
+		{
+			content.append(gene);
+
+			for (String caseId : caseSet)
+			{
+				Integer value = valueMap.get(gene + "_" + caseId);
+
+				if (value == null)
+				{
+					value = 0;
+				}
+
+				content.append("\t");
+				content.append(value.toString());
+			}
+
+			content.append("\n");
+		}
+
+		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+			File.separator + "data_CNA.txt", content.toString());
+
+		return cnaFile;
+	}
+
+	protected File generateStudyMetaFile() throws Exception
+	{
+		StringBuilder content = new StringBuilder();
+
+		content.append("type_of_cancer: prad\n");
+		content.append("cancer_study_identifier: prad_foundation\n");
+		content.append("name: Prostate Adenocarcinoma (Foundation)\n");
+		content.append("description: TODO\n");
+
+		File studyFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+			File.separator + "meta_study.txt", content.toString());
+
+		return studyFile;
+	}
+
+	protected File generateCNAMetaFile() throws Exception
+	{
+		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("cna-foundation");
+		DatatypeMetadata metadata = list.iterator().next();
+
+		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+				File.separator + metadata.getMetaFilename(), "TODO");
+
+		return cnaFile;
+	}
+
+	protected File generateMutationMetaFile() throws Exception
+	{
+		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("mutation");
+		DatatypeMetadata metadata = list.iterator().next();
+
+		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+			File.separator + metadata.getMetaFilename(), "TODO");
+
+		return cnaFile;
 	}
 
 	protected void addClinicalData(Document caseDoc, StringBuilder content)
@@ -422,7 +526,7 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("\t");
 		content.append(functionalEffect); // variant_classification
 		content.append("\t");
-		content.append(status); // mutation status or validation status or smt else?
+		content.append(status); // TODO mutation status or validation status or smt else?
 		content.append("\t");
 		content.append(proteinEffect); // amino_acid_change
 		content.append("\t");
@@ -434,6 +538,68 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("\n");
 	}
 
+	protected void addCNAData(Document caseDoc,
+			HashMap<String,Integer> valueMap,
+			Set<String> caseSet,
+			Set<String> geneSet)
+	{
+		String gene = "";
+		String type = "";
+
+		Element caseNode = this.extractCaseNode(caseDoc);
+
+		if (caseNode == null)
+		{
+			return; // no case to process
+		}
+
+		//fmiCaseID = caseNode.getAttribute("fmiCase");
+		String caseID = caseNode.getAttribute("case");
+
+		caseSet.add(caseID);
+
+		Element variantReport = this.extractVariantReport(caseNode);
+
+		if (variantReport != null)
+		{
+			NodeList cnas = variantReport.getElementsByTagName("copy-number-alteration");
+
+			for (int i = 0; i < cnas.getLength(); i++)
+			{
+				Node cna = cnas.item(i);
+
+				if (cna.getNodeType() == Node.ELEMENT_NODE)
+				{
+					gene = ((Element)cna).getAttribute("gene");
+					type = ((Element)cna).getAttribute("type");
+
+					if (gene.length() > 0)
+					{
+						geneSet.add(gene);
+
+						valueMap.put(gene + "_" + caseID, this.cnaValue(type));
+					}
+				}
+			}
+		}
+	}
+
+	protected Integer cnaValue(String type)
+	{
+		if (type.equalsIgnoreCase("loss"))
+		{
+			return -2;
+		}
+		else if (type.equalsIgnoreCase("amplification"))
+		{
+			return 2;
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 	protected Element extractCaseNode(Document caseDoc)
 	{
 		NodeList cases = caseDoc.getElementsByTagName("Case");
@@ -443,7 +609,7 @@ class FoundationFetcherImpl implements Fetcher {
 			return null; // no case to process
 		}
 
-		// TODO process all cases, or just use the first one?
+		// TODO process all cases instead of only the first one?
 
 		Node caseNode = cases.item(0);
 

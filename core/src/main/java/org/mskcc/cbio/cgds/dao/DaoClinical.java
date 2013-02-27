@@ -30,7 +30,9 @@ package org.mskcc.cbio.cgds.dao;
 import org.mskcc.cbio.cgds.model.Clinical;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Data Access Object for `clinical` table
@@ -115,6 +117,43 @@ public final class DaoClinical {
         } finally {
             JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
         }
+    }
+
+    /**
+     * Get all clinical data associated with a sample id.
+     *
+     * Returns a <code>ResultSet</code>, a lazy sequence which then can be parsed using the extract method
+     * @param sampleId
+     * @return
+     * @throws DaoException
+     */
+    public static ResultSet getBySampleId(String sampleId) throws DaoException {
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
+
+            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE "
+                    + "SAMPLE_ID=?");
+            pstmt.setString(1, sampleId);
+
+            rs = pstmt.executeQuery();
+
+            return rs;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    public static Clinical extract(ResultSet rs) throws SQLException {
+        return new Clinical(rs.getInt("CANCER_STUDY_ID"),
+                rs.getString("CASE_ID"),
+                rs.getString("ATTR_ID"),
+                rs.getString("ATTR_VALUE"));
     }
 
     public static int addAllData(Collection<Clinical> clinicals) throws DaoException {

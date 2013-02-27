@@ -221,6 +221,12 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalJSON</servlet-class>
+    </servlet>
+
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -360,6 +366,12 @@
         <servlet-name>GeneDataJSON</servlet-name>
         <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
+
      
      <!-- tumor map -->
     <servlet>

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Map;
 
-public class ClinicalJSONTest extends TestCase {
+public class TestClinicalJSON extends TestCase {
 
     public void testReflectToMap() {
         ClinicalJSON clinicalJSON = new ClinicalJSON();

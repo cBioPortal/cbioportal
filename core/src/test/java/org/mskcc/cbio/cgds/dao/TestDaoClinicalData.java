@@ -35,13 +35,15 @@ import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * Tests the DaoClinicalData Class.
  *
  * @author Ethan Cerami
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
-public class TestDaoClinical extends TestCase {
+public class TestDaoClinicalData extends TestCase {
 
     /**
      * Basic Unit Tests.

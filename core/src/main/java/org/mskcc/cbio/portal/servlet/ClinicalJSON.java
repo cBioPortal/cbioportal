@@ -26,6 +26,7 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
+import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.owasp.validator.html.PolicyException;
@@ -35,7 +36,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ClinicalJSON extends HttpServlet {
@@ -95,6 +98,9 @@ public class ClinicalJSON extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+
         String clinical_attributes = request.getParameter("clinical_attributes");
         // list of clinical attributes separated by a space
 
@@ -104,8 +110,20 @@ public class ClinicalJSON extends HttpServlet {
         String cancer_study_id = request.getParameter("cancer_study_id");
         // stable id
 
-        if (clinical_attributes.equals(null)) {
-
+        if (cancer_study_id != null) {
+            // get by clinical id
+            if (clinical_attributes == null) {
+                // get all clinical attributes
+            }
+            else {
+                // get by clinical attributes
+            }
+        }
+        else {
+            if (samples == null) {
+                throw new ServletException("no samples requested");
+            }
+            String[] samplesList = samples.split(" ");
         }
     }
 
@@ -116,6 +134,7 @@ public class ClinicalJSON extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);

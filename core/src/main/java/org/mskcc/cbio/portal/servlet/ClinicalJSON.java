@@ -26,7 +26,10 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
+import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.owasp.validator.html.PolicyException;
@@ -43,6 +46,9 @@ import java.util.Map;
 
 public class ClinicalJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
+
+    // our logger
+    private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
 
     /**
      * Initializes the servlet.
@@ -124,6 +130,17 @@ public class ClinicalJSON extends HttpServlet {
                 throw new ServletException("no samples requested");
             }
             String[] samplesList = samples.split(" ");
+
+            try {
+                DaoClinical.getBySampleId("");
+            } catch (DaoException e) {
+                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            }
+
+//        } catch (SQLException e) {
+//            log.info("failed to extract result set into clinical: " + rs);
+//            return null;
+//        }
         }
     }
 

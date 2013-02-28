@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.Clinical;
 
 import java.sql.*;
@@ -41,6 +43,8 @@ import java.util.List;
  */
 
 public final class DaoClinical {
+
+    private static Log log = LogFactory.getLog(DaoClinical.class);
 
     /**
      * add a new clinical datum
@@ -83,9 +87,11 @@ public final class DaoClinical {
 
     public static Clinical getDatum(int cancerStudyId, String caseId, String attrId)
             throws DaoException {
+
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);
 
@@ -149,11 +155,20 @@ public final class DaoClinical {
         }
     }
 
+    /**
+     * Turns a result set into a <code>Clinical</code> object
+     *
+     * returns null on failure to extract
+     *
+     * @param rs
+     * @return
+     * @throws SQLException
+     */
     public static Clinical extract(ResultSet rs) throws SQLException {
-        return new Clinical(rs.getInt("CANCER_STUDY_ID"),
-                rs.getString("CASE_ID"),
-                rs.getString("ATTR_ID"),
-                rs.getString("ATTR_VALUE"));
+            return new Clinical(rs.getInt("CANCER_STUDY_ID"),
+                    rs.getString("CASE_ID"),
+                    rs.getString("ATTR_ID"),
+                    rs.getString("ATTR_VALUE"));
     }
 
     public static int addAllData(Collection<Clinical> clinicals) throws DaoException {

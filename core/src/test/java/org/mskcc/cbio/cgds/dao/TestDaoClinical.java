@@ -26,6 +26,7 @@
  */
 package org.mskcc.cbio.cgds.dao;
 
+import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.model.Clinical;
 
 import java.sql.ResultSet;
@@ -34,7 +35,7 @@ import java.sql.SQLException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class TestDaoClinical {
+public class TestDaoClinical extends TestCase {
 
     public void testExtract() throws SQLException {
 

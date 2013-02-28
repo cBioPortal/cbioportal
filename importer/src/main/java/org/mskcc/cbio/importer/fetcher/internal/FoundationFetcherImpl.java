@@ -135,8 +135,8 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		// TODO temporary test to bypass foundation service
-//		if (this.testXMLParsers())
-//			return;
+		if (this.testXMLParsers())
+			return;
 
 		CaseInfoService caseInfoService = new CaseInfoService();
 		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
@@ -157,6 +157,8 @@ class FoundationFetcherImpl implements Fetcher {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
 
+		int numCases = 0; // total number of processed cases
+
 		for (int lc = 0; lc < cases.getLength(); lc++)
 		{
 			String caseRecord = this.fetchCaseRecord(cases.item(lc),
@@ -172,6 +174,8 @@ class FoundationFetcherImpl implements Fetcher {
 				this.addClinicalData(doc, dataClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
+
+				numCases++;
 			}
 
 //			if (caseRecord != null && caseRecord.length() > 250) {
@@ -194,10 +198,10 @@ class FoundationFetcherImpl implements Fetcher {
 		this.generateMutationDataFile(dataMutationsContent);
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
 
-		// TODO generate meta files
-		this.generateStudyMetaFile();
-		this.generateMutationMetaFile();
-		this.generateCNAMetaFile();
+		// generate meta files
+		this.generateStudyMetaFile(numCases);
+		this.generateMutationMetaFile(numCases);
+		this.generateCNAMetaFile(numCases);
 	}
 
 	// TODO temporary test function (remove when ready)
@@ -237,20 +241,21 @@ class FoundationFetcherImpl implements Fetcher {
 		this.generateMutationDataFile(dataMutationsContent);
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
 
-		this.generateStudyMetaFile();
-		this.generateMutationMetaFile();
-		this.generateCNAMetaFile();
+		this.generateStudyMetaFile(dirContent.size());
+		this.generateMutationMetaFile(dirContent.size());
+		this.generateCNAMetaFile(dirContent.size());
 
 		return true;
 	}
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
-		String header = "case_id\tgender\tfmi_case_id\tpipeline_ver\t" +
-		                "tumor_nuclei_percent\tmedian cov\tcov>100x\terror_percent\n";
+		String header = "CASE_ID\tGENDER\tFMI_CASE_ID\tPIPELINE_VER\t" +
+		                "TUMOR_NUCLEI_PERCENT\tMEDIAN_COV\tCOV>100X\tERROR_PERCENT\n";
 
-		File clinicalFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "data_clinical.txt", header + content.toString());
+		File clinicalFile = fileUtils.createFileWithContents(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_clinical.txt",
+			header + content.toString());
 
 		return clinicalFile;
 	}
@@ -261,8 +266,9 @@ class FoundationFetcherImpl implements Fetcher {
 		                "strand\tvariant_classification\tmutation_status?\tamino_acid_change\t" +
 		                "transcript\tt_ref_count\tt_alt_count\n";
 
-		File mafFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "data_mutations_extended.txt", header + content.toString());
+		File mafFile = fileUtils.createFileWithContents(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_mutations_extended.txt",
+			header + content.toString());
 
 		return mafFile;
 	}
@@ -311,14 +317,14 @@ class FoundationFetcherImpl implements Fetcher {
 		return cnaFile;
 	}
 
-	protected File generateStudyMetaFile() throws Exception
+	protected File generateStudyMetaFile(Integer numCases) throws Exception
 	{
 		StringBuilder content = new StringBuilder();
 
 		content.append("type_of_cancer: prad\n");
 		content.append("cancer_study_identifier: prad_foundation\n");
 		content.append("name: Prostate Adenocarcinoma (Foundation)\n");
-		content.append("description: TODO\n");
+		content.append("description: TODO\n"); // TODO description with # of cases?
 
 		File studyFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
 			File.separator + "meta_study.txt", content.toString());
@@ -326,26 +332,70 @@ class FoundationFetcherImpl implements Fetcher {
 		return studyFile;
 	}
 
-	protected File generateCNAMetaFile() throws Exception
+	protected File generateCNAMetaFile(Integer numCases) throws Exception
 	{
 		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("cna-foundation");
 		DatatypeMetadata metadata = list.iterator().next();
 
-		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-				File.separator + metadata.getMetaFilename(), "TODO");
+		File cnaFile = fileUtils.createFileWithContents(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
+			this.generateMetaFileContent(metadata, numCases).toString());
 
 		return cnaFile;
 	}
 
-	protected File generateMutationMetaFile() throws Exception
+	protected File generateMutationMetaFile(Integer numCases) throws Exception
 	{
 		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("mutation");
 		DatatypeMetadata metadata = list.iterator().next();
 
-		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + metadata.getMetaFilename(), "TODO");
+		File cnaFile = fileUtils.createFileWithContents(
+			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
+			this.generateMetaFileContent(metadata, numCases).toString());
 
 		return cnaFile;
+	}
+
+	protected StringBuilder generateMetaFileContent(DatatypeMetadata metadata, Integer numCases)
+	{
+		StringBuilder content = new StringBuilder();
+
+		content.append("cancer_study_identifier: prad_foundation\n");
+		content.append("genetic_alteration_type: ");
+		content.append(metadata.getMetaGeneticAlterationType());
+		content.append("\n");
+
+		String stableID = metadata.getMetaStableID();
+		stableID = stableID.replaceAll(
+				DatatypeMetadata.CANCER_STUDY_TAG, "prad_foundation");
+		content.append("stable_id: ");
+		content.append(stableID);
+		content.append("\n");
+
+		content.append("show_profile_in_analysis_tab: ");
+		content.append(metadata.getMetaShowProfileInAnalysisTab());
+		content.append("\n");
+
+		String profileDescription = metadata.getMetaProfileDescription();
+
+		if (numCases != null) {
+			profileDescription = profileDescription.replaceAll(
+					DatatypeMetadata.NUM_GENES_TAG, numCases.toString());
+			profileDescription = profileDescription.replaceAll(
+					DatatypeMetadata.NUM_CASES_TAG, numCases.toString());
+		}
+
+		profileDescription = profileDescription.replaceAll(
+				DatatypeMetadata.TUMOR_TYPE_TAG, "prad");
+
+		content.append("profile_description: ");
+		content.append(profileDescription);
+		content.append("\n");
+		content.append("profile_name: ");
+		content.append(metadata.getMetaProfileName());
+		content.append("\n");
+
+		return content;
 	}
 
 	protected void addClinicalData(Document caseDoc, StringBuilder content)
@@ -432,18 +482,6 @@ class FoundationFetcherImpl implements Fetcher {
 
 	protected void addMutationData(Document caseDoc, StringBuilder content)
 	{
-		String gene = "";
-		String chromosome = "";
-		String startPos = "";
-		String endPos = "";
-		String proteinEffect = "";
-		String status = "";
-		String transcript = "";
-		String strand = "";
-		String functionalEffect = "";
-		String tAltCount = "";
-		String tRefCount = "";
-
 		Element caseNode = this.extractCaseNode(caseDoc);
 
 		if (caseNode == null)
@@ -471,12 +509,17 @@ class FoundationFetcherImpl implements Fetcher {
 					String percentReads = ((Element)shortVar).getAttribute("percent-reads");
 					String position = ((Element)shortVar).getAttribute("position");
 
-					gene = ((Element)shortVar).getAttribute("gene");
-					proteinEffect = ((Element)shortVar).getAttribute("protein-effect");
-					status = ((Element)shortVar).getAttribute("status");
-					transcript = ((Element)shortVar).getAttribute("transcript");
-					strand = ((Element)shortVar).getAttribute("strand");
-					functionalEffect = ((Element)shortVar).getAttribute("functional-effect");
+					String gene = ((Element)shortVar).getAttribute("gene");
+					String proteinEffect = ((Element)shortVar).getAttribute("protein-effect");
+					String status = ((Element)shortVar).getAttribute("status");
+					String transcript = ((Element)shortVar).getAttribute("transcript");
+					String strand = ((Element)shortVar).getAttribute("strand");
+					String functionalEffect = ((Element)shortVar).getAttribute("functional-effect");
+					String chromosome = "";
+					String startPos = "";
+					String endPos = "";
+					String tAltCount = "";
+					String tRefCount = "";
 
 					// extract position information
 
@@ -509,33 +552,33 @@ class FoundationFetcherImpl implements Fetcher {
 					} catch (NumberFormatException e) {
 						// empty or invalid depth & percent values
 					}
+
+					// append the data as a single line
+					content.append(gene); // hugo_symbol
+					content.append("\t");
+					content.append(chromosome);
+					content.append("\t");
+					content.append(startPos);
+					content.append("\t");
+					content.append(endPos);
+					content.append("\t");
+					content.append(strand);
+					content.append("\t");
+					content.append(functionalEffect); // variant_classification
+					content.append("\t");
+					content.append(status); // TODO mutation status or validation status or smt else?
+					content.append("\t");
+					content.append(proteinEffect); // amino_acid_change
+					content.append("\t");
+					content.append(transcript);
+					content.append("\t");
+					content.append(tRefCount);
+					content.append("\t");
+					content.append(tAltCount);
+					content.append("\n");
 				}
 			}
 		}
-
-		// append the data as a single line
-		content.append(gene); // hugo_symbol
-		content.append("\t");
-		content.append(chromosome);
-		content.append("\t");
-		content.append(startPos);
-		content.append("\t");
-		content.append(endPos);
-		content.append("\t");
-		content.append(strand);
-		content.append("\t");
-		content.append(functionalEffect); // variant_classification
-		content.append("\t");
-		content.append(status); // TODO mutation status or validation status or smt else?
-		content.append("\t");
-		content.append(proteinEffect); // amino_acid_change
-		content.append("\t");
-		content.append(transcript);
-		content.append("\t");
-		content.append(tRefCount);
-		content.append("\t");
-		content.append(tAltCount);
-		content.append("\n");
 	}
 
 	protected void addCNAData(Document caseDoc,

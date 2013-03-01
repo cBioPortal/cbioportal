@@ -38,6 +38,7 @@ import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.util.NullHttpServletRequest;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
 
 /**
  * JUnit test for WebService class.
@@ -185,25 +186,25 @@ public class TestWebService extends TestCase {
       setUpDBMS();
       HashSet<String> studies;
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 0, studies.size() );
       
       // example getGeneticProfiles request      
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "HI");
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( null, studies );
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "33");
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( null, studies );
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "study1");
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
       assertTrue( studies.contains("study1"));
 
       // example getProfileData, getMutationData, ... request with existing CASE_SET_ID
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "HI");
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( null, studies );
 
       DaoCaseList aDaoCaseList = new DaoCaseList();
@@ -214,13 +215,13 @@ public class TestWebService extends TestCase {
       caseList.setCaseList( t );
       aDaoCaseList.addCaseList(caseList);
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, exampleCaseSetId );
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( null, studies );
 
       aDaoCaseList.deleteAllRecords();
       caseList.setCancerStudyId( 1 ); // CancerStudyId inserted by setUpDBMS()
       aDaoCaseList.addCaseList(caseList);
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
       assertTrue( studies.contains("study1"));
       
@@ -228,7 +229,7 @@ public class TestWebService extends TestCase {
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.GENETIC_PROFILE_ID, 
                privateGeneticProfile.getStableId() );
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
       assertTrue( studies.contains(
               DaoCancerStudy.getCancerStudyByInternalId(
@@ -239,7 +240,7 @@ public class TestWebService extends TestCase {
       aNullHttpServletRequest.setParameter(
                WebService.GENETIC_PROFILE_ID, privateGeneticProfile.getStableId() + ","
               + publicGeneticProfile.getStableId() );
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
@@ -250,7 +251,7 @@ public class TestWebService extends TestCase {
       DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
               (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
@@ -258,7 +259,7 @@ public class TestWebService extends TestCase {
       DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
-      studies = WebService.getCancerStudyIDs(aNullHttpServletRequest);
+      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
       assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId

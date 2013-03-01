@@ -47,10 +47,10 @@ public class GetClinicalData {
      * @return an ArrayList of ClinicalData Objects
      * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
      */
-    public static ArrayList<ClinicalData> getClinicalData(HashSet<String> setOfCaseIds) throws DaoException {
+    public static ArrayList<ClinicalData> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
         if (setOfCaseIds != null && setOfCaseIds.size() > 0) {
             DaoClinicalData daoClinicalData = new DaoClinicalData();
-            return daoClinicalData.getCases(setOfCaseIds);
+            return daoClinicalData.getCases(cancerStudyId, setOfCaseIds);
         } else {
             return new ArrayList<ClinicalData>();
         }

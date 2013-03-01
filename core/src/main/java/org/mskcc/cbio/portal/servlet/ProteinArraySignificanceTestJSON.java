@@ -52,6 +52,7 @@ import org.apache.log4j.Logger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.ProteinArrayInfo;
@@ -119,8 +120,9 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             Map<String,ProteinArrayInfo> proteinArrays;
             Map<String,Map<String,Double>> proteinArrayData;
             try {
-                proteinArrays = GetProteinArrayData.getProteinArrayInfo(cancerStudyStableId, null, antibodyTypes);
-                proteinArrayData = GetProteinArrayData.getProteinArrayData(proteinArrays.keySet(), allCases);
+                int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId).getInternalId();
+                proteinArrays = GetProteinArrayData.getProteinArrayInfo(cancerStudyId, null, antibodyTypes);
+                proteinArrayData = GetProteinArrayData.getProteinArrayData(cancerStudyId, proteinArrays.keySet(), allCases);
             } catch (DaoException e) {
                 throw new ServletException(e);
             }

@@ -48,7 +48,7 @@ public final class DaoUniProtIdMapping {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = JdbcUtil.getDbConnection();
+            connection = JdbcUtil.getDbConnection(DaoUniProtIdMapping.class);
             preparedStatement = connection.prepareStatement("insert into uniprot_id_mapping (`entrez_gene_id`,`uniprot_id`) values (?, ?)");
             preparedStatement.setInt(1, entrezGeneId);
             preparedStatement.setString(2, uniProtId);
@@ -58,7 +58,7 @@ public final class DaoUniProtIdMapping {
             throw new DaoException(e);
         }
         finally {
-            JdbcUtil.closeAll(connection, preparedStatement, resultSet);
+            JdbcUtil.closeAll(DaoUniProtIdMapping.class, connection, preparedStatement, resultSet);
         }
     }
 
@@ -67,7 +67,7 @@ public final class DaoUniProtIdMapping {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = JdbcUtil.getDbConnection();
+            connection = JdbcUtil.getDbConnection(DaoUniProtIdMapping.class);
             preparedStatement = connection.prepareStatement("select uniprot_id from uniprot_id_mapping where entrez_gene_id = ?");
             preparedStatement.setInt(1, entrezGeneId);
             resultSet = preparedStatement.executeQuery();
@@ -81,7 +81,7 @@ public final class DaoUniProtIdMapping {
             throw new DaoException(e);
         }
         finally {
-            JdbcUtil.closeAll(connection, preparedStatement, resultSet);
+            JdbcUtil.closeAll(DaoUniProtIdMapping.class, connection, preparedStatement, resultSet);
         }
     }
 
@@ -90,7 +90,7 @@ public final class DaoUniProtIdMapping {
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {
-            connection = JdbcUtil.getDbConnection();
+            connection = JdbcUtil.getDbConnection(DaoUniProtIdMapping.class);
             preparedStatement = connection.prepareStatement("truncate table uniprot_id_mapping");
             preparedStatement.executeUpdate();
         }
@@ -98,7 +98,7 @@ public final class DaoUniProtIdMapping {
             throw new DaoException(e);
         }
         finally {
-            JdbcUtil.closeAll(connection, preparedStatement, resultSet);
+            JdbcUtil.closeAll(DaoUniProtIdMapping.class, connection, preparedStatement, resultSet);
         }
     }
 }

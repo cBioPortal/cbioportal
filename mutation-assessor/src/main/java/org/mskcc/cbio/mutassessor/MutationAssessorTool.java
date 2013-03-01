@@ -53,15 +53,15 @@ public class MutationAssessorTool
 		{
 			if (args[i].startsWith("-"))
 			{
-				if (args[0].equalsIgnoreCase("-db"))
+				if (args[i].equalsIgnoreCase("-db"))
 				{
 					db = true;
 				}
-				else if (args[0].equalsIgnoreCase("-sort"))
+				else if (args[i].equalsIgnoreCase("-sort"))
 				{
 					sort = true;
 				}
-				else if (args[0].equalsIgnoreCase("-std"))
+				else if (args[i].equalsIgnoreCase("-std"))
 				{
 					addMissing = true;
 				}

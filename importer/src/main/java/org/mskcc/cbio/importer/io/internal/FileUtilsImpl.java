@@ -44,6 +44,7 @@ import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.Shell;
 
+import org.mskcc.cbio.liftover.Hg18ToHg19;
 import org.mskcc.cbio.oncotator.OncotateTool;
 import org.mskcc.cbio.mutassessor.MutationAssessorTool;
 
@@ -57,6 +58,8 @@ import org.apache.commons.compress.compressors.gzip.GzipUtils;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+
+import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -89,6 +92,18 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 	// ref to config
 	private Config config;
+
+	// location of lift over binary
+	private String liftoverBinary;
+	@Value("${liftover_binary}")
+	public void setLiftOverBinary(String property) { this.liftoverBinary = property; }
+	public String getLiftOverBinary() { return MetadataUtils.getCanonicalPath(liftoverBinary); }
+
+	// location of lift over chain
+	private String liftoverChain;
+	@Value("${liftover_chain_file}")
+	public void setLiftOverChain(String property) { this.liftoverChain = property; }
+	public String getLiftOverChain() { return MetadataUtils.getCanonicalPath(liftoverChain); }
 
 	/**
 	 * Constructor.
@@ -568,7 +583,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
-		org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		if (oncotatorInputFile.exists()) {
+			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
+		}
 
 		// meta file
 		if (datatypeMetadata.requiresMetafile()) {
@@ -800,28 +817,48 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		URL inputMAF = new URL(inputMAFURL);
 		URL outputMAF = new URL(outputMAFURL);
 
+		// determine if we have to call liftover
+		boolean cleanOncotatorInputFile = false;
+		File oncotatorInputFile = new File(inputMAF.getFile());
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(oncotatorInputFile);
+		it.nextLine(); // skip header
+		String[] parts = it.nextLine().split("\t");
+		if (parts[3].contains("36") || parts[3].equals("hg18")) {
+			it.close();
+			File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+																			 "liftoverInputFile");
+			org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
+			oncotatorInputFile = new File(inputMAF.getFile());
+			// call lift over
+			if (LOG.isInfoEnabled()) {
+				LOG.info("oncotateMAF(), calling Hg18ToHg19...");
+			}
+			Hg18ToHg19.driver(liftoverInputFile.getCanonicalPath(), oncotatorInputFile.getCanonicalPath(), getLiftOverBinary(), getLiftOverChain());
+			org.apache.commons.io.FileUtils.forceDelete(liftoverInputFile);
+			cleanOncotatorInputFile = true;
+		}
+
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
 													"oncotatorOutputFile");
 		// call oncotator
-		String[] oncotatorArgs = { inputMAF.getFile(),
-								   oncotatorOutputFile.getCanonicalPath() };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), calling OncotateTool: " + Arrays.toString(oncotatorArgs));
+			LOG.info("oncotateMAF(), calling OncotateTool...");
 		}
-		OncotateTool.main(oncotatorArgs);
+		OncotateTool.driver(oncotatorInputFile.getCanonicalPath(), oncotatorOutputFile.getCanonicalPath(), true, true, true);
 		// we call OMA here -
 		// we use output from oncotator as input file
-		String[] omaArgs = { oncotatorOutputFile.getCanonicalPath(),
-							 outputMAF.getFile() };
 		if (LOG.isInfoEnabled()) {
-			LOG.info("oncotateMAF(), calling MutationAssessorTool: " + Arrays.toString(omaArgs));
+			LOG.info("oncotateMAF(), calling MutationAssessorTool...");
 		}
-		MutationAssessorTool.main(omaArgs);
+		File outputMAFFile = new File(outputMAF.getFile());
+		outputMAFFile.createNewFile();
+		MutationAssessorTool.driver(oncotatorOutputFile.getCanonicalPath(), outputMAFFile.getCanonicalPath(), false, true, true);
 
 		// clean up
 		org.apache.commons.io.FileUtils.forceDelete(oncotatorOutputFile);
+		if (cleanOncotatorInputFile) org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
 	}
 
 	/**

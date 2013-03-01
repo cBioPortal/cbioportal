@@ -30,12 +30,18 @@ package org.mskcc.cbio.cgds.util;
 
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.cgds.dao.DaoCaseList;
+import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.servlet.WebService;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
@@ -78,5 +84,132 @@ public final class WebserviceParserUtils {
             throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
         }
         return caseList;
+    }
+    
+
+    /**
+     * Given an HttpServletRequest, determine all cancer_study_ids associated with it.
+     * cancer study identifiers can be inferred from profile_ids, case_list_ids, or case_ids.
+     * this returns the set of ALL POSSIBLE cancer study identifiers
+     *
+     * @param request
+     * @return the cancer_study_ids associated with the request, which will be empty
+     *         if none can be determined; or null if a problem arises.
+     * @throws DaoException
+     * @throws ProtocolException
+     */
+    public static HashSet<String> getCancerStudyIDs(HttpServletRequest request)
+            throws DaoException, ProtocolException {
+
+        HashSet<String> cancerStudies = new HashSet<String>();
+
+        // a CANCER_STUDY_ID is explicitly provided, as in getGeneticProfiles, getCaseLists, etc.
+        // make sure the cancer_study_id provided in the request points to a real study
+        String studyIDstring = getCancerStudyId(request);
+        if (studyIDstring != null) {
+            if (DaoCancerStudy.doesCancerStudyExistByStableId(studyIDstring)) {
+                cancerStudies.add(studyIDstring);
+            } else {
+                return null;
+            }
+        }
+
+        // a genetic_profile_id is explicitly provided, as in getProfileData
+        if (null != request.getParameter(WebService.GENETIC_PROFILE_ID)) {
+            ArrayList<String> geneticProfileIds = getGeneticProfileId(request);
+            for (String geneticProfileId : geneticProfileIds) {
+
+                if (geneticProfileId == null) {
+                    return null;
+                }
+
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
+                if (aGeneticProfile != null &&
+                        DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
+                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
+                }
+            }
+        }
+
+        // a case_set_id is explicitly provided, as in getProfileData, getMutationData, getClinicalData, etc.
+        String caseSetId = request.getParameter(WebService.CASE_SET_ID);
+        if (caseSetId != null) {
+            DaoCaseList aDaoCaseList = new DaoCaseList();
+            CaseList aCaseList = aDaoCaseList.getCaseListByStableId(caseSetId);
+            if (aCaseList == null) {
+                return null;
+            }
+            if (DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
+                cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                        (aCaseList.getCancerStudyId()).getCancerStudyStableId());
+            } else {
+                return null;
+            }
+        }
+
+        // a case_list is explicitly provided, as in getClinicalData, etc.
+        String caseList = request.getParameter(WebService.CASE_LIST);
+        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
+        
+        // no case list provided, but case IDs key provided
+        if (caseList == null
+        	&& caseIdsKey != null)
+        {
+        	// try to get case list by using the key
+        	caseList = CaseSetUtil.getCaseIds(caseIdsKey);
+        }
+        
+        if (caseList != null) {
+            for (String aCase : caseList.split("[\\s,]+")) {
+                aCase = aCase.trim();
+                if (aCase.length() == 0) {
+                    continue;
+                }
+
+                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
+                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
+                    return null;
+                }
+
+                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
+                if (aGeneticProfile == null) {
+                    return null;
+                }
+                if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
+                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
+                } else {
+                    return null;
+                }
+            }
+        }
+        return cancerStudies;
+    }
+
+    // TODO: rename TO getGeneticProfileId, as the return value is PLURAL
+    public static ArrayList<String> getGeneticProfileId(HttpServletRequest request) throws ProtocolException {
+        String geneticProfileIdStr = request.getParameter(WebService.GENETIC_PROFILE_ID);
+        //  Split on white space or commas
+        Pattern p = Pattern.compile("[,\\s]+");
+        String geneticProfileIds[] = p.split(geneticProfileIdStr);
+        ArrayList<String> geneticProfileIdList = new ArrayList<String>();
+        for (String geneticProfileId : geneticProfileIds) {
+            geneticProfileId = geneticProfileId.trim();
+            geneticProfileIdList.add(geneticProfileId);
+        }
+        return geneticProfileIdList;
+    }
+    
+
+    /**
+     * Get Cancer Study ID in a backward compatible fashion.
+     */
+    public static String getCancerStudyId(HttpServletRequest request) {
+        String cancerStudyId = request.getParameter(WebService.CANCER_STUDY_ID);
+        if (cancerStudyId == null || cancerStudyId.length() == 0) {
+            cancerStudyId = request.getParameter(WebService.CANCER_TYPE_ID);
+        }
+        return cancerStudyId;
     }
 }

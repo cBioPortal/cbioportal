@@ -27,7 +27,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             long eventId = addMutationEvent(mutation, con);
             
             if (eventExists(eventId, mutation.getCaseId(), mutation.getGeneticProfileId(), con)) {
@@ -49,7 +49,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -129,7 +129,7 @@ public final class DaoMutationEvent {
         
         if (type.equals("Missense_Mutation")) {
             String aa = mutation.getProteinChange();
-            if (aa.equals("M1*")) {
+            if (aa.startsWith("M1")&&!aa.equals("M1M")) { // how about indels on the first position?
                 // non-start
                 return mutation.getGeneSymbol() + " truncating";
             }
@@ -143,10 +143,14 @@ public final class DaoMutationEvent {
         
         if (type.equals("In_Frame_Ins")) {
             String aa = mutation.getProteinChange();
+            if (aa.contains("*")) { // insert *
+                return mutation.getGeneSymbol() + " truncating";
+            }
+            
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + "ins";
+               return mutation.getGeneSymbol() + " " + m.group(1) + " ins";
             }
         }
         
@@ -156,7 +160,16 @@ public final class DaoMutationEvent {
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + "del";
+               return mutation.getGeneSymbol() + " " + m.group(1) + " del";
+            }
+        }
+        
+        if (type.equals("Silent")) {
+            String aa = mutation.getProteinChange();
+            Pattern p = Pattern.compile("([0-9]+)");
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+               return mutation.getGeneSymbol() + " " + m.group(1) + "silent";
             }
         }
             
@@ -190,7 +203,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             pstmt = con.prepareStatement
 		("SELECT case_mutation_event.MUTATION_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
                     + " VALIDATION_STATUS, TUMOR_ALT_COUNT, TUMOR_REF_COUNT, NORMAL_ALT_COUNT, NORMAL_REF_COUNT,"
@@ -208,7 +221,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -254,7 +267,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql;
             if (caseIds==null) {
                 sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
@@ -279,7 +292,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -295,7 +308,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT count(*) FROM case_mutation_event"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId;
             pstmt = con.prepareStatement(sql);
@@ -308,7 +321,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -335,7 +348,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `CASE_ID`, `MUTATION_EVENT_ID` FROM case_mutation_event"
                     + " WHERE `MUTATION_EVENT_ID` IN ("
                     + concatEventIds + ")";
@@ -357,7 +370,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -385,7 +398,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me1.`MUTATION_EVENT_ID`"
                     + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
@@ -412,7 +425,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -431,7 +444,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me.`ENTREZ_GENE_ID`"
                     + " FROM case_mutation_event cme, mutation_event me"
                     + " WHERE me.`ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")"
@@ -457,7 +470,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -480,7 +493,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `MUTATION_EVENT_ID`, count(*) FROM case_mutation_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                     + " AND `MUTATION_EVENT_ID` IN ("
@@ -497,7 +510,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -520,7 +533,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT ENTREZ_GENE_ID, count(DISTINCT CASE_ID)"
                     + " FROM case_mutation_event, mutation_event"
                     + " WHERE GENETIC_PROFILE_ID=" + profileId
@@ -539,7 +552,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -551,7 +564,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT KEYWORD, count(DISTINCT CASE_ID)"
                     + " FROM case_mutation_event, mutation_event"
                     + " WHERE GENETIC_PROFILE_ID=" + profileId
@@ -570,7 +583,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -579,7 +592,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
                     + " FROM mutation_event, case_mutation_event,"
                     + " WHERE case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
@@ -595,7 +608,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -620,7 +633,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT DISTINCT ENTREZ_GENE_ID FROM mutation_event "
                     + "WHERE MUTATION_EVENT_ID in ("
                     +       concatEventIds
@@ -636,7 +649,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -656,7 +669,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT DISTINCT KEYWORD FROM mutation_event "
                     + "WHERE MUTATION_EVENT_ID in ("
                     +       concatEventIds
@@ -672,7 +685,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
     
@@ -788,12 +801,12 @@ public final class DaoMutationEvent {
             String aaChange) throws DaoException {
         Connection con = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             return getCosmicMutationFrequency(entrez, aaChange, con);
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeConnection(con);
+            JdbcUtil.closeConnection(DaoMutationEvent.class, con);
         }
     }
     
@@ -844,7 +857,7 @@ public final class DaoMutationEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT MUTATION_EVENT_ID, cosmic_mutation.COSMIC_MUTATION_ID,"
                     + " `ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, `COUNT`"
                     + " FROM cosmic_mutation, mutation_event_cosmic_mapping"
@@ -868,7 +881,7 @@ public final class DaoMutationEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoMutationEvent.class, con, pstmt, rs);
         }
     }
 }

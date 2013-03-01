@@ -220,7 +220,7 @@ public class GeneticAlterationUtil {
             }
 
             ret[i] = new HashMap<String,String>();
-            List<ProteinArrayData> pads = daoPAD.getProteinArrayData(arrayId, targetCaseList);
+            List<ProteinArrayData> pads = daoPAD.getProteinArrayData(cancerStudyId, arrayId, targetCaseList);
             for (ProteinArrayData pad : pads) {
                 ret[i].put(pad.getCaseId(), Double.toString(pad.getAbundance()));
             }

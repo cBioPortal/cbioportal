@@ -64,17 +64,6 @@ public class ImportClinicalData {
     /**
      * Constructor.
      *
-     * @param clinicalDataFile File
-     * @param pMonitor         ProgressMonitor
-     */
-    public ImportClinicalData(File clinicalDataFile, ProgressMonitor pMonitor) {
-        this.pMonitor = pMonitor;
-        this.clinicalDataFile = clinicalDataFile;
-    }
-
-    /**
-     * Constructor.
-     *
      * @param cancerStudy   Cancer Study
      * @param clinicalDataFile File
      * @param pMonitor         ProgressMonitor
@@ -123,17 +112,15 @@ public class ImportClinicalData {
                     Double dfsMonths = getDouble(parts, dfsMonthCol);
                     String dfsStatus = getString(parts, dfsStatusCol);
                     Double ageAtDiagnosis = getDouble(parts, ageCol);
-                    daoClinical.addCase(caseId, osMonths, osStatus, dfsMonths, dfsStatus,
+                    daoClinical.addCase(cancerStudy.getInternalId(), caseId, osMonths, osStatus, dfsMonths, dfsStatus,
                             ageAtDiagnosis);
                     
-                    if (cancerStudy != null) {
-                        for (int i : freeFormInludeColumns) {
-                            String name = freeFormHeaders.get(i);
-                            String value = parts[i].trim();
-                            if (!value.isEmpty() && !"NA".equals(value)) {
-                                daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
-                                            caseId, name, value);
-                            }
+                    for (int i : freeFormInludeColumns) {
+                        String name = freeFormHeaders.get(i);
+                        String value = parts[i].trim();
+                        if (!value.isEmpty() && !"NA".equals(value)) {
+                            daoClinicalFreeForm.addDatum(cancerStudy.getInternalId(),
+                                        caseId, name, value);
                         }
                     }
                 }

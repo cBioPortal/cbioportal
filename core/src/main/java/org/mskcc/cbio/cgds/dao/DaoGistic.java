@@ -70,7 +70,7 @@ public class DaoGistic {
         ValidateGistic.validateBean(gistic);
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
             // insert into SQL gistic table
             pstmt = con.prepareStatement
 				("INSERT INTO gistic (`CANCER_STUDY_ID`," +
@@ -98,12 +98,12 @@ public class DaoGistic {
                 int autoId = rs.getInt(1);
                 gistic.setInternalId(autoId);
             }
-            addGisticGenes(gistic);
+            addGisticGenes(gistic, con);
 
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -113,13 +113,11 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    public static void addGisticGenes(Gistic gistic) throws SQLException, DaoException {
+    private static void addGisticGenes(Gistic gistic, Connection con) throws SQLException, DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
         PreparedStatement pstmt = null;
-        Connection con = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
             if (!genes.isEmpty()) {
                 for (CanonicalGene g : genes) {
 
@@ -163,11 +161,10 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static Gistic extractGistic(ResultSet rs) throws DaoException {
+    private static Gistic extractGistic(Connection con, ResultSet rs) throws DaoException {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
-        Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet _rs = null;
         Gistic gistic;
@@ -177,7 +174,6 @@ public class DaoGistic {
 
             int id = rs.getInt("GISTIC_ROI_ID");
 
-            con = JdbcUtil.getDbConnection();
             pstmt = con.prepareStatement("SELECT * FROM gistic_to_gene WHERE GISTIC_ROI_ID = ?");
             pstmt.setInt(1, id);
 
@@ -185,11 +181,7 @@ public class DaoGistic {
 
             while ( _rs.next() ) {
                 long entrez = _rs.getLong("ENTREZ_GENE_ID");
-
                 CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(entrez);
-                // this may turn out to be a problem.
-                // We may want to modify DaoOptimized.guessGene to ensure that it returns a single gene
-                assert(gene != null);
                 genes.add(gene);
             }
 
@@ -206,7 +198,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, _rs);
+            JdbcUtil.closeAll(pstmt, _rs);
         }
 
         return gistic;
@@ -227,7 +219,7 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
             pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CHROMOSOME = ? " +
                     "AND WIDE_PEAK_START = ? " +
                     "AND WIDE_PEAK_END = ?");
@@ -240,7 +232,7 @@ public class DaoGistic {
             ArrayList<Gistic> list = new ArrayList<Gistic>();
             
             while( rs.next() ) {
-                Gistic gistic = extractGistic(rs);
+                Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
@@ -248,7 +240,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -264,7 +256,7 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
             pstmt = con.prepareStatement("SELECT * FROM gistic WHERE CANCER_STUDY_ID = ? ");
             pstmt.setInt(1, cancerStudyId);
 
@@ -272,7 +264,7 @@ public class DaoGistic {
             ArrayList<Gistic> list = new ArrayList<Gistic>();
 
             while( rs.next() ) {
-                Gistic gistic = extractGistic(rs);
+                Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
@@ -280,7 +272,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -296,7 +288,7 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
             pstmt = con.prepareStatement
                     ("SELECT count(*) FROM gistic WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudy);
@@ -311,7 +303,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -326,7 +318,7 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
 
             pstmt = con.prepareStatement("TRUNCATE TABLE gistic_to_gene");
             pstmt.executeUpdate();
@@ -338,7 +330,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -354,7 +346,7 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
 
             pstmt = con.prepareStatement("DELETE from gistic_to_gene WHERE GISTIC_ROI_ID=?");
             pstmt.setInt(1, gisticInternalId);
@@ -367,7 +359,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 
@@ -392,14 +384,14 @@ public class DaoGistic {
         ResultSet rs = null;
 
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoGistic.class);
             pstmt = con.prepareStatement("SELECT * FROM gistic");
 
             rs = pstmt.executeQuery();
             ArrayList<Gistic> list = new ArrayList<Gistic>();
 
             while( rs.next() ) {
-                Gistic gistic = extractGistic(rs);
+                Gistic gistic = extractGistic(con, rs);
                 list.add(gistic);
             }
             return list;
@@ -407,7 +399,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoGistic.class, con, pstmt, rs);
         }
     }
 }

@@ -132,7 +132,7 @@ public class DataSetsUtil {
 			int tumorMIRNA = getCount(cancerStudy, "_microrna");
 			int methylationHM27 = getCount(cancerStudy, "_methylation_hm27");
 			int rppa = getCount(cancerStudy, "_rppa");
-			int complete = getCount(cancerStudy, "_complete");
+			int complete = getCount(cancerStudy, "_3way_complete");
 			int all = getCount(cancerStudy, "_all");
 			totalNumberOfSamples += all;
 			// add to return list

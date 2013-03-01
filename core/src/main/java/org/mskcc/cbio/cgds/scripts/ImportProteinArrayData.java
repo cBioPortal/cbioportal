@@ -74,7 +74,6 @@ public class ImportProteinArrayData {
         MySQLbulkLoader.bulkLoadOff();
         // import array data
         DaoProteinArrayData daoPAD = DaoProteinArrayData.getInstance();
-        DaoProteinArrayInfo daoPAI = DaoProteinArrayInfo.getInstance();
         
         FileReader reader = new FileReader(arrayData);
         BufferedReader buf = new BufferedReader(reader);
@@ -102,7 +101,7 @@ public class ImportProteinArrayData {
             
             double[] zscores = convertToZscores(strs);
             for (int i=0; i<zscores.length; i++) {
-                ProteinArrayData pad = new ProteinArrayData(arrayId, cases.get(i), zscores[i]);
+                ProteinArrayData pad = new ProteinArrayData(cancerStudyId, arrayId, cases.get(i), zscores[i]);
                 daoPAD.addProteinArrayData(pad);
             }
             
@@ -314,9 +313,9 @@ public class ImportProteinArrayData {
                         daoPAI.addProteinArrayCancerStudy(id, Collections.singleton(studyId));
                         
                         ArrayList<ProteinArrayData> phosphoData = daoPAD.getProteinArrayData(
-                                Collections.singleton(phosphoArray.getId()), cases);
+                                studyId, Collections.singleton(phosphoArray.getId()), cases);
                         ArrayList<ProteinArrayData> proteinData = daoPAD.getProteinArrayData(
-                                Collections.singleton(proteinArray.getId()), cases);
+                                studyId, Collections.singleton(proteinArray.getId()), cases);
                         HashMap<String,ProteinArrayData> mapProteinData = new HashMap<String,ProteinArrayData>();
                         for (ProteinArrayData pad : proteinData) {
                             mapProteinData.put(pad.getCaseId(), pad);
@@ -330,7 +329,7 @@ public class ImportProteinArrayData {
                                 continue;
                             }
                             double abud = pad.getAbundance() - proteinPAD.getAbundance(); // minus
-                            ProteinArrayData norm = new ProteinArrayData(id, caseid, abud);
+                            ProteinArrayData norm = new ProteinArrayData(studyId, id, caseid, abud);
                             daoPAD.addProteinArrayData(norm);
                         }
                         

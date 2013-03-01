@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
@@ -56,14 +57,15 @@ public class TestGetClinicalData extends TestCase {
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/clinical_test.txt");
-        ImportClinicalData importClinicalData = new ImportClinicalData(file, pMonitor);
+        CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
 		importClinicalData.importData();
 		
         HashSet<String> caseSet = new HashSet<String>();
         caseSet.add("TCGA-04-1331");
         caseSet.add("TCGA-24-2030");
         caseSet.add("TCGA-24-2261");
-        String clinicalDataOut = GetClinicalData.getClinicalData(caseSet, false);
+        String clinicalDataOut = GetClinicalData.getClinicalData(1,caseSet, false);
 //        String lines[] = clinicalDataOut.split("\n");
 //
 //        assertTrue(lines[2].startsWith("TCGA-24-2030\tNA\tNA\t21.18\tRecurred/Progressed\tNA"));

@@ -86,7 +86,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO protein_array_info (`PROTEIN_ARRAY_ID`,`TYPE`,`GENE_SYMBOL`,`TARGET_RESIDUE`) "
                             + "VALUES (?,?,?,?)");
@@ -99,7 +99,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
     
@@ -108,7 +108,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                     ("DELETE FROM protein_array_info WHERE `PROTEIN_ARRAY_ID`=? ");
             pstmt.setString(1, arrayId);
@@ -117,7 +117,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
     
@@ -126,7 +126,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             int rows = 0;
             for (int cancerStudyId : cancerStudyIds) {
                 if (proteinArrayCancerStudyAdded(arrayId, cancerStudyId)) {
@@ -146,7 +146,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
     
@@ -155,7 +155,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM protein_array_cancer_study WHERE PROTEIN_ARRAY_ID=? AND CANCER_STUDY_ID=?");
             pstmt.setString(1, arrayId);
@@ -166,7 +166,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
 
@@ -193,7 +193,7 @@ public class DaoProteinArrayInfo {
         ResultSet rs = null;
         ArrayList<ProteinArrayInfo> pais = new ArrayList<ProteinArrayInfo>();
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             if (types==null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_info WHERE PROTEIN_ARRAY_ID in ('"
@@ -218,7 +218,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
         
         return pais;
@@ -244,7 +244,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             if (types==null) {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM protein_array_info WHERE PROTEIN_ARRAY_ID in ('"
@@ -269,7 +269,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
 
@@ -286,7 +286,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM protein_array_info");
             rs = pstmt.executeQuery();
@@ -303,7 +303,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
     
@@ -323,7 +323,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                         ("SELECT DISTINCT TYPE FROM protein_array_info");
             rs = pstmt.executeQuery();
@@ -334,7 +334,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
         
     }
@@ -366,7 +366,7 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement
                     ("SELECT PROTEIN_ARRAY_ID FROM protein_array_cancer_study WHERE CANCER_STUDY_ID=?");
             pstmt.setInt(1, cancerTypeId);
@@ -381,7 +381,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }    
 
@@ -395,13 +395,13 @@ public class DaoProteinArrayInfo {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoProteinArrayInfo.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE protein_array_info");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoProteinArrayInfo.class, con, pstmt, rs);
         }
     }
 }

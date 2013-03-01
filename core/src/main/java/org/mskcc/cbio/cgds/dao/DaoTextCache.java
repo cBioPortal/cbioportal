@@ -65,7 +65,7 @@ public class DaoTextCache
         
         try
         {
-			con = JdbcUtil.getDbConnection();
+			con = JdbcUtil.getDbConnection(DaoTextCache.class);
 			pstmt = con.prepareStatement(
 					"INSERT INTO text_cache (`HASH_KEY`, `TEXT`, `DATE_TIME_STAMP`) "
 			        		+ "VALUES (?,?,NOW())");
@@ -87,7 +87,7 @@ public class DaoTextCache
         }
         finally
         {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
         }
 	}
 	
@@ -106,7 +106,7 @@ public class DaoTextCache
         
         try
         {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoTextCache.class);
             pstmt = con.prepareStatement("SELECT * FROM text_cache " +
                     "WHERE HASH_KEY=?");
             pstmt.setString(1, key);
@@ -125,7 +125,7 @@ public class DaoTextCache
         }
         finally
         {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
         }
     }
     
@@ -142,7 +142,7 @@ public class DaoTextCache
         
         try
         {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoTextCache.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE text_cache");
             pstmt.executeUpdate();
         }
@@ -152,7 +152,7 @@ public class DaoTextCache
         } 
         finally
         {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
         }
     }
     
@@ -170,7 +170,7 @@ public class DaoTextCache
         
         try
         {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoTextCache.class);
             pstmt = con.prepareStatement("DELETE FROM text_cache " +
             		"WHERE `DATE_TIME_STAMP` <= ?");
             
@@ -187,7 +187,7 @@ public class DaoTextCache
         } 
         finally
         {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoTextCache.class, con, pstmt, rs);
         }
     }
 }

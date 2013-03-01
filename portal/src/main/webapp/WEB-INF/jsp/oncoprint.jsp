@@ -11,7 +11,7 @@
             <input type="hidden" name="xml">
             <input type="hidden" name="longest_label_length">
             <input type="hidden" name="format" value="svg">
-            <p>Get OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
+            <p>Download OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
         </form>
 
         <div id="oncoprint_controls">
@@ -40,7 +40,7 @@
             </table>
         </div>
         <div id="oncoprint_body">
-            <script type="text/javascript" src="js/oncoprint.js"></script>
+            <script type="text/javascript" src="js/oncoprint.js?b38533a455c5"></script>
             <script type="text/javascript" src="js/d3.v2.min.js"></script>
             <%--todo: we may want to import d3 globally but for now, it's just here--%>
 
@@ -70,65 +70,15 @@
                     oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
                     oncoprint.draw();
+                    var geneDataManager = DataManagerFactory.getGeneDataManager();
+                    geneDataManager.fire(data);
 
                     $('#oncoprint #loader_img').hide();
                     $('#oncoprint #everything').show();
-                    var geneDataManager = DataManagerFactory.getGeneDataManager();
-                    geneDataManager.fire(data);
                 });
             </script>
         </div>
 
-        <div id="oncoprint_key">
-            <svg id="cna" style="display:none;width:280px;" height=40>
-                <g transform="translate(0,10)">
-                    <rect fill="#FF0000" width="5.5" height="23"></rect>
-                    <text x=10 y=16>Amplification</text>
-                </g>
-                <g transform="translate(100,10)">
-                    <rect fill="#0000FF" width="5.5" height="23"></rect>
-                    <text x=10 y=16>Homozygous deletion</text>
-                </g>
-            </svg>
-
-            <svg id="mrna" style="display:none;width:330px;" height=40>
-                <g transform="translate(0,10)">
-                    <rect class="cna" fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <rect fill="none" stroke-width="1" stroke-opacity="1" width="5.5" height="23" stroke="#FF9999"></rect>
-                    <text x=10 y=16>MRNA Upregulated</text>
-                </g>
-                <g transform="translate(140,10)">
-                    <rect class="cna" fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <rect class="mrna" fill="none" stroke-width="1" stroke-opacity="1" width="5.5" height="23" stroke="#6699CC"></rect>
-                    <text x=10 y=16>MRNA Downregulated</text>
-                </g>
-            </svg>
-
-            <svg id="rppa" style="display:none;width:330px;" height=40>
-                    <rect fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <path fill="#000000" d="M 0 7.666666666666667 l 2.75 -7.666666666666667 l 2.75 7.666666666666667 l 0 0"></path>
-                </g>
-
-                <g transform="translate(0,10)">
-                    <rect class="cna" fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <rect class="mrna" fill="none" stroke-width="1" stroke-opacity="1" width="5.5" height="23" stroke="#FF9999"></rect>
-                    <text x=10 y=16>RPPA Upregulated</text>
-                </g>
-
-                <g transform="translate(135,10)">
-                    <rect fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <path fill="#000000" d="M 0 15 l 2.75 7.666666666666667 l 2.75 -7.666666666666667 l 0 0"></path>
-                    <text x=10 y=16>RPPA Downregulated</text>
-                </g>
-            </svg>
-
-            <svg id="mutation" style="display:none;" width=150 height=40>
-                <g transform="translate(0,10)">
-                    <rect fill="#D3D3D3" width="5.5" height="23"></rect>
-                    <rect fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
-                    <text x=10 y=16>Mutation</text>
-                </g>
-            </svg>
-        </div>
+        <div id="oncoprint_legend"></div>
     </div>
 </div>

@@ -31,7 +31,8 @@ var MemoSort = function(geneAlterations, samples_list, gene_list) {
         sample1 = sample1[sort_by];
         sample2 = sample2[sort_by];
 
-        var cna_order = {AMPLIFIED:5, GAINED:4, DIPLOID:3, HOMODELETED:2, HEMIZYGOUSLYDELETED:1, null:0},
+        // diploid === null?
+        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0},
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
 
         // diffs

@@ -69,7 +69,7 @@ GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
 # column constants on google spreadsheet
 FULLNAME_KEY = "fullname"
 INST_EMAIL_KEY = "institutionalemailaddress"
-OPENID_EMAIL_KEY = "gmailaddressorotheropenidaddresssuchasyahooemailaddress"
+OPENID_EMAIL_KEY = "googleoropenidaddress"
 STATUS_KEY = "statusapprovedorblank"
 AUTHORITIES_KEY = "authoritiesalloralltcgaandorsemicolondelimitedcancerstudylist"
 
@@ -244,6 +244,26 @@ def get_current_user_map(cursor):
     return to_return
 
 # ------------------------------------------------------------------------------
+# get current user authorities
+
+def get_user_authorities(cursor, openid_email):
+
+        # list of authorities (cancer studies) we are returning -- as a set
+        to_return = []
+
+        # recall each tuple in authorities table is ['EMAIL', 'AUTHORITY']
+        # no tuple can contain nulls
+        try:
+                cursor.execute('select * from authorities where email = (%s)', openid_email)
+                for row in cursor.fetchall():
+                        to_return.append(row[1])
+        except MySQLdb.Error, msg:
+                print >> ERROR_FILE, msg
+                return None
+
+        return to_return
+
+# ------------------------------------------------------------------------------
 # get current users
 
 def get_new_user_map(worksheet_feed, current_user_map):
@@ -369,6 +389,29 @@ def manage_users(cursor, worksheet_feed):
         return None
 
 # ------------------------------------------------------------------------------
+# updates user study access
+def update_user_authorities(cursor, worksheet_feed):
+
+        # get map of current portal users
+        print >> OUTPUT_FILE, 'Getting list of current portal users'
+        current_user_map = get_new_user_map(worksheet_feed, {})
+        if current_user_map is None:
+                return None;
+        print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
+        for user in current_user_map.values():
+                if user.authorities[-1:] == ';':
+                        user.authorities = user.authorities[:-1]
+                worksheet_authorities = set(user.authorities.split(';'))
+                db_authorities = set(get_user_authorities(cursor, user.openid_email))
+                try:
+                        cursor.executemany("insert into authorities values(%s, %s)",
+                                           [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
+                        cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
+                                           [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
+                except MySQLdb.Error, msg:
+                        print >> ERROR_FILE, msg
+
+# ------------------------------------------------------------------------------
 # displays program usage (invalid args)
 
 def usage():
@@ -429,6 +472,9 @@ def main():
 
     # the 'guts' of the script
     new_user_map = manage_users(cursor, worksheet_feed)
+
+    # update user authorities
+    update_user_authorities(cursor, worksheet_feed)
 
     # clean up
     cursor.close()

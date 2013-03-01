@@ -21,7 +21,7 @@ public final class DaoCopyNumberSegment {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement
                     ("INSERT INTO copy_number_seg (`CASE_ID`, `CHR`,"
                         + " `START`, `END`, `NUM_PROBES`, `SEGMENT_MEAN`, `CANCER_STUDY_ID`)"
@@ -37,7 +37,7 @@ public final class DaoCopyNumberSegment {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
     
@@ -59,7 +59,7 @@ public final class DaoCopyNumberSegment {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM copy_number_seg"
                     + " WHERE `CASE_ID` IN "+ concatCaseIds
@@ -81,7 +81,7 @@ public final class DaoCopyNumberSegment {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
     
@@ -119,7 +119,7 @@ public final class DaoCopyNumberSegment {
         ResultSet rs = null;
         String sql = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             if (cutoff>0) {
                 sql = "SELECT  `CASE_ID`, SUM(`END`-`START`)"
                     + " FROM `copy_number_seg`"
@@ -145,7 +145,7 @@ public final class DaoCopyNumberSegment {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
     
@@ -161,7 +161,7 @@ public final class DaoCopyNumberSegment {
         ResultSet rs = null;
         String sql = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             sql = "SELECT  1"
                 + " FROM `copy_number_seg`"
                 + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
@@ -173,7 +173,7 @@ public final class DaoCopyNumberSegment {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
     
@@ -190,7 +190,7 @@ public final class DaoCopyNumberSegment {
         ResultSet rs = null;
         String sql = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             sql = "SELECT  1"
                 + " FROM `copy_number_seg`"
                 + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
@@ -203,7 +203,7 @@ public final class DaoCopyNumberSegment {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCopyNumberSegment.class, con, pstmt, rs);
         }
     }
 }

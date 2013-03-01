@@ -41,6 +41,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
 import org.mskcc.cbio.portal.remote.GetProteinArrayData;
@@ -203,7 +204,11 @@ public class ScatterPlotServlet extends HttpServlet {
     
     public String getRPPAData(String[] arrayIds, HttpServletRequest request) throws Exception {
         ArrayList<String> cases = WebserviceParserUtils.getCaseList(request);
-        Map<String,Map<String,Double>> map = GetProteinArrayData.getProteinArrayData(Arrays.asList(arrayIds), cases);
+        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(
+                WebserviceParserUtils.getCancerStudyIDs(request).iterator().next())
+                .getInternalId();
+        Map<String,Map<String,Double>> map = GetProteinArrayData.getProteinArrayData(
+                cancerStudyId, Arrays.asList(arrayIds), cases);
         HashSet<String> overlapCases = new HashSet<String>(cases);
         for (Map<String,Double> vcases : map.values()) {
             overlapCases.retainAll(vcases.keySet());

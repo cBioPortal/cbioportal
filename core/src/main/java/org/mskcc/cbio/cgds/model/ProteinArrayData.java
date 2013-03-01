@@ -34,13 +34,23 @@ package org.mskcc.cbio.cgds.model;
  */
 public class ProteinArrayData {
     private String arrayId;
+    private int cancerStudyId;
     private String caseId;
     private double abundance;
 
-    public ProteinArrayData(String arrayId, String caseId, double abundance) {
+    public ProteinArrayData(int cancerStudyId, String arrayId, String caseId, double abundance) {
+        this.cancerStudyId = cancerStudyId;
         this.arrayId = arrayId;
         this.caseId = caseId;
         this.abundance = abundance;
+    }
+
+    public int getCancerStudyId() {
+        return cancerStudyId;
+    }
+
+    public void setCancerStudyId(int cancerStudyId) {
+        this.cancerStudyId = cancerStudyId;
     }
 
     public double getAbundance() {

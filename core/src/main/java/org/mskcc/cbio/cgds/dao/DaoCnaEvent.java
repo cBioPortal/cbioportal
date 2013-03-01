@@ -22,7 +22,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             long eventId = addCnaEvent(cnaEvent, con);
             
             if (eventExists(eventId, cnaEvent.getCaseId(), cnaEvent.getCnaProfileId(), con)) {
@@ -41,7 +41,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -116,7 +116,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             String sql = "SELECT * FROM case_cna_event"
                     + " WHERE `CNA_EVENT_ID` IN ("
                     + concatEventIds + ")";
@@ -141,7 +141,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -150,7 +150,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
 		("SELECT case_cna_event.CNA_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
                     + " ENTREZ_GENE_ID, ALTERATION FROM case_cna_event, cna_event"
@@ -171,7 +171,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -189,7 +189,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             String sql = "SELECT `ENTREZ_GENE_ID`, `ALTERATION`, count(*)"
                     + " FROM case_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
@@ -216,7 +216,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -234,7 +234,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             String sql = "SELECT `CNA_EVENT_ID`, count(*) FROM case_cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                     + " and `CNA_EVENT_ID` IN ("
@@ -251,7 +251,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -264,7 +264,7 @@ public final class DaoCnaEvent {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection();
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             String sql = "SELECT DISTINCT ENTREZ_GENE_ID FROM cna_event "
                     + "WHERE CNA_EVENT_ID in ("
                     +       concatEventIds
@@ -280,7 +280,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
 }

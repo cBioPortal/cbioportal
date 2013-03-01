@@ -49,6 +49,7 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.Set;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -135,6 +136,14 @@ class ConverterImpl implements Converter {
 
 		// iterate over all cancer studies
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
+
+			// short circuit if this is a published study
+			if (cancerStudyMetadata.toString().endsWith(CancerStudyMetadata.PUBLISHED_TCGA_STUDY_SUFFIX)) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("convertData(), skipping conversion of published study: " + cancerStudyMetadata);
+				}
+				continue;
+			}
 
 			// iterate over all datatypes
 			boolean createCancerStudyMetadataFile = false;
@@ -291,12 +300,14 @@ class ConverterImpl implements Converter {
 
     /**
 	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
 	 *
 	 * @param portal String
+	 * @param excludeDatatypes Set<String>
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(String portal) throws Exception {
+	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("applyOverrides(), portal: " + portal);
@@ -320,6 +331,7 @@ class ConverterImpl implements Converter {
 		for (CancerStudyMetadata cancerStudyMetadata : config.getCancerStudyMetadata(portalMetadata.getName())) {
 			// iterate over all datatypes
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
+				if (excludeDatatypes.contains(datatypeMetadata.getDatatype())) continue;
 				// apply staging override
 				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);

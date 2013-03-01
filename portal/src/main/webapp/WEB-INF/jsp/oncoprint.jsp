@@ -11,7 +11,7 @@
             <input type="hidden" name="xml">
             <input type="hidden" name="longest_label_length">
             <input type="hidden" name="format" value="svg">
-            <p>Get OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
+            <p>Download OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
         </form>
 
         <div id="oncoprint_controls">

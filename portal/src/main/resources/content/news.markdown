@@ -1,10 +1,9 @@
-# February 11, 2013
+# February 16, 2013
 
-* All data updated to the __October Firehose run__ (October 24, 2012), plus we now include mutation data for all tumor types.
+* The cBio Portal now contains mutation data from all provisional TCGA projects. Please adhere to [the TCGA publication guidelines](http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines) when using these and any TCGA data in your publications.
+* All data updated to the October Firehose run (October 24, 2012).
 * __Sequencing read counts and frequencies__ are now shown in the Mutation Details table when available.
-* __Support for gene fusions__ in lung adenocarcinoma (RET/ROS1/ALK fusions are shown as mutations, other tumor types coming soon).
-* Improved visualization of drugs and clinical trials for individual patients
-* Improved OncoPrints, resulting in performance improvements
+* Improved OncoPrints, resulting in performance improvements.
 
 # November 21, 2012
 

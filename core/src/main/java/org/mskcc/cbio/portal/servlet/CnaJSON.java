@@ -93,7 +93,12 @@ public class CnaJSON extends HttpServlet {
         
         Map<String,List> data = initMap();
         for (CnaEvent cnaEvent : cnaEvents) {
-            Set<String> drug = drugs.get(cnaEvent.getGeneSymbol());
+            Set<String> drug = Collections.emptySet();
+            try {
+                drug = drugs.get(cnaEvent.getGeneSymbol());
+            } catch (Exception e) {
+                logger.error(e.getMessage());
+            }
             exportCnaEvent(data, cnaEvent, cancerStudy, drug, contextMap.get(cnaEvent.getEventId()));
         }
 
@@ -253,14 +258,17 @@ public class CnaJSON extends HttpServlet {
     private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
             CancerStudy cancerStudy, Set<String> drugs, Integer context) 
             throws ServletException {
-        data.get("id").add(cnaEvent.getEventId());
         String symbol = null;
         try {
             symbol = DaoGeneOptimized.getInstance().getGene(cnaEvent.getEntrezGeneId())
                     .getHugoGeneSymbolAllCaps();
         } catch (DaoException ex) {
             throw new ServletException(ex);
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+            return;
         }
+        data.get("id").add(cnaEvent.getEventId());
         data.get("gene").add(symbol);
         data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());

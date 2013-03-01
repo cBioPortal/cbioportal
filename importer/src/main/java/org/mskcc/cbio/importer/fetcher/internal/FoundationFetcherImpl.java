@@ -135,8 +135,8 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		// TODO temporary test to bypass foundation service
-		if (this.testXMLParsers())
-			return;
+//		if (this.testXMLParsers())
+//			return;
 
 		CaseInfoService caseInfoService = new CaseInfoService();
 		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
@@ -263,7 +263,8 @@ class FoundationFetcherImpl implements Fetcher {
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
 		String header = "hugo_symbol\tchromosome\tstart_position\tend_position\t" +
-		                "strand\tvariant_classification\tmutation_status?\tamino_acid_change\t" +
+		                "strand\tvariant_classification\ttumor_sample_barcode\t" +
+		                "validation_status\tmutation_status\tamino_acid_change\t" +
 		                "transcript\tt_ref_count\tt_alt_count\n";
 
 		File mafFile = fileUtils.createFileWithContents(
@@ -489,7 +490,6 @@ class FoundationFetcherImpl implements Fetcher {
 			return; // no case to process
 		}
 
-		// TODO sample barcode?
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
 		String caseID = caseNode.getAttribute("case");
 
@@ -566,8 +566,10 @@ class FoundationFetcherImpl implements Fetcher {
 					content.append("\t");
 					content.append(functionalEffect); // variant_classification
 					content.append("\t");
-					content.append(status); // TODO mutation status or validation status or smt else?
+					content.append(caseID); // tumor_sample_barcode
 					content.append("\t");
+					content.append("Unknown\t"); // validation_status
+					content.append("Unknown\t"); // mutation_status
 					content.append(proteinEffect); // amino_acid_change
 					content.append("\t");
 					content.append(transcript);
@@ -652,8 +654,8 @@ class FoundationFetcherImpl implements Fetcher {
 			return null; // no case to process
 		}
 
-		// TODO process all cases instead of only the first one?
-
+		// process only the first case
+		// (assuming each document has only one distinct case)
 		Node caseNode = cases.item(0);
 
 		if (caseNode.getNodeType() != Node.ELEMENT_NODE)

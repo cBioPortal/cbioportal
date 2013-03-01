@@ -93,13 +93,6 @@
 	  <version>2.2</version>
 	</dependency>
 
-	<!-- easy cache -->
-	<dependency>
-	  <groupId>net.sf.ehcache</groupId>
-	  <artifactId>ehcache-core</artifactId>
-	  <version>2.3.0</version>
-	</dependency>
-
 	<!-- guava -->
 	<dependency>
 	  <groupId>com.google.guava</groupId>

@@ -29,6 +29,7 @@ package org.mskcc.cbio.cgds.dao;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.Clinical;
 
 import java.sql.*;
@@ -150,6 +151,33 @@ public final class DaoClinical {
 
             return rs;
 
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+
+    /**
+     * Query by cancer_study_id
+     *
+     * Looks up the corresponding <code>CancerStudy</code> object to get the database id
+     *
+     * @param cancerStudyId     String
+     * @return
+     * @throws DaoException
+     */
+    public static ResultSet getByCancerStudyId(String cancerStudyId) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
+            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1, cancerStudy.getInternalId());
+
+            return pstmt.executeQuery();
         } catch (SQLException e) {
             throw new DaoException(e);
         }

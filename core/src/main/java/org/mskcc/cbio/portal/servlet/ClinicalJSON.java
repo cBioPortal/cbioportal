@@ -28,6 +28,8 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Clinical;
@@ -40,15 +42,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 public class ClinicalJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
 
     // our logger
     private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
+
+    public static final String SAMPLES_DELIMITER = " ";
 
     /**
      * Initializes the servlet.
@@ -70,8 +74,8 @@ public class ClinicalJSON extends HttpServlet {
      * @param clinical
      * @return
      */
-    public Map<String, String> reflectToMap(Clinical clinical) {
-        Map<String, String> map = new HashMap<String, String>();
+    public JSONObject reflectToMap(Clinical clinical) {
+        JSONObject map = new JSONObject();
 
         map.put("attr_id", clinical.getAttrId());
         map.put("attr_val", clinical.getAttrVal());
@@ -82,12 +86,54 @@ public class ClinicalJSON extends HttpServlet {
     }
 
     public Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
-        Map<String, String> map = new HashMap<String, String>();
+        JSONObject map = new JSONObject();
 
         map.put("attr_id", clinicalAttribute.getAttrId());
         map.put("datatype", clinicalAttribute.getDatatype());
         map.put("description", clinicalAttribute.getDescription());
         map.put("display_name", clinicalAttribute.getDisplayName());
+
+        return map;
+    }
+
+    /**
+     * Takes a list of sample ids and returns a list of maps,
+     * does a database query in between.
+     *
+     * @param sampleIds
+     * @return
+     */
+    public JSONArray getMaps(Collection<String> sampleIds) throws DaoException, SQLException {
+        JSONArray clinicalMaps = new JSONArray();
+        for (String s : sampleIds) {
+            ResultSet rs = DaoClinical.getBySampleId(s.trim());
+
+            Clinical clinical = DaoClinical.extract(rs);
+
+            Map<String, String> map = reflectToMap(clinical);
+            map.remove("cancer_study_id");
+
+            clinicalMaps.add(map);
+        }
+        return clinicalMaps;
+    }
+
+    /**
+     * Iterates over a result set, converting each result into a map of clinical data
+     *
+     * @param cancer_study_id String
+     * @return
+     */
+    public JSONArray getMaps(String cancer_study_id) throws DaoException, SQLException {
+        JSONArray map = new JSONArray();
+
+        ResultSet rs;
+        rs = DaoClinical.getByCancerStudyId(cancer_study_id);
+
+        while (rs.next()) {
+            Clinical clinical = DaoClinical.extract(rs);
+            map.add(reflectToMap(clinical));
+        }
 
         return map;
     }
@@ -103,45 +149,27 @@ public class ClinicalJSON extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
-
-        String clinical_attributes = request.getParameter("clinical_attributes");
-        // list of clinical attributes separated by a space
-
         String samples = request.getParameter("samples");
         // list of samples separated by a space
 
         String cancer_study_id = request.getParameter("cancer_study_id");
         // stable id
 
-        if (cancer_study_id != null) {
-            // get by clinical id
-            if (clinical_attributes == null) {
-                // get all clinical attributes
+        JSONArray maps;
+        try {
+            if (samples != null) {
+                maps = getMaps(Arrays.asList(samples.split(SAMPLES_DELIMITER)));
             }
             else {
-                // get by clinical attributes
+                maps = getMaps(cancer_study_id);
             }
+        } catch (Exception e) {
+            throw new ServletException(e);
         }
-        else {
-            if (samples == null) {
-                throw new ServletException("no samples requested");
-            }
-            String[] samplesList = samples.split(" ");
 
-            try {
-                DaoClinical.getBySampleId("");
-            } catch (DaoException e) {
-                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-            }
-
-//        } catch (SQLException e) {
-//            log.info("failed to extract result set into clinical: " + rs);
-//            return null;
-//        }
-        }
+        response.setContentType("application/json");
+        PrintWriter out = response.getWriter();
+        JSONArray.writeJSONString(maps, out);
     }
 
     /**

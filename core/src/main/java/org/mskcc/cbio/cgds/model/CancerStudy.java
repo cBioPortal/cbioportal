@@ -239,7 +239,7 @@ public class CancerStudy {
      *
      * @return cn profile if there is mutation data; otherwise, null. If 
      *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
-     * @param geneticProfiles genetic profiles to search mutations on
+     * @param geneticProfiles genetic profiles to search cna on
      */
     public GeneticProfile getCopyNumberAlterationProfile(boolean showInAnalysisOnly)
             throws DaoException {
@@ -254,9 +254,9 @@ public class CancerStudy {
     /**
      * Get copy number alteration profile if any; otherwise, return null.
      *
-     * @return cn profile if there is mutation data; otherwise, null. If 
+     * @return cn profile if there is cna data; otherwise, null. If 
      *         showInAnalysisOnly is true, return cn profile shown in analysis tab only.
-     * @param geneticProfiles genetic profiles to search mutations on
+     * @param geneticProfiles genetic profiles to search cna on
      */
     public GeneticProfile getCopyNumberAlterationProfile(String caseId, boolean showInAnalysisOnly)
             throws DaoException {
@@ -270,6 +270,49 @@ public class CancerStudy {
         }
 
         return null;
+    }
+    
+    /**
+     * Get mRNA profile.. try to get a RNA-seq first then microarray.
+     *
+     * @return cn profile if there is mrna data; otherwise, null. 
+     * @param geneticProfiles genetic profiles to search mutations on
+     */
+    public GeneticProfile getMRnaProfile()
+            throws DaoException {
+        return getMRnaProfile(null);
+    }
+
+    public boolean hasMRnaData() throws DaoException {
+        GeneticProfile mrnaProfile = getMRnaProfile();
+        return mrnaProfile != null;
+    }
+
+    /**
+     * Get mRNA profile. try to get a RNA-seq first then microarray.
+     *
+     * @return mrna profile if there is mrna data; otherwise, null.
+     * @param geneticProfiles genetic profiles to search mrna on
+     */
+    public GeneticProfile getMRnaProfile(String caseId)
+            throws DaoException {
+        GeneticProfile ret = null;
+        for(GeneticProfile geneticProfile: getGeneticProfiles()) {
+            if(geneticProfile.getGeneticAlterationType()
+                    .equals(GeneticAlterationType.MRNA_EXPRESSION)
+                    && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
+                String stableId = geneticProfile.getStableId();
+                if (stableId.contains("rna_seq")) {
+                    return geneticProfile;
+                } else if (stableId.endsWith("mrna")) {
+                    ret = geneticProfile;
+                } else if (ret==null) {
+                    ret = geneticProfile;
+                }
+            }
+        }
+
+        return ret;
     }
 
     /**

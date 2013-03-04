@@ -50,7 +50,7 @@ import javax.xml.parsers.SAXParserFactory;
 public class AnnotateNciClinicalAttributes implements Importer {
 
     // our logger
-    private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
+    private static final Log LOG = LogFactory.getLog(AnnotateNciClinicalAttributes.class);
 
     // ref to configuration
     private Config config;

@@ -71,7 +71,7 @@ public class MutationsJSON extends HttpServlet {
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
         Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
-        Map<String, Set<String>> drugs = Collections.emptyMap();
+        Map<Long, Set<String>> drugs = Collections.emptyMap();
         Map<String, Integer> geneContextMap = Collections.emptyMap();
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
         
@@ -96,7 +96,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String,List> data = initMap();
         for (ExtendedMutation mutation : mutations) {
             exportMutation(data, mutation, cancerStudy,
-                    drugs.get(mutation.getGeneSymbol()), geneContextMap.get(mutation.getGeneSymbol()),
+                    drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
                     keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()));
         }
@@ -191,7 +191,7 @@ public class MutationsJSON extends HttpServlet {
         return sb.toString();
     }
     
-    private Map<String, Set<String>> getDrugs(String eventIds, int profileId, boolean fdaOnly, boolean cancerDrug)
+    private Map<Long, Set<String>> getDrugs(String eventIds, int profileId, boolean fdaOnly, boolean cancerDrug)
             throws DaoException {
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
         Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
@@ -215,11 +215,9 @@ public class MutationsJSON extends HttpServlet {
         // end Temporary way of handling cases such as akt inhibitor for pten loss
         
         Map<Long, List<String>> map = daoDrugInteraction.getDrugs(genes,fdaOnly,cancerDrug);
-        Map<String, Set<String>> ret = new HashMap<String, Set<String>>(map.size());
+        Map<Long, Set<String>> ret = new HashMap<Long, Set<String>>(map.size());
         for (Map.Entry<Long, List<String>> entry : map.entrySet()) {
-            String symbol = DaoGeneOptimized.getInstance().getGene(entry.getKey())
-                    .getHugoGeneSymbolAllCaps();
-            ret.put(symbol, new HashSet<String>(entry.getValue()));
+            ret.put(entry.getKey(), new HashSet<String>(entry.getValue()));
         }
         
         // Temporary way of handling cases such as akt inhibitor for pten loss
@@ -227,12 +225,10 @@ public class MutationsJSON extends HttpServlet {
             Set<Long> eventGenes = mapTargetToEventGenes.get(entry.getKey());
             if (eventGenes!=null) {
                 for (long eventGene : eventGenes) {
-                    String symbol = DaoGeneOptimized.getInstance().getGene(eventGene)
-                        .getHugoGeneSymbolAllCaps();
-                    Set<String> drugs = ret.get(symbol);
+                    Set<String> drugs = ret.get(eventGene);
                     if (drugs==null) {
                         drugs = new HashSet<String>();
-                        ret.put(symbol, drugs);
+                        ret.put(eventGene, drugs);
                     }
                     drugs.addAll(entry.getValue());
                 }

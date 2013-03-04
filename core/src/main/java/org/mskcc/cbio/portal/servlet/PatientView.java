@@ -44,9 +44,11 @@ public class PatientView extends HttpServlet {
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
+    public static final String MRNA_PROFILE = "mrna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
-    public static final String NUM_CASES_IN_SAME_MUTATION_PROFILE = "num_cases";
-    public static final String NUM_CASES_IN_SAME_CNA_PROFILE = "num_cases";
+    public static final String NUM_CASES_IN_SAME_MUTATION_PROFILE = "num_cases_mut";
+    public static final String NUM_CASES_IN_SAME_CNA_PROFILE = "num_cases_cna";
+    public static final String NUM_CASES_IN_SAME_MRNA_PROFILE = "num_cases_mrna";
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
@@ -198,6 +200,13 @@ public class PatientView extends HttpServlet {
             request.setAttribute(CNA_PROFILE, cnaProfile);
             request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
                     DaoCaseProfile.countCasesInProfile(cnaProfile.getGeneticProfileId()));
+        }
+        
+        GeneticProfile mrnaProfile = cancerStudy.getMRnaProfile(_case.getCaseId());
+        if (mrnaProfile!=null) {
+            request.setAttribute(MRNA_PROFILE, mrnaProfile);
+            request.setAttribute(NUM_CASES_IN_SAME_MRNA_PROFILE, 
+                    DaoCaseProfile.countCasesInProfile(mrnaProfile.getGeneticProfileId()));
         }
     }
     

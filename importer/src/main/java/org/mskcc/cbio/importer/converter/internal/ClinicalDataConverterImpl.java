@@ -73,6 +73,8 @@ public class ClinicalDataConverterImpl implements Converter {
 
     public static final String UNANNOTATED = "Unannotated";
 
+    public static final String IGNORE = "ignore";
+
     // name of the case id column
 
 	/**
@@ -320,7 +322,6 @@ public class ClinicalDataConverterImpl implements Converter {
         return outMatrix;
     }
 
-
 	/**
 	 * Creates a staging file from the given import data.
 	 *
@@ -373,7 +374,6 @@ public class ClinicalDataConverterImpl implements Converter {
         for (ClinicalAttribute attr : keeperAttrs) {
             DaoClinicalAttribute.addDatum(attr);
         }
-        // **
 
         DataMatrix outMatrix = makeOutMatrix(keepers, knownAliasToAttribute);
 //        outMatrix.write(System.out);

@@ -136,6 +136,13 @@ public interface Config {
     void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcrClinicalAttributeEntry);
 
     /**
+     * Updates (or inserts) the given collection of bcrs all as a batch.
+     *
+     * @param Collection<bcrClinicalAttributeEntry> bcrs
+     */
+    void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs);
+
+    /**
      * Inserts the given ClinicalAttributesMetadata object without asking questions
      *
      * @param clinicalAttributesMetadata ClinicalAttributesMetadata

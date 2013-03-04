@@ -44,32 +44,19 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 @RunWith(JUnit4.class)
 public class GDataImplTest {
-
-    @Test
-    public void updateClinicalAttributeTest() throws IOException, ServiceException {
+//    @Test
+//    public void updateClinicalAttributeTest() throws IOException, ServiceException {
 //        SpreadsheetService mockService = mock(SpreadsheetService.class);
-//
-//        List<ListEntry> testEntries = new ArrayList<ListEntry>();
-//        ListEntry testEntry = new ListEntry("id", "v1");
-//        testEntries.add(testEntry);
-//        testEntries.add(testEntry);
-//        testEntries.add(testEntry);
-//        testEntries.add(testEntry);
-//
-//        ListFeed mockFeed = mock(ListFeed.class);
-//        when(mockFeed.getEntries()).thenReturn(testEntries);
-//
-//        URL www = new URL("http://www.whatismyip.com");
-//        when(mockService.getFeed(www, ListFeed.class)).thenReturn(mockFeed);
-//
 //        String gdataUser = "test_user";
 //        String gdataPassword = "test_password";
 //        String gdataSpreadsheet = "gdata_spreadsheet";
@@ -87,8 +74,11 @@ public class GDataImplTest {
 //                gdataSpreadsheet, tumorTypesWorksheet, datatypesWorksheet,
 //                caseIDFiltersWorksheet, caseListWorksheet, clinicalAttributesWorksheet,
 //                portalsWorksheet, referenceDataWorksheet, dataSourcesWorksheet, cancerStudiesWorksheet);
-//        BcrClinicalAttributeEntry testBcr = new BcrClinicalAttributeEntry("disease", "id", "name", "description");
-//        testGDataImpl.getCancerStudyMetadata(Config.ALL);
-//        testGDataImpl.updateClinicalAttributesMetadata(testBcr);
-    }
+//
+//        GDataImpl gdataSpy = spy(testGDataImpl);
+//
+//        gdataSpy.clinicalAttributesMatrix = new ArrayList<ArrayList<String>>();
+//        Collection<ClinicalAttributesMetadata> metadatas = new ArrayList<ClinicalAttributesMetadata>();
+//        when(gdataSpy.getMetadataCollection(gdataSpy.clinicalAttributesMatrix, "org")).thenReturn(metadatas);
+//    }
 }

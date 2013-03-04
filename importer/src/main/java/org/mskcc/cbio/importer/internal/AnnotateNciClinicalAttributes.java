@@ -48,7 +48,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 public class AnnotateNciClinicalAttributes implements Importer {
-//public class AnnotateNciClinicalAttributes {
 
     // our logger
     private static final Log LOG = LogFactory.getLog(ImporterImpl.class);
@@ -80,12 +79,12 @@ public class AnnotateNciClinicalAttributes implements Importer {
         this.databaseUtils = databaseUtils;
     }
 
-//    @Override
+    @Override
     public void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception {
         throw new UnsupportedOperationException();
     }
 
-//    @Override
+    @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
         importReferenceData(bcrXmlFilename);
@@ -94,10 +93,7 @@ public class AnnotateNciClinicalAttributes implements Importer {
     public void importReferenceData(String bcrXmlFilename) throws IOException, SAXException, ParserConfigurationException {
         List<BcrClinicalAttributeEntry> bcrs = parseXML(bcrXmlFilename);
 
-        for (BcrClinicalAttributeEntry bcr : bcrs) {
-//            System.out.println(bcr);
-            config.updateClinicalAttributesMetadata(bcr);
-        }
+        config.batchUpdateClinicalAttributeMetadata(bcrs);
     }
 
     public List<BcrClinicalAttributeEntry> parseXML(String xmlFilename)

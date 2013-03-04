@@ -29,7 +29,6 @@
 package org.mskcc.cbio.importer.config.internal;
 
 // imports
-import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.*;
@@ -521,31 +520,29 @@ class GDataImpl implements Config {
         // object already exists - this would indicate an update is to take place, not an insert
         // exists means that the first alias matches
         for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
-
             String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-
-            if (attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
-                // N.B. don't overwrite if it's been OKayed
-                continue;
-            }
-
             for (String alias : aliases) {
-                if (alias.trim().matches(".*" + bcrAlias + ".*")) {
-
+                if (alias.trim().matches(bcrAlias)) {
                     // match!
-                    attribute.setDescription(bcr.getDescription());
-                    attribute.setDisplayName(bcr.getDisplayName());
-                    attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
-                    attribute.setColumnHeader(bcr.getId().toUpperCase());
+                    if (!attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
+                        // not OKed!
+                        attribute.setDescription(bcr.getDescription());
+                        attribute.setDisplayName(bcr.getDisplayName());
+                        attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
+                        attribute.setColumnHeader(bcr.getId().toUpperCase());
 
-                    boolean insertRow = false;
-                    String key = attribute.getAliases();
-                    updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                            insertRow, keyColumn, key, attribute.getPropertiesMap());
+                        boolean insertRow = false;
+                        String key = attribute.getAliases();
+                        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                                insertRow, keyColumn, key, attribute.getPropertiesMap());
+                    }
+                    // there was a match, but it has already been Oked so skip.  In other words,
+                    // OK stops things from being overridden
                     return;
                 }
             }
         }
+
         // else: insert into worksheet
         String key = null;
         boolean insertRow = true;
@@ -553,6 +550,64 @@ class GDataImpl implements Config {
                 insertRow, keyColumn, key, bcr.getPropertiesMap());
 
 //        clinicalAttributesMatrix = null;
+    }
+
+    public void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs) {
+        if (clinicalAttributesMatrix == null) {
+            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+        }
+
+        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
+                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
+                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
+
+        // make a hashmap out of the worksheet
+        // alias -> ClinicalAttributeMetadata
+        HashMap<String, ClinicalAttributesMetadata> aliasToAttr = new HashMap<String, ClinicalAttributesMetadata>();
+        for (ClinicalAttributesMetadata attr : clinicalAttributesMetadatas) {
+            String[] aliases = attr.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
+            for (String alias : aliases) {
+                aliasToAttr.put(alias.trim(), attr);
+            }
+        }
+
+        Collection<BcrClinicalAttributeEntry> toInsert = new ArrayList<BcrClinicalAttributeEntry>();
+        Collection<BcrClinicalAttributeEntry> toUpdate = new ArrayList<BcrClinicalAttributeEntry>();
+        for (BcrClinicalAttributeEntry bcr : bcrs) {
+            // you say tomaito, i say tomaato
+            String bcrAlias = bcr.getId().replaceAll("_", "");
+
+            ClinicalAttributesMetadata attr = aliasToAttr.get(bcrAlias.trim());
+            if (attr != null) {
+                // match!
+                if (!attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)
+                        && !attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.IGNORE)) {
+                    // not Oked, nor ignored, update away!
+                    toUpdate.add(bcr);
+                }
+            } else {
+                // no match insert ho!
+                toInsert.add(bcr);
+            }
+        }
+
+        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
+        // iterate over toInsert, inserting each one
+        for (BcrClinicalAttributeEntry bcr : toInsert) {
+            String key = null;
+            boolean insertRow = true;
+            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                    insertRow, keyColumn, key, bcr.getPropertiesMap());
+        }
+
+        for (BcrClinicalAttributeEntry bcr : toUpdate) {
+            // you say tomaito, i say tomaato
+            String bcrAlias = bcr.getId().replaceAll("_", "");      // TODO: duplication
+            String key = bcrAlias;
+            boolean insertRow = false;
+            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                    insertRow, keyColumn, key, bcr.getPropertiesMap());
+        }
     }
 
 	/**
@@ -711,7 +766,7 @@ class GDataImpl implements Config {
 	 * @param className String
 	 * @return Collection<?>
 	 */
-	private Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
+	public Collection<?> getMetadataCollection(ArrayList<ArrayList<String>> metadataMatrix, String className) {
 
 		Collection<Object> toReturn = new ArrayList<Object>();
 

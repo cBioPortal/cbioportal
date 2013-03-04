@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = {id:0,gene:1,alteration:2,altrate:3,drug:4};
+    var cnaTableIndices = {id:0,gene:1,alteration:2,mrna:3,altrate:4,drug:5};
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
@@ -127,6 +127,29 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// mrna
+                        "aTargets": [ cnaTableIndices['mrna'] ],
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var mrnaPerc = cnas.getValue(source[0], 'mrna-perc');
+                                if (!mrnaPerc) return '';
+                                
+                                return "&ge;"+mrnaPerc+"%";
+                            } else if (type==='sort') {
+                                var mrnaPerc = cnas.getValue(source[0], 'mrna-perc');
+                                return mrnaPerc ? mrnaPerc : 0;
+                            } else if (type==='type') {
+                                    return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// Drugs
                         "aTargets": [ cnaTableIndices['drug'] ],
                         "sClass": "center-align-td",
@@ -186,6 +209,10 @@
         var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
+        
+        if (mrnaProfileId) {
+            params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;
+        }
         
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;

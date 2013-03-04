@@ -31,6 +31,8 @@ boolean showMutations = mutationProfile!=null;
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(PatientView.CNA_PROFILE);
 boolean showCNA = cnaProfile!=null;
 
+GeneticProfile mrnaProfile = (GeneticProfile)request.getAttribute(PatientView.MRNA_PROFILE);
+
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -57,11 +59,15 @@ boolean noData = cnaProfile==null & mutationProfile==null;
 
 String mutationProfileStableId = null;
 String cnaProfileStableId = null;
+String mrnaProfileStableId = null;
 if (mutationProfile!=null) {
     mutationProfileStableId = mutationProfile.getStableId();
 }
 if (cnaProfile!=null) {
     cnaProfileStableId = cnaProfile.getStableId();
+}
+if (mrnaProfile!=null) {
+    mrnaProfileStableId = mrnaProfile.getStableId();
 }
 
 if (patientViewError!=null) {
@@ -287,6 +293,7 @@ var print = <%=print%>;
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
+var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
@@ -363,7 +370,7 @@ function addNoteTooltip(elem) {
         content: {attr: 'alt'},
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top left',at:'bottom right'}
+        position: {my:'top left',at:'bottom center'}
     });
 }
 

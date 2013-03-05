@@ -62,7 +62,7 @@ public class OncotatorParser
 		    rootNode = m.readValue(json, JsonNode.class);
 	    }
 	    catch (IOException e) {
-		    e.printStackTrace();
+		    //e.printStackTrace();
 		    return null;
 	    }
 

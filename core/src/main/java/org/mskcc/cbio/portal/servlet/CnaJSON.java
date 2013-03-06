@@ -77,7 +77,7 @@ public class CnaJSON extends HttpServlet {
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<Long, Set<String>> drugs = Collections.emptyMap();
         Map<Long, Integer>  contextMap = Collections.emptyMap();
-        Map<Long, Map<String,Object>> mrnaPercentile = Collections.emptyMap();
+        Map<Long, Map<String,Object>> mrnaContext = Collections.emptyMap();
 
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
@@ -88,7 +88,7 @@ public class CnaJSON extends HttpServlet {
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
             contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
             if (mrnaProfileId!=null) {
-                mrnaPercentile = getPercentile(patient, cnaEvents, mrnaProfileId);
+                mrnaContext = getMrnaContext(patient, cnaEvents, mrnaProfileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -104,7 +104,7 @@ public class CnaJSON extends HttpServlet {
             }
             exportCnaEvent(data, cnaEvent, cancerStudy, drug,
                     contextMap.get(cnaEvent.getEventId()),
-                    mrnaPercentile.get(cnaEvent.getEntrezGeneId()));
+                    mrnaContext.get(cnaEvent.getEntrezGeneId()));
         }
 
         response.setContentType("application/json");
@@ -242,7 +242,7 @@ public class CnaJSON extends HttpServlet {
         return ret;
     }
     
-    private Map<Long, Map<String,Object>> getPercentile(String caseId, List<CnaEvent> cnaEvents,
+    private Map<Long, Map<String,Object>> getMrnaContext(String caseId, List<CnaEvent> cnaEvents,
             String mrnaProfileId) throws DaoException {
         Map<Long, Map<String,Object>> mapGenePercentile = new HashMap<Long, Map<String,Object>>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();

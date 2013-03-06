@@ -98,11 +98,11 @@
                                 case 2: strAlt='amplified'; break;
                                 }
                                 var alter = cnas.getValue(source[0], "alter");
-                                var tip = "<b>"+con+" other sample"+(con==1?"":"s")
+                                var tip = "<b>"+con+" other sample"+(con===1?"":"s")
                                     +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                    +(con==1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
+                                    +(con===1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
                                 var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                var clas = alter>0?"amp_percent_div":"del_percent_div"
+                                var clas = alter>0?"amp_percent_div":"del_percent_div";
                                 var ret = "<div class='"+clas+" "+table_id
                                             +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
                                         
@@ -135,13 +135,13 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var mrnaPerc = cnas.getValue(source[0], 'mrna-perc');
-                                if (!mrnaPerc) return '';
-                                
-                                return "&ge;"+mrnaPerc+"%";
+                                var mrna = cnas.getValue(source[0], 'mrna');
+                                if (!mrna) return '';
+                                return JSON.stringify(mrna);
+                                //return "&ge;"+mrna['perc']+"%";
                             } else if (type==='sort') {
-                                var mrnaPerc = cnas.getValue(source[0], 'mrna-perc');
-                                return mrnaPerc ? mrnaPerc : 0;
+                                var mrna = cnas.getValue(source[0], 'mrna');
+                                return mrna ? mrna['perc'] : 0;
                             } else if (type==='type') {
                                     return 0.0;
                             } else {

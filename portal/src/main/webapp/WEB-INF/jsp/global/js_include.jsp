@@ -22,7 +22,6 @@
 <script type="text/javascript" src="js/DataManagerFactory.js"></script>
 <script type="text/javascript" src="js/QueryGeneData.js"></script>
 <script type="text/javascript" src="js/cbio-util.js"></script>
-<script type="text/javascript" src="js/cbio-util.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/underscore-min.js"></script>
 <script type="text/javascript" src="js/backbone-min.js"></script>

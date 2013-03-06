@@ -77,7 +77,7 @@ public class CnaJSON extends HttpServlet {
         List<CnaEvent> cnaEvents = Collections.emptyList();
         Map<Long, Set<String>> drugs = Collections.emptyMap();
         Map<Long, Integer>  contextMap = Collections.emptyMap();
-        Map<Long, Integer> mrnaPercentile = Collections.emptyMap();
+        Map<Long, Map<String,Object>> mrnaPercentile = Collections.emptyMap();
 
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
@@ -242,9 +242,9 @@ public class CnaJSON extends HttpServlet {
         return ret;
     }
     
-    private Map<Long, Integer> getPercentile(String caseId, List<CnaEvent> cnaEvents,
+    private Map<Long, Map<String,Object>> getPercentile(String caseId, List<CnaEvent> cnaEvents,
             String mrnaProfileId) throws DaoException {
-        Map<Long, Integer> mapGenePercentile = new HashMap<Long, Integer>();
+        Map<Long, Map<String,Object>> mapGenePercentile = new HashMap<Long, Map<String,Object>>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         for (CnaEvent cnaEvent : cnaEvents) {
             long gene = cnaEvent.getEntrezGeneId();
@@ -255,30 +255,70 @@ public class CnaJSON extends HttpServlet {
             Map<String,String> mrnaMap = daoGeneticAlteration.getGeneticAlterationMap(
                     DaoGeneticProfile.getGeneticProfileByStableId(mrnaProfileId).getGeneticProfileId(),
                     gene);
-            String strMrnaCase = mrnaMap.get(caseId);
-            if (strMrnaCase==null || DaoGeneticAlteration.NAN.equalsIgnoreCase(strMrnaCase)) {
+            double mrnaCase = parseNumber(mrnaMap.get(caseId));
+            if (Double.isNaN(mrnaCase)) {
                 continue;
             }
             
-            double mrnaCase = Double.parseDouble(strMrnaCase);
+            Map<String,Object> map = new HashMap<String,Object>();
+            mapGenePercentile.put(gene, map);
+            
+            map.put("value", mrnaCase);
+            map.put("category", mrnaIndex(mrnaCase));
             
             int total = 0, below = 0;
+            int[] hist = new int[6];
             for (String strMrna : mrnaMap.values()) {
-                if (strMrna.equalsIgnoreCase(DaoGeneticAlteration.NAN)) {
+                double mrna = parseNumber(strMrna);
+                if (Double.isNaN(mrna)) {
                     continue;
                 }
                 
                 total++;
-                double mrna = Double.parseDouble(strMrna);
+                hist[mrnaIndex(mrna)]++;
                 if (mrna <= mrnaCase) {
                     below++;
                 }
             }
             
-            mapGenePercentile.put(gene, 100*below/total);
+            ArrayList<Integer> arrInt = new ArrayList<Integer>(6);
+            for (int i=0; i<6; i++) {
+                arrInt.add(hist[i]);
+            }
+            map.put("hist", arrInt);
+            
+            map.put("perc", 100*below/total);
         }
         
         return mapGenePercentile;
+    }
+    
+    private double parseNumber(String mrna) {
+        try {
+            return Double.parseDouble(mrna);
+        } catch (Exception e) {
+            return Double.NaN;
+        }
+    }
+    
+    private int mrnaIndex(double mrna) {
+        if (mrna<0) {
+            if (mrna>=-1) {
+                return 2;
+            }
+            if (mrna>=-2) {
+                return 1;
+            }
+            return 0;
+        }
+        
+        if (mrna<1) {
+            return 3;
+        }
+        if (mrna<2) {
+            return 4;
+        }
+        return 5;
     }
     
     private Map<String,List> initMap() {
@@ -287,7 +327,7 @@ public class CnaJSON extends HttpServlet {
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("alter", new ArrayList());
-        map.put("mrna-perc", new ArrayList());
+        map.put("mrna", new ArrayList());
         map.put("gistic", new ArrayList());
         map.put("sanger", new ArrayList());
         map.put("impact", new ArrayList());
@@ -298,7 +338,7 @@ public class CnaJSON extends HttpServlet {
     
     private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
             CancerStudy cancerStudy, Set<String> drugs, Integer context,
-            Integer mrnaPercentile) 
+            Map<String,Object> mrna) 
             throws ServletException {
         String symbol = null;
         try {
@@ -314,7 +354,7 @@ public class CnaJSON extends HttpServlet {
         data.get("gene").add(symbol);
         data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());
-        data.get("mrna-perc").add(mrnaPercentile);
+        data.get("mrna").add(mrna);
         
         // TODO: GISTIC
         List gistic;

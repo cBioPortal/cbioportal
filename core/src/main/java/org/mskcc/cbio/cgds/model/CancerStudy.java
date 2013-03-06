@@ -301,10 +301,10 @@ public class CancerStudy {
             if(geneticProfile.getGeneticAlterationType()
                     .equals(GeneticAlterationType.MRNA_EXPRESSION)
                     && (caseId==null || DaoCaseProfile.caseExistsInGeneticProfile(caseId,geneticProfile.getGeneticProfileId()))) {
-                String stableId = geneticProfile.getStableId();
-                if (stableId.contains("rna_seq")) {
+                String stableId = geneticProfile.getStableId().toLowerCase();
+                if (stableId.matches(".+rna_seq.*_zscores")) {
                     return geneticProfile;
-                } else if (stableId.endsWith("mrna")) {
+                } else if (stableId.endsWith("_zscores")) {
                     ret = geneticProfile;
                 } else if (ret==null) {
                     ret = geneticProfile;

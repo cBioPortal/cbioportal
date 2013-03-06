@@ -202,7 +202,7 @@ public class PatientView extends HttpServlet {
                     DaoCaseProfile.countCasesInProfile(cnaProfile.getGeneticProfileId()));
         }
         
-        GeneticProfile mrnaProfile = cancerStudy.getMRnaProfile(_case.getCaseId());
+        GeneticProfile mrnaProfile = cancerStudy.getMRnaZscoresProfile(_case.getCaseId());
         if (mrnaProfile!=null) {
             request.setAttribute(MRNA_PROFILE, mrnaProfile);
             request.setAttribute(NUM_CASES_IN_SAME_MRNA_PROFILE, 

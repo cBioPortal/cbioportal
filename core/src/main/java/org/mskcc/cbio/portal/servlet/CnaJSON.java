@@ -263,7 +263,7 @@ public class CnaJSON extends HttpServlet {
             Map<String,Object> map = new HashMap<String,Object>();
             mapGenePercentile.put(gene, map);
             
-            map.put("value", mrnaCase);
+            map.put("zscore", mrnaCase);
             map.put("category", mrnaIndex(mrnaCase));
             
             int total = 0, below = 0;

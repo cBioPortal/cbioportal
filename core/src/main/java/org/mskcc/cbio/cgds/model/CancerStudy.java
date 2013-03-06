@@ -278,23 +278,23 @@ public class CancerStudy {
      * @return cn profile if there is mrna data; otherwise, null. 
      * @param geneticProfiles genetic profiles to search mutations on
      */
-    public GeneticProfile getMRnaProfile()
+    public GeneticProfile getMRnaZscoresProfile()
             throws DaoException {
-        return getMRnaProfile(null);
+        return getMRnaZscoresProfile(null);
     }
 
     public boolean hasMRnaData() throws DaoException {
-        GeneticProfile mrnaProfile = getMRnaProfile();
+        GeneticProfile mrnaProfile = getMRnaZscoresProfile();
         return mrnaProfile != null;
     }
 
     /**
-     * Get mRNA profile. try to get a RNA-seq first then microarray.
+     * Get mRNA Zscores profile. try to get a RNA-seq first then microarray.
      *
      * @return mrna profile if there is mrna data; otherwise, null.
      * @param geneticProfiles genetic profiles to search mrna on
      */
-    public GeneticProfile getMRnaProfile(String caseId)
+    public GeneticProfile getMRnaZscoresProfile(String caseId)
             throws DaoException {
         GeneticProfile ret = null;
         for(GeneticProfile geneticProfile: getGeneticProfiles()) {
@@ -305,8 +305,6 @@ public class CancerStudy {
                 if (stableId.matches(".+rna_seq.*_zscores")) {
                     return geneticProfile;
                 } else if (stableId.endsWith("_zscores")) {
-                    ret = geneticProfile;
-                } else if (ret==null) {
                     ret = geneticProfile;
                 }
             }

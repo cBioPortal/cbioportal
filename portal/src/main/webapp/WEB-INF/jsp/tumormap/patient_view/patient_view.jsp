@@ -365,9 +365,9 @@ function getEventIndexMap(eventTableData,idCol) {
     return m;
 }
     
-function addNoteTooltip(elem) {
+function addNoteTooltip(elem, content) {
     $(elem).qtip({
-        content: {attr: 'alt'},
+        content: (typeof variable === 'undefined' ? {attr: 'alt'} : content),
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
         position: {my:'top left',at:'bottom center'}

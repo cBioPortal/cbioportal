@@ -129,6 +129,7 @@
                     },
                     {// mrna
                         "aTargets": [ cnaTableIndices['mrna'] ],
+                        "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": 
                             function(source,type,value) {
@@ -137,8 +138,7 @@
                             } else if (type==='display') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
                                 if (!mrna) return '';
-                                return JSON.stringify(mrna);
-                                //return "&ge;"+mrna['perc']+"%";
+                                return "<div class='"+table_id+"-mrna-hist' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
                                 return mrna ? mrna['perc'] : 0;
@@ -182,6 +182,7 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    plotMrnaHist("."+table_id+"-mrna-hist",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                 },
@@ -199,6 +200,52 @@
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;
+    }
+    
+    function plotMrnaHist(div,cnas) {
+        $(div).each(function() {
+            if (!$(this).is(":empty")) return;
+            var gene = $(this).attr("alt");
+            var mrna = cnas.getValue(gene, 'mrna');
+            d3MrnaHist($(this)[0],mrna);
+            $(this).qtip({
+                content: {text: "mRNA level of the gene in this tumor<br/><b>z-score</b>: "
+                            +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
+                hide: { fixed: true, delay: 10 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                position: {my:'top left',at:'bottom center'}
+            });
+        });
+    }
+    
+    function d3MrnaHist(div,mrna) {
+        var hist = mrna.hist;
+        var category = mrna.category;
+        var margin = {top: 0, right: 0, bottom: 0, left: 0},
+            width = 40 - margin.left - margin.right,
+            height = 12 - margin.top - margin.bottom;
+        var x = d3.scale.linear()
+            .domain([0, 6])
+            .range([0, width]);
+        var y = d3.scale.linear()
+            .domain([0, d3.max(hist)])
+            .range([height, 0]);
+        var svg = d3.select(div).append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        var bar = svg.selectAll(".bar")
+            .data(hist)
+            .enter().append("g")
+            .attr("class", "bar")
+            .attr("transform", function(d,i) { return "translate(" + x(i) + "," + y(d) + ")"; });
+        bar.append("rect")
+            .attr("x", 1)
+            .attr("width", x(1)-2)
+            .attr("height", function(d) { return height - y(d); })
+            .attr("fill", "gray")
+            .attr("stroke", function(d,i) { return i!==category?"gray":(i<3?"blue":"red")});
     }
     
     numPatientInSameCnaProfile = <%=numPatientInSameCnaProfile%>;

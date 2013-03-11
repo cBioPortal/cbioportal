@@ -53,7 +53,22 @@ public class Network {
      * @return the number of nodes
      */
     public int countNodes() {
-        return graph.getVertexCount();
+        return countNodes(false);
+    }
+
+    public int countNodes(boolean excludeDrugs) {
+        if(excludeDrugs) {
+            int count = 0;
+            for (Node node : nodesByIds.values()) {
+                if(node.getType().equals(NodeType.DRUG))
+                    continue;
+
+                count++;
+            }
+            return count;
+        } else {
+            return graph.getVertexCount();
+        }
     }
     
     /**

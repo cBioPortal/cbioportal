@@ -129,7 +129,7 @@ public final class DaoMutationEvent {
         
         if (type.equals("Missense_Mutation")) {
             String aa = mutation.getProteinChange();
-            if (aa.equals("M1*")) {
+            if (aa.startsWith("M1")&&!aa.equals("M1M")) { // how about indels on the first position?
                 // non-start
                 return mutation.getGeneSymbol() + " truncating";
             }
@@ -143,10 +143,14 @@ public final class DaoMutationEvent {
         
         if (type.equals("In_Frame_Ins")) {
             String aa = mutation.getProteinChange();
+            if (aa.contains("*")) { // insert *
+                return mutation.getGeneSymbol() + " truncating";
+            }
+            
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + "ins";
+               return mutation.getGeneSymbol() + " " + m.group(1) + " ins";
             }
         }
         
@@ -156,7 +160,16 @@ public final class DaoMutationEvent {
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + "del";
+               return mutation.getGeneSymbol() + " " + m.group(1) + " del";
+            }
+        }
+        
+        if (type.equals("Silent")) {
+            String aa = mutation.getProteinChange();
+            Pattern p = Pattern.compile("([0-9]+)");
+            Matcher m = p.matcher(aa);
+            if (m.find()) {
+               return mutation.getGeneSymbol() + " " + m.group(1) + "silent";
             }
         }
             

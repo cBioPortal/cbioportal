@@ -28,6 +28,7 @@
     // Check if we wanna show only the mutation data
     boolean onlyMutationData = (dataPriority == 1);
 
+    StringBuilder skippedStudiesList = new StringBuilder();
     int skippedCancerStudies = 0;
     // Now pool the cancer studies
     ArrayList<CancerStudy> primaryStudies = new ArrayList<CancerStudy>(),
@@ -39,6 +40,7 @@
                 primaryStudies.add(cancerStudy);
             } else {
                 skippedCancerStudies++;
+                skippedStudiesList.append("<li>").append(cancerStudy.getName()).append("</li>");
             }
         } else if(cancerStudy.hasMutationData()) {
             primaryStudies.add(cancerStudy);
@@ -49,6 +51,7 @@
                 secondaryStudies.add(cancerStudy);
             } else {
                 skippedCancerStudies++;
+                skippedStudiesList.append("<li>").append(cancerStudy.getName()).append("</li>");
             }
         }
     }
@@ -734,8 +737,12 @@
                             <p>
                                 <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
                                 </span>
-                                Since the data priority was set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
-                                studies</b> that do not have mutation data were excluded from this view.
+                                Since the data priority was set to 'Only Mutations', the following <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have mutation data were excluded from this view: <br>
+                                <ul>
+                                    <%=skippedStudiesList%>
+                                </ul>
+
                             </p>
                         </div>
                         <br/>
@@ -749,8 +756,11 @@
                             <p>
                                 <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
                                 </span>
-                                Since the data priority was set to 'Only CNA', <b><%=skippedCancerStudies%> cancer
-                                studies</b> that do not have CNA data were excluded from this view.
+                                Since the data priority was set to 'Only CNA', the following <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have CNA data were excluded from this view: <br>
+                                <ul>
+                                    <%=skippedStudiesList%>
+                                </ul>
                             </p>
                         </div>
                         <br/>

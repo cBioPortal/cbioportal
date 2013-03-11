@@ -445,8 +445,9 @@ function _getMutationTableRows(data)
     var mutationTypeMap = {
         missense_mutation: {label: "Missense", style: "missense_mutation"},
         nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
-        frame_shift_del: {label: "Nonstop", style: "trunc_mutation"},
-        frame_shift_ins: {label: "FS del", style: "trunc_mutation"},
+	    nonstop_mutation: {label: "Nonstop", style: "trunc_mutation"},
+	    frame_shift_del: {label: "FS del", style: "trunc_mutation"},
+        frame_shift_ins: {label: "FS ins", style: "trunc_mutation"},
         in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
         in_frame_del: {label: "IF del", style: "inframe_mutation"},
         splice_site: {label: "Splice", style: "trunc_mutation"},

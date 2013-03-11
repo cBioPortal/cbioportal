@@ -74,30 +74,26 @@ public class CheckGeneSymbolJSON extends HttpServlet {
             IOException {
         JSONArray geneArray = new JSONArray();
         String genes = httpServletRequest.getParameter(GENES);
+        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+        for(String symbol: genes.split(" ")) {
+            Map map = new HashMap();
+            JSONArray symbols = new JSONArray();
+            for(CanonicalGene gene: daoGene.guessGene(symbol)) {
+                symbols.add(gene.getStandardSymbol());
+            }
+            map.put("symbols", symbols);
+            map.put("name", symbol);
+
+            geneArray.add(map);
+        }
+
+        httpServletResponse.setContentType("application/json");
+        PrintWriter out = httpServletResponse.getWriter();
         try {
-            DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-
-            for(String symbol: genes.split(" ")) {
-                Map map = new HashMap();
-                JSONArray symbols = new JSONArray();
-                for(CanonicalGene gene: daoGene.guessGene(symbol)) {
-                    symbols.add(gene.getStandardSymbol());
-                }
-                map.put("symbols", symbols);
-                map.put("name", symbol);
-
-                geneArray.add(map);
-            }
-
-            httpServletResponse.setContentType("application/json");
-            PrintWriter out = httpServletResponse.getWriter();
-            try {
-                JSONValue.writeJSONString(geneArray, out);
-            } finally {
-                out.close();
-            }
-        } catch (DaoException e) {
-            throw new ServletException(e);
+            JSONValue.writeJSONString(geneArray, out);
+        } finally {
+            out.close();
         }
 
     }

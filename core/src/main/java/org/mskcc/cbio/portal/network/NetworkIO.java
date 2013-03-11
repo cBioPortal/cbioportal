@@ -252,6 +252,7 @@ public final class NetworkIO {
     public static Network readNetworkFromCGDS(Set<String> genes, NetworkSize netSize,
             Collection<String> dataSources, boolean removeSelfEdge) throws DaoException {
         DaoInteraction daoInteraction = DaoInteraction.getInstance();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         Map<Long,String> entrezHugoMap = getEntrezHugoMap(genes);
         Set<Long> seedGenes = new HashSet<Long>(entrezHugoMap.keySet());
         List<Interaction> interactionList;
@@ -271,8 +272,8 @@ public final class NetworkIO {
             String geneAID = Long.toString(geneA);
             String geneBID = Long.toString(geneB);
             
-            addNode(net, geneAID, entrezToHugo(entrezHugoMap,geneA));
-            addNode(net, geneBID, entrezToHugo(entrezHugoMap,geneB));
+            addNode(net, geneAID, entrezToHugo(entrezHugoMap, geneA, daoGeneOptimized));
+            addNode(net, geneBID, entrezToHugo(entrezHugoMap, geneB, daoGeneOptimized));
             
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPmids();
@@ -307,7 +308,7 @@ public final class NetworkIO {
             String geneID = Long.toString(targetGene);
 
             addDrugNode(net, daoDrug.getDrug(drugID));
-            addNode(net, geneID, entrezToHugo(entrezHugoMap, targetGene));
+            addNode(net, geneID, entrezToHugo(entrezHugoMap, targetGene, daoGeneOptimized));
 
             String interactionType = interaction.getInteractionType();
             String pubmed = interaction.getPubMedIDs();
@@ -455,10 +456,11 @@ public final class NetworkIO {
         return map;
     }
     
-    private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez) throws DaoException {
+    private static String entrezToHugo(Map<Long,String> mapEntrezHugo, long entrez,
+            DaoGeneOptimized daoGeneOptimized) throws DaoException {
         String hugo = mapEntrezHugo.get(entrez);
         if (hugo==null) {
-            hugo = DaoGeneOptimized.getInstance().getGene(entrez).getHugoGeneSymbolAllCaps();
+            hugo = daoGeneOptimized.getGene(entrez).getHugoGeneSymbolAllCaps();
             mapEntrezHugo.put(entrez, hugo);
         }
         return hugo;

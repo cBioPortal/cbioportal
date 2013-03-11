@@ -695,7 +695,7 @@
     function determineOverviewMutations(data) {
         var overview = [];
         var len = data['id'].length;
-        var impact = data['impact'];
+        var cancerGene = data['cancer-gene'];
         var mutsig = data['mutsig'];
         var mutrate = data['genemutrate'];
         var cosmic = data['cosmic'];
@@ -709,7 +709,7 @@
         }
         
         for (var i=0; i<len; i++) {
-            if (impact[i]) {
+            if (cancerGene[i]) {
                 overview.push(true);
                 continue;
             }

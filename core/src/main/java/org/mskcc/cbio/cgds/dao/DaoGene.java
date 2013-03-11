@@ -64,7 +64,7 @@ class DaoGene {
      * @return DaoGeneOptimized Singleton.
      * @throws DaoException Database Error.
      */
-    public static DaoGene getInstance() throws DaoException {
+    public static synchronized DaoGene getInstance() throws DaoException {
         if (daoGene == null) {
             daoGene = new DaoGene();
         }

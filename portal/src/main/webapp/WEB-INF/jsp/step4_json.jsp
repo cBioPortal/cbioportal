@@ -19,14 +19,6 @@
         <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
         <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
     </div>
-<%
-// Output step 4 form validation error
-if (step4ErrorMsg != null) {
-    out.println("<div class='ui-state-error ui-corner-all'>"
-            + "<span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>"
-            + "<strong>" + step4ErrorMsg + "</strong>");
-}
-%>
 
     <P/>
     <script type="text/javascript">
@@ -255,6 +247,10 @@ if (step4ErrorMsg != null) {
     		});
 
             $("#select_gene_set").combobox();
+
+            if($("#gene_list").val().length > 0) {
+                validateGenes();
+            }
         });
 
         (function($) {
@@ -363,12 +359,6 @@ name='<%= QueryBuilder.GENE_LIST %>'><%
 
 <p id="genestatus"></p>
 
-<%
-// Output step 4 form validation error
-if (step4ErrorMsg != null) {
-    out.println("</div>");
-}
-%>
     
    <p id="example_gene_set"><span style="font-size:80%">Select from Example Gene Sets:<br>
     <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select></span></p>

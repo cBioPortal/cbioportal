@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ***
-# Downloads, unzips and puts the files under $CGDS_DATA_HOME/reference-data/pihelper .
+# Downloads, unzips and puts the files under $PORTAL_DATA_HOME/reference-data/pihelper .
 #
 # Assumes you have unzip and wget installed in your PATH
 # ***
@@ -19,7 +19,7 @@ else
 fi
 
 # configurables
-TMPDIR="$CGDS_DATA_HOME/reference-data"
+TMPDIR="$PORTAL_DATA_HOME/reference-data"
 TMPDIRDB=${TMPDIR}/pihelper
 
 # Create the dir and cd into that

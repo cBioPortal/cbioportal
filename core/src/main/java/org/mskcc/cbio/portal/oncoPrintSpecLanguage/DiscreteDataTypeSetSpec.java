@@ -238,14 +238,17 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                 // the mutation_type from database directly
                 else if (mutationPattern.equals("MS") || mutationPattern.equals("MISSENSE")) {
                     if (specificMutationUpper.matches("[A-Z][0-9]+[A-Z]")) {
-                        return true;
+                        if (specificMutationUpper.charAt(0) !=
+                                specificMutationUpper.charAt(specificMutationUpper.length()-1)) { //not silent
+                            return true;
+                        }
                     }
                 } else if (mutationPattern.equals("NS") || mutationPattern.equals("NONSENSE")) {
                     if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
                         return true;
                     }
                 } else if (mutationPattern.equals("NONSTART")) {
-                    if (specificMutationUpper.matches("M1[^0-9]+")) {
+                    if (specificMutationUpper.matches("M1[^0-9]+[^M]")) {
                         return true;
                     }
                 } else if (mutationPattern.equals("NONSTOP")) {
@@ -271,6 +274,12 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                     if (specificMutationUpper.matches("[A-Z][0-9]+\\*")) {
                         return true;
                     }
+                    
+                    // insert *
+                    if (specificMutationUpper.matches(".*[0-9]+INS[A-Z]*\\*[A-Z]*")) {
+                        return true;
+                    }
+                    
                     //NONSTART
                     if (specificMutationUpper.matches("M1[^0-9]+")) {
                         return true;

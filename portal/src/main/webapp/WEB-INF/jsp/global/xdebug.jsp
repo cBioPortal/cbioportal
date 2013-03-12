@@ -4,8 +4,6 @@
 <%@ page import="java.util.Date" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.util.XDebugMessage" %>
-<%@ page import="net.sf.ehcache.CacheManager" %>
-<%@ page import="net.sf.ehcache.Cache" %>
 <%
     XDebug xdebug = (XDebug) request.getAttribute("xdebug_object");
     if (xdebug != null) {
@@ -17,12 +15,6 @@
             xdebug.addParameter(XDebugParameter.REQUEST_ATTRIBUTE_TYPE, name,
                     value.toString());
         }
-        CacheManager singletonManager = new CacheManager();
-        Cache memoryCache = singletonManager.getCache("memory_cache");
-
-        xdebug.addParameter(XDebugParameter.REQUEST_ATTRIBUTE_TYPE,
-                "Number of Objects in In-Memory Cache",
-                memoryCache.getSize());
 %>
 <%
     String xdebugParameter = request.getParameter("xdebug");

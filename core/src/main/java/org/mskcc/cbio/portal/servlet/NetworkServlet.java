@@ -228,7 +228,7 @@ public class NetworkServlet extends HttpServlet {
                     
                     xdebug.startTimer();
                     pruneNetworkByAlteration(network, diffusion, Integer.parseInt(nLinker), querySize);
-                    int nAfter = network.countNodes();
+                    int nAfter = network.countNodes(true);
                     if (nBefore!=nAfter) {
                         messages.append("The network below contains ");
                         messages.append(nAfter);

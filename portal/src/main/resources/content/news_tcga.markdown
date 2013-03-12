@@ -1,3 +1,7 @@
+# March 7, 2013
+
+* All data updated to the __January Firehose run__ (January 16, 2012).
+
 # January 21, 2013
 
 * All data updated to the __October Firehose run__ (October 24, 2012), plus updated mutation data for many tumor types.

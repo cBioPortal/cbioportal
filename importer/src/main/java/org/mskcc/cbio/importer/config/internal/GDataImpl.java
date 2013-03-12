@@ -575,7 +575,7 @@ class GDataImpl implements Config {
         Collection<BcrClinicalAttributeEntry> toUpdate = new ArrayList<BcrClinicalAttributeEntry>();
         for (BcrClinicalAttributeEntry bcr : bcrs) {
             // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId().replaceAll("_", "");
+            String bcrAlias = bcr.getId().replaceAll("_", "");       // TODO: duplication
 
             ClinicalAttributesMetadata attr = aliasToAttr.get(bcrAlias.trim());
             if (attr != null) {

@@ -83,6 +83,7 @@
       <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/case.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>

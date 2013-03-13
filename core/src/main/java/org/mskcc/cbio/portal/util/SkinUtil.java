@@ -245,7 +245,7 @@ public class SkinUtil {
     }
     
     public static String getLinkToPatientView(String caseId, String cancerStudyId) {
-        return "tumormap.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
+        return "case.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
                 + "=" + caseId + "&" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId;
     }
     

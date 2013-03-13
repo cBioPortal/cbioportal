@@ -394,7 +394,7 @@ var Oncoprint = function(wrapper, params) {
 
         var patientViewUrl = function(sample_id) {
             // helper function
-            var href = "tumormap.do?case_id=" + sample_id
+            var href = "case.do?case_id=" + sample_id
                 + "&cancer_study_id=" + params.cancer_study_id;
 
             return "<a href='" + href + "'>" + sample_id + "</a>";

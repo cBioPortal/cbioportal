@@ -199,6 +199,8 @@ $(document).ready(function() {
     out.println ("<div id=\"plot_images\"></div></div>");
     out.println ("</td>");
     out.println ("</tr>");
+
+    //D3 example
 %>
 </table>
 </div>

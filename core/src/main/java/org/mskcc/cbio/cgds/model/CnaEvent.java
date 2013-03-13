@@ -95,12 +95,7 @@ public class CnaEvent {
     }
     
     public String getGeneSymbol() {
-        try {
-            return DaoGeneOptimized.getInstance().getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
-        } catch (DaoException ex) {
-            ex.printStackTrace();
-            return null;
-        }
+        return DaoGeneOptimized.getInstance().getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
     }
 
     public void setEntrezGeneId(long entrezGeneId) {

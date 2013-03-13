@@ -14,7 +14,6 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.CnaEvent;
 import org.mskcc.cbio.cgds.model.CopyNumberSegment;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
@@ -95,6 +94,7 @@ public class CnaJSON extends HttpServlet {
         }
         
         Map<String,List> data = initMap();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (CnaEvent cnaEvent : cnaEvents) {
             Set<String> drug = Collections.emptySet();
             try {
@@ -104,7 +104,8 @@ public class CnaJSON extends HttpServlet {
             }
             exportCnaEvent(data, cnaEvent, cancerStudy, drug,
                     contextMap.get(cnaEvent.getEventId()),
-                    mrnaContext.get(cnaEvent.getEntrezGeneId()));
+                    mrnaContext.get(cnaEvent.getEntrezGeneId()),
+                    daoGeneOptimized);
         }
 
         response.setContentType("application/json");
@@ -330,7 +331,7 @@ public class CnaJSON extends HttpServlet {
         map.put("mrna", new ArrayList());
         map.put("gistic", new ArrayList());
         map.put("sanger", new ArrayList());
-        map.put("impact", new ArrayList());
+        map.put("cancer-gene", new ArrayList());
         map.put("drug", new ArrayList());
         map.put("altrate", new ArrayList());
         return map;
@@ -338,14 +339,12 @@ public class CnaJSON extends HttpServlet {
     
     private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
             CancerStudy cancerStudy, Set<String> drugs, Integer context,
-            Map<String,Object> mrna) 
+            Map<String,Object> mrna, DaoGeneOptimized daoGeneOptimized) 
             throws ServletException {
         String symbol = null;
         try {
-            symbol = DaoGeneOptimized.getInstance().getGene(cnaEvent.getEntrezGeneId())
+            symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
                     .getHugoGeneSymbolAllCaps();
-        } catch (DaoException ex) {
-            throw new ServletException(ex);
         } catch (Exception ex) {
             logger.error(ex.getMessage());
             return;
@@ -369,15 +368,15 @@ public class CnaJSON extends HttpServlet {
         data.get("altrate").add(context);
         
         boolean isSangerGene = false;
-        boolean isIMPACTGene = false;
+        boolean isCbioCancerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-            isIMPACTGene = DaoGeneOptimized.getInstance().isIMPACTGene(symbol);
+            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(symbol);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         data.get("sanger").add(isSangerGene);
-        data.get("impact").add(isIMPACTGene);
+        data.get("cancer-gene").add(isCbioCancerGene);
         
         // drug
         data.get("drug").add(drugs);

@@ -317,13 +317,13 @@ If the parameter of array_info is 1, you will receive a tab-delimited matrix wit
 Once you have a cancer\_study\_id, it is very easy to create stable links from your web site to the cBio Portal.  Stable links must point to link.do, and can include the following parameters:
 
 * **cancer\_study\_id**=[cancer study ID] (required)
-* **gene\_list**=[a comma separated list of HUGO gene symbols] (required)
+* **gene\_list**=[a space separated list of HUGO gene symbols] (required)
 * **report**=[report to display;  can be one of:  full (default), oncoprint_html]
 
 For example, the following links to the TCGA GBM data for EGFR and NF1:
 
-[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1)
+[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1)
 
 This link displays the same data as an Oncoprint only:
 
-[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1&report=oncoprint_html](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR,NF1&report=oncoprint_html)
+[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1&report=oncoprint_html](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1&report=oncoprint_html)

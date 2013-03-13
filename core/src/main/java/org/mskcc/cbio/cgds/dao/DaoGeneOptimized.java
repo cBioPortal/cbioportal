@@ -44,38 +44,44 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
  * @author Ethan Cerami
  */
 public class DaoGeneOptimized {
-    private static final String IMPACT_GENES_FILE = "/IMPACT_genes.txt";
+    private static final String CBIO_CANCER_GENES_FILE = "/cbio_cancer_genes.txt";
         
-    private static DaoGeneOptimized daoGeneOptimized;
+    private static DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
     private HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
-    private Set<String> impactGenes = new HashSet<String>();
-
+    private Set<String> cbioCancerGenes = new HashSet<String>();
+    
     /**
      * Private Constructor, to enforce singleton pattern.
      * 
      * @throws DaoException Database Error.
      */
-    private DaoGeneOptimized () throws DaoException {
-        DaoGene daoGene = DaoGene.getInstance();
+    private DaoGeneOptimized () {
+        try {
+            DaoGene daoGene = DaoGene.getInstance();
 
-        //  Automatically populate hashmap upon init
-        ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
-        for (CanonicalGene currentGene:  globalGeneList) {
-            cacheGene(currentGene);
+            //  Automatically populate hashmap upon init
+            ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
+            for (CanonicalGene currentGene:  globalGeneList) {
+                cacheGene(currentGene);
+            }
+        } catch (DaoException e) {
+            e.printStackTrace();
         }
         
         try {
             if (geneSymbolMap.size()>10000) { 
                 // only for deployed version; not for unit test and importing
                 BufferedReader in = new BufferedReader(
-                        new InputStreamReader(getClass().getResourceAsStream(IMPACT_GENES_FILE)));
+                        new InputStreamReader(getClass().getResourceAsStream(CBIO_CANCER_GENES_FILE)));
                 for (String line=in.readLine(); line!=null; line=in.readLine()) {
-                    if (geneSymbolMap.containsKey(line)) {
-                        impactGenes.add(line);
+                    String symbol = line.trim();
+                    CanonicalGene gene = getNonAmbiguousGene(symbol);
+                    if (gene!=null) {
+                        cbioCancerGenes.add(symbol);
                     } else {
-                        System.err.println(line+" in the IMPACT gene list is not a HUGO gene symbol.");
+                        System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
                     }
                 }
                 in.close();
@@ -150,10 +156,7 @@ public class DaoGeneOptimized {
      * @return DaoGeneOptimized Singleton.
      * @throws DaoException Database Error.
      */
-    public static DaoGeneOptimized getInstance() throws DaoException {
-        if (daoGeneOptimized == null) {
-            daoGeneOptimized = new DaoGeneOptimized();
-        }
+    public static DaoGeneOptimized getInstance() {
         return daoGeneOptimized;
     }
 
@@ -240,12 +243,12 @@ public class DaoGeneOptimized {
         return genes.get(0);
     }
     
-    public Set<String> getIMPACTGenes() {
-        return Collections.unmodifiableSet(impactGenes);
+    public Set<String> getCbioCancerGenes() {
+        return Collections.unmodifiableSet(cbioCancerGenes);
     }
     
-    public boolean isIMPACTGene(String hugoSymbolUpper) {
-        return impactGenes.contains(hugoSymbolUpper);
+    public boolean isCbioCancerGene(String hugoSymbolUpper) {
+        return cbioCancerGenes.contains(hugoSymbolUpper);
     }
 
     /**

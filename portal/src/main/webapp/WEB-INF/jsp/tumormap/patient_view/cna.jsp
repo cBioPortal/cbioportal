@@ -207,7 +207,7 @@
             if (!$(this).is(":empty")) return;
             var gene = $(this).attr("alt");
             var mrna = cnas.getValue(gene, 'mrna');
-            d3MrnaHist($(this)[0],mrna);
+            d3MrnaBar($(this)[0],mrna.perc/100);
             $(this).qtip({
                 content: {text: "mRNA level of the gene in this tumor<br/><b>z-score</b>: "
                             +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
@@ -218,12 +218,38 @@
         });
     }
     
+    function d3MrnaBar(div,mrnaPerc) {
+        var width = 40,
+            height = 12;
+
+        var barWidth = Math.abs(mrnaPerc-0.5)*width;
+
+        var svg = d3.select(div).append('svg')
+            .attr("width", width)
+            .attr("height", height)
+            .append("g");
+
+        svg.append("line")
+            .attr("x1",width/2)
+            .attr("y1",0)
+            .attr("x2",width/2)
+            .attr("y2",height)
+            .attr("style", "stroke:gray;stroke-width:2");
+
+        svg.append("rect")
+            .attr("x", mrnaPerc>0.5 ? (width/2) : (width/2-barWidth))
+            .attr("width", barWidth)
+            .attr("y", 3)
+            .attr("height", 6)
+            .attr("fill", mrnaPerc>0.75 ? "red" : (mrnaPerc<0.25?"blue":"gray"));
+
+    }
+    
     function d3MrnaHist(div,mrna) {
         var hist = mrna.hist;
         var category = mrna.category;
-        var margin = {top: 0, right: 0, bottom: 0, left: 0},
-            width = 40 - margin.left - margin.right,
-            height = 12 - margin.top - margin.bottom;
+        var width = 40,
+            height = 12;
         var x = d3.scale.linear()
             .domain([0, 6])
             .range([0, width]);
@@ -231,10 +257,9 @@
             .domain([0, d3.max(hist)])
             .range([height, 0]);
         var svg = d3.select(div).append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            .attr("width", width)
+            .attr("height", height)
+            .append("g");
         var bar = svg.selectAll(".bar")
             .data(hist)
             .enter().append("g")

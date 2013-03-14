@@ -15,7 +15,7 @@
                         <th class="mut-header" alt="Variant allele frequency in the normal sample"><b>Allele Freq (N)</b></th>
                         <th class="mut-header" alt="Variant allele read count in the normal sample"><b>Variant Reads (N)</b></th>
                         <th class="mut-header" alt="Reference allele read count in the normal sample"><b>Ref Reads (N)</b></th>
-                        <th class="cna-header" alt="Percentile of mRNA expression of this patient comparing to the cohort"><b>mRNA</b></th>
+                        <th class="mut-header" alt="Percentile of mRNA expression of the mutated gene in this tumor comparing to the cohort"><b>mRNA</b></th>
                         <th class="mut-header" alt="Mutation frequency in cohort"><b>Cohort</b></th>
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
                         <th class="mut-header" alt="Functional Impact Score predicted by MutationAssessor (missense mutations only)"><b>FIS</b></th>

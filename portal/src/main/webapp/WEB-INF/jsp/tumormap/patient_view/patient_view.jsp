@@ -501,7 +501,8 @@ function d3PieChart(svg, data, radius, colors) {
         .outerRadius(radius);
 
     var pie = d3.layout.pie()
-        .value(function(d) { return d; });
+        .value(function(d) { return d; })
+        .sort(null);
 
     var arcs = chart.selectAll("g.slice")
         .data(pie) 
@@ -522,9 +523,9 @@ function d3CircledChar(g,ch) {
         .attr("stroke","#55C")
         .attr("fill","none");
     g.append("text")
-        .attr("x",-4)
+        .attr("x",-3)
         .attr("y",3)
-        .attr("font-size",8)
+        .attr("font-size",7)
         .attr("fill","#66C")
         .text(ch);
 }

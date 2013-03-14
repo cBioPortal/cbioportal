@@ -365,49 +365,12 @@
                     },
                     {// gene mutation rate
                         "aTargets": [ mutTableIndices["altrate"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                // gene context
-                                var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
-                                if (geneCon<=0) return '';
-                                
-                                var ret = '';
-                                
-                                // keyword context
-                                var keyDiv = '';
-                                var keyTip = '.';
-                                var key = mutations.getValue(source[0], 'key');
-                                if (key!=null) {
-                                    var keyCon = mutations.getValue(source[0], 'keymutrate')-1;
-                                    if (keyCon>0){
-                                        var keyFrac = keyCon/numPatientInSameMutationProfile;
-                                        keyTip = ", out of which <b>"+keyCon
-                                            +"</b> ("+(100*keyFrac).toFixed(1) + "%) "
-                                            +(keyCon==1?"has ":"have ")+key+" mutations.";
-                                        var keyWidth = Math.min(40, Math.ceil(80 * Math.log(keyFrac+1) * Math.LOG2E));
-                                        keyDiv += "<div class='mutation_percent_div' style='width:"+keyWidth+"px;'></div>";
-                                    }
-                                }
-                                
-                                var geneFrac = geneCon/numPatientInSameMutationProfile;
-                                var geneTip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
-                                    +"</b> ("+(100*geneFrac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
-                                    +mutations.getValue(source[0], "gene")+keyTip;
-                                var geneWidth = Math.min(40, Math.ceil(80 * Math.log(geneFrac+1) * Math.LOG2E));
-                                ret += "<div class='gene_mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+geneWidth+"px;' alt='"+geneTip+"'>"+keyDiv+"</div>";
-                                
-                                // mutsig
-                                var mutsig = mutations.getValue(source[0], 'mutsig');
-                                if (mutsig) {
-                                    var tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
-                                    ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
-                                }
-                                
-                                return ret;   
+                                return "<div class='"+table_id+"-mut-cohort' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 return mutations.getValue(source[0], 'genemutrate');
                             } else if (type==='type') {
@@ -574,6 +537,7 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
@@ -592,6 +556,57 @@
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
         return oTable;
+    }
+
+    function plotMutRate(div,mutations) {
+        $(div).each(function() {
+            if (!$(this).is(":empty")) return;
+            var gene = $(this).attr("alt");
+            var keymutrate = mutations.getValue(gene, 'keymutrate');
+            var keyperc = 100 * keymutrate / numPatientInSameMutationProfile;
+            var genemutrate = mutations.getValue(gene, 'genemutrate');
+            var geneperc = 100 * genemutrate / numPatientInSameMutationProfile;
+            
+            var unaltered=20-geneperc;
+            if (unaltered<0)
+                unaltered = geneperc===100?0:1;
+            var data = [keyperc, geneperc-keyperc, unaltered];
+            var colors = ["green", "lightgreen", "#ccc"];
+            
+            var svg = d3.select($(this)[0])
+                .append("svg")
+                .attr("width", 26)
+                .attr("height", 12);
+            var pie = d3PieChart(svg, data, 6, colors);
+
+            var tip = ""+genemutrate+" sample"+(genemutrate===1?"":"s")
+                + " (<b>"+geneperc.toFixed(1) + "%</b>)"+" in this study "+(genemutrate===1?"has":"have")+" mutated "
+                + mutations.getValue(gene, "gene")
+                + ", out of which "+keymutrate
+                + " (<b>"+keyperc.toFixed(1) + "%</b>) "
+                + (keymutrate===1?"has ":"have ")+mutations.getValue(gene,'key')+" mutations.";
+            qtip($(pie), tip);
+            
+            // mutsig
+            var mutsig = mutations.getValue(gene, 'mutsig');
+            if (mutsig) {
+                tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
+                var circle = svg.append("g")
+                    .attr("transform", "translate(21,6)");
+                d3CircledChar(circle,"M");
+                qtip($(circle), tip);
+            }
+            
+        });
+        
+        function qtip(el, tip) {
+            $(el).qtip({
+                content: {text: tip},
+                hide: { fixed: true, delay: 10 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                position: {my:'top right',at:'bottom left'}
+            });
+        }
     }
 
     function addCosmicTooltip(table_id) {

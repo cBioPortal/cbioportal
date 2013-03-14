@@ -187,8 +187,8 @@
             var alter = cnas.getValue(gene, "alter");
             var unaltered=20-perc;
             if (unaltered<0)
-                unaltered = perc=100?0:1;
-            var data = [perc, 20-perc];
+                unaltered = perc===100?0:1;
+            var data = [perc, unaltered];
             var colors = [alter>0?"red":"blue", "#ccc"];
             
             var svg = d3.select($(this)[0])

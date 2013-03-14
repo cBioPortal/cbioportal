@@ -79,7 +79,8 @@ public class ClinicalJSON extends HttpServlet {
 
         map.put("attr_id", clinical.getAttrId());
         map.put("attr_val", clinical.getAttrVal());
-        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
+        //TODO: at some point we may want to incorporate the cancer_study_id
+//        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
         map.put("case_id", clinical.getCaseId());
 
         return map;
@@ -104,18 +105,17 @@ public class ClinicalJSON extends HttpServlet {
      * @return
      */
     public JSONArray getMaps(Collection<String> sampleIds) throws DaoException, SQLException {
-        JSONArray clinicalMaps = new JSONArray();
+        JSONArray map = new JSONArray();
+
         for (String s : sampleIds) {
             ResultSet rs = DaoClinical.getBySampleId(s.trim());
 
-            Clinical clinical = DaoClinical.extract(rs);
-
-            Map<String, String> map = reflectToMap(clinical);
-            map.remove("cancer_study_id");
-
-            clinicalMaps.add(map);
+            while (rs.next()) {
+                Clinical clinical = DaoClinical.extract(rs);
+                map.add(reflectToMap(clinical));
+            }
         }
-        return clinicalMaps;
+        return map;
     }
 
     /**

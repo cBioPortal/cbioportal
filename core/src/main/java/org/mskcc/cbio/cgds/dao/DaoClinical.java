@@ -143,8 +143,7 @@ public final class DaoClinical {
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE "
-                    + "SAMPLE_ID=?");
+            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE CASE_ID=?");
             pstmt.setString(1, sampleId);
 
             rs = pstmt.executeQuery();
@@ -199,6 +198,13 @@ public final class DaoClinical {
                     rs.getString("ATTR_VALUE"));
     }
 
+    /**
+     * Adds a list of <code>Clinical</code> objects into the db
+     *
+     * @param clinicals
+     * @return int rows added
+     * @throws DaoException
+     */
     public static int addAllData(Collection<Clinical> clinicals) throws DaoException {
         Connection con = null;
         ResultSet rs = null;

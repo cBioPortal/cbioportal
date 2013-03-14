@@ -5,7 +5,7 @@
 <script type="text/javascript">
     var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,validation:6,type:7,
                   tumor_freq:8,tumor_var_reads:9,tumor_ref_reads:10,norm_freq:11,
-                  norm_var_reads:12,norm_ref_reads:13,altrate:14,cosmic:15,ma:16,'3d':17,drug:18};
+                  norm_var_reads:12,norm_ref_reads:13,mrna:14,altrate:15,cosmic:16,ma:17,'3d':18,drug:19};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -363,6 +363,29 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// mrna
+                        "aTargets": [ mutTableIndices['mrna'] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var mrna = mutations.getValue(source[0], 'mrna');
+                                if (!mrna) return '';
+                                return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
+                            } else if (type==='sort') {
+                                var mrna = mutations.getValue(source[0], 'mrna');
+                                return mrna ? mrna['perc'] : 50;
+                            } else if (type==='type') {
+                                    return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// gene mutation rate
                         "aTargets": [ mutTableIndices["altrate"] ],
                         "sClass": "center-align-td",
@@ -537,6 +560,7 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
@@ -645,6 +669,10 @@
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (mrnaProfileId) {
+            params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;
+        }
         
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;

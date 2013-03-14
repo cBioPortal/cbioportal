@@ -81,27 +81,6 @@
                             }
                         }
                     },
-                    {// context
-                        "aTargets": [ cnaTableIndices['altrate'] ],
-                        "sClass": "center-align-td",
-                        "bSearchable": false,
-                        "mDataProp": 
-                            function(source,type,value) {
-                            if (type==='set') {
-                                return;
-                            } else if (type==='display') {
-                                return "<div class='"+table_id+"-cna-cohort' alt='"+source[0]+"'></div>";
-                            } else if (type==='sort') {
-                                var altrate = cnas.getValue(source[0], 'altrate');
-                                return altrate;
-                            } else if (type==='type') {
-                                    return 0.0;
-                            } else {
-                                return '';
-                            }
-                        },
-                        "asSorting": ["desc", "asc"]
-                    },
                     {// mrna
                         "aTargets": [ cnaTableIndices['mrna'] ],
                         "sClass": "center-align-td",
@@ -117,6 +96,27 @@
                             } else if (type==='sort') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
                                 return mrna ? mrna['perc'] : 50;
+                            } else if (type==='type') {
+                                    return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {// context
+                        "aTargets": [ cnaTableIndices['altrate'] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return "<div class='"+table_id+"-cna-cohort' alt='"+source[0]+"'></div>";
+                            } else if (type==='sort') {
+                                var altrate = cnas.getValue(source[0], 'altrate');
+                                return altrate;
                             } else if (type==='type') {
                                     return 0.0;
                             } else {

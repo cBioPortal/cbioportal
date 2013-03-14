@@ -265,10 +265,8 @@ public class CnaJSON extends HttpServlet {
             mapGenePercentile.put(gene, map);
             
             map.put("zscore", mrnaCase);
-            map.put("category", mrnaIndex(mrnaCase));
             
             int total = 0, below = 0;
-            int[] hist = new int[6];
             for (String strMrna : mrnaMap.values()) {
                 double mrna = parseNumber(strMrna);
                 if (Double.isNaN(mrna)) {
@@ -276,17 +274,10 @@ public class CnaJSON extends HttpServlet {
                 }
                 
                 total++;
-                hist[mrnaIndex(mrna)]++;
                 if (mrna <= mrnaCase) {
                     below++;
                 }
             }
-            
-            ArrayList<Integer> arrInt = new ArrayList<Integer>(6);
-            for (int i=0; i<6; i++) {
-                arrInt.add(hist[i]);
-            }
-            map.put("hist", arrInt);
             
             map.put("perc", 100*below/total);
         }
@@ -300,26 +291,6 @@ public class CnaJSON extends HttpServlet {
         } catch (Exception e) {
             return Double.NaN;
         }
-    }
-    
-    private int mrnaIndex(double mrna) {
-        if (mrna<0) {
-            if (mrna>=-1) {
-                return 2;
-            }
-            if (mrna>=-2) {
-                return 1;
-            }
-            return 0;
-        }
-        
-        if (mrna<1) {
-            return 3;
-        }
-        if (mrna<2) {
-            return 4;
-        }
-        return 5;
     }
     
     private Map<String,List> initMap() {

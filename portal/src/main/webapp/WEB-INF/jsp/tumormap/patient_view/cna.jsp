@@ -83,39 +83,14 @@
                     },
                     {// context
                         "aTargets": [ cnaTableIndices['altrate'] ],
+                        "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var con = cnas.getValue(source[0], 'altrate')-1;
-                                if (con<=0) return '';
-                                var frac = con / numPatientInSameCnaProfile;
-                                var strAlt;
-                                switch(cnas.getValue(source[0], "alter")) {
-                                case -2: strAlt='deleted'; break;
-                                case 2: strAlt='amplified'; break;
-                                }
-                                var alter = cnas.getValue(source[0], "alter");
-                                var tip = "<b>"+con+" other sample"+(con===1?"":"s")
-                                    +"</b> ("+(100*frac).toFixed(1) + "%)"+" in this study "
-                                    +(con===1?"has ":"have ")+strAlt+" "+cnas.getValue(source[0], "gene");
-                                var width = Math.min(40, Math.ceil(80 * Math.log(frac+1) * Math.LOG2E));
-                                var clas = alter>0?"amp_percent_div":"del_percent_div";
-                                var ret = "<div class='"+clas+" "+table_id
-                                            +"-tip' style='width:"+width+"px;' alt='"+tip+"'></div>";
-                                        
-                                // gistic
-                                var gistic = cnas.getValue(source[0], 'gistic');
-                                if (gistic) {
-                                    var tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
-                                                +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
-                                    ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/gistic.png' width=12 height=12>";
-                                }
-                                
-                                return ret;
+                                return "<div class='"+table_id+"-cna-cohort' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var altrate = cnas.getValue(source[0], 'altrate');
                                 return altrate;
@@ -138,10 +113,10 @@
                             } else if (type==='display') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
                                 if (!mrna) return '';
-                                return "<div class='"+table_id+"-mrna-hist' alt='"+source[0]+"'></div>";
+                                return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
-                                return mrna ? mrna['perc'] : 0;
+                                return mrna ? mrna['perc'] : 50;
                             } else if (type==='type') {
                                     return 0.0;
                             } else {
@@ -182,7 +157,8 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
-                    plotMrnaHist("."+table_id+"-mrna-hist",cnas);
+                    plotMrna("."+table_id+"-mrna",cnas);
+                    plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                 },
@@ -201,48 +177,53 @@
         addNoteTooltip("#"+table_id+" th.cna-header");
         return oTable;
     }
-    
-    function plotMrnaHist(div,cnas) {
+
+    function plotCnaAltRate(div,cnas) {
         $(div).each(function() {
             if (!$(this).is(":empty")) return;
             var gene = $(this).attr("alt");
-            var mrna = cnas.getValue(gene, 'mrna');
-            d3MrnaBar($(this)[0],mrna.perc/100);
-            $(this).qtip({
-                content: {text: "mRNA level of the gene in this tumor<br/><b>z-score</b>: "
-                            +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
+            var altrate = cnas.getValue(gene, 'altrate');
+            var perc = 100 * altrate / numPatientInSameCnaProfile;
+            var alter = cnas.getValue(gene, "alter");
+            var unaltered=20-perc;
+            if (unaltered<0)
+                unaltered = perc=100?0:1;
+            var data = [perc, 20-perc];
+            var colors = [alter>0?"red":"blue", "#ccc"];
+            
+            var svg = d3.select($(this)[0])
+                .append("svg")
+                .attr("width", 26)
+                .attr("height", 12);
+            var pie = d3PieChart(svg, data, 6, colors);
+
+            var tip = ""+altrate+" sample"+(altrate===1?"":"s")
+                    +" (<b>"+perc.toFixed(1) + "%</b>)"+" in this study "
+                    +(altrate===1?"has ":"have ")+(alter===-2?"deleted ":"amplified ")
+                    +cnas.getValue(gene, "gene");
+            qtip($(pie), tip);
+            
+            // gistic
+            var gistic = cnas.getValue(gene, 'gistic');
+            if (gistic) {
+                tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
+                            +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
+                var circle = svg.append("g")
+                    .attr("transform", "translate(21,6)");
+                d3CircledChar(circle,"G");
+                qtip($(circle), tip);
+            }
+            
+        });
+        
+        function qtip(el, tip) {
+            $(el).qtip({
+                content: {text: tip},
                 hide: { fixed: true, delay: 10 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-                position: {my:'top left',at:'bottom center'}
+                position: {my:'top right',at:'bottom left'}
             });
-        });
-    }
-    
-    function d3MrnaBar(div,mrnaPerc) {
-        var width = 40,
-            height = 12;
-
-        var barWidth = Math.abs(mrnaPerc-0.5)*width;
-
-        var svg = d3.select(div).append('svg')
-            .attr("width", width)
-            .attr("height", height)
-            .append("g");
-
-        svg.append("line")
-            .attr("x1",width/2)
-            .attr("y1",0)
-            .attr("x2",width/2)
-            .attr("y2",height)
-            .attr("style", "stroke:gray;stroke-width:2");
-
-        svg.append("rect")
-            .attr("x", mrnaPerc>0.5 ? (width/2) : (width/2-barWidth))
-            .attr("width", barWidth)
-            .attr("y", 3)
-            .attr("height", 6)
-            .attr("fill", mrnaPerc>0.75 ? "red" : (mrnaPerc<0.25?"blue":"gray"));
-
+        }
     }
     
     function d3MrnaHist(div,mrna) {

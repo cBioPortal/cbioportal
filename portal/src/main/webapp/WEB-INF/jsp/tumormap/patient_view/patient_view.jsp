@@ -488,6 +488,90 @@ function addDrugsTooltip(elem, my, at) {
     });
 }
 
+/**
+* modified from http://jsfiddle.net/H2SKt/1/
+**/
+function d3PieChart(svg, data, radius, colors) {
+    var chart = svg
+        .data([data])
+        .append("g")
+        .attr("transform", "translate(" + radius + "," + radius + ")");
+
+    var arc = d3.svg.arc()
+        .outerRadius(radius);
+
+    var pie = d3.layout.pie()
+        .value(function(d) { return d; });
+
+    var arcs = chart.selectAll("g.slice")
+        .data(pie) 
+        .enter()
+        .append("g")
+        .attr("class", "slice");
+
+    arcs.append("path")
+        .attr("fill", function(d, i) { return colors[i]; } )
+        .attr("d", arc);
+
+    return chart;
+}
+
+function d3CircledChar(g,ch) {
+    g.append("circle")
+        .attr("r",5)
+        .attr("stroke","#55C")
+        .attr("fill","none");
+    g.append("text")
+        .attr("x",-4)
+        .attr("y",3)
+        .attr("font-size",8)
+        .attr("fill","#66C")
+        .text(ch);
+}
+    
+function plotMrna(div,alts) {
+    $(div).each(function() {
+        if (!$(this).is(":empty")) return;
+        var gene = $(this).attr("alt");
+        var mrna = alts.getValue(gene, 'mrna');
+        d3MrnaBar($(this)[0],mrna.perc/100);
+        $(this).qtip({
+            content: {text: "mRNA level of the gene in this tumor<br/><b>mRNA z-score</b>: "
+                        +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
+            hide: { fixed: true, delay: 10 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top left',at:'bottom center'}
+        });
+    });
+}
+
+function d3MrnaBar(div,mrnaPerc) {
+    var width = 40,
+        height = 12;
+
+    var barWidth = Math.abs(mrnaPerc-0.5)*width;
+
+    var svg = d3.select(div).append('svg')
+        .attr("width", width)
+        .attr("height", height)
+        .append("g");
+
+    svg.append("line")
+        .attr("x1",width/2)
+        .attr("y1",0)
+        .attr("x2",width/2)
+        .attr("y2",height)
+        .attr("style", "stroke:gray;stroke-width:2");
+
+    svg.append("rect")
+        .attr("x", mrnaPerc>0.5 ? (width/2) : (width/2-barWidth))
+        .attr("width", barWidth)
+        .attr("y", 3)
+        .attr("height", 6)
+        .attr("fill", mrnaPerc>0.75 ? "red" : (mrnaPerc<0.25?"blue":"gray"));
+
+}
+
 function formatPatientLink(caseId,cancerStudyId) {
     return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
 }

@@ -42,10 +42,9 @@ describe("MemoSort", function() {
         var comparator = setup(gene_data, samples).comparator;
 
         expect(comparator("CASE1", "CASE1")).toBe(0);
-        expect(comparator("CASE1", "CASE2")).toBe(-1);
+        expect(comparator("CASE1", "CASE2") < 0).toBe(true);
         expect(comparator("CASE2", "CASE1")).toBe(1);
-
-        expect(comparator("CASE2", "CASE3")).toBe(-1);
+        expect(comparator("CASE2", "CASE3") < 0).toBe(true);
     });
 
     it(".comparator mutation", function() {

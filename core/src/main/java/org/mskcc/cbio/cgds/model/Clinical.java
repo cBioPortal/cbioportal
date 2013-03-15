@@ -30,7 +30,7 @@ package org.mskcc.cbio.cgds.model;
 /**
  * Encapsulates Clinical Data.
  *
- * @author Gideon Dresdner dresdnerg@cbio.mkscc.org
+ * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
  */
 public class Clinical {
     private int cancerStudyId;
@@ -52,7 +52,7 @@ public class Clinical {
                     String attrVal) {
 
         this.cancerStudyId = cancerStudyId;
-        this.caseId = caseId;
+        this.caseId = caseId.toUpperCase();     // N.B. this may be inefficient but it ensures the standard
         this.attrId = attrId;
         this.attrVal = attrVal;
     }
@@ -74,7 +74,7 @@ public class Clinical {
     }
 
     public void setCaseId(String caseId) {
-        this.caseId = caseId;
+        this.caseId = caseId.toUpperCase();     // N.B.
     }
 
     public String getAttrId() {

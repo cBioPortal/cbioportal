@@ -25,40 +25,73 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+//
+//
+// Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+//
+
 var ClinicalData = (function() {
     // namespace
 
-    var Clinical = Backbone.Model.extend({});
+    var makeQuerier = function(data) {
+        // [ list of objects ] -> function bySample, function byAttr
+        // takes a list of objects, [{ case_id, attr_id, attr_val }]
+        // and returns two functions for querying this data.
+        // This is done by lazy creation of hashmaps and then
+        // the trivial wrapping of query functions around those hashmaps
 
-    var Clinicals = Backbone.Collection.extend({
-        model: Clinical,
+        var makeHash = function(data, key) {
+            // [ list of objects ], key -> { key : object }
+            var hash = {};
+            data.each(function(i) {
+                hash[i[key]] = i;
+            });
+        };
+
+        var sample2data;
+        var attr2data;
+
+        return {
+            bySample: function(sample_id) {
+                // lazy initialization
+                sample2data === undefined ? sample2data = makeHash(data, "case_id") : sample2data = sample2data;
+
+                return sample2data[sample_id];
+            },
+            byAttr: function(attr_id) {
+                sample2data === undefined ? sample2data = makeHash(data, "case_id") : sample2data = sample2data;
+
+                return attr2data[attr_id];
+            }
+        }
+    };
+
+    // trivial Backbone model
+    var model = Backbone.Model.extend({});
+
+    // collection of (clinical) models with the proper query strings
+    var collection = Backbone.Collection.extend({
+        model: model,
         initialize: function(models, options) {
-            this.query = options.query;
+            this.query_type = options.t;
+            this.query = options.q;
         },
         url: function() {
-//            http://localhost:8080/public-portal/clinical.json?samples=tcga-a1-a0sb
-            return "clinical.json?cancer_study_id=" + this.query;
+            return "clinical.json?t=" + this.query_type + "&" + "q=" + this.query;
         }
     });
 
-    var clinicals = new Clinicals([], {query: "brca_tcga"});
-    clinicals.fetch({
-        success: function(data) {
-            console.log(data);
-        }
-    });
+    return {
+        model: model,
+        collection: collection,
+        makeQuerier: makeQuerier
+    };
 
-    var Router = Backbone.Router.extend({
-        routes: {
-            "clinical/:id": "req"
-        }
-    });
-
-    var router = new Router();
-
-    router.on('route:req', function(id) {
-        console.log(id);
-    });
-
-    Backbone.history.start();       // N.B.
+//    var clinicals = new collection([], {t: "cancer_study_id", q: "brca_tcga"});
+//
+//    clinicals.fetch({
+//        success: function(data) {
+//            console.log(data);
+//        }
+//    });
 })();

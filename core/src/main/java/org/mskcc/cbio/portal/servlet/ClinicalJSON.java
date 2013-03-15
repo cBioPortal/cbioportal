@@ -149,19 +149,17 @@ public class ClinicalJSON extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String samples = request.getParameter("samples");
-        // list of samples separated by a space
 
-        String cancer_study_id = request.getParameter("cancer_study_id");
-        // stable id
+        String query = request.getParameter("q");
+        String type = request.getParameter("t");
 
-        JSONArray maps;
+        JSONArray maps = null;
         try {
-            if (samples != null) {
-                maps = getMaps(Arrays.asList(samples.split(SAMPLES_DELIMITER)));
+            if (type.equals("samples")) {
+                maps = getMaps(Arrays.asList(query.split(SAMPLES_DELIMITER)));
             }
-            else {
-                maps = getMaps(cancer_study_id);
+            else if (type.equals("cancer_study_id")) {
+                maps = getMaps(query);
             }
         } catch (Exception e) {
             throw new ServletException(e);

@@ -25,31 +25,40 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-
 var ClinicalData = (function() {
     // namespace
 
-    var Clinical = Backbone.Model.extend({
-            urlRoot: "/clinical.json"
+    var Clinical = Backbone.Model.extend({});
+
+    var Clinicals = Backbone.Collection.extend({
+        model: Clinical,
+        initialize: function(models, options) {
+            this.query = options.query;
+        },
+        url: function() {
+//            http://localhost:8080/public-portal/clinical.json?samples=tcga-a1-a0sb
+            return "clinical.json?cancer_study_id=" + this.query;
         }
-    );
+    });
+
+    var clinicals = new Clinicals([], {query: "brca_tcga"});
+    clinicals.fetch({
+        success: function(data) {
+            console.log(data);
+        }
+    });
 
     var Router = Backbone.Router.extend({
         routes: {
-            "cancer_study/:cancer_study_id/clinical_attr/:attr": "clinical_data",
-            "foo": "foo"
+            "clinical/:id": "req"
         }
     });
 
     var router = new Router();
-    router.on('route:foo', function() {
-        console.log("foo");
+
+    router.on('route:req', function(id) {
+        console.log(id);
     });
 
-
-    router.on('route:cancer_study/:cancer_study_id/clinical_attr/:attr', function() {
-        console.log("hello world");
-    });
-
-    Backbone.history.start();
+    Backbone.history.start();       // N.B.
 })();

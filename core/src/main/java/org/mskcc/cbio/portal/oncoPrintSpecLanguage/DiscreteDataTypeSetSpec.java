@@ -265,7 +265,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                         return true;
                     }
                 } else if (mutationPattern.equals("SP") || mutationPattern.equals("SPLICE")) {
-                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+                    if (specificMutationUpper.matches("[A-Z][0-9]+_SPLICE") ||
                             specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
                         return true;
                     }
@@ -293,7 +293,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                         return true;
                     }
                     //SPLICE
-                    if (specificMutationUpper.matches("[A-Z][0-9]_SPLICE") ||
+                    if (specificMutationUpper.matches("[A-Z][0-9]+_SPLICE") ||
                             specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
                         return true;
                     }

@@ -35,17 +35,22 @@ var ClinicalData = (function() {
 
     var makeQuerier = function(data) {
         // [ list of objects ] -> function bySample, function byAttr
+        // [] -> a bunch of functions that will break!
+        //
         // takes a list of objects, [{ case_id, attr_id, attr_val }]
         // and returns two functions for querying this data.
         // This is done by lazy creation of hashmaps and then
         // the trivial wrapping of query functions around those hashmaps
 
         var makeHash = function(data, key) {
+            // [] -> {}
             // [ list of objects ], key -> { key : object }
             var hash = {};
-            data.each(function(i) {
+            _.each(data, function(i) {
                 hash[i[key]] = i;
             });
+
+            return hash;
         };
 
         var sample2data;
@@ -59,7 +64,7 @@ var ClinicalData = (function() {
                 return sample2data[sample_id];
             },
             byAttr: function(attr_id) {
-                sample2data === undefined ? sample2data = makeHash(data, "case_id") : sample2data = sample2data;
+                attr2data === undefined ? attr2data = makeHash(data, "attr_id") : attr2data = attr2data;
 
                 return attr2data[attr_id];
             }

@@ -266,9 +266,7 @@
 
                     if (includeNetworks) {
                         out.println ("<li><a href='#network' class='result-tab' title='Network visualization and analysis'>"
-                        + "Network(Simple)</a></li>");
-                        out.println ("<li><a href='#network_sbgn' class='result-tab' title='Network visualization and analysis'>"
-                        + "Network(SBGN)</a></li>");
+                        + "Network</a></li>");
                     }
 
                     out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"

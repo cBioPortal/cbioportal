@@ -30,7 +30,6 @@
 %>
 
 <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
-<link href="css/network/network_sbgn_ui.css" type="text/css" rel="stylesheet"/>
 
 <!-- json2 is now a global library! -->
 <script type="text/javascript" src="js/json2.js"></script>
@@ -39,7 +38,6 @@
 
 <!-- <script type="text/javascript" src="js/network/network-ui.js"></script> -->
 <script type="text/javascript" src="js/network/network-visualization.js"></script>
-<script type="text/javascript" src="js/network/network-sbgn-vis.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
 <!-- for genomic data post request -->
@@ -122,21 +120,7 @@
                         showNetworkMessage(graphml, "#network #netmsg");
                     }
                 );
-
-                // TODO get the SBGN-ML data from pathway commons and pass it to cytoscapeweb
-	            $.post("networkSbgn.do",
-	                   networkParams,
-	                   function(graphData){
-                           // All genes coming from SBGN view are in graphData.sbgn
-                           // All attributes can be accessed via: graphData.attributes[rdfid]
-		                   send2cytoscapewebSbgn(graphData.sbgn, "cytoscapeweb_sbgn", "network_sbgn", genomicData);
-		                   // TODO these methods do not work with sbgnml
-		                   //showXDebug(sbgnml);
-		                   //showNetworkMessage(sbgnml, "#network_sbgn #netmsg");
-	                   }
-	            );
             }
         </script>
 
 <jsp:include page="network_div.jsp"/>
-<jsp:include page="network_sbgn_div.jsp"/>

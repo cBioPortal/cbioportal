@@ -476,6 +476,7 @@
                     },
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -528,6 +529,7 @@
                     },
                     {
                         "aTargets": [ mutTableIndices["3d"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;

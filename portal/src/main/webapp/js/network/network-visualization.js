@@ -605,7 +605,7 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
         return;
     }
 
-
+	// TODO use json instead of xml?
     var handler = function(queryResult) {
         if (typeof queryResult !== "string") {
             if (window.ActiveXObject) { // IE
@@ -640,43 +640,10 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
         }
         else
         {
-            var html = "<div class='node-details-info'><table>";
-
-            if (bioGene.geneSymbol != undefined)
-                html += "<tr><td><b>Gene Symbol:</b></td><td>" + bioGene.geneSymbol + "</td></tr>";
-
-            if (bioGene.geneDescription != undefined)
-                html += "<tr><td><b>Description:</b></td><td>" + bioGene.geneDescription + "</td></tr>";
-
-            if (bioGene.geneAliases != undefined)
-                html += "<tr><td><b>Aliases:</b></td><td>" + bioGene.geneAliases + "</td></tr>";
-
-            if (bioGene.geneDesignations != undefined)
-                html += "<tr><td><b>Designations:</b></td><td>" + bioGene.geneDesignations + "</td></tr>";
-
-            if (bioGene.geneChromosome != undefined)
-                html += "<tr><td><b>Chromosome:</b></td><td>" + bioGene.geneChromosome + "</td></tr>";
-
-            if (bioGene.geneLocation != undefined)
-                html += "<tr><td><b>Location:</b></td><td>" + bioGene.geneLocation + "</td></tr>";
-
-            if (bioGene.geneMIM != undefined)
-                html += "<tr><td><b>MIM:</b></td><td>" + bioGene.geneMIM + "</td></tr>";
-
-            if (bioGene.geneId != undefined)
-                html += "<tr><td><b>Gene ID:</b></td><td>" + bioGene.geneId + "</td></tr>";
-
-            html += "</table></div>";
-
-            if (bioGene.geneSummary != undefined)
-            {
-                html += "<div class='node-details-summary'>";
-                html += "<span class='title'><label>Gene Summary:</label></span>";
-                html += "<p class='regular'>" + bioGene.geneSummary + "</p>";
-                html += "</div>";
-            }
-
-            $(self.nodeDetailsTabSelector).append(html);
+	        // generate the view by using backbone
+	        var options = {el: self.nodeDetailsTabSelector,
+	            data: bioGene};
+	        var biogeneView = new BioGeneView(options);
         }
     };
 

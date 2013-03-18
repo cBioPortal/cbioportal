@@ -31,7 +31,7 @@ package org.mskcc.cbio.importer.converter.internal;
 // imports
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.scripts.ImportClinical;
+import org.mskcc.cbio.importer.internal.ImportClinical;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -75,7 +75,14 @@ public class ClinicalDataConverterImpl implements Converter {
 
     public static final String IGNORE = "ignore";
 
-    // name of the case id column
+
+    public static void main(String[] args) throws Exception {
+        if (args.length != 0) {
+            System.out.println("command line usage:  no arguments!");
+            System.exit(1);
+        }
+    }
+
 
 	/**
 	 * Constructor.

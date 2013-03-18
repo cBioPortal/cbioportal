@@ -33,6 +33,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -68,6 +70,13 @@ public class DaoClinicalAttribute {
         }
     }
 
+    public static ClinicalAttribute unpack(ResultSet rs) throws SQLException {
+        return new ClinicalAttribute(rs.getString("ATTR_ID"),
+                rs.getString("DISPLAY_NAME"),
+                rs.getString("DESCRIPTION"),
+                rs.getString("DATATYPE"));
+    }
+
     public static ClinicalAttribute getDatum(String attrId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -81,11 +90,7 @@ public class DaoClinicalAttribute {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                ClinicalAttribute clinicalAttribute = new ClinicalAttribute(rs.getString("ATTR_ID"),
-                        rs.getString("DISPLAY_NAME"),
-                        rs.getString("DESCRIPTION"),
-                        rs.getString("DATATYPE"));
-                return clinicalAttribute;
+                return unpack(rs);
             } else {
                 throw new DaoException(String.format("clinical attribute not found for (%s)", attrId));
             }
@@ -94,6 +99,27 @@ public class DaoClinicalAttribute {
         } finally {
             JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
+    }
+
+    public static Collection<ClinicalAttribute> getAll() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Collection<ClinicalAttribute> all = new ArrayList<ClinicalAttribute>();
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
+            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute");
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                all.add(unpack(rs));
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        return all;
     }
 
     /**

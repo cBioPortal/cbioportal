@@ -24,31 +24,32 @@
  ** along with this library; if not, write to the Free Software Foundation,
  ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  **/
-package org.mskcc.cbio.cgds.scripts;
+package org.mskcc.cbio.importer.internal;
 
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.importer.Config;
+import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class ImportClinical {
 
-    // our logger
-    private static Log LOG = LogFactory.getLog(ImportClinical.class);
-
-    // "commented out" string, i.e.metadata
     public static final String IGNORE_LINE_PREFIX = "#";
-
     public static final String DELIMITER = "\t";
     public static final String CASE_ID = "CASE_ID";
+    public Config config;
+
+    public ImportClinical(Config config) {
+        this.config = config;
+    }
 
     public static String readCancerStudyId(String filename) throws IOException {
 
@@ -88,7 +89,7 @@ public class ImportClinical {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
+        if (args.length != 2) {
             System.out.println("command line usage:  importClinical.pl <clinical.txt> <metadata.txt>");
             System.exit(1);
         }
@@ -98,12 +99,33 @@ public class ImportClinical {
         String line = reader.readLine();
         String[] colnames = line.split(DELIMITER);
 
-        // List of ClinicalAttributes corresponds to the names of the columns
+        Collection<ClinicalAttribute> allAttrs = DaoClinicalAttribute.getAll();
+
+        // map: allAttrs -> names of all attrs (projection)
+        Collection<String> allDisplayNames = new ArrayList<String>();
+        for (ClinicalAttribute attr : allAttrs) {
+            allDisplayNames.add(attr.getDisplayName());
+        }
+
+        // compute colnames - setminus - allDisplayNames
+        // find all the columns in the staging file that
+        // are not in the db
+        List<String> colnamesNotInDb =  Arrays.asList(colnames);
+        colnamesNotInDb.removeAll(allDisplayNames);
+
+        Collection<ClinicalAttributesMetadata> clinicalAttributes = config.getClinicalAttributesMetadata(Config.ALL);
+
+        for (String colname : colnamesNotInDb) {
+
+        }
+
+        // map: String colnames -> ClinicalAttribute attrs
         List<ClinicalAttribute> columnAttrs = new ArrayList<ClinicalAttribute>();
         for (String colname : colnames) {
             ClinicalAttribute attr = DaoClinicalAttribute.getDatum(colname);
             columnAttrs.add(attr);
         }
+
 
         line = reader.readLine();
         List<Clinical> clinicals = new ArrayList<Clinical>();

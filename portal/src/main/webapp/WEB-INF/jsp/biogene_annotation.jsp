@@ -1,5 +1,3 @@
-<script type="text/javascript" src="js/underscore-min.js"></script>
-
 <script type="text/template" id="biogene_template">
 	<div class='node-details-info'>
 		<table>
@@ -9,7 +7,7 @@
 			<tr class='biogene-designations'><td><b>Designations:</b></td><td>{{geneDesignations}}</td></tr>
 			<tr class='biogene-chromosome'><td><b>Chromosome:</b></td><td>{{geneChromosome}}</td></tr>
 			<tr class='biogene-location'><td><b>Location:</b></td><td>{{geneLocation}}</td></tr>
-			<tr class='biogene-mim'><td><b>MIM:</b></td><td>{{geneMIM}}</td></tr>
+			<tr class='biogene-mim'><td><b>MIM:</b></td><td>{{geneMim}}</td></tr>
 			<tr class='biogene-id'><td><b>Gene ID:</b></td><td>{{geneId}}</td></tr>
 		</table>
 	</div>
@@ -37,11 +35,11 @@
 			// pass variables in using Underscore.js template
 			var variables = { geneSymbol: options.data.geneSymbol,
 				geneDescription: options.data.geneDescription,
-				geneAliases: options.data.geneAliases,
-				geneDesignations: options.data.geneDesignations,
+				geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ","),
+				geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ","),
 				geneChromosome: options.data.geneChromosome,
 				geneLocation: options.data.geneLocation,
-				geneMIM: options.data.geneMIM,
+				geneMim: options.data.geneMim, // TODO add a hyperlink for MIM
 				geneId: options.data.geneId,
 				geneSummary: options.data.geneSummary};
 
@@ -71,7 +69,7 @@
             if (options.data.geneLocation == undefined)
 	            $(options.el + " .biogene-location").hide();
 
-            if (options.data.geneMIM == undefined)
+            if (options.data.geneMim == undefined)
 	            $(options.el + " .biogene-mim").hide();
 
             if (options.data.geneId == undefined)
@@ -81,4 +79,37 @@
 				$(options.el + " .node-details-summary").hide();
 		}
 	});
+
+	/**
+	 * Utility function to convert a delimited data into a human readable
+	 * text separated by the given separator.
+	 *
+	 * @param info      original data as a string
+	 * @param delimiter delimiter for the original data
+	 * @param separator separator for the new output
+	 * @return String
+	 */
+	function _parseDelimitedInfo(info, delimiter, separator)
+	{
+		// do not process undefined or null values
+		if (info == undefined || info == null)
+		{
+			return info;
+		}
+
+		var text = "";
+		var parts = info.split(delimiter);
+
+		if (parts.length > 0)
+		{
+			text = parts[0];
+		}
+
+		for (var i=1; i < parts.length; i++)
+		{
+			text += separator + " " + parts[i];
+		}
+
+		return text;
+	}
 </script>

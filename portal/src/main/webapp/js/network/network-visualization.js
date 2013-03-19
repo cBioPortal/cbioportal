@@ -586,6 +586,7 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
     $(self.nodeDetailsTabSelector).append(
         '<img src="images/ajax-loader.gif">');
 
+	// TODO do not try to retrieve data for drugs, display a message instead
     if (selected.length == 1)
     {
         data = selected[0].data
@@ -607,49 +608,34 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
 
 	// TODO use json instead of xml?
     var handler = function(queryResult) {
-        if (typeof queryResult !== "string") {
-            if (window.ActiveXObject) { // IE
-                queryResult = queryResult.xml;
-            } else { // Other browsers
-                queryResult = (new XMLSerializer()).serializeToString(queryResult);
-            }
-        }
-
-        var parser, xmlDoc;
-
-        if (window.DOMParser)
-        {
-            parser = new DOMParser();
-            xmlDoc = parser.parseFromString(queryResult, "text/xml");
-        }
-        else // Internet Explorer
-        {
-            xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async = false;
-            xmlDoc.loadXML(queryResult);
-        }
-
-        var bioGene = _parseBioGeneXml(xmlDoc);
-
         // update tab content
         $(self.nodeDetailsTabSelector).empty();
 
-        if (bioGene.returnCode != "SUCCESS")
+        if (queryResult.returnCode != "SUCCESS")
         {
-            $(self.nodeDetailsTabSelector).append("Error retrieving data: " + bioGene.returnCode);
+            $(self.nodeDetailsTabSelector).append(
+	            "Error retrieving data: " + queryResult.returnCode);
         }
         else
         {
-	        // generate the view by using backbone
-	        var options = {el: self.nodeDetailsTabSelector,
-	            data: bioGene};
-	        var biogeneView = new BioGeneView(options);
+	        if (queryResult.count > 0)
+	        {
+		        // generate the view by using backbone
+		        var options = {el: self.nodeDetailsTabSelector,
+			        data: queryResult.geneInfo[0]};
+		        var biogeneView = new BioGeneView(options);
+	        }
+	        else
+	        {
+		        $(self.nodeDetailsTabSelector).append(
+			        "No additional information available for the selected node.");
+	        }
         }
     };
 
     var queryParams = {"query": data.label,
         "org": "human",
-        "format": "xml"};
+        "format": "json"};
 
     $.post("bioGeneQuery.do",
            queryParams,
@@ -3814,6 +3800,7 @@ NetworkVis.prototype._createSettingsDialog = function(divId)
 /**
  * Parses the given xmlDoc representing the BioGene query result, and
  * returns a corresponding JSON object.
+ * (Not used anymore, using JSON service of the BioGene instead)
  *
  * @param xmlDoc
  * @private
@@ -3873,24 +3860,6 @@ function _parseBioGeneXml(xmlDoc)
         json.geneMIM = geneMIMNode[0].childNodes[0].nodeValue;
 
     return json;
-}
-
-function _parseDelimitedInfo(info, delimiter, separator)
-{
-    var text = "";
-    var parts = info.split(delimiter);
-
-    if (parts.length > 0)
-    {
-        text = parts[0];
-    }
-
-    for (var i=1; i < parts.length; i++)
-    {
-        text += separator + " " + parts[i];
-    }
-
-    return text;
 }
 
 /**

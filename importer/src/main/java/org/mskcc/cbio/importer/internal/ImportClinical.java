@@ -32,6 +32,9 @@ import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.cgds.util.FileUtil;
+import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
@@ -85,11 +88,19 @@ public class ImportClinical {
             System.out.println("command line usage:  importClinical.pl <clinical.txt> <cancer_study_id>");
             System.exit(1);
         }
+        ProgressMonitor pMonitor = new ProgressMonitor();
+        pMonitor.setConsoleMode(true);
 
-        FileReader clinical_f = new FileReader(args[0]);
-        BufferedReader reader = new BufferedReader(clinical_f);
+        File clinical_f = new File(args[0]);
+        BufferedReader reader = new BufferedReader(new FileReader(clinical_f));
+
+        // give the user some info
+        System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
+        int numLines = FileUtil.getNumLines(clinical_f);
+        System.out.println(" --> total number of lines:  " + numLines);
+        pMonitor.setMaxValue(numLines);
+
         String line = reader.readLine();
-
         String[] colnames = line.split(DELIMITER);
         ImportClinical importer = new ImportClinical();
         importer.updateAttrDb(colnames);            // update the database with new clinical attributes
@@ -111,7 +122,6 @@ public class ImportClinical {
                 continue;
             }
 
-
             String[] fields = line.split(DELIMITER);
             String caseId = null;
             for (int i = 0; i < fields.length; i++) {
@@ -132,7 +142,10 @@ public class ImportClinical {
             line = reader.readLine();
         }
 
+        ConsoleUtil.showWarnings(pMonitor);
+
         DaoClinical.addAllData(clinicals);
+        System.err.println("Done.");
     }
 
     /**

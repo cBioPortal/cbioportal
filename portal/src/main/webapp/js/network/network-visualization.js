@@ -217,7 +217,12 @@ NetworkVis.prototype.handleMenuEvent = function(command)
 {
     // execute the corresponding function
     var func = this._controlFunctions[command];
-    func();
+
+	// try to call the handler if it is defined
+	if (func != null)
+	{
+		func();
+	}
 };
 
 /**

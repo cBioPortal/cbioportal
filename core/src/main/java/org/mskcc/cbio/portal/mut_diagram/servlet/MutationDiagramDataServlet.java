@@ -82,12 +82,7 @@ public final class MutationDiagramDataServlet extends HttpServlet {
         PfamGraphicsCacheLoader cacheLoader = new PfamGraphicsCacheLoader(objectMapper);
         featureService = new CacheFeatureService(cacheLoader);
 
-        try {
-            idMappingService = new CgdsIdMappingService(DaoGeneOptimized.getInstance());
-        }
-        catch (DaoException e) {
-            throw new RuntimeException("could not create id mapping service", e);
-        }
+        idMappingService = new CgdsIdMappingService(DaoGeneOptimized.getInstance());
     }
 
     @Override

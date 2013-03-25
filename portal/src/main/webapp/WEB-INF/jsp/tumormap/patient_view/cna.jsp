@@ -253,7 +253,7 @@
     function determineOverviewCNAs(data) {
         var overview = [];
         var len = data['id'].length;
-        var impact = data['impact'];
+        var cancerGene = data['cancer-gene'];
         var gistic = data['gistic'];
         var altrate = data['altrate'];
         
@@ -266,7 +266,7 @@
         }
         
         for (var i=0; i<len; i++) {
-            if (impact[i]) {
+            if (cancerGene[i]) {
                 overview.push(true);
                 continue;
             }

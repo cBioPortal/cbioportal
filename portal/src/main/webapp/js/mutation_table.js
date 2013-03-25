@@ -768,13 +768,17 @@ function addMutationTableTooltips(tableId)
         position: {my:'top left', at:'bottom right'}};
 
     var qTipOptionsHeader = new Object();
+	var qTipOptionsFooter = new Object();
     var qTipOptionsLeft = new Object();
     jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+	jQuery.extend(true, qTipOptionsFooter, qTipOptions);
     jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-    qTipOptionsHeader.position = {my:'top center', at:'bottom center'};
+    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+	qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
     qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
 
-    $('#' + tableId + ' th').qtip(qTipOptionsHeader);
+    $('#' + tableId + ' thead th').qtip(qTipOptionsHeader);
+	$('#' + tableId + ' tfoot th').qtip(qTipOptionsFooter);
     //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
     $('#' + tableId + ' .simple-tip').qtip(qTipOptions);

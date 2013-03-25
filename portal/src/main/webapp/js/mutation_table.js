@@ -577,7 +577,7 @@ function _getMutationTableRows(data)
             value.length > 0 &&
             value != "NA")
         {
-            html = '<a href="' + value + '">' +
+            html = '<a href="' + value + '" target="_blank">' +
                      '<span style="background-color:#88C;color:white;">&nbsp;3D&nbsp;</span>' +
                      '</a>';
         }
@@ -596,7 +596,7 @@ function _getMutationTableRows(data)
 		    value.length > 0 &&
 		    value != "NA")
 		{
-			html = '<a href="' + value + '">' +
+			html = '<a href="' + value + '" target="_blank">' +
 			       '<span style="background-color:#88C;color:white">&nbsp;msa&nbsp;</span>' +
 			       '</a>';
 		}
@@ -687,7 +687,7 @@ function _getMutationTableRows(data)
     {
         row = new Array();
 
-        row.push('<a href="' + data.mutations[i].linkToPatientView + '">' +
+        row.push('<a href="' + data.mutations[i].linkToPatientView + '" target="_blank">' +
                  '<b>' + data.mutations[i].caseId + "</b></a>");
         row.push(getProteinChangeHtml(data.mutations[i]));
         row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
@@ -859,7 +859,8 @@ function addMutationTableTooltips(tableId)
 
         var xvia = parts[1];
         if (xvia&&xvia!='NA')
-            tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
+                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
 
 //        var msa = parts[2];
 //        if (msa&&msa!='NA')

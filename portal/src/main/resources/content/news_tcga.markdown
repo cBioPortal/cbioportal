@@ -1,6 +1,6 @@
-# March 7, 2013
+# March 26, 2013
 
-* All data updated to the __January Firehose run__ (January 16, 2012).
+* All TCGA data updated to the __January Firehose run__ (January 16, 2012).
 
 # January 21, 2013
 

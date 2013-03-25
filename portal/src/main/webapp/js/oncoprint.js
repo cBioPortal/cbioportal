@@ -653,7 +653,11 @@ var Oncoprint = function(wrapper, params) {
             .append(tracks);
 //            .append(visualizedKeys(query.data_types));
 
-        return (new XMLSerializer()).serializeToString(export_svg[0]);
+        return (new XMLSerializer()).serializeToString(export_svg[0])
+            .replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
+        // Firefox and safari implementations of XMLSerializer are different.
+        // For some reason (actually a very good one) they think that this is
+        // XHTML and give it the proper namespace.
     };
 
     return that;

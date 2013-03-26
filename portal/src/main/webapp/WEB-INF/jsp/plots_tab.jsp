@@ -201,6 +201,7 @@ $(document).ready(function() {
     out.println ("</tr>");
 
     //D3 example
+
 %>
 </table>
 </div>

@@ -36,7 +36,7 @@ importer.tumor_types_worksheet=
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/target-portal.log
 
 skin.title=cBioPortal (NCI-TARGET)
-skin.email_contact=cbioportal at googlegroups dot com
+skin.email_contact=cbioportal at cbio dot mskcc dot org
 skin.blurb=The cBioPortal (NCI-TARGET) provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 skin.tag_line_image=target-logo.png
 skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/target-form">Request Access</a>].

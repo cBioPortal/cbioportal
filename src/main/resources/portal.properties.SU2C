@@ -35,7 +35,7 @@ importer.tumor_types_worksheet=
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/su2c-portal.log
 
-skin.title=cBio SU2C Portal
+skin.title=cBioPortal SU2C
 skin.blurb=The cBioPortal (SU2C) provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 skin.tag_line_image=su2c-logo.png
 skin.header_image=su2c_portal_name.png

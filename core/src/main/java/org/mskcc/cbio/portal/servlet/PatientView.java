@@ -210,7 +210,7 @@ public class PatientView extends HttpServlet {
         String patient = (String)request.getAttribute(PATIENT_ID);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         ClinicalData clinicalData = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
-        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
+        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
         
         request.setAttribute(CLINICAL_DATA, mergeClinicalData(clinicalData, clinicalFreeForms));
         
@@ -373,8 +373,8 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private Map<String,ClinicalFreeForm> getClinicalFreeform(String patient) throws DaoException {
-        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(patient);
+    private Map<String,ClinicalFreeForm> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
+        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(cancerStudyId, patient);
         Map<String,ClinicalFreeForm> map = new HashMap<String,ClinicalFreeForm>(list.size());
         for (ClinicalFreeForm cff : list) {
             map.put(cff.getParamName().toLowerCase(), cff);

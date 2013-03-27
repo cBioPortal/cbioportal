@@ -236,7 +236,7 @@ var Oncoprint = function(wrapper, params) {
                 AMPLIFIED: "Amplification",
                 GAINED: "Gain",
                 DIPLOID: "Diploid",
-                HEMIZYGOUSLYDELETED: "Hemizygous Deletion",
+                HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
                 HOMODELETED: "Homozygous Deletion"
             },
             mrna: {

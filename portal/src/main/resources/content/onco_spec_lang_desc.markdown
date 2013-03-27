@@ -1,7 +1,7 @@
 # Advanced cancer genomic data visualization: The Onco Query Language (OQL)
 
 You can use the Onco Query Language (OQL) to select and define genetic alterations for all output
-on the cBio Cancer Genomics Portal, including the OncoPrint, heat map, and data downloads.
+on the cBioPortal for Cancer Genomics, including the OncoPrint, heat map, and data downloads.
 
 ## Genetic Alterations
 

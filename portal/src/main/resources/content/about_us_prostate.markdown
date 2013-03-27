@@ -15,7 +15,7 @@ The cBio Prostate Cancer Portal is developed and maintained by the Computational
  * Nikolaus Schultz, MSKCC
  * Chris Sander, MSKCC
 
-Funding for the cBio Cancer Genomics Portal is provided in part from:
+Funding for the cBioPortal for Cancer Genomics is provided in part from:
 
  * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 
  * The NCRR as the National Resource for Network Biology (NRNB) Research Resource (RR 031228-02).

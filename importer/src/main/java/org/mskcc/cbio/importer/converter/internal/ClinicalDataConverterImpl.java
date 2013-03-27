@@ -177,7 +177,7 @@ public class ClinicalDataConverterImpl implements Converter {
      * @param alias
      * @return
      */
-    public String cleanUpAlias(String alias) {
+    public String cleanAlias(String alias) {
         if (alias.contains("radiations.radiation")
                 || alias.contains("drugs.drug")
                 || alias.contains("fishtestcomponentresults.fishtestcomponentresult")
@@ -200,23 +200,24 @@ public class ClinicalDataConverterImpl implements Converter {
      *
      * helper function for internal use
      *
-     * Updates the filteredRows according to the dictionary knownAliasToAttribute
+     * Updates the keepers per the dictionary knownAliasToAttribute.
+     * Basically does rowData \intersect knownAliasToAttribute and appends that to keepers
      *
      * @param knownAliasToAttribute
      * @param alias
-     * @param filteredRows
+     * @param keepers
      * @return
      */
     public void appendToFilteredRows(HashMap<String, ClinicalAttributesMetadata> knownAliasToAttribute,
                                      List<String> rowData,
                                      String alias,
-                                     List<List<String>> filteredRows) {
+                                     List<List<String>> keepers) {
 
         ClinicalAttributesMetadata attr = knownAliasToAttribute.get(alias);
 
         if (attr != null && attr.getAnnotationStatus().equals(OK)) {
             // it's been OKayed
-            filteredRows.add(rowData);
+            keepers.add(rowData);
         }
     }
 
@@ -362,16 +363,18 @@ public class ClinicalDataConverterImpl implements Converter {
         List<ClinicalAttribute> keeperAttrs = new ArrayList<ClinicalAttribute>();
         for (int r = 0; r < dataMatrix.getNumberOfRows(); r++) {
             List<String> rowData = dataMatrix.getRowData(r);
-            String rowName = cleanUpAlias(rowData.get(0));      // assuming that alias is the first item in the row
-            appendToFilteredRows(knownAliasToAttribute, rowData, rowName, keepers);
-            appendToNewAttributes(knownAliasToAttribute, rowData, rowName, newAttributes);
+            String cleanedRowName = cleanAlias(rowData.get(0));      // assuming that alias is the first item in the row
+
+            appendToFilteredRows(knownAliasToAttribute, rowData, cleanedRowName, keepers);
+            appendToNewAttributes(knownAliasToAttribute, rowData, cleanedRowName, newAttributes);
         }
 
         // ** insert into ClinicalAttributes db table **
         // todo: this is done on every staging file. wasteful
         for (List<String> row : keepers) {
             String rowName = row.get(0);
-            ClinicalAttributesMetadata metadata = knownAliasToAttribute.get(rowName);
+            ClinicalAttributesMetadata metadata = knownAliasToAttribute.get(cleanAlias(rowName));
+
             ClinicalAttribute attr =  new ClinicalAttribute(metadata.getColumnHeader(),
                     metadata.getDisplayName(), metadata.getDescription(), metadata.getDatatype());
             keeperAttrs.add(attr);

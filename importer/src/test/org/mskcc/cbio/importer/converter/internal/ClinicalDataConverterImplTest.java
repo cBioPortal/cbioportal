@@ -87,12 +87,14 @@ public class ClinicalDataConverterImplTest {
 
     @Test
     public void cleanUpAliasTest() {
-        assertEquals("abc", clinicalDataConverter.cleanUpAlias("abc"));
-        assertEquals("abcv1.0", clinicalDataConverter.cleanUpAlias("abcv1.0"));
-        assertEquals("drugs.drugabc.a", clinicalDataConverter.cleanUpAlias("drugs.drugabc-1.a"));
-        assertEquals("followups.followup.", clinicalDataConverter.cleanUpAlias("followups.followupv5.0."));
-        assertEquals("followups.followup.1", clinicalDataConverter.cleanUpAlias("followups.followupv5.0-1"));
-        assertEquals("followups.followup.a", clinicalDataConverter.cleanUpAlias("followups.followupv5.0.a-5"));
+        assertEquals("abc", clinicalDataConverter.cleanAlias("abc"));
+        assertEquals("abcv1.0", clinicalDataConverter.cleanAlias("abcv1.0"));
+        assertEquals("drugs.drugabc.a", clinicalDataConverter.cleanAlias("drugs.drugabc-1.a"));
+        assertEquals("followups.followup.", clinicalDataConverter.cleanAlias("followups.followupv5.0."));
+        assertEquals("followups.followup.1", clinicalDataConverter.cleanAlias("followups.followupv5.0-1"));
+        assertEquals("followups.followup.a", clinicalDataConverter.cleanAlias("followups.followupv5.0.a-5"));
+        assertEquals("patient.followups.followup.daystodeath",
+                clinicalDataConverter.cleanAlias("patient.followups.followupv1.5-2.daystodeath"));
     }
 
     @Test

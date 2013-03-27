@@ -83,7 +83,7 @@ public class HeatMapLegend {
       }
 
       if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
-         CNAlevels.add("<td class=hetloss_2>Hemizygous Deletion</td>");
+         CNAlevels.add("<td class=hetloss_2>Heterozygous Deletion</td>");
       }
 
       // mutations

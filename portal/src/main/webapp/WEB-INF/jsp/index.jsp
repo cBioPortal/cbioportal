@@ -13,7 +13,7 @@
         popeye = "preview.jsp";
     } 
     if (siteTitle == null) {
-        siteTitle = "cBio Cancer Genomics Portal";
+        siteTitle = "cBioPortal for Cancer Genomics";
     }
     String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
     if (tabIndex == null) {

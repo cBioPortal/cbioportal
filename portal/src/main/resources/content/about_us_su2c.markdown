@@ -30,7 +30,7 @@ Study Tracker provided by:
  * Aaron Gabow
  * Alex Lash
  
-Funding for the cBio Cancer Genomics Portal is provided in part from:
+Funding for the cBioPortal for Cancer Genomics is provided in part from:
 
   * [Stand Up To Cancer](http://standup2cancer.org/) as part our membership in the [PI3K Dream Team](http://pi3k.org/)
   * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 

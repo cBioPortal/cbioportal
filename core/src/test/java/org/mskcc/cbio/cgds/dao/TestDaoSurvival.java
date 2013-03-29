@@ -28,26 +28,30 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-
-import static org.mockito.Mockito.mock;
+import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.Survival;
+import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**
- * Tests the DaoClinicalData Class.
+ * Tests the DaoSurvival Class.
  *
  * @author Ethan Cerami
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
-public class TestDaoClinicalData extends TestCase {
+public class TestDaoSurvival extends TestCase {
 
     /**
      * Basic Unit Tests.
      * @throws DaoException Database Access Error.
      */
-    public void testDaoClinical() throws DaoException {
-//        ResetDatabase.resetDatabase();
-//
-//        DaoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
-//        Clinical clinicalData = DaoClinical.getDatum(1, "TCGA-A", "tumor-size");
+    public void testDaoSurvival() throws DaoException {
+        ResetDatabase.resetDatabase();
+
+        DaoClinical.addDatum(1, "TCGA-A", "tumor-size", "small");
+        Clinical clinicalData = DaoClinical.getDatum(1, "TCGA-A", "tumor-size");
+
+        System.out.println(clinicalData);
+
 //
 //        //        System.out.println(clinicalData);
 //        assertNotNull(clinicalData);

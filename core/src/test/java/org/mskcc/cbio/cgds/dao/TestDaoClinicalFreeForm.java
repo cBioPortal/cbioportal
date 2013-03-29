@@ -37,7 +37,7 @@ import junit.framework.TestCase;
 import java.util.HashSet;
 
 /**
- * Tests the DaoClinicalData Class.
+ * Tests the DaoSurvival Class.
  *
  * @author Ethan Cerami
  */

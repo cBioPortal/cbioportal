@@ -253,7 +253,7 @@ public class ExportDataForDownload {
             // TODO need to be able to get all cases for a cancer
             /*
             // get cases
-            DaoClinicalData aDaoClinicalData = new DaoClinicalData();
+            DaoSurvival aDaoClinicalData = new DaoSurvival();
             DaoCaseList aDaoCaseList = new DaoCaseList();
             ArrayList<Survival> allClinicalData = aDaoClinicalData.getCases(
                      getCaseListByStableId         

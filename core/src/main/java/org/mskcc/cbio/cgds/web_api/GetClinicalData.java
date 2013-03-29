@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.dao.DaoSurvival;
 import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Survival;
@@ -50,7 +50,7 @@ public class GetClinicalData {
      */
     public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
-        DaoClinicalData daoClinical = new DaoClinicalData();
+        DaoSurvival daoClinical = new DaoSurvival();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
         List<Survival> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);

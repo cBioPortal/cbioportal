@@ -60,7 +60,7 @@ public class PatientView extends HttpServlet {
     
     private ServletXssUtil servletXssUtil;
     
-    private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
+    private static final DaoSurvival DAO_SURVIVAL = new DaoSurvival();
     private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
     // class which process access control to cancer studies
@@ -209,7 +209,7 @@ public class PatientView extends HttpServlet {
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
         String patient = (String)request.getAttribute(PATIENT_ID);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        Survival survival = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
+        Survival survival = DAO_SURVIVAL.getCase(cancerStudy.getInternalId(),patient);
         Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
         
         request.setAttribute(CLINICAL_DATA, mergeClinicalData(survival, clinicalFreeForms));

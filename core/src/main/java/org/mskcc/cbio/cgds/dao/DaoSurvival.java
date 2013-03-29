@@ -25,34 +25,39 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.portal.remote;
-
-import org.mskcc.cbio.cgds.dao.DaoSurvival;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.Survival;
+package org.mskcc.cbio.cgds.dao;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Set;
+import org.mskcc.cbio.cgds.model.Survival;
 
 /**
- * Gets clinical data for specified cases.
+ * A layer ontop of DaoClinical for survival data
+ *
+ * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
-public class GetClinicalData {
-    public static final String NA = "NA";
+public class DaoSurvival {
+
+    public Survival getCase(int cancerStudyId, String _case)  throws DaoException {
+        ArrayList<Survival> list = getCases(cancerStudyId, Collections.singleton(_case));
+
+        Survival dummy = new Survival(-1, "", -1.0, "", -1.0, "", -1.0);
+
+        return dummy;
+    }
 
     /**
-     * Gets clinical data for specified cases.
+     * Gets All Cases in the Specified Case Set.
      *
-     * @param setOfCaseIds Case IDs.
-     * @return an ArrayList of Survival Objects
-     * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
+     * @param caseSet       Target Case Set.
+     * @return  ArrayList of CaseSurvival Objects.
+     * @throws DaoException Error Accessing Database.
      */
-    public static ArrayList<Survival> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
-        if (setOfCaseIds != null && setOfCaseIds.size() > 0) {
-            DaoSurvival daoSurvival = new DaoSurvival();
-            return daoSurvival.getCases(cancerStudyId, setOfCaseIds);
-        } else {
-            return new ArrayList<Survival>();
-        }
+    public ArrayList<Survival> getCases(int cancerStudyId, Set<String> caseSet) throws DaoException {
+
+        ArrayList<Survival> dummy = new ArrayList<Survival>();
+
+        return dummy;
     }
 }

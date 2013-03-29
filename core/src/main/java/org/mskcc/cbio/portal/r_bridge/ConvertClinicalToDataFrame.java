@@ -27,29 +27,29 @@
 
 package org.mskcc.cbio.portal.r_bridge;
 
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Survival;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
 
 import java.util.ArrayList;
 
 /**
- * Converts a List of ClinicalData Objects to an R Data Frame.
+ * Converts a List of Survival Objects to an R Data Frame.
  *
  * @author Ethan Cerami.
  */
 public class ConvertClinicalToDataFrame {
-    private ArrayList<ClinicalData> clinicalDataList;
+    private ArrayList<Survival> survivalList;
     private ProfileDataSummary dataSummary;
     private String QUOTE = "\"";
 
     /**
      * Constructor.
      *
-     * @param clinicalDataList ArrayList of Clinical Data Objects.
+     * @param survivalList ArrayList of Clinical Data Objects.
      */
-    public ConvertClinicalToDataFrame(ArrayList<ClinicalData> clinicalDataList,
+    public ConvertClinicalToDataFrame(ArrayList<Survival> survivalList,
             ProfileDataSummary dataSummary) {
-        this.clinicalDataList = clinicalDataList;
+        this.survivalList = survivalList;
         this.dataSummary = dataSummary;
     }
 
@@ -59,7 +59,7 @@ public class ConvertClinicalToDataFrame {
      * @return
      */
     public String getRCode() {
-        int numItems = clinicalDataList.size();
+        int numItems = survivalList.size();
         StringBuffer rCode = new StringBuffer();
         rCode.append("df <- data.frame(CASE_ID=rep(\"NA\"," + numItems + "), "
                 + " OS_MONTHS=rep(NA, " + numItems + "), "
@@ -68,20 +68,20 @@ public class ConvertClinicalToDataFrame {
                 + " DFS_STATUS=rep(NA, " + numItems + "), "
                 + " GENE_SET_ALTERED=rep(NA, " + numItems + "), "
                 + " stringsAsFactors=FALSE)\n");
-        for (int i = 0; i < clinicalDataList.size(); i++) {
-            ClinicalData clinicalData = clinicalDataList.get(i);
+        for (int i = 0; i < survivalList.size(); i++) {
+            Survival survival = survivalList.get(i);
             int rIndex = i + 1;
 
             // status = 1 (Died from Disease)
             // status = 0 (Still alive at last follow-up)
-            rCode.append("df[" + rIndex + ", ] <- list(\"" + clinicalData.getCaseId() + "\",");
-            if (clinicalData.getOverallSurvivalMonths() == null) {
+            rCode.append("df[" + rIndex + ", ] <- list(\"" + survival.getCaseId() + "\",");
+            if (survival.getOverallSurvivalMonths() == null) {
                 rCode.append("NA");
             } else {
-                rCode.append(clinicalData.getOverallSurvivalMonths());
+                rCode.append(survival.getOverallSurvivalMonths());
             }
             rCode.append(", ");
-            String osStatus = clinicalData.getOverallSurvivalStatus();
+            String osStatus = survival.getOverallSurvivalStatus();
             if (osStatus == null || osStatus.length() == 0) {
                 rCode.append("NA");
             } else {
@@ -91,17 +91,17 @@ public class ConvertClinicalToDataFrame {
                     rCode.append("0");
                 } else {
                     throw new IllegalArgumentException("Could not parse OS status:  " +
-                            clinicalData.getOverallSurvivalStatus());
+                            survival.getOverallSurvivalStatus());
                 }
             }
             rCode.append(", ");
-            if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
+            if (survival.getDiseaseFreeSurvivalMonths() == null) {
                 rCode.append("NA");
             } else {
-                rCode.append(clinicalData.getDiseaseFreeSurvivalMonths());
+                rCode.append(survival.getDiseaseFreeSurvivalMonths());
             }
             rCode.append(", ");
-            String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
+            String dfsStatus = survival.getDiseaseFreeSurvivalStatus();
             if (dfsStatus == null || dfsStatus.length() == 0) {
                 rCode.append("NA");
             } else {
@@ -117,7 +117,7 @@ public class ConvertClinicalToDataFrame {
             }
 
             rCode.append(", ");
-            boolean caseIsAltered = dataSummary.isCaseAltered(clinicalData.getCaseId());
+            boolean caseIsAltered = dataSummary.isCaseAltered(survival.getCaseId());
             if (caseIsAltered) {
                 rCode.append("TRUE");
             } else {

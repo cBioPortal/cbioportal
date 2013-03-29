@@ -17,7 +17,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cbio.cgds.model.Survival" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
@@ -93,7 +93,7 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
+    ArrayList <ClinicalData> survivalList = (ArrayList<ClinicalData>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
@@ -284,7 +284,7 @@
                         + "Protein Changes</a></li>");
                     }
 
-                    if (clinicalDataList != null && clinicalDataList.size() > 0) {
+                    if (survivalList != null && survivalList.size() > 0) {
                         out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
@@ -354,7 +354,7 @@
             <% } %>
                     
             <%
-                if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
+                if (survivalList != null && survivalList.size() > 0) { %>
                     <%@ include file="clinical_tab.jsp" %>
             <%    }
             %>

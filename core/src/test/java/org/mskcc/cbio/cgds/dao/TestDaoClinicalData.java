@@ -28,12 +28,6 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.Clinical;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import static org.mockito.Mockito.mock;
 
@@ -60,10 +54,10 @@ public class TestDaoClinicalData extends TestCase {
 //        HashSet<String> caseSet = new HashSet<String>();
 //        caseSet.add("TCGA-12-1234");
 //        caseSet.add("TCGA-12-1235");
-//        ArrayList<ClinicalData> caseList = DaoClinical.getCases(1,caseSet);
+//        ArrayList<Survival> caseList = DaoClinical.getCases(1,caseSet);
 //
 //        assertEquals (2, caseList.size());
-//        ClinicalData caseSurvival = caseList.get(0);
+//        Survival caseSurvival = caseList.get(0);
 //        assertEquals ("TCGA-12-1234", caseSurvival.getCaseId());
 //        assertEquals (new Double(0.5), caseSurvival.getOverallSurvivalMonths());
 //        assertEquals ("ALIVE", caseSurvival.getOverallSurvivalStatus());

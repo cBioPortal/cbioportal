@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Survival;
 
 /**
  * Data access object for Clinical Data table
@@ -114,8 +114,8 @@ public class DaoClinicalData {
         }
     }
     
-    public ClinicalData getCase(int cancerStudyId, String _case)  throws DaoException {
-        ArrayList<ClinicalData> list = getCases(cancerStudyId, Collections.singleton(_case));
+    public Survival getCase(int cancerStudyId, String _case)  throws DaoException {
+        ArrayList<Survival> list = getCases(cancerStudyId, Collections.singleton(_case));
         return list.isEmpty() ? null : list.get(0);
     }
 
@@ -126,7 +126,7 @@ public class DaoClinicalData {
      * @return  ArrayList of CaseSurvival Objects.
      * @throws DaoException Error Accessing Database.
      */
-    public ArrayList<ClinicalData> getCases(int cancerStudyId, Set<String> caseSet) throws DaoException {
+    public ArrayList<Survival> getCases(int cancerStudyId, Set<String> caseSet) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -136,7 +136,7 @@ public class DaoClinicalData {
                     + cancerStudyId + "' AND CASE_ID IN('"
                     + StringUtils.join(caseSet, "','") + "')");
             rs = pstmt.executeQuery();
-            ArrayList<ClinicalData> caseList = new ArrayList<ClinicalData>();
+            ArrayList<Survival> caseList = new ArrayList<Survival>();
             while (rs.next()) {
                 String caseId = rs.getString("CASE_ID");
 
@@ -166,7 +166,7 @@ public class DaoClinicalData {
                     ageAtDiagnosis = null;
                 }
 
-                ClinicalData caseSurvival = new ClinicalData(cancerStudyId, caseId, overallSurvivalMonths,
+                Survival caseSurvival = new Survival(cancerStudyId, caseId, overallSurvivalMonths,
                         overallSurvivalStatus, diseaseFreeSurvivalMonths,
                         diseaseFreeSurvivalStatus, ageAtDiagnosis);
                 caseList.add(caseSurvival);

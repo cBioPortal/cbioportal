@@ -48,7 +48,7 @@ public class TestDaoClinical extends TestCase {
         Clinical testClinical = DaoClinical.extract(mockResultSet);
 
         assert testClinical.getCancerStudyId() == 1;
-        assert testClinical.getCaseId().equals("case_id");
+        assert testClinical.getCaseId().equals("CASE_ID");      // todo: N.B. all caps
         assert testClinical.getAttrId().equals("attr_id");
         assert testClinical.getAttrVal().equals("attr_val");
     }

@@ -32,7 +32,7 @@ package org.mskcc.cbio.cgds.model;
  *
  * @author Ethan Cerami.
  */
-public class ClinicalData {
+public class Survival {
     private int cancerStudyId;
     private String caseId;
     private Double overallSurvivalMonths;
@@ -50,9 +50,9 @@ public class ClinicalData {
      * @param diseaseFreeSurvivalMonths Disease Free Survival Months.
      * @param diseaseFreeSurvivalStatus Disease Free Survival Status.
      */
-    public ClinicalData(int cancerStudyId, String caseId, Double overallSurvivalMonths,
-            String overallSurvivalStatus, Double diseaseFreeSurvivalMonths,
-            String diseaseFreeSurvivalStatus, Double ageAtDiagnosis) {
+    public Survival(int cancerStudyId, String caseId, Double overallSurvivalMonths,
+                    String overallSurvivalStatus, Double diseaseFreeSurvivalMonths,
+                    String diseaseFreeSurvivalStatus, Double ageAtDiagnosis) {
         this.cancerStudyId = cancerStudyId;
         this.caseId = caseId;
         this.overallSurvivalMonths = overallSurvivalMonths;

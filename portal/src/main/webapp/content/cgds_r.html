@@ -84,7 +84,7 @@ boxplot(profileData.data(2,:),profileData.data(1,:));
 title('TP53'); xlabel('Copy-number status'); ylabel('mRNA level');
 
 % Get clinical data for all patients in a given case list
-clinicalData = getclinicaldata(cgdsURL, caseLists.caseListId{2});
+survival = getclinicaldata(cgdsURL, caseLists.caseListId{2});
 
 % Run a function in non-verbose mode
 cancerStudies = getcancerstudies(cgdsURL, 'silent');

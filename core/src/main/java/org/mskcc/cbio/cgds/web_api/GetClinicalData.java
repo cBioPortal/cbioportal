@@ -31,7 +31,7 @@ import java.util.*;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Survival;
 import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
 
 /**
@@ -53,9 +53,9 @@ public class GetClinicalData {
         DaoClinicalData daoClinical = new DaoClinicalData();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
 
-        List<ClinicalData> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
-        Map<String,ClinicalData> mapClinicalData = new HashMap<String,ClinicalData>();
-        for (ClinicalData cd : caseSurvivalList) {
+        List<Survival> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
+        Map<String,Survival> mapClinicalData = new HashMap<String,Survival>();
+        for (Survival cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);
         }
 
@@ -92,7 +92,7 @@ public class GetClinicalData {
             for (String caseId : caseIdList) {
                 buf.append(caseId);
                 if (!caseSurvivalList.isEmpty()) {
-                    ClinicalData cd = mapClinicalData.get(caseId);
+                    Survival cd = mapClinicalData.get(caseId);
                     append(buf, cd==null ? null : cd.getOverallSurvivalMonths());
                     append(buf, cd==null ? null : cd.getOverallSurvivalStatus());
                     append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalMonths());

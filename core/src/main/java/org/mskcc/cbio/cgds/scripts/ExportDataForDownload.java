@@ -255,12 +255,12 @@ public class ExportDataForDownload {
             // get cases
             DaoClinicalData aDaoClinicalData = new DaoClinicalData();
             DaoCaseList aDaoCaseList = new DaoCaseList();
-            ArrayList<ClinicalData> allClinicalData = aDaoClinicalData.getCases(
+            ArrayList<Survival> allClinicalData = aDaoClinicalData.getCases(
                      getCaseListByStableId         
             
             );
             
-            for( ClinicalData aClinicalData : allClinicalData ){
+            for( Survival aClinicalData : allClinicalData ){
                
             }
 

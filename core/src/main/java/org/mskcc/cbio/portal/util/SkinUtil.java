@@ -35,7 +35,7 @@ import org.mskcc.cbio.portal.servlet.QueryBuilder;
  * @author Ethan Cerami.
  */
 public class SkinUtil {
-    public static final String DEFAULT_TITLE = "cBio Cancer Genomics Portal";
+    public static final String DEFAULT_TITLE = "cBioPortal for Cancer Genomics";
     public static final String DEFAULT_EMAIL_CONTACT = "cbioportal at googlegroups dot com";
     public static final String DEFAULT_AUTHORIZATION_MESSAGE = "Access to this portal is only " +
             "available to authorized users.";

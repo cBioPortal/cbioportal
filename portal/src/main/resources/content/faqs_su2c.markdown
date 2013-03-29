@@ -2,7 +2,7 @@
 
 # What is the cBio SU2 Cancer Genomics Portal?
 
-The cBio SU2C Cancer Genomics Portal currently contains data from all women's cancer projects run by the TCGA. The portal has all the same features as the public [cBio Cancer Genomics Portal](http://cbioportal.org/), but contains additional protein data for some genes and tumor samples.
+The cBio SU2C Cancer Genomics Portal currently contains data from all women's cancer projects run by the TCGA. The portal has all the same features as the public [cBioPortal for Cancer Genomics](http://cbioportal.org/), but contains additional protein data for some genes and tumor samples.
 
 # What are the main functionalities of the cBio SU2C Cancer Genomics Portal?
 

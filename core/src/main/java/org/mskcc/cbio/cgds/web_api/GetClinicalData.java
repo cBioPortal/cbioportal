@@ -62,7 +62,7 @@ public class GetClinicalData {
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
         Set<String> freeFormParams = Collections.emptySet();
         if (includeFreeFormData) {
-            List<ClinicalFreeForm> clinicalFreeForms = daoClinicalFreeForm.getCasesByCases(caseIdList);
+            List<ClinicalFreeForm> clinicalFreeForms = daoClinicalFreeForm.getCasesByCases(cancerStudyId, caseIdList);
             mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
             freeFormParams = new HashSet<String>();
             for (ClinicalFreeForm cff : clinicalFreeForms) {

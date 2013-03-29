@@ -215,7 +215,7 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
                                 var altCount = mutations.getValue(source[0], 'alt-count');
-                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
@@ -268,7 +268,7 @@
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
-                                if (refCount==null||refCount<0) return '';
+                                if (refCount===null||refCount<0) return '';
                                 if (!refCount) return '';
                                 
                                 return refCount; 
@@ -294,7 +294,7 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
@@ -322,7 +322,7 @@
                                 return;
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (altCount==null||altCount<0) return '';
+                                if (altCount===null||altCount<0) return '';
                                 if (!altCount) return '';
                                 
                                 return altCount; 
@@ -347,7 +347,7 @@
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
-                                if (refCount==null||refCount<0) return '';
+                                if (refCount===null||refCount<0) return '';
                                 if (!refCount) return '';
                                 
                                 return refCount; 
@@ -421,7 +421,7 @@
                                     arr.push("<td>"+aa+"</td><td>"+c+"</td>");
                                     n += c;
                                 }
-                                if (n==0) return "";
+                                if (n===0) return "";
                                 var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
                                     +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
@@ -438,7 +438,7 @@
                                 return 0;
                             } else if (type==='filter') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
-                                return !cosmic||cosmic.length==0?"":"cosmic";
+                                return !cosmic||cosmic.length===0?"":"cosmic";
                             } else {
                                 return mutations.getValue(source[0], 'cosmic');
                             }
@@ -455,7 +455,7 @@
                                 var drug = mutations.getValue(source[0], 'drug');
                                 if (!drug) return '';
                                 var len = drug.length;
-                                if (len==0) return '';
+                                if (len===0) return '';
                                 return "<img src='images/drug.png' width=12 height=12 id='"
                                             +table_id+'_'+source[0]+"-drug-tip' class='"
                                             +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
@@ -494,13 +494,13 @@
                                 if (impact) {
                                     var tip = "Predicted impact: <b>"+impact+"</b>";
                                     var xvia = ma['xvia'];
-                                    if (xvia&&xvia!='NA') {
-                                        if (xvia.indexOf('http://')!=0) xvia='http://'+xvia;
+                                    if (xvia&&xvia!=='NA') {
+                                        if (xvia.indexOf('http://')!==0) xvia='http://'+xvia;
                                         tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
                                      }
                                     var msa = ma['msa'];
-                                    if (msa&&msa!='NA') {
-                                        if (msa.indexOf('http://')!=0) msa='http://'+msa;
+                                    if (msa&&msa!=='NA') {
+                                        if (msa.indexOf('http://')!==0) msa='http://'+msa;
                                         tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
                                     }
                                     ret += "<span style='background-color:"+bgColor+";' class='"
@@ -538,8 +538,8 @@
                                 
                                 var ret = '';
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') {
-                                    if (pdb.indexOf('http://')!=0) pdb='http://'+pdb;
+                                if (pdb&&pdb!=='NA') {
+                                    if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                     ret += "&nbsp;<a class='"
                                             +table_id+"-tip' alt='Protein 3D structure' href='"+pdb
                                             +"'><span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>";
@@ -549,12 +549,12 @@
                             } else if (type==='sort'||type==='filter') {
                                 var ma = mutations.getValue(source[0], 'ma');
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') return '3d';
+                                if (pdb&&pdb!=='NA') return '3d';
                                 else return '';
                             } else {
                                 var ma = mutations.getValue(source[0], 'ma');
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') return '';
+                                if (pdb&&pdb!=='NA') return '';
                                 else return pdb;
                             }
                         },
@@ -593,17 +593,14 @@
             var genemutrate = mutations.getValue(gene, 'genemutrate');
             var geneperc = 100 * genemutrate / numPatientInSameMutationProfile;
             
-            var unaltered=20-geneperc;
-            if (unaltered<0)
-                unaltered = geneperc===100?0:1;
-            var data = [keyperc, geneperc-keyperc, unaltered];
+            var data = [keyperc, geneperc-keyperc, 100-geneperc];
             var colors = ["green", "lightgreen", "#ccc"];
             
             var svg = d3.select($(this)[0])
                 .append("svg")
-                .attr("width", 26)
+                .attr("width", 60)
                 .attr("height", 12);
-            var pie = d3PieChart(svg, data, 6, colors);
+            var pie = d3AccBar(svg, data, 40, colors);
 
             var tip = ""+genemutrate+" sample"+(genemutrate===1?"":"s")
                 + " (<b>"+geneperc.toFixed(1) + "%</b>)"+" in this study "+(genemutrate===1?"has":"have")+" mutated "
@@ -618,7 +615,7 @@
             if (mutsig) {
                 tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
                 var circle = svg.append("g")
-                    .attr("transform", "translate(21,6)");
+                    .attr("transform", "translate(54,6)");
                 d3CircledChar(circle,"M");
                 qtip($(circle), tip);
             }

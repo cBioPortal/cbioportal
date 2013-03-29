@@ -517,6 +517,38 @@ function d3PieChart(svg, data, radius, colors) {
     return chart;
 }
 
+function d3AccBar(svg, data, width, colors) {
+    var acc = [];
+    var sum = 0;
+    for (var i=0; i<data.length; i++) {
+        acc.push(sum);
+        sum += data[i];
+    }
+    
+    var vd = [];
+    for (var i=0; i<data.length; i++) {
+        vd.push({
+            start: width*acc[i]/sum,
+            width: width*data[i]/sum,
+            color: colors[i]
+        });
+    }
+
+    var chart = svg.selectAll(".bar")
+        .data(vd) 
+        .enter()
+        .append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d,i) { return "translate(" + d.start + "," + 3 + ")"; });
+
+    chart.append("rect")
+        .attr("width", function(d, i) { return d.width; })
+        .attr("height", 8)
+        .attr("fill", function(d, i) { return d.color; } );
+
+    return chart;
+}
+
 function d3CircledChar(g,ch) {
     g.append("circle")
         .attr("r",5)
@@ -547,7 +579,7 @@ function plotMrna(div,alts) {
 }
 
 function d3MrnaBar(div,mrnaPerc) {
-    var width = 40,
+    var width = 50,
         height = 12;
 
     var barWidth = Math.abs(mrnaPerc-0.5)*width;

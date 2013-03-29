@@ -185,17 +185,14 @@
             var altrate = cnas.getValue(gene, 'altrate');
             var perc = 100 * altrate / numPatientInSameCnaProfile;
             var alter = cnas.getValue(gene, "alter");
-            var unaltered=20-perc;
-            if (unaltered<0)
-                unaltered = perc===100?0:1;
-            var data = [perc, unaltered];
+            var data = [perc, 100-perc];
             var colors = [alter>0?"red":"blue", "#ccc"];
             
             var svg = d3.select($(this)[0])
                 .append("svg")
-                .attr("width", 26)
+                .attr("width", 60)
                 .attr("height", 12);
-            var pie = d3PieChart(svg, data, 6, colors);
+            var pie = d3AccBar(svg, data, 40, colors);
 
             var tip = ""+altrate+" sample"+(altrate===1?"":"s")
                     +" (<b>"+perc.toFixed(1) + "%</b>)"+" in this study "
@@ -209,7 +206,7 @@
                 tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
                             +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                 var circle = svg.append("g")
-                    .attr("transform", "translate(21,6)");
+                    .attr("transform", "translate(54,6)");
                 d3CircledChar(circle,"G");
                 qtip($(circle), tip);
             }

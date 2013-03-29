@@ -567,7 +567,7 @@ function plotMrna(div,alts) {
         if (!$(this).is(":empty")) return;
         var gene = $(this).attr("alt");
         var mrna = alts.getValue(gene, 'mrna');
-        d3MrnaBar($(this)[0],mrna.perc/100);
+        d3MrnaBar($(this)[0],mrna.perc);
         $(this).qtip({
             content: {text: "mRNA level of the gene in this tumor<br/><b>mRNA z-score</b>: "
                         +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
@@ -579,10 +579,10 @@ function plotMrna(div,alts) {
 }
 
 function d3MrnaBar(div,mrnaPerc) {
-    var width = 50,
+    var width = 60,
         height = 12;
 
-    var barWidth = Math.abs(mrnaPerc-0.5)*width;
+    var barWidth = Math.abs(mrnaPerc/100-0.5)*width;
 
     var svg = d3.select(div).append('svg')
         .attr("width", width)
@@ -597,11 +597,18 @@ function d3MrnaBar(div,mrnaPerc) {
         .attr("style", "stroke:gray;stroke-width:2");
 
     svg.append("rect")
-        .attr("x", mrnaPerc>0.5 ? (width/2) : (width/2-barWidth))
+        .attr("x", mrnaPerc>50 ? (width/2) : (width/2-barWidth))
         .attr("width", barWidth)
         .attr("y", 3)
         .attr("height", 6)
-        .attr("fill", mrnaPerc>0.75 ? "red" : (mrnaPerc<0.25?"blue":"gray"));
+        .attr("fill", mrnaPerc>75 ? "red" : (mrnaPerc<25?"blue":"gray"));
+
+    svg.append("text")
+        .attr("x", mrnaPerc>50 ? (width/2-4) : width)
+        .attr('y',11)
+        .attr("text-anchor", "end")
+        .attr('font-size',10)
+        .text(mrnaPerc+"%");
 
 }
 

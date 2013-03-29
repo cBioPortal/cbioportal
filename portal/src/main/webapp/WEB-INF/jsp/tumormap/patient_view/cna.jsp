@@ -91,7 +91,8 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
-                                if (!mrna) return '';
+                                if (!mrna) return "<span style='color:gray;' class='"
+                                           +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var mrna = cnas.getValue(source[0], 'mrna');

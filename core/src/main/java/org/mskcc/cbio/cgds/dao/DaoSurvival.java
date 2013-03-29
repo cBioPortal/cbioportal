@@ -28,8 +28,9 @@
 package org.mskcc.cbio.cgds.dao;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Set;
+
+import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.Survival;
 
 /**
@@ -39,12 +40,18 @@ import org.mskcc.cbio.cgds.model.Survival;
  */
 public class DaoSurvival {
 
-    public Survival getCase(int cancerStudyId, String _case)  throws DaoException {
-        ArrayList<Survival> list = getCases(cancerStudyId, Collections.singleton(_case));
+    public Survival getCase(int cancerStudyId, String caseId)  throws DaoException {
+        Clinical vitalStatus = DaoClinical.getDatum(cancerStudyId, caseId, "VITAL_STATUS");
+        Clinical age = DaoClinical.getDatum(cancerStudyId, caseId, "AGE");
 
-        Survival dummy = new Survival(-1, "", -1.0, "", -1.0, "", -1.0);
-
-        return dummy;
+        return new Survival(
+                -1,
+                "",
+                -1.0,
+                vitalStatus.getAttrVal(),
+                -1.0,
+                "",
+                Double.parseDouble(age.getAttrVal()));
     }
 
     /**

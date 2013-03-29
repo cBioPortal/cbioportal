@@ -87,6 +87,7 @@ public class MafRecord
 
 	// Mutation Assessor cols
 	private String maFuncImpact;
+	private float maFIS;
 	private String maLinkVar;
 	private String maLinkMsa;
 	private String maLinkPdb;
@@ -706,6 +707,14 @@ public class MafRecord
 
 	public void setMaFuncImpact(String maFuncImpact) {
 		this.maFuncImpact = maFuncImpact;
+	}
+
+	public float getMaFIS() {
+		return maFIS;
+	}
+
+	public void setMaFIS(float maFIS) {
+		this.maFIS = maFIS;
 	}
 
 	public String getMaLinkVar() {

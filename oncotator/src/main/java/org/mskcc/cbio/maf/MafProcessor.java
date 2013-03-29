@@ -388,6 +388,7 @@ public class MafProcessor
 
 		// Mutation Assessor columns
 		headers.add(MafUtil.MA_FIMPACT);
+		headers.add(MafUtil.MA_FIS);
 		headers.add(MafUtil.MA_PROTEIN_CHANGE);
 		headers.add(MafUtil.MA_LINK_MSA);
 		headers.add(MafUtil.MA_LINK_PDB);

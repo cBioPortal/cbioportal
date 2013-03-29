@@ -99,6 +99,7 @@ public class MafUtil
 
 	// mutation assessor column names
 	public static final String MA_FIMPACT = "MA:FImpact";
+	public static final String MA_FIS = "MA:FIS";
 	public static final String MA_LINK_VAR = "MA:link.var";
 	public static final String MA_LINK_MSA = "MA:link.MSA";
 	public static final String MA_LINK_PDB = "MA:link.PDB";
@@ -180,6 +181,7 @@ public class MafUtil
 
 	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
+	private int maFisIndex = -1; // MA:FIS
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
@@ -330,6 +332,8 @@ public class MafUtil
 	            oncoExonAffectedBeIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
 				maFImpactIndex = i;
+            } else if(header.equalsIgnoreCase(MA_FIS)) {
+	            maFisIndex = i;
             } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
 	            maLinkVarIndex = i;
             } else if(header.equalsIgnoreCase(MA_LINK_MSA)) {
@@ -424,6 +428,7 @@ public class MafUtil
 
         // Mutation Assessor columns
 	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
+	    record.setMaFIS(getPartFloat(maFisIndex, parts));
 	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
 	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
 	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
@@ -518,6 +523,18 @@ public class MafUtil
             return MafRecord.NA_FLOAT;
         }
     }
+
+	private Float getPartFloat(int index, String[] parts)
+	{
+		try {
+			String part = parts[index];
+			return Float.parseFloat(part);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return MafRecord.NA_FLOAT;
+		} catch (NumberFormatException e) {
+			return MafRecord.NA_FLOAT;
+		}
+	}
 
 	public String adjustDataLine(String dataLine)
 	{
@@ -737,6 +754,11 @@ public class MafUtil
 		return maFImpactIndex;
 	}
 
+	public int getMaFisIndex()
+	{
+		return maFisIndex;
+	}
+
 	public int getMaLinkVarIndex()
 	{
 		return maLinkVarIndex;
@@ -787,19 +809,9 @@ public class MafUtil
 		return oncoRefseqProtIdIndex;
 	}
 
-	public void setOncoRefseqProtIdIndex(int oncoRefseqProtIdIndex)
-	{
-		this.oncoRefseqProtIdIndex = oncoRefseqProtIdIndex;
-	}
-
 	public int getOncoUniprotAccessionIndex()
 	{
 		return oncoUniprotAccessionIndex;
-	}
-
-	public void setOncoUniprotAccessionIndex(int oncoUniprotAccessionIndex)
-	{
-		this.oncoUniprotAccessionIndex = oncoUniprotAccessionIndex;
 	}
 
 	public int getOncoProteinChangeBeIndex()

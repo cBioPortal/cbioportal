@@ -506,6 +506,7 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("mutationType", "Type");
 		headerList.put("cosmic", "COSMIC");
 		headerList.put("functionalImpactScore", "FIS");
+		headerList.put("msaLink", "Cons");
 		headerList.put("pdbLink", "3D");
 		headerList.put("mutationStatus", "MS");
 		headerList.put("validationStatus", "VS");

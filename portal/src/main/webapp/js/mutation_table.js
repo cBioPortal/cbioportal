@@ -260,6 +260,23 @@ function drawMutationTable(data)
         }
     }
 
+	// conditionally hide mutation status column if there is no germline mutation
+	var containsGermline = false;
+
+	for (var i=0; i < data.mutations.length; i++)
+	{
+		if (data.mutations[i].mutationStatus.toLowerCase() == "germline")
+		{
+			containsGermline = true;
+			break;
+		}
+	}
+
+	if (!containsGermline)
+	{
+		hiddenCols.push(7);
+	}
+
     // format the table with the dataTable plugin
     var oTable = $("#mutation_details #" + tableId).dataTable({
         "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',

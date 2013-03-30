@@ -75,6 +75,10 @@
                 color: gray;
 	            font-weight: bold;
         }
+		.diagram_uniprot_link {
+                padding-top: 10px;
+                padding-left: 10px;
+		}
 </style>
 
 <script type="text/javascript">
@@ -190,6 +194,8 @@ function toggleMutationDiagram(geneId)
 //	               "<option value='diagram'>Lollipop Diagram</option>" +
 //	               "<option value='histogram'>Histogram</option>" +
 //	               "</select>");
+	    out.println("<div id='uniprot_link_" + geneWithScore.getGene().toUpperCase() + "' " +
+	                "class='diagram_uniprot_link'></div>");
         out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'>" +

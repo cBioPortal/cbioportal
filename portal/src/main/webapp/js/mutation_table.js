@@ -254,11 +254,28 @@ function drawMutationTable(data)
     for (var col=9; col<count; col++)
     {
         // do not hide frequency columns
-        if (!(col == 14 || col == 17))
+        if (!(col == 15 || col == 18))
         {
             hiddenCols.push(col);
         }
     }
+
+	// conditionally hide mutation status column if there is no germline mutation
+	var containsGermline = false;
+
+	for (var i=0; i < data.mutations.length; i++)
+	{
+		if (data.mutations[i].mutationStatus.toLowerCase() == "germline")
+		{
+			containsGermline = true;
+			break;
+		}
+	}
+
+	if (!containsGermline)
+	{
+		hiddenCols.push(7);
+	}
 
     // format the table with the dataTable plugin
     var oTable = $("#mutation_details #" + tableId).dataTable({
@@ -370,6 +387,7 @@ function _getMutationTableHeaders(data)
     headers.push(data.header.mutationType);
     headers.push(data.header.cosmic);
     headers.push(data.header.functionalImpactScore);
+    headers.push(data.header.msaLink);
     headers.push(data.header.pdbLink);
     headers.push(data.header.mutationStatus);
     headers.push(data.header.validationStatus);
@@ -409,6 +427,7 @@ function _getMutationTableHeaderTip(header)
         "cosmic": "Overlapping mutations in COSMIC",
         "fis": "Predicted Functional Impact Score (via Mutation Assessor) for missense mutations",
         "3d": "3-D Structure",
+	    "cons": "Conservation",
         "ms": "Mutation Status",
         "vs": "Validation Status",
         "center": "Sequencing Center",
@@ -549,14 +568,14 @@ function _getMutationTableRows(data)
                label + '</label></span>';
     };
 
-    var getFisHtml = function(value, msaLink, xVarLink) {
+    var getFisHtml = function(value, xVarLink) {
 
         var html;
 
         if (omaScoreMap[value] != null)
         {
             html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +
-                   omaScoreMap[value].tooltip + "|" + xVarLink + '|' + msaLink + '">' +
+                   omaScoreMap[value].tooltip + "|" + xVarLink + '">' +
                    '<label>' + omaScoreMap[value].label + '</label>' +
                    '</span>';
         }
@@ -575,7 +594,7 @@ function _getMutationTableRows(data)
             value.length > 0 &&
             value != "NA")
         {
-            html = '<a href="' + value + '">' +
+            html = '<a href="' + value + '" target="_blank">' +
                      '<span style="background-color:#88C;color:white;">&nbsp;3D&nbsp;</span>' +
                      '</a>';
         }
@@ -586,6 +605,25 @@ function _getMutationTableRows(data)
 
         return html;
     };
+
+	var getMsaLinkHtml = function(value) {
+		var html;
+
+		if (value != null &&
+		    value.length > 0 &&
+		    value != "NA")
+		{
+			html = '<a href="' + value + '" target="_blank">' +
+			       '<span style="background-color:#88C;color:white">&nbsp;msa&nbsp;</span>' +
+			       '</a>';
+		}
+		else
+		{
+			html = "";
+		}
+
+		return html;
+	};
 
     var getCosmicHtml = function(value, count) {
         var html;
@@ -666,14 +704,14 @@ function _getMutationTableRows(data)
     {
         row = new Array();
 
-        row.push('<a href="' + data.mutations[i].linkToPatientView + '">' +
+        row.push('<a href="' + data.mutations[i].linkToPatientView + '" target="_blank">' +
                  '<b>' + data.mutations[i].caseId + "</b></a>");
         row.push(getProteinChangeHtml(data.mutations[i]));
         row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
         row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
         row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),
-                            data.mutations[i].xVarLink,
-                            data.mutations[i].msaLink));
+                            data.mutations[i].xVarLink));
+	    row.push(getMsaLinkHtml(data.mutations[i].msaLink));
         row.push(getPdbLinkHtml(data.mutations[i].pdbLink));
         row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
         row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));
@@ -747,13 +785,17 @@ function addMutationTableTooltips(tableId)
         position: {my:'top left', at:'bottom right'}};
 
     var qTipOptionsHeader = new Object();
+	var qTipOptionsFooter = new Object();
     var qTipOptionsLeft = new Object();
     jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+	jQuery.extend(true, qTipOptionsFooter, qTipOptions);
     jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-    qTipOptionsHeader.position = {my:'top center', at:'bottom center'};
+    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+	qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
     qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
 
-    $('#' + tableId + ' th').qtip(qTipOptionsHeader);
+    $('#' + tableId + ' thead th').qtip(qTipOptionsHeader);
+	$('#' + tableId + ' tfoot th').qtip(qTipOptionsFooter);
     //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
 
     $('#' + tableId + ' .simple-tip').qtip(qTipOptions);
@@ -834,11 +876,12 @@ function addMutationTableTooltips(tableId)
 
         var xvia = parts[1];
         if (xvia&&xvia!='NA')
-            tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
+                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
 
-        var msa = parts[2];
-        if (msa&&msa!='NA')
-            tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
+//        var msa = parts[2];
+//        if (msa&&msa!='NA')
+//            tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
 
 //		    var pdb = parts[3];
 //		    if (pdb&&pdb!='NA')

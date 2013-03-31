@@ -579,36 +579,39 @@ function plotMrna(div,alts) {
 }
 
 function d3MrnaBar(div,mrnaPerc) {
-    var width = 60,
+    var textWidth = 40,
+        graphWidth = 40,
         height = 12;
 
-    var barWidth = Math.abs(mrnaPerc/100-0.5)*width;
+    var barWidth = Math.abs(mrnaPerc/100-0.5)*graphWidth;
 
     var svg = d3.select(div).append('svg')
-        .attr("width", width)
-        .attr("height", height)
-        .append("g");
-
-    svg.append("line")
-        .attr("x1",width/2)
-        .attr("y1",0)
-        .attr("x2",width/2)
-        .attr("y2",height)
-        .attr("style", "stroke:gray;stroke-width:2");
-
-    svg.append("rect")
-        .attr("x", mrnaPerc>50 ? (width/2) : (width/2-barWidth))
-        .attr("width", barWidth)
-        .attr("y", 3)
-        .attr("height", 6)
-        .attr("fill", mrnaPerc>75 ? "red" : (mrnaPerc<25?"blue":"gray"));
+        .attr("width", graphWidth+textWidth)
+        .attr("height", height);
 
     svg.append("text")
-        .attr("x", mrnaPerc>50 ? (width/2-4) : width)
+        .attr("x", 37)
         .attr('y',11)
         .attr("text-anchor", "end")
         .attr('font-size',10)
         .text(mrnaPerc+"%");
+
+    var bar = svg.append("g")
+        .attr("transform", "translate(" + textWidth + "," + 0 + ")");
+
+    bar.append("line")
+        .attr("x1",graphWidth/2)
+        .attr("y1",0)
+        .attr("x2",graphWidth/2)
+        .attr("y2",height)
+        .attr("style", "stroke:gray;stroke-width:2");
+
+    bar.append("rect")
+        .attr("x", mrnaPerc>50 ? (graphWidth/2) : (graphWidth/2-barWidth))
+        .attr("width", barWidth)
+        .attr("y", 3)
+        .attr("height", 6)
+        .attr("fill", mrnaPerc>75 ? "red" : (mrnaPerc<25?"blue":"gray"));
 
 }
 

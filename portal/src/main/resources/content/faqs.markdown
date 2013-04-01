@@ -20,7 +20,7 @@ Yes, you are free to use any of the figures from the portal in your publications
 
 # How do I cite the portal?
 
-You can cite the portal paper: Cerami et al.  *The cBioPortal for Cancer Genomics: An Open Platform for Exploring Multidimensional Cancer Genomics Data.*  Cancer Discovery. May 2012 2; 401.
+You can cite the portal paper: Cerami et al.  *The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.*  Cancer Discovery. May 2012 2; 401.
 [Abstract](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract).
 
 # How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?

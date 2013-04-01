@@ -30,10 +30,10 @@
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 //
 
-var ClinicalData = (function() {
+var Clinical = (function() {
     // namespace
 
-    var makeQuerier = function(data) {
+    var querier = function(data) {
         // [ list of objects ] -> function bySample, function byAttr
         // [] -> a bunch of functions that will break!
         //
@@ -45,6 +45,8 @@ var ClinicalData = (function() {
         var makeHash = function(data, key) {
             // [] -> {}
             // [ list of objects ], key -> { key : object }
+            // note that this is doesn't make sense unless
+            // the object have values for the given key
             var hash = {};
             _.each(data, function(i) {
                 hash[i[key]] = i;
@@ -89,7 +91,7 @@ var ClinicalData = (function() {
     return {
         model: model,
         collection: collection,
-        makeQuerier: makeQuerier
+        querier:querier
     };
 
 //    var clinicals = new collection([], {t: "cancer_study_id", q: "brca_tcga"});

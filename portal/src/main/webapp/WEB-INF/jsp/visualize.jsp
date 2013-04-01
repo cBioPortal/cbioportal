@@ -93,7 +93,7 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <ClinicalData> survivalList = (ArrayList<ClinicalData>)
+    ArrayList <Survival> survivalList = (ArrayList<Survival>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;

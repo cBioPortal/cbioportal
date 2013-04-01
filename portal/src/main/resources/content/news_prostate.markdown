@@ -1,6 +1,6 @@
 # April 2, 2013
 
-* Data of TCGA prostate study updated to the January Firehose run (February 22, 2012).
+* Data of TCGA prostate study updated to the February Firehose run (February 22, 2012).
 
 # January 25, 2013
 

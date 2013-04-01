@@ -1,7 +1,7 @@
 # April 2, 2013
 
 * New study added: Breast Cancer (British Columbia, Nature 2012).
-* All TCGA data updated to the January Firehose run (February 22, 2012).
+* All TCGA data updated to the February Firehose run (February 22, 2012).
 * __Sequencing read counts and frequencies__ are now shown in the Mutation Details table when available.
 * Improved OncoPrints, resulting in performance improvements.
 * Major new feature: Users can now visualize __genomic alterations and clinical data of individual tumors__, including:

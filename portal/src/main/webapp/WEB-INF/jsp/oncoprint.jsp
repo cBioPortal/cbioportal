@@ -62,6 +62,9 @@
                     rppa_score_threshold: <%=rppaScoreThreshold%>
                 };
 
+                var clinical_coll = new Clinical.collection([], {t: "cancer_study_id", q: "<%=cancerTypeId%>"});
+                clinical_coll.fetch();
+
                 var oncoprint;      // global
                 $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
 

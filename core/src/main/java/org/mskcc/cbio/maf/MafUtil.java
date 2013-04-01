@@ -85,6 +85,8 @@ public class MafUtil
 	public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
 	public static final String ONCOTATOR_TRANSCRIPT_CHANGE = "ONCOTATOR_TRANSCRIPT_CHANGE";
 	public static final String ONCOTATOR_EXON_AFFECTED = "ONCOTATOR_EXON_AFFECTED";
+	public static final String ONCOTATOR_PROTEIN_POS_START = "ONCOTATOR_PROTEIN_POS_START";
+	public static final String ONCOTATOR_PROTEIN_POS_END = "ONCOTATOR_PROTEIN_POS_END";
 
 	public static final String ONCOTATOR_PROTEIN_CHANGE_BE = "ONCOTATOR_PROTEIN_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_VARIANT_CLASSIFICATION_BE = "ONCOTATOR_VARIANT_CLASSIFICATION_BEST_EFFECT";
@@ -96,6 +98,8 @@ public class MafUtil
 	public static final String ONCOTATOR_CODON_CHANGE_BE = "ONCOTATOR_CODON_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_TRANSCRIPT_CHANGE_BE = "ONCOTATOR_TRANSCRIPT_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_EXON_AFFECTED_BE = "ONCOTATOR_EXON_AFFECTED_BEST_EFFECT";
+	public static final String ONCOTATOR_PROTEIN_POS_START_BE = "ONCOTATOR_PROTEIN_POS_START_BEST_EFFECT";
+	public static final String ONCOTATOR_PROTEIN_POS_END_BE = "ONCOTATOR_PROTEIN_POS_END_BEST_EFFECT";
 
 	// mutation assessor column names
 	public static final String MA_FIMPACT = "MA:FImpact";
@@ -168,6 +172,8 @@ public class MafUtil
 	private int oncoUniprotNameIndex = -1;
 	private int oncoUniprotAccessionIndex = -1;
 	private int oncoCodonChangeIndex = -1;
+	private int oncoProteinPosStartIndex = -1;
+	private int oncoProteinPosEndIndex = -1;
 	private int oncoProteinChangeBeIndex = -1;
 	private int oncoGeneSymbolBeIndex = -1;
 	private int oncoRefseqMrnaIdBeIndex = -1;
@@ -178,6 +184,8 @@ public class MafUtil
 	private int oncoCodonChangeBeIndex = -1;
 	private int oncoTranscriptChangeBeIndex = -1;
 	private int oncoExonAffectedBeIndex = -1;
+	private int oncoProteinPosStartBeIndex = -1;
+	private int oncoProteinPosEndBeIndex = -1;
 
 	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
@@ -310,6 +318,10 @@ public class MafUtil
 	            oncoTranscriptChangeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED)) {
 	            oncoExonAffectedIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_START)) {
+	            oncoProteinPosStartIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END)) {
+	            oncoProteinPosEndIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE_BE)) {
 	            oncoProteinChangeBeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION_BE)) {
@@ -330,6 +342,10 @@ public class MafUtil
 	            oncoTranscriptChangeBeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED_BE)) {
 	            oncoExonAffectedBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_START_BE)) {
+	            oncoProteinPosStartBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END_BE)) {
+	            oncoProteinPosEndBeIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
 				maFImpactIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIS)) {
@@ -343,14 +359,19 @@ public class MafUtil
             } else if(header.equalsIgnoreCase(MA_PROTEIN_CHANGE)) {
 	            maProteinChangeIndex = i;
             }
-            // TODO allele freq columns may have different headers
-	        else if( header.equalsIgnoreCase("t_ref_count")||header.equalsIgnoreCase("i_t_ref_count")||header.equalsIgnoreCase("AD_Ref")) {
+	        else if(header.equalsIgnoreCase("t_ref_count") ||
+	                header.equalsIgnoreCase("i_t_ref_count") ||
+	                header.equalsIgnoreCase("AD_Ref")) {
 	        	tumorRefCountIndex = i;
-            } else if(header.equalsIgnoreCase("t_alt_count")||header.equalsIgnoreCase("i_t_alt_count")||header.equalsIgnoreCase("AD_Alt")) {
+            } else if(header.equalsIgnoreCase("t_alt_count") ||
+	                  header.equalsIgnoreCase("i_t_alt_count") ||
+	                  header.equalsIgnoreCase("AD_Alt")) {
                 tumorAltCountIndex = i;
-            } else if(header.equalsIgnoreCase("n_ref_count")||header.equalsIgnoreCase("Norm_AD_Ref")) {
+            } else if(header.equalsIgnoreCase("n_ref_count") ||
+	                  header.equalsIgnoreCase("Norm_AD_Ref")) {
                 normalRefCountIndex= i;
-            } else if(header.equalsIgnoreCase("n_alt_count")||header.equalsIgnoreCase("Norm_AD_Alt")) {
+            } else if(header.equalsIgnoreCase("n_alt_count") ||
+	                  header.equalsIgnoreCase("Norm_AD_Alt")) {
                 normalAltCountIndex = i;
             } else if(header.equalsIgnoreCase("TTotCov")) {
                 tTotCovIndex = i;
@@ -449,6 +470,8 @@ public class MafUtil
 	    record.setOncotatorCodonChange(getPartString(oncoCodonChangeIndex, parts));
 	    record.setOncotatorTranscriptChange(getPartString(oncoTranscriptChangeIndex, parts));
 	    record.setOncotatorExonAffected(getPartInt(oncoExonAffectedIndex, parts));
+	    record.setOncotatorProteinPosStart(getPartInt(oncoProteinPosStartIndex, parts));
+	    record.setOncotatorProteinPosEnd(getPartInt(oncoProteinPosEndIndex, parts));
 
 	    record.setOncotatorProteinChangeBestEffect(getPartString(oncoProteinChangeBeIndex, parts));
 	    record.setOncotatorVariantClassificationBestEffect(getPartString(oncoVariantClassificationBeIndex, parts));
@@ -460,6 +483,8 @@ public class MafUtil
 	    record.setOncotatorCodonChangeBestEffect(getPartString(oncoCodonChangeBeIndex, parts));
 	    record.setOncotatorTranscriptChangeBestEffect(getPartString(oncoTranscriptChangeBeIndex, parts));
 	    record.setOncotatorExonAffectedBestEffect(getPartInt(oncoExonAffectedBeIndex, parts));
+	    record.setOncotatorProteinPosStartBestEffect(getPartInt(oncoProteinPosStartBeIndex, parts));
+	    record.setOncotatorProteinPosEndBestEffect(getPartInt(oncoProteinPosEndBeIndex, parts));
 
         return record;
     }
@@ -814,6 +839,16 @@ public class MafUtil
 		return oncoUniprotAccessionIndex;
 	}
 
+	public int getOncoProteinPosStartIndex()
+	{
+		return oncoProteinPosStartIndex;
+	}
+
+	public int getOncoProteinPosEndIndex()
+	{
+		return oncoProteinPosEndIndex;
+	}
+
 	public int getOncoProteinChangeBeIndex()
 	{
 		return oncoProteinChangeBeIndex;
@@ -862,6 +897,16 @@ public class MafUtil
 	public int getOncoUniprotAccessionBeIndex()
 	{
 		return oncoUniprotAccessionBeIndex;
+	}
+
+	public int getOncoProteinPosStartBeIndex()
+	{
+		return oncoProteinPosStartBeIndex;
+	}
+
+	public int getOncoProteinPosEndBeIndex()
+	{
+		return oncoProteinPosEndBeIndex;
 	}
 
 	public int getColumnIndex(String colName)

@@ -107,6 +107,8 @@ public class MafRecord
 	private String oncotatorUniprotName;
 	private String oncotatorUniprotAccession;
 	private String oncotatorCodonChange;
+	private int oncotatorProteinPosStart;
+	private int oncotatorProteinPosEnd;
 	private String oncotatorProteinChangeBestEffect;
 	private String oncotatorVariantClassificationBestEffect;
 	private String oncotatorGeneSymbolBestEffect;
@@ -117,7 +119,8 @@ public class MafRecord
 	private String oncotatorUniprotNameBestEffect;
 	private String oncotatorUniprotAccessionBestEffect;
 	private String oncotatorCodonChangeBestEffect;
-
+	private int oncotatorProteinPosStartBestEffect;
+	private int oncotatorProteinPosEndBestEffect;
 
 	public String getChr() {
         return chr;
@@ -601,6 +604,26 @@ public class MafRecord
 		this.oncotatorCodonChange = oncotatorCodonChange;
 	}
 
+	public int getOncotatorProteinPosStart()
+	{
+		return oncotatorProteinPosStart;
+	}
+
+	public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
+	{
+		this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+	}
+
+	public int getOncotatorProteinPosEnd()
+	{
+		return oncotatorProteinPosEnd;
+	}
+
+	public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
+	{
+		this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+	}
+
 	public String getOncotatorProteinChangeBestEffect()
 	{
 		return oncotatorProteinChangeBestEffect;
@@ -699,6 +722,26 @@ public class MafRecord
 	public void setOncotatorCodonChangeBestEffect(String oncotatorCodonChangeBestEffect)
 	{
 		this.oncotatorCodonChangeBestEffect = oncotatorCodonChangeBestEffect;
+	}
+
+	public int getOncotatorProteinPosStartBestEffect()
+	{
+		return oncotatorProteinPosStartBestEffect;
+	}
+
+	public void setOncotatorProteinPosStartBestEffect(int oncotatorProteinPosStartBestEffect)
+	{
+		this.oncotatorProteinPosStartBestEffect = oncotatorProteinPosStartBestEffect;
+	}
+
+	public int getOncotatorProteinPosEndBestEffect()
+	{
+		return oncotatorProteinPosEndBestEffect;
+	}
+
+	public void setOncotatorProteinPosEndBestEffect(int oncotatorProteinPosEndBestEffect)
+	{
+		this.oncotatorProteinPosEndBestEffect = oncotatorProteinPosEndBestEffect;
 	}
 
 	public String getMaFuncImpact() {

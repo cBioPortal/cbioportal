@@ -80,13 +80,15 @@ public class HashCacheService implements OncotatorCacheService
 		                                             "c.(409-411)AAG>AGG",
 		                                             "c.410A>G",
 		                                             1,
-		                                             "g.chr11:56258437T>C");
+		                                             "g.chr11:56258437T>C",
+		                                             137,
+		                                             137);
 
 		cache.put("11_56258437_56258437_T_C", record);
 
 		// silent mutation, no need to populate
 		record = this.generateRecord("4_83788017_83788017_G_A", "NA", "NA", "NA", "NA", "NA",
-		                              "NA", "NA", "NA", "NA", "NA", "NA", "NA", -1, "NA");
+		                              "NA", "NA", "NA", "NA", "NA", "NA", "NA", -1, "NA", -1, -1);
 		cache.put("4_83788017_83788017_G_A", record);
 
 		record = this.generateRecord("1_906209_906209_G_A",
@@ -103,7 +105,9 @@ public class HashCacheService implements OncotatorCacheService
 		                             "c.(553-555)TGG>TGA",
 		                             "c.555G>A",
 		                             5,
-		                             "g.chr1:906209G>A");
+		                             "g.chr1:906209G>A",
+		                             185,
+		                             185);
 
 		cache.put("1_906209_906209_G_A", record);
 
@@ -121,7 +125,9 @@ public class HashCacheService implements OncotatorCacheService
 		                             "c.(4021-4053)GGAGCCGCCTGCCATCTGGAGTGCTCCTGCCACdel",
 		                             "c.4021_4053delGGAGCCGCCTGCCATCTGGAGTGCTCCTGCCAC",
 		                             32,
-		                             "g.chr1:3411011_3411043delGTGGCAGGAGCACTCCAGATGGCAG");
+		                             "g.chr1:3411011_3411043delGTGGCAGGAGCACTCCAGATGGCAG",
+		                             1106,
+		                             1116);
 
 		cache.put("1_3411011_3411043_GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC_-", record);
 
@@ -142,7 +148,9 @@ public class HashCacheService implements OncotatorCacheService
 			String codonChange,
 			String transcriptChange,
 			int exonAffected,
-			String genomeChange)
+			String genomeChange,
+			int proteinPosStart,
+			int proteinPosEnd)
 	{
 		OncotatorRecord record = new OncotatorRecord(key);
 
@@ -170,6 +178,10 @@ public class HashCacheService implements OncotatorCacheService
 		record.getBestEffectTranscript().setCodonChange(codonChange);
 		record.getBestCanonicalTranscript().setTranscriptChange(transcriptChange);
 		record.getBestEffectTranscript().setTranscriptChange(transcriptChange);
+		record.getBestCanonicalTranscript().setProteinPosStart(proteinPosStart);
+		record.getBestEffectTranscript().setProteinPosStart(proteinPosStart);
+		record.getBestCanonicalTranscript().setProteinPosEnd(proteinPosEnd);
+		record.getBestEffectTranscript().setProteinPosEnd(proteinPosEnd);
 
 		return record;
 	}

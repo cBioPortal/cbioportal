@@ -29,7 +29,6 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
-import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.internal.ImportClinical;
 import org.mskcc.cbio.importer.Config;
@@ -286,6 +285,7 @@ public class ClinicalDataConverterImpl implements Converter {
         ArrayList<String> colNames = new ArrayList<String>();
         LinkedList<String> displayNames = new LinkedList<String>();
         LinkedList<String> descriptions = new LinkedList<String>();
+        LinkedList<String> datatypes = new LinkedList<String>();
 
         for (List<String> vec : vectors) {
 
@@ -297,21 +297,24 @@ public class ClinicalDataConverterImpl implements Converter {
             colNames.add(normalName);
 
             // case id is always the first column
-            String prefix = normalName.equals(ImportClinical.CASE_ID) ? ImportClinical.IGNORE_LINE_PREFIX : "";
+            String prefix = normalName.equals(ImportClinical.CASE_ID) ? ImportClinical.METADATA_PREIX : "";
 
             String displayName = metaData.getDisplayName();
             displayNames.add(prefix + displayName);
 
             String description = metaData.getDescription();
             descriptions.add(prefix + description);
+
+            String datatype = metaData.getDatatype();
+            datatypes.add(prefix + datatype);
         }
 
         List<LinkedList<String>> columns = transpose(vectors);
 
         // add in the metadata (in the correct order)
+        columns.add(0, datatypes);
         columns.add(0, descriptions);
         columns.add(0, displayNames);
-
 
         DataMatrix outMatrix = new DataMatrix(columns, colNames);
 
@@ -380,10 +383,10 @@ public class ClinicalDataConverterImpl implements Converter {
             keeperAttrs.add(attr);
         }
 
-        DaoClinicalAttribute.deleteAllRecords();        // N.B. the db reflects what is in the spreadsheet
-        for (ClinicalAttribute attr : keeperAttrs) {
-            DaoClinicalAttribute.addDatum(attr);
-        }
+//        DaoClinicalAttribute.deleteAllRecords();        // N.B. the db reflects what is in the spreadsheet
+//        for (ClinicalAttribute attr : keeperAttrs) {
+//            DaoClinicalAttribute.addDatum(attr);
+//        }
 
         DataMatrix outMatrix = makeOutMatrix(keepers, knownAliasToAttribute);
 //        outMatrix.write(System.out);

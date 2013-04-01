@@ -36,8 +36,6 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -46,7 +44,7 @@ import java.util.*;
 
 public class ImportClinical {
 
-    public static final String IGNORE_LINE_PREFIX = "#";
+    public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
     public static final String CASE_ID = "CASE_ID";
 
@@ -85,14 +83,15 @@ public class ImportClinical {
      */
     public static void main(String[] args) throws Exception {
         if (args.length != 2) {
-            System.out.println("command line usage:  importClinical.pl <clinical.txt> <cancer_study_id>");
+            System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id>");
             System.exit(1);
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
         File clinical_f = new File(args[0]);
-        BufferedReader reader = new BufferedReader(new FileReader(clinical_f));
+        FileReader reader =  new FileReader(clinical_f);
+        BufferedReader buff = new BufferedReader(reader);
 
         // give the user some info
         System.out.println("Reading data from:  " + clinical_f.getAbsolutePath());
@@ -100,25 +99,16 @@ public class ImportClinical {
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
 
-        String line = reader.readLine();
-        String[] colnames = line.split(DELIMITER);
-        ImportClinical importer = new ImportClinical();
-        importer.updateAttrDb(colnames);            // update the database with new clinical attributes
-
-        // map: String colnames -> ClinicalAttribute attrs
-        List<ClinicalAttribute> columnAttrs = new ArrayList<ClinicalAttribute>();
-        for (String colname : colnames) {
-            ClinicalAttribute attr = DaoClinicalAttribute.getDatum(colname);
-            columnAttrs.add(attr);
-        }
+        List<ClinicalAttribute> columnAttrs = ImportClinical.grabAttrs(reader);
 
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
-        line = reader.readLine();
+        buff.readLine();
+        String line = buff.readLine();        // skip the first line
         List<Clinical> clinicals = new ArrayList<Clinical>();
         while (line != null) {
 
-            if (line.substring(0,1).equals(IGNORE_LINE_PREFIX)) {
-                line = reader.readLine();
+            if (line.substring(0,1).equals(METADATA_PREIX)) {
+                line = buff.readLine();
                 continue;
             }
 
@@ -139,7 +129,7 @@ public class ImportClinical {
                 }
             }
 
-            line = reader.readLine();
+            line = buff.readLine();
         }
 
         ConsoleUtil.showWarnings(pMonitor);
@@ -149,59 +139,52 @@ public class ImportClinical {
     }
 
     /**
-     * Takes a list of colnames and updates the database accordingly.
-     * If there are colnames that are not in the database then, look for them in the spreadsheet
-     * and import them into the database.
-     *
-     * If they are not OKayed in the spreadsheet throw an exception
-     * @param colnames
+     * helper function for spliting the *next* line in the reader
+     * so, N.B. --  ! it alters the state of the reader
+     * @param bufferedReader
+     * @return
      */
-    public void updateAttrDb(String[] colnames) throws DaoException {
-        Collection<ClinicalAttribute> allAttrs = DaoClinicalAttribute.getAll();
+    private static String[] splitFields(BufferedReader buff) throws IOException {
+        String line = buff.readLine();
+        line = line.replaceAll(METADATA_PREIX, "");
+        String[] fields = line.split(DELIMITER);
 
-        // map: allAttrs -> names of all attrs (projection)
-        Collection<String> allDisplayNames = new ArrayList<String>();
-        for (ClinicalAttribute attr : allAttrs) {
-            allDisplayNames.add(attr.getAttrId());
+        return fields;
+    }
+
+    /**
+     * Grabs the metadata from the file, inserts them into the database,
+     * and returns them as a list.
+     *
+     * @param reader
+     * @return clinicalAttributes
+     */
+    public static List<ClinicalAttribute> grabAttrs(FileReader reader) throws DaoException, IOException {
+        BufferedReader buff = new BufferedReader(reader); // make sure we are at the top of the file
+        List<ClinicalAttribute> attrs = new ArrayList<ClinicalAttribute>();
+
+        String[] colnames = splitFields(buff);
+        String[] displayNames = splitFields(buff);
+        String[] descriptions = splitFields(buff);
+        String[] datatypes = splitFields(buff);
+
+        if (displayNames.length != colnames.length
+                ||  descriptions.length != colnames.length
+                ||  datatypes.length != colnames.length) {
+            throw new DaoException("attribute and metadata mismatch in clinical staging file");
         }
 
-        // compute colnames - setminus - allDisplayNames
-        // find all the columns in the staging file that
-        // are not in the db
-        Collection<String> colnamesNotInDb =  new ArrayList<String>();
-        for (String name : Arrays.asList(colnames)) {
-            if (!allDisplayNames.contains(name)) {
-                colnamesNotInDb.add(name);
+        for (int i = 0; i < colnames.length; i+=1) {
+            ClinicalAttribute attr =
+                    new ClinicalAttribute(colnames[i], displayNames[i], descriptions[i], datatypes[i]);
+            try {
+                DaoClinicalAttribute.getDatum(attr.getAttrId());
+            } catch (DaoException e) {
+                DaoClinicalAttribute.addDatum(attr);
             }
+            attrs.add(attr);
         }
 
-        if (colnamesNotInDb.isEmpty()) {
-            return;     // nothing to do, die
-        }
-
-        // make a map: String name -> ClinicalAttributeMetadata
-        // out of all the OKayed attributes
-        Collection<ClinicalAttributesMetadata> attrMetadatas = config.getClinicalAttributesMetadata(Config.ALL);
-        Map<String, ClinicalAttributesMetadata> name2meta = new HashMap<String, ClinicalAttributesMetadata>();
-
-        for (ClinicalAttributesMetadata attr : attrMetadatas) {
-            if (attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
-                name2meta.put(attr.getColumnHeader(), attr);
-            }
-        }
-
-        for (String colname : colnamesNotInDb) {
-            ClinicalAttributesMetadata attr = name2meta.get(colname);
-
-            if (attr == null) {
-                throw new DaoException("column name [" + colname + "] is in the " +
-                        "staging file but not OKayed in the spreadsheet");
-            }
-
-            DaoClinicalAttribute.addDatum(new ClinicalAttribute(attr.getColumnHeader(),
-                    attr.getDisplayName(),
-                    attr.getDescription(),
-                    attr.getDatatype()));
-        }
+        return attrs;
     }
 }

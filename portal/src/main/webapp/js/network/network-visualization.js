@@ -565,8 +565,8 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 
     if (data.type == this.PROTEIN)
     {
-        this._addDataRow(this.edgeInspectorSelector, "node", "Gene Symbol", data.label);
-        //_addDataRow(this.edgeInspectorSelector, "node", "User-Specified", data.IN_QUERY);
+        this._addDataRow(this.nodeInspectorSelector, "node", "Gene Symbol", data.label);
+        //_addDataRow(this.nodeInspectorSelector, "node", "User-Specified", data.IN_QUERY);
 
         // add percentage information
         this._addPercentages(data);
@@ -616,7 +616,7 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 };
 
 
-NetworkVis.prototype.updateBioGeneContent = function(evt)
+NetworkVis.prototype.updateNodeDetails = function(evt)
 {
     var selected = this._vis.selected("nodes");
     var data;
@@ -628,7 +628,6 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
     $(self.nodeDetailsTabSelector).append(
         '<img src="images/ajax-loader.gif">');
 
-	// TODO do not try to retrieve data for drugs, display a message instead
     if (selected.length == 1)
     {
         data = selected[0].data
@@ -648,7 +647,6 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
         return;
     }
 
-	// TODO use json instead of xml?
     var handler = function(queryResult) {
         // update tab content
         $(self.nodeDetailsTabSelector).empty();
@@ -666,6 +664,7 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
 		        var options = {el: self.nodeDetailsTabSelector,
 			        data: queryResult.geneInfo[0]};
 		        var biogeneView = new BioGeneView(options);
+		        // TODO genomic profile view
 	        }
 	        else
 	        {
@@ -675,13 +674,29 @@ NetworkVis.prototype.updateBioGeneContent = function(evt)
         }
     };
 
-    var queryParams = {"query": data.label,
-        "org": "human",
-        "format": "json"};
 
-    $.post("bioGeneQuery.do",
-           queryParams,
-           handler);
+	if (data.type == this.DRUG)
+	{
+		// update tab content
+		$(self.nodeDetailsTabSelector).empty();
+
+		var drugView = new DrugInfoView({el: this.nodeDetailsTabSelector,
+			data: data,
+			linkMap: this._linkMap,
+			idPlaceHolder: this.ID_PLACE_HOLDER,
+			edges: this._vis.edges()});
+	}
+	// send biogene query for only genes
+	else
+	{
+		var queryParams = {"query": data.label,
+			"org": "human",
+			"format": "json"};
+
+		$.post("bioGeneQuery.do",
+			queryParams,
+			handler);
+	}
 };
 
 /**
@@ -3118,7 +3133,7 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var handleNodeSelect = function(evt) {
         self.updateGenesTab(evt);
-        self.updateBioGeneContent(evt);
+        self.updateNodeDetails(evt);
     };
 
     var filterSelectedGenes = function() {
@@ -3222,7 +3237,7 @@ NetworkVis.prototype._initControlFunctions = function()
     };
 
     var updateNodeDetails = function(evt){
-        self.updateBioGeneContent(evt);
+        self.updateNodeDetails(evt);
     };
 
     this._controlFunctions = new Array();

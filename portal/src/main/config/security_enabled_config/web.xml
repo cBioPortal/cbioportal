@@ -387,6 +387,11 @@
         <url-pattern>/tumormap.do</url-pattern>
     </servlet-mapping>
     
+    <servlet-mapping>
+        <servlet-name>patient_view</servlet-name>
+        <url-pattern>/case.do</url-pattern>
+    </servlet-mapping>
+    
     <servlet>
         <servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>

@@ -599,19 +599,18 @@
                         
             var svg = d3.select($(this)[0])
                 .append("svg")
-                .attr("width", 84)
+                .attr("width", 86)
                 .attr("height", 12);
         
             var percg = svg.append("g");
             percg.append("text")
-                    .attr('x',37)
+                    .attr('x',70)
                     .attr('y',11)
                     .attr("text-anchor", "end")
                     .attr('font-size',10)
                     .text(geneperc.toFixed(1)+"%");
             
-            var gSvg = percg.append("g")
-                    .attr("transform", "translate(40,0)");
+            var gSvg = percg.append("g");
             var pie = d3AccBar(gSvg, data, 30, colors);
             var tip = ""+genemutrate+" sample"+(genemutrate===1?"":"s")
                 + " (<b>"+geneperc.toFixed(1) + "%</b>)"+" in this study "+(genemutrate===1?"has":"have")+" mutated "
@@ -626,7 +625,7 @@
             if (mutsig) {
                 tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
                 var circle = svg.append("g")
-                    .attr("transform", "translate(78,6)");
+                    .attr("transform", "translate(80,6)");
                 d3CircledChar(circle,"M");
                 qtip($(circle), tip);
             }

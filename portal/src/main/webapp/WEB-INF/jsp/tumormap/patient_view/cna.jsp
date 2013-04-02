@@ -191,19 +191,18 @@
             
             var svg = d3.select($(this)[0])
                 .append("svg")
-                .attr("width", 84)
+                .attr("width", 86)
                 .attr("height", 12);
         
             var percg = svg.append("g");
             percg.append("text")
-                    .attr('x',37)
+                    .attr('x',70)
                     .attr('y',11)
                     .attr("text-anchor", "end")
                     .attr('font-size',10)
                     .text(perc.toFixed(1)+"%");
             
-            var gSvg = percg.append("g")
-                    .attr("transform", "translate(40,0)");
+            var gSvg = percg.append("g");
             
             var pie = d3AccBar(gSvg, data, 30, colors);
 
@@ -219,7 +218,7 @@
                 tip = "<b>Gistic</b><br/><i>Q-value</i>: "+gistic[0].toPrecision(2)
                             +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                 var circle = svg.append("g")
-                    .attr("transform", "translate(78,6)");
+                    .attr("transform", "translate(80,6)");
                 d3CircledChar(circle,"G");
                 qtip($(circle), tip);
             }

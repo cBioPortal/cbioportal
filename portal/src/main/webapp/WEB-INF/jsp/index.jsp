@@ -66,7 +66,8 @@ $(document).ready(function(){
                             the <a href="http://cbio.mskcc.org/">Computational Biology Center</a>
                             at <a href="http://www.mskcc.org/">Memorial
                             Sloan-Kettering Cancer Center</a>. </p>
-                        <p><i>Cancer Discovery</i>. May 2012 2; 401. [<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>].</p>
+                        <p>References: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>
+                                &amp;  <a href="http://stke.sciencemag.org/cgi/content/abstract/scisignal.2004088">Gao et al. <i>Sci. Signal.</i> 2013.</p>
                         </div>
                         <br/>
                    </td>

@@ -590,8 +590,9 @@ function d3MrnaBar(div,mrnaPerc) {
         .attr("height", height);
 
     svg.append("text")
-        .attr("x", 43)
+        .attr("x", textWidth+graphWidth)
         .attr('y',11)
+        .attr("text-anchor", "end")
         .attr('font-size',10)
         .text(mrnaPerc+"%");
 

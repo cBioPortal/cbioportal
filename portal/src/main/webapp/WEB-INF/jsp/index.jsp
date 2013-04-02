@@ -67,7 +67,7 @@ $(document).ready(function(){
                             at <a href="http://www.mskcc.org/">Memorial
                             Sloan-Kettering Cancer Center</a>. </p>
                         <p>References: <a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Cerami et al. <i>Cancer Discov.</i> 2012</a>
-                                &amp;  <a href="http://stke.sciencemag.org/cgi/content/abstract/scisignal.2004088">Gao et al. <i>Sci. Signal.</i> 2013.</p>
+                                &amp;  <a href="http://stke.sciencemag.org/cgi/content/abstract/sigtrans;6/269/pl1">Gao et al. <i>Sci. Signal.</i> 2013.</p>
                         </div>
                         <br/>
                    </td>

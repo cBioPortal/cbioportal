@@ -93,12 +93,7 @@ var Clinical = (function() {
         collection: collection,
         querier:querier
     };
-
-//    var clinicals = new collection([], {t: "cancer_study_id", q: "brca_tcga"});
-//
-//    clinicals.fetch({
-//        success: function(data) {
-//            console.log(data);
-//        }
-//    });
 })();
+
+//var clinicals = new Clinical.collection([], {t: "cancer_study_id", q:"brca_tcga"});
+//clinical.fetch();

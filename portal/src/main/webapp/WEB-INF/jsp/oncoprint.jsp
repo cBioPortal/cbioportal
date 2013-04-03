@@ -46,6 +46,7 @@
 
             <script type="text/javascript">
                 var oncoPrintParams = {
+                    geneData: undefined,
                     cancer_study_id: "<%=cancerTypeId%>",
                     case_set_str: "<%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%>",
                     num_cases_affected: "<%=dataSummary.getNumCasesAffected()%>",
@@ -62,22 +63,29 @@
                     rppa_score_threshold: <%=rppaScoreThreshold%>
                 };
 
-                var clinical_coll = new Clinical.collection([], {t: "cancer_study_id", q: "<%=cancerTypeId%>"});
-                clinical_coll.fetch();
+                var clinicals = new Clinical.collection([], {t: "cancer_study_id", q: "<%=cancerTypeId%>"});
 
                 var oncoprint;      // global
-                $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
+                $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {
+                    clinicals.fetch({
+                        success: function(coll, respsonse) {
+                            oncoPrintParams['geneData'] = geneData;
+                            oncoPrintParams['clinicalData'] = coll.toJSON();
 
-                    oncoPrintParams['data'] = data;
+                            oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
-                    oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
+                            oncoprint.draw();
+                            var geneDataManager = DataManagerFactory.getGeneDataManager();
+                            geneDataManager.fire(geneData);
 
-                    oncoprint.draw();
-                    var geneDataManager = DataManagerFactory.getGeneDataManager();
-                    geneDataManager.fire(data);
+                            $('#oncoprint #loader_img').hide();
+                            $('#oncoprint #everything').show();
 
-                    $('#oncoprint #loader_img').hide();
-                    $('#oncoprint #everything').show();
+                        },
+                        error: function(model, response) {
+                            console.log(response);
+                        }
+                    });
                 });
             </script>
         </div>

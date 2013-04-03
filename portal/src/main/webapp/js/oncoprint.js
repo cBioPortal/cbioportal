@@ -26,10 +26,10 @@ var Oncoprint = function(wrapper, params) {
         HOMODELETED: '#0000FF'
     };
 
-    var data = params.data;
-    var query = QueryGeneData(data);
+    var geneData = params.geneData;
+    var query = QueryGeneData(geneData);
     var genes_list = query.getGeneList();
-    var gene_data = data.gene_data;
+    var gene_data = geneData.gene_data;
     var no_genes = gene_data.length;
     var samples_all = query.getSampleList();
 
@@ -58,7 +58,7 @@ var Oncoprint = function(wrapper, params) {
         // MemoSort behaves differently when it has different lists, that is,
         // it does not deterministically deal with samples that are equal
         if (state.memo_sort) {
-            samples_copy = MemoSort(data, samples_copy, genes_list).sort();
+            samples_copy = MemoSort(geneData, samples_copy, genes_list).sort();
         }
 
         if (!state.show_unaltered) {

@@ -3,14 +3,15 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,type:3,altrate:4,cosmic:5,ma:6,'3d':7,drug:8};
-    function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
+    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,validation:6,type:7,tumor_freq:8,norm_freq:9,altrate:10,cosmic:11,ma:12,'3d':13,drug:14};
+    function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
                 data.push([mutEventIds[i]]);
         }
         var oTable = $("#"+table_id).dataTable( {
                 "sDom": sDom, // selectable columns
+                "oColVis": { "aiExclude": [ mutTableIndices["id"] ] }, // always hide id column
                 "bJQueryUI": true,
                 "bDestroy": true,
                 "aaData": data,
@@ -47,6 +48,7 @@
                     },
                     {// aa change
                         "aTargets": [ mutTableIndices["aa"] ],
+                        "sClass": "no-wrap-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -57,13 +59,70 @@
                                 var ret = "<b><i>"+aa+"</i></b>";
                                 if (mutations.getValue(source[0],'status')==="Germline")
                                     ret += "&nbsp;<span style='background-color:red;font-size:x-small;' class='"
-                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>"
+                                            +table_id+"-tip' alt='Germline mutation'>Germline</span>";
                                 return ret;
                             } else {
                                 return mutations.getValue(source[0], 'aa');
                             }
                         },
                         "bSortable" : false
+                    },
+                    {// chr
+                        "aTargets": [ mutTableIndices["chr"] ],
+                        "bVisible": false,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return mutations.getValue(source[0], 'chr');
+                            } else {
+                                return mutations.getValue(source[0], 'chr');
+                            }
+                        }
+                    },
+                    {// start
+                        "aTargets": [ mutTableIndices["start"] ],
+                        "bVisible": false,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return mutations.getValue(source[0], 'start');
+                            } else {
+                                return mutations.getValue(source[0], 'start');
+                            }
+                        },
+                        "bSortable" : false
+                    },
+                    {// end
+                        "aTargets": [ mutTableIndices["end"] ],
+                        "bVisible": false,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return mutations.getValue(source[0], 'end');
+                            } else {
+                                return mutations.getValue(source[0], 'end');
+                            }
+                        },
+                        "bSortable" : false
+                    },
+                    {// validation
+                        "bVisible": false,
+                        "aTargets": [ mutTableIndices["validation"] ],
+                        "sClass": "no-wrap-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else {
+                                var val = mutations.getValue(source[0],'validation');
+                                return val ? val : "";
+                            }
+                        }
                     },
                     {// type
                         "aTargets": [ mutTableIndices["type"] ],
@@ -88,6 +147,9 @@
                                     color = 'black';
                                 } else if (mutType==='In_Frame_Del') {
                                     abbr = 'IFD';
+                                    color = 'black';
+                                } else if (mutType==='Fusion') {
+                                    abbr = 'Fusion';
                                     color = 'black';
                                 } else if (mutType==='Frame_Shift_Del') {
                                     abbr = 'FS';
@@ -141,6 +203,63 @@
                             }
                         }
                         
+                    },
+                    {// tumor read count frequency
+                        "aTargets": [ mutTableIndices["tumor_freq"] ],
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var refCount = mutations.getValue(source[0], 'ref-count');
+                                var altCount = mutations.getValue(source[0], 'alt-count');
+                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (!altCount&&!refCount) return '';
+                                
+                                var freq = altCount / (altCount + refCount);
+                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
+                                return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
+                            } else if (type==='sort') {
+                                var refCount = mutations.getValue(source[0], 'ref-count');
+                                var altCount = mutations.getValue(source[0], 'alt-count');
+                                if (!altCount&&!refCount) return 0;
+                                return altCount / (altCount + refCount);
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return 0.0;
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {// normal read count frequency
+                        "aTargets": [ mutTableIndices["norm_freq"] ],
+                        "bVisible": !compact,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var refCount = mutations.getValue(source[0], 'normal-ref-count');
+                                var altCount = mutations.getValue(source[0], 'normal-alt-count');
+                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (!altCount&&!refCount) return '';
+                                
+                                var freq = altCount / (altCount + refCount);
+                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
+                                return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
+                            } else if (type==='sort') {
+                                var refCount = mutations.getValue(source[0], 'normal-ref-count');
+                                var altCount = mutations.getValue(source[0], 'normal-alt-count');
+                                if (!altCount&&!refCount) return 0;
+                                return altCount / (altCount + refCount);
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return 0.0;
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
                     },
                     {// gene mutation rate
                         "aTargets": [ mutTableIndices["altrate"] ],
@@ -354,7 +473,7 @@
                 ],
                 "fnDrawCallback": function( oSettings ) {
                     addNoteTooltip("."+table_id+"-tip");
-                    addDrugsTooltip("."+table_id+"-drug-tip");
+                    addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
@@ -409,6 +528,10 @@
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (drugType) {
+            params['<%=PatientView.DRUG_TYPE%>'] = drugType;
+        }
                         
         $.post("mutations.json", 
             params,
@@ -419,7 +542,7 @@
                 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
-                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest");
+                            '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
                 var numFiltered = genomicEventObs.mutations.getNumEvents(true);
                 var numAll = genomicEventObs.mutations.getNumEvents(false);
                  $('.mutation-show-more').html("<a href='#mutations' onclick='switchToTab(\"mutations\");return false;'\n\
@@ -439,7 +562,7 @@
                         <ul><li>either annotated cancer genes</li>\n\
                         <li>or recurrently mutated, namely\n\
                             <ul><li>MutSig Q < 0.05, if MutSig results are available</li>\n\
-                            <li>otherwise, mutated in > 5% of samples in the study</li></ul> </li>\n\
+                            <li>otherwise, mutated in > 5% of samples in the study with &ge; 50 samples</li></ul> </li>\n\
                         <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
@@ -452,7 +575,7 @@
                 
                 // mutations
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
-                    'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No mutation events");
+                    'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
                 $('.all-mutation-table-name').html(
                     "This tumor has "+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
                 $('.all-mutation-table-name').addClass("datatable-name");
@@ -465,6 +588,7 @@
     
     var patient_view_mutsig_qvalue_threhold = 0.05;
     var patient_view_genemutrate_threhold = 0.05;
+    var patient_view_genemutrate_apply_cohort_count = 50;
     var patient_view_cosmic_threhold = 5;
     function determineOverviewMutations(data) {
         var overview = [];
@@ -489,7 +613,8 @@
             }
             
             if (noMutsig) {
-                if (mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
+                if (numPatientInSameMutationProfile>=patient_view_genemutrate_apply_cohort_count
+                  && mutrate[i]/numPatientInSameMutationProfile>=patient_view_genemutrate_threhold) {
                     overview.push(true);
                     continue;
                 }

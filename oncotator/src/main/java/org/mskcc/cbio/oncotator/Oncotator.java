@@ -48,6 +48,7 @@ public class Oncotator
 	protected OncotatorService oncotatorService;
 
 	protected int buildNumErrors = 0;
+	protected int numRecordsProcessed = 0;
 
 	// config params (TODO create a config class instead?)
 	protected boolean useCache;
@@ -115,10 +116,11 @@ public class Oncotator
 	 * @param inputMafFile  input MAF
 	 * @param outputMafFile output MAF
 	 * @return              number of errors (if any) during the process
-	 * @throws Exception    if an (IO or service) Exception occurs
+	 * @throws IOException                  if an IO exception occurs
+	 * @throws OncotatorServiceException    if a service exception occurs
 	 */
-	protected int oncotateMaf(File inputMafFile,
-			File outputMafFile) throws Exception
+	protected int oncotateMaf(File inputMafFile, File outputMafFile)
+			throws IOException, OncotatorServiceException
 	{
 		this.outputFileNames(inputMafFile, outputMafFile);
 
@@ -151,22 +153,9 @@ public class Oncotator
 			}
 
 			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
-			String variantClassification = mafRecord.getVariantClassification();
-			OncotatorRecord oncotatorRecord = null;
-
-			// do not oncotate silent mutations
-			if (!variantClassification.equalsIgnoreCase(SILENT_MUTATION))
-			{
-				oncotatorRecord = this.conditionallyOncotateRecord(mafRecord);
-				numRecordsProcessed++;
-				this.conditionallyAbort(numRecordsProcessed);
-			}
-			else
-			{
-				// just set the mutation type, all other data will be empty
-				oncotatorRecord = new OncotatorRecord("NA");
-				oncotatorRecord.getBestEffectTranscript().setVariantClassification("Silent");
-			}
+			OncotatorRecord oncotatorRecord = this.conditionallyOncotateRecord(mafRecord);
+			numRecordsProcessed++;
+			this.conditionallyAbort(numRecordsProcessed);
 
 			// get the data and update/add new oncotator columns
 			List<String> data = processor.newDataList(dataLine);
@@ -178,8 +167,8 @@ public class Oncotator
 			dataLine = bufReader.readLine();
 		}
 
-		System.out.println("Total number of records processed: " +
-		                   numRecordsProcessed);
+		// update total number of records processed with the final result
+		this.numRecordsProcessed = numRecordsProcessed;
 
 		reader.close();
 		writer.close();
@@ -194,7 +183,7 @@ public class Oncotator
 	 * @return          oncotator data retrieved from oncotator service
 	 */
 	protected OncotatorRecord conditionallyOncotateRecord(MafRecord mafRecord)
-			throws Exception
+			throws OncotatorServiceException
 	{
 		String ncbiBuild = mafRecord.getNcbiBuild();
 		OncotatorRecord oncotatorRecord = null;
@@ -203,16 +192,12 @@ public class Oncotator
 		    !ncbiBuild.equalsIgnoreCase("hg19") &&
 		    !ncbiBuild.equalsIgnoreCase("GRCh37"))
 		{
-			outputBuildNumErrorMessage(ncbiBuild);
-			buildNumErrors++;
-
-			if (buildNumErrors > 10) {
-				abortDueToBuildNumErrors();
-			}
+			this.outputBuildNumErrorMessage(ncbiBuild);
+			this.buildNumErrors++;
 		}
 		else
 		{
-			oncotatorRecord = oncotateRecord(mafRecord);
+			oncotatorRecord = this.oncotateRecord(mafRecord);
 		}
 
 		return oncotatorRecord;
@@ -225,7 +210,8 @@ public class Oncotator
 	 * @param mafRecord MAF record representing a single line of a MAF file
 	 * @return          oncotator data retrieved from oncotator service
 	 */
-	protected OncotatorRecord oncotateRecord(MafRecord mafRecord) throws Exception
+	protected OncotatorRecord oncotateRecord(MafRecord mafRecord)
+			throws OncotatorServiceException
 	{
 		String key = MafUtil.generateKey(mafRecord);
 
@@ -242,9 +228,11 @@ public class Oncotator
 		return oncotatorRecord;
 	}
 
-	protected void abortDueToBuildNumErrors() {
-		System.out.println("Too many records with wrong build #.  Aborting...");
-		System.exit(1);
+	protected void abortDueToBuildNumErrors()
+	{
+		throw new RuntimeException("Too many records with wrong build #.  Aborting...");
+		//System.out.println("Too many records with wrong build #.  Aborting...");
+		//System.exit(1);
 	}
 
 	protected void outputBuildNumErrorMessage(String ncbiBuild) {
@@ -294,5 +282,15 @@ public class Oncotator
 	public void setAddMissingCols(boolean addMissingCols)
 	{
 		this.addMissingCols = addMissingCols;
+	}
+
+	public int getBuildNumErrors()
+	{
+		return buildNumErrors;
+	}
+
+	public int getNumRecordsProcessed()
+	{
+		return numRecordsProcessed;
 	}
 }

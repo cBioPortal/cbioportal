@@ -140,10 +140,10 @@ profileData =
     caseId: {145x1 cell}
       data: {5x145 cell}
 
-</pre><h2>Get clinical data for all patients in a given case list<a name="9"></a></h2><pre class="codeinput">clinicalData = getclinicaldata(cgdsURL, <span class="string">'gbm_tcga_sequenced'</span>)
+</pre><h2>Get clinical data for all patients in a given case list<a name="9"></a></h2><pre class="codeinput">survival = getclinicaldata(cgdsURL, <span class="string">'gbm_tcga_sequenced'</span>)
 </pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
 
-clinicalData = 
+survival =
 
                        caseId: {140x1 cell}
         overallSurvivalMonths: [140x1 double]
@@ -152,12 +152,12 @@ clinicalData =
     diseaseFreeSurvivalStatus: {140x1 cell}
                ageAtDiagnosis: [140x1 double]
 
-</pre><h2>Survival plots for patients with and without IDH1 mutations<a name="10"></a></h2><pre class="codeinput">isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), <span class="string">'NaN'</span>)));
-isCensored = strcmp(clinicalData.overallSurvivalStatus, <span class="string">'LIVING'</span>);
-ecdf(clinicalData.overallSurvivalMonths(isMutated), <span class="keyword">...</span>
+</pre><h2>Survival plots for patients with and without IDH1 mutations<a name="10"></a></h2><pre class="codeinput">isMutated = ismember(survival.caseId, profileData.caseId(~strcmp(profileData.data(2,:), <span class="string">'NaN'</span>)));
+isCensored = strcmp(survival.overallSurvivalStatus, <span class="string">'LIVING'</span>);
+ecdf(survival.overallSurvivalMonths(isMutated), <span class="keyword">...</span>
      <span class="string">'censoring'</span>,isCensored(isMutated),<span class="string">'function'</span>,<span class="string">'survivor'</span>);
 set(get(gca,<span class="string">'Children'</span>), <span class="string">'Color'</span>, [1 0 0]); hold <span class="string">on</span>;
-ecdf(clinicalData.overallSurvivalMonths(~isMutated), <span class="keyword">...</span>
+ecdf(survival.overallSurvivalMonths(~isMutated), <span class="keyword">...</span>
      <span class="string">'censoring'</span>,isCensored(~isMutated),<span class="string">'function'</span>,<span class="string">'survivor'</span>);
 xlabel(<span class="string">'Overall survival (months)'</span>); ylabel(<span class="string">'Proportion surviving'</span>);
 legend({<span class="string">'IDH1 mutated'</span> <span class="string">'IDH1 wild type'</span>});
@@ -215,15 +215,15 @@ profileData = getprofiledata(cgdsURL, 'gbm_tcga_sequenced', ...
                              {'TP53' 'NF1' 'EGFR' 'PTEN' 'IDH1'}, false)
 
 %% Get clinical data for all patients in a given case list
-clinicalData = getclinicaldata(cgdsURL, 'gbm_tcga_sequenced')
+survival = getclinicaldata(cgdsURL, 'gbm_tcga_sequenced')
 
 %% Survival plots for patients with and without IDH1 mutations
-isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
-isCensored = strcmp(clinicalData.overallSurvivalStatus, 'LIVING');
-ecdf(clinicalData.overallSurvivalMonths(isMutated), ...
+isMutated = ismember(survival.caseId, profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
+isCensored = strcmp(survival.overallSurvivalStatus, 'LIVING');
+ecdf(survival.overallSurvivalMonths(isMutated), ...
      'censoring',isCensored(isMutated),'function','survivor');
 set(get(gca,'Children'), 'Color', [1 0 0]); hold on;
-ecdf(clinicalData.overallSurvivalMonths(~isMutated), ...
+ecdf(survival.overallSurvivalMonths(~isMutated), ...
      'censoring',isCensored(~isMutated),'function','survivor');
 xlabel('Overall survival (months)'); ylabel('Proportion surviving');
 legend({'IDH1 mutated' 'IDH1 wild type'});

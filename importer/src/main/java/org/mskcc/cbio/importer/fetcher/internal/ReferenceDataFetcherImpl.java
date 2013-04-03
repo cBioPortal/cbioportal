@@ -31,21 +31,25 @@ package org.mskcc.cbio.importer.fetcher.internal;
 // imports
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.net.URL;
+import java.util.Arrays;
+
 /**
  * Class which implements the fetcher interface.
  */
-final class ReferenceDataFetcherImpl implements Fetcher {
+class ReferenceDataFetcherImpl implements Fetcher {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
+	private static Log LOG = LogFactory.getLog(ReferenceDataFetcherImpl.class);
 
 	// ref to file utils
-	private FileUtils fileUtils;
+	protected FileUtils fileUtils;
 
 	/**
 	 * Constructor.
@@ -54,7 +58,7 @@ final class ReferenceDataFetcherImpl implements Fetcher {
      *
 	 * @param fileUtils FileUtils
 	 */
-	public ReferenceDataFetcherImpl(final FileUtils fileUtils) {
+	public ReferenceDataFetcherImpl(FileUtils fileUtils) {
 
 		// set members
 		this.fileUtils = fileUtils;
@@ -69,7 +73,7 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetch(final String dataSource, final String desiredRunDate) throws Exception {
+	public void fetch(String dataSource, String desiredRunDate) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -80,14 +84,29 @@ final class ReferenceDataFetcherImpl implements Fetcher {
 	 * @throws Exception
 	 */
 	@Override
-	public void fetchReferenceData(final ReferenceMetadata referenceMetadata) throws Exception {
+	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 
-		if (LOG.isInfoEnabled()) {
-			LOG.info("fetchReferenceData(), fetching reference file: " + referenceMetadata.getReferenceFile());
-			LOG.info("fetchReferenceData(), destination: " + referenceMetadata.getReferenceFileDestination());
+		String fetcherName = referenceMetadata.getFetcherName();
+
+		if (fetcherName.length() == 0) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fetchReferenceData(), no fetcher name provided, exiting...");
+			}
+			return;
 		}
 
-		fileUtils.downloadFile(referenceMetadata.getReferenceFile(),
-							   referenceMetadata.getReferenceFileDestination());
+		if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), fetcherName: " + fetcherName);
+		}
+
+		Object[] args = { fileUtils };
+		if (Shell.exec(referenceMetadata, this, args, ".")) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("fetchReferenceData(), successfully executed fetcher.");
+			}
+		}
+		else if (LOG.isInfoEnabled()) {
+			LOG.info("fetchReferenceData(), failure executing importer.");
+		}
 	}
 }

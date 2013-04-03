@@ -21,7 +21,7 @@ If you are interested in accessing CGDS via R, please check out our [CGDS-R libr
 # Basic Query Syntax
 All web queries are available at: [http://172.21.218.60:8080//cgds-public/webservice.do](http://172.21.218.60:8080//cgds-public/webservice.do). All calls to the Web interface are constructed by appending URL parameters.   Within each call, you must specify:
 
-* **cmd** = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, getMutationData or getMutationFrequency.
+* **cmd** = the command that you wish to execute.  The command must be equal to one of the following: getTypesOfCancer, getNetwork, getCancerStudies, getGeneticProfiles, getProfileData, getCaseLists, getClinicalData, or getMutationData.
 * optional additional parameters, depending of the command (see below).
 
 For example, the following query will request all case lists for the TCGA GBM data:

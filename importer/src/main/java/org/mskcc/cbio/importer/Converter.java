@@ -29,25 +29,32 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+
+import java.util.Set;
 
 /**
  * Interface used to convert portal data.
  */
 public interface Converter {
 
+	public static final String VALUE_DELIMITER = "\t";
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
+	public static final String MUTATION_CASE_ID_COLUMN_HEADER = "Tumor_Sample_Barcode";
 
 	/**
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
-	void convertData(final String portal) throws Exception;
+	void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception;
 
 	/**
 	 * Generates case lists for the given portal.
@@ -55,17 +62,27 @@ public interface Converter {
      * @param portal String
 	 * @throws Exception
 	 */
-	void generateCaseLists(final String portal) throws Exception;
+	void generateCaseLists(String portal) throws Exception;
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
+	 *
+	 * @param portal String
+	 * @param excludeDatatypes Set<String>
+	 * @throws Exception
+	 */
+	void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudy CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
-	void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-						   final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception;
+	void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+						   DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception;
 }

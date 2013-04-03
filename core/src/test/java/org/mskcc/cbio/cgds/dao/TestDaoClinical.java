@@ -1,0 +1,55 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+package org.mskcc.cbio.cgds.dao;
+
+import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.model.Clinical;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class TestDaoClinical extends TestCase {
+
+    public void testExtract() throws SQLException {
+
+        ResultSet mockResultSet = mock(ResultSet.class);
+        when(mockResultSet.getInt("CANCER_STUDY_ID")).thenReturn(1);
+        when(mockResultSet.getString("CASE_ID")).thenReturn("case_id");
+        when(mockResultSet.getString("ATTR_ID")).thenReturn("attr_id");
+        when(mockResultSet.getString("ATTR_VALUE")).thenReturn("attr_val");
+
+        Clinical testClinical = DaoClinical.extract(mockResultSet);
+
+        assert testClinical.getCancerStudyId() == 1;
+        assert testClinical.getCaseId().equals("CASE_ID");      // todo: N.B. all caps
+        assert testClinical.getAttrId().equals("attr_id");
+        assert testClinical.getAttrVal().equals("attr_val");
+    }
+}

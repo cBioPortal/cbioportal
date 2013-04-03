@@ -41,12 +41,12 @@ public class HashCacheService implements OncotatorCacheService
 		this.cache = this.initCache();
 	}
 
-	public int put(OncotatorRecord record) throws Exception
+	public int put(OncotatorRecord record) throws OncotatorCacheException
 	{
 		if (this.cache.get(record.getKey()) != null)
 		{
 			// simulate insertion error
-			throw new Exception("duplicate entry for " + record.getKey());
+			throw new OncotatorCacheException("duplicate entry for " + record.getKey());
 		}
 		else
 		{
@@ -56,7 +56,7 @@ public class HashCacheService implements OncotatorCacheService
 		return 1;
 	}
 
-	public OncotatorRecord get(String key) throws Exception
+	public OncotatorRecord get(String key) throws OncotatorCacheException
 	{
 		return this.cache.get(key);
 	}
@@ -66,39 +66,89 @@ public class HashCacheService implements OncotatorCacheService
 		HashMap<String, OncotatorRecord> cache =
 				new HashMap<String, OncotatorRecord>();
 
-		OncotatorRecord record = this.generateRecord("11_56258437_56258437_T_C", "OR5M8",
-			 "g.chr11:56258437T>C", "p.K137R", "Missense_Mutation", 1, "NA", "NA");
+		OncotatorRecord record = this.generateRecord("11_56258437_56258437_T_C",
+		                                             "NA",
+		                                             "NA",
+		                                             "NA",
+		                                             "Missense_Mutation",
+		                                             "p.K137R",
+		                                             "OR5M8",
+		                                             "NM_001005282",
+		                                             "NP_001005282",
+		                                             "OR5M8_HUMAN",
+		                                             "Q8NGP6",
+		                                             "c.(409-411)AAG>AGG",
+		                                             "c.410A>G",
+		                                             1,
+		                                             "g.chr11:56258437T>C");
+
 		cache.put("11_56258437_56258437_T_C", record);
 
-		record = this.generateRecord("4_83788017_83788017_G_A", "NA",
-		                             "NA", "NA", "NA", -1, "NA", "NA");
+		// silent mutation, no need to populate
+		record = this.generateRecord("4_83788017_83788017_G_A", "NA", "NA", "NA", "NA", "NA",
+		                              "NA", "NA", "NA", "NA", "NA", "NA", "NA", -1, "NA");
 		cache.put("4_83788017_83788017_G_A", record);
 
-		record = this.generateRecord("1_906209_906209_G_A", "PLEKHN1",
-			"g.chr1:906209G>A", "p.W185*", "Nonsense_Mutation", 5, "NA", "NA");
+		record = this.generateRecord("1_906209_906209_G_A",
+		                             "NA",
+		                             "NA",
+		                             "NA",
+		                             "Nonsense_Mutation",
+		                             "p.W185*",
+		                             "PLEKHN1",
+		                             "NM_032129",
+		                             "NP_115505",
+		                             "PKHN1_HUMAN",
+		                             "Q494U1",
+		                             "c.(553-555)TGG>TGA",
+		                             "c.555G>A",
+		                             5,
+		                             "g.chr1:906209G>A");
+
 		cache.put("1_906209_906209_G_A", record);
 
 		record = this.generateRecord("1_3411011_3411043_GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC_-",
-			"MEGF6", "g.chr1:3411011_3411043delGTGGCAGGAGCACTCCAGATGGCAG",
-			"p.GAACHLECSCH1341del", "In_Frame_Del",	32,	"NA", "rs78303815;rs61730954");
+		                             "NA",
+		                             "rs78303815;rs61730954",
+		                             "by1000genomes",
+		                             "In_Frame_Del",
+		                             "p.GAACHLECSCH1341del",
+		                             "MEGF6",
+		                             "NM_001409",
+		                             "NP_001400",
+		                             "MEGF6_HUMAN",
+		                             "O75095",
+		                             "c.(4021-4053)GGAGCCGCCTGCCATCTGGAGTGCTCCTGCCACdel",
+		                             "c.4021_4053delGGAGCCGCCTGCCATCTGGAGTGCTCCTGCCAC",
+		                             32,
+		                             "g.chr1:3411011_3411043delGTGGCAGGAGCACTCCAGATGGCAG");
+
 		cache.put("1_3411011_3411043_GTGGCAGGAGCACTCCAGATGGCAGGCGGCTCC_-", record);
 
 		return cache;
 	}
 
 	protected OncotatorRecord generateRecord(String key,
-			String geneSymbol,
-			String genomeChange,
-			String proteinChange,
-			String type,
-			int exonAffected,
 			String cosmic,
-			String dbSnpRs)
+			String dbSnpRs,
+			String dbSnpValStatus,
+			String type,
+			String proteinChange,
+			String geneSymbol,
+			String refseqMrnaId,
+			String refseqProtId,
+			String uniprotEntry,
+			String uniprotAccession,
+			String codonChange,
+			String transcriptChange,
+			int exonAffected,
+			String genomeChange)
 	{
 		OncotatorRecord record = new OncotatorRecord(key);
 
 		record.setCosmicOverlappingMutations(cosmic);
 		record.setDbSnpRs(dbSnpRs);
+		record.setDbSnpValStatus(dbSnpValStatus);
 		record.setGenomeChange(genomeChange);
 		record.getBestCanonicalTranscript().setProteinChange(proteinChange);
 		record.getBestEffectTranscript().setProteinChange(proteinChange);
@@ -108,6 +158,18 @@ public class HashCacheService implements OncotatorCacheService
 		record.getBestEffectTranscript().setGene(geneSymbol);
 		record.getBestCanonicalTranscript().setExonAffected(exonAffected);
 		record.getBestEffectTranscript().setExonAffected(exonAffected);
+		record.getBestCanonicalTranscript().setRefseqMrnaId(refseqMrnaId);
+		record.getBestEffectTranscript().setRefseqMrnaId(refseqMrnaId);
+		record.getBestCanonicalTranscript().setRefseqProtId(refseqProtId);
+		record.getBestEffectTranscript().setRefseqProtId(refseqProtId);
+		record.getBestCanonicalTranscript().setUniprotName(uniprotEntry);
+		record.getBestEffectTranscript().setUniprotName(uniprotEntry);
+		record.getBestCanonicalTranscript().setUniprotAccession(uniprotAccession);
+		record.getBestEffectTranscript().setUniprotAccession(uniprotAccession);
+		record.getBestCanonicalTranscript().setCodonChange(codonChange);
+		record.getBestEffectTranscript().setCodonChange(codonChange);
+		record.getBestCanonicalTranscript().setTranscriptChange(transcriptChange);
+		record.getBestEffectTranscript().setTranscriptChange(transcriptChange);
 
 		return record;
 	}

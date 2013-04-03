@@ -37,174 +37,79 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourceMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.List;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.ArrayList;
 
 /**
- * Class which implements the Converter interface.
+ * Class which implements the Converter interface for processing rna-seq (v1) - RPKM files.
  */
-public final class RNASEQMRNAMedianConverterImpl implements Converter {
-
-	private static final String HYBRIDIZATION_REF_COLUMN_HEADER_NAME = "Hybridization REF";
+public class RNASEQMRNAMedianConverterImpl extends RNASEQV2MRNAMedianConverterImpl implements Converter {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
+	private static Log LOG = LogFactory.getLog(RNASEQMRNAMedianConverterImpl.class);
 
-	// ref to configuration
-	private Config config;
-
-	// ref to file utils
-	private FileUtils fileUtils;
-
-	// ref to caseids
-	private CaseIDs caseIDs;
-
-	// ref to IDMapper
-	private IDMapper idMapper;
-
-	/**
+    /**
 	 * Constructor.
-     *
-     * @param config Config
+	 *
+	 * @param config Config
 	 * @param fileUtils FileUtils
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public RNASEQMRNAMedianConverterImpl(final Config config, final FileUtils fileUtils,
-										 final CaseIDs caseIDs, final IDMapper idMapper) {
-
-		// set members
-		this.config = config;
-        this.fileUtils = fileUtils;
-		this.caseIDs = caseIDs;
-		this.idMapper = idMapper;
+	public RNASEQMRNAMedianConverterImpl(Config config, FileUtils fileUtils,
+										 CaseIDs caseIDs, IDMapper idMapper) {
+		super(config, fileUtils, caseIDs, idMapper);
 	}
-
-	/**
-	 * Converts data for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-    @Override
-	public void convertData(final String portal) throws Exception {
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * Generates case lists for the given portal.
-	 *
-     * @param portal String
-	 * @throws Exception
-	 */
-    @Override
-	public void generateCaseLists(final String portal) throws Exception {
-		throw new UnsupportedOperationException();
-    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 1) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 1, aborting...");
+		if (dataMatrices.length != 1) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 1, aborting...");
+			}
+			return;
 		}
-		ImportDataMatrix importDataMatrix = importDataMatrices[0];
+		DataMatrix dataMatrix = dataMatrices[0];
 
-		// rnaseq files have 3 columns per sample (first column is Hybridization REF).
+		// rnaseq v1 files have 3 columns per sample (first column is Hybridization REF).
 		// discard first & second columns and take third - RPKM
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), removing  and keepng RPKM column per sample");
 		}
 		String previousHeader = "";
-		Vector<String> columnHeaders = importDataMatrix.getColumnHeaders();
+		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 		for (int lc = columnHeaders.size()-1; lc >= 0; lc--) {
 			String columnHeader = columnHeaders.get(lc);
 			if (columnHeader.equals(previousHeader)) {
-				importDataMatrix.ignoreColumn(lc, true);
+				dataMatrix.ignoreColumn(lc, true);
 			}
 			else {
 				previousHeader = columnHeader;
 			}
 		}
-
-		// row one (zero offset) in file is another header:
-		// (gene, raw_counts, median_length_normalized, RPKM, raw_counts,  median_length_normalized, RPKM, raw_counts, ...)
-		importDataMatrix.ignoreRow(0, true); // row data starts at 0
-
-		// rna seq data files has combination gene_symbol|id
-		// replace the combination with gene_symbol only
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), cleaning up Hybridization REF column...");
-		}
-		Vector<String> pairs = importDataMatrix.getColumnData(HYBRIDIZATION_REF_COLUMN_HEADER_NAME).get(0);
-		for (int lc = 0; lc < pairs.size(); lc++) {
-			String[] parts = pairs.get(lc).trim().split("\\|");
-			if (parts.length == 2) {
-				if (LOG.isInfoEnabled()) {
-					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + parts[1]);
-				}
-				pairs.setElementAt(parts[1], lc);
-			}
-		}
-
-		// add gene symbol column, rename gene id col
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), adding & renaming columns");
-		}
-		importDataMatrix.addColumn(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, new Vector<String>());
-		importDataMatrix.renameColumn(HYBRIDIZATION_REF_COLUMN_HEADER_NAME, Converter.GENE_ID_COLUMN_HEADER_NAME);
-		importDataMatrix.setGeneIDColumnHeading(Converter.GENE_ID_COLUMN_HEADER_NAME);
-
-		// perform gene mapping, remove records as needed
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), calling MapperUtil.mapDataToGeneID()...");
-		}
-		MapperUtil.mapGeneIDToSymbol(importDataMatrix, idMapper,
-									 Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-
-		// convert case ids
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), filtering & converting case ids");
-		}
-		String[] columnsToIgnore = { Converter.GENE_ID_COLUMN_HEADER_NAME, Converter.GENE_SYMBOL_COLUMN_HEADER_NAME };
-		importDataMatrix.convertCaseIDs(Arrays.asList(columnsToIgnore));
-
-		// ensure the first two columns are symbol, id respectively
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), sorting column headers");
-		}
-		Vector<String> headers = importDataMatrix.getColumnHeaders();
-		headers.removeElement(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
-		headers.insertElementAt(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME, 0);
-		headers.removeElement(Converter.GENE_ID_COLUMN_HEADER_NAME);
-		headers.insertElementAt(Converter.GENE_ID_COLUMN_HEADER_NAME, 1);
-		importDataMatrix.setColumnOrder(headers);
-
-		// we need to write out the file
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), writing staging file.");
-		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrix);
-
-		if (LOG.isInfoEnabled()) {
-			LOG.info("createStagingFile(), complete.");
-		}
+		
+		// everything from here is the same for rna seq v2, lets pass processing to it
+		dataMatrices = new DataMatrix[] { dataMatrix };
+		super.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
 	}
 }

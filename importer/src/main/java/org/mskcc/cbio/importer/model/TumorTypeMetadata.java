@@ -31,44 +31,38 @@ package org.mskcc.cbio.importer.model;
 // imports
 
 /**
- * Class which contains cancer study metadata.
+ * Class which contains tumor type  metadata.
  */
-public final class TumorTypeMetadata {
+public class TumorTypeMetadata {
 
-	public static final String TUMOR_TYPE_REGEX = "<CANCER>";
+    // delimiter between tumor type & name within the reference file
+	public static final String TUMOR_TYPE_META_FILE_DELIMITER = " : ";
+
+    // name of reference file created to import into portal
+	public static final String TUMOR_TYPE_META_FILE_NAME = "cancers.txt"; 
 
 	// bean properties
-	private String tumorTypeID;
-	private String tumorTypeDescription;
+	private String tumorType;
+	private String tumorTypeName;
 	private Boolean download; // download?
 
     /**
-     * Create a TumorTypeMetadata instance with specified properties.
+     * Create a TumorTypeMetadata instance with properties in given array.
+	 * Its assumed order of properties is that from google worksheet.
      *
-	 * @param tumorTypeID String
-	 * @param tumorTypeDescription String
-	 * @param download Boolean
+	 * @param properties String[]
      */
-    public TumorTypeMetadata(final String tumorTypeID,
-							 final String tumorTypeDescription, final Boolean download) {
-
-		if (tumorTypeID == null) {
-            throw new IllegalArgumentException("tumorTypeID must not be null");
+    public TumorTypeMetadata(String[] properties) {
+		if (properties.length < 3) {
+            throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
-		this.tumorTypeID = tumorTypeID.trim();
 
-		if (tumorTypeDescription == null) {
-            throw new IllegalArgumentException("tumorTypeDescription must not be null");
-		}
-		this.tumorTypeDescription = tumorTypeDescription.trim();
-
-		if (download == null) {
-            throw new IllegalArgumentException("download must not be null");
-		}
-		this.download = download;
+		this.download = new Boolean(properties[0].trim());
+		this.tumorType = properties[1].trim();
+		this.tumorTypeName = properties[2].trim();
 	}
 
-	public String getTumorTypeID() { return tumorTypeID; }
-	public String getTumorTypeDescription() { return tumorTypeDescription; }
+	public String getType() { return tumorType; }
+	public String getName() { return tumorTypeName; }
 	public Boolean getDownload() { return download; }
 }

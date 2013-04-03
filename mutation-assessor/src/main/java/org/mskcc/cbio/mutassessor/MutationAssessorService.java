@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.mutassessor;
 
+import java.sql.SQLException;
+
 /**
  * Default Mutation Assessor Service based on a DB cache.
  *
@@ -41,8 +43,17 @@ public class MutationAssessorService
 		this.cache = DaoMutAssessorCache.getInstance();
 	}
 
-	public MutationAssessorRecord getMaRecord(String key) throws Exception
+	public MutationAssessorRecord getMaRecord(String key)
+			throws MutationAssessorServiceException
 	{
-		return this.cache.get(key);
+		try
+		{
+			return this.cache.get(key);
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			throw new MutationAssessorServiceException(e.getMessage());
+		}
 	}
 }

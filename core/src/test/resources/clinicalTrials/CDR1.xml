@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE CTGovProtocol >
+<CTGovProtocol id="CDR1">
+  <IDInfo>
+    <OrgStudyID>Lorem ipsum 123123</OrgStudyID>
+    <NCTID>NCT00000001</NCTID>
+  </IDInfo>
+  
+  <BriefTitle>Lorem ipsum 1 brief</BriefTitle>
+  <OfficialTitle>Lorem ipsum 1</OfficialTitle>
+  <CurrentProtocolStatus>Completed</CurrentProtocolStatus>
+  <StartDate DateType="Actual">October 2002</StartDate>
+  <ProtocolPhase>Phase I</ProtocolPhase>
+  <ProtocolPhase>Phase II</ProtocolPhase>
+  <ProtocolPhase>Phase III</ProtocolPhase>
+  <ProtocolDetail>
+    <StudyType>Clinical trial</StudyType>
+    <StudyCategory>
+      <StudyCategoryName>Treatment</StudyCategoryName>
+      <Intervention>
+        <InterventionType ref="CDR0000042070">radioimmunotherapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000039007">radioisotope therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000038085">radiation therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000041549">antibody therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000579648">immunotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000040815">biological therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000681313">molecularly targeted biological therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000650168">molecularly targeted therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000680249">targeted therapy</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000038483">drug11</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000039986">monoclonal antibody therapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000041549">antibody therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000579648">immunotherapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000040815">biological therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000681313">molecularly targeted biological therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000650168">molecularly targeted therapy</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000680249">targeted therapy</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000038483">drug12</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000039455">chemotherapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000039244">drug12</InterventionNameLink>
+        <InterventionNameLink ref="CDR0000039748">drug13</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000038581">multimodality therapy</InterventionType>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+        <InterventionNameLink ref="CDR0000357562">drug14</InterventionNameLink>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000038727">allogeneic bone marrow transplantation</InterventionType>
+        <InterventionTypeParent ref="CDR0000039793">bone marrow transplantation</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000573940">transplantation</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+      </Intervention>
+      <Intervention>
+        <InterventionType ref="CDR0000041174">peripheral blood stem cell transplantation</InterventionType>
+        <InterventionTypeParent ref="CDR0000579886">hematopoietic stem cell transplantation</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000573940">transplantation</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000572892">therapeutic procedure</InterventionTypeParent>
+        <InterventionTypeParent ref="CDR0000256087">Intervention or procedure</InterventionTypeParent>
+      </Intervention>
+    </StudyCategory>
+  </ProtocolDetail>
+  <Eligibility>
+    <HealthyVolunteers>No</HealthyVolunteers>
+    <LowAge>18</LowAge>
+    <HighAge>70</HighAge>
+    <AgeText>18 to 70</AgeText>
+    <Gender>Both</Gender>
+    <Diagnosis>
+      <SpecificDiagnosis ref="CDR0000040561">recurrent adult Burkitt lymphoma</SpecificDiagnosis>
+      <DiagnosisParent ref="CDR0000038422">adult Burkitt lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042800">adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000038957">non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000041429">lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000039800">hematopoietic/lymphoid cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000043666">body system/site cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000041060">malignant neoplasm</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042756">aggressive, recurrent adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000040327">recurrent adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042760">aggressive, adult non-Hodgkin lymphoma</DiagnosisParent>
+    </Diagnosis>
+    <Diagnosis>
+      <SpecificDiagnosis ref="CDR0000040557">recurrent adult diffuse large cell lymphoma</SpecificDiagnosis>
+      <DiagnosisParent ref="CDR0000038401">adult diffuse large cell lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042800">adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000038957">non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000041429">lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000039800">hematopoietic/lymphoid cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000043666">body system/site cancer</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000041060">malignant neoplasm</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042756">aggressive, recurrent adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000040327">recurrent adult non-Hodgkin lymphoma</DiagnosisParent>
+      <DiagnosisParent ref="CDR0000042760">aggressive, adult non-Hodgkin lymphoma</DiagnosisParent>
+    </Diagnosis>
+  </Eligibility>
+  <VerificationDate>January 2012</VerificationDate>
+  <LastChangedDate>January 5, 2012</LastChangedDate>
+</CTGovProtocol>

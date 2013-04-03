@@ -30,19 +30,23 @@
 
     int skippedCancerStudies = 0;
     // Now pool the cancer studies
-    ArrayList<CancerStudy> cancerStudiesWithMutations = new ArrayList<CancerStudy>(),
-                           cancerStudiesWithOutMutations = new ArrayList<CancerStudy>();
+    ArrayList<CancerStudy> primaryStudies = new ArrayList<CancerStudy>(),
+                           secondaryStudies = new ArrayList<CancerStudy>();
     for(CancerStudy cancerStudy: cancerStudies) {
         if(!divideHistograms) {
-          // A dirty maneuver to show all studies within a single histogram
-          cancerStudiesWithMutations.add(cancerStudy);
+            // A dirty maneuver to show all studies within a single histogram
+            if(cancerStudy.hasCnaData()) {
+                primaryStudies.add(cancerStudy);
+            } else {
+                skippedCancerStudies++;
+            }
         } else if(cancerStudy.hasMutationData()) {
-            cancerStudiesWithMutations.add(cancerStudy);
+            primaryStudies.add(cancerStudy);
         } else {
             // If user wants to get only the mutation data
             // don't even add these studies to the list since they don't have any
             if(!onlyMutationData) {
-                cancerStudiesWithOutMutations.add(cancerStudy);
+                secondaryStudies.add(cancerStudy);
             } else {
                 skippedCancerStudies++;
             }
@@ -51,8 +55,8 @@
 
     // Now let's reorder the loads
     cancerStudies.clear();
-    cancerStudies.addAll(cancerStudiesWithMutations);
-    cancerStudies.addAll(cancerStudiesWithOutMutations);
+    cancerStudies.addAll(primaryStudies);
+    cancerStudies.addAll(secondaryStudies);
 
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
@@ -145,7 +149,7 @@
 
         var cancerStudies = [<%=studiesList%>];
         var cancerStudyNames = [<%=studiesNames%>];
-        var numOfStudiesWithMutData = <%=cancerStudiesWithMutations.size()%>;
+        var numOfStudiesWithMutData = <%=primaryStudies.size()%>;
 
         if(!multipleGenes) {
             histogramData.addColumn('string', 'Cancer Study');
@@ -242,7 +246,7 @@
 
         loadStudiesWithIndex(0);
         function formatPercent(number) {
-            return parseFloat(number.toFixed(1));
+            return parseFloat(number.toFixed(3));
         }
 
         function updateHistograms(bundleIndex, cancerID) {
@@ -314,14 +318,17 @@
             }
 
             if(!multipleGenes) {
-                hist1.setValue(bundleIndex, 1, formatPercent((numOfCombo/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 2, formatPercent((numOfMuts/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 3, formatPercent((numOfDels/numOfCases) * 100.0));
-                hist1.setValue(bundleIndex, 4, formatPercent((numOfAmp/numOfCases) * 100.0));
-                tmpTotal = hist1.getValue(bundleIndex, 1) + hist1.getValue(bundleIndex, 2) + hist1.getValue(bundleIndex, 3) + hist1.getValue(bundleIndex, 4);
+                hist1.setValue(bundleIndex, 1, formatPercent(numOfCombo/numOfCases));
+                hist1.setValue(bundleIndex, 2, formatPercent(numOfMuts/numOfCases));
+                hist1.setValue(bundleIndex, 3, formatPercent(numOfDels/numOfCases));
+                hist1.setValue(bundleIndex, 4, formatPercent(numOfAmp/numOfCases));
+                tmpTotal = hist1.getValue(bundleIndex, 1)
+                        + hist1.getValue(bundleIndex, 2)
+                        + hist1.getValue(bundleIndex, 3)
+                        + hist1.getValue(bundleIndex, 4);
                 if(maxAlterationPercent < tmpTotal) {
                     maxAlterationPercent = tmpTotal;
-                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent*10) / 10;
                 }
 
                 hist2.setValue(bundleIndex, 1, numOfCombo);
@@ -330,10 +337,10 @@
                 hist2.setValue(bundleIndex, 4, numOfAmp);
                 hist2.setValue(bundleIndex, 5, numOfCases-numOfAltered);
             } else {
-                hist1.setValue(bundleIndex, 1, formatPercent((numOfAltered/numOfCases) * 100.0));
+                hist1.setValue(bundleIndex, 1, formatPercent(numOfAltered/numOfCases));
                 if(maxAlterationPercent < hist1.getValue(bundleIndex, 1)) {
                     maxAlterationPercent = hist1.getValue(bundleIndex, 1);
-                    maxAlterationPercent = Math.ceil(maxAlterationPercent/10) * 10;
+                    maxAlterationPercent = Math.ceil(maxAlterationPercent*10) / 10;
                 }
                 hist2.setValue(bundleIndex, 1, numOfAltered);
                 hist2.setValue(bundleIndex, 2, numOfCases-numOfAltered);
@@ -394,6 +401,21 @@
 
        var sortPermanently = false;
        function drawChart() {
+           var formatter = new google.visualization.NumberFormat({ pattern: "#.#%"});
+           if(multipleGenes) {
+               formatter.format(histogramData, 1);
+               formatter.format(histogramData2, 1);
+           } else {
+               formatter.format(histogramData, 1);
+               formatter.format(histogramData, 2);
+               formatter.format(histogramData, 3);
+               formatter.format(histogramData, 4);
+               formatter.format(histogramData2, 1);
+               formatter.format(histogramData2, 2);
+               formatter.format(histogramData2, 3);
+               formatter.format(histogramData2, 4);
+           }
+
            var histogramView = new google.visualization.DataView(histogramData);
            var histogramView2 = new google.visualization.DataView(histogramData2);
            var histogramView3 = new google.visualization.DataView(histogramData3);
@@ -427,8 +449,9 @@
               },
               vAxis: {
                     title: 'Percent Altered',
-                    maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
-                    minValue: 0
+                    maxValue: lastStudyLoaded ? maxAlterationPercent : 1,
+                    minValue: 0,
+                    format: '#.#%'
               },
     	      animation: {
                   duration: 750,
@@ -453,8 +476,9 @@
               },
               vAxis: {
 	            title: 'Percent Altered',
-                maxValue: lastStudyLoaded ? maxAlterationPercent : 100,
-                minValue: 0
+                maxValue: lastStudyLoaded ? maxAlterationPercent : 1,
+                minValue: 0,
+                format: '#.#%'
               },
               animation: {
                     duration: 750,
@@ -477,8 +501,8 @@
                 easing: 'linear'
         	  },
               hAxis: {
-		slantedText: true,
-		showTextEvery: 1,
+		         slantedText: true,
+		         showTextEvery: 1,
                  slantedTextAngle: 45,
                  maxTextLines: 2
                },
@@ -541,7 +565,7 @@
                     <p id="crosscancer_summary_message"><span class="ui-icon ui-icon-info"
                              style="float: left; margin-right: .3em; margin-left: .3em"></span>
                         Results are available for <strong><%= (cancerStudies.size()) %>
-                        cancer studies</strong>. Click each cancer study below to view a summary of
+                        cancer studies</strong>. Click on a cancer study below to view a summary of
                         results<span id="queried-genes"></span>.
                     </p>
                     <p id="crosscancer_summary_loading">
@@ -689,8 +713,8 @@
                     <% } %>
 
                     <div>
-                    <% outputCancerStudies(cancerStudiesWithMutations, out); %>
-                    <% if( !cancerStudiesWithOutMutations.isEmpty() ) {
+                    <% outputCancerStudies(primaryStudies, out); %>
+                    <% if( !secondaryStudies.isEmpty() ) {
                     %>
                     </div>
                     <div>
@@ -699,24 +723,39 @@
                             <h2 class="cross_cancer_header">Studies without Mutation Data</h2>
                             <% }
 
-                            outputCancerStudies(cancerStudiesWithOutMutations, out);
+                            outputCancerStudies(secondaryStudies, out);
 
                         } else if(onlyMutationData) { // Show a message to the user if only mutation data is wanted
                     %>
 
                         <br/>
                         <br/>
-                        <div class="ui-state-highlight ui-corner-all" id="cc-ie-message">
+                        <div class="ui-state-highlight ui-corner-all">
                             <p>
                                 <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
                                 </span>
-                                Since the data priority is set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
-                                studies</b> that do not have mutation data are excluded from this view.
+                                Since the data priority was set to 'Only Mutations', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have mutation data were excluded from this view.
                             </p>
                         </div>
                         <br/>
 
                     <%
+                        } else {
+                    %>
+                        <br/>
+                        <br/>
+                        <div class="ui-state-highlight ui-corner-all">
+                            <p>
+                                <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em">
+                                </span>
+                                Since the data priority was set to 'Only CNA', <b><%=skippedCancerStudies%> cancer
+                                studies</b> that do not have CNA data were excluded from this view.
+                            </p>
+                        </div>
+                        <br/>
+
+                        <%
                         }
                     %>
                     </div>

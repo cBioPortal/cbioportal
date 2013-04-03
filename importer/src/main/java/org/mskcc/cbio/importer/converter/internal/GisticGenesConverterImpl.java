@@ -37,21 +37,23 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
-import java.util.Vector;
+import java.util.Set;
 
 /**
  * Class which implements the Converter interface.
  */
-public final class GisticGenesConverterImpl implements Converter {
+public class GisticGenesConverterImpl implements Converter {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(GisticGenesConverterImpl.class);
@@ -61,6 +63,7 @@ public final class GisticGenesConverterImpl implements Converter {
 	private static final String GENES_CONF_Q_VALUE_ROW_HEADER_NAME = "q value";
 	private static final String GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME = "genes in wide peak";
 	// statics for column identifiers in table_*.conf_99.txt
+	private static final String TABLE_CONF_AMP_COLUMN_HEADER_NAME = "amp";
 	private static final String TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME = "cytoband";
 	private static final String TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME = "q_value";
 	private static final String TABLE_CONF_INDEX_COLUMN_HEADER_NAME = "index";
@@ -89,8 +92,8 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @param caseIDs CaseIDs;
 	 * @param idMapper IDMapper
 	 */
-	public GisticGenesConverterImpl(final Config config, final FileUtils fileUtils,
-									final CaseIDs caseIDs, final IDMapper idMapper) {
+	public GisticGenesConverterImpl(Config config, FileUtils fileUtils,
+									CaseIDs caseIDs, IDMapper idMapper) {
 
 		// set members
 		this.config = config;
@@ -103,10 +106,12 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * Converts data for the given portal.
 	 *
      * @param portal String
+	 * @param runDate String
+	 * @param applyOverrides Boolean
 	 * @throws Exception
 	 */
     @Override
-	public void convertData(final String portal) throws Exception {
+	public void convertData(String portal, String runDate, Boolean applyOverrides) throws Exception {
 		throw new UnsupportedOperationException();
 	}
 
@@ -117,52 +122,84 @@ public final class GisticGenesConverterImpl implements Converter {
 	 * @throws Exception
 	 */
     @Override
-	public void generateCaseLists(final String portal) throws Exception {}
+	public void generateCaseLists(String portal) throws Exception {
+		throw new UnsupportedOperationException();
+	}
+
+    /**
+	 * Applies overrides to the given portal using the given data source.
+	 * Any datatypes within the excludes datatypes set will not have be overridden.
+	 *
+	 * @param portal String
+	 * @param excludeDatatypes Set<String>
+	 * @throws Exception
+	 */
+    @Override
+	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+		throw new UnsupportedOperationException();
+    }
 
 	/**
 	 * Creates a staging file from the given import data.
 	 *
      * @param portalMetadata PortalMetadata
-	 * @param cancerStudy String
+	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
-	 * @param importDataMatrices ImportDataMatrix[]
+	 * @param dataMatrices DataMatrix[]
 	 * @throws Exception
 	 */
 	@Override
-	public void createStagingFile(final PortalMetadata portalMetadata, final String cancerStudy,
-								  final DatatypeMetadata datatypeMetadata, final ImportDataMatrix[] importDataMatrices) throws Exception {
+	public void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+								  DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception {
 
 		// sanity check
-		if (importDataMatrices.length != 2) {
-			throw new IllegalArgumentException("ImportDataMatrices.length != 2, aborting...");
+		if (dataMatrices.length != 2) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), dataMatrices.length != 2, aborting...");
+			}
+			return;
 		}
 
 		// figure out which matrix is *_genes.conf_99.txt
 		// and which matrix is table_*.conf_90.txt
-		ImportDataMatrix importDataMatrixGenesConf = null;
-		ImportDataMatrix importDataMatrixTableConf = null;
-		if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
-			importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
-			importDataMatrixGenesConf = importDataMatrices[0];
-			importDataMatrixTableConf = importDataMatrices[1];
+		DataMatrix dataMatrixGenesConf = null;
+		DataMatrix dataMatrixTableConf = null;
+		if (dataMatrices[0].getColumnHeaders().get(0).equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME) &&
+			dataMatrices[1].getColumnHeaders().get(0).equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME)) {
+			dataMatrixGenesConf = dataMatrices[0];
+			dataMatrixTableConf = dataMatrices[1];
 		}
-		else if (importDataMatrices[0].getColumnHeaders().firstElement().equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
-				 importDataMatrices[1].getColumnHeaders().firstElement().equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
-			importDataMatrixTableConf = importDataMatrices[0];
-			importDataMatrixGenesConf = importDataMatrices[1];
+		else if (dataMatrices[0].getColumnHeaders().get(0).equalsIgnoreCase(TABLE_CONF_INDEX_COLUMN_HEADER_NAME) && 
+				 dataMatrices[1].getColumnHeaders().get(0).equalsIgnoreCase(GENES_CONF_CYTOBAND_ROW_HEADER_NAME)) {
+			dataMatrixTableConf = dataMatrices[0];
+			dataMatrixGenesConf = dataMatrices[1];
 		}
 		else {
-			throw new IllegalArgumentException("Cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");
+			if (LOG.isErrorEnabled()) {
+				LOG.error("createStagingFile(), cannot determine *_genes.conf_99.txt & table_*.conf_90.txt matrices, aborting...");
+			}
+			return;
 		}
 
 		// process *_genes.conf_99.txt file first - get map, geneset is key, cytoband:q-value is value
-		Map<String, String> geneConfMap = getGenesConfMap(importDataMatrixGenesConf);
+		Map<String, String> geneConfMap = null;
+		try {
+			geneConfMap = getGenesConfMap(dataMatrixGenesConf);
+		}
+		catch (Exception e) {
+			if (LOG.isErrorEnabled()) {
+				LOG.error(e.getMessage());
+			}
+			return;
+		}
 
 		// now that we have *_genes.conf_99.txt map, we can process table_*.conf_90.txt
-		// - add cytoband and q_value columns to table_*.conf_90.txt
-		Vector<String> cytobandColumnData = new Vector<String>();
-		Vector<String> qValueColumnData = new Vector<String>();
-		for (String geneSet : importDataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME).get(0)) {
+		// - add amp, cytoband and q_value columns to table_*.conf_90.txt
+		List<String> amp = new ArrayList<String>();
+		List<String> cytobandColumnData = new ArrayList<String>();
+		List<String> qValueColumnData = new ArrayList<String>();
+		String ampFlag = (datatypeMetadata.getDatatype().contains("amp") || datatypeMetadata.getDatatype().contains("AMP")) ? "1" : "0";
+		for (String geneSet : dataMatrixTableConf.getColumnData(TABLE_CONF_GENES_IN_REGION_HEADER_NAME).get(0)) {
 			if (geneSet.endsWith(TABLE_CONF_GENES_IN_REGION_DELIMITER)) {
 				geneSet = geneSet.substring(0, geneSet.length()-1);
 			}
@@ -170,18 +207,20 @@ public final class GisticGenesConverterImpl implements Converter {
 				String[] cytobandQValuePair = geneConfMap.get(geneSet).split(GENE_CONF_MAP_VALUE_DELIMITER);
 				cytobandColumnData.add(cytobandQValuePair[0]);
 				qValueColumnData.add(cytobandQValuePair[1]);
+				amp.add(ampFlag);
 			}
 			else if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), cannot find GeneConfMap key: " + geneSet);
 			}
 		}
-		importDataMatrixTableConf.addColumn(TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME, cytobandColumnData);
-		importDataMatrixTableConf.addColumn(TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME, qValueColumnData);
+		dataMatrixTableConf.addColumn(TABLE_CONF_AMP_COLUMN_HEADER_NAME, amp);
+		dataMatrixTableConf.addColumn(TABLE_CONF_CYTOBAND_COLUMN_HEADER_NAME, cytobandColumnData);
+		dataMatrixTableConf.addColumn(TABLE_CONF_Q_VALUE_COLUMN_HEADER_NAME, qValueColumnData);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudy, datatypeMetadata, importDataMatrixTableConf);
+		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrixTableConf);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");
@@ -191,17 +230,17 @@ public final class GisticGenesConverterImpl implements Converter {
 	/**
 	 * Helper function to process *_genes.conf_99.txt files
 	 *
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @return Map<String, String>
 	 * @throws Exception
 	 */
-	private Map<String,String> getGenesConfMap(final ImportDataMatrix importDataMatrixGenesConf) throws Exception {
+	private Map<String,String> getGenesConfMap(DataMatrix dataMatrixGenesConf) throws Exception {
 
 		// the map to return
 		Map<String,String> toReturn = new HashMap<String,String>();
 
 		// the column headers are actually the cytobands
-		Vector<String> geneConfColumnHeaders = importDataMatrixGenesConf.getColumnHeaders();
+		List<String> geneConfColumnHeaders = dataMatrixGenesConf.getColumnHeaders();
 		int cytobandColumnIndex = geneConfColumnHeaders.indexOf(GENES_CONF_CYTOBAND_ROW_HEADER_NAME);
 		// sanity check - "cytoband" label should be first column header
 		if (cytobandColumnIndex != 0) {
@@ -209,7 +248,7 @@ public final class GisticGenesConverterImpl implements Converter {
 		}
 
 		// get row headers and determine which row contains qValues and which contains genes-in-wide-peak
-		Vector<String> geneConfRowHeaders = importDataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME).get(0);
+		List<String> geneConfRowHeaders = dataMatrixGenesConf.getColumnData(GENES_CONF_CYTOBAND_ROW_HEADER_NAME).get(0);
 		int qValueRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_Q_VALUE_ROW_HEADER_NAME);
 		int genesInWidePeakStartRowIndex = geneConfRowHeaders.indexOf(GENES_CONF_GENES_IN_WIDE_PEAK_ROW_HEADER_NAME);
 		// sanity check
@@ -222,9 +261,9 @@ public final class GisticGenesConverterImpl implements Converter {
 			// the cytoband is the column header
 			String cytoband = geneConfColumnHeaders.get(lc);
 			// the column of data for this cytoband
-			Vector<String> columnDataForThisCytoband = importDataMatrixGenesConf.getColumnData(lc);
+			List<String> columnDataForThisCytoband = dataMatrixGenesConf.getColumnData(lc);
 			// get the q-value, its in the column indexed by lc, and row qValueRowIndex
-			String qValue = columnDataForThisCytoband.elementAt(qValueRowIndex);
+			String qValue = columnDataForThisCytoband.get(qValueRowIndex);
 			// the wide peak gene set
 			StringBuilder genesInWidePeak = new StringBuilder();
 			for (String gene : columnDataForThisCytoband.subList(genesInWidePeakStartRowIndex, columnDataForThisCytoband.size())) {

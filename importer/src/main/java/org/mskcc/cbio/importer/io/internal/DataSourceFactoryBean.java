@@ -47,7 +47,7 @@ import javax.sql.DataSource;
 public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSource> {
 
 	// our logger
-	private static final Log LOG = LogFactory.getLog(DataSourceFactoryBean.class);
+	private static Log LOG = LogFactory.getLog(DataSourceFactoryBean.class);
 
 	// this map associates dynamic datasources with keys whose value takes on the bean id
 	private static ThreadLocal<Map<String, DataSource>> beansByName =
@@ -61,33 +61,33 @@ public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSou
 	// the reference which holds our bean name (BeanNameAware interface)
 	private String beanName;
 
-	// the following are vars set from importer.properties 
+	// the following are vars set from portal.properties 
 
 	// db user
 	private String databaseUser;
-	@Value("${database_user}")
-    public void setDatabaseUser(final String databaseUser) { this.databaseUser = databaseUser; }
+	@Value("${db.user}")
+    public void setDatabaseUser(String databaseUser) { this.databaseUser = databaseUser; }
 
 	// db password
 	private String databasePassword;
-	@Value("${database_password}")
-	public void setDatabasePassword(final String databasePassword) { this.databasePassword = databasePassword; }
+	@Value("${db.password}")
+	public void setDatabasePassword(String databasePassword) { this.databasePassword = databasePassword; }
 
 	// db driver
 	private String databaseDriver;
-	@Value("${database_driver}")
-	public void setDatabaseDriver(final String databaseDriver) { this.databaseDriver = databaseDriver; }
+	@Value("${db.driver}")
+	public void setDatabaseDriver(String databaseDriver) { this.databaseDriver = databaseDriver; }
 
 	// db connection
 	private String databaseConnectionString;
-	@Value("${database_connection_string}")
-	public void setDatabaseConnection(final String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
+	@Value("${db.connection_string}")
+	public void setDatabaseConnection(String databaseConnectionString) { this.databaseConnectionString = databaseConnectionString; }
 
 	/**
 	 * Our implementation of BeanNameAware.
 	 */
 	@Override
-	public void setBeanName(final String beanName) {
+	public void setBeanName(String beanName) {
 		this.beanName = beanName;
 	}
 
@@ -121,7 +121,7 @@ public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSou
 	 * @param key String
 	 * @param databaseName String
 	 */
-	public void createDataSourceMapping(final String key, final String databaseName) {
+	public void createDataSourceMapping(String key, String databaseName) {
 
 		getDataSourceMap().put(key, getDataSource(databaseName));
 	}
@@ -132,7 +132,7 @@ public class DataSourceFactoryBean implements BeanNameAware, FactoryBean<DataSou
 	 * @param databaseName String
 	 * @return DataSource
 	 */
-	public DataSource getDataSource(final String databaseName) {
+	public DataSource getDataSource(String databaseName) {
 
         DataSource dataSource = getDataSourceMap().get(databaseName);
         if (dataSource == null) {

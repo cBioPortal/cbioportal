@@ -3,7 +3,7 @@ GENERAL INFORMATION
 This tool is designed to oncotate MAF files by using the Oncotator web service
 provided by the Broad Institute (http://www.broadinstitute.org/oncotator/).
 
-This command line tool enhances a MAF file by adding 5 new columns for each line
+This command line tool enhances a MAF file by adding new oncotator columns for each line
 by processing the result of a oncotator query.
 
 USAGE
@@ -67,8 +67,15 @@ In order to execute successfully, this tool needs the input MAF to satisfy the f
 
 OUTPUT FORMAT
 
-The output produced by this tool will contain 5 additional columns named: ONCOTATOR_VARIANT_CLASSIFICATION,
-ONCOTATOR_PROTEIN_CHANGE, ONCOTATOR_COSMIC_OVERLAPPING, ONCOTATOR_DBSNP_RS, and ONCOTATOR_GENE_SYMBOL.
+The output produced by this tool will contain 23 additional columns named: ONCOTATOR_COSMIC_OVERLAPPING,
+ONCOTATOR_DBSNP_RS, ONCOTATOR_DBSNP_VAL_STATUS, ONCOTATOR_VARIANT_CLASSIFICATION,
+ONCOTATOR_PROTEIN_CHANGE, ONCOTATOR_GENE_SYMBOL, ONCOTATOR_REFSEQ_MRNA_ID, ONCOTATOR_REFSEQ_PROT_ID,
+ONCOTATOR_UNIPROT_ENTRY_NAME, ONCOTATOR_UNIPROT_ACCESSION, ONCOTATOR_CODON_CHANGE,
+ONCOTATOR_TRANSCRIPT_CHANGE, ONCOTATOR_EXON_AFFECTED, ONCOTATOR_VARIANT_CLASSIFICATION_BEST_EFFECT,
+ONCOTATOR_PROTEIN_CHANGE_BEST_EFFECT, ONCOTATOR_GENE_SYMBOL_BEST_EFFECT, ONCOTATOR_REFSEQ_MRNA_ID_BEST_EFFECT,
+ONCOTATOR_REFSEQ_PROT_ID_BEST_EFFECT, ONCOTATOR_UNIPROT_ENTRY_NAME_BEST_EFFECT,
+ONCOTATOR_UNIPROT_ACCESSION_BEST_EFFECT, ONCOTATOR_CODON_CHANGE_BEST_EFFECT,
+ONCOTATOR_TRANSCRIPT_CHANGE_BEST_EFFECT, and ONCOTATOR_EXON_AFFECTED_BEST_EFFECT.
 
 If the input file already contains these oncotator columns, the tool will overwrite the data under these
 columns.

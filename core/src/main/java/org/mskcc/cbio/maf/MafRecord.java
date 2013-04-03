@@ -30,11 +30,14 @@ package org.mskcc.cbio.maf;
 /**
  * Encapsulates Details Regarding a Single MAF Record.
  */
-public class MafRecord {
+public class MafRecord
+{
     public final static String NA_STRING = "NA";
     public final static long NA_LONG = -1L;
     public final static int NA_INT = -1;
+    public final static float NA_FLOAT = -1;
 
+	// standard MAF cols
     private String chr;
     private String ncbiBuild;
     private long startPosition;
@@ -52,7 +55,6 @@ public class MafRecord {
     private String tumorSampleID;
     private String mutationStatus;
     private String validationStatus;
-    
     private String sequencer;
     private String dbSnpValStatus;
     private String matchedNormSampleBarcode;
@@ -68,23 +70,53 @@ public class MafRecord {
     private String validationMethod;
     private String score;
     private String bamFile;
-    
+
+	// TODO allele frequency cols
     private int tumorAltCount;
     private int tumorRefCount;
     private int normalAltCount;
     private int normalRefCount;
+    private int tTotCov;
+    private int tVarCov;
+    private int nTotCov;
+    private int nVarCov;
+    private int tumorDepth;
+    private float tumorVaf;
+    private int normalDepth;
+    private float normalVaf;
 
+	// Mutation Assessor cols
 	private String maFuncImpact;
 	private String maLinkVar;
 	private String maLinkMsa;
 	private String maLinkPdb;
 	private String maProteinChange;
 
-    private String oncotatorProteinChange;
+	// Oncotator cols
+	private String oncotatorCosmicOverlapping;
+	private String oncotatorDbSnpRs;
+	private String oncotatorDbSnpValStatus;
+	private String oncotatorProteinChange;
     private String oncotatorVariantClassification;
-    private String oncotatorCosmicOverlapping;
-    private String oncotatorDbSnpRs;
 	private String oncotatorGeneSymbol;
+	private String oncotatorRefseqMrnaId;
+	private String oncotatorRefseqProtId;
+	private int oncotatorExonAffected;
+	private String oncotatorTranscriptChange;
+	private String oncotatorUniprotName;
+	private String oncotatorUniprotAccession;
+	private String oncotatorCodonChange;
+	private String oncotatorProteinChangeBestEffect;
+	private String oncotatorVariantClassificationBestEffect;
+	private String oncotatorGeneSymbolBestEffect;
+	private String oncotatorRefseqMrnaIdBestEffect;
+	private String oncotatorRefseqProtIdBestEffect;
+	private int oncotatorExonAffectedBestEffect;
+	private String oncotatorTranscriptChangeBestEffect;
+	private String oncotatorUniprotNameBestEffect;
+	private String oncotatorUniprotAccessionBestEffect;
+	private String oncotatorCodonChangeBestEffect;
+
 
 	public String getChr() {
         return chr;
@@ -374,36 +406,107 @@ public class MafRecord {
 		this.normalRefCount = normalRefCount;
 	}
 
-	public String getOncotatorProteinChange() {
+    public int getTTotCov() {
+        return tTotCov;
+    }
+
+    public void setTTotCov(int tTotCov) {
+        this.tTotCov = tTotCov;
+    }
+
+    public int getTVarCov() {
+        return tVarCov;
+    }
+
+    public void setTVarCov(int tVarCov) {
+        this.tVarCov = tVarCov;
+    }
+
+    public int getNTotCov() {
+        return nTotCov;
+    }
+
+    public void setNTotCov(int nTotCov) {
+        this.nTotCov = nTotCov;
+    }
+
+    public int getNVarCov() {
+        return nVarCov;
+    }
+
+    public void setNVarCov(int nVarCov) {
+        this.nVarCov = nVarCov;
+    }
+
+    public int getTumorDepth() {
+        return tumorDepth;
+    }
+
+    public void setTumorDepth(int tumorDepth) {
+        this.tumorDepth = tumorDepth;
+    }
+
+    public float getTumorVaf() {
+        return tumorVaf;
+    }
+
+    public void setTumorVaf(float tumorVaf) {
+        this.tumorVaf = tumorVaf;
+    }
+
+    public int getNormalDepth() {
+        return normalDepth;
+    }
+
+    public void setNormalDepth(int normalDepth) {
+        this.normalDepth = normalDepth;
+    }
+
+    public float getNormalVaf() {
+        return normalVaf;
+    }
+
+    public void setNormalVaf(float normalVaf) {
+        this.normalVaf = normalVaf;
+    }
+
+	public String getOncotatorProteinChange()
+	{
 		return oncotatorProteinChange;
 	}
 
-	public void setOncotatorProteinChange(String oncotatorProteinChange) {
+	public void setOncotatorProteinChange(String oncotatorProteinChange)
+	{
 		this.oncotatorProteinChange = oncotatorProteinChange;
 	}
 
-	public String getOncotatorVariantClassification() {
+	public String getOncotatorVariantClassification()
+	{
 		return oncotatorVariantClassification;
 	}
 
-	public void setOncotatorVariantClassification(
-			String oncotatorVariantClassification) {
+	public void setOncotatorVariantClassification(String oncotatorVariantClassification)
+	{
 		this.oncotatorVariantClassification = oncotatorVariantClassification;
 	}
 
-	public String getOncotatorCosmicOverlapping() {
+	public String getOncotatorCosmicOverlapping()
+	{
 		return oncotatorCosmicOverlapping;
 	}
 
-	public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping) {
+	public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping)
+	{
 		this.oncotatorCosmicOverlapping = oncotatorCosmicOverlapping;
 	}
 
-	public String getOncotatorDbSnpRs() {
+	public String getOncotatorDbSnpRs()
+	{
 		return oncotatorDbSnpRs;
 	}
 
-	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs) {
+	public void setOncotatorDbSnpRs(String oncotatorDbSnpRs)
+	{
 		this.oncotatorDbSnpRs = oncotatorDbSnpRs;
 	}
 
@@ -415,6 +518,186 @@ public class MafRecord {
 	public void setOncotatorGeneSymbol(String oncotatorGeneSymbol)
 	{
 		this.oncotatorGeneSymbol = oncotatorGeneSymbol;
+	}
+
+	public String getOncotatorDbSnpValStatus()
+	{
+		return oncotatorDbSnpValStatus;
+	}
+
+	public void setOncotatorDbSnpValStatus(String oncotatorDbSnpValStatus)
+	{
+		this.oncotatorDbSnpValStatus = oncotatorDbSnpValStatus;
+	}
+
+	public String getOncotatorRefseqMrnaId()
+	{
+		return oncotatorRefseqMrnaId;
+	}
+
+	public void setOncotatorRefseqMrnaId(String oncotatorRefseqMrnaId)
+	{
+		this.oncotatorRefseqMrnaId = oncotatorRefseqMrnaId;
+	}
+
+	public String getOncotatorRefseqProtId()
+	{
+		return oncotatorRefseqProtId;
+	}
+
+	public void setOncotatorRefseqProtId(String oncotatorRefseqProtId)
+	{
+		this.oncotatorRefseqProtId = oncotatorRefseqProtId;
+	}
+
+	public int getOncotatorExonAffected()
+	{
+		return oncotatorExonAffected;
+	}
+
+	public void setOncotatorExonAffected(int oncotatorExonAffected)
+	{
+		this.oncotatorExonAffected = oncotatorExonAffected;
+	}
+
+	public String getOncotatorTranscriptChange()
+	{
+		return oncotatorTranscriptChange;
+	}
+
+	public void setOncotatorTranscriptChange(String oncotatorTranscriptChange)
+	{
+		this.oncotatorTranscriptChange = oncotatorTranscriptChange;
+	}
+
+	public String getOncotatorUniprotName()
+	{
+		return oncotatorUniprotName;
+	}
+
+	public void setOncotatorUniprotName(String oncotatorUniprotName)
+	{
+		this.oncotatorUniprotName = oncotatorUniprotName;
+	}
+
+	public String getOncotatorUniprotAccession()
+	{
+		return oncotatorUniprotAccession;
+	}
+
+	public void setOncotatorUniprotAccession(String oncotatorUniprotAccession)
+	{
+		this.oncotatorUniprotAccession = oncotatorUniprotAccession;
+	}
+
+	public String getOncotatorCodonChange()
+	{
+		return oncotatorCodonChange;
+	}
+
+	public void setOncotatorCodonChange(String oncotatorCodonChange)
+	{
+		this.oncotatorCodonChange = oncotatorCodonChange;
+	}
+
+	public String getOncotatorProteinChangeBestEffect()
+	{
+		return oncotatorProteinChangeBestEffect;
+	}
+
+	public void setOncotatorProteinChangeBestEffect(String oncotatorProteinChangeBestEffect)
+	{
+		this.oncotatorProteinChangeBestEffect = oncotatorProteinChangeBestEffect;
+	}
+
+	public String getOncotatorVariantClassificationBestEffect()
+	{
+		return oncotatorVariantClassificationBestEffect;
+	}
+
+	public void setOncotatorVariantClassificationBestEffect(String oncotatorVariantClassificationBestEffect)
+	{
+		this.oncotatorVariantClassificationBestEffect = oncotatorVariantClassificationBestEffect;
+	}
+
+	public String getOncotatorGeneSymbolBestEffect()
+	{
+		return oncotatorGeneSymbolBestEffect;
+	}
+
+	public void setOncotatorGeneSymbolBestEffect(String oncotatorGeneSymbolBestEffect)
+	{
+		this.oncotatorGeneSymbolBestEffect = oncotatorGeneSymbolBestEffect;
+	}
+
+	public String getOncotatorRefseqMrnaIdBestEffect()
+	{
+		return oncotatorRefseqMrnaIdBestEffect;
+	}
+
+	public void setOncotatorRefseqMrnaIdBestEffect(String oncotatorRefseqMrnaIdBestEffect)
+	{
+		this.oncotatorRefseqMrnaIdBestEffect = oncotatorRefseqMrnaIdBestEffect;
+	}
+
+	public String getOncotatorRefseqProtIdBestEffect()
+	{
+		return oncotatorRefseqProtIdBestEffect;
+	}
+
+	public void setOncotatorRefseqProtIdBestEffect(String oncotatorRefseqProtIdBestEffect)
+	{
+		this.oncotatorRefseqProtIdBestEffect = oncotatorRefseqProtIdBestEffect;
+	}
+
+	public int getOncotatorExonAffectedBestEffect()
+	{
+		return oncotatorExonAffectedBestEffect;
+	}
+
+	public void setOncotatorExonAffectedBestEffect(int oncotatorExonAffectedBestEffect)
+	{
+		this.oncotatorExonAffectedBestEffect = oncotatorExonAffectedBestEffect;
+	}
+
+	public String getOncotatorTranscriptChangeBestEffect()
+	{
+		return oncotatorTranscriptChangeBestEffect;
+	}
+
+	public void setOncotatorTranscriptChangeBestEffect(String oncotatorTranscriptChangeBestEffect)
+	{
+		this.oncotatorTranscriptChangeBestEffect = oncotatorTranscriptChangeBestEffect;
+	}
+
+	public String getOncotatorUniprotNameBestEffect()
+	{
+		return oncotatorUniprotNameBestEffect;
+	}
+
+	public void setOncotatorUniprotNameBestEffect(String oncotatorUniprotNameBestEffect)
+	{
+		this.oncotatorUniprotNameBestEffect = oncotatorUniprotNameBestEffect;
+	}
+
+	public String getOncotatorUniprotAccessionBestEffect()
+	{
+		return oncotatorUniprotAccessionBestEffect;
+	}
+
+	public void setOncotatorUniprotAccessionBestEffect(String oncotatorUniprotAccessionBestEffect)
+	{
+		this.oncotatorUniprotAccessionBestEffect = oncotatorUniprotAccessionBestEffect;
+	}
+
+	public String getOncotatorCodonChangeBestEffect()
+	{
+		return oncotatorCodonChangeBestEffect;
+	}
+
+	public void setOncotatorCodonChangeBestEffect(String oncotatorCodonChangeBestEffect)
+	{
+		this.oncotatorCodonChangeBestEffect = oncotatorCodonChangeBestEffect;
 	}
 
 	public String getMaFuncImpact() {

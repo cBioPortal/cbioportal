@@ -30,20 +30,21 @@ package org.mskcc.cbio.importer.util;
 
 // imports
 import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.model.ImportDataMatrix;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Vector;
+import java.util.List;
 
 /**
  * Class which provides mapping utility services.
  */
-public final class MapperUtil {
+public class MapperUtil {
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(MapperUtil.class);
+	private static final String UNKNOWN_ID_SYMBOL = "UNKNOWN"; 
 
 	// type of mapping enum
 	private enum MappingDirection {
@@ -51,84 +52,99 @@ public final class MapperUtil {
 	}
 
 	/**
-	 * Given a gene ID column and gene symbol column within an ImportDataMatrix,
+	 * Given a gene ID column and gene symbol column within an DataMatrix,
 	 * obtain gene symbols for all entries in the column.  Drop rows for which a gene
 	 * symbol cannot be found.
 	 *
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @param idMapper IDMapper
 	 * @param geneIDColumnName String
 	 * @param geneSymbolColumnName String
 	 * @throws Exception
 	 */
-	public static void mapGeneIDToSymbol(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
-										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
+	public static void mapGeneIDToSymbol(DataMatrix dataMatrix, IDMapper idMapper,
+										 String geneIDColumnName, String geneSymbolColumnName) throws Exception {
 
-		doMapping(importDataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.ID_TO_SYMBOL);
+		doMapping(dataMatrix, idMapper, geneIDColumnName, geneSymbolColumnName, MappingDirection.ID_TO_SYMBOL);
 	}
 
 	/**
-	 * Given a gene symbol column and gene ID column within an ImportDataMatrix,
+	 * Given a gene symbol column and gene ID column within an DataMatrix,
 	 * obtain gene IDs for all entries in the column.  Drop rows for which a gene
 	 * ID cannot be found.
 	 *
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @param idMapper IDMapper
 	 * @param geneIDColumnName String
 	 * @param geneSymbolColumnName String
 	 * @throws Exception
 	 */
-	public static void mapGeneSymbolToID(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
-										 final String geneIDColumnName, final String geneSymbolColumnName) throws Exception {
-		doMapping(importDataMatrix, idMapper, geneSymbolColumnName, geneIDColumnName, MappingDirection.SYMBOL_TO_ID);
+	public static void mapGeneSymbolToID(DataMatrix dataMatrix, IDMapper idMapper,
+										 String geneIDColumnName, String geneSymbolColumnName) throws Exception {
+		doMapping(dataMatrix, idMapper, geneSymbolColumnName, geneIDColumnName, MappingDirection.SYMBOL_TO_ID);
 	}
 
 	/**
 	 * Helper function for public interface.
 	 *
-	 * @param importDataMatrix ImportDataMatrix
+	 * @param dataMatrix DataMatrix
 	 * @param idMapper IDMapper
 	 th	 * @param srcColumnName String
 	 * @param targetColumnName String
 	 * @param mappingDirection MappingDirectory
 	 * @throws Exception
 	 */
-	private static void doMapping(final ImportDataMatrix importDataMatrix, final IDMapper idMapper,
-								  final String srcColumnName, final String targetColumnName,
-								  final MappingDirection mappingDirection) throws Exception {
+	private static void doMapping(DataMatrix dataMatrix, IDMapper idMapper,
+								  String srcColumnName, String targetColumnName,
+								  MappingDirection mappingDirection) throws Exception {
 
 		// get refs to src and target columns
-		Vector<String> srcColumnData = importDataMatrix.getColumnData(srcColumnName).get(0);
-		Vector<String> targetColumnData = importDataMatrix.getColumnData(targetColumnName).get(0);
-
-		// sanity check
-		if (targetColumnData.size() < srcColumnData.size()) {
-			if (LOG.isInfoEnabled()) {
-				LOG.info("do(), target column size < src column size, aborting.");
-			}
-			return;
-		}
+		List<String> srcColumnData = dataMatrix.getColumnData(srcColumnName).get(0);
+		List<String> targetColumnData = dataMatrix.getColumnData(targetColumnName).get(0);
 
 		// do the mapping, ignore rows that are missing id's
 		for (int lc = 0; lc < srcColumnData.size(); lc++) {
-			String src = srcColumnData.elementAt(lc);
+			String src = srcColumnData.get(lc);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("doMapping(), src: " + src);
+			}
 			if (src == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), src is empty, ignoring row: " + lc);
 				}
-				importDataMatrix.ignoreRow(lc, true);
+				dataMatrix.ignoreRow(lc, true);
+				try {
+					targetColumnData.set(lc, UNKNOWN_ID_SYMBOL);
+				}
+				catch(IndexOutOfBoundsException e) {
+					targetColumnData.add(UNKNOWN_ID_SYMBOL);
+				}
 				continue;
 			}
 			String target = (mappingDirection == MappingDirection.SYMBOL_TO_ID) ?
 				idMapper.symbolToEntrezID(src) : idMapper.entrezIDToSymbol(src);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("doMapping(), target: " + target);
+			}
 			if (target == "") {
 				if (LOG.isDebugEnabled()) {
 					LOG.debug("doMapping(), cannot find target for src: " + src + ", ignoring row: " + lc);
 				}
-				importDataMatrix.ignoreRow(lc, true);
+				dataMatrix.ignoreRow(lc, true);
+				try {
+					targetColumnData.set(lc, UNKNOWN_ID_SYMBOL);
+				}
+				catch(IndexOutOfBoundsException e) {
+					targetColumnData.add(UNKNOWN_ID_SYMBOL);
+				}
 				continue;
 			}
-			targetColumnData.setElementAt(target, lc);
+			try {
+				targetColumnData.set(lc, target);
+			}
+			catch(IndexOutOfBoundsException e) {
+				targetColumnData.add(target);
+			}
 		}
 	}
 }

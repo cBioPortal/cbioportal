@@ -23,9 +23,9 @@
 		</tr>
 		<tr align="left" class="synonyms-data-row">
 			<td>
-				<strong>Synonyms: </strong>
+				<strong>Synonyms: </strong><br>
 				{{synonymList}}
-				<br><br>
+				<br>
 			</td>
 		</tr>
 		<tr align="left" class="description-data-row">
@@ -81,7 +81,7 @@
 	</table>
 	<table class="profile">
 		<tr class="total-alteration percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Total Alteration</div>
 			</td>
 			<td class="percent-cell"></td>
@@ -89,8 +89,13 @@
 				<div class="percent-value">{{totalAlterationPercent}}%</div>
 			</td>
 		</tr>
+		<tr class="total-alteration-separator">
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
 		<tr class="cna-amplified percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Amplification</div>
 			</td>
 			<td class="percent-cell">
@@ -102,7 +107,7 @@
 			</td>
 		</tr>
 		<tr class="cna-homozygously-deleted percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Homozygous Deletion</div>
 			</td>
 			<td class="percent-cell">
@@ -114,7 +119,7 @@
 			</td>
 		</tr>
 		<tr class="cna-gained percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Gain</div>
 			</td>
 			<td class="percent-cell">
@@ -126,7 +131,7 @@
 			</td>
 		</tr>
 		<tr class="cna-hemizygously-deleted percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Hemizygous Deletion</div>
 			</td>
 			<td class="percent-cell">
@@ -137,8 +142,13 @@
 				<div class="percent-value">{{hemizygousDelPercent}}%</div>
 			</td>
 		</tr>
+		<tr class="section-separator cna-section-separator">
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
 		<tr class="mrna-way-up percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Up-regulation</div>
 			</td>
 			<td class="percent-cell">
@@ -150,7 +160,7 @@
 			</td>
 		</tr>
 		<tr class="mrna-way-down percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Down-regulation</div>
 			</td>
 			<td class="percent-cell">
@@ -161,8 +171,13 @@
 				<div class="percent-value">{{downRegulationPercent}}%</div>
 			</td>
 		</tr>
+		<tr class="section-separator mrna-section-separator">
+			<td></td>
+			<td></td>
+			<td></td>
+		</tr>
 		<tr class="mutated percent-row">
-			<td>
+			<td class="label-cell">
 				<div class="percent-label">Mutation</div>
 			</td>
 			<td class="percent-cell">
@@ -187,14 +202,20 @@
 			<tr class='biogene-chromosome'><td><b>Chromosome:</b> {{geneChromosome}}</td></tr>
 			<tr class='biogene-location'><td><b>Location:</b> {{geneLocation}}</td></tr>
 			<tr class='biogene-mim'><td><b>MIM:</b> {{geneMim}}</td></tr>
-			<tr class='biogene-id'><td><b>Gene ID:</b> {{geneId}}</td></tr>
+			<tr class='biogene-id'>
+				<td>
+					<b>Gene ID:</b>
+					<a href="http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}">{{geneId}}</a>
+				</td>
+			</tr>
 		</table>
 	</div>
 	<div class='node-details-summary'>
 		<span class='title'>
-			<label>Gene Summary:</label>
+			<label>Gene Function:</label>
 		</span>
-		<p class='regular'>{{geneSummary}}</p>
+		<br><br>
+		{{geneSummary}}
 	</div>
 </script>
 
@@ -222,16 +243,18 @@
 				options.edges,
 				options.linkMap,
 				options.idPlaceHolder);
+			var desc = data["DESCRIPTION"];
+			var clinicalTrials = data["NUMBER_OF_CLINICAL_TRIALS"];
 
 			// pass variables in using Underscore.js template
 			var variables = {drugName: data.label,
 				numOfTargets: data["TARGETS"].split(";").length,
 				targets: data["TARGETS"],
-				numOfClinicalTrials: "",
+				numOfClinicalTrials: clinicalTrials,
 				xrefLinks: xrefLinks,
 				atcCodeLinks: atcCodeLinks,
 				synonymList: synonymList,
-				drugDescription: data["DESCRIPTION"],
+				drugDescription: desc,
 				fdaApproval: fdaApproval,
 				pubmedIdLinks: pubmedIdLinks};
 
@@ -241,13 +264,44 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
-			// TODO hide titles with no information
+			// hide titles with no information
 
-			// TODO tipTip for "targets"
+			if (xrefLinks == "")
+			{
+				$(options.el + " .xref-row").hide();
+			}
+
+			if (atcCodeLinks == "")
+			{
+				$(options.el + " .atc_codes-data-row").hide();
+			}
+
+			if (synonymList == "")
+			{
+				$(options.el + " .synonyms-data-row").hide();
+			}
+
+			if (pubmedIdLinks == "")
+			{
+				$(options.el + " .pubmed-data-row").hide();
+			}
+
+			if (desc == null || desc == "")
+			{
+				$(options.el + " .description-data-row").hide();
+			}
+
+			if (clinicalTrials == null || clinicalTrials < 1)
+			{
+				$(options.el + " .clinicaltrials-data-row").hide();
+			}
+
+			$(options.el + " .num-of-drug-targets").tipTip();
 		},
 		generateXrefLinks: function(data, linkMap, idPlaceHolder) {
 			var xrefs = [];
 			var xrefLinks = "";
+
 			if (data["UNIFICATION_XREF"] != null)
 			{
 				xrefs = data["UNIFICATION_XREF"].split(";");
@@ -263,13 +317,17 @@
 			if (xrefs.length > 0)
 			{
 				link = _resolveXref(xrefs[0], linkMap, idPlaceHolder);
-				xrefLinks += '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
+
+				if (link.href != "#")
+					xrefLinks += '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
 			}
 
-			for (var i = 0; i < xrefs.length; i++)
+			for (var i = 1; i < xrefs.length; i++)
 			{
 				link = _resolveXref(xrefs[i], linkMap, idPlaceHolder);
-				xrefLinks += ', ' + '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
+
+				if (link.href != "#")
+					xrefLinks += ', ' + '<a href="' + link.href + '" target="_blank">' + link.text + '</a>';
 			}
 
 			return xrefLinks;
@@ -310,7 +368,7 @@
 				{
 					for (var i = 0; i < synonyms.length; i++)
 					{
-						synonymList += '<p style="margin: 0px;"> -' + synonyms[i] + '</p>';
+						synonymList += '- ' + synonyms[i] + '</br>';
 					}
 				}
 			}
@@ -356,10 +414,26 @@
 		render: function(options){
 			var data = options.data;
 
+			var cnaDataAvailable = !(data["PERCENT_CNA_AMPLIFIED"] == null &&
+			                         data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null &&
+			                         data["PERCENT_CNA_GAINED"] &&
+			                         data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null);
+
+			var mrnaDataAvailable = !(data["PERCENT_MRNA_WAY_UP"] == null &&
+			                          data["PERCENT_MRNA_WAY_DOWN"] == null);
+
+			var mutationDataAvailable = data["PERCENT_MUTATED"] != null;
+
+			// if no genomic data available at all, do not render anything
+			if (!cnaDataAvailable && !mrnaDataAvailable && !mutationDataAvailable)
+			{
+				return;
+			}
+
 			// pass variables in using Underscore.js template
 			var variables = { totalAlterationPercent: (data["PERCENT_ALTERED"] * 100).toFixed(1),
 				cnaAmplifiedPercent: (data["PERCENT_CNA_AMPLIFIED"] * 100).toFixed(1),
-				cnaAmplifiedWidth: Math.ceil(data["PERCENT_CNA_AMPLIFIED"] * 100),
+				cnaAmplifiedWidth: Math.max(Math.ceil(data["PERCENT_CNA_AMPLIFIED"] * 100)),
 				homozygousDelPercent: (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100).toFixed(1),
 				homozygousDelWidth: Math.ceil(data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100),
 				cnaGainedPercent: (data["PERCENT_CNA_GAINED"] * 100).toFixed(1),
@@ -379,7 +453,37 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
-			// TODO hide titles with no information
+			// hide data rows with no information
+
+			if (data["PERCENT_CNA_AMPLIFIED"] == null)
+				$(options.el + " .cna-amplified").hide();
+
+			if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null)
+				$(options.el + " .cna-homozygously-deleted").hide();
+
+			if (data["PERCENT_CNA_GAINED"] == null)
+				$(options.el + " .cna-gained").hide();
+
+			if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null)
+				$(options.el + " .cna-hemizygously-deleted").hide();
+
+			if (data["PERCENT_MRNA_WAY_UP"] == null)
+				$(options.el + " .mrna-way-up").hide();
+
+			if (data["PERCENT_MRNA_WAY_DOWN"] == null)
+				$(options.el + " .mrna-way-down").hide();
+
+			if (data["PERCENT_MUTATED"] == null)
+				$(options.el + " .mutated").hide();
+
+			// hide section separators if none of the rows is available
+			// for a specific data group
+
+			if (!cnaDataAvailable)
+				$(options.el + " .cna-section-separator").hide();
+
+			if (!mrnaDataAvailable)
+				$(options.el + " .mrna-section-separator").hide();
 		}
 	});
 

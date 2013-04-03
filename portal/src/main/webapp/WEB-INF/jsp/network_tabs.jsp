@@ -10,7 +10,7 @@ if (includeHelpTab==null) {
         <li><a href="#genes_tab" class="network-tab-ref" title="Genes & Drugs (Nodes)"><span>Genes</span></a></li>
         <li><a href="#relations_tab" class="network-tab-ref"
                title="Edges between nodes"><span>Interactions</span></a></li>
-	    <li><a href="#node_details_tab" class="network-tab-ref"
+	    <li><a href="#element_details_tab" class="network-tab-ref"
 	           title="Node details"><span>Details</span></a></li>
         <%if(includeHelpTab){%>
         <li><a href="#help_tab" class="network-tab-ref" title="About & Help"><span>Help</span></a></li>
@@ -183,8 +183,13 @@ if (includeHelpTab==null) {
         	</table>
 		</div>
     </div>
-	<div id="node_details_tab">
-		Currently there is no selected node. Please, select a node to see details.
+	<div id="element_details_tab">
+		<div class="error">
+			Currently there is no selected node. Please, select a node to see details.
+		</div>
+		<div class="genomic-profile-content"></div>
+		<div class="biogene-content"></div>
+		<div class="drug-info-content"></div>
 	</div>
     <%if(includeHelpTab){%>
     <div id="help_tab">

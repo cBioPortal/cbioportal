@@ -252,13 +252,18 @@
 
 /*
  * ######################################################## 
- * ################### Node inspector #####################
+ * #################### Node details ######################
  * ########################################################
  */
  
 .node_inspector_content
 {
 	text-align: left;
+}
+
+.genomic-profile-content
+{
+	padding-bottom: 10px;
 }
 
 .node_inspector_content .data-row
@@ -276,7 +281,8 @@
 	color:blue;
 }
 
-.network_node_inspector .percent-bar
+.network_node_inspector .percent-bar,
+.genomic-profile-content .percent-bar
 {
 	margin-top: 0.5em;
 	margin-left: 0.1em;
@@ -291,7 +297,18 @@
 	width: 120px;
 }
 
-.network_node_inspector .percent-value
+.genomic-profile-content .percent-cell
+{
+	width: 45%;
+}
+
+.genomic-profile-content .label-cell
+{
+	width: 55%;
+}
+
+.network_node_inspector .percent-value,
+.genomic-profile-content .percent-value
 {
 	text-align: right;
 }
@@ -309,7 +326,13 @@
 	margin-right: 0.5em;
 }
 
-.network_node_inspector .profile-header
+.genomic-profile-content .profile
+{
+	border-collapse: collapse;
+}
+
+.network_node_inspector .profile-header,
+.genomic-profile-content .profile-header
 {
 	margin-top: 0.5em;
 	font-weight: bold;
@@ -342,12 +365,14 @@
  * IE ignores borders for tr elements, so setting borders for all td elements
  * inside a tr.
  */
-.network_node_inspector .section-separator td
+.network_node_inspector .section-separator td,
+.genomic-profile-content .section-separator td
 {
 	border-top: 1px solid #aaaaaa;
 }
 
-.network_node_inspector .total-alteration td
+.network_node_inspector .total-alteration td,
+.genomic-profile-content .total-alteration-separator td
 {
 	border-bottom: 2px solid #aaaaaa;
 }
@@ -627,7 +652,7 @@
 	white-space: nowrap;
 }
 
-#relations_tab, #genes_tab, #help_tab, #node_details_tab
+#relations_tab, #genes_tab, #help_tab, #element_details_tab
 {
 	height: 575px;
 	width: 245px;
@@ -728,39 +753,39 @@
  * ########################################################
  */
 
-#node_details_tab
+#element_details_tab
 {
 	overflow-y: auto;
 }
 
-#node_details_tab p
+#element_details_tab p
 {
 	text-align: left;
 }
 
-#node_details_tab p
+#element_details_tab p
 {
 	color: #666666;
 	font-family: verdana,arial,sans-serif;
 	font-size: 11px;
 }
 
-#node_details_tab .title
+#element_details_tab .title
 {
 	text-align: center;
 }
 
-#node_details_tab .title label
+#element_details_tab .title label
 {
 	font-weight: bold;
 }
 
-#node_details_tab td
+#element_details_tab td
 {
 	vertical-align: top;
 }
 
-#node_details_tab .node-details-summary
+#element_details_tab .node-details-summary
 {
 	margin-top: 15px;
 }

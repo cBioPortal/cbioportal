@@ -24,7 +24,7 @@ function NetworkVis(divId)
     this.networkTabsSelector = "#" + this.divId + " #network_tabs";
     this.relationsTabSelector = "#" + this.divId + " #relations_tab";
     this.genesTabSelector = "#" + this.divId + " #genes_tab";
-    this.nodeDetailsTabSelector = "#" + this.divId + " #node_details_tab";
+    this.detailsTabSelector = "#" + this.divId + " #element_details_tab";
     this.geneListAreaSelector = "#" + this.divId + " #gene_list_area";
     this.drugFilterSelector = "#" + this.divId + " #drop_down_select";
 
@@ -615,18 +615,23 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
     }
 };
 
-
-NetworkVis.prototype.updateNodeDetails = function(evt)
+/**
+ * Updates the contents of the details tab according to
+ * the currently selected elements.
+ *
+ * @param evt
+ */
+NetworkVis.prototype.updateDetailsTab = function(evt)
 {
-    var selected = this._vis.selected("nodes");
+    // TODO also consider selected edges?
+	var selected = this._vis.selected("nodes");
     var data;
 
     var self = this;
 
     // clean previous content
-    $(self.nodeDetailsTabSelector).empty();
-    $(self.nodeDetailsTabSelector).append(
-        '<img src="images/ajax-loader.gif">');
+    $(self.detailsTabSelector + " div").empty();
+	$(self.detailsTabSelector + " .error").hide();
 
     if (selected.length == 1)
     {
@@ -634,53 +639,60 @@ NetworkVis.prototype.updateNodeDetails = function(evt)
     }
     else if (selected.length > 1)
     {
-        $(self.nodeDetailsTabSelector).empty();
-        $(self.nodeDetailsTabSelector).append(
+        //$(self.detailsTabSelector + " div").empty();
+        $(self.detailsTabSelector + " .error").append(
             "Currently more than one node is selected. Please, select only one node to see details.");
+	    $(self.detailsTabSelector + " .error").show();
         return;
     }
     else
     {
-        $(self.nodeDetailsTabSelector).empty();
-        $(self.nodeDetailsTabSelector).append(
+        //$(self.detailsTabSelector + " div").empty();
+        $(self.detailsTabSelector + " .error").append(
             "Currently there is no selected node. Please, select a node to see details.");
+	    $(self.detailsTabSelector + " .error").show();
         return;
     }
 
     var handler = function(queryResult) {
         // update tab content
-        $(self.nodeDetailsTabSelector).empty();
+        $(self.detailsTabSelector + " .biogene-content").empty();
 
         if (queryResult.returnCode != "SUCCESS")
         {
-            $(self.nodeDetailsTabSelector).append(
+            $(self.detailsTabSelector + " .error").append(
 	            "Error retrieving data: " + queryResult.returnCode);
+	        $(self.detailsTabSelector + " .error").show();
         }
         else
         {
 	        if (queryResult.count > 0)
 	        {
 		        // generate the view by using backbone
-		        var options = {el: self.nodeDetailsTabSelector,
-			        data: queryResult.geneInfo[0]};
-		        var biogeneView = new BioGeneView(options);
-		        // TODO genomic profile view
+		        var biogeneView = new BioGeneView(
+			        {el: self.detailsTabSelector + " .biogene-content",
+					data: queryResult.geneInfo[0]});
 	        }
 	        else
 	        {
-		        $(self.nodeDetailsTabSelector).append(
+		        $(self.detailsTabSelector + " .error").append(
 			        "No additional information available for the selected node.");
 	        }
         }
+
+	    // generate view for genomic profile data
+	    var genomicProfileView = new GenomicProfileView(
+		    {el: self.detailsTabSelector + " .genomic-profile-content",
+			data: data});
     };
 
 
 	if (data.type == this.DRUG)
 	{
 		// update tab content
-		$(self.nodeDetailsTabSelector).empty();
+		$(self.detailsTabSelector + " div").empty();
 
-		var drugView = new DrugInfoView({el: this.nodeDetailsTabSelector,
+		var drugView = new DrugInfoView({el: this.detailsTabSelector + " .drug-info-content",
 			data: data,
 			linkMap: this._linkMap,
 			idPlaceHolder: this.ID_PLACE_HOLDER,
@@ -692,6 +704,9 @@ NetworkVis.prototype.updateNodeDetails = function(evt)
 		var queryParams = {"query": data.label,
 			"org": "human",
 			"format": "json"};
+
+		$(self.detailsTabSelector + " .biogene-content").append(
+			'<img src="images/ajax-loader.gif">');
 
 		$.post("bioGeneQuery.do",
 			queryParams,
@@ -3133,7 +3148,7 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var handleNodeSelect = function(evt) {
         self.updateGenesTab(evt);
-        self.updateNodeDetails(evt);
+        self.updateDetailsTab(evt);
     };
 
     var filterSelectedGenes = function() {
@@ -3234,10 +3249,6 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var handleMenuEvent = function(evt){
         self.handleMenuEvent(evt.target.id);
-    };
-
-    var updateNodeDetails = function(evt){
-        self.updateNodeDetails(evt);
     };
 
     this._controlFunctions = new Array();

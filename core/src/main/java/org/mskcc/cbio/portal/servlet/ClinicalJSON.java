@@ -53,6 +53,7 @@ public class ClinicalJSON extends HttpServlet {
     private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
 
     public static final String SAMPLES_DELIMITER = " ";
+    public static final String ALL = "all";
 
     /**
      * Initializes the servlet.
@@ -127,7 +128,7 @@ public class ClinicalJSON extends HttpServlet {
         JSONArray maps = null;
 
         try {
-            if (samples == null || samples.equals("all") ) {
+            if (samples == null || samples.equals(ALL) ) {
                 clinicals = DaoClinical.getData(cancerStudyId);
                 maps = clinicals2JSONArray(clinicals);
             } else {
@@ -140,7 +141,7 @@ public class ClinicalJSON extends HttpServlet {
         }
 
         for (Clinical c : clinicals) {
-            reflectToMap(c);
+            maps.add(reflectToMap(c));
         }
 
         response.setContentType("application/json");

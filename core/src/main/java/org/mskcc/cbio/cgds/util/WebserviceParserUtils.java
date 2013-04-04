@@ -53,7 +53,14 @@ import org.mskcc.cbio.portal.util.CaseSetUtil;
 public final class WebserviceParserUtils {
     
     private WebserviceParserUtils() {}
-    
+
+    /**
+     * Grabs the appropriate stuff from a request and returns a list of case_ids
+     * @param request
+     * @return
+     * @throws ProtocolException
+     * @throws DaoException
+     */
     public static ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
             DaoException {
         String cases = request.getParameter(WebService.CASE_LIST);
@@ -85,7 +92,6 @@ public final class WebserviceParserUtils {
         }
         return caseList;
     }
-    
 
     /**
      * Given an HttpServletRequest, determine all cancer_study_ids associated with it.

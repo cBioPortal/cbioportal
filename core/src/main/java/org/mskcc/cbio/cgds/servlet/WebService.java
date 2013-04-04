@@ -30,16 +30,15 @@ package org.mskcc.cbio.cgds.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONArray;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
@@ -145,8 +144,6 @@ public class WebService extends HttpServlet {
         PrintWriter writer = httpServletResponse.getWriter();
         Date startTime = new Date();
         String cmd = httpServletRequest.getParameter(CMD);
-
-
 
         try {
             httpServletResponse.setContentType("text/plain");
@@ -389,13 +386,19 @@ public class WebService extends HttpServlet {
     }
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
-            throws DaoException, ProtocolException, UnsupportedEncodingException {
-        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
-        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils
-                .getCancerStudyIDs(request).iterator().next()).getInternalId();
-        String out = GetClinicalData.getClinicalData(cancerStudyId, caseSet, "1".equals(includeFreeForm));
-        writer.print(out);
+            throws DaoException, ProtocolException, IOException {
+//        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
+//        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
+//
+//        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils
+//                .getCancerStudyIDs(request).iterator().next()).getInternalId();
+//        String out = GetClinicalData.getClinicalData(cancerStudyId, caseSet, "1".equals(includeFreeForm));
+//        writer.print(out);
+
+        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+        List<String> caseIds = WebserviceParserUtils.getCaseList(request);
+
+        JSONArray.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds), writer);
     }
 
     /*

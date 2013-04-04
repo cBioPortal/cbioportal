@@ -80,8 +80,8 @@ var Clinical = (function() {
     var collection = Backbone.Collection.extend({
         model: model,
         initialize: function(models, options) {
-            this.query_type = options.t;
-            this.query = options.q;
+            this.samples = options.samples || "";
+            this.cancerStudyId = options.cancerStudyId;
         },
         url: function() {
             return "clinical.json?t=" + this.query_type + "&" + "q=" + this.query;
@@ -95,8 +95,8 @@ var Clinical = (function() {
     };
 })();
 
-//var clinicals = new Clinical.collection([], {t: "cancer_study_id", q:"brca_tcga"});
-//clinical.fetch();
+//var clinicals = new Clinical.collection([], {cancer_study_id: "cancer_study_id", samples:"brca_tcga"});
+//clinicals.fetch();
 
 var GeneData = (function() {
 

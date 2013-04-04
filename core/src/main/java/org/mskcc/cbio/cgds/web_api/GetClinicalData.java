@@ -28,9 +28,15 @@
 package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.mskcc.cbio.cgds.dao.DaoClinical;
 import org.mskcc.cbio.cgds.dao.DaoSurvival;
 import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Survival;
 import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
 
@@ -118,5 +124,56 @@ public class GetClinicalData {
 
     private static void append(StringBuilder buf, Object o) {
         buf.append(TAB).append(o==null ? NA : o);
+    }
+
+    /**
+     * takes an object (Clinical or ClinicalAttribute) and
+     * converts it to a map (JSONObject)
+     *
+     * @param clinical
+     * @return
+     */
+    public static JSONObject reflectToMap(Clinical clinical) {
+        JSONObject map = new JSONObject();
+
+        map.put("attr_id", clinical.getAttrId());
+        map.put("attr_val", clinical.getAttrVal());
+        //TODO: at some point we may want to incorporate the cancer_study_id
+//        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
+        map.put("case_id", clinical.getCaseId());
+
+        return map;
+    }
+
+    public static Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
+        JSONObject map = new JSONObject();
+
+        map.put("attr_id", clinicalAttribute.getAttrId());
+        map.put("datatype", clinicalAttribute.getDatatype());
+        map.put("description", clinicalAttribute.getDescription());
+        map.put("display_name", clinicalAttribute.getDisplayName());
+
+        return map;
+    }
+
+    public static JSONArray clinicals2JSONArray(List<Clinical> clincials) {
+        JSONArray toReturn = new JSONArray();
+        for (Clinical c : clincials) {
+            toReturn.add(reflectToMap(c));
+        }
+        return toReturn;
+    }
+
+    /**
+     *
+     * @param cancerStudyId
+     * @return array of object literals corresponding to rows in the database
+     * @throws DaoException
+     */
+    public static JSONArray getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
+        List<Clinical> clinicals;
+
+        clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+        return clinicals2JSONArray(clinicals);
     }
 }

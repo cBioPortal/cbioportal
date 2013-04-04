@@ -19,7 +19,7 @@ The cBio SU2C Cancer Genomics Portal is developed and maintained by the [Computa
  * Caitlin Byrne, MSKCC
  * Sinan Sonlu, Bilkent University
 
-Protein data provided by:
+## Protein data provided by:
 
  * Aphrothiti Hanrahan
  * David Solit

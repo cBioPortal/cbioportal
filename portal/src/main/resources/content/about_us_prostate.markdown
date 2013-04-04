@@ -19,7 +19,7 @@ The cBio Prostate Cancer Portal is developed and maintained by the Computational
  * Caitlin Byrne, MSKCC
  * Sinan Sonlu, Bilkent University
 
-Funding for the cBioPortal for Prostate Cancer is provided in part from:
+## Funding for the cBioPortal for Prostate Cancer is provided in part from:
 
  * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 
  * The NCRR as the National Resource for Network Biology (NRNB) Research Resource (RR 031228-02).

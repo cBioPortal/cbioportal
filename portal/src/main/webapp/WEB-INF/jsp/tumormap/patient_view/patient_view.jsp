@@ -600,9 +600,9 @@ function d3MrnaBar(div,mrnaPerc) {
                 .attr("transform", "translate(" + circleR + "," + 0 + ")");
 
     bar.append("line")
-        .attr("x1",0)
+        .attr("x1",-circleR)
         .attr("y1",height/2)
-        .attr("x2",graphWidth)
+        .attr("x2",graphWidth+circleR)
         .attr("y2",height/2)
         .attr("style", "stroke:gray;stroke-width:2");
 

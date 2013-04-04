@@ -35,7 +35,7 @@ importer.tumor_types_worksheet=
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/prostate-portal.log
 
-skin.title=cBioPortal (Prostate Cancer)
+skin.title=cBioPortal for Prostate Cancer
 skin.email_contact=cbioportal at cbio dot mskcc dot org
 skin.tag_line_image=SU2C-PCF-logo.png
 skin.blurb=This portal contains genomic data from several published and unpublished prostate cancer studies.

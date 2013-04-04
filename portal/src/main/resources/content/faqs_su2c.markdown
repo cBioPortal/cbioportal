@@ -1,10 +1,10 @@
  [TOC]
 
-# What is the cBioPortal (SU2C)?
+# What is the cBioPortal for SU2C?
 
-The cBioPortal (SU2C) currently contains data from all women's cancer projects run by the TCGA. The portal has all the same features as the public [cBioPortal for Cancer Genomics](http://cbioportal.org/), but contains additional protein data for some genes and tumor samples.
+The cBioPortal for SU2C currently contains data from all women's cancer projects run by the TCGA. The portal has all the same features as the public [cBioPortal for Cancer Genomics](http://cbioportal.org/), but contains additional protein data for some genes and tumor samples.
 
-# What are the main functionalities of the cBioPortal (SU2C)?
+# What are the main functionalities of the cBioPortal for SU2C?
 
 The portal stores genomic data from large scale, integrated cancer genomic data sets. It allows explorative data analysis (e.g.: Is my gene of interest altered in a specific cancer type? Do mutations of BRCA1 and BRCA2 in ovarian cancer co-occur?) and provides simple download of small data slices (user-defined gene and sample sets, no need to download entire data sets).
 

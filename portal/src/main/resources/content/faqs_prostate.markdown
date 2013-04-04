@@ -2,9 +2,9 @@
 
 <BR/>
 
-# What is the cBioPortal (Prostate Cancer)?
+# What is the cBioPortal for Prostate Cancer?
 
-The cBioPortal (Prostate Cancer) contains genomics data from several published and unpublished prostate cancer studies.
+The cBioPortal for Prostate Cancer contains genomics data from several published and unpublished prostate cancer studies.
 
 # How do I get started?
 

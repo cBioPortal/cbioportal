@@ -108,12 +108,7 @@ public final class DaoClinical {
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                Clinical clinical = new Clinical(rs.getInt("CANCER_STUDY_ID"),
-                        rs.getString("CASE_ID"),
-                        rs.getString("ATTR_ID"),
-                        rs.getString("ATTR_VALUE"));
-
-                return clinical;
+                return extract(rs);
             } else {
                 throw new DaoException(String.format("clincial not found for (%d, %s, %s)",
                         cancerStudyId, caseId, attrId));
@@ -126,15 +121,8 @@ public final class DaoClinical {
         }
     }
 
-    /**
-     * Get all clinical data associated with a sample id.
-     *
-     * Returns a <code>ResultSet</code>, a lazy sequence which then can be parsed using the extract method
-     * @param sampleId
-     * @return
-     * @throws DaoException
-     */
-    public static ResultSet getBySampleId(String sampleId) throws DaoException {
+    public static Clinical getDatum(int cancerStudyId, String caseId)
+            throws DaoException {
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -143,18 +131,28 @@ public final class DaoClinical {
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE CASE_ID=?");
-            pstmt.setString(1, sampleId);
+            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
+                    "CANCER_STUDY_ID=? " +
+                    "AND CASE_ID=? ");
+
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, caseId);
 
             rs = pstmt.executeQuery();
 
-            return rs;
+            if (rs.next()) {
+                return extract(rs);
+            } else {
+                throw new DaoException(
+                        String.format("clincial not found for (%d, %s, %s)", cancerStudyId, caseId));
+            }
 
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinical.class, con, pstmt, rs);
         }
     }
-
 
     /**
      * Query by cancer_study_id
@@ -165,21 +163,66 @@ public final class DaoClinical {
      * @return
      * @throws DaoException
      */
-    public static ResultSet getByCancerStudyId(String cancerStudyId) throws DaoException {
+    public static List<Clinical> getData(String cancerStudyId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
+
+        List<Clinical> clinicals = new ArrayList<Clinical>();
+
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE CANCER_STUDY_ID=?");
             pstmt.setInt(1, cancerStudy.getInternalId());
 
-            return pstmt.executeQuery();
+           rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                clinicals.add(extract(rs));
+            }
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        return clinicals;
+    }
+
+    /**
+     * Get data for a list of case ids, for a particular cancer study
+     * @param cancerStudyId
+     * @param caseIds
+     * @return
+     */
+    public static List<Clinical> getData(String cancerStudyId, List<String> caseIds) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        List<Clinical> clinicals = new ArrayList<Clinical>();
+
+        // join the caseIds in the format for a sql query
+        String caseIdsSql = "";
+        for (String caseId : caseIds) {
+            caseIdsSql += "'" + caseId + "',";
+        }
+
+        String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID=" + cancerStudy.getInternalId()
+                + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                clinicals.add(extract(rs));
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        return clinicals;
     }
 
     /**
@@ -208,7 +251,7 @@ public final class DaoClinical {
     public static int addAllData(Collection<Clinical> clinicals) throws DaoException {
         Connection con = null;
         ResultSet rs = null;
-        Statement stmt = null;
+        Statement stmt;
 
         String sql = "INSERT INTO clinical (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`, `ATTR_VALUE`)";
         sql += "VALUES";

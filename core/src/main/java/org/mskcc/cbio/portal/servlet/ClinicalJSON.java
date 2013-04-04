@@ -97,45 +97,12 @@ public class ClinicalJSON extends HttpServlet {
         return map;
     }
 
-    /**
-     * Takes a list of sample ids and returns a list of maps,
-     * does a database query in between.
-     *
-     * @param sampleIds
-     * @return
-     */
-    public JSONArray getMaps(Collection<String> sampleIds) throws DaoException, SQLException {
-        JSONArray map = new JSONArray();
-
-        for (String s : sampleIds) {
-            ResultSet rs = DaoClinical.getBySampleId(s.trim());
-
-            while (rs.next()) {
-                Clinical clinical = DaoClinical.extract(rs);
-                map.add(reflectToMap(clinical));
-            }
+    public JSONArray clinicals2JSONArray(List<Clinical> clincials) {
+        JSONArray toReturn = new JSONArray();
+        for (Clinical c : clincials) {
+            toReturn.add(reflectToMap(c));
         }
-        return map;
-    }
-
-    /**
-     * Iterates over a result set, converting each result into a map of clinical data
-     *
-     * @param cancer_study_id String
-     * @return
-     */
-    public JSONArray getMaps(String cancer_study_id) throws DaoException, SQLException {
-        JSONArray map = new JSONArray();
-
-        ResultSet rs;
-        rs = DaoClinical.getByCancerStudyId(cancer_study_id);
-
-        while (rs.next()) {
-            Clinical clinical = DaoClinical.extract(rs);
-            map.add(reflectToMap(clinical));
-        }
-
-        return map;
+        return toReturn;
     }
 
     /**
@@ -153,16 +120,27 @@ public class ClinicalJSON extends HttpServlet {
         String query = request.getParameter("q");
         String type = request.getParameter("t");
 
+        String samples = request.getParameter("samples");
+        String cancerStudyId = request.getParameter("cancer_study_id");
+
+        List<Clinical> clinicals;
         JSONArray maps = null;
+
         try {
-            if (type.equals("samples")) {
-                maps = getMaps(Arrays.asList(query.split(SAMPLES_DELIMITER)));
+            if (samples == null || samples.equals("all") ) {
+                clinicals = DaoClinical.getData(cancerStudyId);
+                maps = clinicals2JSONArray(clinicals);
+            } else {
+                clinicals = DaoClinical.getData(cancerStudyId,
+                        Arrays.asList(samples.trim().split(SAMPLES_DELIMITER)));
+                maps = clinicals2JSONArray(clinicals);
             }
-            else if (type.equals("cancer_study_id")) {
-                maps = getMaps(query);
-            }
-        } catch (Exception e) {
+        } catch (DaoException e) {
             throw new ServletException(e);
+        }
+
+        for (Clinical c : clinicals) {
+            reflectToMap(c);
         }
 
         response.setContentType("application/json");

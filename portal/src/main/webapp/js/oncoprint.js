@@ -1,4 +1,30 @@
 var Oncoprint = function(wrapper, params) {
+
+    console.log(params.geneData);
+
+    var data = d3.nest()
+        .key(function(d) { return d.gene; })
+        .entries(params.geneData);
+
+    var width = data[0].length * 5.5;       // number of samples * a constant
+    var rectHeight = 23;
+    var height = data.length * 23;
+
+    var x = d3.scale.ordinal().rangeBands([0, width]);
+    var y = d3.scale.ordinal().rangeBands([0, height]);
+
+    console.log(data);
+
+    var svg = d3.select(wrapper).append('svg');
+
+    svg.selectAll('.track')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('class', 'track');
+}
+
+var _Oncoprint = function(wrapper, params) {
     var that = {};
 
     var RECT_HEIGHT = 23;

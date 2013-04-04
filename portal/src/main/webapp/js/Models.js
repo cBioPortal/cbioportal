@@ -97,3 +97,28 @@ var Clinical = (function() {
 
 //var clinicals = new Clinical.collection([], {t: "cancer_study_id", q:"brca_tcga"});
 //clinical.fetch();
+
+var GeneData = (function() {
+
+    var querier = function() {};
+
+    // trivial model
+    var model = Backbone.Model.extend({});
+
+    var collection = Backbone.Collection.extend({
+        model: model,
+        initialize: function(model, options) {
+            this.query_type = options.t;
+            this.query = options.q;
+        },
+        url: function() {
+            return "";
+        }
+    });
+
+    return {
+        model: model,
+        collection: collection,
+        querier: querier
+    }
+});

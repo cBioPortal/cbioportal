@@ -7,209 +7,306 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
-<script type="text/javascript">
-$(document).ready(function() {
+<%
+    String cancer_study_id = (String)request.getParameter("cancer_study_id");
+    String genetic_profile_ids = (String)request.getParameter("genetic_profile_ids_PROFILE_MUTATION_EXTENDED");
+    String case_set_id = (String)request.getParameter("case_set_id");
+    String gene_list_tmp = (String)request.getParameter("gene_list");
+    String[] gene_list = gene_list_tmp.split("\\s+");
+%>
 
-     $('#plot_it').click(function(){
-        var cancer_study_id = $('#plots input:hidden:eq(0)').val();
-        var case_set_id =  $('#plots input:hidden:eq(1)').val();
-        var case_ids_key =  $('#plots input:hidden:eq(2)').val();
-        var normal_case_set_id =  $('#plots input:hidden:eq(3)').val();
-        var gene = $('select[name="gene"] option:selected').val();
-        var mutation_profile_id = $('select[name="mutation_profile_id"] option:selected').val();
-        var mrna_profile_id = $('select[name="mrnra_profile_id"] option:selected').val();
-        var cna_profile_id = $('select[name="cna_profile_id"] option:selected').val();
-        var methylation_profile_id = $('select[name="methylation_profile_id"] option:selected').val();
-        var rppa_protein_profile_id = $('select[name="rppa_protein_profile_id"] option:selected').val();
-        var plot_type = $('select[name="plot_type"] option:selected').val();
-        var includeNormals = $('input:checkbox[name=include_normals]:checked').val();
+<script type="text/javascript" src="js/d3.v2.min.js"></script>
+<script type="text/javascript" src="js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+<style type="text/css">
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: black;
+        shape-rendering: crispEdges;
+    }
 
-        var toLoad = "generatePlots.do?cancer_study_id="+cancer_study_id+
-                "&case_set_id="+case_set_id+
-                "&case_ids_key="+encodeURIComponent(case_ids_key)+
-                "&gene="+gene+
-                "&mutation_profile_id="+mutation_profile_id+
-                "&mrnra_profile_id="+mrna_profile_id+
-                "&cna_profile_id="+cna_profile_id+
-                "&normal_case_set_id="+normal_case_set_id+
-                "&include_normals="+includeNormals;
-                if(methylation_profile_id){
-                    toLoad = toLoad+"&methylation_profile_id="+methylation_profile_id;
-                }
-                if(rppa_protein_profile_id){
-                    toLoad = toLoad+"&rppa_protein_profile_id="+rppa_protein_profile_id;
-                }
-                toLoad = toLoad + "&plot_type="+plot_type;
-
-                $('#load').remove();
-         //hide div that will contain html page
-         //show ajax loader image
-        $('#progress_bar').append('<div id="load">&nbsp;</div>');
-        $('#load').fadeIn('slow');
-        $('#plot_images').hide('fast',loadContent);
-
-        function loadContent() {
-            //load html content into div (while still hidden)
-            //call showNewContent only after content is finished loading
-            $('#plot_images').load(toLoad,'',showNewContent());
-        }
-        function showNewContent() {
-            //show content, hide loader only after content is shown
-            $('#plot_images').delay(500).fadeIn('slow',hideLoader());
-        }
-        function hideLoader() {
-            //hide loader image
-            $('#load').fadeOut('fast');
-        }
-        return false;
-
-     });
-
-     var dropdowns = $('#plots select');
-
-     $.each(dropdowns, function(){
-         var num = $('option', this).length;
-         var position = $(this).position();
-         if (num < 2){
-             $(this).hide();
-         }
-     })
-    
-     $('#tabs li a[href="#plots"]').click(function(){
-        $('#plot_it').trigger('click');
-     });
-});
-</script>
+    .axis text {
+        font-family: sans-serif;
+        font-size: 11px;
+    }
+</style>
 
 <div class="section" id="plots">
 
-<%
-    //  Output List of Target Genes
-    out.println ("<table cellpadding=0 cellspacing=0>");
-    out.println ("<tr valign='top'><td bgcolor=#FFFFFF valign=top>");
-
-    out.println("<form id=\"plot_form\" action=\"generatePlots.do\" method=\"GET\">");
-    out.println("<fieldset><legend>Plot Parameters</legend>");
-
-    out.println("<b>Gene:");
-
-    if (geneWithScoreList.size() == 1) {
-        out.println (geneWithScoreList.get(0).getGene().toUpperCase());
-    }
-    out.println("</b><br><br>");
-
-    //  Output Cancer Type ID and Case Set ID
-    out.println ("<input type='hidden' name='" + QueryBuilder.CANCER_STUDY_ID
-            + "' value='" + cancerTypeId + "'>");
-
-    out.println ("<input type='hidden' name='" + QueryBuilder.CASE_SET_ID
-            + "' value='" + caseSetId + "'>");
-
-    out.println ("<input type='hidden' name='" + QueryBuilder.CASE_IDS_KEY
-            + "' value='" + caseIdsKey + "'>");
+Gene:
+<select>
+  <option>BRCA1</option>
+  <option>BRCA2</option>
+</select>
 
 
 
-    out.println ("<select style=\"width:180;\" name='gene'>");
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        out.println("<option value='" + geneWithScore.getGene() + "'>"
-                + geneWithScore.getGene().toUpperCase() + "</option>");
+<script>
 
-    }
-    out.println("</select>");
+    //Prepare Canvas
+    var w = 1000;
+    var h = 1000;
 
-    int mutationProfileCounter = countProfiles(profileList, GeneticAlterationType.MUTATION_EXTENDED);
-    int mRNAProfileCounter = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION);
-    int cnaProfileCounter = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION);
-    int methylationProfileCounter = countProfiles(profileList, GeneticAlterationType.METHYLATION);
-    int rppaProteinProfileCounter = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL);
+    //Fetch Data
+    var tmp_result;
+    $.ajax({
+        url: 'webservice.do?cmd=getProfileData&case_set_id=ov_tcga_all&genetic_profile_id=ov_tcga_mutations,ov_tcga_gistic,ov_tcga_mrna&gene_list=BRCA1',
+        //url: 'webservice.do?cmd=getProfileData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations, gbm_tcga_log2CNA,gbm_tcga_gistic,gbm_tcga_mrna,gbm_tcga_RPPA_protein_level&gene_list=BRCA1',
+        type: 'get',
+        dataType: 'text',
+        async: false,
+        success: function(data) {
+            if (data != "") {
+                tmp_result = data;
+            } else {
+                alert("ERROR!");
+            }
+        }
+    });
 
-    if (mutationProfileCounter <=1 && mRNAProfileCounter <=1 && cnaProfileCounter <= 1
-            && methylationProfileCounter <=1 && rppaProteinProfileCounter <= 1) {
-        out.println ("<BR><BR>");
-    } else {
-        out.println ("<BR><BR><b>Data Types:</b><br><br>");
-    }
+    //Parse Data
+    var case_set = [];
+    var mutations = [];
+    var gistic_copy_no = [];
+    var log2cna_copy_no = [];
+    var mrna = [];
+    var rppa_protein_level = [];
 
-
-    //  Output Mutation Profiles
-    if (mutationProfileCounter > 0) {
-        outputProfiles(GeneratePlots.MUTATION_PROFILE_ID, profileList,
-            GeneticAlterationType.MUTATION_EXTENDED, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output mRNA Profiles
-    if (mRNAProfileCounter > 0) {
-        outputProfiles(GeneratePlots.MRNA_PROFILE_ID, profileList,
-            GeneticAlterationType.MRNA_EXPRESSION, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output CNA Profiles
-    if (cnaProfileCounter > 0) {
-        outputProfiles(GeneratePlots.CNA_PROFILE_ID, profileList,
-            GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output Methylation Profiles
-    if (methylationProfileCounter > 0) {
-        outputProfiles(GeneratePlots.METHYLATION_PROFILE_ID, profileList,
-            GeneticAlterationType.METHYLATION, geneticProfileIdSet, out);
-    }
-
-    //  Output rppa Profiles
-    if (rppaProteinProfileCounter > 0) {
-        outputProfiles(GeneratePlots.RPPA_PROTEIN_PROFILE_ID, profileList,
-            GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, geneticProfileIdSet, out);
-    }
-
-    if (methylationProfileCounter > 0 || rppaProteinProfileCounter > 0) {
-        out.println ("<BR><BR><b>Plot Type:</b><br><br>");
-    }
-    out.println ("<select style=\"width:180;\"name='plot_type'>");
-    out.println ("<option value='mrna_cna'>mRNA v. Copy Number</option>");
-    if (methylationProfileCounter > 0) {
-        out.println ("<option value='mrna_methylation'>mRNA v. DNA Methylation</option>");
-    }
-    if (rppaProteinProfileCounter > 0) {
-        out.println ("<option value='mrna_rppa_protein'> RPPA protein level v. mRNA</option>");
-    }
-    out.println ("</select>");
-
-    for (CaseList caseSet:  caseSets) {
-        if (caseSet.getName().toLowerCase().contains("normal")) {
-            out.println ("&nbsp;<BR><INPUT TYPE=CHECKBOX NAME='" + GeneratePlots.INCLUDE_NORMALS +"' VALUE='INCLUDE_NORMALS'/>Include Normals");
-            out.println ("<INPUT TYPE=HIDDEN NAME=" + GeneratePlots.NORMAL_CASE_SET_ID + "' VALUE='"
-                    + caseSet.getStableId() + "'/>");
+    var tmp_sections = tmp_result.split(/\n/);
+    var tmp_items = [];
+    for (var k = 0; k < tmp_sections.length; k++) {
+        tmp_items = tmp_sections[k].trim().split(/\s+/);
+        var tmp_identifier = tmp_items[0];
+        for (var j = 4; j < tmp_items.length; j++) {
+            if (tmp_items[0].indexOf("GENETIC_PROFILE_ID") != -1) {
+                case_set[j-4] = tmp_items[j];
+            } else if (tmp_identifier.indexOf("log2CNA") != -1) {
+                log2cna_copy_no[j-4] = tmp_items[j];
+            } else if (tmp_identifier.indexOf("gistic") != -1) {
+                gistic_copy_no[j-4] = tmp_items[j];
+            } else if (tmp_identifier.indexOf("mutations") != -1) {
+                mutations[j-4] = tmp_items[j];
+            } else if (tmp_identifier.indexOf("mrna") != -1) {
+                mrna[j-4] = tmp_items[j];
+            } else if (tmp_identifier.indexOf("RPPA_protein_level") != -1) {
+                rppa_protein_level[j-4] = tmp_items[j];
+            }
         }
     }
 
-    if (mRNAProfileCounter > 0 && cnaProfileCounter > 0) {
-        out.println ("<br><br><a href='javascript:void(); return false;' id='plot_it'><img src='images/next_button.gif'></a>");
-    } else {
-        out.println ("<B>Unfortunately, this cancer types is missing certain data types, and the plot feature is therefore not available.</B>");
+    var dataset = [];
+    var index = 0;
+    for( var i = 0; i<case_set.length; i++) {
+
+        //Skip NaN entries (Except for Mutations)
+        if ((gistic_copy_no[i] == 'NaN') || (mrna[i] == 'NaN')) {
+            continue;
+        }
+
+        //Mutations Mapping
+        if (mutations[i] != "NaN") {
+            mutations[i] = "type1";
+        } else {
+            mutations[i] = "non";
+        }
+
+        dataset[index] = [gistic_copy_no[i], mrna[i], mutations[i]];
+        index += 1;
     }
-    out.println ("</fieldset>");
-    out.println ("</form>");
-    out.println ("</td>");
-    out.println ("<td valign=top width=650px>");
-    out.println ("<div id='progress_bar'>");
-    out.println ("<div id=\"plot_images\"></div></div>");
-    out.println ("</td>");
-    out.println ("</tr>");
 
-    //D3 example
+//-----------------tmp-----------------------------
+    //d3 min and max do NOT function well???
+    var tmp_gistic = [];
+    var tmp_index1 = 0;
+    for (var j=0; j< gistic_copy_no.length; j++){
+        if (gistic_copy_no[j] != "NaN") {
+            tmp_gistic[tmp_index1] = gistic_copy_no[j];
+            tmp_index1 += 1;
+        }
+    }
+    var min_gistic = Math.min.apply(Math, tmp_gistic);
+    var max_gistic = Math.max.apply(Math, tmp_gistic);
 
-%>
-</table>
+    //d3 min and max do NOT function well???
+    var tmp_mrna = [];
+    var tmp_index2 = 0;
+    for (var j=0; j< mrna.length; j++){
+        if (mrna[j] != "NaN") {
+            tmp_mrna[tmp_index2] = mrna[j];
+            tmp_index2 += 1;
+        }
+    }
+    var min_mrna = Math.min.apply(Math, tmp_mrna);
+    var max_mrna = Math.max.apply(Math, tmp_mrna);
+//-------------------tmp---------------------------
+
+    //Define scale functions
+    var padding = 200;
+    var xScale = d3.scale.linear()
+                     .domain([min_gistic - 0.5, max_gistic + 0.5])
+                     .range([padding, w-padding]);
+
+    var yScale = d3.scale.linear()
+                     .domain([min_mrna - 1, max_mrna + 1])
+                     .range([h-padding, padding]);
+
+
+    //Define Axis
+    var xAxis = d3.svg.axis()
+                      .scale(xScale)
+                      .orient("bottom")
+                      .ticks(5)
+
+    var yAxis = d3.svg.axis()
+                      .scale(yScale)
+                      .orient("left")
+                      .ticks(10);
+
+    //Create SVG canvas
+    var svg = d3.select("#plots")
+                .append("svg")
+                .attr("width", w)
+                .attr("height", h);
+
+    //Create SVG dots
+    var symbol = d3.scale.ordinal().range(["circle", "triangle-up"]);
+    var mutationTypes = ["non", "type1"];
+    var fillTypes = ["none", "#358FE8", "grey"];
+    var strokeTypes = ["#9EA2A6", "#2E7CC9", "green"];
+
+    svg.selectAll("path")
+        .data(dataset)
+        .enter()
+        .append("svg:path")
+        .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + (Math.random() * (20))) + ", " + yScale(d[1]) + ")";})
+        .attr("d", d3.svg.symbol()
+            .size(40)
+            .type( function (d) {
+                        switch (d[2]) {
+                            case mutationTypes[0]: return symbol(0);
+                            case mutationTypes[1]: return symbol(1);
+                        }
+                    }
+            ))
+        .attr("fill", function(d) {
+            switch (d[2]) {
+                case mutationTypes[0]: return fillTypes[0];
+                case mutationTypes[1]: return fillTypes[1];
+            }
+        })
+        .attr("stroke", function(d) {
+            switch (d[2]) {
+                case mutationTypes[0]: return strokeTypes[0];
+                case mutationTypes[1]: return strokeTypes[1];
+            }
+        });
+
+
+    //Add Text to Dots
+    /*
+    svg.selectAll("text")
+       .data(dataset)
+       .enter()
+       .append("text")
+       .text(function(d) {
+            return d[0] + "," + d[1];
+       })
+       .attr("x", function(d) {
+            return xScale(d[0]);
+       })
+       .attr("y", function(d) {
+            return yScale(d[1]);
+       })
+       .attr("font-family", "sans-serif")
+       .attr("font-size", "11px")
+       .attr("fill", function(d){return d[2]});
+    */
+
+    //Create SVG Axis
+     var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
+     svg.append("g")
+        .attr("class","axis")
+        .attr("transform", "translate(0," + (h - padding) + ")")
+        .call(xAxis)
+       .selectAll("text")
+        .data(textSet)
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", function(d) {return "rotate(-65)"})
+        .text(function(d){return d})
+
+     svg.append("text")
+        .attr("class", "label")
+        .attr("x", w/2 + padding)
+        .attr("y", h - padding/2)
+        .style("text-anchor", "end")
+        .text("Putative copy-number alterations from GISTIC");
+
+     svg.append("g")
+        .attr("class","axis")
+        .attr("transform", "translate(" + padding + ",0)")
+        .call(yAxis)
+       .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -40)
+        .attr("x", -(h-padding)/2)
+        .style("text-anchor", "end")
+        .text("mRNA expression");
+     svg.append("g")
+        .attr("class","axis")
+        .attr("transform", "translate(" + (w-padding) + ",0)")
+        .call(yAxis.orient("right"))
+
+    //Create the legend
+        var legend = svg.selectAll(".legend")
+           .data(mutationTypes)
+           .enter().append("g")
+           .attr("class", "legend")
+           .attr("transform", function(d, i) { return "translate(" + (padding + 10)   + "," + (padding + i * 15) + ")"; });
+        legend.append("path")
+           .attr("width", 18)
+           .attr("height", 18)
+           .attr("d", d3.svg.symbol()
+                .size(40)
+                .type(function(d, i) {
+                    switch(i) {
+                        case 0: return symbol(0);
+                        case 1: return symbol(1);
+                    };
+                })
+           )
+           .attr("fill", function (d, i) {
+               switch (i) {
+                   case 0: return fillTypes[0];
+                   case 1: return fillTypes[1];
+               }
+           })
+           .attr("stroke", function (d, i) {
+               switch (i) {
+                   case 0: return strokeTypes[0];
+                   case 1: return strokeTypes[1];
+               }
+           })
+        legend.append("text")
+          .attr("dx", ".75em")
+          .attr("dy", ".35em")
+          .style("text-anchor", "front")
+          .text(function(d, i) {
+              switch (i) {
+                   case 0: return mutationTypes[0];
+                   case 1: return mutationTypes[1];
+              }
+          });
+</script>
+
+
 </div>
 
 <%!
-    // Counts Number of Genetic Profiles of the Specified Alteration Type.
-    public int countProfiles(ArrayList<GeneticProfile> profileList,
-            GeneticAlterationType type) {
+    public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
         int counter = 0;
         for (int i = 0; i < profileList.size(); i++) {
             GeneticProfile profile = profileList.get(i);
@@ -218,33 +315,5 @@ $(document).ready(function() {
             }
         }
         return counter;
-    }
-
-    // Outputs Genetic Profiles of the Specified Alteration Type
-    public void outputProfiles(String id, ArrayList<GeneticProfile> profileList,
-            GeneticAlterationType type, HashSet<String> geneticProfileIdSet,
-            JspWriter out) throws IOException {
-        out.println("<select style=\"width:180px;\" name='" + id + "'>");
-        boolean mRNASelected = false;
-        for (int i = 0; i < profileList.size(); i++) {
-            GeneticProfile profile = profileList.get(i);
-            if (profile.getGeneticAlterationType() == type) {
-                out.print("<option value='" + profile.getStableId()
-                        + "' title='" + profile.getProfileDescription() + "' ");
-                if (geneticProfileIdSet.contains(profile.getStableId())) {
-                    out.print ("SELECTED ");
-                } else if (type.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
-                    //  Output the first Non-Z-Score mRNA Profile as Default
-                    if (!profile.getProfileName().toLowerCase().contains("z-score")
-                            && mRNASelected == false) {
-                        out.print ("SELECTED ");
-                        mRNASelected = true;
-                    }
-                }
-                out.print (">");
-                out.print (profile.getProfileName() + "</option>");
-            }
-        }
-        out.println("</select>");
     }
 %>

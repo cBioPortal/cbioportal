@@ -790,6 +790,12 @@
 	margin-top: 15px;
 }
 
+#element_details_tab .node-details-footer
+{
+	margin-top: 10px;
+	text-align: right;
+}
+
 /*
  * ######################################################## 
  * ###################### Legends #########################

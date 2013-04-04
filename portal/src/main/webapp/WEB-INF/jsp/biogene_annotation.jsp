@@ -199,24 +199,29 @@
 			<tr class='biogene-description'><td><b>Description:</b> {{geneDescription}}</td></tr>
 			<tr class='biogene-aliases'><td><b>Aliases:</b> {{geneAliases}}</td></tr>
 			<tr class='biogene-designations'><td><b>Designations:</b> {{geneDesignations}}</td></tr>
-			<tr class='biogene-chromosome'><td><b>Chromosome:</b> {{geneChromosome}}</td></tr>
-			<tr class='biogene-location'><td><b>Location:</b> {{geneLocation}}</td></tr>
-			<tr class='biogene-mim'><td><b>MIM:</b> {{geneMim}}</td></tr>
+			<tr class='biogene-location'><td><b>Chromosome Location:</b> {{geneLocation}}</td></tr>
+			<tr class='biogene-mim'>
+				<td>
+					<b>MIM:</b>
+					<a href='http://omim.org/entry/{{geneMim}}' target='blank'>{{geneMim}}</a>
+				</td>
+			</tr>
 			<tr class='biogene-id'>
 				<td>
 					<b>Gene ID:</b>
-					<a href="http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}">{{geneId}}</a>
+					<a href='http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}' target='blank'>{{geneId}}</a>
 				</td>
 			</tr>
 		</table>
 	</div>
 	<div class='node-details-summary'>
-		<span class='title'>
-			<label>Gene Function:</label>
-		</span>
+		<b>Gene Function:</b>
 		<br><br>
 		{{geneSummary}}
 	</div>
+	<!--div class='node-details-footer'>
+		<a href='http://cbio.mskcc.org/biogene/index.html' target='blank'>more</a>
+	</div-->
 </script>
 
 <script type="text/javascript">
@@ -227,6 +232,16 @@
 		interpolate : /\{\{(.+?)\}\}/g
 	};
 
+	/**
+	 * Backbone View Class for the drug data.
+	 *
+	 * Expected options fields:
+	 * options.el               target html selector for the content
+	 * options.data             data associated with a single drug
+	 * options.linkMap          mapping for the external links (xrefs)
+	 * options.idPlaceHolder    string constant to be used to generate links
+	 * options.edges            list of edges for the current network
+	 */
 	var DrugInfoView = Backbone.View.extend({
 		initialize: function(options) {
 			this.render(options);
@@ -404,9 +419,15 @@
 
 			return pubMedLinks;
 		}
-
 	});
 
+	/**
+	 * Backbone view for the genomic profile information.
+	 *
+	 * Expected fields for the options object:
+	 * options.el   target html selector for the content
+	 * options.data data associated with a single gene
+	 */
 	var GenomicProfileView = Backbone.View.extend({
 		initialize: function(options){
 			this.render(options);
@@ -487,6 +508,13 @@
 		}
 	});
 
+	/**
+	 * Backbone view for the BioGene information.
+	 *
+	 * Expected fields for the options object:
+	 * options.el   target html selector for the content
+	 * options.data data associated with a single gene
+	 */
 	var BioGeneView = Backbone.View.extend({
 		initialize: function(options){
 			this.render(options);
@@ -497,7 +525,6 @@
 				geneDescription: options.data.geneDescription,
 				geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ","),
 				geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ","),
-				geneChromosome: options.data.geneChromosome,
 				geneLocation: options.data.geneLocation,
 				geneMim: options.data.geneMim, // TODO add a hyperlink for MIM
 				geneId: options.data.geneId,

@@ -581,7 +581,7 @@ function plotMrna(div,alts) {
 function d3MrnaBar(div,mrnaPerc) {
     var textWidth = 30,
         graphWidth = 30,
-        circleR = 4,
+        circleR = 3,
         width = graphWidth+textWidth+2*circleR,
         height = 12;
 

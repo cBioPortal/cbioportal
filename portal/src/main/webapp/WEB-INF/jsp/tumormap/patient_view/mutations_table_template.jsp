@@ -19,6 +19,7 @@
                         <th class="mut-header" alt="Mutation frequency in cohort"><b>% in Cohort</b></th>
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>
                         <th class="mut-header" alt="Functional Impact Score predicted by MutationAssessor (missense mutations only)"><b>FIS</b></th>
+                        <th class="mut-header" alt="Sequence conservation"><b>Cons</b></th>
                         <th class="mut-header" alt="Protein 3D Structure"><b>3D</b></th>
                         <th class="mut-header" alt="Potential Drugs"><img src='images/drug.png' width=12 height=12></th>
                     </tr>

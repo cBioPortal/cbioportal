@@ -1,6 +1,7 @@
 The cBio Prostate Cancer Portal is developed and maintained by the Computational Biology Center at Memorial Sloan-Kettering Cancer Center and the i-Vis (Information Visualization) Research Group of the Computer Engineering Department at Bilkent University.
+## The team
 
-* Jianjiong Gao, MSKCC
+ * Jianjiong Gao, MSKCC
  * B. Arman Aksoy, MSKCC
  * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
@@ -12,6 +13,7 @@ The cBio Prostate Cancer Portal is developed and maintained by the Computational
  * Nikolaus Schultz, MSKCC
  
 ## Alumni
+
  * Ethan Cerami, now at Blueprint Medicines
  * Erik Larsson, now at University of Gothenburg
  * Arthur Goldberg, now at Mount Sinai School of Medicine

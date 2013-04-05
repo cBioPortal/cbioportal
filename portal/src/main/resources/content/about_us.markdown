@@ -14,6 +14,7 @@ The cBioPortal for Cancer Genomics is developed and maintained by the [Computati
  * Nikolaus Schultz, MSKCC
  
 ## Alumni
+
  * Ethan Cerami, now at Blueprint Medicines
  * Erik Larsson, now at University of Gothenburg
  * Arthur Goldberg, now at Mount Sinai School of Medicine

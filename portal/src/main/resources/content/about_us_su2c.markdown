@@ -1,6 +1,8 @@
 The cBio SU2C Cancer Genomics Portal is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
 
-* Jianjiong Gao, MSKCC
+## The team
+
+ * Jianjiong Gao, MSKCC
  * B. Arman Aksoy, MSKCC
  * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
@@ -12,6 +14,7 @@ The cBio SU2C Cancer Genomics Portal is developed and maintained by the [Computa
  * Nikolaus Schultz, MSKCC
  
 ## Alumni
+
  * Ethan Cerami, now at Blueprint Medicines
  * Erik Larsson, now at University of Gothenburg
  * Arthur Goldberg, now at Mount Sinai School of Medicine

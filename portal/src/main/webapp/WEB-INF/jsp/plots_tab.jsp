@@ -33,16 +33,29 @@
     <table class='table table-bordered'>
         <tr>
             <td>
-                  <label class='control-label'>Gene</label>
-                  <select id='selected_gene'>
+                <br>
+                <h4> Plot Parameters</h4>
+                <br>
+                <label class='control-label'><b>Gene</b></label>
+                <select id='selected_gene'>
                     <%
                         out.println("<option selected='selected' value='" + gene_list[0] + "'> " + gene_list[0] + " </option>");
                         for (int i=1; i<gene_list.length; i++){
                             out.println("<option value='" + gene_list[i] + "'>" + gene_list[i] + "</option>");
                         }
                     %>
-                  </select>
-                  <button onclick="drawPlots()"> Go >> </button>
+                </select>
+                <br><br>
+                <label class='control-label'><b>Plot Type</b></label>
+                    <select id='plot_type'></select>
+                <br><br>
+                <label class='control-label'><b>Data Type</b></label>
+                    mRNA
+                    <br><select id='data_type_mrna'></select><br>
+                    Copy Number
+                    <br><select id='data_type_copy_no'></select>
+                <br><br><br>
+                <button class='btn btn-info' onclick="drawPlots()"> Refresh >> </button>
             </td>
             <td>
                 <div id="plots_tab"></div>
@@ -91,17 +104,16 @@
                                     //"mrna_median",
                                     //"mrna_median_Zscores",
                                     //"mrna_merged_median_Zscores",
-                                    //"mrna_U133",
+                                    "mrna_U133",
                                     //"rna_seq_v2_mrna",
                                     //"rna_seq_v2_mrna_median_Zscores",
                                     //"mirna",
                                     //"mirna_median_Zscores",
                                     //"mrna_zbynorm",
                                     //"mrna_znormal",
-                                    //"mrna_outliers",
+                                    "mrna_outliers",
                                     //"mrna_outlier"
                                 ];
-
     var genetic_profile_types_description = [
                                     "Mutations",
                                     "Putative copy-number alterations from GISTIC",
@@ -116,23 +128,38 @@
                                     //"mRNA expression (all genes)",
                                     //"mRNA Expression z-Scores (microarray)",
                                     //"mRNA/miRNA expression Z-scores (all genes)",
-                                    //"mRNA expression (U133 microarray only)",
+                                    "mRNA expression (U133 microarray only)",
                                     //"mRNA expression (RNA Seq V2 RSEM)",
                                     //"mRNA Expression z-Scores (RNA Seq V2 RSEM)",
                                     //"microRNA expression",
                                     //"microRNA expression Z-scores",
                                     //"mRNA Expression Z-Scores vs Normals",
                                     //"mRNA Z-scores vs normal fat",
-                                    //"mRNA Expression Outliers",
+                                    "mRNA Expression Outliers",
                                     //"mRNA outliers"
                                 ];
+    var result_set = new Array(genetic_profile_types.length);
+    for (var i = 0; i<genetic_profile_types.length; i++ ) {
+        result_set[i] = new Array();
+    }
 
     function drawPlots() {
+
+        var has_copy_no = false;
+        var has_mrna = false;
+        var has_dna_mythelation = false;
+        var has_rppa = false;
+
         var profile_data = [];
         var tmp_case_set = [];
         var tmp_profile_data = [];
         var tmp_sections = [];
+
         $('#plots_tab').empty();
+        $('#plot_type').empty();
+        $('#data_type_copy_no').empty();
+        $('#data_type_mrna').empty();
+
         var url = "webservice.do?cmd=getProfileData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + document.getElementById('selected_gene').value + "&genetic_profile_id=";
         for ( var j = 0 ; j < genetic_profile_types.length ; j++ ) {
             $.ajax({
@@ -151,7 +178,7 @@
                                 case_set[caseSetIndex] = tmp_case_set[caseSetIndex + 2];
                             }
 
-                            //Get profile data
+                            //Get profile data (Filter the headers)
                             tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
                             for (var profileDataIndex = 0 ; profileDataIndex < tmp_profile_data.length; profileDataIndex ++ ) {
                                 profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
@@ -159,18 +186,23 @@
 
                             //Recognize profile type
                             var profile_type_identifier = tmp_sections[1];
-                            if (profile_type_identifier.indexOf("Mutations") != -1) {
-                                copyData(mutations, profile_data);
-                            } else if (profile_type_identifier.indexOf("Putative copy-number alterations from GISTIC") != -1) {
-                                copyData(gistic, profile_data);
-                            } else if (profile_type_identifier.indexOf("Log2 copy-number values") != -1) {
-                                copyData(log2cna, profile_data);
-                            } else if (profile_type_identifier.indexOf("RPPA protein/phosphoprotein level") != -1) {
-                                copyData(rppa_protein_level, profile_data);
-                            } else if (profile_type_identifier.indexOf("Methylation (HM27)") != -1) {
-                                copyData(methylation_hm27, profile_data);
-                            } else if (profile_type_identifier.indexOf("mRNA expression (microarray)") != -1) {
-                                copyData(mrna, profile_data);
+                            var result_set_index = 0;
+                            for ( var i = 0; i < genetic_profile_types.length; i++ ) {
+                                if (profile_type_identifier.indexOf(genetic_profile_types_description[i]) != -1) {
+                                    copyData(result_set[i], profile_data);
+                                    //Draw the Drop down menu
+                                    if (genetic_profile_types_description[i].indexOf("copy-number") != -1) {
+                                        has_copy_no = true;
+                                        $('#data_type_copy_no').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
+                                    } else if (genetic_profile_types_description[i].indexOf("mRNA") != -1 || genetic_profile_types_description[i].indexOf("microRNA") != -1) {
+                                        has_mrna = true;
+                                        $('#data_type_mrna').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
+                                    } else if (genetic_profile_types_description[i].indexOf("RPPA") != -1) {
+                                        has_rppa = true;
+                                    } else if (genetic_profile_types_description[i].indexOf("Mythelation") != -1) {
+                                        has_dna_mythelation = true;
+                                    }
+                                }
                             }
                         }
                     } else {
@@ -178,6 +210,15 @@
                     }
                 }
             });
+        }
+        if (has_copy_no == true && has_mrna == true) {
+            $('#plot_type').append("<option value='mrna_vs_copy_no'>mRNA vs. Copy Number</option>");
+        }
+        if (has_dna_mythelation == true && has_mrna == true) {
+            $('#plot_type').append("<option value='mrna_vs_dna_mythelation'>mRNA vs. DNA Methylation</option>");
+        }
+        if (has_rppa == true && has_mrna == true) {
+            $('#plot_type').append("<option value='mrna_vs_copy_no'>RPPA Protein Level vs. mRNA</option>");
         }
         drawScattersPlots();
     }
@@ -385,6 +426,15 @@
             }
         }
     }
+
+    function searchStringInArray (str, strArray) {
+        for (var j=0; j<strArray.length; j++) {
+            if (strArray[j].match(str)) return j;
+        }
+        return -1;
+    }
+
+    window.onload=drawPlots();
 
 </script>
 

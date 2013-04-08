@@ -62,7 +62,7 @@ function _assignValueToPredictedImpact(str)
     } else if (str == "neutral" || str == "n") {
         return 1;
     } else {
-        return 0;
+        return -1;
     }
 }
 
@@ -168,14 +168,14 @@ function _getLabelTextFloatValue(a)
  */
 function _compareSortAsc(a, b, av, bv)
 {
-    if (av>0) {
-        if (bv>0) {
+    if (av >= 0) {
+        if (bv >= 0) {
             return av==bv ? 0 : (av<bv ? -1:1);
         } else {
             return -1;
         }
     } else {
-        if (bv>0) {
+        if (bv >= 0) {
             return 1;
         } else {
             return a==b ? 0 : (a<b ? 1:-1);
@@ -195,14 +195,14 @@ function _compareSortAsc(a, b, av, bv)
  */
 function _compareSortDesc(a, b, av, bv)
 {
-    if (av>0) {
-        if (bv>0) {
+    if (av >= 0) {
+        if (bv >= 0) {
             return av==bv ? 0 : (av<bv ? 1:-1);
         } else {
             return -1;
         }
     } else {
-        if (bv>0) {
+        if (bv >= 0) {
             return 1;
         } else {
             return a==b ? 0 : (a<b ? -1:1);
@@ -771,7 +771,7 @@ function _getMutationTableRows(data)
         row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,
                 data.mutations[i].tumorAltCount,
                 data.mutations[i].tumorRefCount,
-                "simple-tip"));
+                "simple-tip-left"));
         row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
         row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
         row.push(getAlleleFreqHtml(data.mutations[i].normalFreq,

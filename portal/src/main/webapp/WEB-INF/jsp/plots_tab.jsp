@@ -67,77 +67,78 @@
 <script>
 
     var case_set = [];
-    var mutations = [];
-    var gistic = [];
-    var log2cna = [];
-    var cna = [];
-    var cna1 = []; //CNA
-    var cna_rae = [];
-    var cna_consensus = [];
-    var rppa_protein_level = [];
-    var methylation_hm27 = [];
-    var mrna = [];
-    var mrna_median = [];
-    var mrna_median_Zscores = [];
-    var mrna_merged_median_Zscores = [];
-    var mrna_U133 = [];
-    var rna_seq_v2_mrna = [];
-    var rna_seq_v2_mrna_median_Zscores = [];
-    var mirna = [];
-    var mirna_median_Zscores = [];
-    var mrna_zbynorm = [];
-    var mrna_znormal = [];
-    var mrna_outliers = [];
-    var mrna_outlier = [];
-
+    var result_set_index = [
+            "mutations_index",
+            "gistic_index",
+            "log2cna_index",
+            "cna_index",
+            "cna1_index",
+            "cna_rae_index",
+            "cna_consensus_index",
+            "rppa_protein_level_index",
+            "methylation_hm27_index",
+            "mrna_index",
+            "mrna_median_index",
+            "mrna_median_Zscores_index",
+            "mrna_merged_median_Zscores_index",
+            "mrna_U133_index",
+            "rna_seq_v2_mrna_index",
+            "rna_seq_v2_mrna_median_Zscores_index",
+            "mirna_index",
+            "mirna_median_Zscores_index",
+            "mrna_zbynorm_index",
+            "mrna_znormal_index",
+            "mrna_outliers_index",
+            "mrna_outlier_index"
+        ];
     var genetic_profile_types = [
-                                    "mutations",
-                                    "gistic",
-                                    "log2CNA",
-                                    //"cna",
-                                    //"CNA",
-                                    //"cna_rae",
-                                    //"cna_consensus",
-                                    "RPPA_protein_level",
-                                    "methylation_hm27",
-                                    "mrna",
-                                    //"mrna_median",
-                                    //"mrna_median_Zscores",
-                                    //"mrna_merged_median_Zscores",
-                                    "mrna_U133",
-                                    //"rna_seq_v2_mrna",
-                                    //"rna_seq_v2_mrna_median_Zscores",
-                                    //"mirna",
-                                    //"mirna_median_Zscores",
-                                    //"mrna_zbynorm",
-                                    //"mrna_znormal",
-                                    "mrna_outliers",
-                                    //"mrna_outlier"
-                                ];
+            "mutations",
+            "gistic",
+            "log2CNA",
+            "cna",
+            "CNA",
+            "cna_rae",
+            "cna_consensus",
+            "RPPA_protein_level",
+            "methylation_hm27",
+            "mrna",
+            "mrna_median",
+            "mrna_median_Zscores",
+            "mrna_merged_median_Zscores",
+            "mrna_U133",
+            "rna_seq_v2_mrna",
+            "rna_seq_v2_mrna_median_Zscores",
+            "mirna",
+            "mirna_median_Zscores",
+            "mrna_zbynorm",
+            "mrna_znormal",
+            "mrna_outliers",
+            "mrna_outlier"
+        ];
     var genetic_profile_types_description = [
-                                    "Mutations",
-                                    "Putative copy-number alterations from GISTIC",
-                                    "Log2 copy-number values",
-                                    //"Putative copy-number alterations (RAE)",
-                                    //"Putative copy-number alterations from discretization",
-                                    //"Putative copy-number alterations (RAE, 203 cases)",
-                                    //"Putative copy-number alterations (Consensus, GBM Pathways, 206 cases)",
-                                    "RPPA protein/phosphoprotein level",
-                                    "Methylation (HM27)",
-                                    "mRNA expression (microarray)",
-                                    //"mRNA expression (all genes)",
-                                    //"mRNA Expression z-Scores (microarray)",
-                                    //"mRNA/miRNA expression Z-scores (all genes)",
-                                    "mRNA expression (U133 microarray only)",
-                                    //"mRNA expression (RNA Seq V2 RSEM)",
-                                    //"mRNA Expression z-Scores (RNA Seq V2 RSEM)",
-                                    //"microRNA expression",
-                                    //"microRNA expression Z-scores",
-                                    //"mRNA Expression Z-Scores vs Normals",
-                                    //"mRNA Z-scores vs normal fat",
-                                    "mRNA Expression Outliers",
-                                    //"mRNA outliers"
-                                ];
+            "Mutations",
+            "Putative copy-number alterations from GISTIC",
+            "Log2 copy-number values",
+            "Putative copy-number alterations (RAE)",
+            "Putative copy-number alterations from discretization",
+            "Putative copy-number alterations (RAE, 203 cases)",
+            "Putative copy-number alterations (Consensus, GBM Pathways, 206 cases)",
+            "RPPA protein/phosphoprotein level",
+            "Methylation (HM27)",
+            "mRNA expression (microarray)",
+            "mRNA expression (all genes)",
+            "mRNA Expression z-Scores (microarray)",
+            "mRNA/miRNA expression Z-scores (all genes)",
+            "mRNA expression (U133 microarray only)",
+            "mRNA expression (RNA Seq V2 RSEM)",
+            "mRNA Expression z-Scores (RNA Seq V2 RSEM)",
+            "microRNA expression",
+            "microRNA expression Z-scores",
+            "mRNA Expression Z-Scores vs Normals",
+            "mRNA Z-scores vs normal fat",
+            "mRNA Expression Outliers",
+            "mRNA outliers"
+        ];
     var result_set = new Array(genetic_profile_types.length);
     for (var i = 0; i<genetic_profile_types.length; i++ ) {
         result_set[i] = new Array();
@@ -145,16 +146,16 @@
 
     function drawPlots() {
 
-        var has_copy_no = false;
-        var has_mrna = false;
-        var has_dna_mythelation = false;
-        var has_rppa = false;
-
         var profile_data = [];
         var tmp_case_set = [];
         var tmp_profile_data = [];
         var tmp_sections = [];
 
+        var has_copy_no = false;
+        var has_mrna = false;
+        var has_dna_mythelation = false;
+        var has_rppa = false;
+        
         $('#plots_tab').empty();
         $('#plot_type').empty();
         $('#data_type_copy_no').empty();
@@ -171,39 +172,50 @@
                     if (data != "") {
                         if ( data.indexOf("No genetic profile available") == -1) {
                             tmp_sections = data.split(/\n/);
-
                             //Get Case Set
                             tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
                             for (var caseSetIndex = 0 ; caseSetIndex < tmp_case_set.length; caseSetIndex ++ ) {
                                 case_set[caseSetIndex] = tmp_case_set[caseSetIndex + 2];
                             }
-
                             //Get profile data (Filter the headers)
                             tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
                             for (var profileDataIndex = 0 ; profileDataIndex < tmp_profile_data.length; profileDataIndex ++ ) {
                                 profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
                             }
-
-                            //Recognize profile type
+                   
                             var profile_type_identifier = tmp_sections[1];
-                            var result_set_index = 0;
-                            for ( var i = 0; i < genetic_profile_types.length; i++ ) {
-                                if (profile_type_identifier.indexOf(genetic_profile_types_description[i]) != -1) {
-                                    copyData(result_set[i], profile_data);
-                                    //Draw the Drop down menu
-                                    if (genetic_profile_types_description[i].indexOf("copy-number") != -1) {
-                                        has_copy_no = true;
-                                        $('#data_type_copy_no').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
-                                    } else if (genetic_profile_types_description[i].indexOf("mRNA") != -1 || genetic_profile_types_description[i].indexOf("microRNA") != -1) {
-                                        has_mrna = true;
-                                        $('#data_type_mrna').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
-                                    } else if (genetic_profile_types_description[i].indexOf("RPPA") != -1) {
-                                        has_rppa = true;
-                                    } else if (genetic_profile_types_description[i].indexOf("Mythelation") != -1) {
-                                        has_dna_mythelation = true;
+                   
+                            if (profile_type_identifier.indexOf("microRNA expression") != -1 && profile_type_identifier.indexOf("Z-scores") == -1) {
+                                //"mRNA Express" Discritpion Ambiguity
+                                copyData(result_set[result_set_index.indexOf("mirna_index")], profile_data);
+                            } else {
+                                for ( var i = 0; i < genetic_profile_types.length; i++ ) {
+                                    if (profile_type_identifier.indexOf(genetic_profile_types_description[i]) != -1) {
+                                        copyData(result_set[i], profile_data);
+                                        //Draw the Drop down menu
+                                        if (profile_type_identifier.indexOf("copy-number") != -1) {
+                                            if (has_copy_no != true) {
+                                                has_copy_no = true;
+                                                $('#data_type_copy_no').append("<option value='" + genetic_profile_types[i] + "' selected='selected'>" + genetic_profile_types_description[i] + "</option>");
+                                            } else {
+                                            $('#data_type_copy_no').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
+                                            }
+                                        } else if (profile_type_identifier.indexOf("mRNA") != -1 || profile_type_identifier.indexOf("microRNA") != -1) {
+                                            if (has_mrna != true) {
+                                                has_mrna = true;
+                                                $('#data_type_mrna').append("<option value='" + genetic_profile_types[i] + "' selected='selected'>" + genetic_profile_types_description[i] + "</option>");
+                                            } else {
+                                                $('#data_type_mrna').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
+                                            }
+                                        } else if (profile_type_identifier.indexOf("RPPA") != -1) {
+                                            has_rppa = true;
+                                        } else if (profile_type_identifier.indexOf("Methylation") != -1) {
+                                            has_dna_mythelation = true;
+                                        }
                                     }
                                 }
                             }
+                   
                         }
                     } else {
                         alert("ERROR Fetching Data.");
@@ -211,31 +223,44 @@
                 }
             });
         }
+        //Draw Scatter Plots
+        drawScattersPlots();
+        //Draw Drop Down Menu
         if (has_copy_no == true && has_mrna == true) {
-            $('#plot_type').append("<option value='mrna_vs_copy_no'>mRNA vs. Copy Number</option>");
+            $('#plot_type').append("<option value='mrna_vs_copy_no' selected='selected'>mRNA vs. Copy Number</option>");
         }
         if (has_dna_mythelation == true && has_mrna == true) {
             $('#plot_type').append("<option value='mrna_vs_dna_mythelation'>mRNA vs. DNA Methylation</option>");
         }
         if (has_rppa == true && has_mrna == true) {
-            $('#plot_type').append("<option value='mrna_vs_copy_no'>RPPA Protein Level vs. mRNA</option>");
+            $('#plot_type').append("<option value='rppa_protein_level_vs_mrna'>RPPA Protein Level vs. mRNA</option>");
         }
-        drawScattersPlots();
     }
 
-
     function drawScattersPlots() {
-
         //Prepare Canvas
         var w = 800;
         var h = 800;
-
         //Create SVG canvas
         var svg = d3.select("#plots_tab")
                     .append("svg")
                     .attr("width", w)
                     .attr("height", h);
-
+        
+        var xData = [];
+        var yData = [];
+        var plot_type = document.getElementById('plot_type').value;
+        if (plot_type == "mrna_vs_copy_no") {
+            var tmp_mrna_type = document.getElementById('data_type_mrna').value;            
+        } else if (plot_type == "mrna_vs_dna_mythelation") {
+        } else if (plot_type == "rppa_protein_level_vs_mrna") {
+        
+        }
+        
+        
+        var gistic = [];
+        var mrna = [];
+        var mutations = [];
         //Create data set
         var dataset=[];
         var index = 0;
@@ -425,13 +450,6 @@
                 desArray[tmpIndex] = oriArray[tmpIndex];
             }
         }
-    }
-
-    function searchStringInArray (str, strArray) {
-        for (var j=0; j<strArray.length; j++) {
-            if (strArray[j].match(str)) return j;
-        }
-        return -1;
     }
 
     window.onload=drawPlots();

@@ -785,14 +785,19 @@
 	vertical-align: top;
 }
 
+#element_details_tab .biogene-info
+{
+	margin-bottom: 5px;
+}
+
 #element_details_tab .node-details-summary
 {
-	margin-top: 15px;
+	margin-top: 10px;
 }
 
 #element_details_tab .node-details-footer
 {
-	margin-top: 10px;
+	margin-top: 15px;
 	text-align: right;
 }
 

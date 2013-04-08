@@ -194,34 +194,27 @@
 
 <script type="text/template" id="biogene_template">
 	<div class='node-details-info'>
-		<table>
-			<tr class='biogene-symbol'><td><b>Gene Symbol:</b> {{geneSymbol}}</td></tr>
-			<tr class='biogene-description'><td><b>Description:</b> {{geneDescription}}</td></tr>
-			<tr class='biogene-aliases'><td><b>Aliases:</b> {{geneAliases}}</td></tr>
-			<tr class='biogene-designations'><td><b>Designations:</b> {{geneDesignations}}</td></tr>
-			<tr class='biogene-location'><td><b>Chromosome Location:</b> {{geneLocation}}</td></tr>
-			<tr class='biogene-mim'>
-				<td>
-					<b>MIM:</b>
-					<a href='http://omim.org/entry/{{geneMim}}' target='blank'>{{geneMim}}</a>
-				</td>
-			</tr>
-			<tr class='biogene-id'>
-				<td>
-					<b>Gene ID:</b>
-					<a href='http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}' target='blank'>{{geneId}}</a>
-				</td>
-			</tr>
-		</table>
+		<div class='biogene-info biogene-symbol'><b>Gene Symbol:</b> {{geneSymbol}}</div>
+		<div class='biogene-info biogene-description'><b>Description:</b> {{geneDescription}}</div>
+		<div class='biogene-info biogene-aliases'><b>Aliases:</b> {{geneAliases}}</div>
+		<div class='biogene-info biogene-designations'><b>Designations:</b> {{geneDesignations}}</div>
+		<div class='biogene-info biogene-location'><b>Chromosome Location:</b> {{geneLocation}}</div>
+		<div class='biogene-info biogene-mim'>
+			<b>MIM:</b>
+			<a href='http://omim.org/entry/{{geneMim}}' target='blank'>{{geneMim}}</a>
+		</div>
+		<div class='biogene-info biogene-id'>
+			<b>Gene ID:</b>
+			<a href='http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}' target='blank'>{{geneId}}</a>
+		</div>
 	</div>
 	<div class='node-details-summary'>
 		<b>Gene Function:</b>
-		<br><br>
 		{{geneSummary}}
 	</div>
-	<!--div class='node-details-footer'>
+	<div class='node-details-footer'>
 		<a href='http://cbio.mskcc.org/biogene/index.html' target='blank'>more</a>
-	</div-->
+	</div>
 </script>
 
 <script type="text/javascript">
@@ -279,34 +272,40 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
+			// format after loading
+			this.format(options, variables);
+		},
+		format: function(options, variables) {
 			// hide titles with no information
 
-			if (xrefLinks == "")
+			if (variables.xrefLinks == "")
 			{
 				$(options.el + " .xref-row").hide();
 			}
 
-			if (atcCodeLinks == "")
+			if (variables.atcCodeLinks == "")
 			{
 				$(options.el + " .atc_codes-data-row").hide();
 			}
 
-			if (synonymList == "")
+			if (variables.synonymList == "")
 			{
 				$(options.el + " .synonyms-data-row").hide();
 			}
 
-			if (pubmedIdLinks == "")
+			if (variables.pubmedIdLinks == "")
 			{
 				$(options.el + " .pubmed-data-row").hide();
 			}
 
-			if (desc == null || desc == "")
+			if (variables.drugDescription == null ||
+			    variables.drugDescription == "")
 			{
 				$(options.el + " .description-data-row").hide();
 			}
 
-			if (clinicalTrials == null || clinicalTrials < 1)
+			if (variables.numOfClinicalTrials == null ||
+			    variables.numOfClinicalTrials < 1)
 			{
 				$(options.el + " .clinicaltrials-data-row").hide();
 			}
@@ -474,6 +473,20 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
+			// format after loading
+			this.format(options, variables);
+		},
+		format: function(options, variables) {
+			var data = options.data;
+
+			var cnaDataAvailable = !(data["PERCENT_CNA_AMPLIFIED"] == null &&
+			                         data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] == null &&
+			                         data["PERCENT_CNA_GAINED"] &&
+			                         data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] == null);
+
+			var mrnaDataAvailable = !(data["PERCENT_MRNA_WAY_UP"] == null &&
+			                          data["PERCENT_MRNA_WAY_DOWN"] == null);
+
 			// hide data rows with no information
 
 			if (data["PERCENT_CNA_AMPLIFIED"] == null)
@@ -536,6 +549,11 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
+			// format after loading
+			this.format(options, variables);
+		},
+		format: function(options, variables)
+		{
 			// hide rows with undefined data
 
 			if (options.data.geneSymbol == undefined)
@@ -564,6 +582,22 @@
 
 			if (options.data.geneSummary == undefined)
 				$(options.el + " .node-details-summary").hide();
+
+			// TODO use expand/collapse?
+//			var expanderOpts = {slicePoint: 200, // default is 100
+//				expandPrefix: '...',
+//				expandText: '[more]',
+//				//collapseTimer: 5000, // default is 0, so no re-collapsing
+//				userCollapseText: '[less]',
+//				moreClass: 'expander-read-more',
+//				lessClass: 'expander-read-less',
+//				detailClass: 'expander-details'};
+//
+//			// make long texts expandable
+//			$(options.el + " .biogene-description").expander(expanderOpts);
+//			$(options.el + " .biogene-aliases").expander(expanderOpts);
+//			$(options.el + " .biogene-designations").expander(expanderOpts);
+//			$(options.el + " .node-details-summary").expander(expanderOpts);
 		}
 	});
 

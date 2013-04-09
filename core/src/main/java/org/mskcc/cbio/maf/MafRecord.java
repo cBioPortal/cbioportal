@@ -33,6 +33,7 @@ package org.mskcc.cbio.maf;
 public class MafRecord
 {
     public final static String NA_STRING = "NA";
+    // TODO use MIN instead of -1, we may have fields with negative values
     public final static long NA_LONG = -1L;
     public final static int NA_INT = -1;
     public final static float NA_FLOAT = -1;

@@ -449,7 +449,7 @@ public class MafUtil
 
         // Mutation Assessor columns
 	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
-	    record.setMaFIS(getPartFloat(maFisIndex, parts));
+	    record.setMaFIS(getPartFloat2(maFisIndex, parts)); // not using getPartFloat, -1 may not be a safe value
 	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
 	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
 	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
@@ -558,6 +558,20 @@ public class MafUtil
 			return MafRecord.NA_FLOAT;
 		} catch (NumberFormatException e) {
 			return MafRecord.NA_FLOAT;
+		}
+	}
+
+	// returning MIN_VALUE instead of NA_FLOAT
+	// use this one if -1 is not a safe "NA" value.
+	private Float getPartFloat2(int index, String[] parts)
+	{
+		try {
+			String part = parts[index];
+			return Float.parseFloat(part);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return Float.MIN_VALUE;
+		} catch (NumberFormatException e) {
+			return Float.MIN_VALUE;
 		}
 	}
 

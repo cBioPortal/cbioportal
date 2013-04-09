@@ -53,6 +53,7 @@ public class ExtendedMutation
 	private String proteinChange; // amino acid change
 	private String mutationType; // variant classification
 	private String functionalImpactScore;
+	private float fisValue;
 	private String linkXVar;
 	private String linkPdb;
 	private String linkMsa;
@@ -238,6 +239,14 @@ public class ExtendedMutation
 
 	public void setFunctionalImpactScore(String fImpact) {
 		this.functionalImpactScore = fImpact;
+	}
+
+	public float getFisValue() {
+		return fisValue;
+	}
+
+	public void setFisValue(Float fisValue) {
+		this.fisValue = fisValue;
 	}
 
 	public String getLinkXVar() {

@@ -72,6 +72,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setSequencer("SOLiD");
 		mutation.setProteinChange("BRCA1_123");
 		mutation.setFunctionalImpactScore("H");
+		mutation.setFisValue(Float.MIN_VALUE);
 		mutation.setLinkXVar("link1");
 		mutation.setLinkPdb("link2");
 		mutation.setLinkMsa("link3");
@@ -143,6 +144,7 @@ public class TestDaoMutation extends TestCase {
 		assertEquals ("SOLiD", mutation.getSequencer());
 		assertEquals ("BRCA1_123", mutation.getProteinChange());
 		assertEquals ("H", mutation.getFunctionalImpactScore());
+		assertEquals (Float.MIN_VALUE, mutation.getFisValue());
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
 		assertEquals ("link3", mutation.getLinkMsa());

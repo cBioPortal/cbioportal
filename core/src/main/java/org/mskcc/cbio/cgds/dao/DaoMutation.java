@@ -94,7 +94,8 @@ public class DaoMutation {
 						mutation.getSequencer(), mutation.getMutationStatus(), mutation.getValidationStatus(),
 						mutation.getChr(), Long.toString(mutation.getStartPosition()),
 						Long.toString(mutation.getEndPosition()), mutation.getProteinChange(),
-						mutation.getMutationType(), mutation.getFunctionalImpactScore(), mutation.getLinkXVar(),
+						mutation.getMutationType(), mutation.getFunctionalImpactScore(),
+						Float.toString(mutation.getFisValue()), mutation.getLinkXVar(),
 						mutation.getLinkPdb(), mutation.getLinkMsa(), mutation.getNcbiBuild(), mutation.getStrand(),
 						mutation.getVariantType(), mutation.getReferenceAllele(), mutation.getTumorSeqAllele1(),
 						mutation.getTumorSeqAllele2(), mutation.getDbSnpRs(), mutation.getDbSnpValStatus(),
@@ -121,7 +122,7 @@ public class DaoMutation {
 						 + " `ENTREZ_GENE_ID`,"
 						 + " `CENTER`, `SEQUENCER`, `MUTATION_STATUS`, `VALIDATION_STATUS`, `CHR`,"
 						 + " `START_POSITION`, `END_POSITION`, `PROTEIN_CHANGE`, "
-						 + " `MUTATION_TYPE`, `FUNCTIONAL_IMPACT_SCORE`, `LINK_XVAR`, `LINK_PDB`,"
+						 + " `MUTATION_TYPE`, `FUNCTIONAL_IMPACT_SCORE`, `FIS_VALUE`, `LINK_XVAR`, `LINK_PDB`,"
 						 + " `LINK_MSA`, `NCBI_BUILD`, `STRAND`, `VARIANT_TYPE`, `REFERENCE_ALLELE`,"
 						 + " `TUMOR_SEQ_ALLELE1`, `TUMOR_SEQ_ALLELE2`, `DB_SNP_RS`, `DB_SNP_VAL_STATUS`,"
 						 + " `MATCHED_NORM_SAMPLE_BARCODE`, `MATCH_NORM_SEQ_ALLELE1`, `MATCH_NORM_SEQ_ALLELE2`,"
@@ -132,7 +133,7 @@ public class DaoMutation {
 						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`,"
 						 + " `ONCOTATOR_REFSEQ_MRNA_ID`, `ONCOTATOR_CODON_CHANGE`, `ONCOTATOR_UNIPROT_ENTRY_NAME`,"
 						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `CANONICAL_TRANSCRIPT`)"
-						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 				pstmt.setInt(1, mutation.getGeneticProfileId());
 				pstmt.setString(2, mutation.getCaseId());
@@ -147,41 +148,42 @@ public class DaoMutation {
 				pstmt.setString(11, mutation.getProteinChange());
 				pstmt.setString(12, mutation.getMutationType());
 				pstmt.setString(13, mutation.getFunctionalImpactScore());
-				pstmt.setString(14, mutation.getLinkXVar());
-				pstmt.setString(15, mutation.getLinkPdb());
-				pstmt.setString(16, mutation.getLinkMsa());
-				pstmt.setString(17, mutation.getNcbiBuild());
-				pstmt.setString(18, mutation.getStrand());
-				pstmt.setString(19, mutation.getVariantType());
-				pstmt.setString(20, mutation.getReferenceAllele());
-				pstmt.setString(21, mutation.getTumorSeqAllele1());
-				pstmt.setString(22, mutation.getTumorSeqAllele2());
-				pstmt.setString(23, mutation.getDbSnpRs());
-				pstmt.setString(24, mutation.getDbSnpValStatus());
-				pstmt.setString(25, mutation.getMatchedNormSampleBarcode());
-				pstmt.setString(26, mutation.getMatchNormSeqAllele1());
-				pstmt.setString(27, mutation.getMatchNormSeqAllele2());
-				pstmt.setString(28, mutation.getTumorValidationAllele1());
-				pstmt.setString(29, mutation.getTumorValidationAllele2());
-				pstmt.setString(30, mutation.getMatchNormValidationAllele1());
-				pstmt.setString(31, mutation.getMatchNormValidationAllele2());
-				pstmt.setString(32, mutation.getVerificationStatus());
-				pstmt.setString(33, mutation.getSequencingPhase());
-				pstmt.setString(34, mutation.getSequenceSource());
-				pstmt.setString(35, mutation.getValidationMethod());
-				pstmt.setString(36, mutation.getScore());
-				pstmt.setString(37, mutation.getBamFile());
-				pstmt.setInt(38, mutation.getTumorAltCount());
-				pstmt.setInt(39, mutation.getTumorRefCount());
-				pstmt.setInt(40, mutation.getNormalAltCount());
-				pstmt.setInt(41, mutation.getNormalRefCount());
-				pstmt.setString(42, mutation.getOncotatorDbSnpRs());
-				pstmt.setString(43, DaoMutationEvent.filterCosmic(mutation));
-				pstmt.setString(44, mutation.getOncotatorRefseqMrnaId());
-				pstmt.setString(45, mutation.getOncotatorCodonChange());
-				pstmt.setString(46, mutation.getOncotatorUniprotName());
-				pstmt.setString(47, mutation.getOncotatorUniprotAccession());
-				pstmt.setBoolean(48, mutation.isCanonicalTranscript());
+				pstmt.setFloat(14, mutation.getFisValue());
+				pstmt.setString(15, mutation.getLinkXVar());
+				pstmt.setString(16, mutation.getLinkPdb());
+				pstmt.setString(17, mutation.getLinkMsa());
+				pstmt.setString(18, mutation.getNcbiBuild());
+				pstmt.setString(19, mutation.getStrand());
+				pstmt.setString(20, mutation.getVariantType());
+				pstmt.setString(21, mutation.getReferenceAllele());
+				pstmt.setString(22, mutation.getTumorSeqAllele1());
+				pstmt.setString(23, mutation.getTumorSeqAllele2());
+				pstmt.setString(24, mutation.getDbSnpRs());
+				pstmt.setString(25, mutation.getDbSnpValStatus());
+				pstmt.setString(26, mutation.getMatchedNormSampleBarcode());
+				pstmt.setString(27, mutation.getMatchNormSeqAllele1());
+				pstmt.setString(28, mutation.getMatchNormSeqAllele2());
+				pstmt.setString(29, mutation.getTumorValidationAllele1());
+				pstmt.setString(30, mutation.getTumorValidationAllele2());
+				pstmt.setString(31, mutation.getMatchNormValidationAllele1());
+				pstmt.setString(32, mutation.getMatchNormValidationAllele2());
+				pstmt.setString(33, mutation.getVerificationStatus());
+				pstmt.setString(34, mutation.getSequencingPhase());
+				pstmt.setString(35, mutation.getSequenceSource());
+				pstmt.setString(36, mutation.getValidationMethod());
+				pstmt.setString(37, mutation.getScore());
+				pstmt.setString(38, mutation.getBamFile());
+				pstmt.setInt(39, mutation.getTumorAltCount());
+				pstmt.setInt(40, mutation.getTumorRefCount());
+				pstmt.setInt(41, mutation.getNormalAltCount());
+				pstmt.setInt(42, mutation.getNormalRefCount());
+				pstmt.setString(43, mutation.getOncotatorDbSnpRs());
+				pstmt.setString(44, DaoMutationEvent.filterCosmic(mutation));
+				pstmt.setString(45, mutation.getOncotatorRefseqMrnaId());
+				pstmt.setString(46, mutation.getOncotatorCodonChange());
+				pstmt.setString(47, mutation.getOncotatorUniprotName());
+				pstmt.setString(48, mutation.getOncotatorUniprotAccession());
+				pstmt.setBoolean(49, mutation.isCanonicalTranscript());
 
 				return pstmt.executeUpdate();
 			}
@@ -459,6 +461,7 @@ public class DaoMutation {
 		mutation.setProteinChange(rs.getString("PROTEIN_CHANGE"));
 		mutation.setMutationType(rs.getString("MUTATION_TYPE"));
 		mutation.setFunctionalImpactScore(rs.getString("FUNCTIONAL_IMPACT_SCORE"));
+		mutation.setFisValue(rs.getFloat("FIS_VALUE"));
 		mutation.setLinkXVar(rs.getString("LINK_XVAR"));
 		mutation.setLinkPdb(rs.getString("LINK_PDB"));
 		mutation.setLinkMsa(rs.getString("LINK_MSA"));

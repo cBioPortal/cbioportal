@@ -123,5 +123,5 @@
             }
         </script>
 
-<jsp:include page="biogene_annotation.jsp"/>
+<jsp:include page="network_views.jsp"/>
 <jsp:include page="network_div.jsp"/>

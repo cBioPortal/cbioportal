@@ -8,7 +8,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript" src="js/d3.v2.min.js"></script>
-<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<!--link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"-->
 
 <style type="text/css">
     .axis path,
@@ -25,6 +25,56 @@
     }
 </style>
 
+<script>
+    var data_type_copy_no;
+    var data_type_mrna;
+    var gene;
+    var case_set = [];
+    var mutations = [];
+    var copy_no = [];
+    var mrna = [];
+    var rppa = [];
+    var dna_methylation = [];
+    var result_set = new Array(5);
+    for ( var i = 0 ; i< result_set.length; i++) {
+        result_set[i] = new Array();
+    }
+    var genetic_profile_mutations = [
+        "mutations", "Mutations"
+    ];
+    var genetic_profile_mrna = [
+        ["mrna", "mRNA expression (microarray)"],
+        ["mrna_median", "mRNA expression (all genes)"],
+        ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
+        ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
+        ["mrna_U133", "mRNA expression (U133 microarray only)"],
+        ["rna_seq_v2_mrna", "mRNA expression (RNA Seq V2 RSEM)"],
+        ["rna_seq_v2_mrna_median_Zscores", "mRNA Expression z-Scores (RNA Seq V2 RSEM)"],
+        ["mirna", "microRNA expression"],
+        ["mirna_median_Zscores", "microRNA expression Z-scores"],
+        ["mrna_zbynorm", "mRNA Expression Z-Scores vs Normals"],
+        ["mrna_znormal", "mRNA Z-scores vs normal fat"],
+        ["mrna_outliers", "mRNA Expression Outliers"],
+        ["mrna_outlier", "mRNA outliers"]
+    ];
+    var genetic_profile_copy_no = [
+        ["gistic", "Putative copy-number alterations from GISTIC"],
+        ["log2CNA", "Log2 copy-number values"],
+        ["cna", "Putative copy-number alterations (RAE)"]
+    ];
+    var genetic_profile_rppa = [
+        "RPPA_protein_level", "RPPA protein/phosphoprotein level"
+    ];
+    var genetic_profile_dna_methylation = [
+        "methylation_hm27", "Methylation (HM27)"
+    ];
+    var plot_type_list = [
+        ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
+        ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
+        ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
+    ];
+</script>
+
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
     String case_set_id = (String)request.getParameter("case_set_id");
@@ -32,134 +82,67 @@
 %>
 
 <div class="section" id="plots">
-    <table class='table table-bordered'>
+    <table >
         <tr>
             <td>
-                <br>
-                <h4> Plot Parameters</h4>
-                <br>
-                <label class='control-label'><b>Gene</b></label>
-                <select id='selected_gene'>
-                    <%
-                        out.println("<option selected='selected' value='" + gene_list[0] + "'> " + gene_list[0] + " </option>");
-                        for (int i=1; i<gene_list.length; i++){
-                            out.println("<option value='" + gene_list[i] + "'>" + gene_list[i] + "</option>");
-                        }
-                    %>
-                </select>
-                <br><br>
-                <label class='control-label'><b>Plot Type</b></label>
-                <select id='plot_type'></select>
-                <br><br>
-                <label class='control-label'><b>Data Type</b></label>
-                mRNA
-                <br><select id='data_type_mrna'></select><br>
-                Copy Number
-                <br><select id='data_type_copy_no'></select>
-                <br><br><br>
-                <button class='btn btn-info' onclick="drawScattersPlots()"> Refresh >> </button>
+                <table>
+                    <tr><td style="border:2px solid #BDBDBD;width:320px;padding-left:20px;">
+                        <h4 style='margin-top:-57px;'><font style="background-color: white">&nbsp;&nbsp;Plot Parameters&nbsp;&nbsp;</font></h4>
+                        <br>
+                        <b>Gene</b><br>
+                        <select id='genes'>
+                            <%
+                                for (int i=0; i<gene_list.length; i++){
+                                    out.println("<option value='" + gene_list[i] + "'>" + gene_list[i] + "</option>");
+                                }
+                            %>
+                        </select>
+                        <br><br>
+                        <b>Plot Type</b><br>
+                        <select id='plot_type'></select>
+                        <br><br>
+                        <b>Data Type</b><br>
+                        <br>
+                        mRNA
+                        <br><select id='data_type_mrna'></select><br>
+                        Copy Number
+                        <br><select id='data_type_copy_no'></select>
+                        <br><br><br>
+                        <button onclick="generateScatterPlots()" style='width:80px;height:30px;border-radius:15px;'>
+                            <font style='font-size: 14px;color:white;font-weight: 5px;'> GO >> </font>
+                        </button>
+                    </td>
+                    <tr><td style='height:150px;'></td>
+                </table>
+
             </td>
             <td>
                 <div id="plots_tab"></div>
             </td>
         </tr>
     </table>
+    <br>
 </div>
 
 <script>
 
-var case_set = [];
+function fetchData() {
+    gene = document.getElementById("genes").value;
+    data_type_copy_no = document.getElementById("data_type_copy_no").value;
+    data_type_mrna = document.getElementById("data_type_mrna").value;
 
-var result_set_index = [
-    "mutations_index",
-    "gistic_index",
-    "log2cna_index",
-    "cna_index",
-    "cna1_index",
-    "cna_rae_index",
-    "cna_consensus_index",
-    "rppa_protein_level_index",
-    "methylation_hm27_index",
-    "mrna_index",
-    "mrna_median_index",
-    "mrna_median_Zscores_index",
-    "mrna_merged_median_Zscores_index",
-    "mrna_U133_index",
-    "rna_seq_v2_mrna_index",
-    "rna_seq_v2_mrna_median_Zscores_index",
-    "mirna_index",
-    "mirna_median_Zscores_index",
-    "mrna_zbynorm_index",
-    "mrna_znormal_index",
-    "mrna_outliers_index",
-    "mrna_outlier_index"
-];
+    var url_base = "webservice.do?cmd=getProfileData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + gene + "&genetic_profile_id=";
+    var urls = [
+        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_mutations[0], //mutations
+        url_base + "<% out.print(cancer_study_id); %>_" + data_type_copy_no, //copy no
+        url_base + "<% out.print(cancer_study_id); %>_" + data_type_mrna, //mrna
+        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_rppa[0], //rppa
+        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_dna_methylation[0] //dna methylation
+    ];
 
-var genetic_profile_types = [
-    "mutations",
-    "gistic",
-    "log2CNA",
-    "cna",
-    "CNA",
-    "cna_rae",
-    "cna_consensus",
-    "RPPA_protein_level",
-    "methylation_hm27",
-    "mrna",
-    "mrna_median",
-    "mrna_median_Zscores",
-    "mrna_merged_median_Zscores",
-    "mrna_U133",
-    "rna_seq_v2_mrna",
-    "rna_seq_v2_mrna_median_Zscores",
-    "mirna",
-    "mirna_median_Zscores",
-    "mrna_zbynorm",
-    "mrna_znormal",
-    "mrna_outliers",
-    "mrna_outlier"
-];
-
-var genetic_profile_types_description = [
-    "Mutations",
-    "Putative copy-number alterations from GISTIC",
-    "Log2 copy-number values",
-    "Putative copy-number alterations (RAE)",
-    "Putative copy-number alterations from discretization",
-    "Putative copy-number alterations (RAE, 203 cases)",
-    "Putative copy-number alterations (Consensus, GBM Pathways, 206 cases)",
-    "RPPA protein/phosphoprotein level",
-    "Methylation (HM27)",
-    "mRNA expression (microarray)",
-    "mRNA expression (all genes)",
-    "mRNA Expression z-Scores (microarray)",
-    "mRNA/miRNA expression Z-scores (all genes)",
-    "mRNA expression (U133 microarray only)",
-    "mRNA expression (RNA Seq V2 RSEM)",
-    "mRNA Expression z-Scores (RNA Seq V2 RSEM)",
-    "microRNA expression",
-    "microRNA expression Z-scores",
-    "mRNA Expression Z-Scores vs Normals",
-    "mRNA Z-scores vs normal fat",
-    "mRNA Expression Outliers",
-    "mRNA outliers"
-];
-
-var result_set = new Array(genetic_profile_types.length);
-for (var i = 0; i<genetic_profile_types.length; i++ ) {
-    result_set[i] = new Array();
-}
-
-function drawSideBar() {
-    var profile_data = [];
-    var tmp_case_set = [];
-    var tmp_profile_data = [];
-    var tmp_sections = [];
-
-    var url = "webservice.do?cmd=getProfileData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + document.getElementById('selected_gene').value + "&genetic_profile_id=";
-    for ( var j = 0 ; j < genetic_profile_types.length ; j++ ) {
+    for (var i = 0; i < urls.length; i++) {
         $.ajax({
-            url: url + "<% out.print(cancer_study_id); %>_" + genetic_profile_types[j],
+            url: urls[i],
             type: 'get',
             dataType: 'text',
             async: false,
@@ -169,21 +152,17 @@ function drawSideBar() {
                         tmp_sections = data.split(/\n/);
                         //Get Case Set
                         tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
-                        for (var caseSetIndex = 0 ; caseSetIndex < tmp_case_set.length; caseSetIndex ++ ) {
-                            case_set[caseSetIndex] = tmp_case_set[caseSetIndex + 2];
+                        for (var j = 0 ; j < tmp_case_set.length; j ++ ) {
+                            case_set[j] = tmp_case_set[j + 2];
                         }
                         //Get profile data (Filter the headers)
-                        tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
+                        var profile_data = [];
+                        var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
                         for (var profileDataIndex = 0 ; profileDataIndex < tmp_profile_data.length; profileDataIndex ++ ) {
                             profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
                         }
                         //Fill in Result Data Set
-                        var profile_type_identifier = tmp_sections[1];
-                        var tmp_result_set_index = findIndex(profile_type_identifier.substring(13), genetic_profile_types_description);
-                        if ( tmp_result_set_index != -1 ) {
-                            copyData(result_set[tmp_result_set_index], profile_data);
-                            drawDataType(profile_type_identifier, tmp_result_set_index);
-                        }
+                        copyData(result_set[i], profile_data);
                     }
                 } else {
                     alert("ERROR Fetching Data.");
@@ -191,76 +170,62 @@ function drawSideBar() {
             }
         });
     }
-    drawPlotType();
-    drawScattersPlots();
+    //Distribute Data
+    copyData(mutations, result_set[0]);
+    copyData(copy_no, result_set[1]);
+    copyData(mrna, result_set[2]);
+    copyData(rppa, result_set[3]);
+    copyData(dna_methylation, result_set[4]);
 }
 
-var has_copy_no = false;
-var has_mrna = false;
-var has_dna_mythelation = false;
-var has_rppa = false;
 
-function drawDataType(inputStr, i) {
-    if ((inputStr.indexOf("mRNA") != -1) || (inputStr.indexOf("microRNA") != -1)) {
-        has_mrna = true;
-        $('#data_type_mrna').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
-    } else if (inputStr.indexOf("copy-number") != -1) {
-        has_copy_no = true;
-        $('#data_type_copy_no').append("<option value='" + genetic_profile_types[i] + "'>" + genetic_profile_types_description[i] + "</option>");
-    } else if (inputStr.indexOf("RPPA") != -1) {
-        has_rppa = true;
-    } else if (inputStr.indexOf("Methylation") != -1) {
-        has_dna_mythelation = true;
+function drawSideBar() {
+    //Plot Type
+    for ( var m = 0; m < plot_type_list.length; m++) {
+        $('#plot_type').append("<option value='" + plot_type_list[m][0] + "'>" + plot_type_list[m][1] + "</option>");
+    }
+    //Copy Number Type
+    for ( var j = 0; j < genetic_profile_copy_no.length; j++ ) {
+        $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
+    }
+    //mRNA Type
+    for ( var k = 0; k < genetic_profile_mrna.length; k++ ) {
+        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[k][0] + "'>" + genetic_profile_mrna[k][1] + "</option>");
+    }
+    fetchData();
+    drawScatterPlots(copy_no, mrna, mutations, 1);
+}
+
+
+function generateScatterPlots() {
+    fetchData();
+    var tmp_plot_type = document.getElementById("plot_type").value;
+    if (tmp_plot_type == plot_type_list[0][0]) {    //"mrna_vs_copy_no"
+        drawScatterPlots(copy_no, mrna, mutations, 1);
+    } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
+        drawScatterPlots(dna_methylation, mrna, copy_no, 2);
+    } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
+        drawScatterPlots(mrna, rppa, copy_no, 3);
     }
 }
 
-function drawPlotType() {
-    if (has_copy_no == true && has_mrna == true) {
-        $('#plot_type').append("<option value='mrna_vs_copy_no' selected='selected'>mRNA vs. Copy Number</option>");
-    }
-    if (has_dna_mythelation == true && has_mrna == true) {
-        $('#plot_type').append("<option value='mrna_vs_dna_mythelation'>mRNA vs. DNA Methylation</option>");
-    }
-    if (has_rppa == true && has_mrna == true) {
-        $('#plot_type').append("<option value='rppa_protein_level_vs_mrna'>RPPA Protein Level vs. mRNA</option>");
-    }
-}
-
-function drawScattersPlots() {
-
+function drawScatterPlots(xData, yData, zData, type) {
     //Create Canvas
     $('#plots_tab').empty();
-    var w = 800;
-    var h = 800;
+    var w = 700;
+    var h = 600;
     var svg = d3.select("#plots_tab")
             .append("svg")
             .attr("width", w)
             .attr("height", h);
-
     //Prepare DataSet
-    var mrna_type = document.getElementById('data_type_mrna').value;
-    var copy_no_type = document.getElementById('data_type_copy_no').value;
-    var tmp_mrna_index = findIndex(mrna_type, genetic_profile_types);
-    var tmp_copy_no_index = findIndex(copy_no_type, genetic_profile_types);
-    var tmp_rppa_index = findIndex("rppa_protein_level_index", result_set_index);
-    var tmp_mythelation_index = findIndex("methylation_hm27_index", result_set_index);
-    var tmp_mutation_index = findIndex("mutations_index", result_set_index);
-
-    var xData = [];
-    var yData = [];
-    var zData = [];
-    var dataset = [];
     var xLegend;
     var yLegend;
+    var dataset = [];
 
-    var plot_type = document.getElementById('plot_type').value;
-
-    if (plot_type == "mrna_vs_copy_no") {
-        copyData(xData, result_set[tmp_copy_no_index]);
-        copyData(yData, result_set[tmp_mrna_index]);
-        copyData(zData, result_set[tmp_mutation_index]);
+    if (type == 1) {    //mrna_vs_copy_no
         var index = 0;
-        for( var i = 0; i<case_set.length; i++) {
+        for( var i = 0; i<xData.length; i++) {
             //Skip NaN entries
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
                 continue;
@@ -274,14 +239,26 @@ function drawScattersPlots() {
             dataset[index] = [xData[i], yData[i], zData[i]];
             index += 1;
         }
-        xLegend = genetic_profile_types_description[tmp_copy_no_index];
-        yLegend = genetic_profile_types_description[tmp_mrna_index];
-    } else if (plot_type == "mrna_vs_dna_mythelation") {
-        xData = result_set[tmp_mythelation_index];
-        yData = result_set[tmp_mrna_index];
-    } else if (plot_type == "rppa_protein_level_vs_mrna") {
-        xData = result_set[tmp_mrna_index];
-        yData = result_set[tmp_rppa_index];
+    } else if (type == 2) {  // mrna_vs_dna_mythelation
+        var index = 0;
+        for( var i = 0; i<xData.length; i++) {
+            //Skip NaN entries
+            if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
+                continue;
+            }
+            dataset[index] = [xData[i], yData[i], zData[i]];
+            index += 1;
+        }
+    } else if (type == 3) {  //rppa_protein_level_vs_mrna
+        var index = 0;
+        for( var i = 0; i<xData.length; i++) {
+            //Skip NaN entries
+            if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
+                continue;
+            }
+            dataset[index] = [xData[i], yData[i], zData[i]];
+            index += 1;
+        }
     }
 
     //-----------------tmp------//d3 min and max do NOT function well???
@@ -295,7 +272,7 @@ function drawScattersPlots() {
     }
     var min_x = Math.min.apply(Math, tmp_xData);
     var max_x = Math.max.apply(Math, tmp_xData);
-    var edge_x = (max_x - min_x) * 0.1;
+    var edge_x = (max_x - min_x) * 0.2;
 
     var tmp_yData = [];
     var tmp_yIndex = 0;
@@ -307,17 +284,17 @@ function drawScattersPlots() {
     }
     var min_y = Math.min.apply(Math, tmp_yData);
     var max_y = Math.max.apply(Math, tmp_yData);
-    var edge_y = (max_y - min_y) * 0.1;
+    var edge_y = (max_y - min_y) * 0.2;
     //-------------------tmp---------------------------
 
     //Define scale functions
     var padding = 200;
     var xScale = d3.scale.linear()
             .domain([min_x - edge_x, max_x + edge_x])
-            .range([80, 680]);
+            .range([100, 600]);
     var yScale = d3.scale.linear()
             .domain([min_y - edge_y, max_y + edge_y])
-            .range([680, 80]);
+            .range([520, 20]);
     //Define Axis
     var xAxis = d3.svg.axis()
             .scale(xScale)
@@ -331,17 +308,17 @@ function drawScattersPlots() {
     //Create SVG Axis
 
     //Axis Annotation for GISTIC
-    if (copy_no_type == "gistic") {
+    if ( type == 1 && data_type_copy_no == "gistic") {
         var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
         var ticksTextSet = [];
         var tmp_ticks_text_index = 0;
-        for (var i = min_x + 2; i = max_x + 3; i++) {
+        for (var i = min_x + 2; i < max_x + 3; i++) {
             ticksTextSet[tmp_ticks_text_index] = textSet[i];
             tmp_ticks_text_index += 1;
         }
         svg.append("g")
                 .attr("class","axis")
-                .attr("transform", "translate(0, 680)")
+                .attr("transform", "translate(0, 520)")
                 .call(xAxis.ticks(ticksTextSet.length))
                 .selectAll("text")
                 .data(ticksTextSet)
@@ -350,49 +327,34 @@ function drawScattersPlots() {
                 .attr("dy", ".15em")
                 .attr("transform", function(d) {return "rotate(-65)"})
                 .text(function(d){return d})
-        document.write(copy_no_type);
-        document.write(ticksTextSet);
     } else {
         svg.append("g")
                 .attr("class","axis")
-                .attr("transform", "translate(0, 680)")
+                .attr("transform", "translate(0, 520)")
                 .call(xAxis);
     }
 
     svg.append("g")
             .attr("class","axis")
-            .attr("transform", "translate(0, 80)")
-            .call(xAxis.orient("top").ticks(0));
-
-    svg.append("text")
-            .attr("class", "label")
-            .attr("x", 550)
-            .attr("y", 750)
-            .style("text-anchor", "end")
-            .text(xLegend);
+            .attr("transform", "translate(0, 20)")
+            .call(xAxis.orient("bottom").ticks(0));
 
     svg.append("g")
             .attr("class","axis")
-            .attr("transform", "translate(80, 0)")
+            .attr("transform", "translate(100, 0)")
             .call(yAxis)
-            .append("text")
-            .attr("class", "label")
-            .attr("transform", "rotate(-90)")
-            .attr("y", -40)
-            .attr("x", -300)
-            .style("text-anchor", "end")
-            .text(yLegend);
 
     svg.append("g")
             .attr("class","axis")
-            .attr("transform", "translate(680, 0)")
-            .call(yAxis.orient("right").ticks(0));
+            .attr("transform", "translate(600, 0)")
+            .call(yAxis.orient("left").ticks(0));
 
     //Create SVG dots
-    var symbol = d3.scale.ordinal().range(["circle", "triangle-up"]);
+    var symbol = d3.scale.ordinal().range(["circle", "triangle-up", "cross", "diamond", "square"]);
     var mutationTypes = ["non", "type1"];
-    var fillTypes = ["none", "#358FE8", "grey"];
-    var strokeTypes = ["#9EA2A6", "#2E7CC9", "green"];
+    var gisticTypes = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
+    var fillTypes = ["none", "#F78181", "#04B4AE", "#585858", "#FFBF00"];
+    var strokeTypes = ["#2E9AFE", "#F78181", "#04B4AE", "#585858", "#FFBF00"];
 
     svg.selectAll("path")
             .data(dataset)
@@ -405,84 +367,136 @@ function drawScattersPlots() {
                         switch (d[2]) {
                             case mutationTypes[0]: return symbol(0);
                             case mutationTypes[1]: return symbol(1);
+                            default: return "circle";
                         }
                     }
             ))
             .attr("fill", function(d) {
                 switch (d[2]) {
+                    //Mutations
                     case mutationTypes[0]: return fillTypes[0];
                     case mutationTypes[1]: return fillTypes[1];
+                    default: return "none";
                 }
             })
             .attr("stroke", function(d) {
                 switch (d[2]) {
                     case mutationTypes[0]: return strokeTypes[0];
                     case mutationTypes[1]: return strokeTypes[1];
+                    case "-2": return strokeTypes[0];
+                    case "-1": return strokeTypes[1];
+                    case "0": return strokeTypes[2];
+                    case "1": return strokeTypes[3];
+                    case "2": return strokeTypes[4];
+                    default: return "black";
+                }
+            })
+            .attr("stroke-width", function(d) {
+                if (type == 1) {
+                    return "1";
+                } else {
+                    return "1.2";
                 }
             });
 
     //Create the legend
-    var legend = svg.selectAll(".legend")
-            .data(mutationTypes)
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) { return "translate(100, " + (100 + i * 15) + ")"; });
-    legend.append("path")
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("d", d3.svg.symbol()
-                    .size(40)
-                    .type(function(d, i) {
-                        switch(i) {
-                            case 0: return symbol(0);
-                            case 1: return symbol(1);
-                        };
-                    })
-            )
-            .attr("fill", function (d, i) {
-                switch (i) {
-                    case 0: return fillTypes[0];
-                    case 1: return fillTypes[1];
-                }
-            })
-            .attr("stroke", function (d, i) {
-                switch (i) {
-                    case 0: return strokeTypes[0];
-                    case 1: return strokeTypes[1];
-                }
-            })
-    legend.append("text")
-            .attr("dx", ".75em")
-            .attr("dy", ".35em")
-            .style("text-anchor", "front")
-            .text(function(d, i) {
-                switch (i) {
-                    case 0: return mutationTypes[0];
-                    case 1: return mutationTypes[1];
-                }
-            });
+    if (type == 1) {  //Legend for Mutations
+        var legend = svg.selectAll(".legend")
+                .data(mutationTypes)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
+        legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                        .size(40)
+                        .type(function(d, i) {
+                            switch(i) {
+                                case 0: return symbol(0);
+                                case 1: return symbol(1);
+                            };
+                        })
+                )
+                .attr("fill", function (d, i) {
+                    switch (i) {
+                        case 0: return fillTypes[0];
+                        case 1: return fillTypes[1];
+                    }
+                })
+                .attr("stroke", function (d, i) {
+                    switch (i) {
+                        case 0: return strokeTypes[0];
+                        case 1: return strokeTypes[1];
+                    }
+                })
+        legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d, i) {
+                    switch (i) {
+                        case 0: return mutationTypes[0];
+                        case 1: return mutationTypes[1];
+                    }
+                });
+    } else {  //Legend for Gistic Copy Number
+        var legend = svg.selectAll(".legend")
+                .data(gisticTypes)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
+        legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                        .size(40)
+                        .type(function(d, i) {
+                            return "circle";
+                        })
+                )
+                .attr("fill", function (d, i) {
+                    return "none";
+                })
+                .attr("stroke", function (d, i) {
+                    switch (i) {
+                        case 0: return strokeTypes[0];
+                        case 1: return strokeTypes[1];
+                        case 2: return strokeTypes[2];
+                        case 3: return strokeTypes[3];
+                        case 4: return strokeTypes[4];
+                    }
+                })
+                .attr("stroke-width", function (d, i) {
+                    return 1.2;
+                })
+        legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d, i) {
+                    switch (i) {
+                        case 0: return gisticTypes[0];
+                        case 1: return gisticTypes[1];
+                        case 2: return gisticTypes[2];
+                        case 3: return gisticTypes[3];
+                        case 4: return gisticTypes[4];
+                    }
+                });
+    }
 
 }
 
 function copyData( desArray, oriArray) {
+    var desArrayIndex = 0;
     for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
         if (oriArray[tmpIndex] != "" && oriArray[tmpIndex] != null ) {
-            desArray[tmpIndex] = oriArray[tmpIndex];
+            desArray[desArrayIndex] = oriArray[tmpIndex];
+            desArrayIndex += 1;
         }
     }
 }
-
-function findIndex(Str, Exp) {
-    for (var i = 0; i< Exp.length; i++) {
-        if ( Str == Exp[i] ) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 window.onload=drawSideBar();
-
 </script>
 
 <%!

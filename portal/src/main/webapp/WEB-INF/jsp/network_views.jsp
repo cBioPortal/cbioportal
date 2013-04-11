@@ -539,7 +539,7 @@
 				geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ","),
 				geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ","),
 				geneLocation: options.data.geneLocation,
-				geneMim: options.data.geneMim, // TODO add a hyperlink for MIM
+				geneMim: options.data.geneMim,
 				geneId: options.data.geneId,
 				geneSummary: options.data.geneSummary};
 
@@ -583,21 +583,24 @@
 			if (options.data.geneSummary == undefined)
 				$(options.el + " .node-details-summary").hide();
 
-			// TODO use expand/collapse?
-//			var expanderOpts = {slicePoint: 200, // default is 100
-//				expandPrefix: '...',
-//				expandText: '[more]',
-//				//collapseTimer: 5000, // default is 0, so no re-collapsing
-//				userCollapseText: '[less]',
-//				moreClass: 'expander-read-more',
-//				lessClass: 'expander-read-less',
-//				detailClass: 'expander-details'};
-//
-//			// make long texts expandable
-//			$(options.el + " .biogene-description").expander(expanderOpts);
-//			$(options.el + " .biogene-aliases").expander(expanderOpts);
-//			$(options.el + " .biogene-designations").expander(expanderOpts);
-//			$(options.el + " .node-details-summary").expander(expanderOpts);
+			var expanderOpts = {slicePoint: 200, // default is 100
+				expandPrefix: ' ',
+				expandText: '[...]',
+				//collapseTimer: 5000, // default is 0, so no re-collapsing
+				userCollapseText: '[^]',
+				moreClass: 'expander-read-more',
+				lessClass: 'expander-read-less',
+				detailClass: 'expander-details',
+				// do not use default effects
+				// (see https://github.com/kswedberg/jquery-expander/issues/46)
+				expandEffect: 'fadeIn',
+				collapseEffect: 'fadeOut'};
+
+			// make long texts expandable
+			$(options.el + " .biogene-description").expander(expanderOpts);
+			$(options.el + " .biogene-aliases").expander(expanderOpts);
+			$(options.el + " .biogene-designations").expander(expanderOpts);
+			$(options.el + " .node-details-summary").expander(expanderOpts);
 		}
 	});
 

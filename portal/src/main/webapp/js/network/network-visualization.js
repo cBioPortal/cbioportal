@@ -331,14 +331,14 @@ NetworkVis.prototype.defaultSettings = function()
 
 /**
  * Shows the node inspector when double clicked on a node.
- *
+ * TODO not showing a node inspector anymore, perform a clean-up after merging into default/stable
  * @param evt	event that triggered this function
  */
 NetworkVis.prototype.showNodeInspector = function(evt)
 {
     // set the position of the inspector
 
-    // TODO evt.target.x and evt.target.y are local (relative) coordiates inside
+    // evt.target.x and evt.target.y are local (relative) coordiates inside
     // the CytoscapeWeb flash object, however those values are used as global
     // coordinate by the dialog() function. We need to transform the local
     // coordinates to global coordinates.
@@ -3138,8 +3138,10 @@ NetworkVis.prototype._initControlFunctions = function()
     // define listeners as local variables
     // (this is required to pass "this" instance to the listener functions)
 
-    var showNodeInspector = function(evt) {
-        self.showNodeInspector(evt);
+    var showNodeDetails = function(evt) {
+        //self.showNodeInspector(evt);
+	    // open details tab instead
+	    $(self.networkTabsSelector).tabs("select", 2);
     };
 
     var showEdgeInspector = function(evt) {
@@ -3296,7 +3298,7 @@ NetworkVis.prototype._initControlFunctions = function()
 
     this._vis.addListener("dblclick",
                      "nodes",
-                     showNodeInspector);
+                     showNodeDetails);
 
     this._vis.addListener("dblclick",
                      "edges",

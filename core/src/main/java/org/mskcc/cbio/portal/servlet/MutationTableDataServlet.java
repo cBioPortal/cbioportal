@@ -37,7 +37,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoMutationEvent;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
@@ -54,9 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
@@ -97,6 +97,9 @@ public class MutationTableDataServlet extends HttpServlet
 
 		List<ExtendedMutation> mutations = readMutations(request.getParameter("mutations"));
 
+		Map<String, Integer> countMap = this.getMutationCountMap(mutations);
+
+		// extract row data for each mutation
 		for (ExtendedMutation mutation : mutations)
 		{
 			HashMap<String, Object> rowData = new HashMap<String, Object>();
@@ -137,6 +140,7 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 			rowData.put("codonChange", mutation.getOncotatorCodonChange());
 			rowData.put("uniprotId", this.getUniprotId(mutation));
+			rowData.put("mutationCount", countMap.get(mutation.getCaseId()));
 
 			JSONArray specialGeneData = new JSONArray();
 
@@ -474,6 +478,47 @@ public class MutationTableDataServlet extends HttpServlet
 	}
 
 	/**
+	 * Creates a map of mutation counts for the given list of mutations.
+	 *
+	 * @param mutations     list of mutations
+	 * @return              map build on (case id, mutation count) pairs
+	 */
+	protected Map<String, Integer> getMutationCountMap(List<ExtendedMutation> mutations)
+	{
+		// build mutation count map
+		List<String> caseIds = new LinkedList<String>();
+
+		Integer geneticProfileId = -1;
+
+		// assuming same genetic profile id for all mutations in the list
+		if (mutations.size() > 0)
+		{
+			geneticProfileId = mutations.iterator().next().getGeneticProfileId();
+		}
+
+		// collect case ids
+		for (ExtendedMutation mutation : mutations)
+		{
+			caseIds.add(mutation.getCaseId());
+		}
+
+		Map<String, Integer> counts;
+
+		// retrieve count map
+		try
+		{
+			counts = DaoMutationEvent.countMutationEvents(
+					geneticProfileId, caseIds);
+		}
+		catch (DaoException e)
+		{
+			counts = null;
+		}
+
+		return counts;
+	}
+
+	/**
 	 * Gets the footer message specific to the provided special gene.
 	 *
 	 * @param specialGene   a special gene
@@ -523,6 +568,7 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("tumorAltCount", "Var Alt");
 		headerList.put("normalRefCount", "Norm Ref");
 		headerList.put("normalAltCount", "Norm Alt");
+		headerList.put("mutationCount", "Count");
 
 		JSONArray specialGeneHeaders = new JSONArray();
 

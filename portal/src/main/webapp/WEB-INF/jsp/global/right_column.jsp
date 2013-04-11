@@ -75,7 +75,7 @@ if (SkinUtil.showRightNavDataSets()) {
     <h3>What's New</h3>
 
     <P>A protocol paper about cBioPortal has just been published:  Gao et al. <b>Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal.</b> <i>Sci. Signal.</i> 6, pl1 (2013).
-    [<a href="http://stke.sciencemag.org/cgi/content/abstract/sigtrans;6/269/pl1">Abstract</a>].</P>
+    [<a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Reprint</a>].</P>
 
 <% } %>
 

@@ -9,6 +9,12 @@ portal/.DS_Store
 portal/Portal.ipr
 portal/Portal.iws
 portal/checkstyle_report.xml
+core/nbactions.xml
+importer/nbactions.xml
+portal/nb-configuration.xml
+portal/nbactions.xml
+portal/src/main/webapp/META-INF/context.xml
+portal/src/main/webapp/WEB-INF/web.xml
 \.orig\..*$
 \.orig$
 \.chg\..*$

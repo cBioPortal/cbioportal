@@ -14,6 +14,14 @@
   <version>1.0-SNAPSHOT</version>
   <name>Portal Core</name>
   <description>Core libraries shared among other modules</description>
+  
+  <repositories>
+        <repository>
+                <id>biojava-maven-repo</id>
+                <name>BioJava repository</name>
+                <url>http://www.biojava.org/download/maven/</url>			
+        </repository>
+  </repositories>
 
   <!-- dependencies -->
   <dependencies>
@@ -164,6 +172,13 @@
 	  <artifactId>Rserve</artifactId>
 	  <version>0.6-1</version>
 	</dependency>
+        
+        <!-- BioJava3 -->
+        <dependency>
+                <groupId>org.biojava</groupId>
+                <artifactId>biojava3-structure</artifactId>
+                <version>3.0.5</version>
+        </dependency>
 
   </dependencies>
 

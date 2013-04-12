@@ -599,14 +599,21 @@ function _getMutationTableRows(data)
                label + '</label></span>';
     };
 
-    var getFisHtml = function(value, xVarLink) {
+    var getFisHtml = function(value, xVarLink, fisValue) {
 
         var html;
 
         if (omaScoreMap[value] != null)
         {
-            html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +
-                   omaScoreMap[value].tooltip + "|" + xVarLink + '">' +
+            var tooltip = omaScoreMap[value].tooltip;
+
+	        if (fisValue != null)
+            {
+	            tooltip = fisValue;
+            }
+
+	        html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +
+                   tooltip + "|" + xVarLink + '">' +
                    '<label>' + omaScoreMap[value].label + '</label>' +
                    '</span>';
         }
@@ -757,7 +764,8 @@ function _getMutationTableRows(data)
         row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
         row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
         row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),
-                            data.mutations[i].xVarLink));
+                            data.mutations[i].xVarLink,
+                            data.mutations[i].fisValue));
 	    row.push(getMsaLinkHtml(data.mutations[i].msaLink));
         row.push(getPdbLinkHtml(data.mutations[i].pdbLink));
         row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
@@ -920,7 +928,7 @@ function addMutationTableTooltips(tableId)
 
         var impact = parts[0];
 
-        var tip = "Predicted impact: <b>"+impact+"</b>";
+        var tip = "Predicted impact score: <b>"+impact+"</b>";
 
         var xvia = parts[1];
         if (xvia&&xvia!='NA')

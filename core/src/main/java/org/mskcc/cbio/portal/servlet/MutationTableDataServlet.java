@@ -141,6 +141,7 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("codonChange", mutation.getOncotatorCodonChange());
 			rowData.put("uniprotId", this.getUniprotId(mutation));
 			rowData.put("mutationCount", countMap.get(mutation.getCaseId()));
+			rowData.put("fisValue", this.getFisValue(mutation));
 
 			JSONArray specialGeneData = new JSONArray();
 
@@ -469,6 +470,18 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 
 		return freq;
+	}
+
+	protected Float getFisValue(ExtendedMutation mutation)
+	{
+		Float fisValue = mutation.getFisValue();
+
+		if (fisValue.equals(Float.MIN_VALUE))
+		{
+			fisValue = null;
+		}
+
+		return fisValue;
 	}
 
 	protected String getUniprotId(ExtendedMutation mutation)

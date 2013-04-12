@@ -29,96 +29,56 @@
 //
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 //
-
-var Clinical = (function() {
+var ModelUtils = (function() {
     // namespace
+    //
+    var makeHash = function(data, key) {
+        // [] -> {}
+        // [ list of objects ], key -> { key : object }
+        // note that this is doesn't make sense unless
+        // the object have values for the given key
+        var hash = {};
+        _.each(data, function(i) {
+            hash[i[key]] = i;
+        });
 
-    var querier = function(data) {
-        // [ list of objects ] -> function bySample, function byAttr
-        // [] -> a bunch of functions that will break!
-        //
-        // takes a list of objects, [{ case_id, attr_id, attr_val }]
-        // and returns two functions for querying this data.
-        // This is done by lazy creation of hashmaps and then
-        // the trivial wrapping of query functions around those hashmaps
-
-        var makeHash = function(data, key) {
-            // [] -> {}
-            // [ list of objects ], key -> { key : object }
-            // note that this is doesn't make sense unless
-            // the object have values for the given key
-            var hash = {};
-            _.each(data, function(i) {
-                hash[i[key]] = i;
-            });
-
-            return hash;
-        };
-
-        var sample2data;
-        var attr2data;
-
-        return {
-            bySample: function(sample_id) {
-                // lazy initialization
-                sample2data === undefined ? sample2data = makeHash(data, "case_id") : sample2data = sample2data;
-
-                return sample2data[sample_id];
-            },
-            byAttr: function(attr_id) {
-                attr2data === undefined ? attr2data = makeHash(data, "attr_id") : attr2data = attr2data;
-
-                return attr2data[attr_id];
-            }
-        }
+        return hash;
     };
 
-    // trivial Backbone model
-    var model = Backbone.Model.extend({});
-
-    // collection of (clinical) models with the proper query strings
-    var collection = Backbone.Collection.extend({
-        model: model,
-        initialize: function(models, options) {
-            this.samples = options.samples || "";
-            this.cancerStudyId = options.cancerStudyId;
-        },
-        url: function() {
-            return "clinical.json?t=" + this.query_type + "&" + "q=" + this.query;
-        }
-    });
-
     return {
-        model: model,
-        collection: collection,
-        querier:querier
+        makeHash: makeHash
     };
-})();
+});
 
-//var clinicals = new Clinical.collection([], {cancer_study_id: "cancer_study_id", samples:"brca_tcga"});
-//clinicals.fetch();
+// trivial Backbone model
+var model = Backbone.Model.extend({});
 
-var GeneData = (function() {
+// model for clinical datas
+var ClinicalColl = Backbone.Collection.extend({
+    model: model,
+    initialize: function(models, options) {
+        this.caseSetId = options.caseSetId;
+    },
+    url: function() {
+        return "webservice.do?cmd=getClinicalData&case_set_id=" + this.caseSetId;
+    }
+});
 
-    var querier = function() {};
-
-    // trivial model
-    var model = Backbone.Model.extend({});
-
-    var collection = Backbone.Collection.extend({
-        model: model,
-        initialize: function(model, options) {
-            this.query_type = options.t;
-            this.query = options.q;
-        },
-        url: function() {
-            return "";
-        }
-    });
-
-    return {
-        model: model,
-        collection: collection,
-        querier: querier
+// model for gene datas (various molecular profiles)
+var GeneDataColl = Backbone.Collection.extend({
+    model: model,
+    initialize: function(models, options) {
+        this.genes = options.genes;
+        this.geneticProfileIds = options.geneticProfileIds;
+        this.samples = options.samples;
+        this.caseSetId = options.caseSetId;
+    },
+    url: function() {
+        var caseSet = this.caseSetId !== undefined ? ("&" + "caseSetId=" + this.caseSetId) : "";
+        return "GeneData.json?"
+            + "genes=" + this.genes
+            + "&" + "geneticProfileIds=" + this.geneticProfileIds
+            + "&" + "samples=" + this.samples
+            + caseSet;
     }
 });

@@ -52,8 +52,16 @@ public class GeneDataJSON extends HttpServlet {
         }
     }
 
-public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary) {
-      JSONArray data = new JSONArray();
+    /**
+     * Maps the matrix to a JSONArray of alterations
+     *
+     *
+     * todo: This is replacing the commented out code below.  Soon we the old version below?
+     * @param geneticEvents matrix M[case][gene]
+     * @return
+     */
+    public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary) {
+        JSONArray data = new JSONArray();
 
         for (int i = 0; i < geneticEvents.length; i++) {
             String caseId = geneticEvents[0][i].caseCaseId();
@@ -91,8 +99,8 @@ public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDa
             }
         }
 
-      return data;
-  }
+        return data;
+    }
 //
 //    /**
 //     * Maps the matrix to a JSONArray of alterations

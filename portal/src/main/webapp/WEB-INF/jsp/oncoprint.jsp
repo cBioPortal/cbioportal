@@ -63,29 +63,18 @@
                     rppa_score_threshold: <%=rppaScoreThreshold%>
                 };
 
-                var clinicals = new Clinical.collection([], {t: "cancer_study_id", q: "<%=cancerTypeId%>"});
-
                 var oncoprint;      // global
                 $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {
-                    clinicals.fetch({
-                        success: function(coll, respsonse) {
-                            oncoPrintParams['geneData'] = geneData;
-                            oncoPrintParams['clinicalData'] = coll.toJSON();
 
-                            oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
+                    oncoPrintParams['geneData'] = geneData;
+                    oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
-                            oncoprint.draw();
-                            var geneDataManager = DataManagerFactory.getGeneDataManager();
-                            geneDataManager.fire(geneData);
+                    oncoprint.draw();
+                    var geneDataManager = DataManagerFactory.getGeneDataManager();
+                    geneDataManager.fire(geneData);
 
-                            $('#oncoprint #loader_img').hide();
-                            $('#oncoprint #everything').show();
-
-                        },
-                        error: function(model, response) {
-                            console.log(response);
-                        }
-                    });
+                    $('#oncoprint #loader_img').hide();
+                    $('#oncoprint #everything').show();
                 });
             </script>
         </div>

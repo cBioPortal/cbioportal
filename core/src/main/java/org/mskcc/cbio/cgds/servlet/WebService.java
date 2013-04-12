@@ -148,7 +148,6 @@ public class WebService extends HttpServlet {
 
         try {
             httpServletResponse.setContentType("text/plain");
-            writer.print(WebApiUtil.WEP_API_HEADER);
 
             // Branch, based on command.
             if (null == cmd) {

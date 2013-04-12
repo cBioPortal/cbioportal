@@ -213,9 +213,6 @@ public final class DaoClinical {
         String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID`=" + cancerStudy.getInternalId()
                 + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
 
-        System.out.println(sql);
-
-
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);
             stmt = con.createStatement();

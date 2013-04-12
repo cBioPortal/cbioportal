@@ -404,19 +404,11 @@
 <script type="text/javascript">
 	// to initially hide the network tab
     
-	//getting all tabs
-	var $tabs = $('#tabs').tabs();
-	//the active tab
-	var selectedTab = $tabs.tabs('option', 'selected');
 	//index of network tab
 	var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
 
-	//if index of active tab is not equal to the network tab, hide network tab
-	if(selectedTab != networkTabIndex){
-		// to initially hide the network tabs
-		//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
 		$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-    	// to fix problem of flash repainting
 	}
 
     // to fix problem of flash repainting

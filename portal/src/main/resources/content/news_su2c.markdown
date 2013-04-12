@@ -1,3 +1,16 @@
+# April 2, 2013
+
+* New study added: Breast Cancer (British Columbia, Nature 2012).
+* All TCGA data updated to the February Firehose run (February 22, 2012).
+* __Sequencing read counts and frequencies__ are now shown in the Mutation Details table when available.
+* Improved OncoPrints, resulting in performance improvements.
+* Major new feature: Users can now visualize __genomic alterations and clinical data of individual tumors__, including:
+    - Summary of __mutations__ and __copy-number alterations__ of interest
+    - __Clinical trial__ information
+    - TCGA __Pathology Reports__
+* New __cancer summary view__ (Example [Endometrial Cancer](study.do?cancer_study_id=ucec_tcga))
+* __Updated drug data__ from KEGG DRUG and NCI Cancer Drugs (aggregated by [PiHelper](https://bitbucket.org/armish/pihelper))
+
 # October 10, 2012
 
 * New studies added: Breast cancer sequencing studies from the Broad and the Sanger, Cancer Cell Line Encyclopedia (CCLE), and cervical cancer TCGA.

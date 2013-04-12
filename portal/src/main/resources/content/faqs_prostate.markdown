@@ -2,9 +2,9 @@
 
 <BR/>
 
-# What is the cBio Prostate Portal?
+# What is the cBioPortal for Prostate Cancer?
 
-The cBio Prostate Portal This contains genomic data from several published and unpublished prostate cancer studies.
+The cBioPortal for Prostate Cancer contains genomics data from several published and unpublished prostate cancer studies.
 
 # How do I get started?
 
@@ -16,12 +16,15 @@ The portal currently stores DNA copy-number data (putative, discrete values per 
 
 # Can I use figures from the Portal in my publications or presentations?
 
-Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available as PDFs for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012 May;2(5):401-4.
+Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available as PDFs for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012 and Gao et al. Sci. Signal. 2013.
 
 # How do I cite the portal?
 
-You can cite the portal paper: Cerami et al.  *The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.*  Cancer Discovery. May 2012 2; 401.
+You can cite the following portal papers:
+
+- Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. *Cancer Discovery*. May 2012 2; 401.
 [Abstract](http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract).
+- Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. *Sci. Signal.* 6, pl1 (2013). [Reprint](http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp).
 
 # How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?
 

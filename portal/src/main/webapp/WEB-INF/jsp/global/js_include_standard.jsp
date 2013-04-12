@@ -16,3 +16,5 @@
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="js/cbio-util.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>

@@ -29,6 +29,7 @@ package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
 
+import com.google.common.base.Joiner;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
@@ -189,7 +190,7 @@ public class GetClinicalData {
     public static String makeRow(List<Clinical> clinicals) {
         // TODO: this needs to be sorted
 
-        String row = clinicals.get(0).getCaseId() + "\t";
+        String row = clinicals.get(0).getCaseId();
 
         for (Clinical c : clinicals) {
             row = row + "\t" + c.getAttrVal();
@@ -214,7 +215,15 @@ public class GetClinicalData {
             }
         }
 
-        String txt = "";
+        // make header, is order preserved across all rows?
+        List<Clinical> aClinical = caseId2Clinical.values().iterator().next();
+        List<String> headers = new ArrayList<String>();
+        for (Clinical c : aClinical) {
+            headers.add(c.getAttrId().toLowerCase());
+        }
+
+        String txt = "case_id\t" + Joiner.on("\t").join(headers) + "\n";      // start out with just a header
+
         for (List<Clinical> clinicals : caseId2Clinical.values()) {
             txt += makeRow(clinicals);
         }

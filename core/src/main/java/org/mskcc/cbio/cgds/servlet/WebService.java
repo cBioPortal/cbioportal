@@ -146,8 +146,15 @@ public class WebService extends HttpServlet {
         Date startTime = new Date();
         String cmd = httpServletRequest.getParameter(CMD);
 
+
         try {
-            httpServletResponse.setContentType("text/plain");
+            if ("json".equals(httpServletRequest.getParameter(FORMAT))) {
+                httpServletResponse.setContentType("application/json");
+            }
+
+            else {
+                httpServletResponse.setContentType("text/plain");
+            }
 
             // Branch, based on command.
             if (null == cmd) {
@@ -387,13 +394,6 @@ public class WebService extends HttpServlet {
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
-//        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
-//        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
-//
-//        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils
-//                .getCancerStudyIDs(request).iterator().next()).getInternalId();
-//        String out = GetClinicalData.getClinicalData(cancerStudyId, caseSet, "1".equals(includeFreeForm));
-//        writer.print(out);
 
         // finagle your way into a cancerStudyId
         String caseSetId = WebserviceParserUtils.getCaseSetId(request);
@@ -407,12 +407,17 @@ public class WebService extends HttpServlet {
 
         String format = WebserviceParserUtils.getFormat(request);
 
-        if ("txt".equals(format)) {
+        if (format == null || "txt".equals(format.toLowerCase())) {
+            // default to txt if format parameter is not specified
             writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
         }
-        else {
+        else if ("json".equals(format.toLowerCase())) {
             JSONArray.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds),
                     writer);
+        }
+        else {
+            // die
+            throw new ProtocolException("please specify the format, i.e. format=txt OR format=json");
         }
     }
 

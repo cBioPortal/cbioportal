@@ -218,4 +218,18 @@ public final class WebserviceParserUtils {
         }
         return cancerStudyId;
     }
+
+    /**
+     * Get the return format requested
+     */
+
+    public static String getFormat(HttpServletRequest request) {
+        String format = request.getParameter(WebService.FORMAT);
+
+        return format;
+    }
+
+    public static String getCaseSetId(HttpServletRequest request) {
+        return request.getParameter(WebService.CASE_SET_ID);
+    }
 }

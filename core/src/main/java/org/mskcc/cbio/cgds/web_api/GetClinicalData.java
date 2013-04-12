@@ -176,4 +176,49 @@ public class GetClinicalData {
         clinicals = DaoClinical.getData(cancerStudyId, caseIds);
         return clinicals2JSONArray(clinicals);
     }
+
+    /**
+     * Takes a list of clinicals and turns them into a tab-delimited, new-line ended string.
+     *
+     * invariants : 1. they all must have the same caseId
+     *              2. no repeats
+     *
+     * @param clinicals
+     * @return
+     */
+    public static String makeRow(List<Clinical> clinicals) {
+        // TODO: this needs to be sorted
+
+        String row = clinicals.get(0).getCaseId() + "\t";
+
+        for (Clinical c : clinicals) {
+            row = row + "\t" + c.getAttrVal();
+        }
+
+        return row + "\n";
+    }
+
+    public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
+        List<Clinical> allClinicals = DaoClinical.getData(cancerStudyId, caseIds);
+
+        HashMap<String, List<Clinical>> caseId2Clinical = new HashMap<String, List<Clinical>>();
+        for (Clinical c : allClinicals) {
+            List<Clinical> got = caseId2Clinical.get(c.getCaseId());
+
+            if (got == null) {
+                got = new ArrayList<Clinical>();
+                got.add(c);
+                caseId2Clinical.put(c.getCaseId(), got);
+            } else {
+                got.add(c);
+            }
+        }
+
+        String txt = "";
+        for (List<Clinical> clinicals : caseId2Clinical.values()) {
+            txt += makeRow(clinicals);
+        }
+
+        return txt;
+    }
 }

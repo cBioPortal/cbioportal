@@ -208,9 +208,13 @@ public final class DaoClinical {
         for (String caseId : caseIds) {
             caseIdsSql += "'" + caseId + "',";
         }
+        caseIdsSql = caseIdsSql.substring(0, caseIdsSql.length()-1); // get rid of that last comma
 
-        String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID=" + cancerStudy.getInternalId()
-                + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+        String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID`=" + cancerStudy.getInternalId()
+                + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+
+        System.out.println(sql);
+
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinical.class);

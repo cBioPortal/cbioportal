@@ -73,6 +73,7 @@ public class WebService extends HttpServlet {
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
     public static final String INCLUDE_FREE_FORM_CLINICAL_DATA = "include_free_form";
+    public static final String FORMAT = "format";
 
     /**
      * Shutdown the Servlet.
@@ -395,10 +396,25 @@ public class WebService extends HttpServlet {
 //        String out = GetClinicalData.getClinicalData(cancerStudyId, caseSet, "1".equals(includeFreeForm));
 //        writer.print(out);
 
-        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+        // finagle your way into a cancerStudyId
+        String caseSetId = WebserviceParserUtils.getCaseSetId(request);
+        DaoCaseList daoCaseList = new DaoCaseList();
+        CaseList caseList = daoCaseList.getCaseListByStableId(caseSetId);
+        String cancerStudyId = DaoCancerStudy.getCancerStudyByInternalId(
+                caseList.getCancerStudyId())
+                .getCancerStudyStableId();
+
         List<String> caseIds = WebserviceParserUtils.getCaseList(request);
 
-        JSONArray.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds), writer);
+        String format = WebserviceParserUtils.getFormat(request);
+
+        if ("txt".equals(format)) {
+            writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
+        }
+        else {
+            JSONArray.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds),
+                    writer);
+        }
     }
 
     /*

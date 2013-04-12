@@ -25,3 +25,6 @@
 
 # Drug
 ./importPiHelperData.pl
+
+# PDB Uniprot Mapping
+./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt

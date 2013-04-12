@@ -594,3 +594,13 @@ CREATE TABLE `clinical_trial_keywords` (
   FOREIGN KEY (`PROTOCOLID`) REFERENCES `clinical_trials` (`PROTOCOLID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS pdb_uniprot_residue_mapping;
+CREATE TABLE `pdb_uniprot_residue_mapping` (
+  `PDB_ID` char(4) NOT NULL,
+  `CHAIN` char(1) NOT NULL,
+  `PDB_POSITION` int NOT NULL,
+  `UNIPROT_ID` varchar(50) NOT NULL,
+  `UNIPROT_POSITION` int NOT NULL,
+  INDEX(`UNIPROT_ID`),
+  INDEX(`UNIPROT_ID`, `UNIPROT_POSITION`)
+)

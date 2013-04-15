@@ -388,8 +388,17 @@ public class WebService extends HttpServlet {
         Boolean suppressMondrianHeader = Boolean.parseBoolean(request.getParameter(SUPPRESS_MONDRIAN_HEADER));
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 caseList, suppressMondrianHeader);
-        String out = getProfileData.getRawContent();
-        writer.print(out);
+
+        String format = WebserviceParserUtils.getFormat(request);
+
+        if (format == null || "txt".equals(format.toLowerCase())) {
+            // default to txt if format parameter is not specified
+            String out = getProfileData.getRawContent();
+            writer.print(out);
+        }
+        else if ("json".equals(format.toLowerCase())) {
+            JSONArray.writeJSONString(getProfileData.getJson(), writer);
+        }
     }
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)

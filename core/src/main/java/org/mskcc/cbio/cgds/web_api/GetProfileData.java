@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.cgds.web_api;
 
+import org.json.simple.JSONArray;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.servlet.WebService;
@@ -35,6 +36,8 @@ import org.mskcc.cbio.io.WebFileConnect;
 
 import java.util.ArrayList;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Web Service to Get Profile Data.
@@ -287,5 +290,23 @@ public class GetProfileData {
             buf.append (microRna.getMicroRnaId());
         }
         outputRow (dataRow, buf);
+    }
+
+    public JSONArray getJson() {
+        JSONArray toReturn = new JSONArray();
+
+
+        List<String> caseIds = new ArrayList<String>(Arrays.asList(matrix[0]));
+        caseIds.subList(0,4).clear();       // remove column names and meta data
+
+        for (String s : caseIds) {
+            toReturn.add(s);
+        }
+
+//        for (String s : matrix[1]) {
+//            toReturn.add(s);
+//        }
+
+        return toReturn;
     }
 }

@@ -65,20 +65,21 @@ var ClinicalColl = Backbone.Collection.extend({
 });
 
 // model for gene datas (various molecular profiles)
+// probably not to be used until we start GETing our data instead of POSTing it.
 var GeneDataColl = Backbone.Collection.extend({
     model: model,
     initialize: function(models, options) {
-        this.genes = options.genes;
-        this.geneticProfileIds = options.geneticProfileIds;
-        this.samples = options.samples;
-        this.caseSetId = options.caseSetId;
+        this.data = {       // jQuery param - data sent to the server
+            genes : options.genes,
+            geneticProfileIds : options.geneticProfileIds,
+            samples : options.samples,
+            caseSetId : options.caseSetId,
+            z_score_threshold : options.z_score_threshold,
+            rppa_score_threshold : options.rppa_score_threshold
+        };
+        this.type = "POST";
     },
     url: function() {
-        var caseSet = this.caseSetId !== undefined ? ("&" + "caseSetId=" + this.caseSetId) : "";
-        return "GeneData.json?"
-            + "genes=" + this.genes
-            + "&" + "geneticProfileIds=" + this.geneticProfileIds
-            + "&" + "samples=" + this.samples
-            + caseSet;
+        return "GeneData.json";
     }
 });

@@ -6,6 +6,7 @@ var Oncoprint = function(wrapper, params) {
 
     var clinicalData = d3.nest()
         .key(function(d) { return d.attr_id; })
+        .key(function(d) { return d.sample; })
         .entries(params.clinicalData);
 
     // adds a key "type" to the object literal d

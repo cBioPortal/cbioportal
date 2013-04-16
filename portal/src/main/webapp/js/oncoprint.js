@@ -1,27 +1,50 @@
 var Oncoprint = function(wrapper, params) {
 
-    console.log(params.geneData);
-
-    var data = d3.nest()
+    var geneData = d3.nest()
         .key(function(d) { return d.gene; })
         .entries(params.geneData);
 
-    var width = data[0].length * 5.5;       // number of samples * a constant
-    var rectHeight = 23;
-    var height = data.length * 23;
+    var clinicalData = d3.nest()
+        .key(function(d) { return d.attr_id; })
+        .entries(params.clinicalData);
 
-    var x = d3.scale.ordinal().rangeBands([0, width]);
-    var y = d3.scale.ordinal().rangeBands([0, height]);
+    // adds a key "type" to the object literal d
+    // d.gene -> type = gene
+    // d.attr_id -> type = clinical
+    var annotateDataType = function(d) {
+        var e = d;  // immutable is better than changing state
 
-    console.log(data);
+        if (e.gene && e.attr_id) {
+            throw {
+                name: "Error",
+                message: d + " cannot be both a gene and a clinical attribute"
+            }
+        }
+        if (e.gene) { e.type = "gene"; return e; }
+        if (e.attr_id) { e.type = "clinical"; return e; }
+    }
 
-    var svg = d3.select(wrapper).append('svg');
+    var all = d3.nest()
+        .key(function(d) {
+            d = annotateDataType(d);
+            return d.gene || d.attr_id;
+        }).entries(params.geneData.concat(params.clinicalData));
 
-    svg.selectAll('.track')
-        .data(data)
-        .enter()
-        .append('g')
-        .attr('class', 'track');
+//    var width = data[0].length * 5.5;       // number of samples * a constant
+//    var rectHeight = 23;
+//    var height = data.length * 23;
+//
+//    var x = d3.scale.ordinal().rangeBands([0, width]);
+//    var y = d3.scale.ordinal().rangeBands([0, height]);
+//
+//    var svg = d3.select(wrapper).append('svg');
+//
+//    svg.selectAll('.track')
+//        .data(data)
+//        .enter()
+//        .append('g')
+//        .attr('class', 'track');
+
 }
 
 var _Oncoprint = function(wrapper, params) {

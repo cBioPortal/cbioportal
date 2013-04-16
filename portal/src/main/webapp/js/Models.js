@@ -24,14 +24,14 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
-
 //
 //
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+
+;
 //
+// namespace for Model Utility functions
 var ModelUtils = (function() {
-    // namespace
-    //
     var makeHash = function(data, key) {
         // [] -> {}
         // [ list of objects ], key -> { key : object }
@@ -54,13 +54,14 @@ var ModelUtils = (function() {
 var model = Backbone.Model.extend({});
 
 // model for clinical datas
+// params : [ initial lists of clinicals (usually []) , { caseSetId }]
 var ClinicalColl = Backbone.Collection.extend({
     model: model,
     initialize: function(models, options) {
         this.caseSetId = options.caseSetId;
     },
     url: function() {
-        return "webservice.do?cmd=getClinicalData&case_set_id=" + this.caseSetId;
+        return "webservice.do?cmd=getClinicalData&format=json&case_set_id=" + this.caseSetId;
     }
 });
 

@@ -40,8 +40,8 @@
             </table>
         </div>
         <div id="oncoprint_body">
-            <script type="text/javascript" src="js/oncoprint.js?b38533a455c5"></script>
             <script type="text/javascript" src="js/d3.v2.min.js"></script>
+            <script type="text/javascript" src="js/oncoprint.js?b38533a455c5"></script>
             <%--todo: we may want to import d3 globally but for now, it's just here--%>
 
             <script type="text/javascript">
@@ -64,17 +64,26 @@
                 };
 
                 var oncoprint;      // global
+                var clinicals;
                 $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {
 
                     oncoPrintParams['geneData'] = geneData;
-                    oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
-                    oncoprint.draw();
-                    var geneDataManager = DataManagerFactory.getGeneDataManager();
-                    geneDataManager.fire(geneData);
+                    clinicals = new ClinicalColl([], {
+                        caseSetId : "<%=caseSetId%>"
+                    });
+                    clinicals.fetch({
+                        "success": function(clinicalData) {
+                            oncoPrintParams['clinicalData'] = clinicalData.toJSON();
 
-                    $('#oncoprint #loader_img').hide();
-                    $('#oncoprint #everything').show();
+                            oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
+
+                            oncoprint.draw();
+                            $('#oncoprint #loader_img').hide();
+                            $('#oncoprint #everything').show();
+
+                        }
+                    });
                 });
             </script>
         </div>

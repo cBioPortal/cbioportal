@@ -30,6 +30,8 @@ package org.mskcc.cbio.cgds.web_api;
 import java.util.*;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.DaoClinical;
@@ -157,9 +159,9 @@ public class GetClinicalData {
         return map;
     }
 
-    public static JSONArray clinicals2JSONArray(List<Clinical> clincials) {
+    public static JSONArray clinicals2JSONArray(List<Clinical> clinicals) {
         JSONArray toReturn = new JSONArray();
-        for (Clinical c : clincials) {
+        for (Clinical c : clinicals) {
             toReturn.add(reflectToMap(c));
         }
         return toReturn;
@@ -172,10 +174,16 @@ public class GetClinicalData {
      * @throws DaoException
      */
     public static JSONArray getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<Clinical> clinicals;
+        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+        JSONArray toReturn = new JSONArray();
 
-        clinicals = DaoClinical.getData(cancerStudyId, caseIds);
-        return clinicals2JSONArray(clinicals);
+        for (Clinical c : clinicals) {
+//            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
+                toReturn.add(reflectToMap(c));
+//            }
+        }
+
+        return toReturn;
     }
 
     /**

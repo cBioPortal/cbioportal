@@ -1,0 +1,11 @@
+$_L(["java.lang.RuntimeException"],"java.lang.UnsupportedOperationException",null,function(){
+c$=$_T(java.lang,"UnsupportedOperationException",RuntimeException);
+$_K(c$,
+function(){
+$_R(this,UnsupportedOperationException,[]);
+});
+$_K(c$,
+function(cause){
+$_R(this,UnsupportedOperationException,[(cause==null?null:cause.toString()),cause]);
+},"Throwable");
+});

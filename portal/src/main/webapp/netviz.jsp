@@ -20,13 +20,12 @@
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/jquery.address-1.4.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
 <script type="text/javascript" src="js/jquery.quovolver.mini.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/network/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/network/network-ui.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 

@@ -10,9 +10,33 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
 
+<script type="text/javascript" src="js/jsmol/JSmol.min.nojq.js"></script>
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/mutation_table.js"></script>
+
+<script type="text/javascript">
+
+function callJsmol(pdbid, appletName, callbackfun) {
+    var Info = {
+        width: 300,
+        height: 200,
+        debug: false,
+        color: "white",
+        use: "HTML5",
+        j2sPath: "js/jsmol/j2s",
+        script: "load ="+pdbid+";",
+        //defaultModel: "$dopamine",
+        disableJ2SLoadMonitor: true,
+        disableInitialConsole: true
+    }
+
+    if (jQuery.isFunction(callbackfun)) {
+    	Info['readyFunction'] = callbackfun;
+    }
+    Jmol.getApplet(appletName, Info);
+}
+</script>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
@@ -82,14 +106,14 @@
 </style>
 
 <script type="text/javascript">
-    
+
 //  Set up Mutation Diagrams
 $(document).ready(function(){
-	var geneSymbol;
-	var diagramMutations;
-	var tableMutations;
+    var geneSymbol;
+    var diagramMutations;
+    var tableMutations;
 
-	<%
+    <%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
 	        geneSymbol = "<%= geneWithScore.getGene().toUpperCase() %>";
@@ -110,6 +134,12 @@ $(document).ready(function(){
 			           mutations: diagramMutations},
 		           success: drawMutationDiagram,
 		           type: "POST"});
+                
+//                var str="<script>alert('loading 3d...');callJsmol('1crn', 'applet_"+geneSymbol+"', function(applet) {/*alert('add your callback functions here');*/});";
+//                    str+="<";
+//                    str+="/script>";
+//                $("#mutation_3d_structure_"+geneSymbol).append(str);
+                
 
         <% } %>
     <% } %>
@@ -184,23 +214,30 @@ function toggleMutationDiagram(geneId)
 
     private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
             MutationCounter mutationCounter) throws IOException {
+        out.println("<table><tr><td>");
         out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
         out.println(mutationCounter.getTextSummary());
         out.println("</h4>");
+        String geneSymbol = geneWithScore.getGene().toUpperCase();
 	    // TODO histogram is disabled (will be enabled in the next release)
 //	    out.println("<select class='mutation_diagram_toggle' " +
-//	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
-//	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
+//	                "id='mutation_diagram_select_" + geneSymbol + "'" +
+//	                "onchange='toggleMutationDiagram(\"" + geneSymbol + "\")'>" +
 //	               "<option value='diagram'>Lollipop Diagram</option>" +
 //	               "<option value='histogram'>Histogram</option>" +
 //	               "</select>");
-	    out.println("<div id='uniprot_link_" + geneWithScore.getGene().toUpperCase() + "' " +
-	                "class='diagram_uniprot_link'></div>");
-        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'>" +
-	                "<img src='images/ajax-loader.gif'/>" +
-	                "</div>");
+        out.println("<div id='uniprot_link_" + geneSymbol + "' " +
+                    "class='diagram_uniprot_link'></div>");
+        out.println("<div id='mutation_diagram_" + geneSymbol + "'></div>");
+        out.println("<div id='mutation_histogram_" + geneSymbol + "'></div>");
+        out.println("</td><td>");
+        out.println("<div id='mutation_3d_structure_" + geneSymbol + "'>");
+        out.println("<script type='text/javascript'>callJsmol('1crn', 'applet_"+geneSymbol+"', function(applet) {/*alert('add your callback functions here');*/});</script>");
+        out.println("</div>");
+        out.println("</td></tr></table>");
+        out.println("<div id='mutation_table_" + geneSymbol + "'>" +
+                    "<img src='images/ajax-loader.gif'/>" +
+                    "</div>");
     }
 
     private void outputNoMutationDetails(JspWriter out) throws IOException {

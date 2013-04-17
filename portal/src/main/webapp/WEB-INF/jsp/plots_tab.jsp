@@ -33,6 +33,7 @@
     var mrna = [];
     var rppa = [];
     var dna_methylation = [];
+    var extended_mutations = [];
     var result_set = new Array(5);
     for ( var i = 0 ; i< result_set.length; i++) {
         result_set[i] = new Array();
@@ -155,7 +156,7 @@ function fetchData() {
                         tmp_sections = data.split(/\n/);
                         //Get Case Set
                         tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
-                        for (var j = 0 ; j < tmp_case_set.length; j ++ ) {
+                        for (var j = 0 ; j < tmp_case_set.length - 2 ; j ++ ) {
                             case_set[j] = tmp_case_set[j + 2];
                         }
                         //Get profile data (Filter the headers)
@@ -179,6 +180,35 @@ function fetchData() {
     copyData(mrna, result_set[2]);
     copyData(rppa, result_set[3]);
     copyData(dna_methylation, result_set[4]);
+
+    //Map Mutations
+    var mutationMap = {};
+    for (var i = 0; i<case_set.length; i++ ) {
+        mutationMap[case_set[i]] = "non";
+    }
+    $.ajax({
+        url: "webservice.do?cmd=getMutationData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + gene + "&genetic_profile_id=<% out.print(cancer_study_id); %>_mutations",
+        type: 'get',
+        dataType: 'text',
+        async: false,
+        success: function(data) {
+            if (data != "") {
+                if ( data.indexOf("No genetic profile available") == -1) {  //Profile Exists
+                    tmp_lines = data.split(/\n/);
+                    //Over-write mutation type
+                    for (var j = 3 ; j < tmp_lines.length; j ++ ) {
+                        var tmp_columns = tmp_lines[j].split(/\s+/);
+                        mutationMap[tmp_columns[2]] = tmp_columns[5];
+                    }
+                }
+            } else {
+                alert("ERROR Fetching Extended Mutation Data.");
+            }
+        }
+    });
+    for (var k = 0; k< case_set.length; k++ ){
+        mutations[k] = mutationMap[case_set[k]];
+    }
 }
 
 function drawSideBar() {
@@ -247,12 +277,6 @@ function generateScatterPlots() {
     }
 }
 
-function drawErrorPlots(xLegend, yLegend, type) {
-
-}
-
-
-
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Create Canvas
     $('#plots_tab').empty();
@@ -274,8 +298,16 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 continue;
             }
             //TODO: Mutations Mapping
-            if (zData[i] != "NaN") {
-                zData[i] = "type1";
+            if ((zData[i] == "Frame_Shift_Del")||(zData[i] == "Frame_Shift_Ins")) {
+                zData[i] = "shift";
+            } else if ((zData[i] == "In_Frame_Del")||(zData[i] == "In_Frame_Ins")) {
+                zData[i] = "in_frame";
+            } else if ((zData[i] == "Missense_Mutation")||(zData[i] == "Missense")) {
+                zData[i] = "missense";
+            } else if ((zData[i] == "Nonsense_Mutation")||(zData[i] == "Nonsense")) {
+                zData[i] = "nonsense";
+            } else if ((zData[i] == "Splice_Site")||(zData[i] == "Splice_Site_SNP")) {
+                zData[i] = "splice";
             } else {
                 zData[i] = "non";
             }
@@ -390,23 +422,34 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .call(yAxis.orient("left").ticks(0));
 
     //Create SVG dots
-    var symbol = d3.scale.ordinal().range(["circle", "triangle-up", "cross", "diamond", "square"]);
-    var mutationTypes = ["non", "type1"];
+    var symbol = ["circle", "circle", "diamond","triangle-up", "triangle-down", "square"];
+    var mutationTypes = ["non", "missence", "nonsense", "splice", "shift", "in_frame"];
+    var mutationStrokeTypes = ["#2E9AFE", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000"];
+    var mutationFillTypes = ["none", "#FAAC58", "#1C1C1C", "#FAAC58", "#1C1C1C", "#FAAC58"];
     var gisticTypes = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
-    var fillTypes = ["none", "#F78181", "#04B4AE", "#585858", "#FFBF00"];
-    var strokeTypes = ["#2E9AFE", "#F78181", "#04B4AE", "#585858", "#FFBF00"];
-
+    var gisticStrokeTypes = ["#3104B4", "#2ECCFA", "#000000", "#FA58D0", "#FF0040"];
+    //Add noice only to gistic display
+    var ramRatio = 0;
+    if (data_type_copy_no == "gistic" && document.getElementById("plot_type").value == plot_type_list[0][0]) {
+        ramRatio = 20;
+    }
     svg.selectAll("path")
             .data(dataset)
             .enter()
             .append("svg:path")
-            .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + (Math.random() * (20))) + ", " + yScale(d[1]) + ")";})
+            .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + (Math.random() * (ramRatio))) + ", " + yScale(d[1]) + ")";})
             .attr("d", d3.svg.symbol()
                     .size(40)
                     .type( function (d) {
                         switch (d[2]) {
-                            case mutationTypes[0]: return symbol(0);
-                            case mutationTypes[1]: return symbol(1);
+                            //Mutations
+                            case mutationTypes[0] : return symbol[0];
+                            case mutationTypes[1] : return symbol[1];
+                            case mutationTypes[2] : return symbol[2];
+                            case mutationTypes[3] : return symbol[3];
+                            case mutationTypes[4] : return symbol[4];
+                            case mutationTypes[5] : return symbol[5];
+                            //Gistic
                             default: return "circle";
                         }
                     }
@@ -414,20 +457,33 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("fill", function(d) {
                 switch (d[2]) {
                     //Mutations
-                    case mutationTypes[0]: return fillTypes[0];
-                    case mutationTypes[1]: return fillTypes[1];
+                    case mutationTypes[0]: return mutationFillTypes[0];
+                    case mutationTypes[1]: return mutationFillTypes[1];
+                    case mutationTypes[2]: return mutationFillTypes[2];
+                    case mutationTypes[3]: return mutationFillTypes[3];
+                    case mutationTypes[4]: return mutationFillTypes[4];
+                    case mutationTypes[5]: return mutationFillTypes[5];
+
+                    //Gistic
                     default: return "none";
                 }
             })
             .attr("stroke", function(d) {
                 switch (d[2]) {
-                    case mutationTypes[0]: return strokeTypes[0];
-                    case mutationTypes[1]: return strokeTypes[1];
-                    case "-2": return strokeTypes[0];
-                    case "-1": return strokeTypes[1];
-                    case "0": return strokeTypes[2];
-                    case "1": return strokeTypes[3];
-                    case "2": return strokeTypes[4];
+                    //Mutations
+                    case mutationTypes[0]: return mutationStrokeTypes[0];
+                    case mutationTypes[1]: return mutationStrokeTypes[1];
+                    case mutationTypes[2]: return mutationStrokeTypes[2];
+                    case mutationTypes[3]: return mutationStrokeTypes[3];
+                    case mutationTypes[4]: return mutationStrokeTypes[4];
+                    case mutationTypes[5]: return mutationStrokeTypes[5];
+
+                    //Gistic
+                    case "-2": return gisticStrokeTypes[0];
+                    case "-1": return gisticStrokeTypes[1];
+                    case "0": return gisticStrokeTypes[2];
+                    case "1": return gisticStrokeTypes[3];
+                    case "2": return gisticStrokeTypes[4];
                     default: return "black";
                 }
             })
@@ -470,7 +526,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 .attr("x", 130)
                 .attr("y", 310)
                 .attr("fill", "#DF3A01")
-                .text(errorTxt3)
+                .text(errorTxt3);
     } else {
         //Create the legend
         if (type == 1) {  //Legend for Mutations
@@ -481,26 +537,39 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
             legend.append("path")
                     .attr("width", 18)
-                    .attr("height", 18)
+                    .attr("height", 16)
                     .attr("d", d3.svg.symbol()
                             .size(40)
                             .type(function(d, i) {
                                 switch(i) {
-                                    case 0: return symbol(0);
-                                    case 1: return symbol(1);
-                                };
+                                    case 0: break;
+                                    case 1: return symbol[1];
+                                    case 2: return symbol[2];
+                                    case 3: return symbol[3];
+                                    case 4: return symbol[4];
+                                    case 5: return symbol[5];
+                                }
                             })
                     )
                     .attr("fill", function (d, i) {
                         switch (i) {
-                            case 0: return fillTypes[0];
-                            case 1: return fillTypes[1];
+                            case 0: break;
+                            case 1: return mutationFillTypes[1];
+                            case 2: return mutationFillTypes[2];
+                            case 3: return mutationFillTypes[3];
+                            case 4: return mutationFillTypes[4];
+                            case 5: return mutationFillTypes[5];
                         }
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case 0: return strokeTypes[0];
-                            case 1: return strokeTypes[1];
+                            case 0: break;
+                            case 1: return mutationStrokeTypes[1];
+                            case 2: return mutationStrokeTypes[2];
+                            case 3: return mutationStrokeTypes[3];
+                            case 4: return mutationStrokeTypes[4];
+                            case 5: return mutationStrokeTypes[5];
+
                         }
                     })
             legend.append("text")
@@ -511,6 +580,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         switch (i) {
                             case 0: return mutationTypes[0];
                             case 1: return mutationTypes[1];
+                            case 2: return mutationTypes[2];
+                            case 3: return mutationTypes[3];
+                            case 4: return mutationTypes[4];
+                            case 5: return mutationTypes[5];
+
                         }
                     });
         } else {  //Legend for Gistic Copy Number
@@ -533,11 +607,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case 0: return strokeTypes[0];
-                            case 1: return strokeTypes[1];
-                            case 2: return strokeTypes[2];
-                            case 3: return strokeTypes[3];
-                            case 4: return strokeTypes[4];
+                            case 0: return gisticStrokeTypes[0];
+                            case 1: return gisticStrokeTypes[1];
+                            case 2: return gisticStrokeTypes[2];
+                            case 3: return gisticStrokeTypes[3];
+                            case 4: return gisticStrokeTypes[4];
                         }
                     })
                     .attr("stroke-width", function (d, i) {
@@ -565,7 +639,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("y", 580)
             .style("text-anchor", "end")
             .style("font-weight","bold")
-            .text(xLegend);
+            .text(gene + " , " + xLegend);
     svg.append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
@@ -573,7 +647,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("y", 60)
             .style("text-anchor", "end")
             .style("font-weight","bold")
-            .text(yLegend);
+            .text(gene + " , " + yLegend);
 }
 
 function copyData( desArray, oriArray) {

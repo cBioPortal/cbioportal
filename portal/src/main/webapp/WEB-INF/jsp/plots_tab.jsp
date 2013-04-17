@@ -247,6 +247,12 @@ function generateScatterPlots() {
     }
 }
 
+function drawErrorPlots(xLegend, yLegend, type) {
+
+}
+
+
+
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Create Canvas
     $('#plots_tab').empty();
@@ -256,6 +262,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .append("svg")
             .attr("width", w)
             .attr("height", h);
+
     //Prepare DataSet
     var dataset = [];
 
@@ -432,90 +439,124 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 }
             });
 
-    //Create the legend
-    if (type == 1) {  //Legend for Mutations
-        var legend = svg.selectAll(".legend")
-                .data(mutationTypes)
-                .enter().append("g")
-                .attr("class", "legend")
-                .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
-        legend.append("path")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("d", d3.svg.symbol()
-                        .size(40)
-                        .type(function(d, i) {
-                            switch(i) {
-                                case 0: return symbol(0);
-                                case 1: return symbol(1);
-                            };
-                        })
-                )
-                .attr("fill", function (d, i) {
-                    switch (i) {
-                        case 0: return fillTypes[0];
-                        case 1: return fillTypes[1];
-                    }
-                })
-                .attr("stroke", function (d, i) {
-                    switch (i) {
-                        case 0: return strokeTypes[0];
-                        case 1: return strokeTypes[1];
-                    }
-                })
-        legend.append("text")
-                .attr("dx", ".75em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "front")
-                .text(function(d, i) {
-                    switch (i) {
-                        case 0: return mutationTypes[0];
-                        case 1: return mutationTypes[1];
-                    }
-                });
-    } else {  //Legend for Gistic Copy Number
-        var legend = svg.selectAll(".legend")
-                .data(gisticTypes)
-                .enter().append("g")
-                .attr("class", "legend")
-                .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
-        legend.append("path")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("d", d3.svg.symbol()
-                        .size(40)
-                        .type(function(d, i) {
-                            return "circle";
-                        })
-                )
-                .attr("fill", function (d, i) {
-                    return "none";
-                })
-                .attr("stroke", function (d, i) {
-                    switch (i) {
-                        case 0: return strokeTypes[0];
-                        case 1: return strokeTypes[1];
-                        case 2: return strokeTypes[2];
-                        case 3: return strokeTypes[3];
-                        case 4: return strokeTypes[4];
-                    }
-                })
-                .attr("stroke-width", function (d, i) {
-                    return 1.2;
-                })
-        legend.append("text")
-                .attr("dx", ".75em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "front")
-                .text(function(d, i) {
-                    switch (i) {
-                        case 0: return gisticTypes[0];
-                        case 1: return gisticTypes[1];
-                        case 2: return gisticTypes[2];
-                        case 3: return gisticTypes[3];
-                        case 4: return gisticTypes[4];
-                    }
-                });
+    //Error Handling
+    var xHasData = false;
+    var yHasData = false;
+    for (var j = 0; j < xData.length; j++) {
+        if (xData[j] != "NaN") {
+            xHasData = true;
+        }
+    }
+    for (var k = 0; k < yData.length; k++) {
+        if (yData[k] != "NaN") {
+            yHasData = true;
+        }
+    }
+    if ((yHasData == false) || (xHasData == false)) {
+        var errorTxt1 = "An error occurred processing your request.";
+        var errorTxt2 = "It maybe that your gene/case set combination has no data for this data type. ";
+        var errorTxt3 = "If you believe this is an error, please contact us cbioportal@cbio.mskcc.org.";
+        svg.append("text")
+                .attr("x", 220)
+                .attr("y", 280)
+                .attr("fill", "#DF3A01")
+                .text(errorTxt1)
+        svg.append("text")
+                .attr("x", 120)
+                .attr("y", 295)
+                .attr("fill", "#DF3A01")
+                .text(errorTxt2)
+        svg.append("text")
+                .attr("x", 130)
+                .attr("y", 310)
+                .attr("fill", "#DF3A01")
+                .text(errorTxt3)
+    } else {
+        //Create the legend
+        if (type == 1) {  //Legend for Mutations
+            var legend = svg.selectAll(".legend")
+                    .data(mutationTypes)
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
+            legend.append("path")
+                    .attr("width", 18)
+                    .attr("height", 18)
+                    .attr("d", d3.svg.symbol()
+                            .size(40)
+                            .type(function(d, i) {
+                                switch(i) {
+                                    case 0: return symbol(0);
+                                    case 1: return symbol(1);
+                                };
+                            })
+                    )
+                    .attr("fill", function (d, i) {
+                        switch (i) {
+                            case 0: return fillTypes[0];
+                            case 1: return fillTypes[1];
+                        }
+                    })
+                    .attr("stroke", function (d, i) {
+                        switch (i) {
+                            case 0: return strokeTypes[0];
+                            case 1: return strokeTypes[1];
+                        }
+                    })
+            legend.append("text")
+                    .attr("dx", ".75em")
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "front")
+                    .text(function(d, i) {
+                        switch (i) {
+                            case 0: return mutationTypes[0];
+                            case 1: return mutationTypes[1];
+                        }
+                    });
+        } else {  //Legend for Gistic Copy Number
+            var legend = svg.selectAll(".legend")
+                    .data(gisticTypes)
+                    .enter().append("g")
+                    .attr("class", "legend")
+                    .attr("transform", function(d, i) { return "translate(110, " + (30 + i * 15) + ")"; });
+            legend.append("path")
+                    .attr("width", 18)
+                    .attr("height", 18)
+                    .attr("d", d3.svg.symbol()
+                            .size(40)
+                            .type(function(d, i) {
+                                return "circle";
+                            })
+                    )
+                    .attr("fill", function (d, i) {
+                        return "none";
+                    })
+                    .attr("stroke", function (d, i) {
+                        switch (i) {
+                            case 0: return strokeTypes[0];
+                            case 1: return strokeTypes[1];
+                            case 2: return strokeTypes[2];
+                            case 3: return strokeTypes[3];
+                            case 4: return strokeTypes[4];
+                        }
+                    })
+                    .attr("stroke-width", function (d, i) {
+                        return 1.2;
+                    })
+            legend.append("text")
+                    .attr("dx", ".75em")
+                    .attr("dy", ".35em")
+                    .style("text-anchor", "front")
+                    .text(function(d, i) {
+                        switch (i) {
+                            case 0: return gisticTypes[0];
+                            case 1: return gisticTypes[1];
+                            case 2: return gisticTypes[2];
+                            case 3: return gisticTypes[3];
+                            case 4: return gisticTypes[4];
+                        }
+                    });
+        }
     }
     //Axis Titles
     svg.append("text")

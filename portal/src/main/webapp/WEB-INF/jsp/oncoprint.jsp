@@ -57,6 +57,7 @@
 
                 var geneDataQuery = {
                     genes: genes,
+                    case_set_id: "<%=caseSetId%>",
                     samples: samples,
                     geneticProfileIds: geneticProfiles,
                     z_score_threshold: <%=zScoreThreshold%>,
@@ -64,13 +65,12 @@
                 };
 
                 var oncoprint;      // global
-                var clinicals;
                 $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {
 
                     oncoPrintParams['geneData'] = geneData;
 
-                    clinicals = new ClinicalColl([], {
-                        caseSetId : "<%=caseSetId%>"
+                    var clinicals = new ClinicalColl([], {
+                        case_set_id: "<%=caseSetId%>"
                     });
                     clinicals.fetch({
                         "success": function(clinicalData) {

@@ -54,14 +54,14 @@ var ModelUtils = (function() {
 var model = Backbone.Model.extend({});
 
 // model for clinical datas
-// params : [ initial lists of clinicals (usually []) , { caseSetId }]
+// params : [ initial lists of clinicals (usually []) , { case_set_id }]
 var ClinicalColl = Backbone.Collection.extend({
     model: model,
     initialize: function(models, options) {
-        this.caseSetId = options.caseSetId;
+        this.case_set_id = options.case_set_id;
     },
     url: function() {
-        return "webservice.do?cmd=getClinicalData&format=json&case_set_id=" + this.caseSetId;
+        return "webservice.do?cmd=getClinicalData&format=json&case_set_id=" + this.case_set_id;
     }
 });
 

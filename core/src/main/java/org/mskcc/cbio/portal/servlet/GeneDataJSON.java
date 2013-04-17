@@ -1,6 +1,7 @@
 package org.mskcc.cbio.portal.servlet;
 
 
+import com.google.common.base.Joiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.util.JSONPObject;
@@ -8,7 +9,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.*;
@@ -60,20 +63,14 @@ public class GeneDataJSON extends HttpServlet {
      * @param geneticEvents matrix M[case][gene]
      * @return
      */
-    public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary) {
+    public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][]) {
         JSONArray data = new JSONArray();
 
         for (int i = 0; i < geneticEvents.length; i++) {
-            String caseId = geneticEvents[0][i].caseCaseId();
-
-            GeneticEvent rowEvent = geneticEvents[i][0];
-            String gene = rowEvent.getGene().toUpperCase();
-
             for (int j = 0; j < geneticEvents[0].length; j++) {
-
                 JSONObject datum = new JSONObject();
-                datum.put("sample", caseId);
-                datum.put("gene", gene);
+                datum.put("sample", geneticEvents[i][j].caseCaseId());
+                datum.put("gene", geneticEvents[i][j].getGene());
 
                 GeneticEvent event = geneticEvents[i][j];
                 String cna = event.getCnaValue().name().toUpperCase();
@@ -184,10 +181,19 @@ public class GeneDataJSON extends HttpServlet {
         String _geneList = request.getParameter("genes");
         // list of genes separated by a space
 
-        String sampleIds = request.getParameter("samples");
+        String sampleIds;
         // list of samples separated by a space.  This is so
-        // that you can query by an arbitrary set of samples
+        // that you can query an arbitrary set of samples
         // separated by a space
+        try {
+            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
+            // todo: what happens when it is a custom case set? (consider returning all and then filtering on the client)
+            sampleIds = Joiner.on(" ").join(caseIds);
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        }
 
         String _geneticProfileIds = request.getParameter("geneticProfileIds");
         // list of geneticProfileIds separated by a space
@@ -281,7 +287,8 @@ public class GeneDataJSON extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents, dataSummary);
+//        JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents, dataSummary);  // dataSummary ->  getPercentCasesWhereGeneIsAltered
+        JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents);
         JSONArray.writeJSONString(jsonArray, out);
 
 //        JSONObject geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);

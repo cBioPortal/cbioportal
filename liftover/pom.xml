@@ -57,9 +57,11 @@
 				  </goals>
 				  <configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<minimizeJar>true</minimizeJar>
 					<artifactSet>
 					  <excludes>
 						<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+						<exclude>org.springframework*</exclude>
 					  </excludes>
 					</artifactSet>
 					<transformers>

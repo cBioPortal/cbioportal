@@ -1,52 +1,53 @@
 var Oncoprint = function(wrapper, params) {
 
-    var geneData = d3.nest()
-        .key(function(d) { return d.gene; })
-        .entries(params.geneData);
-
-    var clinicalData = d3.nest()
-        .key(function(d) { return d.attr_id; })
+    var data = d3.nest()
         .key(function(d) { return d.sample; })
-        .entries(params.clinicalData);
+        .entries(params.geneData.concat(params.clinicalData));
 
-    // adds a key "type" to the object literal d
-    // d.gene -> type = gene
-    // d.attr_id -> type = clinical
-    var annotateDataType = function(d) {
-        var e = d;  // immutable is better than changing state
+    // todo: will probably want to pass this as a parameter somehow
+    var attributes = _.uniq(_.flatten(data.map(function(i) { return i.values; }), true)
+                .map(function(i) { return i.gene || i.attr_id; }));
 
-        if (e.gene && e.attr_id) {
-            throw {
-                name: "Error",
-                message: d + " cannot be both a gene and a clinical attribute"
-            }
-        }
-        if (e.gene) { e.type = "gene"; return e; }
-        if (e.attr_id) { e.type = "clinical"; return e; }
+    var dims = {
+        width: data.length * 5.5,
+        height: 23 * attributes.length
+    };
+
+    var getAttr = function(d) {
+        return d.gene || d.attr_id;
     }
 
-    var all = d3.nest()
-        .key(function(d) {
-            d = annotateDataType(d);
-            return d.gene || d.attr_id;
-        }).entries(params.geneData.concat(params.clinicalData));
+    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 
-//    var width = data[0].length * 5.5;       // number of samples * a constant
-//    var rectHeight = 23;
-//    var height = data.length * 23;
-//
-//    var x = d3.scale.ordinal().rangeBands([0, width]);
-//    var y = d3.scale.ordinal().rangeBands([0, height]);
-//
-//    var svg = d3.select(wrapper).append('svg');
-//
-//    svg.selectAll('.track')
-//        .data(data)
-//        .enter()
-//        .append('g')
-//        .attr('class', 'track');
+    var svg = d3.select(wrapper)
+        .append("svg")
+        .attr('width', dims.width)
+        .attr('height', dims.height);
 
-}
+    var rect = svg.selectAll('g')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('transform', function(d,i) { return "translate(" + i * 5.5 + ",0)"; })
+        .selectAll('rect')
+        .data(function(d) {
+            return d.values;
+        })
+        .enter()
+        .append('rect');
+
+    var drawSample = function(rect) {
+        rect.attr('fill', function(d) { return d.gene ? "black" : "blue"; })
+            .attr('height', 23)
+            .attr('width', 5.5)
+            .attr('y', function(d) {
+                return (23 + 4) * attributes.indexOf(getAttr(d)); });
+    };
+
+    drawSample(rect);
+
+    $('#oncoprint').children().show();      // todo: delete me!
+};
 
 var _Oncoprint = function(wrapper, params) {
     var that = {};

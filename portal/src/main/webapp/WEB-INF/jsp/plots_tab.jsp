@@ -8,6 +8,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript" src="js/d3.v2.min.js"></script>
+<script type="text/javascript" src="js/d3_box.js"></script>
 <!--link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"-->
 
 <style type="text/css">
@@ -26,65 +27,61 @@
 </style>
 
 <script>
-    var gene;
-    var case_set = [];
-    var mutations = [];
-    var copy_no = [];
-    var mrna = [];
-    var rppa = [];
-    var dna_methylation = [];
-    var extended_mutations = [];
-    var result_set = new Array(5);
+    var gene,
+            case_set = [],
+            mutations = [],
+            copy_no = [],
+            mrna = [],
+            rppa = [],
+            dna_methylation = [],
+            extended_mutations = [],
+            result_set = new Array(5);
+
     for ( var i = 0 ; i< result_set.length; i++) {
         result_set[i] = new Array();
     }
+
     var genetic_profile_mutations = [
-        "mutations", "Mutations"
-    ];
-    var genetic_profile_mrna = [
-        ["mrna", "mRNA expression (microarray)"],
-        ["mrna_median", "mRNA expression (all genes)"],
-        ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
-        ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
-        ["mrna_U133", "mRNA expression (U133 microarray only)"],
-        ["rna_seq_v2_mrna", "mRNA expression (RNA Seq V2 RSEM)"],
-        ["rna_seq_v2_mrna_median_Zscores", "mRNA Expression z-Scores (RNA Seq V2 RSEM)"],
-        ["mirna", "microRNA expression"],
-        ["mirna_median_Zscores", "microRNA expression Z-scores"],
-        ["mrna_zbynorm", "mRNA Expression Z-Scores vs Normals"],
-        ["mrna_znormal", "mRNA Z-scores vs normal fat"],
-        ["mrna_outliers", "mRNA Expression Outliers"],
-        ["mrna_outlier", "mRNA outliers"]
-    ];
-    var genetic_profile_copy_no = [
-        ["gistic", "Putative copy-number alterations from GISTIC"],
-        ["log2CNA", "Log2 copy-number values"],
-        ["cna", "Putative copy-number alterations (RAE)"]
-    ];
-    var genetic_profile_rppa = [
-        "RPPA_protein_level", "RPPA protein/phosphoprotein level"
-    ];
-    var genetic_profile_dna_methylation = [
-        "methylation_hm27", "Methylation (HM27)"
-    ];
-    var plot_type_list = [
-        ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
-        ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
-        ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
-    ];
-
-    var data_type_copy_no;
-    var data_type_mrna;
-    var xLegend;
-    var yLegend;
+                "mutations", "Mutations"
+            ],
+            genetic_profile_mrna = [
+                ["mrna", "mRNA expression (microarray)"],
+                ["mrna_median", "mRNA expression (all genes)"],
+                ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
+                ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
+                ["mrna_U133", "mRNA expression (U133 microarray only)"],
+                ["rna_seq_v2_mrna", "mRNA expression (RNA Seq V2 RSEM)"],
+                ["rna_seq_v2_mrna_median_Zscores", "mRNA Expression z-Scores (RNA Seq V2 RSEM)"],
+                ["mirna", "microRNA expression"],
+                ["mirna_median_Zscores", "microRNA expression Z-scores"],
+                ["mrna_zbynorm", "mRNA Expression Z-Scores vs Normals"],
+                ["mrna_znormal", "mRNA Z-scores vs normal fat"],
+                ["mrna_outliers", "mRNA Expression Outliers"],
+                ["mrna_outlier", "mRNA outliers"]
+            ],
+            genetic_profile_copy_no = [
+                ["gistic", "Putative copy-number alterations from GISTIC"],
+                ["log2CNA", "Log2 copy-number values"],
+                ["cna", "Putative copy-number alterations (RAE)"]
+            ],
+            genetic_profile_rppa = [
+                "RPPA_protein_level", "RPPA protein/phosphoprotein level"
+            ],
+            genetic_profile_dna_methylation = [
+                "methylation_hm27", "Methylation (HM27)"
+            ],
+            plot_type_list = [
+                ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
+                ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
+                ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
+            ];
+    var data_type_copy_no, data_type_mrna, xLegend, yLegend;
 </script>
-
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
     String case_set_id = (String)request.getParameter("case_set_id");
     String[] gene_list = ((String)request.getParameter("gene_list")).split("\\s+");
 %>
-
 <div class="section" id="plots">
     <table >
         <tr>
@@ -129,12 +126,10 @@
 </div>
 
 <script>
-
 function fetchData() {
     gene = document.getElementById("genes").value;
     data_type_copy_no = document.getElementById("data_type_copy_no").value;
     data_type_mrna = document.getElementById("data_type_mrna").value;
-
     var url_base = "webservice.do?cmd=getProfileData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + gene + "&genetic_profile_id=";
     var urls = [
         url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_mutations[0], //mutations
@@ -143,7 +138,6 @@ function fetchData() {
         url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_rppa[0], //rppa
         url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_dna_methylation[0] //dna methylation
     ];
-
     for (var i = 0; i < urls.length; i++) {
         $.ajax({
             url: urls[i],
@@ -180,7 +174,6 @@ function fetchData() {
     copyData(mrna, result_set[2]);
     copyData(rppa, result_set[3]);
     copyData(dna_methylation, result_set[4]);
-
     //Map Mutations
     var mutationMap = {};
     for (var i = 0; i<case_set.length; i++ ) {
@@ -227,15 +220,6 @@ function drawSideBar() {
     fetchData();
     var tmp_axis_title_result = findAxisTitle();
     drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], 1);
-}
-
-function findIndex(Str, Exp) {
-    for (var i = 0; i< Exp.length; i++) {
-        if ( Str == Exp[i][0] ) {
-            return i;
-        }
-    }
-    return -1;
 }
 
 function findAxisTitle() {
@@ -423,11 +407,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
 
     //Create SVG dots
     var symbol = ["circle", "circle", "diamond","triangle-up", "triangle-down", "square"];
-    var mutationTypes = ["non", "missence", "nonsense", "splice", "shift", "in_frame"];
+    var mutationTypes = ["non", "missense", "nonsense", "splice", "shift", "in_frame"];
     var mutationStrokeTypes = ["#2E9AFE", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000"];
     var mutationFillTypes = ["none", "#FAAC58", "#1C1C1C", "#FAAC58", "#1C1C1C", "#FAAC58"];
     var gisticTypes = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
-    var gisticStrokeTypes = ["#3104B4", "#2ECCFA", "#000000", "#FA58D0", "#FF0040"];
+    var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     //Add noice only to gistic display
     var ramRatio = 0;
     if (data_type_copy_no == "gistic" && document.getElementById("plot_type").value == plot_type_list[0][0]) {
@@ -491,7 +475,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 if (type == 1) {
                     return "1";
                 } else {
-                    return "1.2";
+                    return "1.1";
                 }
             });
 
@@ -539,7 +523,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     .attr("width", 18)
                     .attr("height", 16)
                     .attr("d", d3.svg.symbol()
-                            .size(40)
+                            .size(30)
                             .type(function(d, i) {
                                 switch(i) {
                                     case 0: break;
@@ -615,7 +599,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         }
                     })
                     .attr("stroke-width", function (d, i) {
-                        return 1.2;
+                        return 1.1;
                     })
             legend.append("text")
                     .attr("dx", ".75em")
@@ -648,9 +632,59 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .style("text-anchor", "end")
             .style("font-weight","bold")
             .text(gene + " , " + yLegend);
+    //Add Box plots
+    drawBoxPlots(svg);
 }
 
-function copyData( desArray, oriArray) {
+function drawBoxPlots(svg) {
+    var rectangle = svg.append("rect")
+            .attr("x", 300)
+            .attr("y", 200)
+            .attr("width", 50)
+            .attr("height", 100)
+            .attr("fill", "none")
+            .attr("stroke-width", 0.5)
+            .attr("stroke", "grey");
+    var middleLine = svg.append("line")
+            .attr("x1", 300)
+            .attr("x2", 350)
+            .attr("y1", 250)
+            .attr("y2", 250)
+            .attr("stroke-width", 1)
+            .attr("stroke", "grey");
+    var minLine = svg.append("line")
+            .attr("x1", 300)
+            .attr("x2", 350)
+            .attr("y1", 350)
+            .attr("y2", 350)
+            .attr("stroke-width", 0.5)
+            .attr("stroke", "grey");
+    var maxLine = svg.append("line")
+            .attr("x1", 300)
+            .attr("x2", 350)
+            .attr("y1", 150)
+            .attr("y2", 150)
+            .attr("stroke", "grey")
+            .style("stroke-width", 0.5);
+    var dashLine1 = svg.append("line")
+            .attr("x1", 325)
+            .attr("x2", 325)
+            .attr("y1", 350)
+            .attr("y2", 300)
+            .style("stroke-dasharray", ("3, 3"))
+            .attr("stroke", "grey")
+            .attr("stroke-width", 0.5);
+    var dashLine2 = svg.append("line")
+            .attr("x1", 325)
+            .attr("x2", 325)
+            .attr("y1", 150)
+            .attr("y2", 200)
+            .style("stroke-dasharray", ("3, 3"))
+            .attr("stroke", "grey")
+            .style("stroke-width", 0.5);
+}
+
+function copyData(desArray, oriArray) {
     var desArrayIndex = 0;
     for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
         if (oriArray[tmpIndex] != "" && oriArray[tmpIndex] != null ) {
@@ -659,7 +693,18 @@ function copyData( desArray, oriArray) {
         }
     }
 }
+
+function findIndex(Str, Exp) {
+    for (var i = 0; i< Exp.length; i++) {
+        if ( Str == Exp[i][0] ) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 window.onload=drawSideBar();
+
 </script>
 
 <%!

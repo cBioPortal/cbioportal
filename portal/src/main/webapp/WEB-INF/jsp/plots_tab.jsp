@@ -261,6 +261,8 @@ function generateScatterPlots() {
     }
 }
 
+var dataset = [];
+
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Create Canvas
     $('#plots_tab').empty();
@@ -272,7 +274,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("height", h);
 
     //Prepare DataSet
-    var dataset = [];
 
     if (type == 1) {    //mrna_vs_copy_no
         var index = 0;
@@ -632,56 +633,76 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .style("text-anchor", "end")
             .style("font-weight","bold")
             .text(gene + " , " + yLegend);
-    //Add Box plots
-    drawBoxPlots(svg);
+    //If it is GISTIC and mrna view, add Box plots
+    if (type == 1 && data_type_copy_no == "gistic") {
+        for (var i = min_x ; i < max_x + 1; i++) {
+            //Find the middle line for one box plot
+            var midLine = xScale(i);
+            //Find the max/min y value with certain x value;
+            var tmp_max_y_for_x = -Infinity;
+            var tmp_min_y_for_x = Infinity;
+            for (var j=0; j< yData.length; j++){
+                if (yData[j] != "NaN" && xData[j] != "NaN" && xData[j] == i) {
+                    if ( parseFloat(yData[j]) > parseFloat(tmp_max_y_for_x)) {
+                        tmp_max_y_for_x = parseFloat(yData[j]);
+                    }
+                    if (parseFloat(yData[j])<parseFloat(tmp_min_y_for_x)) {
+                        tmp_min_y_for_x = parseFloat(yData[j]);
+                    }
+                }
+            }
+            var max_y = yScale(tmp_max_y_for_x);
+            var min_y = yScale(tmp_min_y_for_x);
+            drawBoxPlots(svg, midLine, max_y, min_y);
+        }
+    }
 }
-
-function drawBoxPlots(svg) {
-    var rectangle = svg.append("rect")
-            .attr("x", 300)
-            .attr("y", 200)
-            .attr("width", 50)
-            .attr("height", 100)
-            .attr("fill", "none")
-            .attr("stroke-width", 0.5)
-            .attr("stroke", "grey");
-    var middleLine = svg.append("line")
-            .attr("x1", 300)
-            .attr("x2", 350)
-            .attr("y1", 250)
-            .attr("y2", 250)
-            .attr("stroke-width", 1)
-            .attr("stroke", "grey");
+function drawBoxPlots(svg, midLine, max_y, min_y) {
+//    var rectangle = svg.append("rect")
+//            .attr("x", midLine-25)
+//            .attr("y", 200)
+//            .attr("width", 50)
+//            .attr("height", 100)
+//            .attr("fill", "none")
+//            .attr("stroke-width", 0.5)
+//            .attr("stroke", "grey");
+//    var middleLine = svg.append("line")
+//            .attr("x1", midLine-25)
+//            .attr("x2", midLine+25)
+//            .attr("y1", 250)
+//            .attr("y2", 250)
+//            .attr("stroke-width", 1)
+//            .attr("stroke", "grey");
     var minLine = svg.append("line")
-            .attr("x1", 300)
-            .attr("x2", 350)
-            .attr("y1", 350)
-            .attr("y2", 350)
+            .attr("x1", midLine-25)
+            .attr("x2", midLine+25)
+            .attr("y1", min_y)
+            .attr("y2", min_y)
             .attr("stroke-width", 0.5)
             .attr("stroke", "grey");
     var maxLine = svg.append("line")
-            .attr("x1", 300)
-            .attr("x2", 350)
-            .attr("y1", 150)
-            .attr("y2", 150)
+            .attr("x1", midLine-25)
+            .attr("x2", midLine+25)
+            .attr("y1", max_y)
+            .attr("y2", max_y)
             .attr("stroke", "grey")
             .style("stroke-width", 0.5);
-    var dashLine1 = svg.append("line")
-            .attr("x1", 325)
-            .attr("x2", 325)
-            .attr("y1", 350)
-            .attr("y2", 300)
-            .style("stroke-dasharray", ("3, 3"))
-            .attr("stroke", "grey")
-            .attr("stroke-width", 0.5);
-    var dashLine2 = svg.append("line")
-            .attr("x1", 325)
-            .attr("x2", 325)
-            .attr("y1", 150)
-            .attr("y2", 200)
-            .style("stroke-dasharray", ("3, 3"))
-            .attr("stroke", "grey")
-            .style("stroke-width", 0.5);
+//    var dashLine1 = svg.append("line")
+//            .attr("x1", midLine)
+//            .attr("x2", midLine)
+//            .attr("y1", min_y)
+//            .attr("y2", 300)
+//            .style("stroke-dasharray", ("3, 3"))
+//            .attr("stroke", "grey")
+//            .attr("stroke-width", 0.5);
+//    var dashLine2 = svg.append("line")
+//            .attr("x1", midLine)
+//            .attr("x2", midLine)
+//            .attr("y1", max_y)
+//            .attr("y2", 200)
+//            .style("stroke-dasharray", ("3, 3"))
+//            .attr("stroke", "grey")
+//            .style("stroke-width", 0.5);
 }
 
 function copyData(desArray, oriArray) {

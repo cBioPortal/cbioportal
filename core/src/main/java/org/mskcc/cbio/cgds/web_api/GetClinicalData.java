@@ -238,4 +238,7 @@ public class GetClinicalData {
 
         return txt;
     }
+
+
+
 }

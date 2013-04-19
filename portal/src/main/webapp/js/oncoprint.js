@@ -6,7 +6,39 @@ var Oncoprint = function(wrapper, params) {
 
     // todo: will probably want to pass this as a parameter somehow
     var attributes = _.uniq(_.flatten(data.map(function(i) { return i.values; }), true)
-                .map(function(i) { return i.gene || i.attr_id; }));
+        .map(function(i) {
+            var type;
+            if (i.gene) {
+                type = "gene";
+            } else if (i.attr_id) {
+                type = "clinical"
+            } else {
+                throw "data is neither gene nor clinical?";
+            }
+
+            var toReturn = i.gene || i.attr_id;
+            toReturn.type = type;
+
+            return toReturn;
+        }));
+
+    // adds in missing clinical data, if nothing is missing then return d
+    // <b>d</b> : a key values pair, e.g.{ key: "TCGA-blah-blah", values: [list of gene objects or clinical objects] }
+    var fillNAs = function(d, attributes) {
+        var attrs  = d.values
+            .map(function(i) { return i.attr_id; })
+            .filter(function(i) {return i !== undefined; });
+
+        attributes.forEach(function(attr) {
+            if (attrs.indexOf(attr) === -1) {
+                attrs.push({ sample: d.key, attr_id: attr, attr_val: "NA" });
+            }
+        });
+
+        return attrs;
+    };
+
+    data.map(function(i) { return fillNAs(i, attributes)});
 
     var dims = {
         width: data.length * 5.5,
@@ -15,7 +47,7 @@ var Oncoprint = function(wrapper, params) {
 
     var getAttr = function(d) {
         return d.gene || d.attr_id;
-    }
+    };
 
     var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 
@@ -28,7 +60,7 @@ var Oncoprint = function(wrapper, params) {
         .data(data)
         .enter()
         .append('g')
-        .attr('transform', function(d,i) { return "translate(" + i * 5.5 + ",0)"; })
+        .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 1) + ",0)"; })
         .selectAll('rect')
         .data(function(d) {
             return d.values;

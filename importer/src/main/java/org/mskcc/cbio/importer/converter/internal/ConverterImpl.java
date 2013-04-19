@@ -150,8 +150,15 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				DataMatrix[] dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata,
-															datatypeMetadata, runDate, applyOverrides);
+				DataMatrix[] dataMatrices;
+                                try {
+                                    dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata, runDate, applyOverrides);
+                                } catch (Exception e) {
+                                    if (LOG.isInfoEnabled()) {
+                                        LOG.error("convertData(), exception:\n" + e.getMessage());
+                                    }
+                                    continue;
+                                }
 				if (dataMatrices == null || dataMatrices.length == 0) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), no dataMatrices to process, skipping.");
@@ -423,8 +430,8 @@ class ConverterImpl implements Converter {
 				}
 				DataMatrix dataMatrix = fileUtils.getFileContents(importData);
 				if (dataMatrix != null) {
-					toReturn.add(fileUtils.getFileContents(importData));
-				}
+					toReturn.add(dataMatrix);
+                                }
 			}
 		}
 		else if (LOG.isInfoEnabled()) {

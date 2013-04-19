@@ -108,6 +108,8 @@ public class TestDaoMutation extends TestCase {
 		mutation.setOncotatorRefseqMrnaId("NM_001904");
 		mutation.setOncotatorUniprotName("CTNB1_HUMAN");
 		mutation.setOncotatorUniprotAccession("P35222");
+		mutation.setOncotatorProteinPosStart(666);
+		mutation.setOncotatorProteinPosEnd(678);
 		mutation.setCanonicalTranscript(true);
 
 		dao.addMutation(mutation);
@@ -180,6 +182,8 @@ public class TestDaoMutation extends TestCase {
 		assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());
 		assertEquals("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
 		assertEquals("P35222", mutation.getOncotatorUniprotAccession());
+		assertEquals(666, mutation.getOncotatorProteinPosStart());
+		assertEquals(678, mutation.getOncotatorProteinPosEnd());
 		assertEquals (true, mutation.isCanonicalTranscript());
 	}
 }

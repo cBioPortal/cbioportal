@@ -94,6 +94,8 @@ public class ExtendedMutation
 	private String oncotatorUniprotName;
 	private String oncotatorUniprotAccession;
 	private String oncotatorCodonChange;
+	private int oncotatorProteinPosStart;
+	private int oncotatorProteinPosEnd;
 
 	private boolean canonicalTranscript;
 
@@ -535,6 +537,26 @@ public class ExtendedMutation
 	public void setOncotatorCodonChange(String oncotatorCodonChange)
 	{
 		this.oncotatorCodonChange = oncotatorCodonChange;
+	}
+
+	public int getOncotatorProteinPosStart()
+	{
+		return oncotatorProteinPosStart;
+	}
+
+	public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
+	{
+		this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+	}
+
+	public int getOncotatorProteinPosEnd()
+	{
+		return oncotatorProteinPosEnd;
+	}
+
+	public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
+	{
+		this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
 	}
 
 	public boolean isCanonicalTranscript()

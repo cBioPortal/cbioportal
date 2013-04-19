@@ -232,6 +232,9 @@ public class ImportExtendedMutationData{
 					uniprotName,
 					uniprotAccession;
 
+				int proteinPosStart,
+					proteinPosEnd;
+
 				boolean bestEffectTranscript;
 
 				// determine whether to use canonical or best effect transcript
@@ -282,6 +285,8 @@ public class ImportExtendedMutationData{
 					refseqMrnaId = record.getOncotatorRefseqMrnaIdBestEffect();
 					uniprotName = record.getOncotatorUniprotNameBestEffect();
 					uniprotAccession = record.getOncotatorUniprotAccessionBestEffect();
+					proteinPosStart = record.getOncotatorProteinPosStartBestEffect();
+					proteinPosEnd = record.getOncotatorProteinPosEndBestEffect();
 				}
 				else
 				{
@@ -290,6 +295,8 @@ public class ImportExtendedMutationData{
 					refseqMrnaId = record.getOncotatorRefseqMrnaId();
 					uniprotName = record.getOncotatorUniprotName();
 					uniprotAccession = record.getOncotatorUniprotAccession();
+					proteinPosStart = record.getOncotatorProteinPosStart();
+					proteinPosEnd = record.getOncotatorProteinPosEnd();
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -363,6 +370,8 @@ public class ImportExtendedMutationData{
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
 					mutation.setOncotatorUniprotName(uniprotName);
 					mutation.setOncotatorUniprotAccession(uniprotAccession);
+					mutation.setOncotatorProteinPosStart(proteinPosStart);
+					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
 					mutation.setCanonicalTranscript(!bestEffectTranscript);
 
 					sequencedCaseSet.add(caseId);

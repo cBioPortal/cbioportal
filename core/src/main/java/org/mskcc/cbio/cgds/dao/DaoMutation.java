@@ -109,7 +109,10 @@ public class DaoMutation {
 						Integer.toString(mutation.getNormalRefCount()), mutation.getOncotatorDbSnpRs(),
 						DaoMutationEvent.filterCosmic(mutation), mutation.getOncotatorRefseqMrnaId(),
 						mutation.getOncotatorCodonChange(), mutation.getOncotatorUniprotName(),
-						mutation.getOncotatorUniprotAccession(), this.boolToStr(mutation.isCanonicalTranscript()));
+						mutation.getOncotatorUniprotAccession(),
+						Integer.toString(mutation.getOncotatorProteinPosStart()),
+						Integer.toString(mutation.getOncotatorProteinPosEnd()),
+						this.boolToStr(mutation.isCanonicalTranscript()));
 
 				// return 1 because normal insert will return 1 if no error occurs
 				return 1;
@@ -132,8 +135,9 @@ public class DaoMutation {
 						 + " `SCORE`, `BAM_FILE`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`,"
 						 + " `NORMAL_REF_COUNT`, `ONCOTATOR_DBSNP_RS`, `ONCOTATOR_COSMIC_OVERLAPPING`,"
 						 + " `ONCOTATOR_REFSEQ_MRNA_ID`, `ONCOTATOR_CODON_CHANGE`, `ONCOTATOR_UNIPROT_ENTRY_NAME`,"
-						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `CANONICAL_TRANSCRIPT`)"
-						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+						 + " `ONCOTATOR_UNIPROT_ACCESSION`, `ONCOTATOR_PROTEIN_POS_START`,"
+						 + " `ONCOTATOR_PROTEIN_POS_END`, `CANONICAL_TRANSCRIPT`)"
+						 + " VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
 				pstmt.setInt(1, mutation.getGeneticProfileId());
 				pstmt.setString(2, mutation.getCaseId());
@@ -183,7 +187,9 @@ public class DaoMutation {
 				pstmt.setString(46, mutation.getOncotatorCodonChange());
 				pstmt.setString(47, mutation.getOncotatorUniprotName());
 				pstmt.setString(48, mutation.getOncotatorUniprotAccession());
-				pstmt.setBoolean(49, mutation.isCanonicalTranscript());
+				pstmt.setInt(49, mutation.getOncotatorProteinPosStart());
+				pstmt.setInt(50, mutation.getOncotatorProteinPosEnd());
+				pstmt.setBoolean(51, mutation.isCanonicalTranscript());
 
 				return pstmt.executeUpdate();
 			}
@@ -496,6 +502,8 @@ public class DaoMutation {
 		mutation.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
 		mutation.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
 		mutation.setOncotatorUniprotAccession(rs.getString("ONCOTATOR_UNIPROT_ACCESSION"));
+		mutation.setOncotatorProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
+		mutation.setOncotatorProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));
 		mutation.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
 
 		return mutation;

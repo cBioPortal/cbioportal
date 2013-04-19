@@ -21,6 +21,8 @@
      <b:property name="url" value="${db.connection_string}${db.importer_db_name}?max_allowed_packet=256M"/>
      <b:property name="username" value="${db.user}"/>
      <b:property name="password" value="${db.password}"/>
+     <b:property name="initialSize" value="50" />
+     <b:property name="maxActive" value="45" />
    </b:bean>
 
   <!-- hibernate session factory -->

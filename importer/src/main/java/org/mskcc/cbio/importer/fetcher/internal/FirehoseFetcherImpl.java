@@ -334,7 +334,7 @@ class FirehoseFetcherImpl implements Fetcher {
             if (tumorTypeMatcher.find()) {
                 tumorType = tumorTypeMatcher.group(1);
                 tumorTypeLabel = tumorType;
-                if (tumorTypeMatcher.groupCount()==2) {
+                if (tumorTypeMatcher.groupCount()==2 && null!=tumorTypeMatcher.group(2)) {
                     tumorTypeLabel += tumorTypeMatcher.group(2);
                 }
             }

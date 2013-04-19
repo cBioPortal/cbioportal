@@ -111,6 +111,7 @@ public class ImportDataRecord {
 		setDataSource(dataSource);
 		setCenter(center);
 		setTumorType(tumorType);
+		setTumorTypeLabel(tumorTypeLabel);
 		setDatatype(datatype);
 		setRunDate(runDate);
 		setCanonicalPathToData(canonicalPath);

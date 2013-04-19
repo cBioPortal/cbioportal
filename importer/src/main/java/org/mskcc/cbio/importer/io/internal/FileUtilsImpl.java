@@ -954,7 +954,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                     String entryName = entry.getName();
                     String dataFile = importDataRecord.getDataFilename();
                     if (dataFile.contains(DatatypeMetadata.TUMOR_TYPE_TAG)) {
-                        dataFile = dataFile.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorType().toUpperCase());
+                        dataFile = dataFile.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorTypeLabel());
                     }
                     if (entryName.contains(dataFile)) {
                         if (LOG.isInfoEnabled()) {

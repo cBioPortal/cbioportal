@@ -32,7 +32,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  *
@@ -66,8 +67,7 @@ public final class Dao3DStructure {
                 con = JdbcUtil.getDbConnection(Dao3DStructure.class);
                 pstmt = con.prepareStatement("INSERT INTO pdb_uniprot_residue_mapping " +
                         "( `PDB_ID`, `CHAIN`, `PDB_POSITION`, `UNIPROT_ID`, `UNIPROT_POSITION`)"
-                        + " VALUES (?,?,?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
+                        + " VALUES (?,?,?,?,?)");
                 pstmt.setString(1, pdbId);
                 pstmt.setString(2, chain);
                 pstmt.setInt(3, pdbPos);
@@ -93,5 +93,29 @@ public final class Dao3DStructure {
         }
     }
     
+    public static Set<String> mapToPdb(String uniprotId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(Dao3DStructure.class);
+            pstmt = con.prepareStatement("SELECT DISTINCT PDB_ID, CHAIN "
+                    + "FROM pdb_uniprot_residue_mapping "
+                    + "WHERE UNIPROT_ID=?");
+            pstmt.setString(1, uniprotId);
+            rs = pstmt.executeQuery();
+            Set<String> set = new HashSet<String>();
+            while (rs.next()) {
+                String pdbId = rs.getString(1);
+                String chain = rs.getString(2);
+                set.add(pdbId+"."+chain);
+            }
+            return set;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(Dao3DStructure.class, con, pstmt, rs);
+        }
+    }
     
 }

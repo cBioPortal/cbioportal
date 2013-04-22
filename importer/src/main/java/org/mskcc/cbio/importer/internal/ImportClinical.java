@@ -99,15 +99,15 @@ public class ImportClinical {
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
 
-        List<ClinicalAttribute> columnAttrs = ImportClinical.grabAttrs(reader);
-
+        List<ClinicalAttribute> columnAttrs = ImportClinical.grabAttrs(buff);
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();
-        buff.readLine();
-        String line = buff.readLine();        // skip the first line
+
+        String line = buff.readLine();
         List<Clinical> clinicals = new ArrayList<Clinical>();
         while (line != null) {
 
             if (line.substring(0,1).equals(METADATA_PREIX)) {
+                // ignore lines with the METADATA_PREFIX
                 line = buff.readLine();
                 continue;
             }
@@ -153,14 +153,13 @@ public class ImportClinical {
     }
 
     /**
-     * Grabs the metadata from the file, inserts them into the database,
+     * Grabs the metadatas (clinical attributes) from the file, inserts them into the database,
      * and returns them as a list.
      *
      * @param reader
      * @return clinicalAttributes
      */
-    public static List<ClinicalAttribute> grabAttrs(FileReader reader) throws DaoException, IOException {
-        BufferedReader buff = new BufferedReader(reader); // make sure we are at the top of the file
+    public static List<ClinicalAttribute> grabAttrs(BufferedReader buff) throws DaoException, IOException {
         List<ClinicalAttribute> attrs = new ArrayList<ClinicalAttribute>();
 
         String[] colnames = splitFields(buff);

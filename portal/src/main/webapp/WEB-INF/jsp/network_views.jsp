@@ -207,14 +207,19 @@
 			<b>Gene ID:</b>
 			<a href='http://www.ncbi.nlm.nih.gov/gene?term={{geneId}}' target='blank'>{{geneId}}</a>
 		</div>
+		<div class='biogene-info biogene-uniprot-links'>
+			<b>UniProt ID:</b>
+			<a href='http://www.uniprot.org/uniprot/{{geneUniprotId}}'
+			   target='blank'>{{geneUniprotId}}</a><span class='biogene-uniprot-links-extra'>{{geneUniprotLinks}}</span>
+		</div>
 	</div>
 	<div class='node-details-summary'>
 		<b>Gene Function:</b>
 		{{geneSummary}}
 	</div>
-	<div class='node-details-footer'>
+	<!--div class='node-details-footer'>
 		<a href='http://cbio.mskcc.org/biogene/index.html' target='blank'>more</a>
-	</div>
+	</div-->
 </script>
 
 <script type="text/javascript">
@@ -536,11 +541,13 @@
 			// pass variables in using Underscore.js template
 			var variables = { geneSymbol: options.data.geneSymbol,
 				geneDescription: options.data.geneDescription,
-				geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ","),
-				geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ","),
+				geneAliases: _parseDelimitedInfo(options.data.geneAliases, ":", ",", null),
+				geneDesignations: _parseDelimitedInfo(options.data.geneDesignations, ":", ",", null),
 				geneLocation: options.data.geneLocation,
 				geneMim: options.data.geneMim,
 				geneId: options.data.geneId,
+				geneUniprotId: this.extractFirstUniprotId(options.data.geneUniprotMapping),
+				geneUniprotLinks: this.generateUniprotLinks(options.data.geneUniprotMapping),
 				geneSummary: options.data.geneSummary};
 
 			// compile the template using underscore
@@ -580,6 +587,9 @@
 			if (options.data.geneId == undefined)
 				$(options.el + " .biogene-id").hide();
 
+			if (options.data.geneUniprotMapping == undefined)
+				$(options.el + " .biogene-uniprot-links").hide();
+
 			if (options.data.geneSummary == undefined)
 				$(options.el + " .node-details-summary").hide();
 
@@ -601,6 +611,54 @@
 			$(options.el + " .biogene-aliases").expander(expanderOpts);
 			$(options.el + " .biogene-designations").expander(expanderOpts);
 			$(options.el + " .node-details-summary").expander(expanderOpts);
+
+			// note: the first uniprot link has a separate section in the template,
+			// therefore it is not included here. since the expander plugin
+			// has problems with cutting hyperlink elements, there is another
+			// section (span) for all other remaining uniprot links.
+
+			// display only comma (the comma after the first link)
+			// (assuming the first 2 chars of this section is ", ")
+			expanderOpts.slicePoint = 2; // show comma and the space
+			expanderOpts.widow = 0; // hide everything else in any case
+
+			$(options.el + " .biogene-uniprot-links-extra").expander(expanderOpts);
+		},
+		generateUniprotLinks: function(mapping) {
+			var formatter = function(id){
+				return '<a href="http://www.uniprot.org/uniprot/' + id + '" target="_blank">' + id + '</a>';
+			};
+
+			if (mapping == undefined || mapping == null)
+			{
+				return "";
+			}
+
+			// remove first id (assuming it is already processed)
+			if (mapping.indexOf(':') < 0)
+			{
+				return "";
+			}
+			else
+			{
+				mapping = mapping.substring(mapping.indexOf(':') + 1);
+				return ', ' + _parseDelimitedInfo(mapping, ':', ',', formatter);
+			}
+		},
+		extractFirstUniprotId: function(mapping) {
+			if (mapping == undefined || mapping == null)
+			{
+				return "";
+			}
+
+			var parts = mapping.split(":");
+
+			if (parts.length > 0)
+			{
+				return parts[0];
+			}
+
+			return "";
 		}
 	});
 
@@ -611,9 +669,10 @@
 	 * @param info      original data as a string
 	 * @param delimiter delimiter for the original data
 	 * @param separator separator for the new output
+	 * @param formatter custom text formatter function
 	 * @return String
 	 */
-	function _parseDelimitedInfo(info, delimiter, separator)
+	function _parseDelimitedInfo(info, delimiter, separator, formatter)
 	{
 		// do not process undefined or null values
 		if (info == undefined || info == null)
@@ -626,12 +685,28 @@
 
 		if (parts.length > 0)
 		{
-			text = parts[0];
+			if (formatter)
+			{
+				text = formatter(parts[0]);
+			}
+			else
+			{
+				text = parts[0];
+			}
 		}
 
 		for (var i=1; i < parts.length; i++)
 		{
-			text += separator + " " + parts[i];
+			text += separator + " ";
+
+			if (formatter)
+			{
+				text += formatter(parts[i]);
+			}
+			else
+			{
+				text += parts[i];
+			}
 		}
 
 		return text;

@@ -635,7 +635,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
 
     if (selected.length == 1)
     {
-        data = selected[0].data
+        data = selected[0].data;
     }
     else if (selected.length > 1)
     {
@@ -655,6 +655,17 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     }
 
     var handler = function(queryResult) {
+        // check the initial conditions, if they don't match do nothing
+	    // (they may not match because of a delay in the ajax request)
+
+	    selected = self._vis.selected("nodes");
+
+	    if (selected.length != 1 ||
+	        data.id != selected[0].data.id)
+	    {
+		    return;
+	    }
+
         // update tab content
         $(self.detailsTabSelector + " .biogene-content").empty();
 

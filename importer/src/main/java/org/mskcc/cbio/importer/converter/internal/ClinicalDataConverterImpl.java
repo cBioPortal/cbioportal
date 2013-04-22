@@ -333,6 +333,20 @@ public class ClinicalDataConverterImpl implements Converter {
         return outMatrix;
     }
 
+    /**
+     * Do processing on a matrix of clinical data.
+     * @param m DataMatrix
+     * @return new DataMatrix
+     */
+    public Datamatrix processMatrix(DataMatrix m) {
+
+        List<String> colNames = m.getRowData(0);
+
+
+
+
+    }
+
 	/**
 	 * Creates a staging file from the given import data.
 	 *
@@ -372,7 +386,7 @@ public class ClinicalDataConverterImpl implements Converter {
             appendToNewAttributes(knownAliasToAttribute, rowData, cleanedRowName, newAttributes);
         }
 
-        // ** insert into ClinicalAttributes db table **
+        // make a list of attributes
         // todo: this is done on every staging file. wasteful
         for (List<String> row : keepers) {
             String rowName = row.get(0);
@@ -383,6 +397,7 @@ public class ClinicalDataConverterImpl implements Converter {
             keeperAttrs.add(attr);
         }
 
+        // insert the attributes into the db
 //        DaoClinicalAttribute.deleteAllRecords();        // N.B. the db reflects what is in the spreadsheet
 //        for (ClinicalAttribute attr : keeperAttrs) {
 //            DaoClinicalAttribute.addDatum(attr);

@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
+import org.mskcc.cbio.importer.model.DataMatrix;
 
 import java.util.*;
 
@@ -150,5 +151,62 @@ public class ClinicalDataConverterImplTest {
 
         assertTrue(transposed.get(0).get(1).equals("21"));
         assertTrue(transposed.get(1).get(0).equals("12"));
+    }
+
+    @Test
+    public void processMatrixTest() throws Exception {
+        // no unit tests, but a playground to experiment
+
+        // test DataMatrix
+        String in = "CASE_ID\tAGE\tDAYS_TO_DEATH\tDAYS_TO_LAST_FOLLOWUP\tETHNICITY\tGENDER\tVITAL_STATUS\n" +
+                "#Patient identifier\tAge\tdays to death\tdays to last followup\tEthnicity\tSex\tVital status\n" +
+                "#Patient identifier\tPatient age at diagnosis\tnumber of days until the patient died\tnumber of days until the last followup\tPatient ethnicity\tPatient sex\tPatient vital status as of last follow-up\n" +
+                "#STRING\tNUMBER\tNUMBER\tNUMBER\tSTRING\tSTRING\tBOOLEAN\n" +
+                "tcga-a1-a0sb\t70\tNA\t259\tnot hispanic or latino\tfemale\tliving tcga-a1-a0sd\t59\tNA\t437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0se\t56\tNA\t1320\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sf\t54\tNA\t1463\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sg\t61\tNA\t433\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sh\t39\tNA\t1437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0si\t52\tNA\t634\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sj\t39\tNA\t426\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sk\t54\t967\tNA\tnot hispanic or latino\tfemale\tdeceased\n" +
+                "tcga-a1-a0sm\t77\tNA\t242\tnot hispanic or latino\tmale\tliving\n" +
+                "tcga-a1-a0sn\t50\tNA\t1196\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0so\t67\tNA\t852\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sp\t40\tNA\t583\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sq\t45\tNA\t553\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a04n\t66\tNA\t3153\thispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a04p\t36\t547\tNA\tNA\tfemale\tdeceased\n" +
+                "tcga-a2-a04q\t48\tNA\t1275\tNA\tfemale\tliving\n" +
+                "tcga-a2-a04r\t36\tNA\t2364\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a04t\t62\tNA\t1950\tNA\tfemale\tliving\n" +
+                "tcga-a2-a04u\t47\tNA\t670\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a04v\t39\t1920\tNA\tnot hispanic or latino\tfemale\tdeceased\n" +
+                "tcga-a2-a04w\t50\tNA\t1918\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a04x\t34\tNA\t1349\tNA\tfemale\tliving\n" +
+                "tcga-a2-a04y\t53\tNA\t763\tNA\tfemale\tliving\n" +
+                "tcga-a2-a0cl\t37\tNA\t1827\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cm\t40\t754\tNA\tnot hispanic or latino\tfemale\tdeceased\n" +
+                "tcga-a2-a0cp\t60\tNA\t2495\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cq\t62\tNA\t2392\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cs\t73\tNA\t2298\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0ct\t71\tNA\t1917\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cu\t73\t157\tNA\tnot hispanic or latino\tfemale\tdeceased\n" +
+                "tcga-a2-a0cv\t41\tNA\t1870\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cw\t67\tNA\t1750\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cx\t52\tNA\t1303\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cy\t63\tNA\t1288\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0cz\t46\tNA\t1338\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0d0\t60\tNA\t643\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0d1\t76\tNA\t786\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0d2\t45\tNA\t761\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a2-a0d3\t42\tNA\t736\tnot hispanic or latino\tfemale\tliving\n";
+
+        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
+        for (String row : Arrays.asList(in.split("\n"))) {
+            rows.add( new LinkedList<String>(Arrays.asList(row.split("\t"))) );
+        }
+        DataMatrix testDataMatrix = new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
+        DataMatrix processed = clinicalDataConverter.processMatrix(testDataMatrix);
     }
 }

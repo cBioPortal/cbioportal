@@ -67,12 +67,14 @@ public class ClinicalDataConverterImpl implements Converter {
     // string delimiter for aliases
     public static final String ALIAS_DELIMITER = ",";
 
-    // string that indicates that the attribute should be imported
-    public static final String OK = "OK";
-
+    public static final String OK = "OK"; // string that indicates that the attribute should be imported
     public static final String UNANNOTATED = "Unannotated";
-
     public static final String IGNORE = "ignore";
+
+    // column names for data matrix processing
+    public static final String DAYS_TO_LAST_FOLLOWUP = "DAYS_TO_LAST_FOLLOWUP";
+    public static final String DAYS_TO_DEATH = "DAYS_TO_DEATH";
+    public static final String NA = "NA";
 
 
     public static void main(String[] args) throws Exception {
@@ -330,21 +332,48 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         outMatrix.setColumnOrder(colNames);
+        outMatrix = processMatrix(outMatrix);
+
         return outMatrix;
     }
 
     /**
-     * Do processing on a matrix of clinical data.
+     * Do processing on a matrix of clinical data that is going into a staging file
+     *
+     * ! modifies the input DataMatrix m
      * @param m DataMatrix
      * @return new DataMatrix
      */
-    public Datamatrix processMatrix(DataMatrix m) {
+    public DataMatrix processMatrix(DataMatrix m) {
+        int n_metadata = 3; // number of rows of metadata
 
-        List<String> colNames = m.getRowData(0);
+        List<String> followUps = m.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
+        followUps = followUps.subList(n_metadata, followUps.size());
 
+        List<String> deaths = m.getColumnData(DAYS_TO_DEATH).get(0);
+        deaths = deaths.subList(n_metadata, deaths.size());
 
+        List<String> overallSurvivals = new LinkedList<String>();
+        overallSurvivals.add(0, "days alive after diagnosis");
+        overallSurvivals.add(1, "max(days_to_death, days_to_last_followup)");
+        overallSurvivals.add(2, "NUMBER");
+        for (int i = 0; i < followUps.size(); i+=1) {
+            String os;
+            String fUp = followUps.get(i);
+            String d = deaths.get(i);
 
+            if (fUp.equals(NA) && d.equals(NA)) {
+                os = NA;
+            } else {
+                os = fUp.equals(NA) ? d : fUp;
+            }
+            overallSurvivals.add(os);
+        }
 
+        // I'd prefer to make a copy and return that, but DataMatrix is initialized by rows, but does not save them.
+        // So, copying is nontrivial so perhaps it's better to just leave this off.
+        m.addColumn("OVERALL_SURVIVAL_DAYS", overallSurvivals);
+        return m;
     }
 
 	/**

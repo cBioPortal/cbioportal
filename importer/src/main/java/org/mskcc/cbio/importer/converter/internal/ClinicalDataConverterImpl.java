@@ -338,7 +338,11 @@ public class ClinicalDataConverterImpl implements Converter {
     }
 
     /**
-     * Do processing on a matrix of clinical data that is going into a staging file
+     * Calculates new columns for a matrix based on what is in the matrix.
+     * The matrix being in the format to be written into a staging file
+     *
+     * If columns for a calculation are missing, then the calculation is not done
+     * and the original matrix is returned unharmed.
      *
      * ! modifies the input DataMatrix m
      * @param m DataMatrix
@@ -346,6 +350,13 @@ public class ClinicalDataConverterImpl implements Converter {
      */
     public DataMatrix processMatrix(DataMatrix m) {
         int n_metadata = 3; // number of rows of metadata
+
+        if (m.getColumnData(DAYS_TO_LAST_FOLLOWUP).size() == 0
+                || m.getColumnData(DAYS_TO_DEATH).size() == 0) {
+            LOG.info("clinical matrix missing one or both colums: "
+                    + DAYS_TO_DEATH + "," + DAYS_TO_LAST_FOLLOWUP);
+            return m;
+        }
 
         List<String> followUps = m.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
         followUps = followUps.subList(n_metadata, followUps.size());

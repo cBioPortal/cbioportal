@@ -22,24 +22,6 @@ var Oncoprint = function(wrapper, params) {
             return toReturn;
         }));
 
-    // adds in missing clinical data, if nothing is missing then return d
-    // <b>d</b> : a key values pair, e.g.{ key: "TCGA-blah-blah", values: [list of gene objects or clinical objects] }
-    var fillNAs = function(d, attributes) {
-        var attrs  = d.values
-            .map(function(i) { return i.attr_id; })
-            .filter(function(i) {return i !== undefined; });
-
-        attributes.forEach(function(attr) {
-            if (attrs.indexOf(attr) === -1) {
-                attrs.push({ sample: d.key, attr_id: attr, attr_val: "NA" });
-            }
-        });
-
-        return attrs;
-    };
-
-    data.map(function(i) { return fillNAs(i, attributes)});
-
     var dims = {
         width: data.length * 5.5,
         height: 23 * attributes.length
@@ -56,27 +38,57 @@ var Oncoprint = function(wrapper, params) {
         .attr('width', dims.width)
         .attr('height', dims.height);
 
-    var rect = svg.selectAll('g')
-        .data(data)
-        .enter()
-        .append('g')
-        .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 1) + ",0)"; })
-        .selectAll('rect')
-        .data(function(d) {
-            return d.values;
-        })
-        .enter()
-        .append('rect');
+    var cna = function(d) {
+        var cna_fills = {
+            undefined: '#D3D3D3',
+            AMPLIFIED: '#FF0000',
+            GAINED: '#FFB6C1',
+            DIPLOID: '#D3D3D3',
+            HEMIZYGOUSLYDELETED: '#8FD8D8',
+            HOMODELETED: '#0000FF'
+        };
 
-    var drawSample = function(rect) {
-        rect.attr('fill', function(d) { return d.gene ? "black" : "blue"; })
+        return cna_fills[d.cna];
+    };
+
+    var clinical = function(d) {
+        console.log(d);
+
+        return "blue";
+    };
+
+    var enterSample = function(sample) {
+        var enter = sample.enter();
+
+        var fill = enter.append('rect')
+            .attr('fill', function(d) { return d.gene ? cna(d) : clinical(d); })
             .attr('height', 23)
             .attr('width', 5.5)
             .attr('y', function(d) {
                 return (23 + 4) * attributes.indexOf(getAttr(d)); });
+
+        var mut = enter.append('rect')
+            .attr('fill', 'green')
+            .attr('height', 10)
+            .attr('width', 5.5)
+            .attr('y', function(d) {
+                return (23 + 4) * attributes.indexOf(getAttr(d)); });
+        mut.filter(function(d) {
+            return d.mutation === undefined;
+        }).remove();
     };
 
-    drawSample(rect);
+    var sample = svg.selectAll('g')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 2) + ",0)"; })
+        .selectAll('rect')
+        .data(function(d) {
+            return d.values;
+        });
+
+    enterSample(sample);
 
     $('#oncoprint').children().show();      // todo: delete me!
 };

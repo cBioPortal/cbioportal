@@ -39,9 +39,9 @@ import java.util.Set;
  *
  * @author jgao
  */
-public final class Dao3DStructure {
+public final class DaoPdbUniprotResidueMapping {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
-    private Dao3DStructure() {}
+    private DaoPdbUniprotResidueMapping() {}
     
     private static MySQLbulkLoader getMyMySQLbulkLoader() {
         if (myMySQLbulkLoader==null) {
@@ -64,7 +64,7 @@ public final class Dao3DStructure {
             return 1;
         } else {
             try {
-                con = JdbcUtil.getDbConnection(Dao3DStructure.class);
+                con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
                 pstmt = con.prepareStatement("INSERT INTO pdb_uniprot_residue_mapping " +
                         "( `PDB_ID`, `CHAIN`, `PDB_POSITION`, `UNIPROT_ID`, `UNIPROT_POSITION`)"
                         + " VALUES (?,?,?,?,?)");
@@ -78,7 +78,7 @@ public final class Dao3DStructure {
             } catch (SQLException e) {
                 throw new DaoException(e);
             } finally {
-                JdbcUtil.closeAll(Dao3DStructure.class, con, pstmt, rs);
+                JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
             }
         }
     }
@@ -98,7 +98,7 @@ public final class Dao3DStructure {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            con = JdbcUtil.getDbConnection(Dao3DStructure.class);
+            con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
             pstmt = con.prepareStatement("SELECT DISTINCT PDB_ID, CHAIN "
                     + "FROM pdb_uniprot_residue_mapping "
                     + "WHERE UNIPROT_ID=?");
@@ -114,7 +114,7 @@ public final class Dao3DStructure {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(Dao3DStructure.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
         }
     }
     

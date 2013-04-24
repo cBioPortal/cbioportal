@@ -31,7 +31,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import org.mskcc.cbio.cgds.dao.Dao3DStructure;
+import org.mskcc.cbio.cgds.dao.DaoPdbUniprotResidueMapping;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
@@ -64,7 +64,7 @@ public final class ImportPdbUniprotResidueMapping {
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t");
 
-                Dao3DStructure.addPdbUniprotResidueMapping(parts[0], parts[1],
+                DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(parts[0], parts[1],
                         Integer.parseInt(parts[2]), parts[3], Integer.parseInt(parts[4]));
 
             }
@@ -73,7 +73,7 @@ public final class ImportPdbUniprotResidueMapping {
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           Dao3DStructure.flushToDatabase();
+           DaoPdbUniprotResidueMapping.flushToDatabase();
         }
     }
     

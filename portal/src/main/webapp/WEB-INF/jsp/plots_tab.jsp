@@ -8,7 +8,6 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <script type="text/javascript" src="js/d3.v2.min.js"></script>
-<script type="text/javascript" src="js/d3_box.js"></script>
 <!--link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"-->
 
 <style type="text/css">
@@ -27,6 +26,7 @@
 </style>
 
 <script>
+
     var gene,
             case_set = [],
             mutations = [],
@@ -36,11 +36,9 @@
             dna_methylation = [],
             extended_mutations = [],
             result_set = new Array(5);
-
     for ( var i = 0 ; i< result_set.length; i++) {
         result_set[i] = new Array();
     }
-
     var genetic_profile_mutations = [
                 "mutations", "Mutations"
             ],
@@ -633,76 +631,121 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .style("text-anchor", "end")
             .style("font-weight","bold")
             .text(gene + " , " + yLegend);
+
     //If it is GISTIC and mrna view, add Box plots
     if (type == 1 && data_type_copy_no == "gistic") {
         for (var i = min_x ; i < max_x + 1; i++) {
+            var tmp_y_arr = [];
+            var top;
+            var bottom;
+            var quan1;
+            var quan2;
+            var mean;
+            var IQR;
             //Find the middle line for one box plot
-            var midLine = xScale(i);
+            var midLine = xScale(i) + 10;
             //Find the max/min y value with certain x value;
-            var tmp_max_y_for_x = -Infinity;
-            var tmp_min_y_for_x = Infinity;
-            for (var j=0; j< yData.length; j++){
+            var index_tmp_y_data_array = 0;
+            for (var j = 0; j < yData.length; j++) {
                 if (yData[j] != "NaN" && xData[j] != "NaN" && xData[j] == i) {
-                    if ( parseFloat(yData[j]) > parseFloat(tmp_max_y_for_x)) {
-                        tmp_max_y_for_x = parseFloat(yData[j]);
-                    }
-                    if (parseFloat(yData[j])<parseFloat(tmp_min_y_for_x)) {
-                        tmp_min_y_for_x = parseFloat(yData[j]);
-                    }
+                    tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
+                    index_tmp_y_data_array += 1;
                 }
             }
-            var max_y = yScale(tmp_max_y_for_x);
-            var min_y = yScale(tmp_min_y_for_x);
-            drawBoxPlots(svg, midLine, max_y, min_y);
+            tmp_y_arr.sort(function(a,b){return a-b});
+            if (tmp_y_arr.length == 1) {
+                mean = yScale(tmp_y_arr[0]);
+                var meanLine = svg.append("line")
+                        .attr("x1", midLine-50)
+                        .attr("x2", midLine+50)
+                        .attr("y1", mean)
+                        .attr("y2", mean)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "grey");
+            } else {
+                if (tmp_y_arr.length == 2) {
+                    mean = yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
+                    quan1 = top = yScale(tmp_y_arr[0]);
+                    quan2 = bottom = yScale(tmp_y_arr[1]);
+                    IQR = Math.abs(quan2 - quan1);
+                } else {
+                    var yl = tmp_y_arr.length;
+                    if (yl % 2 == 0) {
+                        mean = yScale((tmp_y_arr[(yl/2)-1] + tmp_y_arr[yl/2])/2);
+                        if (yl % 4 == 0) {
+                            quan1 = yScale((tmp_y_arr[(yl/4)-1] + tmp_y_arr[yl/4])/2);
+                            quan2 = yScale((tmp_y_arr[(3*yl/4)-1] + tmp_y_arr[3*yl/4])/2);
+                        } else {
+                            quan1 = yScale(tmp_y_arr[Math.floor(yl/4)]);
+                            quan2 = yScale(tmp_y_arr[Math.floor(3*yl/4)]);
+                        }
+                    } else {
+                        mean = yScale(tmp_y_arr[Math.floor(yl/2)]);
+                        var tmp_yl = Math.floor(yl/2) + 1;
+                        if ( tmp_yl % 2 == 0) {
+                            quan1 = yScale((tmp_y_arr[tmp_yl/2 - 1] + tmp_y_arr[tmp_yl/2])/2);
+                            quan2 = yScale((tmp_y_arr[(3 * tmp_yl/2) - 2] + tmp_y_arr[(3*tmp_yl/2)-1])/2);
+                        } else {
+                            quan1 = yScale(tmp_y_arr[Math.floor(tmp_yl/2)]);
+                            quan2 = yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
+                        }
+                    }
+                    IQR = Math.abs(quan2 - quan1);
+                    top = quan2 - 1.5 * IQR;
+                    bottom = quan1 + 1.5 * IQR;
+                }
+                drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR);
+            }
         }
     }
 }
-function drawBoxPlots(svg, midLine, max_y, min_y) {
-//    var rectangle = svg.append("rect")
-//            .attr("x", midLine-25)
-//            .attr("y", 200)
-//            .attr("width", 50)
-//            .attr("height", 100)
-//            .attr("fill", "none")
-//            .attr("stroke-width", 0.5)
-//            .attr("stroke", "grey");
-//    var middleLine = svg.append("line")
-//            .attr("x1", midLine-25)
-//            .attr("x2", midLine+25)
-//            .attr("y1", 250)
-//            .attr("y2", 250)
-//            .attr("stroke-width", 1)
-//            .attr("stroke", "grey");
-    var minLine = svg.append("line")
-            .attr("x1", midLine-25)
-            .attr("x2", midLine+25)
-            .attr("y1", min_y)
-            .attr("y2", min_y)
+
+function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
+    var rectangle = svg.append("rect")
+            .attr("x", midLine-40)
+            .attr("y", quan2)
+            .attr("width", 80)
+            .attr("height", IQR)
+            .attr("fill", "none")
             .attr("stroke-width", 0.5)
             .attr("stroke", "grey");
-    var maxLine = svg.append("line")
-            .attr("x1", midLine-25)
-            .attr("x2", midLine+25)
-            .attr("y1", max_y)
-            .attr("y2", max_y)
+    var meanLine = svg.append("line")
+            .attr("x1", midLine-40)
+            .attr("x2", midLine+40)
+            .attr("y1", mean)
+            .attr("y2", mean)
+            .attr("stroke-width", 1)
+            .attr("stroke", "grey");
+    var topLine = svg.append("line")
+            .attr("x1", midLine-30)
+            .attr("x2", midLine+30)
+            .attr("y1", top)
+            .attr("y2", top)
+            .attr("stroke-width", 0.5)
+            .attr("stroke", "grey");
+    var bottomLine = svg.append("line")
+            .attr("x1", midLine-30)
+            .attr("x2", midLine+30)
+            .attr("y1", bottom)
+            .attr("y2", bottom)
             .attr("stroke", "grey")
             .style("stroke-width", 0.5);
-//    var dashLine1 = svg.append("line")
-//            .attr("x1", midLine)
-//            .attr("x2", midLine)
-//            .attr("y1", min_y)
-//            .attr("y2", 300)
-//            .style("stroke-dasharray", ("3, 3"))
-//            .attr("stroke", "grey")
-//            .attr("stroke-width", 0.5);
-//    var dashLine2 = svg.append("line")
-//            .attr("x1", midLine)
-//            .attr("x2", midLine)
-//            .attr("y1", max_y)
-//            .attr("y2", 200)
-//            .style("stroke-dasharray", ("3, 3"))
-//            .attr("stroke", "grey")
-//            .style("stroke-width", 0.5);
+    var dashLineTop = svg.append("line")
+            .attr("x1", midLine)
+            .attr("x2", midLine)
+            .attr("y1", quan2)
+            .attr("y2", bottom)
+            .style("stroke-dasharray", ("3, 3"))
+            .attr("stroke", "grey")
+            .attr("stroke-width", 0.5);
+    var dashLineBottom = svg.append("line")
+            .attr("x1", midLine)
+            .attr("x2", midLine)
+            .attr("y1", quan1)
+            .attr("y2", top)
+            .style("stroke-dasharray", ("3, 3"))
+            .attr("stroke", "grey")
+            .style("stroke-width", 0.5);
 }
 
 function copyData(desArray, oriArray) {
@@ -722,6 +765,14 @@ function findIndex(Str, Exp) {
         }
     }
     return -1;
+}
+
+function median(v) {
+    var half = Math.floor(v.length/2);
+    if(v.length % 2)
+        return v[half];
+    else
+        return (parseFloat(v[half-1]) + parseFloat(v[half]))/2;
 }
 
 window.onload=drawSideBar();

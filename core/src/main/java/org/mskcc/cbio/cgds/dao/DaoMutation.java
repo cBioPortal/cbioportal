@@ -544,6 +544,8 @@ public final class DaoMutation {
         event.setOncotatorProteinPosStart(rs.getInt("ONCOTATOR_PROTEIN_POS_START"));
         event.setOncotatorProteinPosEnd(rs.getInt("ONCOTATOR_PROTEIN_POS_END"));
         event.setCanonicalTranscript(rs.getBoolean("CANONICAL_TRANSCRIPT"));
+        event.setTumorSeqAllele(rs.getString("TUMOR_SEQ_ALLELE"));
+        event.setKeyword(rs.getString("KEYWORD"));
         return event;
     }
 

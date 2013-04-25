@@ -435,7 +435,7 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
-                    ("SELECT MAX(MUTATION_EVENT_ID) FROM mutation_event");
+                    ("SELECT MAX(`MUTATION_EVENT_ID`) FROM `mutation_event`");
             rs = pstmt.executeQuery();
             return rs.next() ? rs.getLong(1) : 0;
         } catch (SQLException e) {

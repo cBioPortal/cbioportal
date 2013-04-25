@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
@@ -110,7 +110,12 @@ public class ImportExtendedMutationData{
 
 	public void importData() throws IOException, DaoException {
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
-                Set<MutationEvent> existingEvents = DaoMutation.getAllMutationEvents();
+                
+                Map<MutationEvent,MutationEvent> existingEvents = new HashMap<MutationEvent,MutationEvent>();
+                for (MutationEvent event : DaoMutation.getAllMutationEvents()) {
+                    existingEvents.put(event, event);
+                }
+                
                 long mutationEventId = DaoMutation.getLargestMutationEventId();
 
 		FileReader reader = new FileReader(mutationFile);
@@ -380,13 +385,17 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
-                                                mutation.setMutationEventId(++mutationEventId);
 						try {
-                                                    boolean newEvent = !existingEvents.contains(mutation.getEvent());
-                                                    DaoMutation.addMutation(mutation,newEvent);
-                                                    if (newEvent) {
-                                                        existingEvents.add(mutation.getEvent());
+                                                    MutationEvent event = existingEvents.get(mutation.getEvent());
+                                                    
+                                                    if (event!=null) {
+                                                        mutation.setEvent(event);
+                                                    } else {
+                                                        mutation.setMutationEventId(++mutationEventId);
+                                                        existingEvents.put(mutation.getEvent(), mutation.getEvent());
                                                     }
+                                                    
+                                                    DaoMutation.addMutation(mutation,event==null);
 						} catch (DaoException ex) {
 						    ex.printStackTrace();
 						}

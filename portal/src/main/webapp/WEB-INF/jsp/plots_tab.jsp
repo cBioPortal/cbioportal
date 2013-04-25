@@ -43,15 +43,15 @@
                 "mutations", "Mutations"
             ],
             genetic_profile_mrna = [
-                ["mrna", "mRNA expression (microarray)"],
-                ["mrna_median", "mRNA expression (all genes)"],
-                ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
-                ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
                 ["mrna_U133", "mRNA expression (U133 microarray only)"],
+                ["mrna", "mRNA expression (microarray)"],
+                ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
                 ["rna_seq_v2_mrna", "mRNA expression (RNA Seq V2 RSEM)"],
                 ["rna_seq_v2_mrna_median_Zscores", "mRNA Expression z-Scores (RNA Seq V2 RSEM)"],
                 ["mirna", "microRNA expression"],
                 ["mirna_median_Zscores", "microRNA expression Z-scores"],
+                ["mrna_median", "mRNA expression (all genes)"],
+                ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
                 ["mrna_zbynorm", "mRNA Expression Z-Scores vs Normals"],
                 ["mrna_znormal", "mRNA Z-scores vs normal fat"],
                 ["mrna_outliers", "mRNA Expression Outliers"],
@@ -405,10 +405,10 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             .call(yAxis.orient("left").ticks(0));
 
     //Create SVG dots
-    var symbol = ["triangle-down", "diamond", "triangle-up", "square", "diamond", "triangle-down", "circle"];
+    var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
     var mutationStrokeTypes = ["#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FAAC58", "#FAAC58", "#1C1C1C", "#FAAC58", "#FAAC58"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FAAC58", "#FAAC58", "#FAAC58", "#1C1C1C", "#FAAC58"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];

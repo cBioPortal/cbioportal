@@ -51,6 +51,7 @@ var ModelUtils = (function() {
 });
 
 // trivial Backbone model
+// todo: make this into a real model
 var model = Backbone.Model.extend({});
 
 // model for clinical datas

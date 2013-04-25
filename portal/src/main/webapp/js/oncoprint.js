@@ -4,29 +4,40 @@ var Oncoprint = function(wrapper, params) {
         .key(function(d) { return d.sample; })
         .entries(params.geneData.concat(params.clinicalData));
 
-    // todo: will probably want to pass this as a parameter somehow
-    var attributes = _.uniq(_.flatten(data.map(function(i) { return i.values; }), true)
-        .map(function(i) {
-            var type;
-            if (i.gene) {
-                type = "gene";
-            } else if (i.attr_id) {
-                type = "clinical"
-            } else {
-                throw "data is neither gene nor clinical?";
-            }
+    // todo:
+    params.attributes = ["RUNX1", "VITAL_STATUS", "DAYS_TO_DEATH"];
 
-            var toReturn = i.gene || i.attr_id;
-            toReturn.type = type;
+    // attributes are either what is specified in params.attributes,
+    // or they are automatically extracted from gene and clinical data
+    var attributes = params.attributes ||
+        _.uniq(_.flatten(data.map(function(i) { return i.values; }), true)
+            .map(function(i) {
+                var type;
+                if (i.gene) {
+                    type = "gene";
+                } else if (i.attr_id) {
+                    type = "clinical"
+                } else {
+                    throw "data is neither gene nor clinical?";
+                }
 
-            return toReturn;
-        }));
+                var toReturn = i.gene || i.attr_id;
+                toReturn.type = type;
 
-//    var attributes = ["RUNX1", "DAYS_TO_DEATH"];
+                return toReturn;
+            }));
+
+    // filter out attributes that are not in the attributes list
+    data = data.map(function(i) {
+        return {
+            key: i.key,
+            values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
+        };
+    });
 
     var dims = {
-        width: data.length * 5.5,
-        height: 23 * attributes.length
+        width: data.length * (5.5 + 3),
+        height: (23 + 5) * attributes.length
     };
 
     var getAttr = function(d) {
@@ -54,7 +65,20 @@ var Oncoprint = function(wrapper, params) {
     };
 
     var clinical = function(d) {
-        console.log(d);
+//        console.log(d);
+
+        var cont_scale = d3.scale.linear()
+            .domain([0,5000])
+            .range([ "#ff7f0e", "#1f77b4"])
+            ;
+
+        if (d.attr_id === "DAYS_TO_DEATH") {
+            return d.attr_val === "NA" ? '#D3D3D3' : cont_scale(parseInt(d.attr_val));
+        }
+
+        if (d.attr_id === "VITAL_STATUS") {
+            return d.attr_val === "living" ? "#1f77b4" : "#ff7f0e";
+        }
 
         return "blue";
     };

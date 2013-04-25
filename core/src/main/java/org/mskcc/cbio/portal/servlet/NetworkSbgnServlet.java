@@ -26,7 +26,7 @@
  */
 
 package org.mskcc.cbio.portal.servlet;
-
+/*
 import cpath.client.CPath2Client;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,19 +44,19 @@ import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 
-import javax.servlet.ServletException;
+import javax.servlet.ServletException;*/
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
+/*import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.*;
-
+*/
 /**
  * Servlet class to request SBGN directly from cpath web service.
  */
 public class NetworkSbgnServlet extends HttpServlet
 {
-    private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
+/*    private final static Log log = LogFactory.getLog(NetworkSbgnServlet.class);
 
 	public final static String HGNC_GENE_PREFIX = "urn:biopax:RelationshipXref:HGNC_HGNC%3A";
 	public final static String CPATH_SERVICE = "http://awabi.cbio.mskcc.org/cpath2/";
@@ -160,5 +160,5 @@ public class NetworkSbgnServlet extends HttpServlet
 
         return attributes;
     }
-
+*/
 }

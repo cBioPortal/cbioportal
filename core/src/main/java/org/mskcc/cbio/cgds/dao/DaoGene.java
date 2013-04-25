@@ -47,9 +47,6 @@ import java.io.IOException;
  * @author Ethan Cerami.
  */
 class DaoGene {
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader geneMySQLbulkLoader = null;
-    private static MySQLbulkLoader aliasMySQLbulkLoader = null;
     private static DaoGene daoGene;
 
     /**
@@ -68,11 +65,7 @@ class DaoGene {
         if (daoGene == null) {
             daoGene = new DaoGene();
         }
-
-        if (geneMySQLbulkLoader == null) {
-            geneMySQLbulkLoader = new MySQLbulkLoader("gene");
-            aliasMySQLbulkLoader = new MySQLbulkLoader("gene_alias");
-        }
+        
         return daoGene;
     }
     
@@ -104,7 +97,7 @@ class DaoGene {
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
-                geneMySQLbulkLoader.insertRecord(Long.toString(gene.getEntrezGeneId()),
+                MySQLbulkLoader.getMySQLbulkLoader("gene").insertRecord(Long.toString(gene.getEntrezGeneId()),
                         gene.getHugoGeneSymbolAllCaps());
                 addGeneAliases(gene);
                 // return 1 because normal insert will return 1 if no error occurs
@@ -149,7 +142,7 @@ class DaoGene {
                 //  write to the temp file maintained by the MySQLbulkLoader
                 Set<String> aliases = gene.getAliases();
                 for (String alias : aliases) {
-                    aliasMySQLbulkLoader.insertRecord(
+                    MySQLbulkLoader.getMySQLbulkLoader("gene_alias").insertRecord(
                             Long.toString(gene.getEntrezGeneId()),
                             alias);
 
@@ -177,23 +170,6 @@ class DaoGene {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushGenesToDatabase() throws DaoException {
-        try {
-            return geneMySQLbulkLoader.loadDataFromTempFileIntoDBMS()
-                    + aliasMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 

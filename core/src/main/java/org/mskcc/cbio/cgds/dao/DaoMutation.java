@@ -56,18 +56,6 @@ import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
  */
 public final class DaoMutation {
     public static final String NAN = "NaN";
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
-
-    private DaoMutation() {}
-        
-    private static MySQLbulkLoader getMySQLbulkLoader(String dbName) {
-        MySQLbulkLoader mySQLbulkLoader = mySQLbulkLoaders.get(dbName);
-        if (mySQLbulkLoader==null) {
-            mySQLbulkLoader =  new MySQLbulkLoader(dbName);
-        }
-        return mySQLbulkLoader;
-    }
 
     public static int addMutation(ExtendedMutation mutation, boolean newMutationEvent) throws DaoException {
             if (!MySQLbulkLoader.isBulkLoad()) {
@@ -76,7 +64,7 @@ public final class DaoMutation {
 
                     // use this code if bulk loading
                     // write to the temp file maintained by the MySQLbulkLoader
-                    getMySQLbulkLoader("mutation").insertRecord(
+                    MySQLbulkLoader.getMySQLbulkLoader("mutation").insertRecord(
                             Long.toString(mutation.getMutationEventId()),
                             Integer.toString(mutation.getGeneticProfileId()),
                             mutation.getCaseId(),
@@ -116,7 +104,7 @@ public final class DaoMutation {
         private static int addMutationEvent(ExtendedMutation mutation) throws DaoException {
             // use this code if bulk loading
             // write to the temp file maintained by the MySQLbulkLoader
-            getMySQLbulkLoader("mutation_event").insertRecord(
+            MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                     Long.toString(mutation.getMutationEventId()),
                     Long.toString(mutation.getGene().getEntrezGeneId()),
                     mutation.getChr(),
@@ -212,27 +200,6 @@ public final class DaoMutation {
             
         // RNA or Translation_Start_Site
         return "Chm"+mutation.getChr()+","+mutation.getStartPosition();
-    }
-
-    /**
-     * load the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException
-     */
-    public static int flushMutations() throws DaoException {
-        try {
-            int n = 0;
-            for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
-                n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-            }
-            
-            return n;
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
-        }
     }
 
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<String> targetCaseList,

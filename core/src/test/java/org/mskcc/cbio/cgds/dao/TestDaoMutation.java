@@ -115,7 +115,7 @@ public class TestDaoMutation extends TestCase {
 
 		// if bulkLoading, execute LOAD FILE
 		if( MySQLbulkLoader.isBulkLoad()){
-			DaoMutation.flushMutations();
+                    MySQLbulkLoader.flushAll();
 		}
 		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, "1234", 321);
 		validateMutation(mutationList.get(0));

@@ -405,8 +405,7 @@ public class ImportExtendedMutationData{
 			line = buf.readLine();
 		}
 		if( MySQLbulkLoader.isBulkLoad()) {
-			daoGeneticAlteration.flushGeneticAlteration();
-			DaoMutation.flushMutations();
+			MySQLbulkLoader.flushAll();
 		}
 		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 

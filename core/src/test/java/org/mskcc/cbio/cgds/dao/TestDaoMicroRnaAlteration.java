@@ -71,7 +71,7 @@ public class TestDaoMicroRnaAlteration extends TestCase {
 
         // if bulkLoading, execute LOAD FILE
         if( MySQLbulkLoader.isBulkLoad()){
-            dao.flushMicroRnaAlteration();
+           MySQLbulkLoader.flushAll();
         }
 
         String value = dao.getMicroRnaAlteration(1, "TCGA-1", "hsa-123");

@@ -37,6 +37,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
@@ -48,6 +50,36 @@ import java.sql.Statement;
  */
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
+   
+   private static Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
+   /**
+    * Get a MySQLbulkLoader
+    * @param dbName database name
+    * @return 
+    */
+   public static MySQLbulkLoader getMySQLbulkLoader(String dbName) {
+        MySQLbulkLoader mySQLbulkLoader = mySQLbulkLoaders.get(dbName);
+        if (mySQLbulkLoader==null) {
+            mySQLbulkLoader =  new MySQLbulkLoader(dbName);
+            mySQLbulkLoaders.put(dbName, mySQLbulkLoader);
+        }
+        return mySQLbulkLoader;
+   }
+   
+   public static int flushAll() throws DaoException {
+        try {
+            int n = 0;
+            for (MySQLbulkLoader mySQLbulkLoader : mySQLbulkLoaders.values()) {
+                n += mySQLbulkLoader.loadDataFromTempFileIntoDBMS();
+            }
+            
+            return n;
+        } catch (IOException e) {
+            System.err.println("Could not open temp file");
+            e.printStackTrace();
+            return -1;
+        }
+    }
 
    private String tempFileName = null;
    private File tempFileHandle = null;
@@ -58,7 +90,7 @@ public class MySQLbulkLoader {
    // TODO: make configurable
    private static long numDebuggingRowsToPrint = 0;
    
-   MySQLbulkLoader( String tableName ){
+   private MySQLbulkLoader( String tableName ){
       try {
           openTempFile( tableName );
          this.tableName = tableName;

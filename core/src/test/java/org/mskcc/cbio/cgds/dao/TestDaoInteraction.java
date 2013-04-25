@@ -73,7 +73,7 @@ public class TestDaoInteraction extends TestCase {
 
         // if bulkLoading, execute LOAD FILE
         if( MySQLbulkLoader.isBulkLoad()){
-            daoInteraction.flushToDatabase();
+           MySQLbulkLoader.flushAll();
         }
 
         //  Get the interactions back

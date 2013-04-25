@@ -111,6 +111,7 @@ public class ImportExtendedMutationData{
 	public void importData() throws IOException, DaoException {
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
                 Set<MutationEvent> existingEvents = DaoMutation.getAllMutationEvents();
+                long mutationEventId = DaoMutation.getLargestMutationEventId();
 
 		FileReader reader = new FileReader(mutationFile);
 		BufferedReader buf = new BufferedReader(reader);
@@ -379,6 +380,7 @@ public class ImportExtendedMutationData{
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
+                                                mutation.setMutationEventId(++mutationEventId);
 						try {
                                                     boolean newEvent = !existingEvents.contains(mutation.getEvent());
                                                     DaoMutation.addMutation(mutation,newEvent);

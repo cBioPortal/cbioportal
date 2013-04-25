@@ -84,8 +84,7 @@ public class GeneticProfileReader {
          daoMicroRnaAlteration.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
 
          System.out.println("Deleting all matching records in table:  mutation");
-         DaoMutation daoMutation = DaoMutation.getInstance();
-         daoMutation.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
+         DaoMutation.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
 
          System.out.println("Deleting all matching cases in table:  genetic_profile_cases");
          DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
@@ -162,7 +161,7 @@ public class GeneticProfileReader {
       GeneticAlterationType alterationType = GeneticAlterationType.getType(geneticAlterationTypeString);
 
       GeneticProfile geneticProfile = new GeneticProfile();
-      geneticProfile.setCancerStudyId(cancerStudy.getInternalId());
+      geneticProfile.setCancerStudyId(1);
       geneticProfile.setStableId(stableId);
       geneticProfile.setProfileName(profileName);
       geneticProfile.setProfileDescription(profileDescription);

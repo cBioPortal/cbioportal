@@ -55,7 +55,6 @@ public class TestDaoMutation extends TestCase {
 		daoGene.addGene(blahGene);
 
 		ResetDatabase.resetDatabase();
-		DaoMutation dao = DaoMutation.getInstance();
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
@@ -112,17 +111,17 @@ public class TestDaoMutation extends TestCase {
 		mutation.setOncotatorProteinPosEnd(678);
 		mutation.setCanonicalTranscript(true);
 
-		dao.addMutation(mutation);
+		DaoMutation.addMutation(mutation,true);
 
 		// if bulkLoading, execute LOAD FILE
 		if( MySQLbulkLoader.isBulkLoad()){
-			dao.flushMutations();
+			DaoMutation.flushMutations();
 		}
-		ArrayList<ExtendedMutation> mutationList = dao.getMutations(1, "1234", 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, "1234", 321);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
-		Set<CanonicalGene> geneSet = dao.getGenesInProfile(1);
+		Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(1);
 		assertEquals (1, geneSet.size());
 
 		ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);

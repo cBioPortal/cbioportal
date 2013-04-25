@@ -129,7 +129,7 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("startPos", mutation.getStartPosition());
 			rowData.put("endPos", mutation.getEndPosition());
 			rowData.put("referenceAllele", mutation.getReferenceAllele());
-			rowData.put("variantAllele", this.getVariantAllele(mutation));
+			rowData.put("variantAllele", mutation.getTumorSeqAllele());
 			rowData.put("tumorFreq", this.getTumorFreq(mutation));
 			rowData.put("normalFreq", this.getNormalFreq(mutation));
 			rowData.put("tumorRefCount", this.getTumorRefCount(mutation));
@@ -316,26 +316,6 @@ public class MutationTableDataServlet extends HttpServlet
 		{
 			return 0;
 		}
-	}
-
-	/**
-	 * Returns one of the tumor sequence alleles which is different from
-	 * the reference allele.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          tumor sequence allele different from the reference allele
-	 */
-	protected String getVariantAllele(ExtendedMutation mutation)
-	{
-		String varAllele = mutation.getTumorSeqAllele1();
-
-		if (mutation.getReferenceAllele() != null &&
-		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
-		{
-			varAllele = mutation.getTumorSeqAllele2();
-		}
-
-		return varAllele;
 	}
 
 	/**

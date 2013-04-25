@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
@@ -108,13 +110,13 @@ public class ImportExtendedMutationData{
 
 	public void importData() throws IOException, DaoException {
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
+                Set<MutationEvent> existingEvents = DaoMutation.getAllMutationEvents();
 
 		FileReader reader = new FileReader(mutationFile);
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-		DaoMutation daoMutation = DaoMutation.getInstance();
 
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();
@@ -342,9 +344,7 @@ public class ImportExtendedMutationData{
 					mutation.setNcbiBuild(record.getNcbiBuild());
 					mutation.setStrand(record.getStrand());
 					mutation.setVariantType(record.getVariantType());
-					mutation.setReferenceAllele(record.getReferenceAllele());
-					mutation.setTumorSeqAllele1(record.getTumorSeqAllele1());
-					mutation.setTumorSeqAllele2(record.getTumorSeqAllele2());
+                                        mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());
 					mutation.setDbSnpRs(record.getDbSNP_RS());
 					mutation.setDbSnpValStatus(record.getDbSnpValStatus());
 					mutation.setMatchedNormSampleBarcode(record.getMatchedNormSampleBarcode());
@@ -380,8 +380,11 @@ public class ImportExtendedMutationData{
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
 						try {
-							daoMutation.addMutation(mutation);
-						    DaoMutationEvent.addMutation(mutation);
+                                                    boolean newEvent = !existingEvents.contains(mutation.getEvent());
+                                                    DaoMutation.addMutation(mutation,newEvent);
+                                                    if (newEvent) {
+                                                        existingEvents.add(mutation.getEvent());
+                                                    }
 						} catch (DaoException ex) {
 						    ex.printStackTrace();
 						}
@@ -392,7 +395,7 @@ public class ImportExtendedMutationData{
 		}
 		if( MySQLbulkLoader.isBulkLoad()) {
 			daoGeneticAlteration.flushGeneticAlteration();
-			daoMutation.flushMutations();
+			DaoMutation.flushMutations();
 		}
 		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 

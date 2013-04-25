@@ -35,7 +35,7 @@ public final class DaoMutationEvent {
             }
             
             pstmt = con.prepareStatement
-		("INSERT INTO case_mutation_event (`MUTATION_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`, "
+		("INSERT INTO mutation (`MUTATION_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`, "
                     + "`VALIDATION_STATUS`, `TUMOR_ALT_COUNT`, `TUMOR_REF_COUNT`, `NORMAL_ALT_COUNT`, `NORMAL_REF_COUNT`) VALUES(?,?,?,?,?,?,?,?)");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, mutation.getCaseId());
@@ -182,7 +182,7 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_mutation_event WHERE `MUTATION_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
+		("SELECT count(*) FROM mutation WHERE `MUTATION_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, caseId);
             pstmt.setInt(3, mutProfileId);
@@ -210,9 +210,9 @@ public final class DaoMutationEvent {
                     + " ENTREZ_GENE_ID, MUTATION_STATUS, AMINO_ACID_CHANGE, MUTATION_TYPE,"
                     + " CHR, START_POSITION, END_POSITION, FUNCTIONAL_IMPACT_SCORE, LINK_XVAR, LINK_PDB,"
                     + " LINK_MSA, KEYWORD"
-                    + " FROM case_mutation_event, mutation_event"
+                    + " FROM mutation, mutation_event"
                     + " WHERE `CASE_ID`=? AND `GENETIC_PROFILE_ID`=? AND"
-                    + " case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
+                    + " mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
             pstmt.setString(1, caseId);
             pstmt.setInt(2, profileId);
             rs = pstmt.executeQuery();
@@ -270,12 +270,12 @@ public final class DaoMutationEvent {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql;
             if (caseIds==null) {
-                sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
+                sql = "SELECT `CASE_ID`, count(*) FROM mutation"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " GROUP BY `CASE_ID`";
                 
             } else {
-                sql = "SELECT `CASE_ID`, count(*) FROM case_mutation_event"
+                sql = "SELECT `CASE_ID`, count(*) FROM mutation"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                         + " AND `CASE_ID` IN ('"
                         + StringUtils.join(caseIds,"','")
@@ -309,7 +309,7 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
-            String sql = "SELECT count(*) FROM case_mutation_event"
+            String sql = "SELECT count(*) FROM mutation"
                         + " WHERE `GENETIC_PROFILE_ID`=" + profileId;
             pstmt = con.prepareStatement(sql);
             
@@ -349,7 +349,7 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
-            String sql = "SELECT `CASE_ID`, `MUTATION_EVENT_ID` FROM case_mutation_event"
+            String sql = "SELECT `CASE_ID`, `MUTATION_EVENT_ID` FROM mutation"
                     + " WHERE `MUTATION_EVENT_ID` IN ("
                     + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
@@ -400,7 +400,7 @@ public final class DaoMutationEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me1.`MUTATION_EVENT_ID`"
-                    + " FROM case_mutation_event cme, mutation_event me1, mutation_event me2"
+                    + " FROM mutation cme, mutation_event me1, mutation_event me2"
                     + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
                     + " AND me1.`KEYWORD`=me2.`KEYWORD`"
                     + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
@@ -446,7 +446,7 @@ public final class DaoMutationEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me.`ENTREZ_GENE_ID`"
-                    + " FROM case_mutation_event cme, mutation_event me"
+                    + " FROM mutation cme, mutation_event me"
                     + " WHERE me.`ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")"
                     + " AND cme.`MUTATION_EVENT_ID`=me.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
@@ -494,7 +494,7 @@ public final class DaoMutationEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
-            String sql = "SELECT `MUTATION_EVENT_ID`, count(*) FROM case_mutation_event"
+            String sql = "SELECT `MUTATION_EVENT_ID`, count(*) FROM mutation"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                     + " AND `MUTATION_EVENT_ID` IN ("
                     + concatEventIds
@@ -535,9 +535,9 @@ public final class DaoMutationEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT ENTREZ_GENE_ID, count(DISTINCT CASE_ID)"
-                    + " FROM case_mutation_event, mutation_event"
+                    + " FROM mutation, mutation_event"
                     + " WHERE GENETIC_PROFILE_ID=" + profileId
-                    + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
                     + " AND ENTREZ_GENE_ID IN ("
                     + concatEntrezGeneIds
                     + ") GROUP BY `ENTREZ_GENE_ID`";
@@ -566,9 +566,9 @@ public final class DaoMutationEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT KEYWORD, count(DISTINCT CASE_ID)"
-                    + " FROM case_mutation_event, mutation_event"
+                    + " FROM mutation, mutation_event"
                     + " WHERE GENETIC_PROFILE_ID=" + profileId
-                    + " AND case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
                     + " AND KEYWORD IN ('"
                     + StringUtils.join(keywords,"','")
                     + "') GROUP BY `KEYWORD`";
@@ -594,8 +594,8 @@ public final class DaoMutationEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoMutationEvent.class);
             String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
-                    + " FROM mutation_event, case_mutation_event,"
-                    + " WHERE case_mutation_event.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
+                    + " FROM mutation_event, mutation,"
+                    + " WHERE mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID"
                     + " AND CASE_ID='" + caseId + "'";
             pstmt = con.prepareStatement(sql);
             

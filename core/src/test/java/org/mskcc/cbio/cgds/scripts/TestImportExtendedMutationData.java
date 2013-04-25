@@ -118,9 +118,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
     // reject somatic mutations that aren't valid somatic, or on one of the somatic whitelists
     private void acceptEverythingElse() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(1, daoMutation.getMutations(1, "TCGA-AA-3664", 51806).size());   // valid Unknown
-        assertEquals(1, daoMutation.getMutations(1, "TCGA-AA-3664", 89).size()); // Unknown  Somatic
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 51806).size());   // valid Unknown
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 89).size()); // Unknown  Somatic
     }
 
     private void checkBasicFilteringRules() throws DaoException {
@@ -130,8 +129,7 @@ public class TestImportExtendedMutationData extends TestCase {
 
 	private void checkOncotatedImport() throws DaoException
 	{
-		DaoMutation daoMutation = DaoMutation.getInstance();
-		ArrayList<ExtendedMutation> mutationList = daoMutation.getAllMutations();
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
 
 		// assert table size; 3 silent mutations should be rejected
 		assertEquals(16, mutationList.size());
@@ -147,16 +145,13 @@ public class TestImportExtendedMutationData extends TestCase {
 
     private void validateMutationAminoAcid (int geneticProfileId, String caseId, long entrezGeneId,
             String expectedAminoAcidChange) throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        ArrayList<ExtendedMutation> mutationList = daoMutation.getMutations
+        ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations
                 (geneticProfileId, caseId, entrezGeneId);
         assertEquals(1, mutationList.size());
         assertEquals(expectedAminoAcidChange, mutationList.get(0).getProteinChange());
     }
 
     private void acceptValidSomaticMutations() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-
         // valid Somatic
         validateMutationAminoAcid (1, "TCGA-AA-3664", 282770, "R113C");
 
@@ -165,23 +160,21 @@ public class TestImportExtendedMutationData extends TestCase {
     }
 
     private void rejectSilentLOHIntronWildtype() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 80114).size()); // Wildtype
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 219736).size()); // Wildtype
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 6609).size()); // Intron
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 80114).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 219736).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 6609).size()); // Intron
     }
 
 
     private void checkGermlineMutations() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
         // missense, Germline mutation on germline whitelist
 
         // Germline mutation on germline whitelist
         validateMutationAminoAcid (1, "TCGA-AA-3664", 2842, "L113P");
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
         // Germline mutations NOT on germline whitelist
     }
 

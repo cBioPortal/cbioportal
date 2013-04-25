@@ -142,7 +142,7 @@ public final class DaoMutation {
                     Integer.toString(mutation.getOncotatorProteinPosStart()),
                     Integer.toString(mutation.getOncotatorProteinPosEnd()),
                     boolToStr(mutation.isCanonicalTranscript()),
-                    mutation.getKeyword());
+                    DaoMutationEvent.extractMutationKeyword(mutation));
 
             // return 1 because normal insert will return 1 if no error occurs
             return 1;

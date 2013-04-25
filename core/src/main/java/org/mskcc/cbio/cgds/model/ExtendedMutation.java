@@ -77,10 +77,12 @@ public final class ExtendedMutation
             this.mutationEventId = mutationEventId;
         }
 
+        @JsonIgnore
         public CanonicalGene getGene() {
             return gene;
         }
 
+        @JsonIgnore
         public void setGene(CanonicalGene gene) {
             this.gene = gene;
         }
@@ -877,6 +879,7 @@ public final class ExtendedMutation
         event.setCanonicalTranscript(canonicalTranscript);
     }
 
+    @JsonIgnore
     public void setGene(CanonicalGene gene) {
         event.setGene(gene);
     }

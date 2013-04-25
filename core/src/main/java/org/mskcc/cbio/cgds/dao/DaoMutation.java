@@ -427,6 +427,23 @@ public final class DaoMutation {
         }
         return events;
     }
+    
+    public static long getLargestMutationEventId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement
+                    ("SELECT MAX(MUTATION_EVENT_ID) FROM mutation_event");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getLong(1) : 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
 
     private static ExtendedMutation extractMutation(ResultSet rs) throws SQLException, DaoException {
         ExtendedMutation mutation = new ExtendedMutation(extractMutationEvent(rs));

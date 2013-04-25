@@ -41,9 +41,6 @@ import java.util.Set;
 public class TestDaoMutation extends TestCase {
 
 	public void testDaoMutation() throws DaoException {
-		// test with both values of MySQLbulkLoader.isBulkLoad()
-		MySQLbulkLoader.bulkLoadOff();
-		runTheTest();
 		MySQLbulkLoader.bulkLoadOn();
 		runTheTest();
 	}
@@ -58,6 +55,8 @@ public class TestDaoMutation extends TestCase {
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
+                mutation.setMutationEventId(1);
+                mutation.setKeyword("key");
 		mutation.setGeneticProfileId(1);
 		mutation.setCaseId("1234");
 		mutation.setGene(blahGene);
@@ -81,6 +80,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setReferenceAllele("ATGC");
 		mutation.setTumorSeqAllele1("ATGC");
 		mutation.setTumorSeqAllele2("ATGC");
+		mutation.setTumorSeqAllele("ATGC");
 		mutation.setDbSnpRs("rs12345");
 		mutation.setDbSnpValStatus("by2Hit2Allele;byCluster");
 		mutation.setMatchedNormSampleBarcode("TCGA-02-0021-10A-01D-0002-04");

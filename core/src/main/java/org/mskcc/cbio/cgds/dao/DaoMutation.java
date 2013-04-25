@@ -215,7 +215,7 @@ public final class DaoMutation {
                     + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
                     + "WHERE CASE_ID IN ('"
                      +org.apache.commons.lang.StringUtils.join(targetCaseList, "','")+
-                     "') AND GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
+                     "') AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);
             rs = pstmt.executeQuery();
@@ -242,7 +242,7 @@ public final class DaoMutation {
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation "
                     + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                    + "WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
+                    + "WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setString(1, caseId);
             pstmt.setInt(2, geneticProfileId);
             pstmt.setLong(3, entrezGeneId);
@@ -299,7 +299,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation "
                         + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "WHERE ENTREZ_GENE_ID = ?");
+                        + "WHERE mutation.ENTREZ_GENE_ID = ?");
                 pstmt.setLong(1, entrezGeneId);
                 rs = pstmt.executeQuery();
                 while  (rs.next()) {
@@ -324,7 +324,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation_event"
                         + "INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + " WHERE ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
+                        + " WHERE mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 rs = pstmt.executeQuery();
@@ -376,7 +376,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation, mutation_event "
                         + "WHERE mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "AND ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
+                        + "AND mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 pstmt.setString(3, excludeCaseId);
@@ -404,7 +404,7 @@ public final class DaoMutation {
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation "
                         + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "WHERE GENETIC_PROFILE_ID = ? AND ENTREZ_GENE_ID = ?");
+                        + "WHERE GENETIC_PROFILE_ID = ? AND mutation.ENTREZ_GENE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setLong(2, entrezGeneId);
             rs = pstmt.executeQuery();
@@ -515,7 +515,7 @@ public final class DaoMutation {
     private static MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
         MutationEvent event = new MutationEvent();
         event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
-        long entrezId = rs.getLong("ENTREZ_GENE_ID");
+        long entrezId = rs.getLong("mutation_event.ENTREZ_GENE_ID");
         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();
         CanonicalGene gene = aDaoGene.getGene(entrezId);
         event.setGene(gene);
@@ -1029,7 +1029,13 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE mutation; TRUNCATE TABLE mutation_event;");
+            pstmt = con.prepareStatement("TRUNCATE TABLE mutation");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event_cosmic_mapping");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE cosmic_mutation");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

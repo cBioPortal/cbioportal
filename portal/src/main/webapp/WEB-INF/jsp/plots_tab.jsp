@@ -63,7 +63,7 @@
                 ["cna", "Putative copy-number alterations (RAE)"]
             ],
             genetic_profile_rppa = [
-                "RPPA_protein_level", "RPPA protein/phosphoprotein level"
+                "RPPA_protein_level", "Protein/Phosphoprotein level (RPPA)"
             ],
             genetic_profile_dna_methylation = [
                 "methylation_hm27", "Methylation (HM27)"
@@ -86,8 +86,8 @@
         <tr>
             <td>
                 <table>
-                    <tr><td style="border:2px solid #BDBDBD;width:360px;padding-left:20px;padding-right:20px;">
-                        <h4 style='margin-top:-57px;'><font style="background-color: white">&nbsp;&nbsp;Plot Parameters&nbsp;&nbsp;</font></h4>
+                    <tr><td style="border:2px solid #BDBDBD;height:300px;padding:20px;">
+                        <h4>Plot Parameters</h4>
                         <br>
                         <b>Gene</b><br>
                         <select id='genes'>
@@ -108,8 +108,8 @@
                         Copy Number
                         <br><select id='data_type_copy_no'></select>
                         <br><br><br>
-                        <button onclick="generateScatterPlots()" style='width:80px;height:30px;border-radius:15px;'>
-                            <font style='font-size: 14px;color:white;font-weight: 5px;'> GO >> </font>
+                        <button onclick="generateScatterPlots()" style='width:80px;height:30px;border-radius:5px;background-color:#A4A4A4;'>
+                            <font style='font-size: 14px;color:white;font-weight: 7px;'> GO >> </font>
                         </button>
                     </td>
                     <tr><td style='height:150px;'></td>
@@ -327,24 +327,19 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //-----------------tmp------//d3 min and max do NOT function well???
     var tmp_xData = [];
     var tmp_xIndex = 0;
+    var tmp_yData = [];
+    var tmp_yIndex = 0;
     for (var j=0; j< xData.length; j++){
-        if (xData[j] != "NaN") {
+        if (xData[j] != "NaN" && yData[j] != "NaN") {
             tmp_xData[tmp_xIndex] = xData[j];
             tmp_xIndex += 1;
+            tmp_yData[tmp_yIndex] = yData[j];
+            tmp_yIndex += 1;
         }
     }
     var min_x = Math.min.apply(Math, tmp_xData);
     var max_x = Math.max.apply(Math, tmp_xData);
     var edge_x = (max_x - min_x) * 0.2;
-
-    var tmp_yData = [];
-    var tmp_yIndex = 0;
-    for (var j=0; j< yData.length; j++){
-        if (yData[j] != "NaN") {
-            tmp_yData[tmp_yIndex] = yData[j];
-            tmp_yIndex += 1;
-        }
-    }
     var min_y = Math.min.apply(Math, tmp_yData);
     var max_y = Math.max.apply(Math, tmp_yData);
     var edge_y = (max_y - min_y) * 0.2;
@@ -415,9 +410,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var mutationStrokeTypes = ["#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000"];
     var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FAAC58", "#FAAC58", "#1C1C1C", "#FAAC58", "#FAAC58"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
-    var gisticLegendText = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp", "Mutated"];
-    var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000", "none"];
-    var gisticLegendFillTypes = ["none", "none", "none", "none", "none", "orange"];
+    var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
+    var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
+    var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
     //Add noice only to gistic display
     if ( type == 1 ) {
         //Add Noise to Data
@@ -494,14 +489,18 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     }
                 })
                 .attr("stroke", function(d) {
-                    switch (d[2]) {
-                        //Gistic
-                        case "-2": return gisticStrokeTypes[0];
-                        case "-1": return gisticStrokeTypes[1];
-                        case "0": return gisticStrokeTypes[2];
-                        case "1": return gisticStrokeTypes[3];
-                        case "2": return gisticStrokeTypes[4];
-                        default: return "black";
+                    var result;
+                    if ((d[2] == "0")&&(d[3] != "non")) {
+                        return "none";
+                    } else {
+                        switch (d[2]) {
+                            case "-2": return gisticStrokeTypes[0];
+                            case "-1": return gisticStrokeTypes[1];
+                            case "0": return gisticStrokeTypes[2];
+                            case "1": return gisticStrokeTypes[3];
+                            case "2": return gisticStrokeTypes[4];
+                            default: return "black";
+                        }
                     }
                 })
                 .attr("stroke-width", function(d) {

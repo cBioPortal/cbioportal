@@ -118,7 +118,7 @@ public final class DaoMutationEvent {
         }
     }
     
-    private static String extractMutationKeyword(ExtendedMutation mutation) {
+    public static String extractMutationKeyword(ExtendedMutation mutation) {
         String type = mutation.getMutationType();
         if (type.equals("Nonsense_Mutation") ||
             type.equals("Splice_Site") || 

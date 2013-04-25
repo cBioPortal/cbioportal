@@ -46,7 +46,6 @@ import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
  */
 public final class DaoMutation {
     public static final String NAN = "NaN";
-    private static DaoMutation daoMutation = null;
     // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
     private static MySQLbulkLoader mutationMySQLbulkLoader = null,
                 mutationEventMySQLbulkLoader = null;

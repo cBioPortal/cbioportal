@@ -428,7 +428,7 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM mutation"
+                    ("SELECT * FROM mutation "
                         + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID");
             rs = pstmt.executeQuery();
             while  (rs.next()) {

@@ -22,6 +22,8 @@ var Oncoprint = function(wrapper, params) {
             return toReturn;
         }));
 
+//    var attributes = ["RUNX1", "DAYS_TO_DEATH"];
+
     var dims = {
         width: data.length * 5.5,
         height: 23 * attributes.length

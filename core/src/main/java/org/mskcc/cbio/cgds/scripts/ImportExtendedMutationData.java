@@ -122,7 +122,6 @@ public class ImportExtendedMutationData{
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
 
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();

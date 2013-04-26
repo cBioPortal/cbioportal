@@ -561,7 +561,7 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("tumorAltCount", "Var Alt");
 		headerList.put("normalRefCount", "Norm Ref");
 		headerList.put("normalAltCount", "Norm Alt");
-		headerList.put("mutationCount", "Count");
+		headerList.put("mutationCount", "#Mut in Sample");
 
 		JSONArray specialGeneHeaders = new JSONArray();
 

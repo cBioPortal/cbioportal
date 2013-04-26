@@ -271,7 +271,7 @@ function drawMutationTable(data)
     {
         // do not hide allele frequency (T) and count columns
         if (!(col == indexMap["allele freq (t)"] ||
-              col == indexMap["count"]))
+              col == indexMap["#mut in sample"]))
         {
             hiddenCols.push(col);
         }
@@ -314,7 +314,7 @@ function drawMutationTable(data)
 	                indexMap["var ref"],
 	                indexMap["norm alt"],
 	                indexMap["norm ref"],
-                    indexMap["count"]]},
+                    indexMap["#mut in sample"]]},
             {"sType": 'label-float-col',
                 "sClass": "right-align-td",
                 "aTargets": [indexMap["allele freq (t)"],
@@ -326,7 +326,7 @@ function drawMutationTable(data)
 	                indexMap["fis"],
                     indexMap["cons"],
                     indexMap["3d"],
-                    indexMap["count"]]},
+                    indexMap["#mut in sample"]]},
             {"bVisible": false,
                 "aTargets": hiddenCols}
         ],
@@ -473,7 +473,7 @@ function _getMutationTableHeaderTip(header)
         "var alt": "Variant Alt Count",
         "norm ref": "Normal Ref Count",
         "norm alt": "Normal Alt Count",
-	    "count" : "Number of mutations<br> in the sample"};
+	    "#mut in sample" : "Total number of<br> nonsynonymous mutations<br> in the sample"};
 
     return tooltipMap[header.toLowerCase()];
 }

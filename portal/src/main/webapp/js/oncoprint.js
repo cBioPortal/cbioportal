@@ -1,5 +1,9 @@
 var Oncoprint = function(wrapper, params) {
 
+    // todo: perhaps this really should be put into ModelUtils so that it can be reused i.e. "sample2data"
+    // this would involve rewriting nest so that the library doesn't depend on d3
+    // basically think about putting all this code into ModelUtils
+    // ******----*******
     var data = d3.nest()
         .key(function(d) { return d.sample; })
         .entries(params.geneData.concat(params.clinicalData));
@@ -34,6 +38,8 @@ var Oncoprint = function(wrapper, params) {
             values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
         };
     });
+
+    // *****----*******
 
     var dims = {
         width: data.length * (5.5 + 3),

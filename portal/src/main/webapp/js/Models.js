@@ -29,7 +29,6 @@
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 
 ;
-//
 // namespace for Model Utility functions
 var ModelUtils = (function() {
     var makeHash = function(data, key) {
@@ -44,6 +43,8 @@ var ModelUtils = (function() {
 
         return hash;
     };
+
+    var nest
 
     return {
         makeHash: makeHash

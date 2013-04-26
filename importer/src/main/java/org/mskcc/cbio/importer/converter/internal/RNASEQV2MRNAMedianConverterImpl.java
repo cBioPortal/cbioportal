@@ -163,7 +163,11 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 			if (parts.length == 2) {
 				String toPart = parts[1];
                                 if (!toPart.matches("[0-9]+")) {
-                                    toPart = parts[0];
+                                    if (!toPart.matches("[0-9]+_calculated")) {
+                                        toPart = toPart.substring(0,toPart.indexOf("_"));
+                                    } else {
+                                        toPart = parts[0];
+                                    }
                                 }
 				if (LOG.isInfoEnabled()) {
 					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + toPart);

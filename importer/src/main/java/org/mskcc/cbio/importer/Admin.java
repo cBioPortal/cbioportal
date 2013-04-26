@@ -428,7 +428,7 @@ public class Admin implements Runnable {
 		// create tmp file for given MAF
 		File tmpMAF = 
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"tmpMAF");
+													""+System.currentTimeMillis()+".tmpMAF");
 		org.apache.commons.io.FileUtils.copyFile(mafFile, tmpMAF);
 
 		// oncotate the MAF (input is tmp maf, output is original maf)

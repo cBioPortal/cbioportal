@@ -609,7 +609,7 @@ function _getMutationTableRows(data)
 
 	        if (fisValue != null)
             {
-	            tooltip = fisValue;
+	            tooltip = fisValue.toFixed(2);
             }
 
 	        html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +

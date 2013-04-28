@@ -408,8 +408,12 @@ class ConverterImpl implements Converter {
 						 cancerStudyMetadata.getCenter() + ".");
 			}
 			// if methylation data, make sure correlation file comes before methylation data
-			if (datatype.contains("methylation") && importDataRecords.size() == 2) {
+			if (datatype.contains("methylation")) {
+                            if (importDataRecords.size() < 2) {
+                                throw new Exception("Require two data sets for converting methylation data.");
+                            } else {
 				Collections.sort(importDataRecords, new ImportDataRecordComparator());
+                            }
 			}
 			DataMatrix methylationCorrelation = null;
 			for (ImportDataRecord importData : importDataRecords) {

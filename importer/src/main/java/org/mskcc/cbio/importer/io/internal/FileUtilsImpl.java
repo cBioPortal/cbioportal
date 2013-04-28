@@ -384,7 +384,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (GzipUtils.isCompressedFilename(urlSource)) {
 			// downlod to temp destination
 			File tempDestinationFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			   new File(source.getFile()).getName());
+																			   ""+System.currentTimeMillis()+"."+new File(source.getFile()).getName());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("downloadFile(), " + urlSource + ", this may take a while...");
 			}
@@ -567,7 +567,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we only have data matrix at this point, we need to create a temp with its contents
 		File oncotatorInputFile =
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"oncotatorInputFile");
+													""+System.currentTimeMillis()+".oncotatorInputFile");
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
 		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
@@ -789,7 +789,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			// create temp for given maf
 			File oncotatorInputFile =
 				org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-														"oncotatorInputFile");
+														""+System.currentTimeMillis()+".oncotatorInputFile");
 			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
 			// input is tmp file we just created, we want output to go into the original maf
 			oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
@@ -827,7 +827,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (parts[3].contains("36") || parts[3].equals("hg18")) {
 			it.close();
 			File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			 "liftoverInputFile");
+																			 ""+System.currentTimeMillis()+".liftoverInputFile");
 			org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
 			oncotatorInputFile = new File(inputMAF.getFile());
 			// call lift over
@@ -842,7 +842,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"oncotatorOutputFile");
+													""+System.currentTimeMillis()+".oncotatorOutputFile");
 		// call oncotator
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling OncotateTool...");

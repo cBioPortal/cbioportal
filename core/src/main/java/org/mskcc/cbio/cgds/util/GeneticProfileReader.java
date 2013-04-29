@@ -161,7 +161,7 @@ public class GeneticProfileReader {
       GeneticAlterationType alterationType = GeneticAlterationType.getType(geneticAlterationTypeString);
 
       GeneticProfile geneticProfile = new GeneticProfile();
-      geneticProfile.setCancerStudyId(1);
+      geneticProfile.setCancerStudyId(cancerStudy.getInternalId());
       geneticProfile.setStableId(stableId);
       geneticProfile.setProfileName(profileName);
       geneticProfile.setProfileDescription(profileDescription);

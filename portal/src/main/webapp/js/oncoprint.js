@@ -1,35 +1,10 @@
 var Oncoprint = function(wrapper, params) {
 
-    // todo: perhaps this really should be put into ModelUtils so that it can be reused i.e. "sample2data"
-    // this would involve rewriting nest so that the library doesn't depend on d3
-    // basically think about putting all this code into ModelUtils
-    // ******----*******
     var data = d3.nest()
         .key(function(d) { return d.sample; })
         .entries(params.geneData.concat(params.clinicalData));
 
-    // todo:
-    params.attributes = ["RUNX1", "VITAL_STATUS", "DAYS_TO_DEATH"];
-
-    // attributes are either what is specified in params.attributes,
-    // or they are automatically extracted from gene and clinical data
-    var attributes = params.attributes ||
-        _.uniq(_.flatten(data.map(function(i) { return i.values; }), true)
-            .map(function(i) {
-                var type;
-                if (i.gene) {
-                    type = "gene";
-                } else if (i.attr_id) {
-                    type = "clinical"
-                } else {
-                    throw "data is neither gene nor clinical?";
-                }
-
-                var toReturn = i.gene || i.attr_id;
-                toReturn.type = type;
-
-                return toReturn;
-            }));
+    var attributes = params.clinical_attrs.concat(params.genes);
 
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
@@ -39,7 +14,50 @@ var Oncoprint = function(wrapper, params) {
         };
     });
 
-    // *****----*******
+    // attr2range : clinical attribute string ->
+    // list of values or range of values, e.g. [min, max]
+    var attr2range = params.clinicalData.reduce(function(prev, curr) {
+        prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
+
+        var a2r =  prev[curr.attr_id];
+        var val = curr.attr_val;
+
+        if (val === "NA") {
+            return prev;
+        }
+
+        if (isNaN(parseInt(val))) {
+            if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+        }
+        else
+        {
+            // just keep the min and max -- an interval of values
+            val = parseInt(val);
+            var min = a2r[0],
+                max = a2r[1];
+
+            if (max === undefined || val > max) {
+                a2r[1] = val;
+            }
+            if (min === undefined || val < min) {
+                a2r[0] = val;
+            }
+        }
+
+        prev[curr.attr_id] = a2r;
+        return prev;
+    }, {});
+
+    // convert ranges to d3 scales
+    for (var a2r in attr2range) {
+        var scale = attr2range[a2r];
+        var new_scale = isNaN(parseInt(scale[0])) ? d3.scale.ordinal() : d3.scale.linear();
+        new_scale.domain(scale);
+
+        new_scale.range(["#ff7f0e", "#1f77b4"]);
+
+        attr2range[a2r] = new_scale;
+    }
 
     var dims = {
         width: data.length * (5.5 + 3),
@@ -57,17 +75,13 @@ var Oncoprint = function(wrapper, params) {
         .attr('width', dims.width)
         .attr('height', dims.height);
 
-    var cna = function(d) {
-        var cna_fills = {
-            undefined: '#D3D3D3',
-            AMPLIFIED: '#FF0000',
-            GAINED: '#FFB6C1',
-            DIPLOID: '#D3D3D3',
-            HEMIZYGOUSLYDELETED: '#8FD8D8',
-            HOMODELETED: '#0000FF'
-        };
-
-        return cna_fills[d.cna];
+    var cna_fills = {
+        undefined: '#D3D3D3',
+        AMPLIFIED: '#FF0000',
+        GAINED: '#FFB6C1',
+        DIPLOID: '#D3D3D3',
+        HEMIZYGOUSLYDELETED: '#8FD8D8',
+        HOMODELETED: '#0000FF'
     };
 
     var clinical = function(d) {
@@ -93,7 +107,7 @@ var Oncoprint = function(wrapper, params) {
         var enter = sample.enter();
 
         var fill = enter.append('rect')
-            .attr('fill', function(d) { return d.gene ? cna(d) : clinical(d); })
+            .attr('fill', function(d) { return d.gene ? cna_fills[d.cna] : clinical(d); })
             .attr('height', 23)
             .attr('width', 5.5)
             .attr('y', function(d) {

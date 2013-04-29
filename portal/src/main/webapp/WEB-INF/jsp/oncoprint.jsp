@@ -76,6 +76,9 @@
                         "success": function(clinicalData) {
                             oncoPrintParams['clinicalData'] = clinicalData.toJSON();
 
+                            oncoPrintParams['genes'] = genes.split(" ");
+                            oncoPrintParams['clinical_attrs'] = ["VITAL_STATUS", "DAYS_TO_DEATH"];
+
                             oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
 
                             oncoprint.draw();

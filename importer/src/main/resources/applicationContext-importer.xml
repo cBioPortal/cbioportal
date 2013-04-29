@@ -21,6 +21,10 @@
      <b:property name="url" value="${db.connection_string}${db.importer_db_name}?max_allowed_packet=256M"/>
      <b:property name="username" value="${db.user}"/>
      <b:property name="password" value="${db.password}"/>
+	 <!-- setting minIdle/maxIdle to 1 doesn't limit the number of active -->
+	 <b:property name="minIdle" value="0"/>
+	 <b:property name="maxIdle" value="0"/>
+	 <b:property name="maxActive" value="1"/>
    </b:bean>
 
   <!-- hibernate session factory -->
@@ -36,6 +40,7 @@
 		<b:prop key="hibernate.show_sql">true</b:prop>
 		<b:prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</b:prop>
 		<b:prop key="hibernate.hbm2ddl.auto"></b:prop> <!-- no value - to prevent accidental tables drop -->
+		<b:prop key="hibernate.connection.release_mode">after_transaction</b:prop>
 	  </util:properties>
 	</b:property>
   </b:bean>

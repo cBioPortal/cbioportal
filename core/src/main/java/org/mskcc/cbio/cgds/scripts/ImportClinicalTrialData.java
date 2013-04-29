@@ -95,7 +95,13 @@ public class ImportClinicalTrialData {
 
         for (File file : folder.listFiles()) {
             if(file.getName().startsWith(".")) continue; // Skip hidden files
-            processXmlFile(file);
+            try {
+                processXmlFile(file);
+            } catch(Exception e) {
+                System.err.println("There was a problem reading the file: "
+                        + file.getName()
+                        + ". Skipping the file. Error: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+            }
         }
 
         log.debug("Clinical trial information import is done! (" + daoClinicalTrial.countClinicalStudies() + " trials imported)");

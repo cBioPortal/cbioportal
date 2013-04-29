@@ -60,7 +60,7 @@ public class MethylationConverterImpl implements Converter {
 
 	// statics for column identifiers in correlate - methylation file
 	private static final String CORRELATE_GENE_COLUMN_HEADER_NAME = "Gene";
-	private static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe";
+	public static final String CORRELATE_METH_PROBE_COLUMN_HEADER_NAME = "Meth_Probe"; // used in FileUtilsImpl
 	// in runs up to 7/25/2012, Corr_Spearman appears, from 10/24/2012 Corr_Coeff exists
 	private static final String CORRELATE_SPEARMAN_COLUMN_HEADER_NAME = "Corr_Spearman";
 	private static final String CORRELATE_COEFF_COLUMN_HEADER_NAME = "Corr_Coeff"; 

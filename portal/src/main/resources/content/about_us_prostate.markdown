@@ -3,19 +3,26 @@ The cBio Prostate Cancer Portal is developed and maintained by the Computational
 ## The team
 
  * Jianjiong Gao, MSKCC
- * Benjamin Gross, MSKCC
  * B. Arman Aksoy, MSKCC
+ * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
- * Erik Larsson, MSKCC
- * Selcuk Onur Sumer, Bilkent University
- * Sinan Sonlu, Bilkent University
+ * S. Onur Sumer, MSKCC
+ * Istemi Bahceci, Bilkent University
  * Ugur Dogrusoz, Bilkent University
- * Ethan Cerami, MSKCC
- * Nikolaus Schultz, MSKCC
  * Chris Sander, MSKCC
+ * Nikolaus Schultz, MSKCC
+ 
+## Alumni
 
-Funding for the cBio Cancer Genomics Portal is provided in part from:
+ * Ethan Cerami, now at Blueprint Medicines
+ * Erik Larsson, now at University of Gothenburg
+ * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Michael Heuer
+ * Caitlin Byrne, MSKCC
+ * Sinan Sonlu, Bilkent University
+
+## Funding for the cBioPortal for Prostate Cancer is provided in part from:
 
  * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 
  * The NCRR as the National Resource for Network Biology (NRNB) Research Resource (RR 031228-02).

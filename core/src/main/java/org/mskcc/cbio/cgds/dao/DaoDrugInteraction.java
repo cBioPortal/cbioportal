@@ -43,7 +43,6 @@ import org.mskcc.cbio.cgds.model.Drug;
 import org.mskcc.cbio.cgds.model.DrugInteraction;
 
 public class DaoDrugInteraction {
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoDrugInteraction daoDrugInteraction;
     private static final String NA = "NA";
 
@@ -57,9 +56,6 @@ public class DaoDrugInteraction {
             daoDrugInteraction = new DaoDrugInteraction();
         }
 
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("drug_interaction");
-        }
         return daoDrugInteraction;
     }
 
@@ -88,7 +84,7 @@ public class DaoDrugInteraction {
 
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
-                myMySQLbulkLoader.insertRecord(
+                MySQLbulkLoader.getMySQLbulkLoader("drug_interaction").insertRecord(
                         drug.getId(),
                         Long.toString(targetGene.getEntrezGeneId()),
                         interactionType,
@@ -334,16 +330,6 @@ public class DaoDrugInteraction {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoDrugInteraction.class, con, pstmt, rs);
-        }
-    }
-
-    public int flushToDatabase() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
     

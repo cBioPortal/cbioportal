@@ -161,10 +161,18 @@ public class RNASEQV2MRNAMedianConverterImpl implements Converter {
 		for (int lc = 0; lc < pairs.size(); lc++) {
 			String[] parts = pairs.get(lc).trim().split("\\|");
 			if (parts.length == 2) {
+				String toPart = parts[1];
+                                if (!toPart.matches("[0-9]+")) {
+                                    if (toPart.matches("[0-9]+_calculated")) {
+                                        toPart = toPart.substring(0,toPart.indexOf("_"));
+                                    } else {
+                                        toPart = parts[0];
+                                    }
+                                }
 				if (LOG.isInfoEnabled()) {
-					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + parts[1]);
+					LOG.info("setting element: " + Arrays.asList(parts) + ", to: " + toPart);
 				}
-				pairs.set(lc, parts[1]);
+				pairs.set(lc, toPart);
 			}
 		}
 

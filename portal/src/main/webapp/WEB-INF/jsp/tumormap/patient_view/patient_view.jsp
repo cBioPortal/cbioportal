@@ -31,6 +31,8 @@ boolean showMutations = mutationProfile!=null;
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(PatientView.CNA_PROFILE);
 boolean showCNA = cnaProfile!=null;
 
+GeneticProfile mrnaProfile = (GeneticProfile)request.getAttribute(PatientView.MRNA_PROFILE);
+
 String isDemoMode = request.getParameter("demo");
 boolean showPlaceHoder;
 if (isDemoMode!=null) {
@@ -44,7 +46,7 @@ boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
-boolean showClinicalTrials = showPlaceHoder;
+boolean showClinicalTrials = true;
 boolean showDrugs = true;
 
 double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
@@ -57,11 +59,15 @@ boolean noData = cnaProfile==null & mutationProfile==null;
 
 String mutationProfileStableId = null;
 String cnaProfileStableId = null;
+String mrnaProfileStableId = null;
 if (mutationProfile!=null) {
     mutationProfileStableId = mutationProfile.getStableId();
 }
 if (cnaProfile!=null) {
     cnaProfileStableId = cnaProfile.getStableId();
+}
+if (mrnaProfile!=null) {
+    mrnaProfileStableId = mrnaProfile.getStableId();
 }
 
 if (patientViewError!=null) {
@@ -287,6 +293,7 @@ var print = <%=print%>;
 var placeHolder = <%=Boolean.toString(showPlaceHoder)%>;
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
+var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
@@ -358,12 +365,12 @@ function getEventIndexMap(eventTableData,idCol) {
     return m;
 }
     
-function addNoteTooltip(elem) {
+function addNoteTooltip(elem, content) {
     $(elem).qtip({
-        content: {attr: 'alt'},
+        content: (typeof variable === 'undefined' ? {attr: 'alt'} : content),
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top left',at:'bottom right'}
+        position: {my:'top left',at:'bottom center'}
     });
 }
 
@@ -481,8 +488,134 @@ function addDrugsTooltip(elem, my, at) {
     });
 }
 
+/**
+* modified from http://jsfiddle.net/H2SKt/1/
+**/
+function d3PieChart(svg, data, radius, colors) {
+    var chart = svg
+        .data([data])
+        .append("g")
+        .attr("transform", "translate(" + radius + "," + radius + ")");
+
+    var arc = d3.svg.arc()
+        .outerRadius(radius);
+
+    var pie = d3.layout.pie()
+        .value(function(d) { return d; })
+        .sort(null);
+
+    var arcs = chart.selectAll("g.slice")
+        .data(pie) 
+        .enter()
+        .append("g")
+        .attr("class", "slice");
+
+    arcs.append("path")
+        .attr("fill", function(d, i) { return colors[i]; } )
+        .attr("d", arc);
+
+    return chart;
+}
+
+function d3AccBar(svg, data, width, colors) {
+    var acc = [];
+    var sum = 0;
+    for (var i=0; i<data.length; i++) {
+        acc.push(sum);
+        sum += data[i];
+    }
+    
+    var vd = [];
+    for (var i=0; i<data.length; i++) {
+        vd.push({
+            start: width*acc[i]/sum,
+            width: width*data[i]/sum,
+            color: colors[i]
+        });
+    }
+
+    var chart = svg.selectAll(".bar")
+        .data(vd) 
+        .enter()
+        .append("g")
+        .attr("class", "bar")
+        .attr("transform", function(d,i) { return "translate(" + d.start + "," + 3 + ")"; });
+
+    chart.append("rect")
+        .attr("width", function(d, i) { return d.width; })
+        .attr("height", 8)
+        .attr("fill", function(d, i) { return d.color; } );
+
+    return chart;
+}
+
+function d3CircledChar(g,ch) {
+    g.append("circle")
+        .attr("r",5)
+        .attr("stroke","#55C")
+        .attr("fill","none");
+    g.append("text")
+        .attr("x",-3)
+        .attr("y",3)
+        .attr("font-size",7)
+        .attr("fill","#66C")
+        .text(ch);
+}
+    
+function plotMrna(div,alts) {
+    $(div).each(function() {
+        if (!$(this).is(":empty")) return;
+        var gene = $(this).attr("alt");
+        var mrna = alts.getValue(gene, 'mrna');
+        d3MrnaBar($(this)[0],mrna.perc);
+        $(this).qtip({
+            content: {text: "mRNA level of the gene in this tumor<br/><b>mRNA z-score</b>: "
+                        +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
+            hide: { fixed: true, delay: 10 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top left',at:'bottom center'}
+        });
+    });
+}
+
+function d3MrnaBar(div,mrnaPerc) {
+    var textWidth = 30,
+        graphWidth = 30,
+        circleR = 3,
+        width = graphWidth+textWidth+2*circleR,
+        height = 12;
+
+    var svg = d3.select(div).append('svg')
+        .attr("width", width)
+        .attr("height", height);
+
+    svg.append("text")
+        .attr("x", width)
+        .attr('y',11)
+        .attr("text-anchor", "end")
+        .attr('font-size',10)
+        .text(mrnaPerc+"%");
+
+    var bar = svg.append("g")
+                .attr("transform", "translate(" + circleR + "," + 0 + ")");
+
+    bar.append("line")
+        .attr("x1",-circleR)
+        .attr("y1",height/2)
+        .attr("x2",graphWidth+circleR)
+        .attr("y2",height/2)
+        .attr("style", "stroke:gray;stroke-width:2");
+
+    bar.append("circle")
+        .attr("cx", graphWidth * mrnaPerc/100)
+        .attr("cy", height/2)
+        .attr("r", circleR)
+        .attr("fill", mrnaPerc>75 ? "red" : (mrnaPerc<25?"blue":"gray"));
+
+}
+
 function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="tumormap.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
+    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
 }
 
 function trimHtml(html) {

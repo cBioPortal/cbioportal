@@ -85,6 +85,8 @@ public class MafUtil
 	public static final String ONCOTATOR_CODON_CHANGE = "ONCOTATOR_CODON_CHANGE";
 	public static final String ONCOTATOR_TRANSCRIPT_CHANGE = "ONCOTATOR_TRANSCRIPT_CHANGE";
 	public static final String ONCOTATOR_EXON_AFFECTED = "ONCOTATOR_EXON_AFFECTED";
+	public static final String ONCOTATOR_PROTEIN_POS_START = "ONCOTATOR_PROTEIN_POS_START";
+	public static final String ONCOTATOR_PROTEIN_POS_END = "ONCOTATOR_PROTEIN_POS_END";
 
 	public static final String ONCOTATOR_PROTEIN_CHANGE_BE = "ONCOTATOR_PROTEIN_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_VARIANT_CLASSIFICATION_BE = "ONCOTATOR_VARIANT_CLASSIFICATION_BEST_EFFECT";
@@ -96,9 +98,12 @@ public class MafUtil
 	public static final String ONCOTATOR_CODON_CHANGE_BE = "ONCOTATOR_CODON_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_TRANSCRIPT_CHANGE_BE = "ONCOTATOR_TRANSCRIPT_CHANGE_BEST_EFFECT";
 	public static final String ONCOTATOR_EXON_AFFECTED_BE = "ONCOTATOR_EXON_AFFECTED_BEST_EFFECT";
+	public static final String ONCOTATOR_PROTEIN_POS_START_BE = "ONCOTATOR_PROTEIN_POS_START_BEST_EFFECT";
+	public static final String ONCOTATOR_PROTEIN_POS_END_BE = "ONCOTATOR_PROTEIN_POS_END_BEST_EFFECT";
 
 	// mutation assessor column names
 	public static final String MA_FIMPACT = "MA:FImpact";
+	public static final String MA_FIS = "MA:FIS";
 	public static final String MA_LINK_VAR = "MA:link.var";
 	public static final String MA_LINK_MSA = "MA:link.MSA";
 	public static final String MA_LINK_PDB = "MA:link.PDB";
@@ -167,6 +172,8 @@ public class MafUtil
 	private int oncoUniprotNameIndex = -1;
 	private int oncoUniprotAccessionIndex = -1;
 	private int oncoCodonChangeIndex = -1;
+	private int oncoProteinPosStartIndex = -1;
+	private int oncoProteinPosEndIndex = -1;
 	private int oncoProteinChangeBeIndex = -1;
 	private int oncoGeneSymbolBeIndex = -1;
 	private int oncoRefseqMrnaIdBeIndex = -1;
@@ -177,9 +184,12 @@ public class MafUtil
 	private int oncoCodonChangeBeIndex = -1;
 	private int oncoTranscriptChangeBeIndex = -1;
 	private int oncoExonAffectedBeIndex = -1;
+	private int oncoProteinPosStartBeIndex = -1;
+	private int oncoProteinPosEndBeIndex = -1;
 
 	// Mutation Assessor column indices
 	private int maFImpactIndex = -1; // MA:FImpact
+	private int maFisIndex = -1; // MA:FIS
 	private int maLinkVarIndex = -1; // MA:link.var
 	private int maLinkMsaIndex = -1; // MA:link.MSA
 	private int maLinkPdbIndex = -1; // MA:link.PDB
@@ -308,6 +318,10 @@ public class MafUtil
 	            oncoTranscriptChangeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED)) {
 	            oncoExonAffectedIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_START)) {
+	            oncoProteinPosStartIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END)) {
+	            oncoProteinPosEndIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_CHANGE_BE)) {
 	            oncoProteinChangeBeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_VARIANT_CLASSIFICATION_BE)) {
@@ -328,8 +342,14 @@ public class MafUtil
 	            oncoTranscriptChangeBeIndex = i;
             } else if(header.equalsIgnoreCase(ONCOTATOR_EXON_AFFECTED_BE)) {
 	            oncoExonAffectedBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_START_BE)) {
+	            oncoProteinPosStartBeIndex = i;
+            } else if(header.equalsIgnoreCase(ONCOTATOR_PROTEIN_POS_END_BE)) {
+	            oncoProteinPosEndBeIndex = i;
             } else if(header.equalsIgnoreCase(MA_FIMPACT)) {
 				maFImpactIndex = i;
+            } else if(header.equalsIgnoreCase(MA_FIS)) {
+	            maFisIndex = i;
             } else if(header.equalsIgnoreCase(MA_LINK_VAR)) {
 	            maLinkVarIndex = i;
             } else if(header.equalsIgnoreCase(MA_LINK_MSA)) {
@@ -339,14 +359,19 @@ public class MafUtil
             } else if(header.equalsIgnoreCase(MA_PROTEIN_CHANGE)) {
 	            maProteinChangeIndex = i;
             }
-            // TODO allele freq columns may have different headers
-	        else if( header.equalsIgnoreCase("t_ref_count")||header.equalsIgnoreCase("i_t_ref_count")||header.equalsIgnoreCase("AD_Ref")) {
+	        else if(header.equalsIgnoreCase("t_ref_count") ||
+	                header.equalsIgnoreCase("i_t_ref_count") ||
+	                header.equalsIgnoreCase("AD_Ref")) {
 	        	tumorRefCountIndex = i;
-            } else if(header.equalsIgnoreCase("t_alt_count")||header.equalsIgnoreCase("i_t_alt_count")||header.equalsIgnoreCase("AD_Alt")) {
+            } else if(header.equalsIgnoreCase("t_alt_count") ||
+	                  header.equalsIgnoreCase("i_t_alt_count") ||
+	                  header.equalsIgnoreCase("AD_Alt")) {
                 tumorAltCountIndex = i;
-            } else if(header.equalsIgnoreCase("n_ref_count")||header.equalsIgnoreCase("Norm_AD_Ref")) {
+            } else if(header.equalsIgnoreCase("n_ref_count") ||
+	                  header.equalsIgnoreCase("Norm_AD_Ref")) {
                 normalRefCountIndex= i;
-            } else if(header.equalsIgnoreCase("n_alt_count")||header.equalsIgnoreCase("Norm_AD_Alt")) {
+            } else if(header.equalsIgnoreCase("n_alt_count") ||
+	                  header.equalsIgnoreCase("Norm_AD_Alt")) {
                 normalAltCountIndex = i;
             } else if(header.equalsIgnoreCase("TTotCov")) {
                 tTotCovIndex = i;
@@ -424,6 +449,7 @@ public class MafUtil
 
         // Mutation Assessor columns
 	    record.setMaFuncImpact(getPartString(maFImpactIndex, parts));
+	    record.setMaFIS(getPartFloat2(maFisIndex, parts)); // not using getPartFloat, -1 may not be a safe value
 	    record.setMaLinkVar(getPartString(maLinkVarIndex, parts));
 	    record.setMaLinkMsa(getPartString(maLinkMsaIndex, parts));
 	    record.setMaLinkPdb(getPartString(maLinkPdbIndex, parts));
@@ -444,6 +470,8 @@ public class MafUtil
 	    record.setOncotatorCodonChange(getPartString(oncoCodonChangeIndex, parts));
 	    record.setOncotatorTranscriptChange(getPartString(oncoTranscriptChangeIndex, parts));
 	    record.setOncotatorExonAffected(getPartInt(oncoExonAffectedIndex, parts));
+	    record.setOncotatorProteinPosStart(getPartInt(oncoProteinPosStartIndex, parts));
+	    record.setOncotatorProteinPosEnd(getPartInt(oncoProteinPosEndIndex, parts));
 
 	    record.setOncotatorProteinChangeBestEffect(getPartString(oncoProteinChangeBeIndex, parts));
 	    record.setOncotatorVariantClassificationBestEffect(getPartString(oncoVariantClassificationBeIndex, parts));
@@ -455,6 +483,8 @@ public class MafUtil
 	    record.setOncotatorCodonChangeBestEffect(getPartString(oncoCodonChangeBeIndex, parts));
 	    record.setOncotatorTranscriptChangeBestEffect(getPartString(oncoTranscriptChangeBeIndex, parts));
 	    record.setOncotatorExonAffectedBestEffect(getPartInt(oncoExonAffectedBeIndex, parts));
+	    record.setOncotatorProteinPosStartBestEffect(getPartInt(oncoProteinPosStartBeIndex, parts));
+	    record.setOncotatorProteinPosEndBestEffect(getPartInt(oncoProteinPosEndBeIndex, parts));
 
         return record;
     }
@@ -518,6 +548,32 @@ public class MafUtil
             return MafRecord.NA_FLOAT;
         }
     }
+
+	private Float getPartFloat(int index, String[] parts)
+	{
+		try {
+			String part = parts[index];
+			return Float.parseFloat(part);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return MafRecord.NA_FLOAT;
+		} catch (NumberFormatException e) {
+			return MafRecord.NA_FLOAT;
+		}
+	}
+
+	// returning MIN_VALUE instead of NA_FLOAT
+	// use this one if -1 is not a safe "NA" value.
+	private Float getPartFloat2(int index, String[] parts)
+	{
+		try {
+			String part = parts[index];
+			return Float.parseFloat(part);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return Float.MIN_VALUE;
+		} catch (NumberFormatException e) {
+			return Float.MIN_VALUE;
+		}
+	}
 
 	public String adjustDataLine(String dataLine)
 	{
@@ -737,6 +793,11 @@ public class MafUtil
 		return maFImpactIndex;
 	}
 
+	public int getMaFisIndex()
+	{
+		return maFisIndex;
+	}
+
 	public int getMaLinkVarIndex()
 	{
 		return maLinkVarIndex;
@@ -787,19 +848,19 @@ public class MafUtil
 		return oncoRefseqProtIdIndex;
 	}
 
-	public void setOncoRefseqProtIdIndex(int oncoRefseqProtIdIndex)
-	{
-		this.oncoRefseqProtIdIndex = oncoRefseqProtIdIndex;
-	}
-
 	public int getOncoUniprotAccessionIndex()
 	{
 		return oncoUniprotAccessionIndex;
 	}
 
-	public void setOncoUniprotAccessionIndex(int oncoUniprotAccessionIndex)
+	public int getOncoProteinPosStartIndex()
 	{
-		this.oncoUniprotAccessionIndex = oncoUniprotAccessionIndex;
+		return oncoProteinPosStartIndex;
+	}
+
+	public int getOncoProteinPosEndIndex()
+	{
+		return oncoProteinPosEndIndex;
 	}
 
 	public int getOncoProteinChangeBeIndex()
@@ -850,6 +911,16 @@ public class MafUtil
 	public int getOncoUniprotAccessionBeIndex()
 	{
 		return oncoUniprotAccessionBeIndex;
+	}
+
+	public int getOncoProteinPosStartBeIndex()
+	{
+		return oncoProteinPosStartBeIndex;
+	}
+
+	public int getOncoProteinPosEndBeIndex()
+	{
+		return oncoProteinPosEndBeIndex;
 	}
 
 	public int getColumnIndex(String colName)

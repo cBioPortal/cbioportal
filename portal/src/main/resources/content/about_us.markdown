@@ -1,21 +1,28 @@
-The cBio Cancer Genomics Portal is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
+The cBioPortal for Cancer Genomics is developed and maintained by the [Computational Biology Center](http://cbio.mskcc.org/) at [Memorial Sloan-Kettering Cancer Center](http://www.mskcc.org/) and the [i-Vis (Information Visualization) Research Group](http://www.cs.bilkent.edu.tr/~ivis/) of the Computer Engineering Department at [Bilkent University](http://www.bilkent.edu.tr/index.html).
 
 ## The team
 
  * Jianjiong Gao, MSKCC
- * Benjamin Gross, MSKCC
  * B. Arman Aksoy, MSKCC
+ * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
- * Erik Larsson, MSKCC
- * Selcuk Onur Sumer, Bilkent University
- * Sinan Sonlu, Bilkent University
+ * S. Onur Sumer, MSKCC
+ * Istemi Bahceci, Bilkent University
  * Ugur Dogrusoz, Bilkent University
- * Ethan Cerami, MSKCC
- * Nikolaus Schultz, MSKCC
  * Chris Sander, MSKCC
+ * Nikolaus Schultz, MSKCC
  
-Funding for the cBio Cancer Genomics Portal is provided in part from:
+## Alumni
+
+ * Ethan Cerami, now at Blueprint Medicines
+ * Erik Larsson, now at University of Gothenburg
+ * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Michael Heuer
+ * Caitlin Byrne, MSKCC
+ * Sinan Sonlu, Bilkent University
+
+## Funding for the cBioPortal for Cancer Genomics is provided in part from:
 
  * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 
  * The NCRR as the [National Resource for Network Biology (NRNB)](http://nrnb.org/) Research Resource (RR 031228-02).

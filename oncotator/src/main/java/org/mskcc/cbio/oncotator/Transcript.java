@@ -45,6 +45,8 @@ public class Transcript
 	private String uniprotAccession;
 	private String codonChange;
 	private String transcriptChange;
+	private Integer proteinPosStart;
+	private Integer proteinPosEnd;
 
 	public String getProteinChange()
 	{
@@ -144,5 +146,25 @@ public class Transcript
 	public void setTranscriptChange(String transcriptChange)
 	{
 		this.transcriptChange = transcriptChange;
+	}
+
+	public Integer getProteinPosStart()
+	{
+		return proteinPosStart;
+	}
+
+	public void setProteinPosStart(Integer proteinPosStart)
+	{
+		this.proteinPosStart = proteinPosStart;
+	}
+
+	public Integer getProteinPosEnd()
+	{
+		return proteinPosEnd;
+	}
+
+	public void setProteinPosEnd(Integer proteinPosEnd)
+	{
+		this.proteinPosEnd = proteinPosEnd;
 	}
 }

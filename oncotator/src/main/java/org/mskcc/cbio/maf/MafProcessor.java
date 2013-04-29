@@ -360,6 +360,8 @@ public class MafProcessor
 		headers.add(MafUtil.ONCOTATOR_CODON_CHANGE);
 		headers.add(MafUtil.ONCOTATOR_TRANSCRIPT_CHANGE);
 		headers.add(MafUtil.ONCOTATOR_EXON_AFFECTED);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_POS_START);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_POS_END);
 
 		headers.add(MafUtil.ONCOTATOR_VARIANT_CLASSIFICATION_BE);
 		headers.add(MafUtil.ONCOTATOR_PROTEIN_CHANGE_BE);
@@ -371,6 +373,8 @@ public class MafProcessor
 		headers.add(MafUtil.ONCOTATOR_CODON_CHANGE_BE);
 		headers.add(MafUtil.ONCOTATOR_TRANSCRIPT_CHANGE_BE);
 		headers.add(MafUtil.ONCOTATOR_EXON_AFFECTED_BE);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_POS_START_BE);
+		headers.add(MafUtil.ONCOTATOR_PROTEIN_POS_END_BE);
 
 		return headers;
 	}
@@ -388,6 +392,7 @@ public class MafProcessor
 
 		// Mutation Assessor columns
 		headers.add(MafUtil.MA_FIMPACT);
+		headers.add(MafUtil.MA_FIS);
 		headers.add(MafUtil.MA_PROTEIN_CHANGE);
 		headers.add(MafUtil.MA_LINK_MSA);
 		headers.add(MafUtil.MA_LINK_PDB);

@@ -425,7 +425,7 @@ public class MakeOncoPrint {
 			builder.append("\t\t\t\t 'alteration' : CNA_GAINED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
         if (allPossibleAlterations.satisfy(GeneticDataTypes.CopyNumberAlteration, GeneticTypeLevel.HemizygouslyDeleted)) {
-			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Hemizygous Deletion\",\n");
+			builder.append("\t\t\t\t{\n\t\t\t\t 'label' : \"Heterozygous Deletion\",\n");
 			builder.append("\t\t\t\t 'alteration' : CNA_HEMIZYGOUSLYDELETED | MRNA_NOTSHOWN | NORMAL | RPPA_NOTSHOWN\n\t\t\t\t},\n");
 		}
         

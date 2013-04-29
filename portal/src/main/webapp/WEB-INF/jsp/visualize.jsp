@@ -403,11 +403,17 @@
 
 <script type="text/javascript">
 	// to initially hide the network tab
-	//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
-	$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
     
+	//index of network tab
+	var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
+
+	if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
+		$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+	}
+
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
+
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {

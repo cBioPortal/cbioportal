@@ -13,7 +13,7 @@ function drawMutationDiagram(sequences)
     var MAX_OFFSET = 4;
     var COSMIC_THRESHOLD = 5;
     var PAPER_WIDTH = 740; // width of the raphael box
-    var PAPER_HEIGHT = 220; // height of the raphael box
+    var PAPER_HEIGHT = 180; // height of the raphael box
 
     var sequenceColor = "rgb(186, 189, 182)";
     var scaleColors = [ "rgb(85, 87, 83)",
@@ -49,6 +49,11 @@ function drawMutationDiagram(sequences)
 
     var histogram = Raphael("mutation_histogram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
 
+	// link to uniprot above the diagram
+	var href = "http://www.uniprot.org/uniprot/" + label;
+	$("#uniprot_link_" + id).html('<a href="' + href + '" target="_blank">' + label + '</a>');
+
+	// labels on the diagram
     _drawDiagramLabels(paper, label);
     _drawDiagramLabels(histogram, label);
 
@@ -69,7 +74,7 @@ function drawMutationDiagram(sequences)
 
     // calculate max count & per
     var maxCount = _calculateMaxCount(mutationDiagram, MAX_OFFSET);
-    var per = (h / 3) / maxCount;
+    var per = (2 * h / 5) / maxCount;
 
     // mutation scale
     _drawMutationScale(paper, maxCount, x, per, c, scaleColors);
@@ -382,10 +387,10 @@ function _drawSequenceScale(paper, x, l, w, c, scaleColors)
 function _drawDiagramLabels(paper, label)
 {
     // main label on the top
-    paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+    //paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
 
     // label for y-axis
-    var yAxis = paper.text(-27, 100, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+    var yAxis = paper.text(-27, 74, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
     yAxis.rotate(270);
 }
 

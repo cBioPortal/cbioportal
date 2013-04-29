@@ -3,19 +3,26 @@ The cBio SU2C Cancer Genomics Portal is developed and maintained by the [Computa
 ## The team
 
  * Jianjiong Gao, MSKCC
- * Benjamin Gross, MSKCC
  * B. Arman Aksoy, MSKCC
+ * Benjamin Gross, MSKCC
  * Gideon Dresdner, MSKCC
  * Anders Jacobsen, MSKCC
- * Erik Larsson, MSKCC
- * Selcuk Onur Sumer, Bilkent University
- * Sinan Sonlu, Bilkent University
+ * S. Onur Sumer, MSKCC
+ * Istemi Bahceci, Bilkent University
  * Ugur Dogrusoz, Bilkent University
- * Ethan Cerami, MSKCC
- * Nikolaus Schultz, MSKCC
  * Chris Sander, MSKCC
+ * Nikolaus Schultz, MSKCC
+ 
+## Alumni
 
-Protein data provided by:
+ * Ethan Cerami, now at Blueprint Medicines
+ * Erik Larsson, now at University of Gothenburg
+ * Arthur Goldberg, now at Mount Sinai School of Medicine
+ * Michael Heuer
+ * Caitlin Byrne, MSKCC
+ * Sinan Sonlu, Bilkent University
+
+## Protein data provided by:
 
  * Aphrothiti Hanrahan
  * David Solit
@@ -30,7 +37,7 @@ Study Tracker provided by:
  * Aaron Gabow
  * Alex Lash
  
-Funding for the cBio Cancer Genomics Portal is provided in part from:
+Funding for the cBioPortal for SU2C is provided in part from:
 
   * [Stand Up To Cancer](http://standup2cancer.org/) as part our membership in the [PI3K Dream Team](http://pi3k.org/)
   * The NCI as a [TCGA Genome Data Analysis Center (GDAC)](http://tcga.cancer.gov/wwd/program/research_network/gdac.asp) (NCI-U24CA143840) 

@@ -42,7 +42,6 @@ import org.mskcc.cbio.cgds.model.Drug;
  * Data access object for Drug table
  */
 public class DaoDrug {
-    private static MySQLbulkLoader drugMySQLBulkLoader = null;
     private static DaoDrug daoDrug;
 
     private DaoDrug() {
@@ -59,9 +58,6 @@ public class DaoDrug {
             daoDrug = new DaoDrug();
         }
 
-        if (drugMySQLBulkLoader == null) {
-            drugMySQLBulkLoader = new MySQLbulkLoader("drug");
-        }
         return daoDrug;
     }
 
@@ -71,7 +67,7 @@ public class DaoDrug {
         ResultSet rs = null;
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
-                drugMySQLBulkLoader.insertRecord(
+                MySQLbulkLoader.getMySQLbulkLoader("drug").insertRecord(
                         drug.getId(),
                         drug.getResource(),
                         drug.getName(),
@@ -236,16 +232,6 @@ public class DaoDrug {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoDrug.class, con, pstmt, rs);
-        }
-    }
-
-    public int flushToDatabase() throws DaoException {
-        try {
-            return drugMySQLBulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 }

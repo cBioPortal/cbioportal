@@ -75,8 +75,8 @@
 </p>
 <p class="regular">
 	Drugs targeting genes in the network are hidden by default. If you would like
-	to see them, select "Show All Drugs" or "Show FDA Approved Drugs" from the drop-down
-	box under the "Genes &amp; Drugs" tab.
+	to see them, select "Show All Drugs" or, "Show FDA Approved Drugs" or "Show Cancer Drugs"
+	from the drop-down box under the "Genes &amp; Drugs" tab.
 </p>
 <p class="regular">
 	Number of Genes Targeted shown in the drug inspector refers to the total number of genes
@@ -155,7 +155,12 @@
 			<span class="bold">Filter Drugs by FDA Approval:</span> 
 			Networks can be filtered based on whether drugs associated with genes of this network are FDA approved or not.
 		</li>
-	</ul>	
+		<li>
+			<span class="bold">Filter Cancer Drugs:</span>
+			Networks can be filtered based on whether drugs associated with genes of this network are cancer drugs or not.
+			Notice that all cancer drugs are FDA approved.
+		</li>
+	</ul>
 </p>
 <p class="regular">
 	All filtering can be undone by clicking "Unhide" in the "Topology" menu.

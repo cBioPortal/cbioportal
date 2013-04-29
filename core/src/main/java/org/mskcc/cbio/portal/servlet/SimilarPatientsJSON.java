@@ -50,7 +50,7 @@ public class SimilarPatientsJSON extends HttpServlet {
                     if (strMutations==null||strMutations.isEmpty()) {
                         similarMutations = Collections.emptyMap();
                     } else {
-                        similarMutations = DaoMutationEvent.getSimilarCasesWithMutationsByKeywords(strMutations);
+                        similarMutations = DaoMutation.getSimilarCasesWithMutationsByKeywords(strMutations);
                         similarMutations.remove(_case);
                     }
                     Map<Case, Set<Long>> similarCnas;

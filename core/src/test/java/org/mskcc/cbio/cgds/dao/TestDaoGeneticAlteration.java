@@ -76,7 +76,7 @@ public class TestDaoGeneticAlteration extends TestCase {
 
         // if bulkLoading, execute LOAD FILE
         if( MySQLbulkLoader.isBulkLoad()){
-            dao.flushGeneticAlteration();
+           MySQLbulkLoader.flushAll();
         }
 
         HashMap<String, String> valueMap = dao.getGeneticAlterationMap(1, 672);

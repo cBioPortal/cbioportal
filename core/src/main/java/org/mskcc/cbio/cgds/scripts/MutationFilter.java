@@ -319,9 +319,6 @@ public class MutationFilter {
                System.err.println( "MutationFilter: Gene " + line.trim() + " not in dbms." );
             }
          }
-      } catch (DaoException e) {
-         System.err.println( "dbms access problem.");
-         e.printStackTrace();
       } finally {
          input.close();
        }

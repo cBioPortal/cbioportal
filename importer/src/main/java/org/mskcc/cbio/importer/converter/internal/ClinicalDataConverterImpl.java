@@ -84,7 +84,6 @@ public class ClinicalDataConverterImpl implements Converter {
         }
     }
 
-
 	/**
 	 * Constructor.
      *
@@ -332,7 +331,6 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         outMatrix.setColumnOrder(colNames);
-        outMatrix = processMatrix(outMatrix);
 
         return outMatrix;
     }
@@ -444,8 +442,7 @@ public class ClinicalDataConverterImpl implements Converter {
 //        }
 
         DataMatrix outMatrix = makeOutMatrix(keepers, knownAliasToAttribute);
-//        outMatrix.write(System.out);
-
+        outMatrix = processMatrix(outMatrix);
 
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
         fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);

@@ -208,5 +208,7 @@ public class ClinicalDataConverterImplTest {
         }
         DataMatrix testDataMatrix = new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
         DataMatrix processed = clinicalDataConverter.processMatrix(testDataMatrix);
+
+//        processed.write(System.out);
     }
 }

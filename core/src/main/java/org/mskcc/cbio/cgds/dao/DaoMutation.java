@@ -324,7 +324,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation_event"
                         + "INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + " WHERE mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
+                        + " WHERE mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 rs = pstmt.executeQuery();
@@ -376,7 +376,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation, mutation_event "
                         + "WHERE mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "AND mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
+                        + "AND mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ? AND CASE_ID <> ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 pstmt.setString(3, excludeCaseId);
@@ -1148,7 +1148,7 @@ public final class DaoMutation {
             }
             
             pstmt = con.prepareStatement("INSERT INTO cosmic_mutation (`ENTREZ_GENE_ID`,"
-                    + "`AMINO_ACID_CHANGE`,`COUNT`) VALUES(?,?,?)",
+                    + "`PROTEIN_CHANGE`,`COUNT`) VALUES(?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
             pstmt.setLong(1, cosmic.getEntrezGeneId());
             pstmt.setString(2, cosmic.getAminoAcidChange());
@@ -1189,7 +1189,7 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             String sql = "SELECT * FROM cosmic_mutation "
-                    + "WHERE `ENTREZ_GENE_ID`=? AND `AMINO_ACID_CHANGE`=?";
+                    + "WHERE `ENTREZ_GENE_ID`=? AND `PROTEIN_CHANGE`=?";
             pstmt = con.prepareStatement(sql);
             pstmt.setLong(1, entrez);
             pstmt.setString(2, aaChange);
@@ -1229,7 +1229,7 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             String sql = "SELECT MUTATION_EVENT_ID, cosmic_mutation.COSMIC_MUTATION_ID,"
-                    + " `ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, `COUNT`"
+                    + " `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`, `COUNT`"
                     + " FROM cosmic_mutation, mutation_event_cosmic_mapping"
                     + " WHERE `MUTATION_EVENT_ID` IN ("+ strMutationEventIds +")"
                     + " AND cosmic_mutation.COSMIC_MUTATION_ID=mutation_event_cosmic_mapping.COSMIC_MUTATION_ID";

@@ -336,6 +336,29 @@ public class ClinicalDataConverterImpl implements Converter {
     }
 
     /**
+     * N.B. does not preserve order
+     * @param m DataMatrix
+     * @return new DataMatrix
+     */
+    public DataMatrix removeDuplicateRows(DataMatrix m) {
+        Set<List<String>> rowSet = new HashSet<List<String>>();
+        for (int i=3 ; i < m.getNumberOfRows(); i +=1) {        // i = 3, skip headers
+            rowSet.add(m.getRowData(i));
+        }
+
+        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
+        Iterator<List<String>> iterator = rowSet.iterator();
+        rows.add((LinkedList<String>) m.getRowData(0));     // put headers back in
+        rows.add((LinkedList<String>) m.getRowData(1));
+        rows.add((LinkedList<String>) m.getRowData(2));
+        while (iterator.hasNext()) {
+            rows.add((LinkedList<String>) iterator.next());
+        }
+
+        return new DataMatrix(rows, m.getColumnHeaders());
+    }
+
+    /**
      * Calculates new columns for a matrix based on what is in the matrix.
      * The matrix being in the format to be written into a staging file
      *

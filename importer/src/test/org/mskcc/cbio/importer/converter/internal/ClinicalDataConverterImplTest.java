@@ -153,9 +153,45 @@ public class ClinicalDataConverterImplTest {
         assertTrue(transposed.get(1).get(0).equals("12"));
     }
 
+    public DataMatrix createDataMatrix(String in) {
+        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
+        for (String row : Arrays.asList(in.split("\n"))) {
+            rows.add( new LinkedList<String>(Arrays.asList(row.split("\t"))) );
+        }
+
+        return new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
+    }
+
+    @Test
+    public void removeDuplicateRowsTest() throws Exception {
+        String in = "CASE_ID\tAGE\tDAYS_TO_DEATH\tDAYS_TO_LAST_FOLLOWUP\tETHNICITY\tGENDER\tVITAL_STATUS\n" +
+                "#Patient identifier\tAge\tdays to death\tdays to last followup\tEthnicity\tSex\tVital status\n" +
+                "#Patient identifier\tPatient age at diagnosis\tnumber of days until the patient died\tnumber of days until the last followup\tPatient ethnicity\tPatient sex\tPatient vital status as of last follow-up\n" +
+                "#STRING\tNUMBER\tNUMBER\tNUMBER\tSTRING\tSTRING\tBOOLEAN\n" +
+                "tcga-a1-a0sb\t70\tNA\t259\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sd\t59\tNA\t437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sb\t70\tNA\t259\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sd\t59\tNA\t437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0se\t56\tNA\t1320\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0se\t56\tNA\t1320\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sf\t54\tNA\t1463\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sf\t54\tNA\t1463\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sg\t61\tNA\t433\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sg\t61\tNA\t433\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sh\t39\tNA\t1437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0sh\t39\tNA\t1437\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0si\t52\tNA\t634\tnot hispanic or latino\tfemale\tliving\n" +
+                "tcga-a1-a0si\t52\tNA\t634\tnot hispanic or latino\tfemale\tliving\n";
+
+        DataMatrix testMatrix = createDataMatrix(in);
+        testMatrix =  clinicalDataConverter.removeDuplicateRows(testMatrix);
+
+        testMatrix.write(System.out);
+    }
+
     @Test
     public void processMatrixTest() throws Exception {
-        // no unit tests, but a playground to experiment
+        // no unit tests, just a playground
 
         // test DataMatrix
         String in = "CASE_ID\tAGE\tDAYS_TO_DEATH\tDAYS_TO_LAST_FOLLOWUP\tETHNICITY\tGENDER\tVITAL_STATUS\n" +
@@ -202,11 +238,7 @@ public class ClinicalDataConverterImplTest {
                 "tcga-a2-a0d2\t45\tNA\t761\tnot hispanic or latino\tfemale\tliving\n" +
                 "tcga-a2-a0d3\t42\tNA\t736\tnot hispanic or latino\tfemale\tliving\n";
 
-        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
-        for (String row : Arrays.asList(in.split("\n"))) {
-            rows.add( new LinkedList<String>(Arrays.asList(row.split("\t"))) );
-        }
-        DataMatrix testDataMatrix = new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
+        DataMatrix testDataMatrix = createDataMatrix(in);
         DataMatrix processed = clinicalDataConverter.processMatrix(testDataMatrix);
 
 //        processed.write(System.out);

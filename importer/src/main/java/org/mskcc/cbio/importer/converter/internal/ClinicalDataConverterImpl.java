@@ -76,6 +76,8 @@ public class ClinicalDataConverterImpl implements Converter {
     public static final String DAYS_TO_DEATH = "DAYS_TO_DEATH";
     public static final String NA = "NA";
 
+    public static final int N_METADATA = 3; // number of rows of metadata
+
 
     public static void main(String[] args) throws Exception {
         if (args.length != 0) {
@@ -342,7 +344,7 @@ public class ClinicalDataConverterImpl implements Converter {
      */
     public DataMatrix removeDuplicateRows(DataMatrix m) {
         Set<List<String>> rowSet = new HashSet<List<String>>();
-        for (int i=3 ; i < m.getNumberOfRows(); i +=1) {        // i = 3, skip headers
+        for (int i=N_METADATA ; i < m.getNumberOfRows(); i +=1) {        // i = 3, skip headers
             rowSet.add(m.getRowData(i));
         }
 
@@ -370,7 +372,6 @@ public class ClinicalDataConverterImpl implements Converter {
      * @return new DataMatrix
      */
     public DataMatrix processMatrix(DataMatrix m) {
-        int n_metadata = 3; // number of rows of metadata
 
         if (m.getColumnData(DAYS_TO_LAST_FOLLOWUP).size() == 0
                 || m.getColumnData(DAYS_TO_DEATH).size() == 0) {
@@ -379,11 +380,13 @@ public class ClinicalDataConverterImpl implements Converter {
             return m;
         }
 
+        m = removeDuplicateRows(m);
+
         List<String> followUps = m.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
-        followUps = followUps.subList(n_metadata, followUps.size());
+        followUps = followUps.subList(N_METADATA, followUps.size());
 
         List<String> deaths = m.getColumnData(DAYS_TO_DEATH).get(0);
-        deaths = deaths.subList(n_metadata, deaths.size());
+        deaths = deaths.subList(N_METADATA, deaths.size());
 
         List<String> overallSurvivals = new LinkedList<String>();
         overallSurvivals.add(0, "days alive after diagnosis");

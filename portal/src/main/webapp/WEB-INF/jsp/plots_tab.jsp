@@ -122,6 +122,10 @@
         </tr>
     </table>
     <br>
+    <form action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+        <input type='hidden' name='svgelement'>
+        <input type='submit' value='Get PDF'>
+    </form>
 </div>
 
 <script>
@@ -851,6 +855,14 @@ function median(v) {
         return v[half];
     else
         return (parseFloat(v[half-1]) + parseFloat(v[half]))/2;
+}
+
+function loadSVG() {
+    var mySVG = document.getElementById("plots_tab");
+    var svgDoc = mySVG.getElementsByTagName("svg");
+    var tmp1 = new XMLSerializer();
+    var tmp2 = tmp1.serializeToString(svgDoc[0]);
+    return tmp2;
 }
 
 window.onload=drawSideBar();

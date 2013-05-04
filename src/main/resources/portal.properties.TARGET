@@ -6,7 +6,7 @@ app.version=1.0
 db.user=
 db.password=
 db.host=localhost
-db.portal_db_name=cgds_target
+db.portal_db_name=cgds_gdac
 # props used by importer
 db.importer_db_name=cgds_importer
 db.driver=com.mysql.jdbc.Driver

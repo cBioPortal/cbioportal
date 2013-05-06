@@ -138,6 +138,8 @@ class FoundationFetcherImpl implements Fetcher {
 //		if (this.testXMLParsers())
 //			return;
 
+		// TODO authenticate before using the service
+
 		CaseInfoService caseInfoService = new CaseInfoService();
 		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
 
@@ -164,9 +166,8 @@ class FoundationFetcherImpl implements Fetcher {
 			String caseRecord = this.fetchCaseRecord(cases.item(lc),
 				foundationService);
 
-			// check for empty records
-			if (caseRecord != null &&
-			    caseRecord.contains("variant-report"))
+			// skip empty/unavailable records
+			if (caseRecord != null)
 			{
 				Document doc = dBuilder.parse(new InputSource(
 						new StringReader(caseRecord)));
@@ -687,7 +688,15 @@ class FoundationFetcherImpl implements Fetcher {
 		{
 			String fmiCaseID = ((Element)caseNode).getAttribute("fmiCase");
 			String caseID = ((Element)caseNode).getAttribute("case");
-			System.out.println(caseID);
+			String hasVariant = ((Element)caseNode).getAttribute("hasVariant");
+
+			// skip cases with no information
+			if (hasVariant.equals("false"))
+			{
+				return null;
+			}
+
+			//System.out.println(caseID);
 
 			if (LOG.isInfoEnabled()) {
 				LOG.info("fetch(), fetching case : " + caseID);

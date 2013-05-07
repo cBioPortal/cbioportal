@@ -283,7 +283,7 @@ def get_new_user_map(worksheet_feed, current_user_map):
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
             if openid_email not in current_user_map:
-                to_return[inst_email+openid_email] = User(inst_email, openid_email, name, 1, authorities)
+                to_return[openid_email] = User(inst_email, openid_email, name, 1, authorities)
 
     return to_return
     

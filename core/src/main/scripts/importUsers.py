@@ -60,7 +60,7 @@ CGDS_USERS_WORKSHEET = 'users.worksheet'
 # database names - used as keys to email subjects/body below
 GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
 SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
-PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio PROSTATE Cancer Genomics Portal'
+PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
@@ -474,8 +474,7 @@ def main():
         # update user authorities
         update_user_authorities(cursor, worksheet_feed)
 
-        # clean up
-        cursor.close()
+        # sending emails
         if new_user_map is not None:
             if send_email_confirm == 'true':
                 for new_user_key in new_user_map.keys():
@@ -486,6 +485,9 @@ def main():
                               MESSAGE_SUBJECT[portal_properties.google_spreadsheet],
                               MESSAGE_BODY[portal_properties.google_spreadsheet])
 
+
+    # clean up
+    cursor.close()
     connection.commit()
     connection.close()
 

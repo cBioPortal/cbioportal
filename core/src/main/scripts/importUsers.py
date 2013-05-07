@@ -463,7 +463,9 @@ def main():
     google_spreadsheets = portal_properties.google_spreadsheet.split(';')
 
     for google_spreadsheet in google_spreadsheets:
-        worksheet_feed = get_worksheet_feed(portal_properties.google_spreadsheet,
+        print >> OUTPUT_FILE, 'Importing ' + google_spreadsheet + ' ...'
+
+        worksheet_feed = get_worksheet_feed(google_spreadsheet,
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script

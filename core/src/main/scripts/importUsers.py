@@ -385,12 +385,12 @@ def manage_users(cursor, worksheet_feed):
 def update_user_authorities(cursor, worksheet_feed):
 
         # get map of current portal users
-        print >> OUTPUT_FILE, 'Getting list of current portal users'
-        current_user_map = get_current_user_map(worksheet_feed, {})
-        if current_user_map is None:
+        print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
+        all_user_map = get_new_user_map(worksheet_feed, {})
+        if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
-        for user in current_user_map.values():
+        for user in all_user_map.values():
                 if user.authorities[-1:] == ';':
                         user.authorities = user.authorities[:-1]
                 worksheet_authorities = set(user.authorities.split(';'))

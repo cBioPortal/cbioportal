@@ -5,5 +5,5 @@
     - Pediatric Acute Lymphoid Leukemia - Phase II : 139 tumors
     - Pediatric Acute Myeloid Leukemia : 136 tumors
     - Pediatric Neuroblastoma : 75 tumors
-    - Pediatric Osteosarcoma : 19 tumors
-    - Wilms' Tumor : 77 tumors.
+    - Pediatric Osteosarcoma : 50 tumors
+    - Wilms' Tumor : 121 tumors.

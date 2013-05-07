@@ -278,7 +278,7 @@ def get_new_user_map(worksheet_feed, current_user_map):
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
             inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-            openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
+            openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
             name = entry.custom[FULLNAME_KEY].text.strip()
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user

@@ -46,7 +46,7 @@ if (SkinUtil.showRightNavDataSets()) {
 <%
     out.println("data.addRows([");
     for (CancerStudyStats stats : cancerStudyStats) {
-        out.println("['" + stats.getStudyName() + "', " + stats.getAll() + "],");
+        out.println("[\"" + stats.getStudyName() + "\", " + stats.getAll() + "],");
     }
     out.println("]);");
 %>

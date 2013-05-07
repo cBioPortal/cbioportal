@@ -80,7 +80,7 @@ STATUS_APPROVED = "APPROVED"
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
-MESSAGE_SUBJECT = { GDAC_DATABASE_NAME : "cBioPortal for TCGA Access",
+MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "cBioPortal for TCGA Access",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
                     SU2C_DATABASE_NAME : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET" }
@@ -104,7 +104,7 @@ TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-T
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-MESSAGE_BODY = { GDAC_DATABASE_NAME : GDAC_MESSAGE_BODY,
+MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
                  PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
                  SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
                  TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY }

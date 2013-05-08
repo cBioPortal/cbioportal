@@ -1,16 +1,26 @@
 var Oncoprint = function(wrapper, params) {
 
-    var data = d3.nest()
+  params.clinicalData = params.clinicalData || [];     // initialize
+  params.clinical_attrs = params.clinical_attrs || [];
+
+  var data = d3.nest()
         .key(function(d) { return d.sample; })
         .entries(params.geneData.concat(params.clinicalData));
+
+    if (params.clinicalData === [] && params.clinical_attrs !== undefined) {
+      throw {
+        name: "Data Mismatch Error",
+        message: "There are clinical attributes for nonexistant clinical data"
+      }
+    }
 
     var attributes = params.clinical_attrs.concat(params.genes);
 
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
-            key: i.key,
-            values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
+          key: i.key,
+          values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
         };
     });
 
@@ -29,6 +39,7 @@ var Oncoprint = function(wrapper, params) {
         if (isNaN(parseInt(val))) {
             if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
         }
+
         else
         {
             // just keep the min and max -- an interval of values
@@ -49,6 +60,7 @@ var Oncoprint = function(wrapper, params) {
     }, {});
 
     // convert ranges to d3 scales
+    // simplistic : string -> discrete , number -> continuous
     for (var a2r in attr2range) {
         var scale = attr2range[a2r];
         var new_scale = isNaN(parseInt(scale[0])) ? d3.scale.ordinal() : d3.scale.linear();
@@ -60,8 +72,8 @@ var Oncoprint = function(wrapper, params) {
     }
 
     var dims = {
-        width: data.length * (5.5 + 3),
-        height: (23 + 5) * attributes.length
+      width: data.length * (5.5 + 3),
+      height: (23 + 5) * attributes.length
     };
 
     var getAttr = function(d) {
@@ -84,59 +96,82 @@ var Oncoprint = function(wrapper, params) {
         HOMODELETED: '#0000FF'
     };
 
-    var clinical = function(d) {
+//    var clinical = function(d) {
 //        console.log(d);
+//
+//        var cont_scale = d3.scale.linear()
+//                .domain([0,5000])
+//                .range([ "#ff7f0e", "#1f77b4"])
+//            ;
+//        if (d.attr_id === "OVERALL_SURVIVAL_DAYS") {
+//            return d.attr_val === "NA" ? '#D3D3D3' : cont_scale(parseInt(d.attr_val));
+//        }
+//
+//        if (d.attr_id === "VITAL_STATUS") {
+//            return d.attr_val === "living" ? "#1f77b4" : "#ff7f0e";
+//        }
+//
+//        return attr2range[d.attr_id](d.attr_val);
+//    };
 
-        var cont_scale = d3.scale.linear()
-            .domain([0,5000])
-            .range([ "#ff7f0e", "#1f77b4"])
-            ;
-
-        if (d.attr_id === "DAYS_TO_DEATH") {
-            return d.attr_val === "NA" ? '#D3D3D3' : cont_scale(parseInt(d.attr_val));
-        }
-
-        if (d.attr_id === "VITAL_STATUS") {
-            return d.attr_val === "living" ? "#1f77b4" : "#ff7f0e";
-        }
-
-        return "blue";
-    };
-
-    var enterSample = function(sample) {
+  var enterSample = function(sample) {
         var enter = sample.enter();
 
+        // N.B. fill doubles as cna
         var fill = enter.append('rect')
-            .attr('fill', function(d) { return d.gene ? cna_fills[d.cna] : clinical(d); })
-            .attr('height', 23)
+        .attr('fill', function(d) { return d.gene !== undefined ? cna_fills[d.cna] : attr2range[d.attr_id](d.attr_val) })
+        .attr('height', 23)
             .attr('width', 5.5)
             .attr('y', function(d) {
-                return (23 + 4) * attributes.indexOf(getAttr(d)); });
+              return (23 + 4) * attributes.indexOf(getAttr(d)); });
 
         var mut = enter.append('rect')
             .attr('fill', 'green')
             .attr('height', 10)
             .attr('width', 5.5)
             .attr('y', function(d) {
-                return (23 + 4) * attributes.indexOf(getAttr(d)); });
+              return (23 + 4) * attributes.indexOf(getAttr(d)); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
-    };
 
-    var sample = svg.selectAll('g')
-        .data(data)
-        .enter()
-        .append('g')
-        .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 2) + ",0)"; })
-        .selectAll('rect')
-        .data(function(d) {
-            return d.values;
-        });
+    var sym = d3.svg.symbol().size(5.5 * 2);
+    var rppa = enter.append('path')
+        .attr('d', sym.type(function(d) {
+          return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
+        .attr('transform', function(d) {return 'translate(2.75,10)'; })
+    ;
+    rppa.filter(function(d) {
+      return d.rppa === undefined;
+    }).remove();
 
-    enterSample(sample);
+    var mrna = enter.append('rect')
+        .attr('y', function(d) { return (23 + 4) * attributes.indexOf(getAttr(d)); })
+        .attr('height', 23)
+        .attr('width', 5.5)
+        .attr('stroke-width', 2)
+        .attr('stroke-opacity', 1)
+        .attr('stroke', function(d) { return d.mrna === "UPREGULATED" ? '#FF9999' : '#6699CC' })
+        .attr('fill', 'none')
+      mrna.filter(function(d) {
+          return d.mrna === undefined;
+      }).remove();
+  };
 
-    $('#oncoprint').children().show();      // todo: delete me!
+  var sample = svg.selectAll('g')
+      .data(data)
+      .enter()
+      .append('g')
+      .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 2) + ",0)"; })
+      .selectAll('rect')
+      .data(function(d) {
+          return d.values;
+      });
+
+  enterSample(sample);
+
+  $('#oncoprint').children().show();      // todo: delete me!
+
 };
 
 var _Oncoprint = function(wrapper, params) {
@@ -569,7 +604,7 @@ var _Oncoprint = function(wrapper, params) {
                 step: .01,
                 value: 1,
                 change: function(event, ui) {
-//                    console.log(ui.value);
+              //                    console.log(ui.value);
                     oncoprint.scaleWidth(ui.value);
                 }
             }).appendTo($('#oncoprint_controls #zoom'));
@@ -592,8 +627,8 @@ var _Oncoprint = function(wrapper, params) {
                     .text(cleaned_hugo);
             });
 
-            var longest = d3.max(
-                label_svg.selectAll('text')[0]
+          var longest = d3.max(
+              label_svg.selectAll('text')[0]
                     .map(function(text, i) {return text.getBBox().width; })
             );
 
@@ -803,4 +838,3 @@ var _Oncoprint = function(wrapper, params) {
 
     return that;
 };
-

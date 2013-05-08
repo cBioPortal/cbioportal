@@ -453,7 +453,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 .data(dataset)
                 .enter()
                 .append("svg:path")
-                .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + (Math.random() * (ramRatio))) + ", " + yScale(d[1]) + ")";})
+                .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
                 .attr("d", d3.svg.symbol()
                         .size(30)
                         .type( function (d) {
@@ -716,7 +716,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             var scaled_y_arr=[];
             var tmp_y_arr = [];
             //Find the middle line for one box plot
-            var midLine = xScale(i) + 20;
+            var midLine = xScale(i);
             //Find the max/min y value with certain x value;
             var index_tmp_y_data_array = 0;
             for (var j = 0; j < yData.length; j++) {

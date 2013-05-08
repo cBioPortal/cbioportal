@@ -341,10 +341,10 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     }
     var min_x = Math.min.apply(Math, tmp_xData);
     var max_x = Math.max.apply(Math, tmp_xData);
-    var edge_x = (max_x - min_x) * 0.2;
+    var edge_x = (max_x - min_x) * 0.1;
     var min_y = Math.min.apply(Math, tmp_yData);
     var max_y = Math.max.apply(Math, tmp_yData);
-    var edge_y = (max_y - min_y) * 0.2;
+    var edge_y = (max_y - min_y) * 0.1;
     //-------------------tmp---------------------------
 
     //Define scale functions
@@ -446,7 +446,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         //Add Noise to Data
         var ramRatio = 0;
         if (data_type_copy_no == "gistic") {
-            ramRatio = 40;
+            ramRatio = 20;
         }
         //Create SVG dots
         svg.selectAll("path")
@@ -586,36 +586,18 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                             .size(30)
                             .type(function(d, i) {
                                 switch(i) {
-                                    case 0: return symbol[0];
-                                    case 1: return symbol[1];
-                                    case 2: return symbol[2];
-                                    case 3: return symbol[3];
-                                    case 4: return symbol[4];
-                                    case 5: return symbol[5];
-                                    case 6: return symbol[6];
+                                    case i: return symbol[i];
                                 }
                             })
                     )
                     .attr("fill", function (d, i) {
                         switch (i) {
-                            case 0: return mutationFillTypes[0];
-                            case 1: return mutationFillTypes[1];
-                            case 2: return mutationFillTypes[2];
-                            case 3: return mutationFillTypes[3];
-                            case 4: return mutationFillTypes[4];
-                            case 5: return mutationFillTypes[5];
-                            case 6: return mutationFillTypes[6];
+                            case i: return mutationFillTypes[i];
                         }
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case 0: return mutationStrokeTypes[0];
-                            case 1: return mutationStrokeTypes[1];
-                            case 2: return mutationStrokeTypes[2];
-                            case 3: return mutationStrokeTypes[3];
-                            case 4: return mutationStrokeTypes[4];
-                            case 5: return mutationStrokeTypes[5];
-                            case 6: return mutationStrokeTypes[6];
+                            case i: return mutationStrokeTypes[i];
                         }
                     })
             legend.append("text")
@@ -624,13 +606,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     .style("text-anchor", "front")
                     .text(function(d, i) {
                         switch (i) {
-                            case 0: return mutationTypes[0];
-                            case 1: return mutationTypes[1];
-                            case 2: return mutationTypes[2];
-                            case 3: return mutationTypes[3];
-                            case 4: return mutationTypes[4];
-                            case 5: return mutationTypes[5];
-                            case 6: return mutationTypes[6];
+                            case i: return mutationTypes[i];
                         }
                     });
         } else {  //Legend for Gistic
@@ -650,22 +626,12 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     )
                     .attr("fill", function (d, i) {
                         switch(i) {
-                            case 0: return gisticLegendFillTypes[0];
-                            case 1: return gisticLegendFillTypes[1];
-                            case 2: return gisticLegendFillTypes[2];
-                            case 3: return gisticLegendFillTypes[3];
-                            case 4: return gisticLegendFillTypes[4];
-                            case 5: return gisticLegendFillTypes[5];
+                            case i: return gisticLegendFillTypes[i];
                         }
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case 0: return gisticLegendStrokeTypes[0];
-                            case 1: return gisticLegendStrokeTypes[1];
-                            case 2: return gisticLegendStrokeTypes[2];
-                            case 3: return gisticLegendStrokeTypes[3];
-                            case 4: return gisticLegendStrokeTypes[4];
-                            case 5: return gisticLegendStrokeTypes[5];
+                            case i: return gisticLegendStrokeTypes[i];
                         }
                     })
                     .attr("stroke-width", function (d, i) {
@@ -677,12 +643,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     .style("text-anchor", "front")
                     .text(function(d, i) {
                         switch (i) {
-                            case 0: return gisticLegendText[0];
-                            case 1: return gisticLegendText[1];
-                            case 2: return gisticLegendText[2];
-                            case 3: return gisticLegendText[3];
-                            case 4: return gisticLegendText[4];
-                            case 5: return gisticLegendText[5];
+                            case i: return gisticLegendText[i];
                         }
                     });
         }
@@ -726,11 +687,13 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             }
             tmp_y_arr.sort(function(a,b){return a-b});
-            if (tmp_y_arr.length == 1) {
+            if (tmp_y_arr.length == 0) {
+                //TODO: error handle (empty dataset)
+            } else if (tmp_y_arr.length == 1) {
                 mean = yScale(tmp_y_arr[0]);
                 var meanLine = svg.append("line")
-                        .attr("x1", midLine-50)
-                        .attr("x2", midLine+50)
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
                         .attr("y1", mean)
                         .attr("y2", mean)
                         .attr("stroke-width", 1)
@@ -763,7 +726,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                             quan2 = yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
                         }
                     }
-                    //var scaled_y_arr = [];
                     for (var k = 0 ; k < tmp_y_arr.length ; k++) {
                         scaled_y_arr[k] = parseFloat(yScale(tmp_y_arr[k]));
                     }

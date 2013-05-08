@@ -70,16 +70,26 @@ var Oncoprint = function(wrapper, params) {
         attr2range[a2r] = new_scale;
     }
 
-    var dims = {
-        width: data.length * (5.5 + 3),
-        height: (23 + 5) * attributes.length
-    };
-
     var getAttr = function(d) {
         return d.gene || d.attr_id;
     };
 
-    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
+    var dims = (function() {
+        var rect_height = 23;
+
+        var mut_height = rect_height / 3;
+
+        return {
+            width: data.length * (5.5 + 3),
+            height: (23 + 5) * attributes.length,
+            rect_height: rect_height,
+            rect_width: 5.5,
+            vert_padding: 4,
+            hor_padding: 2,
+            mut_height: mut_height
+        }
+    }());
+//    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 
     var svg = d3.select(wrapper)
         .append("svg")
@@ -116,20 +126,6 @@ var Oncoprint = function(wrapper, params) {
     var translate = function(x,y) {
         return "translate(" + x + "," + y + ")";
     };
-
-    var dims = (function() {
-        var rect_height = 23;
-
-        var mut_height = rect_height / 3;
-
-        return {
-            rect_height: rect_height,
-            rect_width: 5.5,
-            vert_padding: 4,
-            hor_padding: 2,
-            mut_height: mut_height
-        }
-    }());
 
     // it's entering time
     var enterSample = function(sample) {

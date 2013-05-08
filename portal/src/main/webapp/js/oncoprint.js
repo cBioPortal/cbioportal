@@ -1,17 +1,16 @@
 var Oncoprint = function(wrapper, params) {
+    params.clinicalData = params.clinicalData || [];     // initialize
+    params.clinical_attrs = params.clinical_attrs || [];
 
-  params.clinicalData = params.clinicalData || [];     // initialize
-  params.clinical_attrs = params.clinical_attrs || [];
-
-  var data = d3.nest()
+    var data = d3.nest()
         .key(function(d) { return d.sample; })
         .entries(params.geneData.concat(params.clinicalData));
 
     if (params.clinicalData === [] && params.clinical_attrs !== undefined) {
-      throw {
-        name: "Data Mismatch Error",
-        message: "There are clinical attributes for nonexistant clinical data"
-      }
+        throw {
+            name: "Data Mismatch Error",
+            message: "There are clinical attributes for nonexistant clinical data"
+        }
     }
 
     var attributes = params.clinical_attrs.concat(params.genes);
@@ -19,8 +18,8 @@ var Oncoprint = function(wrapper, params) {
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
-          key: i.key,
-          values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
+            key: i.key,
+            values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
         };
     });
 
@@ -72,8 +71,8 @@ var Oncoprint = function(wrapper, params) {
     }
 
     var dims = {
-      width: data.length * (5.5 + 3),
-      height: (23 + 5) * attributes.length
+        width: data.length * (5.5 + 3),
+        height: (23 + 5) * attributes.length
     };
 
     var getAttr = function(d) {
@@ -114,64 +113,103 @@ var Oncoprint = function(wrapper, params) {
 //        return attr2range[d.attr_id](d.attr_val);
 //    };
 
-  var enterSample = function(sample) {
+    var translate = function(x,y) {
+        return "translate(" + x + "," + y + ")";
+    };
+
+    var dims = (function() {
+        var rect_height = 23;
+
+        var mut_height = rect_height / 3;
+
+        return {
+            rect_height: rect_height,
+            rect_width: 5.5,
+            vert_padding: 4,
+            hor_padding: 2,
+            mut_height: mut_height
+        }
+    }());
+
+    // it's entering time
+    var enterSample = function(sample) {
         var enter = sample.enter();
 
         // N.B. fill doubles as cna
         var fill = enter.append('rect')
-        .attr('fill', function(d) { return d.gene !== undefined ? cna_fills[d.cna] : attr2range[d.attr_id](d.attr_val) })
-        .attr('height', 23)
-            .attr('width', 5.5)
+            .attr('fill', function(d) { return d.gene !== undefined ?
+                cna_fills[d.cna] :                  // gene data
+                attr2range[d.attr_id](d.attr_val)   // clinical data
+            })
+            .attr('height', function(d) {return d.gene !== undefined ? dims.rect_height : dims.rect_height / 3})
+            .attr('width', dims.rect_width)
             .attr('y', function(d) {
-              return (23 + 4) * attributes.indexOf(getAttr(d)); });
+                return d.gene !== undefined ?
+                    (dims.rect_height + dims.vert_padding) * (1 + params.genes.indexOf(getAttr(d))) :
+                    (dims.rect_height / 3) * attributes.indexOf(getAttr(d));});
 
         var mut = enter.append('rect')
             .attr('fill', 'green')
-            .attr('height', 10)
-            .attr('width', 5.5)
+            .attr('height', dims.mut_height)
+            .attr('width', dims.rect_width)
             .attr('y', function(d) {
-              return (23 + 4) * attributes.indexOf(getAttr(d)); });
+                return dims.mut_height + (dims.rect_height + dims.vert_padding) * (1 + params.genes.indexOf(getAttr(d))); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
 
-    var sym = d3.svg.symbol().size(5.5 * 2);
-    var rppa = enter.append('path')
-        .attr('d', sym.type(function(d) {
-          return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
-        .attr('transform', function(d) {return 'translate(2.75,10)'; })
-    ;
-    rppa.filter(function(d) {
-      return d.rppa === undefined;
-    }).remove();
+        var sym = d3.svg.symbol().size(dims.rect_width * 2);
+        var rppa = enter.append('path')
+                .attr('d', sym.type(function(d) {
+                    return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
+                .attr('transform', function(d) {
+                    var topbottom = dims.rect_height / 2;
+                    return translate(dims.rect_width / 2, topbottom + (dims.rect_height + dims.vert_padding) * (1 + params.genes.indexOf(getAttr(d)))); });
+        rppa.filter(function(d) {
+            return d.rppa === undefined;
+        }).remove();
 
-    var mrna = enter.append('rect')
-        .attr('y', function(d) { return (23 + 4) * attributes.indexOf(getAttr(d)); })
-        .attr('height', 23)
-        .attr('width', 5.5)
-        .attr('stroke-width', 2)
-        .attr('stroke-opacity', 1)
-        .attr('stroke', function(d) { return d.mrna === "UPREGULATED" ? '#FF9999' : '#6699CC' })
-        .attr('fill', 'none')
-      mrna.filter(function(d) {
-          return d.mrna === undefined;
-      }).remove();
-  };
+        var mrna = enter.append('rect')
+            .attr('y', function(d) { return (dims.rect_height + dims.vert_padding) * (1 + params.genes.indexOf(getAttr(d))); })
+            .attr('height', dims.rect_height)
+            .attr('width', dims.rect_width)
+            .attr('stroke-width', 2)
+            .attr('stroke-opacity', 1)
+            .attr('stroke', function(d) { return d.mrna === "UPREGULATED" ? '#FF9999' : '#6699CC' })
+            .attr('fill', 'none');
+        mrna.filter(function(d) {
+            return d.mrna === undefined;
+        }).remove();
+    };
 
-  var sample = svg.selectAll('g')
-      .data(data)
-      .enter()
-      .append('g')
-      .attr('transform', function(d,i) { return "translate(" + i * (5.5 + 2) + ",0)"; })
-      .selectAll('rect')
-      .data(function(d) {
-          return d.values;
-      });
+    var sample = svg.selectAll('g')
+        .data(data)
+        .enter()
+        .append('g')
+        .attr('class', 'sample')
+        .attr('transform', function(d,i) { return translate(i * (dims.rect_width + dims.hor_padding), 0); })
+            .selectAll('rect')
+            .data(function(d) {
+                return d.values;
+            });
 
-  enterSample(sample);
+    enterSample(sample);
 
-  $('#oncoprint').children().show();      // todo: delete me!
+    // remove white space
+//    d3.selectAll('.sample').transition()
+//        .duration(1000)
+//        .attr('transform', function(d,i) { return translate(i * dims.rect_width, 0); })
 
+//    var state = (function() {
+//    }())
+
+    // change width
+//    d3.selectAll('.sample *').transition()
+//        .duration(1000)
+//        .attr('width', dims.rect_width - 3)
+//    d3.selectAll('.sample path').transition(); // ... do something to these triangles
+
+    $('#oncoprint').children().show();      // todo: delete me!
 };
 
 var _Oncoprint = function(wrapper, params) {

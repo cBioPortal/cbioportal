@@ -6,25 +6,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-
 <script type="text/javascript" src="js/d3.v2.min.js"></script>
-<!--link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"-->
-
-<style type="text/css">
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: grey;
-        stroke-width:2;
-        shape-rendering: crispEdges;
-    }
-
-    .axis text {
-        font-family: sans-serif;
-        font-size: 11px;
-    }
-</style>
-
 <script>
 
     var gene,
@@ -112,20 +94,30 @@
                             <font style='font-size: 14px;color:white;font-weight: 7px;'> GO >> </font>
                         </button>
                     </td>
-                    <tr><td style='height:150px;'></td>
+                    <tr><td style='height:250px;'></td>
                 </table>
-
             </td>
             <td>
+                <br><b><div id="img_center" style="display:inline-block; padding-left:100px;"></div></b>
+                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                    <input type='hidden' name='svgelement'>
+                    <input type='hidden' name='filetype' value='pdf'>
+                    <input type='submit' value='PDF'>
+                </form>
+                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                    <input type='hidden' name='svgelement'>
+                    <input type='hidden' name='filetype' value='png'>
+                    <input type='submit' value='PNG'>
+                </form>
+                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                    <input type='hidden' name='svgelement'>
+                    <input type='hidden' name='filetype' value='svg'>
+                    <input type='submit' value='SVG'>
+                </form>
                 <div id="plots_tab"></div>
             </td>
         </tr>
     </table>
-    <br>
-    <form action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
-        <input type='hidden' name='svgelement'>
-        <input type='submit' value='Get PDF'>
-    </form>
 </div>
 
 <script>
@@ -206,7 +198,6 @@ function fetchData() {
         mutations[k] = mutationMap[case_set[k]];
     }
 }
-
 function drawSideBar() {
     //Plot Type
     for ( var m = 0; m < plot_type_list.length; m++) {
@@ -223,8 +214,9 @@ function drawSideBar() {
     fetchData();
     var tmp_axis_title_result = findAxisTitle();
     drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], 1, mutations);
+    $('#img_center').empty();
+    $('#img_center').append(gene + ": mRNA Expression v. CNA ");
 }
-
 function findAxisTitle() {
     var tmp_result = [];
     var xLegend;
@@ -257,10 +249,16 @@ function generateScatterPlots() {
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plot_type_list[0][0]) {    //"mrna_vs_copy_no"
         drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, 1, mutations);
+        $('#img_center').empty();
+        $('#img_center').append(gene + ": mRNA Expression v. CNA ");
     } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
         drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, 2, mutations);
+        $('#img_center').empty();
+        $('#img_center').append(gene + ": mRNA Expression v. DNA Methylation ");
     } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
         drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, 3, mutations);
+        $('#img_center').empty();
+        $('#img_center').append(gene + ": RPPA protein level v. mRNA Expression ");
     }
 }
 
@@ -376,35 +374,61 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             tmp_ticks_text_index += 1;
         }
         svg.append("g")
-                .attr("class","axis")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(0, 520)")
                 .call(xAxis.ticks(ticksTextSet.length))
                 .selectAll("text")
                 .data(ticksTextSet)
-                .style("text-anchor", "end")
-                .attr("dx", "-.8em")
-                .attr("dy", ".15em")
-                .attr("transform", function(d) {return "rotate(-65)"})
-                .text(function(d){return d})
+                .style("font-family", "sans-serif")
+                .style("font-size", "11px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black")
+                .text(function(d){return d});
     } else {
         svg.append("g")
-                .attr("class","axis")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(0, 520)")
-                .call(xAxis);
+                .call(xAxis)
+                .selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "11px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black");
     }
-
     svg.append("g")
-            .attr("class","axis")
+            .style("stroke-width", 2)
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 20)")
             .call(xAxis.orient("bottom").ticks(0));
-
     svg.append("g")
-            .attr("class","axis")
+            .style("stroke-width", 2)
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(100, 0)")
             .call(yAxis)
+            .selectAll("text")
+            .style("font-family", "sans-serif")
+            .style("font-size", "11px")
+            .style("stroke-width", 0.5)
+            .style("stroke", "black")
+            .style("fill", "black");
 
     svg.append("g")
-            .attr("class","axis")
+            .style("stroke-width", 2)
+            .style("fill", "none")
+            .style("stroke", "grey")
+            .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(600, 0)")
             .call(yAxis.orient("left").ticks(0));
 
@@ -791,7 +815,7 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
             .attr("x2", midLine)
             .attr("y1", quan1)
             .attr("y2", bottom)
-            .style("stroke-dasharray", ("3, 3"))
+        //.style("stroke-dasharray", ("3, 3"))
             .attr("stroke", "grey")
             .attr("stroke-width", 0.5);
     var dashLineBottom = svg.append("line")
@@ -799,7 +823,7 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
             .attr("x2", midLine)
             .attr("y1", quan2)
             .attr("y2", top)
-            .style("stroke-dasharray", ("3, 3"))
+        //.style("stroke-dasharray", ("3, 3"))
             .attr("stroke", "grey")
             .style("stroke-width", 0.5);
 }

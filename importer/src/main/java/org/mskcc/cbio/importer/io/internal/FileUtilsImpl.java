@@ -468,6 +468,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (cancerStudyMetadata.getPMID().length() > 0) {
 				writer.print("pmid: " + cancerStudyMetadata.getPMID() + "\n");
 			}
+			if (cancerStudyMetadata.getGroups().length() > 0) {
+				writer.print("groups: " + cancerStudyMetadata.getGroups() + "\n");
+			}
 
 			writer.flush();
 			writer.close();

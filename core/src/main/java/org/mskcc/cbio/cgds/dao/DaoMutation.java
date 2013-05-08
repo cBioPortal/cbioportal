@@ -323,7 +323,7 @@ public final class DaoMutation {
                 con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation_event"
-                        + "INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
+                        + " INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
                         + " WHERE mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);

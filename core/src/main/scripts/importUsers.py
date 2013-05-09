@@ -402,10 +402,10 @@ def update_user_authorities(cursor, worksheet_feed, portal_name):
                 worksheet_authorities = set(user.authorities.split(';'))
                 db_authorities = set(get_user_authorities(cursor, user.openid_email))
                 try:
-                        cursor.executemany("insert into authorities values(%s, "+portal_name+":%s)",
-                                           [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
-                        cursor.executemany("delete from authorities where email = (%s) and authority = ("+portal_name+"%s)",
-                                           [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
+                        cursor.executemany("insert into authorities values(%s, %s)",
+                                           [(user.openid_email, portal_name+":"+authority) for authority in worksheet_authorities - db_authorities])
+                        cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
+                                           [(user.openid_email, portal_name+":"+authority) for authority in db_authorities - worksheet_authorities])
                 except MySQLdb.Error, msg:
                         print >> ERROR_FILE, msg
 

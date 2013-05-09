@@ -341,7 +341,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     }
     var min_x = Math.min.apply(Math, tmp_xData);
     var max_x = Math.max.apply(Math, tmp_xData);
-    var edge_x = (max_x - min_x) * 0.1;
+    var edge_x = (max_x - min_x) * 0.2;
     var min_y = Math.min.apply(Math, tmp_yData);
     var max_y = Math.max.apply(Math, tmp_yData);
     var edge_y = (max_y - min_y) * 0.1;
@@ -435,8 +435,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
-    var mutationStrokeTypes = ["#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000", "#FF0000"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FAAC58", "#FAAC58", "#FAAC58", "#1C1C1C", "#FAAC58"];
+    var mutationStrokeTypes = ["#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FF8000", "#FF8000", "#FF8000", "#1C1C1C", "#FF8000"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];

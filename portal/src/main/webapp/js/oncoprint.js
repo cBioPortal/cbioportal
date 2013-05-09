@@ -202,6 +202,8 @@ var Oncoprint = function(wrapper, params) {
             });
     enterSample(sample);
 
+    MemoSort(data, attributes);
+
 //    var shuffle = function(array) {
 //        var m = array.length, t, i;
 //        while (m)  {
@@ -211,10 +213,12 @@ var Oncoprint = function(wrapper, params) {
 //        return array;
 //    };
 
-    // resort in the visualization
+    // re-sort
 //    x2 = x(shuffle(data).map(function(i) { return i.key; }));
 //    d3.selectAll('g').transition().duration(function(d,i) { return i * 40; })
 //        .attr('transform', function(d) { return translate(x2(d.key),0); });
+
+
 
     // remove white space
 //    d3.selectAll('.sample').transition()

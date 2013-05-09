@@ -1,4 +1,30 @@
-var MemoSort = function(geneAlterations, samples_list, gene_list) {
+//
+//
+// Gideon Dresdner <dresdnerg@cbio.mskcc.org> May 2013
+//
+//
+;
+// data is assumed to be in the form that is used in the OncoPrint.
+// Eventually this can be modified so that it can take different json formats.
+//
+// attributes : the ordering of the attributes.  Omission basically amounts to "smallest"
+//
+// returns a list of samples
+var MemoSort = function(data, attributes) {
+
+    console.log(data[0].values)
+
+    var comp = function(x,y) {
+
+        x.values
+        y.values
+    };
+
+    return data.sort(comp);
+};
+
+
+var _MemoSort = function(geneAlterations, samples_list, gene_list) {
 
     // filter the samples map
     var _geneAlterations = jQuery.extend(true, {}, geneAlterations);        // deep copy

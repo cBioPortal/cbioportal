@@ -288,7 +288,7 @@ def get_new_user_map(worksheet_feed, current_user_map, portal_name):
             # do not add entry if this entry is a current user
             if openid_email not in current_user_map:
                 if authorities[-1:] == ';':
-                    authorities = user.authorities[:-1]
+                    authorities = authorities[:-1]
                 to_return[openid_email] = User(inst_email, openid_email, name, 1,
                     [portal_name + ':' + au for au in authorities.split(';')])
 

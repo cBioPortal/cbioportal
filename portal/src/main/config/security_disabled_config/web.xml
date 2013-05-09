@@ -230,6 +230,11 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>EchoFile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -470,6 +475,12 @@
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>EchoFile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>

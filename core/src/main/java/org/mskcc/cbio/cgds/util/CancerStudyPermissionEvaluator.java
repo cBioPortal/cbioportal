@@ -211,11 +211,11 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	}
         
         private Set<String> getGrantedAuthorities(OpenIDUserDetails user) {
-            String appName = SkinUtil.getAppName();
+            String appName = SkinUtil.getAppName().toUpperCase();
             Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
             Set<String> grantedAuthorities = new HashSet<String>();
             for (String au : allAuthorities) {
-                if (au.toUpperCase().startsWith(appName.toUpperCase()+":")) {
+                if (au.toUpperCase().startsWith(appName+":")) {
                     grantedAuthorities.add(au.substring(appName.length()+1));
                 }
             }

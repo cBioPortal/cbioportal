@@ -482,8 +482,8 @@ def main():
                     print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
                                            (new_user.name, new_user.inst_email))
                     send_mail([new_user.inst_email],
-                              MESSAGE_SUBJECT[portal_properties.google_spreadsheet],
-                              MESSAGE_BODY[portal_properties.google_spreadsheet])
+                              MESSAGE_SUBJECT[google_spreadsheet],
+                              MESSAGE_BODY[google_spreadsheet])
 
 
     # clean up

@@ -57,11 +57,17 @@ GOOGLE_PW = 'google.pw'
 CGDS_USERS_SPREADSHEET = 'users.spreadsheet'
 CGDS_USERS_WORKSHEET = 'users.worksheet'
 
-# database names - used as keys to email subjects/body below
+# Google spreadsheet name - used as keys to email subjects/body below
 GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
 SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
 PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
+
+# portal name
+PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac_portal",
+                PROSTATE_USER_SPREADSHEET : "prostate_portal",
+                SU2C_USER_SPREADSHEET : "su2c_portal",
+                TARGET_USER_SPREADSHEET : "target_portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -382,7 +388,7 @@ def manage_users(cursor, worksheet_feed):
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(cursor, worksheet_feed):
+def update_user_authorities(cursor, worksheet_feed, portal_name):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
@@ -396,10 +402,10 @@ def update_user_authorities(cursor, worksheet_feed):
                 worksheet_authorities = set(user.authorities.split(';'))
                 db_authorities = set(get_user_authorities(cursor, user.openid_email))
                 try:
-                        cursor.executemany("insert into authorities values(%s, %s)",
+                        cursor.executemany("insert into authorities values(%s, "+portal_name+":%s)",
                                            [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
-                        #cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
-                        #                   [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
+                        cursor.executemany("delete from authorities where email = (%s) and authority = ("+portal_name+"%s)",
+                                           [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
                 except MySQLdb.Error, msg:
                         print >> ERROR_FILE, msg
 
@@ -472,7 +478,7 @@ def main():
         new_user_map = manage_users(cursor, worksheet_feed)
 
         # update user authorities
-        update_user_authorities(cursor, worksheet_feed)
+        update_user_authorities(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # sending emails
         if new_user_map is not None:

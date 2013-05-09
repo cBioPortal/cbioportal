@@ -263,8 +263,25 @@ function generateScatterPlots() {
 }
 
 
+
+/**
+ * Draw sccatter plots
+ *
+ * @param xData, yData --> types varies depends on plots type
+ * @param zData --> Annotation for points depends on plots type
+ * @param xLegend, yLegend --> Title for x&y axis
+ * @param type
+ *        1--> mrna_vs_copy_no
+ *        2--> mrna_vs_dna_mythelation
+ *        3--> rppa_protein_level_vs_mrna
+ * @param mutations --> Annotate mutation and GISTIC CNA together, extra dimension
+ *
+ */
+
+var dataset = [];
+var tmp_dot = [];
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations) {
-    var dataset = [];
+//    var dataset = [];
     //Create Canvas
     $('#plots_tab').empty();
     var w = 700;
@@ -273,11 +290,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             .append("svg")
             .attr("width", w)
             .attr("height", h);
-
     //Prepare DataSet
-
-    if (type == 1) {    //mrna_vs_copy_no
-        var index = 0;
+    var index = 4;
+    if (type == 1) {
         for( var i = 0; i<xData.length; i++) {
             //Skip NaN entries
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
@@ -304,8 +319,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             dataset[index] = [xData[i], yData[i], zData[i], mutations[i]];
             index += 1;
         }
-    } else if (type == 2) {  // mrna_vs_dna_mythelation
-        var index = 0;
+    } else if (type == 2) {
         for( var i = 0; i<xData.length; i++) {
             //Skip NaN entries
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
@@ -314,8 +328,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             dataset[index] = [xData[i], yData[i], zData[i], mutations[i]];
             index += 1;
         }
-    } else if (type == 3) {  //rppa_protein_level_vs_mrna
-        var index = 0;
+    } else if (type == 3) {
         for( var i = 0; i<xData.length; i++) {
             //Skip NaN entries
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
@@ -326,7 +339,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         }
     }
 
-    //-----------------tmp------//d3 min and max do NOT function well???
+    // --- Analysis Data --- find max, min, define edge(display purpose only)
     var tmp_xData = [];
     var tmp_xIndex = 0;
     var tmp_yData = [];
@@ -345,7 +358,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var min_y = Math.min.apply(Math, tmp_yData);
     var max_y = Math.max.apply(Math, tmp_yData);
     var edge_y = (max_y - min_y) * 0.1;
-    //-------------------tmp---------------------------
 
     //Define scale functions
     var padding = 200;
@@ -363,8 +375,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             .scale(yScale)
             .orient("left");
 
-    //Create SVG Axis
-    //Axis Annotation for GISTIC
+    //----Create SVG Axis (Duplicate: can NOT use CSS style here since batik won't take it for PDF convertion.)
+
+    //---------------Add extra text axis annotation for GISTIC
     if (type == 1 && data_type_copy_no == "gistic") {
         var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
         var ticksTextSet = [];
@@ -441,14 +454,61 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
     var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
-    //Add noice only to gistic display
+
+    //----------------- Plot dots for GISTIC v mRNA view (with data noise)
     if ( type == 1 ) {
-        //Add Noise to Data
+        //Define noise level
         var ramRatio = 0;
         if (data_type_copy_no == "gistic") {
             ramRatio = 20;
         }
-        //Create SVG dots
+//        svg.selectAll("path")
+//                .data(dataset)
+//                .enter()
+//                .append("svg:path")
+//                .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
+//                .attr("d", d3.svg.symbol()
+//                        .size(30)
+//                        .type( function (d) {
+//                            switch (d[2]) {
+//                                case mutationTypes[0] : return symbol[0];
+//                                case mutationTypes[1] : return symbol[1];
+//                                case mutationTypes[2] : return symbol[2];
+//                                case mutationTypes[3] : return symbol[3];
+//                                case mutationTypes[4] : return symbol[4];
+//                                case mutationTypes[5] : return symbol[5];
+//                                case mutationTypes[6] : return symbol[6];
+//                                default: return "circle";
+//                            }
+//                        }
+//                ))
+//                .attr("fill", function(d) {
+//                    switch (d[2]) {
+//                        case mutationTypes[0]: return mutationFillTypes[0];
+//                        case mutationTypes[1]: return mutationFillTypes[1];
+//                        case mutationTypes[2]: return mutationFillTypes[2];
+//                        case mutationTypes[3]: return mutationFillTypes[3];
+//                        case mutationTypes[4]: return mutationFillTypes[4];
+//                        case mutationTypes[5]: return mutationFillTypes[5];
+//                        case mutationTypes[6]: return mutationFillTypes[6];
+//                        default: return "none";
+//                    }
+//                })
+//                .attr("stroke", function(d) {
+//                    switch (d[2]) {
+//                        case mutationTypes[0]: return mutationStrokeTypes[0];
+//                        case mutationTypes[1]: return mutationStrokeTypes[1];
+//                        case mutationTypes[2]: return mutationStrokeTypes[2];
+//                        case mutationTypes[3]: return mutationStrokeTypes[3];
+//                        case mutationTypes[4]: return mutationStrokeTypes[4];
+//                        case mutationTypes[5]: return mutationStrokeTypes[5];
+//                        case mutationTypes[6]: return mutationStrokeTypes[6];
+//                        default: return "#2E9AFE";
+//                    }
+//                })
+//                .attr("stroke-width", function(d) {
+//                    return "1";
+//                });
         svg.selectAll("path")
                 .data(dataset)
                 .enter()
@@ -469,33 +529,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                             }
                         }
                 ))
-                .attr("fill", function(d) {
-                    switch (d[2]) {
-                        case mutationTypes[0]: return mutationFillTypes[0];
-                        case mutationTypes[1]: return mutationFillTypes[1];
-                        case mutationTypes[2]: return mutationFillTypes[2];
-                        case mutationTypes[3]: return mutationFillTypes[3];
-                        case mutationTypes[4]: return mutationFillTypes[4];
-                        case mutationTypes[5]: return mutationFillTypes[5];
-                        case mutationTypes[6]: return mutationFillTypes[6];
-                        default: return "none";
-                    }
-                })
-                .attr("stroke", function(d) {
-                    switch (d[2]) {
-                        case mutationTypes[0]: return mutationStrokeTypes[0];
-                        case mutationTypes[1]: return mutationStrokeTypes[1];
-                        case mutationTypes[2]: return mutationStrokeTypes[2];
-                        case mutationTypes[3]: return mutationStrokeTypes[3];
-                        case mutationTypes[4]: return mutationStrokeTypes[4];
-                        case mutationTypes[5]: return mutationStrokeTypes[5];
-                        case mutationTypes[6]: return mutationStrokeTypes[6];
-                        default: return "#2E9AFE";
-                    }
-                })
-                .attr("stroke-width", function(d) {
-                    return "1";
-                });
+        //--------------- Plot dots for other views
     } else {
         svg.selectAll("path")
                 .data(dataset)
@@ -539,7 +573,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 });
     }
 
-    //Error Handling
+    //Error Handling -- empty dataset
     var xHasData = false;
     var yHasData = false;
     for (var j = 0; j < xData.length; j++) {
@@ -609,7 +643,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                             case i: return mutationTypes[i];
                         }
                     });
-        } else {  //Legend for Gistic
+        } else {  //Legend for Gistic plus mutation annotation
             var legend = svg.selectAll(".legend")
                     .data(gisticLegendText)
                     .enter().append("g")
@@ -648,7 +682,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     });
         }
     }
-    //Axis Titles
+
+    //Append axis Titles
     svg.append("text")
             .attr("class", "label")
             .attr("x", 500)
@@ -743,7 +778,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 }
 
 function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
-    var rectangle = svg.append("rect")
+    //Rectangle
+    svg.append("rect")
             .attr("x", midLine-40)
             .attr("y", quan2)
             .attr("width", 80)
@@ -751,28 +787,32 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
             .attr("fill", "none")
             .attr("stroke-width", 0.5)
             .attr("stroke", "grey");
-    var meanLine = svg.append("line")
+    //meanLine
+    svg.append("line")
             .attr("x1", midLine-40)
             .attr("x2", midLine+40)
             .attr("y1", mean)
             .attr("y2", mean)
             .attr("stroke-width", 1)
             .attr("stroke", "grey");
-    var topLine = svg.append("line")
+    //topLine
+    svg.append("line")
             .attr("x1", midLine-30)
             .attr("x2", midLine+30)
             .attr("y1", top)
             .attr("y2", top)
             .attr("stroke-width", 0.5)
             .attr("stroke", "grey");
-    var bottomLine = svg.append("line")
+    //bottomLine
+    svg.append("line")
             .attr("x1", midLine-30)
             .attr("x2", midLine+30)
             .attr("y1", bottom)
             .attr("y2", bottom)
             .attr("stroke", "grey")
             .style("stroke-width", 0.5);
-    var dashLineTop = svg.append("line")
+    //Top Whisker
+    svg.append("line")
             .attr("x1", midLine)
             .attr("x2", midLine)
             .attr("y1", quan1)
@@ -780,7 +820,8 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
         //.style("stroke-dasharray", ("3, 3"))
             .attr("stroke", "grey")
             .attr("stroke-width", 0.5);
-    var dashLineBottom = svg.append("line")
+    //Bottom Whisker
+    svg.append("line")
             .attr("x1", midLine)
             .attr("x2", midLine)
             .attr("y1", quan2)

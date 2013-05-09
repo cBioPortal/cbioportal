@@ -217,9 +217,7 @@ def insert_new_users(cursor, new_user_list):
                            [(user.openid_email, user.name, user.enabled) for user in new_user_list])
         for user in new_user_list:
             # authorities is semicolon delimited
-            if user.authorities[-1:] == ';':
-                user.authorities = user.authorities[:-1]
-            authorities = user.authorities.split(';')
+            authorities = user.authorities
             cursor.executemany("insert into authorities values(%s, %s)",
                                [(user.openid_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
@@ -272,7 +270,7 @@ def get_user_authorities(cursor, openid_email):
 # ------------------------------------------------------------------------------
 # get current users
 
-def get_new_user_map(worksheet_feed, current_user_map):
+def get_new_user_map(worksheet_feed, current_user_map, portal_name):
 
     # map that we are returning
     # key is the institutional email address + openid (in case 1 use wants multiple openids)
@@ -289,7 +287,10 @@ def get_new_user_map(worksheet_feed, current_user_map):
             authorities = entry.custom[AUTHORITIES_KEY].text.strip()
             # do not add entry if this entry is a current user
             if openid_email not in current_user_map:
-                to_return[openid_email] = User(inst_email, openid_email, name, 1, authorities)
+                if authorities[-1:] == ';':
+                    authorities = user.authorities[:-1]
+                to_return[openid_email] = User(inst_email, openid_email, name, 1,
+                    [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
     
@@ -359,7 +360,7 @@ def get_portal_properties(portal_properties_filename):
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(cursor, worksheet_feed):
+def manage_users(cursor, worksheet_feed, portal_name):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -372,7 +373,7 @@ def manage_users(cursor, worksheet_feed):
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(worksheet_feed, current_user_map)
+    new_user_map = get_new_user_map(worksheet_feed, current_user_map, portal_name)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -392,20 +393,18 @@ def update_user_authorities(cursor, worksheet_feed, portal_name):
 
         # get map of current portal users
         print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
-        all_user_map = get_new_user_map(worksheet_feed, {})
+        all_user_map = get_new_user_map(worksheet_feed, {}, portal_name)
         if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
         for user in all_user_map.values():
-                if user.authorities[-1:] == ';':
-                        user.authorities = user.authorities[:-1]
-                worksheet_authorities = set(user.authorities.split(';'))
+                worksheet_authorities = set(user.authorities)
                 db_authorities = set(get_user_authorities(cursor, user.openid_email))
                 try:
                         cursor.executemany("insert into authorities values(%s, %s)",
-                                           [(user.openid_email, portal_name+":"+authority) for authority in worksheet_authorities - db_authorities])
+                                           [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
                         #cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
-                        #                   [(user.openid_email, portal_name+":"+authority) for authority in db_authorities - worksheet_authorities])
+                        #                   [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
                 except MySQLdb.Error, msg:
                         print >> ERROR_FILE, msg
 
@@ -475,7 +474,7 @@ def main():
                                             portal_properties.google_worksheet)
 
         # the 'guts' of the script
-        new_user_map = manage_users(cursor, worksheet_feed)
+        new_user_map = manage_users(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
 
         # update user authorities
         update_user_authorities(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])

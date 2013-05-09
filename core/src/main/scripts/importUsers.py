@@ -64,10 +64,10 @@ PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics
 TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
 
 # portal name
-PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac_portal",
-                PROSTATE_USER_SPREADSHEET : "prostate_portal",
-                SU2C_USER_SPREADSHEET : "su2c_portal",
-                TARGET_USER_SPREADSHEET : "target_portal" }
+PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
+                PROSTATE_USER_SPREADSHEET : "prostate-portal",
+                SU2C_USER_SPREADSHEET : "su2c-portal",
+                TARGET_USER_SPREADSHEET : "target-portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()

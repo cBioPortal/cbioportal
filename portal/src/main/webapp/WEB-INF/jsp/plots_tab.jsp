@@ -7,6 +7,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 <script type="text/javascript" src="js/d3.v2.min.js"></script>
+<!--script src="http://d3js.org/d3.v3.js" charset="utf-8"></script-->
 <script>
 
     var gene,
@@ -462,53 +463,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         if (data_type_copy_no == "gistic") {
             ramRatio = 20;
         }
-//        svg.selectAll("path")
-//                .data(dataset)
-//                .enter()
-//                .append("svg:path")
-//                .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
-//                .attr("d", d3.svg.symbol()
-//                        .size(30)
-//                        .type( function (d) {
-//                            switch (d[2]) {
-//                                case mutationTypes[0] : return symbol[0];
-//                                case mutationTypes[1] : return symbol[1];
-//                                case mutationTypes[2] : return symbol[2];
-//                                case mutationTypes[3] : return symbol[3];
-//                                case mutationTypes[4] : return symbol[4];
-//                                case mutationTypes[5] : return symbol[5];
-//                                case mutationTypes[6] : return symbol[6];
-//                                default: return "circle";
-//                            }
-//                        }
-//                ))
-//                .attr("fill", function(d) {
-//                    switch (d[2]) {
-//                        case mutationTypes[0]: return mutationFillTypes[0];
-//                        case mutationTypes[1]: return mutationFillTypes[1];
-//                        case mutationTypes[2]: return mutationFillTypes[2];
-//                        case mutationTypes[3]: return mutationFillTypes[3];
-//                        case mutationTypes[4]: return mutationFillTypes[4];
-//                        case mutationTypes[5]: return mutationFillTypes[5];
-//                        case mutationTypes[6]: return mutationFillTypes[6];
-//                        default: return "none";
-//                    }
-//                })
-//                .attr("stroke", function(d) {
-//                    switch (d[2]) {
-//                        case mutationTypes[0]: return mutationStrokeTypes[0];
-//                        case mutationTypes[1]: return mutationStrokeTypes[1];
-//                        case mutationTypes[2]: return mutationStrokeTypes[2];
-//                        case mutationTypes[3]: return mutationStrokeTypes[3];
-//                        case mutationTypes[4]: return mutationStrokeTypes[4];
-//                        case mutationTypes[5]: return mutationStrokeTypes[5];
-//                        case mutationTypes[6]: return mutationStrokeTypes[6];
-//                        default: return "#2E9AFE";
-//                    }
-//                })
-//                .attr("stroke-width", function(d) {
-//                    return "1";
-//                });
         svg.selectAll("path")
                 .data(dataset)
                 .enter()
@@ -529,6 +483,34 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                             }
                         }
                 ))
+                .attr("fill", function(d) {
+                    switch (d[2]) {
+                        case mutationTypes[0]: return mutationFillTypes[0];
+                        case mutationTypes[1]: return mutationFillTypes[1];
+                        case mutationTypes[2]: return mutationFillTypes[2];
+                        case mutationTypes[3]: return mutationFillTypes[3];
+                        case mutationTypes[4]: return mutationFillTypes[4];
+                        case mutationTypes[5]: return mutationFillTypes[5];
+                        case mutationTypes[6]: return mutationFillTypes[6];
+                        default: return "none";
+                    }
+                })
+                .attr("stroke", function(d) {
+                    switch (d[2]) {
+                        case mutationTypes[0]: return mutationStrokeTypes[0];
+                        case mutationTypes[1]: return mutationStrokeTypes[1];
+                        case mutationTypes[2]: return mutationStrokeTypes[2];
+                        case mutationTypes[3]: return mutationStrokeTypes[3];
+                        case mutationTypes[4]: return mutationStrokeTypes[4];
+                        case mutationTypes[5]: return mutationStrokeTypes[5];
+                        case mutationTypes[6]: return mutationStrokeTypes[6];
+                        default: return "#2E9AFE";
+                    }
+                })
+                .attr("stroke-width", function(d) {
+                    return "1";
+                });
+
         //--------------- Plot dots for other views
     } else {
         svg.selectAll("path")

@@ -12,12 +12,52 @@
 // returns a list of samples
 var MemoSort = function(data, attributes) {
 
-    console.log(data[0].values)
+    console.log(data[0].key);
+    console.log(data[0].values);
+
+    var comp_genes = function(attr1, attr2) {
+        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0},
+            regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
+
+        var cna_diff = attr1.cna - attr2.cna;
+        if (cna_diff !== 0) {
+            return cna_diff;
+        }
+
+        // figure out the mutation diff
+        if ((sample2.mutation === null) === (sample1.mutation === null)) {
+            mutation = 0;
+        } else if (sample2.mutation !== null) {
+            mutation = 1;
+        } else {
+            mutation = -1;
+        }
+        if (mutation_diff !== 0) {
+            return mutation_diff;
+        }
+    }
+
+    // compares two arbitrary attributes of a sample, as long as they are of the *same* attribute,
+    // i.e. gene compared with gene, VITAL_STATUS compared with VITAL_STATUS
+    var comp_attrs(attr1, attr2) {
+        if (attr1.gene === undefined) {
+            comp_genes(attr1, attr2);
+        }
+        else {
+            comp_clinical(attr1, attr2);
+        }
+    }
 
     var comp = function(x,y) {
 
-        x.values
-        y.values
+        for (var i = 0; i < x.values.length; i+=1) {
+            var x_attrs = x.values.sort(function(x,y) { return attributes.indexOf(i) - attributes.indexOf(j); });
+            var y_attrs = y.values.sort(function(x,y) { return attributes.indexOf(i) - attributes.indexOf(j); });
+
+            for (var attr : x_attrs) {
+
+            }
+        }
     };
 
     return data.sort(comp);

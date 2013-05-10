@@ -202,7 +202,7 @@ var Oncoprint = function(wrapper, params) {
             });
     enterSample(sample);
 
-    MemoSort(data, attributes);
+    console.log(MemoSort(data, attributes));
 
 //    var shuffle = function(array) {
 //        var m = array.length, t, i;

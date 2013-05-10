@@ -12,50 +12,72 @@
 // returns a list of samples
 var MemoSort = function(data, attributes) {
 
-    console.log(data[0].key);
-    console.log(data[0].values);
-
     var comp_genes = function(attr1, attr2) {
-        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0},
-            regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, null: 0};
+        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined:0},
+            regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0};
 
-        var cna_diff = attr1.cna - attr2.cna;
+        var cna_diff = cna_order[attr1.cna] - cna_order[attr2.cna];
         if (cna_diff !== 0) {
             return cna_diff;
         }
 
-        // figure out the mutation diff
-        if ((sample2.mutation === null) === (sample1.mutation === null)) {
-            mutation = 0;
-        } else if (sample2.mutation !== null) {
-            mutation = 1;
+        // figure out the mutation_diff
+        var mutation_diff;
+        if ((attr2.mutation === undefined) === (attr1.mutation === undefined)) {
+            mutation_diff = 0;
+        } else if (attr2.mutation !== undefined) {
+            mutation_diff = 1;
         } else {
-            mutation = -1;
+            mutation_diff = -1;
         }
+        // do the mutation diff
         if (mutation_diff !== 0) {
             return mutation_diff;
         }
-    }
 
-    // compares two arbitrary attributes of a sample, as long as they are of the *same* attribute,
-    // i.e. gene compared with gene, VITAL_STATUS compared with VITAL_STATUS
-    var comp_attrs(attr1, attr2) {
-        if (attr1.gene === undefined) {
-            comp_genes(attr1, attr2);
+        var mrna_diff = regulated_order[attr2.mrna] - regulated_order[attr1.mrna];
+        if (mrna_diff !== 0) {
+            return mrna_diff;
         }
-        else {
-            comp_clinical(attr1, attr2);
+
+        var rppa_diff = regulated_order[attr2.rppa] - regulated_order[attr1.rppa];
+        if (rppa_diff !== 0) {
+            return mrna_diff;
         }
-    }
+
+        return 0;       // they are equal in every way
+    };
+
+    var getAttr = function(d) {
+        return d.gene || d.attr_id;
+    };
+
+    var assert = function(bool) {
+        if (!bool) {
+            throw new Error("Assertion failure");
+        }
+    };
 
     var comp = function(x,y) {
-
         for (var i = 0; i < x.values.length; i+=1) {
-            var x_attrs = x.values.sort(function(x,y) { return attributes.indexOf(i) - attributes.indexOf(j); });
-            var y_attrs = y.values.sort(function(x,y) { return attributes.indexOf(i) - attributes.indexOf(j); });
+            var x_attrs = x.values
+                .sort(function(x,y) { return attributes.indexOf(getAttr(x)) - attributes.indexOf(getAttr(y)); });
 
-            for (var attr : x_attrs) {
+            var y_attrs = y.values
+                .sort(function(x,y) { return attributes.indexOf(getAttr(x)) - attributes.indexOf(getAttr(y)); });
 
+            for (var j = 0; j < x_attrs.length; j+=1) {
+                assert(x_attrs[j].gene === y_attrs[j].gene);
+                assert(x_attrs[j].attr_id === y_attrs[j].attr_id);
+
+                var diff = x_attrs[j].gene !== undefined
+                    ? comp_genes(x_attrs[j], y_attrs[j])
+//                    : comp_clinical(x_attrs[j], y_attrs[j]);
+                    : 0;
+
+                if (diff !== 0) {
+                    return diff;
+                }
             }
         }
     };
@@ -84,7 +106,7 @@ var _MemoSort = function(geneAlterations, samples_list, gene_list) {
 
         var sort_by = gene_list.pop();
 
-        // base case
+        // base case, they are equal
         if (sort_by === undefined) {
             return 0;
         }

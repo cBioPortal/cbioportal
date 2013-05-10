@@ -38,7 +38,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.List;
+import java.util.*;
 
 public class EchoFile extends HttpServlet {
 
@@ -60,11 +60,48 @@ public class EchoFile extends HttpServlet {
         }
     }
 
+    public Map<String, Map<String, String>> processCnaString(String cnaData) {
+
+        Map<String, Map<String, String>> sample2gene2cna = new HashMap<String, Map<String, String>>();
+
+        List<String> lines =  Arrays.asList(cnaData.split("\n"));
+        List<String> samples = Arrays.asList(lines.get(0).split("\t"));
+        samples = samples.subList(2, samples.size());
+
+        for (String line : lines.subList(1,lines.size())) {     // the first line is the samples line
+            List<String> values = Arrays.asList(line.split("\t"));
+            String hugo = values.get(0);
+            String entrez = values.get(1);
+
+            gene2cnaData.put(hugo, values.subList(2, values.size()));
+        }
+
+        return sample2gene2cna;
+    };
+
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
-
         try {
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
+
+            for (FileItem item : items) {
+                if (item.getFieldName().equals("cna")) {
+                    // handle cna data
+                }
+                else if (item.getFieldName().equals("mutation")) {
+                    // handle mutation
+                }
+                else if (item.getFieldName().equals("mrna")) {
+                    // handle mrna
+                }
+                else if (item.getFieldName().equals("rppa")) {
+
+                }
+                else {
+                    // echo back the string
+                }
+            }
+
             InputStream content = items.get(0).getInputStream();        // this might be bad
 
             java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");

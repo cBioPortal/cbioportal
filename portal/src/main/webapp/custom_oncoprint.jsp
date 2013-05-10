@@ -7,6 +7,7 @@
 <body>
 <form name="echofile" action="echofile" enctype="multipart/form-data" method="POST">
     <input name="cna" type="file" size="40">
+    <input name="mutations" type="file" size="40">
     <input type="button" value="Go!">
 </form>
 <progress></progress>
@@ -21,7 +22,7 @@
             xhr: function() {  // custom xhr
                 var myXhr = $.ajaxSettings.xhr();
                 if(myXhr.upload){ // check if upload property exists
-                    myXhr.upload.addEventListener('progress',progressHandlingFunction, false); // for handling the progress of the upload
+                    myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // for handling the progress of the upload
                 }
                 return myXhr;
             },

@@ -214,10 +214,10 @@ var Oncoprint = function(wrapper, params) {
 //    };
 
     // re-sort
-//    x2 = x(shuffle(data).map(function(i) { return i.key; }));
-//    d3.selectAll('g').transition().duration(function(d,i) { return i * 40; })
-//        .attr('transform', function(d) { return translate(x2(d.key),0); });
 
+    x2 = create_x(pick_sample(MemoSort(data, attributes)));
+    d3.selectAll('g').transition().duration(function(d,i) { return i * 40; })
+        .attr('transform', function(d) { return translate(x2(d.key),0); });
 
 
     // remove white space

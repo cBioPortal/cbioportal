@@ -13,10 +13,10 @@
 var MemoSort = function(data, attributes) {
 
     var comp_genes = function(attr1, attr2) {
-        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined:0},
+        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0};
 
-        var cna_diff = cna_order[attr1.cna] - cna_order[attr2.cna];
+        var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
         if (cna_diff !== 0) {
             return cna_diff;
         }
@@ -42,7 +42,7 @@ var MemoSort = function(data, attributes) {
 
         var rppa_diff = regulated_order[attr2.rppa] - regulated_order[attr1.rppa];
         if (rppa_diff !== 0) {
-            return mrna_diff;
+            return rppa_diff;
         }
 
         return 0;       // they are equal in every way

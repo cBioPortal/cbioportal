@@ -139,6 +139,7 @@ var Oncoprint = function(wrapper, params) {
             .attr('height', function(d) {return dims.rect_height; })
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
+                // todo: dims.vert_space = dims.rect_height + dims.vert_padding
                 return (dims.rect_height + dims.vert_padding) * attributes.indexOf(getAttr(d)); });
 
         var mut = enter.append('rect')
@@ -178,6 +179,7 @@ var Oncoprint = function(wrapper, params) {
     // takes a list of samples and returns a function, f
     // f : sample id --> x-position in oncoprint
     var create_x = function(samples) {
+        // todo: optimization would be a map: sample -> index to avoid the costly function indexOf?
         return function(d) {
             return samples.indexOf(d) * (dims.rect_width + dims.hor_padding);
         };
@@ -195,14 +197,13 @@ var Oncoprint = function(wrapper, params) {
         .enter()
         .append('g')
         .attr('class', 'sample')
-        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
+//        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
+        .attr('transform', function(d,i) { return translate(-100, 0); })
             .selectAll('rect')
             .data(function(d) {
                 return d.values;
             });
     enterSample(sample);
-
-    console.log(MemoSort(data, attributes));
 
 //    var shuffle = function(array) {
 //        var m = array.length, t, i;
@@ -213,12 +214,19 @@ var Oncoprint = function(wrapper, params) {
 //        return array;
 //    };
 
-    // re-sort
+    d3.selectAll('g').transition()
+        .duration(1000)
+        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
 
-    x2 = create_x(pick_sample(MemoSort(data, attributes)));
-    d3.selectAll('g').transition().duration(function(d,i) { return i * 40; })
-        .attr('transform', function(d) { return translate(x2(d.key),0); });
-
+    setTimeout(function() {
+        // re-sort
+        var asdf = pick_sample(MemoSort(data, attributes));
+        x2 = create_x(asdf);
+        d3.selectAll('g').transition()
+            .duration(function(d,i) { return asdf.indexOf(d.key) * 20; })
+//        .duration(1500)
+            .attr('transform', function(d) { return translate(x2(d.key),0); });
+    },2000);
 
     // remove white space
 //    d3.selectAll('.sample').transition()

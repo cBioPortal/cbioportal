@@ -127,7 +127,7 @@ var Oncoprint = function(wrapper, params) {
     };
 
     // it's entering time
-    var enterSample = function(sample) {
+    var enter = function(sample) {
         var enter = sample.enter();
 
         // N.B. fill doubles as cna
@@ -176,12 +176,19 @@ var Oncoprint = function(wrapper, params) {
         }).remove();
     };
 
-    // takes a list of samples and returns a function, f
+    // takes a list of samples and returns an object that contains a function f,
+    // and a map, sample2index
+    //
     // f : sample id --> x-position in oncoprint
-    var create_x = function(samples) {
-        // todo: optimization would be a map: sample -> index to avoid the costly function indexOf?
-        return function(d) {
-            return samples.indexOf(d) * (dims.rect_width + dims.hor_padding);
+    var xscale = function(samples) {
+        var sample2index = {};  // quick indexing
+        for (var i = 0; i < samples.length; i+=1) {
+            sample2index[samples[i]] = i;
+        }
+
+        return {
+            scale: function(d) { return sample2index[d] * (dims.rect_width + dims.hor_padding); },
+            sample2index: sample2index
         };
     };
 
@@ -190,43 +197,63 @@ var Oncoprint = function(wrapper, params) {
         return data.map(function(i) { return i.key; });
     };
 
-    var x = create_x(pick_sample(data));
+    // composition of xscale and pick_sample
+    var data2xscale = function(data) {
+        return xscale(pick_sample(data));
+    };
 
-    var sample = svg.selectAll('g')
+    var columns = svg.selectAll('g')        // array of arrays
         .data(data)
         .enter()
         .append('g')
         .attr('class', 'sample')
 //        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
-        .attr('transform', function(d,i) { return translate(-100, 0); })
+        .attr('transform', translate(-100, 0))
             .selectAll('rect')
             .data(function(d) {
                 return d.values;
             });
-    enterSample(sample);
+    enter(columns);
 
-//    var shuffle = function(array) {
-//        var m = array.length, t, i;
-//        while (m)  {
-//            i = Math.floor(Math.random() * m--);
-//            t = array[m], array[m] = array[i], array[i] = t;
-//        }
-//        return array;
-//    };
+    // The State object is our representation of the state of the oncoprint.
+    // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.
+    var State = (function() {
+        var data;
 
-    d3.selectAll('g').transition()
-        .duration(1000)
-        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
+        // re-renders the oncoprint based
+        var render = function() {
+            // re-sort
+            var x = data2xscale(data);
+            d3.selectAll('g').transition()
+                .duration(function(d) { return x.sample2index[d.key] * 20; })
+                .attr('transform', function(d) { return translate(x.scale(d.key),0); });
+        };
+
+        return {
+            setData: function(d) {
+                data = d;
+                render(data);
+            },
+            getData: function() { return data; },
+            render: function() { return render; }
+        }
+    })();
+
+    State.setData(data);
 
     setTimeout(function() {
-        // re-sort
-        var asdf = pick_sample(MemoSort(data, attributes));
-        x2 = create_x(asdf);
-        d3.selectAll('g').transition()
-            .duration(function(d,i) { return asdf.indexOf(d.key) * 20; })
-//        .duration(1500)
-            .attr('transform', function(d) { return translate(x2(d.key),0); });
-    },2000);
+        State.setData(MemoSort(data, attributes));
+    }, 4000);
+
+//    setTimeout(function() {
+//        // re-sort
+//        var asdf = pick_sample(MemoSort(data, attributes));
+//        x2 = xscale(asdf);
+//        d3.selectAll('g').transition()
+//            .duration(function(d,i) { return asdf.indexOf(d.key) * 20; })
+////        .duration(1500)
+//            .attr('transform', function(d) { return translate(x2(d.key),0); });
+//    },2000);
 
     // remove white space
 //    d3.selectAll('.sample').transition()
@@ -243,6 +270,16 @@ var Oncoprint = function(wrapper, params) {
 //    d3.selectAll('.sample path').transition(); // ... do something to these triangles
 
     $('#oncoprint').children().show();      // todo: delete me!
+
+    // randomly shuffle an array
+    var shuffle = function(array) {
+        var m = array.length, t, i;
+        while (m)  {
+            i = Math.floor(Math.random() * m--);
+            t = array[m], array[m] = array[i], array[i] = t;
+        }
+        return array;
+    };
 };
 
 var _Oncoprint = function(wrapper, params) {

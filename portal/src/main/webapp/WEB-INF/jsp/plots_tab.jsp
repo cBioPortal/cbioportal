@@ -6,10 +6,17 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
+<%
+    String cancer_study_id = (String)request.getParameter("cancer_study_id");
+    String case_set_id = (String)request.getParameter("case_set_id");
+    String[] gene_list = ((String)request.getParameter("gene_list")).split("\\s+");
+%>
 <script type="text/javascript" src="js/d3.v3.js"></script>
 <script>
-
-    var gene,
+    var cancer_study_id = "<%out.print(cancer_study_id);%>",
+            case_set_id = "<%out.print(case_set_id);%>",
+            case_set_name,
+            gene,
             case_set = [],
             mutations = [],
             copy_no = [],
@@ -17,52 +24,70 @@
             rppa = [],
             dna_methylation = [],
             extended_mutations = [],
+            genetic_profile_mutations = [],
+            genetic_profile_mrna = [],
+            genetic_profile_copy_no = [],
+            genetic_profile_rppa = [],
+            genetic_profile_dna_methylation = [],
             result_set = new Array(5);
+
     for ( var i = 0 ; i< result_set.length; i++) {
         result_set[i] = new Array();
     }
-    var genetic_profile_mutations = [
-                "mutations", "Mutations"
-            ],
-            genetic_profile_mrna = [
-                ["mrna_U133", "mRNA expression (U133 microarray only)"],
-                ["mrna", "mRNA expression (microarray)"],
-                ["mrna_median_Zscores", "mRNA Expression z-Scores (microarray)"],
-                ["rna_seq_v2_mrna", "mRNA expression (RNA Seq V2 RSEM)"],
-                ["rna_seq_v2_mrna_median_Zscores", "mRNA Expression z-Scores (RNA Seq V2 RSEM)"],
-                ["mirna", "microRNA expression"],
-                ["mirna_median_Zscores", "microRNA expression Z-scores"],
-                ["mrna_median", "mRNA expression (all genes)"],
-                ["mrna_merged_median_Zscores", "mRNA/miRNA expression Z-scores (all genes)"],
-                ["mrna_zbynorm", "mRNA Expression Z-Scores vs Normals"],
-                ["mrna_znormal", "mRNA Z-scores vs normal fat"],
-                ["mrna_outliers", "mRNA Expression Outliers"],
-                ["mrna_outlier", "mRNA outliers"]
-            ],
-            genetic_profile_copy_no = [
-                ["gistic", "Putative copy-number alterations from GISTIC"],
-                ["log2CNA", "Log2 copy-number values"],
-                ["cna", "Putative copy-number alterations (RAE)"]
-            ],
-            genetic_profile_rppa = [
-                "RPPA_protein_level", "Protein/Phosphoprotein level (RPPA)"
-            ],
-            genetic_profile_dna_methylation = [
-                "methylation_hm27", "Methylation (HM27)"
-            ],
-            plot_type_list = [
-                ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
-                ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
-                ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
-            ];
+    var plot_type_list = [
+        ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
+        ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
+        ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
+    ];
     var data_type_copy_no, data_type_mrna, xLegend, yLegend;
 
 </script>
-<%
-    String cancer_study_id = (String)request.getParameter("cancer_study_id");
-    String case_set_id = (String)request.getParameter("case_set_id");
-    String[] gene_list = ((String)request.getParameter("gene_list")).split("\\s+");
-%>
+
+<script>
+    $(document).ready(function(){
+        var result;
+        $.ajax({
+            url: 'portal_meta_data.json',
+            dataType: 'json',
+            success: function(data) {
+                result = data;
+                generateFrame(result);
+            },
+            async:false,
+        });
+    });
+    $(window).load (function(){
+        drawSideBar();
+    });
+    function generateFrame(json){
+        var tmpArr = [];
+        alert(json.cancer_studies.<% out.print(cancer_study_id); %>.description);
+        $.each(json.cancer_studies.<% out.print(cancer_study_id); %>.case_sets, function(i, item_case_set){
+            if (item_case_set.id == case_set_id) {
+                case_set_name = item_case_set.name;
+            }
+        });
+        $.each(json.cancer_studies.<% out.print(cancer_study_id); %>.genomic_profiles, function(j, item_genomic_profile){
+            if (item_genomic_profile.alteration_type == "MUTATION_EXTENDED") {
+                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
+                genetic_profile_mutations.push(tmpArr);
+            } else if (item_genomic_profile.alteration_type == "MRNA_EXPRESSION") {
+                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
+                genetic_profile_mrna.push(tmpArr);
+            } else if (item_genomic_profile.alteration_type == "COPY_NUMBER_ALTERATION") {
+                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
+                genetic_profile_copy_no.push(tmpArr);
+            } else if (item_genomic_profile.alteration_type == "METHYLATION") {
+                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
+                genetic_profile_dna_methylation.push(tmpArr);
+            } else if (item_genomic_profile.alteration_type == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
+                genetic_profile_rppa.push(tmpArr);
+            }
+        });
+    }
+</script>
+
 <div class="section" id="plots">
     <table >
         <tr>
@@ -121,17 +146,18 @@
 </div>
 
 <script>
+var urls;
 function fetchData() {
     gene = document.getElementById("genes").value;
     data_type_copy_no = document.getElementById("data_type_copy_no").value;
     data_type_mrna = document.getElementById("data_type_mrna").value;
-    var url_base = "webservice.do?cmd=getProfileData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + gene + "&genetic_profile_id=";
-    var urls = [
-        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_mutations[0], //mutations
-        url_base + "<% out.print(cancer_study_id); %>_" + data_type_copy_no, //copy no
-        url_base + "<% out.print(cancer_study_id); %>_" + data_type_mrna, //mrna
-        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_rppa[0], //rppa
-        url_base + "<% out.print(cancer_study_id); %>_" + genetic_profile_dna_methylation[0] //dna methylation
+    var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + gene + "&genetic_profile_id=";
+    urls = [
+        url_base + genetic_profile_mutations[0][0], //mutations
+        url_base + data_type_copy_no, //copy no
+        url_base + data_type_mrna, //mrna
+        url_base + genetic_profile_rppa[0][0], //rppa
+        url_base + genetic_profile_dna_methylation[0][0] //dna methylation
     ];
     for (var i = 0; i < urls.length; i++) {
         $.ajax({
@@ -175,7 +201,7 @@ function fetchData() {
         mutationMap[case_set[i]] = "non";
     }
     $.ajax({
-        url: "webservice.do?cmd=getMutationData&case_set_id=<% out.print(case_set_id); %>&gene_list=" + gene + "&genetic_profile_id=<% out.print(cancer_study_id); %>_mutations",
+        url: "webservice.do?cmd=getMutationData&case_set_id=" + case_set_id + "&gene_list=" + gene + "&genetic_profile_id=" + cancer_study_id + "_mutations",
         type: 'get',
         dataType: 'text',
         async: false,
@@ -873,9 +899,8 @@ function loadSVG() {
     return tmp2;
 }
 
-window.onload=drawSideBar();
-
 </script>
+
 
 <%!
     public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {

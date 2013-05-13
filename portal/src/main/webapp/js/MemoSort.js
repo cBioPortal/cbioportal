@@ -48,6 +48,10 @@ var MemoSort = function(data, attributes) {
         return 0;       // they are equal in every way
     };
 
+    var comp_clinical = function(attr1, attr2) {
+        return attr1.attr_val < attr2.attr_val;
+    };
+
     var getAttr = function(d) {
         return d.gene || d.attr_id;
     };
@@ -72,14 +76,14 @@ var MemoSort = function(data, attributes) {
 
                 var diff = x_attrs[j].gene !== undefined
                     ? comp_genes(x_attrs[j], y_attrs[j])
-//                    : comp_clinical(x_attrs[j], y_attrs[j]);
-                    : 0;
+                    : comp_clinical(x_attrs[j], y_attrs[j]);
 
                 if (diff !== 0) {
                     return diff;
                 }
             }
         }
+        return 0;
     };
 
     return data.sort(comp);

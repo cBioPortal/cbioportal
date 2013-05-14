@@ -273,15 +273,15 @@ function generateScatterPlots() {
     var yLegend = axisTitles[1];
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, 1, mutations);
+        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, 1);
         $('#img_center').empty();
         $('#img_center').append(gene + ": mRNA Expression v. CNA ");
     } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, 2, mutations);
+        drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, 2);
         $('#img_center').empty();
         $('#img_center').append(gene + ": mRNA Expression v. DNA Methylation ");
     } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, 3, mutations);
+        drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, 3);
         $('#img_center').empty();
         $('#img_center').append(gene + ": RPPA protein level v. mRNA Expression ");
     }
@@ -305,7 +305,7 @@ function generateScatterPlots() {
 
 var dataset = [];
 var tmp_dot = [];
-function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations) {
+function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
 //    var dataset = [];
     //Create Canvas
     $('#plots_tab').empty();
@@ -341,7 +341,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             } else {
                 zData[i] = "non";
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
             index += 1;
         }
     } else if (type == 2) {
@@ -350,7 +350,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
                 continue;
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
             index += 1;
         }
     } else if (type == 3) {
@@ -359,7 +359,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
                 continue;
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
             index += 1;
         }
     }
@@ -481,6 +481,12 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
 
     //----------------- Plot dots for GISTIC v mRNA view (with data noise)
+    var tooltip = d3.select("body")
+            .append("div")
+            .style("position", "absolute")
+            .style("z-index", "10")
+            .style("visibility", "hidden");
+
     if ( type == 1 ) {
         //Define noise level
         var ramRatio = 0;
@@ -493,7 +499,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 .append("svg:path")
                 .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
                 .attr("d", d3.svg.symbol()
-                        .size(30)
+                        .size(25)
                         .type( function (d) {
                             switch (d[2]) {
                                 case mutationTypes[0] : return symbol[0];
@@ -516,7 +522,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         case mutationTypes[4]: return mutationFillTypes[4];
                         case mutationTypes[5]: return mutationFillTypes[5];
                         case mutationTypes[6]: return mutationFillTypes[6];
-                        default: return "none";
+                        default: return "#2E9AFE";
                     }
                 })
                 .attr("stroke", function(d) {
@@ -528,12 +534,32 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         case mutationTypes[4]: return mutationStrokeTypes[4];
                         case mutationTypes[5]: return mutationStrokeTypes[5];
                         case mutationTypes[6]: return mutationStrokeTypes[6];
-                        default: return "#2E9AFE";
+                        default: return "none";
                     }
                 })
-                .attr("stroke-width", function(d) {
-                    return "1";
-                });
+                .style("opacity", function(d) {
+                    switch (d[2]) {
+                        case "non": return 0.5;
+                        default: return 10;
+                    }
+                })
+                .attr("stroke-width", 1);
+
+        svg.selectAll('path').each(function(d, i) {
+            $(this).qtip({
+                content: {text: 'qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + "Mutation:" + d[3] + '</br>' + "Case ID:" + d[4] + '</font>';
+                        api.set('content.text', content);
+                    }
+                },
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                //position: {my:'left top',at:'bottom center'}
+                position: {my:'left bottom',at:'top right'}
+            });
+        });
 
         //--------------- Plot dots for other views
     } else {

@@ -176,8 +176,8 @@ var Oncoprint = function(wrapper, params) {
     // This object is returned to the user for the UI
     var State = (function() {
         var data;
-        var whitespace = true;      // show white space?
-        var zoom = dims.rect_width;
+        var whitespace = true;              // show white space?
+        var rect_width = dims.rect_width;   // initialize
 
         // takes a list of samples and returns an object that contains a function f,
         // and a map, sample2index
@@ -190,7 +190,7 @@ var Oncoprint = function(wrapper, params) {
             }
 
             return {
-                scale: function(d) { return sample2index[d] * (dims.rect_width
+                scale: function(d) { return sample2index[d] * (rect_width
                     + (whitespace ? dims.hor_padding : 0)); },
                 sample2index: sample2index
             };
@@ -206,11 +206,11 @@ var Oncoprint = function(wrapper, params) {
             return xscale(pick_sample(data));
         };
 
-        // re-renders the oncoprint
-        var render = function() {
+        // puts all the samples in the correct horizontal position
+        var xtranslate = function() {
             // re-sort
             var x = data2xscale(data);
-            d3.selectAll('g').transition()
+            d3.selectAll('.sample').transition()
                 .duration(function(d) { return x.sample2index[d.key] * 20; })
                 .attr('transform', function(d) { return translate(x.scale(d.key),0); });
         };
@@ -219,26 +219,30 @@ var Oncoprint = function(wrapper, params) {
         return {
             setData: function(d) {
                 data = d;
-                render(data);
+                xtranslate();
             },
             memoSort: function(attributes) {
                 data = MemoSort(data, attributes);
-                render();
+                xtranslate();
             },
             getData: function() { return data; },
-            render: function() { return render; },
+            render: function() { return xtranslate; },
             setWhiteSpace: function(ws) {
                 whitespace = ws;
-                render();
+                xtranslate();
             },
-            zoom: function() {
+            zoom: function(scalar) {
+                rect_width = scalar * dims.rect_width;
 
+                d3.selectAll('.sample rect')
+                    .transition()
+                    .duration(1000)
+                    .attr('width', dims.rect_width * scalar)
+
+                xtranslate();
             }
         };
     })();
-
-//    State.setData(data);
-    State.setData(MemoSort(data, attributes));
 
     // randomly shuffle an array
     var shuffle = function(array) {
@@ -250,9 +254,11 @@ var Oncoprint = function(wrapper, params) {
         return array;
     };
 
-//    var attrs = shuffle(attributes);
-//    console.log(attrs);
-//    State.setData(MemoSort(data, attrs));
+//    State.setData(data);
+//    State.setData(MemoSort(data, attributes));
+    var attrs = shuffle(attributes);
+    console.log(attrs);
+    State.setData(MemoSort(data, shuffle(attrs)));
 
 //    setInterval(function() {
 //        State.setData(MemoSort(data, shuffle(attributes)));

@@ -128,11 +128,11 @@
                     <input type='hidden' name='filetype' value='pdf'>
                     <input type='submit' value='PDF'>
                 </form>
-                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                <!--form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
                     <input type='hidden' name='svgelement'>
                     <input type='hidden' name='filetype' value='png'>
                     <input type='submit' value='PNG'>
-                </form>
+                </form-->
                 <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
                     <input type='hidden' name='svgelement'>
                     <input type='hidden' name='filetype' value='svg'>

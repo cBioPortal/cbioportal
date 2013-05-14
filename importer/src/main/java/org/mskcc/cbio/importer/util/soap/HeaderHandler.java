@@ -11,13 +11,32 @@ import javax.xml.ws.handler.MessageContext;
 import javax.xml.ws.handler.soap.SOAPHandler;
 import javax.xml.ws.handler.soap.SOAPMessageContext;
 
-public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
+/**
+ * Handler class to add authentication information into the SOAP header.
+ */
+public class HeaderHandler implements SOAPHandler<SOAPMessageContext>
+{
+	// service username
+	private String serviceUser;
+
+	public void setServiceUser(String serviceUser)
+	{
+		this.serviceUser = serviceUser;
+	}
+
+	// service password
+	private String servicePassword;
+
+	public void setServicePassword(String servicePassword)
+	{
+		this.servicePassword = servicePassword;
+	}
 
     public boolean handleMessage(SOAPMessageContext smc) {
 
         Boolean outboundProperty = (Boolean) smc.get(MessageContext.MESSAGE_OUTBOUND_PROPERTY);
 
-        if (outboundProperty.booleanValue()) {
+        if (outboundProperty) {
 
             SOAPMessage message = smc.getMessage();
 
@@ -37,16 +56,16 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
 
                 SOAPElement username =
 					usernameToken.addChildElement("Username", "wsse");
-                username.addTextNode("");
+                username.addTextNode(this.serviceUser);
 
                 SOAPElement password =
 					usernameToken.addChildElement("Password", "wsse");
                 password.setAttribute("Type", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText");
-				password.addTextNode("");
+				password.addTextNode(this.servicePassword);
 
                 //Print out the outbound SOAP message to System.out
-                message.writeTo(System.out);
-                System.out.println("");
+                //message.writeTo(System.out);
+                //System.out.println("");
                 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -58,21 +77,24 @@ public class HeaderHandler implements SOAPHandler<SOAPMessageContext> {
                 //This handler does nothing with the response from the Web Service so
                 //we just print out the SOAP message.
                 SOAPMessage message = smc.getMessage();
-                message.writeTo(System.out);
-                System.out.println("");
+                //message.writeTo(System.out);
+                //System.out.println("");
 
             } catch (Exception ex) {
                 ex.printStackTrace();
             } 
         }
 
-
         return outboundProperty;
-
     }
 
-    public Set getHeaders() {
-		final QName securityHeader = new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security", "wsse");
+    public Set getHeaders()
+    {
+		final QName securityHeader = new QName(
+			"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+			"Security",
+			"wsse");
+
 		final HashSet headers = new HashSet();
         headers.add(securityHeader);
  

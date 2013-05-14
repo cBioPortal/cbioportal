@@ -19,6 +19,7 @@
             gene,
             case_set = [],
             mutations = [],
+            mutations_id = [],
             copy_no = [],
             mrna = [],
             rppa = [],
@@ -220,6 +221,7 @@ function fetchData() {
         }
     });
     for (var k = 0; k< case_set.length; k++ ){
+        mutations_id[k] = mutations[k]; //Keep mutations ID info
         mutations[k] = mutationMap[case_set[k]];
     }
 }
@@ -341,7 +343,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             } else {
                 zData[i] = "non";
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];
             index += 1;
         }
     } else if (type == 2) {
@@ -350,7 +352,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
                 continue;
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];
             index += 1;
         }
     } else if (type == 3) {
@@ -359,7 +361,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
                 continue;
             }
-            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i]];
+            dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];
             index += 1;
         }
     }
@@ -522,7 +524,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         case mutationTypes[4]: return mutationFillTypes[4];
                         case mutationTypes[5]: return mutationFillTypes[5];
                         case mutationTypes[6]: return mutationFillTypes[6];
-                        default: return "#2E9AFE";
+                        default: return "#5ABBEC";
                     }
                 })
                 .attr("stroke", function(d) {
@@ -537,12 +539,12 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         default: return "none";
                     }
                 })
-                .style("opacity", function(d) {
-                    switch (d[2]) {
-                        case "non": return 0.5;
-                        default: return 10;
-                    }
-                })
+            //.style("opacity", function(d) {
+            //    switch (d[2]) {
+            //        case "non": return 0.5;
+            //        default: return 10;
+            //    }
+            //})
                 .attr("stroke-width", 1);
 
         svg.selectAll('path').each(function(d, i) {
@@ -550,7 +552,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = '<font size="2">' + "Mutation:" + d[3] + '</br>' + "Case ID:" + d[4] + '</font>';
+                        var content = '<font size="2">' + "Mutation: <strong>" + d[5] + '</strong>(' + d[3] + ')' +  '</br>'
+                                + "Case ID: <strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong>' +  '</font>';
                         api.set('content.text', content);
                     }
                 },

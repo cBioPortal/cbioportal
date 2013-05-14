@@ -61,7 +61,6 @@
     });
     function generateFrame(json){
         var tmpArr = [];
-        alert(json.cancer_studies.<% out.print(cancer_study_id); %>.description);
         $.each(json.cancer_studies.<% out.print(cancer_study_id); %>.case_sets, function(i, item_case_set){
             if (item_case_set.id == case_set_id) {
                 case_set_name = item_case_set.name;
@@ -404,7 +403,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //----Create SVG Axis (Duplicate: can NOT use CSS style here since batik won't take it for PDF convertion.)
 
     //---------------Add extra text axis annotation for GISTIC
-    if (type == 1 && data_type_copy_no == "gistic") {
+    if (type == 1 && data_type_copy_no.indexOf("gistic") != -1) {
         var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
         var ticksTextSet = [];
         var tmp_ticks_text_index = 0;
@@ -485,7 +484,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     if ( type == 1 ) {
         //Define noise level
         var ramRatio = 0;
-        if (data_type_copy_no == "gistic") {
+        if (data_type_copy_no.indexOf("gistic") != -1) {
             ramRatio = 20;
         }
         svg.selectAll("path")
@@ -708,7 +707,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             .text(gene + " , " + yLegend);
 
     //If it is GISTIC and mrna view, add Box plots
-    if (type == 1 && data_type_copy_no == "gistic") {
+    if (type == 1 && data_type_copy_no.indexOf("gistic") != -1) {
         for (var i = min_x ; i < max_x + 1; i++) {
             var top;
             var bottom;

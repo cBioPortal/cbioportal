@@ -158,13 +158,14 @@ var Oncoprint = function(wrapper, params) {
         }).remove();
     };
 
+    // toss in the samples
     var columns = svg.selectAll('g')        // array of arrays
         .data(data)
         .enter()
         .append('g')
         .attr('class', 'sample')
 //        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
-        .attr('transform', translate(-100, 0))
+        .attr('transform', translate(dims.width + 100, 0))
             .selectAll('rect')
             .data(function(d) {
                 return d.values;
@@ -211,7 +212,7 @@ var Oncoprint = function(wrapper, params) {
             // re-sort
             var x = data2xscale(data);
             d3.selectAll('.sample').transition()
-                .duration(function(d) { return x.sample2index[d.key] * 20; })
+                .duration(function(d) { return 1000 + x.sample2index[d.key] * 20; })
                 .attr('transform', function(d) { return translate(x.scale(d.key),0); });
         };
 
@@ -263,15 +264,6 @@ var Oncoprint = function(wrapper, params) {
 //    setInterval(function() {
 //        State.setData(MemoSort(data, shuffle(attributes)));
 //    }, 4400);
-
-//    var state = (function() {
-//    }())
-
-    // change width
-//    d3.selectAll('.sample *').transition()
-//        .duration(1000)
-//        .attr('width', dims.rect_width - 3)
-//    d3.selectAll('.sample path').transition(); // ... do something to these triangles
 
     $('#oncoprint').children().show();      // todo: delete me!
 

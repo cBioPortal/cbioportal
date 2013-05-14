@@ -28,7 +28,7 @@ import java.math.BigInteger;
 @XmlRegistry
 public class ObjectFactory {
 
-    private final static QName _GetCaseCaseNo_QNAME = new QName("http://tempuri.org/", "caseNo");
+    private final static QName _GetCaseResponseGetCaseResult_QNAME = new QName("http://tempuri.org/", "GetCaseResult");
     private final static QName _AnyURI_QNAME = new QName("http://schemas.microsoft.com/2003/10/Serialization/", "anyURI");
     private final static QName _Char_QNAME = new QName("http://schemas.microsoft.com/2003/10/Serialization/", "char");
     private final static QName _UnsignedByte_QNAME = new QName("http://schemas.microsoft.com/2003/10/Serialization/", "unsignedByte");
@@ -51,71 +51,15 @@ public class ObjectFactory {
     private final static QName _UnsignedLong_QNAME = new QName("http://schemas.microsoft.com/2003/10/Serialization/", "unsignedLong");
     private final static QName _Boolean_QNAME = new QName("http://schemas.microsoft.com/2003/10/Serialization/", "boolean");
     private final static QName _GetAllResponseGetAllResult_QNAME = new QName("http://tempuri.org/", "GetAllResult");
-    private final static QName _ResultsData_QNAME = new QName("http://tempuri.org/", "data");
     private final static QName _GetCaseListResponseGetCaseListResult_QNAME = new QName("http://tempuri.org/", "GetCaseListResult");
-    private final static QName _GetCaseResponseGetCaseResult_QNAME = new QName("http://tempuri.org/", "GetCaseResult");
+    private final static QName _GetCaseCaseNo_QNAME = new QName("http://tempuri.org/", "caseNo");
+    private final static QName _ResultsData_QNAME = new QName("http://tempuri.org/", "data");
 
     /**
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: org.foundation
      * 
      */
     public ObjectFactory() {
-    }
-
-    /**
-     * Create an instance of {@link GetCaseList }
-     *
-     */
-    public GetCaseList createGetCaseList() {
-        return new GetCaseList();
-    }
-
-    /**
-     * Create an instance of {@link GetCase }
-     *
-     */
-    public GetCase createGetCase() {
-        return new GetCase();
-    }
-
-    /**
-     * Create an instance of {@link GetAll }
-     *
-     */
-    public GetAll createGetAll() {
-        return new GetAll();
-    }
-
-    /**
-     * Create an instance of {@link ResultsResponse }
-     *
-     */
-    public ResultsResponse createResultsResponse() {
-        return new ResultsResponse();
-    }
-
-    /**
-     * Create an instance of {@link GetAllResponse }
-     *
-     */
-    public GetAllResponse createGetAllResponse() {
-        return new GetAllResponse();
-    }
-
-    /**
-     * Create an instance of {@link Results }
-     *
-     */
-    public Results createResults() {
-        return new Results();
-    }
-
-    /**
-     * Create an instance of {@link GetCaseListResponse }
-     *
-     */
-    public GetCaseListResponse createGetCaseListResponse() {
-        return new GetCaseListResponse();
     }
 
     /**
@@ -127,12 +71,68 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link GetAll }
+     *
+     */
+    public GetAll createGetAll() {
+        return new GetAll();
+    }
+
+    /**
+     * Create an instance of {@link GetAllResponse }
+     *
+     */
+    public GetAllResponse createGetAllResponse() {
+        return new GetAllResponse();
+    }
+
+    /**
+     * Create an instance of {@link ResultsResponse }
+     *
+     */
+    public ResultsResponse createResultsResponse() {
+        return new ResultsResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetCaseListResponse }
+     *
+     */
+    public GetCaseListResponse createGetCaseListResponse() {
+        return new GetCaseListResponse();
+    }
+
+    /**
+     * Create an instance of {@link GetCase }
+     *
+     */
+    public GetCase createGetCase() {
+        return new GetCase();
+    }
+
+    /**
+     * Create an instance of {@link GetCaseList }
+     *
+     */
+    public GetCaseList createGetCaseList() {
+        return new GetCaseList();
+    }
+
+    /**
+     * Create an instance of {@link Results }
+     *
+     */
+    public Results createResults() {
+        return new Results();
+    }
+
+    /**
      * Create an instance of {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}}
      *
      */
-    @XmlElementDecl(namespace = "http://tempuri.org/", name = "caseNo", scope = GetCase.class)
-    public JAXBElement<String> createGetCaseCaseNo(String value) {
-        return new JAXBElement<String>(_GetCaseCaseNo_QNAME, String.class, GetCase.class, value);
+    @XmlElementDecl(namespace = "http://tempuri.org/", name = "GetCaseResult", scope = GetCaseResponse.class)
+    public JAXBElement<String> createGetCaseResponseGetCaseResult(String value) {
+        return new JAXBElement<String>(_GetCaseResponseGetCaseResult_QNAME, String.class, GetCaseResponse.class, value);
     }
 
     /**
@@ -337,15 +337,6 @@ public class ObjectFactory {
      * Create an instance of {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}}
      *
      */
-    @XmlElementDecl(namespace = "http://tempuri.org/", name = "data", scope = Results.class)
-    public JAXBElement<String> createResultsData(String value) {
-        return new JAXBElement<String>(_ResultsData_QNAME, String.class, Results.class, value);
-    }
-
-    /**
-     * Create an instance of {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}}
-     *
-     */
     @XmlElementDecl(namespace = "http://tempuri.org/", name = "GetCaseListResult", scope = GetCaseListResponse.class)
     public JAXBElement<String> createGetCaseListResponseGetCaseListResult(String value) {
         return new JAXBElement<String>(_GetCaseListResponseGetCaseListResult_QNAME, String.class, GetCaseListResponse.class, value);
@@ -353,11 +344,20 @@ public class ObjectFactory {
 
     /**
      * Create an instance of {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}}
+     *
+     */
+    @XmlElementDecl(namespace = "http://tempuri.org/", name = "caseNo", scope = GetCase.class)
+    public JAXBElement<String> createGetCaseCaseNo(String value) {
+        return new JAXBElement<String>(_GetCaseCaseNo_QNAME, String.class, GetCase.class, value);
+    }
+
+    /**
+     * Create an instance of {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "http://tempuri.org/", name = "GetCaseResult", scope = GetCaseResponse.class)
-    public JAXBElement<String> createGetCaseResponseGetCaseResult(String value) {
-        return new JAXBElement<String>(_GetCaseResponseGetCaseResult_QNAME, String.class, GetCaseResponse.class, value);
+    @XmlElementDecl(namespace = "http://tempuri.org/", name = "data", scope = Results.class)
+    public JAXBElement<String> createResultsData(String value) {
+        return new JAXBElement<String>(_ResultsData_QNAME, String.class, Results.class, value);
     }
 
 }

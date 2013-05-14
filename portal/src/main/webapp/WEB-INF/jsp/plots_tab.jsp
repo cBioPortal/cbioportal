@@ -256,12 +256,12 @@ function findAxisTitle() {
         yLegend = genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
         var tmp_yLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = genetic_profile_dna_methylation[1];
+        xLegend = genetic_profile_dna_methylation[0][1];
         yLegend = genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
         var tmp_xLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);;
         xLegend = genetic_profile_mrna[tmp_xLegend_index][1];
-        yLegend = genetic_profile_rppa[1];
+        yLegend = genetic_profile_rppa[0][1];
     }
     tmp_result = [xLegend, yLegend];
     return tmp_result;
@@ -539,6 +539,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         default: return "none";
                     }
                 })
+            // Do not work for PDF Converter
             //.style("opacity", function(d) {
             //    switch (d[2]) {
             //        case "non": return 0.5;
@@ -559,7 +560,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 },
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                //position: {my:'left top',at:'bottom center'}
                 position: {my:'left bottom',at:'top right'}
             });
         });
@@ -606,6 +606,21 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         default: return "1.5";
                     }
                 });
+        svg.selectAll('path').each(function(d, i) {
+            $(this).qtip({
+                content: {text: 'qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + "Mutation: <strong>" + d[5] + '</strong>(' + d[3] + ')' +  '</br>'
+                                + "Case ID: <strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong>' +  '</font>';
+                        api.set('content.text', content);
+                    }
+                },
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                position: {my:'left bottom',at:'top right'}
+            });
+        });
     }
 
     //Error Handling -- empty dataset

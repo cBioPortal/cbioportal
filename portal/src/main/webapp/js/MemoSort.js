@@ -73,8 +73,6 @@ var MemoSort = function(data, attributes) {
             var y_attrs = y.values
                 .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
 
-            assert(x_attrs.length === y_attrs.length);
-
             // compare x and y's attributes in order
             for (var j = 0; j < x_attrs.length; j+=1) {
 

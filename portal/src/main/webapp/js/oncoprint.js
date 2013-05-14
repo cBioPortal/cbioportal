@@ -32,6 +32,7 @@ var Oncoprint = function(wrapper, params) {
         var a2r =  prev[curr.attr_id];
         var val = curr.attr_val;
 
+        // an attribute whose value is "NA" for all samples has no range
         if (val === "NA") {
             return prev;
         }
@@ -228,8 +229,8 @@ var Oncoprint = function(wrapper, params) {
             },
             getData: function() { return data; },
             render: function() { return xtranslate; },
-            setWhiteSpace: function(ws) {
-                whitespace = ws;
+            showWhiteSpace: function(bool) {
+                whitespace = bool;
                 xtranslate();
             },
             zoom: function(scalar) {
@@ -238,9 +239,12 @@ var Oncoprint = function(wrapper, params) {
                 d3.selectAll('.sample rect')
                     .transition()
                     .duration(1000)
-                    .attr('width', dims.rect_width * scalar)
+                    .attr('width', dims.rect_width * scalar);
 
                 xtranslate();
+            },
+            showUnalteredCases: function(bool) {
+                return "not doing anything right now";
             }
         };
     })();

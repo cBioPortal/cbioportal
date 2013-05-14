@@ -736,17 +736,17 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Append axis Titles
     svg.append("text")
             .attr("class", "label")
-            .attr("x", 500)
+            .attr("x", 350)
             .attr("y", 580)
-            .style("text-anchor", "end")
+            .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(gene + " , " + xLegend);
     svg.append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
-            .attr("x", -150)
-            .attr("y", 60)
-            .style("text-anchor", "end")
+            .attr("x", -270)
+            .attr("y", 45)
+            .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(gene + " , " + yLegend);
 

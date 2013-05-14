@@ -9,28 +9,20 @@
 //
 // attributes : the ordering of the attributes.  Omission basically amounts to "smallest"
 //
-// returns a list of samples
+// returns the data, sorted
 var MemoSort = function(data, attributes) {
 
     var comp_genes = function(attr1, attr2) {
         var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
-            regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0};
+            regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
+            mutation_order_f = function(m) { return m === undefined ? 0 : 1; };
 
         var cna_diff = cna_order[attr2.cna] - cna_order[attr1.cna];
         if (cna_diff !== 0) {
             return cna_diff;
         }
 
-        // figure out the mutation_diff
-        var mutation_diff;
-        if ((attr2.mutation === undefined) === (attr1.mutation === undefined)) {
-            mutation_diff = 0;
-        } else if (attr2.mutation !== undefined) {
-            mutation_diff = 1;
-        } else {
-            mutation_diff = -1;
-        }
-        // do the mutation diff
+        var mutation_diff = mutation_order_f(attr2.mutation) - mutation_order_f(attr1.mutation);
         if (mutation_diff !== 0) {
             return mutation_diff;
         }
@@ -56,33 +48,53 @@ var MemoSort = function(data, attributes) {
         return d.gene || d.attr_id;
     };
 
+    // throws an error without dying
     var assert = function(bool) {
         if (!bool) {
-            throw new Error("Assertion failure");
+            throw new Error("Assertion failure " + assert.caller());
         }
     };
 
+    // little bit of optimization
+    var attr2index = (function() {
+        var toReturn = {};
+        for (var i = 0; i < attributes.length; i+=1) {
+            toReturn[attributes[i]] = i;
+        }
+        return toReturn;
+    }());
+
     var comp = function(x,y) {
         for (var i = 0; i < x.values.length; i+=1) {
+
+            // sort attributes according to the order specified by the user
             var x_attrs = x.values
-                .sort(function(x,y) { return attributes.indexOf(getAttr(x)) - attributes.indexOf(getAttr(y)); });
-
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
             var y_attrs = y.values
-                .sort(function(x,y) { return attributes.indexOf(getAttr(x)) - attributes.indexOf(getAttr(y)); });
+                .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
 
+            assert(x_attrs.length === y_attrs.length);
+
+            // compare x and y's attributes in order
             for (var j = 0; j < x_attrs.length; j+=1) {
-                assert(x_attrs[j].gene === y_attrs[j].gene);
-                assert(x_attrs[j].attr_id === y_attrs[j].attr_id);
 
-                var diff = x_attrs[j].gene !== undefined
-                    ? comp_genes(x_attrs[j], y_attrs[j])
-                    : comp_clinical(x_attrs[j], y_attrs[j]);
+                var xj = x_attrs[j];
+                var yj = y_attrs[j];
 
+                assert(xj.gene === yj.gene);        // what we are comparing are comparable
+                assert(xj.attr_id === yj.attr_id);
+
+                var diff = xj.gene === undefined
+                    ? comp_clinical(xj, yj)
+                    :  comp_genes(xj, yj);
+
+                // return the first nonzero diff
                 if (diff !== 0) {
                     return diff;
                 }
             }
         }
+        // if they are equal in all diffs, then they are truly equal.
         return 0;
     };
 

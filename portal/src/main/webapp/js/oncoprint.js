@@ -4,7 +4,7 @@ var Oncoprint = function(wrapper, params) {
 
     var data = d3.nest()
         .key(function(d) { return d.sample; })
-        .entries(params.geneData.concat(params.clinicalData));
+        .entries(params.clinicalData.concat(params.geneData));
 
     if (params.clinicalData === [] && params.clinical_attrs !== undefined) {
         throw {
@@ -15,6 +15,7 @@ var Oncoprint = function(wrapper, params) {
 
     var attributes = params.clinical_attrs.concat(params.genes);
 
+    //todo: this should be changed.  Oncoprint should create the attributes itself.
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
@@ -103,24 +104,6 @@ var Oncoprint = function(wrapper, params) {
         HEMIZYGOUSLYDELETED: '#8FD8D8',
         HOMODELETED: '#0000FF'
     };
-
-//    var clinical = function(d) {
-//        console.log(d);
-//
-//        var cont_scale = d3.scale.linear()
-//                .domain([0,5000])
-//                .range([ "#ff7f0e", "#1f77b4"])
-//            ;
-//        if (d.attr_id === "OVERALL_SURVIVAL_DAYS") {
-//            return d.attr_val === "NA" ? '#D3D3D3' : cont_scale(parseInt(d.attr_val));
-//        }
-//
-//        if (d.attr_id === "VITAL_STATUS") {
-//            return d.attr_val === "living" ? "#1f77b4" : "#ff7f0e";
-//        }
-//
-//        return attr2range[d.attr_id](d.attr_val);
-//    };
 
     var translate = function(x,y) {
         return "translate(" + x + "," + y + ")";
@@ -251,10 +234,11 @@ var Oncoprint = function(wrapper, params) {
             zoom: function() {
 
             }
-        }
+        };
     })();
 
-    State.setData(data);
+//    State.setData(data);
+    State.setData(MemoSort(data, attributes));
 
     // randomly shuffle an array
     var shuffle = function(array) {
@@ -266,7 +250,9 @@ var Oncoprint = function(wrapper, params) {
         return array;
     };
 
-    State.setData(MemoSort(data, shuffle(attributes)));
+//    var attrs = shuffle(attributes);
+//    console.log(attrs);
+//    State.setData(MemoSort(data, attrs));
 
 //    setInterval(function() {
 //        State.setData(MemoSort(data, shuffle(attributes)));

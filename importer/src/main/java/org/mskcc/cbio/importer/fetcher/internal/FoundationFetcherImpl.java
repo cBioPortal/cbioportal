@@ -37,6 +37,7 @@ import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
+import org.mskcc.cbio.importer.util.soap.*;
 
 import org.foundation.*;
 
@@ -141,6 +142,7 @@ class FoundationFetcherImpl implements Fetcher {
 		// TODO authenticate before using the service
 
 		CaseInfoService caseInfoService = new CaseInfoService();
+		caseInfoService.setHandlerResolver(new HeaderHandlerResolver());
 		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
 
 		NodeList cases = this.fetchCaseList(foundationService);

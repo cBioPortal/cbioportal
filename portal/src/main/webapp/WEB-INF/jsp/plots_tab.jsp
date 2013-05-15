@@ -45,10 +45,7 @@
 </script>
 
 <script>
-    $(window).load (function(){
-        fetchFrameData();
-        drawSideBar();
-    });
+
     var tmpArr = [];
     var tmp_lines = [];
     var tmp_columns = [];
@@ -151,6 +148,7 @@
 
 <script>
 function drawSideBar() {
+    fetchFrameData();
     //Plot Type
     for ( var m = 0; m < plot_type_list.length; m++) {
         $('#plot_type').append("<option value='" + plot_type_list[m][0] + "'>" + plot_type_list[m][1] + "</option>");
@@ -946,6 +944,8 @@ function loadSVG() {
     var tmp2 = tmp1.serializeToString(svgDoc[0]);
     return tmp2;
 }
+
+window.onload = drawSideBar();
 
 </script>
 

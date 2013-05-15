@@ -45,47 +45,51 @@
 </script>
 
 <script>
-    $(document).ready(function(){
-        var result;
-        $.ajax({
-            url: 'portal_meta_data.json',
-            dataType: 'json',
-            success: function(data) {
-                result = data;
-                generateFrame(result);
-            },
-            async:false,
-        });
-    });
     $(window).load (function(){
+        fetchFrameData();
         drawSideBar();
     });
-    function generateFrame(json){
-        var tmpArr = [];
-        $.each(json.cancer_studies.<% out.print(cancer_study_id); %>.case_sets, function(i, item_case_set){
-            if (item_case_set.id == case_set_id) {
-                case_set_name = item_case_set.name;
-            }
-        });
-        $.each(json.cancer_studies.<% out.print(cancer_study_id); %>.genomic_profiles, function(j, item_genomic_profile){
-            if (item_genomic_profile.alteration_type == "MUTATION_EXTENDED") {
-                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
-                genetic_profile_mutations.push(tmpArr);
-            } else if (item_genomic_profile.alteration_type == "MRNA_EXPRESSION") {
-                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
-                genetic_profile_mrna.push(tmpArr);
-            } else if (item_genomic_profile.alteration_type == "COPY_NUMBER_ALTERATION") {
-                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
-                genetic_profile_copy_no.push(tmpArr);
-            } else if (item_genomic_profile.alteration_type == "METHYLATION") {
-                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
-                genetic_profile_dna_methylation.push(tmpArr);
-            } else if (item_genomic_profile.alteration_type == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
-                tmpArr = [item_genomic_profile.id, item_genomic_profile.name];
-                genetic_profile_rppa.push(tmpArr);
+    var tmpArr = [];
+    var tmp_lines = [];
+    var tmp_columns = [];
+
+    function fetchFrameData() {
+        $.ajax({
+            url: "webservice.do?cmd=getGeneticProfiles&cancer_study_id=" + cancer_study_id,
+            type: 'get',
+            dataType: 'text',
+            async: false,
+            success: function(data) {
+                if (data != "") {
+                    tmp_lines = data.split(/\n/);
+                    for (var j = 2 ; j < tmp_lines.length; j ++ ) {
+                        if(tmp_lines[j] != "") {
+                            tmp_columns = tmp_lines[j].split(/\t/);
+                            if (tmp_columns[4] == "MUTATION_EXTENDED") {
+                                tmpArr = [tmp_columns[0], tmp_columns[1]];
+                                genetic_profile_mutations.push(tmpArr);
+                            } else if (tmp_columns[4] == "MRNA_EXPRESSION") {
+                                tmpArr = [tmp_columns[0], tmp_columns[1]];
+                                genetic_profile_mrna.push(tmpArr);
+                            } else if (tmp_columns[4] == "COPY_NUMBER_ALTERATION") {
+                                tmpArr = [tmp_columns[0], tmp_columns[1]];
+                                genetic_profile_copy_no.push(tmpArr);
+                            } else if (tmp_columns[4] == "METHYLATION") {
+                                tmpArr = [tmp_columns[0], tmp_columns[1]];
+                                genetic_profile_dna_methylation.push(tmpArr);
+                            } else if (tmp_columns[4] == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+                                tmpArr = [tmp_columns[0], tmp_columns[1]];
+                                genetic_profile_rppa.push(tmpArr);
+                            }
+                        }
+                    }
+                } else {
+                    alert("ERROR Fetching Data.");
+                }
             }
         });
     }
+
 </script>
 
 <div class="section" id="plots">
@@ -146,6 +150,25 @@
 </div>
 
 <script>
+function drawSideBar() {
+    //Plot Type
+    for ( var m = 0; m < plot_type_list.length; m++) {
+        $('#plot_type').append("<option value='" + plot_type_list[m][0] + "'>" + plot_type_list[m][1] + "</option>");
+    }
+    //Copy Number Type
+    for ( var j = 0; j < genetic_profile_copy_no.length; j++ ) {
+        $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
+    }
+    //mRNA Type
+    for ( var k = 0; k < genetic_profile_mrna.length; k++ ) {
+        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[k][0] + "'>" + genetic_profile_mrna[k][1] + "</option>");
+    }
+    fetchData();
+    var tmp_axis_title_result = findAxisTitle();
+    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], 1, mutations);
+    $('#img_center').empty();
+    $('#img_center').append(gene + ": mRNA Expression v. CNA ");
+}
 var urls;
 function fetchData() {
     gene = document.getElementById("genes").value;
@@ -225,25 +248,7 @@ function fetchData() {
         mutations[k] = mutationMap[case_set[k]];
     }
 }
-function drawSideBar() {
-    //Plot Type
-    for ( var m = 0; m < plot_type_list.length; m++) {
-        $('#plot_type').append("<option value='" + plot_type_list[m][0] + "'>" + plot_type_list[m][1] + "</option>");
-    }
-    //Copy Number Type
-    for ( var j = 0; j < genetic_profile_copy_no.length; j++ ) {
-        $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
-    }
-    //mRNA Type
-    for ( var k = 0; k < genetic_profile_mrna.length; k++ ) {
-        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[k][0] + "'>" + genetic_profile_mrna[k][1] + "</option>");
-    }
-    fetchData();
-    var tmp_axis_title_result = findAxisTitle();
-    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], 1, mutations);
-    $('#img_center').empty();
-    $('#img_center').append(gene + ": mRNA Expression v. CNA ");
-}
+
 function findAxisTitle() {
     var tmp_result = [];
     var xLegend;

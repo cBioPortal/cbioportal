@@ -126,6 +126,8 @@ var Oncoprint = function(div, params) {
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 //
 
+    d3.select('div')
+
     // make labels and set up the table for proper scrolling, etc.
     var table = d3.select(div)
         .append('table')
@@ -156,9 +158,15 @@ var Oncoprint = function(div, params) {
 
     var main_svg = table
         .append('td')
+            .append('div')      // control overflow to the right
+            .style('width', $('#td-content').width() - 70 - 200 + 'px') // buffer of, say, 70
+            .style('display', 'inline-block')
+            .style('overflow-x', 'auto')
+            .style('overflow-y', 'hidden')
         .append("svg")
         .attr('width', dims.width)
         .attr('height', dims.height);
+
 
     var cna_fills = {
         undefined: colors.grey,

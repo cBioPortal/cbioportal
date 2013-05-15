@@ -34,6 +34,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Parses JSON Retrieved from Oncotator.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class OncotatorParser
 {
@@ -62,7 +64,7 @@ public class OncotatorParser
 		    rootNode = m.readValue(json, JsonNode.class);
 	    }
 	    catch (IOException e) {
-		    e.printStackTrace();
+		    //e.printStackTrace();
 		    return null;
 	    }
 
@@ -147,6 +149,8 @@ public class OncotatorParser
 		JsonNode uniprotAccession = transcriptNode.path("uniprot_accession");
 		JsonNode codonChange = transcriptNode.path("codon_change");
 		JsonNode transcriptChange = transcriptNode.path("transcript_change");
+		JsonNode proteinPosStart = transcriptNode.path("protein_position_start");
+		JsonNode proteinPosEnd = transcriptNode.path("protein_position_end");
 
 		// construct a transcript instance for the parsed nodes
 
@@ -200,6 +204,16 @@ public class OncotatorParser
 		if (!transcriptChange.isMissingNode())
 		{
 			transcript.setTranscriptChange(transcriptChange.getTextValue());
+		}
+
+		if (!proteinPosStart.isMissingNode())
+		{
+			transcript.setProteinPosStart(proteinPosStart.getIntValue());
+		}
+
+		if (!proteinPosEnd.isMissingNode())
+		{
+			transcript.setProteinPosEnd(proteinPosEnd.getIntValue());
 		}
 
 		return transcript;

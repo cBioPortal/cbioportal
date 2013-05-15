@@ -146,11 +146,10 @@ public class GeneticAlterationUtil {
      */
     private static HashMap <String, String> getMutationMap (ArrayList<String> targetCaseList,
             int geneticProfileId, long entrezGeneId) throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
 
         HashMap <String, String> mutationMap = new HashMap <String, String>();
         ArrayList <ExtendedMutation> mutationList =
-                    daoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
+                    DaoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
         
         for (ExtendedMutation mutation : mutationList) {
             String caseId = mutation.getCaseId();

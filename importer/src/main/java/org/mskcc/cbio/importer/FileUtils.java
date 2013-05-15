@@ -98,13 +98,19 @@ public interface FileUtils {
     Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception;
 
 	/**
-	 * Returns the given file contents in an DataMatrix.
+	 * Returns the contents of the datafile as specified by ImportDataRecord
+     * in an DataMatrix.  May return null if there is a problem reading the file.
+	 *
+	 * methylationCorrelation matrix is set when we are processing a methlation file.
+	 * These files can be extremely large, so the correlation file is used to skip
+	 * all rows in the methylation file that do not have a corresponding row in the correlate file.
 	 *
 	 * @param importDataRecord ImportDataRecord
+	 * @param methylationCorrelation DataMatrix
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception;
+	DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
 
 	/**
 	 * Get the case list from the staging file.

@@ -43,13 +43,6 @@ public final class DaoPdbUniprotResidueMapping {
     private static MySQLbulkLoader myMySQLbulkLoader = null;
     private DaoPdbUniprotResidueMapping() {}
     
-    private static MySQLbulkLoader getMyMySQLbulkLoader() {
-        if (myMySQLbulkLoader==null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("pdb_uniprot_residue_mapping");
-        }
-        return myMySQLbulkLoader;
-    }
-    
     public static int addPdbUniprotResidueMapping(String pdbId, String chain,
             int pdbPos, String uniprotId, int uniprotPos) throws DaoException {
         Connection con = null;
@@ -57,7 +50,7 @@ public final class DaoPdbUniprotResidueMapping {
         ResultSet rs = null;
         if (MySQLbulkLoader.isBulkLoad()) {
             //  write to the temp file maintained by the MySQLbulkLoader
-            getMyMySQLbulkLoader().insertRecord(pdbId, chain, Integer.toString(pdbPos),
+            MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(pdbId, chain, Integer.toString(pdbPos),
                     uniprotId, Integer.toString(uniprotPos));
 
             // return 1 because normal insert will return 1 if no error occurs
@@ -80,16 +73,6 @@ public final class DaoPdbUniprotResidueMapping {
             } finally {
                 JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
             }
-        }
-    }
-    
-    public static int flushToDatabase() throws DaoException {
-        try {
-            return getMyMySQLbulkLoader().loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
     

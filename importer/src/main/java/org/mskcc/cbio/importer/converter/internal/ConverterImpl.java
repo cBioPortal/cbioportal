@@ -49,12 +49,7 @@ import org.mskcc.cbio.importer.util.ClassLoader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.Set;
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.io.File;
 
 /**
@@ -399,7 +394,7 @@ class ConverterImpl implements Converter {
 					 datatype + ":" + 
 					 cancerStudyMetadata.getCenter() + ".");
 		}
-		Collection<ImportDataRecord> importDataRecords =
+		List<ImportDataRecord> importDataRecords =
 			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(cancerStudyMetadata.getTumorType(),
 																							 datatype,
 																							 cancerStudyMetadata.getCenter(),
@@ -412,6 +407,15 @@ class ConverterImpl implements Converter {
 						 datatype + ":" + 
 						 cancerStudyMetadata.getCenter() + ".");
 			}
+			// if methylation data, make sure correlation file comes before methylation data
+			if (datatype.contains("methylation")) {
+                            if (importDataRecords.size() < 2) {
+                                throw new Exception("Require two data sets for converting methylation data.");
+                            } else {
+				Collections.sort(importDataRecords, new ImportDataRecordComparator());
+                            }
+			}
+			DataMatrix methylationCorrelation = null;
 			for (ImportDataRecord importData : importDataRecords) {
 				// do we have to check for an override file?
 				if (applyOverrides) {
@@ -428,10 +432,13 @@ class ConverterImpl implements Converter {
 						importData.setCanonicalPathToData(overrideFile.getCanonicalPath());
 					}
 				}
-				DataMatrix dataMatrix = fileUtils.getFileContents(importData);
+				DataMatrix dataMatrix = fileUtils.getFileContents(importData, methylationCorrelation);
 				if (dataMatrix != null) {
+					if (importData.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) {
+						methylationCorrelation = dataMatrix;
+					}
 					toReturn.add(dataMatrix);
-                                }
+				}
 			}
 		}
 		else if (LOG.isInfoEnabled()) {
@@ -443,5 +450,13 @@ class ConverterImpl implements Converter {
 
 		// outta here
 		return toReturn.toArray(new DataMatrix[0]);
+	}
+}
+
+class ImportDataRecordComparator implements Comparator {
+	public int compare (Object o, Object o1) {
+		ImportDataRecord record0 = (ImportDataRecord)o;
+		ImportDataRecord record1 = (ImportDataRecord)o1;
+		return (record1.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) ? 1 : 0;
 	}
 }

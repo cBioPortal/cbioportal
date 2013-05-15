@@ -1,0 +1,14 @@
+#network_sbgn
+{
+	position:relative;
+	left: auto;
+	height: 750px;
+}
+
+/* CytoscapeWeb dimensions */
+
+#cytoscapeweb_sbgn
+{
+	width: 100%;
+	height: 100%;
+}

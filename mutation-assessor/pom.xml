@@ -21,6 +21,21 @@
 			<version>${project.version}</version>
 		</dependency>
 
+		<!-- mysql -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.21</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<!-- apache commons DB -->
+		<dependency>
+			<groupId>commons-dbcp</groupId>
+			<artifactId>commons-dbcp</artifactId>
+			<version>1.4</version>
+		</dependency>
+
 		<!-- portal core -->
 		<dependency>
 			<groupId>org.mskcc.cbio</groupId>
@@ -62,9 +77,19 @@
 				  </goals>
 				  <configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<minimizeJar>true</minimizeJar>
+					<filters>
+					  <filter>
+						  <artifact>mysql:mysql-connector-java</artifact>
+						  <includes>
+							  <include>**</include>
+						  </includes>
+					  </filter>
+					</filters>
 					<artifactSet>
 					  <excludes>
 						<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+						<exclude>org.springframework*</exclude>
 					  </excludes>
 					</artifactSet>
 					<transformers>

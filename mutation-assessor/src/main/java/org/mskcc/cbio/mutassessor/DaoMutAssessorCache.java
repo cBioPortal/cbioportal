@@ -36,6 +36,8 @@ import java.sql.SQLException;
 
 /**
  * DAO for mutation assessor cache table.
+ *
+ * @author Selcuk Onur Sumer
  */
 public class DaoMutAssessorCache
 {
@@ -46,7 +48,7 @@ public class DaoMutAssessorCache
 
 	/**
 	 * Returns the singleton instance.
-	 * @return DaoOncotator singleton instance.
+	 * @return DaoMutAssessorCache singleton instance.
 	 */
 	public static DaoMutAssessorCache getInstance()
 	{
@@ -74,14 +76,16 @@ public class DaoMutAssessorCache
 		{
 			con = DatabaseUtil.getDbConnection();
 			pstmt = con.prepareStatement
-					("INSERT INTO mutation_assessor_cache (`CACHE_KEY`, `PREDICTED_IMPACT`, `PROTEIN_CHANGE`," +
-					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?)");
+					("INSERT INTO mutation_assessor_cache (`CACHE_KEY`, `PREDICTED_IMPACT`," +
+					 " `FUNC_IMPACT_SCORE`, `PROTEIN_CHANGE`," +
+					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?,?)");
 
 			pstmt.setString(1, record.getKey());
 			pstmt.setString(2, record.getImpact());
-			pstmt.setString(3, record.getProteinChange());
-			pstmt.setString(4, record.getStructureLink());
-			pstmt.setString(5, record.getAlignmentLink());
+			pstmt.setFloat(3, record.getImpactScore());
+			pstmt.setString(4, record.getProteinChange());
+			pstmt.setString(5, record.getStructureLink());
+			pstmt.setString(6, record.getAlignmentLink());
 
 			int rows = pstmt.executeUpdate();
 			return rows;
@@ -92,6 +96,14 @@ public class DaoMutAssessorCache
 		}
 	}
 
+	/**
+	 * Retrieves the MutationAssessorRecord corresponding to the given key.
+	 * Returns null if no matching record found.
+	 *
+	 * @param key   key to search
+	 * @return      MutationAssessorRecord for the given key
+	 * @throws SQLException
+	 */
 	public MutationAssessorRecord get(String key) throws SQLException
 	{
 		Connection con = null;
@@ -106,6 +118,7 @@ public class DaoMutAssessorCache
 			if (rs.next()) {
 				MutationAssessorRecord record = new MutationAssessorRecord(rs.getString("CACHE_KEY"));
 				record.setImpact(rs.getString("PREDICTED_IMPACT"));
+				record.setImpactScore(rs.getFloat("FUNC_IMPACT_SCORE"));
 				record.setProteinChange(rs.getString("PROTEIN_CHANGE"));
 				record.setAlignmentLink(rs.getString("ALIGNMENT_LINK"));
 				record.setStructureLink(rs.getString("STRUCTURE_LINK"));
@@ -155,8 +168,8 @@ public class DaoMutAssessorCache
 	public String getInsertHead()
 	{
 		return "INSERT INTO mutation_assessor_cache (`CACHE_KEY`, " +
-		             "`PREDICTED_IMPACT`, `PROTEIN_CHANGE`, " +
-		             "`STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES ";
+			"`PREDICTED_IMPACT`, `FUNC_IMPACT_SCORE`, `PROTEIN_CHANGE`, " +
+			"`STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES ";
 	}
 
 	/**
@@ -168,8 +181,20 @@ public class DaoMutAssessorCache
 	 */
 	public String getInsertValues(MutationAssessorRecord record)
 	{
+		String impactScore;
+
+		if(record.getImpactScore() == null)
+		{
+			impactScore = "NULL";
+		}
+		else
+		{
+			impactScore = "'" + record.getImpactScore().toString() + "'";
+		}
+
 		return "'" + record.getKey() + "', " +
 			"'" + record.getImpact() + "', " +
+			impactScore + ", " +
 			"'" + record.getProteinChange() + "', " +
 			"'" + record.getStructureLink() + "', " +
 			"'" + record.getAlignmentLink() + "'";

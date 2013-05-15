@@ -45,8 +45,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 
 /**
  * Hibernate implementation of ImportDataRecordDAO.
@@ -115,12 +113,11 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportDataRecord> getImportDataRecords() {
+    public List<ImportDataRecord> getImportDataRecords() {
 
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordAll");
-        List<ImportDataRecord> toReturn = query.list();
-        return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
+        return (List<ImportDataRecord>)query.list();
     }
 
     /**
@@ -134,15 +131,14 @@ class ImportDataRecordHibernateDAO implements ImportDataRecordDAO {
      */
 	@Override
     @Transactional(propagation=Propagation.REQUIRED)
-    public Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate) {
+    public List<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate) {
 		Session session = getSession();
 		Query query = session.getNamedQuery("org.mskcc.cbio.import.model.importDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate");
 		query.setParameter("tumortype", tumorType);
 		query.setParameter("datatype", datatype);
 		query.setParameter("center", center);
 		query.setParameter("rundate", runDate);
-        List<ImportDataRecord> toReturn = query.list();
-        return (toReturn.size() > 0) ? new ArrayList<ImportDataRecord>(toReturn) : Collections.EMPTY_SET;
+        return (List<ImportDataRecord>)query.list();
     }
 
     /**

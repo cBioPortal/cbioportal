@@ -33,9 +33,11 @@ package org.mskcc.cbio.mutassessor;
 public class MutationAssessorRecord
 {
 	public static final String NA_STRING = "NA";
+	public static final Float NA_FLOAT = null;
 
 	private String key;
 	private String impact;
+	private Float impactScore;
 	private String proteinChange;
 	private String structureLink;
 	private String alignmentLink;
@@ -58,6 +60,16 @@ public class MutationAssessorRecord
 	public void setImpact(String impact)
 	{
 		this.impact = impact;
+	}
+
+	public Float getImpactScore()
+	{
+		return impactScore;
+	}
+
+	public void setImpactScore(Float impactScore)
+	{
+		this.impactScore = impactScore;
 	}
 
 	public String getProteinChange()
@@ -101,6 +113,7 @@ public class MutationAssessorRecord
 		boolean noInfo = false;
 
 		if ((this.impact == null || this.impact.equals(NA_STRING)) &&
+		    (this.impactScore == null) &&
 			(this.proteinChange == null || this.proteinChange.equals(NA_STRING)) &&
 			(this.alignmentLink == null || this.alignmentLink.equals(NA_STRING)) &&
 			(this.structureLink == null || this.structureLink.equals(NA_STRING)))

@@ -153,7 +153,7 @@ public class MutationTableUtil
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getNcbiBuild(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(getChrPosition(mutation)));
 	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getReferenceAllele()));
-	    dataFieldList.add(HtmlUtil.getSafeWebValue(getVariantAllele(mutation)));
+	    dataFieldList.add(HtmlUtil.getSafeWebValue(mutation.getTumorSeqAllele()));
 	    //TODO Norm. Freq. & Var. Freq.
 
         //  Fields for "Special" Genes
@@ -322,26 +322,6 @@ public class MutationTableUtil
 		{
 			return null;
 		}
-	}
-
-	/**
-	 * Returns one of the tumor sequence alleles which is different from
-	 * the reference allele.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          tumor sequence allele different from the reference allele
-	 */
-	private String getVariantAllele(ExtendedMutation mutation)
-	{
-		String varAllele = mutation.getTumorSeqAllele1();
-
-		if (mutation.getReferenceAllele() != null &&
-			mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
-		{
-			varAllele = mutation.getTumorSeqAllele2();
-		}
-
-		return varAllele;
 	}
 
 	/**

@@ -14,6 +14,7 @@ drop table if EXISTS mutation_assessor_cache;
 CREATE TABLE IF NOT EXISTS `mutation_assessor_cache` (
   `CACHE_KEY` varchar(255) NOT NULL,
   `PREDICTED_IMPACT` varchar(10),
+  `FUNC_IMPACT_SCORE` float,
   `PROTEIN_CHANGE` varchar(50),
   `STRUCTURE_LINK` varchar(80),
   `ALIGNMENT_LINK` varchar(80),

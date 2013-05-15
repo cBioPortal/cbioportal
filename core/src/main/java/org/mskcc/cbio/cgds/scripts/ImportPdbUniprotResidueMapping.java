@@ -73,7 +73,7 @@ public final class ImportPdbUniprotResidueMapping {
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           DaoPdbUniprotResidueMapping.flushToDatabase();
+           MySQLbulkLoader.flushAll();
         }
     }
     

@@ -29,7 +29,6 @@
         diffusion = "0";
 %>
 
-<link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
 <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
 
 <!-- json2 is now a global library! -->
@@ -37,10 +36,32 @@
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/network/network-ui.js"></script>
+<!-- <script type="text/javascript" src="js/network/network-ui.js"></script> -->
+<script type="text/javascript" src="js/network/network-visualization.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
+<!-- for genomic data post request -->
+<script type="text/javascript" src="js/oncoprint.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>
+
 <script type="text/javascript">
+
+			var genomicData = {};
+			// Send genomic data query again
+		    var geneDataQuery = {
+		        genes: genes,
+		        samples: samples,
+		        geneticProfileIds: geneticProfiles,
+		        z_score_threshold: <%=zScoreThreshold%>,
+		        rppa_score_threshold: <%=rppaScoreThreshold%>
+		    };
+	
+		    $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
+				genomicData = data;
+		        var geneDataManager = DataManagerFactory.getGeneDataManager();
+		        geneDataManager.fire(data);
+		    });
+
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
                 var msgbegin = "<!--messages begin:";
@@ -83,22 +104,24 @@
                      netsize:'<%=netSize%>',
                      diffusion:'<%=diffusion%>'
                     };
+                // get the graphml data from the server
                 $.post("network.do", 
                     networkParams,
                     function(graphml){
-                        if (typeof data !== "string") { 
+                        if (typeof graphml !== "string") {
                             if (window.ActiveXObject) { // IE 
                                     graphml = graphml.xml; 
                             } else { // Other browsers 
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 
                         }
-                        send2cytoscapeweb(graphml,"cytoscapeweb");
+                        send2cytoscapeweb(graphml, "cytoscapeweb", "network");
                         showXDebug(graphml);
-                        showNetworkMessage(graphml,"#netmsg");
+                        showNetworkMessage(graphml, "#network #netmsg");
                     }
                 );
             }
         </script>
 
+<jsp:include page="network_views.jsp"/>
 <jsp:include page="network_div.jsp"/>

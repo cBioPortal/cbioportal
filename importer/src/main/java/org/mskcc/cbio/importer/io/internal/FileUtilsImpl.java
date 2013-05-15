@@ -43,6 +43,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
 import org.mskcc.cbio.liftover.Hg18ToHg19;
 import org.mskcc.cbio.oncotator.OncotateTool;
@@ -71,12 +72,7 @@ import java.io.ByteArrayInputStream;
 import java.lang.reflect.Constructor;
 
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -220,12 +216,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * Returns the contents of the datafile as specified by ImportDataRecord
      * in an DataMatrix.  May return null if there is a problem reading the file.
 	 *
+	 * methylationCorrelation matrix is set when we are processing a methlation file.
+	 * These files can be extremely large, so the correlation file is used to skip
+	 * all rows in the methylation file that do not have a corresponding row in the correlate file.
+	 *
 	 * @param importDataRecord ImportDataRecord
+	 * @param methylationCorrelation DataMatrix
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
     @Override
-	public DataMatrix getFileContents(ImportDataRecord importDataRecord) throws Exception {
+	public DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getFileContents(): " + importDataRecord);
@@ -253,7 +254,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // outta here
-        return getDataMatrix(fileContents);
+        return getDataMatrix(fileContents, methylationCorrelation);
     }
 
 	/**
@@ -383,7 +384,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (GzipUtils.isCompressedFilename(urlSource)) {
 			// downlod to temp destination
 			File tempDestinationFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			   new File(source.getFile()).getName());
+																			   ""+System.currentTimeMillis()+"."+new File(source.getFile()).getName());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("downloadFile(), " + urlSource + ", this may take a while...");
 			}
@@ -466,6 +467,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			if (cancerStudyMetadata.getPMID().length() > 0) {
 				writer.print("pmid: " + cancerStudyMetadata.getPMID() + "\n");
+			}
+			if (cancerStudyMetadata.getGroups().length() > 0) {
+				writer.print("groups: " + cancerStudyMetadata.getGroups() + "\n");
 			}
 
 			writer.flush();
@@ -566,7 +570,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we only have data matrix at this point, we need to create a temp with its contents
 		File oncotatorInputFile =
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"oncotatorInputFile");
+													""+System.currentTimeMillis()+".oncotatorInputFile");
 		FileOutputStream out = org.apache.commons.io.FileUtils.openOutputStream(oncotatorInputFile);
 		dataMatrix.write(out);
 		IOUtils.closeQuietly(out);
@@ -788,7 +792,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			// create temp for given maf
 			File oncotatorInputFile =
 				org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-														"oncotatorInputFile");
+														""+System.currentTimeMillis()+".oncotatorInputFile");
 			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
 			// input is tmp file we just created, we want output to go into the original maf
 			oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
@@ -826,7 +830,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (parts[3].contains("36") || parts[3].equals("hg18")) {
 			it.close();
 			File liftoverInputFile = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-																			 "liftoverInputFile");
+																			 ""+System.currentTimeMillis()+".liftoverInputFile");
 			org.apache.commons.io.FileUtils.copyFile(oncotatorInputFile, liftoverInputFile);
 			oncotatorInputFile = new File(inputMAF.getFile());
 			// call lift over
@@ -841,7 +845,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// create a temp output file from the oncotator
 		File oncotatorOutputFile = 
 			org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
-													"oncotatorOutputFile");
+													""+System.currentTimeMillis()+".oncotatorOutputFile");
 		// call oncotator
 		if (LOG.isInfoEnabled()) {
 			LOG.info("oncotateMAF(), calling OncotateTool...");
@@ -981,14 +985,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * Helper function to create DataMatrix.
      *
      * @param data InputStream
+	 * @param methylationCorrelation DataMatrix
      * @return DataMatrix
      */
-    private DataMatrix getDataMatrix(InputStream data) throws Exception {
+    private DataMatrix getDataMatrix(InputStream data, DataMatrix methylationCorrelation) throws Exception {
 
         // iterate over all lines in byte[]
         List<String> columnNames = null;
         List<LinkedList<String>> rowData = null;
         LineIterator it = IOUtils.lineIterator(data, null);
+		Map<String,String> probeIdMap = initProbMap(methylationCorrelation);
         try {
             int count = -1;
             while (it.hasNext()) {
@@ -999,7 +1005,14 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                 // all other rows are rows in the table
                 else {
                     rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
-                    rowData.add(new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1))));
+					LinkedList thisRow = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+					if (methylationCorrelation == null) {
+						rowData.add(thisRow);
+					}
+					// first line in methylation file is probeID
+					else if (probeIdMap.containsKey(thisRow.getFirst())) {
+						rowData.add(thisRow);
+					}
                 }
             }
         }
@@ -1017,7 +1030,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         // made it here, we can create DataMatrix
         if (LOG.isInfoEnabled()) {
-            LOG.info("creating new DataMatrix(), from file data");
+            LOG.info("creating new DataMatrix(), from file data, num rows: " + rowData.size());
         }
 
         // outta here
@@ -1047,4 +1060,14 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (fos != null) IOUtils.closeQuietly(fos);
 		}
  	}
+
+	private static Map initProbMap(DataMatrix methylationCorrelation) {
+		Map<String,String> toReturn = new HashMap<String,String>();
+		if (methylationCorrelation == null) return toReturn;
+		for (String probeId : methylationCorrelation.
+				 getColumnData(MethylationConverterImpl.CORRELATE_METH_PROBE_COLUMN_HEADER_NAME).get(0)) {
+			toReturn.put(probeId, probeId);
+		}
+		return toReturn;
+	}
 }

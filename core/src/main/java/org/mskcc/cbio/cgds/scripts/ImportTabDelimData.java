@@ -232,8 +232,7 @@ public class ImportTabDelimData {
             line = buf.readLine();
         }
         if (MySQLbulkLoader.isBulkLoad()) {
-           daoGeneticAlteration.flushGeneticAlteration();
-           daoMicroRnaAlteration.flushMicroRnaAlteration();
+           MySQLbulkLoader.flushAll();
         }
         
         if (numRecordsStored == 0) {

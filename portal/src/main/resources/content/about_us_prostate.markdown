@@ -1,4 +1,4 @@
-The cBio Prostate Cancer Portal is developed and maintained by the Computational Biology Center at Memorial Sloan-Kettering Cancer Center and the i-Vis (Information Visualization) Research Group of the Computer Engineering Department at Bilkent University.
+The cBioPortal Prostate Cancer is developed and maintained by the Computational Biology Center at Memorial Sloan-Kettering Cancer Center and the i-Vis (Information Visualization) Research Group of the Computer Engineering Department at Bilkent University.
 
 ## The team
 

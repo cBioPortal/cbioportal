@@ -73,8 +73,8 @@ In order to execute successfully, this tool needs the input MAF to satisfy the f
 
 OUTPUT FORMAT
 
-The output produced by this tool will contain 5 additional columns named: MA:link.var,
-MA:protein.change, MA:link.MSA, MA:link.PDB, and MA:FImpact.
+The output produced by this tool will contain 6 additional columns named: MA:link.var,
+MA:protein.change, MA:link.MSA, MA:link.PDB, MA:FImpact, and MA:FIS.
 
 If the input file already contains these mutation assessor columns, the tool will overwrite
 the data under these columns. Additionally, if the input MAF file contains any other column

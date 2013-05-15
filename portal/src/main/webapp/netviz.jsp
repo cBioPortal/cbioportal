@@ -12,8 +12,7 @@
 <body>
 
     <jsp:include page="WEB-INF/jsp/global/css_include.jsp" flush="true" />
-   
-<link href="css/network/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet"/>
+
 <link href="css/network/network_ui.css" type="text/css" rel="stylesheet"/>
 
 
@@ -26,7 +25,7 @@
 <script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/network/network-ui.js"></script>
+<script type="text/javascript" src="js/network/network-visualization.js"></script>
 <script type="text/javascript" src="js/network/network-viz.js"></script>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
@@ -129,19 +128,19 @@ if (graphml!=null&&!graphml.isEmpty()) {
     $(document).ready(function(){
         var graphml = "<%=graphml%>";
         //graphml = '<graphml><graph><node id="n0"/></graph></graphml>';
-        send2cytoscapeweb(graphml,"cytoscapeweb");
+        send2cytoscapeweb(graphml, "cytoscapeweb", "network");
         
         <%if(msgs!=null){%>
         var msgs = "<br/><%=msgs%>";
-        $("#netmsg").append(msgs);
+        $("#network #netmsg").append(msgs);
         <%}%>
         
         $("#network-resubmit-query").remove();
         
         if (<%=showProfileData%>) {
             var nre = setInterval(function() {
-                if (!$("#network_menu_div").hasClass("hidden-network-ui")) {
-                    $('#show_profile_data').click();
+                if (!$("#network #network_menu_div").hasClass("hidden-network-ui")) {
+                    $('#network #show_profile_data').click();
                     clearInterval(nre);
                 }
             },1000);

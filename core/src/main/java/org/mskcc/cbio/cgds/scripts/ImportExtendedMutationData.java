@@ -35,9 +35,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
@@ -108,13 +110,18 @@ public class ImportExtendedMutationData{
 
 	public void importData() throws IOException, DaoException {
 		HashSet <String> sequencedCaseSet = new HashSet<String>();
+                
+                Map<MutationEvent,MutationEvent> existingEvents = new HashMap<MutationEvent,MutationEvent>();
+                for (MutationEvent event : DaoMutation.getAllMutationEvents()) {
+                    existingEvents.put(event, event);
+                }
+                
+                long mutationEventId = DaoMutation.getLargestMutationEventId();
 
 		FileReader reader = new FileReader(mutationFile);
 		BufferedReader buf = new BufferedReader(reader);
 
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-		DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-		DaoMutation daoMutation = DaoMutation.getInstance();
 
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();
@@ -201,18 +208,28 @@ public class ImportExtendedMutationData{
 					record.setEndPosition(0);
 
 				String functionalImpactScore = "";
+				// using -1 is not safe, FIS can be a negative value
+				Float fisValue = Float.MIN_VALUE;
 				String linkXVar = "";
 				String linkMsa = "";
 				String linkPdb = "";
 
 				if (fileHasOMAData)
 				{
-					functionalImpactScore = getField(parts, "MA:FImpact" );
+//					functionalImpactScore = getField(parts, "MA:FImpact" );
+//					fisValue = getField(parts, "MA:FIS");
+//					linkXVar = getField(parts, "MA:link.var" );
+//					linkMsa = getField(parts, "MA:link.MSA" );
+//					linkPdb = getField(parts, "MA:link.PDB" );
+
+					functionalImpactScore = record.getMaFuncImpact();
+					fisValue = record.getMaFIS();
+					linkXVar = record.getMaLinkVar();
+					linkMsa = record.getMaLinkMsa();
+					linkPdb = record.getMaLinkPdb();
+
 					functionalImpactScore = transformOMAScore(functionalImpactScore);
-					linkXVar = getField(parts, "MA:link.var" );
 					linkXVar = linkXVar.replace("\"", "");
-					linkMsa = getField(parts, "MA:link.MSA" );
-					linkPdb = getField(parts, "MA:link.PDB" );
 				}
 
 				String mutationType,
@@ -221,6 +238,9 @@ public class ImportExtendedMutationData{
 					refseqMrnaId,
 					uniprotName,
 					uniprotAccession;
+
+				int proteinPosStart,
+					proteinPosEnd;
 
 				boolean bestEffectTranscript;
 
@@ -272,6 +292,8 @@ public class ImportExtendedMutationData{
 					refseqMrnaId = record.getOncotatorRefseqMrnaIdBestEffect();
 					uniprotName = record.getOncotatorUniprotNameBestEffect();
 					uniprotAccession = record.getOncotatorUniprotAccessionBestEffect();
+					proteinPosStart = record.getOncotatorProteinPosStartBestEffect();
+					proteinPosEnd = record.getOncotatorProteinPosEndBestEffect();
 				}
 				else
 				{
@@ -280,6 +302,8 @@ public class ImportExtendedMutationData{
 					refseqMrnaId = record.getOncotatorRefseqMrnaId();
 					uniprotName = record.getOncotatorUniprotName();
 					uniprotAccession = record.getOncotatorUniprotAccession();
+					proteinPosStart = record.getOncotatorProteinPosStart();
+					proteinPosEnd = record.getOncotatorProteinPosEnd();
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
@@ -318,15 +342,14 @@ public class ImportExtendedMutationData{
 					mutation.setValidationStatus(record.getValidationStatus());
 					mutation.setMutationStatus(record.getMutationStatus());
 					mutation.setFunctionalImpactScore(functionalImpactScore);
+					mutation.setFisValue(fisValue);
 					mutation.setLinkXVar(linkXVar);
 					mutation.setLinkPdb(linkPdb);
 					mutation.setLinkMsa(linkMsa);
 					mutation.setNcbiBuild(record.getNcbiBuild());
 					mutation.setStrand(record.getStrand());
 					mutation.setVariantType(record.getVariantType());
-					mutation.setReferenceAllele(record.getReferenceAllele());
-					mutation.setTumorSeqAllele1(record.getTumorSeqAllele1());
-					mutation.setTumorSeqAllele2(record.getTumorSeqAllele2());
+                                        mutation.setAllele(record.getTumorSeqAllele1(), record.getTumorSeqAllele2(), record.getReferenceAllele());
 					mutation.setDbSnpRs(record.getDbSNP_RS());
 					mutation.setDbSnpValStatus(record.getDbSnpValStatus());
 					mutation.setMatchedNormSampleBarcode(record.getMatchedNormSampleBarcode());
@@ -352,6 +375,8 @@ public class ImportExtendedMutationData{
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);
 					mutation.setOncotatorUniprotName(uniprotName);
 					mutation.setOncotatorUniprotAccession(uniprotAccession);
+					mutation.setOncotatorProteinPosStart(proteinPosStart);
+					mutation.setOncotatorProteinPosEnd(proteinPosEnd);
 					mutation.setCanonicalTranscript(!bestEffectTranscript);
 
 					sequencedCaseSet.add(caseId);
@@ -360,8 +385,16 @@ public class ImportExtendedMutationData{
 					if( myMutationFilter.acceptMutation( mutation )) {
 						// add record to db
 						try {
-							daoMutation.addMutation(mutation);
-						    DaoMutationEvent.addMutation(mutation);
+                                                    MutationEvent event = existingEvents.get(mutation.getEvent());
+                                                    
+                                                    if (event!=null) {
+                                                        mutation.setEvent(event);
+                                                    } else {
+                                                        mutation.setMutationEventId(++mutationEventId);
+                                                        existingEvents.put(mutation.getEvent(), mutation.getEvent());
+                                                    }
+                                                    
+                                                    DaoMutation.addMutation(mutation,event==null);
 						} catch (DaoException ex) {
 						    ex.printStackTrace();
 						}
@@ -371,8 +404,7 @@ public class ImportExtendedMutationData{
 			line = buf.readLine();
 		}
 		if( MySQLbulkLoader.isBulkLoad()) {
-			daoGeneticAlteration.flushGeneticAlteration();
-			daoMutation.flushMutations();
+			MySQLbulkLoader.flushAll();
 		}
 		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 

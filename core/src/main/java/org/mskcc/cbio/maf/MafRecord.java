@@ -33,6 +33,7 @@ package org.mskcc.cbio.maf;
 public class MafRecord
 {
     public final static String NA_STRING = "NA";
+    // TODO use MIN instead of -1, we may have fields with negative values
     public final static long NA_LONG = -1L;
     public final static int NA_INT = -1;
     public final static float NA_FLOAT = -1;
@@ -87,6 +88,7 @@ public class MafRecord
 
 	// Mutation Assessor cols
 	private String maFuncImpact;
+	private float maFIS;
 	private String maLinkVar;
 	private String maLinkMsa;
 	private String maLinkPdb;
@@ -106,6 +108,8 @@ public class MafRecord
 	private String oncotatorUniprotName;
 	private String oncotatorUniprotAccession;
 	private String oncotatorCodonChange;
+	private int oncotatorProteinPosStart;
+	private int oncotatorProteinPosEnd;
 	private String oncotatorProteinChangeBestEffect;
 	private String oncotatorVariantClassificationBestEffect;
 	private String oncotatorGeneSymbolBestEffect;
@@ -116,7 +120,8 @@ public class MafRecord
 	private String oncotatorUniprotNameBestEffect;
 	private String oncotatorUniprotAccessionBestEffect;
 	private String oncotatorCodonChangeBestEffect;
-
+	private int oncotatorProteinPosStartBestEffect;
+	private int oncotatorProteinPosEndBestEffect;
 
 	public String getChr() {
         return chr;
@@ -600,6 +605,26 @@ public class MafRecord
 		this.oncotatorCodonChange = oncotatorCodonChange;
 	}
 
+	public int getOncotatorProteinPosStart()
+	{
+		return oncotatorProteinPosStart;
+	}
+
+	public void setOncotatorProteinPosStart(int oncotatorProteinPosStart)
+	{
+		this.oncotatorProteinPosStart = oncotatorProteinPosStart;
+	}
+
+	public int getOncotatorProteinPosEnd()
+	{
+		return oncotatorProteinPosEnd;
+	}
+
+	public void setOncotatorProteinPosEnd(int oncotatorProteinPosEnd)
+	{
+		this.oncotatorProteinPosEnd = oncotatorProteinPosEnd;
+	}
+
 	public String getOncotatorProteinChangeBestEffect()
 	{
 		return oncotatorProteinChangeBestEffect;
@@ -700,12 +725,40 @@ public class MafRecord
 		this.oncotatorCodonChangeBestEffect = oncotatorCodonChangeBestEffect;
 	}
 
+	public int getOncotatorProteinPosStartBestEffect()
+	{
+		return oncotatorProteinPosStartBestEffect;
+	}
+
+	public void setOncotatorProteinPosStartBestEffect(int oncotatorProteinPosStartBestEffect)
+	{
+		this.oncotatorProteinPosStartBestEffect = oncotatorProteinPosStartBestEffect;
+	}
+
+	public int getOncotatorProteinPosEndBestEffect()
+	{
+		return oncotatorProteinPosEndBestEffect;
+	}
+
+	public void setOncotatorProteinPosEndBestEffect(int oncotatorProteinPosEndBestEffect)
+	{
+		this.oncotatorProteinPosEndBestEffect = oncotatorProteinPosEndBestEffect;
+	}
+
 	public String getMaFuncImpact() {
 		return maFuncImpact;
 	}
 
 	public void setMaFuncImpact(String maFuncImpact) {
 		this.maFuncImpact = maFuncImpact;
+	}
+
+	public float getMaFIS() {
+		return maFIS;
+	}
+
+	public void setMaFIS(float maFIS) {
+		this.maFIS = maFIS;
 	}
 
 	public String getMaLinkVar() {

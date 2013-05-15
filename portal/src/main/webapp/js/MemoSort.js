@@ -12,6 +12,8 @@
 // returns the data, sorted
 var MemoSort = function(data, attributes) {
 
+    // compares two objects that have gene data (cna, mutation, mrna, rppa).
+    // Returns a number that indicates the order.
     var comp_genes = function(attr1, attr2) {
         var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, undefined: 0},
             regulated_order = {UPREGULATED: 2, DOWNREGULATED: 1, undefined: 0},
@@ -40,8 +42,31 @@ var MemoSort = function(data, attributes) {
         return 0;       // they are equal in every way
     };
 
+    // compares two objects of clinical data (attr_ids and attr_vals)
+    // returns a *number* that indicates which one is larger
     var comp_clinical = function(attr1, attr2) {
-        return attr1.attr_val < attr2.attr_val;
+        var norm = function(val) {
+            var identity = isNaN(parseInt(val)) ? "" : 0;
+            return val === "NA" ? identity : val;
+        };
+
+        var discrete = isNaN(parseInt(val1));
+        var val1 = attr1.attr_val;
+        var val2 = attr2.attr_val;
+
+        // must return a number
+        if (discrete) {
+            if (val1 < val2) {
+                return 1;
+            } else if (val2 < val1) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+        else {  // continuous value type
+            return val2 - val1;
+        }
     };
 
     var getAttr = function(d) {
@@ -55,7 +80,7 @@ var MemoSort = function(data, attributes) {
         }
     };
 
-    // little bit of optimization
+    // a little bit of optimization
     var attr2index = (function() {
         var toReturn = {};
         for (var i = 0; i < attributes.length; i+=1) {
@@ -73,7 +98,12 @@ var MemoSort = function(data, attributes) {
             var y_attrs = y.values
                 .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
 
-            // compare x and y's attributes in order
+            if (x_attrs.length !== y_attrs.length) {
+                throw new Error("two samples have different attributes");
+            }
+
+            // iterate over the attributes of x and y in the user defined
+            // order, comparing along the way
             for (var j = 0; j < x_attrs.length; j+=1) {
 
                 var xj = x_attrs[j];
@@ -82,9 +112,9 @@ var MemoSort = function(data, attributes) {
                 assert(xj.gene === yj.gene);        // what we are comparing are comparable
                 assert(xj.attr_id === yj.attr_id);
 
-                var diff = xj.gene === undefined
+                var diff = (xj.gene === undefined
                     ? comp_clinical(xj, yj)
-                    :  comp_genes(xj, yj);
+                    :  comp_genes(xj, yj));
 
                 // return the first nonzero diff
                 if (diff !== 0) {
@@ -98,7 +128,6 @@ var MemoSort = function(data, attributes) {
 
     return data.sort(comp);
 };
-
 
 var _MemoSort = function(geneAlterations, samples_list, gene_list) {
 

@@ -1,4 +1,14 @@
-var Oncoprint = function(wrapper, params) {
+//
+//
+// Gideon Dresdner <dresdnerg@cbio.mskcc.org> May 2013
+//
+//
+//
+;
+// Creates an oncoprint on the div.
+// The parameters is an object that contains:
+// clinicalData, clinical_attrs, and geneData
+var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];     // initialize
     params.clinical_attrs = params.clinical_attrs || [];
 
@@ -15,7 +25,6 @@ var Oncoprint = function(wrapper, params) {
 
     var attributes = params.clinical_attrs.concat(params.genes);
 
-    //todo: this should be changed.  Oncoprint should create the attributes itself.
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
@@ -60,14 +69,23 @@ var Oncoprint = function(wrapper, params) {
         return prev;
     }, {});
 
+    var colors = {
+        red: '#FF0000',
+        grey: '#D3D3D3',
+        white: '#FFFAF0',
+        black: '#404040'
+    };
+
     // convert ranges to d3 scales
     // simplistic : string -> discrete , number -> continuous
     for (var a2r in attr2range) {
         var scale = attr2range[a2r];
-        var new_scale = isNaN(parseInt(scale[0])) ? d3.scale.ordinal() : d3.scale.linear();
-        new_scale.domain(scale);
+        var discrete = isNaN(parseInt(scale[0]));     // string / number -> discrete / continuous
+        var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
+        var range = discrete ? [colors.black, colors.white] : [colors.white, colors.red];
 
-        new_scale.range(["#ff7f0e", "#1f77b4"]);
+        new_scale.domain(scale);
+        new_scale.range(range);
 
         attr2range[a2r] = new_scale;
     }
@@ -79,27 +97,29 @@ var Oncoprint = function(wrapper, params) {
     var dims = (function() {
         var rect_height = 23;
         var mut_height = rect_height / 3;
+        var vert_padding = 4
 
         return {
             width: data.length * (5.5 + 3),
             height: (23 + 5) * attributes.length,
             rect_height: rect_height,
             rect_width: 5.5,
-            vert_padding: 4,
+            vert_padding: vert_padding,
+            vert_space: rect_height + vert_padding,
             hor_padding: 2,
             mut_height: mut_height
-        }
+        };
     }());
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
-
-    var svg = d3.select(wrapper)
+//
+    var svg = d3.select(div)
         .append("svg")
         .attr('width', dims.width)
         .attr('height', dims.height);
 
     var cna_fills = {
-        undefined: '#D3D3D3',
-        AMPLIFIED: '#FF0000',
+        undefined: colors.grey,
+        AMPLIFIED: colors.red,
         GAINED: '#FFB6C1',
         DIPLOID: '#D3D3D3',
         HEMIZYGOUSLYDELETED: '#8FD8D8',
@@ -112,10 +132,10 @@ var Oncoprint = function(wrapper, params) {
 
     // it's entering time
     var enter = function(sample) {
-        var enter = sample.enter();
+        var e = sample.enter();
 
         // N.B. fill doubles as cna
-        var fill = enter.append('rect')
+        var fill = e.append('rect')
             .attr('fill', function(d) { return d.gene !== undefined ?
                 cna_fills[d.cna] :                   // gene data
                 attr2range[d.attr_id](d.attr_val);   // clinical data
@@ -124,30 +144,31 @@ var Oncoprint = function(wrapper, params) {
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
                 // todo: dims.vert_space = dims.rect_height + dims.vert_padding
-                return (dims.rect_height + dims.vert_padding) * attributes.indexOf(getAttr(d)); });
+                return dims.vert_space * attributes.indexOf(getAttr(d)); });
 
-        var mut = enter.append('rect')
+        var mut = e.append('rect')
             .attr('fill', 'green')
             .attr('height', dims.mut_height)
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
-                return dims.mut_height + (dims.rect_height + dims.vert_padding) * attributes.indexOf(getAttr(d)); });
+                return dims.mut_height
+                + dims.vert_space * attributes.indexOf(getAttr(d)); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
 
         var sym = d3.svg.symbol().size(dims.rect_width * 2);
-        var rppa = enter.append('path')
+        var rppa = e.append('path')
                 .attr('d', sym.type(function(d) {
                     return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
                 .attr('transform', function(d) {
-                    return translate(dims.rect_width / 2, dims.rect_height / 2 + (dims.rect_height + dims.vert_padding) * (attributes.indexOf(getAttr(d)))); });
+                    return translate(dims.rect_width / 2, dims.rect_height / 2 + dims.vert_space * (attributes.indexOf(getAttr(d)))); });
         rppa.filter(function(d) {
             return d.rppa === undefined;
         }).remove();
 
-        var mrna = enter.append('rect')
-            .attr('y', function(d) { return (dims.rect_height + dims.vert_padding) * (1 + params.genes.indexOf(getAttr(d))); })
+        var mrna = e.append('rect')
+            .attr('y', function(d) { return dims.vert_space * (1 + params.genes.indexOf(getAttr(d))); })
             .attr('height', dims.rect_height)
             .attr('width', dims.rect_width)
             .attr('stroke-width', 2)
@@ -177,7 +198,7 @@ var Oncoprint = function(wrapper, params) {
     // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.
     // This object is returned to the user for the UI
     var State = (function() {
-        var data;
+        var internal_data = data;
         var whitespace = true;              // show white space?
         var rect_width = dims.rect_width;   // initialize
 
@@ -200,7 +221,7 @@ var Oncoprint = function(wrapper, params) {
 
         // takes data and return a list of sample_ids in order
         var pick_sample = function(data) {
-            return data.map(function(i) { return i.key; });
+            return internal_data.map(function(i) { return i.key; });
         };
 
         // composition of xscale and pick_sample
@@ -211,7 +232,7 @@ var Oncoprint = function(wrapper, params) {
         // puts all the samples in the correct horizontal position
         var xtranslate = function() {
             // re-sort
-            var x = data2xscale(data);
+            var x = data2xscale(internal_data);
             d3.selectAll('.sample').transition()
                 .duration(function(d) { return 1000 + x.sample2index[d.key] * 20; })
                 .attr('transform', function(d) { return translate(x.scale(d.key),0); });
@@ -219,15 +240,28 @@ var Oncoprint = function(wrapper, params) {
 
         // todo : the size of the svg element changes with the state
         return {
-            setData: function(d) {
-                data = d;
-                xtranslate();
-            },
             memoSort: function(attributes) {
-                data = MemoSort(data, attributes);
+                internal_data = MemoSort(internal_data, attributes);
                 xtranslate();
+                return internal_data;
             },
-            getData: function() { return data; },
+            randomMemoSort: function() {
+                // randomly shuffle an array
+                var shuffle = function(array) {
+                    var m = array.length, t, i;
+                    while (m)  {
+                        i = Math.floor(Math.random() * m--);
+                        t = array[m], array[m] = array[i], array[i] = t;
+                    }
+                    return array;
+                };
+
+                var attrs = shuffle(attributes);
+                internal_data = MemoSort(internal_data, attrs);
+                xtranslate();
+                return attrs;
+            },
+            getData: function() { return internal_data; },
             render: function() { return xtranslate; },
             showWhiteSpace: function(bool) {
                 whitespace = bool;
@@ -240,8 +274,12 @@ var Oncoprint = function(wrapper, params) {
                     .transition()
                     .duration(1000)
                     .attr('width', dims.rect_width * scalar);
-
                 xtranslate();
+                if (scalar >= 1) {
+                    State.showWhiteSpace(true);
+                } else {
+                    State.showWhiteSpace(false);
+                }
             },
             showUnalteredCases: function(bool) {
                 return "not doing anything right now";
@@ -249,24 +287,10 @@ var Oncoprint = function(wrapper, params) {
         };
     })();
 
-    // randomly shuffle an array
-    var shuffle = function(array) {
-        var m = array.length, t, i;
-        while (m)  {
-            i = Math.floor(Math.random() * m--);
-            t = array[m], array[m] = array[i], array[i] = t;
-        }
-        return array;
-    };
-
-//    State.setData(data);
-//    State.setData(MemoSort(data, attributes));
-    var attrs = shuffle(attributes);
-    console.log(attrs);
-    State.setData(MemoSort(data, shuffle(attrs)));
+    State.memoSort(attributes);
 
 //    setInterval(function() {
-//        State.setData(MemoSort(data, shuffle(attributes)));
+//        State.memoSort(data, shuffle(attributes));
 //    }, 4400);
 
     $('#oncoprint').children().show();      // todo: delete me!

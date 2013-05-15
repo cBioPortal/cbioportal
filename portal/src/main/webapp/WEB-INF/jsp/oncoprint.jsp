@@ -40,7 +40,7 @@
             </table>
         </div>
         <div id="oncoprint_body">
-            <script type="text/javascript" src="js/oncoprint.js?b38533a455c5"></script>
+            <script type="text/javascript" src="js/oncoprint.js"></script>
 
             <script type="text/javascript">
                 var oncoPrintParams = {
@@ -78,8 +78,6 @@
                             oncoPrintParams['clinical_attrs'] = ["VITAL_STATUS", "DAYS_TO_DEATH"];
 
                             oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);
-
-                            oncoprint.draw();
                             $('#oncoprint #loader_img').hide();
                             $('#oncoprint #everything').show();
 

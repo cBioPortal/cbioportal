@@ -87,11 +87,11 @@ These levels are derived from the copy-number analysis algorithms GISTIC or RAE,
 
 # What are the sources of biological network data?
 
-The sources of biological network data are list <a href="networks.jsp">here</a>.
+The sources of biological network data are listed <a href="networks.jsp">here</a>.
 
 # How do I get updates on new portal developments and new data sets?
 
-The best options are subscript to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
+You may want to subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
 
 # What if I have other questions / comments?
 

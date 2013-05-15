@@ -51,7 +51,7 @@ algorithms.  Both algorithms attempt to identify significantly altered regions o
 
 # What are the sources of biological network data?
 
-The sources of biological network data are list <a href="networks.jsp">here</a>.
+The sources of biological network data are listed <a href="networks.jsp">here</a>.
 
 # What if I have other questions / comments?
 

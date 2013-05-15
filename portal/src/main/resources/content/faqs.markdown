@@ -91,8 +91,8 @@ The sources of biological network data are listed <a href="networks.jsp">here</a
 
 # How do I get updates on new portal developments and new data sets?
 
-You may want to subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
+Please subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
 
 # What if I have other questions / comments?
 
-Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are also available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).
+Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

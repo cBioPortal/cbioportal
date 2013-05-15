@@ -27,12 +27,13 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -40,7 +41,6 @@ import java.util.Set;
  * @author jgao
  */
 public final class DaoPdbUniprotResidueMapping {
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private DaoPdbUniprotResidueMapping() {}
     
     public static int addPdbUniprotResidueMapping(String pdbId, String chain,
@@ -76,7 +76,53 @@ public final class DaoPdbUniprotResidueMapping {
         }
     }
     
-    public static Set<String> mapToPdb(String uniprotId) throws DaoException {
+    /**
+     * 
+     * @param uniprotId
+     * @param uniprotPos
+     * @return Map<PdbId, Map<Chain, Position>>
+     * @throws DaoException 
+     */
+    public static Map<String, Map<String, Integer>> mapToPdbResidues(String uniprotId, int uniprotPos) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+            pstmt = con.prepareStatement("SELECT DISTINCT PDB_ID, CHAIN, PDB_POSITION "
+                    + "FROM pdb_uniprot_residue_mapping "
+                    + "WHERE UNIPROT_ID=? AND UNIPROT_POSITION=?");
+            pstmt.setString(1, uniprotId);
+            pstmt.setInt(2, uniprotPos);
+            rs = pstmt.executeQuery();
+            Map<String, Map<String, Integer>> map = new HashMap<String, Map<String, Integer>>();
+            while (rs.next()) {
+                String pdbId = rs.getString(1);
+                String chain = rs.getString(2);
+                int position = rs.getInt(3);
+                
+                Map<String, Integer> chains = map.get(pdbId);
+                if (chains==null) {
+                    chains = new HashMap<String, Integer>();
+                    map.put(pdbId, chains);
+                }
+                chains.put(chain, position);
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+        }
+    } 
+    
+    /**
+     * 
+     * @param uniprotId
+     * @return Map<PdbId, Set<Chain>>
+     * @throws DaoException 
+     */
+    public static Map<String, Set<String>> mapToPdbChains(String uniprotId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -87,13 +133,19 @@ public final class DaoPdbUniprotResidueMapping {
                     + "WHERE UNIPROT_ID=?");
             pstmt.setString(1, uniprotId);
             rs = pstmt.executeQuery();
-            Set<String> set = new HashSet<String>();
+            Map<String, Set<String>> map = new HashMap<String, Set<String>>();
             while (rs.next()) {
                 String pdbId = rs.getString(1);
                 String chain = rs.getString(2);
-                set.add(pdbId+"."+chain);
+                
+                Set<String> chains = map.get(pdbId);
+                if (chains==null) {
+                    chains = new HashSet<String>();
+                    map.put(pdbId, chains);
+                }
+                chains.add(chain);
             }
-            return set;
+            return map;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -6,7 +6,7 @@
 <a href="http://cancergenome.nih.gov/">TCGA</a>
 <br/>
 Questions and feedback:  <%= SkinUtil.getEmailContact() %>
-<% if (SkinUtil.getAppName().equalsIgnoreCase("public_portal")) { %>
+<% if (SkinUtil.getAppName().equalsIgnoreCase("public-portal")) { %>
  | <a href="http://groups.google.com/group/cbioportal">User discussion group</a>
 <% } %>
 </div>

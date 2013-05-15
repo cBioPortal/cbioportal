@@ -116,9 +116,7 @@
                         Copy Number
                         <br><select id='data_type_copy_no'></select>
                         <br><br><br>
-                        <button onclick="generateScatterPlots()" style='width:80px;height:30px;border-radius:5px;background-color:#A4A4A4;'>
-                            <font style='font-size: 14px;color:white;font-weight: 7px;'> GO >> </font>
-                        </button>
+                        <a href="#" onclick="generateScatterPlots()"><img src='images/next_button.gif'></a>
                     </td>
                     <tr><td style='height:250px;'></td>
                 </table>
@@ -478,8 +476,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
-    var mutationStrokeTypes = ["#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101", "#DF0101"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FF8000", "#FF8000", "#FF8000", "#1C1C1C", "#FF8000"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#F1654C", "#F1654C", "#F1654C", "#1C1C1C", "#F1654C"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
@@ -504,7 +501,12 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 .append("svg:path")
                 .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
                 .attr("d", d3.svg.symbol()
-                        .size(25)
+                        .size( function(d) {
+                            switch (d[2]) {
+                                case "non" : return 15;
+                                default : return 25;
+                            }
+                        })
                         .type( function (d) {
                             switch (d[2]) {
                                 case mutationTypes[0] : return symbol[0];
@@ -516,8 +518,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                                 case mutationTypes[6] : return symbol[6];
                                 default: return "circle";
                             }
-                        }
-                ))
+                        })
+                )
                 .attr("fill", function(d) {
                     switch (d[2]) {
                         case mutationTypes[0]: return mutationFillTypes[0];
@@ -532,25 +534,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 })
                 .attr("stroke", function(d) {
                     switch (d[2]) {
-                        case mutationTypes[0]: return mutationStrokeTypes[0];
-                        case mutationTypes[1]: return mutationStrokeTypes[1];
-                        case mutationTypes[2]: return mutationStrokeTypes[2];
-                        case mutationTypes[3]: return mutationStrokeTypes[3];
-                        case mutationTypes[4]: return mutationStrokeTypes[4];
-                        case mutationTypes[5]: return mutationStrokeTypes[5];
-                        case mutationTypes[6]: return mutationStrokeTypes[6];
-                        default: return "none";
+                        case "non": return "none";
+                        default: return "#D24939";
                     }
-                })
-            // Do not work for PDF Converter
-            //.style("opacity", function(d) {
-            //    switch (d[2]) {
-            //        case "non": return 0.5;
-            //        default: return 10;
-            //    }
-            //})
-                .attr("stroke-width", 1);
-
+                });
+        //Making Qtips
         svg.selectAll('path').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'qtip failed'},
@@ -684,7 +672,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case i: return mutationStrokeTypes[i];
+                            case i: return "#D24939";
                         }
                     })
             legend.append("text")

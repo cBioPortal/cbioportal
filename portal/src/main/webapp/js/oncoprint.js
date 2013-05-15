@@ -12,11 +12,23 @@ var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];     // initialize
     params.clinical_attrs = params.clinical_attrs || [];
 
+    var isDiscrete = function(val) {
+        return isNaN(parseInt(val));
+    };
+
+    // map str(number) back to number
+    var clinicalData = params.clinicalData.map(function(i) {
+        if (!isDiscrete(i.attr_val)) {
+            i.attr_val = parseInt(i.attr_val);
+        }
+        return i;
+    });
+
     var data = d3.nest()
         .key(function(d) { return d.sample; })
-        .entries(params.clinicalData.concat(params.geneData));
+        .entries(clinicalData.concat(params.geneData));
 
-    if (params.clinicalData === [] && params.clinical_attrs !== undefined) {
+    if (clinicalData === [] && params.clinical_attrs !== undefined) {
         throw {
             name: "Data Mismatch Error",
             message: "There are clinical attributes for nonexistant clinical data"
@@ -25,17 +37,21 @@ var Oncoprint = function(div, params) {
 
     var attributes = params.clinical_attrs.concat(params.genes);
 
+    var getAttr = function(d) {
+        return d.gene || d.attr_id;
+    };
+
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
             key: i.key,
-            values: i.values.filter(function(j) { var attr = j.gene || j.attr_id; return attributes.indexOf(attr) !== -1; })
+            values: i.values.filter(function(j) { return attributes.indexOf(getAttr(j)) !== -1; })
         };
     });
 
     // attr2range : clinical attribute string ->
     // list of values or range of values, e.g. [min, max]
-    var attr2range = params.clinicalData.reduce(function(prev, curr) {
+    var attr2range = clinicalData.reduce(function(prev, curr) {
         prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
 
         var a2r =  prev[curr.attr_id];
@@ -71,6 +87,7 @@ var Oncoprint = function(div, params) {
 
     var colors = {
         red: '#FF0000',
+        purple: '#A62459',
         grey: '#D3D3D3',
         white: '#FFFAF0',
         black: '#404040'
@@ -82,17 +99,13 @@ var Oncoprint = function(div, params) {
         var scale = attr2range[a2r];
         var discrete = isNaN(parseInt(scale[0]));     // string / number -> discrete / continuous
         var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
-        var range = discrete ? [colors.black, colors.white] : [colors.white, colors.red];
+        var range = discrete ? [colors.black, colors.white] : [colors.white, colors.purple];
 
         new_scale.domain(scale);
         new_scale.range(range);
 
         attr2range[a2r] = new_scale;
     }
-
-    var getAttr = function(d) {
-        return d.gene || d.attr_id;
-    };
 
     var dims = (function() {
         var rect_height = 23;
@@ -112,7 +125,37 @@ var Oncoprint = function(div, params) {
     }());
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 //
-    var svg = d3.select(div)
+
+    // make labels and set up the table for proper scrolling, etc.
+    var table = d3.select(div)
+        .append('table')
+        .append('tr');
+
+    var label_svg = table
+        .append('td')
+        .append('svg')
+        .attr('height', 100)
+        .attr('width', 200)
+        .attr('id', 'label');
+
+    var label = label_svg.selectAll('text')
+        .data(attributes)
+        .enter()
+        .append('text')
+        .attr('x', 0)
+        .attr('y', function(d) { return 11 + dims.vert_space * attributes.indexOf(d); });
+
+    label.append('tspan')       // name
+        .attr('text-anchor', 'start')
+        .attr('font-weight', 'bold')
+        .text(function(d) { return d; });
+    label.append('tspan')       // percent_altered
+        .text(function(d) { return "foobar%"; })
+        .attr('x', '200')
+        .attr('text-anchor', 'end');
+
+    var main_svg = table
+        .append('td')
         .append("svg")
         .attr('width', dims.width)
         .attr('height', dims.height);
@@ -136,23 +179,25 @@ var Oncoprint = function(div, params) {
 
         // N.B. fill doubles as cna
         var fill = e.append('rect')
-            .attr('fill', function(d) { return d.gene !== undefined ?
-                cna_fills[d.cna] :                   // gene data
-                attr2range[d.attr_id](d.attr_val);   // clinical data
+            .attr('fill', function(d) {
+                if (d.gene !== undefined) {
+                    //todo: this is ugly, refactor attr2range
+                    return cna_fills[d.cna];
+                } else {
+                    // NA is shown as grey
+                    return d.attr_val === "NA" ? colors.grey : attr2range[d.attr_id](d.attr_val);
+                }
             })
             .attr('height', function(d) {return dims.rect_height; })
             .attr('width', dims.rect_width)
-            .attr('y', function(d) {
-                // todo: dims.vert_space = dims.rect_height + dims.vert_padding
-                return dims.vert_space * attributes.indexOf(getAttr(d)); });
+            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); });
 
         var mut = e.append('rect')
             .attr('fill', 'green')
             .attr('height', dims.mut_height)
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
-                return dims.mut_height
-                + dims.vert_space * attributes.indexOf(getAttr(d)); });
+                return dims.mut_height + dims.vert_space * attributes.indexOf(getAttr(d)); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
@@ -168,7 +213,7 @@ var Oncoprint = function(div, params) {
         }).remove();
 
         var mrna = e.append('rect')
-            .attr('y', function(d) { return dims.vert_space * (1 + params.genes.indexOf(getAttr(d))); })
+            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); })
             .attr('height', dims.rect_height)
             .attr('width', dims.rect_width)
             .attr('stroke-width', 2)
@@ -181,7 +226,7 @@ var Oncoprint = function(div, params) {
     };
 
     // toss in the samples
-    var columns = svg.selectAll('g')        // array of arrays
+    var columns = main_svg.selectAll('g')        // array of arrays
         .data(data)
         .enter()
         .append('g')
@@ -262,7 +307,6 @@ var Oncoprint = function(div, params) {
                 return attrs;
             },
             getData: function() { return internal_data; },
-            render: function() { return xtranslate; },
             showWhiteSpace: function(bool) {
                 whitespace = bool;
                 xtranslate();

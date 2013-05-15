@@ -45,14 +45,17 @@ var MemoSort = function(data, attributes) {
     // compares two objects of clinical data (attr_ids and attr_vals)
     // returns a *number* that indicates which one is larger
     var comp_clinical = function(attr1, attr2) {
-        var norm = function(val) {
-            var identity = isNaN(parseInt(val)) ? "" : 0;
-            return val === "NA" ? identity : val;
-        };
-
         var discrete = isNaN(parseInt(val1));
         var val1 = attr1.attr_val;
         var val2 = attr2.attr_val;
+
+        // "NA" value goes to the end
+        if (val1 === "NA") {
+            return val2 === "NA" ? 0 : 1;
+        }
+        if (val2 === "NA") {
+            return val1 === "NA" ? 0 : -1;
+        }
 
         // must return a number
         if (discrete) {

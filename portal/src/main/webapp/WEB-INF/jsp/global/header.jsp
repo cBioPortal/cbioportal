@@ -42,46 +42,43 @@
         <tr>
             <td class="navigation">
                <ul>
-                        <li class="selected">
-                            <a href="index.do">Home</a>
+                    <li class="selected">
+                        <a href="index.do">Home</a>
+                    </li>
+                    <% if (SkinUtil.showDataTab()) { %>
+                        <li class="internal">
+                            <a href="data_sets.jsp">Data Sets</a>
                         </li>
-                        <li class="internal" id="results">
-                            <a href="#">Results</a>
+                    <% } %>
+                    <%
+                        //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
+                        if (!SkinUtil.usersMustAuthenticate()) {
+                    %>
+                        <li class="internal">
+                            <a href="web_api.jsp">Web API</a>
                         </li>
                         <li class="internal">
-                            <a href="tutorial.jsp">Tutorials</a>
+                            <a href="cgds_r.jsp">R/MATLAB</a>
                         </li>
-                        <% if (SkinUtil.showNewsTab()) { %>
-                            <li class="internal">
-                                <a href="news.jsp">News</a>
-                            </li>
-                        <% } %>
+                    <% } %>
+                    <li class="internal" id="results">
+                        <a href="#">Results</a>
+                    </li>
+                    <li class="internal">
+                        <a href="tutorial.jsp">Tutorials</a>
+                    </li>
+                    <li class="internal">
+                        <a href="faq.jsp">FAQ</a>
+                    </li>
+                    <% if (SkinUtil.showNewsTab()) { %>
                         <li class="internal">
-                            <a href="faq.jsp">FAQ</a>
+                            <a href="news.jsp">News</a>
                         </li>
-                        <% if (SkinUtil.showDataTab()) { %>
-                            <li class="internal">
-                                <a href="data_sets.jsp">Data Sets</a>
-                            </li>
-                        <% } %>
-                        <li class="internal">
-                            <a href="about_us.jsp">About</a>
-                        </li>
-                        <%
-                            //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
-                            if (!SkinUtil.usersMustAuthenticate()) {
-                        %>
-                            <li class="internal">
-                                <a href="web_api.jsp">Web API</a>
-                            </li>
-                            <li class="internal">
-                                <a href="cgds_r.jsp">R/MATLAB</a>
-                            </li>
-                        <% } %>
-                        <li class="internal">
-                            <a href="networks.jsp">Networks</a>
-                        </li>
-                    <li>
+                    <% } %>
+                    <li class="internal">
+                        <a href="about_us.jsp">About</a>
+                    </li>
+                    <!--li>
                         <a href="http://www.twitter.com/cbioportal"><img style="margin-top:5px; margin-bottom:4px"
                             src="images/twitter-b.png" title="Follow us on Twitter" alt="Follow us on Twitter"/></a>
                     </li>
@@ -92,8 +89,8 @@
                    <li>
                        <a href="http://cbio.mskcc.org"><img style="margin-top:6px; margin-bottom:4px; margin-right:-3px"
                             src="images/cbioLogo.png" title="cBio@MSKCC" alt="cBio@MSKCC"/></a>
-                   </li>
-				 </ul> 
+                   </li-->
+               </ul> 
             </td>
         </tr>
     </table>

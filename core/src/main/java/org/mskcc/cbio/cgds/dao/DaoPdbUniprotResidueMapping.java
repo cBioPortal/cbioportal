@@ -153,4 +153,17 @@ public final class DaoPdbUniprotResidueMapping {
         }
     }
     
+    /**
+     * 
+     * @param uniprotId
+     * @param uniprotPositions
+     * @param pdbId
+     * @param chainId
+     * @return Map<Uniprot Position, PDB Chain Position>
+     * @throws DaoException 
+     */
+    public static Map<Integer, Integer> mapToPdbChains(String uniprotId,
+            Set<Integer> uniprotPositions, String pdbId, String chainId) throws DaoException {
+        return null;
+    }
 }

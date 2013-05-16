@@ -32,7 +32,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import org.mskcc.cbio.cgds.dao.*;
@@ -58,7 +57,6 @@ public class ImportExtendedMutationData{
 	private ProgressMonitor pMonitor;
 	private File mutationFile;
 	private int geneticProfileId;
-	private HashMap <String, Integer> headerMap;
 	private static final String NOT_AVAILABLE = "NA";
 	private MutationFilter myMutationFilter;
 	private static final List<String> validChrValues;
@@ -119,14 +117,6 @@ public class ImportExtendedMutationData{
 		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
 		String line = buf.readLine();
 		line = line.trim();
-		String[] headers = line.split("\t");
-
-		headerMap = new HashMap<String, Integer>();
-
-		for( int i=0; i<headers.length; i++) {
-			String header = headers[i];
-			headerMap.put(header, i);
-		}
 
 		MafUtil mafUtil = new MafUtil(line);
 
@@ -138,7 +128,7 @@ public class ImportExtendedMutationData{
 			// e.g. if there is no MA_link.var column, we assume that the value is NA and insert it as such
 			fileHasOMAData = true;
 			pMonitor.setCurrentMessage("Extracting OMA Scores from Column Number:  "
-			                           + getHeaderIndex( "MA:FImpact" ));
+			                           + mafUtil.getMaFImpactIndex());
 		} catch( IllegalArgumentException e) {
 			fileHasOMAData = false;
 		}
@@ -159,7 +149,7 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				// an example bar code looks like this:  TCGA-13-1479-01A-01W
-				String barCode = getField( parts, "Tumor_Sample_Barcode" );
+				String barCode = record.getTumorSampleID();
 				String barCodeParts[] = barCode.split("-");
 
 				String caseId = null;
@@ -207,12 +197,12 @@ public class ImportExtendedMutationData{
 
 				if (fileHasOMAData)
 				{
-					functionalImpactScore = getField(parts, "MA:FImpact" );
+					functionalImpactScore = record.getMaFuncImpact();
 					functionalImpactScore = transformOMAScore(functionalImpactScore);
-					linkXVar = getField(parts, "MA:link.var" );
+					linkXVar = record.getMaLinkVar();
 					linkXVar = linkXVar.replace("\"", "");
-					linkMsa = getField(parts, "MA:link.MSA" );
-					linkPdb = getField(parts, "MA:link.PDB" );
+					linkMsa = record.getMaLinkMsa();
+					linkPdb = record.getMaLinkPdb();
 				}
 
 				String mutationType,
@@ -283,15 +273,12 @@ public class ImportExtendedMutationData{
 				}
 
 				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
-				String geneSymbol = getField(parts, "Hugo_Symbol" );
-				String entrezGeneIdStr = getField(parts, "Entrez_Gene_Id");
+				String geneSymbol = record.getHugoGeneSymbol();
+				long entrezGeneId = record.getEntrezGeneId();
 				CanonicalGene gene = null;
-				try {
-					long entrezGeneId = Long.parseLong(entrezGeneIdStr);
-					gene = daoGene.getGene(entrezGeneId);
-				} catch(NumberFormatException e) {
-					pMonitor.logWarning("Entrez Gene ID not an integer: " + entrezGeneIdStr );
-				}
+                                if (entrezGeneId != MafRecord.NA_LONG) {
+                                    gene = daoGene.getGene(entrezGeneId);
+                                }
 
 				if(gene == null) {
 					// If Entrez Gene ID Fails, try Symbol.
@@ -300,7 +287,7 @@ public class ImportExtendedMutationData{
 
 				if(gene == null) {
 					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
-					                    + entrezGeneIdStr + "]. Ignoring it "
+					                    + entrezGeneId + "]. Ignoring it "
 					                    + "and all mutation data associated with it!");
 				} else {
 					ExtendedMutation mutation = new ExtendedMutation();
@@ -378,29 +365,6 @@ public class ImportExtendedMutationData{
 
 	}
 
-	private int getHeaderIndex( String headerName ) {
-		if( headerMap.containsKey(headerName)) {
-			return headerMap.get(headerName);
-		} else {
-			throw new IllegalArgumentException( "MAF file does not contain column:  " + headerName);
-		}
-	}
-
-	// try one of several column names
-	// TODO: one notification if the column isn't available
-	private int getHeaderIndex( String[] possibleHeaderNames ) {
-		StringBuffer sb = new StringBuffer();
-
-		for( String possibleHeader : possibleHeaderNames ){
-			if( headerMap.containsKey( possibleHeader )) {
-				return headerMap.get(possibleHeader);
-			}
-			sb.append( possibleHeader + ", " );
-		}
-		throw new IllegalArgumentException( "MAF file does not contain any of these columns:  "
-		                                    + sb.substring(0, sb.length() - 2 ) );
-	}
-
 	private String transformOMAScore( String omaScore) {
 		if( omaScore == null || omaScore.length() ==0) {
 			return omaScore;
@@ -417,34 +381,6 @@ public class ImportExtendedMutationData{
 			return NOT_AVAILABLE; // TODO temp workaround for invalid sent values
 		} else {
 			return omaScore;
-		}
-	}
-
-	// get the value for field colName
-	private String getField( String parts[], String colName ) {
-		String colNames[] = { colName };
-		return getField( parts, colNames );
-	}
-
-	// get the value for field colName
-	// return NOT_AVAILABLE if the column isn't available or the string is empty
-	private String getField( String parts[], String possibleColNames[] ) {
-		int index;
-		try {
-			index = getHeaderIndex( possibleColNames );
-			String value;
-			try {
-				value = parts[index];
-				if( value.trim().equals("")) {
-					return NOT_AVAILABLE;
-				} else {
-					return value.trim();
-				}
-			} catch (java.lang.ArrayIndexOutOfBoundsException e) {
-				return NOT_AVAILABLE;
-			}
-		} catch( IllegalArgumentException e) {
-			return NOT_AVAILABLE;
 		}
 	}
 
@@ -470,13 +406,13 @@ public class ImportExtendedMutationData{
 		// if no oncotator value, try mutation assessor value
 		if (!isValidProteinChange(aminoAcidChange))
 		{
-			aminoAcidChange = getField(parts, "MA:protein.change");
+			aminoAcidChange = record.getMaProteinChange();
 		}
 
 		// if no MA value either, then try amino_acid_change column
 		if (!isValidProteinChange(aminoAcidChange))
 		{
-			aminoAcidChange = getField(parts, "amino_acid_change" );
+			aminoAcidChange = record.getMannualAminoAcidChange();
 		}
 
 		// if none is valid, then use the string "MUTATED"

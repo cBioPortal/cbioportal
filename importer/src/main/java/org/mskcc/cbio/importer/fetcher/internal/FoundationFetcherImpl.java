@@ -47,7 +47,6 @@ import org.apache.commons.logging.LogFactory;
 import com.sun.xml.ws.fault.ServerSOAPFaultException;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
@@ -55,6 +54,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -109,6 +109,20 @@ class FoundationFetcherImpl implements Fetcher {
 		this.importDataRecordDAO = importDataRecordDAO;
 	}
 
+	// service username
+	private String serviceUser;
+	@Value("${foundation.service.user}")
+	public void setServiceUser(String serviceUser) { this.serviceUser = serviceUser; }
+
+	public String getServiceUser() { return this.serviceUser; }
+
+	// service password
+	private String servicePassword;
+	@Value("${foundation.service.password}")
+	public void setServicePassword(String servicePassword) { this.servicePassword = servicePassword; }
+
+	public String getServicePassword() { return this.servicePassword; }
+
 	/**
 	 * Fetchers genomic data from an external datasource and
 	 * places in database for processing.
@@ -135,14 +149,8 @@ class FoundationFetcherImpl implements Fetcher {
 			LOG.info("fetch(), creating CaseInfoService endpoint.");
 		}
 
-		// TODO temporary test to bypass foundation service
-//		if (this.testXMLParsers())
-//			return;
-
-		// TODO authenticate before using the service
-
 		CaseInfoService caseInfoService = new CaseInfoService();
-		caseInfoService.setHandlerResolver(new HeaderHandlerResolver());
+		this.authenticate(caseInfoService);
 		ICaseInfoService foundationService = caseInfoService.getICaseInfoService();
 
 		NodeList cases = this.fetchCaseList(foundationService);
@@ -180,20 +188,6 @@ class FoundationFetcherImpl implements Fetcher {
 
 				numCases++;
 			}
-
-//			if (caseRecord != null && caseRecord.length() > 250) {
-//				File caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-//				                                                 File.separator +
-//				                                                 fmiCaseID + FOUNDATION_FILE_EXTENSION, caseRecord);
-//				if (LOG.isInfoEnabled()) {
-//					LOG.info("fetch(), successfully fetched data for case: " + caseID + ", persisting...");
-//				}
-//				ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, dataSource, UNUSED_IMPORT_DATA_FIELD,
-//				                                                         UNUSED_IMPORT_DATA_FIELD, UNUSED_IMPORT_DATA_FIELD,
-//				                                                         caseFile.getCanonicalPath(), UNUSED_IMPORT_DATA_FIELD,
-//				                                                         fmiCaseID + FOUNDATION_FILE_EXTENSION);
-//				importDataRecordDAO.importDataRecord(importDataRecord);
-//			}
 		}
 
 		// generate data files
@@ -207,48 +201,17 @@ class FoundationFetcherImpl implements Fetcher {
 		this.generateCNAMetaFile(numCases);
 	}
 
-	// TODO temporary test function (remove when ready)
-	protected boolean testXMLParsers() throws Exception
+	/**
+	 * Adds credentials to the outbound SOAP header for the given service.
+	 *
+	 * @param service   service requiring SOAP authentication
+	 */
+	private void authenticate(CaseInfoService service)
 	{
-		File dataDir = new File("foundation");
-
-		String[] extensions = {"xml"};
-		Collection<File> dirContent = fileUtils.listFiles(dataDir, extensions, false);
-
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-
-		StringBuilder dataClinicalContent = new StringBuilder();
-		StringBuilder dataMutationsContent = new StringBuilder();
-
-		HashMap<String, Integer> valueMap = new HashMap<String, Integer>();
-		Set<String> caseSet = new HashSet<String>();
-		Set<String> geneSet = new HashSet<String>();
-
-		for (File xmlFile : dirContent)
-		{
-			char[] buffer = new char[(int)xmlFile.length()]; // assuming a short file
-			FileReader reader = new FileReader(xmlFile);
-			reader.read(buffer, 0, (int)xmlFile.length());
-			reader.close();
-
-			String xmlString = new String(buffer);
-			Document doc = dBuilder.parse(new InputSource(new StringReader(xmlString)));
-
-			this.addClinicalData(doc, dataClinicalContent);
-			this.addMutationData(doc, dataMutationsContent);
-			this.addCNAData(doc, valueMap, caseSet, geneSet);
-		}
-
-		this.generateClinicalDataFile(dataClinicalContent);
-		this.generateMutationDataFile(dataMutationsContent);
-		this.generateCNADataFile(valueMap, caseSet, geneSet);
-
-		this.generateStudyMetaFile(dirContent.size());
-		this.generateMutationMetaFile(dirContent.size());
-		this.generateCNAMetaFile(dirContent.size());
-
-		return true;
+		HeaderHandlerResolver resolver = new HeaderHandlerResolver();
+		resolver.getSecurityHandler().setServiceUser(this.getServiceUser());
+		resolver.getSecurityHandler().setServicePassword(this.getServicePassword());
+		service.setHandlerResolver(resolver);
 	}
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception

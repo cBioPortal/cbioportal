@@ -6,15 +6,27 @@ import javax.xml.ws.handler.Handler;
 import javax.xml.ws.handler.HandlerResolver;
 import javax.xml.ws.handler.PortInfo;
 
-public class HeaderHandlerResolver implements HandlerResolver {
-    
-public List<Handler> getHandlerChain(PortInfo portInfo) {
-      List<Handler> handlerChain = new ArrayList<Handler>();
+public class HeaderHandlerResolver implements HandlerResolver
+{
+	private HeaderHandler securityHandler;
 
-      HeaderHandler hh = new HeaderHandler();
+	public HeaderHandler getSecurityHandler()
+	{
+		return securityHandler;
+	}
 
-      handlerChain.add(hh);
+	public HeaderHandlerResolver()
+	{
+		super();
 
-      return handlerChain;
-   }
+		this.securityHandler = new HeaderHandler();
+	}
+
+	public List<Handler> getHandlerChain(PortInfo portInfo)
+	{
+		List<Handler> handlerChain = new ArrayList<Handler>();
+		handlerChain.add(this.securityHandler);
+
+		return handlerChain;
+	}
 }

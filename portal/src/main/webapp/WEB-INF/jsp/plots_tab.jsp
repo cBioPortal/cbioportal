@@ -619,7 +619,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 })
                 .attr("stroke", function(d) {
                     switch (d[2]) {
-                        case "non": return "none";
+                        case "non": return "#4B758B";
                         default: return "#D24939";
                     }
                 });

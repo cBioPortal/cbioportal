@@ -567,7 +567,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FFAA22", "#FFAA22", "#FFAA22", "#1C1C1C", "#FFAA22"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#DF7401", "#DF7401", "#DF7401", "#1C1C1C", "#DF7401"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
@@ -619,8 +619,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                 })
                 .attr("stroke", function(d) {
                     switch (d[2]) {
-                        case "non": return "#4B758B";
-                        default: return "#D24939";
+                        case "non": return "#0089C6";
+                        default: return "#B40404";
                     }
                 });
         //Making Qtips
@@ -635,7 +635,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     }
                 },
                 show: 'mouseover',
-                hide: 'mouseout',
+                hide: { fixed:true, delay: 100},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left bottom',at:'top right'}
             });
@@ -693,7 +693,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     }
                 },
                 show: 'mouseover',
-                hide: 'mouseout',
+                hide: { fixed:true, delay: 100},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left bottom',at:'top right'}
             });
@@ -758,7 +758,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     })
                     .attr("stroke", function (d, i) {
                         switch (i) {
-                            case i: return "#D24939";
+                            case i: return "#B40404";
                         }
                     })
             legend.append("text")
@@ -837,8 +837,8 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
             .attr("width", 80)
             .attr("height", IQR)
             .attr("fill", "none")
-            .attr("stroke-width", 0.5)
-            .attr("stroke", "grey");
+            .attr("stroke-width", 1)
+            .attr("stroke", "#BDBDBD");
     //meanLine
     svg.append("line")
             .attr("x1", midLine-40)
@@ -846,41 +846,39 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
             .attr("y1", mean)
             .attr("y2", mean)
             .attr("stroke-width", 1)
-            .attr("stroke", "grey");
+            .attr("stroke", "#BDBDBD");
     //topLine
     svg.append("line")
             .attr("x1", midLine-30)
             .attr("x2", midLine+30)
             .attr("y1", top)
             .attr("y2", top)
-            .attr("stroke-width", 0.5)
-            .attr("stroke", "grey");
+            .attr("stroke-width", 1)
+            .attr("stroke", "#BDBDBD");
     //bottomLine
     svg.append("line")
             .attr("x1", midLine-30)
             .attr("x2", midLine+30)
             .attr("y1", bottom)
             .attr("y2", bottom)
-            .attr("stroke", "grey")
-            .style("stroke-width", 0.5);
+            .attr("stroke", "#BDBDBD")
+            .style("stroke-width", 1);
     //Top Whisker
     svg.append("line")
             .attr("x1", midLine)
             .attr("x2", midLine)
             .attr("y1", quan1)
             .attr("y2", bottom)
-        //.style("stroke-dasharray", ("3, 3"))
-            .attr("stroke", "grey")
-            .attr("stroke-width", 0.5);
+            .attr("stroke", "#BDBDBD")
+            .attr("stroke-width", 1);
     //Bottom Whisker
     svg.append("line")
             .attr("x1", midLine)
             .attr("x2", midLine)
             .attr("y1", quan2)
             .attr("y2", top)
-        //.style("stroke-dasharray", ("3, 3"))
-            .attr("stroke", "grey")
-            .style("stroke-width", 0.5);
+            .attr("stroke", "#BDBDBD")
+            .style("stroke-width", 1);
 }
 
 function copyData(desArray, oriArray) {

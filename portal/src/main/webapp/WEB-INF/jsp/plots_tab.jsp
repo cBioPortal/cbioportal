@@ -40,7 +40,8 @@
         ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
         ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
     ];
-    var data_type_copy_no, data_type_mrna, xLegend, yLegend;
+    var data_type_copy_no, data_type_mrna, data_type_dna_methylation, data_type_rppa, data_type_mutations;
+    var xLegend, yLegend;
 
 </script>
 
@@ -167,16 +168,27 @@ function drawSideBar() {
 }
 var urls;
 function fetchData() {
+
     gene = document.getElementById("genes").value;
     data_type_copy_no = document.getElementById("data_type_copy_no").value;
     data_type_mrna = document.getElementById("data_type_mrna").value;
+    if (genetic_profile_mutations != "") {
+        data_type_mutations = genetic_profile_mutations[0][0];
+    }
+    if (genetic_profile_rppa != "") {
+        data_type_rppa = genetic_profile_rppa[0][0];
+    }
+    if (genetic_profile_dna_methylation != "") {
+        data_type_dna_methylation = genetic_profile_dna_methylation[0][0];
+    }
+
     var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + gene + "&genetic_profile_id=";
     urls = [
-        url_base + genetic_profile_mutations[0][0], //mutations
+        url_base + data_type_mutations, //mutations
         url_base + data_type_copy_no, //copy no
         url_base + data_type_mrna, //mrna
-        url_base + genetic_profile_rppa[0][0], //rppa
-        url_base + genetic_profile_dna_methylation[0][0] //dna methylation
+        url_base + data_type_rppa, //rppa
+        url_base + data_type_dna_methylation //dna methylation
     ];
     for (var i = 0; i < urls.length; i++) {
         $.ajax({
@@ -230,7 +242,7 @@ function fetchData() {
                     tmp_lines = data.split(/\n/);
                     //Over-write mutation type
                     for (var j = 3 ; j < tmp_lines.length; j ++ ) {
-                        var tmp_columns = tmp_lines[j].split(/\s+/);
+                        var tmp_columns = tmp_lines[j].split(/\t/);
                         mutationMap[tmp_columns[2]] = tmp_columns[5];
                     }
                 }
@@ -246,26 +258,28 @@ function fetchData() {
 }
 
 function findAxisTitle() {
-    var tmp_result = [];
-    var xLegend;
-    var yLegend;
+    var xLegend = "";
+    var yLegend = "";
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plot_type_list[0][0]) {    //"mrna_vs_copy_no"
         var tmp_xLegend_index = findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);;
         var tmp_yLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = genetic_profile_copy_no[tmp_xLegend_index][1];
-        yLegend = genetic_profile_mrna[tmp_yLegend_index][1];
+        xLegend = gene + "," + genetic_profile_copy_no[tmp_xLegend_index][1];
+        yLegend = gene + "," + genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
         var tmp_yLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = genetic_profile_dna_methylation[0][1];
-        yLegend = genetic_profile_mrna[tmp_yLegend_index][1];
+        if (genetic_profile_dna_methylation != "") {
+            xLegend = gene + "," + genetic_profile_dna_methylation[0][1];
+        }
+        yLegend = gene + "," + genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
         var tmp_xLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);;
-        xLegend = genetic_profile_mrna[tmp_xLegend_index][1];
-        yLegend = genetic_profile_rppa[0][1];
+        xLegend = gene + "," + genetic_profile_mrna[tmp_xLegend_index][1];
+        if (genetic_profile_rppa != "") {
+            yLegend = gene + "," + genetic_profile_rppa[0][1];
+        }
     }
-    tmp_result = [xLegend, yLegend];
-    return tmp_result;
+    return [ xLegend, yLegend ];
 }
 
 function generateScatterPlots() {
@@ -388,7 +402,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     var edge_y = (max_y - min_y) * 0.1;
 
     //Define scale functions
-    var padding = 200;
     var xScale = d3.scale.linear()
             .domain([min_x - edge_x, max_x + edge_x])
             .range([100, 600]);
@@ -406,7 +419,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
     //----Create SVG Axis (Duplicate: can NOT use CSS style here since batik won't take it for PDF convertion.)
 
     //---------------Add extra text axis annotation for GISTIC
-    if (type == 1 && data_type_copy_no.indexOf("gistic") != -1) {
+    if (type == 1 && ( data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1 )){
         var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
         var ticksTextSet = [];
         var tmp_ticks_text_index = 0;
@@ -473,26 +486,98 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("transform", "translate(600, 0)")
             .call(yAxis.orient("left").ticks(0));
 
+
+    //If it is Putative CNA and mrna view, add Box plots
+    if (type == 1 && (data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1)) {
+        for (var i = min_x ; i < max_x + 1; i++) {
+            var top;
+            var bottom;
+            var quan1;
+            var quan2;
+            var mean;
+            var IQR;
+            var scaled_y_arr=[];
+            var tmp_y_arr = [];
+            //Find the middle line for one box plot
+            var midLine = xScale(i);
+            //Find the max/min y value with certain x value;
+            var index_tmp_y_data_array = 0;
+            for (var j = 0; j < yData.length; j++) {
+                if (yData[j] != "NaN" && xData[j] != "NaN" && xData[j] == i) {
+                    tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
+                    index_tmp_y_data_array += 1;
+                }
+            }
+            tmp_y_arr.sort(function(a,b){return a-b});
+            if (tmp_y_arr.length == 0) {
+                //TODO: error handle (empty dataset)
+            } else if (tmp_y_arr.length == 1) {
+                mean = yScale(tmp_y_arr[0]);
+                var meanLine = svg.append("line")
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
+                        .attr("y1", mean)
+                        .attr("y2", mean)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "grey");
+            } else {
+                if (tmp_y_arr.length == 2) {
+                    mean = yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
+                    quan1 = bottom = yScale(tmp_y_arr[0]);
+                    quan2 = top = yScale(tmp_y_arr[1]);
+                    IQR = Math.abs(quan2 - quan1);
+                } else {
+                    var yl = tmp_y_arr.length;
+                    if (yl % 2 == 0) {
+                        mean = yScale((tmp_y_arr[(yl/2)-1] + tmp_y_arr[yl/2])/2);
+                        if (yl % 4 == 0) {
+                            quan1 = yScale((tmp_y_arr[(yl/4)-1] + tmp_y_arr[yl/4])/2);
+                            quan2 = yScale((tmp_y_arr[(3*yl/4)-1] + tmp_y_arr[3*yl/4])/2);
+                        } else {
+                            quan1 = yScale(tmp_y_arr[Math.floor(yl/4)]);
+                            quan2 = yScale(tmp_y_arr[Math.floor(3*yl/4)]);
+                        }
+                    } else {
+                        mean = yScale(tmp_y_arr[Math.floor(yl/2)]);
+                        var tmp_yl = Math.floor(yl/2) + 1;
+                        if ( tmp_yl % 2 == 0) {
+                            quan1 = yScale((tmp_y_arr[tmp_yl/2 - 1] + tmp_y_arr[tmp_yl/2])/2);
+                            quan2 = yScale((tmp_y_arr[(3 * tmp_yl/2) - 2] + tmp_y_arr[(3*tmp_yl/2)-1])/2);
+                        } else {
+                            quan1 = yScale(tmp_y_arr[Math.floor(tmp_yl/2)]);
+                            quan2 = yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
+                        }
+                    }
+                    for (var k = 0 ; k < tmp_y_arr.length ; k++) {
+                        scaled_y_arr[k] = parseFloat(yScale(tmp_y_arr[k]));
+                    }
+                    scaled_y_arr.sort(function(a,b){return a-b});
+                    IQR = Math.abs(quan2 - quan1);
+                    var index_top = seachIndexTop(scaled_y_arr, (quan2-1.5*IQR));
+                    top = scaled_y_arr[index_top];
+                    var index_bottom = seachIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
+                    bottom = scaled_y_arr[index_bottom];
+                }
+                drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR);
+            }
+        }
+    }
+
+
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#F1654C", "#F1654C", "#F1654C", "#1C1C1C", "#F1654C"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#FFAA22", "#FFAA22", "#FFAA22", "#1C1C1C", "#FFAA22"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
     var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
 
-    //----------------- Plot dots for GISTIC v mRNA view (with data noise)
-    var tooltip = d3.select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden");
-
+    //----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
     if ( type == 1 ) {
         //Define noise level
         var ramRatio = 0;
-        if (data_type_copy_no.indexOf("gistic") != -1) {
+        if ((data_type_copy_no.indexOf("gistic") != -1) || (data_type_copy_no.indexOf("cna") != -1)) {
             ramRatio = 20;
         }
         svg.selectAll("path")
@@ -529,7 +614,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         case mutationTypes[4]: return mutationFillTypes[4];
                         case mutationTypes[5]: return mutationFillTypes[5];
                         case mutationTypes[6]: return mutationFillTypes[6];
-                        default: return "#5ABBEC";
+                        default: return "#00AAF8";
                     }
                 })
                 .attr("stroke", function(d) {
@@ -549,7 +634,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         api.set('content.text', content);
                     }
                 },
-                hide: { fixed: true, delay: 100 },
+                show: 'mouseover',
+                hide: 'mouseout',
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left bottom',at:'top right'}
             });
@@ -577,7 +663,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                     }
                 })
                 .attr("stroke", function(d) {
-                    var result;
                     if ((d[2] == "0")&&(d[3] != "non")) {
                         return "none";
                     } else {
@@ -607,7 +692,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
                         api.set('content.text', content);
                     }
                 },
-                hide: { fixed: true, delay: 100 },
+                show: 'mouseover',
+                hide: 'mouseout',
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left bottom',at:'top right'}
             });
@@ -731,7 +817,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
-            .text(gene + " , " + xLegend);
+            .text(xLegend);
     svg.append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
@@ -739,83 +825,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type) {
             .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
-            .text(gene + " , " + yLegend);
+            .text(yLegend);
 
-    //If it is GISTIC and mrna view, add Box plots
-    if (type == 1 && data_type_copy_no.indexOf("gistic") != -1) {
-        for (var i = min_x ; i < max_x + 1; i++) {
-            var top;
-            var bottom;
-            var quan1;
-            var quan2;
-            var mean;
-            var IQR;
-            var scaled_y_arr=[];
-            var tmp_y_arr = [];
-            //Find the middle line for one box plot
-            var midLine = xScale(i);
-            //Find the max/min y value with certain x value;
-            var index_tmp_y_data_array = 0;
-            for (var j = 0; j < yData.length; j++) {
-                if (yData[j] != "NaN" && xData[j] != "NaN" && xData[j] == i) {
-                    tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
-                    index_tmp_y_data_array += 1;
-                }
-            }
-            tmp_y_arr.sort(function(a,b){return a-b});
-            if (tmp_y_arr.length == 0) {
-                //TODO: error handle (empty dataset)
-            } else if (tmp_y_arr.length == 1) {
-                mean = yScale(tmp_y_arr[0]);
-                var meanLine = svg.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
-                        .attr("y1", mean)
-                        .attr("y2", mean)
-                        .attr("stroke-width", 1)
-                        .attr("stroke", "grey");
-            } else {
-                if (tmp_y_arr.length == 2) {
-                    mean = yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
-                    quan1 = bottom = yScale(tmp_y_arr[0]);
-                    quan2 = top = yScale(tmp_y_arr[1]);
-                    IQR = Math.abs(quan2 - quan1);
-                } else {
-                    var yl = tmp_y_arr.length;
-                    if (yl % 2 == 0) {
-                        mean = yScale((tmp_y_arr[(yl/2)-1] + tmp_y_arr[yl/2])/2);
-                        if (yl % 4 == 0) {
-                            quan1 = yScale((tmp_y_arr[(yl/4)-1] + tmp_y_arr[yl/4])/2);
-                            quan2 = yScale((tmp_y_arr[(3*yl/4)-1] + tmp_y_arr[3*yl/4])/2);
-                        } else {
-                            quan1 = yScale(tmp_y_arr[Math.floor(yl/4)]);
-                            quan2 = yScale(tmp_y_arr[Math.floor(3*yl/4)]);
-                        }
-                    } else {
-                        mean = yScale(tmp_y_arr[Math.floor(yl/2)]);
-                        var tmp_yl = Math.floor(yl/2) + 1;
-                        if ( tmp_yl % 2 == 0) {
-                            quan1 = yScale((tmp_y_arr[tmp_yl/2 - 1] + tmp_y_arr[tmp_yl/2])/2);
-                            quan2 = yScale((tmp_y_arr[(3 * tmp_yl/2) - 2] + tmp_y_arr[(3*tmp_yl/2)-1])/2);
-                        } else {
-                            quan1 = yScale(tmp_y_arr[Math.floor(tmp_yl/2)]);
-                            quan2 = yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
-                        }
-                    }
-                    for (var k = 0 ; k < tmp_y_arr.length ; k++) {
-                        scaled_y_arr[k] = parseFloat(yScale(tmp_y_arr[k]));
-                    }
-                    scaled_y_arr.sort(function(a,b){return a-b});
-                    IQR = Math.abs(quan2 - quan1);
-                    var index_top = seachIndexTop(scaled_y_arr, (quan2-1.5*IQR));
-                    top = scaled_y_arr[index_top];
-                    var index_bottom = seachIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
-                    bottom = scaled_y_arr[index_bottom];
-                }
-                drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR);
-            }
-        }
-    }
 }
 
 function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {

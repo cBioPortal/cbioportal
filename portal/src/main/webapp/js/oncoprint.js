@@ -136,7 +136,7 @@ var Oncoprint = function(div, params) {
     var label_svg = table
         .append('td')
         .append('svg')
-        .attr('height', 100)
+        .attr('height', dims.height)
         .attr('width', 200)
         .attr('id', 'label');
 
@@ -145,7 +145,7 @@ var Oncoprint = function(div, params) {
         .enter()
         .append('text')
         .attr('x', 0)
-        .attr('y', function(d) { return 11 + dims.vert_space * attributes.indexOf(d); });
+        .attr('y', function(d) { return (dims.vert_space / 1.5) + (dims.vert_space * attributes.indexOf(d)); });
 
     label.append('tspan')       // name
         .attr('text-anchor', 'start')

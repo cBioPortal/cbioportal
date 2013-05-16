@@ -25,7 +25,7 @@
                style="margin-bottom: 0px;">
                 <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
                 <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
-                <span class='onco-customize' style="">Customize</span>
+                <span class='onco-customize' style="display:none;">Customize</span>
             </p>
             <table style="padding-left:13px; padding-top:5px; display:none;">
                 <tr>

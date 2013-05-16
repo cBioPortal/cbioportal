@@ -9,7 +9,7 @@
 // The parameters is an object that contains:
 // clinicalData, clinical_attrs, and geneData
 var Oncoprint = function(div, params) {
-    params.clinicalData = params.clinicalData || [];     // initialize
+    params.clinicalData = params.clinicalData.data || [];     // initialize
     params.clinical_attrs = params.clinical_attrs || [];
 
     var isDiscrete = function(val) {
@@ -145,7 +145,8 @@ var Oncoprint = function(div, params) {
         .enter()
         .append('text')
         .attr('x', 0)
-        .attr('y', function(d) { return (dims.vert_space / 1.5) + (dims.vert_space * attributes.indexOf(d)); });
+        .attr('y', function(d) {
+            return (dims.vert_space / 1.5) + (dims.vert_space * attributes.indexOf(d)); });
 
     label.append('tspan')       // name
         .attr('text-anchor', 'start')

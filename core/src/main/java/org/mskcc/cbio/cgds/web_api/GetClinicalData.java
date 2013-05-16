@@ -34,10 +34,7 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.mskcc.cbio.cgds.dao.DaoClinical;
-import org.mskcc.cbio.cgds.dao.DaoSurvival;
-import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.Clinical;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.model.Survival;
@@ -148,7 +145,7 @@ public class GetClinicalData {
         return map;
     }
 
-    public static Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
+    public static JSONObject reflectToMap(ClinicalAttribute clinicalAttribute) {
         JSONObject map = new JSONObject();
 
         map.put("attr_id", clinicalAttribute.getAttrId());
@@ -170,18 +167,33 @@ public class GetClinicalData {
     /**
      *
      * @param cancerStudyId
-     * @return array of object literals corresponding to rows in the database
+     * @return An object with 2 fields:
+     * -- data: array of object literals corresponding to rows in the database
+     * -- attributes: array of clinical attribute metadatas (object literals) that appear in the data
      * @throws DaoException
      */
-    public static JSONArray getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
+    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
         List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
-        JSONArray toReturn = new JSONArray();
+        Set<JSONObject> attrs = new HashSet<JSONObject>();
+        JSONObject toReturn = new JSONObject();
+        JSONArray data = new JSONArray();
 
         for (Clinical c : clinicals) {
 //            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
-                toReturn.add(reflectToMap(c));
+            data.add(c);
+            ClinicalAttribute attr = DaoClinicalAttribute.getDatum(c.getAttrId());
+            attrs.add(reflectToMap(attr));
 //            }
         }
+
+        Iterator<JSONObject> attrsIt = attrs.iterator();
+        JSONArray attributes = new JSONArray();
+        while (attrsIt.hasNext()) {
+            attributes.add(attrsIt.next());
+        }
+
+        toReturn.put("data", data);
+        toReturn.put("attributes", attributes);
 
         return toReturn;
     }
@@ -238,7 +250,4 @@ public class GetClinicalData {
 
         return txt;
     }
-
-
-
 }

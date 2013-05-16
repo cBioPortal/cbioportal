@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
@@ -421,7 +422,7 @@ public class WebService extends HttpServlet {
             writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
         }
         else if ("json".equals(format.toLowerCase())) {
-            JSONArray.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds),
+            JSONObject.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds),
                     writer);
         }
         else {

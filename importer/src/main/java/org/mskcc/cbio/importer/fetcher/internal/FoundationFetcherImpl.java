@@ -185,6 +185,7 @@ class FoundationFetcherImpl implements Fetcher {
 				this.addClinicalData(doc, dataClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
+				this.generateCaseFile(doc, caseRecord);
 
 				numCases++;
 			}
@@ -212,6 +213,30 @@ class FoundationFetcherImpl implements Fetcher {
 		resolver.getSecurityHandler().setServiceUser(this.getServiceUser());
 		resolver.getSecurityHandler().setServicePassword(this.getServicePassword());
 		service.setHandlerResolver(resolver);
+	}
+
+	/**
+	 * Writes a single data file for the given case to the download directory.
+	 *
+	 * @param caseDoc   document object containing case data
+	 * @param content   actual content of the file to generate
+	 * @return          data file representing a single case
+	 */
+	protected File generateCaseFile(Document caseDoc, String content) throws Exception
+	{
+		File caseFile = null;
+		Element caseNode = this.extractCaseNode(caseDoc);
+
+		if (caseNode != null)
+		{
+			String fmiCaseID = caseNode.getAttribute("fmiCase");
+
+			caseFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
+				File.separator + fmiCaseID + FOUNDATION_FILE_EXTENSION,
+					content);
+		}
+
+		return caseFile;
 	}
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception

@@ -22,10 +22,10 @@
                 .onco-customize:hover { text-decoration: underline; }
             </style>
             <p onclick="$('#oncoprint_controls table').toggle(); $('#oncoprint_controls .triangle').toggle();"
-               style="margin-bottom: 0px;">
+               style="display:none; margin-bottom: 0px;">
                 <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
                 <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
-                <span class='onco-customize' style="display:none;">Customize</span>
+                <span class='onco-customize'>Customize</span>
             </p>
             <table style="padding-left:13px; padding-top:5px; display:none;">
                 <tr>

@@ -188,7 +188,6 @@ public class GeneDataJSON extends HttpServlet {
 
         try {
             List<String> caseIds = WebserviceParserUtils.getCaseList(request);
-            // todo: what happens when it is a custom case set? (consider returning all and then filtering on the client)
             sampleIds = Joiner.on(" ").join(caseIds);
         } catch (ProtocolException e) {
             throw new ServletException(e);

@@ -44,8 +44,27 @@ var ModelUtils = (function() {
         return hash;
     };
 
+    // hack to get the proper case list parameter and value
+    var findCaseList = function(obj) {
+        var toReturn = ""
+        if (this.case_list) {
+            toReturn += "case_list=" + this.case_list + "&";
+        }
+        else if (this.case_set_id) {
+            toReturn += "case_set_id=" + this.case_set_id + "&";
+        }
+        else if (this.case_ids_key) {
+            toReturn += "case_ids_key=" + this.case_ids_key + "&";
+        }
+        else {
+            throw new Error("invalid parameters to case set parameter");
+        }
+        return toReturn;
+    };
+
     return {
         makeHash: makeHash,
+        findCaseList: findCaseList
     };
 })();
 
@@ -83,57 +102,66 @@ var ClinicalColl = Backbone.Collection.extend({
         if (this.cancer_study_id) {
             url_str += "cancer_study_id=" + this.cancer_study_id + "&";
         }
+        return url_str + ModelUtils.findCaseList(this);
+    }
+});
 
-        if (this.case_list) {
-            url_str += "case_list=" + this.case_list;
-        }
-        else if (this.case_set_id) {
-            url_str += "case_set_id=" + this.case_set_id;
-        }
-        else if (this.case_ids_key) {
-            url_str += "case_ids_key=" + this.case_ids_key;
-        }
-        else {
-            throw new Error("invalid parameters to ClinicalColl");
+// params : sample, gene, cancer_study_id, geneticProfileIds (string of genetic
+// profile ids separated by a space), [z_score_threshold],
+// [rppa_score_threshold]
+var GeneDataModel = Backbone.Model.extend({
+    initialize: function(attributes) {
+        this.data = {       // for jQuery AJAX request
+            case_list : attributes.sample,
+            genes : attributes.gene,
+            cancer_study_id : attributes.cancer_study_id,
+            geneticProfileIds : attributes.geneticProfileIds,
+            z_score_threshold : attributes.z_score_threshold || 2,     // default
+            rppa_score_threshold : attributes.rppa_score_threshold || 2
+        };
+    },
+    type: "POST",
+    url: function() {
+        var url_str = "GeneData.json?format=json&";
+        for (var key in this.data) {
+            if (undefined !== this.data[key]) {
+                url_str += key + "=" + this.data[key] + "&";
+            }
         }
         return url_str;
     }
 });
 
-var GeneDataModel = Backbone.Model.extend({
+var GeneDataColl = Backbone.Model.extend({
     initialize: function(attributes) {
-        this.case_list = attributes.sample;
-        this.gene = attributes.gene;
         this.cancer_study_id = attributes.cancer_study_id;
+        this.genes = attributes.genes;
         this.geneticProfileIds = attributes.geneticProfileIds;
-        this.z_score_threshold = attributes.z_score_threshold || 2;     // default
+        this.z_score_threshold = attributes.z_score_threshold || 2;
         this.rppa_score_threshold = attributes.rppa_score_threshold || 2;
-
-        // for jQuery
-        this.data = this.attributes;
-        this.type = "POST";
     },
     url: function() {
-        return "GeneData.json";
+        return "GeneData.json?format=json&"
+            + "cancer_study_id=" + this.cancer_study_id + "&"
+            + "genes=" + this.genes + "&"
+            + "geneticProfileIds=" + this.geneticProfileIds + "&"
+            + "z_score_threshold=" + this.z_score_threshold + "&"
+            + "rppa_score_threshold=" + this.rppa_score_threshold + "&"
+            + ModelUtils.findCaseList(this.attributes);
     }
 });
 
-// model for gene datas (various molecular profiles)
-// probably not to be used until we start GETing our data instead of POSTing it.
-//var GeneDataColl = Backbone.Collection.extend({
-//    model: model,
-//    initialize: function(models, options) {
-//        this.data = {       // jQuery param - data sent to the server
-//            genes : options.genes,
-//            geneticProfileIds : options.geneticProfileIds,
-//            samples : options.samples,
-//            caseSetId : options.caseSetId,
-//            z_score_threshold : options.z_score_threshold,
-//            rppa_score_threshold : options.rppa_score_threshold
-//        };
-//        this.type = "POST";
-//    },
-//    url: function() {
-//        return "GeneData.json";
-//    }
-//});
+var x = new GeneDataColl(
+        {   cancer_study_id:"ov_tcga",
+            genes:"BRCA1 BRCA2",
+            geneticProfileIds:"ov_tcga_mutations ov_tcga_gistic",
+            z_score_threshold:2,
+            rppa_score_threshold:2,
+            case_ids_key:"74e69883f33b8482934f5d75aa8e16d0"
+        }
+        );
+
+x.fetch()
+
+
+

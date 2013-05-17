@@ -343,7 +343,7 @@
         genomicEventObs.subscribeMutCna(populateDrugTable);
 
         $("#trial-filtering-options").change(function() {
-            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val() == "all");
+            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val());
         });
     });
 </script>

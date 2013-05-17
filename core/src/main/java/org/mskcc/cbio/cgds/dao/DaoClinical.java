@@ -121,6 +121,12 @@ public final class DaoClinical {
         }
     }
 
+    public static Clinical getDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+
+        return DaoClinical.getDatum(cancerStudy.getInternalId(), caseId, attrId);
+    }
+
     public static Clinical getDatum(int cancerStudyId, String caseId)
             throws DaoException {
 

@@ -63,7 +63,7 @@ public final class WebserviceParserUtils {
      * @throws ProtocolException
      * @throws DaoException
      */
-    public static List<String> getCaseList(HttpServletRequest request) throws ProtocolException,
+    public static ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
             DaoException {
         String cases = request.getParameter(WebService.CASE_LIST);
         String caseSetId = request.getParameter(WebService.CASE_SET_ID);
@@ -93,7 +93,7 @@ public final class WebserviceParserUtils {
             }
         }
         else if (samples != null) {     // todo: this is a hack, samples is basically an alias for cases
-            return Arrays.asList(samples.split(" "));
+            return new ArrayList(Arrays.asList(samples.split(" ")));
         }
         else {
             throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
@@ -234,7 +234,7 @@ public final class WebserviceParserUtils {
     public static String getFormat(HttpServletRequest request) {
         String format = request.getParameter(WebService.FORMAT);
 
-        return format;
+        return format == null ? format : format.toLowerCase();
     }
 
     public static String getCaseSetId(HttpServletRequest request) {

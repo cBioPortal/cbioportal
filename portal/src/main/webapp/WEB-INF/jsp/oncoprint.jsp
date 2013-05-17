@@ -53,14 +53,45 @@
                     customize: true
                 };
 
+                // hack to get the proper case set parameter
+                // for a particular query
+                //
+                // takes an object literal and injects the proper case set parameter for an ajax request,
+                // and returns the now *modified* object
+                var injectCaseSet = (function() {
+                    var case_set_id = "<%=caseSetId%>";
+                    var cases = "<%=caseIds%>";
+                    var case_ids_key = "<%=caseIdsKey%>";
+
+                    var key, value;
+
+                    if (cases !== "") {
+                        key = "cases";
+                        value = cases;
+                    }
+                    else if (case_ids_key !== "") {
+                        key = "case_ids_key";
+                        value = case_ids_key;
+                    }
+                    else if (case_set_id !== "") {
+                        key = "case_set_id";
+                        value = case_set_id;
+                    }
+
+                    return function(obj) {
+                        obj[key] = value;
+                        return obj;
+                    };
+                })();
+
                 var geneDataQuery = {
+                    cancer_study_id: "<%=cancerTypeId%>",
                     genes: genes,
-                    case_set_id: "<%=caseSetId%>",
-                    samples: samples,
                     geneticProfileIds: geneticProfiles,
                     z_score_threshold: <%=zScoreThreshold%>,
                     rppa_score_threshold: <%=rppaScoreThreshold%>
                 };
+                geneDataQuery = injectCaseSet(geneDataQuery);
 
                 var oncoprint;      // global
                 $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {

@@ -165,6 +165,23 @@ public class GetClinicalData {
     }
 
     /**
+     * Returns a single row the database
+     *
+     * @param cancerStudyId
+     * @param caseId
+     * @param attrId
+     */
+    public static JSONObject getJsonDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
+        return reflectToMap(DaoClinical.getDatum(cancerStudyId, caseId, attrId));
+    }
+
+    public static String getTxtDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
+        Clinical c = DaoClinical.getDatum(cancerStudyId, caseId, attrId);
+
+        return "" + c.getCaseId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
+    }
+
+    /**
      *
      * @param cancerStudyId
      * @return An object with 2 fields:
@@ -180,7 +197,7 @@ public class GetClinicalData {
 
         for (Clinical c : clinicals) {
 //            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
-            data.add(c);
+            data.add(reflectToMap(c));
             ClinicalAttribute attr = DaoClinicalAttribute.getDatum(c.getAttrId());
             attrs.add(reflectToMap(attr));
 //            }
@@ -211,6 +228,7 @@ public class GetClinicalData {
         // TODO: this needs to be sorted
 
         String row = clinicals.get(0).getCaseId();
+
 
         for (Clinical c : clinicals) {
             row = row + "\t" + c.getAttrVal();

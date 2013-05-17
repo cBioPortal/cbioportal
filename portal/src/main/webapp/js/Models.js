@@ -44,45 +44,96 @@ var ModelUtils = (function() {
         return hash;
     };
 
-    var nest
-
     return {
-        makeHash: makeHash
+        makeHash: makeHash,
     };
-});
+})();
 
-// trivial Backbone model
-// todo: make this into a real model
-var model = Backbone.Model.extend({});
-
-// model for clinical datas
-// params : [ initial lists of clinicals (usually []) , { case_set_id }]
-var ClinicalColl = Backbone.Collection.extend({
-    model: model,
-    initialize: function(models, options) {
-        this.case_set_id = options.case_set_id;
+// You create a new ClinicalModel, you pass an object with the fields: sample,
+// cancer_study_id, attr_id.  When you .fetch(), you get back the attr_val.
+var ClinicalModel = Backbone.Model.extend({
+    initialize: function(attributes) {
+        this.sample = attributes.sample;
+        this.cancer_study_id = attributes.cancer_study_id;
+        this.attr_id = attributes.attr_id;
     },
     url: function() {
-        return "webservice.do?cmd=getClinicalData&format=json&case_set_id=" + this.case_set_id;
+        return "webservice.do?cmd=getClinicalData&format=json"
+                + "&case_list=" + this.sample
+                + "&cancer_study_id=" + this.cancer_study_id
+                + "&attribute_id=" + this.attr_id;
     }
 });
 
-// model for gene datas (various molecular profiles)
-// probably not to be used until we start GETing our data instead of POSTing it.
-var GeneDataColl = Backbone.Collection.extend({
-    model: model,
+// param: [ case_list | case_set_id | case_ids_key ]
+var ClinicalColl = Backbone.Collection.extend({
+    model: ClinicalModel,
     initialize: function(models, options) {
-        this.data = {       // jQuery param - data sent to the server
-            genes : options.genes,
-            geneticProfileIds : options.geneticProfileIds,
-            samples : options.samples,
-            caseSetId : options.caseSetId,
-            z_score_threshold : options.z_score_threshold,
-            rppa_score_threshold : options.rppa_score_threshold
-        };
+        this.cancer_study_id = options.cancer_study_id;
+        this.case_list = options.case_list;
+        this.case_set_id = options.case_set_id;
+        this.case_ids_key = options.case_ids_key;
+    },
+    parse: function(res) {
+        this.attributes = res.attributes;   // save the attributes
+        return res.data;                    // but the data is what is to be model-ed
+    },
+    url: function() {
+        var url_str = "webservice.do?cmd=getClinicalData&format=json&";
+        if (this.cancer_study_id) {
+            url_str += "cancer_study_id=" + this.cancer_study_id + "&";
+        }
+
+        if (this.case_list) {
+            url_str += "case_list=" + this.case_list;
+        }
+        else if (this.case_set_id) {
+            url_str += "case_set_id=" + this.case_set_id;
+        }
+        else if (this.case_ids_key) {
+            url_str += "case_ids_key=" + this.case_ids_key;
+        }
+        else {
+            throw new Error("invalid parameters to ClinicalColl");
+        }
+        return url_str;
+    }
+});
+
+var GeneDataModel = Backbone.Model.extend({
+    initialize: function(attributes) {
+        this.case_list = attributes.sample;
+        this.gene = attributes.gene;
+        this.cancer_study_id = attributes.cancer_study_id;
+        this.geneticProfileIds = attributes.geneticProfileIds;
+        this.z_score_threshold = attributes.z_score_threshold || 2;     // default
+        this.rppa_score_threshold = attributes.rppa_score_threshold || 2;
+
+        // for jQuery
+        this.data = this.attributes;
         this.type = "POST";
     },
     url: function() {
         return "GeneData.json";
     }
 });
+
+// model for gene datas (various molecular profiles)
+// probably not to be used until we start GETing our data instead of POSTing it.
+//var GeneDataColl = Backbone.Collection.extend({
+//    model: model,
+//    initialize: function(models, options) {
+//        this.data = {       // jQuery param - data sent to the server
+//            genes : options.genes,
+//            geneticProfileIds : options.geneticProfileIds,
+//            samples : options.samples,
+//            caseSetId : options.caseSetId,
+//            z_score_threshold : options.z_score_threshold,
+//            rppa_score_threshold : options.rppa_score_threshold
+//        };
+//        this.type = "POST";
+//    },
+//    url: function() {
+//        return "GeneData.json";
+//    }
+//});

@@ -171,34 +171,7 @@
              });
              </script>
 
-            <%
-                /**
-                 * Put together parameters for an AJAX call to GeneAlterations.json
-                 *
-                 */
-
-                // put geneticProfileIds into the proper form for the JSON request
-                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-                geneticProfiles = geneticProfiles.trim();
-
-                // put gene string into a form that javascript can swallow
-                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-                genes = StringEscapeUtils.escapeJavaScript(genes);
-//                genes = genes.replace("\n", " ");
-
-                // get cases
-                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-                samples = StringEscapeUtils.escapeJavaScript(samples);
-            %>
-
 <script type="text/javascript" src="js/MemoSort.js"></script>
-<script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
-</script>
-
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>

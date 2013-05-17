@@ -185,6 +185,7 @@ public class GeneDataJSON extends HttpServlet {
         // list of samples separated by a space.  This is so
         // that you can query an arbitrary set of samples
         // separated by a space
+
         try {
             List<String> caseIds = WebserviceParserUtils.getCaseList(request);
             // todo: what happens when it is a custom case set? (consider returning all and then filtering on the client)

@@ -149,10 +149,10 @@ public class WebService extends HttpServlet {
 
 
         try {
+            // set the content type based on the format parameter
             if ("json".equals(httpServletRequest.getParameter(FORMAT))) {
                 httpServletResponse.setContentType("application/json");
             }
-
             else {
                 httpServletResponse.setContentType("text/plain");
             }
@@ -405,28 +405,42 @@ public class WebService extends HttpServlet {
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
 
-        // finagle your way into a cancerStudyId
-        String caseSetId = WebserviceParserUtils.getCaseSetId(request);
-        DaoCaseList daoCaseList = new DaoCaseList();
-        CaseList caseList = daoCaseList.getCaseListByStableId(caseSetId);
-        String cancerStudyId = DaoCancerStudy.getCancerStudyByInternalId(
-                caseList.getCancerStudyId())
-                .getCancerStudyStableId();
+        Set<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(request);
+
+        if (cancerStudyIDs.size() != 1) {
+            throw new IOException("cannot request data for more than one cancer study");
+        }
+        String cancerStudyId = cancerStudyIDs.iterator().next();
 
         List<String> caseIds = WebserviceParserUtils.getCaseList(request);
 
         String format = WebserviceParserUtils.getFormat(request);
 
-        if (format == null || "txt".equals(format.toLowerCase())) {
-            // default to txt if format parameter is not specified
-            writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
+        String attrId = request.getParameter("attribute_id");
+
+        if (format == null || "txt".equals(format)) { // default to txt if format parameter is not specified
+            if (attrId == null) {
+                writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
+            } else {
+                if (caseIds.size() != 1) {
+                    throw new IOException("cannot ask for multiple cases");
+                }
+                writer.print(GetClinicalData.getTxtDatum(cancerStudyId, caseIds.get(0), attrId));
+            }
         }
-        else if ("json".equals(format.toLowerCase())) {
-            JSONObject.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds),
-                    writer);
+        else if ("json".equals(format)) {
+            if (attrId == null) {
+                JSONObject.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds), writer);
+            } else {
+                if (caseIds.size() != 1) {
+                    throw new IOException("cannot ask for multiple cases");
+                }
+                JSONObject.writeJSONString(GetClinicalData.getJsonDatum(cancerStudyId, caseIds.get(0), attrId), writer);
+            }
         }
         else {
             // die
+            writer.print("There was an error in processing your request.  Please try again");
             throw new ProtocolException("please specify the format, i.e. format=txt OR format=json");
         }
     }

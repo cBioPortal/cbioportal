@@ -22,7 +22,6 @@ var plot_type_list = [
     ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
 ];
 var data_type_copy_no, data_type_mrna, data_type_dna_methylation, data_type_rppa, data_type_mutations;
-var xLegend, yLegend;
 
 //Utils Functions
 function findIndex(Str, Exp) {
@@ -54,13 +53,6 @@ function seachIndexTop(arr, ele) {
         }
     }
     return arr.length - 1;
-}
-function median(v) {
-    var half = Math.floor(v.length/2);
-    if(v.length % 2)
-        return v[half];
-    else
-        return (parseFloat(v[half-1]) + parseFloat(v[half]))/2;
 }
 function loadSVG() {
     var mySVG = document.getElementById("plots_tab");

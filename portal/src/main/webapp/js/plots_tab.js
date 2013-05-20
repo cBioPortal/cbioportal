@@ -398,6 +398,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#DF7401", "#DF7401", "#DF7401", "#1C1C1C", "#DF7401"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
+    var gisticPopUpText = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
     var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
 
@@ -457,8 +458,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = '<font size="2">' + "Mutation: <strong>" + d[5] + '</strong>(' + d[3] + ')' +  '</br>'
-                            + "Case ID: <strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong>' +  '</font>';
+                        var content = "<font size='2'>" + "<strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
+                        if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
+                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")";
+                        }
+                        content = content + "</font>";
                         api.set('content.text', content);
                     }
                 },
@@ -515,8 +519,15 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = '<font size="2">' + "Mutation: <strong>" + d[5] + '</strong>(' + d[3] + ')' +  '</br>'
-                            + "Case ID: <strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong>' +  '</font>';
+                        var content = "<font size='2'>" + "<strong>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
+                        if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
+                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")" + "<br>";
+                        }
+                        if (d[2] != 0) {
+                            var tmp_index = parseInt(d[2], 10) + 2;
+                            content = content + "CNA: " + "<strong>" + gisticPopUpText[tmp_index] + "</strong>";
+                        }
+                        content = content + "</font>";
                         api.set('content.text', content);
                     }
                 },

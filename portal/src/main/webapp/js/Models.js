@@ -132,7 +132,6 @@ var ClinicalColl = Backbone.Collection.extend({
         this.attributes = function() { return res.attributes; };   // save the attributes
         return res.data;    // but the data is what is to be model-ed
     },
-    type: "POST",
     url: function() {
         var url_str = "webservice.do?cmd=getClinicalData&format=json&";
         if (this.cancer_study_id) {
@@ -147,16 +146,20 @@ var ClinicalColl = Backbone.Collection.extend({
 // profile ids separated by a space), [z_score_threshold],
 // [rppa_score_threshold]
 var GeneDataModel = Backbone.Model.extend({
-    initialize: function(attributes) {
-        this.case_list = attributes.sample;
-        this.genes = attributes.gene;
-        this.cancer_study_id = attributes.cancer_study_id;
-        this.genetic_profiles = attributes.genetic_profiles;
-        this.z_score_threshold = attributes.z_score_threshold || "2.0";     // defaults
-        this.rppa_score_threshold = attributes.rppa_score_threshold || "2.0";
+    initialize: function(params) {
+        this.case_list = params.sample;
+        this.genes = params.gene;
+        this.cancer_study_id = params.cancer_study_id;
+        this.genetic_profiles = params.genetic_profiles;
+        this.z_score_threshold = params.z_score_threshold || "2.0";     // defaults
+        this.rppa_score_threshold = params.rppa_score_threshold || "2.0";
     },
     parse: function(res, xhr) {
-        return res[0];
+        if (res.length === 1) {
+            return res[0];
+        } else {
+            return res;
+        }
     },
     url: function() {
         var url_str = "GeneData.json?format=json&";
@@ -171,6 +174,8 @@ var GeneDataModel = Backbone.Model.extend({
     }
 });
 
+// example
+//
 //var foobar = new GeneDataModel({
 //    sample: cases.split(" ")[0],
 //    gene: raw_genes_str.split(" ")[0],
@@ -181,7 +186,10 @@ var GeneDataModel = Backbone.Model.extend({
 //});
 //foobar.fetch();
 
-var GeneDataColl = Backbone.Model.extend({
+// params : cancer_study_id, genes, case_list, genetic_profiles,
+// [z_score_threshold], [rppa_score_threshold]
+var GeneDataColl = Backbone.Collection.extend({
+    model: GeneDataModel,
     initialize: function(attributes) {
         this.cancer_study_id = attributes.cancer_study_id;
         this.genes = attributes.genes;
@@ -201,12 +209,14 @@ var GeneDataColl = Backbone.Model.extend({
     }
 });
 
+// example
+//
 //var foobar = new GeneDataColl({
 //    cancer_study_id: cancer_study_id_selected,
 //    case_list: cases,
-//    genes: raw_genes_str,
+//    genes: gene_list,
 //    genetic_profiles: genetic_profiles,
 //    z_score_threshold: zscore_threshold,
 //    rppa_score_threshold: rppa_score_threshold
 //});
-//foobar.fetch();
+//foobar.fetch({type: "POST"});

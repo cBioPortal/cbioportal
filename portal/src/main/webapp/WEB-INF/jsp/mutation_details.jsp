@@ -111,7 +111,7 @@ $(document).ready(function(){
             diagramSequence = <%= mutationDiagramStr %>;
 
             drawMutationDiagram(diagramSequence);
-            drawMutationTable(tableMutations);
+            delayedMutationTable(tableMutations);
 
         <% } %>
     <% } %>

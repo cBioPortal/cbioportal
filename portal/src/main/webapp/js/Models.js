@@ -44,32 +44,65 @@ var ModelUtils = (function() {
         return hash;
     };
 
-    // hack to get the proper case list parameter and value
-    var findCaseList = function(obj) {
-        var toReturn = ""
-        if (this.case_list) {
-            toReturn += "case_list=" + this.case_list + "&";
-        }
-        else if (this.case_set_id) {
-            toReturn += "case_set_id=" + this.case_set_id + "&";
-        }
-        else if (this.case_ids_key) {
-            toReturn += "case_ids_key=" + this.case_ids_key + "&";
-        }
-        else {
-            throw new Error("invalid parameters to case set parameter");
-        }
-        return toReturn;
-    };
+    // hack to get the proper case set parameter
+    // for a particular query
+    //
+    // takes an object literal and injects the proper case set parameter for an ajax request,
+    // and returns the now *modified* object
+//    var injectCaseSet = (function() {
+//        var key, value;
+//
+//        if (cases !== "") {
+//            key = "cases";
+//            value = cases;
+//        }
+//        else if (case_ids_key !== "") {
+//            key = "case_ids_key";
+//            value = case_ids_key;
+//        }
+//        else if (case_set_id !== "") {
+//            key = "case_set_id";
+//            value = case_set_id;
+//        }
+//
+//        return function(obj) {
+//            obj[key] = value;
+//            return obj;
+//        };
+//    })();
+
+    // another hack
+    //
+    // takes an object and looks for the first defined case-list {key, value} pair.
+    // Returns the map {key, value}
+//    var extractCaseSet = function(obj) {
+//        var cases = obj.cases;
+//        var case_ids_key = obj.case_ids_key;
+//        var case_set_id = obj.case_set_id;
+//        if (cases !== "") {
+//            key = "cases";
+//            value = cases;
+//        }
+//        else if (case_ids_key !== "") {
+//            key = "case_ids_key";
+//            value = case_ids_key;
+//        }
+//        else if (case_set_id !== "") {
+//            key = "case_set_id";
+//            value = case_set_id;
+//        }
+//        return { key: key, value: value };
+//    };
 
     return {
-        makeHash: makeHash,
-        findCaseList: findCaseList
+        makeHash: makeHash
+//        injectCaseSet: injectCaseSet
+//        extractCaseSet: extractCaseSet
     };
 })();
 
-// You create a new ClinicalModel, you pass an object with the fields: sample,
-// cancer_study_id, attr_id.  When you .fetch(), you get back the attr_val.
+// params: sample, cancer_study_id, attr_id
+// When you use the method `fetch()`, the attr_val is added to the object (from server)
 var ClinicalModel = Backbone.Model.extend({
     initialize: function(attributes) {
         this.sample = attributes.sample;
@@ -84,25 +117,29 @@ var ClinicalModel = Backbone.Model.extend({
     }
 });
 
-// param: [ case_list | case_set_id | case_ids_key ]
+// params: [cancer_study_id] , case_list (list of case_ids separated by space)
+// when you call the method fetch() you get back a list of ClinicalModels
+// AND a list of attribute objects which provide metadata about attributes in the cohort
 var ClinicalColl = Backbone.Collection.extend({
     model: ClinicalModel,
-    initialize: function(models, options) {
+    initialize: function(options) {
         this.cancer_study_id = options.cancer_study_id;
         this.case_list = options.case_list;
-        this.case_set_id = options.case_set_id;
-        this.case_ids_key = options.case_ids_key;
+//        this.case_set_id = options.case_set_id;
+//        this.case_ids_key = options.case_ids_key;
     },
     parse: function(res) {
-        this.attributes = res.attributes;   // save the attributes
-        return res.data;                    // but the data is what is to be model-ed
+        this.attributes = function() { return res.attributes; };   // save the attributes
+        return res.data;    // but the data is what is to be model-ed
     },
+    type: "POST",
     url: function() {
         var url_str = "webservice.do?cmd=getClinicalData&format=json&";
         if (this.cancer_study_id) {
             url_str += "cancer_study_id=" + this.cancer_study_id + "&";
         }
-        return url_str + ModelUtils.findCaseList(this);
+        url_str += "case_list=" + this.case_list;
+        return url_str;
     }
 });
 
@@ -111,32 +148,45 @@ var ClinicalColl = Backbone.Collection.extend({
 // [rppa_score_threshold]
 var GeneDataModel = Backbone.Model.extend({
     initialize: function(attributes) {
-        this.data = {       // for jQuery AJAX request
-            case_list : attributes.sample,
-            genes : attributes.gene,
-            cancer_study_id : attributes.cancer_study_id,
-            geneticProfileIds : attributes.geneticProfileIds,
-            z_score_threshold : attributes.z_score_threshold || 2,     // default
-            rppa_score_threshold : attributes.rppa_score_threshold || 2
-        };
+        this.case_list = attributes.sample;
+        this.genes = attributes.gene;
+        this.cancer_study_id = attributes.cancer_study_id;
+        this.genetic_profiles = attributes.genetic_profiles;
+        this.z_score_threshold = attributes.z_score_threshold || "2.0";     // defaults
+        this.rppa_score_threshold = attributes.rppa_score_threshold || "2.0";
     },
-    type: "POST",
+    parse: function(res, xhr) {
+        return res[0];
+    },
     url: function() {
         var url_str = "GeneData.json?format=json&";
-        for (var key in this.data) {
-            if (undefined !== this.data[key]) {
-                url_str += key + "=" + this.data[key] + "&";
-            }
-        }
+        url_str += "case_list=" + this.case_list + "&";
+        url_str += "genes=" + this.genes + "&";
+        url_str += "cancer_study_id=" + this.cancer_study_id + "&";
+        url_str += "geneticProfileIds=" + this.genetic_profiles + "&";
+        url_str += "z_score_threshold=" + this.z_score_threshold + "&";
+        url_str += "rppa_score_threshold=" + this.rppa_score_threshold + "&";
+
         return url_str;
     }
 });
+
+//var foobar = new GeneDataModel({
+//    sample: cases.split(" ")[0],
+//    gene: raw_genes_str.split(" ")[0],
+//    cancer_study_id: cancer_study_id_selected,
+//    genetic_profiles: genetic_profiles,
+//    z_score_threshold: zscore_threshold,
+//    rppa_score_threshold: rppa_score_threshold
+//});
+//foobar.fetch();
 
 var GeneDataColl = Backbone.Model.extend({
     initialize: function(attributes) {
         this.cancer_study_id = attributes.cancer_study_id;
         this.genes = attributes.genes;
-        this.geneticProfileIds = attributes.geneticProfileIds;
+        this.case_list = attributes.case_list;
+        this.genetic_profiles = attributes.genetic_profiles;
         this.z_score_threshold = attributes.z_score_threshold || 2;
         this.rppa_score_threshold = attributes.rppa_score_threshold || 2;
     },
@@ -144,24 +194,19 @@ var GeneDataColl = Backbone.Model.extend({
         return "GeneData.json?format=json&"
             + "cancer_study_id=" + this.cancer_study_id + "&"
             + "genes=" + this.genes + "&"
-            + "geneticProfileIds=" + this.geneticProfileIds + "&"
+            + "geneticProfileIds=" + this.genetic_profiles + "&"
             + "z_score_threshold=" + this.z_score_threshold + "&"
             + "rppa_score_threshold=" + this.rppa_score_threshold + "&"
-            + ModelUtils.findCaseList(this.attributes);
+            + "case_list=" + this.case_list;
     }
 });
 
-var x = new GeneDataColl(
-        {   cancer_study_id:"ov_tcga",
-            genes:"BRCA1 BRCA2",
-            geneticProfileIds:"ov_tcga_mutations ov_tcga_gistic",
-            z_score_threshold:2,
-            rppa_score_threshold:2,
-            case_ids_key:"74e69883f33b8482934f5d75aa8e16d0"
-        }
-        );
-
-x.fetch()
-
-
-
+//var foobar = new GeneDataColl({
+//    cancer_study_id: cancer_study_id_selected,
+//    case_list: cases,
+//    genes: raw_genes_str,
+//    genetic_profiles: genetic_profiles,
+//    z_score_threshold: zscore_threshold,
+//    rppa_score_threshold: rppa_score_threshold
+//});
+//foobar.fetch();

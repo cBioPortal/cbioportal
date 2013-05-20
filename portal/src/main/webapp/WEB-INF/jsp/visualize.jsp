@@ -40,15 +40,38 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 
+    /**
+     * Put together global parameters for injection as javascript variables
+     *
+     */
+    // put geneticProfileIds into the proper form for the JSON request
+    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+    geneticProfiles = geneticProfiles.trim();
+
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+
+    // get cases
+    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    cases = StringEscapeUtils.escapeJavaScript(cases);
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    %>
+
+<script type="text/javascript">
+    window.cases = '<%= cases %>';
+    window.case_ids_key = '<%= caseIdsKey %>';
+    window.gene_list = '<%=geneList%>';
+    window.genetic_profiles = '<%=geneticProfiles%>';
+</script>
+
+<%
 
     boolean showIGVtab = false;
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};

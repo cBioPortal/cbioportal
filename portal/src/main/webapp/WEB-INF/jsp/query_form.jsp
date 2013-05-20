@@ -1,3 +1,8 @@
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
+<%@ page import="java.util.HashSet" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="org.apache.commons.lang.*" %>
+
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -31,32 +36,34 @@
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
 
-<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
-<%@ page import="java.util.HashSet" %>
-<%@ page import="java.io.IOException" %>
-
 <%
     /**
      * Put together global parameters
      *
      */
+//    HashSet<String> geneticProfileIdSet =
+//            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
 
     // put geneticProfileIds into the proper form for the JSON request
-    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-    geneticProfiles = geneticProfiles.trim();
-
-    // put gene string into a form that javascript can swallow
-    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-    genes = StringEscapeUtils.escapeJavaScript(genes);
-
-    // get cases
-    String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    samples = StringEscapeUtils.escapeJavaScript(samples);
+//    HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
+//            (QueryBuilder.GENETIC_PROFILE_IDS);
+//    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+//    geneticProfiles = geneticProfiles.trim();
+//
+//    // put gene string into a form that javascript can swallow
+//    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+//    genes = StringEscapeUtils.escapeJavaScript(genes);
+//
+//    // get cases
+//    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+//    cases = StringEscapeUtils.escapeJavaScript(cases);
+//
+//    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+//    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
 %>
 
 
 <script type="text/javascript">
-
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
     window.case_set_id_selected = '<%= localCaseSetId %>';
@@ -74,46 +81,8 @@
             }
         }
     %>
-
-    // Define useful global variables
-    var cancer_study_id = "<%=cancerTypeId%>";
-    var genes = "<%=genes%>";
-    var geneticProfiles = "<%=geneticProfiles%>";
-    var z_score_threshold = <%=zScoreThreshold%>;
-    var rppa_score_threshold = <%=rppaScoreThreshold%>;
-    var samples = "<%=samples%>";
-
-    // hack to get the proper case set parameter
-    // for a particular query
-    //
-    // takes an object literal and injects the proper case set parameter for an ajax request,
-    // and returns the now *modified* object
-    var injectCaseSet = (function() {
-        var case_set_id = "<%=caseSetId%>";
-        var cases = "<%=caseIds%>";
-        var case_ids_key = "<%=caseIdsKey%>";
-
-        var key, value;
-
-        if (cases !== "") {
-            key = "cases";
-            value = cases;
-        }
-        else if (case_ids_key !== "") {
-            key = "case_ids_key";
-            value = case_ids_key;
-        }
-        else if (case_set_id !== "") {
-            key = "case_set_id";
-            value = case_set_id;
-        }
-
-        return function(obj) {
-            obj[key] = value;
-            return obj;
-        };
-    })();
 </script>
+<script type="text/javascript" src="Models.js"></script>
 <div class="main_query_panel">
     <div id="main_query_form">
         <form id="main_form" action="index.do" method="post">

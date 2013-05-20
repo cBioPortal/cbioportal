@@ -69,7 +69,7 @@ public final class WebserviceParserUtils {
         String caseSetId = request.getParameter(WebService.CASE_SET_ID);
         String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
         String samples = request.getParameter("samples");
-        
+
         if (cases == null &&
         	caseIdsKey != null)
         {
@@ -92,7 +92,7 @@ public final class WebserviceParserUtils {
                 caseList.add(_case);
             }
         }
-        else if (samples != null) {     // todo: this is a hack, samples is basically an alias for cases
+        else if (samples != null) {     // todo: this is a hack, samples is just another word for cases
             return new ArrayList(Arrays.asList(samples.split(" ")));
         }
         else {

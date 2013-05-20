@@ -185,7 +185,7 @@ var GeneDataModel = Backbone.Model.extend({
 //    rppa_score_threshold: rppa_score_threshold
 //});
 //foobar.fetch();
-
+;
 // params : cancer_study_id, genes, case_list, genetic_profiles,
 // [z_score_threshold], [rppa_score_threshold]
 var GeneDataColl = Backbone.Collection.extend({

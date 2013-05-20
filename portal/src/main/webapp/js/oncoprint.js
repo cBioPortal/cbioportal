@@ -9,15 +9,16 @@
 // The parameters is an object that contains:
 // clinicalData, clinical_attrs, and geneData
 var Oncoprint = function(div, params) {
-    params.clinicalData = params.clinicalData.data || [];     // initialize
+    params.clinicalData = params.clinicalData || [];     // initialize
     params.clinical_attrs = params.clinical_attrs || [];
+    var clinicalData = params.clinicalData.data || [];
 
     var isDiscrete = function(val) {
         return isNaN(parseInt(val));
     };
 
     // map str(number) back to number
-    var clinicalData = params.clinicalData.map(function(i) {
+    clinicalData = params.clinicalData.map(function(i) {
         if (!isDiscrete(i.attr_val)) {
             i.attr_val = parseInt(i.attr_val);
         }

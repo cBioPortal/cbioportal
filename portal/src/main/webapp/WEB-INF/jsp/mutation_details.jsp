@@ -11,6 +11,7 @@
 <%@ page import="java.io.StringWriter" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.Mutation3dProcessor" %>
 
 <script type="text/javascript" src="js/jsmol/JSmol.min.nojq.js"></script>
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
@@ -19,10 +20,10 @@
 
 <script type="text/javascript">
 
-function _initJsmol(geneSymbol)
+function _initJsmol(data)
 {
-	var pdbid = "1crn"; // TODO get from servlet
-	var appletName = 'applet_' + geneSymbol;
+	var pdbid = data.pdbId;
+	var appletName = 'applet_' + data.hugoGeneSymbol;
 	var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
 
     var jsmolOpts = {
@@ -259,7 +260,7 @@ function toggleMutationDiagram(geneId)
         out.println("<div id='mutation_diagram_" + geneSymbol + "'></div>");
         out.println("<div id='mutation_histogram_" + geneSymbol + "'></div>");
         out.println("</td><td>");
-        outputJsmolContainer(out, geneSymbol);
+        outputJsmolContainer(out, geneWithScore);
         out.println("</td></tr></table>");
         out.println("<div id='mutation_table_" + geneSymbol + "'>" +
                     "<img src='images/ajax-loader.gif'/>" +
@@ -271,10 +272,14 @@ function toggleMutationDiagram(geneId)
         out.println("<br><br>");
     }
 
-	private void outputJsmolContainer(JspWriter out, String geneSymbol) throws IOException {
+	private void outputJsmolContainer(JspWriter out, GeneWithScore geneWithScore) throws IOException
+	{
+		Mutation3dProcessor proteinProcessor = new Mutation3dProcessor();
+		String geneSymbol = geneWithScore.getGene().toUpperCase();
+		String data = proteinProcessor.process(geneWithScore);
 		// TODO Jsmol doesn't work unless it is defined inside in a script inside a div...
 		out.println("<div id='mutation_3d_structure_" + geneSymbol + "'>");
-		out.println("<script type='text/javascript'>_initJsmol('" + geneSymbol + "');</script>");
+		out.println("<script type='text/javascript'>_initJsmol(" + data + ");</script>");
 		out.println("</div>");
 	}
 %>

@@ -17,8 +17,13 @@
 
 <script type="text/javascript">
 
-function callJsmol(pdbid, appletName, callbackfun) {
-    var Info = {
+function _initJsmol(geneSymbol)
+{
+	var pdbid = "1crn"; // TODO get from servlet
+	var appletName = 'applet_' + geneSymbol;
+	var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
+
+    var jsmolOpts = {
         width: 300,
         height: 200,
         debug: false,
@@ -29,12 +34,13 @@ function callJsmol(pdbid, appletName, callbackfun) {
         //defaultModel: "$dopamine",
         disableJ2SLoadMonitor: true,
         disableInitialConsole: true
-    }
+    };
 
     if (jQuery.isFunction(callbackfun)) {
-    	Info['readyFunction'] = callbackfun;
+	    jsmolOpts['readyFunction'] = callbackfun;
     }
-    Jmol.getApplet(appletName, Info);
+
+	Jmol.getApplet(appletName, jsmolOpts);
 }
 </script>
 
@@ -134,12 +140,12 @@ $(document).ready(function(){
 			           mutations: diagramMutations},
 		           success: drawMutationDiagram,
 		           type: "POST"});
-                
+
 //                var str="<script>alert('loading 3d...');callJsmol('1crn', 'applet_"+geneSymbol+"', function(applet) {/*alert('add your callback functions here');*/});";
 //                    str+="<";
 //                    str+="/script>";
 //                $("#mutation_3d_structure_"+geneSymbol).append(str);
-                
+
 
         <% } %>
     <% } %>
@@ -231,9 +237,7 @@ function toggleMutationDiagram(geneId)
         out.println("<div id='mutation_diagram_" + geneSymbol + "'></div>");
         out.println("<div id='mutation_histogram_" + geneSymbol + "'></div>");
         out.println("</td><td>");
-        out.println("<div id='mutation_3d_structure_" + geneSymbol + "'>");
-        out.println("<script type='text/javascript'>callJsmol('1crn', 'applet_"+geneSymbol+"', function(applet) {/*alert('add your callback functions here');*/});</script>");
-        out.println("</div>");
+        outputJsmolContainer(out, geneSymbol);
         out.println("</td></tr></table>");
         out.println("<div id='mutation_table_" + geneSymbol + "'>" +
                     "<img src='images/ajax-loader.gif'/>" +
@@ -244,4 +248,11 @@ function toggleMutationDiagram(geneId)
         out.println("<p>There are no mutation details available for the gene set entered.</p>");
         out.println("<br><br>");
     }
+
+	private void outputJsmolContainer(JspWriter out, String geneSymbol) throws IOException {
+		// TODO Jsmol doesn't work unless it is defined inside in a script inside a div...
+		out.println("<div id='mutation_3d_structure_" + geneSymbol + "'>");
+		out.println("<script type='text/javascript'>_initJsmol('" + geneSymbol + "');</script>");
+		out.println("</div>");
+	}
 %>

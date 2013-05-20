@@ -34,7 +34,7 @@ public class MafRecord
 {
     public final static String NA_STRING = "NA";
     // TODO use MIN instead of -1, we may have fields with negative values
-    public final static long NA_LONG = -1L;
+    public final static long NA_LONG = Long.MIN_VALUE;
     public final static int NA_INT = -1;
     public final static float NA_FLOAT = -1;
 
@@ -71,6 +71,8 @@ public class MafRecord
     private String validationMethod;
     private String score;
     private String bamFile;
+    
+    private String mannualAminoAcidChange;
 
 	// TODO allele frequency cols
     private int tumorAltCount;
@@ -370,6 +372,15 @@ public class MafRecord
 	public void setScore(String score) {
 		this.score = score;
 	}
+
+    public String getMannualAminoAcidChange() {
+        return mannualAminoAcidChange;
+    }
+
+    public void setMannualAminoAcidChange(String mannualAminoAcidChange) {
+        this.mannualAminoAcidChange = mannualAminoAcidChange;
+    }
+        
 
 	public String getBamFile() {
 		return bamFile;

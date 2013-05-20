@@ -9,6 +9,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
 
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
@@ -19,6 +20,8 @@
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
+
+    MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
 %>
 <div class='section' id='mutation_details'>
 
@@ -86,15 +89,21 @@
 //  Set up Mutation Diagrams
 $(document).ready(function(){
 	var geneSymbol;
-	var diagramMutations;
 	var tableMutations;
+    var diagramSequence;
 
 	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-	        geneSymbol = "<%= geneWithScore.getGene().toUpperCase() %>";
-	        diagramMutations = "<%= outputMutationsJson(geneWithScore, mutationMap) %>";
+        String geneStr = geneWithScore.getGene();
+        if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
+        String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
+                geneStr,
+                mutationMap.getExtendedMutations(geneStr)
+        );
+    %>
+	        geneSymbol = "<%= geneStr.toUpperCase() %>";
 	        tableMutations = "<%= outputMutationsJson(geneWithScore, mutationMap, mergedCaseList) %>";
+            diagramSequence = <%= mutationDiagramStr %>;
 
 	        $.ajax({ url: "mutation_table_data.json",
 		           dataType: "json",
@@ -104,13 +113,7 @@ $(document).ready(function(){
 		           type: "POST"});
 
 
-	        $.ajax({ url: "mutation_diagram_data.json",
-		           dataType: "json",
-		           data: {hugoGeneSymbol: geneSymbol,
-			           mutations: diagramMutations},
-		           success: drawMutationDiagram,
-		           type: "POST"});
-
+            drawMutationDiagram(diagramSequence);
         <% } %>
     <% } %>
 });

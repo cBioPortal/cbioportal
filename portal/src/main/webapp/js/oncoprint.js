@@ -24,11 +24,21 @@ var Oncoprint = function(div, params) {
         return i;
     });
 
-    var data = d3.nest()
-        .key(function(d) { return d.sample; })
-        .entries(clinicalData.concat(params.geneData));
+    // params: data, list of data as specified elsewhere
+    // TODO: where exactly is this specified??
+    //
+    // returns: nested data that is used in this visualization
+    var process_data = function(data) {
+        return d3.nest()
+            .key(function(d) { return d.sample; })
+            .entries(data);
+    };
 
-    if (clinicalData === [] && params.clinical_attrs !== undefined) {
+    var raw_data = clinicalData.concat(params.geneData);        // internal copy of all data the given
+    var data = process_data(raw_data);
+
+    if (clinicalData === []
+        && params.clinical_attrs !== undefined) {
         throw {
             name: "Data Mismatch Error",
             message: "There are clinical attributes for nonexistant clinical data"
@@ -248,6 +258,34 @@ var Oncoprint = function(div, params) {
             });
     enter(columns);
 
+    // params: sample
+    // returns: boolean, does the sample have a genetic alteration
+    // in a particular gene?
+    var unaltered_gene = function(sample_gene) {
+        return sample_gene.cna === undefined
+            && sample_gene.mutation === undefined
+            && sample_gene.mrna === undefined
+            && sample_gene.rppa === undefined;
+    };
+
+    // params: list of raw data
+    //
+    // returns: list of sample_ids that have no genetic alterations
+    var raw_unaltered = function(raw_data) {
+        var sample_set = {};
+
+        raw_data.forEach(function(i) {
+            if (i.gene) {       // we've found a piece of genomic data
+                if (unaltered_gene(i)) {
+
+                }
+                else {
+
+                }
+            }
+        });
+    };
+
     // The State object is our representation of the state of the oncoprint.
     // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.
     // This object is returned to the user for the UI
@@ -283,7 +321,7 @@ var Oncoprint = function(div, params) {
         };
 
         // takes data and return a list of sample_ids in order
-        var pick_sample = function(data) {
+        var pick_sample = function(internal_data) {
             return internal_data.map(function(i) { return i.key; });
         };
 
@@ -293,7 +331,7 @@ var Oncoprint = function(div, params) {
         };
 
         // puts all the samples in the correct horizontal position
-        var xtranslate = function() {
+        var horizontal_translate = function() {
             // re-sort
             var x = data2xscale(internal_data);
 
@@ -309,7 +347,7 @@ var Oncoprint = function(div, params) {
         return {
             memoSort: function(attributes) {
                 internal_data = MemoSort(internal_data, attributes);
-                xtranslate();
+                horizontal_translate();
                 return internal_data;
             },
             randomMemoSort: function() {
@@ -325,7 +363,7 @@ var Oncoprint = function(div, params) {
 
                 var attrs = shuffle(attributes);
                 internal_data = MemoSort(internal_data, attrs);
-                xtranslate();
+                horizontal_translate();
                 return attrs;
             },
             getData: function() { return internal_data; },
@@ -334,7 +372,7 @@ var Oncoprint = function(div, params) {
             // whitespace is set to the bool, otherwise, flip it from whatever it currently is
             toggleWhiteSpace: function(bool) {
                 whitespace = bool === undefined ? !whitespace : bool;
-                xtranslate();
+                horizontal_translate();
             },
             zoom: function(scalar) {
                 rect_width = scalar * dims.rect_width;
@@ -343,7 +381,7 @@ var Oncoprint = function(div, params) {
                     .transition()
                     .duration(1000)
                     .attr('width', dims.rect_width * scalar);
-                xtranslate();
+                horizontal_translate();
                 if (scalar >= .5) {
                     State.toggleWhiteSpace(true);
                 } else {
@@ -351,7 +389,14 @@ var Oncoprint = function(div, params) {
                 }
             },
             showUnalteredCases: function(bool) {
-                return "not doing anything right now";
+                if (bool) {
+                    internal_data = data;
+                } else {
+                    internal_data = altered_samples();
+                }
+                horizontal_translate();
+
+                return internal_data;
             }
         };
     })();

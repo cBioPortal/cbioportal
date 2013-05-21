@@ -11,14 +11,13 @@
 var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];     // initialize
     params.clinical_attrs = params.clinical_attrs || [];
-    var clinicalData = params.clinicalData.data || [];
 
     var isDiscrete = function(val) {
         return isNaN(parseInt(val));
     };
 
     // map str(number) back to number
-    clinicalData = params.clinicalData.map(function(i) {
+    var clinicalData = params.clinicalData.map(function(i) {
         if (!isDiscrete(i.attr_val)) {
             i.attr_val = parseInt(i.attr_val);
         }
@@ -257,8 +256,10 @@ var Oncoprint = function(div, params) {
         var whitespace = true;              // show white space?
         var rect_width = dims.rect_width;   // initialize
 
-        // takes a list of samples and returns an object that contains a function f,
-        // and a map, sample2index
+        // takes a list of samples and returns an object that contains
+        // a function f,
+        // a map, sample2index
+        // and a constant, svg_width
         //
         // f : sample id --> x-position in oncoprint
         var xscale = function(samples) {
@@ -267,10 +268,17 @@ var Oncoprint = function(div, params) {
                 sample2index[samples[i]] = i;
             }
 
+            // params: i, sample index
+            // returns: the width of the svg to contain those samples.
+            var xpos = function(i) {
+                return i * (rect_width + (whitespace ? dims.hor_padding : 0));
+            };
+
+            var svg_width_offset = 50;
             return {
-                scale: function(d) { return sample2index[d] * (rect_width
-                    + (whitespace ? dims.hor_padding : 0)); },
-                sample2index: sample2index
+                scale: function(d) { return xpos(sample2index[d]); },
+                sample2index: sample2index,
+                svg_width: svg_width_offset + xpos(samples.length)
             };
         };
 
@@ -288,12 +296,16 @@ var Oncoprint = function(div, params) {
         var xtranslate = function() {
             // re-sort
             var x = data2xscale(internal_data);
+
+            // resize the svg
+            main_svg.transition(1000).attr('width', x.svg_width);
+
+            // do the transition to all samples
             d3.selectAll('.sample').transition()
                 .duration(function(d) { return 1000 + x.sample2index[d.key] * 20; })
                 .attr('transform', function(d) { return translate(x.scale(d.key),0); });
         };
 
-        // todo : the size of the svg element changes with the state
         return {
             memoSort: function(attributes) {
                 internal_data = MemoSort(internal_data, attributes);
@@ -317,8 +329,11 @@ var Oncoprint = function(div, params) {
                 return attrs;
             },
             getData: function() { return internal_data; },
-            showWhiteSpace: function(bool) {
-                whitespace = bool;
+
+            // params: [bool].  If bool is passed as a parameter,
+            // whitespace is set to the bool, otherwise, flip it from whatever it currently is
+            toggleWhiteSpace: function(bool) {
+                whitespace = bool === undefined ? !whitespace : bool;
                 xtranslate();
             },
             zoom: function(scalar) {
@@ -329,10 +344,10 @@ var Oncoprint = function(div, params) {
                     .duration(1000)
                     .attr('width', dims.rect_width * scalar);
                 xtranslate();
-                if (scalar >= 1) {
-                    State.showWhiteSpace(true);
+                if (scalar >= .5) {
+                    State.toggleWhiteSpace(true);
                 } else {
-                    State.showWhiteSpace(false);
+                    State.toggleWhiteSpace(false);
                 }
             },
             showUnalteredCases: function(bool) {
@@ -346,8 +361,6 @@ var Oncoprint = function(div, params) {
 //    setInterval(function() {
 //        State.memoSort(data, shuffle(attributes));
 //    }, 4400);
-
-    $('#oncoprint').children().show();      // todo: delete me!
 
     return State;
 };
@@ -771,21 +784,6 @@ var _Oncoprint = function(wrapper, params) {
                 position: {my:'left bottom',at:'top right'}
             });
         });
-    };
-
-    var widthScrollerSetup = function() {
-        $('<div>', { id: "width_slider", width: "100"})
-            .slider({
-                text: "Adjust Width ",
-                min: .1,
-                max: 1,
-                step: .01,
-                value: 1,
-                change: function(event, ui) {
-              //                    console.log(ui.value);
-                    oncoprint.scaleWidth(ui.value);
-                }
-            }).appendTo($('#oncoprint_controls #zoom'));
     };
 
     that.draw = function() {

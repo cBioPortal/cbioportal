@@ -22,7 +22,7 @@
                 .onco-customize:hover { text-decoration: underline; }
             </style>
             <p onclick="$('#oncoprint_controls table').toggle(); $('#oncoprint_controls .triangle').toggle();"
-               style="display:none; margin-bottom: 0px;">
+               style="margin-bottom: 0px;">
                 <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
                 <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
                 <span class='onco-customize'>Customize</span>
@@ -62,12 +62,24 @@
                     rppa_score_threshold: rppa_score_threshold
                 });
 
+                var oncoprintZoomSetup = function(oncoprint, div) {
+                    $('<div>', { id: "width_slider", width: "100"})
+                            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
+                                change: function(event, ui) {
+                                    oncoprint.zoom(ui.value);
+                                }}).appendTo($(div));
+                };
+
                 var oncoprint;
                 geneDataColl.fetch({
                     'type': "POST",
                     success: function(data) {
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'),
                                 { geneData: data.toJSON(), genes: geneDataColl.genes.split(" ") });
+                        $('#oncoprint #loader_img').hide();
+                        $('#oncoprint #everything').show();
+
+                        oncoprintZoomSetup(oncoprint, $('#oncoprint_controls #zoom'));
                     }
                 });
 

@@ -270,20 +270,23 @@ var Oncoprint = function(div, params) {
 
     // params: list of raw data
     //
-    // returns: list of sample_ids that have no genetic alterations
+    // returns: d3.set of sample_ids that have no genetic alterations
     var raw_unaltered = function(raw_data) {
-        var sample_set = {};
+        var unaltered_sample_set = d3.set();
 
         raw_data.forEach(function(i) {
-            if (i.gene) {       // we've found a piece of genomic data
-                if (unaltered_gene(i)) {
-
+            if (i.gene) {                           // we've found a gene
+                if (unaltered_gene(i)) {            // it's unaltered, save it
+                    unaltered_sample_set.add(i.sample);
                 }
                 else {
-
+                    unaltered_sample_set.remove(i.sample); // it's altered, remove it
                 }
             }
+            // else: not a gene, irrelevant
         });
+
+        return unaltered_sample_set;
     };
 
     // The State object is our representation of the state of the oncoprint.
@@ -389,11 +392,22 @@ var Oncoprint = function(div, params) {
                 }
             },
             showUnalteredCases: function(bool) {
+                // todo: make this lazy?
+                var unaltered = raw_unaltered(data);
+
+                var filter_function = function(d) {
+                    return unaltered.has(d.sample);
+                };
+
                 if (bool) {
                     internal_data = data;
+                    enter(d3.selectAll('.sample').data(data));
                 } else {
-                    internal_data = altered_samples();
+                    internal_data = data.filter(filter_function);
+                    // remove all the samples that are unaltered
+                    d3.selectAll('.sample').filter(filter_function).remove();
                 }
+
                 horizontal_translate();
 
                 return internal_data;

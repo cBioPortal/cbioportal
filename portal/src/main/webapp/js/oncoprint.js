@@ -271,12 +271,12 @@ var Oncoprint = function(div, params) {
     // params: list of raw data
     //
     // returns: d3.set of sample_ids that have no genetic alterations
-    var raw_unaltered = function(raw_data) {
+    var raw_altered = function(raw_data) {
         var unaltered_sample_set = d3.set();
 
         raw_data.forEach(function(i) {
             if (i.gene) {                           // we've found a gene
-                if (unaltered_gene(i)) {            // it's unaltered, save it
+                if (!unaltered_gene(i)) {            // it's unaltered, save it
                     unaltered_sample_set.add(i.sample);
                 }
                 else {
@@ -393,21 +393,19 @@ var Oncoprint = function(div, params) {
             },
             showUnalteredCases: function(bool) {
                 // todo: make this lazy?
-                var unaltered = raw_unaltered(data);
-
-                var filter_function = function(d) {
-                    return unaltered.has(d.sample);
-                };
+                var altered = raw_altered(raw_data);
 
                 if (bool) {
-                    internal_data = data;
-                    enter(d3.selectAll('.sample').data(data));
+                    internal_data = MemoSort(data, attributes);
+                    enter(d3.selectAll('.sample').data(internal_data));
                 } else {
-                    internal_data = data.filter(filter_function);
-                    // remove all the samples that are unaltered
-                    d3.selectAll('.sample').filter(filter_function).remove();
-                }
+                    internal_data = MemoSort(data.filter(function(d) { return altered.has(d.key); }), attributes);
 
+                    // remove all the samples that are unaltered
+                    d3.selectAll('.sample').filter(function(d) { return !altered.has(d.key); }).remove();
+
+                //    enter(d3.selectAll('.sample').data(internal_data));
+                }
                 horizontal_translate();
 
                 return internal_data;

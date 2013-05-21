@@ -42,7 +42,7 @@
 
 <!-- for genomic data post request -->
 <script type="text/javascript" src="js/oncoprint.js"></script>
-<script type="text/javascript" src="js/d3.min.js"></script>
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
 
 <script type="text/javascript">
 

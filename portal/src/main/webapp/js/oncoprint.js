@@ -26,15 +26,16 @@ var Oncoprint = function(div, params) {
 
     // params: data, list of data as specified elsewhere
     // TODO: where exactly is this specified??
+    // todo: call this *nested*
     //
-    // returns: nested data that is used in this visualization
+    // returns: data nested by the key, "sample"
     var process_data = function(data) {
         return d3.nest()
             .key(function(d) { return d.sample; })
             .entries(data);
     };
 
-    var raw_data = clinicalData.concat(params.geneData);        // internal copy of all data the given
+    var raw_data = clinicalData.concat(params.geneData);        // internal copy
     var data = process_data(raw_data);
 
     if (clinicalData === []
@@ -135,8 +136,6 @@ var Oncoprint = function(div, params) {
     }());
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
 //
-
-    d3.select('div')
 
     // make labels and set up the table for proper scrolling, etc.
     var table = d3.select(div)
@@ -242,11 +241,14 @@ var Oncoprint = function(div, params) {
         mrna.filter(function(d) {
             return d.mrna === undefined;
         }).remove();
+
+
+        sample.exit().remove();
     };
 
     // toss in the samples
-    var columns = main_svg.selectAll('g')        // array of arrays
-        .data(data)
+    var columns = main_svg.selectAll('g')           // array of arrays
+        .data(data, function(d) { return d.key; })  // N.B.
         .enter()
         .append('g')
         .attr('class', 'sample')
@@ -353,6 +355,7 @@ var Oncoprint = function(div, params) {
                 horizontal_translate();
                 return internal_data;
             },
+
             randomMemoSort: function() {
                 // randomly shuffle an array
                 var shuffle = function(array) {
@@ -369,6 +372,7 @@ var Oncoprint = function(div, params) {
                 horizontal_translate();
                 return attrs;
             },
+
             getData: function() { return internal_data; },
 
             // params: [bool].  If bool is passed as a parameter,
@@ -377,6 +381,7 @@ var Oncoprint = function(div, params) {
                 whitespace = bool === undefined ? !whitespace : bool;
                 horizontal_translate();
             },
+
             zoom: function(scalar) {
                 rect_width = scalar * dims.rect_width;
 
@@ -391,8 +396,9 @@ var Oncoprint = function(div, params) {
                     State.toggleWhiteSpace(false);
                 }
             },
+
             showUnalteredCases: function(bool) {
-                // todo: make this lazy?
+                // todo: cache this somewhere?
                 var altered = raw_altered(raw_data);
 
                 if (bool) {
@@ -402,9 +408,9 @@ var Oncoprint = function(div, params) {
                     internal_data = MemoSort(data.filter(function(d) { return altered.has(d.key); }), attributes);
 
                     // remove all the samples that are unaltered
-                    d3.selectAll('.sample').filter(function(d) { return !altered.has(d.key); }).remove();
+//                    d3.selectAll('.sample').filter(function(d) { return !altered.has(d.key); }).remove();
 
-                //    enter(d3.selectAll('.sample').data(internal_data));
+                    enter(d3.selectAll('.sample').data(internal_data));
                 }
                 horizontal_translate();
 

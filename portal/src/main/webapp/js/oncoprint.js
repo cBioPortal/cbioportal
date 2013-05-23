@@ -35,8 +35,8 @@ var Oncoprint = function(div, params) {
             .entries(data);
     };
 
-    var raw_data = clinicalData.concat(params.geneData);        // internal copy
-    var data = process_data(raw_data);
+//    var raw_data = clinicalData.concat(params.geneData);        // internal copy
+    var data = process_data(clinicalData.concat(params.geneData));
 
     if (clinicalData === []
         && params.clinical_attrs !== undefined) {
@@ -191,12 +191,33 @@ var Oncoprint = function(div, params) {
         return "translate(" + x + "," + y + ")";
     };
 
-    // it's entering time
-    var enter = function(sample) {
-        var e = sample.enter();
+    // params: data
+    // updating the samples based on the data (entering and exiting)
+    var update = function(data) {
+
+        // toss in the samples
+        var columns = main_svg.selectAll('g')               // array of arrays
+            .data(data, function(d) { return d.key; });     // N.B.
+
+        // throw them in, 100 (i.e. way off) to the right
+        columns.enter()
+            .append('g')
+            .attr('class', 'sample')
+//        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
+            .attr('transform', translate(dims.width + 100, 0));
+
+        // simply remove columns on exit
+        columns.exit().remove();
+
+        var columns = columns.selectAll('rect')
+                .data(function(d) {
+                    return d.values;
+                });
+
+        var enter = columns.enter();
 
         // N.B. fill doubles as cna
-        var fill = e.append('rect')
+        var fill = enter.append('rect')
             .attr('fill', function(d) {
                 if (d.gene !== undefined) {
                     //todo: this is ugly, refactor attr2range
@@ -210,7 +231,7 @@ var Oncoprint = function(div, params) {
             .attr('width', dims.rect_width)
             .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); });
 
-        var mut = e.append('rect')
+        var mut = enter.append('rect')
             .attr('fill', 'green')
             .attr('height', dims.mut_height)
             .attr('width', dims.rect_width)
@@ -221,7 +242,7 @@ var Oncoprint = function(div, params) {
         }).remove();
 
         var sym = d3.svg.symbol().size(dims.rect_width * 2);
-        var rppa = e.append('path')
+        var rppa = enter.append('path')
                 .attr('d', sym.type(function(d) {
                     return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
                 .attr('transform', function(d) {
@@ -230,7 +251,7 @@ var Oncoprint = function(div, params) {
             return d.rppa === undefined;
         }).remove();
 
-        var mrna = e.append('rect')
+        var mrna = enter.append('rect')
             .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); })
             .attr('height', dims.rect_height)
             .attr('width', dims.rect_width)
@@ -241,24 +262,9 @@ var Oncoprint = function(div, params) {
         mrna.filter(function(d) {
             return d.mrna === undefined;
         }).remove();
-
-
-        sample.exit().remove();
     };
 
-    // toss in the samples
-    var columns = main_svg.selectAll('g')           // array of arrays
-        .data(data, function(d) { return d.key; })  // N.B.
-        .enter()
-        .append('g')
-        .attr('class', 'sample')
-//        .attr('transform', function(d,i) { return translate(x(d.key), 0); })
-        .attr('transform', translate(dims.width + 100, 0))
-            .selectAll('rect')
-            .data(function(d) {
-                return d.values;
-            });
-    enter(columns);
+    update(data);
 
     // params: sample
     // returns: boolean, does the sample have a genetic alteration
@@ -290,6 +296,8 @@ var Oncoprint = function(div, params) {
 
         return unaltered_sample_set;
     };
+
+    var altered = raw_altered(clinicalData.concat(params.geneData));
 
     // The State object is our representation of the state of the oncoprint.
     // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.
@@ -398,19 +406,13 @@ var Oncoprint = function(div, params) {
             },
 
             showUnalteredCases: function(bool) {
-                // todo: cache this somewhere?
-                var altered = raw_altered(raw_data);
-
                 if (bool) {
                     internal_data = MemoSort(data, attributes);
-                    enter(d3.selectAll('.sample').data(internal_data));
+//                    update(d3.selectAll('.sample').data(internal_data));
+                    update(internal_data);
                 } else {
                     internal_data = MemoSort(data.filter(function(d) { return altered.has(d.key); }), attributes);
-
-                    // remove all the samples that are unaltered
-//                    d3.selectAll('.sample').filter(function(d) { return !altered.has(d.key); }).remove();
-
-                    enter(d3.selectAll('.sample').data(internal_data));
+                    update(internal_data);
                 }
                 horizontal_translate();
 

@@ -5,38 +5,74 @@
 //
 //
 ;
-// Creates an oncoprint on the div.
-// The parameters is an object that contains:
-// clinicalData, clinical_attrs, and geneData
-var Oncoprint = function(div, params) {
-    params.clinicalData = params.clinicalData || [];     // initialize
-    params.clinical_attrs = params.clinical_attrs || [];
+// util class for handling some of data processing
+// and other odds and ends that are needed in the Oncoprint
+var OncoprintUtils = (function() {
 
-    var isDiscrete = function(val) {
+    var is_discrete = function(val) {
         return isNaN(parseInt(val));
     };
 
-    // map str(number) back to number
-    var clinicalData = params.clinicalData.map(function(i) {
-        if (!isDiscrete(i.attr_val)) {
-            i.attr_val = parseInt(i.attr_val);
-        }
-        return i;
-    });
-
     // params: data, list of data as specified elsewhere
     // TODO: where exactly is this specified??
-    // todo: call this *nested*
     //
     // returns: data nested by the key, "sample"
-    var process_data = function(data) {
+    var nest_data = function(data) {
         return d3.nest()
             .key(function(d) { return d.sample; })
             .entries(data);
     };
 
+    // returns the gene name or the attr_id, whatever the piece of data has
+    var get_attr = function(d) {
+
+        var to_return =  d.gene || d.attr_id;
+
+        if (to_return === undefined) {
+            throw new Error("datum has neither a gene nor an attr_id: "
+                + JSON.stringify(d));
+        }
+
+        return d.gene || d.attr_id;
+    };
+
+    // params: list of data, list of attributes to filter by
+    // returns a filtered list
+    var filter_by_attributes = function(data, attributes) {
+        var trues = _.range(0, attributes.length);
+        trues = _.map(trues, function() { return true; });
+
+        var attribute_set = _.object(attributes, trues);
+
+        return _.filter(data, function(datum) {
+            return attribute_set[datum];
+        });
+    };
+
+    return {
+        is_discrete: is_discrete,
+        nest_data: nest_data,
+        get_attr: get_attr
+    };
+}());
+
+// Creates an oncoprint on the div.
+// The parameters is an object that contains:
+// clinicalData, clinical_attrs, and geneData
+var Oncoprint = function(div, params) {
+    params.clinicalData = params.clinicalData || [];        // initialize
+    params.clinical_attrs = params.clinical_attrs || [];
+
+    // map str(number) back to number
+    var clinicalData = params.clinicalData.map(function(i) {
+        if (!OncoprintUtils.isDiscrete(i.attr_val)) {
+            i.attr_val = parseInt(i.attr_val);
+        }
+        return i;
+    });
+
 //    var raw_data = clinicalData.concat(params.geneData);        // internal copy
-    var data = process_data(clinicalData.concat(params.geneData));
+    var data = OncoprintUtils.nest_data(clinicalData.concat(params.geneData));
 
     if (clinicalData === []
         && params.clinical_attrs !== undefined) {
@@ -48,15 +84,11 @@ var Oncoprint = function(div, params) {
 
     var attributes = params.clinical_attrs.concat(params.genes);
 
-    var getAttr = function(d) {
-        return d.gene || d.attr_id;
-    };
-
     // filter out attributes that are not in the attributes list
     data = data.map(function(i) {
         return {
             key: i.key,
-            values: i.values.filter(function(j) { return attributes.indexOf(getAttr(j)) !== -1; })
+            values: i.values.filter(function(j) { return attributes.indexOf(OncoprintUtils.get_attr(j)) !== -1; })
         };
     });
 
@@ -229,14 +261,14 @@ var Oncoprint = function(div, params) {
             })
             .attr('height', function(d) {return dims.rect_height; })
             .attr('width', dims.rect_width)
-            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); });
+            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); });
 
         var mut = enter.append('rect')
             .attr('fill', 'green')
             .attr('height', dims.mut_height)
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
-                return dims.mut_height + dims.vert_space * attributes.indexOf(getAttr(d)); });
+                return dims.mut_height + dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
@@ -246,13 +278,13 @@ var Oncoprint = function(div, params) {
                 .attr('d', sym.type(function(d) {
                     return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
                 .attr('transform', function(d) {
-                    return translate(dims.rect_width / 2, dims.rect_height / 2 + dims.vert_space * (attributes.indexOf(getAttr(d)))); });
+                    return translate(dims.rect_width / 2, dims.rect_height / 2 + dims.vert_space * (attributes.indexOf(OncoprintUtils.get_attr(d)))); });
         rppa.filter(function(d) {
             return d.rppa === undefined;
         }).remove();
 
         var mrna = enter.append('rect')
-            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(getAttr(d)); })
+            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); })
             .attr('height', dims.rect_height)
             .attr('width', dims.rect_width)
             .attr('stroke-width', 2)

@@ -53,7 +53,7 @@ describe("OncoprintUtils", function() {
 
         describe("and even does a little bit of data validation", function() {
 
-            it("throws an error if there are neither an attr_id or a gene", function() {
+            it("throws an error if there is neither an attr_id nor a gene", function() {
                 expect(function() {
                     OncoprintUtils.get_attr({});
                 }).toThrow("datum has neither a gene nor an attr_id: " + JSON.stringify({}));
@@ -66,8 +66,126 @@ describe("OncoprintUtils", function() {
     });
 
     describe("filter_by_attributes", function() {
+        it("filters pseudodata", function() {
+            var foobar = {a: 1, b: 1, gene: 'foobar'};
+            var data = [foobar, {a: 1, gene:"bar"}];
+            var attributes = ['foobar'];
+
+            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([ foobar ]);
+        });
+
+        it("throws an error if there is data without gene or attr_id", function() {
+            var data = [{a: 1}];
+            var attributes = ['foobar'];
+
+            expect(function() {
+                OncoprintUtils.filter_by_attributes(data, attributes)
+            }).toThrow( "datum has neither a gene nor an attr_id: " + JSON.stringify({a: 1}));
+        });
+
+        it("filters by multiple genes", function() {
+            var data = [{
+            "sample": "sample_0",
+            "rppa": "UPREGULATED",
+            "gene": "GeneA",
+            "cna": "HEMIZYGOUSLYDELETED"
+            },
+            {
+            "sample": "sample_0",
+            "gene": "GeneB",
+            "mutation": "FOO MUTATION",
+            "cna": "DIPLOID"
+            }]
+
+        var attributes = ["GeneA", "GeneB"];
+
+        expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual(data);
+
+        });
+
+        it("filters by a single gene", function() {
+            var GeneA = {
+            "sample": "sample_0",
+            "rppa": "UPREGULATED",
+            "gene": "GeneA",
+            "cna": "HEMIZYGOUSLYDELETED"
+            };
+
+            var data = [GeneA, {
+            "sample": "sample_0",
+            "gene": "GeneB",
+            "mutation": "FOO MUTATION",
+            "cna": "DIPLOID"
+            }];
+
+            var attributes = ["GeneA"];
+
+            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([GeneA]);
+        });
+
+        it("filters by a single attribute", function() {
+            var continuous = {
+            "sample": "sample_0",
+            "attr_val": 5090,
+            "attr_id": "CONTINUOUS"
+            };
+
+            var data = [continuous,
+            {
+            "sample": "sample_0",
+            "attr_val": "I",
+            "attr_id": "DISCRETE"
+            }];
+
+            var attributes = ["CONTINUOUS"];
+
+            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([continuous]);
+        });
+
+        it("filters by multiple attributes", function() {
+
+            var continuous = {
+                "sample": "sample_0",
+            "attr_val": 5090,
+            "attr_id": "CONTINUOUS"
+            };
+
+            var data = [continuous,
+            {
+                "sample": "sample_0",
+            "attr_val": "I",
+            "attr_id": "DISCRETE"
+            }];
+
+            var attributes = ["CONTINUOUS", "DISCRETE"];
+
+            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual(data);
+        });
+
+        it("filters by both attributes and genes", function() {
+            var GeneA = {
+            "sample": "sample_0",
+            "rppa": "UPREGULATED",
+            "gene": "GeneA",
+            "cna": "HEMIZYGOUSLYDELETED"
+            };
+
+            var continuous = {
+            "sample": "sample_0",
+            "attr_val": 5090,
+            "attr_id": "CONTINUOUS"
+            };
+
+            var data = [GeneA, continuous,
+            {
+            "sample": "sample_0",
+            "attr_val": "I",
+            "attr_id": "DISCRETE"
+            }];
+
+            var attributes = [ "GeneA", "CONTINUOUS"];
+
+            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([GeneA, continuous]);
+        });
     });
 });
-
-    //describe("", function() {});
-    //it("", function() {});

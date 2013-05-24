@@ -8,7 +8,6 @@
 // util class for handling some of data processing
 // and other odds and ends that are needed in the Oncoprint
 var OncoprintUtils = (function() {
-
     var is_discrete = function(val) {
         return isNaN(parseInt(val));
     };
@@ -25,19 +24,17 @@ var OncoprintUtils = (function() {
 
     // returns the gene name or the attr_id, whatever the piece of data has
     var get_attr = function(d) {
-
         var to_return =  d.gene || d.attr_id;
 
         if (to_return === undefined) {
             throw new Error("datum has neither a gene nor an attr_id: "
                 + JSON.stringify(d));
         }
-
-        return d.gene || d.attr_id;
+        return to_return;
     };
 
     // params: list of data, list of attributes to filter by
-    // returns a filtered list
+    // returns: a filtered list, a list of
     var filter_by_attributes = function(data, attributes) {
         var trues = _.range(0, attributes.length);
         trues = _.map(trues, function() { return true; });
@@ -45,14 +42,62 @@ var OncoprintUtils = (function() {
         var attribute_set = _.object(attributes, trues);
 
         return _.filter(data, function(datum) {
-            return attribute_set[datum];
+            return attribute_set[get_attr(datum)];
         });
+    };
+
+    // composes the functions nest_data and filter_by_attributes
+    var process_data = function(data, attributes) {
+        return nest_data(filter_by_attributes(data, attributes));
+    };
+
+    // params: [list of raw clinical data]
+    //
+    // returns: map of an attribute id to its respective range
+    // where a range is a 2-ple if the correspondings attribute values are numerical
+    // and a list of values otherwise
+    var attr2range = function(clinicalData) {
+        var attr2range_builder = function(prev, curr) {
+            prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
+
+            var a2r =  prev[curr.attr_id];
+            var val = curr.attr_val;
+
+            // an attribute whose value is "NA" for all samples has no range
+            if (val === "NA") {
+                return prev;
+            }
+            if (is_discrete(val)) {
+                if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
+            }
+            else {
+                // just keep the min and max -- an interval of values
+                val = parseInt(val);
+                var min = a2r[0],
+                    max = a2r[1];
+
+                if (max === undefined || val > max) {
+                    a2r[1] = val;
+                }
+                if (min === undefined || val < min) {
+                    a2r[0] = val;
+                }
+            }
+
+            prev[curr.attr_id] = a2r;
+            return prev;
+        };
+
+        return _.reduce(clinicalData, attr2range_builder);
     };
 
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
-        get_attr: get_attr
+        get_attr: get_attr,
+        filter_by_attributes: filter_by_attributes,
+        process_data: process_data,
+        attr2range: attr2range
     };
 }());
 
@@ -65,14 +110,15 @@ var Oncoprint = function(div, params) {
 
     // map str(number) back to number
     var clinicalData = params.clinicalData.map(function(i) {
-        if (!OncoprintUtils.isDiscrete(i.attr_val)) {
+        if (!OncoprintUtils.is_discrete(i.attr_val)) {
             i.attr_val = parseInt(i.attr_val);
         }
         return i;
     });
 
-//    var raw_data = clinicalData.concat(params.geneData);        // internal copy
-    var data = OncoprintUtils.nest_data(clinicalData.concat(params.geneData));
+    var data = clinicalData.concat(params.geneData);
+    var attributes = params.clinical_attrs.concat(params.genes);
+    data = OncoprintUtils.process_data(data, attributes);
 
     if (clinicalData === []
         && params.clinical_attrs !== undefined) {
@@ -82,52 +128,6 @@ var Oncoprint = function(div, params) {
         }
     }
 
-    var attributes = params.clinical_attrs.concat(params.genes);
-
-    // filter out attributes that are not in the attributes list
-    data = data.map(function(i) {
-        return {
-            key: i.key,
-            values: i.values.filter(function(j) { return attributes.indexOf(OncoprintUtils.get_attr(j)) !== -1; })
-        };
-    });
-
-    // attr2range : clinical attribute string ->
-    // list of values or range of values, e.g. [min, max]
-    var attr2range = clinicalData.reduce(function(prev, curr) {
-        prev[curr.attr_id] = prev[curr.attr_id] || [];      // initialize
-
-        var a2r =  prev[curr.attr_id];
-        var val = curr.attr_val;
-
-        // an attribute whose value is "NA" for all samples has no range
-        if (val === "NA") {
-            return prev;
-        }
-
-        if (isNaN(parseInt(val))) {
-            if (a2r.indexOf(val) === -1) { a2r.push(val); }       // keep a set of unique elements
-        }
-
-        else
-        {
-            // just keep the min and max -- an interval of values
-            val = parseInt(val);
-            var min = a2r[0],
-                max = a2r[1];
-
-            if (max === undefined || val > max) {
-                a2r[1] = val;
-            }
-            if (min === undefined || val < min) {
-                a2r[0] = val;
-            }
-        }
-
-        prev[curr.attr_id] = a2r;
-        return prev;
-    }, {});
-
     var colors = {
         red: '#FF0000',
         purple: '#A62459',
@@ -135,6 +135,8 @@ var Oncoprint = function(div, params) {
         white: '#FFFAF0',
         black: '#404040'
     };
+
+    var attr2range = OncoprintUtils.attr2range(clinicalData);
 
     // convert ranges to d3 scales
     // simplistic : string -> discrete , number -> continuous

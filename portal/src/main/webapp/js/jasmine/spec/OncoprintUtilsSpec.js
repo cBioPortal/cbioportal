@@ -187,5 +187,7 @@ describe("OncoprintUtils", function() {
 
             expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([GeneA, continuous]);
         });
+
+        
     });
 });

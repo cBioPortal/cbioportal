@@ -88,7 +88,40 @@ var OncoprintUtils = (function() {
             return prev;
         };
 
-        return _.reduce(clinicalData, attr2range_builder);
+        return _.reduce(clinicalData, attr2range_builder, {});
+    };
+
+    // these colors could be passed somewhow as a parameter
+    var colors = {
+        continuous: '#A62459',
+        white: '#FFFAF0',
+        discrete: '#404040'
+    };
+
+    // takes a map attr2range, and transforms the ranges into d3 scales
+    // it does something very simplistic :
+    //      string -> discrete , number -> continuous
+    var attr2range_to_d3scale = function(attr2range) {
+        for (var a2r in attr2range) {
+            var scale = attr2range[a2r];
+            var discrete = isNaN(parseInt(scale[0]));     // string / number -> discrete / continuous
+            var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
+            var range = discrete ?
+                [colors.discrete, colors.white]
+                : [colors.white, colors.continuous];
+
+            new_scale.domain(scale);
+            new_scale.range(range);
+
+            attr2range[a2r] = new_scale;
+        }
+
+        return attr2range;
+    };
+
+    // composition of attr2range_to_d3scale with attr2range
+    var attr_to_d3scale = function(clinicalData) {
+        return attr2range_to_d3scale(attr2range(clinicalData));
     };
 
     return {
@@ -97,9 +130,16 @@ var OncoprintUtils = (function() {
         get_attr: get_attr,
         filter_by_attributes: filter_by_attributes,
         process_data: process_data,
-        attr2range: attr2range
+        attr2range: attr2range,
+        attr2range_to_d3scale: attr2range_to_d3scale,
+        attr_to_d3scale: attr_to_d3scale
     };
 }());
+
+// TODO
+// I think that this is google charts default color list:
+// ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"]
+
 
 // Creates an oncoprint on the div.
 // The parameters is an object that contains:
@@ -120,6 +160,23 @@ var Oncoprint = function(div, params) {
     var attributes = params.clinical_attrs.concat(params.genes);
     data = OncoprintUtils.process_data(data, attributes);
 
+    // keeps track of the order specified by the user (translates to vertical
+    // order in the visualization)
+    var attr2index = (function() {
+        var to_return = {};
+
+        attributes.forEach(function(attr, i) {
+            to_return[attr] = i;
+        });
+
+        return to_return;
+    }());
+
+    // returns the vertical position of the attr
+    var vertical_pos = function(attr) {
+        return dims.vert_space * attr2index[attr];
+    };
+
     if (clinicalData === []
         && params.clinical_attrs !== undefined) {
         throw {
@@ -128,29 +185,7 @@ var Oncoprint = function(div, params) {
         }
     }
 
-    var colors = {
-        red: '#FF0000',
-        purple: '#A62459',
-        grey: '#D3D3D3',
-        white: '#FFFAF0',
-        black: '#404040'
-    };
-
-    var attr2range = OncoprintUtils.attr2range(clinicalData);
-
-    // convert ranges to d3 scales
-    // simplistic : string -> discrete , number -> continuous
-    for (var a2r in attr2range) {
-        var scale = attr2range[a2r];
-        var discrete = isNaN(parseInt(scale[0]));     // string / number -> discrete / continuous
-        var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
-        var range = discrete ? [colors.black, colors.white] : [colors.white, colors.purple];
-
-        new_scale.domain(scale);
-        new_scale.range(range);
-
-        attr2range[a2r] = new_scale;
-    }
+    var attr2range = OncoprintUtils.attr_to_d3scale(clinicalData);
 
     var dims = (function() {
         var rect_height = 23;
@@ -189,7 +224,7 @@ var Oncoprint = function(div, params) {
         .append('text')
         .attr('x', 0)
         .attr('y', function(d) {
-            return (dims.vert_space / 1.5) + (dims.vert_space * attributes.indexOf(d)); });
+            return (dims.vert_space / 1.5) + vertical_pos(d); });
 
     label.append('tspan')       // name
         .attr('text-anchor', 'start')
@@ -211,6 +246,10 @@ var Oncoprint = function(div, params) {
         .attr('width', dims.width)
         .attr('height', dims.height);
 
+    var colors = {
+        red: '#FF0000',
+        grey: '#D3D3D3',
+    };
 
     var cna_fills = {
         undefined: colors.grey,
@@ -243,10 +282,17 @@ var Oncoprint = function(div, params) {
         // simply remove columns on exit
         columns.exit().remove();
 
-        var columns = columns.selectAll('rect')
+        //TODO:
+        //take a look at this: http://bost.ocks.org/mike/nest/#data
+        //instead of appending rect, append some sort of general HTML element
+        //like <div>?  And then append to it depending...
+
+        columns = columns.selectAll('rect')
                 .data(function(d) {
                     return d.values;
                 });
+
+        columns.exit().remove();
 
         var enter = columns.enter();
 
@@ -263,14 +309,14 @@ var Oncoprint = function(div, params) {
             })
             .attr('height', function(d) {return dims.rect_height; })
             .attr('width', dims.rect_width)
-            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); });
+            .attr('y', function(d) { return vertical_pos(OncoprintUtils.get_attr(d)); });
 
         var mut = enter.append('rect')
             .attr('fill', 'green')
             .attr('height', dims.mut_height)
             .attr('width', dims.rect_width)
             .attr('y', function(d) {
-                return dims.mut_height + dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); });
+                return dims.mut_height + vertical_pos(OncoprintUtils.get_attr(d)); });
         mut.filter(function(d) {
             return d.mutation === undefined;
         }).remove();
@@ -280,13 +326,13 @@ var Oncoprint = function(div, params) {
                 .attr('d', sym.type(function(d) {
                     return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
                 .attr('transform', function(d) {
-                    return translate(dims.rect_width / 2, dims.rect_height / 2 + dims.vert_space * (attributes.indexOf(OncoprintUtils.get_attr(d)))); });
+                    return translate(dims.rect_width / 2, dims.rect_height / 2 + vertical_pos(OncoprintUtils.get_attr(d))); });
         rppa.filter(function(d) {
             return d.rppa === undefined;
         }).remove();
 
         var mrna = enter.append('rect')
-            .attr('y', function(d) { return dims.vert_space * attributes.indexOf(OncoprintUtils.get_attr(d)); })
+            .attr('y', function(d) { return vertical_pos(OncoprintUtils.get_attr(d)); })
             .attr('height', dims.rect_height)
             .attr('width', dims.rect_width)
             .attr('stroke-width', 2)

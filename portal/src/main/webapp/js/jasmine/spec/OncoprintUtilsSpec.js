@@ -272,4 +272,48 @@ describe("OncoprintUtils", function() {
                 .toEqual(d3.set(["sample_0", "sample_1"]));
         });
     });
+
+    describe("percent_altered", function() {
+        it("calculates percent altered for multiple genes", function() {
+
+            var raw_data = [
+                {
+                "sample": "sample_0",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_0",
+                "gene": "GeneB",
+                },
+
+                {
+                "sample": "sample_1",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_1",
+                "gene": "GeneB",
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneA",
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneB",
+                }
+            ];
+
+            expect(OncoprintUtils.percent_altered(raw_data))
+                .toEqual({GeneA: 67, GeneB: 0});
+
+
+        });
+    });
 });

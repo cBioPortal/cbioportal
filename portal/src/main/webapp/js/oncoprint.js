@@ -124,6 +124,15 @@ var OncoprintUtils = (function() {
         return attr2range_to_d3scale(attr2range(clinicalData));
     };
 
+    // params: sample
+    // returns: boolean, is the sample altered in a particular gene?
+    var altered_gene = function(sample_gene) {
+        return !(sample_gene.cna === undefined
+                && sample_gene.mutation === undefined
+                && sample_gene.mrna === undefined
+                && sample_gene.rppa === undefined);
+    };
+
     // params: nested gene data
     //
     // returns: d3.set of sample_ids that *have* genetic alterations
@@ -132,20 +141,6 @@ var OncoprintUtils = (function() {
         if (nested_data[0].key === undefined) {
             throw new Error("the first element of nested_data does not have a 'key' attribute, therefore I do not think this is nested data.");
         }
-
-        // params: sample
-        // returns: boolean, does the sample have a genetic alteration
-        // in a particular gene?
-        var unaltered_gene = function(sample_gene) {
-            return sample_gene.cna === undefined
-                && sample_gene.mutation === undefined
-                && sample_gene.mrna === undefined
-                && sample_gene.rppa === undefined;
-        };
-
-        var altered_gene = function(sample_gene) {
-            return !unaltered_gene(sample_gene);
-        };
 
         var altered_sample_set = d3.set();
 
@@ -160,6 +155,32 @@ var OncoprintUtils = (function() {
         return altered_sample_set;
     };
 
+    // params: list of raw gene data (unnested)
+    // return: map of gene name to percent altered
+    var percent_altered = function(raw_gene_data) {
+        var data = d3.nest()
+            .key(function(d) { return get_attr(d); })
+            .entries(raw_gene_data);
+
+        var attr2percent = {};
+
+        data.forEach(function(gene) {
+            var total = gene.values.length;
+            var altered = 0;
+
+            gene.values.forEach(function(sample_gene) {
+                if (altered_gene(sample_gene)) {
+                    altered += 1;
+                }
+            });
+
+            var percent = (altered / total) * 100;
+            attr2percent[gene.key] = Math.round(percent);
+        });
+
+        return attr2percent;
+    };
+
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
@@ -169,7 +190,8 @@ var OncoprintUtils = (function() {
         attr2range: attr2range,
         attr2range_to_d3scale: attr2range_to_d3scale,
         attr_to_d3scale: attr_to_d3scale,
-        filter_altered: filter_altered
+        filter_altered: filter_altered,
+        percent_altered: percent_altered
     };
 }());
 
@@ -263,12 +285,15 @@ var Oncoprint = function(div, params) {
         .attr('y', function(d) {
             return (dims.vert_space / 1.5) + vertical_pos(d); });
 
+    var gene2percent = OncoprintUtils.percent_altered(params.geneData);
+
     label.append('tspan')       // name
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
         .text(function(d) { return d; });
     label.append('tspan')       // percent_altered
-        .text(function(d) { return "foobar%"; })
+        .text(function(d) {
+            return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
         .attr('x', '200')
         .attr('text-anchor', 'end');
 
@@ -324,14 +349,14 @@ var Oncoprint = function(div, params) {
         //instead of appending rect, append some sort of general HTML element
         //like <div>?  And then append to it depending...
 
-        columns = columns.selectAll('rect')
+        var els = columns.selectAll('.oncoprint-els')
                 .data(function(d) {
                     return d.values;
                 });
 
-        columns.exit().remove();
+        els.exit().remove();
 
-        var enter = columns.enter();
+        var enter = els.enter();
 
         // N.B. fill doubles as cna
         var fill = enter.append('rect')

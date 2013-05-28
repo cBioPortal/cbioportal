@@ -124,6 +124,42 @@ var OncoprintUtils = (function() {
         return attr2range_to_d3scale(attr2range(clinicalData));
     };
 
+    // params: nested gene data
+    //
+    // returns: d3.set of sample_ids that *have* genetic alterations
+    var filter_altered = function(nested_data) {
+
+        if (nested_data[0].key === undefined) {
+            throw new Error("the first element of nested_data does not have a 'key' attribute, therefore I do not think this is nested data.");
+        }
+
+        // params: sample
+        // returns: boolean, does the sample have a genetic alteration
+        // in a particular gene?
+        var unaltered_gene = function(sample_gene) {
+            return sample_gene.cna === undefined
+                && sample_gene.mutation === undefined
+                && sample_gene.mrna === undefined
+                && sample_gene.rppa === undefined;
+        };
+
+        var altered_gene = function(sample_gene) {
+            return !unaltered_gene(sample_gene);
+        };
+
+        var altered_sample_set = d3.set();
+
+        nested_data.forEach(function(sample) {
+            sample.values.forEach(function(sample_gene) {
+                if (altered_gene(sample_gene)) {
+                    altered_sample_set.add(sample.key);
+                }
+            });
+        });
+
+        return altered_sample_set;
+    };
+
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
@@ -132,7 +168,8 @@ var OncoprintUtils = (function() {
         process_data: process_data,
         attr2range: attr2range,
         attr2range_to_d3scale: attr2range_to_d3scale,
-        attr_to_d3scale: attr_to_d3scale
+        attr_to_d3scale: attr_to_d3scale,
+        filter_altered: filter_altered
     };
 }());
 
@@ -346,38 +383,9 @@ var Oncoprint = function(div, params) {
 
     update(data);
 
-    // params: sample
-    // returns: boolean, does the sample have a genetic alteration
-    // in a particular gene?
-    var unaltered_gene = function(sample_gene) {
-        return sample_gene.cna === undefined
-            && sample_gene.mutation === undefined
-            && sample_gene.mrna === undefined
-            && sample_gene.rppa === undefined;
-    };
-
-    // params: list of raw data
-    //
-    // returns: d3.set of sample_ids that have no genetic alterations
-    var raw_altered = function(raw_data) {
-        var unaltered_sample_set = d3.set();
-
-        raw_data.forEach(function(i) {
-            if (i.gene) {                           // we've found a gene
-                if (!unaltered_gene(i)) {            // it's unaltered, save it
-                    unaltered_sample_set.add(i.sample);
-                }
-                else {
-                    unaltered_sample_set.remove(i.sample); // it's altered, remove it
-                }
-            }
-            // else: not a gene, irrelevant
-        });
-
-        return unaltered_sample_set;
-    };
-
-    var altered = raw_altered(clinicalData.concat(params.geneData));
+    var altered
+        = OncoprintUtils.filter_altered(OncoprintUtils.nest_data(params.geneData));
+    // TODO: nesting again, quick and dirty
 
     // The State object is our representation of the state of the oncoprint.
     // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.

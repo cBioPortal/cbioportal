@@ -185,9 +185,91 @@ describe("OncoprintUtils", function() {
 
             var attributes = [ "GeneA", "CONTINUOUS"];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([GeneA, continuous]);
+            expect(OncoprintUtils.filter_by_attributes(data, attributes))
+                .toEqual([GeneA, continuous]);
+        });
+    });
+
+    describe("filter_altered", function() {
+
+        it("when there is only one gene", function() {
+                var raw_data = [
+                {
+                    "sample": "sample_0",
+                    "rppa": "DOWNREGULATED",
+                    "gene": "GeneA",
+                    "mutation": "FOO MUTATION",
+                    "cna": "GAINED"
+                },
+                {
+                    "sample": "sample_1",
+                    "rppa": "DOWNREGULATED",
+                    "gene": "GeneA",
+                    "mutation": "FOO MUTATION",
+                    "cna": "GAINED"
+                },
+                {
+                    "sample": "sample_2",
+                    "gene": "GeneA"
+                },
+                {
+                    "sample": "sample_3",
+                    "gene": "GeneA"
+                }
+            ];
+
+            var data = d3.nest()
+                .key(function(d) { return d.sample; })
+                .entries(raw_data);
+
+            expect(OncoprintUtils.filter_altered(data))
+                .toEqual(d3.set(["sample_0", "sample_1"]));
         });
 
-        
+        it("when there are multiple genes", function() {
+
+            var raw_data = [
+                {
+                "sample": "sample_0",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_0",
+                "gene": "GeneB",
+                "cna": "AMPLIFIED"
+                },
+
+                {
+                "sample": "sample_1",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_1",
+                "gene": "GeneB",
+                "cna": "AMPLIFIED"
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneA",
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneB",
+                }
+            ];
+
+            var data = d3.nest()
+                .key(function(d) { return d.sample; })
+                .entries(raw_data);
+
+            expect(OncoprintUtils.filter_altered(data))
+                .toEqual(d3.set(["sample_0", "sample_1"]));
+        });
     });
 });

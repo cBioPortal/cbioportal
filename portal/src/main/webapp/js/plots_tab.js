@@ -265,6 +265,7 @@ function fetchAxisTitle() {
 
 //Utils functions for Plotting
 function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_id, dataset) {
+    //TODO : First 4 elements always got skipped
     var index = 4;
     if (type == 1) {
         for( var i = 0; i<xData.length; i++) {
@@ -573,7 +574,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var edge_y = tmp_results.edge_y;
 
     //Define scale functions
-    //TODO: can't pass xScale/yScale.
+    //TODO: enhencement -- can't return xScale/yScale.
     var xScale = d3.scale.linear()
         .domain([min_x - edge_x, max_x + edge_x])
         .range([100, 600]);
@@ -608,7 +609,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         if ((data_type_copy_no.indexOf("gistic") != -1) || (data_type_copy_no.indexOf("cna") != -1)) {
             ramRatio = 20;
         }
-        svg.selectAll("path")
+
+	svg.selectAll("path")
             .data(dataset)
             .enter()
             .append("svg:path")
@@ -621,29 +623,21 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     }
                 })
                 .type( function (d) {
-                    switch (d[2]) {
-                        case mutationTypes[0] : return symbol[0];
-                        case mutationTypes[1] : return symbol[1];
-                        case mutationTypes[2] : return symbol[2];
-                        case mutationTypes[3] : return symbol[3];
-                        case mutationTypes[4] : return symbol[4];
-                        case mutationTypes[5] : return symbol[5];
-                        case mutationTypes[6] : return symbol[6];
-                        default: return "circle";
+                    for(var i = 0; i < mutationTypes.length; i++) {
+                        if (d[2] == mutationTypes[i]) {
+                            return symbol[i];
+                        }
                     }
+                    return "circle";
                 })
             )
             .attr("fill", function(d) {
-                switch (d[2]) {
-                    case mutationTypes[0]: return mutationFillTypes[0];
-                    case mutationTypes[1]: return mutationFillTypes[1];
-                    case mutationTypes[2]: return mutationFillTypes[2];
-                    case mutationTypes[3]: return mutationFillTypes[3];
-                    case mutationTypes[4]: return mutationFillTypes[4];
-                    case mutationTypes[5]: return mutationFillTypes[5];
-                    case mutationTypes[6]: return mutationFillTypes[6];
-                    default: return "#00AAF8";
+                for(var i = 0; i < mutationTypes.length; i++) {
+                    if (d[2] == mutationTypes[i]) {
+                        return mutationFillTypes[i];
+                    }
                 }
+                return "#00AAF8";
             })
             .attr("stroke", function(d) {
                 switch (d[2]) {

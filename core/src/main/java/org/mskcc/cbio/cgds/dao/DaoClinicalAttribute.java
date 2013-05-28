@@ -27,16 +27,15 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import com.google.inject.internal.Join;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -104,30 +103,29 @@ public class DaoClinicalAttribute {
     }
 
     /**
-     * Gets all the clinical attributes for a particular cancer study.
-     * Looks in the clinical table for all records associated with the cancer study, extracts and uniques
-     * the attribute ids.  Then those attribute ids are used to fetch the clinical attributes from the db.
+     * Gets all the clinical attributes for a particular set of samples
+     * Looks in the clinical table for all records associated with any of the samples, extracts and uniques
+     * the attribute ids, then finally uses the attribute ids to fetch the clinical attributes from the db.
      *
-     * @param cancerStudy
+     * @param sampleIdSet
      * @return
      * @throws DaoException
      */
-    public static List<ClinicalAttribute> getDataByCancerStudy(CancerStudy cancerStudy) throws DaoException {
-        int cancerStudyInternalId = cancerStudy.getInternalId();
+    public static List<ClinicalAttribute> getDataBySamples(Set<String> sampleIdSet) throws DaoException {
+        String sampleIdsSql = Join.join(",", sampleIdSet.iterator());
         List<ClinicalAttribute> toReturn = new ArrayList<ClinicalAttribute>();
 
         Connection con = null;
-        PreparedStatement pstmt = null;
         ResultSet rs = null;
+        String sql = "SELECT DISTINCT ATTR_ID FROM clinical WHERE `CASE_ID` IN ("
+                + sampleIdsSql + ")";
+
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
+            Statement stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
 
-            pstmt = con.prepareStatement("SELECT DISTINCT ATTR_ID FROM clinical WHERE CANCER_STUDY_ID=?");
-            pstmt.setInt(1,cancerStudyInternalId);
-
-            rs = pstmt.executeQuery();  // list of attr_ids
-
-            if (rs.next()) {
+             while(rs.next()) {
                 String attrId = rs.getString("ATTR_ID");
                 toReturn.add(getDatum(attrId));
             }
@@ -135,7 +133,7 @@ public class DaoClinicalAttribute {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, rs);
         }
 
         return toReturn;

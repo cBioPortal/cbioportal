@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
 import java.sql.Connection;
@@ -35,6 +36,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -99,6 +101,44 @@ public class DaoClinicalAttribute {
         } finally {
             JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
+    }
+
+    /**
+     * Gets all the clinical attributes for a particular cancer study.
+     * Looks in the clinical table for all records associated with the cancer study, extracts and uniques
+     * the attribute ids.  Then those attribute ids are used to fetch the clinical attributes from the db.
+     *
+     * @param cancerStudy
+     * @return
+     * @throws DaoException
+     */
+    public static List<ClinicalAttribute> getDataByCancerStudy(CancerStudy cancerStudy) throws DaoException {
+        int cancerStudyInternalId = cancerStudy.getInternalId();
+        List<ClinicalAttribute> toReturn = new ArrayList<ClinicalAttribute>();
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
+
+            pstmt = con.prepareStatement("SELECT DISTINCT ATTR_ID FROM clinical WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1,cancerStudyInternalId);
+
+            rs = pstmt.executeQuery();  // list of attr_ids
+
+            if (rs.next()) {
+                String attrId = rs.getString("ATTR_ID");
+                toReturn.add(getDatum(attrId));
+            }
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
+        }
+
+        return toReturn;
     }
 
     public static Collection<ClinicalAttribute> getAll() throws DaoException {

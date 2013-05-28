@@ -288,7 +288,6 @@ describe("OncoprintUtils", function() {
                 "sample": "sample_0",
                 "gene": "GeneB",
                 },
-
                 {
                 "sample": "sample_1",
                 "rppa": "DOWNREGULATED",

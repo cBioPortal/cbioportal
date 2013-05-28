@@ -166,13 +166,14 @@ var OncoprintUtils = (function() {
 
         data.forEach(function(gene) {
             var total = gene.values.length;
-            var altered = 0;
-
-            gene.values.forEach(function(sample_gene) {
-                if (altered_gene(sample_gene)) {
-                    altered += 1;
-                }
-            });
+            var altered = _.chain(gene.values)
+                .map(function(sample_gene) {
+                    return altered_gene(sample_gene) ? 1 : 0;
+                })
+                .reduce(function(sum, zero_or_one) {
+                    return sum + zero_or_one;
+                }, 0)
+                .value();
 
             var percent = (altered / total) * 100;
             attr2percent[gene.key] = Math.round(percent);
@@ -343,11 +344,6 @@ var Oncoprint = function(div, params) {
 
         // simply remove columns on exit
         columns.exit().remove();
-
-        //TODO:
-        //take a look at this: http://bost.ocks.org/mike/nest/#data
-        //instead of appending rect, append some sort of general HTML element
-        //like <div>?  And then append to it depending...
 
         var els = columns.selectAll('.oncoprint-els')
                 .data(function(d) {

@@ -235,6 +235,11 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -388,6 +393,11 @@
     <servlet-mapping>
         <servlet-name>ClinicalJSON</servlet-name>
         <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <url-pattern>/clinicalAttributes.json</url-pattern>
     </servlet-mapping>
     
      <!-- tumor map -->

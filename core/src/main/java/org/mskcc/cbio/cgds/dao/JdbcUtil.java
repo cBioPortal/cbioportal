@@ -187,7 +187,7 @@ public class JdbcUtil {
     /**
      * Why does closeAll need a PreparedStatement?
      * This is a copy of closeAll without the PreparedStatement
-     * @param requester
+     * @param clazz
      * @param con
      * @param rs
      */

@@ -87,7 +87,7 @@ public class ClinicalJSON extends HttpServlet {
         return map;
     }
 
-    public Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
+    public static Map<String, String> reflectToMap(ClinicalAttribute clinicalAttribute) {
         JSONObject map = new JSONObject();
 
         map.put("attr_id", clinicalAttribute.getAttrId());

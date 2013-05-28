@@ -32,10 +32,7 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -112,7 +109,17 @@ public class DaoClinicalAttribute {
      * @throws DaoException
      */
     public static List<ClinicalAttribute> getDataBySamples(Set<String> sampleIdSet) throws DaoException {
-        String sampleIdsSql = Join.join(",", sampleIdSet.iterator());
+
+        Iterator<String> sampleIdIterator = sampleIdSet.iterator();
+        List<String> sampleIds = new ArrayList<String>();
+
+        // convert to List
+        while (sampleIdIterator.hasNext()) {
+            sampleIds.add("\'" + sampleIdIterator.next());
+        }
+
+        String sampleIdsSql = Join.join("\',", sampleIds);      // add a quote to end of each
+        sampleIdsSql += "\'";                                   // add a quote to end of the very last one
         List<ClinicalAttribute> toReturn = new ArrayList<ClinicalAttribute>();
 
         Connection con = null;

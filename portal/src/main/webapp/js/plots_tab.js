@@ -652,8 +652,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 events: {
                     render: function(event, api) {
                         var content = "<font size='2'>" + 
-				      "x: " + d[0] + "<br>" + "y: " + d[1] + "<br>" + 
-				      "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a><br>';
+				      	"x: <strong>" + d[0] + "</strong><br>" + 
+					"y: <strong>" + d[1] + "</strong><br>" + 
+				      	"Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
                             content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")";
                         }
@@ -714,7 +715,10 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = "<font size='2'>" + "x: " + d[0] + "<br>" + "y: " + d[1] + "<br>" + "<a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a><br>';
+                        var content = "<font size='2'>" + 
+					"x: <strong>" + d[0] + "</strong><br>" + 
+					"y: <strong>" + d[1] + "</strong><br>" + 
+					"Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
                             content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")" + "<br>";
                         }

@@ -311,8 +311,6 @@ describe("OncoprintUtils", function() {
 
             expect(OncoprintUtils.percent_altered(raw_data))
                 .toEqual({GeneA: 67, GeneB: 0});
-
-
         });
     });
 });

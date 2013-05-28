@@ -98,20 +98,36 @@ var OncoprintUtils = (function() {
         discrete: '#404040'
     };
 
+ var googlecharts_colors =
+     ["#3366cc","#dc3912","#ff9900","#109618",
+     "#990099","#0099c6","#dd4477","#66aa00",
+     "#b82e2e","#316395","#994499","#22aa99",
+     "#aaaa11","#6633cc","#e67300","#8b0707",
+     "#651067","#329262","#5574a6","#3b3eac",
+     "#b77322","#16d620","#b91383","#f4359e",
+     "#9c5935","#a9c413","#2a778d","#668d1c",
+     "#bea413","#0c5922","#743411"];
+
     // takes a map attr2range, and transforms the ranges into d3 scales
     // it does something very simplistic :
     //      string -> discrete , number -> continuous
     var attr2range_to_d3scale = function(attr2range) {
         for (var a2r in attr2range) {
-            var scale = attr2range[a2r];
-            var discrete = isNaN(parseInt(scale[0]));     // string / number -> discrete / continuous
-            var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
-            var range = discrete ?
-                [colors.discrete, colors.white]
-                : [colors.white, colors.continuous];
+            var range = attr2range[a2r];
+            var discrete = is_discrete(range[0]);
+            var range_vals;
 
-            new_scale.domain(scale);
-            new_scale.range(range);
+            if (!discrete) {
+                range_vals = [colors.white, colors.continuous];
+            } else if (range.length > 2) {
+                range_vals = googlecharts_colors.slice(0,range.length);
+            } else {
+                range_vals = [colors.discrete, colors.white];
+            }
+
+            var new_scale = discrete ? d3.scale.ordinal() : d3.scale.linear();
+            new_scale.domain(range);
+            new_scale.range(range_vals);
 
             attr2range[a2r] = new_scale;
         }

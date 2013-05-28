@@ -269,8 +269,7 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
     var index = 4;
     if (type == 1) {
         for( var i = 0; i<xData.length; i++) {
-            //Skip NaN entries
-            if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
+            if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")){
                 continue;
             }
             //TODO: Mutations Mapping
@@ -296,8 +295,7 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
         }
     } else if (type == 2) {
         for( var i = 0; i<xData.length; i++) {
-            //Skip NaN entries
-            if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
+            if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) {
                 continue;
             }
             dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];
@@ -305,8 +303,7 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
         }
     } else if (type == 3) {
         for( var i = 0; i<xData.length; i++) {
-            //Skip NaN entries
-            if ((xData[i] == "NaN") || (yData[i] == "NaN")) {
+	    if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) { 
                 continue;
             }
             dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];
@@ -320,7 +317,7 @@ function analyseData(xData, yData){
     var tmp_yData = [];
     var tmp_yIndex = 0;
     for (var j=0; j< xData.length; j++){
-        if (xData[j] != "NaN" && yData[j] != "NaN") {
+        if (xData[j] != "NaN" && yData[j] != "NaN" && xData[j] != "NA" && yData[j] != "NA") {
             tmp_xData[tmp_xIndex] = xData[j];
             tmp_xIndex += 1;
             tmp_yData[tmp_yIndex] = yData[j];
@@ -358,7 +355,7 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
             //Find the max/min y value with certain x value;
             var index_tmp_y_data_array = 0;
             for (var j = 0; j < yData.length; j++) {
-                if (yData[j] != "NaN" && xData[j] != "NaN" && xData[j] == i) {
+                if (yData[j] != "NaN" && xData[j] != "NaN" && yData[j] != "NA" && xData[j] != "NA" && xData[j] == i) {
                     tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
                     index_tmp_y_data_array += 1;
                 }
@@ -500,7 +497,7 @@ function drawSideBar() {
         $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[k][0] + "'>" + genetic_profile_mrna[k][1] + "</option>");
     }
 }
-function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
+function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR) {
     //Rectangle
     svg.append("rect")
         .attr("x", midLine-40)
@@ -522,16 +519,16 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
     svg.append("line")
         .attr("x1", midLine-30)
         .attr("x2", midLine+30)
-        .attr("y1", top)
-        .attr("y2", top)
+        .attr("y1", topLine)
+        .attr("y2", topLine)
         .attr("stroke-width", 1)
         .attr("stroke", "#BDBDBD");
     //bottomLine
     svg.append("line")
         .attr("x1", midLine-30)
         .attr("x2", midLine+30)
-        .attr("y1", bottom)
-        .attr("y2", bottom)
+        .attr("y1", bottomLine)
+        .attr("y2", bottomLine)
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
     //Top Whisker
@@ -539,7 +536,7 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
         .attr("x1", midLine)
         .attr("x2", midLine)
         .attr("y1", quan1)
-        .attr("y2", bottom)
+        .attr("y2", bottomLine)
         .attr("stroke", "#BDBDBD")
         .attr("stroke-width", 1);
     //Bottom Whisker
@@ -547,14 +544,14 @@ function drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR) {
         .attr("x1", midLine)
         .attr("x2", midLine)
         .attr("y1", quan2)
-        .attr("y2", top)
+        .attr("y2", topLine)
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
 }
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations, mutations_id, case_set) {
 
     var dataset = [];
-
+    
     $('#plots_tab').empty();
     var w = 700;
     var h = 600;
@@ -564,6 +561,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         .attr("height", h);
 
     prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_id, dataset);
+    //TEST
+	console.log(dataset);	
 
     var tmp_results = analyseData(xData, yData);
     var min_x = tmp_results.min_x;

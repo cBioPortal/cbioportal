@@ -89,7 +89,7 @@
                     function(graphml){
                         if (typeof data !== "string") { 
                             if (window.ActiveXObject) { // IE 
-                                    graphml = graphml.xml; 
+                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } else { // Other browsers 
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 

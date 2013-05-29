@@ -128,9 +128,9 @@ var ClinicalColl = Backbone.Collection.extend({
 //        this.case_set_id = options.case_set_id;
 //        this.case_ids_key = options.case_ids_key;
     },
-    parse: function(res) {
-        this.attributes = function() { return res.attributes; };   // save the attributes
-        return res.data;    // but the data is what is to be model-ed
+    parse: function(response) {
+        this.attributes = function() { return response.attributes; };   // save the attributes
+        return response.data;    // but the data is what is to be model-ed
     },
     url: function() {
         var url_str = "webservice.do?cmd=getClinicalData&format=json&";
@@ -220,3 +220,22 @@ var GeneDataColl = Backbone.Collection.extend({
 //    rppa_score_threshold: rppa_score_threshold
 //});
 //foobar.fetch({type: "POST"});
+;
+
+// params : generally an empty list,
+//          object literal with the field case_list -- string of cases
+//          separated by a space
+var ClinicalAttributesCollection = Backbone.Collection.extend({
+    model: Backbone.Model.extend({}),       // the trivial model
+    initialize: function(models, attributes) {
+        this.case_list = attributes.case_list;
+    },
+    url: function() {
+        return "clinicalAttributes.json?case_list=" + this.case_list;
+    }
+});
+
+// example
+//
+// var foobar = new ClinicalAttributesCollection([], {case_list: cases.split(" ")});
+// x.fetch();

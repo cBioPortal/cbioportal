@@ -561,8 +561,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         .attr("height", h);
 
     prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_id, dataset);
-    //TEST
-	console.log(dataset);	
 
     var tmp_results = analyseData(xData, yData);
     var min_x = tmp_results.min_x;
@@ -574,10 +572,17 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
     //Define scale functions
     //TODO: enhencement -- can't return xScale/yScale.
-    var xScale = d3.scale.linear()
-        .domain([min_x - edge_x, max_x + edge_x])
-        .range([100, 600]);
-    var yScale = d3.scale.linear()
+    if ( type == 2 ){ 
+        //Fix the range for methylation view to from 0 to 1
+	var xScale = d3. scale.linear()
+		.domain([-0.02, 1])
+		.range([100,600]);
+    } else {
+	var xScale = d3.scale.linear()
+        	.domain([min_x - edge_x, max_x + edge_x])
+        	.range([100, 600]);
+    }
+	    var yScale = d3.scale.linear()
         .domain([min_y - edge_y, max_y + edge_y])
         .range([520, 20]);
     //Define Axis

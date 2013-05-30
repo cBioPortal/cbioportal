@@ -117,7 +117,7 @@ var ClinicalModel = Backbone.Model.extend({
     }
 });
 
-// params: [cancer_study_id] , case_list (list of case_ids separated by space)
+// params: [cancer_study_id] , [attr_id], case_list (list of case_ids separated by space)
 // when you call the method fetch() you get back a list of ClinicalModels
 // AND a list of attribute objects which provide metadata about attributes in the cohort
 var ClinicalColl = Backbone.Collection.extend({
@@ -125,6 +125,7 @@ var ClinicalColl = Backbone.Collection.extend({
     initialize: function(options) {
         this.cancer_study_id = options.cancer_study_id;
         this.case_list = options.case_list;
+        this.attr_id = options.attr_id;
 //        this.case_set_id = options.case_set_id;
 //        this.case_ids_key = options.case_ids_key;
     },
@@ -136,6 +137,9 @@ var ClinicalColl = Backbone.Collection.extend({
         var url_str = "webservice.do?cmd=getClinicalData&format=json&";
         if (this.cancer_study_id) {
             url_str += "cancer_study_id=" + this.cancer_study_id + "&";
+        }
+        if (this.attr_id) {
+            url_str += "attribute_id=" + this.attr_id;
         }
         url_str += "case_list=" + this.case_list;
         return url_str;
@@ -225,9 +229,9 @@ var GeneDataColl = Backbone.Collection.extend({
 // params : generally an empty list,
 //          object literal with the field case_list -- string of cases
 //          separated by a space
-var ClinicalAttributesCollection = Backbone.Collection.extend({
+var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
-    initialize: function(models, attributes) {
+    initialize: function(attributes) {
         this.case_list = attributes.case_list;
     },
     url: function() {
@@ -237,5 +241,5 @@ var ClinicalAttributesCollection = Backbone.Collection.extend({
 
 // example
 //
-// var foobar = new ClinicalAttributesCollection([], {case_list: cases.split(" ")});
+// var foobar = new ClinicalAttributesColl({case_list: cases.split(" ")});
 // x.fetch();

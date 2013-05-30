@@ -248,6 +248,29 @@ var OncoprintUtils = (function() {
     };
 }());
 
+// namespace for functions that relate to the User Interface of the Oncoprint.
+// Also encapsulates a map of attribute ids to ClinicalColls.
+var OncoprintUI = (function() {
+
+    // params: list of attribute_ids
+    //
+    // maps them to an object literal : attr_id -> ClinicalColl
+    // where each ClinicalColl can subsequently be fetched
+    var create_unfetched_cache = function(attr_ids) {
+
+        var attr_id2coll = {};
+        attr_ids.forEach(function(attr_id) {
+            attr_id2coll[attr_id] = new ClinicalColl({attr_id: attr_id, case_list: cases});
+        });
+
+        return attr_id2coll;
+    };
+
+    return {
+//        getAttrId_to_data: function () { return attrId_to_data; }
+    };
+}());
+
 // Creates an oncoprint on the div.
 // The parameters is an object that contains:
 // clinicalData, clinical_attrs, and geneData
@@ -587,6 +610,7 @@ var Oncoprint = function(div, params) {
     return State;
 };
 
+///{{{
 var _Oncoprint = function(wrapper, params) {
     var that = {};
 
@@ -1236,3 +1260,4 @@ var _Oncoprint = function(wrapper, params) {
 
     return that;
 };
+//}}}

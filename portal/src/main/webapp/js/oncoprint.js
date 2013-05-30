@@ -198,6 +198,41 @@ var OncoprintUtils = (function() {
         return attr2percent;
     };
 
+    // params: array of strings (names of attributes)
+    // returns: length (number)
+    //
+    // calculates the length of the longest label for a particular list of
+    // attributes (strings) by temporarily appending them as text, calculating
+    // their width, and taking the maximum.
+    var label_width = function(attributes) {
+        var tmp = d3.select('body').append('svg');
+
+        attributes.forEach(function(attr) {
+            tmp.append('text')
+                .append('tspan')
+                .text(attr);
+        });
+
+        var max = d3.max(
+                tmp.selectAll('text')[0]
+                .map(function(text, i) {return text.getBBox().width; })
+                );
+
+        tmp.remove();
+        // bye bye tmp
+
+        return 42 + max; // http://goo.gl/iPzfU
+    };
+
+    // TODO: not sure if this function is still necessary
+    //
+    // params: string (hugo gene symbol)
+    // replaces '/' with '_' since you can't have '/' in the DOM
+    //var cleanHugo = function(hugo) {
+    //    // can't have '/' in DOM id
+    //    return hugo.replace("/", "_");
+    //};
+
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
@@ -208,14 +243,10 @@ var OncoprintUtils = (function() {
         attr2range_to_d3scale: attr2range_to_d3scale,
         attr_to_d3scale: attr_to_d3scale,
         filter_altered: filter_altered,
-        percent_altered: percent_altered
+        percent_altered: percent_altered,
+        label_width: label_width
     };
 }());
-
-// TODO
-// I think that this is google charts default color list:
-// ["#3366cc","#dc3912","#ff9900","#109618","#990099","#0099c6","#dd4477","#66aa00","#b82e2e","#316395","#994499","#22aa99","#aaaa11","#6633cc","#e67300","#8b0707","#651067","#329262","#5574a6","#3b3eac","#b77322","#16d620","#b91383","#f4359e","#9c5935","#a9c413","#2a778d","#668d1c","#bea413","#0c5922","#743411"]
-
 
 // Creates an oncoprint on the div.
 // The parameters is an object that contains:
@@ -267,6 +298,7 @@ var Oncoprint = function(div, params) {
         var rect_height = 23;
         var mut_height = rect_height / 3;
         var vert_padding = 4
+        var label_width = OncoprintUtils.label_width(attributes);
 
         return {
             width: data.length * (5.5 + 3),
@@ -276,11 +308,11 @@ var Oncoprint = function(div, params) {
             vert_padding: vert_padding,
             vert_space: rect_height + vert_padding,
             hor_padding: 2,
-            mut_height: mut_height
+            mut_height: mut_height,
+            label_width: label_width
         };
     }());
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
-//
 
     // make labels and set up the table for proper scrolling, etc.
     var table = d3.select(div)
@@ -291,7 +323,7 @@ var Oncoprint = function(div, params) {
         .append('td')
         .append('svg')
         .attr('height', dims.height)
-        .attr('width', 200)
+        .attr('width', '' + dims.label_width)
         .attr('id', 'label');
 
     var label = label_svg.selectAll('text')
@@ -311,13 +343,13 @@ var Oncoprint = function(div, params) {
     label.append('tspan')       // percent_altered
         .text(function(d) {
             return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
-        .attr('x', '200')
+        .attr('x', '' + dims.label_width)
         .attr('text-anchor', 'end');
 
     var main_svg = table
         .append('td')
             .append('div')      // control overflow to the right
-            .style('width', $('#td-content').width() - 70 - 200 + 'px') // buffer of, say, 70
+            .style('width', $('#td-content').width() - 70 - dims.label_width + 'px') // buffer of, say, 70
             .style('display', 'inline-block')
             .style('overflow-x', 'auto')
             .style('overflow-y', 'hidden')

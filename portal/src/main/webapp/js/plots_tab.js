@@ -266,6 +266,7 @@ function fetchAxisTitle() {
 //Utils functions for Plotting
 function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_id, dataset) {
     //TODO : First 4 elements always got skipped
+    dataset.length = 0;
     var index = 4;
     if (type == 1) {
         for( var i = 0; i<xData.length; i++) {
@@ -548,10 +549,9 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
 }
-var dataset = [];
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations, mutations_id, case_set) {
 
-   // var dataset = [];
+    var dataset = [];
     
     $('#plots_tab').empty();
     var w = 700;

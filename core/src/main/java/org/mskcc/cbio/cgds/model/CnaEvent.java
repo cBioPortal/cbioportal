@@ -21,7 +21,7 @@ public class CnaEvent {
     public static enum CNA {
         AMP ((short)2, "Amplified"),
         GAIN ((short)1, "Gained"),
-        HETLOSS ((short)-1, "Hemizygously deleted"),
+        HETLOSS ((short)-1, "Heterozygously deleted"),
         HOMDEL ((short)-2, "Homozygously deleted");
         
         private short code;

@@ -117,7 +117,7 @@ public class DataImporter
 
 			MutationAssessorRecord maRecord = this.maService.getMaRecord(key);
 
-			// get the data and update/add new oncotator columns
+			// get the data and update/add new mutation assessor columns
 			List<String> data = processor.newDataList(line);
 			processor.updateMaData(data, maRecord);
 

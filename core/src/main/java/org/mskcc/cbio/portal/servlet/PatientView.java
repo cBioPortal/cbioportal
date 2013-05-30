@@ -44,9 +44,11 @@ public class PatientView extends HttpServlet {
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
+    public static final String MRNA_PROFILE = "mrna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
-    public static final String NUM_CASES_IN_SAME_MUTATION_PROFILE = "num_cases";
-    public static final String NUM_CASES_IN_SAME_CNA_PROFILE = "num_cases";
+    public static final String NUM_CASES_IN_SAME_MUTATION_PROFILE = "num_cases_mut";
+    public static final String NUM_CASES_IN_SAME_CNA_PROFILE = "num_cases_cna";
+    public static final String NUM_CASES_IN_SAME_MRNA_PROFILE = "num_cases_mrna";
     public static final String PATIENT_INFO = "patient_info";
     public static final String DISEASE_INFO = "disease_info";
     public static final String PATIENT_STATUS = "patient_status";
@@ -199,6 +201,13 @@ public class PatientView extends HttpServlet {
             request.setAttribute(NUM_CASES_IN_SAME_CNA_PROFILE, 
                     DaoCaseProfile.countCasesInProfile(cnaProfile.getGeneticProfileId()));
         }
+        
+        GeneticProfile mrnaProfile = cancerStudy.getMRnaZscoresProfile(_case.getCaseId());
+        if (mrnaProfile!=null) {
+            request.setAttribute(MRNA_PROFILE, mrnaProfile);
+            request.setAttribute(NUM_CASES_IN_SAME_MRNA_PROFILE, 
+                    DaoCaseProfile.countCasesInProfile(mrnaProfile.getGeneticProfileId()));
+        }
     }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {
@@ -210,7 +219,7 @@ public class PatientView extends HttpServlet {
         String patient = (String)request.getAttribute(PATIENT_ID);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         ClinicalData clinicalData = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
-        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(patient);
+        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
         
         request.setAttribute(CLINICAL_DATA, mergeClinicalData(clinicalData, clinicalFreeForms));
         
@@ -373,8 +382,8 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private Map<String,ClinicalFreeForm> getClinicalFreeform(String patient) throws DaoException {
-        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(patient);
+    private Map<String,ClinicalFreeForm> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
+        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(cancerStudyId, patient);
         Map<String,ClinicalFreeForm> map = new HashMap<String,ClinicalFreeForm>(list.size());
         for (ClinicalFreeForm cff : list) {
             map.put(cff.getParamName().toLowerCase(), cff);

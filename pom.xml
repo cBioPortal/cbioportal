@@ -46,6 +46,22 @@
 		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
+        <profile>
+	  <id>target</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+		<final-war-name>target-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>ctd2-dashboard</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
+		<final-war-name>ctd2-dashboard-portal</final-war-name>
+	  </properties>
+	</profile>
   </profiles>
 
   <!-- properties -->
@@ -67,11 +83,6 @@
 	<module>oncotator</module>
 	<module>liftover</module>
 	<module>mutation-assessor</module>
-	<!-- The Cy3 app is disabled for the time being (Cy3 API/Servers unstable)
-	     Jan 18, 2013
-	<module>cbioportal-client</module>
-	<module>mondrian-cy3-app</module>
-	--> 
     <module>importer</module>
   </modules>
 

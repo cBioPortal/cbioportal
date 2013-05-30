@@ -70,6 +70,9 @@ public class ImportDataRecord {
 	@Column(nullable=false, length=25)
 	private String tumorType;
 	@NaturalId
+	@Column(nullable=false, length=25)
+	private String tumorTypeLabel;
+	@NaturalId
 	@Column(nullable=false, length=100)
 	private String datatype;
 	@NaturalId
@@ -101,13 +104,14 @@ public class ImportDataRecord {
      * @param dataFilename String
      */
     public ImportDataRecord(String dataSource, String center,
-							String tumorType, String datatype,
+							String tumorType, String tumorTypeLabel, String datatype,
 							String runDate, String canonicalPath,
 							String digest, String dataFilename) {
         
 		setDataSource(dataSource);
 		setCenter(center);
 		setTumorType(tumorType);
+		setTumorTypeLabel(tumorTypeLabel);
 		setDatatype(datatype);
 		setRunDate(runDate);
 		setCanonicalPathToData(canonicalPath);
@@ -174,6 +178,26 @@ public class ImportDataRecord {
 	 * @return String
 	 */
 	public String getTumorType() { return tumorType; }
+
+	/**
+	 * Sets the tumor type label.
+	 *
+	 * @param tumorTypeLabel String
+	 */
+	public void setTumorTypeLabel(String tumorTypeLabel) {
+
+		if (tumorTypeLabel == null) {
+            throw new IllegalArgumentException("tumor type Label must not be null");
+		}
+		this.tumorTypeLabel = tumorTypeLabel;		
+	}
+
+	/**
+	 * Gets the tumor type.
+	 *
+	 * @return String
+	 */
+	public String getTumorTypeLabel() { return tumorTypeLabel; }
 
 	/**
 	 * Sets the datatype.

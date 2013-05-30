@@ -228,8 +228,9 @@
                     populateClinicalTrialsTable(keywords, 'both');
 
                     var infoBox = "<img id='drug-summary-help' src='images/help.png' title='"
-                            + "These drugs were selected based on the patient\'s "
-                            + "genomic alterations (mutations and copy-number alterations)."
+                            + "These drugs of interest were selected based on the patient's "
+                            + "genomic alterations (mutations and copy-number alterations). "
+                            + "They do not represent treatment(s) that the patient was enrolled in."
                             + "'>";
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
@@ -321,7 +322,9 @@
                     var infoBox = "<img id='trial-summary-help' src='images/help.png' title='"
                             + "The following clinical trials are listed because they match with "
                             + (filterBy == "both" ? "both the drugs and the cancer type" : (filterBy == "study") ? "the cancer type" : "the drugs")
-                            + " of interest. <br/><br/>"
+                            + " of interest. "
+                            + "The list does not represent trial(s) that the patient was enrolled in."
+                            + "<br/><br/>"
                             + "The data for the clinical trials listed on this page was "
                             + "kindly provided by NCI, Cancer.gov through the content dissemination program."
                             + "'>";
@@ -340,7 +343,7 @@
         genomicEventObs.subscribeMutCna(populateDrugTable);
 
         $("#trial-filtering-options").change(function() {
-            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val() == "all");
+            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val());
         });
     });
 </script>

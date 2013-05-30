@@ -35,8 +35,9 @@ importer.tumor_types_worksheet=
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/su2c-portal.log
 
-skin.title=cBio SU2C Portal
-skin.blurb=The cBio SU2C Cancer Genomics Portal provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
+skin.title=cBioPortal for SU2C
+skin.email_contact=cbioportal at cbio dot mskcc dot org
+skin.blurb=The cBioPortal for SU2C provides <b>visualization</b>, <b>analysis</b> and <b>download</b> of large-scale <b>cancer genomics</b> data sets.
 skin.tag_line_image=su2c-logo.png
 skin.header_image=su2c_portal_name.png
 skin.authorization_message=Access to this portal is only available to authorized users.  [<a href="http://bit.ly/su2c-form">Request Access</a>].
@@ -80,8 +81,9 @@ tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 # this is for grabbing NCI's Clinical Trial Information
-nci.cancer.ftp.user=user
-nci.cancer.ftp.password=passwd
+nci.cancer.sftp.user=user
+nci.cancer.sftp.password=password
+sshpass.path=/path/to/bin/sshpass
 
 # additional props used by importer
 

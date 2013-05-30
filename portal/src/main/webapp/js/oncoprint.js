@@ -236,7 +236,7 @@ var Oncoprint = function(wrapper, params) {
                 AMPLIFIED: "Amplification",
                 GAINED: "Gain",
                 DIPLOID: "Diploid",
-                HEMIZYGOUSLYDELETED: "Hemizygous Deletion",
+                HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
                 HOMODELETED: "Homozygous Deletion"
             },
             mrna: {
@@ -394,7 +394,7 @@ var Oncoprint = function(wrapper, params) {
 
         var patientViewUrl = function(sample_id) {
             // helper function
-            var href = "tumormap.do?case_id=" + sample_id
+            var href = "case.do?case_id=" + sample_id
                 + "&cancer_study_id=" + params.cancer_study_id;
 
             return "<a href='" + href + "'>" + sample_id + "</a>";
@@ -653,7 +653,11 @@ var Oncoprint = function(wrapper, params) {
             .append(tracks);
 //            .append(visualizedKeys(query.data_types));
 
-        return (new XMLSerializer()).serializeToString(export_svg[0]);
+        return (new XMLSerializer()).serializeToString(export_svg[0])
+            .replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
+        // Firefox and safari implementations of XMLSerializer are different.
+        // For some reason (actually a very good one) they think that this is
+        // XHTML and give it the proper namespace.
     };
 
     return that;

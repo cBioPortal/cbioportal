@@ -49,6 +49,7 @@ public class Oncotator
 
 	protected int buildNumErrors = 0;
 	protected int numRecordsProcessed = 0;
+	protected int totalNumRecords = 0;
 
 	// config params (TODO create a config class instead?)
 	protected boolean useCache;
@@ -123,6 +124,7 @@ public class Oncotator
 			throws IOException, OncotatorServiceException
 	{
 		this.outputFileNames(inputMafFile, outputMafFile);
+		this.totalNumRecords = this.countNumRecords(inputMafFile);
 
 		FileReader reader = new FileReader(inputMafFile);
 		BufferedReader bufReader = new BufferedReader(reader);
@@ -130,7 +132,7 @@ public class Oncotator
 		MafUtil mafUtil = new MafUtil(headerLine);
 		OncoMafProcessor processor = this.initMafProcessor(headerLine);
 
-		int numRecordsProcessed = 0;
+		this.numRecordsProcessed = 0;
 		FileWriter writer = new FileWriter(outputMafFile);
 
 		// create new header line for output
@@ -152,10 +154,12 @@ public class Oncotator
 				continue;
 			}
 
+			// update total number of records processed
+			this.numRecordsProcessed++;
+
 			MafRecord mafRecord = mafUtil.parseRecord(dataLine);
 			OncotatorRecord oncotatorRecord = this.conditionallyOncotateRecord(mafRecord);
-			numRecordsProcessed++;
-			this.conditionallyAbort(numRecordsProcessed);
+			this.conditionallyAbort(this.numRecordsProcessed);
 
 			// get the data and update/add new oncotator columns
 			List<String> data = processor.newDataList(dataLine);
@@ -166,9 +170,6 @@ public class Oncotator
 
 			dataLine = bufReader.readLine();
 		}
-
-		// update total number of records processed with the final result
-		this.numRecordsProcessed = numRecordsProcessed;
 
 		reader.close();
 		writer.close();
@@ -221,11 +222,48 @@ public class Oncotator
 		{
 			oncotatorRecord = oncotatorService.getOncotatorRecord(key);
 
-			// print coordinate info to stdout
-			System.out.println(key);
+			String progress = "(" + this.numRecordsProcessed + "/" + this.totalNumRecords + ")";
+
+			// print percentage complete and coordinate info (key) to stdout
+			System.out.println(progress + " " + key);
 		}
 
 		return oncotatorRecord;
+	}
+
+	/**
+	 * Counts the number of records (number of nonempty lines) for
+	 * the given MAF file.
+	 *
+	 * @param inputMaf      input MAF file
+	 * @return              total number of records
+	 * @throws IOException  if an IO error occurs
+	 */
+	protected int countNumRecords(File inputMaf) throws IOException
+	{
+		int count = 0;
+
+		FileReader reader = new FileReader(inputMaf);
+		BufferedReader bufReader = new BufferedReader(reader);
+
+		// skip header line
+		bufReader.readLine();
+
+		String dataLine;
+
+		// process the file line by line
+		while ((dataLine = bufReader.readLine()) != null)
+		{
+			// skip empty lines
+			if (dataLine.trim().length() > 0)
+			{
+				count++;
+			}
+		}
+
+		bufReader.close();
+
+		return count;
 	}
 
 	protected void abortDueToBuildNumErrors()

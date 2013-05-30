@@ -1,5 +1,0 @@
-COADREAD.rnaseq.txt coadread
-KIRC.rnaseq.txt kirc
-LUAD.rnaseq.txt luad
-LUSC.rnaseq.txt lusc
-UCEC.rnaseq.txt ucec

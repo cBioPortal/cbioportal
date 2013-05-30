@@ -5,7 +5,7 @@
 <script type="text/javascript">
     var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,validation:6,type:7,
                   tumor_freq:8,tumor_var_reads:9,tumor_ref_reads:10,norm_freq:11,
-                  norm_var_reads:12,norm_ref_reads:13,altrate:14,cosmic:15,ma:16,'3d':17,drug:18};
+                  norm_var_reads:12,norm_ref_reads:13,mrna:14,altrate:15,cosmic:16,ma:17,cons:18,'3d':19,drug:20};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -132,74 +132,52 @@
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
-                            } else if (type==='display') {
+                            } else if (type==='display'||type==='filter') {
                                 var mutType = mutations.getValue(source[0], "type");
                                 var abbr, color;
                                 if (mutType==='Missense_Mutation') {
-                                    abbr = 'MS';
+                                    abbr = 'Missense';
                                     color = 'green';
                                 } else if (mutType==='Nonsense_Mutation') {
-                                    abbr = 'NS';
+                                    abbr = 'Nonsense';
                                     color = 'red';
                                 } else if (mutType==='Splice_Site') {
-                                    abbr = 'SP';
+                                    abbr = 'Splice Site';
                                     color = 'red';
                                 } else if (mutType==='In_Frame_Ins') {
-                                    abbr = 'IFI';
+                                    abbr = 'Insertion';
                                     color = 'black';
                                 } else if (mutType==='In_Frame_Del') {
-                                    abbr = 'IFD';
+                                    abbr = 'Deletion';
                                     color = 'black';
                                 } else if (mutType==='Fusion') {
                                     abbr = 'Fusion';
                                     color = 'black';
                                 } else if (mutType==='Frame_Shift_Del') {
-                                    abbr = 'FS';
+                                    abbr = 'Frameshift';
                                     color = 'red';
                                 } else if (mutType==='Frame_Shift_Ins') {
-                                    abbr = 'FS';
+                                    abbr = 'Frameshift';
                                     color = 'red';
                                 } else if (mutType==='RNA') {
                                     abbr = 'RNA';
                                     color = 'green';
                                 } else if (mutType==='Nonstop_Mutation') {
-                                    abbr = 'NST';
+                                    abbr = 'Nonstop';
                                     color = 'red';
                                 } else if (mutType==='Translation_Start_Site') {
-                                    abbr = 'TSS';
+                                    abbr = 'Translation Start Site';
                                     color = 'green';
                                 } else {
                                     abbr = mutType;
                                     color = 'gray';
                                 }
+                                
+                                if (type==='filter') return abbr;
+                                
                                 return "<span style='color:"+color+";' class='"
                                             +table_id+"-tip' alt='"+mutType+"'><b>"
                                             +abbr+"</b></span>";
-                            } else if (type==='filter') {
-                                var mutType = mutations.getValue(source[0], "type");
-                                if (mutType==='Missense_Mutation') {
-                                    return 'MS';
-                                } else if (mutType==='Nonsense_Mutation') {
-                                    return 'NS';
-                                } else if (mutType==='Splice_Site') {
-                                    return 'SP';
-                                } else if (mutType==='In_Frame_Ins') {
-                                    return 'IFI';
-                                } else if (mutType==='In_Frame_Del') {
-                                    return 'IFD';
-                                } else if (mutType==='Frame_Shift_Del') {
-                                    return 'FS';
-                                } else if (mutType==='Frame_Shift_Ins') {
-                                    return 'FS';
-                                } else if (mutType==='RNA') {
-                                    return 'RNA';
-                                } else if (mutType==='Nonstop_Mutation') {
-                                    return 'NST';
-                                } else if (mutType==='Translation_Start_Site') {
-                                    return 'TSS';
-                                } else {
-                                    return mutType;
-                                }
                             } else {
                                 return mutations.getValue(source[0], "type");
                             }
@@ -215,7 +193,7 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
                                 var altCount = mutations.getValue(source[0], 'alt-count');
-                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
@@ -268,7 +246,7 @@
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
-                                if (refCount==null||refCount<0) return '';
+                                if (refCount===null||refCount<0) return '';
                                 if (!refCount) return '';
                                 
                                 return refCount; 
@@ -294,7 +272,7 @@
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (refCount==null||altCount==null||refCount<0||altCount<0) return '';
+                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
                                 if (!altCount&&!refCount) return '';
                                 
                                 var freq = altCount / (altCount + refCount);
@@ -322,7 +300,7 @@
                                 return;
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (altCount==null||altCount<0) return '';
+                                if (altCount===null||altCount<0) return '';
                                 if (!altCount) return '';
                                 
                                 return altCount; 
@@ -347,7 +325,7 @@
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
-                                if (refCount==null||refCount<0) return '';
+                                if (refCount===null||refCount<0) return '';
                                 if (!refCount) return '';
                                 
                                 return refCount; 
@@ -363,51 +341,38 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// mrna
+                        "aTargets": [ mutTableIndices['mrna'] ],
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var mrna = mutations.getValue(source[0], 'mrna');
+                                if (!mrna) return "<span style='color:gray;' class='"
+                                           +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
+                                return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
+                            } else if (type==='sort') {
+                                var mrna = mutations.getValue(source[0], 'mrna');
+                                return mrna ? mrna['perc'] : 50;
+                            } else if (type==='type') {
+                                    return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// gene mutation rate
                         "aTargets": [ mutTableIndices["altrate"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                // gene context
-                                var geneCon = mutations.getValue(source[0], 'genemutrate')-1;
-                                if (geneCon<=0) return '';
-                                
-                                var ret = '';
-                                
-                                // keyword context
-                                var keyDiv = '';
-                                var keyTip = '.';
-                                var key = mutations.getValue(source[0], 'key');
-                                if (key!=null) {
-                                    var keyCon = mutations.getValue(source[0], 'keymutrate')-1;
-                                    if (keyCon>0){
-                                        var keyFrac = keyCon/numPatientInSameMutationProfile;
-                                        keyTip = ", out of which <b>"+keyCon
-                                            +"</b> ("+(100*keyFrac).toFixed(1) + "%) "
-                                            +(keyCon==1?"has ":"have ")+key+" mutations.";
-                                        var keyWidth = Math.min(40, Math.ceil(80 * Math.log(keyFrac+1) * Math.LOG2E));
-                                        keyDiv += "<div class='mutation_percent_div' style='width:"+keyWidth+"px;'></div>";
-                                    }
-                                }
-                                
-                                var geneFrac = geneCon/numPatientInSameMutationProfile;
-                                var geneTip = "<b>"+geneCon+" other sample"+(geneCon==1?"":"s")
-                                    +"</b> ("+(100*geneFrac).toFixed(1) + "%)"+" in this study "+(geneCon==1?"has":"have")+" mutated "
-                                    +mutations.getValue(source[0], "gene")+keyTip;
-                                var geneWidth = Math.min(40, Math.ceil(80 * Math.log(geneFrac+1) * Math.LOG2E));
-                                ret += "<div class='gene_mutation_percent_div "+table_id
-                                                +"-tip' style='width:"+geneWidth+"px;' alt='"+geneTip+"'>"+keyDiv+"</div>";
-                                
-                                // mutsig
-                                var mutsig = mutations.getValue(source[0], 'mutsig');
-                                if (mutsig) {
-                                    var tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
-                                    ret += "<img class='right_float_div "+table_id+"-tip' alt='"
-                                        +tip+"' src='images/mutsig.png' width=12 height=12>";
-                                }
-                                
-                                return ret;   
+                                return "<div class='"+table_id+"-mut-cohort' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 return mutations.getValue(source[0], 'genemutrate');
                             } else if (type==='type') {
@@ -435,7 +400,7 @@
                                     arr.push("<td>"+aa+"</td><td>"+c+"</td>");
                                     n += c;
                                 }
-                                if (n==0) return "";
+                                if (n===0) return "";
                                 var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
                                     +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
@@ -452,7 +417,7 @@
                                 return 0;
                             } else if (type==='filter') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
-                                return !cosmic||cosmic.length==0?"":"cosmic";
+                                return !cosmic||cosmic.length===0?"":"cosmic";
                             } else {
                                 return mutations.getValue(source[0], 'cosmic');
                             }
@@ -469,7 +434,7 @@
                                 var drug = mutations.getValue(source[0], 'drug');
                                 if (!drug) return '';
                                 var len = drug.length;
-                                if (len==0) return '';
+                                if (len===0) return '';
                                 return "<img src='images/drug.png' width=12 height=12 id='"
                                             +table_id+'_'+source[0]+"-drug-tip' class='"
                                             +table_id+"-drug-tip' alt='"+drug.join(',')+"'>";
@@ -490,6 +455,7 @@
                     },
                     {
                         "aTargets": [ mutTableIndices["ma"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -505,19 +471,11 @@
                                 
                                 var ret = "";
                                 if (impact) {
-                                    var tip = "Predicted impact: <b>"+impact+"</b>";
+                                    var tip = "Predicted impact: <b>"+impact+"</b><br/>Click to go to MutationAssessor.";
                                     var xvia = ma['xvia'];
-                                    if (xvia&&xvia!='NA') {
-                                        if (xvia.indexOf('http://')!=0) xvia='http://'+xvia;
-                                        tip += "<br/><a href='"+xvia+"'><img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
-                                     }
-                                    var msa = ma['msa'];
-                                    if (msa&&msa!='NA') {
-                                        if (msa.indexOf('http://')!=0) msa='http://'+msa;
-                                        tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
-                                    }
-                                    ret += "<span style='background-color:"+bgColor+";' class='"
-                                                +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a></span>";
+                                    if (xvia!=null && xvia.indexOf('http://')!==0) xvia='http://'+xvia;
+                                    ret += "<a href='"+xvia+"' style='background-color:"+bgColor+";' class='"
+                                                +table_id+"-tip' alt=\""+tip+"\">&nbsp;&nbsp;"+score+"&nbsp;&nbsp;</a>";
                                 }
                                 
                                 return ret;
@@ -541,7 +499,40 @@
                         "asSorting": ["desc", "asc"]
                     },
                     {
+                        "aTargets": [ mutTableIndices["cons"] ],
+                        "sClass": "center-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var ret = '';
+                                var msa = ma['msa'];
+                                if (msa&&msa!=='NA') {
+                                    if (msa.indexOf('http://')!==0) msa='http://'+msa;
+                                    ret += "&nbsp;<a class='"
+                                            +table_id+"-tip' alt='Click to view multiple sequence alignment' href='"+msa
+                                            +"'><span style='background-color:#88C;color:white;'>&nbsp;MSA&nbsp;</span></a>";
+                                }
+                                
+                                return ret;
+                            } else if (type==='sort' || type==='filter') {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var msa = ma['msa'];
+                                if (msa&&msa!=='NA') return 'msa';
+                                else return '';
+                            } else {
+                                var ma = mutations.getValue(source[0], 'ma');
+                                var msa = ma['msa'];
+                                if (msa&&msa!=='NA') return msa;
+                                else return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
+                    {
                         "aTargets": [ mutTableIndices["3d"] ],
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -550,10 +541,10 @@
                                 
                                 var ret = '';
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') {
-                                    if (pdb.indexOf('http://')!=0) pdb='http://'+pdb;
+                                if (pdb&&pdb!=='NA') {
+                                    if (pdb.indexOf('http://')!==0) pdb='http://'+pdb;
                                     ret += "&nbsp;<a class='"
-                                            +table_id+"-tip' alt='Protein 3D structure' href='"+pdb
+                                            +table_id+"-tip' alt='Click to view protein 3D structure' href='"+pdb
                                             +"'><span style='background-color:#88C;color:white;'>&nbsp;3D&nbsp;</span></a>";
                                 }
                                 
@@ -561,19 +552,21 @@
                             } else if (type==='sort'||type==='filter') {
                                 var ma = mutations.getValue(source[0], 'ma');
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') return '3d';
+                                if (pdb&&pdb!=='NA') return '3d';
                                 else return '';
                             } else {
                                 var ma = mutations.getValue(source[0], 'ma');
                                 var pdb = ma['pdb'];
-                                if (pdb&&pdb!='NA') return '';
-                                else return pdb;
+                                if (pdb&&pdb!=='NA') return pdb;
+                                else return '';
                             }
                         },
                         "asSorting": ["desc", "asc"]
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    plotMrna("."+table_id+"-mrna",mutations);
+                    plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
@@ -592,6 +585,63 @@
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
         return oTable;
+    }
+
+    function plotMutRate(div,mutations) {
+        $(div).each(function() {
+            if (!$(this).is(":empty")) return;
+            var gene = $(this).attr("alt");
+            var keymutrate = mutations.getValue(gene, 'keymutrate');
+            var keyperc = 100 * keymutrate / numPatientInSameMutationProfile;
+            var genemutrate = mutations.getValue(gene, 'genemutrate');
+            var geneperc = 100 * genemutrate / numPatientInSameMutationProfile;
+            
+            var data = [keyperc, geneperc-keyperc, 100-geneperc];
+            var colors = ["green", "lightgreen", "#ccc"];
+                        
+            var svg = d3.select($(this)[0])
+                .append("svg")
+                .attr("width", 86)
+                .attr("height", 12);
+        
+            var percg = svg.append("g");
+            percg.append("text")
+                    .attr('x',70)
+                    .attr('y',11)
+                    .attr("text-anchor", "end")
+                    .attr('font-size',10)
+                    .text(geneperc.toFixed(1)+"%");
+            
+            var gSvg = percg.append("g");
+            var pie = d3AccBar(gSvg, data, 30, colors);
+            var tip = ""+genemutrate+" sample"+(genemutrate===1?"":"s")
+                + " (<b>"+geneperc.toFixed(1) + "%</b>)"+" in this study "+(genemutrate===1?"has":"have")+" mutated "
+                + mutations.getValue(gene, "gene")
+                + ", out of which "+keymutrate
+                + " (<b>"+keyperc.toFixed(1) + "%</b>) "
+                + (keymutrate===1?"has ":"have ")+mutations.getValue(gene,'key')+" mutations.";
+            qtip($(percg), tip);
+            
+            // mutsig
+            var mutsig = mutations.getValue(gene, 'mutsig');
+            if (mutsig) {
+                tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
+                var circle = svg.append("g")
+                    .attr("transform", "translate(80,6)");
+                d3CircledChar(circle,"M");
+                qtip($(circle), tip);
+            }
+            
+        });
+        
+        function qtip(el, tip) {
+            $(el).qtip({
+                content: {text: tip},
+                hide: { fixed: true, delay: 200 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                position: {my:'top right',at:'bottom center'}
+            });
+        }
     }
 
     function addCosmicTooltip(table_id) {
@@ -630,6 +680,10 @@
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (mrnaProfileId) {
+            params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;
+        }
         
         if (drugType) {
             params['<%=PatientView.DRUG_TYPE%>'] = drugType;

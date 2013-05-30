@@ -65,6 +65,8 @@
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/networkSbgn.do*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/bioGeneQuery.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
@@ -84,6 +86,7 @@
       <intercept-url pattern="/index.tumormap*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tumormap.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/case.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/mutations.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/cna.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>

@@ -21,7 +21,7 @@ import org.mskcc.cbio.cgds.dao.DaoCase;
 import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
 import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoMutationEvent;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.AccessControl;
@@ -136,7 +136,7 @@ public class TumorMapServlet extends HttpServlet {
                     if (mutProfile==null) {
                         row.put("mut",0);
                     } else {
-                        int mutEvents = DaoMutationEvent.countMutationEvents(mutProfile.getGeneticProfileId());
+                        int mutEvents = DaoMutation.countMutationEvents(mutProfile.getGeneticProfileId());
                         int samplesWithMut = DaoCaseProfile.countCasesInProfile(mutProfile.getGeneticProfileId());
                         row.put("mut",1.0*mutEvents/samplesWithMut);
                     }

@@ -254,7 +254,7 @@ function DrawOncoPrintBody(oncoprint, longestLabel, geneticAlterations, cancerSt
 					// zap off last ', '
 					tooltipText = tooltipText.substring(0, tooltipText.length - 2)+"<br/>";
 				}
-                                tooltipText += "<a href='"+"tumormap.do?case_id="+thisSampleAlteration.sample
+                                tooltipText += "<a href='"+"case.do?case_id="+thisSampleAlteration.sample
                                     +"&cancer_study_id="+cancerStudyId+"'>"+thisSampleAlteration.sample + "</a>";
 				createTooltip(oncoprint, lc, null, tooltipText);
 			}

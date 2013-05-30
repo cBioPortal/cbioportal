@@ -1,3 +1,8 @@
+/* This file is not imported/used by other sources anymore. Instead,
+ * we are using the javascript class NetworkVis (within the file
+ * network-visualization.js) to instantiate the network UI.
+ */
+
 // flags
 var _autoLayout;
 var _removeDisconnected;
@@ -606,7 +611,7 @@ function _addPercentages(data)
 	if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
 	{
 		percent = (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100);
-		_addPercentRow("cna-hemizygously-deleted", "Hemizygous Deletion", percent, "#9EDFE0");
+		_addPercentRow("cna-hemizygously-deleted", "Heterozygous Deletion", percent, "#9EDFE0");
 		available['CNA'].push("cna-hemizygously-deleted");
 	}
 	

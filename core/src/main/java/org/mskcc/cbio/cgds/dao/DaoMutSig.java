@@ -47,8 +47,6 @@ import java.util.ArrayList;
  */
 
 public class DaoMutSig {
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoMutSig daoMutSig;
 
     private DaoMutSig() {
@@ -60,10 +58,6 @@ public class DaoMutSig {
     public static DaoMutSig getInstance() throws DaoException {
         if (daoMutSig == null) {
             daoMutSig = new DaoMutSig();
-        }
-
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("mut_sig");
         }
         return daoMutSig;
     }
@@ -86,7 +80,7 @@ public class DaoMutSig {
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(Integer.toString(mutSig.getCancerType()),
+                MySQLbulkLoader.getMySQLbulkLoader("mut_sig").insertRecord(Integer.toString(mutSig.getCancerType()),
                         Long.toString(gene.getEntrezGeneId()),
                         Integer.toString(mutSig.getRank()),
                         Integer.toString(mutSig.getNumBasesCovered()),

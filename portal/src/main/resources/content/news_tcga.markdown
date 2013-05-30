@@ -1,6 +1,15 @@
-# March 7, 2013
+# April 28, 2013
 
-* All data updated to the __January Firehose run__ (January 16, 2012).
+* All TCGA data updated to the March Firehose run (March 26, 2012).
+
+# April 2, 2013
+
+* All TCGA data updated to the February Firehose run (February 22, 2012).
+* mRNA percentiles for altered genes shown in patient view.
+
+# March 26, 2013
+
+* All TCGA data updated to the __January Firehose run__ (January 16, 2012).
 
 # January 21, 2013
 

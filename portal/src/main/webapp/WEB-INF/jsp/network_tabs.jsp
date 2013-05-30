@@ -7,10 +7,13 @@ if (includeHelpTab==null) {
 
 <div id="network_tabs" class="hidden-network-ui">
     <ul>
-        <li><a href="#genes_tab"><span>Genes & Drugs</span></a></li>
-        <li><a href="#relations_tab"><span>Interactions</span></a></li>
+        <li><a href="#genes_tab" class="network-tab-ref" title="Genes & Drugs (Nodes)"><span>Genes</span></a></li>
+        <li><a href="#relations_tab" class="network-tab-ref"
+               title="Edges between nodes"><span>Interactions</span></a></li>
+	    <li><a href="#element_details_tab" class="network-tab-ref"
+	           title="Node details"><span>Details</span></a></li>
         <%if(includeHelpTab){%>
-        <li><a href="#help_tab"><span>Help</span></a></li>
+        <li><a href="#help_tab" class="network-tab-ref" title="About & Help"><span>Help</span></a></li>
         <%}%>
     </ul>
     <div id="genes_tab">
@@ -90,7 +93,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        	<tr class="in-same-component">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="in_same_component_check" type="checkbox" checked="checked">
 		        		<label>In Same Component</label>
 		        	</td>
 	        	</tr>
@@ -104,7 +107,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        	<tr class="reacts-with">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="reacts_with_check" type="checkbox" checked="checked">
 		        		<label>Reacts with</label>
 		        	</td>
 	        	</tr>
@@ -118,7 +121,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        	<tr class="state-change">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="state_change_check" type="checkbox" checked="checked">
 		        		<label>State Change</label>
 		        	</td>
 	        	</tr>
@@ -132,7 +135,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        	<tr class="targeted-by-drug">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="targeted_by_drug_check" type="checkbox" checked="checked">
 		        		<label>Targeted by Drug</label>
 		        	</td>
 	        	</tr>
@@ -146,7 +149,7 @@ if (includeHelpTab==null) {
 	        	</tr>
 	        	<tr class="other">
 		        	<td class="edge-type-checkbox">
-		        		<input type="checkbox" checked="checked">
+		        		<input id="other_check" type="checkbox" checked="checked">
 		        		<label>Other</label>
 		        	</td>
 	        	</tr>
@@ -180,45 +183,19 @@ if (includeHelpTab==null) {
         	</table>
 		</div>
     </div>
+	<div id="element_details_tab">
+		<div class="error">
+			Currently there is no selected node. Please, select a node to see details.
+		</div>
+		<div class="genomic-profile-content"></div>
+		<div class="biogene-content"></div>
+		<div class="drug-info-content"></div>
+	</div>
     <%if(includeHelpTab){%>
     <div id="help_tab">
         <jsp:include page="network_help.jsp"></jsp:include>
     </div>
     <%}%>
-</div>
-
-<div id="node_inspector" class="hidden-network-ui" title="Node Inspector">
-	<div id="node_inspector_content" class="content ui-widget-content">
-		<table class="data"></table>
-		<table class="profile-header"></table>
-		<table class="profile"></table>
-		<table class="xref"></table>
-	</div>
-</div>
-
-<div id="node_legend" class="hidden-network-ui" title="Gene Legend">
-	<div id="node_legend_content" class="content ui-widget-content">
-		<img src="images/network/gene_legend.png"/>
-	</div>
-</div>
-
-<div id="drug_legend" class="hidden-network-ui" title="Drug Legend">
-	<div id="drug_legend_content" class="content ui-widget-content">
-		<img src="images/network/drug_legend.png"/>
-	</div>
-</div>
-
-<div id="edge_inspector" class="hidden-network-ui" title="Edge Inspector">
-	<div id="edge_inspector_content" class="content ui-widget-content">
-		<table class="data"></table>
-		<table class="xref"></table>
-	</div>
-</div>
-
-<div id="edge_legend" class="hidden-network-ui" title="Interaction Legend">
-	<div id="edge_legend_content" class="content ui-widget-content">
-		<img src="images/network/interaction_legend.png"/>
-	</div>
 </div>
 
 <% /*

@@ -1,6 +1,5 @@
-
 // send graphml to cytoscape web for visualization
-function send2cytoscapeweb(graphml, div_id) 
+function send2cytoscapeweb(graphml, cwDivId, networkDivId)
 {
     var visual_style = 
     {
@@ -122,7 +121,7 @@ function send2cytoscapeweb(graphml, div_id)
         flashInstallerPath: "swf/playerProductInstall"
     };
 
-    var vis = new org.cytoscapeweb.Visualization(div_id, options);
+    var vis = new org.cytoscapeweb.Visualization(cwDivId, options);
 
     
     
@@ -176,11 +175,13 @@ function send2cytoscapeweb(graphml, div_id)
 
     
     vis.ready(function() {
+        var netVis = new NetworkVis(networkDivId);
+
         // init UI of the network tab
-        initNetworkUI(vis);
+        netVis.initNetworkUI(vis);
    
         //to hide drugs initially
-        _changeListener();
+        netVis._changeListener();
 	     
 	    // set the style programmatically
 	    document.getElementById("color").onclick = function(){
@@ -200,4 +201,135 @@ function send2cytoscapeweb(graphml, div_id)
     };
 
     vis.draw(draw_options);
-};
+}
+
+function send2cytoscapewebSbgn(sbgnml, cwDivId, networkDivId, genomicData)
+{
+    var visualStyle =
+    {
+        nodes:
+        {
+            label: {customMapper: {functionName: "labelFunction"}},
+            compoundColor: "#FFFFFF",
+            compoundOpacity: 1.0,
+            opacity: 1.0,
+            compoundShape: {customMapper: {functionName: "compoundShapeFunction"}},
+            color: "#FFFFFF",
+            //shape: {customMapper: {functionName: "shapeFunction"}},
+            labelVerticalAnchor: "middle",
+            labelHorizontalAnchor: "center",
+            compoundLabelVerticalAnchor: "middle",
+            compoundLabelHorizontalAnchor: "center",
+            compoundLabelYOffset: 7.0
+            	
+        },
+
+        edges:
+        {
+            targetArrowShape:
+            {
+                defaultValue: "NONE",
+                discreteMapper:
+                {
+                    attrName: "arc_class",
+                    entries:
+                        [
+                            {attrValue:"consumption", value: "NONE"},
+                            {attrValue:"modulation", value: "DIAMOND"},
+                            {attrValue:"catalysis", value: "CIRCLE"},
+                            {attrValue:"inhibition", value: "T"},
+                            {attrValue:"production", value: "ARROW"},
+                            {attrValue:"stimulation", value: "ARROW"},
+                            {attrValue:"necessary stimulation", value: "T-ARROW"}
+                        ]
+                }
+            },
+            targetArrowColor:
+            {
+                defaultValue: "#ffffff",
+                discreteMapper:
+                {
+                    attrName: "arc_class",
+                    entries:
+                        [
+                            {attrValue:"production", value: "#000000"}
+                        ]
+                }
+            }
+        }
+    };
+
+    // initialization options
+    var options = {
+        swfPath: "swf/CytoWebSbgn",
+        flashInstallerPath: "swf/playerProductInstall"
+    };
+
+    var vis = new org.cytoscapeweb.Visualization(cwDivId, options);
+
+    vis["compoundShapeFunction"] = function (data)
+    {
+        var retValue = "COMPLEX";
+
+        if(data["glyph_class"] == "compartment")
+        {
+            retValue = "ROUNDRECT";
+        }
+
+        return retValue;
+    };
+
+    vis["labelFunction"] = function (data)
+    {
+        var retValue = data["glyph_label_text"];
+
+        if(data["glyph_class"] == "omitted process")
+        {
+            retValue = "\\\\";
+        }
+
+        if(data["glyph_class"] == "uncertain process")
+        {
+            retValue = "?";
+        }
+
+        if(data["glyph_class"] == "and" || data["glyph_class"] == "or" || data["glyph_class"] == "not" )
+        {
+            retValue = data["glyph_class"].toUpperCase();
+        }
+
+
+        return retValue;
+    };
+
+    vis.ready(function() {
+        var netVis = new NetworkSbgnVis(networkDivId);
+
+        // init UI of the network tab
+        netVis.initNetworkUI(vis);
+
+        // parse and add genomic data to cytoscape nodes
+        netVis.parseGenomicData(genomicData); 
+        
+        //to hide drugs initially
+        netVis._changeListener();
+
+        // set the style programmatically
+        document.getElementById("color").onclick = function(){
+            vis.visualStyle(visualStyle);
+        };
+    });
+
+    var draw_options = {
+        // your data goes here
+        network: sbgnml,
+        //edgeLabelsVisible: false,
+        //edgesMerged: true,
+        layout: "Preset",
+        visualStyle: visualStyle,
+        panZoomControlVisible: true
+    };
+
+    vis.draw(draw_options);
+}
+

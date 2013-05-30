@@ -1,4 +1,5 @@
 <!-- Include Global List of Javascript Files to Load -->
+<!--script type="text/javascript" src="js/main.js"></script-->
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
@@ -22,7 +23,8 @@
 <script type="text/javascript" src="js/DataManagerFactory.js"></script>
 <script type="text/javascript" src="js/QueryGeneData.js"></script>
 <script type="text/javascript" src="js/cbio-util.js"></script>
-<script type="text/javascript" src="js/cbio-util.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/underscore-min.js"></script>
 <script type="text/javascript" src="js/backbone-min.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>
+<script type="text/javascript" src="js/jquery.expander.min.js"></script>

@@ -35,8 +35,8 @@ importer.tumor_types_worksheet=
 # Location of log file
 log.file.path=/srv/www/sander-tomcat/tomcat6/logs/gdac-portal.log
 
-skin.title=cBio GDAC Portal
-skin.email_contact=cbioportal at googlegroups dot com
+skin.title=cBioPortal for TCGA
+skin.email_contact=cbioportal at cbio dot mskcc dot org
 skin.blurb=<b>Data in this portal is based on the 26 October 2011 Broad Firehose run of TCGA data.  Additional mutation files have been added from each disease working group.</b>
 skin.authorization_message=Access to this portal is only available to authorized users who are involved in TCGA-funded work or are active participants of the TCGA Disease Working Groups or Analysis Working Groups.  [<a href="http://bit.ly/gdac-form">Request Access</a>].
 skin.right_nav.show_testimonials=true
@@ -73,8 +73,9 @@ tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 # this is for grabbing NCI's Clinical Trial Information
-nci.cancer.ftp.user=user
-nci.cancer.ftp.password=password
+nci.cancer.sftp.user=user
+nci.cancer.sftp.password=password
+sshpass.path=/path/to/bin/sshpass
 
 # additional props used by importer
 

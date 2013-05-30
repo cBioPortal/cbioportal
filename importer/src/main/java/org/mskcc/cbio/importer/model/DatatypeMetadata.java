@@ -53,6 +53,10 @@ public class DatatypeMetadata {
 	// MAF file extension - used (at least) by FileUtils.oncotateAllMAFs
 	public static final String MAF_FILE_EXT = ".maf.annotated";
 
+	// correlate methylation file v mrna file id - used to id a correlation file
+	// - used by at least ConverterImpl
+	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:

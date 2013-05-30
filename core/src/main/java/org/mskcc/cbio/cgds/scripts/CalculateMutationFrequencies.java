@@ -74,8 +74,7 @@ public class CalculateMutationFrequencies {
         daoMutationFrequency.deleteAllRecords();
 
         //  Get all mutations
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        ArrayList<ExtendedMutation> mutationList = daoMutation.getAllMutations();
+        ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         pMonitor.setCurrentMessage("Getting All Mutations...");

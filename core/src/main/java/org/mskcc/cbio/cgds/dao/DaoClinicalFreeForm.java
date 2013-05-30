@@ -187,7 +187,7 @@ public class DaoClinicalFreeForm {
      * @param cancerStudyId internal id of a case
      * @return   list of all ClinicalFreeForm instances for the given cancer study id
      */
-    public List<ClinicalFreeForm> getCasesById(String caseId) throws DaoException
+    public List<ClinicalFreeForm> getCasesById(int cancerStudyId, String caseId) throws DaoException
     {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -196,8 +196,9 @@ public class DaoClinicalFreeForm {
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalFreeForm.class);
             pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`" +
-                    "WHERE CASE_ID=?");
-            pstmt.setString(1, caseId);
+                    "WHERE CANCER_STUDY_ID=? AND CASE_ID=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, caseId);
             rs = pstmt.executeQuery();
             
             return retrieveClinicalFreeFormData(rs);
@@ -216,7 +217,7 @@ public class DaoClinicalFreeForm {
      * @param caseIds
      * @return list of all ClinicalFreeForm instances for the given cancer study id
      */
-    public List<ClinicalFreeForm> getCasesByCases(Collection<String> caseIds) throws DaoException
+    public List<ClinicalFreeForm> getCasesByCases(int cancerStudyId, Collection<String> caseIds) throws DaoException
     {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -224,8 +225,9 @@ public class DaoClinicalFreeForm {
         
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalFreeForm.class);
-            pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`" +
-                    "WHERE CASE_ID IN('"
+            pstmt = con.prepareStatement ("SELECT * FROM `clinical_free_form`"
+                    + "WHERE CANCER_STUDY_ID="+cancerStudyId
+                    + " AND CASE_ID IN('"
                     + StringUtils.join(caseIds,"','") +"')");
             rs = pstmt.executeQuery();
             
@@ -234,7 +236,6 @@ public class DaoClinicalFreeForm {
             while (rs.next())
             {
             	// get all values as String
-                int cancerStudyId = rs.getInt("CANCER_STUDY_ID");
                 String caseId = rs.getString("CASE_ID");
                 String paramName = rs.getString("PARAM_NAME");
                 String paramValue = rs.getString("PARAM_VALUE");

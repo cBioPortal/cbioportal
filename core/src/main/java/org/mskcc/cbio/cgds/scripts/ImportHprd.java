@@ -115,7 +115,7 @@ public class ImportHprd {
 
         //  Flush database
         if (MySQLbulkLoader.isBulkLoad()) {
-           daoInteraction.flushToDatabase();
+           MySQLbulkLoader.flushAll();
         }
         pMonitor.setCurrentMessage("Total number of interactions saved:  " + numInteractionsSaved);
         pMonitor.setCurrentMessage("Total number of interactions not saved, due to " +

@@ -1,6 +1,20 @@
-# March 7, 2013
+# May 14, 2013
 
-* All data updated to the January Firehose run (January 16, 2012).
+* Added a published TCGA study: Acute Myeloid Leukemia (TCGA, NEJM 2013).
+
+# April 28, 2013
+
+* All TCGA data updated to the March Firehose run (March 26, 2012).
+* mRNA percentiles for altered genes shown in patient view.
+
+# April 2, 2013
+
+* All TCGA data updated to the February Firehose run (February 22, 2012).
+
+# March 28, 2013
+
+* All TCGA data updated to the January Firehose run (January 16, 2012).
+* Data from a new bladder cancer study from MSKCC has been added (97 samples, Iyer et al., JCO in press).
 
 # February 16, 2013
 

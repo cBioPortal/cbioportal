@@ -621,11 +621,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 	});
 	non_mutated_data.forEach (function(entry) {
 		tmp_dataset.push(entry);
-		console.log(entry[3]);
 	});
 	mutated_data.forEach (function(entry) {
 		tmp_dataset.push(entry);
-		console.log(entry[3]);
 	});
 	dataset = tmp_dataset;
 
@@ -673,15 +671,20 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             });
         //Making Qtips
+	//Format Numbers 
         svg.selectAll('path').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = "<font size='2'>" + 
-				      	"x: <strong>" + d[0] + "</strong><br>" + 
-					"y: <strong>" + d[1] + "</strong><br>" + 
-				      	"Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
+                        var content = "<font size='2'>";
+			if (data_type_copy_no.indexOf("gistic") != -1) {
+				content += "mRNA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";
+			} else {
+				content += "CNA: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
+					"mRNA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";	
+			}
+			content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
                             content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")";
                         }
@@ -743,15 +746,15 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 events: {
                     render: function(event, api) {
                         var content = "<font size='2'>" + 
-					"x: <strong>" + d[0] + "</strong><br>" + 
-					"y: <strong>" + d[1] + "</strong><br>" + 
+					"x: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
+					"y: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>" + 
 					"Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
                             content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")" + "<br>";
                         }
-                        if (d[2] != 0) {
+                        if (d[2] != 0 && d[2] != "NaN") {
                             var tmp_index = parseInt(d[2], 10) + 2;
-                            content = content + "CNA: " + "<strong>" + gisticPopUpText[tmp_index] + "</strong>";
+			    content = content + "CNA: " + "<strong>" + gisticPopUpText[tmp_index] + "</strong>";
                         }
                         content = content + "</font>";
                         api.set('content.text', content);

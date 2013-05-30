@@ -228,6 +228,9 @@
 				<value>file:${PORTAL_HOME}/src/main/resources/log4j.properties</value>
 			  </property>
 			</systemProperties>
+			<additionalClasspathElements>
+			  <additionalClasspathElement>${PORTAL_HOME}/src/main/resources/</additionalClasspathElement>
+			</additionalClasspathElements>
 		  </configuration>
 		</plugin>
 

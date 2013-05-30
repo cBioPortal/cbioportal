@@ -548,9 +548,10 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
 }
+var dataset = [];
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations, mutations_id, case_set) {
 
-    var dataset = [];
+   // var dataset = [];
     
     $('#plots_tab').empty();
     var w = 700;
@@ -606,7 +607,29 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
     var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
 
-    //----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
+	
+	//Sort dataset to paint the mutated plots last to make them prominent 
+	var non_mutated_data = [];
+	var mutated_data= [];
+	var tmp_dataset = [];
+	dataset.forEach (function(entry) {
+		if (entry[3] != "non") {
+			mutated_data.push(entry);		
+		} else {
+			non_mutated_data.push(entry);
+		}
+	});
+	non_mutated_data.forEach (function(entry) {
+		tmp_dataset.push(entry);
+		console.log(entry[3]);
+	});
+	mutated_data.forEach (function(entry) {
+		tmp_dataset.push(entry);
+		console.log(entry[3]);
+	});
+	dataset = tmp_dataset;
+
+	//----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
     if ( type == 1 ) {
         //Define noise level
         var ramRatio = 0;

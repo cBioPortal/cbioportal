@@ -341,7 +341,7 @@ function analyseData(xData, yData){
     };
 }
 function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
-    if (type == 1 && (data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1)) {
+    if (type == 1 && (data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1) || (data_type_copy_no.indexOf("CNA") != -1)) {
         for (var i = min_x ; i < max_x + 1; i++) {
             var top;
             var bottom;
@@ -417,7 +417,7 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
     }
 }
 function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
-    if (type == 1 && ( data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1 )){
+    if (type == 1 && ( data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1 || data_type_copy_no.indexOf("CNA") != -1)){
         var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
         var ticksTextSet = [];
         var tmp_ticks_text_index = 0;
@@ -631,7 +631,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     if ( type == 1 ) {
         //Define noise level
         var ramRatio = 0;
-        if ((data_type_copy_no.indexOf("gistic") != -1) || (data_type_copy_no.indexOf("cna") != -1)) {
+        if ((data_type_copy_no.indexOf("gistic") != -1) || (data_type_copy_no.indexOf("cna") != -1) || (data_type_copy_no.indexOf("CNA") != -1)) {
             ramRatio = 20;
         }
 
@@ -678,7 +678,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 events: {
                     render: function(event, api) {
                         var content = "<font size='2'>";
-			if (data_type_copy_no.indexOf("gistic") != -1) {
+			if (data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("CNA") != -1 || data_type_copy_no.indexOf("cna") != -1) {
 				content += "mRNA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";
 			} else {
 				content += "CNA: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 

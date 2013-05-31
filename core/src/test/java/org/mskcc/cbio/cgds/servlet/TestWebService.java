@@ -168,7 +168,6 @@ public class TestWebService extends TestCase {
       }
       String[] lines = aNullHttpServletResponse.getOutput().split("\n");
       for( int i=0; i<responseLines.length; i++ ){
-          System.out.println(responseLines[i] + " : " +  lines[i+1]);
           assertEquals( responseLines[i], lines[i+1]);
       }
    }

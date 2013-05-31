@@ -317,20 +317,6 @@ CREATE TABLE `case_profile` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `clinical`
---
-drop table IF EXISTS clinical;
-CREATE TABLE `clinical` (
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  `CASE_ID` varchar(255) NOT NULL,
-  `ATTR_ID` varchar(255) NOT NULL,
-  `ATTR_VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `clinical_attribute`
 --
 drop table IF EXISTS clinical_attribute;
@@ -341,6 +327,23 @@ CREATE TABLE `clinical_attribute` (
   `DATATYPE` varchar(255) NOT NULL,
   PRIMARY KEY (`ATTR_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `clinical`
+--
+drop table IF EXISTS clinical;
+CREATE TABLE `clinical` (
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(255) NOT NULL,
+  `ATTR_ID` varchar(255) NOT NULL,
+  `ATTR_VALUE` varchar(255) NOT NULL,
+  PRIMARY KEY (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`),
+  FOREIGN KEY (`ATTR_ID`) REFERENCES `clinical_attribute` (`ATTR_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
 
 drop table IF EXISTS clinical_free_form;
 CREATE TABLE `clinical_free_form` (

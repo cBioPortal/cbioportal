@@ -27,10 +27,13 @@
 
 package org.mskcc.cbio.cgds.dao;
 
+import com.google.common.base.Joiner;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -195,6 +198,18 @@ public final class DaoClinical {
     }
 
     /**
+     * Generates a comma separated string of caseIds
+     *
+     * @param caseIds
+     * @return
+     */
+    public static String generateCaseIdsSql(List<String> caseIds) {
+        String caseIdsSql = "'" + StringUtils.join(caseIds, "','") + "'";
+
+        return caseIdsSql;
+    }
+
+    /**
      * Get data for a list of case ids, for a particular cancer study
      * @param cancerStudyId
      * @param caseIds
@@ -209,14 +224,39 @@ public final class DaoClinical {
 
         List<Clinical> clinicals = new ArrayList<Clinical>();
 
-        // join the caseIds in the format for a sql query
-        String caseIdsSql = "";
-        for (String caseId : caseIds) {
-            caseIdsSql += "'" + caseId + "',";
-        }
-        caseIdsSql = caseIdsSql.substring(0, caseIdsSql.length()-1); // get rid of that last comma
+        String caseIdsSql = generateCaseIdsSql(caseIds);
 
         String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID`=" + cancerStudy.getInternalId()
+                + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+
+        try {
+            con = JdbcUtil.getDbConnection(DaoClinical.class);
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            while(rs.next()) {
+                clinicals.add(extract(rs));
+            }
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+        return clinicals;
+    }
+
+
+    public static List<Clinical> getData(String cancerStudyId, List<String> caseIds, ClinicalAttribute attr) throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+
+        Connection con = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        List<Clinical> clinicals = new ArrayList<Clinical>();
+
+        String caseIdsSql = generateCaseIdsSql(caseIds);
+
+        String sql = "SELECT * FROM clinical WHERE"
+                + "`CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
+                + " " + "AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
                 + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
 
         try {

@@ -182,15 +182,13 @@ public class GetClinicalData {
     }
 
     /**
-     *
-     * @param cancerStudyId
-     * @return An object with 2 fields:
-     * -- data: array of object literals corresponding to rows in the database
-     * -- attributes: array of clinical attribute metadatas (object literals) that appear in the data
+     * Creates a json object with data and attributes fields that correspond to the data
+     * in the clinicals and the set of attributes that exist in the clinicals
+     * @param clinicals
+     * @return
      * @throws DaoException
      */
-    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+    public static JSONObject generateJson(List<Clinical> clinicals) throws DaoException {
         Set<JSONObject> attrs = new HashSet<JSONObject>();
         JSONObject toReturn = new JSONObject();
         JSONArray data = new JSONArray();
@@ -213,6 +211,27 @@ public class GetClinicalData {
         toReturn.put("attributes", attributes);
 
         return toReturn;
+    }
+    /**
+     *
+     * @param cancerStudyId
+     * @return An object with 2 fields:
+     * -- data: array of object literals corresponding to rows in the database
+     * -- attributes: array of clinical attribute metadatas (object literals) that appear in the data
+     * @throws DaoException
+     */
+    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
+        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+
+        return generateJson(clinicals);
+    }
+
+    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds, String attrId) throws DaoException {
+
+        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds, attr);
+
+        return generateJson(clinicals);
     }
 
     /**

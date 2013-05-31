@@ -67,6 +67,8 @@ public class ClinicalAttributesServlet extends HttpServlet {
     /**
      * Takes any sort of case list parameter in the request
      *
+     * Returns a list of clinical attributes in json format
+     *
      * @param request
      * @param response
      * @throws ServletException

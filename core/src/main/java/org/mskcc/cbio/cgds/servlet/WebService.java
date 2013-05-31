@@ -432,10 +432,14 @@ public class WebService extends HttpServlet {
             if (attrId == null) {
                 JSONObject.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds), writer);
             } else {
-                if (caseIds.size() != 1) {
-                    throw new IOException("cannot ask for multiple cases");
+                JSONObject outObject;
+                if (caseIds.size() == 1) {
+                    outObject = GetClinicalData.getJsonDatum(cancerStudyId, caseIds.get(0), attrId);
                 }
-                JSONObject.writeJSONString(GetClinicalData.getJsonDatum(cancerStudyId, caseIds.get(0), attrId), writer);
+                else {
+                    outObject = GetClinicalData.getJSON(cancerStudyId, caseIds, attrId);
+                }
+                JSONObject.writeJSONString(outObject, writer);
             }
         }
         else {

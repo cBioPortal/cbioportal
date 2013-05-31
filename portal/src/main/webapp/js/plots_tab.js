@@ -787,24 +787,35 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         }
     }
     if ((yHasData == false) || (xHasData == false)) {
-        var errorTxt1 = "An error occurred processing your request.";
-        var errorTxt2 = "It maybe that your gene/case set combination has no data for this data type. ";
-        var errorTxt3 = "If you believe this is an error, please contact us cbioportal@cbio.mskcc.org.";
+	
+        var errorTxt1 = "Currently, " + gene + " has no data for -->";
+	var errorTxt2;
+	var errorTxt3 = "in selected cancer study."
+	if (yHasData == false) {
+		errorTxt2 = yLegend;
+	} else if (xHasData == false) {
+		errorTxt2 = xLegend;
+	}
+	errorTxt2 = errorTxt2.substring(gene.length+1);
         svg.append("text")
-            .attr("x", 220)
+            .attr("x", 350)
             .attr("y", 280)
+	    .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(errorTxt1)
         svg.append("text")
-            .attr("x", 120)
+            .attr("x", 350)
             .attr("y", 295)
+	    .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
+	    .style("font-weight", "bold")
             .text(errorTxt2)
-        svg.append("text")
-            .attr("x", 130)
-            .attr("y", 310)
-            .attr("fill", "#DF3A01")
-            .text(errorTxt3);
+	svg.append("text")
+	    .attr("x", 350)
+	    .attr("y", 310)
+	    .attr("text-anchor", "middle")
+	    .attr("fill", "#DF3A01")
+	    .text(errorTxt3);
     } else {
         //Create the legend
         if (type == 1) {  //Legend for Mutations

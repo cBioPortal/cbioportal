@@ -716,10 +716,16 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             ))
             .attr("fill", function(d) {
                 switch (d[3]) {
-                    case "non" : return "none";
+                    case "non" : return "yellow";
                     default: return "orange";
                 }
             })
+	    .attr("fill-opacity", function(d) {
+		switch (d[3]) {
+			case "non": return 0.0;
+			default: return 1.0; 
+		}	
+	    })
             .attr("stroke", function(d) {
                 if ((d[2] == "0")&&(d[3] != "non")) {
                     return "none";

@@ -229,6 +229,8 @@ var GeneDataColl = Backbone.Collection.extend({
 // params : generally an empty list,
 //          object literal with the field case_list -- string of cases
 //          separated by a space
+// on fetch(), populates list of object literals with the fields: [attr_id,
+// display_name, description, datatype]
 var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
     initialize: function(attributes) {

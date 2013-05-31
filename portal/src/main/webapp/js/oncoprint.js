@@ -252,22 +252,18 @@ var OncoprintUtils = (function() {
 // Also encapsulates a map of attribute ids to ClinicalColls.
 var OncoprintUI = (function() {
 
-    // params: list of attribute_ids
-    //
-    // maps them to an object literal : attr_id -> ClinicalColl
-    // where each ClinicalColl can subsequently be fetched
-    var create_unfetched_cache = function(attr_ids) {
-
-        var attr_id2coll = {};
-        attr_ids.forEach(function(attr_id) {
-            attr_id2coll[attr_id] = new ClinicalColl({attr_id: attr_id, case_list: cases});
-        });
-
-        return attr_id2coll;
+    // params: select_el (a DOM <select> element), a string of cases separated
+    // by a string
+    var populate_clinical_attr_select = function(select_el, cases) {
+        d3.select(select_el)
+        .selectAll('option')
+        .data(cases)
+        .append('option')
+        .text(function(d) { return d.display_name; });
     };
 
     return {
-//        getAttrId_to_data: function () { return attrId_to_data; }
+        populate_clinical_attr_select: populate_clinical_attr_select
     };
 }());
 

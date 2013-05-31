@@ -1,6 +1,6 @@
 //
 //
-// Gideon Dresdner <dresdnerg@cbio.mskcc.org> May 2013
+// Gideon Dresdner <dresdnerg@cbio.mskcc.org> June 2013
 //
 //
 //
@@ -224,6 +224,25 @@ var OncoprintUtils = (function() {
         return 42 + max; // http://goo.gl/iPzfU
     };
 
+    //TODO:
+    var createId2ClinicalAttr = function(clinical_attrs) {
+        return id2ClinicalAttr = clinical_attrs.reduce(
+            function(name2attr, attr) {
+                name2attr[attr.attr_id] = attr;
+                return name2attr;
+            }, {});
+    };
+
+    //TODO:
+    var map_display_name = function(map, d) {
+        var clinical_attr = map[d];
+        if (clinical_attr === undefined) {      // we have a gene
+            return d;
+        }
+
+        return clinical_attr.display_name;
+    };
+
     // TODO: not sure if this function is still necessary
     //
     // params: string (hugo gene symbol)
@@ -244,20 +263,26 @@ var OncoprintUtils = (function() {
         attr_to_d3scale: attr_to_d3scale,
         filter_altered: filter_altered,
         percent_altered: percent_altered,
-        label_width: label_width
+        label_width: label_width,
+        createId2ClinicalAttr: createId2ClinicalAttr,
+        map_display_name: map_display_name
     };
 }());
 
 // namespace for functions that relate to the User Interface of the Oncoprint.
-// Also encapsulates a map of attribute ids to ClinicalColls.
 var OncoprintUI = (function() {
 
-    // params: select_el (a DOM <select> element), a string of cases separated
-    // by a string
-    var populate_clinical_attr_select = function(select_el, cases) {
-        d3.select(select_el)
-        .selectAll('option')
-        .data(cases)
+    // params: select_el (a DOM <select> element), clinical_attributes (list of
+    // clinical attribute object literals);
+    var populate_clinical_attr_select = function(select_el, clinical_attributes) {
+
+        clinical_attributes = [{display_name: 'none', attr_id: undefined}].concat(clinical_attributes);
+
+        var select_el = d3.select(select_el);
+
+        select_el.selectAll('option')
+        .data(clinical_attributes)
+        .enter()
         .append('option')
         .text(function(d) { return d.display_name; });
     };
@@ -269,12 +294,12 @@ var OncoprintUI = (function() {
 
 // Creates an oncoprint on the div.
 // The parameters is an object that contains:
-// clinicalData, clinical_attrs, and geneData
+// clinicalData, clinical_attrs (list), genes (list), and geneData
 var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];        // initialize
     params.clinical_attrs = params.clinical_attrs || [];
 
-    // map str(number) back to number
+    // map strings of numbers back to numbers
     var clinicalData = params.clinicalData.map(function(i) {
         if (!OncoprintUtils.is_discrete(i.attr_val)) {
             i.attr_val = parseInt(i.attr_val);
@@ -283,7 +308,11 @@ var Oncoprint = function(div, params) {
     });
 
     var data = clinicalData.concat(params.geneData);
-    var attributes = params.clinical_attrs.concat(params.genes);
+
+    var clinical_attrs = params.clinical_attrs      // extract attr_ids
+        .map(function(attr) { return attr.attr_id; });
+    var attributes = clinical_attrs.concat(params.genes);
+
     data = OncoprintUtils.process_data(data, attributes);
 
     // keeps track of the order specified by the user (translates to vertical
@@ -313,11 +342,16 @@ var Oncoprint = function(div, params) {
 
     var attr2range = OncoprintUtils.attr_to_d3scale(clinicalData);
 
+    var id2ClinicalAttr = OncoprintUtils.createId2ClinicalAttr(params.clinical_attrs);
+
     var dims = (function() {
         var rect_height = 23;
         var mut_height = rect_height / 3;
-        var vert_padding = 4
-        var label_width = OncoprintUtils.label_width(attributes);
+        var vert_padding = 4;
+        var label_width = OncoprintUtils.label_width(attributes.map(
+            function(attr) {        // curry
+                return OncoprintUtils.map_display_name(id2ClinicalAttr, attr);
+            }));
 
         return {
             width: data.length * (5.5 + 3),
@@ -337,6 +371,10 @@ var Oncoprint = function(div, params) {
     var table = d3.select(div)
         .append('table')
         .append('tr');
+
+    var remove_oncoprint = function() {
+        d3.select("#" + div.id + ' table *').remove();
+    };
 
     var label_svg = table
         .append('td')
@@ -358,7 +396,7 @@ var Oncoprint = function(div, params) {
     label.append('tspan')       // name
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
-        .text(function(d) { return d; });
+        .text(function(d) { return OncoprintUtils.map_display_name(id2ClinicalAttr, d); });
     label.append('tspan')       // percent_altered
         .text(function(d) {
             return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
@@ -378,7 +416,7 @@ var Oncoprint = function(div, params) {
 
     var colors = {
         red: '#FF0000',
-        grey: '#D3D3D3',
+        grey: '#D3D3D3'
     };
 
     var cna_fills = {
@@ -534,6 +572,7 @@ var Oncoprint = function(div, params) {
         };
 
         return {
+            remove_oncoprint: remove_oncoprint,
             memoSort: function(attributes) {
                 internal_data = MemoSort(internal_data, attributes);
                 horizontal_translate();

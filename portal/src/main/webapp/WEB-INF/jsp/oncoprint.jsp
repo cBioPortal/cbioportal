@@ -21,23 +21,29 @@
                 }
                 .onco-customize:hover { text-decoration: underline; }
             </style>
-            <p onclick="$('#oncoprint_controls table').toggle(); $('#oncoprint_controls .triangle').toggle();"
+            <p onclick="$('#oncoprint_controls #main').toggle(); $('#oncoprint_controls .triangle').toggle();"
                style="margin-bottom: 0px;">
                 <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
                 <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
                 <span class='onco-customize'>Customize</span>
             </p>
-            <table style="padding-left:13px; padding-top:5px; display:none;">
-                <tr>
-                    <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Remove Unaltered Cases</td>
-                    <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Restore Case Order<img src="images/help.png" title="sort cases alphabetically by case ID, or as defined in the original query" onload="$(this).tipTip();" ></td>
-                </tr>
 
-                <tr>
-                    <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                    <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
-                </tr>
-            </table>
+            <div id="main" style="display:none;">
+                <table style="padding-left:13px; padding-top:5px">
+                    <tr>
+                        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Remove Unaltered Cases</td>
+                        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Restore Case Order<img src="images/help.png" title="sort cases alphabetically by case ID, or as defined in the original query" onload="$(this).tipTip();" ></td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+                    </tr>
+                </table>
+
+                <select id="select_clinical_attributes"></select>
+            </div>
+
         </div>
         <div id="oncoprint_body">
             <script type="text/javascript" src="js/oncoprint.js"></script>
@@ -70,9 +76,17 @@
                                 }}).appendTo($(div));
                 };
 
+                var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
+
+                clinicalAttributes.fetch({
+                    success: function(attrs) {
+                        OncoprintUI.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
+                    }
+                });
+
                 var oncoprint;
                 geneDataColl.fetch({
-                    'type': "POST",
+                    type: "POST",
                     success: function(data) {
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'),
                                 { geneData: data.toJSON(), genes: geneDataColl.genes.split(" ") });
@@ -80,6 +94,41 @@
                         $('#oncoprint #everything').show();
 
                         oncoprintZoomSetup(oncoprint, $('#oncoprint_controls #zoom'));
+                    }
+                });
+
+                var select_clinical_attributes_id = '#select_clinical_attributes';
+                var oncoprintClinicals;
+                $(select_clinical_attributes_id).change(function() {
+                    oncoprint.remove_oncoprint();
+
+                    var clinicalAttribute = $(select_clinical_attributes_id + ' option:selected')[0].__data__;
+
+                    if (clinicalAttribute.attr_id === undefined) {
+                        // selected "none"
+                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                            geneData: geneDataColl.toJSON(),
+                            genes: geneDataColl.genes.split(" ")
+                        });
+
+                    } else {
+                        oncoprintClinicals = new ClinicalColl({
+                            cancer_study_id: cancer_study_id_selected,
+                            attr_id: clinicalAttribute.attr_id,
+                            case_list: cases
+                        });
+
+                        oncoprintClinicals.fetch({
+                            type: "POST",
+                            success: function(response) {
+                                oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                                    geneData: geneDataColl.toJSON(),
+                                    clinicalData: response.toJSON(),
+                                    genes: geneDataColl.genes.split(" "),
+                                    clinical_attrs: response.attributes()
+                                });
+                            }
+                        });
                     }
                 });
 

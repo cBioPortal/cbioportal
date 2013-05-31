@@ -139,7 +139,7 @@ var ClinicalColl = Backbone.Collection.extend({
             url_str += "cancer_study_id=" + this.cancer_study_id + "&";
         }
         if (this.attr_id) {
-            url_str += "attribute_id=" + this.attr_id;
+            url_str += "attribute_id=" + this.attr_id + "&";
         }
         url_str += "case_list=" + this.case_list;
         return url_str;
@@ -226,11 +226,10 @@ var GeneDataColl = Backbone.Collection.extend({
 //foobar.fetch({type: "POST"});
 ;
 
-// params : generally an empty list,
-//          object literal with the field case_list -- string of cases
-//          separated by a space
-// on fetch(), populates list of object literals with the fields: [attr_id,
-// display_name, description, datatype]
+// params : object literal { case_list: <string of cases separated by space> }
+
+// on fetch(), populates list of object literals with the fields:
+// [attr_id, display_name, description, datatype]
 var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
     initialize: function(attributes) {

@@ -66,7 +66,7 @@ public class TestWebService extends TestCase {
       assertTrue( aNullHttpServletResponse.getOutput().contains("# CGDS Kernel:  Data served up fresh at") );
       
       checkRequest( mkStringArray( WebService.CMD, "getTypesOfCancer" ), 
-               mkStringArray( "type_of_cancer_id\tname", "LUAD\tLung adenocarcinoma" ) );
+               mkStringArray( "type_of_cancer_id\tname", "BLCA\tBladder Urothelial Carcinoma" ) );
 
       // bad command
       checkRequest( mkStringArray( WebService.CMD, "badCommand" ), "Error: 'badCommand' not a valid command." );
@@ -168,7 +168,8 @@ public class TestWebService extends TestCase {
       }
       String[] lines = aNullHttpServletResponse.getOutput().split("\n");
       for( int i=0; i<responseLines.length; i++ ){
-         assertEquals( responseLines[i], lines[i+1]);
+          System.out.println(responseLines[i] + " : " +  lines[i+1]);
+          assertEquals( responseLines[i], lines[i+1]);
       }
    }
    

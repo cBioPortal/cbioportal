@@ -306,10 +306,11 @@ class ConverterImpl implements Converter {
 	 *
 	 * @param portal String
 	 * @param excludeDatatypes Set<String>
+	 * @param applyCaseLists boolean
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+	public void applyOverrides(String portal, Set<String> excludeDatatypes, boolean applyCaseLists) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("applyOverrides(), portal: " + portal);
@@ -344,7 +345,9 @@ class ConverterImpl implements Converter {
 				}
 			}
 			// case lists
-			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists", "case_lists");
+			if (applyCaseLists) {
+				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists", "case_lists");
+			}
 		}
 	}
 

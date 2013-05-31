@@ -745,10 +745,15 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 content: {text: 'qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = "<font size='2'>" + 
-					"x: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
-					"y: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>" + 
-					"Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
+			var content = "<font size='2'>";
+			if (type == 2) {	//mrna vs. dna methylation
+				content += "Methylation: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
+						"mRNA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";
+			} else if (type == 3) { //rppa vs. mrna
+				content += "mRNA: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
+						"RPPA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";
+			}
+			content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
                             content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")" + "<br>";
                         }

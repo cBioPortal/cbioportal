@@ -34,6 +34,7 @@ import org.mskcc.cbio.importer.Importer;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.util.ClassLoader;
+import org.mskcc.cbio.importer.model.CaseListMetadata;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.TumorTypeMetadata;
@@ -52,6 +53,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.lang.reflect.Method;
@@ -309,12 +311,36 @@ class ImporterImpl implements Importer {
 				mainMethod.invoke(null, (Object)args);
 			}
 
+			// create missing case lists
+			List<String> missingCaseListFilenames = fileUtils.getMissingCaseListFilenames(rootDirectory, cancerStudyMetadata);
+
+			if (!missingCaseListFilenames.isEmpty()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), the following case lists are missing and if data files are available will be generated: " + missingCaseListFilenames);
+				}
+				// create missing caselists
+				fileUtils.generateCaseLists(false, false, rootDirectory, cancerStudyMetadata);
+			}
+
 			// process case lists
-			args = new String[] { (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists") };
+			String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+			args = new String[] { caseListDirectory };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFile(), ImportCaseList:main(), with args: " + Arrays.asList(args));
 			}
 			ImportCaseList.main(args);
+
+			if (!missingCaseListFilenames.isEmpty()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), deleting auto-generated case list files...");
+				}
+				// remove missing caselists that were just created
+				for (String missingCaseListFilename : missingCaseListFilenames) {
+					fileUtils.deleteFile(new File(missingCaseListFilename));
+				}
+				File caseListDir = new File(caseListDirectory);
+				if (fileUtils.directoryIsEmpty(caseListDir)) fileUtils.deleteDirectory(caseListDir);
+			}
 		}
 	}
 

@@ -12,7 +12,7 @@
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
-<script type="text/javascript" src="js/raphael/raphael.js"></script>
+<!--script type="text/javascript" src="js/raphael/raphael.js"></script-->
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/mutation_table.js"></script>
 
@@ -91,8 +91,8 @@
 //  Set up Mutation Diagrams
 $(document).ready(function(){
 	var tableMutations;
-    var diagramSequence;
-
+    var diagramData;
+	var gene;
 	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         String geneStr = geneWithScore.getGene();
@@ -107,11 +107,17 @@ $(document).ready(function(){
                 converMutations(geneWithScore, mutationMap, mergedCaseList)
         );
     %>
-	        tableMutations = <%= mutationTableStr %>;
-            diagramSequence = <%= mutationDiagramStr %>;
+			// TODO change diagram data, it should be simpler
+			diagramData = <%= mutationDiagramStr %>;
+            //drawMutationDiagram(diagramSequence);
 
-            drawMutationDiagram(diagramSequence);
-            delayedMutationTable(tableMutations);
+			gene = "<%= geneStr %>";
+			var mutationDiagram = new MutationDiagram(
+					{el: "mutation_diagram_" + gene},
+					diagramData);
+
+			tableMutations = <%= mutationTableStr %>;
+			delayedMutationTable(tableMutations);
 
         <% } %>
     <% } %>

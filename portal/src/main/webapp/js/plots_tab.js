@@ -19,6 +19,7 @@ var plot_type_list = [
     ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
 ];
 
+var has_mrna = false, has_copy_no = false, has_dna_methylation = false, has_rppa = false;
 var data_type_copy_no, data_type_mrna, data_type_dna_methylation, data_type_rppa, data_type_mutations;
 
 //Utils Functions
@@ -108,7 +109,7 @@ function fetchFrameData() {
     var tmp_columns = [];
     $.ajax({
         url: "webservice.do?cmd=getGeneticProfiles&cancer_study_id=" + cancer_study_id,
-        type: 'get',
+	type: 'get',
         dataType: 'text',
         async: false,
         success: function (data) {
@@ -123,15 +124,19 @@ function fetchFrameData() {
                         } else if (tmp_columns[4] == "MRNA_EXPRESSION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_mrna.push(tmpArr);
+			    has_mrna = true;
                         } else if (tmp_columns[4] == "COPY_NUMBER_ALTERATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_copy_no.push(tmpArr);
+			    has_copy_no = true;
                         } else if (tmp_columns[4] == "METHYLATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_dna_methylation.push(tmpArr);
+			    has_dna_methylation = true;
                         } else if (tmp_columns[4] == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_rppa.push(tmpArr);
+			    has_rppa = true;
                         }
                     }
                 }
@@ -486,9 +491,15 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
 //Drawing Functions
 function drawSideBar() {
     //Plot Type
-    for ( var m = 0; m < plot_type_list.length; m++) {
-        $('#plot_type').append("<option value='" + plot_type_list[m][0] + "'>" + plot_type_list[m][1] + "</option>");
-    }
+    if ( has_mrna && has_copy_no) {
+        $('#plot_type').append("<option value='" + plot_type_list[0][0] + "'>" + plot_type_list[0][1] + "</option>");
+    }	    
+    if ( has_mrna && has_dna_methylation) {
+        $('#plot_type').append("<option value='" + plot_type_list[1][0] + "'>" + plot_type_list[1][1] + "</option>");
+    }	    
+    if ( has_mrna && has_rppa) {
+        $('#plot_type').append("<option value='" + plot_type_list[2][0] + "'>" + plot_type_list[2][1] + "</option>");
+    }	    
     //Copy Number Type
     for ( var j = 0; j < genetic_profile_copy_no.length; j++ ) {
         $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
@@ -794,7 +805,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     }
     if ((yHasData == false) || (xHasData == false)) {
 	
-        var errorTxt1 = "Currently, " + gene + " has no data for -->";
+        var errorTxt1 = gene + " Has No Data For";
 	var errorTxt2;
 	var errorTxt3 = "in selected cancer study."
 	if (yHasData == false) {

@@ -39,9 +39,12 @@
                         <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                         <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
                     </tr>
+                    <tr>
+                        <td>
+                            <select id="select_clinical_attributes" style=""></select>
+                        </td>
+                    </tr>
                 </table>
-
-                <select id="select_clinical_attributes" style=""></select>
             </div>
 
         </div>

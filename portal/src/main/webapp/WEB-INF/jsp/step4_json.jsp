@@ -288,7 +288,12 @@
 
 							geneSetSelected();
 							validateGenes();
-                            clinicalAttributeSelected();
+
+                            cancerStudySelected();
+
+                            if (typeof clinicalAttributeSelected !== undefined) {        // run the function if it is defined
+                                clinicalAttributeSelected();
+                            }
 						},
 						minLength: 0
 					})

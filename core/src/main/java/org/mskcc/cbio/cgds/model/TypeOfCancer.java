@@ -38,6 +38,8 @@ public class TypeOfCancer {
 
    private String name;
    private String typeOfCancerId;
+   // Separated by commas
+   private String clinicalTrialKeywords = "";
 
    public String getName() {
       return name;
@@ -52,4 +54,11 @@ public class TypeOfCancer {
       this.typeOfCancerId = typeOfCancerId;
    }
 
+   public String getClinicalTrialKeywords() {
+      return clinicalTrialKeywords;
+   }
+
+   public void setClinicalTrialKeywords(String clinicalTrialKeywords) {
+      this.clinicalTrialKeywords = clinicalTrialKeywords;
+   }
 }

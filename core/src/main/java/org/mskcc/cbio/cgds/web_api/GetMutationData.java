@@ -79,7 +79,8 @@ public class GetMutationData {
         buf.append("xvar_link_msa\t");
         buf.append("chr\t");
         buf.append("start_position\t");
-        buf.append("end_position");
+        buf.append("end_position\t");
+        buf.append("genetic_profile_id");
         buf.append("\n");
 
         //  Iterate through all validated genes, and extract mutation data.
@@ -91,7 +92,7 @@ public class GetMutationData {
                             canonicalGene.getEntrezGeneId());
             for (ExtendedMutation mutation:  mutationList) {
                 String caseId = mutation.getCaseId();
-                if (targetCaseList.contains(caseId)) {
+                if (targetCaseList==null || targetCaseList.contains(caseId)) {
                     buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
                     buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
                     buf.append(caseId).append(TAB);
@@ -106,7 +107,8 @@ public class GetMutationData {
                     buf.append(mutation.getLinkMsa()).append(TAB);
                     buf.append(mutation.getChr()).append(TAB);
                     buf.append(mutation.getStartPosition()).append(TAB);
-                    buf.append(mutation.getEndPosition());
+                    buf.append(mutation.getEndPosition()).append(TAB);
+                    buf.append(geneticProfileId);
                     buf.append("\n");
                 }
             }

@@ -41,7 +41,7 @@
                     </tr>
                 </table>
 
-                <select id="select_clinical_attributes"></select>
+                <select id="select_clinical_attributes" style=""></select>
             </div>
 
         </div>
@@ -100,7 +100,8 @@
 
                 var select_clinical_attributes_id = '#select_clinical_attributes';
                 var oncoprintClinicals;
-                $(select_clinical_attributes_id).change(function() {
+
+                var clinicalAttributeSelected = function() {
                     oncoprint.remove_oncoprint();
                     $('#oncoprint_body .loader_img').show();
 
@@ -134,7 +135,10 @@
                             }
                         });
                     }
-                });
+                };
+                $(select_clinical_attributes_id).change(clinicalAttributeSelected);
+
+                var select_clinical_attributes = $(select_clinical_attributes_id).combobox();
 
                 <%--var geneDataQuery = {--%>
                     <%--cancer_study_id: "<%=cancerTypeId%>",--%>

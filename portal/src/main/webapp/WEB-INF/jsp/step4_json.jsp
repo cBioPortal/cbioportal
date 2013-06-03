@@ -288,6 +288,7 @@
 
 							geneSetSelected();
 							validateGenes();
+                            clinicalAttributeSelected();
 						},
 						minLength: 0
 					})

@@ -1,6 +1,6 @@
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
-    <img id="loader_img" src="images/ajax-loader.gif"/>
+    <img class="loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
         <h4>OncoPrint
             <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
@@ -47,6 +47,7 @@
         </div>
         <div id="oncoprint_body">
             <script type="text/javascript" src="js/oncoprint.js"></script>
+            <img class="loader_img" style="display:hidden;" src="images/ajax-loader.gif"/>
 
             <script type="text/javascript">
                 var oncoPrintParams = {
@@ -90,7 +91,7 @@
                     success: function(data) {
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'),
                                 { geneData: data.toJSON(), genes: geneDataColl.genes.split(" ") });
-                        $('#oncoprint #loader_img').hide();
+                        $('#oncoprint .loader_img').hide();
                         $('#oncoprint #everything').show();
 
                         oncoprintZoomSetup(oncoprint, $('#oncoprint_controls #zoom'));
@@ -101,6 +102,7 @@
                 var oncoprintClinicals;
                 $(select_clinical_attributes_id).change(function() {
                     oncoprint.remove_oncoprint();
+                    $('#oncoprint_body .loader_img').show();
 
                     var clinicalAttribute = $(select_clinical_attributes_id + ' option:selected')[0].__data__;
 
@@ -121,6 +123,8 @@
                         oncoprintClinicals.fetch({
                             type: "POST",
                             success: function(response) {
+                                $('#oncoprint_body .loader_img').hide();
+
                                 oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                                     geneData: geneDataColl.toJSON(),
                                     clinicalData: response.toJSON(),

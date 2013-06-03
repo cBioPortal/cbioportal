@@ -204,10 +204,10 @@ var OncoprintUtils = (function() {
     // calculates the length of the longest label for a particular list of
     // attributes (strings) by temporarily appending them as text, calculating
     // their width, and taking the maximum.
-    var label_width = function(attributes) {
+    var label_width = function(strings) {
         var tmp = d3.select('body').append('svg');
 
-        attributes.forEach(function(attr) {
+        strings.forEach(function(attr) {
             tmp.append('text')
                 .append('tspan')
                 .text(attr);
@@ -373,7 +373,7 @@ var Oncoprint = function(div, params) {
         .append('tr');
 
     var remove_oncoprint = function() {
-        d3.select("#" + div.id + ' table *').remove();
+        d3.select("#" + div.id + ' table').remove();
     };
 
     var label_svg = table

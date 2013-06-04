@@ -287,8 +287,59 @@ var OncoprintUI = (function() {
         .text(function(d) { return d.display_name; });
     };
 
+        d3.selectAll('.sample').each(function(d, i) {
+            $(this).qtip({
+                content: {text: 'oncoprint qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
+                        api.set('content.text', content);
+                    }
+                },
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                //position: {my:'left top',at:'bottom center'}
+                position: {my:'left bottom',at:'top right'}
+            });
+        });
+
+
+    var formatMutation = function(d) {
+        return d.mutation ?
+            "Mutation: <b>" + d.mutation + "</b><br/>"
+            : "";
+    };
+
+    var patientViewUrl = function(sample_id) {
+        // helper function
+        var href = "case.do?case_id=" + sample_id
+            + "&cancer_study_id=" + window.cancer_study_id_selected;        // N.B.
+
+        return "<a href='" + href + "'>" + sample_id + "</a>";
+    };
+
+    // params: els, list of d3 selected elements with either gene data or
+    // clinical bound to them
+    var make_qtip = function(els) {
+        els.each(function(d, i) {
+            $(this).qtip({
+                content: {text: 'oncoprint qtip failed'},
+                position: {my:'left bottom', at:'top right'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        var content = '<font size="2">' + formatMutation(d) + patientViewUrl(d.sample) + '</font>';
+                        api.set('content.text', content);
+                    }
+                },
+            });
+        });
+    };
+
     return {
-        populate_clinical_attr_select: populate_clinical_attr_select
+        populate_clinical_attr_select: populate_clinical_attr_select,
+        make_qtip: make_qtip
     };
 }());
 
@@ -654,6 +705,8 @@ var Oncoprint = function(div, params) {
 //    setInterval(function() {
 //        State.memoSort(data, shuffle(attributes));
 //    }, 4400);
+
+    OncoprintUI.make_qtip(d3.selectAll('#' + div.id + ' .sample *'));
 
     return State;
 };

@@ -8,17 +8,25 @@
 function MutationDiagram(options, data)
 {
 	var self = this;
+	// merge options with default options to use defaults for missing values
+	options = jQuery.extend({}, self.defaultOpts, options);
 
 	var container = d3.select("#" + options.el);
 	var svg = self.createSvg(container,
 			options.elWidth,
 			options.elHeight);
 
+	// calculate bounds of the actual plot area (excluding the axis)
+	var bounds = {};
+	bounds.width = options.elWidth - (options.marginLeft + options.marginRight);
+	bounds.height = options.elHeight - (options.marginBottom + options.marginTop);
+	bounds.x = options.marginLeft;
+	bounds.y = options.elHeight - options.marginBottom;
+
 	self.drawDiagram(svg,
-		{width: 700, height: 150, x: 10, y: 10},
+		bounds,
 		options,
 		data);
-
 }
 
 // TODO add more options for more customizable diagram:
@@ -35,8 +43,18 @@ MutationDiagram.prototype.defaultOpts = {
 	el: "mutation_diagram_d3",
 	elWidth: 720,
 	elHeight: 180,
+	marginLeft: 20,
+	marginRight: 10,
+	marginTop: 20,
+	marginBottom: 40,
 	labelX: null,
-	labelY: "# Mutations"
+	labelY: "# Mutations",
+	seqFillColor: "#BABDB6",
+	seqHeight: 16,
+	seqPadding: 8,
+	regionHeight: 24,
+	lollipopFillColor: "#B40000", // TODO more than one color wrt mutation type?
+	lollipopRadius: 3
 };
 
 /**
@@ -47,7 +65,8 @@ MutationDiagram.prototype.defaultOpts = {
  * @param options   options object
  * @param data      data to visualize
  */
-MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data) {
+MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
+{
 	var self = this;
 
 	// TODO temp test value, data structure should change completely
@@ -60,11 +79,18 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data) {
 
 	var yScale = d3.scale.linear()
 		.domain([0, yMax])
-		.range([bounds.y + bounds.height, bounds.y]);
+		.range([bounds.y, bounds.y - bounds.height]);
 
 	// TODO draw axes
 
-	// TODO draw sequence & regions
+	// TODO draw sequence
+	var sequence = self.drawSequence(svg, options, bounds);
+
+	// TODO draw regions
+	for (i = 0, size = data[0].regions.length; i < size; i++)
+	{
+		self.drawRegion(svg, data[0].regions[i], options, bounds, xScale);
+	}
 
 	// TODO draw lollipops
 	for (var i = 0, size = data[0].markups.length; i < size; i++)
@@ -77,30 +103,53 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data) {
 			svg.append('circle')
 				.attr('cy', y)
 				.attr('cx', x)
-				.attr('r', 3);
+				.attr('r', options.lollipopRadius)
+				.attr('fill', options.lollipopFillColor);
 		}
 	}
 };
 
-MutationDiagram.prototype.createSvg = function (container, width, height) {
+MutationDiagram.prototype.createSvg = function (container, width, height)
+{
 	var svg = container.append("svg");
-
-	// use default values if necessary
-
-	if (width == undefined)
-	{
-		width = this.defaultOpts.elWidth;
-	}
-
-	if (height == undefined)
-	{
-		height = this.defaultOpts.elHeight;
-	}
 
 	svg.attr('width', width);
 	svg.attr('height', height);
 
 	return svg;
+};
+
+
+MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xScale)
+{
+	var width = Math.abs(xScale(region.start) - xScale(region.end));
+	var height = options.regionHeight;
+	var y = bounds.y + options.seqPadding;
+	var x = bounds.x + xScale(region.start);
+
+	return svg.append('rect')
+		.attr('fill', "#E0E0E0") // TODO fill color?
+		.attr('x', x)
+		.attr('y', y)
+		.attr('width', width)
+		.attr('height', height);
+};
+
+MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
+{
+	var x = bounds.x;
+	var y = bounds.y +
+	        Math.abs(options.regionHeight - options.seqHeight) / 2 +
+	        options.seqPadding;
+	var width = bounds.width;
+	var height = options.seqHeight;
+
+	return svg.append('rect')
+		.attr('fill', options.seqFillColor)
+		.attr('x', x)
+		.attr('y', y)
+		.attr('width', width)
+		.attr('height', height);
 };
 
 /**
@@ -126,4 +175,5 @@ MutationDiagram.prototype.calcMaxCount = function(data)
 	}
 
 	return maxCount;
-}
+};
+

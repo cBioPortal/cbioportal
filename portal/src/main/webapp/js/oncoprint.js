@@ -353,6 +353,9 @@ var Oncoprint = function(div, params) {
                 return OncoprintUtils.map_display_name(id2ClinicalAttr, attr);
             }));
 
+        var clinical_height = (2/3) * rect_height;
+        var clinical_offset = (1/6) * rect_height;
+
         return {
             width: data.length * (5.5 + 3),
             height: (23 + 5) * attributes.length,
@@ -362,7 +365,9 @@ var Oncoprint = function(div, params) {
             vert_space: rect_height + vert_padding,
             hor_padding: 2,
             mut_height: mut_height,
-            label_width: label_width
+            label_width: label_width,
+            clinical_height: clinical_height,
+            clinical_offset: clinical_offset
         };
     }());
 //    var margin = { top: 80, right: 80, left: 80, bottom: 80 };
@@ -470,9 +475,17 @@ var Oncoprint = function(div, params) {
                     return d.attr_val === "NA" ? colors.grey : attr2range[d.attr_id](d.attr_val);
                 }
             })
-            .attr('height', function(d) {return dims.rect_height; })
+            .attr('height', function(d) {
+                return d.attr_id === undefined ? dims.rect_height : dims.clinical_height;
+           //     return dims.rect_height;
+            })
             .attr('width', dims.rect_width)
-            .attr('y', function(d) { return vertical_pos(OncoprintUtils.get_attr(d)); });
+            .attr('y', function(d) {
+                return d.attr_id === undefined
+                ? vertical_pos(OncoprintUtils.get_attr(d))
+                : vertical_pos(OncoprintUtils.get_attr(d)) + dims.clinical_offset;
+           //     return vertical_pos(OncoprintUtils.get_attr(d));
+            });
 
         var mut = enter.append('rect')
             .attr('fill', 'green')

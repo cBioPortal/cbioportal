@@ -1,3 +1,7 @@
+# June 4, 2013
+
+* All TCGA data updated to the April Firehose run (April 21, 2012).
+
 # May 14, 2013
 
 * Added a published TCGA study: Acute Myeloid Leukemia (TCGA, NEJM 2013).

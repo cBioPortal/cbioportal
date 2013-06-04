@@ -18,8 +18,18 @@ var plot_type_list = [
     ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
     ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
 ];
-var has_mrna = false, has_copy_no = false, has_dna_methylation = false, has_rppa = false;
-var data_type_copy_no, data_type_mrna, data_type_dna_methylation, data_type_rppa, data_type_mutations;
+
+function PlotsConfig() {
+	this.has_mrna = "false";
+	this.has_dna_methylation = "false";
+	this.has_rppa = "false";
+	this.copy_no_type = null;
+	this.mrna_type = null;
+	this.dna_methylation_type = null;
+	this.rppa_type = null;
+	this.mutations_type = null;
+}
+
 
 (function() {
 	window.PlotsType = {
@@ -29,53 +39,49 @@ var data_type_copy_no, data_type_mrna, data_type_dna_methylation, data_type_rppa
 	};
 })();
 
-//Utils Functions
-function findIndex(Str, Exp) {
-    	for (var i = 0; i< Exp.length; i++) {
-        	if ( Str == Exp[i][0] ) {
-            		return i;
-        	}
-    	}
-    	return -1;
+function PlotsUtil() {	
 }
-function seachIndexBottom(arr, ele) {
-    for( var i = 0; i < arr.length; i++) {
-        if (parseFloat(ele) > parseFloat(arr[i])) {
-            continue ;
-        } else if (parseFloat(ele) == parseFloat(arr[i])) {
-            return i;
-        } else {
-            return i - 1;
-        }
-    }
-    return arr.length - 1 ;
-}
-function seachIndexTop(arr, ele) {
-    for( var i = 0; i < arr.length; i++) {
-        if (ele <= arr[i]) {
-            return i;
-        } else {
-            continue;
-        }
-    }
-    return arr.length - 1;
-}
-function loadSVG() {
-    var mySVG = document.getElementById("plots_tab");
-    var svgDoc = mySVG.getElementsByTagName("svg");
-    var tmp1 = new XMLSerializer();
-    var tmp2 = tmp1.serializeToString(svgDoc[0]);
-    return tmp2;
-}
-function copyData(desArray, oriArray) {
-    var desArrayIndex = 0;
-    for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
-        if (oriArray[tmpIndex] != "" && oriArray[tmpIndex] != null ) {
-            desArray[desArrayIndex] = oriArray[tmpIndex];
-            desArrayIndex += 1;
-        }
-    }
-}
+PlotsUtil.prototype = {
+	findIndex : function(Str, Exp) {
+    			for (var i = 0; i< Exp.length; i++) {
+        			if ( Str == Exp[i][0] ) {
+            				return i;
+        			}
+    			}
+    			return -1;
+		},	
+	seachIndexBottom : function(arr, ele) {
+    				for( var i = 0; i < arr.length; i++) {
+        				if (parseFloat(ele) > parseFloat(arr[i])) {
+            				continue ;
+        			} else if (parseFloat(ele) == parseFloat(arr[i])) {
+            				return i;
+        			} else {
+            				return i - 1;
+        			}
+    			}	
+    			return arr.length - 1 ;
+		},
+	seachIndexTop : function(arr, ele) {
+    				for( var i = 0; i < arr.length; i++) {
+        				if (ele <= arr[i]) {
+            					return i;
+        				} else {
+            					continue;
+        				}
+    				}		
+    				return arr.length - 1;
+			},
+	copyData : function(desArray, oriArray) {
+    				var desArrayIndex = 0;
+    					for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
+        					if (oriArray[tmpIndex] != "" && oriArray[tmpIndex] != null ) {
+            						desArray[desArrayIndex] = oriArray[tmpIndex];
+            						desArrayIndex += 1;
+        					}
+    					}
+			}	
+};
 
 //View Controllers
 function initView() {
@@ -131,7 +137,7 @@ function fetchFrameData() {
                         } else if (tmp_columns[4] == "MRNA_EXPRESSION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_mrna.push(tmpArr);
-			    has_mrna = true;
+			    plotsConfig.has_mrna = true;
                         } else if (tmp_columns[4] == "COPY_NUMBER_ALTERATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_copy_no.push(tmpArr);
@@ -139,11 +145,11 @@ function fetchFrameData() {
                         } else if (tmp_columns[4] == "METHYLATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_dna_methylation.push(tmpArr);
-			    has_dna_methylation = true;
+			    plotsConfig.has_dna_methylation = true;
                         } else if (tmp_columns[4] == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_rppa.push(tmpArr);
-			    has_rppa = true;
+			    plotsConfig.has_rppa = true;
                         }
                     }
                 }
@@ -160,27 +166,27 @@ function fetchPlotsData() {
     }
     //Get relevant parameters
     gene = document.getElementById("genes").value;
-    data_type_copy_no = document.getElementById("data_type_copy_no").value;
-    data_type_mrna = document.getElementById("data_type_mrna").value;
+    plotsConfig.copy_no_type = document.getElementById("data_type_copy_no").value;
+    plotsConfig.mrna_type = document.getElementById("data_type_mrna").value;
     if (genetic_profile_mutations != "") {
-        data_type_mutations = genetic_profile_mutations[0][0];
+        plotsConfig.mutations_type = genetic_profile_mutations[0][0];
     }
     if (genetic_profile_rppa != "") {
-        data_type_rppa = genetic_profile_rppa[0][0];
+        plotsConfig.rppa_type = genetic_profile_rppa[0][0];
     }
     if (genetic_profile_dna_methylation != "") {
-        data_type_dna_methylation = genetic_profile_dna_methylation[0][0];
+        plotsConfig.dna_methylation_type = genetic_profile_dna_methylation[0][0];
     }
 
     //Calling web APIs
     var urls;
     var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + gene + "&genetic_profile_id=";
     urls = [
-        url_base + data_type_mutations, //mutations
-        url_base + data_type_copy_no, //copy no
-        url_base + data_type_mrna, //mrna
-        url_base + data_type_rppa, //rppa
-        url_base + data_type_dna_methylation //dna methylation
+        url_base + plotsConfig.mutations_type, //mutations
+        url_base + plotsConfig.copy_no_type, //copy no
+        url_base + plotsConfig.mrna_type, //mrna
+        url_base + plotsConfig.rppa_type, //rppa
+        url_base + plotsConfig.dna_methylation_type //dna methylation
     ];
     for (var i = 0; i < urls.length; i++) {
         $.ajax({
@@ -204,7 +210,7 @@ function fetchPlotsData() {
                             profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
                         }
                         //Fill in Result Data Set
-                        copyData(result_set[i], profile_data);
+                        plotsUtil.copyData(result_set[i], profile_data);
                     }
                 } else {
                     alert("ERROR Fetching Data.");
@@ -214,11 +220,11 @@ function fetchPlotsData() {
     }
 
     //Distributing Data
-    copyData(mutations, result_set[0]);
-    copyData(copy_no, result_set[1]);
-    copyData(mrna, result_set[2]);
-    copyData(rppa, result_set[3]);
-    copyData(dna_methylation, result_set[4]);
+    plotsUtil.copyData(mutations, result_set[0]);
+    plotsUtil.copyData(copy_no, result_set[1]);
+    plotsUtil.copyData(mrna, result_set[2]);
+    plotsUtil.copyData(rppa, result_set[3]);
+    plotsUtil.copyData(dna_methylation, result_set[4]);
 
     //Map Mutations --- replace mutation ID w/ mutations type
     var mutationMap = {};
@@ -255,18 +261,18 @@ function fetchAxisTitle() {
     var yLegend = "";
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        var tmp_xLegend_index = findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);
-        var tmp_yLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        var tmp_xLegend_index = plotsUtil.findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);
+        var tmp_yLegend_index = plotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
         xLegend = gene + ", " + genetic_profile_copy_no[tmp_xLegend_index][1];
         yLegend = gene + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        var tmp_yLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        var tmp_yLegend_index = plotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
         if (genetic_profile_dna_methylation != "") {
             xLegend = gene + ", " + genetic_profile_dna_methylation[0][1];
         }
         yLegend = gene + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        var tmp_xLegend_index = findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        var tmp_xLegend_index = plotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
         xLegend = gene + ", " + genetic_profile_mrna[tmp_xLegend_index][1];
         if (genetic_profile_rppa != "") {
             yLegend = gene + ", " + genetic_profile_rppa[0][1];
@@ -418,9 +424,9 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
                     }
                     scaled_y_arr.sort(function(a,b){return a-b});
                     IQR = Math.abs(quan2 - quan1);
-                    var index_top = seachIndexTop(scaled_y_arr, (quan2-1.5*IQR));
+                    var index_top = plotsUtil.seachIndexTop(scaled_y_arr, (quan2-1.5*IQR));
                     top = scaled_y_arr[index_top];
-                    var index_bottom = seachIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
+                    var index_bottom = plotsUtil.seachIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
                     bottom = scaled_y_arr[index_bottom];
                 }
                 drawBoxPlots(svg, midLine, top, bottom, quan1, quan2, mean, IQR);
@@ -430,8 +436,8 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
 }
 function isDiscretized(type) {
 	return (type == PlotsType.COPY_NUMBER && 
-		data_type_copy_no.indexOf("log2") == -1 && 
-		(data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("cna") != -1 || data_type_copy_no.indexOf("CNA") != -1));
+		plotsConfig.copy_no_type.indexOf("log2") == -1 && 
+		(plotsConfig.copy_no_type.indexOf("gistic") != -1 || plotsConfig.copy_no_type.indexOf("cna") != -1 || plotsConfig.copy_no_type.indexOf("CNA") != -1));
 }
 function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
     if (isDiscretized(type)) {
@@ -503,13 +509,13 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
 //Drawing Functions
 function drawSideBar() {
     //Plot Type
-    if ( has_mrna && has_copy_no) {
+    if ( plotsConfig.has_mrna && has_copy_no) {
         $('#plot_type').append("<option value='" + plot_type_list[0][0] + "'>" + plot_type_list[0][1] + "</option>");
     }	    
-    if ( has_mrna && has_dna_methylation) {
+    if ( plotsConfig.has_mrna && plotsConfig.has_dna_methylation) {
         $('#plot_type').append("<option value='" + plot_type_list[1][0] + "'>" + plot_type_list[1][1] + "</option>");
     }	    
-    if ( has_mrna && has_rppa) {
+    if ( plotsConfig.has_mrna && plotsConfig.has_rppa) {
         $('#plot_type').append("<option value='" + plot_type_list[2][0] + "'>" + plot_type_list[2][1] + "</option>");
     }	    
     //Copy Number Type
@@ -705,7 +711,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 events: {
                     render: function(event, api) {
                         var content = "<font size='2'>";
-			if ((data_type_copy_no.indexOf("gistic") != -1 || data_type_copy_no.indexOf("CNA") != -1 || data_type_copy_no.indexOf("cna") != -1) && data_type_copy_no.indexOf("log2") == -1) {
+			if ((plotsConfig.copy_no_type.indexOf("gistic") != -1 || plotsConfig.copy_no_type.indexOf("CNA") != -1 || plotsConfig.copy_no_type.indexOf("cna") != -1) && plotsConfig.copy_no_type.indexOf("log2") == -1) {
 				content += "mRNA: <strong>" + parseFloat(d[1]).toFixed(3) + "</strong><br>";
 			} else {
 				content += "CNA: <strong>" + parseFloat(d[0]).toFixed(3) + "</strong><br>" + 
@@ -946,5 +952,13 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
 }
 
+function loadSVG() {
+    var mySVG = document.getElementById("plots_tab");
+    var svgDoc = mySVG.getElementsByTagName("svg");
+    var tmp1 = new XMLSerializer();
+    var tmp2 = tmp1.serializeToString(svgDoc[0]);
+    return tmp2;
+}
 
-
+var plotsUtil = new PlotsUtil();
+var plotsConfig = new PlotsConfig();

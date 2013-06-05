@@ -304,11 +304,35 @@ var OncoprintUI = (function() {
         });
 
 
-    var formatMutation = function(d) {
-        return d.mutation ?
-            "Mutation: <b>" + d.mutation + "</b><br/>"
-            : "";
-    };
+    var format = (function() {
+        return {
+            mutation: function(d) {
+                return d.mutation ?
+                    "Mutation: <b>" + d.mutation + "</b><br/>"
+                    : "";
+            },
+            cna: function(d) {
+                return d.cna ?
+                    "Copy Number Alteration: <b>" + d.cna + "</b><br/>"
+                    : "";
+            },
+
+            mrna: function(d) {
+                return d.mrna ?
+                    "MRNA: <b>" + d.mrna + "</b><br/>"
+                    : "";
+            },
+            rppa: function(d) {
+                return d.rppa ?
+                    "RPPA: <b>" + d.rppa + "</b><br/>"
+                    : "";
+            },
+            clinical: function(d) {
+                return "value: <b>" + d.attr_val + "</b><br/>";
+            }
+        };
+    }());
+
 
     var patientViewUrl = function(sample_id) {
         // helper function
@@ -329,10 +353,23 @@ var OncoprintUI = (function() {
                 hide: { fixed: true, delay: 100 },
                 events: {
                     render: function(event, api) {
-                        var content = '<font size="2">' + formatMutation(d) + patientViewUrl(d.sample) + '</font>';
+                        var content;
+                        if (d.attr_id) {
+                            content = '<font size="2">'
+                                + format.clinical(d)
+                                + patientViewUrl(d.sample) + '</font>';
+                        } else {
+                            content = '<font size="2">'
+                                + format.mutation(d)
+                                + format.cna(d)
+                                + format.mrna(d)
+                                + format.rppa(d)
+                                + patientViewUrl(d.sample) + '</font>';
+
+                        }
                         api.set('content.text', content);
                     }
-                },
+                }
             });
         });
     };

@@ -243,4 +243,25 @@ public class ClinicalDataConverterImplTest {
 
 //        processed.write(System.out);
     }
+
+    @Test
+    public void addOverAllSurvivalTest() throws Exception {
+        // just a playground
+
+
+        List<String> daysToLastFollowUp = new ArrayList<String>();
+        daysToLastFollowUp.add("1");
+        daysToLastFollowUp.add("2");
+        daysToLastFollowUp.add("3");
+
+        List<String> daysToDeath = new ArrayList<String>();
+        daysToDeath.add("4");
+        daysToDeath.add("5");
+        daysToDeath.add("6");
+
+        // test DataMatrix
+        DataMatrix testDataMatrix = createDataMatrix("");
+
+        clinicalDataConverter.addOverAllSurvival(daysToLastFollowUp, daysToDeath, testDataMatrix);
+    }
 }

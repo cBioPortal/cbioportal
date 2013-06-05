@@ -41,6 +41,7 @@ import org.mskcc.cbio.importer.model.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -361,41 +362,55 @@ public class ClinicalDataConverterImpl implements Converter {
     }
 
     /**
-     * Calculates new columns for a matrix based on what is in the matrix.
-     * The matrix being in the format to be written into a staging file
+     * Calculates days to last followup and ! appends ! it to the matrix
      *
-     * If columns for a calculation are missing, then the calculation is not done
-     * and the original matrix is returned unharmed.
+     * goes to the spreadsheet and grabs the appropriate metadata,
+     * and then calculates over all survival.
      *
-     * ! modifies the input DataMatrix m
-     * @param m DataMatrix
-     * @return new DataMatrix
+     * Note: the input matrix must have columns DAYS_TO_LAST_FOLLOWUP
+     * and DAYS_TO_DEATH in order to make this calculation.
+     * Also, the spreadsheet must have OVERALL_SURVIVAL_DAYS as a clinical attribute
+     *
+     * @param   matrix
+     * @return  matrix
      */
-    public DataMatrix processMatrix(DataMatrix m) {
+    public DataMatrix addOverAllSurvival(DataMatrix matrix) throws IOException {
 
-        if (m.getColumnData(DAYS_TO_LAST_FOLLOWUP).size() == 0
-                || m.getColumnData(DAYS_TO_DEATH).size() == 0) {
+        // check for whether the right data exists
+        if (matrix.getColumnData(DAYS_TO_LAST_FOLLOWUP).size() == 0
+                || matrix.getColumnData(DAYS_TO_DEATH).size() == 0) {
             LOG.info("clinical matrix missing one or both colums: "
                     + DAYS_TO_DEATH + "," + DAYS_TO_LAST_FOLLOWUP);
-            return m;
+            return matrix;
         }
 
-        m = removeDuplicateRows(m);
+        Collection<ClinicalAttributesMetadata> overallSurvivalMetaDatas
+                = config.getClinicalAttributesMetadata("OVERALL_SURVIVAL_DAYS");
 
-        List<String> followUps = m.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
-        followUps = followUps.subList(N_METADATA, followUps.size());
+        if (overallSurvivalMetaDatas.size() != 1) {
+            LOG.info("the number of clinical attribute metadatas with column header 'OVERALL_SURVIVAL_DAYS' != 1");
+        }
 
-        List<String> deaths = m.getColumnData(DAYS_TO_DEATH).get(0);
-        deaths = deaths.subList(N_METADATA, deaths.size());
+        // grab the data
+        List<String> daysToLastFollowUp = matrix.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
+        daysToLastFollowUp = daysToLastFollowUp.subList(N_METADATA, daysToLastFollowUp.size());
 
+        List<String> daysToDeath = matrix.getColumnData(DAYS_TO_DEATH).get(0);
+        daysToDeath = daysToDeath.subList(N_METADATA, daysToDeath.size());
+
+        ClinicalAttributesMetadata overAllSurvivalMetadata = overallSurvivalMetaDatas.iterator().next();
+
+        // prepare new column
         List<String> overallSurvivals = new LinkedList<String>();
-        overallSurvivals.add(0, "days alive after diagnosis");
-        overallSurvivals.add(1, "max(days_to_death, days_to_last_followup)");
-        overallSurvivals.add(2, "NUMBER");
-        for (int i = 0; i < followUps.size(); i+=1) {
+        overallSurvivals.add(0, overAllSurvivalMetadata.getDisplayName());
+        overallSurvivals.add(1, overAllSurvivalMetadata.getDescription());
+        overallSurvivals.add(2, overAllSurvivalMetadata.getDatatype());
+
+        // populate new column
+        for (int i = 0; i < daysToLastFollowUp.size(); i+=1) {
             String os;
-            String fUp = followUps.get(i);
-            String d = deaths.get(i);
+            String fUp = daysToLastFollowUp.get(i);
+            String d = daysToDeath.get(i);
 
             if (fUp.equals(NA) && d.equals(NA)) {
                 os = NA;
@@ -405,10 +420,28 @@ public class ClinicalDataConverterImpl implements Converter {
             overallSurvivals.add(os);
         }
 
-        // I'd prefer to make a copy and return that, but DataMatrix is initialized by rows, but does not save them.
-        // So, copying is nontrivial so perhaps it's better to just leave this off.
-        m.addColumn("OVERALL_SURVIVAL_DAYS", overallSurvivals);
-        return m;
+        matrix.addColumn(overAllSurvivalMetadata.getColumnHeader(), overallSurvivals);
+
+        return matrix;
+    }
+
+    /**
+     * Calculates new columns for a matrix based on what is in the matrix.
+     * The matrix being in the format to be written into a staging file
+     *
+     * If columns for a calculation are missing, then the calculation is not done
+     * and the original matrix is returned unharmed.
+     *
+     * ! modifies the input DataMatrix m
+     * @param matrix
+     * @return matrix
+     */
+    public DataMatrix processMatrix(DataMatrix matrix) throws IOException {
+
+        matrix = removeDuplicateRows(matrix);
+        matrix = addOverAllSurvival(matrix);
+
+        return matrix;
     }
 
 	/**

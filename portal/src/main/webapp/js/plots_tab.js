@@ -634,7 +634,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
-    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#DF7401", "#DF7401", "#DF7401", "#1C1C1C", "#DF7401"];
+    var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#A4A4A4", "#DF7401", "#DF7401", "#1C1C1C", "#DF7401"];
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
     var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
     var gisticPopUpText = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
@@ -703,7 +703,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     case "non": return "#0089C6";
                     default: return "#B40404";
                 }
-            });
+            })
+	    .attr("stroke-width", 1.2);
        
 	 //Making Qtips
         dotsGroup.selectAll('path').each(function(d, i) {
@@ -886,6 +887,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         case i: return "#B40404";
                     }
                 })
+		.attr("stroke-width", 1.2);
             legend.append("text")
                 .attr("dx", ".75em")
                 .attr("dy", ".35em")

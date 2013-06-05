@@ -276,9 +276,17 @@ class ImporterImpl implements Importer {
 			}
 
 			// import cancer name / metadata
+			boolean createdCancerStudyMetadataFile = false;
 			String cancerStudyMetadataFile = (rootDirectory + File.separator +
 											  cancerStudyMetadata.getStudyPath() + File.separator +
 											  cancerStudyMetadata.getCancerStudyMetadataFilename());
+			if (!(new File(cancerStudyMetadataFile)).exists()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), cannot find cancer study metadata file: " + cancerStudyMetadataFile + ", creating...");
+				}
+				fileUtils.writeCancerStudyMetadataFile(rootDirectory, cancerStudyMetadata, -1);
+				createdCancerStudyMetadataFile = true;
+			}
 			String[] args = { cancerStudyMetadataFile };
 			if (LOG.isInfoEnabled()) {
 				LOG.info("loadStagingFiles(), Importing cancer study metafile: " + cancerStudyMetadataFile);
@@ -342,6 +350,7 @@ class ImporterImpl implements Importer {
 				}
 				File caseListDir = new File(caseListDirectory);
 				if (fileUtils.directoryIsEmpty(caseListDir)) fileUtils.deleteDirectory(caseListDir);
+				if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 			}
 		}
 	}

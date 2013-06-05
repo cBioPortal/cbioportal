@@ -127,6 +127,8 @@ public class svgConverter extends HttpServlet {
             String docRoot = "<?xml version='1.0' encoding='utf-8'?>";
             String docRoot2 = "<svg version='1.1' width='700px' height='600px' xml:space='preserve'>";
             svgContent = docRoot + docRoot2 + svgContent + "</svg>";
+	    svgContent = svgContent.replaceAll("</line><text y=\"9\" x=\"0\" dy=\".71em\"", "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
+	    svgContent = svgContent.replaceAll("</line><text x=\"-9\" y=\"0\" dy=\".32em\"", "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
             InputStream is = new ByteArrayInputStream(svgContent.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);

@@ -528,8 +528,9 @@ function drawSideBar() {
     }
 }
 function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR) {
-    //Rectangle
-    svg.append("rect")
+    var boxPlotsGroup = svg.append("svg:g");
+	//Rectangle
+    boxPlotsGroup.append("rect")
         .attr("x", midLine-40)
         .attr("y", quan2)
         .attr("width", 80)
@@ -538,7 +539,7 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke-width", 1)
         .attr("stroke", "#BDBDBD");
     //meanLine
-    svg.append("line")
+    boxPlotsGroup.append("line")
         .attr("x1", midLine-40)
         .attr("x2", midLine+40)
         .attr("y1", mean)
@@ -546,7 +547,7 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke-width", 1)
         .attr("stroke", "#BDBDBD");
     //topLine
-    svg.append("line")
+    boxPlotsGroup.append("line")
         .attr("x1", midLine-30)
         .attr("x2", midLine+30)
         .attr("y1", topLine)
@@ -554,7 +555,7 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke-width", 1)
         .attr("stroke", "#BDBDBD");
     //bottomLine
-    svg.append("line")
+    boxPlotsGroup.append("line")
         .attr("x1", midLine-30)
         .attr("x2", midLine+30)
         .attr("y1", bottomLine)
@@ -562,7 +563,7 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
     //Top Whisker
-    svg.append("line")
+    boxPlotsGroup.append("line")
         .attr("x1", midLine)
         .attr("x2", midLine)
         .attr("y1", quan1)
@@ -570,7 +571,7 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke", "#BDBDBD")
         .attr("stroke-width", 1);
     //Bottom Whisker
-    svg.append("line")
+    boxPlotsGroup.append("line")
         .attr("x1", midLine)
         .attr("x2", midLine)
         .attr("y1", quan2)
@@ -660,25 +661,15 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     });
     dataset = tmp_dataset;
 
-    //TODO:  Re-order the elements those are already bind to svg DOM elements.
-    // d3 tend to bind data to everything element that's already in the target elements.
-    // The first 4 elements in svg are axis. And d3 try to bind plots data to it, therefore the first 4 elements
-    // always got escaped.
-    dataset.unshift("");
-    dataset.unshift("");
-    dataset.unshift("");
-    dataset.unshift("");
-
-
     //----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
+    var dotsGroup = svg.append("svg:g");
     if ( type == PlotsType.COPY_NUMBER ) {
         //Define noise level
         var ramRatio = 0;
         if (isDiscretized(type)) {
             ramRatio = 20;
         }
-
-        svg.selectAll("path")
+        dotsGroup.selectAll("path")
             .data(dataset)
             .enter()
             .append("svg:path")
@@ -713,9 +704,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     default: return "#B40404";
                 }
             });
-        //Making Qtips
-        //Format Numbers 
-        svg.selectAll('path').each(function(d, i) {
+       
+	 //Making Qtips
+        dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'qtip failed'},
                 events: {
@@ -744,7 +735,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
         //--------------- Plot dots for other views
     } else {
-        svg.selectAll("path")
+        dotsGroup.selectAll("path")
             .data(dataset)
             .enter()
             .append("svg:path")
@@ -789,7 +780,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     default: return "1.5";
                 }
             });
-        svg.selectAll('path').each(function(d, i) {
+
+        dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'qtip failed'},
                 events: {
@@ -942,16 +934,20 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 });
         }
     }
+    addAxisTitle(svg, xLegend, yLegend);
+}
 
+function addAxisTitle(svg, xLegend, yLegend) {
     //Append axis Titles
-    svg.append("text")
+    var axisTitleGroup = svg.append("svg:g");
+    axisTitleGroup.append("text")
         .attr("class", "label")
         .attr("x", 350)
         .attr("y", 580)
         .style("text-anchor", "middle")
         .style("font-weight","bold")
         .text(xLegend);
-    svg.append("text")
+    axisTitleGroup.append("text")
         .attr("class", "label")
         .attr("transform", "rotate(-90)")
         .attr("x", -270)
@@ -959,7 +955,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         .style("text-anchor", "middle")
         .style("font-weight","bold")
         .text(yLegend);
-
 }
 
 function loadSVG() {

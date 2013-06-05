@@ -79,7 +79,7 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li><a href='#clinical-plots' class='study-tab' title='Plots'>Plots</a></li>
+    <li><a href='#clinical-plots' class='study-tab' title='Plots'>Study Summary</a></li>
     <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>

@@ -313,4 +313,84 @@ describe("OncoprintUtils", function() {
                 .toEqual({GeneA: 67, GeneB: 0});
         });
     });
+
+    describe("normalize_nested_values", function() {
+        it("normalizes for a single element of a nested array", function() {
+            var raw_data = [
+                {
+                "sample": "sample_0",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_0",
+                "attr_id": "foo",
+                "attr_val": "NA",
+                }
+            ];
+
+            var nested_data = OncoprintUtils.nest_data(raw_data);
+            var attributes = ["GeneA", "foo", "bar"];
+            var normalized_values = OncoprintUtils.normalize_nested_values(nested_data[0], attributes);
+
+            expect(normalized_values.map(OncoprintUtils.get_attr)).toEqual(attributes);
+        });
+    });
+
+    describe("normalize_clinical_attributes", function() {
+        it("normalizes clinical data in a nested list", function() {
+
+            var raw_data = [
+                {
+                "sample": "sample_0",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_0",
+                "gene": "GeneB",
+                },
+                {
+                "sample": "sample_1",
+                "rppa": "DOWNREGULATED",
+                "gene": "GeneA",
+                "mutation": "FOO MUTATION",
+                "cna": "GAINED"
+                },
+                {
+                "sample": "sample_1",
+                "gene": "GeneB",
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneA",
+                },
+                {
+                "sample": "sample_2",
+                "gene": "GeneB",
+                },
+                {
+                "sample": "sample0",
+                "attr_id": "foo",
+                "attr_val": "NA"
+                },
+                {"sample": "sample1",
+                "attr_id": "foo",
+                "attr_val": "NA"
+                },
+            ];
+
+        var nested_data = OncoprintUtils.nest_data(raw_data);
+
+        var attributes = ["GeneA", "GeneB", "foo", "bar"];
+        var normalized = OncoprintUtils.normalize_clinical_attributes(nested_data, attributes);
+
+        expect(_.uniq(normalized.map(function(i) { return i.values.length; })).length).toEqual(1);
+        expect(_.uniq(normalized.map(function(i) { return i.values.length; }))[0]).toEqual(attributes.length);
+        });
+    });
 });

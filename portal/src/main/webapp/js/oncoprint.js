@@ -46,9 +46,53 @@ var OncoprintUtils = (function() {
         });
     };
 
-    // composes the functions nest_data and filter_by_attributes
+    // params: element of a nested list
+    // finds all the missing attributes in the values and creates them with attr_val = "NA"
+    var normalize_nested_values = function(key_values, attributes) {
+
+        var attrs = key_values.values.map(function(value) { return get_attr(value); });
+
+        // set minus
+        var attribues_minus_attrs = attributes.filter(function(attr) {
+            return attrs.indexOf(attr) === -1;
+        });
+
+        var new_values = attribues_minus_attrs.map(function(str) {
+            return {
+                sample: key_values.key,
+                attr_id: str,
+                attr_val: "NA"
+            };
+        });
+
+        return key_values.values.concat(new_values);
+    };
+
+    // params: list of gene data (not nested),
+    // list of clinical data (not nested),
+    // list of clinical attributes (string)
+    //
+    // returns list of raw clinical data
+    var normalize_clinical_attributes = function(nested_data, attributes) {
+
+        var no_attributes = attributes.length;
+
+        var normalized = nested_data.map(function(key_values) {
+            if (key_values.values.length !== no_attributes) {
+                key_values.values = normalize_nested_values(key_values, attributes);
+            }
+            return key_values;
+        });
+
+        return normalized;
+    };
+
+    // composes the functions nest_data, filter_by_attributes, and normalize_clinical_attributes
     var process_data = function(data, attributes) {
-        return nest_data(filter_by_attributes(data, attributes));
+        var processed = nest_data(filter_by_attributes(data, attributes));
+        processed = normalize_clinical_attributes(processed, attributes);
+
+        return processed;
     };
 
     // params: [list of raw clinical data]
@@ -265,7 +309,9 @@ var OncoprintUtils = (function() {
         percent_altered: percent_altered,
         label_width: label_width,
         createId2ClinicalAttr: createId2ClinicalAttr,
-        map_display_name: map_display_name
+        map_display_name: map_display_name,
+        normalize_clinical_attributes: normalize_clinical_attributes,
+        normalize_nested_values: normalize_nested_values
     };
 }());
 
@@ -303,7 +349,7 @@ var OncoprintUI = (function() {
             });
         });
 
-
+    // formating for mouseovers
     var format = (function() {
         return {
             mutation: function(d) {
@@ -344,8 +390,8 @@ var OncoprintUI = (function() {
 
     // params: els, list of d3 selected elements with either gene data or
     // clinical bound to them
-    var make_qtip = function(els) {
-        els.each(function(d, i) {
+    var make_mouseover = function(els) {
+        els.each(function(d) {
             $(this).qtip({
                 content: {text: 'oncoprint qtip failed'},
                 position: {my:'left bottom', at:'top right'},
@@ -376,7 +422,7 @@ var OncoprintUI = (function() {
 
     return {
         populate_clinical_attr_select: populate_clinical_attr_select,
-        make_qtip: make_qtip
+        make_qtip: make_mouseover
     };
 }());
 

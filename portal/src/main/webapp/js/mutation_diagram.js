@@ -1,12 +1,15 @@
 /**
  * Constructor for MutationDiagram class.
  *
- * @param options TODO
- * @param data TODO
+ * @param options   general options object
+ * @param data      mutation data
  * @constructor
  */
 function MutationDiagram(options, data)
 {
+	// TODO after refactoring the data will be generic,
+	// so we will need to process it before(or after?) passing to this function
+
 	var self = this;
 
 	// merge options with default options to use defaults for missing values
@@ -17,7 +20,7 @@ function MutationDiagram(options, data)
 			options.elWidth,
 			options.elHeight);
 
-	// calculate bounds of the actual plot area (excluding the axis)
+	// calculate bounds of the actual plot area (excluding axis, sequence, labels, etc.)
 	var bounds = {};
 	bounds.width = options.elWidth - (options.marginLeft + options.marginRight);
 	bounds.height = options.elHeight - (options.marginBottom + options.marginTop);
@@ -30,44 +33,54 @@ function MutationDiagram(options, data)
 		data);
 }
 
-// TODO add more options for more customizable diagram:
-// start position (origin position) wrt to the container,
-// tick frequency (interval) on the axes,
-// width & height of the actual diagram wrt the container,
+// TODO add more options for a more customizable diagram:
 // default tooltip templates?
 // label positions and alignments
 // max # of lollipop labels to display
-// max number of axis coordinates to display
-// color, font, style, etc of various elements
-// sequence height (which is drawn on x axis)
+// TODO use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
-	el: "mutation_diagram_d3",
-	elWidth: 720,
-	elHeight: 180,
-	marginLeft: 20,
-	marginRight: 10,
-	marginTop: 20,
-	marginBottom: 40,
-	labelX: null,
-	labelY: "# Mutations",
-	offsetY: 3,
-	offsetX: 0,
-	seqFillColor: "#BABDB6",
-	seqHeight: 16,
-	seqPadding: 8,
-	regionHeight: 24,
-	regionTextFillColor: "#FFFFFF",
-	regionTextPadding: 5,
+	el: "mutation_diagram_d3",  // id of the container
+	elWidth: 720,               // width of the container
+	elHeight: 180,              // height of the container
+	marginLeft: 40,             // left margin for the plot area
+	marginRight: 20,            // right margin for the plot area
+	marginTop: 20,              // top margin for the plot area
+	marginBottom: 60,           // bottom margin for the plot area
+	labelX: null,               // informative label of the x-axis
+	labelY: "# Mutations",      // informative label of the y-axis
+	offsetY: 3,                 // offset for y values
+	offsetX: 0,                 // offset for x values
+	seqFillColor: "#BABDB6",    // color of the sequence rectangle
+	seqHeight: 16,              // height of the sequence rectangle
+	seqPadding: 8,              // padding between sequence and plot area
+	regionHeight: 24,           // height of a region (drawn on the sequence)
+	regionFont: "sans-serif",   // font of the region text
+	regionFontColor: "#FFFFFF", // font color of the region text
+	regionFontSize: "12px",     // font size of the region text
+	regionTextPadding: 5,       // TODO remove this, add alignment
 	lollipopFillColor: "#B40000", // TODO more than one color wrt mutation type?
-	lollipopRadius: 3,
-	lollipopStrokeWidth: 1,
-	lollipopStrokeColor: "#BABDB6"
+	lollipopRadius: 3,          // radius of the lollipop circles
+	lollipopStrokeWidth: 1,     // width of the lollipop lines
+	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
+	xAxisPadding: 15,           // padding between x-axis and the sequence
+	xAxisTickInterval: 50,      // tick interval for x-axis
+	xAxisStroke: "#AAAAAA",     // color of the x-axis lines
+	xAxisFont: "sans-serif",    // font type of the x-axis labels
+	xAxisFontSize: "10px",      // font size of the x-axis labels
+	xAxisFontColor: "#2E3436",  // font color of the x-axis labels
+	yAxisPadding: 5,            // padding between y-axis and the plot area
+	yAxisTicks: 4,              // number of ticks to be displayed on the y-axis
+	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
+	yAxisFont: "sans-serif",    // font type of the y-axis labels
+	yAxisFontSize: "10px",      // font size of the y-axis labels
+	yAxisFontColor: "#2E3436"   // font color of the y-axis labels
 };
 
 /**
+ * Draws the mutation diagram.
  *
  * @param svg       svg container for the diagram
- * @param bounds    bounds of the diagram {width, height, x, y}
+ * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
  * @param options   options object
  * @param data      data to visualize
@@ -88,7 +101,11 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		.domain([0, yMax])
 		.range([bounds.y, bounds.y - bounds.height]);
 
-	// TODO draw axes
+	// draw x-axis
+	self.drawXAxis(svg, xScale, xMax, options, bounds);
+
+	// draw y-axis
+	self.drawYAxis(svg, yScale, yMax, options, bounds);
 
 	// draw lollipop lines
 	for (var i = 0; i < data[0].markups.length; i++)
@@ -124,6 +141,14 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	}
 };
 
+/**
+ * Creates the main svg (graphical) component.
+ *
+ * @param container main container (div, etc.)
+ * @param width     width of the svg area
+ * @param height    height of the svg area
+ * @return
+ */
 MutationDiagram.prototype.createSvg = function (container, width, height)
 {
 	var svg = container.append("svg");
@@ -134,6 +159,182 @@ MutationDiagram.prototype.createSvg = function (container, width, height)
 	return svg;
 };
 
+/**
+ * Draws the x-axis on the bottom side of the plot area.
+ *
+ * @param svg       svg to append the axis
+ * @param xScale    scale function for the y-axis
+ * @param xMax      max y value for the axis
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          svg group containing all the axis components
+ */
+MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bounds)
+{
+	var self = this;
+
+	// determine tick values
+	var tickValues = [];
+
+	var value = 0;
+	var interval = options.xAxisTickInterval;
+
+	while (value < xMax - (2 * interval) / 3)
+	{
+		tickValues.push(value);
+		value += interval;
+	}
+
+	tickValues.push(xMax);
+
+	// formatter to hide minor tick labels
+	var formatter = function(value) {
+		if (value == xMax)
+		{
+			return value + " aa";
+		}
+		else if (value % (interval * 2) == 0)
+		{
+			return value;
+		}
+		else
+		{
+			return '';
+		}
+	};
+
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom")
+		.tickValues(tickValues)
+		.tickFormat(formatter);
+
+	// calculate y-coordinate of the axis
+	var position = bounds.y + options.regionHeight + options.xAxisPadding;
+
+	// append axis
+	var axis = svg.append("g")
+		.attr("class", "mut-dia-x-axis")
+		.attr("transform", "translate(0," + position + ")")
+		.call(xAxis);
+
+	// format axis
+	self.formatAxis(".mut-dia-x-axis",
+		options.xAxisStroke,
+		options.xAxisFont,
+		options.xAxisFontSize,
+		options.xAxisFontColor);
+
+	return axis;
+};
+
+/**
+ * Draws the y-axis on the left side of the plot area.
+ *
+ * @param svg       svg to append the axis
+ * @param yScale    scale function for the y-axis
+ * @param yMax      max y value for the axis
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          svg group containing all the axis components
+ */
+MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bounds)
+{
+	var self = this;
+
+	// determine tick values
+	var tickValues = [];
+
+	var value = 0;
+	var interval = yMax / options.yAxisTicks;
+
+	while (value < yMax)
+	{
+		tickValues.push(value);
+		value += interval;
+	}
+
+	tickValues.push(yMax);
+
+	// formatter to hide all except first and last
+	var formatter = function(value) {
+		if (value == yMax || value == 0)
+		{
+			return value;
+		}
+		else
+		{
+			return '';
+		}
+	};
+
+	var yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left")
+		.tickValues(tickValues)
+		.tickFormat(formatter);
+
+	// calculate y-coordinate of the axis
+	var position = bounds.x - options.yAxisPadding;
+
+	// append axis
+	var axis = svg.append("g")
+		.attr("class", "mut-dia-y-axis")
+		.attr("transform", "translate(" + position + ",0)")
+		.call(yAxis);
+
+	// format axis
+	self.formatAxis(".mut-dia-y-axis",
+		options.yAxisStroke,
+		options.yAxisFont,
+		options.yAxisFontSize,
+		options.yAxisFontColor);
+
+	return axis;
+};
+
+/**
+ * Formats the style of the plot axis defined by the given selector.
+ *
+ * @param axisSelector  selector for the axis components
+ * @param stroke        line color of the axis
+ * @param font          font type of the axis value labels
+ * @param fontSize      font size of the axis value labels
+ * @param fontColor     font color of the axis value labels
+ */
+MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, fontSize, fontColor)
+{
+	var selector = d3.selectAll(axisSelector + ' line');
+
+	selector.style("fill", "none")
+		.style("stroke", stroke)
+		.style("shape-rendering", "crispEdges");
+
+	selector = d3.selectAll(axisSelector + ' path');
+
+	selector.style("fill", "none")
+		.style("stroke", stroke)
+		.style("shape-rendering", "crispEdges");
+
+	selector = d3.selectAll(axisSelector + ' text');
+
+	selector.attr("fill", fontColor)
+		.style("font-family", font)
+		.style("font-size", fontSize);
+};
+
+/**
+ * Draws the lollipop circle on the plot area.
+ *
+ * @param svg       svg to append the circle
+ * @param mutation  mutation data
+ * @param options   general options object
+ * @param xScale    scale function for the x-axis
+ * @param yScale    scale function for the y-axis
+ * @return          lollipop circle (svg element)
+ */
 MutationDiagram.prototype.drawLollipopCircle = function (svg, mutation, options, xScale, yScale)
 {
 	var self = this;
@@ -148,6 +349,18 @@ MutationDiagram.prototype.drawLollipopCircle = function (svg, mutation, options,
 		.attr('fill', options.lollipopFillColor);
 };
 
+/**
+ * Draws a lollipop line (from sequence to the lollipop circle)
+ *
+ * @param svg       svg to append the line
+ * @param mutation  mutation data
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @param yScale    scale function for the y-axis
+ * @return          lollipop line (svg element)
+ */
 MutationDiagram.prototype.drawLollipopLine = function (svg, mutation, options, bounds, xScale, yScale)
 {
 	var self = this;
@@ -162,14 +375,25 @@ MutationDiagram.prototype.drawLollipopLine = function (svg, mutation, options, b
 		.attr('y2', self.calcSequenceBounds(bounds, options).y)
 		.attr('stroke', options.lollipopStrokeColor)
 		.attr('stroke-width', options.lollipopStrokeWidth);
-}
+};
 
+/**
+ * Draws the given region on the sequence.
+ *
+ * @param svg       target svg to append region rectangle
+ * @param region    region data
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @return          region rectangle (svg element)
+ */
 MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xScale)
 {
 	var width = Math.abs(xScale(region.start) - xScale(region.end));
 	var height = options.regionHeight;
 	var y = bounds.y + options.seqPadding;
-	var x = bounds.x + xScale(region.start);
+	var x = xScale(region.start);
 
 	var label = region.text;
 
@@ -188,16 +412,27 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		.attr('width', width)
 		.attr('height', height);
 
-	// TODO text alignment (center, left, right)
+	// TODO text alignment (center, left, right) & truncate/hide if too long to fit
 	var text = svg.append('text')
-		.attr('fill', options.regionTextFillColor)
+		.attr('fill', options.regionFontColor)
 		.attr('x', x + options.regionTextPadding)
 		.attr('y', y + 2*height/3)
+		.style('font-size', options.regionFontSize)
+		.style("font-family", options.regionFont)
 		.text(label);
 
 	return rect;
 };
 
+/**
+ * Draws the sequence just below the plot area.
+ *
+ * @param svg       target svg to append sequence rectangle
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          sequence rectangle (svg element)
+ */
 MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 {
 	var seqBounds = this.calcSequenceBounds(bounds, options);
@@ -211,10 +446,10 @@ MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 };
 
 /**
- * Return the number of mutations at the hottest spot.
+ * Returns the number of mutations at the hottest spot.
  *
- * @param data      mutation data
- * @return {number}
+ * @param data  mutation data
+ * @return      number of mutations at the hottest spot
  */
 MutationDiagram.prototype.calcMaxCount = function(data)
 {
@@ -255,4 +490,3 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 		width: width,
 		height: height};
 };
-

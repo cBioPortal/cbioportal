@@ -31,7 +31,7 @@
             <div id="main" style="display:none;">
                 <table style="padding-left:13px; padding-top:5px">
                     <tr>
-                        <td><input type='checkbox' onclick='oncoprint.toggleUnaltered();'>Remove Unaltered Cases</td>
+                        <td><input type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
                         <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Restore Case Order<img src="images/help.png" title="sort cases alphabetically by case ID, or as defined in the original query" onload="$(this).tipTip();" ></td>
                     </tr>
 

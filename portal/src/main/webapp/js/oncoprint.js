@@ -666,7 +666,7 @@ var Oncoprint = function(div, params) {
     var State = (function() {
         var internal_data = data;
         var whitespace = true;              // show white space?
-        var rect_width = dims.rect_width;   // initialize
+        var internal_rect_width = dims.rect_width;   // initialize
 
         // takes a list of samples and returns an object that contains
         // a function f,
@@ -683,7 +683,7 @@ var Oncoprint = function(div, params) {
             // params: i, sample index
             // returns: the width of the svg to contain those samples.
             var xpos = function(i) {
-                return i * (rect_width + (whitespace ? dims.hor_padding : 0));
+                return i * (internal_rect_width + (whitespace ? dims.hor_padding : 0));
             };
 
             var svg_width_offset = 50;
@@ -695,27 +695,54 @@ var Oncoprint = function(div, params) {
         };
 
         // takes data and return a list of sample_ids in order
-        var pick_sample = function(internal_data) {
+        var pick_sample_id = function(internal_data) {
             return internal_data.map(function(i) { return i.key; });
         };
 
         // composition of xscale and pick_sample
         var data2xscale = function(data) {
-            return xscale(pick_sample(data));
+            return xscale(pick_sample_id(data));
         };
 
+        // params: duration -- how long the transition should last
         // puts all the samples in the correct horizontal position
-        var horizontal_translate = function() {
+        var horizontal_translate = function(duration) {
             // re-sort
             var x = data2xscale(internal_data);
+            duration = duration || 1000;
 
             // resize the svg
-            main_svg.transition(1000).attr('width', x.svg_width);
+            main_svg.transition(duration).attr('width', x.svg_width);
 
             // do the transition to all samples
             d3.selectAll('.sample').transition()
-                .duration(function(d) { return 1000 + x.sample2index[d.key] * 20; })
+                .duration(function(d) { return duration + x.sample2index[d.key] * 20; })
                 .attr('transform', function(d) { return translate(x.scale(d.key),0); });
+        };
+
+        // if bool === true, show unaltered cases, otherwise, don't
+        var showUnalteredCases = function(bool) {
+            if (bool) {
+//                internal_data = MemoSort(data, attributes);
+                internal_data = data;
+                update(internal_data);
+            } else {
+                var altered_data = data.filter(function(d) { return altered.has(d.key); });
+//                internal_data = MemoSort(altered_data, attributes);
+                internal_data = altered_data;
+                update(internal_data);
+            }
+            horizontal_translate(1);
+
+            return internal_data;
+        };
+        var show_unaltered_bool = true;     // saves state for toggleUnalteredCases
+
+        // params: [bool].  If bool is passed as a parameter,
+        // whitespace is set to the bool, otherwise, flip it from whatever it currently is
+        var toggleWhiteSpace =  function(bool) {
+            whitespace = bool === undefined ? !whitespace : bool;
+            horizontal_translate();
         };
 
         return {
@@ -745,40 +772,28 @@ var Oncoprint = function(div, params) {
 
             getData: function() { return internal_data; },
 
-            // params: [bool].  If bool is passed as a parameter,
-            // whitespace is set to the bool, otherwise, flip it from whatever it currently is
-            toggleWhiteSpace: function(bool) {
-                whitespace = bool === undefined ? !whitespace : bool;
-                horizontal_translate();
-            },
+            toggleWhiteSpace: toggleWhiteSpace,
 
             zoom: function(scalar) {
-                rect_width = scalar * dims.rect_width;
+                internal_rect_width = scalar * dims.rect_width;
 
                 d3.selectAll('.sample rect')
                     .transition()
                     .duration(1000)
-                    .attr('width', dims.rect_width * scalar);
+                    .attr('width', internal_rect_width);
                 horizontal_translate();
                 if (scalar >= .5) {
-                    State.toggleWhiteSpace(true);
+                    toggleWhiteSpace(true);
                 } else {
-                    State.toggleWhiteSpace(false);
+                    toggleWhiteSpace(false);
                 }
             },
 
-            showUnalteredCases: function(bool) {
-                if (bool) {
-                    internal_data = MemoSort(data, attributes);
-//                    update(d3.selectAll('.sample').data(internal_data));
-                    update(internal_data);
-                } else {
-                    internal_data = MemoSort(data.filter(function(d) { return altered.has(d.key); }), attributes);
-                    update(internal_data);
-                }
-                horizontal_translate();
+            showUnalteredCases: showUnalteredCases,
 
-                return internal_data;
+            toggleUnalteredCases: function() {
+                show_unaltered_bool = !show_unaltered_bool;
+                showUnalteredCases(show_unaltered_bool);
             }
         };
     })();

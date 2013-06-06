@@ -24,7 +24,7 @@
             <p onclick="$('#oncoprint_controls #main').toggle(); $('#oncoprint_controls .triangle').toggle();"
                style="margin-bottom: 0px;">
                 <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-                <span class='triangle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span>
+                <span class='triangle ui-icon u.jquery.mini-icon-triangle-1-s' style='float:left; display:none;'></span>
                 <span class='onco-customize'>Customize</span>
             </p>
 
@@ -41,7 +41,7 @@
                     </tr>
                     <tr>
                         <td>
-                            <select id="select_clinical_attributes" style=""></select>
+                            <select data-placeholder="select a clinical attribute" id="select_clinical_attributes" style="width: 350px;"></select>
                         </td>
                     </tr>
                 </table>
@@ -141,7 +141,9 @@
                 };
                 $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
-                var select_clinical_attributes = $(select_clinical_attributes_id).combobox();
+                $(document).ready(function() {
+                    $(select_clinical_attributes_id).chosen();
+                });
 
                 <%--var geneDataQuery = {--%>
                     <%--cancer_study_id: "<%=cancerTypeId%>",--%>

@@ -1,5 +1,6 @@
 // Gideon Dresdner June 2013
 
+// thanks Mike Bostock, http://bl.ocks.org/mbostock/4341954
 ;
 
 var AlleleFreqPlotUtils = (function() {
@@ -16,7 +17,6 @@ var AlleleFreqPlotUtils = (function() {
         return process_data(alt_counts, ref_counts);
     };
 
-    // thanks Mike Bostock, http://bl.ocks.org/mbostock/4341954
     var kernelDensityEstimator = function(kernel, x) {
         return function(sample) {
             return x.map(function(x) {

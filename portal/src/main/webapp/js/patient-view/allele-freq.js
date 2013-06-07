@@ -31,11 +31,16 @@ var AlleleFreqPlotUtils = (function() {
         };
     };
 
+    var uniform = function(u) {
+        return Math.abs(u) <= 1 ? .5 * u : 0;
+    };
+
     return {
         process_data: process_data,
         extract_and_process: extract_and_process,
         kernelDensityEstimator: kernelDensityEstimator,
-        epanechnikovKernel: epanechnikovKernel
+        epanechnikovKernel: epanechnikovKernel,
+        uniform: uniform
     };
 }());
 
@@ -46,11 +51,12 @@ var AlleleFreqPlot = function(div, data) {
         height = 500 - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
-        .domain([30, 110])
+//        .domain([30, 110])
+        .domain([0, 1])
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([0, .1])
+        .domain([0, 1])
         .range([height, 0]);
 
     var xAxis = d3.svg.axis()
@@ -61,6 +67,8 @@ var AlleleFreqPlot = function(div, data) {
         .scale(y)
         .orient("left")
         .tickFormat(d3.format("%"));
+
+    console.log(data);
 
     var line = d3.svg.line()
         .x(function(d) { console.log(d); return x(d[0]); })
@@ -81,7 +89,7 @@ var AlleleFreqPlot = function(div, data) {
         .attr("x", width)
         .attr("y", -6)
         .style("text-anchor", "end")
-        .text("mutation frequency");
+        .text("allele frequency");
 
     svg.append("g")
         .attr("class", "y axis")
@@ -100,9 +108,8 @@ var AlleleFreqPlot = function(div, data) {
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
-    var kde = utils.kernelDensityEstimator(utils.epanechnikovKernel(7), x.ticks(100));
-
-    console.log(kde(data));
+    var kde = utils.kernelDensityEstimator(utils.epanechnikovKernel(1), x.ticks(100));
+//    var kde = utils.kernelDensityEstimator(utils.uniform, x.ticks(100));
 
     svg.append("path")
         .datum(kde(data))

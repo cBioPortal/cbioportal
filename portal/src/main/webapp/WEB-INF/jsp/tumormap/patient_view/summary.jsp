@@ -188,6 +188,13 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 <%}%>
 
+<%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
+<script type="text/javascript" src="js/patient-view/allele-freq.js"></script>
+<div id="allele_freq_plot"></div>
+<%}%>
+
+
+
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <%if(showMutations){%>
 <tr valign="top">

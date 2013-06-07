@@ -113,8 +113,14 @@ $(document).ready(function(){
 
 			gene = "<%= geneStr %>";
 			var mutationDiagram = new MutationDiagram(
-					{el: "mutation_diagram_" + gene},
+					{el: "mutation_diagram_" + gene.toUpperCase()},
 					diagramData);
+
+			// TODO may change after refactoring diagram data
+			$("#uniprot_link_" + gene.toUpperCase()).html(
+					'<a href="' + "http://www.uniprot.org/uniprot/" +
+					diagramData[0].metadata.identifier + '" target="_blank">' +
+					diagramData[0].metadata.identifier + '</a>');
 
 			tableMutations = <%= mutationTableStr %>;
 			delayedMutationTable(tableMutations);

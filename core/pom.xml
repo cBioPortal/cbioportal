@@ -195,6 +195,37 @@
 	  <version>0.6-1</version>
 	</dependency>
 
+    <!--svg to PDF Converter-->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.3.2</version>
+    </dependency>
+    <dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik-rasterizer</artifactId>
+      <version>1.6</version>
+    </dependency>
+    <!--dependency>
+      <groupId>batik</groupId>
+      <artifactId>batik-svg-dom</artifactId>
+      <version>1.6-1</version>
+    </dependency-->
+    <dependency>
+      <groupId>fop</groupId>
+      <artifactId>fop</artifactId>
+      <version>0.20.5</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.11.0</version>
+    </dependency>
   </dependencies>
 
 	<!-- plugins -->

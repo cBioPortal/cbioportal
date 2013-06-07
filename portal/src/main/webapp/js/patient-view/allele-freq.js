@@ -7,16 +7,8 @@ var AlleleFreqPlotUtils = (function() {
     var NO_DATA = -1;
 
     var process_data = function(alt_counts, ref_counts) {
-//        alt_counts = alt_counts.filter(function(i) {
-//            return i !== NO_DATA;
-//        });
-//
-//        ref_counts = ref_counts.filter(function(i) {
-//            return i !== NO_DATA;
-//        });
-
         return d3.zip(alt_counts, ref_counts).map(function(pair) {
-            return pair[0] / (pair[0] + pair[1]);
+            return pair[0] === NO_DATA === pair[1] ? 0 : (pair[0] / (pair[0] + pair[1]));
         });
     };
 
@@ -25,6 +17,19 @@ var AlleleFreqPlotUtils = (function() {
         var ref_counts = genomicEventObs.mutations.data['ref-count'];
 
         return process_data(alt_counts, ref_counts);
+    };
+
+    var gaussian = function(mean, variance) {
+        return function(x) {
+            return (1 / (variance * Math.sqrt(2 * Math.PI)))
+                * Math.exp( Math.pow((x - mean), 2) / (2 * Math.pow(variance, 2)));
+        }
+    };
+
+    var gaussianKde = function(numbers, variance) {
+        return function(x) {
+            return [x, d3.sum(numbers.map(function(n) { return gaussian(n, variance)(x); }))];
+        };
     };
 
     var kernelDensityEstimator = function(kernel, x) {
@@ -50,17 +55,14 @@ var AlleleFreqPlotUtils = (function() {
         extract_and_process: extract_and_process,
         kernelDensityEstimator: kernelDensityEstimator,
         epanechnikovKernel: epanechnikovKernel,
-        uniform: uniform
+        uniform: uniform,
+        gaussian: gaussian,
+        gaussianKde: gaussianKde
     };
 }());
 
-var global_data;
 // makes an allele frequency density plot on the div
 var AlleleFreqPlot = function(div, data) {
-
-    global_data = data;
-
-
     var margin = {top: 20, right: 30, bottom: 30, left: 40},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
@@ -82,8 +84,6 @@ var AlleleFreqPlot = function(div, data) {
         .scale(y)
         .orient("left")
         .tickFormat(d3.format("%"));
-
-    console.log(data);
 
     var line = d3.svg.line()
         .x(function(d) { console.log(d); return x(d[0]); })
@@ -123,11 +123,14 @@ var AlleleFreqPlot = function(div, data) {
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
-    var kde = utils.kernelDensityEstimator(utils.epanechnikovKernel(1), x.ticks(100));
+//    var kde = utils.kernelDensityEstimator(utils.epanechnikovKernel(1), x.ticks(100));
 //    var kde = utils.kernelDensityEstimator(utils.uniform, x.ticks(100));
 
+    var kde = utils.gaussianKde(data, 1);
+
     svg.append("path")
-        .datum(kde(data))
+//        .datum(kde(data))
+        .datum(data.map(kde))
         .attr("class", "line")
         .attr("d", line)
         .attr('fill', 'none')

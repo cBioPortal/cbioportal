@@ -396,12 +396,10 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
     } else if (type == plotsConfig.plotsType.METHYLATION) {
         var tmp_count = 0;
         for (var j = 0; j < xData.length; j++) {
-            console.log(xData[j], yData[j]);
             if (xData[j] != "NaN" && yData[j] != "NaN"){
                 tmp_count ++;
             }
         }
-        console.log(tmp_count);
         for ( var i = 0; i<xData.length; i++) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) {
                 continue;
@@ -653,9 +651,7 @@ function drawSideBar() {
     if ( plotsConfig.has_mrna && plotsConfig.has_dna_methylation) {
         $('#plot_type').append("<option value='" + plotsConfig.plot_type_list[1][0] + "'>" + plotsConfig.plot_type_list[1][1] + "</option>");
     }
-    console.log("inside drawSideBar:" + plotsConfig.has_rppa);
     if ( plotsConfig.has_mrna && plotsConfig.has_rppa) {
-        console.log("inside drawSideBar:" + plotsConfig.has_rppa);
         $('#plot_type').append("<option value='" + plotsConfig.plot_type_list[2][0] + "'>" + plotsConfig.plot_type_list[2][1] + "</option>");
     }
 

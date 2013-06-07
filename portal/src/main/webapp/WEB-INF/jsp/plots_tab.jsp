@@ -22,56 +22,78 @@
 <script type="text/javascript" src="js/plots_tab.js"></script>
 
 <div class="section" id="plots">
-    <table >
+    <table>
         <tr>
             <td>
                 <table>
-                    <tr><td style="border:2px solid #BDBDBD;height:300px;padding:20px;">
-                        <h4>Plot Parameters</h4>
-                        <br>
-                        <b>Gene</b><br>
-                        <select id='genes'>
-                            <%
-                                for (int i=0; i<gene_list.length; i++){
-                                    out.println("<option value='" + gene_list[i] + "'>" + gene_list[i] + "</option>");
-                                }
-                            %>
-                        </select>
-                        <br><br>
-                        <b>Plot Type</b><br>
-                        <select id='plot_type'></select>
-                        <br><br>
-                        <b>Data Type</b><br>
-                        <br>
-                        mRNA
-                        <br><select id='data_type_mrna'></select><br>
-                        Copy Number
-                        <br><select id='data_type_copy_no'></select>
-                        <br><br><br>
-                        <a href="#" onclick="updateScatterPlots()"><img src='images/next_button.gif'></a>
-                    </td>
-                    <tr><td style='height:250px;'></td>
+                    <tr>
+                        <td style="border:2px solid #BDBDBD;padding:10px;height:300px;">
+                            <h4 style="padding-top:10px;">Plot Parameters</h4>
+                            <br>
+                            <b>Gene</b><br>
+                            <select id='genes' onchange="viewController.updateView();">
+                                <%
+                                    for (int i=0; i<gene_list.length; i++){
+                                        out.println("<option value='" + gene_list[i].toUpperCase() + "'>" + gene_list[i].toUpperCase() + "</option>");
+                                    }
+                                %>
+                            </select>
+                            <br><br>
+                            <b>Plot Type</b><br>
+                            <select id='plot_type'  onchange="viewController.updateView();"></select>
+                            <br><br>
+                            <b>Data Type</b><br>
+                            <div id='mrna_dropdown' style='padding:5px;'>
+                                - mRNA - <br>
+                                <select id='data_type_mrna' onchange="viewController.updatePlots();"></select>
+                            </div>
+                            <div id='copy_no_dropdown'style='padding:5px;'>
+                                - Copy Number - <br>
+                                <select id='data_type_copy_no' onchange="viewController.updatePlots();"></select>
+                            </div>
+                            <div id='dna_methylation_dropdown'style='padding:5px;'>
+                                - DNA Methylation - <br>
+                                <select id='data_type_dna_methylation' onchange="viewController.updatePlots();"></select>
+                            </div>
+                            <div id='rppa_dropdown'style='padding:5px;'>
+                                - RPPA Protein Level - <br>
+                                <select id='data_type_rppa' onchange="viewController.updatePlots();"></select>
+                            </div>
+                            <!--a href="#"><img src='images/next_button.gif' style="padding-top:30px;"></a-->
+                        </td>
+                    </tr>
+                    <tr style="height:320px;"></tr>
                 </table>
             </td>
             <td>
-                <br><b><div id="img_center" style="display:inline-block; padding-left:100px;"></div></b>
-                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
-                    <input type='hidden' name='svgelement'>
-                    <input type='hidden' name='filetype' value='pdf'>
-                    <input type='submit' value='PDF'>
-                </form>
-                <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
-                    <input type='hidden' name='svgelement'>
-                    <input type='hidden' name='filetype' value='svg'>
-                    <input type='submit' value='SVG'>
-                </form>
-                <div id="plots_tab"></div>
+                <div id='plots_tab'>
+                    <br><b>
+                    <div id='div-loading-image'>
+                        <img style='padding:200px;' src='images/ajax-loader.gif'>
+                    </div>
+                    <div id='img_center'>
+                        <div id="img_center_text" style="display:inline-block; padding-left:100px;"></div></b>
+                        <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                            <input type='hidden' name='svgelement'>
+                            <input type='hidden' name='filetype' value='pdf'>
+                            <input type='submit' value='PDF'>
+                        </form>
+                        <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
+                            <input type='hidden' name='svgelement'>
+                            <input type='hidden' name='filetype' value='svg'>
+                            <input type='submit' value='SVG'>
+                        </form>
+                    </div>
+                    <div id="plots_box"></div>
+                </div>
             </td>
         </tr>
     </table>
 </div>
 
-<script>window.onload = initView(); </script>
+<script>
+    window.onload = viewController.initView();
+</script>
 
 <%!
     public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {

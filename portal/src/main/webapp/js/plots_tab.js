@@ -1,6 +1,8 @@
 var mutations = [],
     mutations_id = [],
     copy_no = [],
+    gistic_copy_no = [],
+    log2_copy_no = [],
     mrna = [],
     rppa = [],
     dna_methylation = [],
@@ -11,9 +13,10 @@ var mutations = [],
     genetic_profile_dna_methylation = [];
 
 function PlotsConfig() {
-    this.has_mrna = "false";
-    this.has_dna_methylation = "false";
-    this.has_rppa = "false";
+    this.has_mrna = false;
+    this.has_dna_methylation = false;
+    this.has_rppa = false;
+    this.has_copy_no = false;
     this.copy_no_type = null;
     this.mrna_type = null;
     this.dna_methylation_type = null;
@@ -62,10 +65,9 @@ var PlotsData = (function() {
         getCaseSet: getCaseSet,
         setSingleCase: setSingleCase,
         getSingleCase: getSingleCase,
-        getCaseSetLength: getCaseSetLength
+        getCaseSetLength: getCaseSetLength,
     };
 }());
-
 var PlotsUtil = (function(){
     var findIndex = function(Str, Exp) {
         for (var i = 0; i< Exp.length; i++) {
@@ -98,6 +100,7 @@ var PlotsUtil = (function(){
         return arr.length - 1;
     };
     var copyData = function(desArray, oriArray) {
+        desArray.length = 0;
         var desArrayIndex = 0;
         for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
             if (oriArray[tmpIndex] != "" && oriArray[tmpIndex] != null ) {
@@ -106,51 +109,36 @@ var PlotsUtil = (function(){
             }
         }
     };
+    var toggleVisibilityShow = function(elemId) {
+        var e = document.getElementById(elemId);
+        e.style.display = 'block';
+    };
+    var toggleVisibilityHide = function(elemId) {
+        var e = document.getElementById(elemId);
+        e.style.display = 'none';
+    };
     return {
         findIndex: findIndex,
         searchIndexBottom: searchIndexBottom,
         searchIndexTop: searchIndexTop,
-        copyData: copyData
+        copyData: copyData,
+        toggleVisibilityShow: toggleVisibilityShow,
+        toggleVisibilityHide: toggleVisibilityHide
     };
 }());
 
-//View Controllers
-function initView() {
-    fetchFrameData();
-    drawSideBar();
-    fetchPlotsData();
-    var tmp_axis_title_result = fetchAxisTitle();
-    $('#plots_tab').empty();
-    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
-    $('#img_center').empty();
-    $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
-}
-function updateScatterPlots() {
-    fetchPlotsData();
-    var axisTitles = fetchAxisTitle();
-    var xLegend = axisTitles[0];
-    var yLegend = axisTitles[1];
-    var tmp_plot_type = document.getElementById("plot_type").value;
-    if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
-        $('#img_center').empty();
-        $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
-    } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, plotsConfig.plotsType.METHYLATION, mutations, mutations_id, PlotsData.getCaseSet());
-        $('#img_center').empty();
-        $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. DNA Methylation ");
-    } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, plotsConfig.plotsType.RPPA, mutations, mutations_id, PlotsData.getCaseSet());
-        $('#img_center').empty();
-        $('#img_center').append(PlotsData.getGene() + ": RPPA protein level v. mRNA Expression ");
-    }
-}
-
-//Data Retriving Functions
-function fetchFrameData() {
+function FetchPlotsDataUtil() {}
+FetchPlotsDataUtil.prototype.fetchFrameData = function() {
     var tmpArr = [];
     var tmp_lines = [];
     var tmp_columns = [];
+    tmpArr.length = 0;
+    tmp_lines.length = 0;
+    tmp_columns.length = 0;
+    genetic_profile_copy_no.length = 0;
+    genetic_profile_rppa.length = 0;
+    genetic_profile_dna_methylation.length = 0;
+    genetic_profile_mrna.length = 0;
     $.ajax({
         url: "webservice.do?cmd=getGeneticProfiles&cancer_study_id=" + cancer_study_id,
         type: 'get',
@@ -172,7 +160,7 @@ function fetchFrameData() {
                         } else if (tmp_columns[4] == "COPY_NUMBER_ALTERATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_copy_no.push(tmpArr);
-                            has_copy_no = true;
+                            plotsConfig.has_copy_no = true;
                         } else if (tmp_columns[4] == "METHYLATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
                             genetic_profile_dna_methylation.push(tmpArr);
@@ -189,8 +177,8 @@ function fetchFrameData() {
             }
         }
     });
-}
-function fetchPlotsData() {
+};
+FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     var result_set = new Array(5);
     for ( var i = 0 ; i< result_set.length; i++) {
         result_set[i] = new Array();
@@ -199,15 +187,9 @@ function fetchPlotsData() {
     PlotsData.setGene(document.getElementById("genes").value);
     plotsConfig.copy_no_type = document.getElementById("data_type_copy_no").value;
     plotsConfig.mrna_type = document.getElementById("data_type_mrna").value;
-    if (genetic_profile_mutations != "") {
-        plotsConfig.mutations_type = genetic_profile_mutations[0][0];
-    }
-    if (genetic_profile_rppa != "") {
-        plotsConfig.rppa_type = genetic_profile_rppa[0][0];
-    }
-    if (genetic_profile_dna_methylation != "") {
-        plotsConfig.dna_methylation_type = genetic_profile_dna_methylation[0][0];
-    }
+    plotsConfig.mutations_type = genetic_profile_mutations[0][0];
+    plotsConfig.rppa_type = document.getElementById("data_type_rppa").value;
+    plotsConfig.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
 
     //Calling web APIs
     var urls;
@@ -257,6 +239,12 @@ function fetchPlotsData() {
     PlotsUtil.copyData(rppa, result_set[3]);
     PlotsUtil.copyData(dna_methylation, result_set[4]);
 
+    if (plotsConfig.copy_no_type.indexOf("gistic") != -1) {
+        PlotsUtil.copyData(gistic_copy_no, copy_no);
+    } else if (plotsConfig.copy_no_type.indexOf("log2") != -1) {
+        PlotsUtil.copyData(log2_copy_no, copy_no);
+    }
+
     //Map Mutations --- replace mutation ID w/ mutations type
     var mutationMap = {};
     for (var i = 0; i < PlotsData.getCaseSetLength(); i++) {
@@ -287,36 +275,98 @@ function fetchPlotsData() {
         mutations[k] = mutationMap[PlotsData.getSingleCase(k)];
     }
 }
-function fetchAxisTitle() {
-    var xLegend = "";
-    var yLegend = "";
+
+//View Controllers
+function ViewController() {}
+ViewController.prototype.initView = function() {
+    $('#img_center').hide();
+    $('#plots_box').hide();
+    fetchPlotsDataUtil.fetchFrameData();
+    drawSideBar();
+    this.updateSideBar();
+    fetchPlotsDataUtil.fetchPlotsData();
+    var tmp_axis_title_result = fetchAxisTitle();
+    $('#plots_box').empty();
+    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
+    $('#img_center_text').empty();
+    $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
+    setTimeout(function() {
+        $('#div-loading-image').empty();
+        $('#plots_box').show();
+        $('#img_center').show();
+    }, 500);
+}
+ViewController.prototype.updateScatterPlots = function() {
+    fetchPlotsDataUtil.fetchPlotsData();
+    var axisTitles = fetchAxisTitle();
+    var xLegend = axisTitles[0];
+    var yLegend = axisTitles[1];
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);
-        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = PlotsData.getGene() + ", " + genetic_profile_copy_no[tmp_xLegend_index][1];
-        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+        this.updateSideBar();
+        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
+        $('#img_center_text').empty();
+        $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        if (genetic_profile_dna_methylation != "") {
-            xLegend = PlotsData.getGene() + ", " + genetic_profile_dna_methylation[0][1];
-        }
-        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+        this.updateSideBar();
+        drawScatterPlots(dna_methylation, mrna, gistic_copy_no, xLegend, yLegend, plotsConfig.plotsType.METHYLATION, mutations, mutations_id, PlotsData.getCaseSet());
+        $('#img_center_text').empty();
+        $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. DNA Methylation ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_xLegend_index][1];
-        if (genetic_profile_rppa != "") {
-            yLegend = PlotsData.getGene() + ", " + genetic_profile_rppa[0][1];
-        }
+        this.updateSideBar();
+        drawScatterPlots(mrna, rppa, gistic_copy_no, xLegend, yLegend, plotsConfig.plotsType.RPPA, mutations, mutations_id, PlotsData.getCaseSet());
+        $('#img_center_text').empty();
+        $('#img_center_text').append(PlotsData.getGene() + ": RPPA protein level v. mRNA Expression ");
     }
-    return [xLegend, yLegend];
 }
+ViewController.prototype.updateView = function() {
+    $('#img_center').hide();
+    $('#plots_box').hide();
+    $('#div-loading-image').append("<img style='padding:200px;' src='images/ajax-loader.gif'>");
+    setTimeout(function() {
+        viewController.updateSideBar();
+        viewController.updateScatterPlots();
+        $('#div-loading-image').empty();
+        $('#plots_box').show();
+        $('#img_center').show();
+    }, 500);
+}
+ViewController.prototype.updatePlots = function() {
+    $('#img_center').hide();
+    $('#plots_box').hide();
+    $('#div-loading-image').append("<img style='padding:200px;' src='images/ajax-loader.gif'>");
+    setTimeout(function() {
+        viewController.updateScatterPlots();
+        $('#div-loading-image').empty();
+        $('#plots_box').show();
+        $('#img_center').show();
+    }, 500);
+}
+ViewController.prototype.updateSideBar = function() {  // hide/show menu item based on user selection
+    var currentPlotType = $('#plot_type').val();
+    if (currentPlotType.indexOf("copy_no") != -1) {
+        PlotsUtil.toggleVisibilityShow("mrna_dropdown");
+        PlotsUtil.toggleVisibilityShow("copy_no_dropdown");
+        PlotsUtil.toggleVisibilityHide("dna_methylation_dropdown");
+        PlotsUtil.toggleVisibilityHide("rppa_dropdown");
+    } else if (currentPlotType.indexOf("dna_mythelation") != -1) {
+        PlotsUtil.toggleVisibilityShow("mrna_dropdown");
+        PlotsUtil.toggleVisibilityHide("copy_no_dropdown");
+        PlotsUtil.toggleVisibilityShow("dna_methylation_dropdown");
+        PlotsUtil.toggleVisibilityHide("rppa_dropdown");
+    } else if (currentPlotType.indexOf("rppa") != -1) {
+        PlotsUtil.toggleVisibilityShow("mrna_dropdown");
+        PlotsUtil.toggleVisibilityHide("copy_no_dropdown");
+        PlotsUtil.toggleVisibilityHide("dna_methylation_dropdown");
+        PlotsUtil.toggleVisibilityShow("rppa_dropdown");
+    }
+}
+
 
 //Utils functions for Plotting
 function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_id, dataset) {
-    //TODO : First 4 elements always got skipped
     dataset.length = 0;
-    var index = 4;
+    var index = 0;
     if (type == plotsConfig.plotsType.COPY_NUMBER) {
         for( var i = 0; i<xData.length; i++) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")){
@@ -344,7 +394,15 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
             index += 1;
         }
     } else if (type == plotsConfig.plotsType.METHYLATION) {
-        for( var i = 0; i<xData.length; i++) {
+        var tmp_count = 0;
+        for (var j = 0; j < xData.length; j++) {
+            console.log(xData[j], yData[j]);
+            if (xData[j] != "NaN" && yData[j] != "NaN"){
+                tmp_count ++;
+            }
+        }
+        console.log(tmp_count);
+        for ( var i = 0; i<xData.length; i++) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) {
                 continue;
             }
@@ -352,7 +410,7 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
             index += 1;
         }
     } else if (type == plotsConfig.plotsType.RPPA) {
-        for( var i = 0; i<xData.length; i++) {
+        for ( var i = 0; i<xData.length; i++) {
             if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) {
                 continue;
             }
@@ -557,34 +615,70 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .text(yLegend);
 }
 function loadSVG() {
-    var mySVG = document.getElementById("plots_tab");
+    var mySVG = document.getElementById("plots_box");
     var svgDoc = mySVG.getElementsByTagName("svg");
     var tmp1 = new XMLSerializer();
     var tmp2 = tmp1.serializeToString(svgDoc[0]);
     return tmp2;
 }
+function fetchAxisTitle() {
+    var xLegend = "";
+    var yLegend = "";
+    var tmp_plot_type = document.getElementById("plot_type").value;
+    if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        xLegend = PlotsData.getGene() + ", " + genetic_profile_copy_no[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+    } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, genetic_profile_dna_methylation);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        xLegend = PlotsData.getGene() + ", " + genetic_profile_dna_methylation[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+    } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, genetic_profile_dna_methylation);
+        xLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + genetic_profile_rppa[tmp_yLegend_index][1];
+    }
+    return [xLegend, yLegend];
+}
 
 //Drawing Functions
 function drawSideBar() {
     //Plot Type
-    if ( plotsConfig.has_mrna && has_copy_no) {
+    if ( plotsConfig.has_mrna && plotsConfig.has_copy_no) {
         $('#plot_type').append("<option value='" + plotsConfig.plot_type_list[0][0] + "'>" + plotsConfig.plot_type_list[0][1] + "</option>");
     }
     if ( plotsConfig.has_mrna && plotsConfig.has_dna_methylation) {
         $('#plot_type').append("<option value='" + plotsConfig.plot_type_list[1][0] + "'>" + plotsConfig.plot_type_list[1][1] + "</option>");
     }
+    console.log("inside drawSideBar:" + plotsConfig.has_rppa);
     if ( plotsConfig.has_mrna && plotsConfig.has_rppa) {
+        console.log("inside drawSideBar:" + plotsConfig.has_rppa);
         $('#plot_type').append("<option value='" + plotsConfig.plot_type_list[2][0] + "'>" + plotsConfig.plot_type_list[2][1] + "</option>");
     }
-    //Copy Number Type
-    for ( var j = 0; j < genetic_profile_copy_no.length; j++ ) {
+
+    //Data Type
+    //Lay out all data types
+    var j = 0;
+    for ( j = 0; j < genetic_profile_copy_no.length; j++ ) {
         $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
     }
-    //mRNA Type
-    for ( var k = 0; k < genetic_profile_mrna.length; k++ ) {
-        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[k][0] + "'>" + genetic_profile_mrna[k][1] + "</option>");
+    for ( j = 0; j < genetic_profile_mrna.length; j++ ) {
+        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[j][0] + "'>" + genetic_profile_mrna[j][1] + "</option>");
     }
+    for ( j = 0; j < genetic_profile_dna_methylation.length; j++ ) {
+        $('#data_type_dna_methylation').append("<option value='" + genetic_profile_dna_methylation[j][0] + "'>" + genetic_profile_dna_methylation[j][1] + "</option>");
+    }
+    for ( j = 0; j < genetic_profile_rppa.length; j++ ) {
+        $('#data_type_rppa').append("<option value='" + genetic_profile_rppa[j][0] + "'>" + genetic_profile_rppa[j][1] + "</option>");
+    }
+    //Init w/ user selected data types
 }
+
+
+
 function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR) {
     var boxPlotsGroup = svg.append("svg:g");
     //Rectangle
@@ -641,10 +735,11 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
     var dataset = [];
 
-    $('#plots_tab').empty();
+
+    $('#plots_box').empty();
     var w = 700;
     var h = 600;
-    var svg = d3.select("#plots_tab")
+    var svg = d3.select("#plots_box")
         .append("svg")
         .attr("width", w)
         .attr("height", h);
@@ -661,7 +756,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
     //Define scale functions
     //TODO: enhencement -- can't return xScale/yScale.
-    if ( type == plotsConfig.plotsType.METHYLATION ){
+    if ( type == plotsConfig.plotsType.METHYLATION && plotsConfig.dna_methylation_type.indexOf("hm27") != -1 ){
         //Fix the range for methylation view to from 0 to 1
         var xScale = d3. scale.linear()
             .domain([-0.02, 1])
@@ -872,6 +967,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Error Handling -- empty dataset
     var xHasData = false;
     var yHasData = false;
+    var combineHasData = false;
     for (var j = 0; j < xData.length; j++) {
         if (xData[j] != "NaN") {
             xHasData = true;
@@ -882,7 +978,12 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             yHasData = true;
         }
     }
-    if ((yHasData == false) || (xHasData == false)) {
+    for (var m = 0; m < xData.length; m++) {
+        if (xData[m] != "NaN" && yData[m] != "NaN") {
+            combineHasData = true;
+        }
+    }
+    if ((yHasData == false) || (xHasData == false) || (combineHasData == false)) {
 
         var errorTxt1 = PlotsData.getGene() + " Has No Data For";
         var errorTxt2;
@@ -891,6 +992,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             errorTxt2 = yLegend;
         } else if (xHasData == false) {
             errorTxt2 = xLegend;
+        } else if (combineHasData == false) {
+            errorTxt2 = PlotsData.getGene() + " selected data type combination"
         }
         errorTxt2 = errorTxt2.substring(PlotsData.getGene().length+1);
         svg.append("text")
@@ -993,6 +1096,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     addAxisTitle(svg, xLegend, yLegend);
 }
 
+var viewController = new ViewController();
 var plotsConfig = new PlotsConfig();
-
+var fetchPlotsDataUtil = new FetchPlotsDataUtil();
 

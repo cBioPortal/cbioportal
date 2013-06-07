@@ -327,27 +327,11 @@ var OncoprintUI = (function() {
         var select_el = d3.select(select_el);
 
         select_el.selectAll('option')
-        .data(clinical_attributes)
-        .enter()
-        .append('option')
-        .text(function(d) { return d.display_name; });
+            .data(clinical_attributes)
+            .enter()
+            .append('option')
+            .text(function(d) { return d.display_name; });
     };
-
-        d3.selectAll('.sample').each(function(d, i) {
-            $(this).qtip({
-                content: {text: 'oncoprint qtip failed'},
-                events: {
-                    render: function(event, api) {
-                        var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
-                        api.set('content.text', content);
-                    }
-                },
-                hide: { fixed: true, delay: 100 },
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                //position: {my:'left top',at:'bottom center'}
-                position: {my:'left bottom',at:'top right'}
-            });
-        });
 
     // formating for mouseovers
     var format = (function() {
@@ -378,7 +362,6 @@ var OncoprintUI = (function() {
             }
         };
     }());
-
 
     var patientViewUrl = function(sample_id) {
         // helper function

@@ -1,3 +1,15 @@
+var mutations = [],
+    mutations_id = [],
+    copy_no = [],
+    mrna = [],
+    rppa = [],
+    dna_methylation = [],
+    genetic_profile_mutations = [],
+    genetic_profile_mrna = [],
+    genetic_profile_copy_no = [],
+    genetic_profile_rppa = [],
+    genetic_profile_dna_methylation = [];
+
 function PlotsConfig() {
     this.has_mrna = "false";
     this.has_dna_methylation = "false";
@@ -19,32 +31,40 @@ function PlotsConfig() {
     ];
 }
 
-var PlotsData = (function(){
+var PlotsData = (function() {
     var gene;
-    var setGene = function(input_gene){
+    var case_set = [];
+    var setGene = function(input_gene) {
         gene = input_gene;
     };
     var getGene = function(){
         return gene;
     };
+    var setCaseSet = function(input_case_set) {
+        case_set = input_case_set;
+    }
+    var getCaseSet = function() {
+        return case_set;
+    }
+    var getSingleCase = function(index) {
+        return case_set[index];
+    }
+    var setSingleCase = function(case_id, index) {
+        case_set[index] = case_id;
+    }
+    var getCaseSetLength = function() {
+        return case_set.length;
+    }
     return {
         setGene: setGene,
-        getGene: getGene
+        getGene: getGene,
+        setCaseSet: setCaseSet,
+        getCaseSet: getCaseSet,
+        setSingleCase: setSingleCase,
+        getSingleCase: getSingleCase,
+        getCaseSetLength: getCaseSetLength
     };
 }());
-
-var case_set = [],
-    mutations = [],
-    mutations_id = [],
-    copy_no = [],
-    mrna = [],
-    rppa = [],
-    dna_methylation = [],
-    genetic_profile_mutations = [],
-    genetic_profile_mrna = [],
-    genetic_profile_copy_no = [],
-    genetic_profile_rppa = [],
-    genetic_profile_dna_methylation = [];
 
 var PlotsUtil = (function(){
     var findIndex = function(Str, Exp) {
@@ -101,7 +121,7 @@ function initView() {
     fetchPlotsData();
     var tmp_axis_title_result = fetchAxisTitle();
     $('#plots_tab').empty();
-    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, case_set);
+    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
     $('#img_center').empty();
     $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
 }
@@ -112,15 +132,15 @@ function updateScatterPlots() {
     var yLegend = axisTitles[1];
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, case_set);
+        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
         $('#img_center').empty();
         $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, plotsConfig.plotsType.METHYLATION, mutations, mutations_id, case_set);
+        drawScatterPlots(dna_methylation, mrna, copy_no, xLegend, yLegend, plotsConfig.plotsType.METHYLATION, mutations, mutations_id, PlotsData.getCaseSet());
         $('#img_center').empty();
         $('#img_center').append(PlotsData.getGene() + ": mRNA Expression v. DNA Methylation ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, plotsConfig.plotsType.RPPA, mutations, mutations_id, case_set);
+        drawScatterPlots(mrna, rppa, copy_no, xLegend, yLegend, plotsConfig.plotsType.RPPA, mutations, mutations_id, PlotsData.getCaseSet());
         $('#img_center').empty();
         $('#img_center').append(PlotsData.getGene() + ": RPPA protein level v. mRNA Expression ");
     }
@@ -212,7 +232,7 @@ function fetchPlotsData() {
                         //Get Case Set
                         tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
                         for (var j = 0; j < tmp_case_set.length - 2; j++) {
-                            case_set[j] = tmp_case_set[j + 2];
+                            PlotsData.setSingleCase(tmp_case_set[j+2], j);
                         }
                         //Get profile data (Filter the headers)
                         var profile_data = [];
@@ -239,8 +259,8 @@ function fetchPlotsData() {
 
     //Map Mutations --- replace mutation ID w/ mutations type
     var mutationMap = {};
-    for (var i = 0; i < case_set.length; i++) {
-        mutationMap[case_set[i]] = "non";
+    for (var i = 0; i < PlotsData.getCaseSetLength(); i++) {
+        mutationMap[PlotsData.getSingleCase(i)] = "non";
     }
     $.ajax({
         url: "webservice.do?cmd=getMutationData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=" + cancer_study_id + "_mutations",
@@ -262,9 +282,9 @@ function fetchPlotsData() {
             }
         }
     });
-    for (var k = 0; k < case_set.length; k++) {
+    for (var k = 0; k < PlotsData.getCaseSetLength(); k++) {
         mutations_id[k] = mutations[k]; //Keep mutations ID info
-        mutations[k] = mutationMap[case_set[k]];
+        mutations[k] = mutationMap[PlotsData.getSingleCase(k)];
     }
 }
 function fetchAxisTitle() {
@@ -289,7 +309,7 @@ function fetchAxisTitle() {
             yLegend = PlotsData.getGene() + ", " + genetic_profile_rppa[0][1];
         }
     }
-    return [ xLegend, yLegend ];
+    return [xLegend, yLegend];
 }
 
 //Utils functions for Plotting
@@ -517,6 +537,33 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
         .attr("transform", "translate(600, 0)")
         .call(yAxis.orient("left").ticks(0));
 }
+function addAxisTitle(svg, xLegend, yLegend) {
+    //Append axis Titles
+    var axisTitleGroup = svg.append("svg:g");
+    axisTitleGroup.append("text")
+        .attr("class", "label")
+        .attr("x", 350)
+        .attr("y", 580)
+        .style("text-anchor", "middle")
+        .style("font-weight","bold")
+        .text(xLegend);
+    axisTitleGroup.append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", -270)
+        .attr("y", 45)
+        .style("text-anchor", "middle")
+        .style("font-weight","bold")
+        .text(yLegend);
+}
+function loadSVG() {
+    var mySVG = document.getElementById("plots_tab");
+    var svgDoc = mySVG.getElementsByTagName("svg");
+    var tmp1 = new XMLSerializer();
+    var tmp2 = tmp1.serializeToString(svgDoc[0]);
+    return tmp2;
+}
+
 //Drawing Functions
 function drawSideBar() {
     //Plot Type
@@ -540,7 +587,7 @@ function drawSideBar() {
 }
 function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR) {
     var boxPlotsGroup = svg.append("svg:g");
-	//Rectangle
+    //Rectangle
     boxPlotsGroup.append("rect")
         .attr("x", midLine-40)
         .attr("y", quan2)
@@ -590,9 +637,6 @@ function drawBoxPlots(svg, midLine, topLine, bottomLine, quan1, quan2, mean, IQR
         .attr("stroke", "#BDBDBD")
         .style("stroke-width", 1);
 }
-
-
-
 function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations, mutations_id, case_set) {
 
     var dataset = [];
@@ -618,7 +662,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Define scale functions
     //TODO: enhencement -- can't return xScale/yScale.
     if ( type == plotsConfig.plotsType.METHYLATION ){
-        console.log(type);
         //Fix the range for methylation view to from 0 to 1
         var xScale = d3. scale.linear()
             .domain([-0.02, 1])
@@ -715,9 +758,9 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                     default: return "#B40404";
                 }
             })
-	    .attr("stroke-width", 1.2);
-       
-	 //Making Qtips
+            .attr("stroke-width", 1.2);
+
+        //Making Qtips
         dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'qtip failed'},
@@ -898,7 +941,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         case i: return "#B40404";
                     }
                 })
-		.attr("stroke-width", 1.2);
+                .attr("stroke-width", 1.2);
             legend.append("text")
                 .attr("dx", ".75em")
                 .attr("dy", ".35em")
@@ -950,32 +993,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     addAxisTitle(svg, xLegend, yLegend);
 }
 
-function addAxisTitle(svg, xLegend, yLegend) {
-    //Append axis Titles
-    var axisTitleGroup = svg.append("svg:g");
-    axisTitleGroup.append("text")
-        .attr("class", "label")
-        .attr("x", 350)
-        .attr("y", 580)
-        .style("text-anchor", "middle")
-        .style("font-weight","bold")
-        .text(xLegend);
-    axisTitleGroup.append("text")
-        .attr("class", "label")
-        .attr("transform", "rotate(-90)")
-        .attr("x", -270)
-        .attr("y", 45)
-        .style("text-anchor", "middle")
-        .style("font-weight","bold")
-        .text(yLegend);
-}
-
-function loadSVG() {
-    var mySVG = document.getElementById("plots_tab");
-    var svgDoc = mySVG.getElementsByTagName("svg");
-    var tmp1 = new XMLSerializer();
-    var tmp2 = tmp1.serializeToString(svgDoc[0]);
-    return tmp2;
-}
-
 var plotsConfig = new PlotsConfig();
+
+

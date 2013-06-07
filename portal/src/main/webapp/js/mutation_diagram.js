@@ -46,8 +46,14 @@ MutationDiagram.prototype.defaultOpts = {
 	marginRight: 20,            // right margin for the plot area
 	marginTop: 20,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
-	labelX: null,               // informative label of the x-axis
+	labelX: "TODO",             // informative label of the x-axis
+	labelXFont: "sans-serif",   // font type of the x-axis label
+	labelXFontColor: "#2E3436", // font color of the x-axis label
+	labelXFontSize: "12px",     // font size of x-axis label
 	labelY: "# Mutations",      // informative label of the y-axis
+	labelYFont: "sans-serif",   // font type of the y-axis label
+	labelYFontColor: "#2E3436", // font color of the y-axis label
+	labelYFontSize: "12px",     // font size of y-axis label
 	offsetY: 3,                 // offset for y values
 	offsetX: 0,                 // offset for x values
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
@@ -63,13 +69,17 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopStrokeWidth: 1,     // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
 	xAxisPadding: 15,           // padding between x-axis and the sequence
-	xAxisTickInterval: 50,      // tick interval for x-axis
+	xAxisTickInterval: 100,     // major tick interval for x-axis
+	xAxisMaxTickLabel: 5,       // maximum number of visible tick label on the x-axis
+	xAxisTickSize: 6,           // size of the major ticks of x-axis
 	xAxisStroke: "#AAAAAA",     // color of the x-axis lines
 	xAxisFont: "sans-serif",    // font type of the x-axis labels
 	xAxisFontSize: "10px",      // font size of the x-axis labels
 	xAxisFontColor: "#2E3436",  // font color of the x-axis labels
 	yAxisPadding: 5,            // padding between y-axis and the plot area
-	yAxisTicks: 4,              // number of ticks to be displayed on the y-axis
+	yAxisLabelPadding: 15,      // padding between y-axis and its label
+	yAxisTicks: 3,              // number of major ticks to be displayed on the y-axis
+	yAxisTickSize: 6,           // size of the major ticks of y-axis
 	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
@@ -106,6 +116,7 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 
 	// draw y-axis
 	self.drawYAxis(svg, yScale, yMax, options, bounds);
+	self.drawYAxisLabel(svg, options, bounds);
 
 	// draw lollipop lines
 	for (var i = 0; i < data[0].markups.length; i++)
@@ -174,13 +185,34 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 {
 	var self = this;
 
+	// helper function to calculate display interval for tick labels
+	var calcDisplayInterval = function(interval, maxValue, maxLabelCount) {
+		var displayInterval = maxValue / (maxLabelCount - 1);
+
+		if (displayInterval % interval > interval / 2)
+		{
+			displayInterval += + interval - (displayInterval % interval);
+		}
+		else
+		{
+			displayInterval -= (displayInterval % interval);
+		}
+
+		if (displayInterval < interval)
+		{
+			displayInterval = interval;
+		}
+
+		return displayInterval;
+	};
+
 	// determine tick values
 	var tickValues = [];
 
 	var value = 0;
 	var interval = options.xAxisTickInterval;
 
-	while (value < xMax - (2 * interval) / 3)
+	while (value < xMax - interval / 2)
 	{
 		tickValues.push(value);
 		value += interval;
@@ -188,27 +220,38 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 
 	tickValues.push(xMax);
 
-	// formatter to hide minor tick labels
+	// formatter to hide labels
 	var formatter = function(value) {
+		var displayInterval = calcDisplayInterval(interval,
+			xMax,
+			options.xAxisMaxTickLabel);
+
+		// always display max value
 		if (value == xMax)
 		{
 			return value + " aa";
 		}
-		else if (value % (interval * 2) == 0)
+		// display value if its multiple of display interval
+		else if (value % displayInterval == 0)
 		{
 			return value;
 		}
+		// hide remaining labels
 		else
 		{
 			return '';
 		}
 	};
 
+	var tickSize = options.xAxisTickSize;
+
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
 		.orient("bottom")
 		.tickValues(tickValues)
-		.tickFormat(formatter);
+		.tickFormat(formatter)
+		.tickSubdivide(true)
+		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis
 	var position = bounds.y + options.regionHeight + options.xAxisPadding;
@@ -248,7 +291,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 	var tickValues = [];
 
 	var value = 0;
-	var interval = yMax / options.yAxisTicks;
+	var interval = yMax / (options.yAxisTicks - 1);
 
 	while (value < yMax)
 	{
@@ -270,11 +313,15 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 		}
 	};
 
+	var tickSize = options.yAxisTickSize;
+
 	var yAxis = d3.svg.axis()
 		.scale(yScale)
 		.orient("left")
 		.tickValues(tickValues)
-		.tickFormat(formatter);
+		.tickFormat(formatter)
+		.tickSubdivide(true)
+		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis
 	var position = bounds.x - options.yAxisPadding;
@@ -293,6 +340,29 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 		options.yAxisFontColor);
 
 	return axis;
+};
+
+MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
+{
+	// calculate y-coordinate of the axis
+	var x = bounds.x -
+		options.yAxisPadding -
+		options.yAxisTickSize -
+		options.yAxisLabelPadding;
+
+	var y =  bounds.y;
+
+	// TODO align center...
+	// append label
+	var label = svg.append("text")
+		.attr("fill", options.labelYFontColor)
+		.attr("x", x)
+		.attr("y", y)
+		.attr("class", "mut-dia-y-axis-label")
+		.attr("transform", "rotate(270, " + x + "," + y +")")
+		.style("font-family", options.labelYFont)
+		.style("font-size", options.labelYFontSize)
+		.text(options.labelY);
 };
 
 /**
@@ -414,10 +484,11 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 
 	// TODO text alignment (center, left, right) & truncate/hide if too long to fit
 	var text = svg.append('text')
-		.attr('fill', options.regionFontColor)
-		.attr('x', x + options.regionTextPadding)
-		.attr('y', y + 2*height/3)
-		.style('font-size', options.regionFontSize)
+		.attr("fill", options.regionFontColor)
+		.attr("x", x + options.regionTextPadding)
+		.attr("y", y + 2*height/3)
+		.attr("class", "mut-dia-region-text")
+		.style("font-size", options.regionFontSize)
 		.style("font-family", options.regionFont)
 		.text(label);
 

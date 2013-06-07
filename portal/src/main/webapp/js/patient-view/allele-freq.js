@@ -4,7 +4,17 @@
 ;
 
 var AlleleFreqPlotUtils = (function() {
+    var NO_DATA = -1;
+
     var process_data = function(alt_counts, ref_counts) {
+//        alt_counts = alt_counts.filter(function(i) {
+//            return i !== NO_DATA;
+//        });
+//
+//        ref_counts = ref_counts.filter(function(i) {
+//            return i !== NO_DATA;
+//        });
+
         return d3.zip(alt_counts, ref_counts).map(function(pair) {
             return pair[0] / (pair[0] + pair[1]);
         });
@@ -44,8 +54,13 @@ var AlleleFreqPlotUtils = (function() {
     };
 }());
 
+var global_data;
 // makes an allele frequency density plot on the div
 var AlleleFreqPlot = function(div, data) {
+
+    global_data = data;
+
+
     var margin = {top: 20, right: 30, bottom: 30, left: 40},
         width = 960 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;

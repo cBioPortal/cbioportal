@@ -1,11 +1,11 @@
 /**
  * Constructor for MutationDiagram class.
  *
- * @param options   general options object
- * @param data      mutation data
+ * @param options   visual options object
+ * @param data      a collection of Mutation models (MutationCollection)
  * @constructor
  */
-function MutationDiagram(options, data)
+function MutationDiagram(geneSymbol, options, data)
 {
 	// TODO after refactoring the data will be generic,
 	// so we will need to process it before(or after?) passing to this function
@@ -14,11 +14,15 @@ function MutationDiagram(options, data)
 
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend({}, self.defaultOpts, options);
+	self.data = data;
+	self.geneSymbol = geneSymbol;
+}
+
+MutationDiagram.prototype.initDiagram = function ()
+{
+	var self = this;
 
 	var container = d3.select("#" + self.options.el);
-	var svg = self.createSvg(container,
-			self.options.elWidth,
-			self.options.elHeight);
 
 	// calculate bounds of the actual plot area (excluding axis, sequence, labels, etc.)
 	var bounds = {};
@@ -29,11 +33,33 @@ function MutationDiagram(options, data)
 	bounds.x = self.options.marginLeft;
 	bounds.y = self.options.elHeight - self.options.marginBottom;
 
-	self.drawDiagram(svg,
-		bounds,
-		self.options,
-		data);
-}
+	$.getJSON("getPfamSequence.json",
+		{geneSymbol: self.geneSymbol},
+		function(response) {
+			self.data = self.processData(self.data, response);
+
+			var svg = self.createSvg(container,
+				self.options.elWidth,
+				self.options.elHeight);
+
+			self.drawDiagram(svg,
+				bounds,
+				self.options,
+				self.data);
+		});
+};
+
+MutationDiagram.prototype.processData = function (mutationData, sequenceData)
+{
+	var data = {};
+
+	// TODO process a collection of mutation data
+	data.mutations = mutationData[0].markups; // TODO replace with collection data
+	data.sequence = sequenceData;
+
+	return data;
+};
+
 
 // TODO add more options for a more customizable diagram:
 // default tooltip templates?
@@ -100,13 +126,12 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
 	var self = this;
 
-	// TODO data structure should change completely
-	var xMax = data[0].length + options.offsetX;
+	var xMax = data.sequence.sequenceLength + options.offsetX;
 	var yMax = self.calcMaxCount(data) + options.offsetY;
-	var regions = data[0].regions;
-	var mutations = data[0].markups;
-	var seqTooltip = data[0].metadata.identifier + ", " +
-	               data[0].metadata.description + " (" + data[0].length + "aa)";
+	var regions = data.sequence.regions;
+	var mutations = data.mutations; // TODO this is still not refactored
+	var seqTooltip = data.sequence.identifier + ", " +
+	               data.sequence.description + " (" + data.sequence.sequenceLength + "aa)";
 
 	var xScale = d3.scale.linear()
 		.domain([0, xMax])
@@ -458,17 +483,14 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 {
 	var self = this;
 
-	// TODO may change after refactoring data structure
 	var start = region.start;
 	var end = region.end;
 	var label = region.text;
-	var color = region.colour; // TODO get from options instead of region data?
-	var regionMetadata = region.metadata;
-	var tooltip = regionMetadata.identifier + " " +
-	              regionMetadata.type.toLowerCase() + ", " +
-	              regionMetadata.description +
-	              " (" + start + " - " +
-	              end + ")";
+	var color = region.color;
+	var tooltip = region.identifier + " " +
+	              region.type.toLowerCase() + ", " +
+	              region.description +
+	              " (" + start + " - " + end + ")";
 
 	var width = Math.abs(xScale(start) - xScale(end));
 	var height = options.regionHeight;
@@ -549,14 +571,14 @@ MutationDiagram.prototype.calcMaxCount = function(data)
 	// this is the old method to find max count
 
 	var maxCount = 0;
-	var size = data[0].markups.length;
+	var size = data.mutations.length;
 
 	for (var i = 0; i < size; i++)
 	{
-		if ((data[0].markups[i].type == "mutation") &&
-		    (parseInt(data[0].markups[i].metadata.count) >= maxCount))
+		if ((data.mutations[i].type == "mutation") &&
+		    (parseInt(data.mutations[i].metadata.count) >= maxCount))
 		{
-			maxCount = data[0].markups[i].metadata.count;
+			maxCount = data.mutations[i].metadata.count;
 		}
 	}
 

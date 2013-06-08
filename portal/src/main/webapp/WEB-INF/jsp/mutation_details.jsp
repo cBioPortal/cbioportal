@@ -10,9 +10,11 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDataProcessor" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
 <!--script type="text/javascript" src="js/raphael/raphael.js"></script-->
+<script type="text/javascript" src="js/mutation_model.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/mutation_table.js"></script>
 
@@ -24,6 +26,7 @@
 
     MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
     MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
+	MutationDataProcessor mutationDataProcessor = new MutationDataProcessor();
 %>
 <div class='section' id='mutation_details'>
 
@@ -92,12 +95,18 @@
 $(document).ready(function(){
 	var tableMutations;
     var diagramData;
+	var mutationColl;
 	var gene;
 	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         String geneStr = geneWithScore.getGene();
         if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
         String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
+                geneStr,
+                mutationMap.getExtendedMutations(geneStr)
+        );
+
+        String mutationDataStr = mutationDataProcessor.getMutationData(
                 geneStr,
                 mutationMap.getExtendedMutations(geneStr)
         );
@@ -112,9 +121,16 @@ $(document).ready(function(){
             //drawMutationDiagram(diagramSequence);
 
 			gene = "<%= geneStr %>";
+
+			// TODO pass this data to MutationDiagram and remove MutationDiagramProcessor
+			mutationColl = new MutationCollection(<%= mutationDataStr %>);
+
 			var mutationDiagram = new MutationDiagram(
+					gene,
 					{el: "mutation_diagram_" + gene.toUpperCase()},
 					diagramData);
+
+			mutationDiagram.initDiagram();
 
 			// TODO may change after refactoring diagram data
 			$("#uniprot_link_" + gene.toUpperCase()).html(

@@ -23,6 +23,7 @@ var OncoprintUtils = (function() {
     };
 
     // returns the gene name or the attr_id, whatever the piece of data has
+    // throws Error
     var get_attr = function(d) {
         var to_return =  d.gene || d.attr_id;
 
@@ -46,10 +47,10 @@ var OncoprintUtils = (function() {
         });
     };
 
-    // params: element of a nested list
-    // finds all the missing attributes in the values and creates them with attr_val = "NA"
+    // params: element of a nested list, list of attributes
+    // finds all the missing attributes in the values and creates them with
+    // attr_val = "NA"
     var normalize_nested_values = function(key_values, attributes) {
-
         var attrs = key_values.values.map(function(value) { return get_attr(value); });
 
         // set minus
@@ -74,7 +75,6 @@ var OncoprintUtils = (function() {
     //
     // returns list of raw clinical data
     var normalize_clinical_attributes = function(nested_data, attributes) {
-
         var no_attributes = attributes.length;
 
         var normalized = nested_data.map(function(key_values) {
@@ -428,6 +428,12 @@ var Oncoprint = function(div, params) {
 
     var clinical_attrs = params.clinical_attrs      // extract attr_ids
         .map(function(attr) { return attr.attr_id; });
+
+    // handle the case when a list of strings is passed instead of proper
+    // clinical attribute objects
+    clinical_attrs = clinical_attrs.filter(function(i) { return i !== undefined; });
+    clinical_attrs = clinical_attrs || params.clinical_attrs;
+
     var attributes = clinical_attrs.concat(params.genes);
 
     data = OncoprintUtils.process_data(data, attributes);
@@ -619,7 +625,11 @@ var Oncoprint = function(div, params) {
                 .attr('d', sym.type(function(d) {
                     return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
                 .attr('transform', function(d) {
-                    return translate(dims.rect_width / 2, dims.rect_height / 2 + vertical_pos(OncoprintUtils.get_attr(d))); });
+                    // put the triangle in the right spot: at the top if
+                    // UNREGULATED, at the bottom otherwise
+                    var dy = dims.rect_height;
+                    dy = d.rppa === "UPREGULATED" ? dy / 1.1 : dy * .1;
+                    return translate(dims.rect_width / 2, dy + vertical_pos(OncoprintUtils.get_attr(d))); })
         rppa.filter(function(d) {
             return d.rppa === undefined;
         }).remove();

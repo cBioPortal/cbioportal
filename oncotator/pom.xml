@@ -92,9 +92,19 @@
 				  </goals>
 				  <configuration>
 					<createDependencyReducedPom>false</createDependencyReducedPom>
+					<minimizeJar>true</minimizeJar>
+					<filters>
+					  <filter>
+						  <artifact>mysql:mysql-connector-java</artifact>
+						  <includes>
+							  <include>**</include>
+						  </includes>
+					  </filter>
+					</filters>
 					<artifactSet>
 					  <excludes>
 						<exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
+						<exclude>org.springframework*</exclude>
 					  </excludes>
 					</artifactSet>
 					<transformers>

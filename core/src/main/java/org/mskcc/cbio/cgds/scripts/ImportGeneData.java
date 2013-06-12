@@ -86,7 +86,7 @@ public class ImportGeneData {
             line = buf.readLine();
         }
         if (MySQLbulkLoader.isBulkLoad()) {
-           daoGene.flushGenesToDatabase();
+           MySQLbulkLoader.flushAll();
         }        
     }
 

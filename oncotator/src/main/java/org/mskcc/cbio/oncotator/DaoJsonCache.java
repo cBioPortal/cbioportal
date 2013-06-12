@@ -63,7 +63,7 @@ public class DaoJsonCache implements OncotatorCacheService
 			int rows = pstmt.executeUpdate();
 			return rows;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new OncotatorCacheException(e.getMessage());
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);
@@ -92,7 +92,7 @@ public class DaoJsonCache implements OncotatorCacheService
 				return null;
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new OncotatorCacheException(e.getMessage());
 		} finally {
 			DatabaseUtil.closeAll(con, pstmt, rs);

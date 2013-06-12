@@ -45,9 +45,6 @@ import java.util.HashSet;
 public class DaoMicroRnaAlteration {
     private static final String DELIM = ",";
 
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
-
     public static final String NAN = "NaN";
     private static DaoMicroRnaAlteration daoMicroRnaAlteration = null;
 
@@ -66,10 +63,6 @@ public class DaoMicroRnaAlteration {
     public static DaoMicroRnaAlteration getInstance() throws DaoException {
         if (daoMicroRnaAlteration == null) {
             daoMicroRnaAlteration = new DaoMicroRnaAlteration();
-        }
-        // create the MySQLbulkLoader if it doesn't exist
-        if( myMySQLbulkLoader == null ){
-            myMySQLbulkLoader = new MySQLbulkLoader( "micro_rna_alteration" );
         }
         return daoMicroRnaAlteration;
     }
@@ -101,7 +94,7 @@ public class DaoMicroRnaAlteration {
 
                 // use this code if bulk loading
                 // write to the temp file maintained by the MySQLbulkLoader 
-                myMySQLbulkLoader.insertRecord( 
+                MySQLbulkLoader.getMySQLbulkLoader("micro_rna_alteration").insertRecord( 
                         Integer.toString(geneticProfileId ), microRnaId,
                         valueBuffer.toString());
                 
@@ -123,22 +116,6 @@ public class DaoMicroRnaAlteration {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMicroRnaAlteration.class, con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     * 
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushMicroRnaAlteration() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 

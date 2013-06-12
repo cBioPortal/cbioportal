@@ -84,11 +84,10 @@ public class GetMutationData {
         buf.append("\n");
 
         //  Iterate through all validated genes, and extract mutation data.
-        DaoMutation daoMutation = DaoMutation.getInstance();
         for (Gene gene : geneList) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
             ArrayList<ExtendedMutation> mutationList =
-                    daoMutation.getMutations(geneticProfile.getGeneticProfileId(),
+                    DaoMutation.getMutations(geneticProfile.getGeneticProfileId(),
                             canonicalGene.getEntrezGeneId());
             for (ExtendedMutation mutation:  mutationList) {
                 String caseId = mutation.getCaseId();

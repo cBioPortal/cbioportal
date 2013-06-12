@@ -63,7 +63,6 @@ public class GetMutationData {
         ArrayList<ExtendedMutation> mutationList = new ArrayList<ExtendedMutation>();
         ArrayList<Long> entrezIDList = new ArrayList<Long>();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        DaoMutation daoMutation = DaoMutation.getInstance();
 
         //Get Genetic Profile ID from GeneticProfile Object
         int GeneticProfile = profile.getGeneticProfileId();
@@ -82,7 +81,7 @@ public class GetMutationData {
                 //parse each Mutation List retrieved from DaoMutation and add to Main Mutation List
                 for (Long entrezID : entrezIDList) {
                     ArrayList<ExtendedMutation> tempmutationList =
-                            daoMutation.getMutations(GeneticProfile, entrezID);
+                            DaoMutation.getMutations(GeneticProfile, entrezID);
                     for (ExtendedMutation mutation : tempmutationList){
                         // seperate out mutations for the given set of caseIDS.
                         if (caseIdSet.contains(mutation.getCaseId()))

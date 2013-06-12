@@ -46,7 +46,7 @@
 		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
-	<profile>
+        <profile>
 	  <id>target</id>
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>

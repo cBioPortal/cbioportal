@@ -192,10 +192,10 @@ public class TestWebService extends TestCase {
       // example getGeneticProfiles request      
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "HI");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertEquals( null, studies );
+      assertTrue(studies.isEmpty());
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "33");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertEquals( null, studies );
+      assertTrue(studies.isEmpty());
       aNullHttpServletRequest.setParameter(WebService.CANCER_STUDY_ID, "study1");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
       assertEquals( 1, studies.size() );
@@ -205,7 +205,7 @@ public class TestWebService extends TestCase {
       aNullHttpServletRequest = new NullHttpServletRequest();
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, "HI");
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertEquals( null, studies );
+      assertTrue(studies.isEmpty());
 
       DaoCaseList aDaoCaseList = new DaoCaseList();
       String exampleCaseSetId = "exampleID";
@@ -216,7 +216,7 @@ public class TestWebService extends TestCase {
       aDaoCaseList.addCaseList(caseList);
       aNullHttpServletRequest.setParameter(WebService.CASE_SET_ID, exampleCaseSetId );
       studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertEquals( null, studies );
+      assertTrue(studies.isEmpty());
 
       aDaoCaseList.deleteAllRecords();
       caseList.setCancerStudyId( 1 ); // CancerStudyId inserted by setUpDBMS()

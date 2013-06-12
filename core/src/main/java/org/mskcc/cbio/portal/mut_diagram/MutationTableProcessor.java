@@ -39,7 +39,7 @@ import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cbio.cgds.dao.DaoMutationEvent;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
@@ -484,8 +484,7 @@ public class MutationTableProcessor {
         // retrieve count map
         try
         {
-            counts = DaoMutationEvent.countMutationEvents(
-                    geneticProfileId, caseIds);
+            counts = DaoMutation.countMutationEvents(geneticProfileId, caseIds);
         }
         catch (DaoException e)
         {

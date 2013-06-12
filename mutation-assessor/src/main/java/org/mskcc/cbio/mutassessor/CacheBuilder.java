@@ -42,6 +42,7 @@ public class CacheBuilder
 	// Column header names in an MA file
 	public static final String MA_VARIANT = "mutation";
 	public static final String MA_FIMPACT = "func. impact";
+	public static final String MA_FIS = "fi score";
 	public static final String MA_PROTEIN_CHANGE = "uniprot variant";
 	public static final String MA_LINK_MSA = "msa";
 	public static final String MA_LINK_PDB = "pdb";
@@ -74,7 +75,7 @@ public class CacheBuilder
 	{
 		this.sqlFilename = sqlFilename;
 
-		// also try to clean previous content
+		// try to clean previous content
 		try
 		{
 			FileWriter writer = new FileWriter(sqlFilename);
@@ -259,6 +260,10 @@ public class CacheBuilder
 			{
 				headerIndices.put(MA_FIMPACT, i);
 			}
+			else if (parts[i].equalsIgnoreCase(MA_FIS))
+			{
+				headerIndices.put(MA_FIS, i);
+			}
 			else if (parts[i].equalsIgnoreCase(MA_PROTEIN_CHANGE))
 			{
 				headerIndices.put(MA_PROTEIN_CHANGE, i);
@@ -289,12 +294,14 @@ public class CacheBuilder
 		String mutation = this.getPartString(this.getHeaderIndex(MA_VARIANT), parts);
 		String key = this.generateKey(mutation);
 		String impact = this.getPartString(this.getHeaderIndex(MA_FIMPACT), parts);
+		Float score = this.getPartFloat(this.getHeaderIndex(MA_FIS), parts);
 		String proteinChange = this.getPartString(this.getHeaderIndex(MA_PROTEIN_CHANGE), parts);
 		String structureLink = this.getPartString(this.getHeaderIndex(MA_LINK_PDB), parts);
 		String alignmentLink = this.getPartString(this.getHeaderIndex(MA_LINK_MSA), parts);
 
 		MutationAssessorRecord record = new MutationAssessorRecord(key);
 		record.setImpact(impact);
+		record.setImpactScore(score);
 		record.setProteinChange(proteinChange);
 		record.setStructureLink(structureLink);
 		record.setAlignmentLink(alignmentLink);
@@ -357,6 +364,29 @@ public class CacheBuilder
 		catch (ArrayIndexOutOfBoundsException e)
 		{
 			return MutationAssessorRecord.NA_STRING;
+		}
+	}
+
+	protected Float getPartFloat(Integer index, String[] parts)
+	{
+		try
+		{
+			if (parts[index].length() == 0)
+			{
+				return MutationAssessorRecord.NA_FLOAT;
+			}
+			else
+			{
+				return Float.parseFloat(parts[index]);
+			}
+		}
+		catch (ArrayIndexOutOfBoundsException e)
+		{
+			return MutationAssessorRecord.NA_FLOAT;
+		}
+		catch (NumberFormatException e)
+		{
+			return MutationAssessorRecord.NA_FLOAT;
 		}
 	}
 

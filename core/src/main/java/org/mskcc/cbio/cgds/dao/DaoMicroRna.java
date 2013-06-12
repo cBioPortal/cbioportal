@@ -40,8 +40,6 @@ import java.util.HashSet;
  */
 public class DaoMicroRna {
 
-   // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private MySQLbulkLoader myMySQLbulkLoader = null;
 
    public int addMicroRna(String id, String variantId) throws DaoException {
         Connection con = null;
@@ -49,15 +47,8 @@ public class DaoMicroRna {
         ResultSet rs = null;
         try {
            if (MySQLbulkLoader.isBulkLoad()) {
-
-              // use this code if bulk loading
-              if( null == myMySQLbulkLoader ){
-                 // create the MySQLbulkLoader if it doesn't exist
-                 myMySQLbulkLoader = new MySQLbulkLoader( "micro_rna" );
-              }
-
               // write to the temp file maintained by the MySQLbulkLoader 
-              myMySQLbulkLoader.insertRecord( id, variantId);
+              MySQLbulkLoader.getMySQLbulkLoader("micro_rna").insertRecord( id, variantId);
               
               // return 1 because normal insert will return 1 if no error occurs
               return 1;
@@ -78,21 +69,6 @@ public class DaoMicroRna {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMicroRna.class, con, pstmt, rs);
-        }
-    }
-
-   /**
-    * load the temp file maintained by the MySQLbulkLoader into the DMBS
-    * @return
-    * @throws DaoException
-    */
-    public int flushMicroRna() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
    

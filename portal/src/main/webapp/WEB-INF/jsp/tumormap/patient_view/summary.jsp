@@ -189,7 +189,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <%}%>
 
 <%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
-<script type="text/javascript" src="js/patient-view/allele-freq.js"></script>
+<script type="text/javascript" src="js/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {

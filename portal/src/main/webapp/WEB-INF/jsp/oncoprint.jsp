@@ -32,7 +32,6 @@
                 <table style="padding-left:13px; padding-top:5px">
                     <tr>
                         <td><input type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
-                        <td><input type='checkbox' onclick='if ($(this).is(":checked")) {oncoprint.defaultSort();} else {oncoprint.memoSort();}'>Restore Case Order<img src="images/help.png" title="sort cases alphabetically by case ID, or as defined in the original query" onload="$(this).tipTip();" ></td>
                         <td>
                             <select data-placeholder="select a clinical attribute" id="select_clinical_attributes" style="width: 350px;">
                                 <option value=""></option>
@@ -41,8 +40,17 @@
                     </tr>
                     <tr>
                         <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                        <td>
+                            <span>Sort By: </span>
+                            <select id="sort_by" style="width: 200px;">
+                                <option selected="selected" value="genes">Gene Data</option>
+                                <option value="clinical" disabled>Clinical Data</option>
+                                <option value="alphabetical">Alphabetically by Case Id</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
                         <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
-                        <td><input type='checkbox' onclick='oncoprint.toggleSortByGeneData();'>Sort By Clinical Data</td>
                     </tr>
                 </table>
             </div>
@@ -105,6 +113,8 @@
                 var select_clinical_attributes_id = '#select_clinical_attributes';
                 var oncoprintClinicals;
 
+                var sortBy = $('#oncoprint_controls #sort_by');
+
                 var clinicalAttributeSelected = function() {
                     oncoprint.remove_oncoprint();
                     $('#oncoprint_body .loader_img').show();
@@ -118,6 +128,8 @@
                             geneData: geneDataColl.toJSON(),
                             genes: geneDataColl.genes.split(" ")
                         });
+
+                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
                     } else {
                         oncoprintClinicals = new ClinicalColl({
                             cancer_study_id: cancer_study_id_selected,
@@ -136,11 +148,20 @@
                                     genes: geneDataColl.genes.split(" "),
                                     clinical_attrs: response.attributes()
                                 });
+
+                                $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
+
+                                sortBy.val('genes');
                             }
                         });
                     }
                 };
                 $(select_clinical_attributes_id).change(clinicalAttributeSelected);
+
+                $('#oncoprint_controls #sort_by').change(function() {
+                    oncoprint.sortBy(sortBy.val());
+                });
+                //$('#oncoprint_controls #sort_by').chosen();
 
                 <%--var geneDataQuery = {--%>
                     <%--cancer_study_id: "<%=cancerTypeId%>",--%>

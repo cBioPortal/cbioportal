@@ -738,20 +738,43 @@ var Oncoprint = function(div, params) {
             horizontal_translate();
         };
 
-        var sort_by_clinical_attribute_bool = false;       // default is to sort by gene data
-        var toggleSortByGeneData = function() {
-            sort_by_clinical_attribute_bool = !sort_by_clinical_attribute_bool;
+        var sortBy = function(by) {
             var attrs;
-
-            if (sort_by_clinical_attribute_bool) {
-                attrs = clinical_attrs.concat(params.genes);
-            } else {
+            if (by === 'genes') {
                 attrs = params.genes.concat(clinical_attrs);
+                internal_data = MemoSort(internal_data, attrs);
             }
+            else if (by === 'clinical') {
+                attrs = clinical_attrs.concat(params.genes);
+                internal_data = MemoSort(internal_data, attrs);
+            }
+            else if (by === 'alphabetical') {
+                internal_data = internal_data.sort(function(x,y) {
+                    return x.key < y.key;
+                });
+            } else {
+                throw new Error("unsupported sortBy option: ") + JSON.stringify(by);
+            }
+            horizontal_translate();
+            return internal_data;
+        };
 
+        var sortByGeneData = function() {
             internal_data = MemoSort(internal_data, attrs);
             horizontal_translate();
             return attrs;
+        };
+
+        var sortByClinicalData = function() {
+            attrs = clinical_attrs.concat(params.genes);
+        };
+
+        // sorts data by case_id (e.g. TCGA-06-0129) and modifies the oncoprint
+        // according to this new order
+        var sortByCaseId = function() {
+            internal_data = internal_data.sort(function(x,y) {
+                return x.key < y.key;
+            });
         };
 
         return {
@@ -805,7 +828,7 @@ var Oncoprint = function(div, params) {
                 showUnalteredCases(show_unaltered_bool);
             },
 
-            toggleSortByGeneData: toggleSortByGeneData
+            sortBy: sortBy
         };
     })();
 

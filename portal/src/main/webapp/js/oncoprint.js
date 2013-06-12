@@ -738,6 +738,22 @@ var Oncoprint = function(div, params) {
             horizontal_translate();
         };
 
+        var sort_by_clinical_attribute_bool = false;       // default is to sort by gene data
+        var toggleSortByGeneData = function() {
+            sort_by_clinical_attribute_bool = !sort_by_clinical_attribute_bool;
+            var attrs;
+
+            if (sort_by_clinical_attribute_bool) {
+                attrs = clinical_attrs.concat(params.genes);
+            } else {
+                attrs = params.genes.concat(clinical_attrs);
+            }
+
+            internal_data = MemoSort(internal_data, attrs);
+            horizontal_translate();
+            return attrs;
+        };
+
         return {
             remove_oncoprint: remove_oncoprint,
             memoSort: function(attributes) {
@@ -787,11 +803,14 @@ var Oncoprint = function(div, params) {
             toggleUnalteredCases: function() {
                 show_unaltered_bool = !show_unaltered_bool;
                 showUnalteredCases(show_unaltered_bool);
-            }
+            },
+
+            toggleSortByGeneData: toggleSortByGeneData
         };
     })();
 
-    State.memoSort(attributes);
+    // sort by gene data initially
+    State.memoSort(params.genes.concat(clinical_attrs));
 
 //    setInterval(function() {
 //        State.memoSort(data, shuffle(attributes));

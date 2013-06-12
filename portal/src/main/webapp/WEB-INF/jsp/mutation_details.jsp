@@ -1,17 +1,15 @@
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.cgds.model.ExtendedMutation" %>
-<%@ page import="org.mskcc.cbio.portal.html.MutationTableUtil" %>
 <%@ page import="org.mskcc.cbio.portal.model.ExtendedMutationMap" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.MutationCounter" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDataProcessor" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDataProcessor" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
 <!--script type="text/javascript" src="js/raphael/raphael.js"></script-->
 <script type="text/javascript" src="js/mutation_model.js"></script>
@@ -24,7 +22,6 @@
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
 
-    MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
     MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
 	MutationDataProcessor mutationDataProcessor = new MutationDataProcessor();
 %>
@@ -94,49 +91,26 @@
 //  Set up Mutation Diagrams
 $(document).ready(function(){
 	var tableMutations;
-    var diagramData;
-	var mutationColl;
+    var mutationData;
 	var gene;
 	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
         String geneStr = geneWithScore.getGene();
         if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
-        String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
+
+            String mutationDataStr = mutationDataProcessor.getMutationData(
                 geneStr,
                 mutationMap.getExtendedMutations(geneStr)
-        );
+            );
 
-        String mutationDataStr = mutationDataProcessor.getMutationData(
-                geneStr,
-                mutationMap.getExtendedMutations(geneStr)
-        );
-
-        String mutationTableStr = mutationTableProcessor.processMutationTable(
+            String mutationTableStr = mutationTableProcessor.processMutationTable(
                 geneStr,
                 converMutations(geneWithScore, mutationMap, mergedCaseList)
-        );
+            );
     %>
-			// TODO change diagram data, it should be simpler
-			diagramData = <%= mutationDiagramStr %>;
-            //drawMutationDiagram(diagramSequence);
-
+			mutationData = <%= mutationDataStr %>;
 			gene = "<%= geneStr %>";
-
-			// TODO pass this data to MutationDiagram and remove MutationDiagramProcessor
-			mutationColl = new MutationCollection(<%= mutationDataStr %>);
-
-			var mutationDiagram = new MutationDiagram(
-					gene,
-					{el: "mutation_diagram_" + gene.toUpperCase()},
-					diagramData);
-
-			mutationDiagram.initDiagram();
-
-			// TODO may change after refactoring diagram data
-			$("#uniprot_link_" + gene.toUpperCase()).html(
-					'<a href="' + "http://www.uniprot.org/uniprot/" +
-					diagramData[0].metadata.identifier + '" target="_blank">' +
-					diagramData[0].metadata.identifier + '</a>');
+            _drawMutationDiagram(gene, mutationData);
 
 			tableMutations = <%= mutationTableStr %>;
 			delayedMutationTable(tableMutations);
@@ -150,7 +124,7 @@ $(document).ready(function(){
  *
  * @param geneId    id of the target diagram
  */
-function toggleMutationDiagram(geneId)
+function _toggleMutationDiagram(geneId)
 {
     var option = $("#mutation_diagram_select_" + geneId).val();
 
@@ -164,6 +138,39 @@ function toggleMutationDiagram(geneId)
 	    $("#mutation_diagram_" + geneId).hide();
 	    $("#mutation_histogram_" + geneId).show();
     }
+}
+
+/**
+ * Initializes the mutation diagram view.
+ *
+ * @param gene  hugo gene symbol
+ * @param data  mutation data (array of JSON objects)
+ */
+function _drawMutationDiagram(gene, data)
+{
+	var init = function(response) {
+		// create a backbone collection for the given data
+		var mutationColl = new MutationCollection(data);
+
+		// get the uniprot identifier
+		var identifier = response.identifier;
+
+		var mutationDiagram = new MutationDiagram(gene,
+			{el: "mutation_diagram_" + gene.toUpperCase()},
+			mutationColl);
+
+		mutationDiagram.initDiagram(response);
+
+		// TODO may change after refactoring diagram data
+		$("#uniprot_link_" + gene.toUpperCase()).html('<a href="' +
+				'http://www.uniprot.org/uniprot/' + identifier +
+				'" target="_blank">' +
+				identifier + '</a>');
+	};
+
+	$.getJSON("getPfamSequence.json",
+		{geneSymbol: gene},
+		init);
 }
 
 </script>
@@ -240,7 +247,7 @@ function toggleMutationDiagram(geneId)
 	    // TODO histogram is disabled (will be enabled in the next release)
 //	    out.println("<select class='mutation_diagram_toggle' " +
 //	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
-//	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
+//	                "onchange='_toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
 //	               "<option value='diagram'>Lollipop Diagram</option>" +
 //	               "<option value='histogram'>Histogram</option>" +
 //	               "</select>");

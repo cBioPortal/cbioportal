@@ -1,17 +1,3 @@
-var mutations = [],
-    mutations_id = [],
-    copy_no = [],
-    gistic_copy_no = [],
-    log2_copy_no = [],
-    mrna = [],
-    rppa = [],
-    dna_methylation = [],
-    genetic_profile_mutations = [],
-    genetic_profile_mrna = [],
-    genetic_profile_copy_no = [],
-    genetic_profile_rppa = [],
-    genetic_profile_dna_methylation = [];
-
 function PlotsConfig() {
     this.has_mrna = false;
     this.has_dna_methylation = false;
@@ -32,11 +18,72 @@ function PlotsConfig() {
         ["mrna_vs_dna_mythelation", "mRNA vs. DNA Methylation"],
         ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
     ];
+    this.genetic_profile_mutations = [];
+    this.genetic_profile_mrna = [];
+    this.genetic_profile_copy_no = [];
+    this.genetic_profile_rppa = [];
+    this.genetic_profile_dna_methylation = [];
 }
 
 var PlotsData = (function() {
     var gene;
     var case_set = [];
+    var mutations = []; //Mutation Types
+    var mutations_id = []; //Mutation Detail
+    var copy_no = [];
+    var gistic_copy_no = [];
+    var log2_copy_no = [];
+    var mrna = [];
+    var rppa = [];
+    var dna_methylation = [];
+    var setDNAMethylation = function(inputArr) {
+        dna_methylation = inputArr;
+    }
+    var getDNAMethylation = function() {
+        return dna_methylation;
+    }
+    var setRPPA = function(inputArr) {
+        rppa = inputArr;
+    }
+    var getRPPA = function() {
+        return rppa;
+    }
+    var setMrna = function(inputArr) {
+        mrna = inputArr;
+    }
+    var getMrna = function() {
+        return mrna;
+    }
+    var setCopyNo = function(inputArr) {
+        copy_no = inputArr;
+    }
+    var getCopyNo = function() {
+        return copy_no;
+    }
+    var setGISTICCopyNo = function(inputArr) {
+        gistic_copy_no = inputArr;
+    }
+    var getGISTICCopyNo = function() {
+        return gistic_copy_no;
+    }
+    var setLog2CopyNo = function(inputArr) {
+        log2_copy_no = inputArr;
+    }
+    var getLog2CopyNo = function() {
+        return log2_copy_no;
+    }
+    var setMutations = function(inputArr) {
+        mutations = inputArr;
+    }
+    var getMutations = function() {
+        return mutations;
+    }
+    var setMutationsId = function(inputArr) {
+        mutations_id = inputArr;
+    }
+    var getMutationsId = function() {
+        return mutations_id;
+    }
     var setGene = function(input_gene) {
         gene = input_gene;
     };
@@ -66,8 +113,25 @@ var PlotsData = (function() {
         setSingleCase: setSingleCase,
         getSingleCase: getSingleCase,
         getCaseSetLength: getCaseSetLength,
+        setMutations: setMutations,
+        getMutations: getMutations,
+        setMutationsId: setMutationsId,
+        getMutationsId: getMutationsId,
+        setCopyNo: setCopyNo,
+        getCopyNo: getCopyNo,
+        setGISTICCopyNo: setGISTICCopyNo,
+        getGISTICCopyNo: getGISTICCopyNo,
+        setLog2CopyNo: setLog2CopyNo,
+        getLog2CopyNo: getLog2CopyNo,
+        setMrna: setMrna,
+        getMrna: getMrna,
+        setRPPA: setRPPA,
+        getRPPA: getRPPA,
+        setDNAMethylation: setDNAMethylation,
+        getDNAMethylation: getDNAMethylation
     };
 }());
+
 var PlotsUtil = (function(){
     var findIndex = function(Str, Exp) {
         for (var i = 0; i< Exp.length; i++) {
@@ -135,10 +199,10 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
     tmpArr.length = 0;
     tmp_lines.length = 0;
     tmp_columns.length = 0;
-    genetic_profile_copy_no.length = 0;
-    genetic_profile_rppa.length = 0;
-    genetic_profile_dna_methylation.length = 0;
-    genetic_profile_mrna.length = 0;
+    plotsConfig.genetic_profile_copy_no.length = 0;
+    plotsConfig.genetic_profile_rppa.length = 0;
+    plotsConfig.genetic_profile_dna_methylation.length = 0;
+    plotsConfig.genetic_profile_mrna.length = 0;
     $.ajax({
         url: "webservice.do?cmd=getGeneticProfiles&cancer_study_id=" + cancer_study_id,
         type: 'get',
@@ -152,22 +216,22 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
                         tmp_columns = tmp_lines[j].split(/\t/);
                         if (tmp_columns[4] == "MUTATION_EXTENDED") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
-                            genetic_profile_mutations.push(tmpArr);
+                            plotsConfig.genetic_profile_mutations.push(tmpArr);
                         } else if (tmp_columns[4] == "MRNA_EXPRESSION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
-                            genetic_profile_mrna.push(tmpArr);
+                            plotsConfig.genetic_profile_mrna.push(tmpArr);
                             plotsConfig.has_mrna = true;
                         } else if (tmp_columns[4] == "COPY_NUMBER_ALTERATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
-                            genetic_profile_copy_no.push(tmpArr);
+                            plotsConfig.genetic_profile_copy_no.push(tmpArr);
                             plotsConfig.has_copy_no = true;
                         } else if (tmp_columns[4] == "METHYLATION") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
-                            genetic_profile_dna_methylation.push(tmpArr);
+                            plotsConfig.genetic_profile_dna_methylation.push(tmpArr);
                             plotsConfig.has_dna_methylation = true;
                         } else if (tmp_columns[4] == "PROTEIN_ARRAY_PROTEIN_LEVEL") {
                             tmpArr = [tmp_columns[0], tmp_columns[1]];
-                            genetic_profile_rppa.push(tmpArr);
+                            plotsConfig.genetic_profile_rppa.push(tmpArr);
                             plotsConfig.has_rppa = true;
                         }
                     }
@@ -187,7 +251,7 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     PlotsData.setGene(document.getElementById("genes").value);
     plotsConfig.copy_no_type = document.getElementById("data_type_copy_no").value;
     plotsConfig.mrna_type = document.getElementById("data_type_mrna").value;
-    plotsConfig.mutations_type = genetic_profile_mutations[0][0];
+    plotsConfig.mutations_type = plotsConfig.genetic_profile_mutations[0][0];
     plotsConfig.rppa_type = document.getElementById("data_type_rppa").value;
     plotsConfig.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
 
@@ -233,16 +297,16 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     }
 
     //Distributing Data
-    PlotsUtil.copyData(mutations, result_set[0]);
-    PlotsUtil.copyData(copy_no, result_set[1]);
-    PlotsUtil.copyData(mrna, result_set[2]);
-    PlotsUtil.copyData(rppa, result_set[3]);
-    PlotsUtil.copyData(dna_methylation, result_set[4]);
+    PlotsData.setMutations(result_set[0]);
+    PlotsData.setCopyNo(result_set[1]);
+    PlotsData.setMrna(result_set[2]);
+    PlotsData.setRPPA(result_set[3]);
+    PlotsData.setDNAMethylation(result_set[4]);
 
     if (plotsConfig.copy_no_type.indexOf("gistic") != -1) {
-        PlotsUtil.copyData(gistic_copy_no, copy_no);
+        PlotsData.setGISTICCopyNo(PlotsData.getCopyNo());
     } else if (plotsConfig.copy_no_type.indexOf("log2") != -1) {
-        PlotsUtil.copyData(log2_copy_no, copy_no);
+        PlotsData.setLog2CopyNo(PlotsData.getCopyNo());
     }
 
     //Map Mutations --- replace mutation ID w/ mutations type
@@ -270,11 +334,16 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
             }
         }
     });
+    PlotsData.setMutationsId(PlotsData.getMutations());
+    var tmp_mutations = [];
     for (var k = 0; k < PlotsData.getCaseSetLength(); k++) {
-        mutations_id[k] = mutations[k]; //Keep mutations ID info
-        mutations[k] = mutationMap[PlotsData.getSingleCase(k)];
+        //mutations_id[k] = mutations[k]; //Keep mutations ID info
+        tmp_mutations[k] = mutationMap[PlotsData.getSingleCase(k)];
     }
+    PlotsData.setMutations(tmp_mutations);
 }
+
+
 
 //View Controllers
 function ViewController() {}
@@ -287,7 +356,7 @@ ViewController.prototype.initView = function() {
     fetchPlotsDataUtil.fetchPlotsData();
     var tmp_axis_title_result = fetchAxisTitle();
     $('#plots_box').empty();
-    drawScatterPlots(copy_no, mrna, mutations, tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
+    drawScatterPlots(PlotsData.getCopyNo(), PlotsData.getMrna(), PlotsData.getMutations(), tmp_axis_title_result[0], tmp_axis_title_result[1], plotsConfig.plotsType.COPY_NUMBER, PlotsData.getMutations(), PlotsData.getMutationsId(), PlotsData.getCaseSet());
     $('#img_center_text').empty();
     $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
     setTimeout(function() {
@@ -304,17 +373,17 @@ ViewController.prototype.updateScatterPlots = function() {
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
         this.updateSideBar();
-        drawScatterPlots(copy_no, mrna, mutations, xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, mutations, mutations_id, PlotsData.getCaseSet());
+        drawScatterPlots(PlotsData.getCopyNo(), PlotsData.getMrna(), PlotsData.getMutations(), xLegend, yLegend, plotsConfig.plotsType.COPY_NUMBER, PlotsData.getMutations(), PlotsData.getMutationsId(), PlotsData.getCaseSet());
         $('#img_center_text').empty();
         $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. CNA ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
         this.updateSideBar();
-        drawScatterPlots(dna_methylation, mrna, gistic_copy_no, xLegend, yLegend, plotsConfig.plotsType.METHYLATION, mutations, mutations_id, PlotsData.getCaseSet());
+        drawScatterPlots(PlotsData.getDNAMethylation(), PlotsData.getMrna(), PlotsData.getGISTICCopyNo(), xLegend, yLegend, plotsConfig.plotsType.METHYLATION, PlotsData.getMutations(), PlotsData.getMutationsId(), PlotsData.getCaseSet());
         $('#img_center_text').empty();
         $('#img_center_text').append(PlotsData.getGene() + ": mRNA Expression v. DNA Methylation ");
     } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
         this.updateSideBar();
-        drawScatterPlots(mrna, rppa, gistic_copy_no, xLegend, yLegend, plotsConfig.plotsType.RPPA, mutations, mutations_id, PlotsData.getCaseSet());
+        drawScatterPlots(PlotsData.getMrna(), PlotsData.getRPPA(), PlotsData.getGISTICCopyNo(), xLegend, yLegend, plotsConfig.plotsType.RPPA, PlotsData.getMutations(), PlotsData.getMutationsId(), PlotsData.getCaseSet());
         $('#img_center_text').empty();
         $('#img_center_text').append(PlotsData.getGene() + ": RPPA protein level v. mRNA Expression ");
     }
@@ -624,20 +693,20 @@ function fetchAxisTitle() {
     var yLegend = "";
     var tmp_plot_type = document.getElementById("plot_type").value;
     if (tmp_plot_type == plotsConfig.plot_type_list[0][0]) {    //"mrna_vs_copy_no"
-        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_copy_no").value, genetic_profile_copy_no);
-        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = PlotsData.getGene() + ", " + genetic_profile_copy_no[tmp_xLegend_index][1];
-        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_copy_no").value, plotsConfig.genetic_profile_copy_no);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, plotsConfig.genetic_profile_mrna);
+        xLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_copy_no[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plotsConfig.plot_type_list[1][0]) {  //"mrna_vs_dna_mythelation"
-        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, genetic_profile_dna_methylation);
-        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        xLegend = PlotsData.getGene() + ", " + genetic_profile_dna_methylation[tmp_xLegend_index][1];
-        yLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_yLegend_index][1];
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, plotsConfig.genetic_profile_dna_methylation);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, plotsConfig.genetic_profile_mrna);
+        xLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_dna_methylation[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_mrna[tmp_yLegend_index][1];
     } else if (tmp_plot_type == plotsConfig.plot_type_list[2][0]) {  //"rppa_protein_level_vs_mrna"
-        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, genetic_profile_mrna);
-        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, genetic_profile_dna_methylation);
-        xLegend = PlotsData.getGene() + ", " + genetic_profile_mrna[tmp_xLegend_index][1];
-        yLegend = PlotsData.getGene() + ", " + genetic_profile_rppa[tmp_yLegend_index][1];
+        var tmp_xLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_mrna").value, plotsConfig.genetic_profile_mrna);
+        var tmp_yLegend_index = PlotsUtil.findIndex(document.getElementById("data_type_dna_methylation").value, plotsConfig.genetic_profile_dna_methylation);
+        xLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_mrna[tmp_xLegend_index][1];
+        yLegend = PlotsData.getGene() + ", " + plotsConfig.genetic_profile_rppa[tmp_yLegend_index][1];
     }
     return [xLegend, yLegend];
 }
@@ -658,17 +727,17 @@ function drawSideBar() {
     //Data Type
     //Lay out all data types
     var j = 0;
-    for ( j = 0; j < genetic_profile_copy_no.length; j++ ) {
-        $('#data_type_copy_no').append("<option value='" + genetic_profile_copy_no[j][0] + "'>" + genetic_profile_copy_no[j][1] + "</option>");
+    for ( j = 0; j < plotsConfig.genetic_profile_copy_no.length; j++ ) {
+        $('#data_type_copy_no').append("<option value='" + plotsConfig.genetic_profile_copy_no[j][0] + "'>" + plotsConfig.genetic_profile_copy_no[j][1] + "</option>");
     }
-    for ( j = 0; j < genetic_profile_mrna.length; j++ ) {
-        $('#data_type_mrna').append("<option value='" + genetic_profile_mrna[j][0] + "'>" + genetic_profile_mrna[j][1] + "</option>");
+    for ( j = 0; j < plotsConfig.genetic_profile_mrna.length; j++ ) {
+        $('#data_type_mrna').append("<option value='" + plotsConfig.genetic_profile_mrna[j][0] + "'>" + plotsConfig.genetic_profile_mrna[j][1] + "</option>");
     }
-    for ( j = 0; j < genetic_profile_dna_methylation.length; j++ ) {
-        $('#data_type_dna_methylation').append("<option value='" + genetic_profile_dna_methylation[j][0] + "'>" + genetic_profile_dna_methylation[j][1] + "</option>");
+    for ( j = 0; j < plotsConfig.genetic_profile_dna_methylation.length; j++ ) {
+        $('#data_type_dna_methylation').append("<option value='" + plotsConfig.genetic_profile_dna_methylation[j][0] + "'>" + plotsConfig.genetic_profile_dna_methylation[j][1] + "</option>");
     }
-    for ( j = 0; j < genetic_profile_rppa.length; j++ ) {
-        $('#data_type_rppa').append("<option value='" + genetic_profile_rppa[j][0] + "'>" + genetic_profile_rppa[j][1] + "</option>");
+    for ( j = 0; j < plotsConfig.genetic_profile_rppa.length; j++ ) {
+        $('#data_type_rppa').append("<option value='" + plotsConfig.genetic_profile_rppa[j][0] + "'>" + plotsConfig.genetic_profile_rppa[j][1] + "</option>");
     }
     //Init w/ user selected data types
 }

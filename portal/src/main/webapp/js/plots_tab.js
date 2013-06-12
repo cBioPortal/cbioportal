@@ -256,44 +256,45 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     plotsConfig.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
 
     //Calling web APIs
-    var urls;
     var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
-    urls = [
-        url_base + plotsConfig.mutations_type, //mutations
-        url_base + plotsConfig.copy_no_type, //copy no
-        url_base + plotsConfig.mrna_type, //mrna
-        url_base + plotsConfig.rppa_type, //rppa
-        url_base + plotsConfig.dna_methylation_type //dna methylation
+    var types = [
+        plotsConfig.mutations_type, //mutations
+        plotsConfig.copy_no_type, //copy no
+        plotsConfig.mrna_type, //mrna
+        plotsConfig.rppa_type, //rppa
+        plotsConfig.dna_methylation_type //dna methylation
     ];
-    for (var i = 0; i < urls.length; i++) {
-        $.ajax({
-            url: urls[i],
-            type: 'get',
-            dataType: 'text',
-            async: false,
-            success: function (data) {
-                if (data != "") {
-                    if (data.indexOf("No genetic profile available") == -1) {  //Profile Exists
-                        tmp_sections = data.split(/\n/);
-                        //Get Case Set
-                        tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
-                        for (var j = 0; j < tmp_case_set.length - 2; j++) {
-                            PlotsData.setSingleCase(tmp_case_set[j+2], j);
+    for (var i = 0; i < types.length; i++) {
+        if (types[i]) {
+            $.ajax({
+                url: url_base + types[i],
+                type: 'get',
+                dataType: 'text',
+                async: false,
+                success: function (data) {
+                    if (data != "") {
+                        if (data.indexOf("No genetic profile available") == -1) {  //Profile Exists
+                            tmp_sections = data.split(/\n/);
+                            //Get Case Set
+                            tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
+                            for (var j = 0; j < tmp_case_set.length - 2; j++) {
+                                PlotsData.setSingleCase(tmp_case_set[j+2], j);
+                            }
+                            //Get profile data (Filter the headers)
+                            var profile_data = [];
+                            var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
+                            for (var profileDataIndex = 0; profileDataIndex < tmp_profile_data.length; profileDataIndex++) {
+                                profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
+                            }
+                            //Fill in Result Data Set
+                            PlotsUtil.copyData(result_set[i], profile_data);
                         }
-                        //Get profile data (Filter the headers)
-                        var profile_data = [];
-                        var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
-                        for (var profileDataIndex = 0; profileDataIndex < tmp_profile_data.length; profileDataIndex++) {
-                            profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
-                        }
-                        //Fill in Result Data Set
-                        PlotsUtil.copyData(result_set[i], profile_data);
+                    } else {
+                        alert("ERROR Fetching Data.");
                     }
-                } else {
-                    alert("ERROR Fetching Data.");
                 }
-            }
-        });
+            });
+        }
     }
 
     //Distributing Data

@@ -150,12 +150,13 @@ public class Admin implements Runnable {
 											   "before staging files are created.")
                               .create("convert_data"));
 
-		Option applyOverrides = (OptionBuilder.withArgName("portal:exclude_datatype")		
-								 .hasArgs(2)		
+		Option applyOverrides = (OptionBuilder.withArgName("portal:exclude_datatype:apply_case_lists")		
+								 .hasArgs(3)		
 								 .withValueSeparator(':')
 								 .withDescription("Replace staging files for the given portal " +
 												  "with any exisiting overrides.  If exclude_datatype is set, " +
-												  "the datatype provided will not have overrides applied.")
+												  "the datatype provided will not have overrides applied.  If " +
+												  "apply_case_lists is 'f', case lists will not be copied into staging directory.")
 								 .create("apply_overrides"));
 
         Option generateCaseLists = (OptionBuilder.withArgName("portal")
@@ -268,7 +269,7 @@ public class Admin implements Runnable {
             // apply overrides		
 			else if (commandLine.hasOption("apply_overrides")) {		
 				String[] values = commandLine.getOptionValues("apply_overrides");
-				applyOverrides(values[0], (values.length == 2) ? values[1] : "");
+				applyOverrides(values[0], (values.length >= 2) ? values[1] : "", (values.length == 3) ? values[2] : "");
 			}
 			// convert data
 			else if (commandLine.hasOption("convert_data")) {
@@ -505,19 +506,22 @@ public class Admin implements Runnable {
 	 *		
 	 * @param portal String		
 	 * @param excludeDatatype String
+	 * @param applyCaseLists String
 	 * @throws Exception		
 	 */		
-	private void applyOverrides(String portal, String excludeDatatype) throws Exception {		
+	private void applyOverrides(String portal, String excludeDatatype, String applyCaseLists) throws Exception {		
 			
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), portal: " + portal);
 			LOG.info("applyOverrides(), exclude_datatype: " + excludeDatatype);
+			LOG.info("applyOverrides(), apply_case_lists: " + applyCaseLists);
 		}
 
 		Converter converter = (Converter)getBean("converter");		
 		HashSet<String> excludeDatatypes = new HashSet<String>();
 		if (excludeDatatype.length() > 0) excludeDatatypes.add(excludeDatatype);
-		converter.applyOverrides(portal, excludeDatatypes);
+		Boolean applyCaseListsBool = getBoolean(applyCaseLists);
+		converter.applyOverrides(portal, excludeDatatypes, applyCaseListsBool);
 
 		if (LOG.isInfoEnabled()) {		
 			LOG.info("applyOverrides(), complete");

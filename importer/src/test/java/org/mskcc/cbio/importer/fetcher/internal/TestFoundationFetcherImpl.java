@@ -97,10 +97,10 @@ public class TestFoundationFetcherImpl extends TestCase
 		assertEquals("", result.get("endPos"));
 
 		String endPos = fetcher.calcEndPos(result.get("startPos"), "-");
-		assertEquals("17942983", endPos);
+		assertEquals("17942984", endPos);
 
 		endPos = fetcher.calcEndPos(result.get("startPos"), "AAA");
-		assertEquals("17942986", endPos);
+		assertEquals("17942985", endPos);
 	}
 
 	public void testCounts()

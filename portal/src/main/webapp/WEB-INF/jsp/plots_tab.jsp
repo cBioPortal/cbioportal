@@ -18,7 +18,6 @@
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
             case_set_id = "<%out.print(case_set_id);%>";
 </script>
-<script type="text/javascript" src="js/d3.v3.js"></script>
 <script type="text/javascript" src="js/plots_tab.js"></script>
 
 <div class="section" id="plots">

@@ -260,6 +260,7 @@ class FoundationFetcherImpl implements Fetcher {
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
 		String header = "hugo_symbol\t" +
+		                "NCBI_build\t" +
 		                "chromosome\t" +
 		                "start_position\t" +
 		                "end_position\t" +
@@ -334,7 +335,7 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("type_of_cancer: prad\n");
 		content.append("cancer_study_identifier: prad_foundation\n");
 		content.append("name: Prostate Adenocarcinoma (Foundation)\n");
-		content.append("description: TODO\n"); // TODO description with # of cases?
+		content.append("description: Foundation Medicine\n"); // TODO description with # of cases?
 
 		File studyFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
 			File.separator + "meta_study.txt", content.toString());
@@ -528,7 +529,7 @@ class FoundationFetcherImpl implements Fetcher {
 
 					Map<String, String> posInfo = this.parsePosition(position);
 
-					String chromosome = posInfo.get("chromosome");
+					String chromosome = this.parseChr(posInfo.get("chromosome"));
 					String startPos = posInfo.get("startPos");
 					String endPos = posInfo.get("endPos");
 					String tAltCount = this.calcTumorAltCount(percentReads, depth);
@@ -564,7 +565,23 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 	}
 
-	private void appendMutationData(StringBuilder content,
+	protected String parseChr(String chromosome)
+	{
+		String chr = chromosome;
+
+		if (chromosome == null)
+		{
+			chr = "";
+		}
+		else if (chromosome.toLowerCase().startsWith("chr"))
+		{
+			chr = chromosome.substring(("chr").length());
+		}
+
+		return chr;
+	}
+
+	protected void appendMutationData(StringBuilder content,
 			String gene,
 			String chromosome,
 			String startPos,
@@ -581,6 +598,8 @@ class FoundationFetcherImpl implements Fetcher {
 	{
 		// append the data as a single line
 		content.append(gene); // hugo_symbol
+		content.append("\t");
+		content.append("37"); // NCBI_build (assuming it is always hg19/37)
 		content.append("\t");
 		content.append(chromosome);
 		content.append("\t");
@@ -764,11 +783,11 @@ class FoundationFetcherImpl implements Fetcher {
 
 		if (refAllele.matches("[TCGAtcga]+"))
 		{
-			endPosition = startPosition + refAllele.length();
+			endPosition = startPosition + refAllele.length() - 1;
 		}
 		else if (refAllele.equals("-"))
 		{
-			endPosition = startPosition;
+			endPosition = startPosition + 1;
 		}
 
 		String endPos = "";

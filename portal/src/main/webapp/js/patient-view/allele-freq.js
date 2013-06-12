@@ -1,5 +1,5 @@
 // Gideon Dresdner June 2013
-
+//
 // thanks Mike Bostock, http://bl.ocks.org/mbostock/4341954
 ;
 
@@ -22,13 +22,24 @@ var AlleleFreqPlotUtils = (function() {
     var gaussian = function(mean, variance) {
         return function(x) {
             return (1 / (variance * Math.sqrt(2 * Math.PI)))
-                * Math.exp( Math.pow((x - mean), 2) / (2 * Math.pow(variance, 2)));
+                * Math.exp( -1 * Math.pow((x - mean), 2) / (2 * Math.pow(variance, 2)));
         }
     };
 
-    var gaussianKde = function(numbers, variance) {
+    // params: variance
+    //
+    // 
+    var gaussianKernel = function(variance) {
+        var mean = 0;
         return function(x) {
-            return [x, d3.sum(numbers.map(function(n) { return gaussian(n, variance)(x); }))];
+            return (1 / (variance * Math.sqrt(2 * Math.PI)))
+                * Math.exp( -1 * Math.pow((x - mean), 2) / (2 * Math.pow(variance, 2)));
+        };
+    };
+
+    var epanechnikovKernel = function (scale) {
+        return function(u) {
+            return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
         };
     };
 
@@ -37,12 +48,6 @@ var AlleleFreqPlotUtils = (function() {
             return x.map(function(x) {
                 return [x, d3.mean(sample, function(v) { return kernel(x - v); })];
             });
-        };
-    };
-
-    var epanechnikovKernel = function (scale) {
-        return function(u) {
-            return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
         };
     };
 
@@ -57,36 +62,31 @@ var AlleleFreqPlotUtils = (function() {
         epanechnikovKernel: epanechnikovKernel,
         uniform: uniform,
         gaussian: gaussian,
-        gaussianKde: gaussianKde
+        gaussianKernel: gaussianKernel,
     };
 }());
 
 // makes an allele frequency density plot on the div
 var AlleleFreqPlot = function(div, data) {
     var margin = {top: 20, right: 30, bottom: 30, left: 40},
-        width = 960 - margin.left - margin.right,
+        width = 560 - margin.left - margin.right,
         height = 500 - margin.top - margin.bottom;
 
     var x = d3.scale.linear()
-//        .domain([30, 110])
-        .domain([0, 1])
+        .domain([-.1, 1])
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([0, 1])
+        .domain([0, 2.3])
         .range([height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
-        .orient("bottom");
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .tickFormat(d3.format("%"));
+        .orient("bottom")
+        .ticks(2);
 
     var line = d3.svg.line()
-        .x(function(d) { console.log(d); return x(d[0]); })
+        .x(function(d) { return x(d[0]); })
         .y(function(d) { return y(d[1]); });
 
     var svg = d3.select(div).append("svg")
@@ -95,6 +95,7 @@ var AlleleFreqPlot = function(div, data) {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    // x axis
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
@@ -106,31 +107,27 @@ var AlleleFreqPlot = function(div, data) {
         .style("text-anchor", "end")
         .text("allele frequency");
 
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(5)
+        ;
+
+    // y axis
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis);
 
-//    .axis path,
-//    .axis line {
-//        fill: none;
-//        stroke: #000;
-//        shape-rendering: crispEdges;
-//    }
-//
-//    .y.axis path {
-//        display: none;
-//    }
-
     var utils =  AlleleFreqPlotUtils;        // alias
 
-//    var kde = utils.kernelDensityEstimator(utils.epanechnikovKernel(1), x.ticks(100));
-//    var kde = utils.kernelDensityEstimator(utils.uniform, x.ticks(100));
+    var kde = utils.kernelDensityEstimator(utils.gaussianKernel(.07), x.ticks(100));
+    var plot_data = kde(data);
 
-    var kde = utils.gaussianKde(data, 1);
+    // rescale the y scale to fit actual values
+    y.domain([0, d3.max(plot_data.map(function(i) { return i[1]; })) * 1.1 ]);
 
     svg.append("path")
-//        .datum(kde(data))
-        .datum(data.map(kde))
+        .datum(plot_data)
         .attr("class", "line")
         .attr("d", line)
         .attr('fill', 'none')

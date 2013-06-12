@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>allele frequency</title>
+<!--
+<link rel="stylesheet" type="text/css" href="FIXME" />
+<script type="text/javascript" src="FIXME"></script>
+<style type="text/css">
+/* <![CDATA[ */
+/* ]]> */
+</style>
+-->
+
+<style type="text/css">
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .y.axis path {
+        display: none;
+    }
+</style>
+
+    <h1>Tumor Purity Profile</h1>
+    <div id="allele_freq"></div>
+  </body>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.1.6/d3.min.js"></script>
+
+  <script type="text/javascript" src="allele-freq.js"></script>
+  <script type="text/javascript">
+      d3.json('data.json', function(data) {
+
+
+    var processed_data = AlleleFreqPlotUtils.process_data(data.alt_count, data.ref_count);
+
+    console.log(processed_data);
+
+    AlleleFreqPlot(document.getElementById('allele_freq'), processed_data)
+
+              });
+  </script>
+</html>

@@ -4,11 +4,11 @@
                         <th>Mutation Event ID</th>
                         <th class="mut-header" alt="HUGO symbol of mutated genes"><b>Gene</b></th>
                         <th class="mut-header" alt="Protein change"><b>Protein Change</b></th>
-                        <th class="mut-header" alt="Reference Allele"><b>Ref</b></th>
-                        <th class="mut-header" alt="Variant Allele"><b>Var</b></th>
                         <th class="mut-header" alt="Chromosome"><b>Chr</b></th>
                         <th class="mut-header" alt="Start postion on chromosome"><b>Start</b></th>
                         <th class="mut-header" alt="End postion on chromosome"><b>End</b></th>
+                        <th class="mut-header" alt="Reference Allele"><b>Ref</b></th>
+                        <th class="mut-header" alt="Variant Allele"><b>Var</b></th>
                         <th class="mut-header" alt="Validation status"><b>Validation</b></th>
                         <th class="mut-header" alt="Mutation type"><b>Type</b></th>
                         <th class="mut-header" alt="Variant allele frequency in the tumor sample"><b>Allele Freq (T)</b></th>

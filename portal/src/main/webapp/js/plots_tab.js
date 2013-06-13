@@ -1051,17 +1051,22 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     }
     if ((yHasData == false) || (xHasData == false) || (combineHasData == false)) {
 
-        var errorTxt1 = PlotsData.getGene() + " Has No Data For";
-        var errorTxt2;
-        var errorTxt3 = "in selected cancer study."
+        var errorTxt2 = PlotsData.getGene();
+        var errorTxt3 = "in the selected cancer study."
         if (yHasData == false) {
-            errorTxt2 = yLegend;
+            errorTxt1 = "There is no " +
+                        yLegend.substring(PlotsData.getGene().length+1) +
+                        " data for";
         } else if (xHasData == false) {
-            errorTxt2 = xLegend;
+            errorTxt1 = "There is no " +
+                        xLegend.substring(PlotsData.getGene().length+1) +
+                        " data for";
         } else if (combineHasData == false) {
-            errorTxt2 = PlotsData.getGene() + " selected data type combination"
+            errorTxt1 = "There is no data for the selected data type combination for";
         }
-        errorTxt2 = errorTxt2.substring(PlotsData.getGene().length+1);
+        //Get rid of "RPPA" in error message for rppa view
+        errorTxt1 = errorTxt1.replace("RPPA", "");
+
         svg.append("text")
             .attr("x", 350)
             .attr("y", 280)

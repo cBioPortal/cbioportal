@@ -30,12 +30,22 @@
                             <h4 style="padding-top:10px;">Plot Parameters</h4>
                             <br>
                             <b>Gene</b><br>
-                            <select id='genes' onchange="viewController.updateView();">
-                                <%
-                                    for (int i=0; i<gene_list.length; i++){
+                            <%
+                                if (gene_list.length == 1) {
+                                    out.print("&nbsp;" + gene_list[0]);
+                                }
+                            %>
+                            <%
+                                if (gene_list.length == 1){
+                                    out.println("<select id='genes' style='display:none;'>");
+                                    out.println("<option value='" + gene_list[0].toUpperCase() + "'>" + gene_list[0].toUpperCase() + "</option>");
+                                } else {
+                                    out.println("<select id='genes' onchange=\"viewController.updateView();\">");
+                                    for (int i = 0; i < gene_list.length; i++){
                                         out.println("<option value='" + gene_list[i].toUpperCase() + "'>" + gene_list[i].toUpperCase() + "</option>");
                                     }
-                                %>
+                                }
+                            %>
                             </select>
                             <br><br>
                             <b>Plot Type</b><br>

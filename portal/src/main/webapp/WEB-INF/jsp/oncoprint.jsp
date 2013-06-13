@@ -80,11 +80,13 @@
                     rppa_score_threshold: rppa_score_threshold
                 });
 
-                var oncoprintZoomSetup = function(oncoprint, div) {
+                // takes a div and creates a zoombar on it.  Inside it refers
+                // to a global var called `oncoprint` on which it zooms.
+                var oncoprintZoomSetup = function(div) {
                     $('<div>', { id: "width_slider", width: "100"})
                             .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
                                 change: function(event, ui) {
-                                    window.oncoprint.zoom(ui.value);
+                                    oncoprint.zoom(ui.value);       // N.B.
                                 }}).appendTo($(div));
                 };
 
@@ -106,15 +108,15 @@
                         $('#oncoprint .loader_img').hide();
                         $('#oncoprint #everything').show();
 
-                        oncoprintZoomSetup(oncoprint, $('#oncoprint_controls #zoom'));
+                        oncoprintZoomSetup($('#oncoprint_controls #zoom'));
                     }
                 });
 
                 var select_clinical_attributes_id = '#select_clinical_attributes';
                 var oncoprintClinicals;
-
                 var sortBy = $('#oncoprint_controls #sort_by');
 
+                // handler for when user selects a clinical attribute to visualization
                 var clinicalAttributeSelected = function() {
                     oncoprint.remove_oncoprint();
                     $('#oncoprint_body .loader_img').show();
@@ -129,6 +131,7 @@
                             genes: geneDataColl.genes.split(" ")
                         });
 
+                        // disable the option to sort by clinical data
                         $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
                     } else {
                         oncoprintClinicals = new ClinicalColl({
@@ -149,15 +152,16 @@
                                     clinical_attrs: response.attributes()
                                 });
 
+                                // enable the option to sort by clinical data
                                 $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-
-                                sortBy.val('genes');
+                                sortBy.val('genes');        // sort by genes by default
                             }
                         });
                     }
                 };
                 $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
+                // bind away
                 $('#oncoprint_controls #sort_by').change(function() {
                     oncoprint.sortBy(sortBy.val());
                 });

@@ -49,8 +49,8 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopFont: "sans-serif",     // font of the lollipop label
 	lollipopFontColor: "#2E3436",   // font color of the lollipop label
 	lollipopFontSize: "10px",       // font size of the lollipop label
-	lollipopTextAnchor: "middle",   // text anchor (alignment) for the lollipop label
-	lollipopTextPadding: 5,        // padding between the label and the circle
+	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
+	lollipopTextPadding: 5,         // padding between the label and the circle
 	lollipopFillColor: "#B40000",   // TODO more than one color wrt mutation type?
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
@@ -595,6 +595,31 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
  */
 MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, options, xScale, yScale)
 {
+	// helper function to adjust text position to prevent overlapping with the y-axis
+	var getTextAnchor = function(text, textAnchor)
+	{
+		var anchor = textAnchor;
+
+		// adjust if necessary and (if it is set to auto only)
+		if (anchor.toLowerCase() == "auto")
+		{
+			// calculate distance of the label to the y-axis (assuming the anchor will be "middle")
+			var distance = text.attr("x") - (text.node().getComputedTextLength() / 2);
+
+			// adjust label to prevent overlapping with the y-axis
+			if (distance < 0)
+			{
+				anchor = "start";
+			}
+			else
+			{
+				anchor = "middle";
+			}
+		}
+
+		return anchor;
+	};
+
 	for (var i = 0;
 	     i < options.lollipopLabelCount && i < mutations.length;
 	     i++)
@@ -603,8 +628,8 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 		var y = yScale(mutations[i].count) -
 		        (options.lollipopTextPadding + options.lollipopRadius);
 
+		// init text
 		var text = labels.append('text')
-			.attr("text-anchor", options.lollipopTextAnchor)
 			.attr("fill", options.lollipopFontColor)
 			.attr("x", x)
 			.attr("y", y)
@@ -612,6 +637,10 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
 			.text(mutations[i].label);
+
+		// adjust anchor
+		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
+		text.attr("text-anchor", textAnchor);
 	}
 
 	// TODO return a collection of text elements?
@@ -675,46 +704,37 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	// truncate or hide label if it is too long to fit
 	var fits = true;
 
-	var initText = function(label) {
-		var text = group.append('text');
-
-		text.style("font-size", options.regionFontSize)
-			.style("font-family", options.regionFont)
-			.text(label);
-
-		return text;
-	};
-
-	var text = initText(label);
+	// init text
+	var text = group.append('text')
+		.style("font-size", options.regionFontSize)
+		.style("font-family", options.regionFont)
+		.text(label)
+		.attr("text-anchor", options.regionTextAnchor)
+		.attr("fill", options.regionFontColor)
+		.attr("x", xText)
+		.attr("y", 2*height/3)
+		.attr("class", "mut-dia-region-text");
 
 	// check if the text fits into the region rectangle
+	// adjust it if necessary
 	if (text.node().getComputedTextLength() > width)
 	{
-		// remove if not fits
-		text.remove();
-
-		// truncate text
+		// truncate text if not fits
 		label = label.substring(0,3) + "..";
-		text = initText(label);
+		text.text(label);
 
 		// check if truncated version fits
 		if (text.node().getComputedTextLength() > width)
 		{
+			// remove if the truncated version doesn't fit either
 			text.remove();
 			fits = false;
 		}
 	}
 
-	// draw label if it fits only
+	// add tooltip if the text fits
 	if (fits)
 	{
-		// add text style
-		text.attr("text-anchor", options.regionTextAnchor)
-			.attr("fill", options.regionFontColor)
-			.attr("x", xText)
-			.attr("y", 2*height/3)
-			.attr("class", "mut-dia-region-text");
-
 		// add tooltip to the text
 		self.addRegionTooltip(text, tooltip);
 	}

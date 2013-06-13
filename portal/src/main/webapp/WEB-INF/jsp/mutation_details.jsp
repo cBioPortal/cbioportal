@@ -84,6 +84,9 @@
                 padding-top: 10px;
                 padding-left: 10px;
 		}
+		.mutation-diagram-container {
+			margin-bottom: 10px;
+		}
 </style>
 
 <script type="text/javascript">
@@ -253,7 +256,8 @@ function _drawMutationDiagram(gene, data)
 //	               "</select>");
 	    out.println("<div id='uniprot_link_" + geneWithScore.getGene().toUpperCase() + "' " +
 	                "class='diagram_uniprot_link'></div>");
-        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
+        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() +"' " +
+                    "class='mutation-diagram-container'></div>");
 	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
 	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'>" +
 	                "<img src='images/ajax-loader.gif'/>" +

@@ -8,9 +8,6 @@
  */
 function MutationDiagram(geneSymbol, options, data)
 {
-	// TODO after refactoring the data will be generic,
-	// so we will need to process it before(or after?) passing to this function
-
 	var self = this;
 
 	// merge options with default options to use defaults for missing values
@@ -661,6 +658,9 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		.attr('width', width)
 		.attr('height', height);
 
+	// add tooltip to the rect
+	self.addRegionTooltip(rect, tooltip);
+
 	var xText = width/2;
 
 	if (options.regionTextAnchor === "start")
@@ -672,20 +672,52 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		xText = width;
 	}
 
-	// TODO truncate or hide label if it is too long to fit
-	var text = group.append('text')
-		.attr("text-anchor", options.regionTextAnchor)
-		.attr("fill", options.regionFontColor)
-		.attr("x", xText)
-		.attr("y", 2*height/3)
-		.attr("class", "mut-dia-region-text")
-		.style("font-size", options.regionFontSize)
-		.style("font-family", options.regionFont)
-		.text(label);
+	// truncate or hide label if it is too long to fit
+	var fits = true;
 
-	// add tooltip (both to the text and the rect)
-	self.addRegionTooltip(rect, tooltip);
-	self.addRegionTooltip(text, tooltip);
+	var initText = function(label) {
+		var text = group.append('text');
+
+		text.style("font-size", options.regionFontSize)
+			.style("font-family", options.regionFont)
+			.text(label);
+
+		return text;
+	};
+
+	var text = initText(label);
+
+	// check if the text fits into the region rectangle
+	if (text.node().getComputedTextLength() > width)
+	{
+		// remove if not fits
+		text.remove();
+
+		// truncate text
+		label = label.substring(0,3) + "..";
+		text = initText(label);
+
+		// check if truncated version fits
+		if (text.node().getComputedTextLength() > width)
+		{
+			text.remove();
+			fits = false;
+		}
+	}
+
+	// draw label if it fits only
+	if (fits)
+	{
+		// add text style
+		text.attr("text-anchor", options.regionTextAnchor)
+			.attr("fill", options.regionFontColor)
+			.attr("x", xText)
+			.attr("y", 2*height/3)
+			.attr("class", "mut-dia-region-text");
+
+		// add tooltip to the text
+		self.addRegionTooltip(text, tooltip);
+	}
 
 	return group;
 };

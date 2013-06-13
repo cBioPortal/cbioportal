@@ -501,7 +501,7 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case");
+		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -865,7 +865,7 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case");
+		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
 
 		caseSet.add(caseID);
 

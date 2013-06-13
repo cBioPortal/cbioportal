@@ -850,11 +850,14 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
     var mutationTypes = ["frameshift", "nonsense", "splice", "in_frame", "nonstart", "nonstop", "missense"];
     var mutationFillTypes = ["#1C1C1C", "#1C1C1C", "#A4A4A4", "#DF7401", "#DF7401", "#1C1C1C", "#DF7401"];
+
     var gisticStrokeTypes = ["#00008B", "#00BFFF", "#000000", "#FF69B4", "#FF0000"];
-    var gisticLegendText = ["Homdel", "Hetloss",  "Gain", "Amp", "Mutated", "Normal"];
+    
+    var gisticLegendText = ["Amp", "Gain", "Diploid", "Hetloss", "Homdel", "Mutated"];
+    var gisticLegendStrokeTypes = ["#FF0000", "#FF69B4", "#000000", "#00BFFF", "#00008B", "none"];
+    var gisticLegendFillTypes = ["none", "none", "none", "none", "none", "orange"];
+    
     var gisticPopUpText = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
-    var gisticLegendStrokeTypes = ["#00008B", "#00BFFF", "#FF69B4", "#FF0000", "none", "#000000"];
-    var gisticLegendFillTypes = ["none", "none", "none", "none", "orange", "none"];
 
 
     //Sort dataset to paint the mutated plots last to make them prominent
@@ -936,7 +939,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")";
+                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")";
                         }
                         content = content + "</font>";
                         api.set('content.text', content);
@@ -977,9 +980,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             })
             .attr("stroke", function(d) {
-                if ((d[2] == "0")&&(d[3] != "non")) {
-                    return "none";
-                } else {
                     switch (d[2]) {
                         case "-2": return gisticStrokeTypes[0];
                         case "-1": return gisticStrokeTypes[1];
@@ -988,14 +988,17 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         case "2": return gisticStrokeTypes[4];
                         default: return "black";
                     }
-                }
             })
             .attr("stroke-width", function(d) {
-                switch(d[3]) {
-                    case "non" : return "1";
-                    default: return "1.5";
-                }
-            });
+                if (d[2] === "0") {
+			return "1";
+		} else {
+			switch(d[3]) {
+                            case "non" : return "1";
+                            default: return "1.5";
+                        }
+           	}
+	});
 
         dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
@@ -1012,7 +1015,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong>(" + d[3] + ")" + "<br>";
+                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")" + "<br>";
                         }
                         if (d[2] != 0 && d[2] != "NaN") {
                             var tmp_index = parseInt(d[2], 10) + 2;

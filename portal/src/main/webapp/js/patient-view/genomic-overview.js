@@ -166,6 +166,12 @@ function plotMuts(p,config,chmInfo,row,mutations) {
     underlineText(t,p);
     var tip =  "Number of mutation events.";
     addToolTip(t.node,tip,null,{my:'top right',at:'bottom left'});
+
+    p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
+
+    // add thumbnail for allele-freq plot
+    p.image("images/allele-freq-thumbnail.jpg", 1080, 50, 12, 12)
+        .node.id = 'allele-freq-thumbnail';
 }
 
 function loc2string(loc,chmInfo) {

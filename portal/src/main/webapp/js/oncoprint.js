@@ -738,6 +738,14 @@ var Oncoprint = function(div, params) {
             horizontal_translate();
         };
 
+        // params: [by] is either 'genes', 'clinical', or 'alphabetical',
+        // indicating how to sort the oncoprint.  Either by gene data first,
+        // clinical data first, or alphabetically.
+        //
+        // returns the sorted data
+        //
+        // throws unsupported sort option if something other than the 3 options
+        // above is given.
         var sortBy = function(by) {
             var attrs;
             if (by === 'genes') {
@@ -753,28 +761,10 @@ var Oncoprint = function(div, params) {
                     return x.key < y.key;
                 });
             } else {
-                throw new Error("unsupported sortBy option: ") + JSON.stringify(by);
+                throw new Error("unsupported sort option: ") + JSON.stringify(by);
             }
             horizontal_translate();
             return internal_data;
-        };
-
-        var sortByGeneData = function() {
-            internal_data = MemoSort(internal_data, attrs);
-            horizontal_translate();
-            return attrs;
-        };
-
-        var sortByClinicalData = function() {
-            attrs = clinical_attrs.concat(params.genes);
-        };
-
-        // sorts data by case_id (e.g. TCGA-06-0129) and modifies the oncoprint
-        // according to this new order
-        var sortByCaseId = function() {
-            internal_data = internal_data.sort(function(x,y) {
-                return x.key < y.key;
-            });
         };
 
         return {

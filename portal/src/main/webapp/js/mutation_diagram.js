@@ -11,7 +11,8 @@ function MutationDiagram(geneSymbol, options, data)
 	var self = this;
 
 	// merge options with default options to use defaults for missing values
-	self.options = jQuery.extend({}, self.defaultOpts, options);
+	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
+
 	self.data = data;
 	self.geneSymbol = geneSymbol;
 }
@@ -70,7 +71,17 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
-	yAxisFontColor: "#2E3436"   // font color of the y-axis labels
+	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
+	lollipopTipOpts: {          // tooltip (qTip) options for a lollipop circle
+		hide: {fixed: true, delay: 100 },
+		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+		position: {my:'bottom left', at:'top center'}
+	},
+	regionTipOpts: {            // tooltip (qTip) options for a region rectangle
+		hide: {fixed: true, delay: 100 },
+		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+		position: {my:'bottom left', at:'top center'}
+	}
 };
 
 /**
@@ -570,7 +581,7 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('r', options.lollipopRadius)
 		.attr('fill', options.lollipopFillColor);
 
-	self.addPlotTooltip(circle, title);
+	self.addTooltip(circle, title, options.lollipopTipOpts);
 
 	var line = lines.append('line')
 		.attr('x1', x)
@@ -688,7 +699,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		.attr('height', height);
 
 	// add tooltip to the rect
-	self.addRegionTooltip(rect, tooltip);
+	self.addTooltip(rect, tooltip, options.regionTipOpts);
 
 	var xText = width/2;
 
@@ -736,7 +747,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	if (fits)
 	{
 		// add tooltip to the text
-		self.addRegionTooltip(text, tooltip);
+		self.addTooltip(text, tooltip, options.regionTipOpts);
 	}
 
 	return group;
@@ -814,25 +825,18 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 };
 
 
-MutationDiagram.prototype.addPlotTooltip = function(element, txt)
+MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
 {
-	// TODO make the tooltip customizable (allow to pass options)
-	$(element).qtip({
-		content: {text: '<font size="2">'+txt+'</font>'},
-		hide: {fixed: true, delay: 100 },
-		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-		position: {my:'bottom center',at:'top center'}
-	});
-};
+	var qTipOptions = jQuery.extend(true, {}, tipOpts);
 
+	if (qTipOptions.content == null)
+	{
+		qTipOptions.content = {text: '<font size="2">'+txt+'</font>'};
+	}
+	else
+	{
+		// TODO edit content (insert txt)
+	}
 
-MutationDiagram.prototype.addRegionTooltip = function(element, txt)
-{
-	// TODO make the tooltip customizable (allow to pass options)
-	$(element).qtip({
-		content: {text: '<font size="2">'+txt+'</font>'},
-		hide: {fixed: true, delay: 100 },
-		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-		position: {my:'bottom left',at:'top center'}
-	});
+	$(element).qtip(qTipOptions);
 };

@@ -84,7 +84,7 @@
                     $('<div>', { id: "width_slider", width: "100"})
                             .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
                                 change: function(event, ui) {
-                                    oncoprint.zoom(ui.value);
+                                    window.oncoprint.zoom(ui.value);
                                 }}).appendTo($(div));
                 };
 

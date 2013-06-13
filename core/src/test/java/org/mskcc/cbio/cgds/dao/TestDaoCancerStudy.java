@@ -42,7 +42,7 @@ import java.util.ArrayList;
 /**
  * JUnit Tests for DaoCancer Study.
  *
- * @author Ethan Cerami, Arthur Goldberg.
+ * @author Arman Aksoy, Ethan Cerami, Arthur Goldberg.
  */
 public class TestDaoCancerStudy extends TestCase {
 
@@ -56,6 +56,9 @@ public class TestDaoCancerStudy extends TestCase {
         // load cancers
 		// TBD: change this to use getResourceAsStream()
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
+        assertEquals("breast", DaoTypeOfCancer.getTypeOfCancerById("BRCA").getClinicalTrialKeywords());
+        assertEquals("colon,rectum,colorectal",
+                DaoTypeOfCancer.getTypeOfCancerById("COADREAD").getClinicalTrialKeywords());
 
         CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description", "gbm", "brca", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);

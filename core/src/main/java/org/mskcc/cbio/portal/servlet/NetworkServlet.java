@@ -642,7 +642,7 @@ public class NetworkServlet extends HttpServlet {
     private Set<String> getMutatedCases(int geneticProfileId, Set<String> targetCaseList,
             long entrezGeneId) throws DaoException {
         ArrayList <ExtendedMutation> mutationList =
-                    DaoMutation.getInstance().getMutations(geneticProfileId, targetCaseList, entrezGeneId);
+                    DaoMutation.getMutations(geneticProfileId, targetCaseList, entrezGeneId);
         Set<String> cases = new HashSet<String>();
         for (ExtendedMutation mutation : mutationList) {
             cases.add(mutation.getCaseId());

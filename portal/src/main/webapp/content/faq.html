@@ -1,11 +1,11 @@
 <div class="toc">
 <ul>
-<li><a href="#what-is-the-cbio-cancer-genomics-portal">What is the cBioPortal for Cancer Genomics?</a></li>
+<li><a href="#what-is-the-cbioportal-for-cancer-genomics">What is the cBioPortal for Cancer Genomics?</a></li>
 <li><a href="#how-do-i-get-started">How do I get started?</a></li>
 <li><a href="#what-data-types-are-in-the-portal">What data types are in the portal?</a></li>
 <li><a href="#can-i-use-figures-from-the-portal-in-my-publications-or-presentations">Can I use figures from the Portal in my publications or presentations?</a></li>
 <li><a href="#how-do-i-cite-the-portal">How do I cite the portal?</a></li>
-<li><a href="#how-is-the-cbio-cancer-genomics-portal-different-from-the-tcga-data-portal">How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?</a></li>
+<li><a href="#how-is-the-cbioportal-for-cancer-genomics-different-from-the-tcga-data-portal">How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?</a></li>
 <li><a href="#why-do-some-cancer-studies-have-mutation-data-and-others-do-not">Why do some cancer studies have mutation data and others do not?</a></li>
 <li><a href="#does-the-portal-contain-cancer-study-x">Does the portal contain cancer study X?</a></li>
 <li><a href="#what-kind-of-clinical-data-is-stored-in-the-portal">What kind of clinical data is stored in the portal?</a></li>
@@ -19,25 +19,29 @@
 <li><a href="#what-are-mrna-and-microrna-z-scores">What are mRNA and microRNA Z-Scores?</a></li>
 <li><a href="#what-is-gistic-what-is-rae">What is GISTIC?  What is RAE?</a></li>
 <li><a href="#what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</a></li>
-<li><a href="#how-do-i-analyze-my-own-data-sets-in-the-cbio-portal">How do I analyze my own data sets in the cBio Portal?</a></li>
-<li><a href="#is-the-cbio-portal-open-source">Is the cBio Portal open source?</a></li>
+<li><a href="#what-are-the-sources-of-biological-network-data">What are the sources of biological network data?</a></li>
 <li><a href="#how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">How do I get updates on new portal developments and new data sets?</a></li>
+<li><a href="#what-if-i-have-other-questions-comments">What if I have other questions / comments?</a></li>
 </ul>
 </div>
 <BR/>
 
-<h1 id="what-is-the-cbio-cancer-genomics-portal">What is the cBioPortal for Cancer Genomics?</h1>
+<h1 id="what-is-the-cbioportal-for-cancer-genomics">What is the cBioPortal for Cancer Genomics?</h1>
 <p>The portal stores genomic data from large scale, integrated cancer genomic data sets. It allows explorative data analysis (e.g.: Is my gene of interest altered in a specific cancer type? How frequently is EGFR amplified in glioblastoma? Do mutations of BRCA1 and BRCA2 in ovarian cancer co-occur?) and provides simple download of small data slices (user-defined gene and sample sets, no need to download entire data sets).</p>
 <h1 id="how-do-i-get-started">How do I get started?</h1>
 <p>We have recently posted <a href="tutorial.jsp">two mini-tutorials</a> to get you up and running.</p>
 <h1 id="what-data-types-are-in-the-portal">What data types are in the portal?</h1>
 <p>The portal currently stores DNA copy-number data (putative, discrete values per gene, e.g. "homozygously deleted" or "amplified", as well as log2 levels), mRNA and microRNA expression data, non-synonymous mutations, protein-level and phosphoprotein level (RPPA) data, DNA methylation data, and limited clinical data related to survival. For a complete breakdown of available data types per cancer study go to the <a href="data_sets.jsp">Data Sets Page</a>.</p>
 <h1 id="can-i-use-figures-from-the-portal-in-my-publications-or-presentations">Can I use figures from the Portal in my publications or presentations?</h1>
-<p>Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available as PDFs for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012 May;2(5):401-4.</p>
+<p>Yes, you are free to use any of the figures from the portal in your publications or presentations (many are available as PDFs for easier scaling and editing). When you do, please cite Cerami et al., Cancer Discov. 2012 and Gao et al. Sci. Signal. 2013.</p>
 <h1 id="how-do-i-cite-the-portal">How do I cite the portal?</h1>
-<p>You can cite the portal paper: Cerami et al.  <em>The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data.</em>  Cancer Discovery. May 2012 2; 401.
-<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>.</p>
-<h1 id="how-is-the-cbio-cancer-genomics-portal-different-from-the-tcga-data-portal">How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?</h1>
+<p>You can cite the following portal papers: </p>
+<ul>
+<li>Cerami et al. The cBio Cancer Genomics Portal: An Open Platform for Exploring Multidimensional Cancer Genomics Data. <em>Cancer Discovery</em>. May 2012 2; 401.
+<a href="http://cancerdiscovery.aacrjournals.org/content/2/5/401.abstract">Abstract</a>.</li>
+<li>Gao et al. Integrative analysis of complex cancer genomics and clinical profiles using the cBioPortal. <em>Sci. Signal.</em> 6, pl1 (2013). <a href="http://www.cbioportal.org/public-portal/sci_signal_reprint.jsp">Reprint</a>.</li>
+</ul>
+<h1 id="how-is-the-cbioportal-for-cancer-genomics-different-from-the-tcga-data-portal">How is the cBioPortal for Cancer Genomics different from the TCGA Data Portal?</h1>
 <p>The cBio portal is an exploratory analysis tool for exploring large-scale cancer genomic data sets.  You can quickly view genomic alterations across a set of patients, across a set of cancer types, perform survival analysis and perform network analysis.  By contrast, the <a href="http://tcga-data.nci.nih.gov/tcga/tcgaHome2.jsp">TCGA Data Portal</a> aims to be the definitive place for full-download and access to all data generated by TCGA.  If you want to explore a pathway of interest in one or more cancer types, the cBio portal is probably where you want to start.  However, if you want to download raw mRNA expression files or full segmented copy number files, the TCGA Data Portal is probably where you want to start.</p>
 <h1 id="why-do-some-cancer-studies-have-mutation-data-and-others-do-not">Why do some cancer studies have mutation data and others do not?</h1>
 <p>We store mutation data for published cancer studies. We do not, however store mutation data for provisional cancer data sets generated by TCGA.  This is because provisional studies contain preliminary somatic mutations, which per NCI guidelines cannot be redistributed until they have been validated.  As each cancer study is published and finalized by the TCGA, we will import the corresponding mutation data.</p>
@@ -68,9 +72,9 @@ algorithms.  Both algorithms attempt to identify significantly altered regions o
 </p>
 <h1 id="what-do-2-1-0-1-and-2-mean-in-the-copy-number-data">What do "-2", "-1", "0", "1", and "2" mean in the copy-number data?</h1>
 <p>These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.</p>
-<h1 id="how-do-i-analyze-my-own-data-sets-in-the-cbio-portal">How do I analyze my own data sets in the cBio Portal?</h1>
-<p>Currently, we do not support uploading of user data sets into the cBio Portal.  However, the cBio Portal is open source software and you may want to consider deploying your own local instance of the cBio portal.  This may require some assistance from a system administrator.  To ease installation, we have also created a <a href="http://code.google.com/p/cbio-cancer-genomics-portal/wiki/AmazonEc2AMI">Amazon Machine Image (AMI) for rapid deployment to Amazon Web Services</a>.  A complete set of administration documents are available on our <a href="http://code.google.com/p/cbio-cancer-genomics-portal/w/list">wiki</a></p>
-<h1 id="is-the-cbio-portal-open-source">Is the cBio Portal open source?</h1>
-<p>Yes.  The cBio Portal is available under a <a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License</a>.  You can download our code and sample data sets at <a href="http://code.google.com/p/cbio-cancer-genomics-portal/">Google code</a>.  If you are interested in contributing, please contact us directly.</p>
+<h1 id="what-are-the-sources-of-biological-network-data">What are the sources of biological network data?</h1>
+<p>The sources of biological network data are listed <a href="networks.jsp">here</a>.</p>
 <h1 id="how-do-i-get-updates-on-new-portal-developments-and-new-data-sets">How do I get updates on new portal developments and new data sets?</h1>
-<p>The best option is to follow us on <a href="https://twitter.com/cbioportal">Twitter</a>.  We tweet each time we add a new feature or a new data set.</p>
+<p>Please subscribe to our low-traffic <a href="http://groups.google.com/group/cbioportal-news">news mailing list</a> or follow us on <a href="https://twitter.com/cbioportal">Twitter</a>.</p>
+<h1 id="what-if-i-have-other-questions-comments">What if I have other questions / comments?</h1>
+<p>Please contact us at <a href="mailto:cbioportal@googlegroups.com">cbioportal@googlegroups.com</a>. Previous discussions about cBioPortal are available on the <a href="http://groups.google.com/group/cbioportal">user discussion mailing list</a>.</p>

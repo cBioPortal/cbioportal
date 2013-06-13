@@ -31,7 +31,7 @@ package org.mskcc.cbio.importer.dao;
 // imports
 import org.mskcc.cbio.importer.model.ImportDataRecord;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Interface  used to input/output ImportData into database.
@@ -48,9 +48,9 @@ public interface ImportDataRecordDAO {
     /**
      * Functon to retrieve all ImportDataRecord.
 	 *
-	 * @return Collection<ImportDataRecord>
+	 * @return List<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecords();
+    List<ImportDataRecord> getImportDataRecords();
 
     /**
      * Functon to retrieve ImportDataRecord via tumor type, data type, and center.
@@ -59,9 +59,9 @@ public interface ImportDataRecordDAO {
 	 * @param dataType String
 	 * @param center String
 	 * @param runDate String
-	 * @return Collection<ImportDataRecord>
+	 * @return List<ImportDataRecord>
      */
-    Collection<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate);
+    List<ImportDataRecord> getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(String tumorType, String datatype, String center, String runDate);
 
     /**
      * Functon to retrieve ImportDataRecord via tumor type and datatype and data filename

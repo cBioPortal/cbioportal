@@ -42,7 +42,6 @@ import org.mskcc.cbio.cgds.model.ClinicalTrial;
  * Data access object for ClinicalTrial table
  */
 public class DaoClinicalTrial {
-    private static MySQLbulkLoader drugMySQLBulkLoader = null;
     private static DaoClinicalTrial daoClinicalTrial;
 
     private DaoClinicalTrial() {
@@ -59,9 +58,6 @@ public class DaoClinicalTrial {
             daoClinicalTrial = new DaoClinicalTrial();
         }
 
-        if (drugMySQLBulkLoader == null) {
-            drugMySQLBulkLoader = new MySQLbulkLoader("clinicaltrial");
-        }
         return daoClinicalTrial;
     }
 

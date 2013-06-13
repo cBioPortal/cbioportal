@@ -38,6 +38,9 @@ import java.net.URL;
  */
 public class PortalMetadata {
 
+	// all cases indicator
+	public static final String PUBLIC_PORTAL = "public-portal";
+
 	// bean properties
     private String name;
     private String stagingDirectory;

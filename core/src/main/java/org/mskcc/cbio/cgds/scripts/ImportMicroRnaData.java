@@ -72,7 +72,7 @@ public class ImportMicroRnaData {
             line = buf.readLine();
         }
         if (MySQLbulkLoader.isBulkLoad()) {
-           daoMicroRna.flushMicroRna();
+           MySQLbulkLoader.flushAll();
         }
     }
 

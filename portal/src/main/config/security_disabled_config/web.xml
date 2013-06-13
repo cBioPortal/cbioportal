@@ -160,6 +160,16 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.NetworkServlet</servlet-class>
     </servlet>
 
+	<servlet>
+		<servlet-name>network_sbgn</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.NetworkSbgnServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>bioGeneQuery</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.BioGeneServlet</servlet-class>
+	</servlet>
+
     <servlet>
         <servlet-name>ProteinArraySignificanceTestJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON</servlet-class>
@@ -310,6 +320,16 @@
         <url-pattern>/network.do</url-pattern>
     </servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>network_sbgn</servlet-name>
+		<url-pattern>/networkSbgn.do</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>bioGeneQuery</servlet-name>
+		<url-pattern>/bioGeneQuery.do</url-pattern>
+	</servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>oma_redirect</servlet-name>
         <url-pattern>/omaRedirect.do</url-pattern>
@@ -409,6 +429,16 @@
     <servlet-mapping>
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.svgConverter</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <url-pattern>/svgtopdf.do</url-pattern>
     </servlet-mapping>
     
     <servlet>

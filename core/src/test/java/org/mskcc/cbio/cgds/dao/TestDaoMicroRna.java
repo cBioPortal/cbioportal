@@ -54,13 +54,13 @@ public class TestDaoMicroRna extends TestCase {
 
         // if bulkLoading, execute LOAD FILE
         if( MySQLbulkLoader.isBulkLoad()){
-            daoMicroRna.flushMicroRna();
+           MySQLbulkLoader.flushAll();
         }
         daoMicroRna.addMicroRna("hsa-let-7a", "hsa-let-7a-3");
 
         // if bulkLoading, execute LOAD FILE
         if( MySQLbulkLoader.isBulkLoad()){
-            daoMicroRna.flushMicroRna();
+           MySQLbulkLoader.flushAll();
         }
         ArrayList<String> variantIdList = daoMicroRna.getVariantIds("hsa-let-7a");
         assertEquals (3, variantIdList.size());

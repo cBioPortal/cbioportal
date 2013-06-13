@@ -32,6 +32,7 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
@@ -49,6 +50,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
         try {
 
+            MySQLbulkLoader.bulkLoadOn();
+            
             ProgressMonitor pMonitor = new ProgressMonitor();
             pMonitor.setConsoleMode(false);
 			// TBD: change this to use getResourceAsStream()
@@ -62,8 +65,11 @@ public class TestImportExtendedMutationData extends TestCase {
                 assertEquals("Gene list 'no_such_germline_whitelistfile' not found.", e.getMessage());
             }
             loadGenes();
+            
             parser = new ImportExtendedMutationData(file, 1, pMonitor);
             parser.importData();
+            MySQLbulkLoader.flushAll();
+            
             checkBasicFilteringRules();
             
             // accept everything else
@@ -75,6 +81,7 @@ public class TestImportExtendedMutationData extends TestCase {
             parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             // put on: CLEC7A
             parser.importData();
+            MySQLbulkLoader.flushAll();
             checkBasicFilteringRules();
             checkGermlineMutations();
             acceptEverythingElse();
@@ -84,6 +91,7 @@ public class TestImportExtendedMutationData extends TestCase {
 			// TBD: change this to use getResourceAsStream()
             parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             parser.importData();
+            MySQLbulkLoader.flushAll();
             checkBasicFilteringRules();
             checkGermlineMutations();
             acceptEverythingElse();
@@ -94,6 +102,7 @@ public class TestImportExtendedMutationData extends TestCase {
 			// TBD: change this to use getResourceAsStream()
             parser = new ImportExtendedMutationData(file, 1, pMonitor, "target/test-classes/test_germline_white_list_file2.txt");
             parser.importData();
+            MySQLbulkLoader.flushAll();
             checkBasicFilteringRules();
             checkGermlineMutations();
             acceptEverythingElse();
@@ -102,12 +111,13 @@ public class TestImportExtendedMutationData extends TestCase {
             validateMutationAminoAcid(1, "TCGA-AA-3664", 6667, "A513V");
             // Unknown  Somatic mutations on somatic whitelist2
 
-	        // additional tests for the MAF columns added after oncotator
-	        loadGenes();
-	        file = new File("target/test-classes/data_mutations_oncotated.txt");
-	        parser = new ImportExtendedMutationData(file, 1, pMonitor);
-	        parser.importData();
-	        checkOncotatedImport();
+            // additional tests for the MAF columns added after oncotator
+            loadGenes();
+            file = new File("target/test-classes/data_mutations_oncotated.txt");
+            parser = new ImportExtendedMutationData(file, 1, pMonitor);
+            parser.importData();
+            MySQLbulkLoader.flushAll();
+            checkOncotatedImport();
 
         } catch (DaoException e) {
             e.printStackTrace();
@@ -118,9 +128,8 @@ public class TestImportExtendedMutationData extends TestCase {
 
     // reject somatic mutations that aren't valid somatic, or on one of the somatic whitelists
     private void acceptEverythingElse() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(1, daoMutation.getMutations(1, "TCGA-AA-3664", 51806).size());   // valid Unknown
-        assertEquals(1, daoMutation.getMutations(1, "TCGA-AA-3664", 89).size()); // Unknown  Somatic
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 51806).size());   // valid Unknown
+        assertEquals(1, DaoMutation.getMutations(1, "TCGA-AA-3664", 89).size()); // Unknown  Somatic
     }
 
     private void checkBasicFilteringRules() throws DaoException {
@@ -130,8 +139,7 @@ public class TestImportExtendedMutationData extends TestCase {
 
 	private void checkOncotatedImport() throws DaoException
 	{
-		DaoMutation daoMutation = DaoMutation.getInstance();
-		ArrayList<ExtendedMutation> mutationList = daoMutation.getAllMutations();
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getAllMutations();
 
 		// assert table size; 3 silent mutations should be rejected
 		assertEquals(16, mutationList.size());
@@ -147,16 +155,13 @@ public class TestImportExtendedMutationData extends TestCase {
 
     private void validateMutationAminoAcid (int geneticProfileId, String caseId, long entrezGeneId,
             String expectedAminoAcidChange) throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        ArrayList<ExtendedMutation> mutationList = daoMutation.getMutations
+        ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations
                 (geneticProfileId, caseId, entrezGeneId);
         assertEquals(1, mutationList.size());
         assertEquals(expectedAminoAcidChange, mutationList.get(0).getProteinChange());
     }
 
     private void acceptValidSomaticMutations() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-
         // valid Somatic
         validateMutationAminoAcid (1, "TCGA-AA-3664", 282770, "R113C");
 
@@ -165,23 +170,21 @@ public class TestImportExtendedMutationData extends TestCase {
     }
 
     private void rejectSilentLOHIntronWildtype() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 80114).size()); // Wildtype
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 219736).size()); // Wildtype
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 6609).size()); // Intron
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 114548).size()); // silent
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 343035).size()); // LOH
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 80114).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 219736).size()); // Wildtype
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 6609).size()); // Intron
     }
 
 
     private void checkGermlineMutations() throws DaoException {
-        DaoMutation daoMutation = DaoMutation.getInstance();
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 64581).size());
         // missense, Germline mutation on germline whitelist
 
         // Germline mutation on germline whitelist
         validateMutationAminoAcid (1, "TCGA-AA-3664", 2842, "L113P");
-        assertEquals(0, daoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
+        assertEquals(0, DaoMutation.getMutations(1, "TCGA-AA-3664", 50839).size());
         // Germline mutations NOT on germline whitelist
     }
 
@@ -228,5 +231,7 @@ public class TestImportExtendedMutationData extends TestCase {
 	    daoGene.addGene(new CanonicalGene(1952L, "CELSR2"));
 	    daoGene.addGene(new CanonicalGene(2322L, "FLT3"));
 	    daoGene.addGene(new CanonicalGene(867L, "CBL"));
+            
+            MySQLbulkLoader.flushAll();
     }
 }

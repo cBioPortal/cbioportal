@@ -49,9 +49,6 @@ public class DaoGeneticAlteration {
     public static final String NAN = "NaN";
     private static DaoGeneticAlteration daoGeneticAlteration = null;
 
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
-
     /**
      * Private Constructor (Singleton pattern).
      */
@@ -70,16 +67,6 @@ public class DaoGeneticAlteration {
             
         }
 
-        // unfortunately, since this is a singleton and MySQLbulkLoader.isBulkLoad()
-        // can be turned on and off at any time, we must either create the MySQLbulkLoader
-        // at the beginning, like this, or test whether we have it and
-        // create it if needed in every method. For simplicity, I choose the former.
-        // TODO: would be best to make DaoGeneticAlteration dynamic, make whether it is bulkloaded
-        // a property of the DAO, not change the property during
-        // the DAO's lifetime; beyond scope of current project
-        if( myMySQLbulkLoader == null ){
-            myMySQLbulkLoader = new MySQLbulkLoader( "genetic_alteration" );
-        }
         return daoGeneticAlteration;
     }
 
@@ -108,7 +95,7 @@ public class DaoGeneticAlteration {
         try {
            if (MySQLbulkLoader.isBulkLoad() ) {
               //  write to the temp file maintained by the MySQLbulkLoader
-              myMySQLbulkLoader.insertRecord(Integer.toString( geneticProfileId ),
+              MySQLbulkLoader.getMySQLbulkLoader("genetic_alteration").insertRecord(Integer.toString( geneticProfileId ),
                       Long.toString( entrezGeneId ), valueBuffer.toString());
               // return 1 because normal insert will return 1 if no error occurs
               return 1;
@@ -129,22 +116,6 @@ public class DaoGeneticAlteration {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoGeneticAlteration.class, con, pstmt, rs);
-        }
-    }
-    
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     * 
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushGeneticAlteration() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 

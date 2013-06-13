@@ -140,17 +140,6 @@ public class DaoGeneOptimized {
     }
 
     /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws DaoException Database Error.
-     */
-    public int flushGenesToDatabase() throws DaoException {
-        DaoGene daoGene = DaoGene.getInstance();
-        return daoGene.flushGenesToDatabase();
-    }
-
-    /**
      * Gets Global Singleton Instance.
      *
      * @return DaoGeneOptimized Singleton.

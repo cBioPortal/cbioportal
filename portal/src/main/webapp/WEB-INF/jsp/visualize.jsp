@@ -98,6 +98,11 @@
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
+    boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
+    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0; 
+    boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
+    boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
+	
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
@@ -269,11 +274,13 @@
                         out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                         + "Mutual Exclusivity</a></li>");
                     }
+			
+			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
+	
+			}
 
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
-                        + "Plots</a></li>");
-
-                    if (showMutTab){
+                         if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
@@ -345,10 +352,10 @@
             <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
-
-
-            <%@ include file="plots_tab.jsp" %>
-
+		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+            			
+				<%@ include file="plots_tab.jsp" %>
+		<%}%>
             <% if (showIGVtab) { %>
               <%@ include file="igv.jsp" %>
             <% } %>
@@ -403,11 +410,17 @@
 
 <script type="text/javascript">
 	// to initially hide the network tab
-	//$("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
-	$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
     
+	//index of network tab
+	var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
+
+	if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
+		$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+	}
+
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
+
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {

@@ -37,7 +37,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
@@ -54,9 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
 
@@ -97,6 +97,9 @@ public class MutationTableDataServlet extends HttpServlet
 
 		List<ExtendedMutation> mutations = readMutations(request.getParameter("mutations"));
 
+		Map<String, Integer> countMap = this.getMutationCountMap(mutations);
+
+		// extract row data for each mutation
 		for (ExtendedMutation mutation : mutations)
 		{
 			HashMap<String, Object> rowData = new HashMap<String, Object>();
@@ -126,7 +129,7 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("startPos", mutation.getStartPosition());
 			rowData.put("endPos", mutation.getEndPosition());
 			rowData.put("referenceAllele", mutation.getReferenceAllele());
-			rowData.put("variantAllele", this.getVariantAllele(mutation));
+			rowData.put("variantAllele", mutation.getTumorSeqAllele());
 			rowData.put("tumorFreq", this.getTumorFreq(mutation));
 			rowData.put("normalFreq", this.getNormalFreq(mutation));
 			rowData.put("tumorRefCount", this.getTumorRefCount(mutation));
@@ -137,6 +140,8 @@ public class MutationTableDataServlet extends HttpServlet
 			rowData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 			rowData.put("codonChange", mutation.getOncotatorCodonChange());
 			rowData.put("uniprotId", this.getUniprotId(mutation));
+			rowData.put("mutationCount", countMap.get(mutation.getCaseId()));
+			rowData.put("fisValue", this.getFisValue(mutation));
 
 			JSONArray specialGeneData = new JSONArray();
 
@@ -314,26 +319,6 @@ public class MutationTableDataServlet extends HttpServlet
 	}
 
 	/**
-	 * Returns one of the tumor sequence alleles which is different from
-	 * the reference allele.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          tumor sequence allele different from the reference allele
-	 */
-	protected String getVariantAllele(ExtendedMutation mutation)
-	{
-		String varAllele = mutation.getTumorSeqAllele1();
-
-		if (mutation.getReferenceAllele() != null &&
-		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
-		{
-			varAllele = mutation.getTumorSeqAllele2();
-		}
-
-		return varAllele;
-	}
-
-	/**
 	 * Returns the corresponding NCBI build number (hg18 or hg19).
 	 *
 	 * @param mutation  mutation instance
@@ -467,10 +452,63 @@ public class MutationTableDataServlet extends HttpServlet
 		return freq;
 	}
 
+	protected Float getFisValue(ExtendedMutation mutation)
+	{
+		Float fisValue = mutation.getFisValue();
+
+		if (fisValue.equals(Float.MIN_VALUE))
+		{
+			fisValue = null;
+		}
+
+		return fisValue;
+	}
+
 	protected String getUniprotId(ExtendedMutation mutation)
 	{
 		// TODO uniprot name or uniprot accession
 		return mutation.getOncotatorUniprotName();
+	}
+
+	/**
+	 * Creates a map of mutation counts for the given list of mutations.
+	 *
+	 * @param mutations     list of mutations
+	 * @return              map build on (case id, mutation count) pairs
+	 */
+	protected Map<String, Integer> getMutationCountMap(List<ExtendedMutation> mutations)
+	{
+		// build mutation count map
+		List<String> caseIds = new LinkedList<String>();
+
+		Integer geneticProfileId = -1;
+
+		// assuming same genetic profile id for all mutations in the list
+		if (mutations.size() > 0)
+		{
+			geneticProfileId = mutations.iterator().next().getGeneticProfileId();
+		}
+
+		// collect case ids
+		for (ExtendedMutation mutation : mutations)
+		{
+			caseIds.add(mutation.getCaseId());
+		}
+
+		Map<String, Integer> counts;
+
+		// retrieve count map
+		try
+		{
+			counts = DaoMutation.countMutationEvents(
+					geneticProfileId, caseIds);
+		}
+		catch (DaoException e)
+		{
+			counts = null;
+		}
+
+		return counts;
 	}
 
 	/**
@@ -506,6 +544,7 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("mutationType", "Type");
 		headerList.put("cosmic", "COSMIC");
 		headerList.put("functionalImpactScore", "FIS");
+		headerList.put("msaLink", "Cons");
 		headerList.put("pdbLink", "3D");
 		headerList.put("mutationStatus", "MS");
 		headerList.put("validationStatus", "VS");
@@ -522,6 +561,7 @@ public class MutationTableDataServlet extends HttpServlet
 		headerList.put("tumorAltCount", "Var Alt");
 		headerList.put("normalRefCount", "Norm Ref");
 		headerList.put("normalAltCount", "Norm Alt");
+		headerList.put("mutationCount", "#Mut in Sample");
 
 		JSONArray specialGeneHeaders = new JSONArray();
 

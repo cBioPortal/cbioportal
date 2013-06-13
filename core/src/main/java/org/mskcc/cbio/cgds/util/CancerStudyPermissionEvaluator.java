@@ -33,7 +33,6 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.portal.openIDlogin.OpenIDUserDetails;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -43,8 +42,9 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Set;
 import java.io.Serializable;
+import java.util.HashSet;
 
-import javax.servlet.http.HttpServletRequest;
+import org.mskcc.cbio.portal.util.SkinUtil;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a
@@ -154,7 +154,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		  }
 		*/
 
-		Set<String> grantedAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
+		//Set<String> grantedAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
+                Set<String> grantedAuthorities = getGrantedAuthorities(user);
 
 		if (log.isDebugEnabled()) {
 			log.debug("hasPermission(), cancer study stable id: " + stableStudyID);
@@ -175,11 +176,21 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 			}
 			return true;
 		}
-		// if a user has access to 'all_tcga', simply return true
+		// if a user has access to 'all_tcga', simply return true for tcga studies
 		if (grantedAuthorities.contains(AccessControl.ALL_TCGA_CANCER_STUDIES_ID.toUpperCase()) &&
 			stableStudyID.toUpperCase().endsWith("_TCGA")) {
 			if (log.isDebugEnabled()) {
 				log.debug("hasPermission(), user has access to ALL_TCGA cancer studies return true");
+			}
+			return true;
+		}
+		// if a user has access to 'all_target', simply return true for target studies
+		if (grantedAuthorities.contains(AccessControl.ALL_TARGET_CANCER_STUDIES_ID.toUpperCase()) &&
+			(stableStudyID.toUpperCase().endsWith("_TARGET")
+                         || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE1")
+                         || stableStudyID.equalsIgnoreCase("ALL_TARGET_PHASE2"))) {
+			if (log.isDebugEnabled()) {
+				log.debug("hasPermission(), user has access to ALL_NCI_TARGET cancer studies return true");
 			}
 			return true;
 		}
@@ -198,6 +209,18 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 		// outta here
 		return toReturn;
 	}
+        
+        private Set<String> getGrantedAuthorities(OpenIDUserDetails user) {
+            String appName = SkinUtil.getAppName().toUpperCase();
+            Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
+            Set<String> grantedAuthorities = new HashSet<String>();
+            for (String au : allAuthorities) {
+                if (au.toUpperCase().startsWith(appName+":")) {
+                    grantedAuthorities.add(au.substring(appName.length()+1));
+                }
+            }
+            return grantedAuthorities;
+        }
 }
 
 

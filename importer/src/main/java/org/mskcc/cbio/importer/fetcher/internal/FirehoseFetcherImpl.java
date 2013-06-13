@@ -95,7 +95,7 @@ class FirehoseFetcherImpl implements Fetcher {
 		Pattern.compile("^(\\w*)__(\\w*)");
 
     private static final Pattern FIREHOSE_FILENAME_TUMOR_TYPE_REGEX =
-		Pattern.compile("^gdac.broadinstitute.org_(\\w*)\\..*");
+		Pattern.compile("^gdac.broadinstitute.org_(\\w*)(\\-T.)??\\..*");
 
 	// ref to configuration
 	private Config config;
@@ -329,7 +329,20 @@ class FirehoseFetcherImpl implements Fetcher {
             }
             // determine cancer type
             Matcher tumorTypeMatcher = FIREHOSE_FILENAME_TUMOR_TYPE_REGEX.matcher(dataFile.getName());
-            String tumorType = (tumorTypeMatcher.find()) ? tumorTypeMatcher.group(1) : "";
+            String tumorType = "";
+            String tumorTypeLabel = "";
+            if (tumorTypeMatcher.find()) {
+                tumorType = tumorTypeMatcher.group(1);
+                tumorTypeLabel = tumorType;
+                if (tumorTypeMatcher.groupCount()==2 && null!=tumorTypeMatcher.group(2)) {
+                    tumorTypeLabel += tumorTypeMatcher.group(2);
+                }
+            }
+            if (tumorType.length() == 0) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("!!!! storeData(), Error - tumor type cannot be determined, file: " + dataFile.getCanonicalPath() + "!!!!!");
+                }
+            }
             // determine data type(s) - may be multiple, ie CNA, LOG2CNA
 			if (LOG.isInfoEnabled()) {
 				LOG.info("storeData(), getting datatypes for dataFile: " + dataFile.getName());
@@ -353,7 +366,7 @@ class FirehoseFetcherImpl implements Fetcher {
 				}
 				for (String downloadFile : archivedFiles) {
 					ImportDataRecord importDataRecord = new ImportDataRecord(dataSource, center,
-																			 tumorType.toLowerCase(), datatype.getDatatype(),
+																			 tumorType.toLowerCase(), tumorTypeLabel, datatype.getDatatype(),
                                                                              Admin.PORTAL_DATE_FORMAT.format(runDate), canonicalPath,
 																			 computedDigest, downloadFile);
 					importDataRecordDAO.importDataRecord(importDataRecord);

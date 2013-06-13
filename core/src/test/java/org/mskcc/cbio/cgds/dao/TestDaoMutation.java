@@ -41,9 +41,6 @@ import java.util.Set;
 public class TestDaoMutation extends TestCase {
 
 	public void testDaoMutation() throws DaoException {
-		// test with both values of MySQLbulkLoader.isBulkLoad()
-		MySQLbulkLoader.bulkLoadOff();
-		runTheTest();
 		MySQLbulkLoader.bulkLoadOn();
 		runTheTest();
 	}
@@ -55,10 +52,11 @@ public class TestDaoMutation extends TestCase {
 		daoGene.addGene(blahGene);
 
 		ResetDatabase.resetDatabase();
-		DaoMutation dao = DaoMutation.getInstance();
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
+                mutation.setMutationEventId(1);
+                mutation.setKeyword("key");
 		mutation.setGeneticProfileId(1);
 		mutation.setCaseId("1234");
 		mutation.setGene(blahGene);
@@ -72,6 +70,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setSequencer("SOLiD");
 		mutation.setProteinChange("BRCA1_123");
 		mutation.setFunctionalImpactScore("H");
+		mutation.setFisValue(Float.MIN_VALUE);
 		mutation.setLinkXVar("link1");
 		mutation.setLinkPdb("link2");
 		mutation.setLinkMsa("link3");
@@ -81,6 +80,7 @@ public class TestDaoMutation extends TestCase {
 		mutation.setReferenceAllele("ATGC");
 		mutation.setTumorSeqAllele1("ATGC");
 		mutation.setTumorSeqAllele2("ATGC");
+		mutation.setTumorSeqAllele("ATGC");
 		mutation.setDbSnpRs("rs12345");
 		mutation.setDbSnpValStatus("by2Hit2Allele;byCluster");
 		mutation.setMatchedNormSampleBarcode("TCGA-02-0021-10A-01D-0002-04");
@@ -107,19 +107,21 @@ public class TestDaoMutation extends TestCase {
 		mutation.setOncotatorRefseqMrnaId("NM_001904");
 		mutation.setOncotatorUniprotName("CTNB1_HUMAN");
 		mutation.setOncotatorUniprotAccession("P35222");
+		mutation.setOncotatorProteinPosStart(666);
+		mutation.setOncotatorProteinPosEnd(678);
 		mutation.setCanonicalTranscript(true);
 
-		dao.addMutation(mutation);
+		DaoMutation.addMutation(mutation,true);
 
 		// if bulkLoading, execute LOAD FILE
 		if( MySQLbulkLoader.isBulkLoad()){
-			dao.flushMutations();
+                    MySQLbulkLoader.flushAll();
 		}
-		ArrayList<ExtendedMutation> mutationList = dao.getMutations(1, "1234", 321);
+		ArrayList<ExtendedMutation> mutationList = DaoMutation.getMutations(1, "1234", 321);
 		validateMutation(mutationList.get(0));
 
 		//  Test the getGenesInProfile method
-		Set<CanonicalGene> geneSet = dao.getGenesInProfile(1);
+		Set<CanonicalGene> geneSet = DaoMutation.getGenesInProfile(1);
 		assertEquals (1, geneSet.size());
 
 		ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>(geneSet);
@@ -143,6 +145,7 @@ public class TestDaoMutation extends TestCase {
 		assertEquals ("SOLiD", mutation.getSequencer());
 		assertEquals ("BRCA1_123", mutation.getProteinChange());
 		assertEquals ("H", mutation.getFunctionalImpactScore());
+		assertEquals (Float.MIN_VALUE, mutation.getFisValue());
 		assertEquals ("link1", mutation.getLinkXVar());
 		assertEquals ("link2", mutation.getLinkPdb());
 		assertEquals ("link3", mutation.getLinkMsa());
@@ -178,6 +181,8 @@ public class TestDaoMutation extends TestCase {
 		assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());
 		assertEquals("CTNB1_HUMAN", mutation.getOncotatorUniprotName());
 		assertEquals("P35222", mutation.getOncotatorUniprotAccession());
+		assertEquals(666, mutation.getOncotatorProteinPosStart());
+		assertEquals(678, mutation.getOncotatorProteinPosEnd());
 		assertEquals (true, mutation.isCanonicalTranscript());
 	}
 }

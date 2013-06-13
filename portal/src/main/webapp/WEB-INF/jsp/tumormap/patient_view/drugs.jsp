@@ -28,16 +28,9 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoTypeOfCancer" %>
 <%@ page import="org.mskcc.cbio.cgds.model.TypeOfCancer" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoException" %><%
-    String cancerStudyName = cancerStudy.getName();
-    // Try to find a better and general name for this one -- if any.
-    try {
-        for (TypeOfCancer typeOfCancer : DaoTypeOfCancer.getAllTypesOfCancer()) {
-            if(typeOfCancer.getTypeOfCancerId().equalsIgnoreCase(cancerStudy.getTypeOfCancerId()))
-                cancerStudyName = typeOfCancer.getName();
-        }
-    } catch (DaoException e) {
-        // Ignore it
-    }
+    String cancerTypeId = cancerStudy.getTypeOfCancerId().trim();
+    TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(cancerTypeId);
+    String trialKeywords = typeOfCancerById.getClinicalTrialKeywords();
 %>
 
 <style type="text/css">
@@ -255,9 +248,7 @@
         }
         $("#trials_wait").show();
 
-        var studyOfInterest = "<%=cancerStudyName%>";
-        var studyTokens = studyOfInterest.split(" ");
-        var studyTerms = (studyOfInterest.search(" and ") > 0) ? studyTokens[0] + "," + studyTokens[2] : studyTokens[0];
+        var studyTerms = "<%=trialKeywords%>";
         $.post("clinicaltrials.json",
                 {
                     keywords: keywords.join(","),
@@ -343,7 +334,7 @@
         genomicEventObs.subscribeMutCna(populateDrugTable);
 
         $("#trial-filtering-options").change(function() {
-            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val() == "all");
+            populateClinicalTrialsTable(keywords, $("#trial-filtering-options").val());
         });
     });
 </script>

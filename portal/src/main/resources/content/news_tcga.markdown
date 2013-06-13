@@ -1,3 +1,21 @@
+# June 13, 2013
+
+* Supported mouse-over with link to patient view in Plots tab.
+* Linked to BioGene for gene annotation in Network tab.
+
+# June 4, 2013
+
+* All TCGA data updated to the April Firehose run (April 21, 2012).
+
+# April 28, 2013
+
+* All TCGA data updated to the March Firehose run (March 26, 2012).
+
+# April 2, 2013
+
+* All TCGA data updated to the February Firehose run (February 22, 2012).
+* mRNA percentiles for altered genes shown in patient view.
+
 # March 26, 2013
 
 * All TCGA data updated to the __January Firehose run__ (January 16, 2012).

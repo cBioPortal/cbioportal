@@ -164,6 +164,8 @@ public class MaMafProcessor extends MafProcessor
 		MafUtil mafUtil = new MafUtil(newHeaderLine);
 
 		String impact = maRecord.getImpact();
+		String score = (maRecord.getImpactScore() == null) ?
+				null : maRecord.getImpactScore().toString();
 		String proteinChange = maRecord.getProteinChange();
 		String msa = maRecord.getAlignmentLink();
 		String pdb = maRecord.getStructureLink();
@@ -171,6 +173,7 @@ public class MaMafProcessor extends MafProcessor
 
 		// update mutation assessor values
 		data.set(mafUtil.getMaFImpactIndex(), impact);
+		data.set(mafUtil.getMaFisIndex(), score);
 		data.set(mafUtil.getMaProteinChangeIndex(), proteinChange);
 		data.set(mafUtil.getMaLinkMsaIndex(), msa);
 		data.set(mafUtil.getMaLinkPdbIndex(), pdb);

@@ -134,6 +134,10 @@ public class OncoMafProcessor extends MafProcessor
 				oncotatorRecord.getBestCanonicalTranscript().getTranscriptChange();
 		String exonAffected = (oncotatorRecord.getBestCanonicalTranscript().getExonAffected() == null) ?
 				null : oncotatorRecord.getBestCanonicalTranscript().getExonAffected().toString();
+		String proteinPosStart = (oncotatorRecord.getBestCanonicalTranscript().getProteinPosStart() == null) ?
+				null : oncotatorRecord.getBestCanonicalTranscript().getProteinPosStart().toString();
+		String proteinPosEnd = (oncotatorRecord.getBestCanonicalTranscript().getProteinPosEnd() == null) ?
+				null : oncotatorRecord.getBestCanonicalTranscript().getProteinPosEnd().toString();
 
 		String proteinChangeBe =
 				oncotatorRecord.getBestEffectTranscript().getProteinChange();
@@ -155,6 +159,10 @@ public class OncoMafProcessor extends MafProcessor
 				oncotatorRecord.getBestEffectTranscript().getTranscriptChange();
 		String exonAffectedBe =(oncotatorRecord.getBestEffectTranscript().getExonAffected() == null) ?
 				null : oncotatorRecord.getBestEffectTranscript().getExonAffected().toString();
+		String proteinPosStartBe = (oncotatorRecord.getBestEffectTranscript().getProteinPosStart() == null) ?
+				null : oncotatorRecord.getBestEffectTranscript().getProteinPosStart().toString();
+		String proteinPosEndBe = (oncotatorRecord.getBestEffectTranscript().getProteinPosEnd() == null) ?
+				null : oncotatorRecord.getBestEffectTranscript().getProteinPosEnd().toString();
 
 		// create a new maf util for the new header line to get new oncotator indices
 		String newHeaderLine = this.newHeaderLineAsString();
@@ -175,6 +183,8 @@ public class OncoMafProcessor extends MafProcessor
 		data.set(mafUtil.getOncoCodonChangeIndex(), codonChange);
 		data.set(mafUtil.getOncoTranscriptChangeIndex(), transcriptChange);
 		data.set(mafUtil.getOncoExonAffectedIndex(), exonAffected);
+		data.set(mafUtil.getOncoProteinPosStartIndex(), proteinPosStart);
+		data.set(mafUtil.getOncoProteinPosEndIndex(), proteinPosEnd);
 
 		data.set(mafUtil.getOncoProteinChangeBeIndex(), proteinChangeBe);
 		data.set(mafUtil.getOncoVariantClassificationBeIndex(), variantClassificationBe);
@@ -186,5 +196,7 @@ public class OncoMafProcessor extends MafProcessor
 		data.set(mafUtil.getOncoCodonChangeBeIndex(), codonChangeBe);
 		data.set(mafUtil.getOncoTranscriptChangeBeIndex(), transcriptChangeBe);
 		data.set(mafUtil.getOncoExonAffectedBeIndex(), exonAffectedBe);
+		data.set(mafUtil.getOncoProteinPosStartBeIndex(), proteinPosStartBe);
+		data.set(mafUtil.getOncoProteinPosEndBeIndex(), proteinPosEndBe);
 	}
 }

@@ -738,15 +738,19 @@ var Oncoprint = function(div, params) {
             horizontal_translate();
         };
 
-        // params: [by] is either 'genes', 'clinical', or 'alphabetical',
+        // params:
+        // <by> is either 'genes', 'clinical', or 'alphabetical', 'custom'
         // indicating how to sort the oncoprint.  Either by gene data first,
         // clinical data first, or alphabetically.
+        //
+        // [cases] optional for 'genes', 'clinical', 'alphabetical', but REQUIRED for 'custom.
+        // Lists of cases to sort the data by
         //
         // returns the sorted data
         //
         // throws unsupported sort option if something other than the 3 options
         // above is given.
-        var sortBy = function(by) {
+        var sortBy = function(by, cases) {
             var attrs;
             if (by === 'genes') {
                 attrs = params.genes.concat(clinical_attrs);
@@ -760,7 +764,24 @@ var Oncoprint = function(div, params) {
                 internal_data = internal_data.sort(function(x,y) {
                     return x.key < y.key;
                 });
-            } else {
+            }
+            else if (by === 'custom') {
+                if (cases === undefined) {
+                    throw new Error("cannot sort by custom cases set order with a list of cases");
+                }
+
+                // map of case id -> index in array
+                // just a small optimization so that you don't call indexOf
+                var case2index = cases.reduce(function(c2index, c, index) {
+                    c2index[c] = index;
+                    return c2index;
+                }, {});
+
+                internal_data = internal_data.sort(function(x,y) {
+                    return case2index[x.key] - case2index[y.key];
+                });
+            }
+            else {
                 throw new Error("unsupported sort option: ") + JSON.stringify(by);
             }
             horizontal_translate();

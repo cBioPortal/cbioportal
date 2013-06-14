@@ -43,9 +43,10 @@
                         <td>
                             <span>Sort By: </span>
                             <select id="sort_by" style="width: 200px;">
-                                <option selected="selected" value="genes">Gene Data</option>
-                                <option value="clinical" disabled>Clinical Data</option>
-                                <option value="alphabetical">Alphabetically by Case Id</option>
+                                <option selected="selected" value="genes">gene data</option>
+                                <option value="clinical" disabled>clinical data</option>
+                                <option value="alphabetical">alphabetically by Case Id</option>
+                                <option value="custom">user-defined case list / default</option>
                             </select>
                         </td>
                     </tr>
@@ -73,7 +74,7 @@
 
                 var geneDataColl = new GeneDataColl({
                     cancer_study_id: cancer_study_id_selected,
-                    genes: GeneSet(gene_list).getAllGenes(),
+                    genes: GeneSet(gene_list).getAllGenes().join(" "),
                     case_list: cases,
                     genetic_profiles: genetic_profiles,
                     z_score_threshold: zscore_threshold,
@@ -161,9 +162,11 @@
                 };
                 $(select_clinical_attributes_id).change(clinicalAttributeSelected);
 
-                // bind away
-                $('#oncoprint_controls #sort_by').change(function() {
-                    oncoprint.sortBy(sortBy.val());
+                $(document).ready(function() {
+                    // bind away
+                    $('#oncoprint_controls #sort_by').change(function() {
+                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
+                    });
                 });
 
                 <%--var geneDataQuery = {--%>

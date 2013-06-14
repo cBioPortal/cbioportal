@@ -95,7 +95,7 @@
                 clinicalAttributes.fetch({
                     success: function(attrs) {
                         OncoprintUI.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-                        $(select_clinical_attributes_id).chosen({width: "200%"});
+                        $(select_clinical_attributes_id).chosen({width: "100%", "font-size": "12px", color: "black"});
                     }
                 });
 
@@ -165,7 +165,6 @@
                 $('#oncoprint_controls #sort_by').change(function() {
                     oncoprint.sortBy(sortBy.val());
                 });
-                //$('#oncoprint_controls #sort_by').chosen();
 
                 <%--var geneDataQuery = {--%>
                     <%--cancer_study_id: "<%=cancerTypeId%>",--%>

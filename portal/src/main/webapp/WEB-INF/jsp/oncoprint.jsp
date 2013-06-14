@@ -73,7 +73,7 @@
 
                 var geneDataColl = new GeneDataColl({
                     cancer_study_id: cancer_study_id_selected,
-                    genes: gene_list,
+                    genes: GeneSet(gene_list).getAllGenes(),
                     case_list: cases,
                     genetic_profiles: genetic_profiles,
                     z_score_threshold: zscore_threshold,

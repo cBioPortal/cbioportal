@@ -45,7 +45,7 @@
                             <select id="sort_by" style="width: 200px;">
                                 <option selected="selected" value="genes">gene data</option>
                                 <option value="clinical" disabled>clinical data</option>
-                                <option value="alphabetical">alphabetically by Case Id</option>
+                                <option value="alphabetical">alphabetically by case id</option>
                                 <option value="custom">user-defined case list / default</option>
                             </select>
                         </td>

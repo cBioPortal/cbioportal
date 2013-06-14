@@ -82,8 +82,7 @@ public class MutationsJSON extends HttpServlet {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
-                mutations = DaoMutationEvent.getMutationEvents(patient,
-                        mutationProfile.getGeneticProfileId());
+                mutations = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(),patient);
                 cosmic = getCosmic(mutations);
                 String concatEventIds = getConcatEventIds(mutations);
                 int profileId = mutationProfile.getGeneticProfileId();
@@ -136,7 +135,7 @@ public class MutationsJSON extends HttpServlet {
                 DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
                 geneContextMap = getGeneContextMap(eventIds, mutationProfile.getGeneticProfileId(), daoGeneOptimized);
                 keywordContextMap = getKeywordContextMap(eventIds, mutationProfile.getGeneticProfileId());
-//                mutationContextMap = DaoMutationEvent.countSamplesWithMutationEvents(
+//                mutationContextMap = DaoMutation.countSamplesWithMutationEvents(
 //                        eventIds, mutationProfile.getGeneticProfileId());
             }
         } catch (DaoException ex) {
@@ -171,7 +170,7 @@ public class MutationsJSON extends HttpServlet {
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
-                count = DaoMutationEvent.countMutationEvents(mutationProfile.getGeneticProfileId(),caseIds);
+                count = DaoMutation.countMutationEvents(mutationProfile.getGeneticProfileId(),caseIds);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -204,7 +203,7 @@ public class MutationsJSON extends HttpServlet {
             boolean cancerDrug)
             throws DaoException {
         DaoDrugInteraction daoDrugInteraction = DaoDrugInteraction.getInstance();
-        Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
+        Set<Long> genes = DaoMutation.getGenesOfMutations(eventIds, profileId);
         
         // Temporary way of handling cases such as akt inhibitor for pten loss
         Map<Long,Set<Long>> mapTargetToEventGenes = new HashMap<Long,Set<Long>>();
@@ -301,8 +300,8 @@ public class MutationsJSON extends HttpServlet {
     
     private Map<String, Integer> getGeneContextMap(String eventIds, int profileId, DaoGeneOptimized daoGeneOptimized)
             throws DaoException {
-        Set<Long> genes = DaoMutationEvent.getGenesOfMutations(eventIds, profileId);
-        Map<Long, Integer> map = DaoMutationEvent.countSamplesWithMutatedGenes(
+        Set<Long> genes = DaoMutation.getGenesOfMutations(eventIds, profileId);
+        Map<Long, Integer> map = DaoMutation.countSamplesWithMutatedGenes(
                         genes, profileId);
         Map<String, Integer> ret = new HashMap<String, Integer>(map.size());
         for (Map.Entry<Long, Integer> entry : map.entrySet()) {
@@ -314,8 +313,8 @@ public class MutationsJSON extends HttpServlet {
     
     private Map<String, Integer> getKeywordContextMap(String eventIds, int profileId)
             throws DaoException {
-        Set<String> genes = DaoMutationEvent.getKeywordsOfMutations(eventIds, profileId);
-        return DaoMutationEvent.countSamplesWithKeywords(genes, profileId);
+        Set<String> genes = DaoMutation.getKeywordsOfMutations(eventIds, profileId);
+        return DaoMutation.countSamplesWithKeywords(genes, profileId);
     }
     
     private Map<String,List> initMap() {
@@ -328,6 +327,8 @@ public class MutationsJSON extends HttpServlet {
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("aa", new ArrayList());
+        map.put("ref", new ArrayList());
+        map.put("var", new ArrayList());
         map.put("type", new ArrayList());
         map.put("status", new ArrayList());
         map.put("cosmic", new ArrayList());
@@ -361,6 +362,8 @@ public class MutationsJSON extends HttpServlet {
         data.get("entrez").add(mutation.getEntrezGeneId());
         data.get("gene").add(symbol);
         data.get("aa").add(mutation.getProteinChange());
+        data.get("ref").add(mutation.getReferenceAllele());
+        data.get("var").add(mutation.getTumorSeqAllele());
         data.get("type").add(mutation.getMutationType());
         data.get("status").add(mutation.getMutationStatus());
         data.get("alt-count").add(mutation.getTumorAltCount());
@@ -446,7 +449,7 @@ public class MutationsJSON extends HttpServlet {
         }
         
         Map<Long, List<CosmicMutationFrequency>> map = 
-                DaoMutationEvent.getCosmicMutationFrequency(mutIds);
+                DaoMutation.getCosmicMutationFrequency(mutIds);
         Map<Long, Map<String,Integer>> ret
                 = new HashMap<Long, Map<String,Integer>>(map.size());
         for (Map.Entry<Long, List<CosmicMutationFrequency>> entry : map.entrySet()) {

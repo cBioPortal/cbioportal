@@ -65,7 +65,7 @@ public class TestOncotator extends TestCase
 			MafUtil util =  new MafUtil(line);
 
 			// assert number of columns remains same
-			assertEquals(32, util.getHeaderCount());
+			assertEquals(36, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -104,8 +104,8 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert 23 new columns are added
-			assertEquals(32, util.getHeaderCount());
+			// assert 27 new columns are added
+			assertEquals(36, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -144,8 +144,8 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 23 Oncotator + 1 custom)
-			assertEquals(56, util.getHeaderCount());
+			// assert number of columns (32 standard + 27 Oncotator + 1 custom)
+			assertEquals(60, util.getHeaderCount());
 
 			// assert new indices
 			this.validateColumnIndices(util);
@@ -188,8 +188,8 @@ public class TestOncotator extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 23 Oncotator + 1 Custom)
-			assertEquals(56, util.getHeaderCount());
+			// assert number of columns (32 standard + 27 Oncotator + 1 Custom)
+			assertEquals(60, util.getHeaderCount());
 
 			// assert new indices
 			this.validateColumnIndices(util);
@@ -295,16 +295,21 @@ public class TestOncotator extends TestCase
 		assertEquals(42, util.getOncoCodonChangeIndex());
 		assertEquals(43, util.getOncoTranscriptChangeIndex());
 		assertEquals(44, util.getOncoExonAffectedIndex());
-		assertEquals(45, util.getOncoVariantClassificationBeIndex());
-		assertEquals(46, util.getOncoProteinChangeBeIndex());
-		assertEquals(47, util.getOncoGeneSymbolBeIndex());
-		assertEquals(48, util.getOncoRefseqMrnaIdBeIndex());
-		assertEquals(49, util.getOncoRefseqProtIdBeIndex());
-		assertEquals(50, util.getOncoUniprotNameBeIndex());
-		assertEquals(51, util.getOncoUniprotAccessionBeIndex());
-		assertEquals(52, util.getOncoCodonChangeBeIndex());
-		assertEquals(53, util.getOncoTranscriptChangeBeIndex());
-		assertEquals(54, util.getOncoExonAffectedBeIndex());
+		assertEquals(45, util.getOncoProteinPosStartIndex());
+		assertEquals(46, util.getOncoProteinPosEndIndex());
+
+		assertEquals(47, util.getOncoVariantClassificationBeIndex());
+		assertEquals(48, util.getOncoProteinChangeBeIndex());
+		assertEquals(49, util.getOncoGeneSymbolBeIndex());
+		assertEquals(50, util.getOncoRefseqMrnaIdBeIndex());
+		assertEquals(51, util.getOncoRefseqProtIdBeIndex());
+		assertEquals(52, util.getOncoUniprotNameBeIndex());
+		assertEquals(53, util.getOncoUniprotAccessionBeIndex());
+		assertEquals(54, util.getOncoCodonChangeBeIndex());
+		assertEquals(55, util.getOncoTranscriptChangeBeIndex());
+		assertEquals(56, util.getOncoExonAffectedBeIndex());
+		assertEquals(57, util.getOncoProteinPosStartBeIndex());
+		assertEquals(58, util.getOncoProteinPosEndBeIndex());
 	}
 
 	private void validateMafRecord(MafRecord record)
@@ -389,6 +394,11 @@ public class TestOncotator extends TestCase
 				record.getOncotatorCodonChangeBestEffect()));
 		assertTrue(record.getOncotatorTranscriptChange().equals(
 				record.getOncotatorTranscriptChangeBestEffect()));
-
+		assertTrue(record.getOncotatorExonAffected() ==
+				record.getOncotatorExonAffectedBestEffect());
+		assertTrue(record.getOncotatorProteinPosStart() ==
+				record.getOncotatorProteinPosStartBestEffect());
+		assertTrue(record.getOncotatorProteinPosEnd() ==
+				record.getOncotatorProteinPosEndBestEffect());
 	}
 }

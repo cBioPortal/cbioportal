@@ -87,3 +87,6 @@ firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
 liftover_binary=
 liftover_chain_file=
 
+# foundation medicine
+foundation.service.user=
+foundation.service.password=

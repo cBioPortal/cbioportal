@@ -48,8 +48,6 @@ import org.apache.commons.lang.StringUtils;
  * @author Ethan Cerami.
  */
 public class DaoInteraction {
-    // use a MySQLbulkLoader instead of SQL "INSERT" statements to load data into table
-    private static MySQLbulkLoader myMySQLbulkLoader = null;
     private static DaoInteraction daoInteraction;
     private static final String NA = "NA";
 
@@ -70,9 +68,6 @@ public class DaoInteraction {
             daoInteraction = new DaoInteraction();
         }
 
-        if (myMySQLbulkLoader == null) {
-            myMySQLbulkLoader = new MySQLbulkLoader("interaction");
-        }
         return daoInteraction;
     }
 
@@ -112,7 +107,7 @@ public class DaoInteraction {
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
                 //  write to the temp file maintained by the MySQLbulkLoader
-                myMySQLbulkLoader.insertRecord(Long.toString(geneA.getEntrezGeneId()),
+                MySQLbulkLoader.getMySQLbulkLoader("interaction").insertRecord(Long.toString(geneA.getEntrezGeneId()),
                         Long.toString(geneB.getEntrezGeneId()), interactionType,
                         dataSource, experimentTypes, pmids);
 
@@ -299,22 +294,6 @@ public class DaoInteraction {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(pstmt, rs);
-        }
-    }
-
-    /**
-     * Loads the temp file maintained by the MySQLbulkLoader into the DMBS.
-     *
-     * @return number of records inserted
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
-     */
-    public int flushToDatabase() throws DaoException {
-        try {
-            return myMySQLbulkLoader.loadDataFromTempFileIntoDBMS();
-        } catch (IOException e) {
-            System.err.println("Could not open temp file");
-            e.printStackTrace();
-            return -1;
         }
     }
 

@@ -72,7 +72,7 @@ public class CachedOncotatorService extends OncotatorService
 		try {
 			record = cache.get(key);
 		} catch (OncotatorCacheException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			throw new OncotatorServiceException(e.getMessage());
 		}
 
@@ -82,7 +82,7 @@ public class CachedOncotatorService extends OncotatorService
 			try {
 				record = getRecordFromService(key);
 			} catch (IOException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
 				throw new OncotatorServiceException(e.getMessage());
 			}
 
@@ -95,9 +95,11 @@ public class CachedOncotatorService extends OncotatorService
 			// surrounded with try/catch just to ignore duplicate
 			// key error (race condition if parallel apps accessing
 			// the DB at the same time)
+			// an exception can also occur if the data is too long
+			// to fit the cache (truncation error)
 			try {
 				cache.put(record);
-			} catch (Exception e) {
+			} catch (OncotatorCacheException e) {
 				System.out.println("Cache error: " + e.getMessage());
 				this.errorCount++;
 			}

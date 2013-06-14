@@ -62,7 +62,7 @@ public class TestMutationAssessor extends TestCase
 			MafUtil util =  new MafUtil(line);
 
 			// assert unknown MA column is removed
-			assertEquals(14, util.getHeaderCount());
+			assertEquals(15, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -106,8 +106,8 @@ public class TestMutationAssessor extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert 5 new columns are added
-			assertEquals(14, util.getHeaderCount());
+			// assert 6 new columns are added
+			assertEquals(15, util.getHeaderCount());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -152,14 +152,14 @@ public class TestMutationAssessor extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 MA + 1 custom)
-			assertEquals(38, util.getHeaderCount());
+			// assert number of columns (32 standard + 6 MA + 1 custom)
+			assertEquals(39, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
-			assertEquals(33, util.getMaProteinChangeIndex());
-			assertEquals(35, util.getMaLinkPdbIndex());
+			assertEquals(34, util.getMaProteinChangeIndex());
+			assertEquals(36, util.getMaLinkPdbIndex());
 
 			while ((line = reader.readLine()) != null)
 			{
@@ -204,14 +204,14 @@ public class TestMutationAssessor extends TestCase
 			String line = reader.readLine();
 			MafUtil util =  new MafUtil(line);
 
-			// assert number of columns (32 standard + 5 MA + 1 custom)
-			assertEquals(38, util.getHeaderCount());
+			// assert number of columns (32 standard + 6 MA + 1 custom)
+			assertEquals(39, util.getHeaderCount());
 
 			// assert new indices
 			assertEquals(3, util.getNcbiIndex());
 			assertEquals(0, util.getHugoGeneSymbolIndex());
 			assertEquals(32, util.getMaFImpactIndex());
-			assertEquals(36, util.getMaLinkVarIndex());
+			assertEquals(37, util.getMaLinkVarIndex());
 
 			while ((line = reader.readLine()) != null)
 			{

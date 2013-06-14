@@ -205,7 +205,7 @@ public class WebService extends HttpServlet {
             }
 
             HashSet<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(httpServletRequest);
-            if (null == cancerStudyIDs) {
+            if (cancerStudyIDs.isEmpty()) {
                 outputError(writer, "Problem when identifying a cancer study for the request.");
                 return;
             }

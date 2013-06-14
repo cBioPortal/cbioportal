@@ -186,7 +186,7 @@ public final class DaoCase {
     private static List<Case> retriveCasesFromRS(ResultSet rs) throws SQLException {
         List<Case> cases = new ArrayList<Case>();
         while (rs.next()) {
-            Case _case = new Case(rs.getString("CASE_ID"), rs.getInt("CANCER_STUDY_ID"));
+            Case _case = new Case(rs.getString("CASE_ID"), rs.getString("PATIENT_ID"), rs.getInt("CANCER_STUDY_ID"));
             cases.add(_case);
         }
         return cases;

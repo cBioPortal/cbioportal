@@ -717,20 +717,22 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, me1.`MUTATION_EVENT_ID`"
-                    + " FROM mutation cme, mutation_event me1, mutation_event me2"
-                    + " WHERE me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ")"
-                    + " AND me1.`KEYWORD`=me2.`KEYWORD`"
-                    + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
+            String sql = "SELECT c.CASE_ID, c.PATIENT_ID, c.CANCER_STUDY_ID, me1.MUTATION_EVENT_ID "
+                    + "FROM mutation cme, mutation_event me1, mutation_event me2, _case c, genetic_profile gp "
+                    + "WHERE cme.GENETIC_PROFILE_ID=gp.GENETIC_PROFILE_ID "
+                    + "AND cme.CASE_ID=c.CASE_ID "
+                    + "AND c.CANCER_STUDY_ID=gp.CANCER_STUDY_ID "
+                    + "AND me1.`MUTATION_EVENT_ID` IN ("+ concatEventIds + ") "
+                    + "AND me1.`KEYWORD`=me2.`KEYWORD` "
+                    + "AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("CASE_ID");
-                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Case _case = new Case(caseId, cancerStudyId);
+                Case _case = new Case(rs.getString("CASE_ID"),
+                        rs.getString("PATIENT_ID"),
+                        rs.getInt("CANCER_STUDY_ID"));
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
                 Set<Long> events = map.get(_case);
                 if (events == null) {
@@ -763,18 +765,20 @@ public final class DaoMutation {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT `CASE_ID`, `GENETIC_PROFILE_ID`, `ENTREZ_GENE_ID`"
-                    + " FROM mutation"
-                    + " WHERE `ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")";
+            String sql = "SELECT c.CASE_ID, c.PATIENT_ID, c.CANCER_STUDY_ID, ENTREZ_GENE_ID "
+                    + "FROM mutation cme, _case c, genetic_profile gp "
+                    + "WHERE cme.GENETIC_PROFILE_ID=gp.GENETIC_PROFILE_ID "
+                    + "AND cme.CASE_ID=c.CASE_ID "
+                    + "AND c.CANCER_STUDY_ID=gp.CANCER_STUDY_ID "
+                    + "WHERE `ENTREZ_GENE_ID` IN ("+ StringUtils.join(entrezGeneIds,",") + ")";
             pstmt = con.prepareStatement(sql);
             
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("CASE_ID");
-                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Case _case = new Case(caseId, cancerStudyId);
+                Case _case = new Case(rs.getString("CASE_ID"),
+                        rs.getString("PATIENT_ID"),
+                        rs.getInt("CANCER_STUDY_ID"));
                 long entrez = rs.getLong("ENTREZ_GENE_ID");
                 Set<Long> genes = map.get(_case);
                 if (genes == null) {

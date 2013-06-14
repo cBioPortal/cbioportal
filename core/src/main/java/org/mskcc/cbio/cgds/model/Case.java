@@ -8,12 +8,14 @@ package org.mskcc.cbio.cgds.model;
 public class Case {
     private final String caseId;
     private final int cancerStudyId;
+    private final String patientId;
 
-    public Case(String caseId, int cancerStudyId) {
+    public Case(String caseId, String patientId, int cancerStudyId) {
         if (caseId==null) {
-            throw new java.lang.IllegalArgumentException("Case cannot be null");
+            throw new java.lang.IllegalArgumentException("caseId cannot be null");
         }
         this.caseId = caseId;
+        this.patientId = patientId!=null ? patientId : caseId;
         this.cancerStudyId = cancerStudyId;
     }
 
@@ -23,6 +25,10 @@ public class Case {
 
     public String getCaseId() {
         return caseId;
+    }
+
+    public String getPatientId() {
+        return patientId;
     }
     
     @Override

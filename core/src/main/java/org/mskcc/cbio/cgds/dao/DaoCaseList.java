@@ -70,7 +70,8 @@ public class DaoCaseList {
         
         // added to _case
         for (String caseId : caseList.getCaseList()) {
-            rows += DaoCase.addCase(new Case(caseId, caseList.getCancerStudyId()));
+            // TODO: how to add the patient id
+            rows += DaoCase.addCase(new Case(caseId, null, caseList.getCancerStudyId()));
         }
             
         return rows;

@@ -101,10 +101,6 @@ var MemoSort = function(data, attributes) {
             var y_attrs = y.values
                 .sort(function(x,y) { return attr2index[getAttr(x)] - attr2index[getAttr(y)]; });
 
-//            if (x_attrs.length !== y_attrs.length) {
-//                throw new Error("two samples have different attributes:\nx=\n"
-//                        + JSON.stringify(x) + "\ny=\n" + JSON.stringify(y));
-//            }
             // this is a hack
             // if there is missing data, just put the one with less data to the right
             if (x_attrs.length !== y_attrs.length) {

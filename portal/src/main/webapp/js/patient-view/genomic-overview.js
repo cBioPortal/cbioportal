@@ -169,8 +169,13 @@ function plotMuts(p,config,chmInfo,row,mutations) {
 
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
 
+    console.log(config);
+
     // add thumbnail for allele-freq plot
-    var allele_freq_thumbnail = p.image("images/allele-freq-thumbnail.jpg", 1080, 50, 12, 12);
+    var allele_freq_thumbnail_sidelength = 12;
+    var allele_freq_thumbnail = p.image("images/allele-freq-thumbnail.jpg",
+        config.canvasWidth - config.wideLeftText + allele_freq_thumbnail_sidelength, yRow - config.rowHeight/2 - allele_freq_thumbnail_sidelength/2,
+        allele_freq_thumbnail_sidelength, allele_freq_thumbnail_sidelength);
     allele_freq_thumbnail.node.id = 'allele-freq-thumbnail';
 }
 

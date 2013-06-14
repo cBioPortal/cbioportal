@@ -212,7 +212,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'left bottom',at:'bottom left'}
+                position: {my:'top right',at:'bottom left'}
             });
         });
     });

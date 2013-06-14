@@ -39,7 +39,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
                         <td>
                             <span>Sort By: </span>
                             <select id="sort_by" style="width: 200px;">
@@ -51,7 +51,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+                        <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
                     </tr>
                 </table>
             </div>

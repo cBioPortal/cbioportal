@@ -170,8 +170,8 @@ function plotMuts(p,config,chmInfo,row,mutations) {
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
 
     // add thumbnail for allele-freq plot
-    p.image("images/allele-freq-thumbnail.jpg", 1080, 50, 12, 12)
-        .node.id = 'allele-freq-thumbnail';
+    var allele_freq_thumbnail = p.image("images/allele-freq-thumbnail.jpg", 1080, 50, 12, 12);
+    allele_freq_thumbnail.node.id = 'allele-freq-thumbnail';
 }
 
 function loc2string(loc,chmInfo) {

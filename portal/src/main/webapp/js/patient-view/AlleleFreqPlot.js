@@ -163,4 +163,6 @@ var AlleleFreqPlot = function(div, data) {
         .attr('fill', 'none')
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');
+
+    return div;
 };

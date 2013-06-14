@@ -57,7 +57,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         if (genomicEventObs.hasMut&&genomicEventObs.hasSeg) {
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
-            addAlleleFreqPlotTooltip(document.getElementById('allele-freq-thumbnail'));
         }
     });
 
@@ -153,26 +152,6 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         $('#'+scatterPlotDiv).qtip(params);
     }
 
-    // #allele-freq-thumbnail
-    function addAlleleFreqPlotTooltip(div) {
-        var params = {
-            content: $('#allele-freq-dialog').remove(),
-            show: { delay: 200 },
-            hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
-            position: {my:'top right',at:'top left'},
-            //events: {
-            //    render: function(event, api) {
-            //        openMutCnaScatterDialog();
-            //    }
-            }
-
-        console.log(params);
-        console.log($(div));
-
-        //$(div).qtip(params);
-    }
-    
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
         var emId = {};
         emId[caseId] = true;
@@ -207,9 +186,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>
 
-<div id="allele-freq-dialog" title="Allele Frequency Distribution" style="display:none; width:600; height:600;font-size: 11px; text-align: left;.ui-dialog {padding: 0em;};">
-<div id="allele_freq_plot"></div>
-</div>
+<div id="allele_freq_plot" style="display:none;"></div>
 <%}%>
 
 <%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
@@ -217,8 +194,26 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {
-            AlleleFreqPlot(document.getElementById('allele_freq_plot'),
+            var plot = AlleleFreqPlot(document.getElementById('allele_freq_plot'),
                     AlleleFreqPlotUtils.extract_and_process(genomicEventObs));
+
+            // add qtip on allele frequency plot thumbnail
+            $('#allele-freq-thumbnail').qtip({
+                content: {text: 'allele frequency plot is broken'},
+                events: {
+                    render: function(event, api) {
+                        var $plot = $(plot);
+                        var content = $plot.remove();
+                        content.show();
+                        content = content.html();
+                        api.set('content.text', content);
+                    }
+                },
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                //position: {my:'left top',at:'bottom center'}
+                position: {my:'left bottom',at:'bottom left'}
+            });
         });
     });
 </script>

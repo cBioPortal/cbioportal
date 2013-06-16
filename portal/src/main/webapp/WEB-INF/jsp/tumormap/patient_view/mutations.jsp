@@ -3,9 +3,9 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,ref:6,_var:7,validation:8,type:9,
-                  tumor_freq:10,tumor_var_reads:11,tumor_ref_reads:12,norm_freq:13,norm_var_reads:14,
-                  norm_ref_reads:15,mrna:16,altrate:17,cosmic:18,ma:19,cons:20,'3d':21,drug:22};
+    var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
+                  tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
+                  norm_ref_reads:16,mrna:17,altrate:18,cosmic:19,ma:20,cons:21,'3d':22,drug:23};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -22,6 +22,20 @@
                         "aTargets": [ mutTableIndices["id"] ],
                         "bVisible": false,
                         "mData" : 0
+                    },
+                    {// gene
+                        "aTargets": [ mutTableIndices["case_ids"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var caseIds = mutations.getValue(source[0], "caseIds");
+                                
+                                return caseIds.join("; ");
+                            } else {
+                                return mutations.getValue(source[0], "caseIds");
+                            }
+                        }
                     },
                     {// gene
                         "aTargets": [ mutTableIndices["gene"] ],

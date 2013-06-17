@@ -180,38 +180,6 @@
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
                     });
                 });
-
-                <%--var geneDataQuery = {--%>
-                    <%--cancer_study_id: "<%=cancerTypeId%>",--%>
-                    <%--genes: genes,--%>
-                    <%--geneticProfileIds: geneticProfiles,--%>
-                    <%--z_score_threshold: <%=zScoreThreshold%>,--%>
-                    <%--rppa_score_threshold: <%=rppaScoreThreshold%>--%>
-                <%--};--%>
-                <%--geneDataQuery = injectCaseSet(geneDataQuery);--%>
-
-                <%--var oncoprint;      // global--%>
-                <%--$.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(geneData) {--%>
-
-                    <%--oncoPrintParams['geneData'] = geneData;--%>
-
-                    <%--var clinicals = new ClinicalColl([], {--%>
-                        <%--case_set_id: "<%=caseSetId%>"--%>
-                    <%--});--%>
-                    <%--clinicals.fetch({--%>
-                        <%--"success": function(clinicalData) {--%>
-                            <%--oncoPrintParams['clinicalData'] = clinicalData.toJSON();--%>
-
-                            <%--oncoPrintParams['genes'] = genes.split(" ");--%>
-                            <%--oncoPrintParams['clinical_attrs'] = ["VITAL_STATUS", "DAYS_TO_DEATH"];--%>
-
-                            <%--oncoprint = Oncoprint($('#oncoprint_body')[0], oncoPrintParams);--%>
-                            <%--$('#oncoprint #loader_img').hide();--%>
-                            <%--$('#oncoprint #everything').show();--%>
-
-                        <%--}--%>
-                    <%--});--%>
-                <%--});--%>
             </script>
         </div>
 

@@ -51,6 +51,14 @@
   </b:bean>
   <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
+  <!-- datasource for darwin -->
+  <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+	<b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	<b:property name="url" value="jdbc:mysql://${darwin.db.host}/${darwin.db.name}"/>
+	<b:property name="username" value="${darwin.db.user}"/>
+	<b:property name="password" value="${darwin.db.password}"/>
+  </b:bean>
+
   <!-- importer beans -->
   <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>

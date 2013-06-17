@@ -306,13 +306,13 @@ public final class ExtendedMutation
         @Override
         public int hashCode() {
             int hash = 5;
-            hash = 83 * hash + (this.chr != null ? this.chr.hashCode() : 0);
-            hash = 83 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
-            hash = 83 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 83 * hash + (this.variantType != null ? this.variantType.hashCode() : 0);
+            hash = 67 * hash + (this.chr != null ? this.chr.hashCode() : 0);
+            hash = 67 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
+            hash = 67 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
+            hash = 67 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
             return hash;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == null) {
@@ -331,7 +331,7 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.variantType == null) ? (other.variantType != null) : !this.variantType.equals(other.variantType)) {
+            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
                 return false;
             }
             return true;

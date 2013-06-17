@@ -825,11 +825,11 @@ var Oncoprint = function(div, params) {
                     .duration(1000)
                     .attr('width', internal_rect_width);
                 horizontal_translate();
-                if (scalar >= .5) {
-                    toggleWhiteSpace(true);
-                } else {
-                    toggleWhiteSpace(false);
-                }
+//                if (scalar >= .5) {
+//                    toggleWhiteSpace(true);
+//                } else {
+//                    toggleWhiteSpace(false);
+//                }
             },
 
             showUnalteredCases: showUnalteredCases,

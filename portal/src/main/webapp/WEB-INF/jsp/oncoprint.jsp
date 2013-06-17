@@ -31,16 +31,17 @@
             <div id="main" style="display:none;">
                 <table style="padding-left:13px; padding-top:5px">
                     <tr>
-                        <td><input type='checkbox' id="unaltered_cases" onclick='oncoprint.toggleUnalteredCases();'><label for="unaltered_cases">Unaltered Cases</label></td>
+                        <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                        <td><input type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
+                        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+                    </tr>
+                    <tr>
                         <td>
                             <div id="disable_select_clinical_attributes" style="display: none; z-index: 1000; opacity: 0.7; background-color: grey; width: 22.5%; height: 6%; position: absolute;"></div>
-                            <select data-placeholder="select a clinical attribute" id="select_clinical_attributes" style="width: 350px;">
+                            <select data-placeholder="add clinical attribute track" id="select_clinical_attributes" style="width: 350px;">
                                 <option value=""></option>
                             </select>
                         </td>
-                    </tr>
-                    <tr>
-                        <td><input type='checkbox' id="toggle_whitespace" onclick='oncoprint.toggleWhiteSpace();' checked="checked"><label for="toggle_whitespace">Whitespace</label></td>
                         <td>
                             <span>Sort By: </span>
                             <select id="sort_by" style="width: 200px;">
@@ -51,9 +52,6 @@
                             </select>
                         </td>
                     </tr>
-                    <tr>
-                        <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                    </tr>
                 </table>
             </div>
 
@@ -63,9 +61,6 @@
             <img class="loader_img" style="display:hidden;" src="images/ajax-loader.gif"/>
 
             <script type="text/javascript">
-                $('#toggle_whitespace').button();
-                $('#unaltered_cases').button();
-
                 var oncoPrintParams = {
                     geneData: undefined,
                     cancer_study_id: "<%=cancerTypeId%>",
@@ -100,7 +95,7 @@
                 clinicalAttributes.fetch({
                     success: function(attrs) {
                         OncoprintUI.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-                        $(select_clinical_attributes_id).chosen({width: "100%", "font-size": "12px", color: "black"});
+                        $(select_clinical_attributes_id).chosen({width: "100%", "font-size": "12px"});
                     }
                 });
 

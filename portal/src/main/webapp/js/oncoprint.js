@@ -697,20 +697,23 @@ var Oncoprint = function(div, params) {
             return xscale(pick_sample_id(data));
         };
 
-        // params: duration -- how long the transition should last
+        // params: <duration> -- how long the transition should last.  If omitted, does no animation
+
         // puts all the samples in the correct horizontal position
         var horizontal_translate = function(duration) {
             // re-sort
             var x = data2xscale(internal_data);
-            duration = duration || 1000;
 
             // resize the svg
-            main_svg.transition(duration).attr('width', x.svg_width);
+            var main_svg_transition = duration ? main_svg.transition(duration) : main_svg;
+            main_svg_transition.attr('width', x.svg_width);
+
+            var sample_transition = duration ?
+                d3.selectAll('.sample').transition().duration(function(d) { return duration + x.sample2index[d.key] * 20; })
+                : d3.selectAll('.sample');
 
             // do the transition to all samples
-            d3.selectAll('.sample').transition()
-                .duration(function(d) { return duration + x.sample2index[d.key] * 20; })
-                .attr('transform', function(d) { return translate(x.scale(d.key),0); });
+            sample_transition.attr('transform', function(d) { return translate(x.scale(d.key),0); });
         };
 
         // if bool === true, show unaltered cases, otherwise, don't
@@ -735,7 +738,7 @@ var Oncoprint = function(div, params) {
         // whitespace is set to the bool, otherwise, flip it from whatever it currently is
         var toggleWhiteSpace =  function(bool) {
             whitespace = bool === undefined ? !whitespace : bool;
-            horizontal_translate();
+            horizontal_translate(1000);
         };
 
         // params:
@@ -784,15 +787,17 @@ var Oncoprint = function(div, params) {
             else {
                 throw new Error("unsupported sort option: ") + JSON.stringify(by);
             }
-            horizontal_translate();
+            horizontal_translate(1000);
             return internal_data;
         };
 
         return {
             remove_oncoprint: remove_oncoprint,
-            memoSort: function(attributes) {
+            memoSort: function(attributes, animation) {
                 internal_data = MemoSort(internal_data, attributes);
-                horizontal_translate();
+                if (animation) { horizontal_translate(1000); }
+                else { horizontal_translate(); }
+
                 return internal_data;
             },
 
@@ -809,7 +814,7 @@ var Oncoprint = function(div, params) {
 
                 var attrs = shuffle(attributes);
                 internal_data = MemoSort(internal_data, attrs);
-                horizontal_translate();
+                horizontal_translate(1000);
                 return attrs;
             },
 
@@ -824,7 +829,7 @@ var Oncoprint = function(div, params) {
                     .transition()
                     .duration(1000)
                     .attr('width', internal_rect_width);
-                horizontal_translate();
+                horizontal_translate(1000);
 //                if (scalar >= .5) {
 //                    toggleWhiteSpace(true);
 //                } else {

@@ -1,14 +1,14 @@
 
 package org.foundation;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.logging.Logger;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import javax.xml.ws.WebEndpoint;
 import javax.xml.ws.WebServiceClient;
 import javax.xml.ws.WebServiceFeature;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.logging.Logger;
 
 
 /**
@@ -17,22 +17,22 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.1
  * 
  */
-@WebServiceClient(name = "CaseInfoService", targetNamespace = "http://tempuri.org/", wsdlLocation = "http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl")
+@WebServiceClient(name = "CaseInfoService", targetNamespace = "http://tempuri.org/", wsdlLocation = "https://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl")
 public class CaseInfoService
     extends Service
 {
 
     private final static URL CASEINFOSERVICE_WSDL_LOCATION;
-    private final static Logger logger = Logger.getLogger(org.foundation.CaseInfoService.class.getName());
+    private final static Logger logger = Logger.getLogger(CaseInfoService.class.getName());
 
     static {
         URL url = null;
         try {
             URL baseUrl;
-            baseUrl = org.foundation.CaseInfoService.class.getResource(".");
-            url = new URL(baseUrl, "http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl");
+            baseUrl = CaseInfoService.class.getResource(".");
+            url = new URL(baseUrl, "https://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl");
         } catch (MalformedURLException e) {
-            logger.warning("Failed to create URL for the wsdl Location: 'http://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl', retrying as a local file");
+            logger.warning("Failed to create URL for the wsdl Location: 'https://mskcc.foundationmedicine.com/Fmi.CaseInfoService/CaseInfoService.svc?wsdl', retrying as a local file");
             logger.warning(e.getMessage());
         }
         CASEINFOSERVICE_WSDL_LOCATION = url;

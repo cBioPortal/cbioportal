@@ -46,6 +46,14 @@
 		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
+        <profile>
+	  <id>target</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+		<final-war-name>target-portal</final-war-name>
+	  </properties>
+	</profile>
 	<profile>
 	  <id>ctd2-dashboard</id>
 	  <properties>

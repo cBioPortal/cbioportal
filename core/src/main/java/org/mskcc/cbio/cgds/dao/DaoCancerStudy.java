@@ -34,6 +34,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Analogous to and replaces the old DaoCancerType. A CancerStudy has a NAME and
@@ -108,7 +110,7 @@ public final class DaoCancerStudy {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study " +
                         "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
                         + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                        + "`PMID`, `CITATION` ) VALUES (?,?,?,?,?,?,?)",
+                        + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 pstmt.setString(1, cancerStudy.getCancerStudyStableId());
                 pstmt.setString(2, cancerStudy.getName());
@@ -117,10 +119,16 @@ public final class DaoCancerStudy {
                 pstmt.setString(5, cancerStudy.getTypeOfCancerId());
                 pstmt.setString(6, cancerStudy.getPmid());
                 pstmt.setString(7, cancerStudy.getCitation());
+                Set<String> groups = cancerStudy.getGroups();
+                if (groups==null) {
+                    pstmt.setString(8, null);
+                } else {
+                    pstmt.setString(8, StringUtils.join(groups, ";"));
+                }
             } else {
                 pstmt = con.prepareStatement("INSERT INTO cancer_study ( `NAME`, "
                         + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                        + "`PMID`, `CITATION` ) VALUES (?,?,?,?,?,?)",
+                        + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?)",
                         Statement.RETURN_GENERATED_KEYS);
                 pstmt.setString(1, cancerStudy.getName());
                 pstmt.setString(2, cancerStudy.getDescription());
@@ -128,6 +136,12 @@ public final class DaoCancerStudy {
                 pstmt.setString(4, cancerStudy.getTypeOfCancerId());
                 pstmt.setString(5, cancerStudy.getPmid());
                 pstmt.setString(6, cancerStudy.getCitation());
+                Set<String> groups = cancerStudy.getGroups();
+                if (groups==null) {
+                    pstmt.setString(7, null);
+                } else {
+                    pstmt.setString(7, StringUtils.join(groups, ";"));
+                }
             }
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
@@ -258,6 +272,7 @@ public final class DaoCancerStudy {
                 rs.getBoolean("PUBLIC"));
         cancerStudy.setPmid(rs.getString("PMID"));
         cancerStudy.setCitation(rs.getString("CITATION"));
+        //cancerStudy.setGroups(rs.getString("GROUPS"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;

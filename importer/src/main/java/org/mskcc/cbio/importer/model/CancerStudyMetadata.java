@@ -66,6 +66,7 @@ public class CancerStudyMetadata {
 	private String pmid;
 	private String center;
 	private String lab;
+	private String groups;
 
     /**
      * Create a CancerStudyMetadata instance with properties in given array.
@@ -103,6 +104,7 @@ public class CancerStudyMetadata {
 		this.description = properties[2].trim();
 		this.citation = properties[3].trim();
 		this.pmid = properties[4].trim();
+		this.groups = properties[5].trim();
 	}
 
 	public String getName() { return name; }
@@ -119,6 +121,7 @@ public class CancerStudyMetadata {
 	public String getDescription() { return description; }
 	public String getCitation() { return citation; }
 	public String getPMID() { return pmid; }
+	public String getGroups() { return groups; }
 
 	public String getCancerStudyMetadataFilename() {
 		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;

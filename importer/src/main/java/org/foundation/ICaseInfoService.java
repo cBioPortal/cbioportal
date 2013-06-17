@@ -44,9 +44,7 @@ public interface ICaseInfoService {
     @WebResult(name = "GetCaseResult", targetNamespace = "http://tempuri.org/")
     @RequestWrapper(localName = "GetCase", targetNamespace = "http://tempuri.org/", className = "org.foundation.GetCase")
     @ResponseWrapper(localName = "GetCaseResponse", targetNamespace = "http://tempuri.org/", className = "org.foundation.GetCaseResponse")
-    public String getCase(
-        @WebParam(name = "caseNo", targetNamespace = "http://tempuri.org/")
-        String caseNo);
+    public String getCase(@WebParam(name = "caseNo", targetNamespace = "http://tempuri.org/") String caseNo);
 
     /**
      * 
@@ -66,8 +64,6 @@ public interface ICaseInfoService {
     @WebMethod(operationName = "Results", action = "http://tempuri.org/ICaseInfoService/Results")
     @RequestWrapper(localName = "Results", targetNamespace = "http://tempuri.org/", className = "org.foundation.Results")
     @ResponseWrapper(localName = "ResultsResponse", targetNamespace = "http://tempuri.org/", className = "org.foundation.ResultsResponse")
-    public void results(
-        @WebParam(name = "data", targetNamespace = "http://tempuri.org/")
-        String data);
+    public void results(@WebParam(name = "data", targetNamespace = "http://tempuri.org/") String data);
 
 }

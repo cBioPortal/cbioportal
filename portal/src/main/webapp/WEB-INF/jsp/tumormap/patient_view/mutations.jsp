@@ -3,9 +3,9 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,validation:6,type:7,
-                  tumor_freq:8,tumor_var_reads:9,tumor_ref_reads:10,norm_freq:11,
-                  norm_var_reads:12,norm_ref_reads:13,mrna:14,altrate:15,cosmic:16,ma:17,cons:18,'3d':19,drug:20};
+    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,ref:6,_var:7,validation:8,type:9,
+                  tumor_freq:10,tumor_var_reads:11,tumor_ref_reads:12,norm_freq:13,norm_var_reads:14,
+                  norm_ref_reads:15,mrna:16,altrate:17,cosmic:18,ma:19,cons:20,'3d':21,drug:22};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -112,6 +112,34 @@
                             }
                         },
                         "bSortable" : false
+                    },
+                    {// ref
+                        "aTargets": [ mutTableIndices["ref"] ],
+                        "bVisible": false,
+                        "sClass": "center-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return mutations.getValue(source[0], 'ref');
+                            } else {
+                                return mutations.getValue(source[0], 'ref');
+                            }
+                        }
+                    },
+                    {// var
+                        "aTargets": [ mutTableIndices["_var"] ],
+                        "bVisible": false,
+                        "sClass": "center-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                return mutations.getValue(source[0], 'var');
+                            } else {
+                                return mutations.getValue(source[0], 'var');
+                            }
+                        }
                     },
                     {// validation
                         "bVisible": false,

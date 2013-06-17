@@ -323,8 +323,8 @@ public final class DaoMutation {
                 con = JdbcUtil.getDbConnection(DaoMutation.class);
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation_event"
-                        + "INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + " WHERE mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ?");
+                        + " INNER JOIN mutation ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
+                        + " WHERE mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 rs = pstmt.executeQuery();
@@ -376,7 +376,7 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation, mutation_event "
                         + "WHERE mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "AND mutation.ENTREZ_GENE_ID = ? AND AMINO_ACID_CHANGE = ? AND CASE_ID <> ?");
+                        + "AND mutation.ENTREZ_GENE_ID = ? AND PROTEIN_CHANGE = ? AND CASE_ID <> ?");
                 pstmt.setLong(1, entrezGeneId);
                 pstmt.setString(2, aminoAcidChange);
                 pstmt.setString(3, excludeCaseId);

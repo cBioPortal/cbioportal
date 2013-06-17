@@ -39,7 +39,7 @@ MutationDiagram.prototype.defaultOpts = {
 	offsetY: 3,                 // offset for y values
 	offsetX: 0,                 // offset for x values
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
-	seqHeight: 16,              // height of the sequence rectangle
+	seqHeight: 14,              // height of the sequence rectangle
 	seqPadding: 8,              // padding between sequence and plot area
 	regionHeight: 24,           // height of a region (drawn on the sequence)
 	regionFont: "sans-serif",   // font of the region text
@@ -831,6 +831,7 @@ MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
 
 	if (qTipOptions.content == null)
 	{
+		// TODO setting font size inside content may not be safe
 		qTipOptions.content = {text: '<font size="2">'+txt+'</font>'};
 	}
 	else

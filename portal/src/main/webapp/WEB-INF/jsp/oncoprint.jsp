@@ -32,8 +32,8 @@
                 <table style="padding-left:13px; padding-top:5px">
                     <tr>
                         <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                        <td><input type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
-                        <td><input type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+                        <td><input id='toggle_unaltered_cases' type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
+                        <td><input id='toggle_whitespace' type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
                     </tr>
                     <tr>
                         <td>
@@ -83,10 +83,10 @@
                 // takes a div and creates a zoombar on it.  Inside it refers
                 // to a global var called `oncoprint` on which it zooms.
                 var oncoprintZoomSetup = function(div) {
-                    $('<div>', { id: "width_slider", width: "100"})
+                    return $('<div>', { id: "width_slider", width: "100"})
                             .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
                                 change: function(event, ui) {
-                                    oncoprint.zoom(ui.value);       // N.B.
+                                    oncoprint.zoom(ui.value, 'animation');       // N.B.
                                 }}).appendTo($(div));
                 };
 
@@ -100,6 +100,7 @@
                 });
 
                 var oncoprint;
+                var zoom;
                 geneDataColl.fetch({
                     type: "POST",
                     success: function(data) {
@@ -108,7 +109,7 @@
                         $('#oncoprint .loader_img').hide();
                         $('#oncoprint #everything').show();
 
-                        oncoprintZoomSetup($('#oncoprint_controls #zoom'));
+                        zoom = oncoprintZoomSetup($('#oncoprint_controls #zoom'));
                     }
                 });
 
@@ -116,23 +117,29 @@
                 var oncoprintClinicals;
                 var sortBy = $('#oncoprint_controls #sort_by');
 
-
                 // params: bool
                 // enable or disable all the various oncoprint controls
                 // true -> enable
                 // false -> disable
                 var toggleControls = function(bool) {
-                    // remove whitespace
-                    // remove unaltered cases
-                    // sort by
-                    // select clinical attributes
-                    // zoom
+                    var whitespace = $('#toggle_whitespace');
+                    var unaltered = $('#toggle_unaltered_cases');
+                    var select_clinical_attributes =  $(select_clinical_attributes_id);
+
+                    var enable_disable = !bool;
+
+                    whitespace.attr('disabled', enable_disable);
+                    unaltered.attr('disabled', enable_disable);
+                    select_clinical_attributes.prop('disabled', enable_disable).trigger("liszt:updated");
+                    zoom.attr('disabled', enable_disable);
+                    sortBy.attr('disabled', enable_disable);
                 };
 
                 // handler for when user selects a clinical attribute to visualization
                 var clinicalAttributeSelected = function() {
                     oncoprint.remove_oncoprint();
                     $('#oncoprint_body .loader_img').show();
+                    toggleControls(false);
 
                     var clinicalAttribute = $(select_clinical_attributes_id + ' option:selected')[0].__data__;
 
@@ -168,6 +175,11 @@
                                 // enable the option to sort by clinical data
                                 $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
                                 sortBy.val('genes');        // sort by genes by default
+
+                                toggleControls(true);
+
+                                // set the zoom to be whatever the slider currently says it is
+                                oncoprint.zoom(zoom.slider("value"));
                             }
                         });
                     }

@@ -822,14 +822,19 @@ var Oncoprint = function(div, params) {
 
             toggleWhiteSpace: toggleWhiteSpace,
 
-            zoom: function(scalar) {
+            zoom: function(scalar, animation) {
                 internal_rect_width = scalar * dims.rect_width;
 
                 d3.selectAll('.sample rect')
                     .transition()
                     .duration(1000)
                     .attr('width', internal_rect_width);
-                horizontal_translate(1000);
+
+                if (animation) {
+                    horizontal_translate(1000);
+                } else {
+                    horizontal_translate();
+                }
 //                if (scalar >= .5) {
 //                    toggleWhiteSpace(true);
 //                } else {

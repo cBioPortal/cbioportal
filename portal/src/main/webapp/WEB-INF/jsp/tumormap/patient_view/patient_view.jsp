@@ -93,15 +93,7 @@ if (patientViewError!=null) {
     <p style="background-color: lightyellow;"><%=otherStudy%></p>
 <%}%>
 
-<table width="100%">
-    <tr>
-        <td><b><u><%=patient%></u></b>&nbsp;&nbsp;<%=patientInfo%></td>
-        <td align="right"><a href="#" id="more-clinical-a">More about this patient</a></td>
-    </tr>
-    <tr>
-        <td><%=diseaseInfo%></td>
-        <td align="right"><%=patientStatus%></td>
-    </tr>
+<table id="clinical_table" width="100%">
 </table>
 
 
@@ -301,6 +293,7 @@ var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
+var clinicalDataMap = <%=jsonClinicalData%>;
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -311,7 +304,6 @@ $(document).ready(function(){
 function setUpPatientTabs() {
     $('#patient-tabs').tabs();
     $('#patient-tabs').show();
-    addMoreCinicalTooltip();
     fixCytoscapeWebRedraw();
 }
 
@@ -374,23 +366,22 @@ function addNoteTooltip(elem, content) {
     });
 }
 
-function addMoreCinicalTooltip() {
-    var clinicalDataMap = <%=jsonClinicalData%>;
+function addMoreClinicalTooltip(elemId, caseId) {
     var clinicalData = [];
-    for (var key in clinicalDataMap) {
-        clinicalData.push([key, clinicalDataMap[key]]);
+    for (var key in clinicalDataMap[caseId]) {
+        clinicalData.push([key, clinicalDataMap[caseId][key]]);
     }
     
     if (clinicalData.length==0) {
-        $('#more-clinical-a').remove();
+        $('#'+elemId).remove();
     } else {
-        $('#more-clinical-a').qtip({
+        $('#'+elemId).qtip({
             content: {
-                text: '<table id="more-clinical-table"></table>'
+                text: '<table id="more-clinical-table-'+caseId+'"></table>'
             },
             events: {
                 render: function(event, api) {
-                    $('#more-clinical-table').dataTable( {
+                    $('#more-clinical-table-'+caseId).dataTable( {
                         "sDom": 't',
                         "bJQueryUI": true,
                         "bDestroy": true,
@@ -625,7 +616,38 @@ function trimHtml(html) {
 function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
+
+function guessClinicalData(clinicalData, paramNames) {
+    paramNames.forEach(function(name) {
+        var data = clinicalData[name];
+        if (data!==null) return data;
+    });
+    return null;
+}
+
+function outputClinicalData() {
+    for (var caseId in clinicalDataMap) {
+        var clinicalData = clinicalDataMap[caseId];
+        var html = "<tr><td><b><u>"+caseId+"</b></u>&nbsp;&nbsp;</td>\n\
+                    <td align='right'><a href='#' id='more-clinical-a-"+
+                    caseId+"'>More about this patient</a></td></tr>";
+                    
+        $("#clinical_table > tbody:last").append(html);
+        addMoreClinicalTooltip("more-clinical-a-"+caseId, caseId);
+    }
+}
+
 </script>
+
+
+    <!--tr>
+        <td><b><u><%=patient%></u></b>&nbsp;&nbsp;<%=patientInfo%></td>
+        <td align="right"><a href="#" id="more-clinical-a">More about this patient</a></td>
+    </tr>
+    <tr>
+        <td><%=diseaseInfo%></td>
+        <td align="right"><%=patientStatus%></td>
+    </tr-->
 
 </body>
 </html>

@@ -297,6 +297,7 @@ public class CnaJSON extends HttpServlet {
     private Map<String,List> initMap() {
         Map<String,List> map = new HashMap<String,List>();
         map.put("id", new ArrayList());
+        map.put("caseIds", new ArrayList());
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("alter", new ArrayList());

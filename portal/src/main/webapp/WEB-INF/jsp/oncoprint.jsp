@@ -116,6 +116,19 @@
                 var oncoprintClinicals;
                 var sortBy = $('#oncoprint_controls #sort_by');
 
+
+                // params: bool
+                // enable or disable all the various oncoprint controls
+                // true -> enable
+                // false -> disable
+                var toggleControls = function(bool) {
+                    // remove whitespace
+                    // remove unaltered cases
+                    // sort by
+                    // select clinical attributes
+                    // zoom
+                };
+
                 // handler for when user selects a clinical attribute to visualization
                 var clinicalAttributeSelected = function() {
                     oncoprint.remove_oncoprint();

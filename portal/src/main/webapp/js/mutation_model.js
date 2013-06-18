@@ -9,6 +9,7 @@ var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
 		this.caseId = attributes.caseId;
+		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
@@ -45,6 +46,9 @@ var MutationModel = Backbone.Model.extend({
 	}
 });
 
+/**
+ * Collection of mutations (MutationModel instances).
+ */
 var MutationCollection = Backbone.Collection.extend({
 	model: MutationModel,
 	initialize: function(options) {
@@ -60,3 +64,171 @@ var MutationCollection = Backbone.Collection.extend({
 		var urlStr = "webservice.do?cmd=...";
 	}
 });
+
+/**
+ * Utility class for processing a collection of mutations.
+ *
+ * @param mutations     MutationCollection (list of mutations)
+ * @constructor
+ */
+var MutationUtil = function (mutations)
+{
+	this.GERMLINE = "germline"; // germline mutation constant
+
+	this.getMutationGeneMap = function()
+	{
+		return this._mutationGeneMap;
+	};
+
+	this.getMutationCaseMap = function()
+	{
+		return this._mutationCaseMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <geneSymbol, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on gene symbol)
+	 * @private
+	 */
+	this._generateGeneMap = function(mutations)
+	{
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var gene = mutations.at(i).geneSymbol.toUpperCase();
+
+			if (mutationMap[gene] == undefined)
+			{
+				mutationMap[gene] = [];
+			}
+
+			mutationMap[gene].push(mutations.at(i));
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <case id, mutation array> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on case id)
+	 * @private
+	 */
+	this._generateCaseMap = function(mutations)
+	{
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var caseId = mutations.at(i).caseId.toLowerCase();
+
+			if (mutationMap[caseId] == undefined)
+			{
+				mutationMap[caseId] = [];
+			}
+
+			mutationMap[caseId].push(mutations.at(i));
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Generates a single line summary with mutation rate.
+	 *
+	 * @param mutationCount mutation count values as an object
+	 *                      {numCases, numMutated, numSomatic, numGermline}
+	 * @return {string}     single line summary string
+	 */
+	this.generateSummary = function(mutationCount)
+	{
+		var summary = "[";
+		var rate;
+
+		if (mutationCount.numGermline > 0)
+		{
+			rate = (mutationCount.numGermline / mutationCount.numCases) * 100;
+			summary += "Germline Mutation Rate: " + rate.toFixed(1) + "%, ";
+		}
+
+		rate = (mutationCount.numSomatic / mutationCount.numCases) * 100;
+		summary += "Somatic Mutation Rate: " + rate.toFixed(1) + "%]";
+
+		return summary;
+	};
+
+	/**
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param cases array of cases (strings)
+	 * @return {{numCases: number,
+	 *          numMutated: number,
+	 *          numSomatic: number,
+	 *          numGermline: number}}
+	 */
+	this.countMutations = function(gene, cases)
+	{
+		var numCases = cases.length;
+		var numMutated = 0;
+		var numSomatic = 0;
+		var numGermline = 0;
+
+		// count mutated cases (also count somatic and germline mutations)
+		for (var i=0; i < cases.length; i++)
+		{
+			// get the mutations for the current case
+			var mutations = this._mutationCaseMap[cases[i].toLowerCase()];
+
+			// check if case has a mutation
+			if (mutations != null)
+			{
+				var somatic = 0;
+				var germline = 0;
+
+				for (var j=0; j < mutations.length; j++)
+				{
+					// skip mutations with different genes
+					if (mutations[j].geneSymbol.toLowerCase() != gene.toLowerCase())
+					{
+						continue;
+					}
+
+					if (mutations[j].mutationStatus.toLowerCase() === this.GERMLINE)
+					{
+						// case has at least one germline mutation
+						germline = 1;
+					}
+					else
+					{
+						// case has at least one somatic mutation
+						somatic = 1;
+					}
+				}
+
+				// update counts
+				numSomatic += somatic;
+				numGermline += germline;
+				numMutated++;
+			}
+		}
+
+		// return an array of calculated values
+		return {numCases: numCases,
+			numMutated: numMutated,
+			numSomatic: numSomatic,
+			numGermline: numGermline};
+	};
+
+	// init class variables
+	this._mutationGeneMap = this._generateGeneMap(mutations);
+	this._mutationCaseMap = this._generateCaseMap(mutations);
+	this._mutations = mutations;
+};

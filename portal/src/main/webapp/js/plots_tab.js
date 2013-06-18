@@ -614,23 +614,6 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .text(yLegend);
 }
 
-// takes whatever is in the element #plots_box
-// and returns XML serialized *string*
-function loadSVG() {
-    var mySVG = document.getElementById("plots_box");
-    var svgDoc = mySVG.getElementsByTagName("svg");
-    var xmlSerializer = new XMLSerializer();
-    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-
-
-
-    svgContent = svgContent.replaceAll("</line><text y=\"9\" x=\"0\" dy=\".71em\"", "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
-    svgContent = svgContent.replaceAll("</line><text x=\"-9\" y=\"0\" dy=\".32em\"", "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
-
-
-    return xmlString;
-}
-
 function fetchAxisTitle() {
     var xLegend = "";
     var yLegend = "";

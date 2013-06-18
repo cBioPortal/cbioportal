@@ -311,7 +311,7 @@ var OncoprintUtils = (function() {
         createId2ClinicalAttr: createId2ClinicalAttr,
         map_display_name: map_display_name,
         normalize_clinical_attributes: normalize_clinical_attributes,
-        normalize_nested_values: normalize_nested_values
+        normalize_nested_values: normalize_nested_values,
     };
 }());
 
@@ -849,7 +849,37 @@ var Oncoprint = function(div, params) {
                 showUnalteredCases(show_unaltered_bool);
             },
 
-            sortBy: sortBy
+            sortBy: sortBy,
+
+            // takes an oncoprint object and returns a seralized string
+            //
+            // returns string
+            getPdfInput: function() {
+
+                var x = data2xscale(internal_data);
+
+//        return (new XMLSerializer()).serializeToString(export_svg[0])
+//            .replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
+
+                var width = main_svg.attr('width');
+                var height = main_svg.attr('height');
+                var svg = main_svg[0][0];
+
+                var serialize = function(el) {
+                    return  (new XMLSerializer()).serializeToString(el);
+                };
+
+                var out = $(svg).children()
+                    .map(function(index, sample_el) {
+                        var sample_id = d3.select(sample_el).data()[0].key;
+                        var transformed = $(sample_el).attr('transform', translate(dims.label_width + x.scale(sample_id), 0));
+
+                        return (new XMLSerializer()).serializeToString(transformed[0]);
+                    })
+                    .toArray().join("");
+
+                return "<svg height=\"" + height + "\" width=\"" + width + "\">" + out + "</svg>";
+            }
         };
     })();
 

@@ -102,6 +102,14 @@ public class svgConverter extends HttpServlet {
         }
     }
 
+    /**
+     * Converts svg xml to pdf and writes it to the response
+     *
+     * @param response
+     * @param xml
+     * @throws ServletException
+     * @throws IOException
+     */
     private void convertToSVG(HttpServletResponse response, String xml) throws ServletException, IOException {
 
         try {
@@ -124,11 +132,6 @@ public class svgConverter extends HttpServlet {
     private void convertToPDF(HttpServletResponse response, String svgContent) throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
-            String docRoot = "<?xml version='1.0' encoding='utf-8'?>";
-            String docRoot2 = "<svg version='1.1' width='700px' height='600px' xml:space='preserve'>";
-            svgContent = docRoot + docRoot2 + svgContent + "</svg>";
-	    svgContent = svgContent.replaceAll("</line><text y=\"9\" x=\"0\" dy=\".71em\"", "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
-	    svgContent = svgContent.replaceAll("</line><text x=\"-9\" y=\"0\" dy=\".32em\"", "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
             InputStream is = new ByteArrayInputStream(svgContent.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);

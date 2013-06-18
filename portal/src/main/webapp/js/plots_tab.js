@@ -604,6 +604,7 @@ var PlotsView = (function () {
             .attr("transform", "translate(600, 0)")
             .call(elem.yAxis.orient("left").ticks(0));
     }
+
     function drawDiscretizedPlots() { //GISTIC, RAE view
 		var dotsGroup = elemsvg.append("svg:g");
     	dotsGroup.selectAll("path")

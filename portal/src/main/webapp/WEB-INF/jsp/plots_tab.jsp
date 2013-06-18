@@ -93,7 +93,6 @@
 <script>
     window.onload = PlotsMenu.init();
     window.onload = PlotsMenu.update();
-    window.onload = viewController.initView();
 
     // Takes whatever is in the element #plots_box
     // and returns XML serialized *string*

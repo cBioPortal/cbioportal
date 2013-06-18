@@ -179,10 +179,10 @@ var PlotsView = (function () {
                 "2": "Amp"
             }
         },
-		mutationStyle = [
+		mutationStyle = {
 			frameshift : {
 				symbol : "triangle-down",
-				fill : "#1C1C1C",	
+				fill : "#1C1C1C",
 				stroke : "#B40404"
 			},
 			nonsense : {
@@ -195,7 +195,7 @@ var PlotsView = (function () {
 				fill : "#A4A4A4",
 				stroke : "#B40404"
 			},
-			in_frame: {
+			in_frame : {
 				symbol : "square",
 				fill : "#DF7401",
 				stroke : "#B40404"
@@ -208,19 +208,19 @@ var PlotsView = (function () {
 			nonstop : {
 				symbol : "triangle-up",
 				fill : "#1C1C1C",
-				stroke : "#B40404" 
+				stroke : "#B40404"
 			},
-			missense : {
+            missense : {
 				symbol : "circle",
 				fill : "#DF7401",
-				stroke "#B40404"
-			},
-			non : {
+				stroke : "#B40404"
+            },
+            non : {
 				symbol : "circle",
 				fill : "#00AAF8",
 				stroke : "#0089C6"
 			}
-		],
+        },
         setting = {
             canvas_width: 700,
             canvas_height: 600
@@ -290,6 +290,28 @@ var PlotsView = (function () {
             edge_y: edge_y
         };
     }
+    function searchIndexBottom(arr, ele) {
+        for( var i = 0; i < arr.length; i++) {
+            if (parseFloat(ele) > parseFloat(arr[i])) {
+                continue ;
+            } else if (parseFloat(ele) == parseFloat(arr[i])) {
+                return i;
+            } else {
+                return i - 1;
+            }
+        }
+        return arr.length - 1 ;
+    };
+    function searchIndexTop(arr, ele) {
+        for( var i = 0; i < arr.length; i++) {
+            if (ele <= arr[i]) {
+                return i;
+            } else {
+                continue;
+            }
+        }
+        return arr.length - 1;
+    };
 
     //Functions for Retrieving Texts for Markups
     function getDataTypes() {
@@ -471,6 +493,7 @@ var PlotsView = (function () {
             .attr("width", setting.canvas_width)
             .attr("height", setting.canvas_height);
     }
+
     function initAxis() {
         var analyseResult = {};
         if (userSelection.plots_type.indexOf("copy_no") !== -1) {
@@ -486,7 +509,6 @@ var PlotsView = (function () {
         var min_y = analyseResult.min_y;
         var max_y = analyseResult.max_y;
         var edge_y = analyseResult.edge_y;
-        console.log(analyseResult);
 
         if ( userSelection.plots_type.indexOf("methylation") !== -1 &&
              userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
@@ -510,6 +532,7 @@ var PlotsView = (function () {
             .scale(elem.yScale)
             .orient("left");
     }
+
     function drawDiscretizedAxis() {
         var textSet = [];
         var svg = elem.svg;
@@ -561,6 +584,7 @@ var PlotsView = (function () {
             .attr("transform", "translate(600, 0)")
             .call(elem.yAxis.orient("left").ticks(0));
     }
+
     function drawContinuousAxis() {
         var svg = elem.svg;
         svg.append("g")
@@ -606,72 +630,204 @@ var PlotsView = (function () {
     }
 
     function drawDiscretizedPlots() { //GISTIC, RAE view
-		var dotsGroup = elemsvg.append("svg:g");
+		var dotsGroup = elem.svg.append("svg:g");
+        var ramRatio = 20;  //Noise
     	dotsGroup.selectAll("path")
-        	.data(pData.tmpDataSet)
+        	.data(tmpDataSet)
         	.enter()
         	.append("svg:path")
-        	.attr("transform", function(d) { return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";})
+        	.attr("transform", function(d){
+                return "translate(" +
+                    (elem.xScale(d.xVal) + (Math.random() * ramRatio - ramRatio/2)) +
+                    ", " +
+                    elem.yScale(d.yVal) + ")";
+            })
         	.attr("d", d3.svg.symbol()
-            			.size(function(d) {
+            			.size(function(d){
                 			switch (d.mutationType) {
                     			case "non" : return 15;
                     			default : return 25;
                 			}
             			})
-            			.type(function(d) {
+            			.type(function(d){
 							return mutationStyle[d.mutationType].symbol;
                 		})
-        	.attr("fill", function(d) {
+            )
+        	.attr("fill", function(d){
 				return mutationStyle[d.mutationType].fill;
         	})
-        	.attr("stroke", function(d) {
+        	.attr("stroke", function(d){
 				return mutationStyle[d.mutationType].stroke;
         	})
         	.attr("stroke-width", 1.2);
     }
-    function drawBoxPlots() { 
 
-    }
-    function drawLog2Plots() { //Log2 Copy Number Alteration View
-		dotsGroup = elem.svg.append("svg:g");
+    function drawLog2Plots() {
+		var dotsGroup = elem.svg.append("svg:g");
     	dotsGroup.selectAll("path")
         	.data(tmpDataSet)
         	.enter()
         	.append("svg:path")
-        	.attr("transform", function(d) { return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";})
+        	.attr("transform", function(d) {
+                return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
+            })
         	.attr("d", d3.svg.symbol()
-            	.size(function(d) {
-                	switch (d[2]) {
-                    	case "non" : return 15;
+            	.size(function(d){
+                    switch (d[2]){
+                        case "non" : return 15;
                     	default : return 25;
                 	}
             	})
-            	.type(function (d) {
+            	.type(function(d){
 					return mutationStyle[d.mutationType].symbol;
             	})
         	)
-        	.attr("fill", function(d) {
+        	.attr("fill", function(d){
             	return mutationStyle[d.mutationType].fill;
         	})
-        	.attr("stroke", function(d) {
+        	.attr("stroke", function(d){
         		return mutationStyle[d.mutationType].stroke;
 			})
-       	 	.attr("stroke-width", 1.2);
+       	    .attr("stroke-width", 1.2);
 	}
-    function drawContinuousPlots() { //DNA Methylation, RPPA view
 
-    }
-    function drawQtips() {
+    function drawBoxPlots(){
 
-    }
-    function drawAxisTitles() {
+        var xData = pData.copy_no;
+        var yData = pData.mrna;
 
+        var tmp_data_result = analyseData(xData, yData);
+        var min_x = tmp_data_result.min_x;
+        var max_x = tmp_data_result.max_x;
+
+
+        for (var i = min_x ; i < max_x + 1; i++) {
+            //Divide data set into sub group based on x(gistic) value
+
+            var top;
+            var bottom;
+            var quan1;
+            var quan2;
+            var mean;
+            var IQR;
+            var scaled_y_arr=[];
+            var tmp_y_arr = [];
+
+            //Find the middle (vertical) line for one box plot
+            var midLine = elem.xScale(i);
+
+            //Find the max/min y value with certain x value;
+            var index_tmp_y_data_array = 0;
+            for (var j = 0; j < yData.length; j++) {
+                if (yData[j] != "NaN" && xData[j] != "NaN" && yData[j] != "NA" && xData[j] != "NA" && xData[j] == i) {
+                    tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
+                    index_tmp_y_data_array += 1;
+                }
+            }
+            tmp_y_arr.sort(function(a,b){return a-b});
+            if (tmp_y_arr.length === 0) {
+                //TODO: error handle (empty dataset)
+            } else if (tmp_y_arr.length === 1) {
+                mean = elem.yScale(tmp_y_arr[0]);
+                elem.svg.append("line")
+                    .attr("x1", midLine-30)
+                    .attr("x2", midLine+30)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "grey");
+            } else {
+                if (tmp_y_arr.length == 2) {
+                    mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
+                    quan1 = bottom = elem.yScale(tmp_y_arr[0]);
+                    quan2 = top = elem.yScale(tmp_y_arr[1]);
+                    IQR = Math.abs(quan2 - quan1);
+                } else {
+                    var yl = tmp_y_arr.length;
+                    if (yl % 2 == 0) {
+                        mean = elem.yScale((tmp_y_arr[(yl/2)-1] + tmp_y_arr[yl/2])/2);
+                        if (yl % 4 == 0) {
+                            quan1 = elem.yScale((tmp_y_arr[(yl/4)-1] + tmp_y_arr[yl/4])/2);
+                            quan2 = elem.yScale((tmp_y_arr[(3*yl/4)-1] + tmp_y_arr[3*yl/4])/2);
+                        } else {
+                            quan1 = elem.yScale(tmp_y_arr[Math.floor(yl/4)]);
+                            quan2 = elem.yScale(tmp_y_arr[Math.floor(3*yl/4)]);
+                        }
+                    } else {
+                        mean = elem.yScale(tmp_y_arr[Math.floor(yl/2)]);
+                        var tmp_yl = Math.floor(yl/2) + 1;
+                        if ( tmp_yl % 2 == 0) {
+                            quan1 = elem.yScale((tmp_y_arr[tmp_yl/2 - 1] + tmp_y_arr[tmp_yl/2])/2);
+                            quan2 = elem.yScale((tmp_y_arr[(3 * tmp_yl/2) - 2] + tmp_y_arr[(3*tmp_yl/2)-1])/2);
+                        } else {
+                            quan1 = elem.yScale(tmp_y_arr[Math.floor(tmp_yl/2)]);
+                            quan2 = elem.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
+                        }
+                    }
+                    for (var k = 0 ; k < tmp_y_arr.length ; k++) {
+                        scaled_y_arr[k] = parseFloat(elem.yScale(tmp_y_arr[k]));
+                    }
+                    scaled_y_arr.sort(function(a,b){return a-b});
+                    IQR = Math.abs(quan2 - quan1);
+                    var index_top = searchIndexTop(scaled_y_arr, (quan2-1.5*IQR));
+                    top = scaled_y_arr[index_top];
+                    var index_bottom = searchIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
+                    bottom = scaled_y_arr[index_bottom];
+                }
+
+                //D3 Drawing
+                var boxPlotsGroup = elem.svg.append("svg:g");
+                boxPlotsGroup.append("rect")
+                    .attr("x", midLine-40)
+                    .attr("y", quan2)
+                    .attr("width", 80)
+                    .attr("height", IQR)
+                    .attr("fill", "none")
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsGroup.append("line")
+                    .attr("x1", midLine-40)
+                    .attr("x2", midLine+40)
+                    .attr("y1", mean)
+                    .attr("y2", mean)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsGroup.append("line")
+                    .attr("x1", midLine-30)
+                    .attr("x2", midLine+30)
+                    .attr("y1", top)
+                    .attr("y2", top)
+                    .attr("stroke-width", 1)
+                    .attr("stroke", "#BDBDBD");
+                boxPlotsGroup.append("line")
+                    .attr("x1", midLine-30)
+                    .attr("x2", midLine+30)
+                    .attr("y1", bottom)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+                boxPlotsGroup.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan1)
+                    .attr("y2", bottom)
+                    .attr("stroke", "#BDBDBD")
+                    .attr("stroke-width", 1);
+                boxPlotsGroup.append("line")
+                    .attr("x1", midLine)
+                    .attr("x2", midLine)
+                    .attr("y1", quan2)
+                    .attr("y2", top)
+                    .attr("stroke", "#BDBDBD")
+                    .style("stroke-width", 1);
+            }
+        }
     }
+
+    //TODO: rearrange mutations (prominent)
 
     return {
-        init: function() {
-
+        init: function(){
             //Data Processing
             pData.gene = document.getElementById("genes").value;
             getDataTypes();
@@ -686,19 +842,19 @@ var PlotsView = (function () {
             if (userSelection.plots_type.indexOf("copy_no") !== -1) {
                 if (dataIsDiscretized()) {
                     drawDiscretizedAxis();
-                    drawDiscretizedPlots();
                     drawBoxPlots();
+                    drawDiscretizedPlots();
                 } else {
                     drawContinuousAxis();
                     drawLog2Plots();
                 }
             } else {
                 drawContinuousAxis();
-                drawContinuousPlots();
+                //drawContinuousPlots();
             }
-            drawQtips();
-            drawGlyphs();
-            drawAxisTitles();
+            //drawQtips();
+            //drawGlyphs();
+            //drawAxisTitles();
         }
     };
 }());

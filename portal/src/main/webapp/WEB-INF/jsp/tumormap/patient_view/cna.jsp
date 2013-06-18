@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = {id:0,gene:1,alteration:2,mrna:3,altrate:4,drug:5};
+    var cnaTableIndices = {id:0,case_ids:1,gene:2,alteration:3,mrna:4,altrate:5,drug:6};
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
@@ -19,6 +19,20 @@
                         "aTargets": [ cnaTableIndices['id'] ],
                         "bVisible": false,
                         "mData" : 0
+                    },
+                    {// case_ids
+                        "aTargets": [ cnaTableIndices["case_ids"] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var caseIds = cnas.getValue(source[0], "caseIds");
+                                
+                                return caseIds.join("; ");
+                            } else {
+                                return cnas.getValue(source[0], "caseIds");
+                            }
+                        }
                     },
                     {// gene
                         "aTargets": [ cnaTableIndices['gene'] ],

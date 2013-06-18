@@ -23,7 +23,7 @@
                         "bVisible": false,
                         "mData" : 0
                     },
-                    {// gene
+                    {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {

@@ -9,8 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
@@ -111,8 +110,9 @@ public class CnaJSON extends HttpServlet {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(data, out);
+            out.write(mapper.writeValueAsString(data));
         } finally {            
             out.close();
         }
@@ -121,7 +121,6 @@ public class CnaJSON extends HttpServlet {
     private void processGetSegmentsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        JSONArray table = new JSONArray();
 
         String patients = request.getParameter(PatientView.PATIENT_ID);
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
@@ -135,15 +134,17 @@ public class CnaJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         
+        List list = new ArrayList();
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(table, seg);
+            exportCopyNumberSegment(list, seg);
         }
 
         response.setContentType("application/json");
         
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(table, out);
+            out.write(mapper.writeValueAsString(list));
         } finally {            
             out.close();
         }
@@ -169,8 +170,9 @@ public class CnaJSON extends HttpServlet {
         response.setContentType("application/json");
         
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(fraction, out);
+            out.write(mapper.writeValueAsString(fraction));
         } finally {            
             out.close();
         }
@@ -323,20 +325,13 @@ public class CnaJSON extends HttpServlet {
         
         mapMutationEventIndex.put(eventId, data.get("id").size());
         
-        data.get("id").add(cnaEvent.getEventId());
         Set<String> samples = new HashSet<String>();
         samples.add(cnaEvent.getCaseId());
         data.get("caseIds").add(samples);
         
-        String symbol = null;
-        try {
-            symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
-                    .getHugoGeneSymbolAllCaps();
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
-            return;
-        }
         data.get("id").add(cnaEvent.getEventId());
+        String symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
+                    .getHugoGeneSymbolAllCaps();
         data.get("gene").add(symbol);
         data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());
@@ -369,16 +364,16 @@ public class CnaJSON extends HttpServlet {
         data.get("drug").add(drugs);
     }
     
-    private void exportCopyNumberSegment(JSONArray table, CopyNumberSegment seg) 
+    private void exportCopyNumberSegment(List list, CopyNumberSegment seg) 
             throws ServletException {
-        JSONArray row = new JSONArray();
+        List row = new ArrayList();
         row.add(seg.getCaseId());
         row.add(seg.getChr());
         row.add(seg.getStart());
         row.add(seg.getEnd());
         row.add(seg.getNumProbes());
         row.add(seg.getSegMean());
-        table.add(row);
+        list.add(row);
     }
     
     private static final Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id

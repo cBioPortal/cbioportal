@@ -2,7 +2,14 @@
 
 * Improved interface for correlation plots, including information on individual samples via mouse-over.
 * Gene Details from Biogene are now available in the Network view.
-* Added a new study on Adenoid Cystic Carcinoma from MSKCC: Ho et al., Nature Genetics 2013.
+* Added mutation and copy number data from a new adenoid cystic carcinoma study: Ho et al., Nature Genetics 2013.
+* Added mutation data from 3 breast carcinoma and 2 lung Adenocarcinoma studies.
+    * Breast Invasive Carcinoma (Shah et al., Nature 2012)
+    * Breast Invasive Carcinoma (Banerji et al., Nature 2012)
+    * Breast Invasive Carcinoma (Stephens et al., Nature 2012)
+    * Lung Adenocarcinoma (Imielinksi et al., Cell 2012)
+    * Lung Adenocarcinoma (Ding et al., Nature 2008)
+    * Colorectal Cancer (Seshagiri et al., Nature 2012)
 
 # June 4, 2013
 

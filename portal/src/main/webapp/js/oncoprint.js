@@ -855,28 +855,39 @@ var Oncoprint = function(div, params) {
             //
             // returns string
             getPdfInput: function() {
-
-                var x = data2xscale(internal_data);
-
-//        return (new XMLSerializer()).serializeToString(export_svg[0])
-//            .replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
-
-                var width = main_svg.attr('width');
+                var width = main_svg.attr('width') + dims.label_width;
                 var height = main_svg.attr('height');
                 var svg = main_svg[0][0];
+                var x = data2xscale(internal_data);
 
+                // helper function
+                // takes a DOM element and does the xml serializer thing
                 var serialize = function(el) {
                     return  (new XMLSerializer()).serializeToString(el);
                 };
 
-                var out = $(svg).children()
-                    .map(function(index, sample_el) {
-                        var sample_id = d3.select(sample_el).data()[0].key;
-                        var transformed = $(sample_el).attr('transform', translate(dims.label_width + x.scale(sample_id), 0));
+                // helper function
+                // maps a jquery array on the function fun (use the jquery callback signature),
+                // converts to javascript array and join on ""
+                var map_join = function($array, fun) {
+                    return $array.map(fun).toArray().join("");
+                };
 
-                        return (new XMLSerializer()).serializeToString(transformed[0]);
-                    })
-                    .toArray().join("");
+                var out = map_join($(svg).children(),
+                    function(index, sample_el) {
+                        var sample_id = d3.select(sample_el).data()[0].key;
+                        var transformed = $(sample_el).clone();
+                        transformed = transformed.attr('transform', translate(dims.label_width + x.scale(sample_id), 0));
+
+                        return serialize(transformed[0]);
+                    });
+
+                var labels = $('#oncoprint svg#label').children().clone();
+                labels = map_join(labels, function(index, label) {
+                    return serialize(label);
+                });
+
+                out += labels;
 
                 return "<svg height=\"" + height + "\" width=\"" + width + "\">" + out + "</svg>";
             }

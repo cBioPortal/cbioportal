@@ -124,8 +124,8 @@ class FoundationFetcherImpl implements Fetcher {
 	public String getServicePassword() { return this.servicePassword; }
 
 	/**
-	 * Fetchers genomic data from an external datasource and
-	 * places in database for processing.
+	 * Fetches genomic data from an external datasource and
+	 * places in download directory for processing.
 	 *
 	 * @param dataSource String
 	 * @param desiredRunDate String
@@ -995,7 +995,7 @@ class FoundationFetcherImpl implements Fetcher {
 	}
 
 	/**
-	 * Fetchers reference data from an external datasource.
+	 * Fetches reference data from an external datasource.
 	 *
      * @param referenceMetadata ReferenceMetadata
 	 * @throws Exception

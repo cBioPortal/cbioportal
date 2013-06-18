@@ -613,13 +613,7 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .style("font-weight","bold")
         .text(yLegend);
 }
-function loadSVG() {
-    var mySVG = document.getElementById("plots_box");
-    var svgDoc = mySVG.getElementsByTagName("svg");
-    var tmp1 = new XMLSerializer();
-    var tmp2 = tmp1.serializeToString(svgDoc[0]);
-    return tmp2;
-}
+
 function fetchAxisTitle() {
     var xLegend = "";
     var yLegend = "";

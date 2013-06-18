@@ -164,11 +164,11 @@ var PlotsView = (function () {
                 frameshift : "frameshift",
                 in_frame : "in_frame",
                 missense : "missense",
-                "nonsense" : "nonsense",
-                "splice" : "splice",
-                "nonstop" : "nonstop",
-                "nonstart" : "nonstart",
-                "non" : "non"
+                nonsense : "nonsense",
+                splice : "splice",
+                nonstop : "nonstop",
+                nonstart : "nonstart",
+                non : "non"
             },
 
             gistic_txt_val : {
@@ -179,6 +179,48 @@ var PlotsView = (function () {
                 "2": "Amp"
             }
         },
+		mutationStyle = [
+			frameshift : {
+				symbol : "triangle-down",
+				fill : "#1C1C1C",	
+				stroke : "#B40404"
+			},
+			nonsense : {
+				symbol : "diamond",
+				fill : "#1C1C1C",
+				stroke : "#B40404"
+			},
+			splice : {
+				symbol : "triangle-up",
+				fill : "#A4A4A4",
+				stroke : "#B40404"
+			},
+			in_frame: {
+				symbol : "square",
+				fill : "#DF7401",
+				stroke : "#B40404"
+			},
+			nonstart : {
+				symbol : "cross",
+				fill : "#DF7401",
+				stroke : "#B40404"
+			},
+			nonstop : {
+				symbol : "triangle-up",
+				fill : "#1C1C1C",
+				stroke : "#B40404" 
+			},
+			missense : {
+				symbol : "circle",
+				fill : "#DF7401",
+				stroke "#B40404"
+			},
+			non : {
+				symbol : "circle",
+				fill : "#00AAF8",
+				stroke : "#0089C6"
+			}
+		],
         setting = {
             canvas_width: 700,
             canvas_height: 600
@@ -562,16 +604,61 @@ var PlotsView = (function () {
             .attr("transform", "translate(600, 0)")
             .call(elem.yAxis.orient("left").ticks(0));
     }
-    function drawDiscretizedPlots() {
+    function drawDiscretizedPlots() { //GISTIC, RAE view
+		var dotsGroup = elemsvg.append("svg:g");
+    	dotsGroup.selectAll("path")
+        	.data(pData.tmpDataSet)
+        	.enter()
+        	.append("svg:path")
+        	.attr("transform", function(d) { return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";})
+        	.attr("d", d3.svg.symbol()
+            			.size(function(d) {
+                			switch (d.mutationType) {
+                    			case "non" : return 15;
+                    			default : return 25;
+                			}
+            			})
+            			.type(function(d) {
+							return mutationStyle[d.mutationType].symbol;
+                		})
+        	.attr("fill", function(d) {
+				return mutationStyle[d.mutationType].fill;
+        	})
+        	.attr("stroke", function(d) {
+				return mutationStyle[d.mutationType].stroke;
+        	})
+        	.attr("stroke-width", 1.2);
+    }
+    function drawBoxPlots() { 
 
     }
-    function drawBoxPlots() {
-
-    }
-    function drawLog2Plots() {
-
-    }
-    function drawContinuousPlots() {
+    function drawLog2Plots() { //Log2 Copy Number Alteration View
+		dotsGroup = elem.svg.append("svg:g");
+    	dotsGroup.selectAll("path")
+        	.data(tmpDataSet)
+        	.enter()
+        	.append("svg:path")
+        	.attr("transform", function(d) { return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";})
+        	.attr("d", d3.svg.symbol()
+            	.size(function(d) {
+                	switch (d[2]) {
+                    	case "non" : return 15;
+                    	default : return 25;
+                	}
+            	})
+            	.type(function (d) {
+					return mutationStyle[d.mutationType].symbol;
+            	})
+        	)
+        	.attr("fill", function(d) {
+            	return mutationStyle[d.mutationType].fill;
+        	})
+        	.attr("stroke", function(d) {
+        		return mutationStyle[d.mutationType].stroke;
+			})
+       	 	.attr("stroke-width", 1.2);
+	}
+    function drawContinuousPlots() { //DNA Methylation, RPPA view
 
     }
     function drawQtips() {

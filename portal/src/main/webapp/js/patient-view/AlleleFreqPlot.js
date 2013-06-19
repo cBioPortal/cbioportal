@@ -70,6 +70,22 @@ var AlleleFreqPlotUtils = (function() {
         return Math.abs(u) <= 1 ? .5 * u : 0;
     };
 
+    // Silverman's rule of thumb for calculating the bandwith parameter for
+    // kde with Gaussian kernel.  Turns out that one can calculate the optimal
+    // bandwidth when using the Gaussian kernel (not a surprise).  It turns out
+    // to basically be, a function of the variance of the data and the number
+    // of data points.
+    //
+    // http://en.wikipedia.org/wiki/Kernel_density_estimation#Practical_estimation_of_the_bandwidth
+    var calculate_bandwidth = function(data) {
+        var mean = d3.mean(data);
+        var variance = d3.mean(data.map(function(d) { return Math.pow(d - mean, 2); }));
+        var standard_deviation = Math.pow(variance, .5);
+        var bandwidth = 1.06 * standard_deviation * Math.pow(data.length, -1/5);
+
+        return bandwidth;
+    };
+
     return {
         process_data: process_data,
         extract_and_process: extract_and_process,
@@ -77,6 +93,7 @@ var AlleleFreqPlotUtils = (function() {
         epanechnikovKernel: epanechnikovKernel,
         uniform: uniform,
         gaussianKernel: gaussianKernel,
+        calculate_bandwidth: calculate_bandwidth
     };
 }());
 
@@ -151,7 +168,8 @@ var AlleleFreqPlot = function(div, data) {
     applyCss(y_axis.selectAll('line'));
 
     var utils =  AlleleFreqPlotUtils;        // alias
-    var kde = utils.kernelDensityEstimator(utils.gaussianKernel(.07), x.ticks(100));
+    var bandwidth = utils.calculate_bandwidth(data);
+    var kde = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth), x.ticks(100));
     var plot_data = kde(data);
 
     // rescale the y scale to fit actual values

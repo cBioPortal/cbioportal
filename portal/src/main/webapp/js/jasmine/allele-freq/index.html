@@ -33,14 +33,13 @@
 
   <script type="text/javascript" src="AlleleFreqPlot.js"></script>
   <script type="text/javascript">
-      d3.json('data.json', function(data) {
+      //d3.json('data.json', function(data) {
+      d3.json('big-data.json', function(data) {
+      //      var processed_data = AlleleFreqPlotUtils.process_data(data.alt_count, data.ref_count);
 
+              var processed_data = data.split(",");
 
-    var processed_data = AlleleFreqPlotUtils.process_data(data.alt_count, data.ref_count);
-
-    console.log(processed_data);
-
-    AlleleFreqPlot(document.getElementById('allele_freq'), processed_data)
+            AlleleFreqPlot(document.getElementById('allele_freq'), processed_data)
 
               });
   </script>

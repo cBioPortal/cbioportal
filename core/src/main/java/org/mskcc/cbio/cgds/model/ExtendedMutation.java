@@ -930,4 +930,34 @@ public final class ExtendedMutation
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + (this.event != null ? this.event.hashCode() : 0);
+        hash = 79 * hash + this.geneticProfileId;
+        hash = 79 * hash + (this.caseId != null ? this.caseId.hashCode() : 0);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ExtendedMutation other = (ExtendedMutation) obj;
+        if (this.event != other.event && (this.event == null || !this.event.equals(other.event))) {
+            return false;
+        }
+        if (this.geneticProfileId != other.geneticProfileId) {
+            return false;
+        }
+        if ((this.caseId == null) ? (other.caseId != null) : !this.caseId.equals(other.caseId)) {
+            return false;
+        }
+        return true;
+    }
+}

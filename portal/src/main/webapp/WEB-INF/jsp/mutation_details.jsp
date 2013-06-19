@@ -10,7 +10,7 @@
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
 
-<!--script type="text/javascript" src="js/raphael/raphael.js"></script-->
+<!-- TODO include these js files in the global js include? -->
 <script type="text/javascript" src="js/mutation_model.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/mutation_table.js"></script>
@@ -25,6 +25,7 @@
     MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
 %>
 <div class='section' id='mutation_details'>
+	<img src='images/ajax-loader.gif'/>
 </div>
 
 
@@ -78,25 +79,6 @@ $(document).ready(function(){
 	var sampleArray = samples.trim().split(/\s+/);
 
 	/**
-	 * Initializes the mutation diagram view.
-	 *
-	 * @param gene          hugo gene symbol
-	 * @param mutationData  mutation data (array of JSON objects)
-	 * @param sequenceData  sequence data (as a JSON object)
-	 */
-	var drawMutationDiagram = function(gene, mutationData, sequenceData)
-	{
-		// create a backbone collection for the given data
-		var mutationColl = new MutationCollection(mutationData);
-
-		var mutationDiagram = new MutationDiagram(gene,
-			{el: "mutation_diagram_" + gene.toUpperCase()},
-			mutationColl);
-
-		mutationDiagram.initDiagram(sequenceData);
-	};
-
-	/**
 	 * Processes the raw mutation data returned from the servlet, and
 	 * initializes the mutation view.
 	 *
@@ -104,67 +86,8 @@ $(document).ready(function(){
 	 */
 	var initMutationView = function(data)
 	{
-		var mainDivSelector = $("#mutation_details");
-
-		// check if there is mutation data
-		if (!data || data.length == 0)
-		{
-			// display information if no data is available
-			// TODO also factor this out as a backbone view?
-			mainDivSelector.html(
-				"<p>There are no mutation details available for the gene set entered.</p>" +
-				"<br><br>");
-		}
-
-		var util = new MutationUtil(new MutationCollection(data));
-		var mutationMap = util.getMutationGeneMap();
-
-		/**
-		 * Function to init mutation view for the given gene.
-		 *
-		 * @param gene          hugo gene symbol
-		 * @param util     mutation util with helper functions
-		 */
-		var initView = function(gene, util)
-		{
-			var mutationMap = util.getMutationGeneMap();
-
-			// callback function to init view after retrieving
-			// sequence information.
-			var init = function(response)
-			{
-				// calculate somatic & germline mutation rates
-				var mutationCount = util.countMutations(gene, sampleArray);
-				// generate summary string for the calculated mutation count values
-				var summary = util.generateSummary(mutationCount);
-
-				// prepare data for mutation view
-				var mutationInfo = {geneSymbol: gene,
-					mutationSummary: summary,
-					uniprotId : response.identifier};
-
-				// init the view
-				var mainView = new MainMutationView({
-					el: "#mutation_details_" + gene,
-					model: mutationInfo});
-
-				mainView.render();
-
-				// draw mutation diagram
-				drawMutationDiagram(gene, mutationMap[gene], response);
-				// TODO draw mutation table
-			};
-
-			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
-		};
-
-		// init main view for each gene
-		for (var key in mutationMap)
-		{
-			// TODO also factor this out to a backbone view?
-			mainDivSelector.append("<div id='mutation_details_" + key +"'></div>");
-			initView(key, util);
-		}
+		var util = new MutationDetailsUtil(new MutationCollection(data));
+		util.initDefaultView("#mutation_details", sampleArray);
 	};
 
 	// TODO getting these params from global variables defined in visualize.jsp

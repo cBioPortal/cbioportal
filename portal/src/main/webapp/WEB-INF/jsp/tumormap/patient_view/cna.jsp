@@ -22,13 +22,17 @@
                     },
                     {// case_ids
                         "aTargets": [ cnaTableIndices["case_ids"] ],
+                        "bVisible": multiCases,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var caseIds = cnas.getValue(source[0], "caseIds");
+                                var caseIds = cnas.getValue(source[0], "caseIds").sort();
+                                for (var i=0, n=caseIds.length; i<n; i++) {
+                                    caseIds[i] = formatPatientLink(caseIds[i],cancerStudyId);
+                                }
                                 
-                                return caseIds.join("; ");
+                                return caseIds.join(" ");
                             } else {
                                 return cnas.getValue(source[0], "caseIds");
                             }

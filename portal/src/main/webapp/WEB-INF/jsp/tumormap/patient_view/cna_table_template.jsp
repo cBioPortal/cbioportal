@@ -2,7 +2,7 @@
                 <thead>
                     <tr valign="bottom">
                         <th>CNA Event ID</th>
-                        <th class="cna-header" alt="Patient/Tumor IDs"><b>Tumors</b></th>
+                        <th class="mut-header" alt="Case/Sample IDs"><b>Case IDs</b></th>
                         <th class="cna-header" alt="HUGO gene symbol"><b>Gene</b></th>
                         <th class="cna-header" alt="Copy number alteration (amplification or homozygously deletion)"><b>CNA</b></th>
                         <th class="cna-header" alt="Percentile of mRNA expression of the altered gene in this tumor comparing to the cohort"><b>mRNA Expr.</b></th>

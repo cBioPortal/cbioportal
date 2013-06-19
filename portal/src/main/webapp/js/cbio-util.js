@@ -13,9 +13,21 @@ cbio.util = (function() {
         
         return number.toPrecision(precision).replace(/\.*0+$/,''); // trim 0s
     };
+    
+    var getObjectLength = function(object) {
+        var length = 0;
+
+        for (var i in object) {
+          if (Object.prototype.hasOwnProperty.call(object, i)){
+            length++;
+          }
+        }
+        return length;
+    };
 
     return {
-        toPrecision: toPrecision
+        toPrecision: toPrecision,
+        getObjectLength: getObjectLength
     };
 
 })();

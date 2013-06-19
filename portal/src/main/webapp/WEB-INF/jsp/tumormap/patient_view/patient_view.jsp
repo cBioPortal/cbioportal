@@ -289,6 +289,7 @@ var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
+var multiCases = caseId.indexOf(" ")!==-1;
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
@@ -607,7 +608,7 @@ function d3MrnaBar(div,mrnaPerc) {
 }
 
 function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
+    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='+cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
 }
 
 function trimHtml(html) {
@@ -620,6 +621,7 @@ function idRegEx(ids) {
 
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
+    var multiCase = cbio.util.getObjectLength(clinicalDataMap)>1;
     for (var caseId in clinicalDataMap) {
         var clinicalData = clinicalDataMap[caseId];
         
@@ -630,11 +632,18 @@ function outputClinicalData() {
                     caseId+"'>More about this patient</a></td></tr>";
         $("#clinical_table").append(row);
         addMoreClinicalTooltip("more-clinical-a-"+caseId, caseId);
-            
-        var diseaseInfo = formatDiseaseInfo(clinicalData);
-        var patientStatus = formatPatientStatus(clinicalData);
-        row = "<tr><td>"+diseaseInfo+"</td><td align='right'>"+patientStatus+"</td></tr-->";
-        $("#clinical_table").append(row);
+        
+        if (!multiCase) {
+            var diseaseInfo = formatDiseaseInfo(clinicalData);
+            var patientStatus = formatPatientStatus(clinicalData);
+            row = "<tr><td>"+diseaseInfo+"</td><td align='right'>"+patientStatus+"</td></tr-->";
+            $("#clinical_table").append(row);
+        }
+    }
+    
+    if (multiCase) {
+        $("#clinical_table").append("<tr><td><a href=\"study.do?cancer_study_id="+
+                cancerStudyId+"\">"+cancerStudyName+"</a></td><td></td></tr>");
     }
     
     function formatPatientInfo(clinicalData) {
@@ -774,16 +783,6 @@ function outputClinicalData() {
 
 
 </script>
-
-
-    <!--tr>
-        <td><b><u><%=patient%></u></b>&nbsp;&nbsp;<%=patientInfo%></td>
-        <td align="right"><a href="#" id="more-clinical-a">More about this patient</a></td>
-    </tr>
-    <tr>
-        <td><%=diseaseInfo%></td>
-        <td align="right"><%=patientStatus%></td>
-    </tr-->
 
 </body>
 </html>

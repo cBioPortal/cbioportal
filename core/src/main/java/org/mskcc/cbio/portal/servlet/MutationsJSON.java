@@ -361,7 +361,7 @@ public class MutationsJSON extends HttpServlet {
         Long eventId = mutation.getMutationEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
         if (ix!=null) { // multiple samples
-            Set.class.cast(data.get("samples").get(ix)).add(mutation.getCaseId());
+            Set.class.cast(data.get("caseIds").get(ix)).add(mutation.getCaseId());
             return;
         }
         

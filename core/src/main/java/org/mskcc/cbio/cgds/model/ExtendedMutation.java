@@ -305,11 +305,12 @@ public final class ExtendedMutation
 
         @Override
         public int hashCode() {
-            int hash = 5;
-            hash = 67 * hash + (this.chr != null ? this.chr.hashCode() : 0);
-            hash = 67 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
-            hash = 67 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 67 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
+            int hash = 3;
+            hash = 59 * hash + (this.gene != null ? this.gene.hashCode() : 0);
+            hash = 59 * hash + (this.chr != null ? this.chr.hashCode() : 0);
+            hash = 59 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
+            hash = 59 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
+            hash = 59 * hash + (this.proteinChange != null ? this.proteinChange.hashCode() : 0);
             return hash;
         }
 
@@ -322,6 +323,9 @@ public final class ExtendedMutation
                 return false;
             }
             final MutationEvent other = (MutationEvent) obj;
+            if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
+                return false;
+            }
             if ((this.chr == null) ? (other.chr != null) : !this.chr.equals(other.chr)) {
                 return false;
             }
@@ -331,12 +335,11 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
+            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equals(other.proteinChange)) {
                 return false;
             }
             return true;
         }
-        
     }
     private static final String GERMLINE = "germline";
 

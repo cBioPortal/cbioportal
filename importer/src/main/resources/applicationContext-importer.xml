@@ -51,6 +51,14 @@
   </b:bean>
   <b:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
+  <!-- datasource for darwin -->
+  <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
+	<b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	<b:property name="url" value="jdbc:mysql://${darwin.db.host}/${darwin.db.name}"/>
+	<b:property name="username" value="${darwin.db.user}"/>
+	<b:property name="password" value="${darwin.db.password}"/>
+  </b:bean>
+
   <!-- importer beans -->
   <b:bean id="dataSourceFactory" class="org.mskcc.cbio.importer.io.internal.DataSourceFactoryBean"/>
   <b:bean id="databaseUtils" class="org.mskcc.cbio.importer.io.internal.DatabaseUtilsImpl"/>
@@ -78,6 +86,7 @@
   </b:bean>
   <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
 	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="caseIDs"/>
   </b:bean>
   <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
@@ -87,6 +96,12 @@
 	<b:constructor-arg ref="fileUtils"/>
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
+  </b:bean>
+  <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
+    <b:constructor-arg ref="config"/>
+    <b:constructor-arg ref="fileUtils"/>
+    <b:constructor-arg ref="databaseUtils"/>
+    <b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
   <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>

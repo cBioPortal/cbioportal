@@ -84,6 +84,10 @@
         </td>
         <!-- Plots View-->
         <td>
+            <div id='loading-image'>
+                <img style='padding:200px;' src='images/ajax-loader.gif'>
+            </div>
+            <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
             <div id="plots_box"></div>
         </td>
     </tr>
@@ -103,6 +107,7 @@
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
         xmlString = xmlString.replace(/<\/line><text y="9" x="0" dy=".71em"/g, "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
         xmlString = xmlString.replace(/<\/line><text x="-9" y="0" dy=".32em"/g, "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
+        console.log(xmlString);
         return xmlString;
     }
 

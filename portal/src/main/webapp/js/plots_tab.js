@@ -354,15 +354,12 @@ var PlotsView = (function () {
         return arr.length - 1;
     };
     function PlotsTypeIsCopyNo() {
-        console.log(userSelection.plots_type);
         return userSelection.plots_type.indexOf("copy_no") !== -1;
     };
     function PlotsTypeIsMethylation() {
-        console.log(userSelection.plots_type);
         return userSelection.plots_type.indexOf("methylation") !== -1;
     };
     function PlotsTypeIsRPPA() {
-        console.log(userSelection.plots_type);
         return userSelection.plots_type.indexOf("rppa") !== -1;
     };
 
@@ -567,13 +564,37 @@ var PlotsView = (function () {
     }
 
     //Functions for D3 Drawing
-    function initSVG() {
+    function initView() {
+        $('#view_title').empty();
         $('#plots_box').empty();
         elem.svg = d3.select("#plots_box")
             .append("svg")
             .attr("width", setting.canvas_width)
             .attr("height", setting.canvas_height);
     }
+
+    function drawImgConverter() {
+        $('#view_title').empty();
+        if (PlotsTypeIsCopyNo()) {
+            $('#view_title').append(pData.gene + ": mRNA Expression v. CNA ");
+        } else if (PlotsTypeIsMethylation()) {
+            $('#view_title').append(pData.gene + ": mRNA Expression v. DNA Methylation ");
+        } else if (PlotsTypeIsRPPA()) {
+            $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
+        }
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                               "<input type='hidden' name='svgelement'>" +
+                               "<input type='hidden' name='filetype' value='pdf'>" +
+                               "<input type='submit' value='PDF'></form>";
+        $('#view_title').append(pdfConverterForm);
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                               "<input type='hidden' name='svgelement'>" +
+                               "<input type='hidden' name='filetype' value='svg'>" +
+                               "<input type='submit' value='SVG'></form>";
+        $('#view_title').append(svgConverterForm);
+    }
+
+
 
     function initAxis() {
         var analyseResult = {};
@@ -1139,7 +1160,6 @@ var PlotsView = (function () {
         if ((yHasData === false) ||
             (xHasData === false) ||
             (combineHasData === false)) {
-            console.log("inside");
             var errorTxt2 = pData.gene + " in the selected cancer study.";
             if (yHasData == false) {
                 errorTxt1 = "There is no " +
@@ -1168,7 +1188,7 @@ var PlotsView = (function () {
                 .attr("fill", "#DF3A01")
                 .text(errorTxt2)
             elem.svg.append("rect")
-                .attr("x", 60)
+                .attr("x", 50)
                 .attr("y", 30)
                 .attr("width", 400)
                 .attr("height", 50)
@@ -1183,6 +1203,11 @@ var PlotsView = (function () {
 
     return {
         init: function(){
+
+            $('#loading-image').show();
+            $('#view_title').hide();
+            $('#plots_box').hide();
+
             //Data Processing
             pData.gene = document.getElementById("genes").value;
             getDataTypes();
@@ -1195,9 +1220,11 @@ var PlotsView = (function () {
             reorderMutations();
 
             //View Construction
-            initSVG();
+            initView();
             if (dataIsAvailable()) {
+
                 initAxis();
+                drawImgConverter();
                 if (PlotsTypeIsCopyNo()) {
                     if (dataIsDiscretized()) {
                         drawDiscretizedAxis();
@@ -1217,6 +1244,13 @@ var PlotsView = (function () {
                 drawQtips();
                 //Img Center: PDF and SVG button
             }
+
+            setTimeout(function() {
+                $('#loading-image').hide();
+                $('#view_title').show();
+                $('#plots_box').show();
+            }, 500);
+
 
         }
     };

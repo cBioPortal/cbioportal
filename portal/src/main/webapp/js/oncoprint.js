@@ -709,7 +709,7 @@ var Oncoprint = function(div, params) {
             main_svg_transition.attr('width', x.svg_width);
 
             var sample_transition = duration ?
-                d3.selectAll('.sample').transition().duration(function(d) { return duration + x.sample2index[d.key] * 20; })
+                d3.selectAll('.sample').transition().duration(function(d) { return duration + x.sample2index[d.key] * 4; })
                 : d3.selectAll('.sample');
 
             // do the transition to all samples
@@ -734,11 +734,13 @@ var Oncoprint = function(div, params) {
         };
         var show_unaltered_bool = true;     // saves state for toggleUnalteredCases
 
+        var ANIMATION_DURATION = 750;
+
         // params: [bool].  If bool is passed as a parameter,
         // whitespace is set to the bool, otherwise, flip it from whatever it currently is
         var toggleWhiteSpace =  function(bool) {
             whitespace = bool === undefined ? !whitespace : bool;
-            horizontal_translate(1000);
+            horizontal_translate(ANIMATION_DURATION);
         };
 
         // params:
@@ -787,7 +789,7 @@ var Oncoprint = function(div, params) {
             else {
                 throw new Error("unsupported sort option: ") + JSON.stringify(by);
             }
-            horizontal_translate(1000);
+            horizontal_translate(ANIMATION_DURATION);
             return internal_data;
         };
 
@@ -795,7 +797,7 @@ var Oncoprint = function(div, params) {
             remove_oncoprint: remove_oncoprint,
             memoSort: function(attributes, animation) {
                 internal_data = MemoSort(internal_data, attributes);
-                if (animation) { horizontal_translate(1000); }
+                if (animation) { horizontal_translate(ANIMATION_DURATION); }
                 else { horizontal_translate(); }
 
                 return internal_data;
@@ -814,7 +816,7 @@ var Oncoprint = function(div, params) {
 
                 var attrs = shuffle(attributes);
                 internal_data = MemoSort(internal_data, attrs);
-                horizontal_translate(1000);
+                horizontal_translate(ANIMATION_DURATION);
                 return attrs;
             },
 
@@ -825,16 +827,16 @@ var Oncoprint = function(div, params) {
             zoom: function(scalar, animation) {
                 internal_rect_width = scalar * dims.rect_width;
 
-                d3.selectAll('.sample rect')
-                    .transition()
-                    .duration(1000)
-                    .attr('width', internal_rect_width);
-
                 if (animation) {
-                    horizontal_translate(1000);
+                    horizontal_translate(ANIMATION_DURATION);
                 } else {
                     horizontal_translate();
                 }
+
+                d3.selectAll('.sample rect')
+                    .transition()
+                    .duration(ANIMATION_DURATION)
+                    .attr('width', internal_rect_width);
 //                if (scalar >= .5) {
 //                    toggleWhiteSpace(true);
 //                } else {

@@ -104,9 +104,17 @@ $(document).ready(function(){
 	 */
 	var initMutationView = function(data)
 	{
-		// TODO check if there is mutation data & display no mutation info
-		// "<p>There are no mutation details available for the gene set entered.</p><br><br>"
 		var mainDivSelector = $("#mutation_details");
+
+		// check if there is mutation data
+		if (!data || data.length == 0)
+		{
+			// display information if no data is available
+			// TODO also factor this out as a backbone view?
+			mainDivSelector.html(
+				"<p>There are no mutation details available for the gene set entered.</p>" +
+				"<br><br>");
+		}
 
 		var util = new MutationUtil(new MutationCollection(data));
 		var mutationMap = util.getMutationGeneMap();
@@ -130,18 +138,21 @@ $(document).ready(function(){
 				// generate summary string for the calculated mutation count values
 				var summary = util.generateSummary(mutationCount);
 
+				// prepare data for mutation view
 				var mutationInfo = {geneSymbol: gene,
 					mutationSummary: summary,
 					uniprotId : response.identifier};
 
+				// init the view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
 					model: mutationInfo});
 
 				mainView.render();
 
+				// draw mutation diagram
 				drawMutationDiagram(gene, mutationMap[gene], response);
-				// TODO draw mutation table for each gene
+				// TODO draw mutation table
 			};
 
 			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);

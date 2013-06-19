@@ -139,11 +139,12 @@ var PlotsMenu = (function () {
 
 var PlotsView = (function () {
     var elem = {
-            svg: "",
-            xScale: "",
-            yScale: "",
-            xAxis: "",
-            yAxis: ""
+            svg : "",
+            xScale : "",
+            yScale : "",
+            xAxis : "",
+            yAxis : "",
+            dotsGroup : ""
         },
         pData = {
             gene : "",
@@ -180,46 +181,86 @@ var PlotsView = (function () {
             }
         },
 		mutationStyle = {
-			frameshift : {
-				symbol : "triangle-down",
-				fill : "#1C1C1C",
-				stroke : "#B40404"
-			},
-			nonsense : {
-				symbol : "diamond",
-				fill : "#1C1C1C",
-				stroke : "#B40404"
-			},
-			splice : {
-				symbol : "triangle-up",
-				fill : "#A4A4A4",
-				stroke : "#B40404"
-			},
-			in_frame : {
-				symbol : "square",
-				fill : "#DF7401",
-				stroke : "#B40404"
-			},
-			nonstart : {
-				symbol : "cross",
-				fill : "#DF7401",
-				stroke : "#B40404"
-			},
-			nonstop : {
-				symbol : "triangle-up",
-				fill : "#1C1C1C",
-				stroke : "#B40404"
-			},
+            frameshift : {
+                symbol : "triangle-down",
+                fill : "#1C1C1C",
+                stroke : "#B40404",
+                legendText : "frameshift"
+            },
+            nonsense : {
+                symbol : "diamond",
+                fill : "#1C1C1C",
+                stroke : "#B40404",
+                legendText : "nonsense"
+            },
+            splice : {
+                symbol : "triangle-up",
+                fill : "#A4A4A4",
+                stroke : "#B40404",
+                legendText : "splice"
+            },
+            in_frame : {
+                symbol : "square",
+                fill : "#DF7401",
+                stroke : "#B40404",
+                legendText : "in_frame"
+            },
+            nonstart : {
+                symbol : "cross",
+                fill : "#DF7401",
+                stroke : "#B40404",
+                legendText : "nonstart"
+            },
+            nonstop : {
+                symbol : "triangle-up",
+                fill : "#1C1C1C",
+                stroke : "#B40404",
+                legendText : "nonstop"
+            },
             missense : {
-				symbol : "circle",
-				fill : "#DF7401",
-				stroke : "#B40404"
+                symbol : "circle",
+                fill : "#DF7401",
+                stroke : "#B40404",
+                legendText : "missense"
             },
             non : {
-				symbol : "circle",
-				fill : "#00AAF8",
-				stroke : "#0089C6"
-			}
+                symbol : "circle",
+                fill : "#00AAF8",
+                stroke : "#0089C6",
+                legendText : "non"
+            }
+        },
+        gisticStyle = {
+            Amp : {
+                stroke : "#FF0000",
+                fill : "none",
+                symbol : "circle",
+                legendText : "Amp"
+            },
+            Gain : {
+                stroke : "#FF69B4",
+                fill : "none",
+                symbol : "circle",
+                legendText : "Gain"
+            },
+            Diploid : {
+                stroke : "#000000",
+                fill : "none",
+                symbol : "circle",
+                legendText : "Diploid"
+            },
+            Hetloss : {
+                stroke : "#00BFFF",
+                fill : "none",
+                symbol : "circle",
+                legendText : "Hetloss"
+            },
+            Homdel : {
+                stroke : "#00008B",
+                fill : "none",
+                symbol : "circle",
+                legendText : "Homdel"
+            },
         },
         setting = {
             canvas_width: 700,
@@ -312,6 +353,18 @@ var PlotsView = (function () {
         }
         return arr.length - 1;
     };
+    function PlotsTypeIsCopyNo() {
+        console.log(userSelection.plots_type);
+        return userSelection.plots_type.indexOf("copy_no") !== -1;
+    };
+    function PlotsTypeIsMethylation() {
+        console.log(userSelection.plots_type);
+        return userSelection.plots_type.indexOf("methylation") !== -1;
+    };
+    function PlotsTypeIsRPPA() {
+        console.log(userSelection.plots_type);
+        return userSelection.plots_type.indexOf("rppa") !== -1;
+    };
 
     //Functions for Retrieving Texts for Markups
     function getDataTypes() {
@@ -321,7 +374,7 @@ var PlotsView = (function () {
         userSelection.mrna_type = document.getElementById("data_type_mrna").value;
         userSelection.rppa_type = document.getElementById("data_type_rppa").value;
         userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
-    }
+    };
     function getAxisTitles() {
         if (userSelection.plots_type.indexOf("copy_no") !== -1) {
             var e = document.getElementById("data_type_copy_no");
@@ -444,6 +497,34 @@ var PlotsView = (function () {
             pData.mutation_type[k] = item;
         }
     }
+
+    function translateGisticType() {
+        var items = []; // tmp container for gistic values.
+        $.ajax({
+            url: "webservice.do?cmd=getProfileData&case_set_id=" +
+                  case_set_id + "&gene_list=" +
+                  pData.gene + "&genetic_profile_id=" +
+                  cancer_study_id + "_gistic",
+            type: 'get',
+            dataType: 'text',
+            async: false,
+            success: function (data) {
+                if (data != "") {
+                    if (data.indexOf("No genetic profile available") === -1) {  //Profile Exists
+                        tmp_lines = data.split(/\n/);
+                        items = tmp_lines[4].split(/\t/);
+                        items.splice(0,2);
+                    }
+                } else {
+                    //TODO: Hander Mutation Detail Fetching Error
+                }
+            }
+        });
+        for (var i = 0; i < pData.case_set.length; i++) {
+            pData.gisticType[i] = text.gistic_txt_val[items[i]];
+        }
+    }
+
     function formDataSet() {
         tmpDataSet.length = 0;
         for (var i = 0 ; i < pData.case_set.length; i++) {
@@ -630,9 +711,9 @@ var PlotsView = (function () {
     }
 
     function drawDiscretizedPlots() { //GISTIC, RAE view
-		var dotsGroup = elem.svg.append("svg:g");
+		elem.dotsGroup = elem.svg.append("svg:g");
         var ramRatio = 20;  //Noise
-    	dotsGroup.selectAll("path")
+    	elem.dotsGroup.selectAll("path")
         	.data(tmpDataSet)
         	.enter()
         	.append("svg:path")
@@ -663,8 +744,8 @@ var PlotsView = (function () {
     }
 
     function drawLog2Plots() {
-		var dotsGroup = elem.svg.append("svg:g");
-    	dotsGroup.selectAll("path")
+		elem.dotsGroup = elem.svg.append("svg:g");
+    	elem.dotsGroup.selectAll("path")
         	.data(tmpDataSet)
         	.enter()
         	.append("svg:path")
@@ -673,7 +754,7 @@ var PlotsView = (function () {
             })
         	.attr("d", d3.svg.symbol()
             	.size(function(d){
-                    switch (d[2]){
+                    switch (d.mutationTypes){
                         case "non" : return 15;
                     	default : return 25;
                 	}
@@ -824,7 +905,281 @@ var PlotsView = (function () {
         }
     }
 
-    //TODO: rearrange mutations (prominent)
+    function drawContinuousPlots() {  //RPPA, DNA Methylation Views
+        elem.dotsGroup = elem.svg.append("svg:g");
+        elem.dotsGroup.selectAll("path")
+            .data(tmpDataSet)
+            .enter()
+            .append("svg:path")
+            .attr("transform", function(d){
+                return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
+            })
+            .attr("d", d3.svg.symbol()
+                .size(35)
+                .type("circle"))
+            .attr("fill", function(d) {
+                switch (d.mutationType) {
+                    case "non" : return "white";
+                    default: return "orange";
+                }
+            })
+            .attr("fill-opacity", function(d) {
+                switch (d.mutationType) {
+                    case "non" : return 0.0;
+                    default : return 1.0;
+                }
+            })
+            .attr("stroke", function(d) {
+                return gisticStyle[d.gisticType].stroke;
+            })
+            .attr("stroke-width", function(d) {
+                switch (d.mutationType) {
+                    case "non" : return "1";
+                    default : return "1.1";
+                }
+            });
+    }
+
+    function drawAxisTitle() {
+        var axisTitleGroup = elem.svg.append("svg:g");
+        axisTitleGroup.append("text")
+            .attr("class", "label")
+            .attr("x", 350)
+            .attr("y", 580)
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text(text.xTitle);
+        axisTitleGroup.append("text")
+            .attr("class", "label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -270)
+            .attr("y", 45)
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text(text.yTitle);
+    }
+
+    function drawCopyNoViewLegends() {
+
+        //Convert object to array
+        var mutationStyleArr = [];
+        for (var key in mutationStyle) {
+            var obj = mutationStyle[key];
+            mutationStyleArr.push(obj);
+        }
+
+        var legend = elem.svg.selectAll(".legend")
+            .data(mutationStyleArr)
+            .enter().append("svg:g")
+            .attr("transform", function(d, i) {
+                return "translate(610, " + (30 + i * 15) + ")";
+            });
+
+            legend.append("path")
+            .data(mutationStyleArr)
+            .attr("width", 18)
+            .attr("height", 16)
+            .attr("d", d3.svg.symbol().size(30)
+                .type(function(d) {return d.symbol;}))
+            .attr("fill", function(d) {return d.fill;})
+            .attr("stroke", function(d){return d.stroke;})
+            .attr("stroke-width", 1.2);
+
+            legend.append("text")
+            .attr("dx", ".75em")
+            .attr("dy", ".35em")
+            .style("text-anchor", "front")
+            .text(function(d){return d.legendText;});
+    }
+
+    function drawOtherViewLegends() {
+
+        var gisticStyleArr = [];
+        for (var key in gisticStyle) {
+            var obj = gisticStyle[key];
+            gisticStyleArr.push(obj);
+        }
+
+        var mutatedStyle = {
+            stroke : "none",
+            symbol : "circle",
+            fill : "orange",
+            legendText : "Mutated",
+        }
+        gisticStyleArr.push(mutatedStyle);
+
+        var legend = elem.svg.selectAll(".legend")
+            .data(gisticStyleArr)
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+                return "translate(610, " + (30 + i * 15) + ")";
+            })
+
+        legend.append("path")
+            .attr("width", 18)
+            .attr("height", 18)
+            .attr("d", d3.svg.symbol()
+                .size(40)
+                .type(function(d) { return d.symbol; }))
+            .attr("fill", function (d) { return d.fill; })
+            .attr("stroke", function (d) { return d.stroke; })
+            .attr("stroke-width", 1.1);
+
+        legend.append("text")
+            .attr("dx", ".75em")
+            .attr("dy", ".35em")
+            .style("text-anchor", "front")
+            .text(function(d) { return d.legendText; })
+    }
+
+    function drawQtips() {
+        elem.dotsGroup.selectAll('path').each(function(d) {
+            $(this).qtip({
+                content: {text: 'qtip failed'},
+                events: {
+                    render: function(event, api) {
+                        var content = "<font size='2'>";
+
+                        if (PlotsTypeIsCopyNo()) {
+                            if (dataIsDiscretized()) {
+                                content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                            } else {
+                                content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                                           "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                            }
+                        } else if (PlotsTypeIsMethylation()) {    //mrna vs. dna methylation
+                            content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                                       "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                            if (d.gisticType !== "Diploid") {
+                                content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                            }
+                        } else if (PlotsTypeIsRPPA()) { //rppa vs. mrna
+                            content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                                       "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                            if (d.gisticType !== "Diploid") {
+                                content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                            }
+                        }
+
+                        content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                            "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                            "</a></strong><br>";
+
+                        if (d.mutationType !== 'non') {
+                            content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        }
+
+                        content = content + "</font>";
+                        api.set('content.text', content);
+                    }
+                },
+                show: 'mouseover',
+                hide: { fixed:true, delay: 100},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                position: {my:'left bottom',at:'top right'}
+            });
+        });
+    }
+
+    function reorderMutations() {
+        var nonMutatedData = [];
+        var mutatedData= [];
+        var dataBuffer = [];
+        tmpDataSet.forEach (function(entry) {
+            if (entry.mutationType != "non") {
+                mutatedData.push(entry);
+            } else {
+                nonMutatedData.push(entry);
+            }
+        });
+        nonMutatedData.forEach (function(entry) {
+            dataBuffer.push(entry);
+        });
+        mutatedData.forEach (function(entry) {
+            dataBuffer.push(entry);
+        });
+        tmpDataSet = dataBuffer;
+    }
+
+    function dataIsAvailable() {
+
+        var xHasData = false;
+        var yHasData = false;
+        var combineHasData = false;
+
+        if (PlotsTypeIsCopyNo()) {
+            xData = pData.copy_no;
+            yData = pData.mrna;
+        } else if (PlotsTypeIsMethylation()) {
+            xData = pData.dna_methylation;
+            yData = pData.mrna;
+        } else if (PlotsTypeIsRPPA()) {
+            xData = pData.mrna;
+            yData = pData.rppa;
+        }
+
+        for (var j = 0; j < pData.case_set.length; j++) {
+            if (xData[j] !== "NaN" || xData[j] === "NA") {
+                xHasData = true;
+            }
+        }
+        for (var k = 0; k < pData.case_set.length; k++) {
+            if (yData[k] !== "NaN" || yData[k] === "NA") {
+                yHasData = true;
+            }
+        }
+        for (var m = 0; m < xData.length; m++) {
+            if ((xData[m] !== "NaN" || xData[m] === "NA") &&
+                (yData[m] !== "NaN" || yData[m] === "NA")) {
+                combineHasData = true;
+            }
+        }
+
+        if ((yHasData === false) ||
+            (xHasData === false) ||
+            (combineHasData === false)) {
+            console.log("inside");
+            var errorTxt2 = pData.gene + " in the selected cancer study.";
+            if (yHasData == false) {
+                errorTxt1 = "There is no " +
+                            text.yTitle.substring(pData.gene.length+1) +
+                            " data for";
+            } else if (xHasData == false) {
+                errorTxt1 = "There is no " +
+                            text.xTitle.substring(pData.gene.length+1) +
+                            " data for";
+            } else if (combineHasData == false) {
+                errorTxt1 = "There is no data for the selected data type combination for";
+            }
+            //Get rid of "RPPA" in error message for rppa view
+            errorTxt1 = errorTxt1.replace("RPPA", "");
+
+            elem.svg.append("text")
+                .attr("x", 250)
+                .attr("y", 50)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(errorTxt1)
+            elem.svg.append("text")
+                .attr("x", 250)
+                .attr("y", 70)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(errorTxt2)
+            elem.svg.append("rect")
+                .attr("x", 60)
+                .attr("y", 30)
+                .attr("width", 400)
+                .attr("height", 50)
+                .attr("fill", "none")
+                .attr("stroke-width", 1)
+                .attr("stroke", "#BDBDBD");
+
+            return false;
+        }
+        return true;
+    }
 
     return {
         init: function(){
@@ -833,28 +1188,36 @@ var PlotsView = (function () {
             getDataTypes();
             getAxisTitles();
             fetchPlotsData();
+            translateGisticType();
             fetchMutationType();
-            formDataSet();
+            //TODO: error handle
+            formDataSet();    //Build the tmp data set for d3 to use
+            reorderMutations();
 
             //View Construction
             initSVG();
-            initAxis();
-            if (userSelection.plots_type.indexOf("copy_no") !== -1) {
-                if (dataIsDiscretized()) {
-                    drawDiscretizedAxis();
-                    drawBoxPlots();
-                    drawDiscretizedPlots();
-                } else {
+            if (dataIsAvailable()) {
+                initAxis();
+                if (PlotsTypeIsCopyNo()) {
+                    if (dataIsDiscretized()) {
+                        drawDiscretizedAxis();
+                        drawBoxPlots();
+                        drawDiscretizedPlots();
+                    } else {
+                        drawContinuousAxis();
+                        drawLog2Plots();
+                    }
+                    drawCopyNoViewLegends();
+                } else { //RPPA and GISTIC view
                     drawContinuousAxis();
-                    drawLog2Plots();
+                    drawContinuousPlots();
+                    drawOtherViewLegends();
                 }
-            } else {
-                drawContinuousAxis();
-                //drawContinuousPlots();
+                drawAxisTitle();
+                drawQtips();
+                //Img Center: PDF and SVG button
             }
-            //drawQtips();
-            //drawGlyphs();
-            //drawAxisTitles();
+
         }
     };
 }());

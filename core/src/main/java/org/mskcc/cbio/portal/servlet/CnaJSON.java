@@ -122,21 +122,25 @@ public class CnaJSON extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        String patients = request.getParameter(PatientView.PATIENT_ID);
+        String[] caseIds = request.getParameter(PatientView.PATIENT_ID).split(" +");
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         List<CopyNumberSegment> segs = Collections.emptyList();
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(patients.split("[, ]+")), studyId);
+            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(caseIds), studyId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
-        List list = new ArrayList();
+        Map<String,List> map = new HashMap<String,List>();
+        for (String caseId : caseIds) {
+            map.put(caseId, new ArrayList());
+        }
+        
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(list, seg);
+            exportCopyNumberSegment(map.get(seg.getCaseId()), seg);
         }
 
         response.setContentType("application/json");
@@ -144,7 +148,7 @@ public class CnaJSON extends HttpServlet {
         PrintWriter out = response.getWriter();
         ObjectMapper mapper = new ObjectMapper();
         try {
-            out.write(mapper.writeValueAsString(list));
+            out.write(mapper.writeValueAsString(map));
         } finally {            
             out.close();
         }

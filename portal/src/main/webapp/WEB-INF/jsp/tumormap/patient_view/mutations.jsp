@@ -25,7 +25,7 @@
                     },
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
-                        "bVisible": multiCases,
+                        "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -389,6 +389,7 @@
                     },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
+                        "bVisible": !mutations.colAllNull('mrna'),
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": 
@@ -397,7 +398,7 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = mutations.getValue(source[0], 'mrna');
-                                if (!mrna) return "<span style='color:gray;' class='"
+                                if (mrna===null) return "<span style='color:gray;' class='"
                                            +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {

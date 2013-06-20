@@ -24,14 +24,14 @@ GenomicEventObserver.prototype = {
     fire : function(o, thisObj) {
         var scope = thisObj || window;
 
-        if (o=="mutations-built") {
+        if (o==="mutations-built") {
             this.mutBuilt = true;
             this.fns_mut.forEach(
                 function(el) {
                     el.call(scope);
                 }
             );
-        } else if (o=="cna-built") {
+        } else if (o==="cna-built") {
             this.cnaBuilt = true;
             this.fns_cna.forEach(
                 function(el) {
@@ -40,7 +40,7 @@ GenomicEventObserver.prototype = {
             );
         }
 
-        if (this.hasMut==this.mutBuilt && this.hasCna==this.cnaBuilt) {
+        if (this.hasMut===this.mutBuilt && this.hasCna===this.cnaBuilt) {
             this.fns_mut_cna.forEach(
                 function(el) {
                     el.call(scope);
@@ -49,26 +49,6 @@ GenomicEventObserver.prototype = {
         }
     }
 };
-
-/**
- * Copyright (c) Mozilla Foundation http://www.mozilla.org/
- * This code is available under the terms of the MIT License
- */
-if (!Array.prototype.forEach) {
-    Array.prototype.forEach = function(fun /*, thisp*/) {
-        var len = this.length >>> 0;
-        if (typeof fun != "function") {
-            throw new TypeError();
-        }
-
-        var thisp = arguments[1];
-        for (var i = 0; i < len; i++) {
-            if (i in this) {
-                fun.call(thisp, this[i], i, this);
-            }
-        }
-    };
-}
 
 function GenomicEventContainer() {
     this.data = null;

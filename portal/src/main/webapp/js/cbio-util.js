@@ -24,10 +24,31 @@ cbio.util = (function() {
         }
         return length;
     };
+    
+    var checkNullOrUndefined = function(o) {
+        return o === null || typeof o === "undefined";
+    }
 
     return {
         toPrecision: toPrecision,
-        getObjectLength: getObjectLength
+        getObjectLength: getObjectLength,
+        checkNullOrUndefined: checkNullOrUndefined
     };
 
 })();
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fun /*, thisp*/) {
+        var len = this.length >>> 0;
+        if (typeof fun !== "function") {
+            throw new TypeError();
+        }
+
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                fun.call(thisp, this[i], i, this);
+            }
+        }
+    };
+}

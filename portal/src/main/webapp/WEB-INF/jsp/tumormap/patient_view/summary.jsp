@@ -63,13 +63,15 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
+        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         if (genomicEventObs.hasMut) {
             genomicEventObs.subscribeMut(function(){
-                plotMuts(paper,config,chmInfo,genomicEventObs.hasSeg?1:0,genomicEventObs.mutations);
+                for (var i=0, n=caseIds.length; i<n; i++) {
+                    plotMuts(paper,config,chmInfo,i+(genomicEventObs.hasSeg?n:0),genomicEventObs.mutations,caseIds[i]);
+                };
             });
         }
         
@@ -79,16 +81,18 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function plotCopyNumberOverview(paper,config,chmInfo,hasMut) {
+
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
             <%=PatientView.PATIENT_ID%>:'<%=patient%>',
             cancer_study_id: cancerStudyId
         };
-
         $.post("cna.json", 
             params,
             function(segs){
-                plotCnSegs(paper,config,chmInfo,0,segs,1,2,3,5);
+                for (var i=0, n=caseIds.length; i<n; i++) {
+                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5);
+                }
             }
             ,"json"
         );
@@ -155,13 +159,16 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
         var emId = {};
-        emId[caseId] = true;
+        caseIds.forEach(function(caseId) {
+            emId[caseId] = true;}
+        );
+        
         var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,cancerStudyId,dt,emId,2,1,null,hLog,vLog);
         google.visualization.events.addListener(scatter, 'select', function(e){
             var s = scatter.getSelection();
             if (s.length>1) return;
             if (caseIdDiv) {
-                var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
+                var caseId = s.length===0 ? null : dt.getValue(s[0].row,0);
                 $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
             }
         });

@@ -25,6 +25,12 @@
 
 	/**
 	 * Default mutation view for a single gene.
+	 *
+	 * options: {el: [target container],
+	 *           model: {geneSymbol: [hugo gene symbol],
+	 *                   mutationSummary: [single line summary text],
+	 *                   uniprotId: [gene identifier]}
+	 *          }
 	 */
 	var MainMutationView = Backbone.View.extend({
 		render: function() {
@@ -44,6 +50,12 @@
 	/**
 	 * Default mutation details view for the entire mutation details tab.
 	 * Creates a separate MainMutationView (another Backbone view) for each gene.
+	 *
+	 * options: {el: [target container],
+	 *           model: {mutations: [mutation data as an array of JSON objects],
+	 *                   sampleArray: [list of case ids as an array of strings],
+	 *                   diagramOpts: [mutation diagram options -- optional]}
+	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
 		render: function() {

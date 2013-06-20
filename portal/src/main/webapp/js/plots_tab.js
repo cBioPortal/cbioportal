@@ -192,7 +192,14 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     plotsConfig.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
 
     //Calling web APIs
-    var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    var url_base = "";
+    if (case_set_id === "-1") {
+        url_base = "webservice.do?cmd=getProfileData&case_ids_key=" +
+            case_ids_key + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    } else {
+        url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
+            case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    }
     var types = [
         plotsConfig.mutations_type, //mutations
         plotsConfig.copy_no_type, //copy no
@@ -251,8 +258,18 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     for (var i = 0; i < PlotsData.getCaseSetLength(); i++) {
         mutationMap[PlotsData.getSingleCase(i)] = "non";
     }
+    var url = "";
+    if (case_set_id === "-1") {
+        url = "webservice.do?cmd=getMutationData&case_ids_key=" +
+            case_ids_key + "&gene_list=" + PlotsData.getGene() +
+            "&genetic_profile_id=" + cancer_study_id + "_mutations";
+    } else {
+        url = "webservice.do?cmd=getMutationData&case_set_id=" +
+            case_set_id + "&gene_list=" + PlotsData.getGene() +
+            "&genetic_profile_id=" + cancer_study_id + "_mutations";
+    }
     $.ajax({
-        url: "webservice.do?cmd=getMutationData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=" + cancer_study_id + "_mutations",
+        url: url,
         type: 'get',
         dataType: 'text',
         async: false,
@@ -870,7 +887,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")";
+                            var formattedMutationTypes = d[5].replace(",", ", ");
+                            content = content + "Mutation: " + "<strong>" + formattedMutationTypes + "</strong>";
                         }
                         content = content + "</font>";
                         api.set('content.text', content);
@@ -926,7 +944,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 		} else {
 			switch(d[3]) {
                             case "non" : return "1";
-                            default: return "1.5";
+                            default: return "1.2";
                         }
            	}
 	});
@@ -946,7 +964,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")" + "<br>";
+                            var formattedMutationTypes = d[5].replace(",", ", ");
+                            content = content + "Mutation: " + "<strong>" + formattedMutationTypes + "</strong>" + "<br>";
                         }
                         if (d[2] != 0 && d[2] != "NaN") {
                             var tmp_index = parseInt(d[2], 10) + 2;

@@ -21,7 +21,7 @@ function MutationDiagram(geneSymbol, options, data)
 // default tooltip templates?
 // use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
-	el: "mutation_diagram_d3",  // id of the container
+	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 720,               // width of the container
 	elHeight: 180,              // height of the container
 	marginLeft: 40,             // left margin for the plot area
@@ -95,7 +95,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 {
 	var self = this;
 
-	var container = d3.select("#" + self.options.el);
+	var container = d3.select(self.options.el);
 
 	// calculate bounds of the actual plot area (excluding axis, sequence, labels, etc.)
 	var bounds = {};

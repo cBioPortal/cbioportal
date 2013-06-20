@@ -24,10 +24,7 @@
 
     MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
 %>
-<div class='section' id='mutation_details'>
-	<img src='images/ajax-loader.gif'/>
-</div>
-
+<div class='section' id='mutation_details'></div>
 
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css";
@@ -86,8 +83,30 @@ $(document).ready(function(){
 	 */
 	var initMutationView = function(data)
 	{
-		var util = new MutationDetailsUtil(new MutationCollection(data));
-		util.initDefaultView("#mutation_details", sampleArray);
+		var model = {mutations: data,
+			sampleArray: sampleArray};
+
+		var defaultView = new MutationDetailsView(
+			{el: "#mutation_details", model: model});
+
+		defaultView.render();
+
+		// TODO completely remove this part after refactoring the mutation table
+		var tableMutations;
+		<%
+		for (GeneWithScore geneWithScore : geneWithScoreList) {
+			String geneStr = geneWithScore.getGene();
+			if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
+				String mutationTableStr =
+					mutationTableProcessor.processMutationTable(geneStr,
+					converMutations(geneWithScore, mutationMap, mergedCaseList));
+		%>
+				tableMutations = <%= mutationTableStr %>;
+				delayedMutationTable(tableMutations);
+		<%
+			}
+		}
+		%>
 	};
 
 	// TODO getting these params from global variables defined in visualize.jsp
@@ -98,24 +117,6 @@ $(document).ready(function(){
 
 	// get mutation data & init view for the current gene and case lists
 	$.post("getMutationData.json", params, initMutationView, "json");
-
-	// TODO use data retrieved from getMutationData.json, create backbone view for the table
-	var tableMutations;
-	<%
-	// TODO completely remove the for block after refactoring mutation table
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        String geneStr = geneWithScore.getGene();
-        if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
-            String mutationTableStr = mutationTableProcessor.processMutationTable(
-                geneStr,
-                converMutations(geneWithScore, mutationMap, mergedCaseList)
-            );
-    %>
-			tableMutations = <%= mutationTableStr %>;
-			delayedMutationTable(tableMutations);
-
-        <% } %>
-    <% } %>
 });
 
 /**

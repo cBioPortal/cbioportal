@@ -35,7 +35,7 @@
                                     caseIds[i] = formatPatientLink(caseIds[i],cancerStudyId);
                                 }
                                 
-                                return caseIds.join(" ");
+                                return "<b>"+caseIds.join("<br/>")+"</b>";
                             } else {
                                 return mutations.getValue(source[0], "caseIds");
                             }

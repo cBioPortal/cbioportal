@@ -608,7 +608,8 @@ function d3MrnaBar(div,mrnaPerc) {
 }
 
 function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='+cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
+    return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
+            +cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
 }
 
 function trimHtml(html) {
@@ -627,7 +628,7 @@ function outputClinicalData() {
         
         var patientInfo = formatPatientInfo(clinicalData);
         
-        var row = "<tr><td><b><u>"+caseId+"</b></u>&nbsp;&nbsp;"+patientInfo+"</td>\n\
+        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;&nbsp;"+patientInfo+"</td>\n\
                     <td align='right'><a href='#' id='more-clinical-a-"+
                     caseId+"'>More about this patient</a></td></tr>";
         $("#clinical_table").append(row);
@@ -740,9 +741,9 @@ function outputClinicalData() {
 
     function formatPatientStatus(clinicalData) {
         var oss = guessClinicalData(clinicalData, ["overall_survival_status"]);
-        var ossLow = oss.toLowerCase();
+        var ossLow = oss===null?null:oss.toLowerCase();
         var dfss = guessClinicalData(clinicalData, ["disease-free_survival_status"]);
-        var dfssLow = dfss.toLowerCase();
+        var dfssLow = dfss===null?null:dfss.toLowerCase();
         var osm = guessClinicalData(clinicalData, ["overall_survival_months"]);
         var dfsm = guessClinicalData(clinicalData, ["disease-free_survival_months"]);
         var patientStatus = "";

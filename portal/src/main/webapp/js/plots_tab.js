@@ -401,10 +401,10 @@ var PlotsView = (function () {
         var url_base = "";
         if (case_set_id === "-1") {
             url_base = "webservice.do?cmd=getProfileData&case_ids_key=" +
-                case_ids_key + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+                case_ids_key + "&gene_list=" + pData.gene + "&genetic_profile_id=";
         } else {
             url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
-                case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+                case_set_id + "&gene_list=" + pData.gene + "&genetic_profile_id=";
         }
         var types = [
             userSelection.mutation_type,
@@ -459,11 +459,11 @@ var PlotsView = (function () {
         var url = "";
         if (case_set_id === "-1") {
             url = "webservice.do?cmd=getMutationData&case_ids_key=" +
-                case_ids_key + "&gene_list=" + PlotsData.getGene() +
+                case_ids_key + "&gene_list=" + pData.gene +
                 "&genetic_profile_id=" + cancer_study_id + "_mutations";
         } else {
-            url = "webservice.do?cmd=getMutationData&case_set_id=" +
-                case_set_id + "&gene_list=" + PlotsData.getGene() +
+            url = "webservice.do?cmd=getMutationData&case_set_id="  +
+                case_set_id + "&gene_list=" + pData.gene +
                 "&genetic_profile_id=" + cancer_study_id + "_mutations";
         }
         $.ajax({
@@ -511,11 +511,21 @@ var PlotsView = (function () {
 
     function translateGisticType() {
         var items = []; // tmp container for gistic values.
-        $.ajax({
-            url: "webservice.do?cmd=getProfileData&case_set_id=" +
+        var url;
+        if (case_set_id === "-1") {
+            url = "webservice.do?cmd=getProfileData&case_ids_key=" +
+                case_ids_key + "&gene_list=" +
+                pData.gene + "&genetic_profile_id=" +
+                cancer_study_id + "_gistic";
+        } else {
+            url = "webservice.do?cmd=getProfileData&case_set_id=" +
                 case_set_id + "&gene_list=" +
                 pData.gene + "&genetic_profile_id=" +
-                cancer_study_id + "_gistic",
+                cancer_study_id + "_gistic";
+
+        }
+        $.ajax({
+            url: url,
             type: 'get',
             dataType: 'text',
             async: false,
@@ -596,12 +606,12 @@ var PlotsView = (function () {
         } else if (PlotsTypeIsRPPA()) {
             $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
         }
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforPDF();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='submit' value='SVG'></form>";

@@ -1,10 +1,10 @@
 var PlotsMenu = (function () {
     var content = {
             plots_type_list : [
-                                ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
-                                ["mrna_vs_dna_methylation", "mRNA vs. DNA Methylation"],
-                                ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
-                              ],
+                ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
+                ["mrna_vs_dna_methylation", "mRNA vs. DNA Methylation"],
+                ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
+            ],
             genetic_profile_mutations : [],
             genetic_profile_mrna : [],
             genetic_profile_copy_no : [],
@@ -180,7 +180,7 @@ var PlotsView = (function () {
                 "2": "Amp"
             }
         },
-		mutationStyle = {
+        mutationStyle = {
             frameshift : {
                 symbol : "triangle-down",
                 fill : "#1C1C1C",
@@ -274,7 +274,7 @@ var PlotsView = (function () {
             dna_methylation_type : "",
             rppa_type : "",
         },
-        //Fileter/form multi-demention Dataset for D3 to use
+    //Fileter/form multi-demention Dataset for D3 to use
         tmpDataSet = [],
         datum = {
             caseId : "",
@@ -297,11 +297,11 @@ var PlotsView = (function () {
         }
     }
     function dataIsDiscretized() {
-            return userSelection.plots_type.indexOf("copy_no") !== -1 &&
-                   userSelection.copy_no_type.indexOf("log2") === -1 &&
-                  (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
-                   userSelection.copy_no_type.indexOf("cna") !== -1 ||
-                   userSelection.copy_no_type.indexOf("CNA") !== -1);
+        return userSelection.plots_type.indexOf("copy_no") !== -1 &&
+            userSelection.copy_no_type.indexOf("log2") === -1 &&
+            (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
+                userSelection.copy_no_type.indexOf("cna") !== -1 ||
+                userSelection.copy_no_type.indexOf("CNA") !== -1);
     }
     function analyseData(xData, yData) {
         var tmp_xData = [];
@@ -397,9 +397,15 @@ var PlotsView = (function () {
         for ( var i = 0 ; i< result_set.length; i++) {
             result_set[i] = new Array();
         }
-        var url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
-                        case_set_id + "&gene_list=" +
-                        pData.gene + "&genetic_profile_id=";
+        //Calling web APIs
+        var url_base = "";
+        if (case_set_id === "-1") {
+            url_base = "webservice.do?cmd=getProfileData&case_ids_key=" +
+                case_ids_key + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+        } else {
+            url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
+                case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+        }
         var types = [
             userSelection.mutation_type,
             userSelection.copy_no_type,
@@ -450,10 +456,18 @@ var PlotsView = (function () {
         for (var i = 0; i < pData.case_set.length; i++) {
             mutationMap[pData.case_set[i]] = "non";
         }
+        var url = "";
+        if (case_set_id === "-1") {
+            url = "webservice.do?cmd=getMutationData&case_ids_key=" +
+                case_ids_key + "&gene_list=" + PlotsData.getGene() +
+                "&genetic_profile_id=" + cancer_study_id + "_mutations";
+        } else {
+            url = "webservice.do?cmd=getMutationData&case_set_id=" +
+                case_set_id + "&gene_list=" + PlotsData.getGene() +
+                "&genetic_profile_id=" + cancer_study_id + "_mutations";
+        }
         $.ajax({
-            url: "webservice.do?cmd=getMutationData&case_set_id=" + case_set_id +
-                 "&gene_list=" + pData.gene +
-                 "&genetic_profile_id=" + cancer_study_id + "_mutations",
+            url: url,
             type: 'get',
             dataType: 'text',
             async: false,
@@ -499,9 +513,9 @@ var PlotsView = (function () {
         var items = []; // tmp container for gistic values.
         $.ajax({
             url: "webservice.do?cmd=getProfileData&case_set_id=" +
-                  case_set_id + "&gene_list=" +
-                  pData.gene + "&genetic_profile_id=" +
-                  cancer_study_id + "_gistic",
+                case_set_id + "&gene_list=" +
+                pData.gene + "&genetic_profile_id=" +
+                cancer_study_id + "_gistic",
             type: 'get',
             dataType: 'text',
             async: false,
@@ -535,28 +549,28 @@ var PlotsView = (function () {
                     (pData.copy_no[i] !== "NA") &&
                     (pData.mrna[i] !== "NaN") &&
                     (pData.mrna[i] !== "NA")){
-                        tmpObj.xVal = pData.copy_no[i];
-                        tmpObj.yVal = pData.mrna[i];
-                        tmpDataSet.push(tmpObj);
-                    }
+                    tmpObj.xVal = pData.copy_no[i];
+                    tmpObj.yVal = pData.mrna[i];
+                    tmpDataSet.push(tmpObj);
+                }
             } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
                 if ((pData.dna_methylation[i] !== "NaN") &&
                     (pData.dna_methylation[i] !== "NA") &&
                     (pData.mrna[i] !== "NaN") &&
                     (pData.mrna[i] !== "NA")){
-                        tmpObj.xVal = pData.dna_methylation[i];
-                        tmpObj.yVal = pData.mrna[i];
-                        tmpDataSet.push(tmpObj);
-                    }
+                    tmpObj.xVal = pData.dna_methylation[i];
+                    tmpObj.yVal = pData.mrna[i];
+                    tmpDataSet.push(tmpObj);
+                }
             } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
                 if ((pData.mrna[i] !== "NaN") &&
                     (pData.mrna[i] !== "NA") &&
                     (pData.rppa[i] !== "NaN") &&
                     (pData.rppa[i] !== "NA")){
-                        tmpObj.xVal = pData.mrna[i];
-                        tmpObj.yVal = pData.rppa[i];
-                        tmpDataSet.push(tmpObj);
-                    }
+                    tmpObj.xVal = pData.mrna[i];
+                    tmpObj.yVal = pData.rppa[i];
+                    tmpDataSet.push(tmpObj);
+                }
             } else {
                 //TODO: Error Handler
             }
@@ -583,14 +597,14 @@ var PlotsView = (function () {
             $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
         }
         var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-                               "<input type='hidden' name='svgelement'>" +
-                               "<input type='hidden' name='filetype' value='pdf'>" +
-                               "<input type='submit' value='PDF'></form>";
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='pdf'>" +
+            "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
         var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-                               "<input type='hidden' name='svgelement'>" +
-                               "<input type='hidden' name='filetype' value='svg'>" +
-                               "<input type='submit' value='SVG'></form>";
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='svg'>" +
+            "<input type='submit' value='SVG'></form>";
         $('#view_title').append(svgConverterForm);
     }
 
@@ -613,11 +627,11 @@ var PlotsView = (function () {
         var edge_y = analyseResult.edge_y;
 
         if ( userSelection.plots_type.indexOf("methylation") !== -1 &&
-             userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
+            userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
             //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
-                elem.xScale = d3. scale.linear()
-                    .domain([-0.02, 1])
-                    .range([100,600]);
+            elem.xScale = d3. scale.linear()
+                .domain([-0.02, 1])
+                .range([100,600]);
         } else {
             elem.xScale = d3.scale.linear()
                 .domain([min_x - edge_x, max_x + edge_x])
@@ -732,66 +746,66 @@ var PlotsView = (function () {
     }
 
     function drawDiscretizedPlots() { //GISTIC, RAE view
-		elem.dotsGroup = elem.svg.append("svg:g");
+        elem.dotsGroup = elem.svg.append("svg:g");
         var ramRatio = 20;  //Noise
-    	elem.dotsGroup.selectAll("path")
-        	.data(tmpDataSet)
-        	.enter()
-        	.append("svg:path")
-        	.attr("transform", function(d){
+        elem.dotsGroup.selectAll("path")
+            .data(tmpDataSet)
+            .enter()
+            .append("svg:path")
+            .attr("transform", function(d){
                 return "translate(" +
                     (elem.xScale(d.xVal) + (Math.random() * ramRatio - ramRatio/2)) +
                     ", " +
                     elem.yScale(d.yVal) + ")";
             })
-        	.attr("d", d3.svg.symbol()
-            			.size(function(d){
-                			switch (d.mutationType) {
-                    			case "non" : return 15;
-                    			default : return 25;
-                			}
-            			})
-            			.type(function(d){
-							return mutationStyle[d.mutationType].symbol;
-                		})
+            .attr("d", d3.svg.symbol()
+                .size(function(d){
+                    switch (d.mutationType) {
+                        case "non" : return 15;
+                        default : return 25;
+                    }
+                })
+                .type(function(d){
+                    return mutationStyle[d.mutationType].symbol;
+                })
             )
-        	.attr("fill", function(d){
-				return mutationStyle[d.mutationType].fill;
-        	})
-        	.attr("stroke", function(d){
-				return mutationStyle[d.mutationType].stroke;
-        	})
-        	.attr("stroke-width", 1.2);
+            .attr("fill", function(d){
+                return mutationStyle[d.mutationType].fill;
+            })
+            .attr("stroke", function(d){
+                return mutationStyle[d.mutationType].stroke;
+            })
+            .attr("stroke-width", 1.2);
     }
 
     function drawLog2Plots() {
-		elem.dotsGroup = elem.svg.append("svg:g");
-    	elem.dotsGroup.selectAll("path")
-        	.data(tmpDataSet)
-        	.enter()
-        	.append("svg:path")
-        	.attr("transform", function(d) {
+        elem.dotsGroup = elem.svg.append("svg:g");
+        elem.dotsGroup.selectAll("path")
+            .data(tmpDataSet)
+            .enter()
+            .append("svg:path")
+            .attr("transform", function(d) {
                 return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
             })
-        	.attr("d", d3.svg.symbol()
-            	.size(function(d){
+            .attr("d", d3.svg.symbol()
+                .size(function(d){
                     switch (d.mutationTypes){
                         case "non" : return 15;
-                    	default : return 25;
-                	}
-            	})
-            	.type(function(d){
-					return mutationStyle[d.mutationType].symbol;
-            	})
-        	)
-        	.attr("fill", function(d){
-            	return mutationStyle[d.mutationType].fill;
-        	})
-        	.attr("stroke", function(d){
-        		return mutationStyle[d.mutationType].stroke;
-			})
-       	    .attr("stroke-width", 1.2);
-	}
+                        default : return 25;
+                    }
+                })
+                .type(function(d){
+                    return mutationStyle[d.mutationType].symbol;
+                })
+            )
+            .attr("fill", function(d){
+                return mutationStyle[d.mutationType].fill;
+            })
+            .attr("stroke", function(d){
+                return mutationStyle[d.mutationType].stroke;
+            })
+            .attr("stroke-width", 1.2);
+    }
 
     function drawBoxPlots(){
 
@@ -996,7 +1010,7 @@ var PlotsView = (function () {
                 return "translate(610, " + (30 + i * 15) + ")";
             });
 
-            legend.append("path")
+        legend.append("path")
             .data(mutationStyleArr)
             .attr("width", 18)
             .attr("height", 16)
@@ -1006,7 +1020,7 @@ var PlotsView = (function () {
             .attr("stroke", function(d){return d.stroke;})
             .attr("stroke-width", 1.2);
 
-            legend.append("text")
+        legend.append("text")
             .attr("dx", ".75em")
             .attr("dy", ".35em")
             .style("text-anchor", "front")
@@ -1067,17 +1081,17 @@ var PlotsView = (function () {
                                 content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                             } else {
                                 content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                           "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                                    "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                             }
                         } else if (PlotsTypeIsMethylation()) {    //mrna vs. dna methylation
                             content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                       "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                                "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                             if (d.gisticType !== "Diploid") {
                                 content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                             }
                         } else if (PlotsTypeIsRPPA()) { //rppa vs. mrna
                             content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                       "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                                "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                             if (d.gisticType !== "Diploid") {
                                 content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
                             }
@@ -1163,12 +1177,12 @@ var PlotsView = (function () {
             var errorTxt2 = pData.gene + " in the selected cancer study.";
             if (yHasData == false) {
                 errorTxt1 = "There is no " +
-                            text.yTitle.substring(pData.gene.length+1) +
-                            " data for";
+                    text.yTitle.substring(pData.gene.length+1) +
+                    " data for";
             } else if (xHasData == false) {
                 errorTxt1 = "There is no " +
-                            text.xTitle.substring(pData.gene.length+1) +
-                            " data for";
+                    text.xTitle.substring(pData.gene.length+1) +
+                    " data for";
             } else if (combineHasData == false) {
                 errorTxt1 = "There is no data for the selected data type combination for";
             }

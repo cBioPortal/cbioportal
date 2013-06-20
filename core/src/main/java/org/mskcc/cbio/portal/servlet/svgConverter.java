@@ -24,7 +24,7 @@ import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
-public class svgConverter extends HttpServlet {
+public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
     private ServletXssUtil servletXssUtil;

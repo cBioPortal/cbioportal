@@ -28,7 +28,7 @@ MutationDiagram.prototype.defaultOpts = {
 	marginRight: 20,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
-	labelX: "TODO",             // informative label of the x-axis
+	labelX: "TODO",             // TODO informative label of the x-axis
 	labelXFont: "sans-serif",   // font type of the x-axis label
 	labelXFontColor: "#2E3436", // font color of the x-axis label
 	labelXFontSize: "12px",     // font size of x-axis label
@@ -216,7 +216,15 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 
 	// sort (descending) the list wrt mutation count
 	mutationList.sort(function(a, b) {
-		return b.count - a.count;
+		var diff = b.count - a.count;
+
+		// if equal, then compare wrt position (for consistency)
+		if (diff == 0)
+		{
+			diff = b.location - a.location;
+		}
+
+		return diff;
 	});
 
 	data.mutations = mutationList;

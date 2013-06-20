@@ -32,10 +32,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
@@ -114,6 +118,9 @@ public class ImportExtendedMutationData{
                 for (MutationEvent event : DaoMutation.getAllMutationEvents()) {
                     existingEvents.put(event, event);
                 }
+                Set<MutationEvent> newEvents = new HashSet<MutationEvent>();
+                
+                Map<ExtendedMutation,ExtendedMutation> mutations = new HashMap<ExtendedMutation,ExtendedMutation>();
                 
                 long mutationEventId = DaoMutation.getLargestMutationEventId();
 
@@ -371,32 +378,93 @@ public class ImportExtendedMutationData{
 
 					//  Filter out Mutations
 					if( myMutationFilter.acceptMutation( mutation )) {
-						// add record to db
-						try {
-                                                    MutationEvent event = existingEvents.get(mutation.getEvent());
-                                                    
-                                                    if (event!=null) {
-                                                        mutation.setEvent(event);
-                                                    } else {
-                                                        mutation.setMutationEventId(++mutationEventId);
-                                                        existingEvents.put(mutation.getEvent(), mutation.getEvent());
-                                                    }
-                                                    
-                                                    DaoMutation.addMutation(mutation,event==null);
-						} catch (DaoException ex) {
-						    ex.printStackTrace();
-						}
+                                                MutationEvent event = existingEvents.get(mutation.getEvent());
+
+                                                if (event!=null) {
+                                                    mutation.setEvent(event);
+                                                } else {
+                                                    mutation.setMutationEventId(++mutationEventId);
+                                                    existingEvents.put(mutation.getEvent(), mutation.getEvent());
+                                                    newEvents.add(mutation.getEvent());
+                                                }
+
+                                                ExtendedMutation exist = mutations.get(mutation);
+                                                if (exist!=null) {
+                                                    ExtendedMutation merged = mergeMutationData(exist, mutation);
+                                                    mutations.put(merged, merged);
+                                                } else {
+                                                    mutations.put(mutation,mutation);
+                                                }
 					}
 				}
 			}
 			line = buf.readLine();
 		}
+                
+                for (MutationEvent event : newEvents) {
+                    try {
+                        DaoMutation.addMutationEvent(event);
+                    } catch (DaoException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                
+                for (ExtendedMutation mutation : mutations.values()) {
+                    try {
+                        DaoMutation.addMutation(mutation,false);
+                    } catch (DaoException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                
 		if( MySQLbulkLoader.isBulkLoad()) {
 			MySQLbulkLoader.flushAll();
 		}
 		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 
 	}
+        
+        /**
+         * merge the current mutation 
+         * @param other
+         * @return 
+         */
+        private ExtendedMutation mergeMutationData(ExtendedMutation mut1, ExtendedMutation mut2) {
+            ExtendedMutation ret = mut1;
+            if (!mut1.getMatchedNormSampleBarcode().equalsIgnoreCase(mut2.getMatchedNormSampleBarcode())) {
+                if (mut2.getMatchedNormSampleBarcode().matches("TCGA-..-....-10.*")) {
+                    // select blood normal if available
+                    ret = mut2;
+                }
+            } else if (!mut1.getValidationStatus().equalsIgnoreCase(mut2.getValidationStatus())) {
+                if (mut2.getValidationStatus().equalsIgnoreCase("Valid") ||
+                        mut2.getValidationStatus().equalsIgnoreCase("VALIDATED")) {
+                    // select validated mutations
+                    ret = mut2;
+                }
+            } else if (!mut1.getMutationStatus().equalsIgnoreCase(mut2.getMutationStatus())) {
+                if (mut2.getMutationStatus().equalsIgnoreCase("Germline")) {
+                    // select germline over somatic
+                    ret = mut2;
+                } else if (mut2.getMutationStatus().equalsIgnoreCase("SOMATIC")) {
+                    if (!mut1.getMutationStatus().equalsIgnoreCase("Germline")) {
+                        // select somatic over others
+                        ret = mut2;
+                    }
+                }
+            }
+
+            // merge centers
+            Set<String> centers = new TreeSet<String>(Arrays.asList(mut1.getSequencingCenter().split(";")));
+            if (centers.addAll(Arrays.asList(mut2.getSequencingCenter().split(";")))) {
+                if (centers.size()>1) {
+                    centers.remove("NA");
+                }
+                ret.setSequencingCenter(StringUtils.join(centers, ";"));
+            }
+            
+            return ret;
+        }
 
 	private String transformOMAScore( String omaScore) {
 		if( omaScore == null || omaScore.length() ==0) {

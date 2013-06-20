@@ -1,7 +1,7 @@
 # June 13, 2013
 
-* Supported mouse-over with link to patient view in Plots tab.
-* Linked to BioGene for gene annotation in Network tab.
+* Improved interface for correlation plots, including information on individual samples via mouse-over.
+* Gene Details from Biogene are now available in the Network view.
 
 # June 4, 2013
 

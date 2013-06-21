@@ -23,7 +23,7 @@
     <P/>
     <script type="text/javascript">
         function validateGenes() {
-            $("#gene_list").val($("#gene_list").val().replace("  ", " "));
+            $("#gene_list").val($("#gene_list").val().replace("  ", " ").toUpperCase());
             $("#genestatus").html("<img src='images/ajax-loader2.gif'> <small>Validating gene symbols...</small>");
             $("#main_submit").attr("disabled", "disabled");
 

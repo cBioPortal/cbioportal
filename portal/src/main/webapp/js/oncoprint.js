@@ -229,6 +229,40 @@ var OncoprintUtils = (function() {
         return attr2range_to_d3scale(attr2range(clinicalData));
     };
 
+    // params: list of clinical attribute object literals,
+    // list of raw clinical data
+    //
+    // returns a map of attr_id to d3 scale
+    var attributes2scale = function(attrs, raw_clinical_data) {
+
+        var attrId2range = attr2range(raw_clinical_data);
+
+
+        attrs.map(function(attr) {
+            var scale;
+
+            if (attr.datatype === "BOOLEAN") {
+                scale = d3.scale.ordinal().range([colors.discrete, colors.black])
+                    .domain(attrId2range[attr.attr_id]);
+            }
+
+            else if (attr.datatype === "NUMBER") {
+                scale = d3.scale.linear().range([colors.white, colors.continuous]);
+            }
+
+            else if (attr.datatype === "STRING") {
+                scale = d3.scale.oridinal().range[googlecharts_colors.slice(0, x)];
+            }
+
+            else {
+                scale = d3.scale.oridinal().range[googlecharts_colors.slice(0, x)];
+            }
+
+            attr.scale = scale;
+            return attr;
+        });
+    };
+
     // params: sample
     // returns: boolean, is the sample altered in a particular gene?
     var altered_gene = function(sample_gene) {
@@ -510,7 +544,8 @@ var OncoprintUtils = (function() {
         map_display_name: map_display_name,
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
-        legend: legend
+        legend: legend,
+        attributes2scale: attributes2scale
     };
 }());
 
@@ -679,6 +714,8 @@ var Oncoprint = function(div, params) {
     var attr2range = OncoprintUtils.attr_to_d3scale(clinicalData);
 
     var id2ClinicalAttr = OncoprintUtils.createId2ClinicalAttr(params.clinical_attrs);
+
+    OncoprintUtils.attributes2scale(params.clinical_attrs);
 
     var dims = (function() {
         var rect_height = 23;

@@ -577,7 +577,8 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 
 	var count = pileup.count;
 	var start = pileup.location;
-	var title = "<b>" + count + " mutations</b>" +
+	var mutationStr = count > 1 ? "mutations" : "mutation";
+	var title = "<b>" + count + " " + mutationStr + "</b>" +
 	            "<br/>Amino Acid Change: " + pileup.label;
 
 	var x = xScale(start);

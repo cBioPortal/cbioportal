@@ -28,3 +28,5 @@
 <script type="text/javascript" src="js/backbone-min.js"></script>
 <script type="text/javascript" src="js/d3.min.js"></script>
 <script type="text/javascript" src="js/jquery.expander.min.js"></script>
+<script type="text/javascript" src="js/gene-symbol-validator.js"></script>
+

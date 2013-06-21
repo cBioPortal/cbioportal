@@ -142,8 +142,6 @@ function loadMetaData() {
     function hideLoader() {
         //hide loader image
         $('#load').fadeOut('fast',removeLoader());
-        $("#select_cancer_type").chosen();
-        $("#select_gene_set").chosen();
     }
     function removeLoader() {
         // remove loader image so that it will not appear in the
@@ -347,6 +345,7 @@ function updateDefaultCaseList() {
     }
     
     $('#select_case_set').val(defaultCaseList);
+    updateCaseListSmart();
 }
 
 //  Print message and disable submit if use choosed a cancer type
@@ -398,6 +397,24 @@ function toggleByCancerStudy(cancer_study) {
     } else {
         gistic.hide();
     }
+}
+
+function updateCaseListSmart() {
+    $("#select_case_set").trigger("liszt:updated");
+    $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
+        .each(function(i, e) {
+            $(e).qtip({
+                content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+                style: {
+                    classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'
+                },
+                position: {
+                    my: 'left middle',
+                    at: 'middle right'
+                }
+            });
+        }
+    );
 }
 
 //  Triggered when a cancer study has been selected, either by the user
@@ -477,6 +494,7 @@ function cancerStudySelected() {
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
+    updateCaseListSmart();
 
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     //  commented out for now, as this did not work in Chrome or Safari
@@ -680,6 +698,11 @@ function addMetaDataToPage() {
     // to make sure all of the fields are shown/hidden as appropriate
     console.log("addMetaDataToPage ( reviewCurrentSelections() )");
     reviewCurrentSelections();
+
+    // Chosenize the select boxes
+    $("#select_cancer_type").chosen({ width: '550px'});
+    $("#select_gene_set").chosen({ width: '620px'});
+    $("#select_case_set").chosen({ width: '100%'});
 }
 
 // Adds the specified genomic profiles to the page.

@@ -130,6 +130,8 @@ function loadMetaData() {
             //  Add Meta Data to current page
             addMetaDataToPage();
             showNewContent();
+
+            RightMenuStudyStatsUtil.plotTree(json);
         });
     }
 

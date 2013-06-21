@@ -19,3 +19,4 @@
 <script type="text/javascript" src="js/json2.js"></script>
 <script type="text/javascript" src="js/d3.min.js"></script>
 <script type="text/javascript" src="js/chosen.jquery.js"></script>
+<script type="text/javascript" src="js/d3.right-menu-stats.js"></script>

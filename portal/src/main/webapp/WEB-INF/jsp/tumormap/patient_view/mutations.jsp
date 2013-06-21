@@ -36,10 +36,10 @@
                                 for (var i=0, n=caseIds.length; i<n; i++) {
                                     var caseId = caseIds[i];
                                     if ($.inArray(caseId,samples)>=0) {
-                                        ret.push("<span class='"
-                                            +table_id+"-case-label' alt='"+caseId+"'></span>")
+                                        ret.push("<svg width='12' height='12' class='"
+                                            +table_id+"-case-label' alt='"+caseId+"'></svg>");
                                     } else {
-                                        ret.push("<span'><svg width='12'></svg></span>")
+                                        ret.push("<svg width='12'></svg>");
                                     }
                                 }
                                 

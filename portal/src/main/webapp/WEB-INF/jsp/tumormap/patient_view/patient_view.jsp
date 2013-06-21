@@ -629,12 +629,13 @@ function outputClinicalData() {
         var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
         
-        var row = "<tr><td><div style='float:left;' class='case-label-header' alt='"+caseId+"'><b><u>"
-                    +formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;</div>";
+        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;</div>";
         if (n===1) {
             var patientInfo = formatPatientInfo(clinicalData);
             row +="&nbsp;"+patientInfo;
         } else {
+            row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>";
+            
             var state = guessClinicalData(clinicalData, ["disease state"]);
             if (state!==null) mapCaseColor[caseId] = getCaseColor(state);
 
@@ -799,15 +800,12 @@ function outputClinicalData() {
     }
 }
 
-function plotCaseLabel(div,onlyIfEmpty) {
-    $(div).each(function() {
+function plotCaseLabel(svgEl,onlyIfEmpty) {
+    $(svgEl).each(function() {
         if (onlyIfEmpty && !$(this).is(":empty")) return;
         var caseId = $(this).attr('alt');
         
-            var svg = d3.select($(this)[0])
-                .append("svg")
-                .attr("width", 12)
-                .attr("height", 12);
+        var svg = d3.select($(this)[0]);
     
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);

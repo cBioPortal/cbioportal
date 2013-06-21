@@ -464,6 +464,7 @@ function analyseData(xData, yData){
     };
 }
 function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
+    var posCount = min_x;
     if (isDiscretized(type)) {
         for (var i = min_x ; i < max_x + 1; i++) {
             var top;
@@ -475,7 +476,6 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
             var scaled_y_arr=[];
             var tmp_y_arr = [];
             //Find the middle line for one box plot
-            var midLine = xScale(i);
             //Find the max/min y value with certain x value;
             var index_tmp_y_data_array = 0;
             for (var j = 0; j < yData.length; j++) {
@@ -488,6 +488,8 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
             if (tmp_y_arr.length == 0) {
                 //TODO: error handle (empty dataset)
             } else if (tmp_y_arr.length == 1) {
+                var midLine = xScale(posCount);
+                posCount = posCount + 1;
                 mean = yScale(tmp_y_arr[0]);
                 svg.append("line")
                     .attr("x1", midLine-30)
@@ -497,6 +499,8 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
                     .attr("stroke-width", 1)
                     .attr("stroke", "grey");
             } else {
+                var midLine = xScale(posCount);
+                posCount = posCount + 1;
                 if (tmp_y_arr.length == 2) {
                     mean = yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
                     quan1 = bottom = yScale(tmp_y_arr[0]);
@@ -544,24 +548,17 @@ function isDiscretized(type) {
         plotsConfig.copy_no_type.indexOf("log2") == -1 &&
         (plotsConfig.copy_no_type.indexOf("gistic") != -1 || plotsConfig.copy_no_type.indexOf("cna") != -1 || plotsConfig.copy_no_type.indexOf("CNA") != -1));
 }
-function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
+function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
     if (isDiscretized(type)) {
-        var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
-        var ticksTextSet = [];
-        var tmp_ticks_text_index = 0;
-        for (var i = min_x + 2; i < max_x + 3; i++) {
-            ticksTextSet[tmp_ticks_text_index] = textSet[i];
-            tmp_ticks_text_index += 1;
-        }
         svg.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
-            .call(xAxis.ticks(ticksTextSet.length))
+            .call(xAxis.ticks(textSet.length))
             .selectAll("text")
-            .data(ticksTextSet)
+            .data(textSet)
             .style("font-family", "sans-serif")
             .style("font-size", "11px")
             .style("stroke-width", 0.5)
@@ -791,8 +788,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         .scale(yScale)
         .orient("left");
 
-    addAxisText(svg, type, xAxis, yAxis, min_x, max_x);
-    addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale);
 
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
@@ -827,50 +822,148 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     });
     dataset = tmp_dataset;
 
+
+
     //----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
-    var dotsGroup = svg.append("svg:g");
+    var textSet = [];
     if ( type == plotsConfig.plotsType.COPY_NUMBER ) {
+
         //Define noise level
-        var ramRatio = 0;
         if (isDiscretized(type)) {
-            ramRatio = 20;
-        }
-        dotsGroup.selectAll("path")
-            .data(dataset)
-            .enter()
-            .append("svg:path")
-            .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
-            .attr("d", d3.svg.symbol()
-                .size( function(d) {
-                    switch (d[2]) {
-                        case "non" : return 15;
-                        default : return 25;
-                    }
-                })
-                .type( function (d) {
+            var ramRatio = 20;
+
+            //Strictly order by gistic val : min -> max
+            //TODO: improve
+            var subDataSet = {
+                Homdel : [],
+                Hetloss : [],
+                Diploid : [],
+                Gain : [],
+                Amp : []
+            };
+
+            for (var i = 0; i < dataset.length; i++) {
+                var gisticVal = dataset[i][0];
+                if (gisticVal === "-2") {
+                    subDataSet.Homdel.push(dataset[i]);
+                } else if (gisticVal === "-1") {
+                    subDataSet.Hetloss.push(dataset[i]);
+                } else if (gisticVal === "0") {
+                    subDataSet.Diploid.push(dataset[i]);
+                } else if (gisticVal === "1") {
+                    subDataSet.Gain.push(dataset[i]);
+                } else if (gisticVal === "2") {
+                    subDataSet.Amp.push(dataset[i]);
+                }
+            }
+
+
+            var countSubDataSets = 0;
+            $.each(subDataSet, function(key, value) {
+                if (subDataSet[key].length !== 0) {
+                    countSubDataSets = countSubDataSets + 1;
+                    textSet.push(key);
+                }
+            });
+
+            //Redefine the axis
+            xScale = d3.scale.linear()
+                .domain([min_x - edge_x, (min_x + countSubDataSets - 1) + edge_x])
+                .range([100, 600]);
+            xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+
+            addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale);
+
+            var dotsGroup = svg.append("svg:g");
+            var posVal = min_x;
+            $.each(subDataSet, function(key, value) {
+                if (value.length !== 0) {
+                    var subDotsGrp = dotsGroup.append("svg:g");
+                    subDotsGrp.selectAll("path")
+                        .data(value)
+                        .enter()
+                        .append("svg:path")
+                        .attr("transform", function(d) { return "translate(" + (xScale(posVal) +
+                            ((Math.random() * (ramRatio)) - (ramRatio/2))) +
+                            ", " + yScale(d[1]) + ")";})
+                        .attr("d", d3.svg.symbol()
+                            .size( function(d) {
+                                switch (d[2]) {
+                                    case "non" : return 15;
+                                    default : return 25;
+                                }
+                            })
+                            .type( function (d) {
+                                for(var i = 0; i < mutationTypes.length; i++) {
+                                    if (d[2] == mutationTypes[i]) {
+                                        return symbol[i];
+                                    }
+                                }
+                                return "circle";
+                            })
+                        )
+                        .attr("fill", function(d) {
+                            for(var i = 0; i < mutationTypes.length; i++) {
+                                if (d[2] == mutationTypes[i]) {
+                                    return mutationFillTypes[i];
+                                }
+                            }
+                            return "#00AAF8";
+                        })
+                        .attr("stroke", function(d) {
+                            switch (d[2]) {
+                                case "non": return "#0089C6";
+                                default: return "#B40404";
+                            }
+                        })
+                        .attr("stroke-width", 1.2);
+
+                    posVal += 1;
+                }
+            });
+        } else {
+            var dotsGroup = svg.append("svg:g");
+            dotsGroup.selectAll("path")
+                .data(dataset)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d) { return "translate(" + xScale(d[0]) +
+                      ", " + yScale(d[1]) + ")";})
+                .attr("d", d3.svg.symbol()
+                    .size( function(d) {
+                        switch (d[2]) {
+                            case "non" : return 15;
+                            default : return 25;
+                        }
+                    })
+                    .type( function (d) {
+                        for(var i = 0; i < mutationTypes.length; i++) {
+                            if (d[2] == mutationTypes[i]) {
+                                return symbol[i];
+                            }
+                        }
+                        return "circle";
+                    })
+                )
+                .attr("fill", function(d) {
                     for(var i = 0; i < mutationTypes.length; i++) {
                         if (d[2] == mutationTypes[i]) {
-                            return symbol[i];
+                            return mutationFillTypes[i];
                         }
                     }
-                    return "circle";
+                    return "#00AAF8";
                 })
-            )
-            .attr("fill", function(d) {
-                for(var i = 0; i < mutationTypes.length; i++) {
-                    if (d[2] == mutationTypes[i]) {
-                        return mutationFillTypes[i];
+                .attr("stroke", function(d) {
+                    switch (d[2]) {
+                        case "non": return "#0089C6";
+                        default: return "#B40404";
                     }
-                }
-                return "#00AAF8";
-            })
-            .attr("stroke", function(d) {
-                switch (d[2]) {
-                    case "non": return "#0089C6";
-                    default: return "#B40404";
-                }
-            })
-            .attr("stroke-width", 1.2);
+                })
+                .attr("stroke-width", 1.2);
+        }
+
 
         //Making Qtips
         dotsGroup.selectAll('path').each(function(d, i) {
@@ -903,6 +996,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
         //--------------- Plot dots for other views
     } else {
+        var dotsGroup = svg.append("svg:g");
         dotsGroup.selectAll("path")
             .data(dataset)
             .enter()
@@ -940,14 +1034,14 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             })
             .attr("stroke-width", function(d) {
                 if (d[2] === "0") {
-			return "1";
-		} else {
-			switch(d[3]) {
-                            case "non" : return "1";
-                            default: return "1.2";
-                        }
-           	}
-	});
+                    return "1";
+                } else {
+                    switch(d[3]) {
+                        case "non" : return "1";
+                        default: return "1.2";
+                    }
+                }
+	        });
 
         dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
@@ -982,6 +1076,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             });
         });
     }
+
+    addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet);
 
     //Error Handling -- empty dataset
     var xHasData = false;

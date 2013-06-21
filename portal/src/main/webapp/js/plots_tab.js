@@ -180,14 +180,17 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
     //Re-arrange mrna type list order:
     var tmp_genetic_profile_mrna = genetic_profile_mrna;
     for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].indexOf("RNA Seq") !== 0 &&
-            genetic_profile_mrna[i][1].indexOf("z-Scores") === 0) {
+        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("z-scores") !== -1) {
             arraymove(genetic_profile_mrna, i, 0);
         }
     }
     for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].indexOf("RNA Seq") !== 0 &&
-            genetic_profile_mrna[i][1].indexOf("z-Scores") !== 0) {
+        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq") !== -1) {
+            arraymove(genetic_profile_mrna, i, 0);
+        }
+    }
+    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
+        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq v2") !== -1) {
             arraymove(genetic_profile_mrna, i, 0);
         }
     }

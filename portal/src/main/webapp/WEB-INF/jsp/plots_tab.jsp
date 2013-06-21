@@ -14,7 +14,7 @@
 
     //Interprete Onco Query Genelist for plots view
     String[] plotsGeneList = new String[geneWithScoreList.size()];
-    for (int i = 0; i<geneWithScoreList.size(); i++)
+    for (int i = 0; i < geneWithScoreList.size(); i++)
     {
         GeneWithScore tmpSingleGene = geneWithScoreList.get(i);
         String singleGene = tmpSingleGene.getGene();

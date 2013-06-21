@@ -177,7 +177,30 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
             }
         }
     });
+    //Re-arrange mrna type list order:
+    var tmp_genetic_profile_mrna = genetic_profile_mrna;
+    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
+        if (genetic_profile_mrna[i][1].indexOf("RNA Seq") !== 0 &&
+            genetic_profile_mrna[i][1].indexOf("z-Scores") === 0) {
+            arraymove(genetic_profile_mrna, i, 0);
+        }
+    }
+    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
+        if (genetic_profile_mrna[i][1].indexOf("RNA Seq") !== 0 &&
+            genetic_profile_mrna[i][1].indexOf("z-Scores") !== 0) {
+            arraymove(genetic_profile_mrna, i, 0);
+        }
+    }
+
+
 };
+
+function arraymove(arr, fromIndex, toIndex) {
+    element = arr[fromIndex];
+    arr.splice(fromIndex, 1);
+    arr.splice(toIndex, 0, element);
+}
+
 FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     var result_set = new Array(5);
     for ( var i = 0 ; i< result_set.length; i++) {

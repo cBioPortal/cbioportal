@@ -25,17 +25,21 @@
                     },
                     {// case_ids
                         "aTargets": [ mutTableIndices["case_ids"] ],
+                        "sClass": "center-align-td",
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var caseIds = mutations.getValue(source[0], "caseIds").sort();
+                                var samples = mutations.getValue(source[0], "caseIds");
+                                var ret = [];
                                 for (var i=0, n=caseIds.length; i<n; i++) {
-                                    caseIds[i] = formatPatientLink(caseIds[i],cancerStudyId);
+                                    var caseId = caseIds[i];
+                                    ret.push("<div style='float:left;' class='"
+                                            +table_id+"-case-label' alt='"+($.inArray(caseId,samples)!==-1?caseId:'')+"'></div>");
                                 }
                                 
-                                return "<b>"+caseIds.join("<br/>")+"</b>";
+                                return ret.join("&nbsp;");
                             } else {
                                 return mutations.getValue(source[0], "caseIds");
                             }
@@ -612,6 +616,9 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    if (caseIds.length>1) {
+                        plotCaseLabel('.'+table_id+'-case-label',true);
+                    }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
@@ -675,7 +682,7 @@
                 tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
                 var circle = svg.append("g")
                     .attr("transform", "translate(80,6)");
-                d3CircledChar(circle,"M");
+                d3CircledChar(circle,"M","#55C","#66C");
                 qtip($(circle), tip);
             }
             

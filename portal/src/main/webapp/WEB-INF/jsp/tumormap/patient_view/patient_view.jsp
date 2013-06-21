@@ -290,6 +290,7 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var patientStr = '<%=patient%>';
 var caseIds = patientStr.split(" ");
+var mapCaseIdIx = cbio.util.arrayToAssociatedArrayIndices(caseIds,1);
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
@@ -374,7 +375,7 @@ function addMoreClinicalTooltip(elemId, caseId) {
         clinicalData.push([key, clinicalDataMap[caseId][key]]);
     }
     
-    if (clinicalData.length==0) {
+    if (clinicalData.length===0) {
         $('#'+elemId).remove();
     } else {
         $('#'+elemId).qtip({
@@ -542,16 +543,16 @@ function d3AccBar(svg, data, width, colors) {
     return chart;
 }
 
-function d3CircledChar(g,ch) {
+function d3CircledChar(g,ch,circleColor,textColor) {
     g.append("circle")
         .attr("r",5)
-        .attr("stroke","#55C")
+        .attr("stroke",circleColor)
         .attr("fill","none");
     g.append("text")
         .attr("x",-3)
         .attr("y",3)
         .attr("font-size",7)
-        .attr("fill","#66C")
+        .attr("fill",textColor)
         .text(ch);
 }
     
@@ -622,27 +623,32 @@ function idRegEx(ids) {
 
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
-    var multiCase = cbio.util.getObjectLength(clinicalDataMap)>1;
-    for (var caseId in clinicalDataMap) {
+    var n = caseIds.length;
+    for (var i=0; i<n; i++) {
+        var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
         
-        var patientInfo = formatPatientInfo(clinicalData);
-        
-        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;&nbsp;"+patientInfo+"</td>\n\
-                    <td align='right'><a href='#' id='more-clinical-a-"+
+        var row = "<tr><td><div style='float:left;' class='case-label-header' alt='"+caseId+"'><b><u>"
+                    +formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;</div>";
+        if (n===1) {
+            var patientInfo = formatPatientInfo(clinicalData);
+            row +="&nbsp;"+patientInfo;
+        }
+        row += "</td><td align='right'><a href='#' id='more-clinical-a-"+
                     caseId+"'>More about this patient</a></td></tr>";
         $("#clinical_table").append(row);
-        addMoreClinicalTooltip("more-clinical-a-"+caseId, caseId);
         
-        if (!multiCase) {
+        if (n===1) {
             var diseaseInfo = formatDiseaseInfo(clinicalData);
             var patientStatus = formatPatientStatus(clinicalData);
             row = "<tr><td>"+diseaseInfo+"</td><td align='right'>"+patientStatus+"</td></tr-->";
             $("#clinical_table").append(row);
         }
+        addMoreClinicalTooltip("more-clinical-a-"+caseId, caseId);
     }
     
-    if (multiCase) {
+    if (n>1) {
+        plotCaseLabel('.case-label-header');
         $("#clinical_table").append("<tr><td><a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a></td><td></td></tr>");
     }
@@ -781,7 +787,34 @@ function outputClinicalData() {
     }
 }
 
+function plotCaseLabel(div,onlyIfEmpty) {
+    $(div).each(function() {
+        if (onlyIfEmpty && !$(this).is(":empty")) return;
+        var caseId = $(this).attr('alt');
+        
+        var svg = d3.select($(this)[0])
+            .append("svg")
+            .attr("width", 12)
+            .attr("height", 12);
+    
+        if (caseId) {
+            plotCaselabelInSVG(svg, caseId);
+        }
+    });
+}
 
+function plotCaselabelInSVG(svg, caseId) {
+    var ix = mapCaseIdIx[caseId];
+    var color = getColor(ix);
+    var circle = svg.append("g")
+        .attr("transform", "translate(6,6)");
+    d3CircledChar(circle,ix,color,color);
+}
+
+function getColor(i) {
+    var colors = ['#000000','#000080','#008000','#800000','#808000','#800080','#008080','#808080'];
+    return colors[i%colors.length];
+}
 
 </script>
 

@@ -27,12 +27,22 @@ cbio.util = (function() {
     
     var checkNullOrUndefined = function(o) {
         return o === null || typeof o === "undefined";
-    }
+    };
+    
+    var arrayToAssociatedArrayIndices = function(arr, offset) {
+        if (checkNullOrUndefined(offset)) offset=0;
+        var aa = {};
+        for (var i=0, n=arr.length; i<n; i++) {
+            aa[arr[i]] = i+offset;
+        }
+        return aa;
+    };
 
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
-        checkNullOrUndefined: checkNullOrUndefined
+        checkNullOrUndefined: checkNullOrUndefined,
+        arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices
     };
 
 })();

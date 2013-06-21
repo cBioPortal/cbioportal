@@ -22,17 +22,21 @@
                     },
                     {// case_ids
                         "aTargets": [ cnaTableIndices["case_ids"] ],
+                        "sClass": "center-align-td",
                         "bVisible": caseIds.length>1,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var caseIds = cnas.getValue(source[0], "caseIds").sort();
+                                var samples = cnas.getValue(source[0], "caseIds");
+                                var ret = [];
                                 for (var i=0, n=caseIds.length; i<n; i++) {
-                                    caseIds[i] = formatPatientLink(caseIds[i],cancerStudyId);
+                                    var caseId = caseIds[i];
+                                    ret.push("<div style='float:left;' class='"
+                                            +table_id+"-case-label' alt='"+($.inArray(caseId,samples)!==-1?caseId:'')+"'></div>");
                                 }
                                 
-                                return caseIds.join(" ");
+                                return ret.join("&nbsp;");
                             } else {
                                 return cnas.getValue(source[0], "caseIds");
                             }
@@ -177,6 +181,9 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    if (caseIds.length>1) {
+                        plotCaseLabel('.'+table_id+'-case-label',true);
+                    }
                     plotMrna("."+table_id+"-mrna",cnas);
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
@@ -238,7 +245,7 @@
                             +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                 var circle = svg.append("g")
                     .attr("transform", "translate(80,6)");
-                d3CircledChar(circle,"G");
+                d3CircledChar(circle,"G","#55C","#66C");
                 qtip($(circle), tip);
             }
             

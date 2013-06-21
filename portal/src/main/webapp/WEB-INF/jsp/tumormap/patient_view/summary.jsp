@@ -91,7 +91,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             params,
             function(segs){
                 for (var i=0, n=caseIds.length; i<n; i++) {
-                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5);
+                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5,caseIds[i]);
                 }
             }
             ,"json"

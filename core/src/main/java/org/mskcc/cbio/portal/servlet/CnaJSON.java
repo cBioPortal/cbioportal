@@ -323,13 +323,13 @@ public class CnaJSON extends HttpServlet {
         Long eventId = cnaEvent.getEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
         if (ix!=null) { // multiple samples
-            Set.class.cast(data.get("caseIds").get(ix)).add(cnaEvent.getCaseId());
+            List.class.cast(data.get("caseIds").get(ix)).add(cnaEvent.getCaseId());
             return;
         }
         
         mapMutationEventIndex.put(eventId, data.get("id").size());
         
-        Set<String> samples = new HashSet<String>();
+        List<String> samples = new ArrayList<String>();
         samples.add(cnaEvent.getCaseId());
         data.get("caseIds").add(samples);
         

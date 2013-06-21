@@ -120,12 +120,12 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
     return line;
 }
 
-function plotMuts(p,config,chmInfo,row,mutations,caseId) {
+function plotMuts(p,config,chmInfo,row,mutations,caseId,plotCaselabelInSVG) {
     var pixelMap = [];
     for (var i=0; i<mutations.getNumEvents(false); i++) {
         if (caseId!==null) {
             var caseIds = mutations.data['caseIds'][i];
-            if (!$.inArray(caseId, caseIds)) continue;
+            if ($.inArray(caseId, caseIds)!==-1) continue;
         }
         var chm = translateChm(mutations.data['chr'][i]);
         if (cbio.util.checkNullOrUndefined(chm)||chm>=chmInfo.hg19.length) continue;
@@ -165,7 +165,13 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         }
     }
         
-    p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
+    if (caseId!==null) {
+        var ix = mapCaseIdIx[caseId];
+        p.circle(6,yRow-config.rowHeight/2,6).attr({'stroke':getColor(ix)});
+        p.text(6,yRow-config.rowHeight/2,ix).attr({'text-anchor': 'center', 'fill':getColor(ix)});
+    } else {
+        p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
+    }
     var t = p.text(config.xRightText(),yRow-config.rowHeight/2,mutations.numEvents).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
     var tip =  "Number of mutation events.";
@@ -186,7 +192,7 @@ function addCommas(x)
     return strX;
 }
 
-function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
+function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,caseId) {
     var yRow = config.yRow(row);
     var genomeMeasured = 0;
     var genomeAltered = 0;
@@ -211,8 +217,13 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol) {
         r.translate(0.5, 0.5);
         var tip = "Mean copy number log2 value: "+segMean+"<br/>from "+loc2string([chm,start],chmInfo)+"<br/>to "+loc2string([chm,end],chmInfo);
         addToolTip(r.node,tip);
+    }if (caseId!==null) {
+        var ix = mapCaseIdIx[caseId];
+        p.circle(6,yRow+config.rowHeight/2,6).attr({'stroke':getColor(ix)});
+        p.text(6,yRow+config.rowHeight/2,ix).attr({'text-anchor': 'center', 'fill':getColor(ix)});
+    } else {
+        p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     }
-    p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     
     var label = genomeMeasured===0 ? 'N/A' : (100*genomeAltered/genomeMeasured).toFixed(1)+'%';
     var tip = genomeMeasured===0 ? 'Copy number segment data not available' : 

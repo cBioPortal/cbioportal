@@ -70,7 +70,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         if (genomicEventObs.hasMut) {
             genomicEventObs.subscribeMut(function(){
                 for (var i=0, n=caseIds.length; i<n; i++) {
-                    plotMuts(paper,config,chmInfo,i+(genomicEventObs.hasSeg?n:0),genomicEventObs.mutations,caseIds[i]);
+                    plotMuts(paper,config,chmInfo,i+(genomicEventObs.hasSeg?n:0),genomicEventObs.mutations,n>1?caseIds[i]:null);
                 };
             });
         }
@@ -91,7 +91,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             params,
             function(segs){
                 for (var i=0, n=caseIds.length; i<n; i++) {
-                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5,caseIds[i]);
+                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5,n>1?caseIds[i]:null);
                 }
             }
             ,"json"

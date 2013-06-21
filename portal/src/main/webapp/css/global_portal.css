@@ -1294,3 +1294,8 @@ cc-ie-message {
 .ui-tooltip-lightyellow {
     background-color: lightyellow;
 }
+
+/* Float on alright! */
+#ppy2 {
+    z-index: 9999999;
+}

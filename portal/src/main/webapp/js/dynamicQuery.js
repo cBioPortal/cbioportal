@@ -135,11 +135,13 @@ function loadMetaData() {
 
     function showNewContent() {
         //show content, hide loader only after content is shown
-        $('#main_query_form').fadeIn('fast',hideLoader());
+        $('#main_query_form').fadeIn('fast', hideLoader);
     }
     function hideLoader() {
         //hide loader image
         $('#load').fadeOut('fast',removeLoader());
+        $("#select_cancer_type").chosen();
+        $("#select_gene_set").chosen();
     }
     function removeLoader() {
         // remove loader image so that it will not appear in the
@@ -587,18 +589,15 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     var cancerTypeContainer = $("#select_cancer_type");
-    var hasMutationHeader = $("<option value='' disabled='disabled'>-- studies with mutation data --</option>")
+    var hasMutationHeader = $("<optgroup id='yes-mutation-group' label='Studies with mutation data'></optgroup>")
                             .appendTo(cancerTypeContainer);
-    var hasMutationHeaderRemove = hasMutationHeader;
-    var noMutationHeader = $("<option value='' disabled='disabled'>-- studies without mutation data --</option>")
+    var noMutationHeader = $("<optgroup id='no-mutation-group' label='Studies without mutation data'></optgroup>")
                             .appendTo(cancerTypeContainer);
-    var noMutationHeaderRemove = noMutationHeader;
 
     var noMutCancerCounter = 0;
 
     //  Iterate through all cancer studies
     jQuery.each(json.cancer_studies,function(key,cancer_study){
-
         //  Append to Cancer Study Pull-Down Menu
         var addCancerStudy = true;
 
@@ -613,16 +612,13 @@ function addMetaDataToPage() {
                 cancerTypeContainer.prepend(newOption);
             } else {
                 if(cancer_study.has_mutation_data) {
-                    hasMutationHeader.after(newOption);
-                    hasMutationHeader = newOption;
+                    hasMutationHeader.append(newOption);
                 } else {
-                    noMutationHeader.after(newOption);
-                    noMutationHeader = newOption;
-                    noMutCancerCounter += 1;
+                    noMutationHeader.append(newOption);
+                    noMutCancerCounter++;
                 }
             }
         }
-
     });  //  end 1st for each cancer study loop
 
     // hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header

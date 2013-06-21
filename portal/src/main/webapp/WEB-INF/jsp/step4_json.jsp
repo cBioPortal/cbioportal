@@ -204,87 +204,10 @@
                 jQuery(this).data('timerid', setTimeout(validateGenes, 500));
     		});
 
-            $("#select_gene_set").combobox();
-
             if($("#gene_list").val().length > 0) {
                 validateGenes();
             }
         });
-
-        (function($) {
-		$.widget("ui.combobox", {
-			_create: function() {
-				var self = this;
-				var select = this.element.hide();
-                var defaultText = select.children("option:first").text();
-				var input = $("<input size='80'>")
-					.insertAfter(select)
-					.autocomplete({
-						source: function(request, response) {
-							var matcher = new RegExp(request.term, "i");
-							response(select.children("option").map(function() {
-								var text = $(this).text();
-								if (!request.term || matcher.test(text))
-									return {
-										id: $(this).val(),
-										value: text
-									};
-							}));
-						},
-						delay: 0,
-						select: function(e, ui) {
-							if (!ui.item) {
-								// remove invalid value, as it didn't match anything
-								$(this).val("");
-								return;
-							}
-							$(this).focus();
-							select.val(ui.item.id);
-							self._trigger("selected", null, {
-								item: select.find("[value='" + ui.item.id + "']")
-							});
-
-							geneSetSelected();
-							validateGenes();
-						},
-						minLength: 0
-					})
-					.addClass("ui-widget ui-widget-content ui-corner-left");
-
-				$("<button>&nbsp;</button>")
-				.insertAfter(input)
-				.button({
-					icons: {
-						primary: "ui-icon-triangle-1-s"
-					},
-					text: false
-				}).removeClass("ui-corner-all")
-				.addClass("ui-corner-right ui-button-icon geneset-button")
-				.position({
-					my: "left center",
-					at: "right center",
-					of: input,
-					offset: "-1 0"
-				}).css("top", "")
-				.css("left", 0)
-				.click(function() {
-					// close if already visible
-					if (input.autocomplete("widget").is(":visible")) {
-						input.autocomplete("close");
-						return false;
-					}
-					// pass empty string as value to search for, displaying all results
-					input.autocomplete("search", "");
-					input.focus();
-
-					return false;
-				}).attr("title", "Click to see the example gene sets")
-				.tipTip();
-
-			}
-		});
-
-	})(jQuery);
 
     </script>
 

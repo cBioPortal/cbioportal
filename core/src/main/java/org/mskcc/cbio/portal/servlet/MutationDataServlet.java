@@ -173,10 +173,11 @@ public class MutationDataServlet extends HttpServlet
 						.getCancerStudyStableId();
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO entrez gene id & symbol all caps ?
+				// TODO entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
+				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
 				mutationData.put("caseId", mutation.getCaseId());
@@ -186,6 +187,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
 				mutationData.put("cosmicCount", this.getCosmicCount(mutation));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
+				mutationData.put("fisValue", this.getFisValue(mutation));
 				mutationData.put("msaLink", this.getMsaLink(mutation));
 				mutationData.put("xVarLink", this.getXVarLink(mutation));
 				mutationData.put("pdbLink", this.getPdbLink(mutation));
@@ -329,6 +331,7 @@ public class MutationDataServlet extends HttpServlet
 	}
 
 	/**
+	 * TODO move this method to the client side
 	 * Creates an html "a" element for the cosmic overlapping value
 	 * of the given mutation. The text of the element will be the sum
 	 * of all cosmic values, and the id of the element will be the
@@ -346,6 +349,7 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		// calculate total cosmic count
+		// TODO move this method to the client side, remove ExtendedMutationUtil class
 		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
 		if (total > 0)
@@ -367,6 +371,8 @@ public class MutationDataServlet extends HttpServlet
 	 */
 	protected String getVariantAllele(ExtendedMutation mutation)
 	{
+		// TODO use mutation.getTumorSeqAllele() instead?
+
 		String varAllele = mutation.getTumorSeqAllele1();
 
 		if (mutation.getReferenceAllele() != null &&
@@ -516,6 +522,18 @@ public class MutationDataServlet extends HttpServlet
 	{
 		// TODO uniprot name or uniprot accession
 		return mutation.getOncotatorUniprotName();
+	}
+
+	protected Float getFisValue(ExtendedMutation mutation)
+	{
+		Float fisValue = mutation.getFisValue();
+
+		if (fisValue.equals(Float.MIN_VALUE))
+		{
+			fisValue = null;
+		}
+
+		return fisValue;
 	}
 
 	/**

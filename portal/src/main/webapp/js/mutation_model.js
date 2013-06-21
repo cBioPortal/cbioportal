@@ -6,7 +6,8 @@
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
-		this.mutationId = attributes.mutationId;
+		this.geneticProfileId = attributes.geneticProfileId;
+		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
@@ -14,6 +15,7 @@ var MutationModel = Backbone.Model.extend({
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
 		this.functionalImpactScore = attributes.functionalImpactScore;
+		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;
 		this.xVarLink = attributes.xVarLink;
 		this.pdbLink = attributes.pdbLink;

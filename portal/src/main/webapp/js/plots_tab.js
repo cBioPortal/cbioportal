@@ -192,7 +192,16 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
         }
     }
 
-
+    //Get user selected mrna profile (highest priority)
+    //Global Variable: geneticProfiles
+    var items = geneticProfiles.split(/\s+/);
+    for (var i = 0; i < items.length; i++) {
+        if (items[i].indexOf("mrna") !== -1) {
+            var tmp_index = PlotsUtil.findIndex(items[i], genetic_profile_mrna);
+            arraymove(genetic_profile_mrna, tmp_index, 0);
+            break;
+        }
+    }
 };
 
 function arraymove(arr, fromIndex, toIndex) {

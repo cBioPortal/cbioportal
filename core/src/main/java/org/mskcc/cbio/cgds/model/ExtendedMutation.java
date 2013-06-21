@@ -305,14 +305,16 @@ public final class ExtendedMutation
 
         @Override
         public int hashCode() {
-            int hash = 5;
-            hash = 83 * hash + (this.chr != null ? this.chr.hashCode() : 0);
-            hash = 83 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
-            hash = 83 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
-            hash = 83 * hash + (this.variantType != null ? this.variantType.hashCode() : 0);
+            int hash = 3;
+            hash = 37 * hash + (this.gene != null ? this.gene.hashCode() : 0);
+            hash = 37 * hash + (this.chr != null ? this.chr.hashCode() : 0);
+            hash = 37 * hash + (int) (this.startPosition ^ (this.startPosition >>> 32));
+            hash = 37 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
+            hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.hashCode() : 0);
+            hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
             return hash;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj == null) {
@@ -322,6 +324,9 @@ public final class ExtendedMutation
                 return false;
             }
             final MutationEvent other = (MutationEvent) obj;
+            if (this.gene != other.gene && (this.gene == null || !this.gene.equals(other.gene))) {
+                return false;
+            }
             if ((this.chr == null) ? (other.chr != null) : !this.chr.equals(other.chr)) {
                 return false;
             }
@@ -331,12 +336,14 @@ public final class ExtendedMutation
             if (this.endPosition != other.endPosition) {
                 return false;
             }
-            if ((this.variantType == null) ? (other.variantType != null) : !this.variantType.equals(other.variantType)) {
+            if ((this.proteinChange == null) ? (other.proteinChange != null) : !this.proteinChange.equals(other.proteinChange)) {
+                return false;
+            }
+            if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
                 return false;
             }
             return true;
         }
-        
     }
     private static final String GERMLINE = "germline";
 
@@ -927,4 +934,34 @@ public final class ExtendedMutation
     public String toString() {
         return ToStringBuilder.reflectionToString(this);
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + (this.event != null ? this.event.hashCode() : 0);
+        hash = 79 * hash + this.geneticProfileId;
+        hash = 79 * hash + (this.caseId != null ? this.caseId.hashCode() : 0);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ExtendedMutation other = (ExtendedMutation) obj;
+        if (this.event != other.event && (this.event == null || !this.event.equals(other.event))) {
+            return false;
+        }
+        if (this.geneticProfileId != other.geneticProfileId) {
+            return false;
+        }
+        if ((this.caseId == null) ? (other.caseId != null) : !this.caseId.equals(other.caseId)) {
+            return false;
+        }
+        return true;
+    }
+}

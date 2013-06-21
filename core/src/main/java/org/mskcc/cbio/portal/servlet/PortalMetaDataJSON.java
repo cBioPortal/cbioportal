@@ -96,6 +96,12 @@ public class PortalMetaDataJSON extends HttpServlet {
 
             // Also get cancer study types and add it to the metadata
             ArrayList<TypeOfCancer> allTypesOfCancer = DaoTypeOfCancer.getAllTypesOfCancer();
+            Collections.sort(allTypesOfCancer, new Comparator<TypeOfCancer>() {
+                @Override
+                public int compare(TypeOfCancer typeOfCancer, TypeOfCancer typeOfCancer1) {
+                    return typeOfCancer.getName().compareTo(typeOfCancer1.getName());
+                }
+            });
             Map<String, String> typeOfCancerMap = new HashMap<String, String>();
             Map<String, String> visibleTypeOfCancerMap = new HashMap<String, String>();
             for (TypeOfCancer typeOfCancer : allTypesOfCancer)

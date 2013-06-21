@@ -589,14 +589,23 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     var cancerTypeContainer = $("#select_cancer_type");
-    var hasMutationHeader = $("<optgroup id='yes-mutation-group' label='Studies with mutation data'></optgroup>")
-                            .appendTo(cancerTypeContainer);
-    var noMutationHeader = $("<optgroup id='no-mutation-group' label='Studies without mutation data'></optgroup>")
-                            .appendTo(cancerTypeContainer);
 
-    var noMutCancerCounter = 0;
+    // First create the groups and sort'em
+    var orderedTypes = [];
+    jQuery.each(json.type_of_cancers, function(key, typeStr) {
+        orderedTypes.push({ key: key, name: typeStr });
+    });
 
-    //  Iterate through all cancer studies
+    orderedTypes.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    });
+    // Then add them in alphanumeric order
+    for(var j=0; j < orderedTypes.length; j ++) {
+        $("<optgroup id='"+ orderedTypes[j].key + "-study-group' label='" + orderedTypes[j].name + "'></optgroup>")
+            .appendTo(cancerTypeContainer);
+    }
+
+    //  Then iterate through all cancer studies and append each to the corresponding group
     jQuery.each(json.cancer_studies,function(key,cancer_study){
         //  Append to Cancer Study Pull-Down Menu
         var addCancerStudy = true;
@@ -611,20 +620,10 @@ function addMetaDataToPage() {
             if(key == "all") {
                 cancerTypeContainer.prepend(newOption);
             } else {
-                if(cancer_study.has_mutation_data) {
-                    hasMutationHeader.append(newOption);
-                } else {
-                    noMutationHeader.append(newOption);
-                    noMutCancerCounter++;
-                }
+                $("#" + cancer_study.type_of_cancer + "-study-group").append(newOption);
             }
         }
     });  //  end 1st for each cancer study loop
-
-    // hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
-    if(noMutCancerCounter == 0) {
-        noMutationHeaderRemove.remove();
-    }
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){

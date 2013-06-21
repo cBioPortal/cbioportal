@@ -39,6 +39,8 @@ import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.Gene;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.maf.MafRecord;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
+import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.remote.GetMutationData;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;
@@ -211,12 +213,53 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
 				mutationData.put("uniprotId", this.getUniprotId(mutation));
 				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
+				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
 			}
 		}
 
 		return mutationArray;
+	}
+
+	/**
+	 * Returns special gene data (if exists) for the given mutation. Returns null
+	 * if no special gene exists for the given mutation.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          Map of (field header, field value) pairs.
+	 */
+	protected HashMap<String, String> getSpecialGeneData(ExtendedMutation mutation)
+	{
+		HashMap<String, String> specialGeneData = null;
+
+		SpecialGene specialGene = SpecialGeneFactory.getInstance(mutation.getGeneSymbol());
+
+		//  fields & values for "Special" genes
+		if (specialGene != null)
+		{
+			specialGeneData = new HashMap<String, String>();
+
+			ArrayList<String> specialHeaders = specialGene.getDataFieldHeaders();
+			ArrayList<String> specialData = specialGene.getDataFields(mutation);
+
+			if (specialHeaders.size() == specialData.size())
+			{
+				for (int i=0; i < specialData.size(); i++)
+				{
+					String header = specialHeaders.get(i);
+					String data = specialData.get(i);
+
+					specialGeneData.put(header, data);
+				}
+			}
+			else
+			{
+				//TODO header size vs data size mismatch
+			}
+		}
+
+		return specialGeneData;
 	}
 
 

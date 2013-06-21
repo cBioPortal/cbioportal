@@ -40,6 +40,7 @@ var MutationModel = Backbone.Model.extend({
 		this.uniprotId = attributes.uniprotId;
 		this.mutationCount = attributes.mutationCount;
 		this.cosmicCount = attributes.cosmicCount; // TODO calculate this on the client side?
+		this.specialGeneData = attributes.specialGeneData;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service

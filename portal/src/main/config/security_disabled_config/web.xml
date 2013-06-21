@@ -443,7 +443,7 @@
 
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.svgConverter</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
     </servlet>
 
     <servlet-mapping>

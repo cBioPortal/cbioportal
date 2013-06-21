@@ -1,6 +1,6 @@
 <script type="text/template" id="default_mutation_details_template">
 	<div id='mutation_details_loader'>
-		<img src='images/ajax-loader.gif'/>
+		<img src='{{loaderImage}}'/>
 	</div>
 </script>
 
@@ -40,7 +40,9 @@
 				uniprotId: this.model.uniprotId};
 
 			// compile the template using underscore
-			var template = _.template( $("#mutation_view_template").html(), variables);
+			var template = _.template(
+				$("#mutation_view_template").html(),
+				variables);
 
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
@@ -64,8 +66,13 @@
 			self.util = new MutationDetailsUtil(
 					new MutationCollection(self.model.mutations));
 
+			// TODO make the image customizable?
+			var variables = {loaderImage: "images/ajax-loader.gif"};
+
 			// compile the template using underscore
-			var template = _.template( $("#default_mutation_details_template").html());
+			var template = _.template(
+				$("#default_mutation_details_template").html(),
+				variables);
 
 			// load the compiled HTML into the Backbone "el"
 			self.$el.html(template);

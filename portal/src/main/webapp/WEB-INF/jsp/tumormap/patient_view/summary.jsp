@@ -185,7 +185,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
-        <td><div id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></div></td>
+        <td valign="top"><div id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></div></td>
     </tr>
 </table>
 

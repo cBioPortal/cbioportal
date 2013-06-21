@@ -329,7 +329,7 @@ function fixCytoscapeWebRedraw() {
     
     // to fix problem of flash repainting
     $("a.patient-tab").click(function(){
-        if($(this).attr("href")=="#pathways") {
+        if($(this).attr("href")==="#pathways") {
             $("#pathways").removeAttr('style');
         } else {
             $("#pathways").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
@@ -621,6 +621,7 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+var mapCaseColor = {};
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n = caseIds.length;
@@ -633,6 +634,12 @@ function outputClinicalData() {
         if (n===1) {
             var patientInfo = formatPatientInfo(clinicalData);
             row +="&nbsp;"+patientInfo;
+        } else {
+            var state = guessClinicalData(clinicalData, ["disease state"]);
+            if (state!==null) mapCaseColor[caseId] = getCaseColor(state);
+
+            var stateInfo = formatStateInfo(clinicalData);
+            if (stateInfo) row +="&nbsp;"+stateInfo;
         }
         row += "</td><td align='right'><a href='#' id='more-clinical-a-"+
                     caseId+"'>More about this patient</a></td></tr>";
@@ -664,30 +671,29 @@ function outputClinicalData() {
 
         return patientInfo.join(", ");
     }
+    
+    function formatStateInfo(clinicalData) {
+        var ret = null;
+        var state = guessClinicalData(clinicalData, ["disease state"]);
+        if (state!==null) {
+            ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
+
+            if (state.toLowerCase() === "metastatic") {
+                var loc = guessClinicalData(clinicalData,["tumor location"]);
+                if (loc!==null) 
+                    ret += ", Tumor location: "+loc;
+            }
+        }
+        return ret;
+    }
 
     function formatDiseaseInfo(clinicalData) {
         var diseaseInfo = [];
         diseaseInfo.push("<a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a>");
 
-        var state = guessClinicalData(clinicalData, ["disease state"]);
-        if (state!==null) {
-            var strState = state;
-            var metastatic = state.toLowerCase() === "metastatic";
-            if (metastatic) {
-                strState = "<font color='red'>"+state+"</font>";
-            } else if (state.toLowerCase() === "primary") {
-                strState = "<font color='green'>"+state+"</font>";
-            }
-
-            diseaseInfo.push(strState);
-
-            if (metastatic) {
-                var loc = guessClinicalData(clinicalData,["tumor location"]);
-                if (loc!==null) 
-                    diseaseInfo.push("Tumor location: "+loc);
-            }
-        }
+        var stateInfo = formatStateInfo(clinicalData);
+        if (stateInfo) diseaseInfo.push(stateInfo);
 
         var gleason = guessClinicalData(clinicalData,
                         ["gleason score","overall_gleason_score"]);
@@ -785,6 +791,12 @@ function outputClinicalData() {
         }
         return null;
     }
+
+    function getCaseColor(caseType) {
+        if (!caseType || caseType.toLowerCase()==="primary") return "black";
+        if (caseType.toLowerCase()==="metastatic") return "red";
+        return "orange";
+    }
 }
 
 function plotCaseLabel(div,onlyIfEmpty) {
@@ -792,10 +804,10 @@ function plotCaseLabel(div,onlyIfEmpty) {
         if (onlyIfEmpty && !$(this).is(":empty")) return;
         var caseId = $(this).attr('alt');
         
-        var svg = d3.select($(this)[0])
-            .append("svg")
-            .attr("width", 12)
-            .attr("height", 12);
+            var svg = d3.select($(this)[0])
+                .append("svg")
+                .attr("width", 12)
+                .attr("height", 12);
     
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);
@@ -805,10 +817,18 @@ function plotCaseLabel(div,onlyIfEmpty) {
 
 function plotCaselabelInSVG(svg, caseId) {
     var ix = mapCaseIdIx[caseId];
-    var color = getColor(ix);
+    var color = mapCaseColor[caseId];
     var circle = svg.append("g")
         .attr("transform", "translate(6,6)");
-    d3CircledChar(circle,ix,color,color);
+    circle.append("circle")
+        .attr("r",6)
+        .attr("fill",color);
+    circle.append("text")
+        .attr("x",-3)
+        .attr("y",4)
+        .attr("font-size",10)
+        .attr("fill","white")
+        .text(ix);
 }
 
 function getColor(i) {

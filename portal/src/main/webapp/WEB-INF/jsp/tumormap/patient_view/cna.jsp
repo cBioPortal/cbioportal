@@ -32,8 +32,12 @@
                                 var ret = [];
                                 for (var i=0, n=caseIds.length; i<n; i++) {
                                     var caseId = caseIds[i];
-                                    ret.push("<div style='float:left;' class='"
-                                            +table_id+"-case-label' alt='"+($.inArray(caseId,samples)!==-1?caseId:'')+"'></div>");
+                                    if ($.inArray(caseId,samples)>=0) {
+                                        ret.push("<span class='"
+                                            +table_id+"-case-label' alt='"+caseId+"'></span>")
+                                    } else {
+                                        ret.push("<span'><svg width='12'></svg></span>")
+                                    }
                                 }
                                 
                                 return ret.join("&nbsp;");

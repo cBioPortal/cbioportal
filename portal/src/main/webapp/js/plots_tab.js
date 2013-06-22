@@ -131,6 +131,41 @@ var PlotsMenu = (function () {
                 toggleVisibilityHide("dna_methylation_dropdown");
                 toggleVisibilityShow("rppa_dropdown");
             }
+            //Set Default mRNA Selection
+            //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
+            $("#data_type_mrna > option").each(function() {
+                if (this.text.toLowerCase().indexOf("z-scores")){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $("#data_type_mrna > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $("#data_type_mrna > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            var userSelectedMrnaProfile = "";
+            $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
+                if (value.indexOf("mrna") !== -1) {
+                    userSelectedMrnaProfile = value;
+                    return false;
+                }
+            });
+            $("#data_type_mrna > option").each(function() {
+                if (this.value === userSelectedMrnaProfile){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
             //Re-generate the plots-view
             PlotsView.init();
         }
@@ -650,7 +685,43 @@ var PlotsView = (function () {
         elem.yScale = d3.scale.linear()
             .domain([min_y - edge_y, max_y + edge_y])
             .range([520, 20]);
-        //Define Axis
+        elem.xAxis = d3.svg.axis()
+            .scale(elem.xScale)
+            .orient("bottom")
+        elem.yAxis = d3.svg.axis()
+            .scale(elem.yScale)
+            .orient("left");
+    }
+
+    function initDiscretizedAxis() {
+
+        var analyseResult = {};
+        analyseResult = analyseData(pData.copy_no, pData.mrna);
+        var min_x = analyseResult.min_x;
+        var max_x = analyseResult.max_x;
+        var edge_x = analyseResult.edge_x;
+        var min_y = analyseResult.min_y;
+        var max_y = analyseResult.max_y;
+        var edge_y = analyseResult.edge_y;
+
+        //reset max_x as the range of slots
+        // -- Not real max x value for scaling!!
+        slotsCnt = 0;
+        for (var j = min_x; j < max_x + 1; j++) {
+            if (pData.copy_no.indexOf(j.toString()) !== -1) {
+                slotsCnt += 1;
+            }
+        }
+        var new_min_x = 0;
+        var new_max_x = slotsCnt - 1;
+
+        elem.xScale = d3.scale.linear()
+            .domain([new_min_x - edge_x, new_max_x + edge_x])
+            .range([100, 600]);
+        elem.yScale = d3.scale.linear()
+            .domain([min_y - edge_y, max_y + edge_y])
+            .range([520, 20]);
+
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
@@ -662,11 +733,13 @@ var PlotsView = (function () {
     function drawDiscretizedAxis() {
         var textSet = [];
         var svg = elem.svg;
-        for (var j = -2; j < 3; j++) { // j: -2, -1, 0, 1, 2
+
+        for (var j = -2; j < 3; j++) {
             if (pData.copy_no.indexOf(j.toString()) !== -1) {
                 textSet.push(text.gistic_txt_val[j.toString()]);
             }
         }
+
         svg.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
@@ -758,34 +831,67 @@ var PlotsView = (function () {
     function drawDiscretizedPlots() { //GISTIC, RAE view
         elem.dotsGroup = elem.svg.append("svg:g");
         var ramRatio = 20;  //Noise
-        elem.dotsGroup.selectAll("path")
-            .data(tmpDataSet)
-            .enter()
-            .append("svg:path")
-            .attr("transform", function(d){
-                return "translate(" +
-                    (elem.xScale(d.xVal) + (Math.random() * ramRatio - ramRatio/2)) +
-                    ", " +
-                    elem.yScale(d.yVal) + ")";
-            })
-            .attr("d", d3.svg.symbol()
-                .size(function(d){
-                    switch (d.mutationType) {
-                        case "non" : return 15;
-                        default : return 25;
-                    }
+
+        var subDataSet = {
+            Homdel : [],
+            Hetloss : [],
+            Diploid : [],
+            Gain : [],
+            Amp : []
+        };
+        $.each(tmpDataSet, function(index, value) {
+            if (value.gisticType === "Homdel") {
+                subDataSet.Homdel.push(value);
+            } else if (value.gisticType === "Hetloss") {
+                subDataSet.Hetloss.push(value);
+            } else if (value.gisticType === "Diploid") {
+                subDataSet.Diploid.push(value);
+            } else if (value.gisticType === "Gain") {
+                subDataSet.Gain.push(value);
+            } else if (value.gisticType === "Amp") {
+                subDataSet.Amp.push(value);
+            }
+        });
+        //Remove empty data set
+        $.each(subDataSet, function(key, value) {
+            if (subDataSet[key].length === 0) {
+                delete subDataSet[key];
+            }
+        });
+
+        var posVal = 0;
+        $.each(subDataSet, function(key, value) {
+            var subDotsGrp = elem.dotsGroup.append("svg:g");
+            subDotsGrp.selectAll("path")
+                .data(value)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d){
+                    return "translate(" +
+                        (elem.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2)) +
+                        ", " +
+                        elem.yScale(d.yVal) + ")";
                 })
-                .type(function(d){
-                    return mutationStyle[d.mutationType].symbol;
+                .attr("d", d3.svg.symbol()
+                    .size(function(d){
+                        switch (d.mutationType) {
+                            case "non" : return 15;
+                            default : return 25;
+                        }
+                    })
+                    .type(function(d){
+                        return mutationStyle[d.mutationType].symbol;
+                    })
+                )
+                .attr("fill", function(d){
+                    return mutationStyle[d.mutationType].fill;
                 })
-            )
-            .attr("fill", function(d){
-                return mutationStyle[d.mutationType].fill;
-            })
-            .attr("stroke", function(d){
-                return mutationStyle[d.mutationType].stroke;
-            })
-            .attr("stroke-width", 1.2);
+                .attr("stroke", function(d){
+                    return mutationStyle[d.mutationType].stroke;
+                })
+                .attr("stroke-width", 1.2);
+            posVal += 1;
+        });
     }
 
     function drawLog2Plots() {
@@ -826,10 +932,12 @@ var PlotsView = (function () {
         var min_x = tmp_data_result.min_x;
         var max_x = tmp_data_result.max_x;
 
+        //position Indicator
+        //Not using real x value for discretized data
+        var pos = 0;
 
         for (var i = min_x ; i < max_x + 1; i++) {
             //Divide data set into sub group based on x(gistic) value
-
             var top;
             var bottom;
             var quan1;
@@ -840,7 +948,7 @@ var PlotsView = (function () {
             var tmp_y_arr = [];
 
             //Find the middle (vertical) line for one box plot
-            var midLine = elem.xScale(i);
+            var midLine = elem.xScale(pos);
 
             //Find the max/min y value with certain x value;
             var index_tmp_y_data_array = 0;
@@ -862,12 +970,14 @@ var PlotsView = (function () {
                     .attr("y2", mean)
                     .attr("stroke-width", 1)
                     .attr("stroke", "grey");
+                pos += 1;
             } else {
                 if (tmp_y_arr.length == 2) {
                     mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
                     quan1 = bottom = elem.yScale(tmp_y_arr[0]);
                     quan2 = top = elem.yScale(tmp_y_arr[1]);
                     IQR = Math.abs(quan2 - quan1);
+                    pos += 1;
                 } else {
                     var yl = tmp_y_arr.length;
                     if (yl % 2 == 0) {
@@ -899,6 +1009,8 @@ var PlotsView = (function () {
                     top = scaled_y_arr[index_top];
                     var index_bottom = searchIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
                     bottom = scaled_y_arr[index_bottom];
+
+                    pos += 1;
                 }
 
                 //D3 Drawing
@@ -1246,20 +1358,26 @@ var PlotsView = (function () {
             //View Construction
             initView();
             if (dataIsAvailable()) {
-
-                initAxis();
-                drawImgConverter();
+                drawImgConverter();  //PDF, SVG download buttons
                 if (PlotsTypeIsCopyNo()) {
                     if (dataIsDiscretized()) {
+                        initDiscretizedAxis();
                         drawDiscretizedAxis();
                         drawBoxPlots();
                         drawDiscretizedPlots();
                     } else {
+                        initAxis();
                         drawContinuousAxis();
                         drawLog2Plots();
                     }
                     drawCopyNoViewLegends();
-                } else { //RPPA and GISTIC view
+                } else if (PlotsTypeIsMethylation()) { //RPPA and GISTIC view
+                    initAxis();
+                    drawContinuousAxis();
+                    drawContinuousPlots();
+                    drawOtherViewLegends();
+                } else if (PlotsTypeIsRPPA()) {
+                    initAxis();
                     drawContinuousAxis();
                     drawContinuousPlots();
                     drawOtherViewLegends();

@@ -177,34 +177,6 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
             }
         }
     });
-    //Re-arrange mrna type list order:
-    var tmp_genetic_profile_mrna = genetic_profile_mrna;
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("z-scores") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq v2") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-
-    //Get user selected mrna profile (highest priority)
-    //Global Variable: geneticProfiles
-    var items = geneticProfiles.split(/\s+/);
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].indexOf("mrna") !== -1) {
-            var tmp_index = PlotsUtil.findIndex(items[i], genetic_profile_mrna);
-            arraymove(genetic_profile_mrna, tmp_index, 0);
-            break;
-        }
-    }
 };
 
 function arraymove(arr, fromIndex, toIndex) {

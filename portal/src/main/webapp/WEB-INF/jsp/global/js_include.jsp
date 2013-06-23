@@ -8,7 +8,7 @@
 <script type="text/javascript" src="js/jquery.cookie.js"></script>
 <script type="text/javascript" src="js/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/global-tabs.js"></script>
-<script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
+<script type="text/javascript" src="js/jquery.popeye-2.1.min.js"></script>
 <script type="text/javascript" src="js/mailme.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/jquery.quovolver.mini.js"></script>
@@ -29,4 +29,5 @@
 <script type="text/javascript" src="js/d3.min.js"></script>
 <script type="text/javascript" src="js/jquery.expander.min.js"></script>
 <script type="text/javascript" src="js/gene-symbol-validator.js"></script>
+<script type="text/javascript" src="js/chosen.jquery.js"></script>
 

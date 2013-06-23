@@ -1295,6 +1295,10 @@ cc-ie-message {
     background-color: lightyellow;
 }
 
+/* Float on alright! */
+#ppy2 {
+    z-index: 9999999;
+}
 /* Gene validation */
 #genestatus ul.validation-list {margin: 0; padding: 0;}
 #genestatus * li.ui-state-default {

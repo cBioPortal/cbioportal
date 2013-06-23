@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -86,11 +86,6 @@ var RightMenuStudyStatsUtil = (function($) {
                 .attr("width", function(d) { return kx * d.dx - 1; })
                 .attr("height", function(d) { return ky * d.dy - 1; })
 
-            t.select("text")
-                .attr("x", function(d) { return kx * d.dx / 2; })
-                .attr("y", function(d) { return ky * d.dy / 2; })
-                .style("opacity", function(d) { return kx * d.dx > d.w ? 1 : 0; });
-
             node = d;
             d3.event.stopPropagation();
         }
@@ -159,19 +154,6 @@ var RightMenuStudyStatsUtil = (function($) {
             .attr("width", function(d) { return d.dx - 1; })
             .attr("height", function(d) { return d.dy - 1; })
             .style("fill", function(d) { return color(d.parent.name); })
-            .style("cursor", "pointer")
-            .each(addTooltip);
-
-        cell.append("svg:text")
-            .attr("x", function(d) { return d.dx / 2; })
-            .attr("y", function(d) { return d.dy / 2; })
-            .attr("dy", ".35em")
-            .attr("text-anchor", "middle")
-            .text(function(d) { return d.size; })
-            .style("opacity", function(d) {
-                d.w = this.getComputedTextLength()*3;
-                return d.dx > d.w ? 1 : 0;
-            })
             .style("cursor", "pointer")
             .each(addTooltip);
 

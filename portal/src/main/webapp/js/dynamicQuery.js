@@ -700,9 +700,10 @@ function addMetaDataToPage() {
     reviewCurrentSelections();
 
     // Chosenize the select boxes
-    $("#select_cancer_type").chosen({ width: '550px'});
+    var minSearchableItems = 10;
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems });
     $("#select_gene_set").chosen({ width: '620px'});
-    $("#select_case_set").chosen({ width: '100%'});
+    $("#select_case_set").chosen({ width: '100%', disable_search_threshold: minSearchableItems });
 }
 
 // Adds the specified genomic profiles to the page.

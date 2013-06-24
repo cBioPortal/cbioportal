@@ -635,14 +635,14 @@ function outputClinicalData() {
         } else {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>";
             
-            var state = guessClinicalData(clinicalData, ["disease state"]);
+            var state = guessClinicalData(clinicalData, ["disease state","disease_state"]);
             if (state!==null) mapCaseColor[caseId] = getCaseColor(state);
 
             var stateInfo = formatStateInfo(clinicalData);
             if (stateInfo) row +="&nbsp;"+stateInfo;
         }
         row += "</td><td align='right'><a href='#' id='more-clinical-a-"+
-                    caseId+"'>More about this patient</a></td></tr>";
+                    caseId+"'>More about this tumor</a></td></tr>";
         $("#clinical_table").append(row);
         
         if (n===1) {
@@ -826,11 +826,6 @@ function plotCaselabelInSVG(svg, caseId) {
         .attr("font-size",10)
         .attr("fill","white")
         .text(ix);
-}
-
-function getColor(i) {
-    var colors = ['#000000','#000080','#008000','#800000','#808000','#800080','#008080','#808080'];
-    return colors[i%colors.length];
 }
 
 </script>

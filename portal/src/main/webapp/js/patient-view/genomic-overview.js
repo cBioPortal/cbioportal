@@ -125,7 +125,7 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
     for (var i=0; i<mutations.getNumEvents(false); i++) {
         if (caseId!==null) {
             var caseIds = mutations.data['caseIds'][i];
-            if ($.inArray(caseId, caseIds)!==-1) continue;
+            if ($.inArray(caseId, caseIds)===-1) continue;
         }
         var chm = translateChm(mutations.data['chr'][i]);
         if (cbio.util.checkNullOrUndefined(chm)||chm>=chmInfo.hg19.length) continue;

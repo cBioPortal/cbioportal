@@ -59,7 +59,7 @@ public class CnaJSON extends HttpServlet {
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String[] patients = request.getParameter(PatientView.PATIENT_ID).split(" +");
+        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
@@ -80,13 +80,13 @@ public class CnaJSON extends HttpServlet {
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            cnaEvents = DaoCnaEvent.getCnaEvents(patients, cnaProfile.getGeneticProfileId());
+            cnaEvents = DaoCnaEvent.getCnaEvents(caseIds, cnaProfile.getGeneticProfileId());
             String concatEventIds = getConcatEventIds(cnaEvents);
             int profileId = cnaProfile.getGeneticProfileId();
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
             contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
-            if (mrnaProfileId!=null && patients.length==1) {
-                mrnaContext = getMrnaContext(patients[0], cnaEvents, mrnaProfileId);
+            if (mrnaProfileId!=null && caseIds.length==1) {
+                mrnaContext = getMrnaContext(caseIds[0], cnaEvents, mrnaProfileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
@@ -122,7 +122,7 @@ public class CnaJSON extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        String[] caseIds = request.getParameter(PatientView.PATIENT_ID).split(" +");
+        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         List<CopyNumberSegment> segs = Collections.emptyList();

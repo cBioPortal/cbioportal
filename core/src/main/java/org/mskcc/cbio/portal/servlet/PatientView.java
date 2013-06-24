@@ -21,6 +21,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
@@ -39,8 +40,8 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "error";
-    public static final String PATIENT_ID = "case_id";
-    public static final String OTHER_STUDIES_WITH_SAME_PATIENT_ID = "other_studies_with_same_patient_id";
+    public static final String CASE_ID = "case_id";
+    public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
@@ -101,11 +102,10 @@ public class PatientView extends HttpServlet {
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
         //  Get patient ID
-        String patientID = servletXssUtil.getCleanInput (request, PATIENT_ID);
-        String cancerStudyId = servletXssUtil.getCleanInput (request, QueryBuilder.CANCER_STUDY_ID);
+        String patientID = request.getParameter(CASE_ID);
+        String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
         request.setAttribute(QueryBuilder.HTML_TITLE, "Patient "+patientID);
-        request.setAttribute(PATIENT_ID, patientID);
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
@@ -129,12 +129,12 @@ public class PatientView extends HttpServlet {
         
         request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE); // by default; in case return false;
         
-        String caseIdsStr = (String) request.getAttribute(PATIENT_ID);
+        String caseIdsStr = request.getParameter(CASE_ID);
         if (caseIdsStr == null || caseIdsStr.isEmpty()) {
             request.setAttribute(ERROR, "Please specify at least one case ID. ");
             return false;
         }
-        String[] caseIds = caseIdsStr.split(" +");
+        String[] patientIds = caseIdsStr.split(" +");
         
         String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
         if (cancerStudyId==null) {
@@ -148,11 +148,23 @@ public class PatientView extends HttpServlet {
             return false;
         }
 
-        LinkedHashSet<Case> cases = new LinkedHashSet<Case>(caseIds.length);
-        for (String caseId : caseIds) {
-            Case _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
+        LinkedHashSet<Case> cases = new LinkedHashSet<Case>(patientIds.length);
+        List<String> sampleIds = new ArrayList<String>();
+        for (String patientId : patientIds) {
+            Case _case = DaoCase.getCase(patientId, cancerStudy.getInternalId());
             if (_case != null) {
                 cases.add(_case);
+                sampleIds.add(_case.getCaseId());
+            } else {
+                List<String> samples = daoClinicalFreeForm.getCaseIdsByAttribute(
+                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
+                for (String sample : samples) {
+                    _case = DaoCase.getCase(sample, cancerStudy.getInternalId());
+                    if (_case != null) {
+                        cases.add(_case);
+                        sampleIds.add(_case.getCaseId());
+                    }
+                }
             }
         }
 
@@ -160,6 +172,9 @@ public class PatientView extends HttpServlet {
             request.setAttribute(ERROR, "We have no information about patients "+caseIdsStr);
             return false;
         }
+        
+        
+        request.setAttribute(CASE_ID, StringUtils.join(sampleIds, " "));
         
         String cancerStudyIdentifier = cancerStudy.getCancerStudyStableId();
         
@@ -213,7 +228,7 @@ public class PatientView extends HttpServlet {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         String patient = null;
         ClinicalData cd = null;
-        Map<String,ClinicalFreeForm> clinicalFreeForms = null;
+        Map<String,ClinicalFreeForm> clinicalFreeForms = Collections.emptyMap();
         Map<String,Map<String,String>> clinicalData = new LinkedHashMap<String,Map<String,String>>();
         for (Case _case : cases) {
             patient = _case.getCaseId();
@@ -241,6 +256,19 @@ public class PatientView extends HttpServlet {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
             }
         }
+        
+        // other cases with the same patient id
+        ClinicalFreeForm cff = clinicalFreeForms.get(PATIENT_ID_ATTR_NAME.toLowerCase());
+        if (cff!=null) {
+            String patientId = cff.getParamValue();
+            List<String> samples = daoClinicalFreeForm.getCaseIdsByAttribute(
+                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
+            if (samples.size()>1) {
+                request.setAttribute(PATIENT_ID_ATTR_NAME, patientId);
+            }
+        }
+        
+        
     }
     
     private Map<String,ClinicalFreeForm> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {

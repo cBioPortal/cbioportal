@@ -202,7 +202,7 @@ function switchToTab(toTab) {
 }
 
 function getRefererCaseId() {
-    var match = /<%=PatientView.PATIENT_ID%>=([^&]+)/.exec(document.referrer);
+    var match = /<%=PatientView.CASE_ID%>=([^&]+)/.exec(document.referrer);
     return match ? match[1] : null;
 }
 

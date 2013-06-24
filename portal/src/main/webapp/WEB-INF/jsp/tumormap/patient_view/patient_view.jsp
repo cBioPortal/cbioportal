@@ -11,15 +11,12 @@
 <%
 boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("tumormap", true);
-String patient = (String)request.getAttribute(PatientView.PATIENT_ID);
+String caseId = (String)request.getAttribute(PatientView.CASE_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
-String patientInfo = (String)request.getAttribute(PatientView.PATIENT_INFO);
-String diseaseInfo = (String)request.getAttribute(PatientView.DISEASE_INFO);
-String patientStatus = (String)request.getAttribute(PatientView.PATIENT_STATUS);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
-String otherStudy = (String)request.getAttribute(PatientView.OTHER_STUDIES_WITH_SAME_PATIENT_ID);
+String patientID = (String)request.getAttribute(PatientView.PATIENT_ID_ATTR_NAME);
 boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
@@ -71,7 +68,7 @@ if (mrnaProfile!=null) {
 }
 
 if (patientViewError!=null) {
-    out.print(patient);
+    out.print(caseId);
     out.print(": ");
     out.println();
     out.print(patientViewError);
@@ -89,8 +86,10 @@ if (patientViewError!=null) {
 
 <jsp:include page="../../global/header.jsp" flush="true" />
 
-<%if(otherStudy!=null) {%>
-    <p style="background-color: lightyellow;"><%=otherStudy%></p>
+<%if(patientID!=null) {%>
+    <p style="background-color: lightyellow;"> This patient has 
+        <a title="Go to patient-centric view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&case_id=<%=patientID%>">multiple tumors</a>.
+    </p>
 <%}%>
 
 <div id="clinical_div">
@@ -288,8 +287,8 @@ var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
-var patientStr = '<%=patient%>';
-var caseIds = patientStr.split(" ");
+var caseIdsStr = '<%=caseId%>';
+var caseIds = caseIdsStr.split(" ");
 var mapCaseIdIx = cbio.util.arrayToAssociatedArrayIndices(caseIds,1);
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
@@ -675,7 +674,7 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var state = guessClinicalData(clinicalData, ["disease state"]);
+        var state = guessClinicalData(clinicalData, ["disease state","disease_state"]);
         if (state!==null) {
             ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
 

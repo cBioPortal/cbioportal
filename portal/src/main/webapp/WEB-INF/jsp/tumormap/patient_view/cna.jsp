@@ -298,7 +298,7 @@
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
         $('#cna_id_filter_msg').hide();
-        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
+        var params = {<%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
         

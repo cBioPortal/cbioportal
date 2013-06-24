@@ -84,7 +84,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
-            <%=PatientView.PATIENT_ID%>:'<%=patient%>',
+            <%=PatientView.CASE_ID%>:caseIdsStr,
             cancer_study_id: cancerStudyId
         };
         $.post("cna.json", 

@@ -29,6 +29,8 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.internal.ImportClinical;
 import org.mskcc.cbio.importer.Config;
@@ -41,8 +43,11 @@ import org.mskcc.cbio.importer.model.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Class which implements the Converter interface for use
@@ -81,6 +86,16 @@ public class ClinicalDataConverterImpl implements Converter {
 
 
     public static void main(String[] args) throws Exception {
+
+        // for testing purposes only
+
+        Table rawTable = HashBasedTable.create();
+
+        rawTable.put("1", 1, "1,1");
+        rawTable.put("1", 2, "1,2");
+
+        System.out.println(rawTable);
+
         if (args.length != 0) {
             System.out.println("command line usage:  no arguments!");
             System.exit(1);
@@ -424,6 +439,28 @@ public class ClinicalDataConverterImpl implements Converter {
         matrix.addColumn(overAllSurvivalMetadata.getColumnHeader(), overallSurvivals);
 
         return matrix;
+    }
+
+    /**
+     * Aggregates and chooses the latest attribute in a DataMatrix.
+     * Find every row in the clinical data file that matches the provided attribute
+     * somewhere in the first column, sort by the "version" (denoted as "v" in the file)
+     * and return a list whose first element is the provided attribute string,
+     * and whose the remaining values are the latest non-NA values for each column.
+     *
+     * So in short what this does is merge rows.
+     *
+     * @param dataMatrix
+     * @return latests
+     */
+    public List<String> calcLatestAttribute(DataMatrix dataMatrix, String attribute) {
+
+        List<String> latest = new ArrayList<String>();
+
+        Pattern attributePattern = Pattern.compile(attribute);
+
+
+        return latest;
     }
 
     /**

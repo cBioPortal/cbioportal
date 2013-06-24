@@ -202,8 +202,9 @@ function switchToTab(toTab) {
 }
 
 function getRefererCaseId() {
-    var match = /<%=PatientView.CASE_ID%>=([^&]+)/.exec(document.referrer);
-    return match ? match[1] : null;
+    //var match = /case_id=([^&]+)/.exec(document.referrer);
+    //return match ? match[1] : null;
+    return null;
 }
 
 function formatPatientLink(caseId,cancerStudyId) {

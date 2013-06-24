@@ -204,34 +204,6 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
             }
         }
     });
-    //Re-arrange mrna type list order:
-    var tmp_genetic_profile_mrna = genetic_profile_mrna;
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("z-scores") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-    for (var i = 0; i < tmp_genetic_profile_mrna.length; i++) {
-        if (genetic_profile_mrna[i][1].toLowerCase().indexOf("rna seq v2") !== -1) {
-            arraymove(genetic_profile_mrna, i, 0);
-        }
-    }
-
-    //Get user selected mrna profile (highest priority)
-    //Global Variable: geneticProfiles
-    var items = geneticProfiles.split(/\s+/);
-    for (var i = 0; i < items.length; i++) {
-        if (items[i].indexOf("mrna") !== -1) {
-            var tmp_index = PlotsUtil.findIndex(items[i], genetic_profile_mrna);
-            arraymove(genetic_profile_mrna, tmp_index, 0);
-            break;
-        }
-    }
 };
 
 function arraymove(arr, fromIndex, toIndex) {
@@ -741,7 +713,43 @@ function drawSideBar() {
     for ( j = 0; j < genetic_profile_rppa.length; j++ ) {
         $('#data_type_rppa').append("<option value='" + genetic_profile_rppa[j][0] + "'>" + genetic_profile_rppa[j][1] + "</option>");
     }
-    //Init w/ user selected data types
+
+    //Set Default settings: user selection, RNA Seq V2 (w/o z-scores), RNA Seq(w/o zscores), Z-scores
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("z-scores")){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+            this.text.toLowerCase().indexOf("z-scores") === -1){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+            this.text.toLowerCase().indexOf("z-scores") === -1){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    var userSelectedMrnaProfile = "";
+    $.each(geneticProfiles.split(/\s+/), function(index, value){
+        if (value.indexOf("mrna") !== -1) {
+            userSelectedMrnaProfile = value;
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.value === userSelectedMrnaProfile){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
 }
 
 

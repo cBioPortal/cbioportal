@@ -74,6 +74,7 @@ var PlotsMenu = (function () {
     }
     return {
         init: function () {
+            $("#plots").tabs();
             fetchFrameData();
             if ( status.has_mrna && status.has_copy_no) {
                 appendDropDown('#plots_type', content.plots_type_list[0][0], content.plots_type_list[0][1]);

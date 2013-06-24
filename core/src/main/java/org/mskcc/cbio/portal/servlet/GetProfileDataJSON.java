@@ -1,6 +1,8 @@
 package org.mskcc.cbio.portal.servlet;
 
-import org.codehaus.jackson.*;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.node.ObjectNode;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,6 +13,7 @@ import java.io.*;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 import org.mskcc.cbio.cgds.dao.*;
@@ -62,7 +65,8 @@ public class GetProfileDataJSON extends HttpServlet  {
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
         //Final result JSON
-        JSONObject result = new JSONObject();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode result = mapper.createObjectNode();
 
         try {
 
@@ -77,11 +81,12 @@ public class GetProfileDataJSON extends HttpServlet  {
                 DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
                 Gene gene = daoGene.getGene(geneId);
 
-                JSONObject tmpGeneObj = new JSONObject();
-                HashMap<String, JSONObject> tmpObjMap =
-                        new LinkedHashMap<String, JSONObject>(); //<"case_id", "profile_data_collection_json"
+                JsonNode tmpGeneObj = mapper.createObjectNode();
+
+                HashMap<String, JsonNode> tmpObjMap =
+                        new LinkedHashMap<String, JsonNode>(); //<"case_id", "profile_data_collection_json"
                 for (String caseId: caseIdList) {
-                    JSONObject tmp = new JSONObject();
+                    JsonNode tmp = mapper.createObjectNode();
                     tmpObjMap.put(caseId, tmp);
                 }
 
@@ -100,16 +105,16 @@ public class GetProfileDataJSON extends HttpServlet  {
                     }
 
                     for (String caseId: caseIdList) {
-                        tmpObjMap.get(caseId).put(geneticProfileId, tmpResultMap.get(caseId));
+                        ((ObjectNode)(tmpObjMap.get(caseId))).put(geneticProfileId, tmpResultMap.get(caseId));
                     }
 
                 }
 
                 for (String caseId: caseIdList) {
-                    tmpGeneObj.put(caseId, tmpObjMap.get(caseId));
+                    ((ObjectNode)tmpGeneObj).put(caseId, tmpObjMap.get(caseId));
                 }
 
-                result.put(geneId, tmpGeneObj);
+                ((ObjectNode)result).put(geneId, tmpGeneObj);
 
             }
         } catch (DaoException e) {
@@ -118,7 +123,7 @@ public class GetProfileDataJSON extends HttpServlet  {
 
         httpServletResponse.setContentType("application/json");
         PrintWriter out = httpServletResponse.getWriter();
-        JSONValue.writeJSONString(result, out);
+        mapper.writeValue(out, result);
 
     }
 }

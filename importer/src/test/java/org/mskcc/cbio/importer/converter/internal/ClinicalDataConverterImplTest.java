@@ -153,15 +153,6 @@ public class ClinicalDataConverterImplTest {
         assertTrue(transposed.get(1).get(0).equals("12"));
     }
 
-    public DataMatrix createDataMatrix(String in) {
-        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
-        for (String row : Arrays.asList(in.split("\n"))) {
-            rows.add( new LinkedList<String>(Arrays.asList(row.split("\t"))) );
-        }
-
-        return new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
-    }
-
     @Test
     public void removeDuplicateRowsTest() throws Exception {
         String in = "CASE_ID\tAGE\tDAYS_TO_DEATH\tDAYS_TO_LAST_FOLLOWUP\tETHNICITY\tGENDER\tVITAL_STATUS\n" +
@@ -183,7 +174,7 @@ public class ClinicalDataConverterImplTest {
                 "tcga-a1-a0si\t52\tNA\t634\tnot hispanic or latino\tfemale\tliving\n" +
                 "tcga-a1-a0si\t52\tNA\t634\tnot hispanic or latino\tfemale\tliving\n";
 
-        DataMatrix testMatrix = createDataMatrix(in);
+        DataMatrix testMatrix = DataMatrix.fromString(in);
         testMatrix =  clinicalDataConverter.removeDuplicateRows(testMatrix);
 
         testMatrix.write(System.out);
@@ -238,7 +229,7 @@ public class ClinicalDataConverterImplTest {
                 "tcga-a2-a0d2\t45\tNA\t761\tnot hispanic or latino\tfemale\tliving\n" +
                 "tcga-a2-a0d3\t42\tNA\t736\tnot hispanic or latino\tfemale\tliving\n";
 
-        DataMatrix testDataMatrix = createDataMatrix(in);
+        DataMatrix testDataMatrix = DataMatrix.fromString(in);
         DataMatrix processed = clinicalDataConverter.processMatrix(testDataMatrix);
 
 //        processed.write(System.out);
@@ -247,7 +238,6 @@ public class ClinicalDataConverterImplTest {
     @Test
     public void addOverAllSurvivalTest() throws Exception {
         // just a playground
-
 
         List<String> daysToLastFollowUp = new ArrayList<String>();
         daysToLastFollowUp.add("1");
@@ -259,9 +249,20 @@ public class ClinicalDataConverterImplTest {
         daysToDeath.add("5");
         daysToDeath.add("6");
 
-        // test DataMatrix
-        DataMatrix testDataMatrix = createDataMatrix("");
+        DataMatrix testMatrix = DataMatrix.fromString("");
 
-        clinicalDataConverter.addOverAllSurvival(daysToLastFollowUp, daysToDeath, testDataMatrix);
+//        clinicalDataConverter.addOverAllSurvival(daysToLastFollowUp, daysToDeath, testDataMatrix);
+    }
+
+    @Test
+    public void calcLatestAttributeTest() throws Exception {
+
+        String in = "patient.daystodeath\t10\n"
+                + "patient.followups.followupv1.5.daystodeath\tNA\n"
+                + "patient.followups.followupv1.5-2.daystodeath\tNA\n";
+
+        DataMatrix dataMatrix = DataMatrix.fromString(in);
+
+        assertEquals("10", clinicalDataConverter.calcLatestAttribute(dataMatrix, "daystodeath"));
     }
 }

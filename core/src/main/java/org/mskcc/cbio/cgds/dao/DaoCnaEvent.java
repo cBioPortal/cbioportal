@@ -117,20 +117,18 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT _case.CASE_ID, _case.PATIENT_ID, _case.CANCER_STUDY_ID, CNA_EVENT_ID "
-                    + "FROM case_cna_event, _case, genetic_profile "
-                    + "WHERE case_cna_event.GENETIC_PROFILE_ID=genetic_profile.GENETIC_PROFILE_ID "
-                    + "AND case_cna_event.CASE_ID=_case.CASE_ID "
-                    + "AND _case.CANCER_STUDY_ID=genetic_profile.CANCER_STUDY_ID "
-                    + "AND CNA_EVENT_ID IN (" + concatEventIds + ")";
+            String sql = "SELECT * FROM case_cna_event"
+                    + " WHERE `CNA_EVENT_ID` IN ("
+                    + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
             
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                Case _case = new Case(rs.getString("CASE_ID"),
-                        rs.getString("PATIENT_ID"),
-                        rs.getInt("CANCER_STUDY_ID"));
+                String caseId = rs.getString("CASE_ID");
+                int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
+                        rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
+                Case _case = new Case(caseId, cancerStudyId);
                 long eventId = rs.getLong("CNA_EVENT_ID");
                 Set<Long> events = map.get(_case);
                 if (events == null) {

@@ -61,12 +61,13 @@ public final class CacheFeatureService implements FeatureService {
     /** {@inheritDoc} */
     public List<Sequence> getFeatures(final String uniProtId) {
         checkNotNull(uniProtId, "uniProtId must not be null");
-        try {
-            return cache.get(uniProtId);
-        }
-        catch (Exception e) {
-            logger.error("could not load features from cache for " + uniProtId, e);
+        List<Sequence> toReturn = cache.getIfPresent(uniProtId);
+
+        if (toReturn == null) {
+            logger.error("could not load features from cache for " + uniProtId);
             return EMPTY;
+        } else {
+            return toReturn;
         }
     }
 }

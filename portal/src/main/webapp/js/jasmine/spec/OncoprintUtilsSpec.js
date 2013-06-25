@@ -1,17 +1,18 @@
 describe("OncoprintUtils", function() {
+var utils = OncoprintUtils;     // alias
 
     describe("is_discrete", function() {
 
         it("should be false if it is passed a number", function() {
-            expect(OncoprintUtils.is_discrete(1)).toBe(false);
+            expect(utils.is_discrete(1)).toBe(false);
         });
 
         it("should be true if it is passed a string (actually, anything that is not a number)", function() {
-            expect(OncoprintUtils.is_discrete("a")).toBe(true);
-            expect(OncoprintUtils.is_discrete("")).toBe(true);
-            expect(OncoprintUtils.is_discrete(undefined)).toBe(true);
-            expect(OncoprintUtils.is_discrete([])).toBe(true);
-            expect(OncoprintUtils.is_discrete({})).toBe(true);
+            expect(utils.is_discrete("a")).toBe(true);
+            expect(utils.is_discrete("")).toBe(true);
+            expect(utils.is_discrete(undefined)).toBe(true);
+            expect(utils.is_discrete([])).toBe(true);
+            expect(utils.is_discrete({})).toBe(true);
         });
     });
 
@@ -24,7 +25,7 @@ describe("OncoprintUtils", function() {
                 "cna": "HEMIZYGOUSLYDELETED" };
 
             var samples = [ sample ];
-            expect(OncoprintUtils.nest_data(samples))
+            expect(utils.nest_data(samples))
                 .toEqual([ {key: "sample_0", values: [ sample ]} ]);
         });
     });
@@ -32,22 +33,22 @@ describe("OncoprintUtils", function() {
     describe("get_attr", function() {
 
         it("extracts a gene if it's given a piece of genomic data,", function() {
-            expect(OncoprintUtils.get_attr({gene: "EGFR", blahblah: "foobar"}))
+            expect(utils.get_attr({gene: "EGFR", blahblah: "foobar"}))
                 .toBe("EGFR");
         });
 
         it("even if there's no actual data", function() {
-            expect(OncoprintUtils.get_attr({gene: "EGFR"}))
+            expect(utils.get_attr({gene: "EGFR"}))
                 .toBe("EGFR");
         });
 
         it("and an attr_id if it is a general attribute (e.g. clinical data)", function() {
-            expect(OncoprintUtils.get_attr({attr_id: "VITAL_STATUS", helloworld: "blah"}))
+            expect(utils.get_attr({attr_id: "VITAL_STATUS", helloworld: "blah"}))
                 .toBe("VITAL_STATUS");
         });
 
         it("again, even if there's no actual value", function() {
-            expect(OncoprintUtils.get_attr({attr_id: "VITAL_STATUS"}))
+            expect(utils.get_attr({attr_id: "VITAL_STATUS"}))
                 .toBe("VITAL_STATUS");
         });
 
@@ -55,11 +56,11 @@ describe("OncoprintUtils", function() {
 
             it("throws an error if there is neither an attr_id nor a gene", function() {
                 expect(function() {
-                    OncoprintUtils.get_attr({});
+                    utils.get_attr({});
                 }).toThrow("datum has neither a gene nor an attr_id: " + JSON.stringify({}));
 
                 expect(function() {
-                    OncoprintUtils.get_attr({a: 1});
+                    utils.get_attr({a: 1});
                 }).toThrow("datum has neither a gene nor an attr_id: " + JSON.stringify({a: 1}));
             });
         });
@@ -71,7 +72,7 @@ describe("OncoprintUtils", function() {
             var data = [foobar, {a: 1, gene:"bar"}];
             var attributes = ['foobar'];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([ foobar ]);
+            expect(utils.filter_by_attributes(data, attributes)).toEqual([ foobar ]);
         });
 
         it("throws an error if there is data without gene or attr_id", function() {
@@ -79,7 +80,7 @@ describe("OncoprintUtils", function() {
             var attributes = ['foobar'];
 
             expect(function() {
-                OncoprintUtils.filter_by_attributes(data, attributes)
+                utils.filter_by_attributes(data, attributes)
             }).toThrow( "datum has neither a gene nor an attr_id: " + JSON.stringify({a: 1}));
         });
 
@@ -99,7 +100,7 @@ describe("OncoprintUtils", function() {
 
         var attributes = ["GeneA", "GeneB"];
 
-        expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual(data);
+        expect(utils.filter_by_attributes(data, attributes)).toEqual(data);
 
         });
 
@@ -120,7 +121,7 @@ describe("OncoprintUtils", function() {
 
             var attributes = ["GeneA"];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([GeneA]);
+            expect(utils.filter_by_attributes(data, attributes)).toEqual([GeneA]);
         });
 
         it("filters by a single attribute", function() {
@@ -139,7 +140,7 @@ describe("OncoprintUtils", function() {
 
             var attributes = ["CONTINUOUS"];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual([continuous]);
+            expect(utils.filter_by_attributes(data, attributes)).toEqual([continuous]);
         });
 
         it("filters by multiple attributes", function() {
@@ -159,7 +160,7 @@ describe("OncoprintUtils", function() {
 
             var attributes = ["CONTINUOUS", "DISCRETE"];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes)).toEqual(data);
+            expect(utils.filter_by_attributes(data, attributes)).toEqual(data);
         });
 
         it("filters by both attributes and genes", function() {
@@ -185,7 +186,7 @@ describe("OncoprintUtils", function() {
 
             var attributes = [ "GeneA", "CONTINUOUS"];
 
-            expect(OncoprintUtils.filter_by_attributes(data, attributes))
+            expect(utils.filter_by_attributes(data, attributes))
                 .toEqual([GeneA, continuous]);
         });
     });
@@ -222,7 +223,7 @@ describe("OncoprintUtils", function() {
                 .key(function(d) { return d.sample; })
                 .entries(raw_data);
 
-            expect(OncoprintUtils.filter_altered(data))
+            expect(utils.filter_altered(data))
                 .toEqual(d3.set(["sample_0", "sample_1"]));
         });
 
@@ -268,7 +269,7 @@ describe("OncoprintUtils", function() {
                 .key(function(d) { return d.sample; })
                 .entries(raw_data);
 
-            expect(OncoprintUtils.filter_altered(data))
+            expect(utils.filter_altered(data))
                 .toEqual(d3.set(["sample_0", "sample_1"]));
         });
     });
@@ -309,7 +310,7 @@ describe("OncoprintUtils", function() {
                 }
             ];
 
-            expect(OncoprintUtils.percent_altered(raw_data))
+            expect(utils.percent_altered(raw_data))
                 .toEqual({GeneA: 67, GeneB: 0});
         });
     });
@@ -331,11 +332,11 @@ describe("OncoprintUtils", function() {
                 }
             ];
 
-            var nested_data = OncoprintUtils.nest_data(raw_data);
+            var nested_data = utils.nest_data(raw_data);
             var attributes = ["GeneA", "foo", "bar"];
-            var normalized_values = OncoprintUtils.normalize_nested_values(nested_data[0], attributes);
+            var normalized_values = utils.normalize_nested_values(nested_data[0], attributes);
 
-            expect(normalized_values.map(OncoprintUtils.get_attr)).toEqual(attributes);
+            expect(normalized_values.map(utils.get_attr)).toEqual(attributes);
         });
     });
 
@@ -384,10 +385,10 @@ describe("OncoprintUtils", function() {
                 },
             ];
 
-        var nested_data = OncoprintUtils.nest_data(raw_data);
+        var nested_data = utils.nest_data(raw_data);
 
         var attributes = ["GeneA", "GeneB", "foo", "bar"];
-        var normalized = OncoprintUtils.normalize_clinical_attributes(nested_data, attributes);
+        var normalized = utils.normalize_clinical_attributes(nested_data, attributes);
 
         expect(_.uniq(normalized.map(function(i) { return i.values.length; })).length).toEqual(1);
         expect(_.uniq(normalized.map(function(i) { return i.values.length; }))[0]).toEqual(attributes.length);
@@ -415,7 +416,7 @@ describe("OncoprintUtils", function() {
         "cna": "AMPLIFIED"
         } ];
 
-        var map = OncoprintUtils.gene_data_type2range(raw_gene_data);
+        var map = utils.gene_data_type2range(raw_gene_data);
 
         it("takes gene raw data and converts it to a map of datatype to range", function() {
             expect(map.cna).toEqual(["DIPLOID", "AMPLIFIED"]);
@@ -426,8 +427,59 @@ describe("OncoprintUtils", function() {
             expect(map.mutation).toEqual(["FOO MUTATION", undefined]);
         });
 
-        it("and leaves nonexistant datatypes with a range of undefined", function(){
+        it("and leaves nonexistant datatypes with a range of undefined", function() {
             expect(map.mrna).toBe(undefined);
+        });
+    });
+
+    describe("make_attribute2scale", function() {
+        it("maps attributes and raw data to d3 scales", function() {
+
+            var raw_data = [
+                {
+                "sample": "sample_0",
+                "attr_val": 1,
+                "attr_id": "ATTR1"
+                },
+                {
+                "sample": "sample_0",
+                "attr_val": "II",
+                "attr_id": "ATTR2"
+                },
+                {
+                "sample": "sample_1",
+                "attr_val": 10,
+                "attr_id": "ATTR1"
+                },
+                {
+                "sample": "sample_1",
+                "attr_val": "I",
+                "attr_id": "ATTR2"
+                },
+                {
+                "sample": "sample_2",
+                "attr_val": 100,
+                "attr_id": "ATTR1"
+                },
+                {
+                "sample": "sample_2",
+                "attr_val": "III",
+                "attr_id": "ATTR2"
+                }
+            ];
+
+            var clinical_attributes = [
+                {attr_id: "ATTR1", datatype: "NUMBER"},
+                {attr_id: "ATTR2", datatype: "STRING"}
+            ];
+
+            var attr2scale = utils.make_attribute2scale(clinical_attributes, raw_data);
+
+            expect(attr2scale["ATTR1"].domain()).toEqual([1,100]);
+
+            // use set because order doesn't matter
+            expect(d3.set(attr2scale["ATTR2"].domain()))
+                .toEqual(d3.set(["I", "II", "III"]));
         });
     });
 });

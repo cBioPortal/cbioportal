@@ -231,34 +231,48 @@ var OncoprintUtils = (function() {
     // params: list of clinical attribute object literals,
     // list of raw clinical data
     //
+    // the clinical attribute literals must have fields
+    // <datatype> and <attr_id>
+    //
     // returns a map of attr_id to d3 scale
-    var attributes2scale = function(attrs, raw_clinical_data) {
-
+    var make_attribute2scale = function(attrs, raw_clinical_data) {
         var attrId2range = attr2range(raw_clinical_data);
 
-        attrs.map(function(attr) {
-            var scale;
+        var slice_googlecolors = function(attr_id) {
+            return googlecharts_colors.slice(0, attrId2range[attr_id].length);
+        };
 
-            if (attr.datatype === "BOOLEAN") {
-                scale = d3.scale.ordinal().range([colors.discrete, colors.black])
-                    .domain(attrId2range[attr.attr_id]);
-            }
+        return _.chain(attrs)
+            .map(function(attr) {
+                // attr -> [attr_id, d3 scale]
+                var scale;
 
-            else if (attr.datatype === "NUMBER") {
-                scale = d3.scale.linear().range([colors.white, colors.continuous]);
-            }
+                if (attr.datatype === "BOOLEAN") {
+                    scale = d3.scale.ordinal()
+                .range([colors.discrete, colors.black]);
+                }
 
-            else if (attr.datatype === "STRING") {
-                scale = d3.scale.ordinal().range[googlecharts_colors.slice(0, x)];
-            }
+                else if (attr.datatype === "NUMBER") {
+                    scale = d3.scale.linear()
+                .range([colors.white, colors.continuous]);
+                }
 
-            else {
-                scale = d3.scale.ordinal().range[googlecharts_colors.slice(0, x)];
-            }
+                else if (attr.datatype === "STRING") {
+                    scale = d3.scale.ordinal()
+                .range([0, slice_googlecolors(attr.attr_id)]);
+                }
 
-            attr.scale = scale;
-            return attr;
-        });
+                else {
+                    // defaults to discrete scale
+                    scale = d3.scale.ordinal()
+                        .range([0, slice_googlecolors(attr.attr_id)]);
+                }
+                scale.domain(attrId2range[attr.attr_id]);
+
+                return [attr.attr_id, scale];
+            })
+            .object()
+            .value();
     };
 
     // params: sample
@@ -544,7 +558,7 @@ var OncoprintUtils = (function() {
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
         legend: legend,
-        attributes2scale: attributes2scale,
+        make_attribute2scale: make_attribute2scale,
         gene_data_type2range: gene_data_type2range
     };
 }());
@@ -715,7 +729,7 @@ var Oncoprint = function(div, params) {
 
     var id2ClinicalAttr = OncoprintUtils.createId2ClinicalAttr(params.clinical_attrs);
 
-    OncoprintUtils.attributes2scale(params.clinical_attrs);
+    OncoprintUtils.make_attribute2scale(params.clinical_attrs);
 
     var dims = (function() {
         var rect_height = 23;

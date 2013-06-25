@@ -71,7 +71,7 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                     tmpProfileObj.put("NAME", geneticProfile.getProfileName());
                     tmpProfileObj.put("DESCRIPTION", geneticProfile.getProfileDescription());
                     tmpProfileObj.put("GENETIC_ALTERATION_TYPE", geneticProfile.getGeneticAlterationType().toString());
-                    tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getStableId());
+                    tmpProfileObj.put("CANCER_STUDY_ID", geneticProfile.getCancerStudyId());
                     tmpProfileObj.put("SHOW_PROFILE_IN_ANALYSIS_TAB", geneticProfile.showProfileInAnalysisTab());
 
                     result.put(geneticProfile.getStableId(), tmpProfileObj);

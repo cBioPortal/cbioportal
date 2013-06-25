@@ -1,0 +1,1 @@
+$(".plots_box_custom").append("plots_box_custom");

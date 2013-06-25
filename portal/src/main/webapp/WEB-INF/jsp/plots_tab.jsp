@@ -273,9 +273,8 @@
 
 <script>
     $("#plots").tabs();
-    window.onload = PlotsData.init();
-    window.onload = PlotsMenu.init();
-    window.onload = PlotsMenu.update();
+    window.onload = Plots.init();
+
     window.onload = PlotsTwoGenesMenu.init();
     window.onload = PlotsCustomMenu.init();
 

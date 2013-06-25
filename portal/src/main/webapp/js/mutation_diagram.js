@@ -155,6 +155,28 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 	var self = this;
 	var data = {};
 
+	// helper function to determine the longest common starting substring
+	// for the given two strings
+	// TODO move it to a general utility class
+	var lcss = function (str1, str2)
+	{
+		var i = 0;
+
+		while (i < str1.length && i < str2.length)
+		{
+			if (str1[i] === str2[i])
+			{
+				i++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return str1.substring(0, i);
+	};
+
 	// helper function to generate a label by joining all unique
 	// protein change information in the given array of mutations
 	var generateLabel = function(mutations)
@@ -162,6 +184,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		var mutationSet = {};
 
 		// create a set of protein change labels
+		// (this is to eliminate duplicates)
 		for (var i = 0; i < mutations.length; i++)
 		{
 			if (mutations[i].proteinChange != null &&
@@ -171,12 +194,37 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 			}
 		}
 
-		// generate the string
-		var label = "";
+		// convert to array & sort
+		var mutationArray = [];
 
 		for (var key in mutationSet)
 		{
-			label += key + "/";
+			mutationArray.push(key);
+		}
+
+		mutationArray.sort();
+
+		// find longest common starting substring
+		// (this is to truncate redundant starting substring)
+
+		var startStr = "";
+
+		if (mutationArray.length > 1)
+		{
+			startStr = lcss(mutationArray[0],
+				mutationArray[mutationArray.length - 1]);
+
+//			 console.log(mutationArray[0] + " n " +
+//			             mutationArray[mutationArray.length - 1] + " = " +
+//			             startStr);
+		}
+
+		// generate the string
+		var label = startStr;
+
+		for (var i = 0; i < mutationArray.length; i++)
+		{
+			label += mutationArray[i].substring(startStr.length) + "/";
 		}
 
 		// remove the last slash
@@ -620,7 +668,7 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 
 /**
  * Put labels over the lollipop circles. The number of labels to be displayed is defined
- * in options.lollipopTextPadding.
+ * by options.lollipopLabelCount.
  *
  * @param labels        text group (svg element) for labels
  * @param mutations     array of mutations (pileups)

@@ -6,8 +6,17 @@
 
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
-	<div id='uniprot_link_{{geneSymbol}}' class='diagram_uniprot_link'>
+	<div id='mutation_diagram_toolbar_{{geneSymbol}}' class='mutation-diagram-toolbar'>
 		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}' target='_blank'>{{uniprotId}}</a>
+		<form style="display:inline-block"
+		      action='svgtopdf.do'
+		      method='post'
+		      class='svg-to-pdf-form'>
+			<input type='hidden' name='svgelement'>
+			<input type='hidden' name='filetype' value='pdf'>
+			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.pdf'>
+		</form>
+		<button class='diagram-to-pdf'>PDF</button>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 	<div id='mutation_table_{{geneSymbol}}'>
@@ -156,7 +165,35 @@
 				mainView.render();
 
 				// draw mutation diagram
-				self._drawMutationDiagram(gene, mutationMap[gene], response, diagramOpts);
+				var diagram = self._drawMutationDiagram(
+						gene, mutationMap[gene], response, diagramOpts);
+
+				// add listener to the diagram buttons
+				mainView.$el.find(".diagram-to-pdf").click(function (event) {
+					// convert svg content to string
+					var xmlSerializer = new XMLSerializer();
+					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+					// TODO temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
+					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
+						"<text y=\"19\" x=\"0\" dy=\".71em\"");
+					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
+						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+					// TODO try to clone and change the value directly, it is safer
+//					var tempSvg = jQuery.extend(true, {}, diagram.svg);
+//					tempSvg.select(".mut-dia-x-axis").selectAll(".tick").selectAll("text").attr("y", 19);
+//					tempSvg.select(".mut-dia-y-axis").selectAll(".tick").selectAll("text").attr("y", 3);
+//					svgString = xmlSerializer.serializeToString(tempSvg[0][0]);
+
+					// set actual value of the form element (svgelement)
+					var form = mainView.$el.find(".svg-to-pdf-form");
+					form.find('input[name="svgelement"]').val(svgString);
+
+					// submit form
+					form.submit();
+				});
+
 				// TODO draw mutation table
 			};
 
@@ -187,6 +224,8 @@
 
 			var mutationDiagram = new MutationDiagram(gene, options, mutationColl);
 			mutationDiagram.initDiagram(sequenceData);
+
+			return mutationDiagram;
 		}
 	});
 

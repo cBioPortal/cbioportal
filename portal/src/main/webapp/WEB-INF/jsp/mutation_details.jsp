@@ -59,7 +59,7 @@
                 color: gray;
 	            font-weight: bold;
         }
-		.diagram_uniprot_link {
+		.diagram_toolbar {
                 padding-top: 10px;
                 padding-left: 10px;
 		}

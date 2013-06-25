@@ -15,6 +15,7 @@ function MutationDiagram(geneSymbol, options, data)
 
 	self.data = data;
 	self.geneSymbol = geneSymbol;
+	self.svg = null; // init as null, will be assigned while creating the svg
 }
 
 // TODO add more options for a more customizable diagram:
@@ -53,6 +54,7 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopFontSize: "10px",       // font size of the lollipop label
 	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
 	lollipopTextPadding: 5,         // padding between the label and the circle
+	lollipopTextAngle: 0,           // rotation angle for the lollipop label
 	lollipopFillColor: "#B40000",   // TODO more than one color wrt mutation type?
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
@@ -119,6 +121,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 				bounds,
 				self.options,
 				self.data);
+
+		// save a reference to svg element for future access
+		self.svg = svg;
 	};
 
 	// if no sequence data is provided, try to get it from the servlet
@@ -664,6 +669,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			.attr("x", x)
 			.attr("y", y)
 			.attr("class", "mut-dia-lollipop-text")
+			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
 			.text(mutations[i].label);

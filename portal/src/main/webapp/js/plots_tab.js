@@ -751,7 +751,7 @@ function drawSideBar() {
             return false;
         }
     });
-    $("#data_type_mrna > option").each(function() {
+    $("#data_type_copy_no > option").each(function() {
         if (this.value === userSelectedMrnaProfile){
             $(this).prop('selected', true);
             return false;

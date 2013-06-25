@@ -245,7 +245,6 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
                 }
             }
         });
-        console.log(url_base+types[i]);
     }
 
     //Distributing Data

@@ -294,8 +294,8 @@
         var svgDoc = mySVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        xmlString = xmlString.replace(/<\/line><text y="9" x="0" dy=".71em"/g, "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
-        xmlString = xmlString.replace(/<\/line><text x="-9" y="0" dy=".32em"/g, "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
+        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
         return xmlString;
     }
     function loadSVGforSVG() {

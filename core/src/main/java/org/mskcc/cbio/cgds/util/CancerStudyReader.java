@@ -89,7 +89,7 @@ public class CancerStudyReader {
       cancerStudy.setPmid(pmid);
       cancerStudy.setCitation(citation);
       cancerStudy.setGroups(groups);
-      DaoCancerStudy.addCancerStudy(cancerStudy);
+      DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
       return cancerStudy;
    }
    

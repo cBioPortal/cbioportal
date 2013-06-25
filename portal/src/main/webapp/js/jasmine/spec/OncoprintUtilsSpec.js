@@ -393,4 +393,41 @@ describe("OncoprintUtils", function() {
         expect(_.uniq(normalized.map(function(i) { return i.values.length; }))[0]).toEqual(attributes.length);
         });
     });
+
+    describe("gene_data_type2range", function(){
+        var raw_gene_data =  [
+        {
+        "sample": "sample_0",
+        "rppa": "UPREGULATED",
+        "gene": "GeneA",
+        "mutation": "FOO MUTATION",
+        "cna": "DIPLOID"
+        },
+        {
+        "sample": "sample_0",
+        "rppa": "UPREGULATED",
+        "gene": "GeneB",
+        "cna": "AMPLIFIED"
+        },
+        {
+        "sample": "sample_1",
+        "gene": "GeneA",
+        "cna": "AMPLIFIED"
+        } ];
+
+        var map = OncoprintUtils.gene_data_type2range(raw_gene_data);
+
+        it("takes gene raw data and converts it to a map of datatype to range", function() {
+            expect(map.cna).toEqual(["DIPLOID", "AMPLIFIED"]);
+        });
+
+        it("includes undefined in the range of possible values", function() {
+            expect(map.rppa).toEqual(["UPREGULATED", undefined]);
+            expect(map.mutation).toEqual(["FOO MUTATION", undefined]);
+        });
+
+        it("and leaves nonexistant datatypes with a range of undefined", function(){
+            expect(map.mrna).toBe(undefined);
+        });
+    });
 });

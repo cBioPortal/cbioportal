@@ -155,7 +155,7 @@ var OncoprintUtils = (function() {
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
         var there_is_data = function(list) {
-            return !(list.length === 0 && list[0] === undefined);
+            return !(list.length === 1) || !(list[0] === undefined);
         };
 
         var to_return = {};
@@ -169,15 +169,14 @@ var OncoprintUtils = (function() {
         }
 
         if (there_is_data(mrnas)) {
-            to_return.mrnas = mrnas;
+            to_return.mrna = mrnas;
         }
 
         if (there_is_data(rppas)) {
-            to_return.rppa = rppa;
+            to_return.rppa = rppas;
         }
 
         return to_return;
-
     };
 
     // these colors could be passed somewhow as a parameter
@@ -237,7 +236,6 @@ var OncoprintUtils = (function() {
 
         var attrId2range = attr2range(raw_clinical_data);
 
-
         attrs.map(function(attr) {
             var scale;
 
@@ -251,11 +249,11 @@ var OncoprintUtils = (function() {
             }
 
             else if (attr.datatype === "STRING") {
-                scale = d3.scale.oridinal().range[googlecharts_colors.slice(0, x)];
+                scale = d3.scale.ordinal().range[googlecharts_colors.slice(0, x)];
             }
 
             else {
-                scale = d3.scale.oridinal().range[googlecharts_colors.slice(0, x)];
+                scale = d3.scale.ordinal().range[googlecharts_colors.slice(0, x)];
             }
 
             attr.scale = scale;
@@ -397,6 +395,8 @@ var OncoprintUtils = (function() {
             mutation: "Mutation"
         };
 
+        var cna_order = {AMPLIFIED:4,
+            HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0};
 
         var text_padding = 10;
 
@@ -423,7 +423,6 @@ var OncoprintUtils = (function() {
 
         var rect_width = getRectWidth();
 
-        var cna_order = {AMPLIFIED:4, HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0};
 
         var cnas = _.keys(range.cna);
         cnas = cnas.sort(function(a,b) {
@@ -545,7 +544,8 @@ var OncoprintUtils = (function() {
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
         legend: legend,
-        attributes2scale: attributes2scale
+        attributes2scale: attributes2scale,
+        gene_data_type2range: gene_data_type2range
     };
 }());
 

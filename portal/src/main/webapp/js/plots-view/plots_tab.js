@@ -83,7 +83,6 @@ var PlotsMenu = (function () {
     }
     return {
         init: function () {
-            $("#plots").tabs();
             generateList("genes", gene_list);
             fetchFrameData();
             if ( status.has_mrna && status.has_copy_no) {

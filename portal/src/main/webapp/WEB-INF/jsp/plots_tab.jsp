@@ -11,34 +11,15 @@
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
     String case_set_id = (String)request.getParameter("case_set_id");
     String genetic_profile_id = (String)request.getParameter("genetic_profile_id");
-
-    //Interprete Onco Query Genelist for plots view
-    String[] plotsGeneList = new String[geneWithScoreList.size()];
-    for (int i = 0; i < geneWithScoreList.size(); i++)
-    {
-        GeneWithScore tmpSingleGene = geneWithScoreList.get(i);
-        String singleGene = tmpSingleGene.getGene();
-        plotsGeneList[i] = singleGene;
+    //Translate Onco Query Language
+    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    String tmpGeneStr = "";
+    for(String gene: listOfGenes) {
+        tmpGeneStr += gene + " ";
     }
-    String[] gene_list = plotsGeneList;
+    tmpGeneStr = tmpGeneStr.trim();
 
-    //tmp gene list string
-    String tmpGeneStr="";
-    for(int i=0;i<gene_list.length;i++) {
-        tmpGeneStr+=gene_list[i] + " ";
-    }
-    tmpGeneStr = tmpGeneStr.substring(0, tmpGeneStr.length() - 1);
 %>
-
-<!-- Data -->
-<script type="text/javascript" src="js/plots-view/plots_tab_model.js"></script>
-<!-- Tab1 : One Gene -->
-<script type="text/javascript" src="js/plots-view/plots_tab.js"></script>
-<!-- Tab2 : Two Genes -->
-<script type="text/javascript" src="js/plots-view/plots_two_genes.js"></script>
-<!-- Tab3 : Custom View -->
-<script type="text/javascript" src="js/plots-view/plots_custom.js"></script>
-
 
 <!-- Global Variables -->
 <script>
@@ -52,6 +33,16 @@
     var gene_list_str = "<%out.print(tmpGeneStr);%>";
     var gene_list = gene_list_str.split(/\s+/);
 </script>
+
+<!-- Data -->
+<script type="text/javascript" src="js/plots-view/plots_tab_model.js"></script>
+<!-- Tab1 : One Gene -->
+<script type="text/javascript" src="js/plots-view/plots_tab.js"></script>
+<!-- Tab2 : Two Genes -->
+<script type="text/javascript" src="js/plots-view/plots_two_genes.js"></script>
+<!-- Tab3 : Custom View -->
+<script type="text/javascript" src="js/plots-view/plots_custom.js"></script>
+
 
 <style>
     .plots-tabs-ref{
@@ -89,7 +80,7 @@
                                 <h4>Plot Parameters</h4>
 
                                 <h5>Gene</h5>
-                                <select id='genes' onchagen='PlotsView.init()'></select>
+                                <select id='genes' onchange='PlotsView.init()'></select>
 
                                 <h5>Plots Type</h5>
                                 <select id='plots_type' onchange="PlotsMenu.update();"></select>
@@ -204,7 +195,7 @@
                                     <select id='custom_gene1'></select>
 
                                     <br>Plots Type
-                                    <br>ta
+                                    <br>
                                     <select id='custom_plots_type_x'>
                                         <option value='mrna'>mRNA Expression</option>
                                         <option value='copy_no'>Copy Number Alteration</option>
@@ -282,6 +273,7 @@
 
 <script>
     $("#plots").tabs();
+    window.onload = PlotsData.init();
     window.onload = PlotsMenu.init();
     window.onload = PlotsMenu.update();
     window.onload = PlotsTwoGenesMenu.init();

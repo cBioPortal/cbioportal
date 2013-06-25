@@ -28,11 +28,11 @@ MutationDiagram.prototype.defaultOpts = {
 	marginRight: 20,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
-	labelX: "TODO",             // TODO informative label of the x-axis
+	labelX: false,              // informative label of the x-axis (false means "do not draw")
 	labelXFont: "sans-serif",   // font type of the x-axis label
 	labelXFontColor: "#2E3436", // font color of the x-axis label
 	labelXFontSize: "12px",     // font size of x-axis label
-	labelY: "# Mutations",      // informative label of the y-axis
+	labelY: "# Mutations",      // informative label of the y-axis (false means "do not draw")
 	labelYFont: "sans-serif",   // font type of the y-axis label
 	labelYFontColor: "#2E3436", // font color of the y-axis label
 	labelYFontSize: "12px",     // font size of y-axis label
@@ -46,6 +46,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionFontColor: "#FFFFFF", // font color of the region text
 	regionFontSize: "12px",     // font size of the region text
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
+	showRegionText: true,       // show/hide region text
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopFont: "sans-serif",     // font of the lollipop label
 	lollipopFontColor: "#2E3436",   // font color of the lollipop label
@@ -264,9 +265,18 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
 
+	if (options.labelX)
+	{
+		//TODO self.drawXAxisLabel(svg, options, bounds);
+	}
+
 	// draw y-axis
 	self.drawYAxis(svg, yScale, yMax, options, bounds);
-	self.drawYAxisLabel(svg, options, bounds);
+
+	if (options.labelY)
+	{
+		self.drawYAxisLabel(svg, options, bounds);
+	}
 
 	// group for lollipop labels (draw labels first)
 	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
@@ -710,7 +720,36 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	// add tooltip to the rect
 	self.addTooltip(rect, tooltip, options.regionTipOpts);
 
+	if (options.showRegionText)
+	{
+		var text = self.drawRegionText(label, group, options, width);
+
+		// add tooltip if the text fits
+		if (text)
+		{
+			// add tooltip to the text
+			self.addTooltip(text, tooltip, options.regionTipOpts);
+		}
+	}
+
+	return group;
+};
+
+/**
+ * Draws the text for the given svg group (which represents the region).
+ * Returns null if neither the text nor its truncated version fits
+ * into the region rectangle.
+ *
+ * @param label     text contents
+ * @param group     target svg group to append the text
+ * @param options   general options object
+ * @param width     width of the region rectangle
+ * @return          region text (svg element)
+ */
+MutationDiagram.prototype.drawRegionText = function(label, group, options, width)
+{
 	var xText = width/2;
+	var height = options.regionHeight;
 
 	if (options.regionTextAnchor === "start")
 	{
@@ -748,18 +787,11 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		{
 			// remove if the truncated version doesn't fit either
 			text.remove();
-			fits = false;
+			text = null;
 		}
 	}
 
-	// add tooltip if the text fits
-	if (fits)
-	{
-		// add tooltip to the text
-		self.addTooltip(text, tooltip, options.regionTipOpts);
-	}
-
-	return group;
+	return text;
 };
 
 /**

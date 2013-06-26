@@ -48,6 +48,7 @@ import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 
 /**
  * Import an extended mutation file.
@@ -308,7 +309,7 @@ public class ImportExtendedMutationData{
 				String geneSymbol = record.getHugoGeneSymbol();
 				long entrezGeneId = record.getEntrezGeneId();
 				CanonicalGene gene = null;
-                                if (entrezGeneId != MafRecord.NA_LONG) {
+                                if (entrezGeneId != TabDelimitedFileUtil.NA_LONG) {
                                     gene = daoGene.getGene(entrezGeneId);
                                 }
 
@@ -425,8 +426,7 @@ public class ImportExtendedMutationData{
 	}
         
         /**
-         * merge the current mutation 
-         * @param other
+         * merge the current mutation
          * @return 
          */
         private ExtendedMutation mergeMutationData(ExtendedMutation mut1, ExtendedMutation mut2) {
@@ -564,7 +564,7 @@ public class ImportExtendedMutationData{
 		if (mutationType == null ||
 		    mutationType.length() == 0 ||
 		    mutationType.equals("NULL") ||
-		    mutationType.equals(MafRecord.NA_STRING))
+		    mutationType.equals(TabDelimitedFileUtil.NA_STRING))
 		{
 			return false;
 		}
@@ -589,7 +589,7 @@ public class ImportExtendedMutationData{
 		if (mutationType == null ||
 		    mutationType.length() == 0 ||
 		    mutationType.equals("NULL") ||
-		    mutationType.equals(MafRecord.NA_STRING))
+		    mutationType.equals(TabDelimitedFileUtil.NA_STRING))
 		{
 			mutationType = record.getVariantClassification();
 		}
@@ -598,13 +598,14 @@ public class ImportExtendedMutationData{
 	}
 
     private int getTumorAltCount(MafRecord record) {
-        int result = MafRecord.NA_INT ;
+        int result = TabDelimitedFileUtil.NA_INT ;
 
-        if (record.getTumorAltCount() != MafRecord.NA_INT) {
+        if (record.getTumorAltCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTumorAltCount();
-        } else if(record.getTVarCov() != MafRecord.NA_INT) {
+        } else if(record.getTVarCov() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTVarCov();
-        } else if((record.getTumorDepth() != MafRecord.NA_INT) && (record.getTumorVaf() != MafRecord.NA_INT)) {
+        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
             result = Math.round(record.getTumorDepth() * record.getTumorVaf());
         }
 
@@ -612,13 +613,15 @@ public class ImportExtendedMutationData{
     }
 
     private int getTumorRefCount(MafRecord record) {
-        int result = MafRecord.NA_INT;
+        int result = TabDelimitedFileUtil.NA_INT;
 
-        if (record.getTumorRefCount() != MafRecord.NA_INT) {
+        if (record.getTumorRefCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getTumorRefCount();
-        } else if((record.getTVarCov() != MafRecord.NA_INT) && (record.getTTotCov() != MafRecord.NA_INT)) {
+        } else if((record.getTVarCov() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getTTotCov() != TabDelimitedFileUtil.NA_INT)) {
             result = record.getTTotCov()-record.getTVarCov();
-        } else if((record.getTumorDepth() != MafRecord.NA_INT) && (record.getTumorVaf() != MafRecord.NA_INT)) {
+        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
             result = record.getTumorDepth() - Math.round(record.getTumorDepth() * record.getTumorVaf());
         }
 
@@ -626,13 +629,14 @@ public class ImportExtendedMutationData{
     }
 
     private int getNormalAltCount(MafRecord record) {
-        int result = MafRecord.NA_INT ;
+        int result = TabDelimitedFileUtil.NA_INT ;
 
-        if (record.getNormalAltCount() != MafRecord.NA_INT) {
+        if (record.getNormalAltCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNormalAltCount();
-        } else if(record.getNVarCov() != MafRecord.NA_INT) {
+        } else if(record.getNVarCov() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNVarCov();
-        } else if((record.getNormalDepth() != MafRecord.NA_INT) && (record.getNormalVaf() != MafRecord.NA_INT)) {
+        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
             result = Math.round(record.getNormalDepth() * record.getNormalVaf());
         }
 
@@ -640,13 +644,15 @@ public class ImportExtendedMutationData{
     }
 
     private int getNormalRefCount(MafRecord record) {
-        int result = MafRecord.NA_INT;
+        int result = TabDelimitedFileUtil.NA_INT;
 
-        if (record.getNormalRefCount() != MafRecord.NA_INT) {
+        if (record.getNormalRefCount() != TabDelimitedFileUtil.NA_INT) {
             result = record.getNormalRefCount();
-        } else if((record.getNVarCov() != MafRecord.NA_INT) && (record.getNTotCov() != MafRecord.NA_INT)) {
+        } else if((record.getNVarCov() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getNTotCov() != TabDelimitedFileUtil.NA_INT)) {
             result = record.getNTotCov()-record.getNVarCov();
-        } else if((record.getNormalDepth() != MafRecord.NA_INT) && (record.getNormalVaf() != MafRecord.NA_INT)) {
+        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
+                  (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
             result = record.getNormalDepth() - Math.round(record.getNormalDepth() * record.getNormalVaf());
         }
 

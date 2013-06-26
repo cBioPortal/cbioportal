@@ -11,7 +11,11 @@ cbio.util = (function() {
             return number.toExponential(precision);
         }
         
-        return number.toPrecision(precision).replace(/\.*0+$/,''); // trim 0s
+        var ret = number.toPrecision(precision);
+        if (ret.indexOf(".")!==-1)
+            ret = ret.replace(/\.?0+$/,'');
+        
+        return ret;
     };
 
     return {

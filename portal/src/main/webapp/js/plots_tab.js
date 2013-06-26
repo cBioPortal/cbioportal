@@ -714,7 +714,7 @@ function drawSideBar() {
         $('#data_type_rppa').append("<option value='" + genetic_profile_rppa[j][0] + "'>" + genetic_profile_rppa[j][1] + "</option>");
     }
 
-    //Set Default settings: user selection, RNA Seq V2 (w/o z-scores), RNA Seq(w/o zscores), Z-scores
+    //Set Default mRNA settings: user selection, RNA Seq V2 (w/o z-scores), RNA Seq(w/o zscores), Z-scores
     $("#data_type_mrna > option").each(function() {
         if (this.text.toLowerCase().indexOf("z-scores")){
             $(this).prop('selected', true);
@@ -744,6 +744,35 @@ function drawSideBar() {
         }
     });
     $("#data_type_mrna > option").each(function() {
+        if (this.value === userSelectedMrnaProfile){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    //Set default copy no settings: user selection, discretized(gistic, rae), continuous
+    $("#data_type_copy_no > option").each(function() {
+        if (this.text.toLowerCase().indexOf("(rae)") !== -1) {
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_copy_no > option").each(function() {
+        if (this.text.toLowerCase().indexOf("gistic") !== -1) {
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    var userSelectedCopyNoProfile = "";
+    $.each(geneticProfiles.split(/\s+/), function(index, value){
+        if (value.indexOf("cna") !== -1 || value.indexOf("log2") !== -1 ||
+            value.indexOf("CNA")!== -1 || value.indexOf("gistic") !== -1) {
+            userSelectedCopyNoProfile = value;
+            return false;
+        }
+    });
+    $("#data_type_copy_no > option").each(function() {
         if (this.value === userSelectedMrnaProfile){
             $(this).prop('selected', true);
             return false;

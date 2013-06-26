@@ -312,6 +312,7 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawPlots() {
+        var showMutation = document.getElementById("show_mutation").checked;
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path")
             .data(pData.dotsData)
@@ -324,35 +325,43 @@ var PlotsTwoGenesView = (function(){
                 .size(25)
                 .type("circle"))
             .attr("fill", function(d) {
-                if (d.annotation === "") {
-                    return style.non_mut.fill;
-                } else {
-                    var count = d.annotation.split(":").length - 1;
-                    if (count === 1) { //single mut
-                        if (d.annotation.indexOf(menu.geneX) !== -1) {
-                            return style.geneX_mut.fill;
-                        } else if (d.annotation.indexOf(menu.geneY) !== -1) {
-                            return style.geneY_mut.fill;
+                if (showMutation) {
+                    if (d.annotation === "") {
+                        return style.non_mut.fill;
+                    } else {
+                        var count = d.annotation.split(":").length - 1;
+                        if (count === 1) { //single mut
+                            if (d.annotation.indexOf(menu.geneX) !== -1) {
+                                return style.geneX_mut.fill;
+                            } else if (d.annotation.indexOf(menu.geneY) !== -1) {
+                                return style.geneY_mut.fill;
+                            }
+                        } else if (count === 2) { //both mut
+                            return style.both_mut.fill;
                         }
-                    } else if (count === 2) { //both mut
-                        return style.both_mut.fill;
                     }
+                } else {
+                    return "#585858";
                 }
             })
             .attr("stroke", function(d) {
-                if (d.annotation === "") {
-                    return style.non_mut.stroke;
-                } else {
-                    var count = d.annotation.split(":").length - 1;
-                    if (count === 1) { //single mut
-                        if (d.annotation.indexOf(menu.geneX) !== -1) {
-                            return style.geneX_mut.stroke;
-                        } else if (d.annotation.indexOf(menu.geneY) !== -1) {
-                            return style.geneY_mut.stroke;
+                if (showMutation) {
+                    if (d.annotation === "") {
+                        return style.non_mut.stroke;
+                    } else {
+                        var count = d.annotation.split(":").length - 1;
+                        if (count === 1) { //single mut
+                            if (d.annotation.indexOf(menu.geneX) !== -1) {
+                                return style.geneX_mut.stroke;
+                            } else if (d.annotation.indexOf(menu.geneY) !== -1) {
+                                return style.geneY_mut.stroke;
+                            }
+                        } else if (count === 2) { //both mut
+                            return style.both_mut.stroke;
                         }
-                    } else if (count === 2) { //both mut
-                        return style.both_mut.stroke;
                     }
+                } else {
+                    return "#2E2E2E";
                 }
             })
             .attr("stroke-width", function(d) {
@@ -361,42 +370,92 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawLegends() {
-        var twoGenesStyleArr = [];
-        for (var key in style) {
-            var obj = style[key];
-            twoGenesStyleArr.push(obj);
+        var showMutation = document.getElementById("show_mutation").checked;
+        if (showMutation) {
+            var twoGenesStyleArr = [];
+            for (var key in style) {
+                var obj = style[key];
+                twoGenesStyleArr.push(obj);
+            }
+
+            var legend = elem.svg.selectAll(".legend")
+                .data(twoGenesStyleArr)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(610, " + (30 + i * 15) + ")";
+                })
+
+            legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                    .size(30)
+                    .type(function(d) { return "circle"; }))
+                .attr("fill", function (d) { return d.fill; })
+                .attr("stroke", function (d) { return d.stroke; })
+                .attr("stroke-width", 1.1);
+
+            legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d) {
+                    if (d.text.indexOf("GeneX") !== -1) {
+                        d.text = d.text.replace("GeneX", menu.geneX);
+                    } else if (d.text.indexOf("GeneY") !== -1) {
+                        d.text = d.text.replace("GeneY", menu.geneY);
+                    }
+                    return d.text;
+                });
+        } else {
+            var legend = elem.svg.selectAll("g.legend").remove();
         }
+    }
 
-        var legend = elem.svg.selectAll(".legend")
-            .data(twoGenesStyleArr)
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function(d, i) {
-                return "translate(610, " + (30 + i * 15) + ")";
-            })
+    function drawImgConverter() {
 
-        legend.append("path")
-            .attr("width", 18)
-            .attr("height", 18)
-            .attr("d", d3.svg.symbol()
-                .size(30)
-                .type(function(d) { return "circle"; }))
-            .attr("fill", function (d) { return d.fill; })
-            .attr("stroke", function (d) { return d.stroke; })
-            .attr("stroke-width", 1.1);
+        $('#two_genes_view_title').empty();
+        var elt = document.getElementById("two_genes_plots_type");
+        var titleText = elt.options[elt.selectedIndex].text;
+        $('#two_genes_view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
-        legend.append("text")
-            .attr("dx", ".75em")
-            .attr("dy", ".35em")
-            .style("text-anchor", "front")
-            .text(function(d) {
-                if (d.text.indexOf("GeneX") !== -1) {
-                    d.text = d.text.replace("GeneX", menu.geneX);
-                } else if (d.text.indexOf("GeneY") !== -1) {
-                    d.text = d.text.replace("GeneY", menu.geneY);
-                }
-                return d.text;
-            });
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforPDFTwoGenes();\">" +
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='pdf'>" +
+            "<input type='submit' value='PDF'></form>";
+        $('#two_genes_view_title').append(pdfConverterForm);
+
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforSVGTwoGenes();\">" +
+            "<input type='hidden' name='svgelement'>" +
+            "<input type='hidden' name='filetype' value='svg'>" +
+            "<input type='submit' value='SVG'></form>";
+        $('#two_genes_view_title').append(svgConverterForm);
+    }
+
+    function drawAxisTitle() {
+        var elt = document.getElementById("two_genes_plots_type");
+        var titleText = elt.options[elt.selectedIndex].text;
+        var xTitle =
+            menu.geneX + ", " + titleText;
+        var yTitle =
+            menu.geneY + ", " + titleText;
+        var axisTitleGroup = elem.svg.append("svg:g");
+        axisTitleGroup.append("text")
+            .attr("class", "label")
+            .attr("x", 350)
+            .attr("y", 580)
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text(xTitle);
+        axisTitleGroup.append("text")
+            .attr("class", "label")
+            .attr("transform", "rotate(-90)")
+            .attr("x", -270)
+            .attr("y", 45)
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text(yTitle);
     }
 
     function addQtips() {
@@ -425,6 +484,11 @@ var PlotsTwoGenesView = (function(){
         });
     }
 
+    function updateMutationDisplay() {
+        drawPlots();
+        drawLegends();
+    }
+
     function generatePlots() {
         getProfileData();
     }
@@ -445,18 +509,21 @@ var PlotsTwoGenesView = (function(){
         drawAxis();
         drawPlots();
         drawLegends();
+        drawAxisTitle();
         addQtips();
+        drawImgConverter();
     }
 
     return {
-        init: function() {
+        init : function() {
             getUserSelection();
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
         },
-        update: function() {
+        update : function() {
 
-        }
+        },
+        updateMutationDisplay : updateMutationDisplay
     };
 }());

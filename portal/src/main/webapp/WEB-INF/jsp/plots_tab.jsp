@@ -69,7 +69,7 @@
                 <td>
                     <table>
                         <tr>
-                            <td style="border:2px solid #BDBDBD;padding:10px;height:300px;width:300px;">
+                            <td style="border:2px solid #BDBDBD;padding:10px;height:300px;width:300px;margin-top:50px;">
 
                                 <h4>Plot Parameters</h4>
 
@@ -122,7 +122,7 @@
                     <td>
                         <table>
                             <tr>
-                                <td style="border:2px solid #BDBDBD;padding:10px;height:250px;width:300px;">
+                                <td style="border:2px solid #BDBDBD;padding:10px;height:280px;width:300px;margin-top:50px;">
 
                                     <h4>Plot Parameters</h4>
 
@@ -136,12 +136,17 @@
                                     <h5>Platform</h5>
                                     <div id='two_genes_platform_select_div'></div>
 
+                                    <br><label for="show_mutation">Show Mutation Data</label>
+                                    <input type="checkbox" name="show_mutation" id="show_mutation"
+                                           value="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
+
                                 </td>
                             </tr>
                             <tr style="height:320px;"></tr>
                         </table>
                     </td>
                     <td>
+                        <b><div id='two_genes_view_title' style="display:inline-block;padding-left:100px;"></div></b>
                         <div id="plots_box_two_genes"></div>
                     </td>
                 </tr>
@@ -206,6 +211,25 @@
     }
     function loadSVGforSVG() {
         var mySVG = document.getElementById("plots_box");
+        var svgDoc = mySVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        return xmlString;
+    }
+
+    // Takes whatever is in the element #plots_box
+    // and returns XML serialized *string*
+    function loadSVGforPDFTwoGenes() {
+        var mySVG = document.getElementById("plots_box_two_genes");
+        var svgDoc = mySVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+        return xmlString;
+    }
+    function loadSVGforSVGTwoGenes() {
+        var mySVG = document.getElementById("plots_box_two_genes");
         var svgDoc = mySVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);

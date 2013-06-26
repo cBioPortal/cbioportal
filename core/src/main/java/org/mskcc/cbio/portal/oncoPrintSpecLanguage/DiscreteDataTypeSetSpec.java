@@ -298,7 +298,7 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                         return true;
                     }
                 } else if (mutationPattern.equals("FUSION")) {
-                    if (specificMutationUpper.startsWith("FUSION")) {
+                    if (specificMutationUpper.endsWith("FUSION")) {
                         return true;
                     }
                 }

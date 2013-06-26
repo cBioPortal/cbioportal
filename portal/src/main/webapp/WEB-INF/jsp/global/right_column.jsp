@@ -35,7 +35,7 @@
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">
-      &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for email news alerts:</b></br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for low-volume email news alerts:</b></br>
       &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email">
       <input type="submit" name="sub" value="Subscribe">
     </form>

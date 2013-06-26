@@ -49,6 +49,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
+	lollipopLabelThreshold: 2,      // y-value threshold: circles below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
 	lollipopFontColor: "#2E3436",   // font color of the lollipop label
 	lollipopFontSize: "10px",       // font size of the lollipop label
@@ -703,10 +704,48 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 		return anchor;
 	};
 
+	var count = options.lollipopLabelCount;
+	var maxAllowedTie = 2; // TODO refactor as an option?
+
+	// do not show any label if there are too many ties
+	// exception: if there is only one mutation then display the label in any case
+	if (mutations.length > 1)
+	{
+		var max = mutations[0].count;
+
+		// at the end of this loop, numberOfTies will be the number of points with
+		// max y-value (number of tied points)
+		for (var numberOfTies = 0; numberOfTies < mutations.length; numberOfTies++)
+		{
+			if (mutations[numberOfTies].count < max)
+			{
+				break;
+			}
+		}
+
+		// do not display any label if there are too many ties
+		if (count < numberOfTies &&
+		    numberOfTies > maxAllowedTie)
+		{
+			count = 0;
+		}
+
+	}
+
+	// show (lollipopLabelCount) label(s)
 	for (var i = 0;
-	     i < options.lollipopLabelCount && i < mutations.length;
+	     i < count && i < mutations.length;
 	     i++)
 	{
+		// check for threshold value
+		if (mutations.length > 1 &&
+		    mutations[i].count < options.lollipopLabelThreshold)
+		{
+			// do not processes remaining values below threshold
+			// (assuming mutations array is sorted)
+			break;
+		}
+
 		var x = xScale(mutations[i].location);
 		var y = yScale(mutations[i].count) -
 		        (options.lollipopTextPadding + options.lollipopRadius);

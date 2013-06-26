@@ -14,12 +14,8 @@ var Plots = (function(){
             genetic_profile_dna_methylation : []
         };
 
-    var paramsGetProfiles = {
-        cancer_study_id: cancer_study_id
-    };
 
-
-    var getGeneticProfileCallback = function(result) {
+    function getGeneticProfileCallback(result) {
 
         for (var key in result) {
             var obj = result[key];
@@ -44,22 +40,25 @@ var Plots = (function(){
         PlotsCustomMenu.init();
         PlotsCustomMenu.update();
 
-        var paramsGetProfileData = {
-            gene_list: gene_list_str,
-            genetic_profile_id: "prad_tcga_mutations prad_tcga_gistic",
-            case_set_id: case_set_id
-        };
-        $.post("getProfileData.json", paramsGetProfileData, getProfileDataCallback, "json");
-    }
-    var getProfileDataCallback = function(result) {
     }
 
     return {
         init: function() {
+            var paramsGetProfiles = {
+                cancer_study_id: cancer_study_id
+            };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },
         getGeneticProfiles: function() {
             return genetic_profiles;
+        },
+        getProfileData: function(gene, genetic_profile_id, case_set_id, callback_func) {
+            var paramsGetProfileData = {
+                gene_list: gene,
+                genetic_profile_id: genetic_profile_id,
+                case_set_id: case_set_id
+            };
+            $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         }
     };
 

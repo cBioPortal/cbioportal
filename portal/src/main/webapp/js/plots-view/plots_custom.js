@@ -40,7 +40,6 @@ var PlotsCustomMenu = (function(){
         $("#custom_platform_select_div_x").empty();
         $("#custom_platform_select_div_x").append("<select id='custom_platform_x'>");
 
-        console.log($("#custom_plots_type_x").val());
         if($("#custom_plots_type_x").val() === "mrna"){
             content.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_x")

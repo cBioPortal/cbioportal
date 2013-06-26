@@ -127,8 +127,8 @@
                                     <h4>Plot Parameters</h4>
 
                                     <h5>Genes</h5>
-                                    x Axis<select id='gene1'></select><br>
-                                    y Axis<select id='gene2'></select>
+                                    x Axis<select id='geneX' onchange="PlotsTwoGenesView.init()"></select><br>
+                                    y Axis<select id='geneY' onchange="PlotsTwoGenesView.init()"></select>
 
                                     <h5>Plots Type</h5>
                                     <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.update()"></select>
@@ -138,7 +138,7 @@
 
                                 </td>
                             </tr>
-                            <tr style="height:420px;"></tr>
+                            <tr style="height:320px;"></tr>
                         </table>
                     </td>
                     <td>
@@ -176,7 +176,7 @@
 
                                 </td>
                             </tr>
-                            <tr style="height:300px;"></tr>
+                            <tr style="height:250px;"></tr>
                         </table>
                     </td>
                     <td>

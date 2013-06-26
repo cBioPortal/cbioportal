@@ -12,6 +12,14 @@ var OncoprintUtils = (function() {
         return isNaN(parseInt(val));
     };
 
+    var is_gene = function(d) {
+        return d.gene !== undefined;
+    };
+
+    var is_clinical = function(d) {
+        return d.attr_id !== undefined;
+    };
+
     // params: data, list of data as specified elsewhere
     // TODO: where exactly is this specified??
     //
@@ -239,6 +247,8 @@ var OncoprintUtils = (function() {
         var attrId2range = attr2range(raw_clinical_data);
 
         var slice_googlecolors = function(attr_id) {
+            console.log( attrId2range[attr_id] );
+            console.log( googlecharts_colors.slice(0, attrId2range[attr_id].length));
             return googlecharts_colors.slice(0, attrId2range[attr_id].length);
         };
 
@@ -247,25 +257,25 @@ var OncoprintUtils = (function() {
                 // attr -> [attr_id, d3 scale]
                 var scale;
 
-                if (attr.datatype === "BOOLEAN") {
+                if (attr.datatype.toUpperCase() === "BOOLEAN") {
                     scale = d3.scale.ordinal()
-                .range([colors.discrete, colors.black]);
+                        .range([colors.discrete, colors.black]);
                 }
 
-                else if (attr.datatype === "NUMBER") {
+                else if (attr.datatype.toUpperCase() === "NUMBER") {
                     scale = d3.scale.linear()
-                .range([colors.white, colors.continuous]);
+                        .range([colors.white, colors.continuous]);
                 }
 
-                else if (attr.datatype === "STRING") {
+                else if (attr.datatype.toUpperCase() === "STRING") {
                     scale = d3.scale.ordinal()
-                .range([0, slice_googlecolors(attr.attr_id)]);
+                        .range(slice_googlecolors(attr.attr_id));
                 }
 
                 else {
                     // defaults to discrete scale
                     scale = d3.scale.ordinal()
-                        .range([0, slice_googlecolors(attr.attr_id)]);
+                        .range( slice_googlecolors(attr.attr_id));
                 }
                 scale.domain(attrId2range[attr.attr_id]);
 
@@ -559,7 +569,9 @@ var OncoprintUtils = (function() {
         normalize_nested_values: normalize_nested_values,
         legend: legend,
         make_attribute2scale: make_attribute2scale,
-        gene_data_type2range: gene_data_type2range
+        gene_data_type2range: gene_data_type2range,
+        is_gene: is_gene,
+        is_clinical: is_clinical
     };
 }());
 
@@ -678,7 +690,7 @@ var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];        // initialize
     params.clinical_attrs = params.clinical_attrs || [];
 
-    // map strings of numbers back to numbers
+    // make strings of numbers into numbers
     var clinicalData = params.clinicalData.map(function(i) {
         if (!OncoprintUtils.is_discrete(i.attr_val)) {
             i.attr_val = parseInt(i.attr_val);
@@ -725,11 +737,7 @@ var Oncoprint = function(div, params) {
         }
     }
 
-    var attr2range = OncoprintUtils.attr_to_d3scale(clinicalData);
-
     var id2ClinicalAttr = OncoprintUtils.createId2ClinicalAttr(params.clinical_attrs);
-
-    OncoprintUtils.make_attribute2scale(params.clinical_attrs);
 
     var dims = (function() {
         var rect_height = 23;
@@ -851,15 +859,18 @@ var Oncoprint = function(div, params) {
 
         var enter = els.enter();
 
+        var attr2range = OncoprintUtils.make_attribute2scale(params.clinical_attrs, clinicalData);
+
         // N.B. fill doubles as cna
         var fill = enter.append('rect')
             .attr('fill', function(d) {
-                if (d.gene !== undefined) {
-                    //todo: this is ugly, refactor attr2range
+                if (OncoprintUtils.is_gene(d)) {
                     return cna_fills[d.cna];
-                } else {
-                    // NA is shown as grey
-                    return d.attr_val === "NA" ? colors.grey : attr2range[d.attr_id](d.attr_val);
+                }
+                else if (OncoprintUtils.is_clinical(d)) {
+                    return d.attr_val === "NA"
+                        ? colors.grey       // attrs with value of NA are colored grey
+                        : attr2range[d.attr_id](d.attr_val);
                 }
             })
             .attr('height', function(d) {

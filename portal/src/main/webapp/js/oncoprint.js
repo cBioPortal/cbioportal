@@ -257,6 +257,14 @@ var OncoprintUtils = (function() {
                 // attr -> [attr_id, d3 scale]
                 var scale;
 
+                // manually set the colors for certain attributes
+                if (attr.attr_id.toUpperCase() === "SEX") {
+                    return d3.scale.ordinal()
+                        .domain(["MALE", "male", "FEMALE", "female"])
+                        .range(["blue", "blue", "pink", "pink"]);
+                }
+
+                // calculate the proper colors for all other attributes
                 if (attr.datatype.toUpperCase() === "BOOLEAN") {
                     scale = d3.scale.ordinal()
                         .range([colors.discrete, colors.black]);

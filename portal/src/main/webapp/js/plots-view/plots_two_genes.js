@@ -159,8 +159,8 @@ var PlotsTwoGenesView = (function(){
         var tmp_pDataX = [];
         var tmp_pDataY = [];
         pData.dotsData.length = 0;
+        pData.case_set_length = 0;
         for (var gene in result) {
-            pData.case_set_length = Object.keys(result[gene]).length;
             if (gene === menu.geneX) {
                 var geneObj = result[gene];
                 for (var case_id in geneObj) {
@@ -184,24 +184,30 @@ var PlotsTwoGenesView = (function(){
             }
         }
 
-        //merge tmp_pDataX, tmp_pDataY
-        for (var i = 0; i < pData.case_set_length; i++) {
-            var new_singleDot = jQuery.extend(true, {}, singleDot);
-            new_singleDot.case_id = tmp_pDataX[i].case_id;
-            new_singleDot.x_value = tmp_pDataX[i].value;
-            new_singleDot.y_value = tmp_pDataY[i].value;
-            //Mutation: process single/multi gene mutation
-            var tmp_annotation_str = "";
-            if (tmp_pDataX[i].annotation !== "NaN") {
-                tmp_annotation_str +=
-                    menu.geneX + ": " + tmp_pDataX[i].annotation + " ";
+        //merge tmp_pDataX, tmp_pDataY, and filter NaN/NA data
+        for (var i = 0; i < tmp_pDataY.length; i++) {
+            if (tmp_pDataX[i].value !== "NaN" && tmp_pDataX[i].value !== "NA" &&
+                tmp_pDataY[i].value !== "NaN" && tmp_pDataY[i].value !== "NA") {
+
+                pData.case_set_length += 1;
+
+                var new_singleDot = jQuery.extend(true, {}, singleDot);
+                new_singleDot.case_id = tmp_pDataX[i].case_id;
+                new_singleDot.x_value = tmp_pDataX[i].value;
+                new_singleDot.y_value = tmp_pDataY[i].value;
+                //Mutation: process single/multi gene mutation
+                var tmp_annotation_str = "";
+                if (tmp_pDataX[i].annotation !== "NaN") {
+                    tmp_annotation_str +=
+                        menu.geneX + ": " + tmp_pDataX[i].annotation + " ";
+                }
+                if (tmp_pDataY[i].annotation !== "NaN") {
+                    tmp_annotation_str +=
+                        menu.geneY + ": " + tmp_pDataY[i].annotation;
+                }
+                new_singleDot.annotation = tmp_annotation_str.trim();
+                pData.dotsData.push(new_singleDot);
             }
-            if (tmp_pDataY[i].annotation !== "NaN") {
-                tmp_annotation_str +=
-                    menu.geneY + ": " + tmp_pDataY[i].annotation;
-            }
-            new_singleDot.annotation = tmp_annotation_str.trim();
-            pData.dotsData.push(new_singleDot);
         }
     }
 
@@ -309,6 +315,33 @@ var PlotsTwoGenesView = (function(){
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(600, 0)")
             .call(elem.yAxis.orient("left").ticks(0));
+    }
+
+    function drawErrorMsg() {
+
+        $('#two_genes_view_title').empty();
+        elem.svg.empty();
+
+        elem.svg.append("text")
+            .attr("x", 250)
+            .attr("y", 55)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#DF3A01")
+            .text("There is no data available in")
+        elem.svg.append("text")
+            .attr("x", 250)
+            .attr("y", 70)
+            .attr("text-anchor", "middle")
+            .attr("fill", "#DF3A01")
+            .text("selected platform.")
+        elem.svg.append("rect")
+            .attr("x", 50)
+            .attr("y", 30)
+            .attr("width", 400)
+            .attr("height", 50)
+            .attr("fill", "none")
+            .attr("stroke-width", 1)
+            .attr("stroke", "#BDBDBD");
     }
 
     function drawPlots() {
@@ -434,7 +467,7 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawAxisTitle() {
-        var elt = document.getElementById("two_genes_plots_type");
+        var elt = document.getElementById("two_genes_platform");
         var titleText = elt.options[elt.selectedIndex].text;
         var xTitle =
             menu.geneX + ", " + titleText;
@@ -505,13 +538,17 @@ var PlotsTwoGenesView = (function(){
     function getProfileDataCallBack(result) {
         pDataInit(result);
         initCanvas();
-        initAxis();
-        drawAxis();
-        drawPlots();
-        drawLegends();
-        drawAxisTitle();
-        addQtips();
-        drawImgConverter();
+        if (pData.dotsData.length !== 0) {
+            initAxis();
+            drawAxis();
+            drawPlots();
+            drawLegends();
+            drawAxisTitle();
+            addQtips();
+            drawImgConverter();
+        } else {
+            drawErrorMsg();
+        }
     }
 
     return {

@@ -80,20 +80,92 @@ var PlotsMenu = (function () {
                 content.genetic_profile_rppa[j][1] + "</option>");
         }
     }
+    function setDefaultCopyNoSelection() {
+
+        //-----Priority: discretized(gistic, rae), continuous
+
+        $("#data_type_copy_no > option").each(function() {
+            if (this.text.toLowerCase().indexOf("(rae)") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+        $("#data_type_copy_no > option").each(function() {
+            if (this.text.toLowerCase().indexOf("gistic") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+        var userSelectedCopyNoProfile = "";
+        $.each(geneticProfiles.split(/\s+/), function(index, value){
+            if (value.indexOf("cna") !== -1 || value.indexOf("log2") !== -1 ||
+                value.indexOf("CNA")!== -1 || value.indexOf("gistic") !== -1) {
+                userSelectedCopyNoProfile = value;
+                return false;
+            }
+        });
+        $("#data_type_mrna > option").each(function() {
+            if (this.value === userSelectedCopyNoProfile){
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+    }
+    function setDefaultMrnaSelection() {
+
+        //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
+
+        $("#data_type_mrna > option").each(function() {
+            if (this.text.toLowerCase().indexOf("z-scores")){
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+        $("#data_type_mrna > option").each(function() {
+            if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+                this.text.toLowerCase().indexOf("z-scores") === -1){
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+        $("#data_type_mrna > option").each(function() {
+            if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+                this.text.toLowerCase().indexOf("z-scores") === -1){
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+        var userSelectedMrnaProfile = "";
+        $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
+            if (value.indexOf("mrna") !== -1) {
+                userSelectedMrnaProfile = value;
+                return false;
+            }
+        });
+        $("#data_type_mrna > option").each(function() {
+            if (this.value === userSelectedMrnaProfile){
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+    }
+
+    function fetchFrameData() {
+        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
+        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
+        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
+        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
+        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
+        status.has_mrna = (content.genetic_profile_mrna.length !== 0);
+        status.has_copy_no = (content.genetic_profile_copy_no.length !== 0);
+        status.has_dna_methylation = (content.genetic_profile_dna_methylation.length !== 0);
+        status.has_rppa = (content.genetic_profile_rppa.length !== 0);
+    }
 
     return {
         init: function () {
-
-            content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-            content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-            content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-            content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-            content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
-            status.has_mrna = (content.genetic_profile_mrna.length !== 0);
-            status.has_copy_no = (content.genetic_profile_copy_no.length !== 0);
-            status.has_dna_methylation = (content.genetic_profile_dna_methylation.length !== 0);
-            status.has_rppa = (content.genetic_profile_rppa.length !== 0);
-
+            fetchFrameData();
             generateList("genes", gene_list);
             drawPlotsTypeDropDown();
         },
@@ -117,42 +189,10 @@ var PlotsMenu = (function () {
                 toggleVisibilityHide("dna_methylation_dropdown");
                 toggleVisibilityShow("rppa_dropdown");
             }
-            //Set Default mRNA Selection
-            //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
-            $("#data_type_mrna > option").each(function() {
-                if (this.text.toLowerCase().indexOf("z-scores")){
-                    $(this).prop('selected', true);
-                    return false;
-                }
-            });
-            $("#data_type_mrna > option").each(function() {
-                if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
-                    this.text.toLowerCase().indexOf("z-scores") === -1){
-                    $(this).prop('selected', true);
-                    return false;
-                }
-            });
-            $("#data_type_mrna > option").each(function() {
-                if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
-                    this.text.toLowerCase().indexOf("z-scores") === -1){
-                    $(this).prop('selected', true);
-                    return false;
-                }
-            });
-            var userSelectedMrnaProfile = "";
-            $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
-                if (value.indexOf("mrna") !== -1) {
-                    userSelectedMrnaProfile = value;
-                    return false;
-                }
-            });
-            $("#data_type_mrna > option").each(function() {
-                if (this.value === userSelectedMrnaProfile){
-                    $(this).prop('selected', true);
-                    return false;
-                }
-            });
-            //Re-generate the plots-view
+
+            setDefaultMrnaSelection();
+            setDefaultCopyNoSelection();
+
             PlotsView.init();
         }
     };

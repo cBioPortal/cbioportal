@@ -12,7 +12,7 @@ var Plots = (function(){
             genetic_profile_copy_no : [],
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
-        },
+        };
 
     var paramsGetProfiles = {
         cancer_study_id: cancer_study_id
@@ -20,6 +20,7 @@ var Plots = (function(){
 
 
     var getGeneticProfileCallback = function(result) {
+
         for (var key in result) {
             var obj = result[key];
             var profile_type = obj.GENETIC_ALTERATION_TYPE;
@@ -35,9 +36,13 @@ var Plots = (function(){
                 genetic_profiles.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME]);
             }
         }
-        console.log(genetic_profiles);
+
         PlotsMenu.init();
         PlotsMenu.update();
+        PlotsTwoGenesMenu.init();
+        PlotsTwoGenesMenu.update();
+        PlotsCustomMenu.init();
+        PlotsCustomMenu.update();
 
         var paramsGetProfileData = {
             gene_list: gene_list_str,
@@ -47,7 +52,6 @@ var Plots = (function(){
         $.post("getProfileData.json", paramsGetProfileData, getProfileDataCallback, "json");
     }
     var getProfileDataCallback = function(result) {
-        console.log(result);
     }
 
     return {

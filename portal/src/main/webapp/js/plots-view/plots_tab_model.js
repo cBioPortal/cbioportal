@@ -59,7 +59,7 @@ var Plots = (function(){
                 case_set_id: case_set_id
             };
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
-        },
+        }
     };
 
 }());

@@ -1,11 +1,21 @@
 var PlotsMenu = (function () {
 
     var content = {
-            plots_type_list : [
-                ["mrna_vs_copy_no", "mRNA vs. Copy Number"],
-                ["mrna_vs_dna_methylation", "mRNA vs. DNA Methylation"],
-                ["rppa_protein_level_vs_mrna", "RPPA Protein Level vs. mRNA"]
-            ],
+            plots_type : {
+                "mrna_copyNo" : {
+                    value : "mrna_vs_copy_no",
+                    text : "mRNA vs. Copy Number"
+                },
+                "mrna_methylation" : {
+                    value : "mrna_vs_dna_methylation",
+                    text : "mRNA vs. DNA Methylation"
+
+                },
+                "rppa_mrna" : {
+                    value : "rppa_protein_level_vs_mrna",
+                    text : "RPPA Protein Level vs. mRNA"
+                }
+            },
             genetic_profile_mutations : [],
             genetic_profile_mrna : [],
             genetic_profile_copy_no : [],
@@ -45,13 +55,13 @@ var PlotsMenu = (function () {
 
     function drawPlotsTypeDropDown() {
         if ( status.has_mrna && status.has_copy_no) {
-            appendDropDown('#plots_type', content.plots_type_list[0][0], content.plots_type_list[0][1]);
+            appendDropDown('#plots_type', content.plots_type.mrna_copyNo.value, content.plots_type.mrna_copyNo.text);
         }
         if ( status.has_mrna && status.has_dna_methylation) {
-            appendDropDown('#plots_type', content.plots_type_list[1][0], content.plots_type_list[1][1]);
+            appendDropDown('#plots_type', content.plots_type.mrna_methylation.value, content.plots_type.mrna_methylation.text);
         }
         if ( status.has_mrna && status.has_rppa) {
-            appendDropDown('#plots_type', content.plots_type_list[2][0], content.plots_type_list[2][1]);
+            appendDropDown('#plots_type', content.plots_type.rppa_mrna.value, content.plots_type.rppa_mrna.text);
         }
 
         for (var j = 0; j < content.genetic_profile_mutations.length; j++ ) {

@@ -21,20 +21,25 @@
     }
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+%>
 
+<jsp:include page="global/header.jsp" flush="true"/>
+
+<!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
+<script type="text/javascript" src="js/crosscancer.js"></script>
+
+<%
     // Means that user landed on this page with the old way.
     if(geneList != null) {
 %>
 
-    <script type="text/javascript">
-        window.location.hash = "overview/<%=dataPriority%>/<%=geneList%>";
-    </script>
+<script type="text/javascript">
+    window.location.hash = "crosscancer/overview/<%=dataPriority%>/<%=geneList%>";
+</script>
 
 <%
     }
 %>
-
-<jsp:include page="global/header.jsp" flush="true"/>
 
 <table>
     <tr>
@@ -60,7 +65,6 @@
                 <hr align="left" class="crosscancer-hr"/>
 
                 <div id="crosscancer-container">
-                    <h1>Hullo world!</h1>
                 </div>
             </div>
             <!-- end results container -->
@@ -79,6 +83,31 @@
 </center>
 </div>
 <jsp:include page="global/xdebug.jsp" flush="true"/>
+
+
+<!-- Crosscancer templates -->
+<script type="text/template" id="cross-cancer-main-tmpl">
+    <h1>Hullo world!</h1>
+    <table>
+        <tr>
+            <th>Tab</th>
+            <td>{{tab}}</td>
+        </tr>
+        <tr>
+            <th>Priority</th>
+            <td>{{priority}}</td>
+        </tr>
+        <tr>
+            <th>Genes</th>
+            <td>{{genes}}</td>
+        </tr>
+    </table>
+</script>
+
+<script type="text/template" id="cross-cancer-main-empty-tmpl">
+    <h1>Default cross-cancer view</h1>
+</script>
+
 
 </body>
 </html>

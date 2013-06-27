@@ -27,23 +27,81 @@
 
 (function($, _, Backbone, d3) {
     /* Views */
-    var CrossCancerHomeView = Backbone.View.extend({
+    var MainView = Backbone.View.extend({
+        el: "#crosscancer-container",
+        template: _.template($("#crosscancer-main-tmpl").html()),
 
-    });
-
-
-    /* Models */
-
-
-    /* Router */
-    /* Routers */
-    AppRouter = Backbone.Router.extend({
-        routes: {
-            "*actions": "defaultView"
+        render: function() {
+            this.$el.html(this.template(this.model));
+            return this;
         }
     });
 
+    var EmptyView = Backbone.View.extend({
+        el: "#crosscancer-container",
+        template: _.template($("#crosscancer-main-empty-tmpl").html()),
 
+        render: function() {
+            this.$el.html(this.template(this.model));
+            return this;
+        }
+    });
 
-    })(window.jQuery, window._, window.Backbone, window.d3);
+    /* Models */
+    var Study = Backbone.Model.extend({
+        defaults: {
+            studyId: "",
+            caseSetId: "",
+            alterations: {
+                mutation: 0,
+                cna: 0,
+                other: 0
+            }
+        }
+    });
+
+    var Studies = Backbone.Collection.extend({
+        model: Study,
+        url: "crosscancerquery.do",
+        defaults: {
+            genes: "",
+            priority: 0
+        },
+
+        initialize: function(options) {
+            options = _.extend(this.defaults, options);
+            this.url = "?genes=" + options.genes + "&priority=" + options.priority;
+
+            return this;
+        }
+    });
+
+    /* Routers */
+    AppRouter = Backbone.Router.extend({
+        routes: {
+            "crosscancer/:tab/:priority/:genes": "mainView",
+            "crosscancer/*actions": "emptyView"
+        },
+
+        emptyView: function(actions) {
+            (new EmptyView()).render();
+        },
+
+        mainView: function(tab, priority, genes) {
+            (new MainView({
+                model: {
+                    tab: tab,
+                    priority: priority,
+                    genes: genes
+                }
+            })).render();
+        }
+    });
+
+    $(function(){
+        new AppRouter();
+        Backbone.history.start();
+    });
+
+})(window.jQuery, window._, window.Backbone, window.d3);
 

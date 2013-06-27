@@ -1,463 +1,977 @@
-// usage: log('inside coolFunc',this,arguments);
-// http://paulirish.com/2009/log-a-lightweight-wrapper-for-consolelog/
-window.log = function() {
-  log.history = log.history || [];   // store logs to an array for reference
-  log.history.push(arguments);
-  if (this.console) {
-    console.log(Array.prototype.slice.call(arguments));
-  }
+/**
+ * Constructor for MutationDiagram class.
+ *
+ * @param geneSymbol    hugo gene symbol
+ * @param options       visual options object
+ * @param data          collection of Mutation models (MutationCollection)
+ * @constructor
+ */
+function MutationDiagram(geneSymbol, options, data)
+{
+	var self = this;
+
+	// merge options with default options to use defaults for missing values
+	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
+
+	self.data = data;
+	self.geneSymbol = geneSymbol;
+	self.svg = null; // init as null, will be assigned while creating the svg
+}
+
+// TODO add more options for a more customizable diagram:
+// default tooltip templates?
+// use percent values instead of pixel values for some components?
+MutationDiagram.prototype.defaultOpts = {
+	el: "#mutation_diagram_d3", // id of the container
+	elWidth: 720,               // width of the container
+	elHeight: 180,              // height of the container
+	marginLeft: 40,             // left margin for the plot area
+	marginRight: 20,            // right margin for the plot area
+	marginTop: 30,              // top margin for the plot area
+	marginBottom: 60,           // bottom margin for the plot area
+	labelX: false,              // informative label of the x-axis (false means "do not draw")
+	labelXFont: "sans-serif",   // font type of the x-axis label
+	labelXFontColor: "#2E3436", // font color of the x-axis label
+	labelXFontSize: "12px",     // font size of x-axis label
+	labelY: "# Mutations",      // informative label of the y-axis (false means "do not draw")
+	labelYFont: "sans-serif",   // font type of the y-axis label
+	labelYFontColor: "#2E3436", // font color of the y-axis label
+	labelYFontSize: "12px",     // font size of y-axis label
+	offsetY: 3,                 // offset for y values
+	offsetX: 0,                 // offset for x values
+	seqFillColor: "#BABDB6",    // color of the sequence rectangle
+	seqHeight: 14,              // height of the sequence rectangle
+	seqPadding: 8,              // padding between sequence and plot area
+	regionHeight: 24,           // height of a region (drawn on the sequence)
+	regionFont: "sans-serif",   // font of the region text
+	regionFontColor: "#FFFFFF", // font color of the region text
+	regionFontSize: "12px",     // font size of the region text
+	regionTextAnchor: "middle", // text anchor (alignment) for the region label
+	showRegionText: true,       // show/hide region text
+	lollipopLabelCount: 1,          // max number of lollipop labels to display
+	lollipopLabelThreshold: 2,      // y-value threshold: circles below this value won't be labeled
+	lollipopFont: "sans-serif",     // font of the lollipop label
+	lollipopFontColor: "#2E3436",   // font color of the lollipop label
+	lollipopFontSize: "10px",       // font size of the lollipop label
+	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
+	lollipopTextPadding: 5,         // padding between the label and the circle
+	lollipopTextAngle: 0,           // rotation angle for the lollipop label
+	lollipopFillColor: "#B40000",   // TODO more than one color wrt mutation type?
+	lollipopRadius: 3,              // radius of the lollipop circles
+	lollipopStrokeWidth: 1,         // width of the lollipop lines
+	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
+	xAxisPadding: 15,           // padding between x-axis and the sequence
+	xAxisTickInterval: 100,     // major tick interval for x-axis
+	xAxisMaxTickLabel: 5,       // maximum number of visible tick label on the x-axis
+	xAxisTickSize: 6,           // size of the major ticks of x-axis
+	xAxisStroke: "#AAAAAA",     // color of the x-axis lines
+	xAxisFont: "sans-serif",    // font type of the x-axis labels
+	xAxisFontSize: "10px",      // font size of the x-axis labels
+	xAxisFontColor: "#2E3436",  // font color of the x-axis labels
+	yAxisPadding: 5,            // padding between y-axis and the plot area
+	yAxisLabelPadding: 15,      // padding between y-axis and its label
+	yAxisTicks: 3,              // number of major ticks to be displayed on the y-axis
+	yAxisTickSize: 6,           // size of the major ticks of y-axis
+	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
+	yAxisFont: "sans-serif",    // font type of the y-axis labels
+	yAxisFontSize: "10px",      // font size of the y-axis labels
+	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
+	lollipopTipOpts: {          // tooltip (qTip) options for a lollipop circle
+		hide: {fixed: true, delay: 100 },
+		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+		position: {my:'bottom left', at:'top center'}
+	},
+	regionTipOpts: {            // tooltip (qTip) options for a region rectangle
+		hide: {fixed: true, delay: 100 },
+		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+		position: {my:'bottom left', at:'top center'}
+	}
 };
 
-function drawMutationDiagram(sequences)
-{
-    var MAX_OFFSET = 4;
-    var COSMIC_THRESHOLD = 5;
-    var PAPER_WIDTH = 740; // width of the raphael box
-    var PAPER_HEIGHT = 180; // height of the raphael box
-
-    var sequenceColor = "rgb(186, 189, 182)";
-    var scaleColors = [ "rgb(85, 87, 83)",
-        "rgb(46, 52, 54)" ];
-
-    // TODO seems like mutationColors variable is not used.
-    var mutationColors = [ "rgb(251, 154, 153)",
-        "rgb(227, 26, 28)",
-        "rgb(253, 191, 111)",
-        "rgb(255, 127, 0)" ];
-
-    var x = 45; // starting x-coordinate (for the origin)
-    var y = 0; // starting y-coordinate  (for the origin)
-    var w = PAPER_WIDTH - (2 * x); // width of the diagram
-    var h = PAPER_HEIGHT; // height of the diagram
-    var c = (2 * h) / 3;
-    var mutationDiagram = sequences[0];
-
-    // if mutation diagram is available, then show the diagram tooltip box
-    if (mutationDiagram == null)
-    {
-        return;
-    }
-
-    var l = mutationDiagram.length;
-    var id = mutationDiagram.metadata.hugoGeneSymbol;
-    var label = mutationDiagram.metadata.identifier; // main label text on top of the diagram
-    var title = mutationDiagram.metadata.identifier + ", " +
-                mutationDiagram.metadata.description + " (" + l + "aa)";
-
-    // raphael paper (canvas) to draw the mutation diagram
-    var paper = Raphael("mutation_diagram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
-
-    var histogram = Raphael("mutation_histogram_" + id, PAPER_WIDTH, PAPER_HEIGHT);
-
-	// link to uniprot above the diagram
-	var href = "http://www.uniprot.org/uniprot/" + label;
-	$("#uniprot_link_" + id).html('<a href="' + href + '" target="_blank">' + label + '</a>');
-
-	// labels on the diagram
-    _drawDiagramLabels(paper, label);
-    _drawDiagramLabels(histogram, label);
-
-    // sequence (as a rectangle on x-axis)
-    paper.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
-        .attr({"fill": sequenceColor, "stroke": "none", "title": title});
-
-    histogram.rect(x, c - 6, scaleHoriz(Math.max(l, 100), w, l), 13)
-        .attr({"fill": sequenceColor, "stroke": "none", "title": title});
-
-    // sequence scale
-    _drawSequenceScale(paper, x, l, w, c, scaleColors);
-    _drawSequenceScale(histogram, x, l, w, c, scaleColors);
-
-    // regions
-    _drawRegions(paper, mutationDiagram, id, x, l, w, c);
-    _drawRegions(histogram, mutationDiagram, id, x, l, w, c);
-
-    // calculate max count & per
-    var maxCount = _calculateMaxCount(mutationDiagram, MAX_OFFSET);
-    var per = (2 * h / 5) / maxCount;
-
-    // mutation scale
-    _drawMutationScale(paper, maxCount, x, per, c, scaleColors);
-    _drawMutationScale(histogram, maxCount, x, per, c, scaleColors);
-
-    // mutation lollipops
-    _drawMutationLollipops(paper, mutationDiagram, maxCount, MAX_OFFSET, id, x, l, w, c, per, scaleColors);
-
-    // mutation histogram
-    _drawHistogram(histogram, mutationDiagram, maxCount, MAX_OFFSET, COSMIC_THRESHOLD, x, l, w, c, per, scaleColors);
-
-    $("#mutation_histogram_" + id).hide();
-}
-
-function _drawHistogram(paper, mutationDiagram, maxCount, maxOffset, cosmicThreshold, x, l, w, c, per, scaleColors)
-{
-    // loop variables
-    var i = 0;
-    var size = 0;
-
-    for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
-    {
-        if (mutationDiagram.markups[i].type == "mutation")
-        {
-            var x1, y1, x2, y2;
-            var missenseColor = mutationDiagram.markups[i].colour[1];
-            var nonMissenseColor = mutationDiagram.markups[i].colour[2];
-
-            x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
-            y1 = (c - 10);
-            x2 = x1;
-            y2 = c - 10 - (per *
-                           (mutationDiagram.markups[i].metadata.count -
-                            mutationDiagram.markups[i].metadata.missenseCount));
-
-            // draw the bar components according to the missense vs all others ratio
-            // (color coding according to missense vs other)
-            // first part: non missense
-            var bar = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2)
-                .toBack()
-                .attr({"stroke": nonMissenseColor, "stroke-width": 2});
-
-            y1 = y2;
-            y2 = c - 10 - (per * mutationDiagram.markups[i].metadata.count);
-
-            // second part: missense
-            bar = paper.path("M" + x1 + " " + y1 + "L" + x2 + " " + y2)
-                .toBack()
-                .attr({"stroke": missenseColor, "stroke-width": 2});
-
-            // TODO also add cosmic value into metadata?
-
-            // draw the label for the mutations equal to max count
-            // TODO or the cosmic frequency is above the threshold (also make it bold)
-            if (mutationDiagram.markups[i].metadata.label &&
-                maxCount == mutationDiagram.markups[i].metadata.count + maxOffset)
-            {
-                var maxCountLabel = paper.text(x1, y2 - 14, mutationDiagram.markups[i].metadata.label)
-                    .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
-
-                // adjust the label if it overlaps the y-axis
-                _adjustMaxCountLabel(maxCountLabel, x);
-            }
-        }
-    }
-}
-
 /**
- * Draws the lollipops on the diagram.
+ * Initializes the diagram with the given sequence data.
+ * If no sequence data is provided, then tries to retrieve
+ * the data from the default servlet.
  *
- * @param paper             target raphael paper to draw the lollipops
- * @param mutationDiagram   instance containing mutation information
- * @param maxCount
- * @param maxOffset
- * @param id                gene id
- * @param x                 starting x coordinate (for the origin)
- * @param l                 length of the mutation diagram
- * @param w                 width of the mutation diagram
- * @param c
- * @param per
- * @param scaleColors       style colors
+ * @param sequenceData  sequence data as a JSON object
  */
-function _drawMutationLollipops(paper, mutationDiagram, maxCount, maxOffset, id, x, l, w, c, per, scaleColors)
+MutationDiagram.prototype.initDiagram = function(sequenceData)
 {
-    var labelShown = false;
+	var self = this;
 
-    // loop variables
-    var i = 0;
-    var size = 0;
+	var container = d3.select(self.options.el);
 
-    for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
-    {
-        if (mutationDiagram.markups[i].type == "mutation")
-        {
-            var x1 = x + scaleHoriz(mutationDiagram.markups[i].start, w, l);
-            var y1 = c - 17;
-            var x2 = x1;
-            var y2 = c - 17 - (per * mutationDiagram.markups[i].metadata.count);
-            var lollipopFillColor = mutationDiagram.markups[i].colour[0];
-            var lollipopStrokeColor = darken(lollipopFillColor);
-            var markupLineColor = mutationDiagram.markups[i].lineColour;
-            var countText = "";
+	// calculate bounds of the actual plot area (excluding axis, sequence, labels, etc.)
+	var bounds = {};
+	bounds.width = self.options.elWidth -
+			(self.options.marginLeft + self.options.marginRight);
+	bounds.height = self.options.elHeight -
+			(self.options.marginBottom + self.options.marginTop);
+	bounds.x = self.options.marginLeft;
+	bounds.y = self.options.elHeight - self.options.marginBottom;
 
-            if (mutationDiagram.markups[i].metadata.count == 1) {
-                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutation</b>";
-            }
-            else {
-                countText = "<b>" + mutationDiagram.markups[i].metadata.count + " mutations</b>";
-            }
+	// helper function for actual initialization
+	var init = function(sequenceData) {
+		self.data = self.processData(self.data, sequenceData);
 
-            var mutationTitle = countText + "<br/>Amino Acid Change:  " +
-                                mutationDiagram.markups[i].metadata.label + " ";
+		var svg = self.createSvg(container,
+				self.options.elWidth,
+				self.options.elHeight);
 
-            var p = paper.path("M" + x1 + " " + (c - 5) + "L" + x2 + " " + y2)
-                .toBack()
-                .attr({"stroke": markupLineColor, "stroke-width": 1});
+		self.drawDiagram(svg,
+				bounds,
+				self.options,
+				self.data);
 
-            addMouseOver(p.node, mutationTitle, id);
+		// save a reference to svg element for future access
+		self.svg = svg;
+	};
 
-            var lollipop = paper.circle(x2, y2, 3, 3)
-                .attr({"fill": lollipopFillColor, "stroke": lollipopStrokeColor, "stroke-width": 0.5});
+	// if no sequence data is provided, try to get it from the servlet
+	if (!sequenceData)
+	{
+		$.getJSON("getPfamSequence.json",
+			{geneSymbol: self.geneSymbol},
+			function(data) {
+				init(data);
+			});
+	}
+	// if data is already there just init the diagram
+	else
+	{
+		init(sequenceData);
+	}
 
-            addMouseOver(lollipop.node, mutationTitle, id);
-
-            // draws the label for the max count
-            if (mutationDiagram.markups[i].metadata.label &&
-                (maxCount == mutationDiagram.markups[i].metadata.count + maxOffset) &&
-                !labelShown)
-            {
-                var maxCountLabel = paper.text(x1, y2 - 12, mutationDiagram.markups[i].metadata.label)
-                    .attr({"fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
-
-                // adjust the label if it overlaps the y-axis
-                _adjustMaxCountLabel(maxCountLabel, x);
-
-                labelShown = true;
-            }
-        }
-    }
-}
+};
 
 /**
- * Draws the mutation scale for the y-axis.
- * @param paper             target raphael paper to draw the scale
- * @param maxCount
- * @param x                 starting x coordinate (for the origin)
- * @param per
- * @param c                 parameter used for scaling
- * @param scaleColors       style colors for the scales
- */
-function _drawMutationScale(paper, maxCount, x, per, c, scaleColors)
-{
-    var scaleX = x - 15;
-    var scaleY = c - 13;
-    var scaleH = maxCount * per;
-    //scaleW = scaleHoriz(8, w, l);
-    var scaleW = 10; // no need to scale width, set a fixed value
-
-    paper.path("M" + scaleX + " " + scaleY +
-               "L" + (scaleX + scaleW) + " " + scaleY +
-               "L" + (scaleX + scaleW) + " " + (scaleY - scaleH) +
-               "L" + scaleX + " " + (scaleY - scaleH))
-        .attr({"stroke": scaleColors[0], "stroke-width": 1});
-
-    // mutation scale major ticks
-    paper.path("M" + (scaleX + scaleW - 4) + " " + (scaleY - (maxCount / 2) * per) +
-               "L" + (scaleX + scaleW) + " " + (scaleY - (maxCount / 2) * per))
-        .attr({"stroke": scaleColors[0], "stroke-width": 1});
-
-    // mutation scale minor ticks
-    paper.path("M" + (scaleX + scaleW - 2) + " " + (scaleY - (3 * maxCount / 4) * per) +
-               "L" + (scaleX + scaleW) + " " + (scaleY - (3 * maxCount / 4) * per))
-        .attr({"stroke": scaleColors[0], "stroke-width": 1});
-
-    paper.path("M" + (scaleX + scaleW - 2) + " " + (scaleY - (maxCount / 4) * per) +
-               "L" + (scaleX + scaleW) + " " + (scaleY - (maxCount / 4) * per))
-        .attr({"stroke": scaleColors[0], "stroke-width": 1});
-
-    // mutation scale labels
-    paper.text(scaleX - 8, scaleY, 0)
-        .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
-
-    paper.text(scaleX - 8, scaleY - (maxCount * per), maxCount)
-        .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
-}
-
-/**
- * Draws the regions on the sequence (x-axis).
+ * Processes the data returned from the server.
  *
- * @param paper             target raphael paper to draw the regions
- * @param mutationDiagram   instance containing mutation information
- * @param id                gene id for the mutation
- * @param x                 starting x coordinate (for the origin)
- * @param l                 length of the mutation diagram
- * @param w                 width of the mutation diagram
- * @param c
+ * @param mutationData  list of all mutations
+ * @param sequenceData  sequence data returned from the servlet
+ * @return      a new data object with pileup mutations and sequence data
  */
-function _drawRegions(paper, mutationDiagram, id, x, l, w, c)
+MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 {
-    // loop variables
-    var i = 0;
-    var size = 0;
+	var self = this;
+	var data = {};
 
-    // regions (as rectangles on the sequence rectangle)
-    for (i = 0, size = mutationDiagram.regions.length; i < size; i++)
-    {
-        var regionX = x + scaleHoriz(mutationDiagram.regions[i].start, w, l);
-        var regionY = c - 10;
-        var regionW = scaleHoriz(mutationDiagram.regions[i].end - mutationDiagram.regions[i].start, w, l);
-        var regionH = 20;
-        var regionFillColor = mutationDiagram.regions[i].colour;
-        var regionStrokeColor = darken(regionFillColor);
-        var regionLabel = mutationDiagram.regions[i].text;
-        var regionMetadata = mutationDiagram.regions[i].metadata;
-        var regionTitle = regionMetadata.identifier + " " +
-                          regionMetadata.type.toLowerCase() + ", " +
-                          regionMetadata.description +
-                          " (" + mutationDiagram.regions[i].start + " - " +
-                          mutationDiagram.regions[i].end + ")";
+	// helper function to determine the longest common starting substring
+	// for the given two strings
+	// TODO move it to a general utility class
+	var lcss = function (str1, str2)
+	{
+		var i = 0;
 
-        // region rectangle
-        var regionRect = paper.rect(regionX, regionY, regionW, regionH)
-            .attr({"fill": regionFillColor, "stroke-width": 1, "stroke": regionStrokeColor});
+		while (i < str1.length && i < str2.length)
+		{
+			if (str1[i] === str2[i])
+			{
+				i++;
+			}
+			else
+			{
+				break;
+			}
+		}
 
-        addRegionMouseOver(regionRect.node, regionTitle, id);
+		return str1.substring(0, i);
+	};
 
-        // region label (only if it fits)
-        if (regionLabel != null)
-        {
-            if ((regionLabel.length * 10) < regionW)
-            {
-                currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, regionLabel)
-                    .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
+	// helper function to generate a label by joining all unique
+	// protein change information in the given array of mutations
+	var generateLabel = function(mutations)
+	{
+		var mutationSet = {};
 
-                addRegionMouseOver(currentText.node, regionTitle, id);
-            }
-            else
-            {
-                var truncatedLabel = regionLabel.substring(0,3) + "..";
+		// create a set of protein change labels
+		// (this is to eliminate duplicates)
+		for (var i = 0; i < mutations.length; i++)
+		{
+			if (mutations[i].proteinChange != null &&
+			    mutations[i].proteinChange.length > 0)
+			{
+				mutationSet[mutations[i].proteinChange] = mutations[i].proteinChange;
+			}
+		}
 
-                if (truncatedLabel.length * 6 < regionW)
-                {
-                    currentText = paper.text(regionX + (regionW / 2), regionY + regionH - 10, truncatedLabel)
-                        .attr({"text-anchor": "center", "font-size": "12px", "font-family": "sans-serif", "fill": "white"});
+		// convert to array & sort
+		var mutationArray = [];
 
-                    addRegionMouseOver(currentText.node, regionTitle, id);
-                }
-            }
-        }
-    }
-}
+		for (var key in mutationSet)
+		{
+			mutationArray.push(key);
+		}
+
+		mutationArray.sort();
+
+		// find longest common starting substring
+		// (this is to truncate redundant starting substring)
+
+		var startStr = "";
+
+		if (mutationArray.length > 1)
+		{
+			startStr = lcss(mutationArray[0],
+				mutationArray[mutationArray.length - 1]);
+
+//			 console.log(mutationArray[0] + " n " +
+//			             mutationArray[mutationArray.length - 1] + " = " +
+//			             startStr);
+		}
+
+		// generate the string
+		var label = startStr;
+
+		for (var i = 0; i < mutationArray.length; i++)
+		{
+			label += mutationArray[i].substring(startStr.length) + "/";
+		}
+
+		// remove the last slash
+		return label.substring(0, label.length - 1);
+	};
+
+	// create a map of mutations (key is the mutation location)
+	var mutations = {};
+
+	for (var i=0; i < mutationData.length; i++)
+	{
+		var mutation = mutationData.at(i);
+
+		var proteinChange = mutation.proteinChange;
+
+		var location = proteinChange.match(/[0-9]+/);
+
+		if (location != null)
+		{
+			if (mutations[location] == null)
+			{
+				mutations[location] = [];
+			}
+
+			mutations[location].push(mutation);
+		}
+	}
+
+	// convert map into an array of piled mutation objects
+	var mutationList = [];
+
+	for (var key in mutations)
+	{
+		var pileup = {};
+
+		pileup.mutations = mutations[key];
+		pileup.count = mutations[key].length;
+		pileup.location = parseInt(key);
+		pileup.label = generateLabel(mutations[key]);
+
+		mutationList.push(pileup);
+	}
+
+	// sort (descending) the list wrt mutation count
+	mutationList.sort(function(a, b) {
+		var diff = b.count - a.count;
+
+		// if equal, then compare wrt position (for consistency)
+		if (diff == 0)
+		{
+			diff = b.location - a.location;
+		}
+
+		return diff;
+	});
+
+	data.mutations = mutationList;
+	data.sequence = sequenceData;
+
+	return data;
+};
 
 /**
- * Draws sequence scale for the x-axis
+ * Draws the mutation diagram.
  *
- * @param paper         target raphael paper to draw the scale
- * @param x             starting x coordinate (for the origin)
- * @param l             length of the mutation diagram
- * @param w             width of the mutation diagram
- * @param c             parameter used for scaling
- * @param scaleColors   style colors for the scales
+ * @param svg       svg container for the diagram
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param options   options object
+ * @param data      data to visualize
  */
-function _drawSequenceScale(paper, x, l, w, c, scaleColors)
+MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
-    var sequenceScaleY = c + 20;
-    var i = 0; // loop variable
+	var self = this;
 
-    paper.path("M" + x + " " + (sequenceScaleY + 6) +
-               "L" + x + " " + sequenceScaleY +
-               "L" + (x + scaleHoriz(l, w, l)) + " " + sequenceScaleY +
-               "L" + (x + scaleHoriz(l, w, l)) + " " + (sequenceScaleY + 6))
-        .attr({"stroke": scaleColors[0], "stroke-width": 1});
+	var xMax = data.sequence.sequenceLength + options.offsetX;
+	var yMax = self.calcMaxCount(data.mutations) + options.offsetY;
+	var regions = data.sequence.regions;
+	var mutations = data.mutations;
+	var seqTooltip = data.sequence.identifier + ", " +
+	               data.sequence.description + " (" + data.sequence.sequenceLength + "aa)";
 
-    // sequence scale minor ticks
-    for (i = 50; i < l; i += 100) {
-        paper.path("M" + (x + scaleHoriz(i, w, l)) + " " + sequenceScaleY +
-                   "L" + (x + scaleHoriz(i, w, l)) + " " + (sequenceScaleY + 2))
-            .attr({"stroke": scaleColors[0], "stroke-width": 1});
-    }
+	var xScale = d3.scale.linear()
+		.domain([0, xMax])
+		.range([bounds.x, bounds.x + bounds.width]);
 
-    // sequence scale major ticks
-    for (i = 0; i < l; i += 100) {
-        paper.path("M" + (x + scaleHoriz(i, w, l)) + " " + sequenceScaleY +
-                   "L" + (x + scaleHoriz(i, w, l)) + " " + (sequenceScaleY + 4))
-            .attr({"stroke": scaleColors[0], "stroke-width": 1});
-    }
+	var yScale = d3.scale.linear()
+		.domain([0, yMax])
+		.range([bounds.y, bounds.y - bounds.height]);
 
-    // sequence scale labels
-    for (i = 0; i < l; i += 100) {
-        if ((l < 1000) || ((i % 500) == 0)) {
-            if (scaleHoriz(l - i, w, l) > 30) {
-                paper.text(x + scaleHoriz(i, w, l), sequenceScaleY + 16, i)
-                    .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
-            }
-        }
-    }
+	// draw x-axis
+	self.drawXAxis(svg, xScale, xMax, options, bounds);
 
-    paper.text(x + scaleHoriz(l, w, l), sequenceScaleY + 16, l + " aa")
-        .attr({"text-anchor": "middle", "fill": scaleColors[1], "font-size": "11px", "font-family": "sans-serif"});
+	if (options.labelX)
+	{
+		//TODO self.drawXAxisLabel(svg, options, bounds);
+	}
 
-}
+	// draw y-axis
+	self.drawYAxis(svg, yScale, yMax, options, bounds);
+
+	if (options.labelY)
+	{
+		self.drawYAxisLabel(svg, options, bounds);
+	}
+
+	// group for lollipop labels (draw labels first)
+	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
+	// group for lollipop lines (lines should be drawn before circles)
+	var gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
+	// group for lollipop circles (circles should be drawn later)
+	var gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+
+	// draw lollipop lines
+	for (var i = 0; i < mutations.length; i++)
+	{
+		self.drawLollipop(gCircle,
+				gLine,
+				mutations[i],
+				options,
+				bounds,
+				xScale,
+				yScale);
+	}
+
+	// draw lollipop labels
+	self.drawLollipopLabels(gText, mutations, options, xScale, yScale);
+
+	// draw sequence
+	var sequence = self.drawSequence(svg, options, bounds);
+	// add a regular tooltip (not qtip)
+	sequence.attr("title", seqTooltip);
+
+	// draw regions
+	for (var i = 0, size = regions.length; i < size; i++)
+	{
+		self.drawRegion(svg, regions[i], options, bounds, xScale);
+	}
+};
 
 /**
- * Draws the label on the top of the diagram,
- * and the vertical label for the y-axis.
+ * Creates the main svg (graphical) component.
  *
- * @param paper target Raphael paper to draw the labels
- * @param label main label (on the top)
+ * @param container main container (div, etc.)
+ * @param width     width of the svg area
+ * @param height    height of the svg area
+ * @return          svg component
  */
-function _drawDiagramLabels(paper, label)
+MutationDiagram.prototype.createSvg = function (container, width, height)
 {
-    // main label on the top
-    //paper.text(10, 26, label).attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
+	var svg = container.append("svg");
 
-    // label for y-axis
-    var yAxis = paper.text(-27, 74, "# Mutations").attr({"text-anchor": "start", "font-size": "12px", "font-family": "sans-serif"});
-    yAxis.rotate(270);
-}
+	svg.attr('width', width);
+	svg.attr('height', height);
+
+	return svg;
+};
 
 /**
- * Adjusts the label on the lollipop if it overlaps y-axis.
+ * Draws the x-axis on the bottom side of the plot area.
  *
- * @param maxCountLabel label (raphael text object) to be adjusted
- * @param axisX         x coordinate of the y-axis
+ * @param svg       svg to append the axis
+ * @param xScale    scale function for the y-axis
+ * @param xMax      max y value for the axis
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          svg group containing all the axis components
  */
-function _adjustMaxCountLabel(maxCountLabel, axisX)
+MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bounds)
 {
-    var topLeftX = maxCountLabel.getBBox().x;
+	var self = this;
 
-    // check if the label is overlapping the y-axis
-    if (topLeftX < axisX)
-    {
-        var shiftX = axisX - topLeftX; // required shift for x-coordinate
-        var shiftY = 0; // no shift required for y-coordinate
+	// helper function to calculate display interval for tick labels
+	var calcDisplayInterval = function(interval, maxValue, maxLabelCount) {
+		var displayInterval = maxValue / (maxLabelCount - 1);
 
-        maxCountLabel.transform("t" + shiftX + "," + shiftY);
-    }
-}
+		if (displayInterval % interval > interval / 2)
+		{
+			displayInterval += + interval - (displayInterval % interval);
+		}
+		else
+		{
+			displayInterval -= (displayInterval % interval);
+		}
 
-function _calculateMaxCount(mutationDiagram, maxOffset)
+		if (displayInterval < interval)
+		{
+			displayInterval = interval;
+		}
+
+		return displayInterval;
+	};
+
+	// determine tick values
+	var tickValues = [];
+
+	var value = 0;
+	var interval = options.xAxisTickInterval;
+
+	while (value < xMax - interval / 2)
+	{
+		tickValues.push(value);
+		value += interval;
+	}
+
+	tickValues.push(xMax);
+
+	// formatter to hide labels
+	var formatter = function(value) {
+		var displayInterval = calcDisplayInterval(interval,
+			xMax,
+			options.xAxisMaxTickLabel);
+
+		// always display max value
+		if (value == xMax)
+		{
+			return value + " aa";
+		}
+		// display value if its multiple of display interval
+		else if (value % displayInterval == 0)
+		{
+			return value;
+		}
+		// hide remaining labels
+		else
+		{
+			return '';
+		}
+	};
+
+	var tickSize = options.xAxisTickSize;
+
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom")
+		.tickValues(tickValues)
+		.tickFormat(formatter)
+		.tickSubdivide(true)
+		.tickSize(tickSize, tickSize/2, 0);
+
+	// calculate y-coordinate of the axis
+	var position = bounds.y + options.regionHeight + options.xAxisPadding;
+
+	// append axis
+	var axis = svg.append("g")
+		.attr("class", "mut-dia-x-axis")
+		.attr("transform", "translate(0," + position + ")")
+		.call(xAxis);
+
+	// format axis
+	self.formatAxis(".mut-dia-x-axis",
+		options.xAxisStroke,
+		options.xAxisFont,
+		options.xAxisFontSize,
+		options.xAxisFontColor);
+
+	return axis;
+};
+
+/**
+ * Draws the y-axis on the left side of the plot area.
+ *
+ * @param svg       svg to append the axis
+ * @param yScale    scale function for the y-axis
+ * @param yMax      max y value for the axis
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          svg group containing all the axis components
+ */
+MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bounds)
 {
-    var maxCount = 0;
-    var i = 0;
-    var size = 0;
+	var self = this;
 
-    for (i = 0, size = mutationDiagram.markups.length; i < size; i++)
-    {
-        if ((mutationDiagram.markups[i].type == "mutation") &&
-            (parseInt(mutationDiagram.markups[i].metadata.count) >= maxCount))
-        {
-            maxCount = mutationDiagram.markups[i].metadata.count;
-        }
-    }
+	// determine tick values
+	var tickValues = [];
 
-    return maxCount + maxOffset;
-}
+	var value = 0;
+	var interval = yMax / (options.yAxisTicks - 1);
 
-function scaleHoriz(x, w, l)
+	while (value < yMax)
+	{
+		tickValues.push(value);
+		value += interval;
+	}
+
+	tickValues.push(yMax);
+
+	// formatter to hide all except first and last
+	var formatter = function(value) {
+		if (value == yMax || value == 0)
+		{
+			return value;
+		}
+		else
+		{
+			return '';
+		}
+	};
+
+	var tickSize = options.yAxisTickSize;
+
+	var yAxis = d3.svg.axis()
+		.scale(yScale)
+		.orient("left")
+		.tickValues(tickValues)
+		.tickFormat(formatter)
+		.tickSubdivide(true)
+		.tickSize(tickSize, tickSize/2, 0);
+
+	// calculate y-coordinate of the axis
+	var position = bounds.x - options.yAxisPadding;
+
+	// append axis
+	var axis = svg.append("g")
+		.attr("class", "mut-dia-y-axis")
+		.attr("transform", "translate(" + position + ",0)")
+		.call(yAxis);
+
+	// format axis
+	self.formatAxis(".mut-dia-y-axis",
+		options.yAxisStroke,
+		options.yAxisFont,
+		options.yAxisFontSize,
+		options.yAxisFontColor);
+
+	return axis;
+};
+
+/**
+ * Draws the label of the y-axis.
+ *
+ * @param svg       svg to append the label element
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          text label (svg element)
+ */
+MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 {
-    return x * (w/l);
-}
+	// set x, y of the label as the middle of the y-axis
 
-function darken(color) {
-  rgb = Raphael.getRGB(color);
-  hsb = Raphael.rgb2hsb(rgb.r, rgb.g, rgb.b);
-  return Raphael.hsb(hsb.h, hsb.s, Math.max(0, hsb.b - (hsb.b * 0.20)));
-}
+	var x = bounds.x -
+		options.yAxisPadding -
+		options.yAxisTickSize -
+		options.yAxisLabelPadding;
 
-function addMouseOver(node, txt, id){
-    $(node).qtip({
-        content: {text: '<font size="2">'+txt+'</font>'},
-        hide: { fixed: true, delay: 100 },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-        position: {my:'bottom center',at:'top center'}
-    });
-}
+	var y =  bounds.y - (bounds.height / 2);
 
-function addRegionMouseOver(node, txt, id)
+	// append label
+	var label = svg.append("text")
+		.attr("fill", options.labelYFontColor)
+		.attr("text-anchor", "middle")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("class", "mut-dia-y-axis-label")
+		.attr("transform", "rotate(270, " + x + "," + y +")")
+		.style("font-family", options.labelYFont)
+		.style("font-size", options.labelYFontSize)
+		.text(options.labelY);
+
+	return label;
+};
+
+/**
+ * Formats the style of the plot axis defined by the given selector.
+ *
+ * @param axisSelector  selector for the axis components
+ * @param stroke        line color of the axis
+ * @param font          font type of the axis value labels
+ * @param fontSize      font size of the axis value labels
+ * @param fontColor     font color of the axis value labels
+ */
+MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, fontSize, fontColor)
 {
-    $(node).qtip({
-        content: {text: '<font size="2">'+txt+'</font>'},
-        hide: {fixed: true, delay: 100 },
-        style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-        position: {my:'bottom left',at:'top center'}
-    });
-}
+	var selector = d3.selectAll(axisSelector + ' line');
+
+	selector.style("fill", "none")
+		.style("stroke", stroke)
+		.style("shape-rendering", "crispEdges");
+
+	selector = d3.selectAll(axisSelector + ' path');
+
+	selector.style("fill", "none")
+		.style("stroke", stroke)
+		.style("shape-rendering", "crispEdges");
+
+	selector = d3.selectAll(axisSelector + ' text');
+
+	selector.attr("fill", fontColor)
+		.style("font-family", font)
+		.style("font-size", fontSize);
+};
+
+/**
+ * Draws the lollipop circle and its line (from sequence to the lollipop circle)
+ * on the plot area.
+ *
+ * @param circles   circle group (svg element) to append the lollipop circle
+ * @param lines     line group (svg element) to append the lollipop lines
+ * @param pileup list (array) of mutations (pileup) at a specific location
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @param yScale    scale function for the y-axis
+ * @return          object (lollipop circle & line as svg elements)
+ */
+MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, options, bounds, xScale, yScale)
+{
+	var self = this;
+
+	var count = pileup.count;
+	var start = pileup.location;
+	var mutationStr = count > 1 ? "mutations" : "mutation";
+	var title = "<b>" + count + " " + mutationStr + "</b>" +
+	            "<br/>Amino Acid Change: " + pileup.label;
+
+	var x = xScale(start);
+	var y = yScale(count);
+
+	var circle = circles.append('circle')
+		.attr('cx', x)
+		.attr('cy', y)
+		.attr('r', options.lollipopRadius)
+		.attr('fill', options.lollipopFillColor);
+
+	self.addTooltip(circle, title, options.lollipopTipOpts);
+
+	var line = lines.append('line')
+		.attr('x1', x)
+		.attr('y1', y)
+		.attr('x2', x)
+		.attr('y2', self.calcSequenceBounds(bounds, options).y)
+		.attr('stroke', options.lollipopStrokeColor)
+		.attr('stroke-width', options.lollipopStrokeWidth);
+
+	return {"circle": circle, "line": line};
+};
+
+/**
+ * Put labels over the lollipop circles. The number of labels to be displayed is defined
+ * by options.lollipopLabelCount.
+ *
+ * @param labels        text group (svg element) for labels
+ * @param mutations     array of mutations (pileups)
+ * @param options       general options object
+ * @param xScale        scale function for the x-axis
+ * @param yScale        scale function for the y-axis
+ */
+MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, options, xScale, yScale)
+{
+	// helper function to adjust text position to prevent overlapping with the y-axis
+	var getTextAnchor = function(text, textAnchor)
+	{
+		var anchor = textAnchor;
+
+		// adjust if necessary and (if it is set to auto only)
+		if (anchor.toLowerCase() == "auto")
+		{
+			// calculate distance of the label to the y-axis (assuming the anchor will be "middle")
+			var distance = text.attr("x") - (text.node().getComputedTextLength() / 2);
+
+			// adjust label to prevent overlapping with the y-axis
+			if (distance < 0)
+			{
+				anchor = "start";
+			}
+			else
+			{
+				anchor = "middle";
+			}
+		}
+
+		return anchor;
+	};
+
+	var count = options.lollipopLabelCount;
+	var maxAllowedTie = 2; // TODO refactor as an option?
+
+	// do not show any label if there are too many ties
+	// exception: if there is only one mutation then display the label in any case
+	if (mutations.length > 1)
+	{
+		var max = mutations[0].count;
+
+		// at the end of this loop, numberOfTies will be the number of points with
+		// max y-value (number of tied points)
+		for (var numberOfTies = 0; numberOfTies < mutations.length; numberOfTies++)
+		{
+			if (mutations[numberOfTies].count < max)
+			{
+				break;
+			}
+		}
+
+		// do not display any label if there are too many ties
+		if (count < numberOfTies &&
+		    numberOfTies > maxAllowedTie)
+		{
+			count = 0;
+		}
+
+	}
+
+	// show (lollipopLabelCount) label(s)
+	for (var i = 0;
+	     i < count && i < mutations.length;
+	     i++)
+	{
+		// check for threshold value
+		if (mutations.length > 1 &&
+		    mutations[i].count < options.lollipopLabelThreshold)
+		{
+			// do not processes remaining values below threshold
+			// (assuming mutations array is sorted)
+			break;
+		}
+
+		var x = xScale(mutations[i].location);
+		var y = yScale(mutations[i].count) -
+		        (options.lollipopTextPadding + options.lollipopRadius);
+
+		// init text
+		var text = labels.append('text')
+			.attr("fill", options.lollipopFontColor)
+			.attr("x", x)
+			.attr("y", y)
+			.attr("class", "mut-dia-lollipop-text")
+			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
+			.style("font-size", options.lollipopFontSize)
+			.style("font-family", options.lollipopFont)
+			.text(mutations[i].label);
+
+		// adjust anchor
+		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
+		text.attr("text-anchor", textAnchor);
+	}
+
+	// TODO return a collection of text elements?
+};
+
+/**
+ * Draws the given region on the sequence.
+ *
+ * @param svg       target svg to append region rectangle
+ * @param region    region data
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @return          region rectangle & its text (as an svg group element)
+ */
+MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xScale)
+{
+	var self = this;
+
+	var start = region.start;
+	var end = region.end;
+	var label = region.text;
+	var color = region.color;
+	var tooltip = region.identifier + " " +
+	              region.type.toLowerCase() + ", " +
+	              region.description +
+	              " (" + start + " - " + end + ")";
+
+	var width = Math.abs(xScale(start) - xScale(end));
+	var height = options.regionHeight;
+	var y = bounds.y + options.seqPadding;
+	var x = xScale(start);
+
+	// group region and its label
+	var group = svg.append("g")
+		.attr("class", "mut-dia-region")
+		.attr("transform", "translate(" + x + "," + y +")");
+
+	var rect = group.append('rect')
+		.attr('fill', color)
+		.attr('x', 0)
+		.attr('y', 0)
+		.attr('width', width)
+		.attr('height', height);
+
+	// add tooltip to the rect
+	self.addTooltip(rect, tooltip, options.regionTipOpts);
+
+	if (options.showRegionText)
+	{
+		var text = self.drawRegionText(label, group, options, width);
+
+		// add tooltip if the text fits
+		if (text)
+		{
+			// add tooltip to the text
+			self.addTooltip(text, tooltip, options.regionTipOpts);
+		}
+	}
+
+	return group;
+};
+
+/**
+ * Draws the text for the given svg group (which represents the region).
+ * Returns null if neither the text nor its truncated version fits
+ * into the region rectangle.
+ *
+ * @param label     text contents
+ * @param group     target svg group to append the text
+ * @param options   general options object
+ * @param width     width of the region rectangle
+ * @return          region text (svg element)
+ */
+MutationDiagram.prototype.drawRegionText = function(label, group, options, width)
+{
+	var xText = width/2;
+	var height = options.regionHeight;
+
+	if (options.regionTextAnchor === "start")
+	{
+		xText = 0;
+	}
+	else if (options.regionTextAnchor === "end")
+	{
+		xText = width;
+	}
+
+	// truncate or hide label if it is too long to fit
+	var fits = true;
+
+	// init text
+	var text = group.append('text')
+		.style("font-size", options.regionFontSize)
+		.style("font-family", options.regionFont)
+		.text(label)
+		.attr("text-anchor", options.regionTextAnchor)
+		.attr("fill", options.regionFontColor)
+		.attr("x", xText)
+		.attr("y", 2*height/3)
+		.attr("class", "mut-dia-region-text");
+
+	// check if the text fits into the region rectangle
+	// adjust it if necessary
+	if (text.node().getComputedTextLength() > width)
+	{
+		// truncate text if not fits
+		label = label.substring(0,3) + "..";
+		text.text(label);
+
+		// check if truncated version fits
+		if (text.node().getComputedTextLength() > width)
+		{
+			// remove if the truncated version doesn't fit either
+			text.remove();
+			text = null;
+		}
+	}
+
+	return text;
+};
+
+/**
+ * Draws the sequence just below the plot area.
+ *
+ * @param svg       target svg to append sequence rectangle
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          sequence rectangle (svg element)
+ */
+MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
+{
+	var seqBounds = this.calcSequenceBounds(bounds, options);
+
+	return svg.append('rect')
+		.attr('fill', options.seqFillColor)
+		.attr('x', seqBounds.x)
+		.attr('y', seqBounds.y)
+		.attr('width', seqBounds.width)
+		.attr('height', seqBounds.height);
+};
+
+/**
+ * Returns the number of mutations at the hottest spot.
+ *
+ * @param mutations array of piled up mutation data
+ * @return          number of mutations at the hottest spot
+ */
+MutationDiagram.prototype.calcMaxCount = function(mutations)
+{
+	var maxCount = -1;
+//
+//	for (var i = 0; i < mutations.length; i++)
+//	{
+//		if (mutations[i].count >= maxCount)
+//		{
+//			maxCount = mutations[i].count;
+//		}
+//	}
+//
+//	return maxCount;
+
+	// assuming the list is sorted (descending)
+	if (mutations.length > 0)
+	{
+		maxCount = mutations[0].count;
+	}
+
+	return maxCount;
+};
+
+/**
+ * Calculates the bounds of the sequence.
+ *
+ * @param bounds    bounds of the plot area
+ * @param options   diagram options
+ */
+MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
+{
+	var x = bounds.x;
+	var y = bounds.y +
+	        Math.abs(options.regionHeight - options.seqHeight) / 2 +
+	        options.seqPadding;
+	var width = bounds.width;
+	var height = options.seqHeight;
+
+	return {x: x,
+		y: y,
+		width: width,
+		height: height};
+};
+
+
+MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
+{
+	var qTipOptions = jQuery.extend(true, {}, tipOpts);
+
+	if (qTipOptions.content == null)
+	{
+		// TODO setting font size inside content may not be safe
+		qTipOptions.content = {text: '<font size="2">'+txt+'</font>'};
+	}
+	else
+	{
+		// TODO edit content (insert txt)
+	}
+
+	$(element).qtip(qTipOptions);
+};

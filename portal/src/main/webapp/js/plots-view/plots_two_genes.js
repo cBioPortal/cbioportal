@@ -345,10 +345,31 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawPlots() {
+
+        //sort DotsData
+        var tmp_dotsData = pData.dotsData;
+        var nonMutatedData = [];
+        var mutatedData= [];
+        var dataBuffer = [];
+        tmp_dotsData.forEach (function(entry) {
+            if (entry.annotation !== "") {
+                mutatedData.push(entry);
+            } else {
+                nonMutatedData.push(entry);
+            }
+        });
+        nonMutatedData.forEach (function(entry) {
+            dataBuffer.push(entry);
+        });
+        mutatedData.forEach (function(entry) {
+            dataBuffer.push(entry);
+        });
+        tmp_dotsData = dataBuffer;
+
         var showMutation = document.getElementById("show_mutation").checked;
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path")
-            .data(pData.dotsData)
+            .data(tmp_dotsData)
             .enter()
             .append("svg:path")
             .attr("transform", function(d){

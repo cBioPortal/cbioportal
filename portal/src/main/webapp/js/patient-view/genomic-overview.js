@@ -122,6 +122,7 @@ function drawLine(x1, y1, x2, y2, p, cl, width) {
 
 function plotMuts(p,config,chmInfo,row,mutations,caseId) {
     var pixelMap = [];
+    var numMut = 0;
     for (var i=0; i<mutations.getNumEvents(false); i++) {
         if (caseId!==null) {
             var caseIds = mutations.data['caseIds'][i];
@@ -134,6 +135,7 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         if (cbio.util.checkNullOrUndefined(pixelMap[xBin]))
             pixelMap[xBin] = [];
         pixelMap[xBin].push(mutations.data['id'][i]);
+        numMut++;
     }
     
     var maxCount = 0;
@@ -172,7 +174,7 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
     } else {
         p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     }
-    var t = p.text(config.xRightText(),yRow-config.rowHeight/2,mutations.numEvents).attr({'text-anchor': 'start','font-weight': 'bold'});
+    var t = p.text(config.xRightText(),yRow-config.rowHeight/2,numMut).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);
     var tip =  "Number of mutation events.";
     addToolTip(t.node,tip,null,{my:'top right',at:'bottom left'});

@@ -51,6 +51,12 @@ public class ClinicalAttributesMetadata extends ClinicalAttributeAbstract {
 	private String diseaseSpecificity;
 	Map<String, String> propertiesMap;
 
+    // constants used for calculating new values
+    public static final String DAYS_TO_LAST_FOLLOWUP = "DAYS_TO_LAST_FOLLOWUP";
+    public static final String DAYS_TO_DEATH = "DAYS_TO_DEATH";
+    public static final String NA = "NA";
+
+
     /**
      * Create a ClinicalAttributesMetadata instance with properties in given array.
 	 * Its assumed order of properties is that from google worksheet.

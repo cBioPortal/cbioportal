@@ -78,12 +78,7 @@ public class ClinicalDataConverterImpl implements Converter {
     public static final String IGNORE = "ignore";
 
     // column names for data matrix processing
-    public static final String DAYS_TO_LAST_FOLLOWUP = "DAYS_TO_LAST_FOLLOWUP";
-    public static final String DAYS_TO_DEATH = "DAYS_TO_DEATH";
-    public static final String NA = "NA";
-
     public static final int N_METADATA = 3; // number of rows of metadata
-
 
     public static void main(String[] args) throws Exception {
 
@@ -393,10 +388,10 @@ public class ClinicalDataConverterImpl implements Converter {
     public DataMatrix addOverAllSurvival(DataMatrix matrix) throws IOException {
 
         // check for whether the right data exists
-        if (matrix.getColumnData(DAYS_TO_LAST_FOLLOWUP).size() == 0
-                || matrix.getColumnData(DAYS_TO_DEATH).size() == 0) {
+        if (matrix.getColumnData(ClinicalAttributesMetadata.DAYS_TO_LAST_FOLLOWUP).size() == 0
+                || matrix.getColumnData(ClinicalAttributesMetadata.DAYS_TO_DEATH).size() == 0) {
             LOG.info("clinical matrix missing one or both colums: "
-                    + DAYS_TO_DEATH + "," + DAYS_TO_LAST_FOLLOWUP);
+                    + ClinicalAttributesMetadata.DAYS_TO_DEATH + "," + ClinicalAttributesMetadata.DAYS_TO_LAST_FOLLOWUP);
             return matrix;
         }
 
@@ -408,10 +403,10 @@ public class ClinicalDataConverterImpl implements Converter {
         }
 
         // grab the data
-        List<String> daysToLastFollowUp = matrix.getColumnData(DAYS_TO_LAST_FOLLOWUP).get(0);
+        List<String> daysToLastFollowUp = matrix.getColumnData(ClinicalAttributesMetadata.DAYS_TO_LAST_FOLLOWUP).get(0);
         daysToLastFollowUp = daysToLastFollowUp.subList(N_METADATA, daysToLastFollowUp.size());
 
-        List<String> daysToDeath = matrix.getColumnData(DAYS_TO_DEATH).get(0);
+        List<String> daysToDeath = matrix.getColumnData(ClinicalAttributesMetadata.DAYS_TO_DEATH).get(0);
         daysToDeath = daysToDeath.subList(N_METADATA, daysToDeath.size());
 
         ClinicalAttributesMetadata overAllSurvivalMetadata = overallSurvivalMetaDatas.iterator().next();
@@ -428,10 +423,10 @@ public class ClinicalDataConverterImpl implements Converter {
             String fUp = daysToLastFollowUp.get(i);
             String d = daysToDeath.get(i);
 
-            if (fUp.equals(NA) && d.equals(NA)) {
-                os = NA;
+            if (fUp.equals(ClinicalAttributesMetadata.NA) && d.equals(ClinicalAttributesMetadata.NA)) {
+                os = ClinicalAttributesMetadata.NA;
             } else {
-                os = fUp.equals(NA) ? d : fUp;
+                os = fUp.equals(ClinicalAttributesMetadata.NA) ? d : fUp;
             }
             overallSurvivals.add(os);
         }

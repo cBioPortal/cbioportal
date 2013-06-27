@@ -1,5 +1,4 @@
 var PlotsMenu = (function () {
-//yichao test text
     var content = {
             plots_type : {
                 "mrna_copyNo" : {

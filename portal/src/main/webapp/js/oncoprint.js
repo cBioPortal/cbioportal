@@ -267,7 +267,7 @@ var OncoprintUtils = (function() {
                 // calculate the proper colors for all other attributes
                 if (attr.datatype.toUpperCase() === "BOOLEAN") {
                     scale = d3.scale.ordinal()
-                        .range([colors.discrete, colors.black]);
+                        .range([colors.discrete, colors.white]);
                 }
 
                 else if (attr.datatype.toUpperCase() === "NUMBER") {

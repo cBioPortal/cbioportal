@@ -143,7 +143,8 @@
                     unaltered.attr('disabled', enable_disable);
                     select_clinical_attributes.prop('disabled', enable_disable).trigger("liszt:updated");
                     zoom.attr('disabled', enable_disable);
-                    sortBy.attr('disabled', enable_disable);
+                    sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
+                    //sortBy.attr('disabled', enable_disable);
                 };
 
                 // handler for when user selects a clinical attribute to visualization
@@ -202,6 +203,8 @@
                     $('#oncoprint_controls #sort_by').change(function() {
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
                     });
+
+                    //sortBy.chosen({disable_search: true});
                 });
             </script>
         </div>

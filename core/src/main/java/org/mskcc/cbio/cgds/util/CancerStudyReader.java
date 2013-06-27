@@ -52,11 +52,6 @@ public class CancerStudyReader {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
-      
-      if ( DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier) ) {
-         throw new IllegalArgumentException("cancer study identified by cancer_study_identifier "
-                  + cancerStudyIdentifier + " already in dbms.");
-      }
 
       String name = properties.getProperty("name");
       if (name == null) {
@@ -89,7 +84,7 @@ public class CancerStudyReader {
       cancerStudy.setPmid(pmid);
       cancerStudy.setCitation(citation);
       cancerStudy.setGroups(groups);
-      DaoCancerStudy.addCancerStudy(cancerStudy);
+      DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
       return cancerStudy;
    }
    

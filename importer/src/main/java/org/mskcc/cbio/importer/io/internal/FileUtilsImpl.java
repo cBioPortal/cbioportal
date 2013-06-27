@@ -403,7 +403,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
 			}
 			// if union, write out the cancer study metadata file
-			if (caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
+			if (overwrite && caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), processed all cases list, we can now update cancerStudyMetadata file()...");
 				}
@@ -470,6 +470,11 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
 							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
+								// check to filter out column headers other than sample ids
+								if (potentialCaseID.equals(Converter.GENE_ID_COLUMN_HEADER_NAME) ||
+									potentialCaseID.equals(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME)) {
+									continue;
+								}
 								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 							}
 						}

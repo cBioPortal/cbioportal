@@ -635,7 +635,7 @@ function outputClinicalData() {
         } else {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>";
             
-            var state = guessClinicalData(clinicalData, ["disease state","disease_state"]);
+            var state = guessClinicalData(clinicalData, ["tumor_type"]);
             if (state!==null) mapCaseColor[caseId] = getCaseColor(state);
 
             var stateInfo = formatStateInfo(clinicalData);
@@ -674,7 +674,7 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var state = guessClinicalData(clinicalData, ["disease state","disease_state"]);
+        var state = guessClinicalData(clinicalData, ["tumor_type"]);
         if (state!==null) {
             ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
 

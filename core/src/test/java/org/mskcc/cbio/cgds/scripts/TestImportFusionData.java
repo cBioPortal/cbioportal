@@ -64,7 +64,7 @@ public class TestImportFusionData extends TestCase
 			parser.importData();
 			MySQLbulkLoader.flushAll();
 
-			//checkImportedData();
+			checkImportedData();
 		}
 		catch (IOException e)
 		{

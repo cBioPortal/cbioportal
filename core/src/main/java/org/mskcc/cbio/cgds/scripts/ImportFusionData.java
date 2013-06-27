@@ -75,9 +75,9 @@ public class ImportFusionData
 
 		FusionFileUtil fusionUtil = new FusionFileUtil(line);
 
-		line = buf.readLine();
+		boolean addEvent = true;
 
-		while (line != null)
+		while ((line = buf.readLine()) != null)
 		{
 			if( pMonitor != null)
 			{
@@ -121,22 +121,26 @@ public class ImportFusionData
 				}
 				else
 				{
-					ExtendedMutation mutation = new ExtendedMutation();
+					// create a mutation instance with default values
+					ExtendedMutation mutation = ExtendedMutationUtil.newMutation();
 
 					mutation.setGeneticProfileId(geneticProfileId);
 					mutation.setCaseId(caseId);
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
-					// TODO set mutation type (and also aa change?)
-					record.getFusion();
 
-					// TODO do we need to deal with mutation event for fusions?
-					DaoMutation.addMutation(mutation, false);
+					// TODO this may not be safe...
+					mutation.setMutationType("Fusion");
+					mutation.setProteinChange(record.getFusion());
+
+					// add mutation (but add mutation event only once since it is a dummy event)
+					DaoMutation.addMutation(mutation, addEvent);
+					addEvent = false;
 				}
 			}
-
-			line = buf.readLine();
 		}
+
+		buf.close();
 
 		if( MySQLbulkLoader.isBulkLoad())
 		{

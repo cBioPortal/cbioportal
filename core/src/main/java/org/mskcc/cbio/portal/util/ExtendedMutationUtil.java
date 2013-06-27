@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
@@ -280,5 +281,76 @@ public class ExtendedMutationUtil
 		}
 
 		return result;
+	}
+
+	/**
+	 * Generates a new ExtendedMutation instance with default values.
+	 * The mutation instance returned by this method will not have
+	 * any field with a "null" value.
+	 *
+	 * @return  a mutation instance initialized by default values
+	 */
+	public static ExtendedMutation newMutation()
+	{
+		Integer defaultInt = TabDelimitedFileUtil.NA_INT;
+		String defaultStr = TabDelimitedFileUtil.NA_STRING;
+		Long defaultLong = TabDelimitedFileUtil.NA_LONG;
+		Float defaultFloat = TabDelimitedFileUtil.NA_FLOAT;
+		CanonicalGene defaultGene = new CanonicalGene("INVALID");
+
+		ExtendedMutation mutation = new ExtendedMutation();
+
+		mutation.setMutationEventId(-1L); // default dummy event id
+		mutation.setGeneticProfileId(defaultInt);
+		mutation.setCaseId(defaultStr);
+		mutation.setGene(defaultGene);
+		mutation.setSequencingCenter(defaultStr);
+		mutation.setSequencer(defaultStr);
+		mutation.setProteinChange(defaultStr);
+		mutation.setMutationType(defaultStr);
+		mutation.setChr(defaultStr);
+		mutation.setStartPosition(defaultLong);
+		mutation.setEndPosition(defaultLong);
+		mutation.setValidationStatus(defaultStr);
+		mutation.setMutationStatus(defaultStr);
+		mutation.setFunctionalImpactScore(defaultStr);
+		mutation.setFisValue(defaultFloat);
+		mutation.setLinkXVar(defaultStr);
+		mutation.setLinkPdb(defaultStr);
+		mutation.setLinkMsa(defaultStr);
+		mutation.setNcbiBuild(defaultStr);
+		mutation.setStrand(defaultStr);
+		mutation.setVariantType(defaultStr);
+		mutation.setAllele(defaultStr, defaultStr, defaultStr);
+		mutation.setDbSnpRs(defaultStr);
+		mutation.setDbSnpValStatus(defaultStr);
+		mutation.setMatchedNormSampleBarcode(defaultStr);
+		mutation.setMatchNormSeqAllele1(defaultStr);
+		mutation.setMatchNormSeqAllele2(defaultStr);
+		mutation.setTumorValidationAllele1(defaultStr);
+		mutation.setTumorValidationAllele2(defaultStr);
+		mutation.setMatchNormValidationAllele1(defaultStr);
+		mutation.setMatchNormValidationAllele2(defaultStr);
+		mutation.setVerificationStatus(defaultStr);
+		mutation.setSequencingPhase(defaultStr);
+		mutation.setSequenceSource(defaultStr);
+		mutation.setValidationMethod(defaultStr);
+		mutation.setScore(defaultStr);
+		mutation.setBamFile(defaultStr);
+		mutation.setTumorAltCount(defaultInt);
+		mutation.setTumorRefCount(defaultInt);
+		mutation.setNormalAltCount(defaultInt);
+		mutation.setNormalRefCount(defaultInt);
+		mutation.setOncotatorCosmicOverlapping(defaultStr);
+		mutation.setOncotatorDbSnpRs(defaultStr);
+		mutation.setOncotatorCodonChange(defaultStr);
+		mutation.setOncotatorRefseqMrnaId(defaultStr);
+		mutation.setOncotatorUniprotName(defaultStr);
+		mutation.setOncotatorUniprotAccession(defaultStr);
+		mutation.setOncotatorProteinPosStart(defaultInt);
+		mutation.setOncotatorProteinPosEnd(defaultInt);
+		mutation.setCanonicalTranscript(true);
+
+		return mutation;
 	}
 }

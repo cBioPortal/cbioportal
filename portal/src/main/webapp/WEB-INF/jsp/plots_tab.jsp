@@ -164,7 +164,7 @@
 
                                     <h5>x Axis</h5>
                                     Gene<br>
-                                    <select id='custom_gene1'></select><br>
+                                    <select id='custom_geneX' onchange="PlotsCustomView.init()"></select><br>
                                     Plots Type<br>
                                     <select id='custom_plots_type_x' onchange='PlotsCustomMenu.update()'></select><br>
                                     Platform<br>
@@ -173,11 +173,16 @@
                                     <br>
                                     <h5>y Axis</h5>
                                     Gene<br>
-                                    <select id='custom_gene2'></select><br>
+                                    <select id='custom_geneY' onchange="PlotsCustomView.init()"></select><br>
                                     Plots Type<br>
                                     <select id='custom_plots_type_y' onchange='PlotsCustomMenu.update()'></select><br>
                                     Platform<br>
                                     <div id='custom_platform_select_div_y'></div>
+
+                                    <br><label for="show_mutation_custom_view">Show Mutation Data</label>
+                                    <input type="checkbox" name="show_mutation_custom_view" id="show_mutation_custom_view"
+                                           value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
+
 
                                 </td>
                             </tr>
@@ -185,6 +190,7 @@
                         </table>
                     </td>
                     <td>
+                        <b><div id='custom_view_title' style="display:inline-block;padding-left:100px;"></div></b>
                         <div id="plots_box_custom"></div>
                     </td>
                 </tr>
@@ -230,6 +236,25 @@
     }
     function loadSVGforSVGTwoGenes() {
         var mySVG = document.getElementById("plots_box_two_genes");
+        var svgDoc = mySVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        return xmlString;
+    }
+
+    // Takes whatever is in the element #plots_box
+    // and returns XML serialized *string*
+    function loadSVGforPDFCustom() {
+        var mySVG = document.getElementById("plots_box_custom");
+        var svgDoc = mySVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+        return xmlString;
+    }
+    function loadSVGforSVGCustom() {
+        var mySVG = document.getElementById("plots_box_custom");
         var svgDoc = mySVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);

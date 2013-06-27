@@ -122,13 +122,13 @@ var PlotsTwoGenesView = (function(){
         },
         style = {
             geneX_mut : {
-                fill : "#04B486",
-                stroke : "#088A68",
+                fill : "#31B404",
+                stroke : "#298A08",
                 text : "GeneX Mutated"
             },
             geneY_mut : {
-                fill : "#FF8000",
-                stroke : "#DF7401",
+                fill : "#2E64FE",
+                stroke : "#013ADF",
                 text : "GeneY Mutated"
             },
             both_mut : {
@@ -137,8 +137,8 @@ var PlotsTwoGenesView = (function(){
                 text : "Both Mutated"
             },
             non_mut : {
-                fill : "#58ACFA",
-                stroke : "#0080FF",
+                fill : "#585858",
+                stroke : "#2E2E2E",
                 text : "Non Mutated"
             }
         };
@@ -374,7 +374,7 @@ var PlotsTwoGenesView = (function(){
                         }
                     }
                 } else {
-                    return "#585858";
+                    return style.non_mut.fill;
                 }
             })
             .attr("stroke", function(d) {
@@ -394,7 +394,7 @@ var PlotsTwoGenesView = (function(){
                         }
                     }
                 } else {
-                    return "#2E2E2E";
+                    return style.non_mut.stroke;
                 }
             })
             .attr("stroke-width", function(d) {
@@ -435,11 +435,13 @@ var PlotsTwoGenesView = (function(){
                 .style("text-anchor", "front")
                 .text(function(d) {
                     if (d.text.indexOf("GeneX") !== -1) {
-                        d.text = d.text.replace("GeneX", menu.geneX);
+                        var tmp_legend = d.text.replace("GeneX", menu.geneX);
                     } else if (d.text.indexOf("GeneY") !== -1) {
-                        d.text = d.text.replace("GeneY", menu.geneY);
+                        var tmp_legend = d.text.replace("GeneY", menu.geneY);
+                    } else {
+                        var tmp_legend = d.text;
                     }
-                    return d.text;
+                    return tmp_legend;
                 });
         } else {
             var legend = elem.svg.selectAll("g.legend").remove();
@@ -520,6 +522,7 @@ var PlotsTwoGenesView = (function(){
     function updateMutationDisplay() {
         drawPlots();
         drawLegends();
+        addQtips();
     }
 
     function generatePlots() {

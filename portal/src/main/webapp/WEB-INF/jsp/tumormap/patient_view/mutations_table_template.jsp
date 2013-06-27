@@ -23,6 +23,6 @@
                         <th class="mut-header" alt="Functional Impact Score predicted by MutationAssessor (missense mutations only)"><b>FIS</b></th>
                         <th class="mut-header" alt="Sequence conservation"><b>Cons</b></th>
                         <th class="mut-header" alt="Protein 3D Structure"><b>3D</b></th>
-                        <th class="mut-header" alt="Potential Drugs"><img src='images/drug.png' width=12 height=12></th>
+                        <th class="mut-header" alt="Potential Drugs"><b>Drugs</b></th>
                     </tr>
                 </thead>

@@ -89,6 +89,16 @@ public final class DaoCancerStudy {
      * @throws DaoException Database Error.
      */
     public static void addCancerStudy(CancerStudy cancerStudy) throws DaoException {
+        addCancerStudy(cancerStudy, false);
+    }
+    
+    /**
+     * Adds a cancer study to the Database.
+     * @param cancerStudy
+     * @param overwrite if true, overwrite if exist.
+     * @throws DaoException 
+     */
+    public static void addCancerStudy(CancerStudy cancerStudy, boolean overwrite) throws DaoException {
 
         // make sure that cancerStudy refers to a valid TypeOfCancerId
         // TODO: have a foreign key constraint do this; why not?
@@ -99,57 +109,53 @@ public final class DaoCancerStudy {
                     + cancerStudy.getTypeOfCancerId()
                     + "' does not refer to a TypeOfCancer.");
         }
+        
+        // CANCER_STUDY_IDENTIFIER cannot be null
+        String stableId = cancerStudy.getCancerStudyStableId();
+        if (stableId == null) {
+            throw new DaoException("Cancer study stable ID cannot be null.");
+        }
+        
+        CancerStudy existing = getCancerStudyByStableId(stableId);
+        if (existing!=null) {
+            if (overwrite) {
+                System.out.println("Overwrite cancer study " + stableId);
+                deleteCancerStudy(existing.getInternalId());
+            } else {
+                throw new DaoException("Cancer study " + stableId + "is already imported.");
+            }
+        }
 
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            // CANCER_STUDY_IDENTIFIER may be null
-            if (cancerStudy.getCancerStudyStableId() != null) {
-                pstmt = con.prepareStatement("INSERT INTO cancer_study " +
-                        "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
-                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                        + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
-                pstmt.setString(1, cancerStudy.getCancerStudyStableId());
-                pstmt.setString(2, cancerStudy.getName());
-                pstmt.setString(3, cancerStudy.getDescription());
-                pstmt.setBoolean(4, cancerStudy.isPublicStudy());
-                pstmt.setString(5, cancerStudy.getTypeOfCancerId());
-                pstmt.setString(6, cancerStudy.getPmid());
-                pstmt.setString(7, cancerStudy.getCitation());
-                Set<String> groups = cancerStudy.getGroups();
-                if (groups==null) {
-                    pstmt.setString(8, null);
-                } else {
-                    pstmt.setString(8, StringUtils.join(groups, ";"));
-                }
+            pstmt = con.prepareStatement("INSERT INTO cancer_study " +
+                    "( `CANCER_STUDY_IDENTIFIER`, `NAME`, "
+                    + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
+                    + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?,?)",
+                    Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, stableId);
+            pstmt.setString(2, cancerStudy.getName());
+            pstmt.setString(3, cancerStudy.getDescription());
+            pstmt.setBoolean(4, cancerStudy.isPublicStudy());
+            pstmt.setString(5, cancerStudy.getTypeOfCancerId());
+            pstmt.setString(6, cancerStudy.getPmid());
+            pstmt.setString(7, cancerStudy.getCitation());
+            Set<String> groups = cancerStudy.getGroups();
+            if (groups==null) {
+                pstmt.setString(8, null);
             } else {
-                pstmt = con.prepareStatement("INSERT INTO cancer_study ( `NAME`, "
-                        + "`DESCRIPTION`, `PUBLIC`, `TYPE_OF_CANCER_ID`, "
-                        + "`PMID`, `CITATION`, `GROUPS` ) VALUES (?,?,?,?,?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
-                pstmt.setString(1, cancerStudy.getName());
-                pstmt.setString(2, cancerStudy.getDescription());
-                pstmt.setBoolean(3, cancerStudy.isPublicStudy());
-                pstmt.setString(4, cancerStudy.getTypeOfCancerId());
-                pstmt.setString(5, cancerStudy.getPmid());
-                pstmt.setString(6, cancerStudy.getCitation());
-                Set<String> groups = cancerStudy.getGroups();
-                if (groups==null) {
-                    pstmt.setString(7, null);
-                } else {
-                    pstmt.setString(7, StringUtils.join(groups, ";"));
-                }
+                pstmt.setString(8, StringUtils.join(groups, ";"));
             }
+            
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 int autoId = rs.getInt(1);
                 cancerStudy.setInternalId(autoId);
             }
-
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -244,15 +250,40 @@ public final class DaoCancerStudy {
      * @param internalCancerStudyId Internal Cancer Study ID.
      * @throws DaoException Database Error.
      */
-    public static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
+    static void deleteCancerStudy(int internalCancerStudyId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCancerStudy.class);
-            pstmt = con.prepareStatement("DELETE from " + "cancer_study WHERE CANCER_STUDY_ID=?");
-            pstmt.setInt(1, internalCancerStudyId);
-            pstmt.executeUpdate();
+            
+            // this is a hacky way to delete all associated data with on cancer study.
+            // ideally database dependency should be modeled with option of delete on cascade.
+            // remember to update this code if new tables are added or existing tables are changed.
+            String[] sqls = {
+                "delete from case_cna_event where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from genetic_alteration where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from genetic_profile_cases where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from case_profile where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
+                "delete from case_list_list where LIST_ID IN (select LIST_ID from case_list where CANCER_STUDY_ID=?);",
+                "delete from clinical where CANCER_STUDY_ID=?;",
+                "delete from clinical_free_form where CANCER_STUDY_ID=?;",
+                "delete from copy_number_seg where CANCER_STUDY_ID=?;",
+                "delete from case_list where CANCER_STUDY_ID=?;",
+                "delete from genetic_profile where CANCER_STUDY_ID=?;",
+                "delete from gistic_to_gene where GISTIC_ROI_ID IN (select GISTIC_ROI_ID from gistic where CANCER_STUDY_ID=?);",
+                "delete from gistic where CANCER_STUDY_ID=?;",
+                "delete from mut_sig where CANCER_STUDY_ID=?;",
+                "delete from protein_array_data where CANCER_STUDY_ID=?;",
+                "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
+                "delete from cancer_study where CANCER_STUDY_ID=?;"
+                };
+            for (String sql : sqls) {    
+                pstmt = con.prepareStatement(sql);
+                pstmt.setInt(1, internalCancerStudyId);
+                pstmt.executeUpdate();
+            }
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -277,4 +308,5 @@ public final class DaoCancerStudy {
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;
     }
+    
 }

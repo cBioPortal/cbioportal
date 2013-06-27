@@ -130,12 +130,14 @@ function loadMetaData() {
             //  Add Meta Data to current page
             addMetaDataToPage();
             showNewContent();
+
+            RightMenuStudyStatsUtil.plotTree(json);
         });
     }
 
     function showNewContent() {
         //show content, hide loader only after content is shown
-        $('#main_query_form').fadeIn('fast',hideLoader());
+        $('#main_query_form').fadeIn('fast', hideLoader);
     }
     function hideLoader() {
         //hide loader image
@@ -343,6 +345,7 @@ function updateDefaultCaseList() {
     }
     
     $('#select_case_set').val(defaultCaseList);
+    updateCaseListSmart();
 }
 
 //  Print message and disable submit if use choosed a cancer type
@@ -394,6 +397,24 @@ function toggleByCancerStudy(cancer_study) {
     } else {
         gistic.hide();
     }
+}
+
+function updateCaseListSmart() {
+    $("#select_case_set").trigger("liszt:updated");
+    $("#select_case_set_chzn .chzn-drop ul.chzn-results li")
+        .each(function(i, e) {
+            $(e).qtip({
+                content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
+                style: {
+                    classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'
+                },
+                position: {
+                    my: 'left middle',
+                    at: 'middle right'
+                }
+            });
+        }
+    );
 }
 
 //  Triggered when a cancer study has been selected, either by the user
@@ -473,6 +494,7 @@ function cancerStudySelected() {
     //  Add the user-defined case list option
     $("#select_case_set").append("<option class='case_set_option' value='-1' "
         + "title='Specify you own case list'>User-defined Case List</option>");
+    updateCaseListSmart();
 
     //  Set up Tip-Tip Event Handler for Case Set Pull-Down Menu
     //  commented out for now, as this did not work in Chrome or Safari
@@ -587,18 +609,24 @@ function addMetaDataToPage() {
     json = window.metaDataJson;
 
     var cancerTypeContainer = $("#select_cancer_type");
-    var hasMutationHeader = $("<option value='' disabled='disabled'>-- studies with mutation data --</option>")
-                            .appendTo(cancerTypeContainer);
-    var hasMutationHeaderRemove = hasMutationHeader;
-    var noMutationHeader = $("<option value='' disabled='disabled'>-- studies without mutation data --</option>")
-                            .appendTo(cancerTypeContainer);
-    var noMutationHeaderRemove = noMutationHeader;
 
-    var noMutCancerCounter = 0;
+    // First create the groups and sort'em
+    var orderedTypes = [];
+    jQuery.each(json.type_of_cancers, function(key, typeStr) {
+        orderedTypes.push({ key: key, name: typeStr });
+    });
 
-    //  Iterate through all cancer studies
+    orderedTypes.sort(function(a, b) {
+        return a.name.localeCompare(b.name);
+    });
+    // Then add them in alphanumeric order
+    for(var j=0; j < orderedTypes.length; j ++) {
+        $("<optgroup id='"+ orderedTypes[j].key + "-study-group' label='" + orderedTypes[j].name + "'></optgroup>")
+            .appendTo(cancerTypeContainer);
+    }
+
+    //  Then iterate through all cancer studies and append each to the corresponding group
     jQuery.each(json.cancer_studies,function(key,cancer_study){
-
         //  Append to Cancer Study Pull-Down Menu
         var addCancerStudy = true;
 
@@ -612,23 +640,10 @@ function addMetaDataToPage() {
             if(key == "all") {
                 cancerTypeContainer.prepend(newOption);
             } else {
-                if(cancer_study.has_mutation_data) {
-                    hasMutationHeader.after(newOption);
-                    hasMutationHeader = newOption;
-                } else {
-                    noMutationHeader.after(newOption);
-                    noMutationHeader = newOption;
-                    noMutCancerCounter += 1;
-                }
+                $("#" + cancer_study.type_of_cancer + "-study-group").append(newOption);
             }
         }
-
     });  //  end 1st for each cancer study loop
-
-    // hasMutationHeaderRemove.remove(); // Comment out this if you want to keep the mutation header
-    if(noMutCancerCounter == 0) {
-        noMutationHeaderRemove.remove();
-    }
 
     //  Add Gene Sets to Pull-down Menu
     jQuery.each(json.gene_sets,function(key,gene_set){
@@ -683,6 +698,12 @@ function addMetaDataToPage() {
     // to make sure all of the fields are shown/hidden as appropriate
     console.log("addMetaDataToPage ( reviewCurrentSelections() )");
     reviewCurrentSelections();
+
+    // Chosenize the select boxes
+    var minSearchableItems = 10;
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems });
+    $("#select_gene_set").chosen({ width: '620px'});
+    $("#select_case_set").chosen({ width: '100%', disable_search_threshold: minSearchableItems });
 }
 
 // Adds the specified genomic profiles to the page.

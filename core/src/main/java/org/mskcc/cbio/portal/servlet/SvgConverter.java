@@ -137,16 +137,21 @@ public class SvgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToPDF(HttpServletResponse response, String xml) throws ServletException, IOException {
+    private void convertToPDF(HttpServletResponse response, String svgContent) throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
-            InputStream is = new ByteArrayInputStream(xml.getBytes());
+            String docRoot = "<?xml version='1.0' encoding='utf-8'?>";
+            String docRoot2 = "<svg version='1.1' width='700px' height='600px' xml:space='preserve'>";
+            svgContent = docRoot + docRoot2 + svgContent + "</svg>";
+	    svgContent = svgContent.replaceAll("<text y=\"9\" x=\"0\" dy=\".71em\"", "<text y=\"19\" x=\"0\" dy=\".71em\"");
+	    svgContent = svgContent.replaceAll("<text x=\"-9\" y=\"0\" dy=\".32em\"", "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+            InputStream is = new ByteArrayInputStream(svgContent.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);
             Transcoder transcoder = new PDFTranscoder();
             transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
             response.setContentType("application/pdf");
-            response.setHeader("content-disposition", "inline; filename='plots.pdf'");
+            response.setHeader("content-disposition", "inline; filename=plots.pdf");
             transcoder.transcode(input, output);
         } catch (Exception e) {
             System.err.println(e.toString());
@@ -172,7 +177,7 @@ public class SvgConverter extends HttpServlet {
             transcoder.addTranscodingHint( PNGTranscoder.KEY_WIDTH, new Float(1500));
             transcoder.addTranscodingHint( PNGTranscoder.KEY_HEIGHT, new Float(1500));
             response.setContentType("application/png");
-            response.setHeader("content-disposition", "inline; filename='plots.png'");
+            response.setHeader("content-disposition", "inline; filename=plots.png");
             transcoder.transcode(input, output);
         } catch (Exception e) {
             System.err.println(e.toString());

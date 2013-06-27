@@ -1,3 +1,30 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 var mutations = [],
     mutations_id = [],
     copy_no = [],
@@ -178,6 +205,13 @@ FetchPlotsDataUtil.prototype.fetchFrameData = function() {
         }
     });
 };
+
+function arraymove(arr, fromIndex, toIndex) {
+    element = arr[fromIndex];
+    arr.splice(fromIndex, 1);
+    arr.splice(toIndex, 0, element);
+}
+
 FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     var result_set = new Array(5);
     for ( var i = 0 ; i< result_set.length; i++) {
@@ -187,12 +221,21 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     PlotsData.setGene(document.getElementById("genes").value);
     plotsConfig.copy_no_type = document.getElementById("data_type_copy_no").value;
     plotsConfig.mrna_type = document.getElementById("data_type_mrna").value;
-    plotsConfig.mutations_type = genetic_profile_mutations[0][0];
+
+    //plotsConfig.mutations_type = genetic_profile_mutations[0][0];
+    plotsConfig.mutations_type = cancer_study_id + "_mutations";
     plotsConfig.rppa_type = document.getElementById("data_type_rppa").value;
     plotsConfig.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
 
     //Calling web APIs
-    var url_base = "webservice.do?cmd=getProfileData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    var url_base = "";
+    if (case_set_id === "-1") {
+        url_base = "webservice.do?cmd=getProfileData&case_ids_key=" +
+            case_ids_key + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    } else {
+        url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
+            case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=";
+    }
     var types = [
         plotsConfig.mutations_type, //mutations
         plotsConfig.copy_no_type, //copy no
@@ -201,36 +244,34 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
         plotsConfig.dna_methylation_type //dna methylation
     ];
     for (var i = 0; i < types.length; i++) {
-        if (types[i]) {
-            $.ajax({
-                url: url_base + types[i],
-                type: 'get',
-                dataType: 'text',
-                async: false,
-                success: function (data) {
-                    if (data != "") {
-                        if (data.indexOf("No genetic profile available") == -1) {  //Profile Exists
-                            tmp_sections = data.split(/\n/);
-                            //Get Case Set
-                            tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
-                            for (var j = 0; j < tmp_case_set.length - 2; j++) {
-                                PlotsData.setSingleCase(tmp_case_set[j+2], j);
-                            }
-                            //Get profile data (Filter the headers)
-                            var profile_data = [];
-                            var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
-                            for (var profileDataIndex = 0; profileDataIndex < tmp_profile_data.length; profileDataIndex++) {
-                                profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
-                            }
-                            //Fill in Result Data Set
-                            PlotsUtil.copyData(result_set[i], profile_data);
+        $.ajax({
+            url: url_base + types[i],
+            type: 'get',
+            dataType: 'text',
+            async: false,
+            success: function (data) {
+                if (data != "") {
+                    if (data.indexOf("No genetic profile available") == -1) {  //Profile Exists
+                        tmp_sections = data.split(/\n/);
+                        //Get Case Set
+                        tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
+                        for (var j = 0; j < tmp_case_set.length - 2; j++) {
+                            PlotsData.setSingleCase(tmp_case_set[j+2], j);
                         }
-                    } else {
-                        alert("ERROR Fetching Data.");
+                        //Get profile data (Filter the headers)
+                        var profile_data = [];
+                        var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
+                        for (var profileDataIndex = 0; profileDataIndex < tmp_profile_data.length; profileDataIndex++) {
+                            profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
+                        }
+                        //Fill in Result Data Set
+                        PlotsUtil.copyData(result_set[i], profile_data);
                     }
+                } else {
+                    alert("ERROR Fetching Data.");
                 }
-            });
-        }
+            }
+        });
     }
 
     //Distributing Data
@@ -251,8 +292,18 @@ FetchPlotsDataUtil.prototype.fetchPlotsData = function() {
     for (var i = 0; i < PlotsData.getCaseSetLength(); i++) {
         mutationMap[PlotsData.getSingleCase(i)] = "non";
     }
+    var url = "";
+    if (case_set_id === "-1") {
+        url = "webservice.do?cmd=getMutationData&case_ids_key=" +
+            case_ids_key + "&gene_list=" + PlotsData.getGene() +
+            "&genetic_profile_id=" + cancer_study_id + "_mutations";
+    } else {
+        url = "webservice.do?cmd=getMutationData&case_set_id=" +
+            case_set_id + "&gene_list=" + PlotsData.getGene() +
+            "&genetic_profile_id=" + cancer_study_id + "_mutations";
+    }
     $.ajax({
-        url: "webservice.do?cmd=getMutationData&case_set_id=" + case_set_id + "&gene_list=" + PlotsData.getGene() + "&genetic_profile_id=" + cancer_study_id + "_mutations",
+        url: url,
         type: 'get',
         dataType: 'text',
         async: false,
@@ -447,6 +498,7 @@ function analyseData(xData, yData){
     };
 }
 function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
+    var posCount = min_x;
     if (isDiscretized(type)) {
         for (var i = min_x ; i < max_x + 1; i++) {
             var top;
@@ -458,7 +510,6 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
             var scaled_y_arr=[];
             var tmp_y_arr = [];
             //Find the middle line for one box plot
-            var midLine = xScale(i);
             //Find the max/min y value with certain x value;
             var index_tmp_y_data_array = 0;
             for (var j = 0; j < yData.length; j++) {
@@ -471,6 +522,8 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
             if (tmp_y_arr.length == 0) {
                 //TODO: error handle (empty dataset)
             } else if (tmp_y_arr.length == 1) {
+                var midLine = xScale(posCount);
+                posCount = posCount + 1;
                 mean = yScale(tmp_y_arr[0]);
                 svg.append("line")
                     .attr("x1", midLine-30)
@@ -480,6 +533,8 @@ function addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale){
                     .attr("stroke-width", 1)
                     .attr("stroke", "grey");
             } else {
+                var midLine = xScale(posCount);
+                posCount = posCount + 1;
                 if (tmp_y_arr.length == 2) {
                     mean = yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
                     quan1 = bottom = yScale(tmp_y_arr[0]);
@@ -527,24 +582,17 @@ function isDiscretized(type) {
         plotsConfig.copy_no_type.indexOf("log2") == -1 &&
         (plotsConfig.copy_no_type.indexOf("gistic") != -1 || plotsConfig.copy_no_type.indexOf("cna") != -1 || plotsConfig.copy_no_type.indexOf("CNA") != -1));
 }
-function addAxisText(svg, type, xAxis, yAxis, min_x, max_x){
+function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
     if (isDiscretized(type)) {
-        var textSet = ["Homdel", "Hetloss", "Diploid", "Gain", "Amp"];
-        var ticksTextSet = [];
-        var tmp_ticks_text_index = 0;
-        for (var i = min_x + 2; i < max_x + 3; i++) {
-            ticksTextSet[tmp_ticks_text_index] = textSet[i];
-            tmp_ticks_text_index += 1;
-        }
         svg.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
-            .call(xAxis.ticks(ticksTextSet.length))
+            .call(xAxis.ticks(textSet.length))
             .selectAll("text")
-            .data(ticksTextSet)
+            .data(textSet)
             .style("font-family", "sans-serif")
             .style("font-size", "11px")
             .style("stroke-width", 0.5)
@@ -665,7 +713,72 @@ function drawSideBar() {
     for ( j = 0; j < genetic_profile_rppa.length; j++ ) {
         $('#data_type_rppa').append("<option value='" + genetic_profile_rppa[j][0] + "'>" + genetic_profile_rppa[j][1] + "</option>");
     }
-    //Init w/ user selected data types
+
+    //Set Default mRNA settings: user selection, RNA Seq V2 (w/o z-scores), RNA Seq(w/o zscores), Z-scores
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("z-scores")){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+            this.text.toLowerCase().indexOf("z-scores") === -1){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+            this.text.toLowerCase().indexOf("z-scores") === -1){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    var userSelectedMrnaProfile = "";
+    $.each(geneticProfiles.split(/\s+/), function(index, value){
+        if (value.indexOf("mrna") !== -1) {
+            userSelectedMrnaProfile = value;
+            return false;
+        }
+    });
+    $("#data_type_mrna > option").each(function() {
+        if (this.value === userSelectedMrnaProfile){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    //Set default copy no settings: user selection, discretized(gistic, rae), continuous
+    $("#data_type_copy_no > option").each(function() {
+        if (this.text.toLowerCase().indexOf("(rae)") !== -1) {
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+    $("#data_type_copy_no > option").each(function() {
+        if (this.text.toLowerCase().indexOf("gistic") !== -1) {
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
+    var userSelectedCopyNoProfile = "";
+    $.each(geneticProfiles.split(/\s+/), function(index, value){
+        if (value.indexOf("cna") !== -1 || value.indexOf("log2") !== -1 ||
+            value.indexOf("CNA")!== -1 || value.indexOf("gistic") !== -1) {
+            userSelectedCopyNoProfile = value;
+            return false;
+        }
+    });
+    $("#data_type_copy_no > option").each(function() {
+        if (this.value === userSelectedMrnaProfile){
+            $(this).prop('selected', true);
+            return false;
+        }
+    });
+
 }
 
 
@@ -768,8 +881,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
         .scale(yScale)
         .orient("left");
 
-    addAxisText(svg, type, xAxis, yAxis, min_x, max_x);
-    addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale);
 
     //Create SVG dots
     var symbol = ["triangle-down", "diamond", "triangle-up", "square", "cross", "triangle-up", "circle"];
@@ -804,50 +915,148 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     });
     dataset = tmp_dataset;
 
+
+
     //----------------- Plot dots for Putative Copy No VS. mRNA view (with data noise)
-    var dotsGroup = svg.append("svg:g");
+    var textSet = [];
     if ( type == plotsConfig.plotsType.COPY_NUMBER ) {
+
         //Define noise level
-        var ramRatio = 0;
         if (isDiscretized(type)) {
-            ramRatio = 20;
-        }
-        dotsGroup.selectAll("path")
-            .data(dataset)
-            .enter()
-            .append("svg:path")
-            .attr("transform", function(d) { return "translate(" + (xScale(d[0]) + ((Math.random() * (ramRatio)) - (ramRatio/2))) + ", " + yScale(d[1]) + ")";})
-            .attr("d", d3.svg.symbol()
-                .size( function(d) {
-                    switch (d[2]) {
-                        case "non" : return 15;
-                        default : return 25;
-                    }
-                })
-                .type( function (d) {
+            var ramRatio = 20;
+
+            //Strictly order by gistic val : min -> max
+            //TODO: improve
+            var subDataSet = {
+                Homdel : [],
+                Hetloss : [],
+                Diploid : [],
+                Gain : [],
+                Amp : []
+            };
+
+            for (var i = 0; i < dataset.length; i++) {
+                var gisticVal = dataset[i][0];
+                if (gisticVal === "-2") {
+                    subDataSet.Homdel.push(dataset[i]);
+                } else if (gisticVal === "-1") {
+                    subDataSet.Hetloss.push(dataset[i]);
+                } else if (gisticVal === "0") {
+                    subDataSet.Diploid.push(dataset[i]);
+                } else if (gisticVal === "1") {
+                    subDataSet.Gain.push(dataset[i]);
+                } else if (gisticVal === "2") {
+                    subDataSet.Amp.push(dataset[i]);
+                }
+            }
+
+
+            var countSubDataSets = 0;
+            $.each(subDataSet, function(key, value) {
+                if (subDataSet[key].length !== 0) {
+                    countSubDataSets = countSubDataSets + 1;
+                    textSet.push(key);
+                }
+            });
+
+            //Redefine the axis
+            xScale = d3.scale.linear()
+                .domain([min_x - edge_x, (min_x + countSubDataSets - 1) + edge_x])
+                .range([100, 600]);
+            xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient("bottom")
+
+            addBoxPlots(svg, type, xData, yData, min_x, max_x, xScale, yScale);
+
+            var dotsGroup = svg.append("svg:g");
+            var posVal = min_x;
+            $.each(subDataSet, function(key, value) {
+                if (value.length !== 0) {
+                    var subDotsGrp = dotsGroup.append("svg:g");
+                    subDotsGrp.selectAll("path")
+                        .data(value)
+                        .enter()
+                        .append("svg:path")
+                        .attr("transform", function(d) { return "translate(" + (xScale(posVal) +
+                            ((Math.random() * (ramRatio)) - (ramRatio/2))) +
+                            ", " + yScale(d[1]) + ")";})
+                        .attr("d", d3.svg.symbol()
+                            .size( function(d) {
+                                switch (d[2]) {
+                                    case "non" : return 15;
+                                    default : return 25;
+                                }
+                            })
+                            .type( function (d) {
+                                for(var i = 0; i < mutationTypes.length; i++) {
+                                    if (d[2] == mutationTypes[i]) {
+                                        return symbol[i];
+                                    }
+                                }
+                                return "circle";
+                            })
+                        )
+                        .attr("fill", function(d) {
+                            for(var i = 0; i < mutationTypes.length; i++) {
+                                if (d[2] == mutationTypes[i]) {
+                                    return mutationFillTypes[i];
+                                }
+                            }
+                            return "#00AAF8";
+                        })
+                        .attr("stroke", function(d) {
+                            switch (d[2]) {
+                                case "non": return "#0089C6";
+                                default: return "#B40404";
+                            }
+                        })
+                        .attr("stroke-width", 1.2);
+
+                    posVal += 1;
+                }
+            });
+        } else {
+            var dotsGroup = svg.append("svg:g");
+            dotsGroup.selectAll("path")
+                .data(dataset)
+                .enter()
+                .append("svg:path")
+                .attr("transform", function(d) { return "translate(" + xScale(d[0]) +
+                      ", " + yScale(d[1]) + ")";})
+                .attr("d", d3.svg.symbol()
+                    .size( function(d) {
+                        switch (d[2]) {
+                            case "non" : return 15;
+                            default : return 25;
+                        }
+                    })
+                    .type( function (d) {
+                        for(var i = 0; i < mutationTypes.length; i++) {
+                            if (d[2] == mutationTypes[i]) {
+                                return symbol[i];
+                            }
+                        }
+                        return "circle";
+                    })
+                )
+                .attr("fill", function(d) {
                     for(var i = 0; i < mutationTypes.length; i++) {
                         if (d[2] == mutationTypes[i]) {
-                            return symbol[i];
+                            return mutationFillTypes[i];
                         }
                     }
-                    return "circle";
+                    return "#00AAF8";
                 })
-            )
-            .attr("fill", function(d) {
-                for(var i = 0; i < mutationTypes.length; i++) {
-                    if (d[2] == mutationTypes[i]) {
-                        return mutationFillTypes[i];
+                .attr("stroke", function(d) {
+                    switch (d[2]) {
+                        case "non": return "#0089C6";
+                        default: return "#B40404";
                     }
-                }
-                return "#00AAF8";
-            })
-            .attr("stroke", function(d) {
-                switch (d[2]) {
-                    case "non": return "#0089C6";
-                    default: return "#B40404";
-                }
-            })
-            .attr("stroke-width", 1.2);
+                })
+                .attr("stroke-width", 1.2);
+        }
+
 
         //Making Qtips
         dotsGroup.selectAll('path').each(function(d, i) {
@@ -864,7 +1073,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")";
+                            var formattedMutationTypes = d[5].replace(",", ", ");
+                            content = content + "Mutation: " + "<strong>" + formattedMutationTypes + "</strong>";
                         }
                         content = content + "</font>";
                         api.set('content.text', content);
@@ -879,6 +1089,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
 
         //--------------- Plot dots for other views
     } else {
+        var dotsGroup = svg.append("svg:g");
         dotsGroup.selectAll("path")
             .data(dataset)
             .enter()
@@ -916,14 +1127,14 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             })
             .attr("stroke-width", function(d) {
                 if (d[2] === "0") {
-			return "1";
-		} else {
-			switch(d[3]) {
-                            case "non" : return "1";
-                            default: return "1.5";
-                        }
-           	}
-	});
+                    return "1";
+                } else {
+                    switch(d[3]) {
+                        case "non" : return "1";
+                        default: return "1.2";
+                    }
+                }
+	        });
 
         dotsGroup.selectAll('path').each(function(d, i) {
             $(this).qtip({
@@ -940,7 +1151,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                         }
                         content += "Case ID: <strong><a href='tumormap.do?case_id=" + d[4] + "&cancer_study_id=" + cancer_study_id + "'>" + d[4] + '</a></strong><br>';
                         if (d[3] != 'non') {  //Mutation Annotation only for mutated plots
-                            content = content + "Mutation: " + "<strong>" + d[5] + "</strong> (" + d[3] + ")" + "<br>";
+                            var formattedMutationTypes = d[5].replace(",", ", ");
+                            content = content + "Mutation: " + "<strong>" + formattedMutationTypes + "</strong>" + "<br>";
                         }
                         if (d[2] != 0 && d[2] != "NaN") {
                             var tmp_index = parseInt(d[2], 10) + 2;
@@ -957,6 +1169,8 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             });
         });
     }
+
+    addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet);
 
     //Error Handling -- empty dataset
     var xHasData = false;

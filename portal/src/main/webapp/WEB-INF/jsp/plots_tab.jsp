@@ -10,13 +10,27 @@
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
     String case_set_id = (String)request.getParameter("case_set_id");
-    String[] gene_list = ((String)request.getParameter("gene_list")).split("\\s+");
+    //String[] gene_list = ((String)request.getParameter("gene_list")).split("\\s+");
+
+    //Interprete Onco Query Genelist for plots view
+    String[] plotsGeneList = new String[geneWithScoreList.size()];
+    for (int i = 0; i < geneWithScoreList.size(); i++)
+    {
+        GeneWithScore tmpSingleGene = geneWithScoreList.get(i);
+        String singleGene = tmpSingleGene.getGene();
+        plotsGeneList[i] = singleGene;
+    }
+    String[] gene_list = plotsGeneList;
 %>
 
 <!-- Global Variables -->
 <script>
     var cancer_study_id = "<%out.print(cancer_study_id);%>",
             case_set_id = "<%out.print(case_set_id);%>";
+        case_ids_key = "";
+    if (case_set_id === "-1") {
+        case_ids_key = "<%out.print(caseIdsKey);%>";
+    }
 </script>
 <script type="text/javascript" src="js/plots_tab.js"></script>
 

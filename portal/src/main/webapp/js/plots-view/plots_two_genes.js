@@ -476,13 +476,15 @@ var PlotsTwoGenesView = (function(){
         var titleText = elt.options[elt.selectedIndex].text;
         $('#two_genes_view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforPDFTwoGenes();\">" +
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'pdf');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='submit' value='PDF'></form>";
         $('#two_genes_view_title').append(pdfConverterForm);
 
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforSVGTwoGenes();\">" +
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'svg');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='submit' value='SVG'></form>";

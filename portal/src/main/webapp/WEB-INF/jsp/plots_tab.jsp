@@ -204,60 +204,21 @@
     $("#plots").tabs();
     window.onload = Plots.init();
 
-    // Takes whatever is in the element #plots_box
+    // Takes the content in the plots svg element
     // and returns XML serialized *string*
-    function loadSVGforPDF() {
-        var mySVG = document.getElementById("plots_box");
+    function loadSVG(eltId, format) {
+        var mySVG = document.getElementById(eltId);
         var svgDoc = mySVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
-        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
-        return xmlString;
-    }
-    function loadSVGforSVG() {
-        var mySVG = document.getElementById("plots_box");
-        var svgDoc = mySVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        return xmlString;
-    }
 
-    // Takes whatever is in the element #plots_box
-    // and returns XML serialized *string*
-    function loadSVGforPDFTwoGenes() {
-        var mySVG = document.getElementById("plots_box_two_genes");
-        var svgDoc = mySVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
-        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
-        return xmlString;
-    }
-    function loadSVGforSVGTwoGenes() {
-        var mySVG = document.getElementById("plots_box_two_genes");
-        var svgDoc = mySVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        return xmlString;
-    }
+        //Quick fix for "axis text move up in pdf" bug.
+        //TODO: Modify the Betik library instead.
+        if (format === "pdf") {
+            xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+            xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+        }
 
-    // Takes whatever is in the element #plots_box
-    // and returns XML serialized *string*
-    function loadSVGforPDFCustom() {
-        var mySVG = document.getElementById("plots_box_custom");
-        var svgDoc = mySVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
-        xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
-        return xmlString;
-    }
-    function loadSVGforSVGCustom() {
-        var mySVG = document.getElementById("plots_box_custom");
-        var svgDoc = mySVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
         return xmlString;
     }
 

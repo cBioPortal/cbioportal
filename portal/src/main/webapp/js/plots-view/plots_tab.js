@@ -667,12 +667,14 @@ var PlotsView = (function () {
         } else if (PlotsTypeIsRPPA()) {
             $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
         }
-        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforPDF();\">" +
+        var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box', 'pdf');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
-        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' onsubmit=\"this.elements['svgelement'].value=loadSVGforSVG();\">" +
+        var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box', 'svg');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='submit' value='SVG'></form>";

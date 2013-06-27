@@ -27,9 +27,20 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.maf.FusionFileUtil;
+import org.mskcc.cbio.maf.FusionRecord;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Imports a fusion file.
@@ -50,5 +61,86 @@ public class ImportFusionData
 		this.fusionFile = fusionFile;
 		this.geneticProfileId = geneticProfileId;
 		this.pMonitor = pMonitor;
+	}
+
+	public void importData() throws IOException, DaoException
+	{
+		FileReader reader = new FileReader(this.fusionFile);
+		BufferedReader buf = new BufferedReader(reader);
+		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+		//  The MAF File Changes fairly frequently, and we cannot use column index constants.
+		String line = buf.readLine();
+		line = line.trim();
+
+		FusionFileUtil fusionUtil = new FusionFileUtil(line);
+
+		line = buf.readLine();
+
+		while (line != null)
+		{
+			if( pMonitor != null)
+			{
+				pMonitor.incrementCurValue();
+				ConsoleUtil.showProgress(pMonitor);
+			}
+
+			if( !line.startsWith("#") && line.trim().length() > 0)
+			{
+				FusionRecord record = fusionUtil.parseRecord(line);
+
+				// process case id
+				String barCode = record.getTumorSampleID();
+				String caseId = ExtendedMutationUtil.getCaseId(barCode);
+
+				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
+				{
+					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
+				}
+
+				//  Assume we are dealing with Entrez Gene Ids (this is the best / most stable option)
+				String geneSymbol = record.getHugoGeneSymbol();
+				long entrezGeneId = record.getEntrezGeneId();
+				CanonicalGene gene = null;
+
+				if (entrezGeneId != TabDelimitedFileUtil.NA_LONG)
+				{
+					gene = daoGene.getGene(entrezGeneId);
+				}
+
+				if (gene == null) {
+					// If Entrez Gene ID Fails, try Symbol.
+					gene = daoGene.getNonAmbiguousGene(geneSymbol);
+				}
+
+				if(gene == null)
+				{
+					pMonitor.logWarning("Gene not found:  " + geneSymbol + " ["
+					                    + entrezGeneId + "]. Ignoring it "
+					                    + "and all fusion data associated with it!");
+				}
+				else
+				{
+					ExtendedMutation mutation = new ExtendedMutation();
+
+					mutation.setGeneticProfileId(geneticProfileId);
+					mutation.setCaseId(caseId);
+					mutation.setGene(gene);
+					mutation.setSequencingCenter(record.getCenter());
+					// TODO set mutation type (and also aa change?)
+					record.getFusion();
+
+					// TODO do we need to deal with mutation event for fusions?
+					DaoMutation.addMutation(mutation, false);
+				}
+			}
+
+			line = buf.readLine();
+		}
+
+		if( MySQLbulkLoader.isBulkLoad())
+		{
+			MySQLbulkLoader.flushAll();
+		}
 	}
 }

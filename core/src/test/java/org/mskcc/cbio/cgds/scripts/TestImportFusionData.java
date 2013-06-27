@@ -28,10 +28,17 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Test class to test functionality of ImportFusionData
@@ -42,9 +49,56 @@ public class TestImportFusionData extends TestCase
 {
 	public void testImportFusionData()
 	{
-		// TODO change this to use getResourceAsStream()
-		//File file = new File("target/test-classes/data_fusions.txt");
+		MySQLbulkLoader.bulkLoadOn();
 
-		ImportExtendedMutationData parser;
+		ProgressMonitor pMonitor = new ProgressMonitor();
+		pMonitor.setConsoleMode(false);
+
+		// TODO change this to use getResourceAsStream()
+		File file = new File("target/test-classes/data_fusions.txt");
+		ImportFusionData parser = new ImportFusionData(file, 1, pMonitor);
+
+		try
+		{
+			loadGenes();
+			parser.importData();
+			MySQLbulkLoader.flushAll();
+
+			//checkImportedData();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		catch (DaoException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private void checkImportedData() throws DaoException
+	{
+		ArrayList<ExtendedMutation> list = DaoMutation.getAllMutations();
+
+		assertEquals(2, list.size()); // all except "FAKE"
+
+		list = DaoMutation.getMutations(1, "TCGA-XX-A3XX");
+
+		assertEquals(1, list.size());
+		assertEquals("saturn", list.get(0).getSequencingCenter());
+		assertEquals("FGFR3", list.get(0).getGeneSymbol());
+		// TODO assert fusion...
+	}
+
+	private void loadGenes() throws DaoException
+	{
+		ResetDatabase.resetDatabase();
+		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
+
+		// genes for "data_fusions.txt"
+		daoGene.addGene(new CanonicalGene(2261L, "FGFR3"));
+		daoGene.addGene(new CanonicalGene(2064L, "ERBB2"));
+
+		MySQLbulkLoader.flushAll();
 	}
 }

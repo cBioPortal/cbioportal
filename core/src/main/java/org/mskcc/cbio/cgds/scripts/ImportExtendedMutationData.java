@@ -49,6 +49,7 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
 /**
  * Import an extended mutation file.
@@ -65,7 +66,6 @@ public class ImportExtendedMutationData{
 	private ProgressMonitor pMonitor;
 	private File mutationFile;
 	private int geneticProfileId;
-	private static final String NOT_AVAILABLE = "NA";
 	private MutationFilter myMutationFilter;
 	private static final List<String> validChrValues;
 	static {
@@ -164,22 +164,9 @@ public class ImportExtendedMutationData{
 				MafRecord record = mafUtil.parseRecord(line);
 
 				// process case id
-				// an example bar code looks like this:  TCGA-13-1479-01A-01W
 				String barCode = record.getTumorSampleID();
-				String barCodeParts[] = barCode.split("-");
+				String caseId = ExtendedMutationUtil.getCaseId(barCode);
 
-				String caseId = null;
-				try {
-					caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
-					// the following condition was prompted by case ids coming from 
-					// private cancer studies (like SKCM_BROAD) with case id's of
-					// the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
-					if (!barCode.startsWith("TCGA") && barCodeParts.length == 4) {
-						caseId += "-" + barCodeParts[3];
-					}
-				} catch( ArrayIndexOutOfBoundsException e) {
-					caseId = barCode;
-				}
 				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
 					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);
 				}
@@ -246,13 +233,13 @@ public class ImportExtendedMutationData{
 				// determine whether to use canonical or best effect transcript
 
 				// try canonical first
-				if (this.isAcceptableMutation(record.getOncotatorVariantClassification()))
+				if (ExtendedMutationUtil.isAcceptableMutation(record.getOncotatorVariantClassification()))
 				{
 					mutationType = record.getOncotatorVariantClassification();
 					bestEffectTranscript = false;
 				}
 				// if canonical is not acceptable (silent, etc.), try best effect
-				else if (this.isAcceptableMutation(record.getOncotatorVariantClassificationBestEffect()))
+				else if (ExtendedMutationUtil.isAcceptableMutation(record.getOncotatorVariantClassificationBestEffect()))
 				{
 					mutationType = record.getOncotatorVariantClassificationBestEffect();
 					bestEffectTranscript = true;
@@ -260,7 +247,7 @@ public class ImportExtendedMutationData{
 				// if best effect is not acceptable either, use the default value
 				else
 				{
-					mutationType = this.getMutationType(record);
+					mutationType = ExtendedMutationUtil.getMutationType(record);
 					bestEffectTranscript = false;
 				}
 
@@ -276,14 +263,14 @@ public class ImportExtendedMutationData{
 				if (bestEffectTranscript)
 				{
 
-					if (!isValidProteinChange(record.getOncotatorProteinChangeBestEffect()))
+					if (!ExtendedMutationUtil.isValidProteinChange(record.getOncotatorProteinChangeBestEffect()))
 					{
 						proteinChange = "MUTATED";
 					}
 					else
 					{
 						// remove starting "p." if any
-						proteinChange = this.normalizeProteinChange(
+						proteinChange = ExtendedMutationUtil.normalizeProteinChange(
 							record.getOncotatorProteinChangeBestEffect());
 					}
 
@@ -296,7 +283,7 @@ public class ImportExtendedMutationData{
 				}
 				else
 				{
-					proteinChange = getProteinChange(parts, record);
+					proteinChange = ExtendedMutationUtil.getProteinChange(parts, record);
 					codonChange = record.getOncotatorCodonChange();
 					refseqMrnaId = record.getOncotatorRefseqMrnaId();
 					uniprotName = record.getOncotatorUniprotName();
@@ -361,10 +348,10 @@ public class ImportExtendedMutationData{
 					mutation.setValidationMethod(record.getValidationMethod());
 					mutation.setScore(record.getScore());
 					mutation.setBamFile(record.getBamFile());
-                    mutation.setTumorAltCount(getTumorAltCount(record));
-                    mutation.setTumorRefCount(getTumorRefCount(record));
-					mutation.setNormalAltCount(getNormalAltCount(record));
-					mutation.setNormalRefCount(getNormalRefCount(record));
+                    mutation.setTumorAltCount(ExtendedMutationUtil.getTumorAltCount(record));
+                    mutation.setTumorRefCount(ExtendedMutationUtil.getTumorRefCount(record));
+					mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
+					mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
 					mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 					mutation.setOncotatorCodonChange(codonChange);
@@ -424,8 +411,8 @@ public class ImportExtendedMutationData{
 		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 
 	}
-        
-        /**
+
+	/**
          * merge the current mutation
          * @return 
          */
@@ -479,185 +466,11 @@ public class ImportExtendedMutationData{
 		} else if( omaScore.equalsIgnoreCase("N") || omaScore.equalsIgnoreCase("neutral")) {
 			return "N";
 		} else if( omaScore.equalsIgnoreCase("[sent]")) {
-			return NOT_AVAILABLE; // TODO temp workaround for invalid sent values
+			return ExtendedMutationUtil.NOT_AVAILABLE; // TODO temp workaround for invalid sent values
 		} else {
 			return omaScore;
 		}
 	}
-
-	/**
-	 * Determines the most accurate amino acid change value for the given mutation.
-	 *
-	 * If there is an Oncotator value, returns that value.
-	 * If no Oncotator value, then tries Mutation Assessor value.
-	 * If no MA value either, then tries the amino_acid_change column
-	 * If none of the above is valid then returns "MUTATED"
-	 *
-	 * @param parts     current mutation as split parts of the line
-	 * @param record    MAF record for the current line
-	 * @return          most accurate amino acid change
-	 */
-	private String getProteinChange(String[] parts, MafRecord record)
-	{
-		// Note: MA may sometimes use a different isoform than Oncotator.
-
-		// try oncotator value first
-		String aminoAcidChange = record.getOncotatorProteinChange();
-
-		// if no oncotator value, try mutation assessor value
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = record.getMaProteinChange();
-		}
-
-		// if no MA value either, then try amino_acid_change column
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = record.getMannualAminoAcidChange();
-		}
-
-		// if none is valid, then use the string "MUTATED"
-		if (!isValidProteinChange(aminoAcidChange))
-		{
-			aminoAcidChange = "MUTATED";
-		}
-
-		// also remove the starting "p." string if any
-		aminoAcidChange = this.normalizeProteinChange(aminoAcidChange);
-
-		return aminoAcidChange;
-	}
-
-	/**
-	 * Removes the starting "p." (if any) from the given
-	 * amino acid change string.
-	 *
-	 * @param aminoAcidChange   aa change string to be normalized
-	 * @return                  normalized aa change string
-	 */
-	protected String normalizeProteinChange(String aminoAcidChange)
-	{
-		String pDot = "p.";
-
-		// remove the starting "p." string if any
-		if (aminoAcidChange.startsWith(pDot))
-		{
-			aminoAcidChange = aminoAcidChange.substring(pDot.length());
-		}
-
-		return aminoAcidChange;
-	}
-
-	private boolean isValidProteinChange(String proteinChange)
-	{
-		boolean invalid = proteinChange == null ||
-		                  proteinChange.length() == 0 ||
-		                  proteinChange.equalsIgnoreCase("NULL") ||
-		                  proteinChange.equalsIgnoreCase(NOT_AVAILABLE);
-
-		return !invalid;
-	}
-
-	private boolean isAcceptableMutation(String mutationType)
-	{
-		// check for null or NA values
-		if (mutationType == null ||
-		    mutationType.length() == 0 ||
-		    mutationType.equals("NULL") ||
-		    mutationType.equals(TabDelimitedFileUtil.NA_STRING))
-		{
-			return false;
-		}
-
-		// check for the type
-		boolean silent = mutationType.toLowerCase().startsWith("silent");
-		boolean loh = mutationType.toLowerCase().startsWith("loh");
-		boolean wildtype = mutationType.toLowerCase().startsWith("wildtype");
-		boolean utr3 = mutationType.toLowerCase().startsWith("3'utr");
-		boolean utr5 = mutationType.toLowerCase().startsWith("5'utr");
-		boolean flank5 = mutationType.toLowerCase().startsWith("5'flank");
-		boolean igr = mutationType.toLowerCase().startsWith("igr");
-		boolean rna = mutationType.equalsIgnoreCase("rna");
-
-		return !(silent || loh || wildtype || utr3 || utr5 || flank5 || igr || rna);
-	}
-
-	private String getMutationType(MafRecord record)
-	{
-		String mutationType = record.getOncotatorVariantClassification();
-
-		if (mutationType == null ||
-		    mutationType.length() == 0 ||
-		    mutationType.equals("NULL") ||
-		    mutationType.equals(TabDelimitedFileUtil.NA_STRING))
-		{
-			mutationType = record.getVariantClassification();
-		}
-
-		return mutationType;
-	}
-
-    private int getTumorAltCount(MafRecord record) {
-        int result = TabDelimitedFileUtil.NA_INT ;
-
-        if (record.getTumorAltCount() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getTumorAltCount();
-        } else if(record.getTVarCov() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getTVarCov();
-        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = Math.round(record.getTumorDepth() * record.getTumorVaf());
-        }
-
-        return result;
-    }
-
-    private int getTumorRefCount(MafRecord record) {
-        int result = TabDelimitedFileUtil.NA_INT;
-
-        if (record.getTumorRefCount() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getTumorRefCount();
-        } else if((record.getTVarCov() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getTTotCov() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getTTotCov()-record.getTVarCov();
-        } else if((record.getTumorDepth() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getTumorVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getTumorDepth() - Math.round(record.getTumorDepth() * record.getTumorVaf());
-        }
-
-        return result;
-    }
-
-    private int getNormalAltCount(MafRecord record) {
-        int result = TabDelimitedFileUtil.NA_INT ;
-
-        if (record.getNormalAltCount() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getNormalAltCount();
-        } else if(record.getNVarCov() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getNVarCov();
-        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = Math.round(record.getNormalDepth() * record.getNormalVaf());
-        }
-
-        return result;
-    }
-
-    private int getNormalRefCount(MafRecord record) {
-        int result = TabDelimitedFileUtil.NA_INT;
-
-        if (record.getNormalRefCount() != TabDelimitedFileUtil.NA_INT) {
-            result = record.getNormalRefCount();
-        } else if((record.getNVarCov() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getNTotCov() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getNTotCov()-record.getNVarCov();
-        } else if((record.getNormalDepth() != TabDelimitedFileUtil.NA_INT) &&
-                  (record.getNormalVaf() != TabDelimitedFileUtil.NA_INT)) {
-            result = record.getNormalDepth() - Math.round(record.getNormalDepth() * record.getNormalVaf());
-        }
-
-        return result;
-    }
 
 	@Override
 	public String toString(){

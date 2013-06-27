@@ -1,7 +1,9 @@
 /**
- * Generate the plots tab data object
- * and cache every generated data set in a global variable.
- * @type {*}
+ *
+ * - Generate the plots tab "global" data object (Being used in every sub tabs)
+ * - AJAX data retrieving function (using JSON servlet)
+ * - Cache every generated data set in a global variable
+ *
  */
 
 var Plots = (function(){
@@ -13,7 +15,6 @@ var Plots = (function(){
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
         };
-
 
     function getGeneticProfileCallback(result) {
 
@@ -43,15 +44,18 @@ var Plots = (function(){
     }
 
     return {
+
         init: function() {
             var paramsGetProfiles = {
                 cancer_study_id: cancer_study_id
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },
+
         getGeneticProfiles: function() {
             return genetic_profiles;
         },
+
         getProfileData: function(gene, genetic_profile_id, case_set_id, callback_func) {
             var paramsGetProfileData = {
                 gene_list: gene,
@@ -60,6 +64,7 @@ var Plots = (function(){
             };
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         }
+
     };
 
 }());

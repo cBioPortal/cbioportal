@@ -258,6 +258,14 @@ public class DaoClinicalFreeForm {
         }
     }
     
+    /**
+     * Retrieve case IDs based on attribute.
+     * @param cancerStudyId
+     * @param paramName
+     * @param paramValue
+     * @return a list of IDs of cases that have the same value for and attribute.
+     * @throws DaoException 
+     */
     public List<String> getCaseIdsByAttribute(int cancerStudyId, String paramName, String paramValue) throws DaoException {
     	Connection con = null;
         PreparedStatement pstmt = null;

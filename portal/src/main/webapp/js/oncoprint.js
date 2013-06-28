@@ -147,6 +147,8 @@ var OncoprintUtils = (function() {
     //
     // returns a map of gene_data type (e.g. cna, mutations, mrna, rppa)
     // to all the values these data types take on respectively in the data
+    //
+    // if there is no data, then the range is undefined
     var gene_data_type2range = function(raw_gene_data) {
         var extract_unique = function(raw_data, datatype) {
             return _.chain(raw_gene_data)
@@ -191,7 +193,9 @@ var OncoprintUtils = (function() {
     var colors = {
         continuous: '#A62459',
         white: '#FFFAF0',
-        discrete: '#404040'
+        discrete: '#404040',
+        red: '#FF0000',
+        grey: '#D3D3D3'
     };
 
     var googlecharts_colors =
@@ -247,8 +251,6 @@ var OncoprintUtils = (function() {
         var attrId2range = attr2range(raw_clinical_data);
 
         var slice_googlecolors = function(attr_id) {
-            console.log( attrId2range[attr_id] );
-            console.log( googlecharts_colors.slice(0, attrId2range[attr_id].length));
             return googlecharts_colors.slice(0, attrId2range[attr_id].length);
         };
 
@@ -396,167 +398,129 @@ var OncoprintUtils = (function() {
         return clinical_attr.display_name;
     };
 
-    // TODO: not sure if this function is still necessary
+    var cna_fills = {
+        undefined: colors.grey,
+        AMPLIFIED: colors.red,
+        GAINED: '#FFB6C1',
+        DIPLOID: '#D3D3D3',
+        HEMIZYGOUSLYDELETED: '#8FD8D8',
+        HOMODELETED: '#0000FF'
+    };
+
+    // puts a legend in the div according to range for each datatype.  If the
+    // range for a datatype is undefined, then it doesn't get represented in
+    // the legend
     //
-    // params: string (hugo gene symbol)
-    // replaces '/' with '_' since you can't have '/' in the DOM
-    //var cleanHugo = function(hugo) {
-    //    // can't have '/' in DOM id
-    //    return hugo.replace("/", "_");
-    //};
+    // *signature:* `DOM el, { string : [string] }, number -> DOM el`
+    // * accepts an optional DOM element containing an item template
+    var legend = function(el, datatype2range, left_adjust, item_template) {
 
-    // TODO:
-    var legend = function(div) {
+        // *signature:* object -> string (html)
+        // options can be:
+        // * bg_color
+        // * display_mutation
+        // * display_down_rppa
+        // * display_up_rppa
+        // * display_down_mrna
+        // * display_up_mrna
+        var item_templater = function(options) {
+            var item_template = item_template || document.getElementById('glyph_template');
+            var t = _.template(item_template.innerHTML);
 
+            // set defaults
+            options.bg_color = options.bg_color || colors.grey;
+            options.display_mutation = options.display_mutation || "none";
+            options.display_down_rppa = options.display_down_rppa || "none";
+            options.display_up_rppa = options.display_up_rppa || "none";
+            options.display_down_mrna = options.display_down_mrna || "none";
+            options.display_up_mrna = options.display_up_mrna || "none";
+
+            return t(options);
+        };
+
+        // text values that explain the glyph
         var captions = {
             cna: {
-                AMPLIFIED: "Amplification",
-                GAINED: "Gain",
-                DIPLOID: "Diploid",
-                HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
-                HOMODELETED: "Homozygous Deletion"
-            },
+                     AMPLIFIED: "Amplification",
+                     GAINED: "Gain",
+                     DIPLOID: "Diploid",
+                     HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
+                     HOMODELETED: "Homozygous Deletion"
+                 },
             mrna: {
-                UPREGULATED: "mRNA Upregulation",
-                DOWNREGULATED: "mRNA Downregulation"
-            },
+                      UPREGULATED: "mRNA Upregulation",
+                      DOWNREGULATED: "mRNA Downregulation"
+                  },
             rppa: {
-                UPREGULATED: "RPPA Upregulation",
-                DOWNREGULATED: "RPPA Downregulation"
-            },
+                      UPREGULATED: "RPPA Upregulation",
+                      DOWNREGULATED: "RPPA Downregulation"
+                  },
             mutation: "Mutation"
         };
 
-        var cna_order = {AMPLIFIED:4,
-            HOMODELETED:3, GAINED:2, HEMIZYGOUSLYDELETED:1, DIPLOID: 0, null:0};
-
-        var text_padding = 10;
-
-//            var legend_el = d3.select('#oncoprint_legend');
-        var legend_el = d3.select(div);
-        legend_el.style('margin-left', getRectWidth() + label_width + 2 + "px");
-
-        var getSvg = function(label_str) {
-            var svg = legend_el.append('svg');
-
-            var el_width = function(label_str) {
-                var l = label_str.split("");
-                var scalar = 7;
-                var affine = 25;
-                return affine + scalar * l.length;
-            };
-
-            svg.attr('height', RECT_HEIGHT);
-            svg.attr('width', el_width(label_str));
-            return svg;
+        var val2template = {
+            mrna: {
+                      "UPREGULATED": item_templater({display_up_mrna: "inherit", text: captions.mrna.UPREGULATED}),
+                      "DOWNREGULATED": item_templater({display_down_mrna: "inherit", text: captions.mrna.DOWNREGULATED})
+                  },
+            rppa: {
+                      "UPREGULATED": item_templater({display_up_rppa: "inherit", text: captions.rppa.UPREGULATED}),
+                      "DOWNREGULATED": item_templater({display_down_rppa: "inherit", text: captions.rppa.DOWNREGULATED})
+                  }
         };
 
-        var range = query.getDataRange();
-
-        var rect_width = getRectWidth();
-
-
-        var cnas = _.keys(range.cna);
-        cnas = cnas.sort(function(a,b) {
-            return cna_order[b] - cna_order[a];
-        });
-
-        cnas.forEach(function(cna) {
-            var svg = getSvg(captions.cna[cna]);
-
-            svg.append('rect')
-                .attr('fill', function(d) {
-                    return cna_fills[cna];
-                })
-                .attr('width', rect_width)
-                .attr('height', RECT_HEIGHT);
-
-            var text = svg.append('text')
-                .attr('fill', 'black')
-                .attr('x', text_padding)
-                .attr('y', .75 * RECT_HEIGHT)
-                .text(captions.cna[cna]);
-        });
-
-        for (var mrna in range.mrna) {
-            var svg = getSvg(captions.mrna[mrna]);
-
-            svg.append('rect')
-                .attr('fill', cna_fills['none'])
-                .attr('stroke-width', MRNA_STROKE_WIDTH)
-                .attr('stroke-opacity', 1)
-                .attr('width', rect_width)
-                .attr('height', RECT_HEIGHT)
-                .attr('stroke', mrna_fills[mrna]);
-
-            var text = svg.append('text')
-                .attr('fill', 'black')
-                .attr('x', text_padding)
-                .attr('y', .75 * RECT_HEIGHT)
-                .text(captions.mrna[mrna]);
+        // build up an array of templates from the values in the dataset
+        // N.B. order matters here --- so cna is to the left, then comes
+        // mutation, etc.
+        var templates = [];
+        if (datatype2range.cna !== undefined) {
+            templates = templates.concat(
+                    _.map(datatype2range.cna, function(val) {
+                        if (val !== undefined && val !== "DIPLOID") {
+                            return item_templater({
+                                bg_color: cna_fills[val],
+                                text: captions.cna[val]
+                            });
+                        }
+                    }).filter(function(x) { return x !== undefined; })
+                );
         }
 
-        if (!$.isEmptyObject(range.mutations)) {
-            var svg = getSvg(captions.mutation);
-
-            // background of none
-            svg.append('rect')
-                .attr('fill', cna_fills['none'])
-                .attr('width', rect_width)
-                .attr('height', RECT_HEIGHT);
-
-            // little mutation square
-            svg.append('rect')
-                .attr('fill', MUT_COLOR)
-                .attr('y', LITTLE_RECT_HEIGHT)
-                .attr('width', rect_width)
-                .attr('height', LITTLE_RECT_HEIGHT);
-
-            var text = svg.append('text')
-                .attr('fill', 'black')
-                .attr('x', text_padding)
-                .attr('y', .75 * RECT_HEIGHT)
-                .text(captions.mutation);
+        if (datatype2range.mutation !== undefined) {
+            templates = templates.concat(
+                    item_templater({ display_mutation: "inherit", text: captions.mutation})
+                );
         }
 
-        for (var rppa in range.rppa) {
-            var svg = getSvg(captions.rppa[rppa]);
-
-            var up_triangle = getTrianglePath(rect_width, true);
-            var down_triangle = getTrianglePath(rect_width, false);
-
-            // background of none
-            svg.append('rect')
-                .attr('fill', cna_fills['none'])
-                .attr('width', rect_width)
-                .attr('height', RECT_HEIGHT);
-
-            svg.append('path')
-                .attr('fill', 'black')
-                .attr('d', function(d) {
-                    if (rppa === UPREGULATED) {
-                        return up_triangle;
-                    }
-                    if (rppa === DOWNREGULATED) {
-                        return down_triangle;
-                    }
-                    if (rppa === null) {
-                        return 'M 0 0';
-                    }
-                });
-
-            var text = svg.append('text')
-                .attr('fill', 'black')
-                .attr('x', text_padding)
-                .attr('y', .75 * RECT_HEIGHT)
-                .text(captions.rppa[rppa]);
+        if (datatype2range.mrna !== undefined) {
+            templates = templates.concat(
+                    _.map(datatype2range.mrna, function(val) {
+                        return val2template.mrna[val];
+                    }).filter(function(x) { return x !== undefined; })
+                );
         }
 
-        legend_el.append('p')
-            .style('font-size', '12px')
-            .style('margin-bottom', 0)
-            .style('margin-top', 7 + 'px')
-            .text('Copy number alterations are putative.');
+        if (datatype2range.rppa !== undefined) {
+            templates = templates.concat(
+                    _.map(datatype2range.rppa, function(val) {
+                        return val2template.rppa[val];
+                    }).filter(function(x) { return x !== undefined; })
+                );
+        }
+
+        var row = _.chain(templates)
+            .map(function(t) {
+                return "<td style='padding-right:30px;'>" + t + "</td>";
+            })
+            .join("")
+            .value();
+
+        el.style.paddingLeft = left_adjust + 4 + "px";;
+
+        el.innerHTML = "<table><tr>" + row  + "</tr></table>"
+            + "<p style='margin-top: 5px; margin-bottom: 5px;'>Copy number alterations are putative.</p>";
+
+        return el;
     };
 
     return {
@@ -579,7 +543,9 @@ var OncoprintUtils = (function() {
         make_attribute2scale: make_attribute2scale,
         gene_data_type2range: gene_data_type2range,
         is_gene: is_gene,
-        is_clinical: is_clinical
+        is_clinical: is_clinical,
+        cna_fills: cna_fills,
+        colors: colors
     };
 }());
 
@@ -822,20 +788,10 @@ var Oncoprint = function(div, params) {
         .attr('width', dims.width)
         .attr('height', dims.height);
 
-    var colors = {
-        red: '#FF0000',
-        grey: '#D3D3D3'
-    };
+    var colors = OncoprintUtils.colors;     // alias
 
-    var cna_fills = {
-        undefined: colors.grey,
-        AMPLIFIED: colors.red,
-        GAINED: '#FFB6C1',
-        DIPLOID: '#D3D3D3',
-        HEMIZYGOUSLYDELETED: '#8FD8D8',
-        HOMODELETED: '#0000FF'
-    };
-
+    // helper function
+    // *signature:* number, number -> string
     var translate = function(x,y) {
         return "translate(" + x + "," + y + ")";
     };
@@ -873,7 +829,7 @@ var Oncoprint = function(div, params) {
         var fill = enter.append('rect')
             .attr('fill', function(d) {
                 if (OncoprintUtils.is_gene(d)) {
-                    return cna_fills[d.cna];
+                    return OncoprintUtils.cna_fills[d.cna];
                 }
                 else if (OncoprintUtils.is_clinical(d)) {
                     return d.attr_val === "NA"
@@ -1075,10 +1031,9 @@ var Oncoprint = function(div, params) {
             horizontal_translate(ANIMATION_DURATION);
             return internal_data;
         };
-;
 
         if (params.legend) {
-
+            OncoprintUtils.legend(params.legend, OncoprintUtils.gene_data_type2range(params.geneData), dims.label_width);
         }
 
         return {

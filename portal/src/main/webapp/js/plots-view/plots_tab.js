@@ -1,4 +1,5 @@
 var PlotsMenu = (function () {
+
     var content = {
             plots_type : {
                 "mrna_copyNo" : {
@@ -15,11 +16,35 @@ var PlotsMenu = (function () {
                     text : "RPPA Protein Level vs. mRNA"
                 }
             },
-            genetic_profile_mutations : [],
-            genetic_profile_mrna : [],
-            genetic_profile_copy_no : [],
-            genetic_profile_rppa : [],
-            genetic_profile_dna_methylation : []
+            data_type : {
+                "mrna" : {
+                    label: "- mRNA -",
+                    value: "data_type_mrna",
+                    genetic_profile : []
+                },
+                "copy_no" : {
+                    label: "- Copy Number -",
+                    value: "data_type_copy_no",
+                    genetic_profile : []
+                },
+                "dna_methylation" : {
+                    label: "- DNA Methylation -",
+                    value: "data_type_dna_methylation",
+                    genetic_profile : []
+
+                },
+                "rppa" : {
+                    label: "- RPPA Protein Level -",
+                    value: "data_type_rppa",
+                    genetic_profile : []
+
+                },
+                "mutation" : { //hidden field
+                    label: "",
+                    value: "data_type_mutation",
+                    genetic_profile : [],
+                }
+            }
         },
         status = {
             has_mrna : false,
@@ -28,49 +53,63 @@ var PlotsMenu = (function () {
             has_copy_no : false
         };
 
-    function appendDropDown(divId, value, text) {
-        $(divId).append("<option value='" + value + "'>" + text + "</option>");
-    }
+    var Util = (function() {
+        function appendDropDown(divId, value, text) {
+            $(divId).append("<option value='" + value + "'>" + text + "</option>");
+        }
 
-    function toggleVisibilityShow(elemId) {
-        var e = document.getElementById(elemId);
-        e.style.display = 'block';
-    }
+        function toggleVisibilityShow(elemId) {
+            var e = document.getElementById(elemId);
+            e.style.display = 'block';
+        }
 
-    function toggleVisibilityHide(elemId) {
-        var e = document.getElementById(elemId);
-        e.style.display = 'none';
-    }
+        function toggleVisibilityHide(elemId) {
+            var e = document.getElementById(elemId);
+            e.style.display = 'none';
+        }
 
-    function generateList(selectId, options) {
-        var select = document.getElementById(selectId);
-        options.forEach(function(option){
-            var el = document.createElement("option");
-            el.textContent = option;
-            el.value = option;
-            select.appendChild(el);
-        });
-    }
+        function generateList(selectId, options) {
+            var select = document.getElementById(selectId);
+            options.forEach(function(option){
+                var el = document.createElement("option");
+                el.textContent = option;
+                el.value = option;
+                select.appendChild(el);
+            });
+        }
 
-    function drawPlotsTypeDropDown() {
+        return {
+            appendDropDown: appendDropDown,
+            toggleVisibilityShow: toggleVisibilityShow,
+            toggleVisibilityHide: toggleVisibilityHide,
+            generateList: generateList
+        };
+
+    }());
+
+
+    function drawMenu() {
+
+        //Gene List
+        Util.generateList("genes", gene_list);
 
         //Plots Type field
         if ( status.has_mrna && status.has_copy_no) {
-            appendDropDown(
+            Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.mrna_copyNo.value,
                 content.plots_type.mrna_copyNo.text
             );
         }
         if ( status.has_mrna && status.has_dna_methylation) {
-            appendDropDown(
+            Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.mrna_methylation.value,
                 content.plots_type.mrna_methylation.text
             );
         }
         if ( status.has_mrna && status.has_rppa) {
-            appendDropDown(
+            Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.rppa_mrna.value,
                 content.plots_type.rppa_mrna.text
@@ -78,21 +117,19 @@ var PlotsMenu = (function () {
         }
 
         //Data Type Field : profile
-        content.genetic_profile_mutations.forEach(function(item) {
-            appendDropDown('#data_type_mutation', item[0], item[1]);
-        });
-        content.genetic_profile_mrna.forEach(function(item) {
-            appendDropDown('#data_type_mrna', item[0], item[1]);
-        });
-        content.genetic_profile_copy_no.forEach(function(item) {
-            appendDropDown('#data_type_copy_no', item[0], item[1]);
-        });
-        content.genetic_profile_dna_methylation.forEach(function(item) {
-            appendDropDown('#data_type_dna_methylation', item[0], item[1]);
-        });
-        content.genetic_profile_rppa.forEach(function(item) {
-            appendDropDown('#data_type_rppa', item[0], item[1]);
-        });
+        for (var key in content.data_type) {
+            var singleDataTypeObj = content.data_type[key];
+            $("#one_gene_platform_select_div").append(
+                "<div id='" + singleDataTypeObj.value + "_dropdown' style='padding:5px;'>" +
+                "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
+                "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()'></select></div>"
+            );
+            for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
+                var item_profile = singleDataTypeObj.genetic_profile[index];
+                $("#" + singleDataTypeObj.value).append(
+                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+            }
+        }
 
     }
 
@@ -112,7 +149,6 @@ var PlotsMenu = (function () {
                 return false;
             }
         });
-
         var userSelectedCopyNoProfile = "";
         $.each(geneticProfiles.split(/\s+/), function(index, value){
             if (value.indexOf("cna") !== -1 || value.indexOf("log2") !== -1 ||
@@ -132,6 +168,13 @@ var PlotsMenu = (function () {
     function setDefaultMrnaSelection() {
 
         //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
+        var userSelectedMrnaProfile = "";  //from main query
+        $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
+            if (value.indexOf("mrna") !== -1) {
+                userSelectedMrnaProfile = value;
+                return false;
+            }
+        });
 
         $("#data_type_mrna > option").each(function() {
             if (this.text.toLowerCase().indexOf("z-scores")){
@@ -153,13 +196,6 @@ var PlotsMenu = (function () {
                 return false;
             }
         });
-        var userSelectedMrnaProfile = "";
-        $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
-            if (value.indexOf("mrna") !== -1) {
-                userSelectedMrnaProfile = value;
-                return false;
-            }
-        });
         $("#data_type_mrna > option").each(function() {
             if (this.value === userSelectedMrnaProfile){
                 $(this).prop('selected', true);
@@ -168,49 +204,66 @@ var PlotsMenu = (function () {
         });
     }
 
-    function fetchFrameData() {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
-        status.has_mrna = (content.genetic_profile_mrna.length !== 0);
-        status.has_copy_no = (content.genetic_profile_copy_no.length !== 0);
-        status.has_dna_methylation = (content.genetic_profile_dna_methylation.length !== 0);
-        status.has_rppa = (content.genetic_profile_rppa.length !== 0);
+    function updateVisibility() {
+
+        //Dynamically show only the plots type related drop div
+        var currentPlotsType = $('#plots_type').val();
+
+        if (currentPlotsType.indexOf("copy_no") !== -1) {
+
+            Util.toggleVisibilityShow("data_type_mrna_dropdown");
+            Util.toggleVisibilityShow("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityHide("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+
+        } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
+
+            Util.toggleVisibilityShow("data_type_mrna_dropdown");
+            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityShow("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityHide("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+
+        } else if (currentPlotsType.indexOf("rppa") !== -1) {
+
+            Util.toggleVisibilityShow("data_type_mrna_dropdown");
+            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityShow("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+        }
+
+    }
+
+    function fetchFrameContent() {
+
+        content.data_type.mutation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mutations;
+        content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mrna;
+        content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles().genetic_profile_copy_no;
+        content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
+        content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles().genetic_profile_rppa;
+        status.has_mrna = (content.data_type.mrna.genetic_profile.length !== 0);
+        status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
+        status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
+        status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
+
     }
 
     return {
-        init: function () {
-            fetchFrameData();
-            generateList("genes", gene_list);
-            drawPlotsTypeDropDown();
-        },
-        update: function() {
 
-            //Show only the plots type related to user selection
-            var currentPlotsType = $('#plots_type').val();
-            if (currentPlotsType.indexOf("copy_no") !== -1) {
-                toggleVisibilityShow("mrna_dropdown");
-                toggleVisibilityShow("copy_no_dropdown");
-                toggleVisibilityHide("dna_methylation_dropdown");
-                toggleVisibilityHide("rppa_dropdown");
-            } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-                toggleVisibilityShow("mrna_dropdown");
-                toggleVisibilityHide("copy_no_dropdown");
-                toggleVisibilityShow("dna_methylation_dropdown");
-                toggleVisibilityHide("rppa_dropdown");
-            } else if (currentPlotsType.indexOf("rppa") !== -1) {
-                toggleVisibilityShow("mrna_dropdown");
-                toggleVisibilityHide("copy_no_dropdown");
-                toggleVisibilityHide("dna_methylation_dropdown");
-                toggleVisibilityShow("rppa_dropdown");
-            }
+        init: function () {
+            fetchFrameContent();
+            drawMenu();
+        },
+
+        update: function() {
 
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
-
+            updateVisibility();
             PlotsView.init();
+
         }
     };
 }());

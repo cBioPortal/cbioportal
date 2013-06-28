@@ -80,26 +80,7 @@
                                 <select id='plots_type' onchange="PlotsMenu.update();"></select>
 
                                 <h5>Data Type</h5>
-                                <div id='mrna_dropdown' style='padding:5px;'>
-                                    - mRNA - <br>
-                                    <select id='data_type_mrna' onchange="PlotsView.init()"></select>
-                                </div>
-                                <div id='copy_no_dropdown'style='padding:5px;'>
-                                    - Copy Number - <br>
-                                    <select id='data_type_copy_no' onchange="PlotsView.init()"></select>
-                                </div>
-                                <div id='dna_methylation_dropdown'style='padding:5px;'>
-                                    - DNA Methylation - <br>
-                                    <select id='data_type_dna_methylation' onchange="PlotsView.init()"></select>
-                                </div>
-                                <div id='rppa_dropdown'style='padding:5px;'>
-                                    - RPPA Protein Level - <br>
-                                    <select id='data_type_rppa' onchange="PlotsView.init()"></select>
-                                </div>
-                                <!-- Hidden -->
-                                <div id='mutation_dropdown' style='padding:5px;display:none'>
-                                    <select id='data_type_mutation'></select>
-                                </div>
+                                <div id='one_gene_platform_select_div'></div>
 
                             </td>
                         </tr>

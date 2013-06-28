@@ -69,8 +69,30 @@ public class MafUtil
 	public static final String SCORE = "Score";
 	public static final String BAM_FILE = "BAM_File";
 	public static final String SEQUENCER = "Sequencer";
-        
-        public static final String AMINO_ACID_CHANGE_MANNUAL = "Amino_Acid_Change";
+
+	// non-standard columns
+	public static final String AMINO_ACID_CHANGE_MANNUAL = "Amino_Acid_Change";
+	public static final String TRANSCRIPT = "Transcript";
+
+	// allele frequency columns (non-standard)
+	public static final String T_REF_COUNT = "t_ref_count";
+	public static final String T_ALT_COUNT = "t_alt_count";
+	public static final String N_REF_COUNT = "n_ref_count";
+	public static final String N_ALT_COUNT = "n_alt_count";
+	public static final String I_T_REF_COUNT = "i_t_ref_count";
+	public static final String AD_REF = "AD_Ref";
+	public static final String I_T_ALT_COUNT = "i_t_alt_count";
+	public static final String AD_ALT = "AD_Alt";
+	public static final String NORM_AD_REF = "Norm_AD_Ref";
+	public static final String NORM_AD_ALT = "Norm_AD_Alt";
+	public static final String T_TOT_COV = "TTotCov";
+	public static final String T_VAR_COV = "TVarCov";
+	public static final String N_TOT_COV = "NTotCov";
+	public static final String N_VAR_COV = "NVarCov";
+	public static final String TUMOR_DEPTH = "tumor_depth";
+	public static final String TUMOR_VAF = "tumor_vaf";
+	public static final String NORMAL_DEPTH = "normal_depth";
+	public static final String NORMAL_VAF = "normal_vaf";
 
 	// oncotator column names
 	public static final String ONCOTATOR_COSMIC_OVERLAPPING = "ONCOTATOR_COSMIC_OVERLAPPING";
@@ -362,35 +384,35 @@ public class MafUtil
             } else if(header.equalsIgnoreCase(MA_PROTEIN_CHANGE)) {
 	            maProteinChangeIndex = i;
             }
-	        else if(header.equalsIgnoreCase("t_ref_count") ||
-	                header.equalsIgnoreCase("i_t_ref_count") ||
-	                header.equalsIgnoreCase("AD_Ref")) {
+	        else if(header.equalsIgnoreCase(T_REF_COUNT) ||
+	                header.equalsIgnoreCase(I_T_REF_COUNT) ||
+	                header.equalsIgnoreCase(AD_REF)) {
 	        	tumorRefCountIndex = i;
-            } else if(header.equalsIgnoreCase("t_alt_count") ||
-	                  header.equalsIgnoreCase("i_t_alt_count") ||
-	                  header.equalsIgnoreCase("AD_Alt")) {
+            } else if(header.equalsIgnoreCase(T_ALT_COUNT) ||
+	                  header.equalsIgnoreCase(I_T_ALT_COUNT) ||
+	                  header.equalsIgnoreCase(AD_ALT)) {
                 tumorAltCountIndex = i;
-            } else if(header.equalsIgnoreCase("n_ref_count") ||
-	                  header.equalsIgnoreCase("Norm_AD_Ref")) {
+            } else if(header.equalsIgnoreCase(N_REF_COUNT) ||
+	                  header.equalsIgnoreCase(NORM_AD_REF)) {
                 normalRefCountIndex= i;
-            } else if(header.equalsIgnoreCase("n_alt_count") ||
-	                  header.equalsIgnoreCase("Norm_AD_Alt")) {
+            } else if(header.equalsIgnoreCase(N_ALT_COUNT) ||
+	                  header.equalsIgnoreCase(NORM_AD_ALT)) {
                 normalAltCountIndex = i;
-            } else if(header.equalsIgnoreCase("TTotCov")) {
+            } else if(header.equalsIgnoreCase(T_TOT_COV)) {
                 tTotCovIndex = i;
-            } else if(header.equalsIgnoreCase("TVarCov")) {
+            } else if(header.equalsIgnoreCase(T_VAR_COV)) {
                 tVarCovIndex = i;
-            } else if(header.equalsIgnoreCase("NTotCov")) {
+            } else if(header.equalsIgnoreCase(N_TOT_COV)) {
                 nTotCovIndex = i;
-            } else if(header.equalsIgnoreCase("NVarCov")) {
+            } else if(header.equalsIgnoreCase(N_VAR_COV)) {
                 nVarCovIndex = i;
-            } else if(header.equalsIgnoreCase("tumor_depth")) {
+            } else if(header.equalsIgnoreCase(TUMOR_DEPTH)) {
                 tumorDepthIndex = i;
-            } else if(header.equalsIgnoreCase("tumor_vaf")) {
+            } else if(header.equalsIgnoreCase(TUMOR_VAF)) {
                 tumorVafIndex = i;
-            } else if(header.equalsIgnoreCase("normal_depth")) {
+            } else if(header.equalsIgnoreCase(NORMAL_DEPTH)) {
                 normalDepthIndex = i;
-            } else if(header.equalsIgnoreCase("normal_vaf")) {
+            } else if(header.equalsIgnoreCase(NORMAL_VAF)) {
                 normalVafIndex = i;
             }
         }

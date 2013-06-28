@@ -28,6 +28,7 @@ public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
     private ServletXssUtil servletXssUtil;
+	private static String DEFAULT_FILENAME = "result";
 
     /**
      * Initializes the servlet.
@@ -76,6 +77,8 @@ public class SvgConverter extends HttpServlet {
 
         String xml = "";
         String format = "";
+	String filename = "";
+
         if (httpServletRequest instanceof FileUploadRequestWrapper) {
 
             // get instance of our request wrapper
@@ -86,19 +89,30 @@ public class SvgConverter extends HttpServlet {
 
             // get xml parameter
             xml = wrapper.getParameter("svgelement");
+
+	    // get filename parameter
+	    filename = wrapper.getParameter("filename");
         }
         else {
+            
             format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+            
             // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
+	        
+            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
+	    if (filename == null ||
+	        filename.length() == 0)
+	    {
+		    filename = DEFAULT_FILENAME;
+	    }
+
         if (format.equals("pdf")) {
-            convertToPDF(httpServletResponse, xml);
-        } else if (format.equals("png")) {
-            convertToPNG(httpServletResponse, xml);
+            convertToPDF(httpServletResponse, xml, filename);
         } else if (format.equals("svg")) {
-            convertToSVG(httpServletResponse, xml);
+            convertToSVG(httpServletResponse, xml, filename);
         }
     }
 
@@ -110,11 +124,11 @@ public class SvgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToSVG(HttpServletResponse response, String xml) throws ServletException, IOException {
-
+    private void convertToSVG(HttpServletResponse response, String xml, String filename)
+		    throws ServletException, IOException {
         try {
             response.setContentType("application/svg+xml");
-            response.setHeader("content-disposition", "inline; filename='plots.svg'");
+            response.setHeader("content-disposition", "inline; filename=" + filename);
             PrintWriter writer = response.getWriter();
             try {
                 writer.write(xml);
@@ -137,21 +151,17 @@ public class SvgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToPDF(HttpServletResponse response, String svgContent) throws ServletException, IOException {
+    private void convertToPDF(HttpServletResponse response, String svgContent, String filename)
+		    throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
-            String docRoot = "<?xml version='1.0' encoding='utf-8'?>";
-            String docRoot2 = "<svg version='1.1' width='700px' height='600px' xml:space='preserve'>";
-            svgContent = docRoot + docRoot2 + svgContent + "</svg>";
-	    svgContent = svgContent.replaceAll("<text y=\"9\" x=\"0\" dy=\".71em\"", "<text y=\"19\" x=\"0\" dy=\".71em\"");
-	    svgContent = svgContent.replaceAll("<text x=\"-9\" y=\"0\" dy=\".32em\"", "<text x=\"-9\" y=\"3\" dy=\".32em\"");
             InputStream is = new ByteArrayInputStream(svgContent.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);
             Transcoder transcoder = new PDFTranscoder();
             transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
             response.setContentType("application/pdf");
-            response.setHeader("content-disposition", "inline; filename=plots.pdf");
+            response.setHeader("content-disposition", "inline; filename=" + filename);
             transcoder.transcode(input, output);
         } catch (Exception e) {
             System.err.println(e.toString());

@@ -72,6 +72,13 @@
             <img class="loader_img" style="display:hidden;" src="images/ajax-loader.gif"/>
 
             <script type="text/javascript">
+
+                // This is for the moustache-like templates
+                // prevents collisions with JSP tags
+                _.templateSettings = {
+                    interpolate : /\{\{(.+?)\}\}/g
+                };
+
                 var oncoPrintParams = {
                     geneData: undefined,
                     cancer_study_id: "<%=cancerTypeId%>",
@@ -116,7 +123,7 @@
                     type: "POST",
                     success: function(data) {
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'),
-                                { geneData: data.toJSON(), genes: geneDataColl.genes.split(" ") });
+                                { geneData: data.toJSON(), genes: geneDataColl.genes.split(" "), legend: document.getElementById('oncoprint_legend') });
                         $('#oncoprint .loader_img').hide();
                         $('#oncoprint #everything').show();
 
@@ -160,7 +167,8 @@
 
                         oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                             geneData: geneDataColl.toJSON(),
-                            genes: geneDataColl.genes.split(" ")
+                            genes: geneDataColl.genes.split(" "),
+                            legend: document.getElementById('oncoprint_legend')
                         });
 
                         // disable the option to sort by clinical data
@@ -181,7 +189,8 @@
                                     geneData: geneDataColl.toJSON(),
                                     clinicalData: response.toJSON(),
                                     genes: geneDataColl.genes.split(" "),
-                                    clinical_attrs: response.attributes()
+                                    clinical_attrs: response.attributes(),
+                                    legend: document.getElementById('oncoprint_legend')
                                 });
 
                                 // enable the option to sort by clinical data
@@ -219,8 +228,8 @@
             <path display="{{display_down_rppa}}" d="M0,2.182461848650375L2.5200898716287647,-2.182461848650375 -2.5200898716287647,-2.182461848650375Z" transform="translate(2.75,2.3000000000000003)"></path>
             <path display="{{display_up_rppa}}" d="M0,-2.182461848650375L2.5200898716287647,2.182461848650375 -2.5200898716287647,2.182461848650375Z" transform="translate(2.75,20.909090909090907)" aria-describedby="ui-tooltip-838"></path>
 
-            <rect display="{{display_down_mrna}}" y="54" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none" aria-describedby="ui-tooltip-732"></rect>
-            <rect display="{{display_up_mrna}}" y="54" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none" aria-describedby="ui-tooltip-576"></rect>
+            <rect display="{{display_down_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#6699CC" fill="none" aria-describedby="ui-tooltip-732"></rect>
+            <rect display="{{display_up_mrna}}" height="23" width="5.5" stroke-width="2" stroke-opacity="1" stroke="#FF9999" fill="none" aria-describedby="ui-tooltip-576"></rect>
             </svg>
             <span style="position: relative; bottom: 6px;">{{text}}</span>
         </script>

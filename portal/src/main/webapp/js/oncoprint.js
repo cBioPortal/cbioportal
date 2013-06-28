@@ -510,7 +510,7 @@ var OncoprintUtils = (function() {
 
         var row = _.chain(templates)
             .map(function(t) {
-                return "<td style='padding-right:30px;'>" + t + "</td>";
+                return "<td style='padding-right:10px;'>" + t + "</td>";
             })
             .join("")
             .value();
@@ -716,7 +716,7 @@ var Oncoprint = function(div, params) {
     var dims = (function() {
         var rect_height = 23;
         var mut_height = rect_height / 3;
-        var vert_padding = 4;
+        var vert_padding = 6;
         var label_width = OncoprintUtils.label_width(attributes.map(
             function(attr) {        // curry
                 return OncoprintUtils.map_display_name(id2ClinicalAttr, attr);
@@ -732,7 +732,7 @@ var Oncoprint = function(div, params) {
             rect_width: 5.5,
             vert_padding: vert_padding,
             vert_space: rect_height + vert_padding,
-            hor_padding: 2,
+            hor_padding: 3,
             mut_height: mut_height,
             label_width: label_width,
             clinical_height: clinical_height,

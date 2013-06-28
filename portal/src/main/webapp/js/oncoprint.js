@@ -260,10 +260,13 @@ var OncoprintUtils = (function() {
                 var scale;
 
                 // manually set the colors for certain attributes
-                if (attr.attr_id.toUpperCase() === "SEX") {
-                    return d3.scale.ordinal()
+                if (attr.attr_id.toUpperCase() === "SEX"
+                    || attr.attr_id.toUpperCase() === "GENDER") {
+                    scale = d3.scale.ordinal()
                         .domain(["MALE", "male", "FEMALE", "female"])
-                        .range(["blue", "blue", "pink", "pink"]);
+                        .range(["#3790d6", "#3790d6", "pink", "pink"]);
+
+                    return [attr.attr_id, scale];
                 }
 
                 // calculate the proper colors for all other attributes
@@ -956,7 +959,10 @@ var Oncoprint = function(div, params) {
         };
 
         // if bool === true, show unaltered cases, otherwise, don't
+        var show_unaltered_bool = true;     // saves state for toggleUnalteredCases
         var showUnalteredCases = function(bool) {
+            show_unaltered_bool = bool;     // set the state
+
             if (bool) {
 //                internal_data = MemoSort(data, attributes);
                 internal_data = data;
@@ -971,7 +977,6 @@ var Oncoprint = function(div, params) {
 
             return internal_data;
         };
-        var show_unaltered_bool = true;     // saves state for toggleUnalteredCases
 
         var ANIMATION_DURATION = 750;
 
@@ -1141,10 +1146,6 @@ var Oncoprint = function(div, params) {
 
     // sort by gene data initially
     State.memoSort(params.genes.concat(clinical_attrs));
-
-//    setInterval(function() {
-//        State.memoSort(data, shuffle(attributes));
-//    }, 4400);
 
     OncoprintUI.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'));
 

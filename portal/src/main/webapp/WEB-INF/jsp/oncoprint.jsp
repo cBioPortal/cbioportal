@@ -122,8 +122,11 @@
                 geneDataColl.fetch({
                     type: "POST",
                     success: function(data) {
-                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'),
-                                { geneData: data.toJSON(), genes: geneDataColl.genes.split(" "), legend: document.getElementById('oncoprint_legend') });
+                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
+                            geneData: data.toJSON(),
+                            genes: geneDataColl.genes.split(" "),
+                            legend: document.getElementById('oncoprint_legend')
+                        });
                         $('#oncoprint .loader_img').hide();
                         $('#oncoprint #everything').show();
 
@@ -201,6 +204,9 @@
 
                                 // set the zoom to be whatever the slider currently says it is
                                 oncoprint.zoom(zoom.slider("value"));
+                                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+                                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+                                OncoprintUI.make_mouseover(d3.selectAll('.sample rect'))        // hack =(
                             }
                         });
                     }
@@ -218,7 +224,7 @@
             </script>
         </div>
 
-        <div id="oncoprint_legend"</div>
+        <div id="oncoprint_legend"></div>
         <script type="text/template" id="glyph_template">
             <svg height="23" width="6">
             <rect fill="{{bg_color}}" width="5.5" height="23"></rect>

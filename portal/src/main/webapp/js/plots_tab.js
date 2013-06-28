@@ -662,6 +662,22 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .text(yLegend);
 }
 
+function loadSVG() {
+
+    var mySVG = document.getElementById("plots_box");
+    var svgDoc = mySVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xml = xmlSerializer.serializeToString(svgDoc[0]);
+
+    //Quick fix for the Batik display bug
+    //TODO: debug/modify the library
+    xml = xml.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+    xml = xml.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+    return xml;
+
+}
+
 function fetchAxisTitle() {
     var xLegend = "";
     var yLegend = "";

@@ -99,11 +99,13 @@
                         <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
                             <input type='hidden' name='svgelement'>
                             <input type='hidden' name='filetype' value='pdf'>
+                            <input type='hidden' name='filename' value='plots.pdf'>
                             <input type='submit' value='PDF'>
                         </form>
                         <form style="display:inline-block" action='svgtopdf.do' method='post' onsubmit="this.elements['svgelement'].value=loadSVG();">
                             <input type='hidden' name='svgelement'>
                             <input type='hidden' name='filetype' value='svg'>
+                            <input type='hidden' name='filename' value='plots.svg'>
                             <input type='submit' value='SVG'>
                         </form>
                     </div>

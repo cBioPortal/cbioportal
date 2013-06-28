@@ -480,6 +480,7 @@ var PlotsTwoGenesView = (function(){
             "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'pdf');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
+            "<input type='hidden' name='filename' value='plots.pdf'>" +
             "<input type='submit' value='PDF'></form>";
         $('#two_genes_view_title').append(pdfConverterForm);
 
@@ -487,6 +488,7 @@ var PlotsTwoGenesView = (function(){
             "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'svg');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
+            "<input type='hidden' name='filename' value='plots.svg'>" +
             "<input type='submit' value='SVG'></form>";
         $('#two_genes_view_title').append(svgConverterForm);
     }

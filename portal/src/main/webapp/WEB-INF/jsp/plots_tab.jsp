@@ -92,6 +92,7 @@
                         <img style='padding:200px;' src='images/ajax-loader.gif'>
                     </div>
                     <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
+
                     <div id="plots_box"></div>
                 </td>
             </tr>

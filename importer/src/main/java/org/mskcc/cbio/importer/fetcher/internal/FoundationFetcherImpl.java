@@ -54,6 +54,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.mskcc.cbio.maf.MafUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -241,17 +242,18 @@ class FoundationFetcherImpl implements Fetcher {
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
-		String header = "CASE_ID\t" +
-		                "GENDER\t" +
-		                "FMI_CASE_ID\t" +
-		                "PIPELINE_VER\t" +
-		                "TUMOR_NUCLEI_PERCENT\t" +
-		                "MEDIAN_COV\t" +
-		                "COV>100X\t" +
-		                "ERROR_PERCENT\n";
+		String header = FileUtils.CASE_ID + "\t" +
+		                FileUtils.GENDER + "\t" +
+		                FileUtils.FMI_CASE_ID + "\t" +
+		                FileUtils.PIPELINE_VER + "\t" +
+		                FileUtils.TUMOR_NUCLEI_PERCENT + "\t" +
+		                FileUtils.MEDIAN_COV + "\t" +
+		                FileUtils.COV_100X + "\t" +
+		                FileUtils.ERROR_PERCENT + "\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_clinical.txt",
+			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				DatatypeMetadata.CLINICAL_STAGING_FILENAME,
 			header + content.toString());
 
 		return clinicalFile;
@@ -259,26 +261,27 @@ class FoundationFetcherImpl implements Fetcher {
 
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
-		String header = "hugo_symbol\t" +
-		                "NCBI_build\t" +
-		                "chromosome\t" +
-		                "start_position\t" +
-		                "end_position\t" +
-		                "strand\t" +
-		                "variant_classification\t" +
-		                "reference_allele\t" +
-		                "tumor_seq_allele1\t" +
-		                "tumor_seq_allele2\t" +
-		                "tumor_sample_barcode\t" +
-		                "validation_status\t" +
-		                "mutation_status\t" +
-		                "amino_acid_change\t" +
-		                "transcript\t" +
-		                "t_ref_count\t" +
-		                "t_alt_count\n";
+		String header = MafUtil.HUGO_SYMBOL + "\t" +
+		                MafUtil.NCBI_BUILD + "\t" +
+		                MafUtil.CHROMOSOME+ "\t" +
+		                MafUtil.START_POSITION + "\t" +
+		                MafUtil.END_POSITION + "\t" +
+		                MafUtil.STRAND + "\t" +
+		                MafUtil.VARIANT_CLASSIFICATION + "\t" +
+		                MafUtil.REFERENCE_ALLELE + "\t" +
+		                MafUtil.TUMOR_SEQ_ALLELE_1 + "\t" +
+		                MafUtil.TUMOR_SEQ_ALLELE_2 + "\t" +
+		                MafUtil.TUMOR_SAMPLE_BARCODE + "\t" +
+		                MafUtil.VALIDATION_STATUS + "\t" +
+		                MafUtil.MUTATION_STATUS + "\t" +
+		                MafUtil.AMINO_ACID_CHANGE_MANNUAL + "\t" +
+		                MafUtil.TRANSCRIPT + "\t" +
+		                MafUtil.T_REF_COUNT + "\t" +
+		                MafUtil.T_ALT_COUNT + "\n";
 
 		File mafFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_mutations_extended.txt",
+			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				DatatypeMetadata.MUTATIONS_STAGING_FILENAME,
 			header + content.toString());
 
 		return mafFile;

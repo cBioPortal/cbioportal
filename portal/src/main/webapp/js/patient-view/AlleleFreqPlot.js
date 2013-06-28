@@ -111,7 +111,7 @@ var AlleleFreqPlot = function(div, data) {
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([0, 2.3])
+        .domain([0, d3.max(data)])
         .range([height, 0]);
 
     var xAxis = d3.svg.axis()
@@ -152,13 +152,13 @@ var AlleleFreqPlot = function(div, data) {
     applyCss(x_axis.selectAll('path'));
     applyCss(x_axis.selectAll('line'));
 
-    x_axis
-        .append("text")
-        .attr("class", "label")
-        .attr("x", width)
-        .attr("y", -6)
-        .style("text-anchor", "end")
-        .text("allele frequency");
+    //x_axis
+    //    .append("text")
+    //    .attr("class", "label")
+    //    .attr("x", width)
+    //    .attr("y", -6)
+    //    .style("text-anchor", "end")
+    //    .text("allele frequency");
 
     // y axis
     var y_axis = svg.append("g")
@@ -181,6 +181,21 @@ var AlleleFreqPlot = function(div, data) {
         .attr('fill', 'none')
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');
+
+    // make a histogram
+    var histogram = d3.layout.histogram()
+        .frequency(false)
+        .bins(x.ticks(40));
+
+    var binned_data = histogram(data);
+
+    svg.selectAll(".bar")
+        .data(binned_data)
+        .enter().insert("rect")
+        .attr("x", function(d) { return x(d.x) + 1; })
+        .attr("y", function(d) { return y(d.y); })
+        .attr("width", x(binned_data[0].dx + binned_data[0].x) - x(binned_data[0].x) - 1)
+        .attr("height", function(d) {return (height - y(d.y)); });
 
     return div;
 };

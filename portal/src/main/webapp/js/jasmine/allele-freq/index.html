@@ -38,6 +38,7 @@
       //      var processed_data = AlleleFreqPlotUtils.process_data(data.alt_count, data.ref_count);
 
               var processed_data = data.split(",");
+              processed_data = processed_data.map(parseFloat);
 
             AlleleFreqPlot(document.getElementById('allele_freq'), processed_data)
 

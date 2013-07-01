@@ -23,10 +23,10 @@ function MutationDiagram(geneSymbol, options, data)
 // use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
-	elWidth: 720,               // width of the container
+	elWidth: 740,               // width of the container
 	elHeight: 180,              // height of the container
 	marginLeft: 40,             // left margin for the plot area
-	marginRight: 20,            // right margin for the plot area
+	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
 	labelX: false,              // informative label of the x-axis (false means "do not draw")
@@ -37,11 +37,11 @@ MutationDiagram.prototype.defaultOpts = {
 	labelYFont: "sans-serif",   // font type of the y-axis label
 	labelYFontColor: "#2E3436", // font color of the y-axis label
 	labelYFontSize: "12px",     // font size of y-axis label
-	offsetY: 3,                 // offset for y values
-	offsetX: 0,                 // offset for x values
+	minLengthX: 0,              // min value of the largest x value to show
+	minLengthY: 5,              // min value of the largest y value to show
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
 	seqHeight: 14,              // height of the sequence rectangle
-	seqPadding: 8,              // padding between sequence and plot area
+	seqPadding: 5,              // padding between sequence and plot area
 	regionHeight: 24,           // height of a region (drawn on the sequence)
 	regionFont: "sans-serif",   // font of the region text
 	regionFontColor: "#FFFFFF", // font color of the region text
@@ -60,9 +60,12 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
-	xAxisPadding: 15,           // padding between x-axis and the sequence
-	xAxisTickInterval: 100,     // major tick interval for x-axis
-	xAxisMaxTickLabel: 5,       // maximum number of visible tick label on the x-axis
+	xAxisPadding: 10,           // padding between x-axis and the sequence
+	xAxisTickIntervals: [       // valid major tick intervals for x-axis
+		100, 200, 400, 500, 1000, 2000, 5000, 10000, 20000, 50000
+	],
+	xAxisTicks: 8,              // maximum number of major ticks for x-axis
+								// (a major tick may not be labeled if it is too close to the max)
 	xAxisTickSize: 6,           // size of the major ticks of x-axis
 	xAxisStroke: "#AAAAAA",     // color of the x-axis lines
 	xAxisFont: "sans-serif",    // font type of the x-axis labels
@@ -301,8 +304,8 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
 	var self = this;
 
-	var xMax = data.sequence.sequenceLength + options.offsetX;
-	var yMax = self.calcMaxCount(data.mutations) + options.offsetY;
+	var xMax = Math.max(data.sequence.sequenceLength, options.minLengthX);
+	var yMax = Math.max(self.calcMaxCount(data.mutations), options.minLengthY);
 	var regions = data.sequence.regions;
 	var mutations = data.mutations;
 	var seqTooltip = data.sequence.identifier + ", " +
@@ -399,61 +402,72 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 {
 	var self = this;
 
-	// helper function to calculate display interval for tick labels
-	var calcDisplayInterval = function(interval, maxValue, maxLabelCount) {
-		var displayInterval = maxValue / (maxLabelCount - 1);
+	// helper function to calculate major tick interval for the axis
+	var calcTickInterval = function(intervals, maxValue, maxTickCount)
+	{
+		var interval = -1;
 
-		if (displayInterval % interval > interval / 2)
+		for (var i=0; i < intervals.length; i++)
 		{
-			displayInterval += + interval - (displayInterval % interval);
-		}
-		else
-		{
-			displayInterval -= (displayInterval % interval);
+			interval = intervals[i];
+			var count = maxValue / interval;
+
+			//if (Math.round(count) <= maxLabelCount)
+			if (count < maxTickCount - 1)
+			{
+				break;
+			}
 		}
 
-		if (displayInterval < interval)
-		{
-			displayInterval = interval;
-		}
-
-		return displayInterval;
+		return interval;
 	};
 
 	// determine tick values
 	var tickValues = [];
 
 	var value = 0;
-	var interval = options.xAxisTickInterval;
+	var interval = calcTickInterval(options.xAxisTickIntervals,
+		xMax,
+		options.xAxisTicks);
 
-	while (value < xMax - interval / 2)
+	while (value < xMax)
 	{
 		tickValues.push(value);
-		value += interval;
+		// use half interval value for generating minor ticks
+		// TODO change back to full value when there is a fix for d3 minor ticks
+		value += interval / 2;
 	}
 
+	// add the max value in any case
 	tickValues.push(xMax);
 
 	// formatter to hide labels
 	var formatter = function(value) {
-		var displayInterval = calcDisplayInterval(interval,
-			xMax,
-			options.xAxisMaxTickLabel);
+//		var displayInterval = calcDisplayInterval(interval,
+//			xMax,
+//			options.xAxisMaxTickLabel);
 
 		// always display max value
 		if (value == xMax)
 		{
 			return value + " aa";
 		}
-		// display value if its multiple of display interval
-		else if (value % displayInterval == 0)
+		// do not display minor values
+		// (this is custom implementation of minor ticks,
+		// minor ticks don't work properly for custom values)
+		else if (value % interval != 0)
+		{
+			return "";
+		}
+		// display major tick value if its not too close to the max value
+		else if (xMax - value > interval / 3)
 		{
 			return value;
 		}
 		// hide remaining labels
 		else
 		{
-			return '';
+			return "";
 		}
 	};
 
@@ -464,7 +478,7 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 		.orient("bottom")
 		.tickValues(tickValues)
 		.tickFormat(formatter)
-		.tickSubdivide(true)
+		//.tickSubdivide(true) TODO minor ticks have a problem with custom values
 		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis

@@ -397,7 +397,7 @@ function _generateMutationTable(tableId, data)
 
     // footer message for special genes
     //table += '<p><br>' + data.footerMsg + '<br>';
-	table += '<br>';
+	//table += '<br>';
 
 	return table;
 }

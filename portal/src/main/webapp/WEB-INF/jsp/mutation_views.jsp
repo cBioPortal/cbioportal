@@ -19,7 +19,7 @@
 		<button class='diagram-to-pdf'>PDF</button>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
-	<div id='mutation_table_{{geneSymbol}}'>
+	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
 </script>

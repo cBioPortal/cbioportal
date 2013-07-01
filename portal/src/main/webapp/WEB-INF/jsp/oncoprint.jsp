@@ -34,8 +34,8 @@
             </style>
             <p onclick="$('#oncoprint_controls #main').toggle(); $('#oncoprint_controls .triangle').toggle();"
                style="margin-bottom: 0px;">
-                <span class='triangle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-                <span class='triangle ui-icon u.jquery.mini-icon-triangle-1-s' style='float:left; display:none;'></span>
+                <span class="triangle query-toggle ui-icon ui-icon-triangle-1-e" style="float: left; display: block;"></span>
+                <span class="triangle query-toggle ui-icon ui-icon-triangle-1-s" style="float: left; display: none;"></span>
                 <span class='onco-customize'>Customize</span>
             </p>
 

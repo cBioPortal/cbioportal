@@ -77,7 +77,7 @@ public class SvgConverter extends HttpServlet {
 
         String xml = "";
         String format = "";
-	    String filename = "";
+	String filename = "";
 
         if (httpServletRequest instanceof FileUploadRequestWrapper) {
 
@@ -90,14 +90,17 @@ public class SvgConverter extends HttpServlet {
             // get xml parameter
             xml = wrapper.getParameter("svgelement");
 
-	        // get filename parameter
-	        filename = wrapper.getParameter("filename");
+	    // get filename parameter
+	    filename = wrapper.getParameter("filename");
         }
         else {
+            
             format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+            
             // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
-	        filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
+	        
+            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
 	    if (filename == null ||
@@ -123,7 +126,6 @@ public class SvgConverter extends HttpServlet {
      */
     private void convertToSVG(HttpServletResponse response, String xml, String filename)
 		    throws ServletException, IOException {
-
         try {
             response.setContentType("application/svg+xml");
             response.setHeader("content-disposition", "inline; filename=" + filename);

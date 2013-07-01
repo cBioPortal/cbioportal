@@ -208,7 +208,6 @@
     $(".plots-tabs-ref").tipTip(
             {defaultPosition: "top", delay:"100", edgeOffset: 10, maxWidth: 200});
 
-
 </script>
 
 

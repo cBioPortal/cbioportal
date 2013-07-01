@@ -259,7 +259,8 @@ public class MafProcessor
 	public List<String> newDataList(String dataLine)
 	{
 		// adjust data line for consistency with the header
-		dataLine = this.mafUtil.adjustDataLine(dataLine);
+		dataLine = TabDelimitedFileUtil.adjustDataLine(dataLine,
+			this.mafUtil.getHeaderCount());
 
 		String[] parts = dataLine.split(TAB, -1);
 		List<String> dataList = new ArrayList<String>();

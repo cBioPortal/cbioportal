@@ -152,7 +152,6 @@ var PlotsTwoGenesMenu = (function(){
     };
 }());
 
-
 var PlotsTwoGenesView = (function(){
     //Extracted data from JSON for plotting
     //Dots collection
@@ -190,13 +189,13 @@ var PlotsTwoGenesView = (function(){
         },
         style = {
             geneX_mut : {
-                fill : "#31B404",
-                stroke : "#298A08",
+                fill : "#DBA901",
+                stroke : "#886A08",
                 text : "GeneX Mutated"
             },
             geneY_mut : {
-                fill : "#2E64FE",
-                stroke : "#013ADF",
+                fill : "#F5A9F2",
+                stroke : "#F7819F",
                 text : "GeneY Mutated"
             },
             both_mut : {
@@ -205,8 +204,8 @@ var PlotsTwoGenesView = (function(){
                 text : "Both Mutated"
             },
             non_mut : {
-                fill : "#585858",
-                stroke : "#2E2E2E",
+                fill : "#00AAF8",
+                stroke : "#0089C6",
                 text : "Non Mutated"
             }
         };

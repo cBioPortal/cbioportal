@@ -114,7 +114,6 @@ var PlotsMenu = (function () {
 
     }());
 
-
     function drawMenu() {
 
         //Gene List

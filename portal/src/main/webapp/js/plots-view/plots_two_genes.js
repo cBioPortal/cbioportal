@@ -63,6 +63,14 @@ var PlotsTwoGenesMenu = (function(){
         $(divId).append("<option value='" + value + "'>" + text + "</option>");
     }
 
+    function dataIsDiscretized(profileText) {
+        if (profileText.indexOf("GISTIC") !== -1 ||
+            profileText.indexOf("RAE") !== -1) {
+            return true;
+        }
+        return false;
+    }
+
     return {
         init: function() {
             //TODO: Enable this view only when there are >2 genes!
@@ -82,22 +90,24 @@ var PlotsTwoGenesMenu = (function(){
             $("#two_genes_platform_select_div").empty();
             $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init()'>");
 
-            if($("#two_genes_plots_type").val() === "mrna"){
+            if ($("#two_genes_plots_type").val() === "mrna") {
                 content.genetic_profile_mrna.forEach (function (profile) {
                     $("#two_genes_platform")
                         .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
                 });
-            } else if($("#two_genes_plots_type").val() === "copy_no"){
+            } else if ($("#two_genes_plots_type").val() === "copy_no") {
                 content.genetic_profile_copy_no.forEach (function (profile) {
-                    $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    if (!dataIsDiscretized(profile[1])) {
+                        $("#two_genes_platform")
+                            .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    }
                 });
-            } else if($("#two_genes_plots_type").val() === "methylation"){
+            } else if ($("#two_genes_plots_type").val() === "methylation") {
                 content.genetic_profile_dna_methylation.forEach (function (profile) {
                     $("#two_genes_platform")
                         .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
                 });
-            } else if($("#two_genes_plots_type").val() === "rppa"){
+            } else if ($("#two_genes_plots_type").val() === "rppa") {
                 content.genetic_profile_rppa.forEach (function (profile) {
                     $("#two_genes_platform")
                         .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");

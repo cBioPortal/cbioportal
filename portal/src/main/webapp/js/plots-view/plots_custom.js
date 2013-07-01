@@ -53,6 +53,14 @@ var PlotsCustomMenu = (function(){
         $(divId).append("<option value='" + value + "'>" + text + "</option>");
     }
 
+    function dataIsDiscretized(profileText) {
+        if (profileText.indexOf("GISTIC") !== -1 ||
+            profileText.indexOf("RAE") !== -1) {
+            return true;
+        }
+        return false;
+    }
+
     function generateList(selectId, options) {
         var select = document.getElementById(selectId);
         options.forEach(function(option){
@@ -74,8 +82,10 @@ var PlotsCustomMenu = (function(){
             });
         } else if($("#custom_plots_type_x").val() === "copy_no"){
             content.genetic_profile_copy_no.forEach (function (profile) {
-                $("#custom_platform_x")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
+                    $("#custom_platform_x")
+                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                }
             });
         } else if($("#custom_plots_type_x").val() === "methylation"){
             content.genetic_profile_dna_methylation.forEach (function (profile) {
@@ -102,8 +112,10 @@ var PlotsCustomMenu = (function(){
             });
         } else if($("#custom_plots_type_y").val() === "copy_no"){
             content.genetic_profile_copy_no.forEach (function (profile) {
-                $("#custom_platform_y")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
+                    $("#custom_platform_y")
+                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                }
             });
         } else if($("#custom_plots_type_y").val() === "methylation"){
             content.genetic_profile_dna_methylation.forEach (function (profile) {
@@ -120,11 +132,15 @@ var PlotsCustomMenu = (function(){
 
     return {
         init: function() {
+
             fetchFrameData();
+
             generateList("custom_geneX", gene_list);
             //shift the genelist (temporary solution)
+            //TODO:
             var tmp_gene_holder = gene_list.pop();
             gene_list.unshift(tmp_gene_holder);
+
             generateList("custom_geneY", gene_list);
             content.plots_type_list.forEach( function(plots_type) {
                 appendDropDown("#custom_plots_type_x", plots_type.value, plots_type.name);
@@ -132,6 +148,7 @@ var PlotsCustomMenu = (function(){
             content.plots_type_list.forEach( function(plots_type) {
                 appendDropDown("#custom_plots_type_y", plots_type.value, plots_type.name);
             });
+
         },
         update: function(){
             updateXselection();

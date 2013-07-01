@@ -286,11 +286,26 @@ var PlotsTwoGenesView = (function(){
         var max_y = analyseResult.max_y;
         var edge_y = analyseResult.edge_y;
 
+        console.log(menu.plots_type);
+        ///TODO: Hide html value "methylation"
+        ///funciton() datatypeIsMethylation
+        if (menu.plots_type === "methylation") { //Fix the range for methylation data
+            var rangeXmin = -0.02;
+            var rangeXmax = 1;
+            var rangeYmin = -0.02;
+            var rangeYmax = 1;
+        } else {
+            var rangeXmin = min_x - edge_x;
+            var rangeXmax = max_x + edge_x;
+            var rangeYmin = min_y - edge_y;
+            var rangeYmax = max_y + edge_y;
+        }
+
         elem.xScale = d3.scale.linear()
-            .domain([min_x - edge_x, max_x + edge_x])
+            .domain([rangeXmin, rangeXmax])
             .range([100, 600]);
         elem.yScale = d3.scale.linear()
-            .domain([min_y - edge_y, max_y + edge_y])
+            .domain([rangeYmin, rangeYmax])
             .range([520, 20]);
 
         elem.xAxis = d3.svg.axis()
@@ -300,6 +315,7 @@ var PlotsTwoGenesView = (function(){
             .scale(elem.yScale)
             .orient("left");
     }
+
     function drawAxis() {
         var svg = elem.svg;
         svg.append("g")

@@ -344,11 +344,25 @@ var PlotsCustomView = (function() {
         var max_y = analyseResult.max_y;
         var edge_y = analyseResult.edge_y;
 
+        ///TODO: Hide html value "methylation"
+        ///funciton() datatypeIsMethylation
+        var rangeXmin = min_x - edge_x;
+        var rangeXmax = max_x + edge_x;
+        var rangeYmin = min_y - edge_y;
+        var rangeYmax = max_y + edge_y;
+        if (menu.plots_type_x === "methylation") { //Fix the range for methylation data
+            rangeXmin = -0.02;
+            rangeXmax = 1;
+        }
+        if (menu.plots_type_y === "methylation") {
+            rangeYmin = -0.02;
+            rangeYmax = 1;
+        }
         elem.xScale = d3.scale.linear()
-            .domain([min_x - edge_x, max_x + edge_x])
+            .domain([rangeXmin, rangeXmax])
             .range([100, 600]);
         elem.yScale = d3.scale.linear()
-            .domain([min_y - edge_y, max_y + edge_y])
+            .domain([rangeYmin, rangeYmax])
             .range([520, 20]);
 
         elem.xAxis = d3.svg.axis()

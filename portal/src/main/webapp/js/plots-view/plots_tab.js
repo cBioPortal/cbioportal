@@ -922,7 +922,7 @@ var PlotsView = (function () {
             $('#view_title').append(svgConverterForm);
         }
 
-        function initAxis() {
+        function initContinuousAxis() {
             var analyseResult = {};
             if (userSelection.plots_type.indexOf("copy_no") !== -1) {
                 analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
@@ -962,18 +962,14 @@ var PlotsView = (function () {
 
         function initDiscretizedAxis() {
 
-            var analyseResult = {};
-            analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
-            var min_x = analyseResult.min_x;
-            var max_x = analyseResult.max_x;
+            var analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
             var min_y = analyseResult.min_y;
             var max_y = analyseResult.max_y;
             var edge_y = analyseResult.edge_y;
 
             //reset max_x as the range of slots
             // -- Not real max x value for scaling!!
-            slotsCnt = 0;
-
+            var slotsCnt = 0;
             var tmp_copy_no = [];
             $.each(tmpDataSet, function(index, value) {
                 tmp_copy_no.push(value.xVal);
@@ -1535,7 +1531,7 @@ var PlotsView = (function () {
         return {
             initView: initView,
             drawImgConverter: drawImgConverter,
-            initAxis: initAxis,
+            initContinuousAxis: initContinuousAxis,
             initDiscretizedAxis: initDiscretizedAxis,
             drawDiscretizedAxis: drawDiscretizedAxis,
             drawContinuousAxis: drawContinuousAxis,
@@ -1580,18 +1576,18 @@ var PlotsView = (function () {
                         View.drawBoxPlots();
                         View.drawDiscretizedPlots();
                     } else {
-                        View.initAxis();
+                        View.initContinuousAxis();
                         View.drawContinuousAxis();
                         View.drawLog2Plots();
                     }
                     View.drawCopyNoViewLegends();
                 } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
-                    View.initAxis();
+                    View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();
                 } else if (Util.plotsTypeIsRPPA()) {
-                    View.initAxis();
+                    View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();

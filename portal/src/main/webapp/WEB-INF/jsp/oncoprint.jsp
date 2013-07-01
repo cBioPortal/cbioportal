@@ -54,9 +54,9 @@
                             </select>
                         </td>
                         <td>
-                            <span>Sort By: </span>
+                            <span>Sort by: </span>
                             <select id="sort_by" style="width: 200px;">
-                                <option selected="selected" value="genes">gene data</option>
+                                <option value="genes">gene data</option>
                                 <option value="clinical" disabled>clinical data</option>
                                 <option value="alphabetical">alphabetically by case id</option>
                                 <option value="custom">user-defined case list / default</option>
@@ -91,7 +91,7 @@
 
                 var geneDataColl = new GeneDataColl({
                     cancer_study_id: cancer_study_id_selected,
-                    genes: GeneSet(gene_list).getAllGenes().join(" "),
+                    genes: typeof gene_list === "string" ? GeneSet(gene_list).getAllGenes().join(" ") : GeneSet(gene_list.innerHTML).getAllGenes().join(" "),
                     case_list: cases,
                     genetic_profiles: genetic_profiles,
                     z_score_threshold: zscore_threshold,
@@ -137,6 +137,7 @@
                 var select_clinical_attributes_id = '#select_clinical_attributes';
                 var oncoprintClinicals;
                 var sortBy = $('#oncoprint_controls #sort_by');
+                $('#oncoprint_controls #sort_by').chosen({width: "240px", disable_search: true });
 
                 // params: bool
                 // enable or disable all the various oncoprint controls
@@ -154,7 +155,6 @@
                     select_clinical_attributes.prop('disabled', enable_disable).trigger("liszt:updated");
                     zoom.attr('disabled', enable_disable);
                     sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
-                    //sortBy.attr('disabled', enable_disable);
                 };
 
                 // handler for when user selects a clinical attribute to visualization
@@ -198,7 +198,9 @@
 
                                 // enable the option to sort by clinical data
                                 $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-                                sortBy.val('genes');        // sort by genes by default
+
+                                // sort by genes by default
+                                sortBy.val('genes');
 
                                 toggleControls(true);
 
@@ -218,8 +220,6 @@
                     $('#oncoprint_controls #sort_by').change(function() {
                         oncoprint.sortBy(sortBy.val(), cases.split(" "));
                     });
-
-                    //sortBy.chosen({disable_search: true});
                 });
             </script>
         </div>

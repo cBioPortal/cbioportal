@@ -100,15 +100,11 @@ public class SvgConverter extends HttpServlet {
 	        filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
-        System.out.println("filename:" + filename);
-
 	    if (filename == null ||
 	        filename.length() == 0)
 	    {
 		    filename = DEFAULT_FILENAME;
 	    }
-
-        System.out.println("filename: " + filename);
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);

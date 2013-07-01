@@ -966,7 +966,6 @@ var PlotsView = (function () {
             analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
             var min_x = analyseResult.min_x;
             var max_x = analyseResult.max_x;
-            var edge_x = analyseResult.edge_x;
             var min_y = analyseResult.min_y;
             var max_y = analyseResult.max_y;
             var edge_y = analyseResult.edge_y;
@@ -974,16 +973,39 @@ var PlotsView = (function () {
             //reset max_x as the range of slots
             // -- Not real max x value for scaling!!
             slotsCnt = 0;
-            for (var j = min_x; j < max_x + 1; j++) {
-                if (pData.copy_no.indexOf(j.toString()) !== -1) {
+
+            var tmp_copy_no = [];
+            $.each(tmpDataSet, function(index, value) {
+                tmp_copy_no.push(value.xVal);
+            })
+            for (var j = -2; j < 3; j++) {
+                if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                     slotsCnt += 1;
                 }
             }
-            var new_min_x = 0;
-            var new_max_x = slotsCnt - 1;
 
+            //Set the domain range for different cases
+            var new_min_x, new_max_x;
+            if (slotsCnt === 1) {
+                new_min_x = -0.5;
+                new_max_x = 0.5;
+            } else if (slotsCnt === 2) {
+                new_min_x = -0.8;
+                new_max_x = 1.8;
+            } else if (slotsCnt === 3) {
+                new_min_x = -0.8;
+                new_max_x = 2.8;
+            } else if (slotsCnt === 4) {
+                new_min_x = -0.6;
+                new_max_x = 3.6;
+            } else if (slotsCnt === 5) {
+                new_min_x = -0.6;
+                new_max_x = 4.6;
+            }
+
+            //Define the axis
             elem.xScale = d3.scale.linear()
-                .domain([new_min_x - edge_x, new_max_x + edge_x])
+                .domain([new_min_x, new_max_x])
                 .range([100, 600]);
             elem.yScale = d3.scale.linear()
                 .domain([min_y - edge_y, max_y + edge_y])
@@ -1001,8 +1023,12 @@ var PlotsView = (function () {
             var textSet = [];
             var svg = elem.svg;
 
+            var tmp_copy_no = [];
+            $.each(tmpDataSet, function(index, value) {
+                tmp_copy_no.push(value.xVal);
+            })
             for (var j = -2; j < 3; j++) {
-                if (pData.copy_no.indexOf(j.toString()) !== -1) {
+                if (tmp_copy_no.indexOf(j.toString()) !== -1) {
                     textSet.push(text.gistic_txt_val[j.toString()]);
                 }
             }

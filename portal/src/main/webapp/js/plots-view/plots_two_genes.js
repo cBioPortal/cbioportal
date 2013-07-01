@@ -71,6 +71,64 @@ var PlotsTwoGenesMenu = (function(){
         return false;
     }
 
+    function setPlatFormDefaultSelection() {
+        //----mRNA Priority List: RNA Seq V2, RNA Seq, Z-scores
+        //TODO: Changed hard coded html value
+        if ($("#two_genes_plots_type").val() === "mrna") {
+            $("#data_type_mrna > option").each(function() {
+                if (this.text.toLowerCase().indexOf("z-scores")){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $("#two_genes_platform > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $("#two_genes_platform > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
+    }
+
+    function drawPlatFormList() {
+        $("#two_genes_platform_select_div").empty();
+        $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init()'>");
+
+        if ($("#two_genes_plots_type").val() === "mrna") {
+            content.genetic_profile_mrna.forEach (function (profile) {
+                $("#two_genes_platform")
+                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+            });
+            setPlatFormDefaultSelection();
+        } else if ($("#two_genes_plots_type").val() === "copy_no") {
+            content.genetic_profile_copy_no.forEach (function (profile) {
+                if (!dataIsDiscretized(profile[1])) {
+                    $("#two_genes_platform")
+                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                }
+            });
+        } else if ($("#two_genes_plots_type").val() === "methylation") {
+            content.genetic_profile_dna_methylation.forEach (function (profile) {
+                $("#two_genes_platform")
+                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+            });
+        } else if ($("#two_genes_plots_type").val() === "rppa") {
+            content.genetic_profile_rppa.forEach (function (profile) {
+                $("#two_genes_platform")
+                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+            });
+        }
+        $("#two_genes_platform_select_div").append("</select>");
+    }
+
     return {
         init: function() {
             //TODO: Enable this view only when there are >2 genes!
@@ -86,37 +144,10 @@ var PlotsTwoGenesMenu = (function(){
             });
         },
         update: function() {
-
-            $("#two_genes_platform_select_div").empty();
-            $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init()'>");
-
-            if ($("#two_genes_plots_type").val() === "mrna") {
-                content.genetic_profile_mrna.forEach (function (profile) {
-                    $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
-                });
-            } else if ($("#two_genes_plots_type").val() === "copy_no") {
-                content.genetic_profile_copy_no.forEach (function (profile) {
-                    if (!dataIsDiscretized(profile[1])) {
-                        $("#two_genes_platform")
-                            .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
-                    }
-                });
-            } else if ($("#two_genes_plots_type").val() === "methylation") {
-                content.genetic_profile_dna_methylation.forEach (function (profile) {
-                    $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
-                });
-            } else if ($("#two_genes_plots_type").val() === "rppa") {
-                content.genetic_profile_rppa.forEach (function (profile) {
-                    $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
-                });
-            }
-            $("#two_genes_platform_select_div").append("</select>");
-
+            //Re-draw platform list
+            drawPlatFormList();
+            //re-generate the plots view
             PlotsTwoGenesView.init();
-
         }
     };
 }());
@@ -296,7 +327,6 @@ var PlotsTwoGenesView = (function(){
         var max_y = analyseResult.max_y;
         var edge_y = analyseResult.edge_y;
 
-        console.log(menu.plots_type);
         ///TODO: Hide html value "methylation"
         ///funciton() datatypeIsMethylation
         if (menu.plots_type === "methylation") { //Fix the range for methylation data

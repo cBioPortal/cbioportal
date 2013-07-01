@@ -71,6 +71,33 @@ var PlotsCustomMenu = (function(){
         });
     }
 
+    function setPlatFormDefaultSelection(plotsTypeId, platformId) {
+        //----mRNA Priority List: RNA Seq V2, RNA Seq, Z-scores
+        //TODO: Changed hard coded html value
+        if ($(plotsTypeId).val() === "mrna") {
+            $(platformId + " > option").each(function() {
+                if (this.text.toLowerCase().indexOf("z-scores")){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $(platformId + " > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+            $(platformId + " > option").each(function() {
+                if (this.text.toLowerCase().indexOf("rna seq v2") !== -1 &&
+                    this.text.toLowerCase().indexOf("z-scores") === -1){
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
+    }
+
     function updateXselection() {
         $("#custom_platform_select_div_x").empty();
         $("#custom_platform_select_div_x").append("<select id='custom_platform_x' onchange='PlotsCustomView.init()'>");
@@ -80,6 +107,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_x", "#custom_platform_x");
         } else if($("#custom_plots_type_x").val() === "copy_no"){
             content.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
@@ -110,6 +138,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_y", "#custom_platform_y");
         } else if($("#custom_plots_type_y").val() === "copy_no"){
             content.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
@@ -128,6 +157,7 @@ var PlotsCustomMenu = (function(){
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
         }
+
     }
 
     return {

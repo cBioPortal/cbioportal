@@ -147,7 +147,7 @@
                               function(){ $(this).removeClass('ui-state-hover'); }
                           );
 
-                          $('.ui-state-default').tipTip();
+                          //$('.ui-state-default').tipTip();
 
                           if( allValid ) {
                                 $("#main_submit").removeAttr("disabled").removeAttr("title")

@@ -903,8 +903,9 @@ var Oncoprint = function(div, params) {
     // This object is returned to the user for the UI
     var State = (function() {
         var internal_data = data;
-        var whitespace = true;              // show white space?
-        var internal_rect_width = dims.rect_width;   // initialize
+        var whitespace = true;                      // show white space?
+        var internal_rect_width = dims.rect_width;  // initialize
+        var internal_scalar = 1;
 
         // takes a list of samples and returns an object that contains
         // a function f,
@@ -921,7 +922,7 @@ var Oncoprint = function(div, params) {
             // params: i, sample index
             // returns: the width of the svg to contain those samples.
             var xpos = function(i) {
-                return i * (internal_rect_width + (whitespace ? dims.hor_padding : 0));
+                return internal_scalar * i * (internal_rect_width + (whitespace ? dims.hor_padding : 0));
             };
 
             var svg_width_offset = 50;
@@ -1076,7 +1077,8 @@ var Oncoprint = function(div, params) {
             toggleWhiteSpace: toggleWhiteSpace,
 
             zoom: function(scalar, animation) {
-                internal_rect_width = scalar * dims.rect_width;
+                internal_scalar = scalar;
+                //internal_rect_width = scalar * dims.rect_width;
 
                 if (animation) {
                     horizontal_translate(ANIMATION_DURATION);

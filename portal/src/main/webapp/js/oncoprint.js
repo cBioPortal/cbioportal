@@ -766,7 +766,7 @@ var Oncoprint = function(div, params) {
         .append('text')
         .attr('x', 0)
         .attr('y', function(d) {
-            return (dims.vert_space / 1.5) + vertical_pos(d); });
+            return (dims.vert_space / 1.80) + vertical_pos(d); });
 
     var gene2percent = OncoprintUtils.percent_altered(params.geneData);
 
@@ -778,7 +778,10 @@ var Oncoprint = function(div, params) {
         .text(function(d) {
             return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
         .attr('x', '' + dims.label_width)
-        .attr('text-anchor', 'end');
+        .attr('text-anchor', 'end')
+        // remove the tspan that would have contained the percent altered
+        // because it messes with the label placement in the pdf download
+        .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
     var main_svg = table
         .append('td')

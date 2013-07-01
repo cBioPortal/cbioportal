@@ -34,8 +34,8 @@
             </style>
             <p onclick="$('#oncoprint_controls #main').toggle(); $('#oncoprint_controls .triangle').toggle();"
                style="margin-bottom: 0px;">
-                <span class="triangle query-toggle ui-icon ui-icon-triangle-1-e" style="float: left; display: block;"></span>
-                <span class="triangle query-toggle ui-icon ui-icon-triangle-1-s" style="float: left; display: none;"></span>
+                <span class="triangle ui-icon ui-icon-triangle-1-e" style="float: left; display: block;"></span>
+                <span class="triangle ui-icon ui-icon-triangle-1-s" style="float: left; display: none;"></span>
                 <span class='onco-customize'>Customize</span>
             </p>
 
@@ -113,7 +113,7 @@
                 clinicalAttributes.fetch({
                     success: function(attrs) {
                         OncoprintUI.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-                        $(select_clinical_attributes_id).chosen({width: "100%", "font-size": "12px"});
+                        $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
                     }
                 });
 

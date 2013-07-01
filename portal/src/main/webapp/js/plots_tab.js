@@ -966,7 +966,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             }
 
-
             var countSubDataSets = 0;
             $.each(subDataSet, function(key, value) {
                 if (subDataSet[key].length !== 0) {
@@ -976,9 +975,27 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             });
 
             //Redefine the axis
-            xScale = d3.scale.linear()
-                .domain([min_x - edge_x, (min_x + countSubDataSets - 1) + edge_x])
-                .range([100, 600]);
+            if (countSubDataSets === 1) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.2), (min_x + 0.2)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 2) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.8), (min_x + countSubDataSets - 1 + 0.8)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 3) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.8, (min_x + countSubDataSets - 1) + 0.8])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 4) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 5) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            }
             xAxis = d3.svg.axis()
                 .scale(xScale)
                 .orient("bottom")

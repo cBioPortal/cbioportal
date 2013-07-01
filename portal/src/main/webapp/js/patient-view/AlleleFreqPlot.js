@@ -42,14 +42,6 @@ var AlleleFreqPlotUtils = (function() {
         };
     };
 
-    // params: scale, smoothing a parameter
-    // Epanechnikov kernel function
-    var epanechnikovKernel = function (scale) {
-        return function(u) {
-            return Math.abs(u /= scale) <= 1 ? .75 * (1 - u * u) / scale : 0;
-        };
-    };
-
     // params: kernel, list of points
     //
     // returns a function, call it kde, that takes a list of sample points, samples, and
@@ -90,8 +82,6 @@ var AlleleFreqPlotUtils = (function() {
         process_data: process_data,
         extract_and_process: extract_and_process,
         kernelDensityEstimator: kernelDensityEstimator,
-        epanechnikovKernel: epanechnikovKernel,
-        uniform: uniform,
         gaussianKernel: gaussianKernel,
         calculate_bandwidth: calculate_bandwidth
     };
@@ -106,18 +96,37 @@ var AlleleFreqPlot = function(div, data) {
         width = 560 / 2 - margin.left - margin.right,
         height = 500 / 2 - margin.top - margin.bottom;
 
+    var utils =  AlleleFreqPlotUtils;        // alias
+
+    // x scale and axis
     var x = d3.scale.linear()
         .domain([-.1, 1])
         .range([0, width]);
-
-    var y = d3.scale.linear()
-        .domain([0, d3.max(data)])
-        .range([height, 0]);
 
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom")
         .ticks(3);
+
+    // make a kde
+    var bandwidth = utils.calculate_bandwidth(data);
+    var kde = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth), x.ticks(100));
+    var plot_data = kde(data);
+
+    // make a histogram
+    var histogram = d3.layout.histogram()
+        .frequency(false)
+        .bins(x.ticks(30));
+
+    var binned_data = histogram(data);
+
+    // calculate the range of values that y takes
+    var ydomain = plot_data.map(function(d){ return d[1]; });       // plot_data is a list of 2-ples
+    ydomain = [d3.min(ydomain), d3.max(ydomain)];
+
+    var y = d3.scale.linear()
+        .domain(ydomain)
+        .range([height, 0]);
 
     var yAxis = d3.svg.axis()
         .scale(y)
@@ -127,16 +136,6 @@ var AlleleFreqPlot = function(div, data) {
     var line = d3.svg.line()
         .x(function(d) { return x(d[0]); })
         .y(function(d) { return y(d[1]); });
-
-    // applies some common line and path css attributes to the selection.  The
-    // only reason this isn't getting put into its own css file is due to the
-    // spectre of pdf export
-    var applyCss = function(selection) {
-        return selection
-            .attr('fill', 'none')
-            .attr('stroke', '#000')
-            .attr('shape-rendering', 'crispEdges');
-    };
 
     var svg = d3.select(div).append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -149,16 +148,26 @@ var AlleleFreqPlot = function(div, data) {
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis);
 
+    // applies some common line and path css attributes to the selection.  The
+    // only reason this isn't getting put into its own css file is due to the
+    // spectre of pdf export
+    var applyCss = function(selection) {
+        return selection
+            .attr('fill', 'none')
+            .attr('stroke', '#000')
+            .attr('shape-rendering', 'crispEdges');
+    };
+
     applyCss(x_axis.selectAll('path'));
     applyCss(x_axis.selectAll('line'));
 
-    //x_axis
-    //    .append("text")
-    //    .attr("class", "label")
-    //    .attr("x", width)
-    //    .attr("y", -6)
-    //    .style("text-anchor", "end")
-    //    .text("allele frequency");
+    x_axis
+        .append("text")
+        .attr("class", "label")
+        .attr("x", width)
+        .attr("y", -6)
+        .style("text-anchor", "end")
+        .text("allele frequency");
 
     // y axis
     var y_axis = svg.append("g")
@@ -167,13 +176,21 @@ var AlleleFreqPlot = function(div, data) {
     applyCss(y_axis.selectAll('path')).attr('display', 'none');
     applyCss(y_axis.selectAll('line'));
 
-    var utils =  AlleleFreqPlotUtils;        // alias
-    var bandwidth = utils.calculate_bandwidth(data);
-    var kde = utils.kernelDensityEstimator(utils.gaussianKernel(bandwidth), x.ticks(100));
-    var plot_data = kde(data);
+    // calculate a new domain for the binned data
+    var binned_ydomain = binned_data.map(function(d) { return d.y; });
+    binned_ydomain = [d3.min(binned_ydomain), d3.max(binned_ydomain)];
+    var binned_yscale = y.copy();
+    binned_yscale.domain(binned_ydomain);
 
-    // rescale the y scale to fit actual values
-    y.domain([0, d3.max(plot_data.map(function(i) { return i[1]; })) * 1.1 ]);
+    svg.selectAll(".bar")
+        .data(binned_data)
+        .enter().insert("rect")
+        .attr("x", function(d) { return x(d.x) + 1; })
+        .attr("y", function(d) { return binned_yscale(d.y); })
+        .attr("width", x(binned_data[0].dx + binned_data[0].x) - x(binned_data[0].x) - 1)
+        .attr("height", function(d) {return (height - binned_yscale(d.y)); })
+        .attr('fill', '#1974b8')
+        ;
 
     var kde_path = svg.append("path")
         .datum(plot_data)
@@ -181,21 +198,6 @@ var AlleleFreqPlot = function(div, data) {
         .attr('fill', 'none')
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');
-
-    // make a histogram
-    var histogram = d3.layout.histogram()
-        .frequency(false)
-        .bins(x.ticks(40));
-
-    var binned_data = histogram(data);
-
-    svg.selectAll(".bar")
-        .data(binned_data)
-        .enter().insert("rect")
-        .attr("x", function(d) { return x(d.x) + 1; })
-        .attr("y", function(d) { return y(d.y); })
-        .attr("width", x(binned_data[0].dx + binned_data[0].x) - x(binned_data[0].x) - 1)
-        .attr("height", function(d) {return (height - y(d.y)); });
 
     return div;
 };

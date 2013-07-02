@@ -30,6 +30,7 @@
     <div id="allele_freq"></div>
   </body>
   <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.1.6/d3.min.js"></script>
+  <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 
   <script type="text/javascript" src="AlleleFreqPlot.js"></script>
   <script type="text/javascript">
@@ -40,7 +41,7 @@
               var processed_data = data.split(",");
               processed_data = processed_data.map(parseFloat);
 
-            AlleleFreqPlot(document.getElementById('allele_freq'), processed_data)
+              allelefreqplot = AlleleFreqPlot(document.getElementById('allele_freq'), processed_data);
 
               });
   </script>

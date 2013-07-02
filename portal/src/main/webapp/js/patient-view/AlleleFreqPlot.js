@@ -184,7 +184,7 @@ var AlleleFreqPlot = function(div, data) {
     var binned_yscale = y.copy();
     binned_yscale.domain(binned_ydomain);
 
-    svg.selectAll(".bar")
+    var histogram = svg.selectAll(".bar")
         .data(binned_data)
         .enter().insert("rect")
         .attr("x", function(d) { return x(d.x) + 1; })
@@ -201,5 +201,10 @@ var AlleleFreqPlot = function(div, data) {
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');
 
-    return div;
+    var $histogram = $(histogram[0]);
+
+    return {
+        el: div,
+        toggle_histogram: function() { $histogram.toggle(); }
+    };
 };

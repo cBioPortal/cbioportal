@@ -73,7 +73,10 @@ MutationDiagram.prototype.defaultOpts = {
 	xAxisFontColor: "#2E3436",  // font color of the x-axis labels
 	yAxisPadding: 5,            // padding between y-axis and the plot area
 	yAxisLabelPadding: 15,      // padding between y-axis and its label
-	yAxisTicks: 3,              // number of major ticks to be displayed on the y-axis
+	yAxisTicks: 10,             // maximum number of major ticks for y-axis
+	yAxisTickIntervals: [       // valid major tick intervals for y-axis
+		1, 2, 5, 10, 20, 50, 100, 200, 500
+	],
 	yAxisTickSize: 6,           // size of the major ticks of y-axis
 	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
@@ -387,6 +390,62 @@ MutationDiagram.prototype.createSvg = function (container, width, height)
 	return svg;
 };
 
+// helper function to calculate major tick interval for the axis
+/**
+ * Calculates major tick interval for the given possible interval values,
+ * maximum value on the axis, and the desired maximum tick count.
+ *
+ * @param intervals     possible interval values
+ * @param maxValue      highest value on the axis
+ * @param maxTickCount  desired maximum tick count
+ * @return {number}     interval value
+ */
+MutationDiagram.prototype.calcTickInterval = function(intervals, maxValue, maxTickCount)
+{
+	var interval = -1;
+
+	for (var i=0; i < intervals.length; i++)
+	{
+		interval = intervals[i];
+		var count = maxValue / interval;
+
+		//if (Math.round(count) <= maxLabelCount)
+		if (count < maxTickCount - 1)
+		{
+			break;
+		}
+	}
+
+	return interval;
+};
+
+/**
+ * Calculates all tick values for the given max and interval values.
+ *
+ * @param maxValue  maximum value for the axis
+ * @param interval  interval (increment) value
+ * @return {Array}  an array of all tick values
+ */
+MutationDiagram.prototype.getTickValues = function(maxValue, interval)
+{
+	// determine tick values
+	var tickValues = [];
+	var value = 0;
+
+	while (value < maxValue)
+	{
+		tickValues.push(value);
+		// use half interval value for generating minor ticks
+		// TODO change back to full value when there is a fix for d3 minor ticks
+		value += interval / 2;
+	}
+
+	// add the max value in any case
+	tickValues.push(maxValue);
+
+	return tickValues;
+};
+
 /**
  * Draws the x-axis on the bottom side of the plot area.
  *
@@ -402,44 +461,11 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 {
 	var self = this;
 
-	// helper function to calculate major tick interval for the axis
-	var calcTickInterval = function(intervals, maxValue, maxTickCount)
-	{
-		var interval = -1;
-
-		for (var i=0; i < intervals.length; i++)
-		{
-			interval = intervals[i];
-			var count = maxValue / interval;
-
-			//if (Math.round(count) <= maxLabelCount)
-			if (count < maxTickCount - 1)
-			{
-				break;
-			}
-		}
-
-		return interval;
-	};
-
-	// determine tick values
-	var tickValues = [];
-
-	var value = 0;
-	var interval = calcTickInterval(options.xAxisTickIntervals,
+	var interval = self.calcTickInterval(options.xAxisTickIntervals,
 		xMax,
 		options.xAxisTicks);
 
-	while (value < xMax)
-	{
-		tickValues.push(value);
-		// use half interval value for generating minor ticks
-		// TODO change back to full value when there is a fix for d3 minor ticks
-		value += interval / 2;
-	}
-
-	// add the max value in any case
-	tickValues.push(xMax);
+	var tickValues = self.getTickValues(xMax, interval);
 
 	// formatter to hide labels
 	var formatter = function(value) {
@@ -515,19 +541,13 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 {
 	var self = this;
 
-	// determine tick values
-	var tickValues = [];
+	var interval = self.calcTickInterval(options.yAxisTickIntervals,
+		yMax,
+		options.yAxisTicks);
 
-	var value = 0;
-	var interval = yMax / (options.yAxisTicks - 1);
-
-	while (value < yMax)
-	{
-		tickValues.push(value);
-		value += interval;
-	}
-
-	tickValues.push(yMax);
+	// passing 2 * interval to avoid non-integer values
+	// (this is also related to minor tick issue)
+	var tickValues = self.getTickValues(yMax, 2 * interval);
 
 	// formatter to hide all except first and last
 	var formatter = function(value) {
@@ -548,7 +568,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 		.orient("left")
 		.tickValues(tickValues)
 		.tickFormat(formatter)
-		.tickSubdivide(true)
+		//.tickSubdivide(true) TODO minor ticks have a problem with custom values
 		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis
@@ -705,7 +725,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			var distance = text.attr("x") - (text.node().getComputedTextLength() / 2);
 
 			// adjust label to prevent overlapping with the y-axis
-			if (distance < 0)
+			if (distance < options.marginLeft)
 			{
 				anchor = "start";
 			}

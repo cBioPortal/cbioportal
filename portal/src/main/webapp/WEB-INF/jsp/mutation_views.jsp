@@ -7,7 +7,9 @@
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
 	<div id='mutation_diagram_toolbar_{{geneSymbol}}' class='mutation-diagram-toolbar'>
-		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}' target='_blank'>{{uniprotId}}</a>
+		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
+		   class='mutation-details-uniprot-link'
+		   target='_blank'>{{uniprotId}}</a>
 		<form style="display:inline-block"
 		      action='svgtopdf.do'
 		      method='post'
@@ -168,8 +170,19 @@
 				var diagram = self._drawMutationDiagram(
 						gene, mutationMap[gene], response, diagramOpts);
 
-				// add listener to the diagram buttons
-				mainView.$el.find(".diagram-to-pdf").click(function (event) {
+				var pdfButton = mainView.$el.find(".diagram-to-pdf");
+				var toolbar = mainView.$el.find(".mutation-diagram-toolbar");
+
+				// check if diagram is initialized successfully.
+				// if not, disable any diagram related functions
+				if (!diagram)
+				{
+					console.log("Error initializing mutation diagram: %s", gene);
+					toolbar.hide();
+				}
+
+				// add listener to the pdf button
+				pdfButton.click(function (event) {
 					// convert svg content to string
 					var xmlSerializer = new XMLSerializer();
 					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
@@ -214,6 +227,15 @@
 			if (!options)
 			{
 				options = {};
+			}
+
+			// do not draw the diagram if there is a critical error with
+			// the sequence data
+			if (sequenceData.sequenceLength == "" ||
+			    sequenceData.sequenceLength <= 0)
+			{
+				// return null to indicate an error
+				return null;
 			}
 
 			// overwrite container in any case (for consistency with the default view)

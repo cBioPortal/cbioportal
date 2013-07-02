@@ -186,7 +186,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>
 
-<div id="allele_freq_plot" style="display:none;"></div>
+<div id="allele_freq_plot" style="display:none;">
+    <button id="allele_freq_plot_toggle" type="button">toggle histogram</button>
+</div>
 <%}%>
 
 <%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
@@ -194,7 +196,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {
-            var plot = AlleleFreqPlot(document.getElementById('allele_freq_plot'),
+            // create a plot on a hidden element
+            window.allelefreqplot = AlleleFreqPlot(document.getElementById('allele_freq_plot'),
                     AlleleFreqPlotUtils.extract_and_process(genomicEventObs));
 
             // add qtip on allele frequency plot thumbnail
@@ -202,11 +205,28 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 content: {text: 'allele frequency plot is broken'},
                 events: {
                     render: function(event, api) {
-                        var $plot = $(plot);
-                        var content = $plot.remove();
+                        // grab the plot
+                        var $allelefreqplot = $(allelefreqplot);
+                        var content = $allelefreqplot.remove();
+
+                        // and dump it into the qtip
                         content.show();
-                        content = content.html();
+                        content = content[0].outerHTML;
                         api.set('content.text', content);
+
+                        // bind toggle_histogram to toggle histogram button
+                        // AFTER we've shuffled it around 
+                        var toggle = true;        // initialize toggle state
+                        $('#allele_freq_plot_toggle').click(function() {
+                            // qtip interferes with $.toggle
+                            toggle = !toggle;
+                            if (toggle) {
+                                $('#allele_freq_plot rect').removeAttr('display');
+                            }
+                            else {
+                                $('#allele_freq_plot rect').attr('display', 'none');
+                            }
+                        });
                     }
                 },
                 hide: { fixed: true, delay: 100 },

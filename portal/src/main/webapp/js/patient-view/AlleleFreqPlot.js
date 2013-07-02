@@ -201,10 +201,5 @@ var AlleleFreqPlot = function(div, data) {
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');
 
-    var $histogram = $(histogram[0]);
-
-    return {
-        el: div,
-        toggle_histogram: function() { $histogram.toggle(); }
-    };
+    return div;
 };

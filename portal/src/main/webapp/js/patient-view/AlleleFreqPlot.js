@@ -92,9 +92,10 @@ var AlleleFreqPlotUtils = (function() {
 // appends labels and such that are specific to the allele frequency density
 // plot
 var AlleleFreqPlot = function(div, data) {
-    var margin = {top: 20, right: 30, bottom: 30, left: 40},
+    var label_margin = 30;      // the y coordinate of the label
+    var margin = {top: 20, right: 30, bottom: 30 + label_margin / 2, left: 40},
         width = 560 / 2 - margin.left - margin.right,
-        height = 500 / 2 - margin.top - margin.bottom;
+        height = (500 + label_margin) / 2 - margin.top - margin.bottom;
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
@@ -161,11 +162,12 @@ var AlleleFreqPlot = function(div, data) {
     applyCss(x_axis.selectAll('path'));
     applyCss(x_axis.selectAll('line'));
 
+    // x-axis label
     x_axis
         .append("text")
         .attr("class", "label")
         .attr("x", width)
-        .attr("y", -6)
+        .attr("y", label_margin)
         .style("text-anchor", "end")
         .text("allele frequency");
 

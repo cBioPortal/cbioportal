@@ -753,10 +753,17 @@ var Oncoprint = function(div, params) {
         d3.select("#" + div.id + ' table').remove();
     };
 
+    // hack to get the label flush with the tracks in Firefox
+    // the discrepancy is due to the difference in the way browsers display
+    // <table>.  Assume that other browsers behave like chrome and that Firefox
+    // is the exception.
+    var is_firefox = navigator.userAgent.indexOf("Firefox") !== -1;
+    var browser_offset = is_firefox ? 16 : 0;
+
     var label_svg = table
         .append('td')
         .append('svg')
-        .attr('height', dims.height)
+        .attr('height', dims.height + browser_offset)
         .attr('width', '' + dims.label_width)
         .attr('id', 'label');
 

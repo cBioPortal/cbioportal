@@ -314,6 +314,7 @@ var PlotsTwoGenesView = (function(){
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
+        elem.dotsGroup = elem.svg.append("svg:g");
     }
 
     function initAxis() {
@@ -448,8 +449,8 @@ var PlotsTwoGenesView = (function(){
         });
         tmp_dotsData = dataBuffer;
 
+        elem.dotsGroup.selectAll("path").remove();
         var showMutation = document.getElementById("show_mutation").checked;
-        elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path")
             .data(tmp_dotsData)
             .enter()

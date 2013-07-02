@@ -327,6 +327,7 @@ var PlotsCustomView = (function() {
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
+        elem.dotsGroup = elem.svg.append("svg:g");
     }
 
     function getUserSelection() {
@@ -489,8 +490,8 @@ var PlotsCustomView = (function() {
         });
         tmp_dotsData = dataBuffer;
 
+        elem.dotsGroup.selectAll("path").remove();
         var showMutation = document.getElementById("show_mutation_custom_view").checked;
-        elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path")
             .data(tmp_dotsData)
             .enter()

@@ -159,7 +159,12 @@ var PlotsTwoGenesView = (function(){
             case_set_length : 0,
             dotsData : []
         },
-        //The template for creating dot unit
+    //Data Set Status (empty)
+        errStatus = {
+            xHasData : false,
+            yHasData : false
+        },
+    //The template for creating dot unit
         singleDot = {
             case_id : "",
             x_value : "",
@@ -250,6 +255,20 @@ var PlotsTwoGenesView = (function(){
                 }
             }
         }
+
+        //Error Handle: spot empty dataset
+        errStatus.xHasData = false;
+        errStatus.yHasData = false;
+        $.each(tmp_pDataX, function(key, obj) {
+            if (!isNaN(obj.value)) {
+                errStatus.xHasData = true;
+            }
+        });
+        $.each(tmp_pDataY, function(key, obj) {
+            if (!isNaN(obj.value)) {
+                errStatus.yHasData = true;
+            }
+        });
 
         //merge tmp_pDataX, tmp_pDataY, and filter NaN/NA data
         for (var i = 0; i < tmp_pDataY.length; i++) {
@@ -405,18 +424,31 @@ var PlotsTwoGenesView = (function(){
         $('#two_genes_view_title').empty();
         elem.svg.empty();
 
+        var _line1 = "";
+        var _line2 = " in the selected cancer study.";
+        if (errStatus.xHasData === false && errStatus.yHasData === true) {
+            _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for";
+            _line2 = menu.geneX + _line2;
+        } else if (errStatus.yHasData === false && errStatus.xHasData === true) {
+            _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for";
+            _line2 = menu.geneY + _line2;
+        } else if (errStatus.yHasData === false && errStatus.xHasData === false) {
+            _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for ";
+            _line2 = menu.geneX + ", " + menu.geneY + _line2;
+        }
+
         elem.svg.append("text")
             .attr("x", 250)
             .attr("y", 55)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
-            .text("There is no data available in")
+            .text(_line1)
         elem.svg.append("text")
             .attr("x", 250)
             .attr("y", 70)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
-            .text("selected platform.")
+            .text(_line2)
         elem.svg.append("rect")
             .attr("x", 50)
             .attr("y", 30)

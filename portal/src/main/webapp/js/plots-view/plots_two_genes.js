@@ -75,7 +75,7 @@ var PlotsTwoGenesMenu = (function(){
         //----mRNA Priority List: RNA Seq V2, RNA Seq, Z-scores
         //TODO: Changed hard coded html value
         if ($("#two_genes_plots_type").val() === "mrna") {
-            $("#data_type_mrna > option").each(function() {
+            $("#two_genes_platform > option").each(function() {
                 if (this.text.toLowerCase().indexOf("z-scores")){
                     $(this).prop('selected', true);
                     return false;

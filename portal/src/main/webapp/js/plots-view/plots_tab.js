@@ -183,7 +183,7 @@ var PlotsMenu = (function () {
                 return false;
             }
         });
-        $("#data_type_mrna > option").each(function() {
+        $("#data_type_copy_no > option").each(function() {
             if (this.value === userSelectedCopyNoProfile){
                 $(this).prop('selected', true);
                 return false;
@@ -193,17 +193,18 @@ var PlotsMenu = (function () {
 
     function setDefaultMrnaSelection() {
 
-        //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
         var userSelectedMrnaProfile = "";  //from main query
-        $.each(geneticProfiles.split(/\s+/), function(index, value){ //geneticProfiles --> global variable, passing user selected profile IDs
+        //geneticProfiles --> global variable, passing user selected profile IDs
+        $.each(geneticProfiles.split(/\s+/), function(index, value){
             if (value.indexOf("mrna") !== -1) {
                 userSelectedMrnaProfile = value;
                 return false;
             }
         });
 
+        //----Priority List: User selection, RNA Seq V2, RNA Seq, Z-scores
         $("#data_type_mrna > option").each(function() {
-            if (this.text.toLowerCase().indexOf("z-scores")){
+            if (this.text.toLowerCase().indexOf("z-scores") !== -1){
                 $(this).prop('selected', true);
                 return false;
             }
@@ -284,12 +285,10 @@ var PlotsMenu = (function () {
         },
 
         update: function() {
-
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
             PlotsView.init();
-
         }
     };
 }());

@@ -2,13 +2,11 @@
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img class="loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
-        <h4>OncoPrint
+        <h4 style="display:inline;">OncoPrint
             <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
         </h4>
 
-        <div>
-            <span style="font-size: 14px; margin-bottom: 14px;">Download OncoPrint:&nbsp;&nbsp;&nbsp;</span>
-
+        <span>
             <form style="display:inline;" action="svgtopdf.do" method="post" onsubmit="this.elements['svgelement'].value=oncoprint.getPdfInput();">
 
                 <input type="hidden" name="svgelement">
@@ -23,9 +21,9 @@
                 <input type="hidden" name="format" value="svg">
                 <input type="submit" value="SVG">
             </form>
-        </div>
+        </span>
 
-        <div id="oncoprint_controls">
+        <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;">
             <style>
                 .onco-customize {
                     color:#2153AA; font-weight: bold; cursor: pointer;

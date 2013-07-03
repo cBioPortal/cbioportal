@@ -45,11 +45,14 @@ import java.io.IOException;
 /**
  * Imports a fusion file.
  * Columns may be in any order.
+ * Creates an ExtendedMutation instances for each row.
  *
  * @author Selcuk Onur Sumer
  */
 public class ImportFusionData
 {
+	public static final String FUSION = "Fusion";
+
 	private ProgressMonitor pMonitor;
 	private File fusionFile;
 	private int geneticProfileId;
@@ -128,10 +131,11 @@ public class ImportFusionData
 					mutation.setCaseId(caseId);
 					mutation.setGene(gene);
 					mutation.setSequencingCenter(record.getCenter());
-
-					// TODO this may not be safe...
-					mutation.setMutationType("Fusion");
 					mutation.setProteinChange(record.getFusion());
+
+					// TODO we may need get mutation type from the file
+					// instead of defining a constant
+					mutation.setMutationType(FUSION);
 
 					// add mutation (but add mutation event only once since it is a dummy event)
 					DaoMutation.addMutation(mutation, addEvent);

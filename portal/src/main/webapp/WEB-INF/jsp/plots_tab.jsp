@@ -92,7 +92,6 @@
                         <img style='padding:200px;' src='images/ajax-loader.gif'>
                     </div>
                     <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
-
                     <div id="plots_box"></div>
                 </td>
             </tr>
@@ -128,6 +127,9 @@
                         </table>
                     </td>
                     <td>
+                        <div id='two-genes-loading-image'>
+                            <img style='padding:200px;' src='images/ajax-loader.gif'>
+                        </div>
                         <b><div id='two_genes_view_title' style="display:inline-block;padding-left:100px;"></div></b>
                         <div id="plots_box_two_genes"></div>
                     </td>
@@ -172,6 +174,9 @@
                         </table>
                     </td>
                     <td>
+                        <div id='custom-loading-image'>
+                            <img style='padding:200px;' src='images/ajax-loader.gif'>
+                        </div>
                         <b><div id='custom_view_title' style="display:inline-block;padding-left:100px;"></div></b>
                         <div id="plots_box_custom"></div>
                     </td>

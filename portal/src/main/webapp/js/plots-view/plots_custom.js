@@ -830,18 +830,28 @@ var PlotsCustomView = (function() {
         } else {
             drawErrorMsg();
         }
+
     }
 
     return {
         init : function() {
+            $('#custom-loading-image').show();
+            $('#custom_view_title').hide();
+            $('#plots_box_custom').hide();
+
             getUserSelection();
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
 
+            setTimeout(function() {
+                $('#custom-loading-image').hide();
+                $('#custom_view_title').show();
+                $('#plots_box_custom').show();
+            }, 500);
         },
         update : function() {
-
+            //TODO: using cache
         },
         updateMutationDisplay : updateMutationDisplay
     };

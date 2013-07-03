@@ -744,13 +744,23 @@ var PlotsTwoGenesView = (function(){
 
     return {
         init : function() {
+            $('#two-genes-loading-image').show();
+            $('#two_genes_view_title').hide();
+            $('#plots_box_two_genes').hide();
+
             getUserSelection();
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
+
+            setTimeout(function() {
+                $('#two-genes-loading-image').hide();
+                $('#two_genes_view_title').show();
+                $('#plots_box_two_genes').show();
+            }, 500);
         },
         update : function() {
-
+            //TODO: use cache
         },
         updateMutationDisplay : updateMutationDisplay
     };

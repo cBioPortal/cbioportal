@@ -642,19 +642,19 @@ class GDataImpl implements Config {
 	 * @return CancerStudyMetadata or null if not found
 	 */
 	@Override
-	public CancerStudyMetadata getCancerStudyMetadata(String cancerStudyName) {
+	public CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName) {
 
 		if (cancerStudiesMatrix == null) {
 			cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
 		}
 
 		Collection<CancerStudyMetadata> cancerStudyMetadatas = 
-			(Collection<CancerStudyMetdata>)getMetadataCollection(cancerStudiesMatrix,
+			(Collection<CancerStudyMetadata>)getMetadataCollection(cancerStudiesMatrix,
 																"org.mskcc.cbio.importer.model.CancerStudyMetadata");
 
 		for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
             if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
-				return cancerStudyMedata;
+				return cancerStudyMetadata;
             }
 		}
 

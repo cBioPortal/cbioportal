@@ -175,8 +175,8 @@ public interface Config {
 	/**
 	 * Gets a CancerStudyMetadata for the given cancer study.
 	 *
-     * @param cancerStudy String  - fully qualified path as entered on worksheet, e.g.: prad/mskcc/foundation
+     * @param cancerStudyName String  - fully qualified path as entered on worksheet, e.g.: prad/mskcc/foundation
 	 * @return CancerStudyMetadata or null if not found
 	 */
-	CancerStudyMetadata getCancerStudyMetadata(String cancerStudyName);
+	CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName);
 }

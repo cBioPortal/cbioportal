@@ -470,7 +470,7 @@ var PlotsTwoGenesView = (function(){
             .attr("x", 50)
             .attr("y", 30)
             .attr("width", 400)
-            .attr("height", 50)
+            .attr("height", 60)
             .attr("fill", "none")
             .attr("stroke-width", 1)
             .attr("stroke", "#BDBDBD");
@@ -659,9 +659,6 @@ var PlotsTwoGenesView = (function(){
     function addQtips() {
 
         elem.dotsGroup.selectAll('path').each(function(d) {
-
-            var showMutation = document.getElementById("show_mutation").checked;
-
             var content = "<font size='2'>";
             content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                 "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";

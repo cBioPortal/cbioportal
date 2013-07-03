@@ -1478,31 +1478,17 @@ var PlotsView = (function () {
                 .text(function(d) { return d.legendText; })
         }
 
-        function drawQtips() {
+        function drawCopyNoViewQtips() {
 
             elem.dotsGroup.selectAll('path').each(function(d) {
 
                 //Configure the content of the qtip
                 var content = "<font size='2'>";
-                if (Util.plotsTypeIsCopyNo()) {
-                    if (Util.dataIsDiscretized()) {
-                        content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    } else {
-                        content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                            "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    }
-                } else if (Util.plotsTypeIsMethylation()) {    //mrna vs. dna methylation
-                    content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                if (Util.dataIsDiscretized()) {
+                    content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                } else {
+                    content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
-                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                    }
-                } else if (Util.plotsTypeIsRPPA()) { //rppa vs. mrna
-                    content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                        "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                    if (d.gisticType !== "Diploid") {
-                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                    }
                 }
                 content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
                     "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
@@ -1522,7 +1508,8 @@ var PlotsView = (function () {
                 var mouseOn = function() {
                     var dot = d3.select(this);
                     dot.transition()
-                        .duration(200)
+                        .ease("elastic")
+                        .duration(600)
                         .delay(100)
                         .attr("d", d3.svg.symbol().size(200)
                             .type(function(d){
@@ -1541,7 +1528,8 @@ var PlotsView = (function () {
                 var mouseOff = function() {
                     var dot = d3.select(this);
                     dot.transition()
-                        .duration(200)
+                        .ease("elastic")
+                        .duration(600)
                         .delay(100)
                         .attr("d", d3.svg.symbol()
                             .size(function(d){
@@ -1569,6 +1557,106 @@ var PlotsView = (function () {
             });
         }
 
+        function drawMethylationViewQtips() {
+            elem.dotsGroup.selectAll('path').each(function(d) {
+
+                //Configure the content of the qtip
+                var content = "<font size='2'>";
+                content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                    "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                if (d.gisticType !== "Diploid") {
+                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                }
+                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    "</a></strong><br>";
+                if (d.mutationType !== 'non') {
+                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                }
+                content = content + "</font>";
+
+                $(this).qtip({
+                    content: {text: content},
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                    hide: { fixed:true, delay: 100},
+                    position: {my:'left bottom',at:'top right'}
+                });
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(200));
+                };
+
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(35));
+                };
+
+                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+
+            });
+
+        }
+
+        function drawRPPAViewQtips() {
+            elem.dotsGroup.selectAll('path').each(function(d) {
+
+                //Configure the content of the qtip
+                var content = "<font size='2'>";
+                content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                    "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                if (d.gisticType !== "Diploid") {
+                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                }
+                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    "</a></strong><br>";
+                if (d.mutationType !== 'non') {
+                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                }
+                content = content + "</font>";
+
+                $(this).qtip({
+                    content: {text: content},
+                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                    hide: { fixed:true, delay: 100},
+                    position: {my:'left bottom',at:'top right'}
+                });
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(200));
+                };
+
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(35));
+                };
+
+                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+
+            });
+
+        }
+
         return {
             initView: initView,
             drawImgConverter: drawImgConverter,
@@ -1583,7 +1671,9 @@ var PlotsView = (function () {
             drawAxisTitle: drawAxisTitle,
             drawCopyNoViewLegends: drawCopyNoViewLegends,
             drawOtherViewLegends: drawOtherViewLegends,
-            drawQtips: drawQtips
+            drawCopyNoViewQtips: drawCopyNoViewQtips,
+            drawMethylationViewQtips: drawMethylationViewQtips,
+            drawRPPAViewQtips: drawRPPAViewQtips
         };
 
     }());
@@ -1622,19 +1712,21 @@ var PlotsView = (function () {
                         View.drawLog2Plots();
                     }
                     View.drawCopyNoViewLegends();
+                    View.drawCopyNoViewQtips();
                 } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
                     View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();
+                    View.drawMethylationViewQtips();
                 } else if (Util.plotsTypeIsRPPA()) {
                     View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();
+                    View.drawRPPAViewQtips();
                 }
                 View.drawAxisTitle();
-                View.drawQtips();
                 //Img Center: PDF and SVG button
             }
 

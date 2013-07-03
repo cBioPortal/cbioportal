@@ -685,8 +685,6 @@ var PlotsCustomView = (function() {
 
     function addQtips() {
 
-        var showMutation = document.getElementById("show_mutation").checked;
-
         elem.dotsGroup.selectAll('path').each(function(d) {
             var content = "<font size='2'>";
             content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -781,25 +779,25 @@ var PlotsCustomView = (function() {
         }
 
         elem.svg.append("text")
-            .attr("x", 350)
+            .attr("x", 250)
             .attr("y", 55)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line1)
         elem.svg.append("text")
-            .attr("x", 350)
+            .attr("x", 250)
             .attr("y", 70)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line2)
         elem.svg.append("text")
-            .attr("x", 350)
+            .attr("x", 250)
             .attr("y", 85)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line3)
         elem.svg.append("rect")
-            .attr("x", 150)
+            .attr("x", 50)
             .attr("y", 30)
             .attr("width", 400)
             .attr("height", 70)

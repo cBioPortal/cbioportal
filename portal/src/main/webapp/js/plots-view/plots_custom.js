@@ -193,7 +193,7 @@ var PlotsCustomView = (function() {
     //Dots collection
     var pData = {
             case_set_length : 0,
-            dotsData : []
+            dotsData : [],
         },
     //The template for creating dot unit
         singleDot = {
@@ -293,6 +293,26 @@ var PlotsCustomView = (function() {
                 }
             }
         }
+
+        //Error Handle: empty dataset
+        var x_hasData = false;
+        var y_hasData = false;
+        $.each(tmp_pDataX, function(key, obj) {
+            console.log(obj);
+            if (!isNaN(obj.value)) {
+                x_hasData = true;
+            }
+        });
+        $.each(tmp_pDataY, function(key, obj) {
+            console.log(obj);
+            if (!isNaN(obj.value)) {
+                y_hasData = true;
+            }
+        });
+
+        console.log(x_hasData);
+        console.log(y_hasData);
+
 
         //merge tmp_pDataX, tmp_pDataY, and filter NaN/NA data
         for (var i = 0; i < tmp_pDataY.length; i++) {

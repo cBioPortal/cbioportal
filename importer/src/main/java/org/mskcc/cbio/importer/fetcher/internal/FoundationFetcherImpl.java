@@ -33,6 +33,7 @@ import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
@@ -67,7 +68,11 @@ import org.xml.sax.SAXException;
 /**
  * Class which implements the fetcher interface.
  */
-class FoundationFetcherImpl implements Fetcher {
+class FoundationFetcherImpl implements Fetcher
+{
+	public static final String CANCER_STUDY = "prad/mskcc/foundation";
+	public static final String MUTATION_METADATA = "mutation-foundation";
+	public static final String CNA_METADATA = "cna-foundation";
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
@@ -206,7 +211,7 @@ class FoundationFetcherImpl implements Fetcher {
 		// generate meta files
 		this.generateStudyMetaFile(numCases);
 		this.generateMutationMetaFile(numCases);
-		//TODO this.generateFusionMetaFile(numCases);
+		//this.generateFusionMetaFile(numCases); TODO enable when ready
 		this.generateCNAMetaFile(numCases);
 	}
 
@@ -289,6 +294,7 @@ class FoundationFetcherImpl implements Fetcher {
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
 		String header = MafUtil.HUGO_SYMBOL + "\t" +
+		                MafUtil.CENTER + "\t" +
 		                MafUtil.NCBI_BUILD + "\t" +
 		                MafUtil.CHROMOSOME+ "\t" +
 		                MafUtil.START_POSITION + "\t" +
@@ -321,7 +327,7 @@ class FoundationFetcherImpl implements Fetcher {
 
 		// generate header line
 
-		content.append("Gene Symbol");
+		content.append("Gene Symbol"); // TODO hard-coded, factor out to a proper class
 
 		for (String caseID : caseSet)
 		{
@@ -352,91 +358,44 @@ class FoundationFetcherImpl implements Fetcher {
 			content.append("\n");
 		}
 
-		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "data_CNA.txt", content.toString());
-
-		return cnaFile;
-	}
-
-	protected File generateStudyMetaFile(Integer numCases) throws Exception
-	{
-		StringBuilder content = new StringBuilder();
-
-		content.append("type_of_cancer: prad\n");
-		content.append("cancer_study_identifier: prad_foundation\n");
-		content.append("name: Prostate Adenocarcinoma (Foundation)\n");
-		content.append("description: Foundation Medicine\n"); // TODO description with # of cases?
-
-		File studyFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "meta_study.txt", content.toString());
-
-		return studyFile;
-	}
-
-	protected File generateCNAMetaFile(Integer numCases) throws Exception
-	{
-		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("cna-foundation");
-		DatatypeMetadata metadata = list.iterator().next();
+		DatatypeMetadata metadata = this.getDatatypeMetadata("cna-foundation");
 
 		File cnaFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
-			this.generateMetaFileContent(metadata, numCases).toString());
+				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					metadata.getStagingFilename(),
+				content.toString());
 
 		return cnaFile;
 	}
 
-	protected File generateMutationMetaFile(Integer numCases) throws Exception
+	protected void generateStudyMetaFile(Integer numCases) throws Exception
 	{
-		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("mutation");
-		DatatypeMetadata metadata = list.iterator().next();
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		File cnaFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
-			this.generateMetaFileContent(metadata, numCases).toString());
-
-		return cnaFile;
+		// TODO this creates subdirectories, we should fix it
+		this.fileUtils.writeCancerStudyMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			numCases);
 	}
 
-	protected StringBuilder generateMetaFileContent(DatatypeMetadata metadata, Integer numCases)
+	protected void generateCNAMetaFile(Integer numCases) throws Exception
 	{
-		StringBuilder content = new StringBuilder();
+		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(CNA_METADATA);
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		content.append("cancer_study_identifier: prad_foundation\n");
-		content.append("genetic_alteration_type: ");
-		content.append(metadata.getMetaGeneticAlterationType());
-		content.append("\n");
+		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			datatypeMetadata,
+			numCases);
+	}
 
-		String stableID = metadata.getMetaStableID();
-		stableID = stableID.replaceAll(
-				DatatypeMetadata.CANCER_STUDY_TAG, "prad_foundation");
-		content.append("stable_id: ");
-		content.append(stableID);
-		content.append("\n");
+	protected void generateMutationMetaFile(Integer numCases) throws Exception
+	{
+		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(MUTATION_METADATA);
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		content.append("show_profile_in_analysis_tab: ");
-		content.append(metadata.getMetaShowProfileInAnalysisTab());
-		content.append("\n");
-
-		String profileDescription = metadata.getMetaProfileDescription();
-
-		if (numCases != null) {
-			profileDescription = profileDescription.replaceAll(
-					DatatypeMetadata.NUM_GENES_TAG, numCases.toString());
-			profileDescription = profileDescription.replaceAll(
-					DatatypeMetadata.NUM_CASES_TAG, numCases.toString());
-		}
-
-		profileDescription = profileDescription.replaceAll(
-				DatatypeMetadata.TUMOR_TYPE_TAG, "prad");
-
-		content.append("profile_description: ");
-		content.append(profileDescription);
-		content.append("\n");
-		content.append("profile_name: ");
-		content.append(metadata.getMetaProfileName());
-		content.append("\n");
-
-		return content;
+		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(), cancerMetadata, datatypeMetadata,
+		                                 numCases);
 	}
 
 	protected void addClinicalData(Document caseDoc, StringBuilder content)
@@ -710,8 +669,8 @@ class FoundationFetcherImpl implements Fetcher {
 		// append the data as a single line
 		content.append(gene); // hugo_symbol
 		content.append("\t");
-		content.append("37"); // NCBI_build (assuming it is always hg19/37)
-		content.append("\t");
+		content.append("foundation\t"); // Center
+		content.append("37\t"); // NCBI_build (assuming it is always hg19/37)
 		content.append(chromosome);
 		content.append("\t");
 		content.append(startPos);
@@ -1114,5 +1073,18 @@ class FoundationFetcherImpl implements Fetcher {
 	@Override
 	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Retrieves the first matching DatatypeMetadata instance
+	 * for the given datatype string.
+	 *
+	 * @param datatype  data type as a string
+	 * @return          corresponding DatatypeMetadata
+	 */
+	private DatatypeMetadata getDatatypeMetadata(String datatype)
+	{
+		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
+		return list.iterator().next();
 	}
 }

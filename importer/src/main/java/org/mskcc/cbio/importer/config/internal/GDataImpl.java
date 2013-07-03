@@ -654,6 +654,11 @@ class GDataImpl implements Config {
 
 		for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
             if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
+	            // get tumor type metadata
+	            Collection<TumorTypeMetadata> tumorTypeCollection = getTumorTypeMetadata(cancerStudyMetadata.getTumorType());
+	            if (!tumorTypeCollection.isEmpty()) {
+		            cancerStudyMetadata.setTumorTypeMetadata(tumorTypeCollection.iterator().next());
+	            }
 				return cancerStudyMetadata;
             }
 		}

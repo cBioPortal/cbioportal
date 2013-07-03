@@ -183,26 +183,58 @@
 
 				// add listener to the pdf button
 				pdfButton.click(function (event) {
-					// TODO setting and resetting top label (which may not be safe)
-					diagram.updateTopLabel(gene);
+					// TODO setting & rolling back diagram values (which may not be safe)
+					// helper function to adjust SVG for PDF output
+					var alterDiagramForPdf = function(diagram, rollback)
+					{
+						var topLabel = gene;
+						var xShift = 8;
+						var yShift = 3;
+
+						if (rollback)
+						{
+							topLabel = "";
+							xShift = -1 * xShift;
+							yShift = -1 * yShift;
+						}
+
+						var xLabels = diagram.svg
+							.select(".mut-dia-x-axis")
+							.selectAll(".tick")
+							.selectAll("text");
+
+						var yLabels = diagram.svg
+							.select(".mut-dia-y-axis")
+							.selectAll(".tick")
+							.selectAll("text");
+
+						// adding a top left label (to include a label in PDF)
+						diagram.updateTopLabel(topLabel);
+
+						// shifting axis tick labels a little bit because of
+						// a bug in the PDF converter library (this is a hack!)
+						var xy = parseInt(xLabels.attr("y"));
+						var yy = parseInt(yLabels.attr("y"));
+
+						xLabels.attr("y", xy + xShift);
+						yLabels.attr("y", yy + yShift);
+					};
+
+					// alter diagram to have the desired output in the PDF
+					alterDiagramForPdf(diagram);
 
 					// convert svg content to string
 					var xmlSerializer = new XMLSerializer();
 					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
 
-					diagram.updateTopLabel("");
+					// restore previous settings after generating xml string
+					alterDiagramForPdf(diagram, true);
 
-					// TODO temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
-					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
-						"<text y=\"19\" x=\"0\" dy=\".71em\"");
-					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
-						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
-
-					// TODO try to clone and change the value directly, it is safer
-//					var tempSvg = jQuery.extend(true, {}, diagram.svg);
-//					tempSvg.select(".mut-dia-x-axis").selectAll(".tick").selectAll("text").attr("y", 19);
-//					tempSvg.select(".mut-dia-y-axis").selectAll(".tick").selectAll("text").attr("y", 3);
-//					svgString = xmlSerializer.serializeToString(tempSvg[0][0]);
+					// temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
+//					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
+//						"<text y=\"19\" x=\"0\" dy=\".71em\"");
+//					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
+//						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
 
 					// set actual value of the form element (svgelement)
 					var form = mainView.$el.find(".svg-to-pdf-form");

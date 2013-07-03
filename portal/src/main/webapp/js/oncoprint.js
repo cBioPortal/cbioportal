@@ -952,10 +952,11 @@ var Oncoprint = function(div, params) {
             return xscale(pick_sample_id(data));
         };
 
-        // params: <duration> -- how long the transition should last.  If omitted, does no animation
-
+        // params:  duration    --  how long the transition should last.  If omitted, does no animation
+        //          direction   --  'left' or 'right' . specify the direction to
+        //                          do the animation.  Defaults to 'left'
         // puts all the samples in the correct horizontal position
-        var horizontal_translate = function(duration) {
+        var horizontal_translate = function(duration, direction) {
             // re-sort
             var x = data2xscale(internal_data);
 
@@ -966,9 +967,26 @@ var Oncoprint = function(div, params) {
             d3.selectAll('.sample rect').transition()
                 .attr('width', internal_rect_width);
 
-            var sample_transition = duration ?
-                d3.selectAll('.sample').transition().duration(function(d) { return duration + x.sample2index[d.key] * 4; })
-                : d3.selectAll('.sample');
+            var sample_transition = d3.selectAll('.sample').transition();
+
+            direction = direction || 'left';            // default
+            direction = direction.toLowerCase();        // defense
+            if (duration) {
+                if (direction === 'right') {
+                    sample_transition.duration(function(d) {
+                        // reverse the index
+                        return duration + internal_data.length - x.sample2index[d.key] * 4;
+                    });
+                }
+                else if (direction === 'left') {
+                    sample_transition.duration(function(d) {
+                        return duration + x.sample2index[d.key] * 4;
+                    });
+                }
+                else {      // only support 'left' and 'right'
+                    throw new Error("invalid direction specified to the transition");
+                }
+            }
 
             // do the transition to all samples
             sample_transition.attr('transform', function(d) { return translate(x.scale(d.key),0); });
@@ -1089,11 +1107,18 @@ var Oncoprint = function(div, params) {
             toggleWhiteSpace: toggleWhiteSpace,
 
             zoom: function(scalar, animation) {
+                // save state
+                old_rect_width = internal_rect_width;
+
+                // change state
                 internal_rect_width = scalar * dims.rect_width;
                 internal_hor_padding = scalar * dims.hor_padding;
 
+                // which direction we are zooming in?
+                var direction = old_rect_width - internal_rect_width > 0 ? 'left' : 'right';
+
                 if (animation) {
-                    horizontal_translate(ANIMATION_DURATION);
+                    horizontal_translate(ANIMATION_DURATION, direction);
                 } else {
                     horizontal_translate();
                 }

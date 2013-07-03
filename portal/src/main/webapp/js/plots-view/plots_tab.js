@@ -1479,51 +1479,93 @@ var PlotsView = (function () {
         }
 
         function drawQtips() {
+
             elem.dotsGroup.selectAll('path').each(function(d) {
+
+                //Configure the content of the qtip
+                var content = "<font size='2'>";
+                if (Util.plotsTypeIsCopyNo()) {
+                    if (Util.dataIsDiscretized()) {
+                        content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    } else {
+                        content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                            "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    }
+                } else if (Util.plotsTypeIsMethylation()) {    //mrna vs. dna methylation
+                    content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                        "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.gisticType !== "Diploid") {
+                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                    }
+                } else if (Util.plotsTypeIsRPPA()) { //rppa vs. mrna
+                    content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                        "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.gisticType !== "Diploid") {
+                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                    }
+                }
+                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                    "</a></strong><br>";
+                if (d.mutationType !== 'non') {
+                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                }
+                content = content + "</font>";
+
                 $(this).qtip({
-                    content: {text: 'qtip failed'},
-                    events: {
-                        render: function(event, api) {
-                            var content = "<font size='2'>";
-
-                            if (Util.plotsTypeIsCopyNo()) {
-                                if (Util.dataIsDiscretized()) {
-                                    content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                                } else {
-                                    content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                        "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                                }
-                            } else if (Util.plotsTypeIsMethylation()) {    //mrna vs. dna methylation
-                                content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                    "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                                if (d.gisticType !== "Diploid") {
-                                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                                }
-                            } else if (Util.plotsTypeIsRPPA()) { //rppa vs. mrna
-                                content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                                    "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                                if (d.gisticType !== "Diploid") {
-                                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                                }
-                            }
-
-                            content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                                "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
-                                "</a></strong><br>";
-
-                            if (d.mutationType !== 'non') {
-                                content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
-                            }
-
-                            content = content + "</font>";
-                            api.set('content.text', content);
-                        }
-                    },
-                    show: 'mouseover',
-                    hide: { fixed:true, delay: 100},
+                    content: {text: content},
                     style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                    hide: { fixed:true, delay: 100},
                     position: {my:'left bottom',at:'top right'}
                 });
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .duration(200)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(200)
+                            .type(function(d){
+                                return mutationStyle[d.mutationType].symbol;
+                            })
+                        )
+                        .attr("fill", function(d){
+                            return mutationStyle[d.mutationType].fill;
+                        })
+                        .attr("stroke", function(d){
+                            return mutationStyle[d.mutationType].stroke;
+                        })
+                        .attr("stroke-width", 1.2);
+                };
+
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .duration(200)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol()
+                            .size(function(d){
+                                switch (d.mutationType) {
+                                    case "non" : return 15;
+                                    default : return 25;
+                                }
+                            })
+                            .type(function(d){
+                                return mutationStyle[d.mutationType].symbol;
+                            })
+                        )
+                        .attr("fill", function(d){
+                            return mutationStyle[d.mutationType].fill;
+                        })
+                        .attr("stroke", function(d){
+                            return mutationStyle[d.mutationType].stroke;
+                        })
+                        .attr("stroke-width", 1.2);
+                };
+
+                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+
             });
         }
 

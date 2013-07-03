@@ -266,7 +266,7 @@ var PlotsTwoGenesView = (function(){
                 var tmp_annotation_str = "";
                 if (tmp_pDataX[i].annotation !== "NaN") {
                     tmp_annotation_str +=
-                        menu.geneX + ": " + tmp_pDataX[i].annotation + " ";
+                        menu.geneX + ": " + tmp_pDataX[i].annotation + "&nbsp;&nbsp;";
                 }
                 if (tmp_pDataY[i].annotation !== "NaN") {
                     tmp_annotation_str +=
@@ -624,6 +624,89 @@ var PlotsTwoGenesView = (function(){
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                 position: {my:'left bottom',at:'top right'}
             });
+        });
+
+
+        elem.dotsGroup.selectAll('path').each(function(d) {
+
+            var showMutation = document.getElementById("show_mutation").checked;
+
+            var content = "<font size='2'>";
+            content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+            content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
+                menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
+            if (d.annotation !== "") {
+                content += "Mutation: <br><strong>" + d.annotation + "</strong>";
+            }
+            content = content + "</font>";
+
+            $(this).qtip({
+                content: {text: content},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                hide: { fixed:true, delay: 100},
+                position: {my:'left bottom',at:'top right'}
+            });
+
+            var mouseOn = function() {
+                var dot = d3.select(this);
+                dot.transition()
+                    .duration(200)
+                    .delay(100)
+                    .attr("d", d3.svg.symbol().size(200).type("circle"));
+            };
+
+            var mouseOff = function() {
+                var dot = d3.select(this);
+                dot.transition()
+                    .duration(200)
+                    .delay(100)
+                    .attr("d", d3.svg.symbol().size(25).type("circle"))
+                    .attr("fill", function(d) {
+                        if (showMutation) {
+                            if (d.annotation === "") {
+                                return style.non_mut.fill;
+                            } else {
+                                var count = d.annotation.split(":").length - 1;
+                                if (count === 1) { //single mut
+                                    if (d.annotation.indexOf(menu.geneX) !== -1) {
+                                        return style.geneX_mut.fill;
+                                    } else if (d.annotation.indexOf(menu.geneY) !== -1) {
+                                        return style.geneY_mut.fill;
+                                    }
+                                } else if (count === 2) { //both mut
+                                    return style.both_mut.fill;
+                                }
+                            }
+                        } else {
+                            return style.non_mut.fill;
+                        }
+                    })
+                    .attr("stroke", function(d) {
+                        if (showMutation) {
+                            if (d.annotation === "") {
+                                return style.non_mut.stroke;
+                            } else {
+                                var count = d.annotation.split(":").length - 1;
+                                if (count === 1) { //single mut
+                                    if (d.annotation.indexOf(menu.geneX) !== -1) {
+                                        return style.geneX_mut.stroke;
+                                    } else if (d.annotation.indexOf(menu.geneY) !== -1) {
+                                        return style.geneY_mut.stroke;
+                                    }
+                                } else if (count === 2) { //both mut
+                                    return style.both_mut.stroke;
+                                }
+                            }
+                        } else {
+                            return style.non_mut.stroke;
+                        }
+                    })
+                    .attr("stroke-width", 1.2);
+            };
+            elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+            elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+
         });
     }
 

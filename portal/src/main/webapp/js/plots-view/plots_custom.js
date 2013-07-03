@@ -263,38 +263,68 @@ var PlotsCustomView = (function() {
         var tmp_pDataY = [];
         pData.dotsData.length = 0;
         pData.case_set_length = 0;
-        for (var gene in result) {
-            if (gene === menu.geneX) {
+        if (menu.geneX === menu.geneY) {    //same gene situation
+            for (var gene in result) {
                 var geneObj = result[gene];
                 for (var case_id in geneObj) {
                     var obj = geneObj[case_id];
-                    var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
-                    new_tmp_singleDot.case_id = case_id;
+                    var new_tmp_singleDot_x = jQuery.extend(true, {}, tmp_singleDot);
+                    var new_tmp_singleDot_y = jQuery.extend(true, {}, tmp_singleDot);
+                    new_tmp_singleDot_x.case_id = case_id;
+                    new_tmp_singleDot_y.case_id = case_id;
                     for (var i = 0; i < Object.keys(obj).length; i++) {
                         if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
                             var tmp_profile_x_index = i;
                         }
                     }
-                    var tmp_profile_annotation_index = Object.keys(obj).length - 1;
-                    new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_x_index]];
-                    new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
-                    tmp_pDataX.push(new_tmp_singleDot);
-                }
-            } else if (gene === menu.geneY) {
-                var geneObj = result[gene];
-                for (var case_id in geneObj) {
-                    var obj = geneObj[case_id];
-                    var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
-                    new_tmp_singleDot.case_id = case_id;
                     for (var i = 0; i < Object.keys(obj).length; i++) {
                         if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
                             var tmp_profile_y_index = i;
                         }
                     }
                     var tmp_profile_annotation_index = Object.keys(obj).length - 1;
-                    new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_y_index]];//profile id
-                    new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
-                    tmp_pDataY.push(new_tmp_singleDot);
+                    new_tmp_singleDot_x.value = obj[Object.keys(obj)[tmp_profile_x_index]];
+                    new_tmp_singleDot_x.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                    new_tmp_singleDot_y.value = obj[Object.keys(obj)[tmp_profile_y_index]];
+                    new_tmp_singleDot_y.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                    tmp_pDataX.push(new_tmp_singleDot_x);
+                    tmp_pDataY.push(new_tmp_singleDot_y);
+                }
+            }
+        } else {
+            for (var gene in result) {
+                if (gene === menu.geneX) {
+                    var geneObj = result[gene];
+                    for (var case_id in geneObj) {
+                        var obj = geneObj[case_id];
+                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
+                        new_tmp_singleDot.case_id = case_id;
+                        for (var i = 0; i < Object.keys(obj).length; i++) {
+                            if (Object.keys(obj)[i] === menu.genetic_profile_id_x) {
+                                var tmp_profile_x_index = i;
+                            }
+                        }
+                        var tmp_profile_annotation_index = Object.keys(obj).length - 1;
+                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_x_index]];
+                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                        tmp_pDataX.push(new_tmp_singleDot);
+                    }
+                } else if (gene === menu.geneY) {
+                    var geneObj = result[gene];
+                    for (var case_id in geneObj) {
+                        var obj = geneObj[case_id];
+                        var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
+                        new_tmp_singleDot.case_id = case_id;
+                        for (var i = 0; i < Object.keys(obj).length; i++) {
+                            if (Object.keys(obj)[i] === menu.genetic_profile_id_y) {
+                                var tmp_profile_y_index = i;
+                            }
+                        }
+                        var tmp_profile_annotation_index = Object.keys(obj).length - 1;
+                        new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_y_index]];//profile id
+                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                        tmp_pDataY.push(new_tmp_singleDot);
+                    }
                 }
             }
         }
@@ -324,7 +354,7 @@ var PlotsCustomView = (function() {
                 new_singleDot.case_id = tmp_pDataX[i].case_id;
                 new_singleDot.x_value = tmp_pDataX[i].value;
                 new_singleDot.y_value = tmp_pDataY[i].value;
-                //Mutation: process single/multi gene mutation
+
                 var tmp_annotation_str = "";
                 if (tmp_pDataX[i].annotation !== "NaN") {
                     tmp_annotation_str +=
@@ -334,6 +364,12 @@ var PlotsCustomView = (function() {
                     tmp_annotation_str +=
                         menu.geneY + ": " + tmp_pDataY[i].annotation;
                 }
+
+                //handle same gene situation
+                if (menu.geneX === menu.geneY) {
+                    tmp_annotation_str = tmp_annotation_str.substring(0, tmp_annotation_str.length/2);
+                }
+
                 new_singleDot.annotation = tmp_annotation_str.trim();
                 pData.dotsData.push(new_singleDot);
             }
@@ -570,9 +606,17 @@ var PlotsCustomView = (function() {
         var showMutation = document.getElementById("show_mutation_custom_view").checked;
         if (showMutation) {
             var twoGenesStyleArr = [];
+            twoGenesStyleArr.splice(0, twoGenesStyleArr.length);
+            twoGenesStyleArr.length = 0;
             for (var key in style) {
                 var obj = style[key];
                 twoGenesStyleArr.push(obj);
+            }
+
+            //Only show glyphs "mutated" and "non mutated" for same gene situation
+            if (menu.geneX === menu.geneY) {
+                twoGenesStyleArr.splice(1, 1);
+                twoGenesStyleArr.splice(1, 1);
             }
 
             var legend = elem.svg.selectAll(".legend")
@@ -647,10 +691,20 @@ var PlotsCustomView = (function() {
             var content = "<font size='2'>";
             content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                 "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
-            content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
-                menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
+            if (menu.geneX === menu.geneY) {
+                content += "x-Val: <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
+                       "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
+            } else {
+                content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
+                    menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
+            }
             if (d.annotation !== "") {
-                content += "Mutation: <strong>" + d.annotation + "</strong>";
+                if (menu.geneX === menu.geneY) {
+                    var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                } else {
+                    var tmp_anno_str = d.annotation;
+                }
+                content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
             }
             content = content + "</font>";
 

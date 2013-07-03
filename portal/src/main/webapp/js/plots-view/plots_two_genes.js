@@ -256,6 +256,14 @@ var PlotsTwoGenesView = (function(){
             }
         }
 
+
+        //Handle same gene situation:
+        //In this case, the two axis should get
+        //exactly the same value set
+        if (menu.geneX === menu.geneY) {
+            tmp_pDataY = tmp_pDataX;
+        }
+
         //Error Handle: spot empty dataset
         errStatus.xHasData = false;
         errStatus.yHasData = false;
@@ -291,6 +299,11 @@ var PlotsTwoGenesView = (function(){
                     tmp_annotation_str +=
                         menu.geneY + ": " + tmp_pDataY[i].annotation;
                 }
+
+                if (menu.geneX === menu.geneY) {
+                    tmp_annotation_str = tmp_annotation_str.substring(0, tmp_annotation_str.length/2);
+                }
+
                 new_singleDot.annotation = tmp_annotation_str.trim();
                 pData.dotsData.push(new_singleDot);
             }
@@ -434,7 +447,11 @@ var PlotsTwoGenesView = (function(){
             _line2 = menu.geneY + _line2;
         } else if (errStatus.yHasData === false && errStatus.xHasData === false) {
             _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for ";
-            _line2 = menu.geneX + ", " + menu.geneY + _line2;
+            if (menu.geneX === menu.geneY) {
+                _line2 = menu.geneX + _line2;
+            } else {
+                _line2 = menu.geneX + ", " + menu.geneY + _line2;
+            }
         }
 
         elem.svg.append("text")
@@ -547,6 +564,12 @@ var PlotsTwoGenesView = (function(){
                 twoGenesStyleArr.push(obj);
             }
 
+            //Only show glyphs "mutated" and "non mutated" for same gene situation
+            if (menu.geneX === menu.geneY) {
+                twoGenesStyleArr.splice(1, 1);
+                twoGenesStyleArr.splice(1, 1);
+            }
+
             var legend = elem.svg.selectAll(".legend")
                 .data(twoGenesStyleArr)
                 .enter().append("g")
@@ -634,30 +657,6 @@ var PlotsTwoGenesView = (function(){
     }
 
     function addQtips() {
-        elem.dotsGroup.selectAll('path').each(function(d) {
-            $(this).qtip({
-                content: {text: 'qtip failed'},
-                events: {
-                    render: function(event, api) {
-                        var content = "<font size='2'>";
-                        content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                                   "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
-                        content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
-                                   menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
-                        if (d.annotation !== "") {
-                            content += "Mutation: <strong>" + d.annotation + "</strong>";
-                        }
-                        content = content + "</font>";
-                        api.set('content.text', content);
-                    }
-                },
-                show: 'mouseover',
-                hide: { fixed:true, delay: 100},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                position: {my:'left bottom',at:'top right'}
-            });
-        });
-
 
         elem.dotsGroup.selectAll('path').each(function(d) {
 
@@ -669,7 +668,12 @@ var PlotsTwoGenesView = (function(){
             content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                 menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
             if (d.annotation !== "") {
-                content += "Mutation: <br><strong>" + d.annotation + "</strong>";
+                if (menu.geneX === menu.geneY) {
+                    var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                } else {
+                    var tmp_anno_str = d.annotation;
+                }
+                content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
             }
             content = content + "</font>";
 

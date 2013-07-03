@@ -54,6 +54,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.mskcc.cbio.maf.FusionFileUtil;
 import org.mskcc.cbio.maf.MafUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
@@ -162,6 +163,9 @@ class FoundationFetcherImpl implements Fetcher {
 		// mutation data content
 		StringBuilder dataMutationsContent = new StringBuilder();
 
+		// fusion data content
+		StringBuilder dataFusionsContent = new StringBuilder();
+
 		// CNA data content
 		HashMap<String, Integer> valueMap = new HashMap<String, Integer>();
 		Set<String> caseSet = new HashSet<String>();
@@ -185,6 +189,7 @@ class FoundationFetcherImpl implements Fetcher {
 
 				this.addClinicalData(doc, dataClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
+				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
 				this.generateCaseFile(doc, caseRecord);
 
@@ -195,11 +200,13 @@ class FoundationFetcherImpl implements Fetcher {
 		// generate data files
 		this.generateClinicalDataFile(dataClinicalContent);
 		this.generateMutationDataFile(dataMutationsContent);
+		//this.generateFusionDataFile(dataFusionsContent); TODO enable when fully ready
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
 
 		// generate meta files
 		this.generateStudyMetaFile(numCases);
 		this.generateMutationMetaFile(numCases);
+		//TODO this.generateFusionMetaFile(numCases);
 		this.generateCNAMetaFile(numCases);
 	}
 
@@ -257,6 +264,26 @@ class FoundationFetcherImpl implements Fetcher {
 			header + content.toString());
 
 		return clinicalFile;
+	}
+
+	protected File generateFusionDataFile(StringBuilder content) throws Exception
+	{
+		String header = MafUtil.HUGO_SYMBOL + "\t" +
+		                MafUtil.ENTREZ_GENE_ID + "\t" +
+		                MafUtil.CENTER + "\t" +
+		                MafUtil.TUMOR_SAMPLE_BARCODE + "\t" +
+		                FusionFileUtil.FUSION + "\t" +
+		                FusionFileUtil.DNA_SUPPORT + "\t" +
+		                FusionFileUtil.RNA_SUPPORT + "\t" +
+		                FusionFileUtil.METHOD + "\t" +
+		                FusionFileUtil.FRAME + "\n";
+
+		File fusionFile = fileUtils.createFileWithContents(
+				dataSourceMetadata.getDownloadDirectory() + File.separator +
+				DatatypeMetadata.FUSIONS_STAGING_FILENAME,
+				header + content.toString());
+
+		return fusionFile;
 	}
 
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
@@ -492,6 +519,87 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("\t");
 		content.append(errorPercent);
 		content.append("\n");
+	}
+
+	protected void addFusionData(Document caseDoc, StringBuilder content)
+	{
+		Element caseNode = this.extractCaseNode(caseDoc);
+
+		if (caseNode == null)
+		{
+			return; // no case to process
+		}
+
+		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+
+		Element variantReport = this.extractVariantReport(caseNode);
+
+		if (variantReport != null)
+		{
+			NodeList rearrangements = variantReport.getElementsByTagName("rearrangement");
+
+			for (int i = 0; i < rearrangements.getLength(); i++)
+			{
+				Node rearrangement = rearrangements.item(i);
+
+				if (rearrangement.getNodeType() == Node.ELEMENT_NODE)
+				{
+					String inFrame = ((Element)rearrangement).getAttribute("in-frame");
+					String targetedGene = ((Element)rearrangement).getAttribute("targeted-gene");
+					String otherGene = ((Element)rearrangement).getAttribute("other-gene");
+					//String position1 = ((Element)shortVar).getAttribute("pos1");
+					//String position2 = ((Element)shortVar).getAttribute("pos2");
+					String supportingReadPairs = ((Element)rearrangement).getAttribute("supporting-read-pairs");
+					String description = ((Element)rearrangement).getAttribute("description");
+					String status = ((Element)rearrangement).getAttribute("status");
+
+					String frame = this.parseInFrame(inFrame);
+					this.appendFusionData(content, targetedGene, caseID, frame);
+				}
+			}
+		}
+	}
+
+	protected void appendFusionData(StringBuilder content,
+			String targetedGene,
+			String caseId,
+			String frame)
+	{
+		// append the data as a single line
+		content.append(targetedGene); // Hugo_Symbol
+		content.append("\t");
+		content.append(""); // Entrez_Gene_Id
+		content.append("\t");
+		content.append(""); // Center
+		content.append("\t");
+		content.append(caseId); // Tumor_Sample_Barcode
+		content.append("\t");
+		content.append("Fusion"); // Fusion
+		content.append("\t");
+		content.append(""); // TODO DNA support
+		content.append("\t");
+		content.append(""); // TODO RNA support
+		content.append("\t");
+		content.append(""); // TODO Method
+		content.append("\t");
+		content.append(frame);
+		content.append("\n");
+	}
+
+	protected String parseInFrame(String inFrame)
+	{
+		String value = "Unknown";
+
+		if (inFrame.equalsIgnoreCase("yes"))
+		{
+			value = "in-frame";
+		}
+		else if (inFrame.equalsIgnoreCase("non"))
+		{
+			value = "not in-frame"; // TODO not in-frame?
+		}
+
+		return value;
 	}
 
 	protected void addMutationData(Document caseDoc, StringBuilder content)

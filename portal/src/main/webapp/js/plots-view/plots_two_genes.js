@@ -687,7 +687,8 @@ var PlotsTwoGenesView = (function(){
             var mouseOn = function() {
                 var dot = d3.select(this);
                 dot.transition()
-                    .duration(200)
+                    .ease("elastic")
+                    .duration(600)
                     .delay(100)
                     .attr("d", d3.svg.symbol().size(200).type("circle"));
             };
@@ -695,50 +696,10 @@ var PlotsTwoGenesView = (function(){
             var mouseOff = function() {
                 var dot = d3.select(this);
                 dot.transition()
-                    .duration(200)
+                    .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
+                    .duration(600)
                     .delay(100)
-                    .attr("d", d3.svg.symbol().size(25).type("circle"))
-                    .attr("fill", function(d) {
-                        if (showMutation) {
-                            if (d.annotation === "") {
-                                return style.non_mut.fill;
-                            } else {
-                                var count = d.annotation.split(":").length - 1;
-                                if (count === 1) { //single mut
-                                    if (d.annotation.indexOf(menu.geneX) !== -1) {
-                                        return style.geneX_mut.fill;
-                                    } else if (d.annotation.indexOf(menu.geneY) !== -1) {
-                                        return style.geneY_mut.fill;
-                                    }
-                                } else if (count === 2) { //both mut
-                                    return style.both_mut.fill;
-                                }
-                            }
-                        } else {
-                            return style.non_mut.fill;
-                        }
-                    })
-                    .attr("stroke", function(d) {
-                        if (showMutation) {
-                            if (d.annotation === "") {
-                                return style.non_mut.stroke;
-                            } else {
-                                var count = d.annotation.split(":").length - 1;
-                                if (count === 1) { //single mut
-                                    if (d.annotation.indexOf(menu.geneX) !== -1) {
-                                        return style.geneX_mut.stroke;
-                                    } else if (d.annotation.indexOf(menu.geneY) !== -1) {
-                                        return style.geneY_mut.stroke;
-                                    }
-                                } else if (count === 2) { //both mut
-                                    return style.both_mut.stroke;
-                                }
-                            }
-                        } else {
-                            return style.non_mut.stroke;
-                        }
-                    })
-                    .attr("stroke-width", 1.2);
+                    .attr("d", d3.svg.symbol().size(25).type("circle"));
             };
             elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
             elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);

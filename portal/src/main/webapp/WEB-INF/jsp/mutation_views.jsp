@@ -183,9 +183,14 @@
 
 				// add listener to the pdf button
 				pdfButton.click(function (event) {
+					// TODO setting and resetting top label (which may not be safe)
+					diagram.updateTopLabel(gene);
+
 					// convert svg content to string
 					var xmlSerializer = new XMLSerializer();
 					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+					diagram.updateTopLabel("");
 
 					// TODO temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
 					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,

@@ -29,14 +29,22 @@ MutationDiagram.prototype.defaultOpts = {
 	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
+	labelTop: "",                 // informative label on top of the diagram (false means "do not draw")
+	labelTopFont: "sans-serif",   // font type of the top label
+	labelTopFontColor: "#2E3436", // font color of the top label
+	labelTopFontSize: "12px",     // font size of the top label
+	labelTopFontWeight: "bold",   // font weight of the top label
+	labelTopMargin: 2,            // left margin for the top label
 	labelX: false,              // informative label of the x-axis (false means "do not draw")
 	labelXFont: "sans-serif",   // font type of the x-axis label
 	labelXFontColor: "#2E3436", // font color of the x-axis label
 	labelXFontSize: "12px",     // font size of x-axis label
+	labelXFontWeight: "normal", // font weight of x-axis label
 	labelY: "# Mutations",      // informative label of the y-axis (false means "do not draw")
 	labelYFont: "sans-serif",   // font type of the y-axis label
 	labelYFontColor: "#2E3436", // font color of the y-axis label
 	labelYFontSize: "12px",     // font size of y-axis label
+	labelYFontWeight: "normal", // font weight of y-axis label
 	minLengthX: 0,              // min value of the largest x value to show
 	minLengthY: 5,              // min value of the largest y value to show
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
@@ -325,17 +333,22 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
 
-	if (options.labelX)
+	if (options.labelX != false)
 	{
-		//TODO self.drawXAxisLabel(svg, options, bounds);
+		//TODO self.xAxisLabel = self.drawXAxisLabel(svg, options, bounds);
 	}
 
 	// draw y-axis
 	self.drawYAxis(svg, yScale, yMax, options, bounds);
 
-	if (options.labelY)
+	if (options.labelY != false)
 	{
-		self.drawYAxisLabel(svg, options, bounds);
+		self.yAxisLabel = self.drawYAxisLabel(svg, options, bounds);
+	}
+
+	if (options.topLabel != false)
+	{
+		self.topLabel = self.drawTopLabel(svg, options, bounds);
 	}
 
 	// group for lollipop labels (draw labels first)
@@ -599,6 +612,36 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
  *                  x, y is the actual position of the origin
  * @return          text label (svg element)
  */
+MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
+{
+	// set x, y of the label as the middle of the top left margins
+	var x = options.labelTopMargin;
+	var y = options.marginTop / 2;
+
+	// append label
+	var label = svg.append("text")
+		.attr("fill", options.labelTopFontColor)
+		.attr("text-anchor", "start")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("class", "mut-dia-top-label")
+		.style("font-family", options.labelTopFont)
+		.style("font-size", options.labelTopFontSize)
+		.style("font-weight", options.labelTopFontWeight)
+		.text(options.labelTop);
+
+	return label;
+};
+
+/**
+ * Draws the label of the y-axis.
+ *
+ * @param svg       svg to append the label element
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          text label (svg element)
+ */
 MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 {
 	// set x, y of the label as the middle of the y-axis
@@ -620,6 +663,7 @@ MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 		.attr("transform", "rotate(270, " + x + "," + y +")")
 		.style("font-family", options.labelYFont)
 		.style("font-size", options.labelYFontSize)
+		.style("font-weight", options.labelYFontWeight)
 		.text(options.labelY);
 
 	return label;
@@ -1008,4 +1052,22 @@ MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
 	}
 
 	$(element).qtip(qTipOptions);
+};
+
+/**
+ * Updates the text of the top label.
+ *
+ * @param text  new text to set as the label value
+ */
+MutationDiagram.prototype.updateTopLabel = function(text)
+{
+	var self = this;
+
+	// if no text value is passed used gene symbol to update the value
+	if (text == undefined || text == null)
+	{
+		text = "";
+	}
+
+	self.topLabel.text(text);
 };

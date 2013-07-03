@@ -189,28 +189,25 @@ var OncoprintUtils = (function() {
         return to_return;
     };
 
-    // these colors could be passed somewhow as a parameter
     var colors = {
         continuous: '#A62459',
         white: '#FFFAF0',
         discrete: '#404040',
         red: '#FF0000',
-        grey: '#D3D3D3'
-    };
-
-    var googlecharts_colors =
-        ["#3366cc","#dc3912","#ff9900","#109618",
+        grey: '#D3D3D3',
+        google: ["#3366cc","#dc3912","#ff9900","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
         "#b82e2e","#316395","#994499","#22aa99",
         "#aaaa11","#6633cc","#e67300","#8b0707",
         "#651067","#329262","#5574a6","#3b3eac",
         "#b77322","#16d620","#b91383","#f4359e",
         "#9c5935","#a9c413","#2a778d","#668d1c",
-        "#bea413","#0c5922","#743411"];
+        "#bea413","#0c5922","#743411"]
+    };
 
     // takes a map attr2range, and transforms the ranges into d3 scales
     // it does something very simplistic :
-    //      string -> discrete , number -> continuous
+    //  *signature:* `string -> discrete , number -> continuous`
     var attr2range_to_d3scale = function(attr2range) {
         for (var a2r in attr2range) {
             var range = attr2range[a2r];
@@ -220,7 +217,7 @@ var OncoprintUtils = (function() {
             if (!discrete) {
                 range_vals = [colors.white, colors.continuous];
             } else if (range.length > 2) {
-                range_vals = googlecharts_colors.slice(0,range.length);
+                range_vals = colors.google.slice(0,range.length);
             } else {
                 range_vals = [colors.discrete, colors.white];
             }
@@ -251,7 +248,7 @@ var OncoprintUtils = (function() {
         var attrId2range = attr2range(raw_clinical_data);
 
         var slice_googlecolors = function(attr_id) {
-            return googlecharts_colors.slice(0, attrId2range[attr_id].length);
+            return colors.google.slice(0, attrId2range[attr_id].length);
         };
 
         return _.chain(attrs)
@@ -311,7 +308,6 @@ var OncoprintUtils = (function() {
     //
     // returns: d3.set of sample_ids that *have* genetic alterations
     var filter_altered = function(nested_data) {
-
         if (nested_data[0].key === undefined) {
             throw new Error("the first element of nested_data does not have a 'key' attribute, therefore I do not think this is nested data.");
         }
@@ -382,7 +378,10 @@ var OncoprintUtils = (function() {
         return 42 + max; // http://goo.gl/iPzfU
     };
 
-    //TODO:
+    // takes a list of clinical attribute objects and returns a map that maps
+    // `attr_id` to the corresponding clinical attribute object
+    //
+    // *signature:* `[array] -> {object}`
     var createId2ClinicalAttr = function(clinical_attrs) {
         return id2ClinicalAttr = clinical_attrs.reduce(
             function(name2attr, attr) {
@@ -391,14 +390,23 @@ var OncoprintUtils = (function() {
             }, {});
     };
 
-    //TODO:
-    var map_display_name = function(map, d) {
-        var clinical_attr = map[d];
-        if (clinical_attr === undefined) {      // we have a gene
-            return d;
-        }
-
-        return clinical_attr.display_name;
+    // takes a map and returns a function that checks whether the input key is
+    // in the map or not.
+    // If it is then return the value, otherwise return the key right back
+    // Problem : what if key === value ?  At least this function suffices for
+    // our purposes
+    //
+    // *signature:* `{object} -> function(key)`
+    var maybe_map = function(map) {
+        return function(key) {
+            var value = map[key];
+            if (value === undefined) {
+                return key;
+            }
+            else {
+                return value;
+            }
+        };
     };
 
     var cna_fills = {
@@ -539,7 +547,7 @@ var OncoprintUtils = (function() {
         percent_altered: percent_altered,
         label_width: label_width,
         createId2ClinicalAttr: createId2ClinicalAttr,
-        map_display_name: map_display_name,
+        maybe_map: maybe_map,
         normalize_clinical_attributes: normalize_clinical_attributes,
         normalize_nested_values: normalize_nested_values,
         legend: legend,
@@ -721,8 +729,11 @@ var Oncoprint = function(div, params) {
         var mut_height = rect_height / 3;
         var vert_padding = 6;
         var label_width = OncoprintUtils.label_width(attributes.map(
-            function(attr) {        // curry
-                return OncoprintUtils.map_display_name(id2ClinicalAttr, attr);
+            function(attr) {
+                var maybe = OncoprintUtils.maybe_map(id2ClinicalAttr);
+                var value = maybe(attr);
+                return value === attr ? value : value.display_name;
+
             }));
 
         var clinical_height = (2/3) * rect_height;
@@ -780,7 +791,11 @@ var Oncoprint = function(div, params) {
     label.append('tspan')       // name
         .attr('text-anchor', 'start')
         .attr('font-weight', 'bold')
-        .text(function(d) { return OncoprintUtils.map_display_name(id2ClinicalAttr, d); });
+        .text(function(d) {
+            var maybe = OncoprintUtils.maybe_map(id2ClinicalAttr);
+            var value = maybe(d);
+            return value === d ? value : value.display_name;
+        });
     label.append('tspan')       // percent_altered
         .text(function(d) {
             return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
@@ -911,10 +926,12 @@ var Oncoprint = function(div, params) {
     var State = (function() {
 
         // initialize state variables
-        var internal_data = data;
-        var whitespace = true;                      // show white space?
-        var internal_rect_width = dims.rect_width;
-        var internal_hor_padding = dims.hor_padding;
+        var state = {
+            data: data,
+            whitespace: true,
+            rect_width: dims.rect_width,
+            hor_padding: dims.hor_padding
+        };
 
         // takes a list of samples and returns an object that contains
         // a function f,
@@ -931,7 +948,7 @@ var Oncoprint = function(div, params) {
             // params: i, sample index
             // returns: the width of the svg to contain those samples.
             var xpos = function(i) {
-                return i * (internal_rect_width + (whitespace ? internal_hor_padding : 0));
+                return i * (state.rect_width + (state.whitespace ? state.hor_padding : 0));
             };
 
             var svg_width_offset = 50;
@@ -958,14 +975,14 @@ var Oncoprint = function(div, params) {
         // puts all the samples in the correct horizontal position
         var horizontal_translate = function(duration, direction) {
             // re-sort
-            var x = data2xscale(internal_data);
+            var x = data2xscale(state.data);
 
             // resize the svg
             var main_svg_transition = duration ? main_svg.transition(duration) : main_svg;
             main_svg_transition.attr('width', x.svg_width);
 
             d3.selectAll('.sample rect').transition()
-                .attr('width', internal_rect_width);
+                .attr('width', state.rect_width);
 
             var sample_transition = d3.selectAll('.sample').transition();
 
@@ -975,7 +992,7 @@ var Oncoprint = function(div, params) {
                 if (direction === 'right') {
                     sample_transition.duration(function(d) {
                         // reverse the index
-                        return duration + internal_data.length - x.sample2index[d.key] * 4;
+                        return duration + state.data.length - x.sample2index[d.key] * 4;
                     });
                 }
                 else if (direction === 'left') {
@@ -998,18 +1015,18 @@ var Oncoprint = function(div, params) {
             show_unaltered_bool = bool;     // set the state
 
             if (bool) {
-//                internal_data = MemoSort(data, attributes);
-                internal_data = data;
-                update(internal_data);
+//                state.data = MemoSort(data, attributes);
+                state.data = data;
+                update(state.data);
             } else {
                 var altered_data = data.filter(function(d) { return altered.has(d.key); });
-//                internal_data = MemoSort(altered_data, attributes);
-                internal_data = altered_data;
-                update(internal_data);
+//                state.data = MemoSort(altered_data, attributes);
+                state.data = altered_data;
+                update(state.data);
             }
             horizontal_translate(1);
 
-            return internal_data;
+            return state.data;
         };
 
         var ANIMATION_DURATION = 750;
@@ -1017,7 +1034,7 @@ var Oncoprint = function(div, params) {
         // params: [bool].  If bool is passed as a parameter,
         // whitespace is set to the bool, otherwise, flip it from whatever it currently is
         var toggleWhiteSpace =  function(bool) {
-            whitespace = bool === undefined ? !whitespace : bool;
+            state.whitespace = bool === undefined ? !state.whitespace : bool;
             horizontal_translate(ANIMATION_DURATION);
         };
 
@@ -1037,14 +1054,14 @@ var Oncoprint = function(div, params) {
             var attrs;
             if (by === 'genes') {
                 attrs = params.genes.concat(clinical_attrs);
-                internal_data = MemoSort(internal_data, attrs);
+                state.data = MemoSort(state.data, attrs);
             }
             else if (by === 'clinical') {
                 attrs = clinical_attrs.concat(params.genes);
-                internal_data = MemoSort(internal_data, attrs);
+                state.data = MemoSort(state.data, attrs);
             }
             else if (by === 'alphabetical') {
-                internal_data = internal_data.sort(function(x,y) {
+                state.data = state.data.sort(function(x,y) {
                     return x.key < y.key;
                 });
             }
@@ -1060,7 +1077,7 @@ var Oncoprint = function(div, params) {
                     return c2index;
                 }, {});
 
-                internal_data = internal_data.sort(function(x,y) {
+                state.data = state.data.sort(function(x,y) {
                     return case2index[x.key] - case2index[y.key];
                 });
             }
@@ -1068,7 +1085,7 @@ var Oncoprint = function(div, params) {
                 throw new Error("unsupported sort option: ") + JSON.stringify(by);
             }
             horizontal_translate(ANIMATION_DURATION);
-            return internal_data;
+            return state.data;
         };
 
         if (params.legend) {
@@ -1078,11 +1095,11 @@ var Oncoprint = function(div, params) {
         return {
             remove_oncoprint: remove_oncoprint,
             memoSort: function(attributes, animation) {
-                internal_data = MemoSort(internal_data, attributes);
+                state.data = MemoSort(state.data, attributes);
                 if (animation) { horizontal_translate(ANIMATION_DURATION); }
                 else { horizontal_translate(); }
 
-                return internal_data;
+                return state.data;
             },
 
             randomMemoSort: function() {
@@ -1097,25 +1114,25 @@ var Oncoprint = function(div, params) {
                 };
 
                 var attrs = shuffle(attributes);
-                internal_data = MemoSort(internal_data, attrs);
+                state.data = MemoSort(state.data, attrs);
                 horizontal_translate(ANIMATION_DURATION);
                 return attrs;
             },
 
-            getData: function() { return internal_data; },
+            getData: function() { return state.data; },
 
             toggleWhiteSpace: toggleWhiteSpace,
 
             zoom: function(scalar, animation) {
                 // save state
-                old_rect_width = internal_rect_width;
+                old_rect_width = state.rect_width;
 
                 // change state
-                internal_rect_width = scalar * dims.rect_width;
-                internal_hor_padding = scalar * dims.hor_padding;
+                state.rect_width = scalar * dims.rect_width;
+                state.hor_padding = scalar * dims.hor_padding;
 
                 // which direction we are zooming in?
-                var direction = old_rect_width - internal_rect_width > 0 ? 'left' : 'right';
+                var direction = old_rect_width - state.rect_width > 0 ? 'left' : 'right';
 
                 if (animation) {
                     horizontal_translate(ANIMATION_DURATION, direction);
@@ -1126,7 +1143,7 @@ var Oncoprint = function(div, params) {
                 d3.selectAll('.sample rect')
                     .transition()
                     .duration(ANIMATION_DURATION)
-                    .attr('width', internal_rect_width);
+                    .attr('width', state.rect_width);
             },
 
             showUnalteredCases: showUnalteredCases,
@@ -1145,7 +1162,7 @@ var Oncoprint = function(div, params) {
                 var width = main_svg.attr('width') + dims.label_width;
                 var height = main_svg.attr('height');
                 var svg = main_svg[0][0];
-                var x = data2xscale(internal_data);
+                var x = data2xscale(state.data);
 
                 // helper function
                 // takes a DOM element and does the xml serializer thing

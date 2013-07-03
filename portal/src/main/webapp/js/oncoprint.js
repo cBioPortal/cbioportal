@@ -909,10 +909,12 @@ var Oncoprint = function(div, params) {
     // Every change made to State, is reflected in a change in the oncoprint, and visa-versa.
     // This object is returned to the user for the UI
     var State = (function() {
+
+        // initialize state variables
         var internal_data = data;
         var whitespace = true;                      // show white space?
-        var internal_rect_width = dims.rect_width;  // initialize
-        var internal_scalar = 1;
+        var internal_rect_width = dims.rect_width;
+        var internal_hor_padding = dims.hor_padding;
 
         // takes a list of samples and returns an object that contains
         // a function f,
@@ -929,7 +931,7 @@ var Oncoprint = function(div, params) {
             // params: i, sample index
             // returns: the width of the svg to contain those samples.
             var xpos = function(i) {
-                return internal_scalar * i * (internal_rect_width + (whitespace ? dims.hor_padding : 0));
+                return i * (internal_rect_width + (whitespace ? internal_hor_padding : 0));
             };
 
             var svg_width_offset = 50;
@@ -960,6 +962,9 @@ var Oncoprint = function(div, params) {
             // resize the svg
             var main_svg_transition = duration ? main_svg.transition(duration) : main_svg;
             main_svg_transition.attr('width', x.svg_width);
+
+            d3.selectAll('.sample rect').transition()
+                .attr('width', internal_rect_width);
 
             var sample_transition = duration ?
                 d3.selectAll('.sample').transition().duration(function(d) { return duration + x.sample2index[d.key] * 4; })
@@ -1084,8 +1089,8 @@ var Oncoprint = function(div, params) {
             toggleWhiteSpace: toggleWhiteSpace,
 
             zoom: function(scalar, animation) {
-                internal_scalar = scalar;
-                //internal_rect_width = scalar * dims.rect_width;
+                internal_rect_width = scalar * dims.rect_width;
+                internal_hor_padding = scalar * dims.hor_padding;
 
                 if (animation) {
                     horizontal_translate(ANIMATION_DURATION);
@@ -1097,11 +1102,6 @@ var Oncoprint = function(div, params) {
                     .transition()
                     .duration(ANIMATION_DURATION)
                     .attr('width', internal_rect_width);
-//                if (scalar >= .5) {
-//                    toggleWhiteSpace(true);
-//                } else {
-//                    toggleWhiteSpace(false);
-//                }
             },
 
             showUnalteredCases: showUnalteredCases,

@@ -634,6 +634,32 @@ class GDataImpl implements Config {
         // outta here
         return toReturn;
 	}
+	
+	/**
+	 * Gets a CancerStudyMetadata for the given cancer study.
+	 *
+     * @param cancerStudy String  - fully qualified path as entered on worksheet, e.g.: prad/mskcc/foundation
+	 * @return CancerStudyMetadata or null if not found
+	 */
+	@Override
+	public CancerStudyMetadata getCancerStudyMetadata(String cancerStudyName) {
+
+		if (cancerStudiesMatrix == null) {
+			cancerStudiesMatrix = getWorksheetData(gdataSpreadsheet, cancerStudiesWorksheet);
+		}
+
+		Collection<CancerStudyMetadata> cancerStudyMetadatas = 
+			(Collection<CancerStudyMetdata>)getMetadataCollection(cancerStudiesMatrix,
+																"org.mskcc.cbio.importer.model.CancerStudyMetadata");
+
+		for (CancerStudyMetadata cancerStudyMetadata : cancerStudyMetadatas) {
+            if (cancerStudyMetadata.getStudyPath().equals(cancerStudyName)) {
+				return cancerStudyMedata;
+            }
+		}
+
+		return null;
+	}
 
 	/**
 	 * Constructs a collection of objects of the given classname from the given matrix.

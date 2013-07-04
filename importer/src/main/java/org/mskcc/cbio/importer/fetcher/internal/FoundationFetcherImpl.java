@@ -32,6 +32,7 @@ package org.mskcc.cbio.importer.fetcher.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.DatabaseUtils;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
@@ -327,7 +328,7 @@ class FoundationFetcherImpl implements Fetcher
 
 		// generate header line
 
-		content.append("Gene Symbol"); // TODO hard-coded, factor out to a proper class
+		content.append(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME); // TODO hard-coded, factor out to a proper class
 
 		for (String caseID : caseSet)
 		{

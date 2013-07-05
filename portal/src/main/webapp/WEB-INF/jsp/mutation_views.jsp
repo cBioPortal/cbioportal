@@ -18,7 +18,16 @@
 			<input type='hidden' name='filetype' value='pdf'>
 			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.pdf'>
 		</form>
+		<form style="display:inline-block"
+		      action='svgtopdf.do'
+		      method='post'
+		      class='svg-to-file-form'>
+			<input type='hidden' name='svgelement'>
+			<input type='hidden' name='filetype' value='svg'>
+			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.svg'>
+		</form>
 		<button class='diagram-to-pdf'>PDF</button>
+		<button class='diagram-to-svg'>SVG</button>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
@@ -171,6 +180,7 @@
 						gene, mutationMap[gene], response, diagramOpts);
 
 				var pdfButton = mainView.$el.find(".diagram-to-pdf");
+				var svgButton = mainView.$el.find(".diagram-to-svg");
 				var toolbar = mainView.$el.find(".mutation-diagram-toolbar");
 
 				// check if diagram is initialized successfully.
@@ -180,6 +190,54 @@
 					console.log("Error initializing mutation diagram: %s", gene);
 					toolbar.hide();
 				}
+
+				// helper function to trigger submit event for the svg and pdf button clicks
+				var submitForm = function(alterFn, diagram, formClass)
+				{
+					// alter diagram to have the desired output
+					alterFn(diagram);
+
+					// convert svg content to string
+					var xmlSerializer = new XMLSerializer();
+					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+					// restore previous settings after generating xml string
+					alterFn(diagram, true);
+
+					// temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
+//					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
+//						"<text y=\"19\" x=\"0\" dy=\".71em\"");
+//					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
+//						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+					// set actual value of the form element (svgelement)
+					var form = mainView.$el.find("." + formClass);
+					form.find('input[name="svgelement"]').val(svgString);
+
+					// submit form
+					form.submit();
+				};
+
+				//add listener to the svg button
+				svgButton.click(function (event) {
+					// TODO setting & rolling back diagram values (which may not be safe)
+					// helper function to adjust SVG for file output
+					var alterDiagramForSvg = function(diagram, rollback)
+					{
+						var topLabel = gene;
+
+						if (rollback)
+						{
+							topLabel = "";
+						}
+
+						// adding a top left label (to include a label in the file)
+						diagram.updateTopLabel(topLabel);
+					};
+
+					// submit svg form
+					submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+				});
 
 				// add listener to the pdf button
 				pdfButton.click(function (event) {
@@ -220,28 +278,8 @@
 						yLabels.attr("y", yy + yShift);
 					};
 
-					// alter diagram to have the desired output in the PDF
-					alterDiagramForPdf(diagram);
-
-					// convert svg content to string
-					var xmlSerializer = new XMLSerializer();
-					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
-
-					// restore previous settings after generating xml string
-					alterDiagramForPdf(diagram, true);
-
-					// temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
-//					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
-//						"<text y=\"19\" x=\"0\" dy=\".71em\"");
-//					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
-//						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
-
-					// set actual value of the form element (svgelement)
-					var form = mainView.$el.find(".svg-to-pdf-form");
-					form.find('input[name="svgelement"]').val(svgString);
-
-					// submit form
-					form.submit();
+					// submit pdf form
+					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 				});
 
 				// TODO draw mutation table

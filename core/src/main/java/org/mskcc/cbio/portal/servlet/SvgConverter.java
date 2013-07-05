@@ -77,7 +77,7 @@ public class SvgConverter extends HttpServlet {
 
         String xml = "";
         String format = "";
-	    String filename = "";
+	String filename = "";
 
         if (httpServletRequest instanceof FileUploadRequestWrapper) {
 
@@ -90,14 +90,17 @@ public class SvgConverter extends HttpServlet {
             // get xml parameter
             xml = wrapper.getParameter("svgelement");
 
-	        // get filename parameter
-	        filename = wrapper.getParameter("filename");
+	    // get filename parameter
+	    filename = wrapper.getParameter("filename");
         }
         else {
+            
             format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+            
             // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
-	        filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
+	        
+            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
 	    if (filename == null ||
@@ -113,9 +116,16 @@ public class SvgConverter extends HttpServlet {
         }
     }
 
+    /**
+     * Return svg xml as it is for downloading
+     *
+     * @param response
+     * @param xml
+     * @throws ServletException
+     * @throws IOException
+     */
     private void convertToSVG(HttpServletResponse response, String xml, String filename)
 		    throws ServletException, IOException {
-
         try {
             response.setContentType("application/svg+xml");
             response.setHeader("content-disposition", "inline; filename=" + filename);
@@ -133,6 +143,14 @@ public class SvgConverter extends HttpServlet {
         }
     }
 
+    /**
+     * Convert svg xml to pdf and writes it to the response
+     *
+     * @param response
+     * @param xml
+     * @throws ServletException
+     * @throws IOException
+     */
     private void convertToPDF(HttpServletResponse response, String svgContent, String filename)
 		    throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
@@ -150,10 +168,18 @@ public class SvgConverter extends HttpServlet {
         }
     }
 
-    private void convertToPNG(HttpServletResponse response, String svgContent) throws ServletException, IOException {
+    /**
+     * Convert svg xml to PNG and writes it to the response
+     *
+     * @param response
+     * @param xml
+     * @throws ServletException
+     * @throws IOException
+     */
+    private void convertToPNG(HttpServletResponse response, String xml) throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
-            InputStream is = new ByteArrayInputStream(svgContent.getBytes());
+            InputStream is = new ByteArrayInputStream(xml.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);
             PNGTranscoder transcoder = new PNGTranscoder();
@@ -167,8 +193,6 @@ public class SvgConverter extends HttpServlet {
             System.err.println(e.toString());
         }
     }
-
-
 
     /**
      * Method called when exception occurs.

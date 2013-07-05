@@ -28,23 +28,21 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.type.CollectionType;
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.cgds.model.Gene;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
+import org.mskcc.cbio.portal.remote.GetMutationData;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
@@ -59,24 +57,14 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.*;
 
-import static org.codehaus.jackson.map.DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY;
-
 /**
- * A servlet designed to retrieve mutation data for a single mutation details table.
- * This servlet returns a JSON object.
+ * A servlet designed to return a JSON array of mutation objects.
  *
  * @author Selcuk Onur Sumer
  */
-public class MutationTableDataServlet extends HttpServlet
+public class MutationDataServlet extends HttpServlet
 {
-	private static final Logger logger = Logger.getLogger(MutationTableDataServlet.class);
-	private final ObjectMapper objectMapper;
-
-	public MutationTableDataServlet()
-	{
-		this.objectMapper = new ObjectMapper();
-		this.objectMapper.configure(ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-	}
+	private static final Logger logger = Logger.getLogger(MutationDataServlet.class);
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
@@ -87,96 +75,194 @@ public class MutationTableDataServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		String geneSymbol = request.getParameter("hugoGeneSymbol");
+		// get request parameters
+		String geneticProfiles = request.getParameter("geneticProfiles");
+		String geneList = request.getParameter("geneList");
+		String caseList = request.getParameter("caseList");
 
-		// final object to be send as JSON
-		JSONObject jsonObject = new JSONObject();
-		JSONArray rows = new JSONArray();
+		// parse single strings to create list of strings
+		ArrayList<String> geneticProfileList = this.parseValues(geneticProfiles);
+		ArrayList<String> targetGeneList = this.parseValues(geneList);
+		ArrayList<String> targetCaseList = this.parseValues(caseList);
 
-		SpecialGene specialGene = SpecialGeneFactory.getInstance(geneSymbol);
-		HashMap<String, Object> headerList = this.initHeaders(specialGene);
+		// final array to be sent
+		JSONArray data = new JSONArray();
 
-		List<ExtendedMutation> mutations = readMutations(request.getParameter("mutations"));
-
-		Map<String, Integer> countMap = this.getMutationCountMap(mutations);
-
-		// extract row data for each mutation
-		for (ExtendedMutation mutation : mutations)
+		try
 		{
-			HashMap<String, Object> rowData = new HashMap<String, Object>();
-
-			int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
-					mutation.getGeneticProfileId()).getCancerStudyId();
-			String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(
-					cancerStudyId).getCancerStudyStableId();
-			String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(),
-					cancerStudyStableId);
-
-			rowData.put("caseId", mutation.getCaseId());
-			rowData.put("linkToPatientView", linkToPatientView);
-			rowData.put("proteinChange", mutation.getProteinChange());
-			rowData.put("mutationType", mutation.getMutationType());
-			rowData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
-			rowData.put("cosmicCount", this.getCosmicCount(mutation));
-			rowData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
-			rowData.put("msaLink", this.getMsaLink(mutation));
-			rowData.put("xVarLink", this.getXVarLink(mutation));
-			rowData.put("pdbLink", this.getPdbLink(mutation));
-			rowData.put("mutationStatus", mutation.getMutationStatus());
-			rowData.put("validationStatus", mutation.getValidationStatus());
-			rowData.put("sequencingCenter", this.getSequencingCenter(mutation));
-			rowData.put("ncbiBuildNo", this.getNcbiBuild(mutation));
-			rowData.put("chr", this.getChromosome(mutation));
-			rowData.put("startPos", mutation.getStartPosition());
-			rowData.put("endPos", mutation.getEndPosition());
-			rowData.put("referenceAllele", mutation.getReferenceAllele());
-			rowData.put("variantAllele", mutation.getTumorSeqAllele());
-			rowData.put("tumorFreq", this.getTumorFreq(mutation));
-			rowData.put("normalFreq", this.getNormalFreq(mutation));
-			rowData.put("tumorRefCount", this.getTumorRefCount(mutation));
-			rowData.put("tumorAltCount", this.getTumorAltCount(mutation));
-			rowData.put("normalRefCount", this.getNormalRefCount(mutation));
-			rowData.put("normalAltCount", this.getNormalAltCount(mutation));
-			rowData.put("canonicalTranscript", mutation.isCanonicalTranscript());
-			rowData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
-			rowData.put("codonChange", mutation.getOncotatorCodonChange());
-			rowData.put("uniprotId", this.getUniprotId(mutation));
-			rowData.put("mutationCount", countMap.get(mutation.getCaseId()));
-			rowData.put("fisValue", this.getFisValue(mutation));
-
-			JSONArray specialGeneData = new JSONArray();
-
-			//  fields for "Special" genes
-			if (specialGene != null)
+			for (String profileId : geneticProfileList)
 			{
-				for (String field : specialGene.getDataFields(mutation))
-				{
-					specialGeneData.add(field);
-				}
+				// add mutation data for each genetic profile
+				data.addAll(this.getMutationData(profileId,
+					targetGeneList,
+					targetCaseList));
 			}
-
-			rowData.put("specialGeneData", specialGeneData);
-
-			rows.add(rowData);
 		}
-
-		jsonObject.put("header", headerList);
-		jsonObject.put("mutations", rows);
-		jsonObject.put("footerMsg", this.getTableFooterMessage(specialGene));
-		jsonObject.put("hugoGeneSymbol", geneSymbol);
+		catch (DaoException e)
+		{
+			e.printStackTrace();
+		}
 
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 
 		try
 		{
-			JSONValue.writeJSONString(jsonObject, out);
+			JSONValue.writeJSONString(data, out);
 		}
 		finally
 		{
 			out.close();
 		}
 	}
+
+	/**
+	 * Parses string values separated by white spaces or commas.
+	 *
+	 * @param values    string to be parsed
+	 * @return          array list of parsed string values
+	 */
+	protected ArrayList<String> parseValues(String values)
+	{
+		String[] parts = values.split("[\\s,]+");
+
+		return new ArrayList<String>(Arrays.asList(parts));
+	}
+
+	/**
+	 * Generates an array (JSON array) of mutations for the given case
+	 * and gene lists.
+	 *
+	 * @param geneticProfileId  genetic profile id
+	 * @param targetGeneList    list of target genes
+	 * @param targetCaseList    list of target cases
+	 * @return                  JSONArray of mutations
+	 * @throws DaoException
+	 */
+	protected JSONArray getMutationData(String geneticProfileId,
+			ArrayList<String> targetGeneList,
+			ArrayList<String> targetCaseList) throws DaoException
+	{
+		// final object to be send as JSON
+		JSONArray mutationArray = new JSONArray();
+
+		//  Get the Genetic Profile
+		GeneticProfile geneticProfile =
+				DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
+
+		GetMutationData remoteCallMutation = new GetMutationData();
+
+		//convert case list into a set (to be able to use with get mutation data)
+		HashSet<String> setOfCaseIds = new HashSet<String>(targetCaseList);
+
+		// TODO add a method into GetMutationData with 3 params (to avoid passing null)
+		ArrayList<ExtendedMutation> mutationList =
+				remoteCallMutation.getMutationData(geneticProfile, targetGeneList, setOfCaseIds, null);
+
+		// TODO is it ok to pass all mutations (with different genes)?
+		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+
+		for (ExtendedMutation mutation : mutationList)
+		{
+			String caseId = mutation.getCaseId();
+
+			if (targetCaseList.contains(caseId))
+			{
+
+				HashMap<String, Object> mutationData = new HashMap<String, Object>();
+
+				int cancerStudyId = geneticProfile.getCancerStudyId();
+				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
+						.getCancerStudyStableId();
+				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+
+				// TODO entrez gene id, symbol all caps
+				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
+				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
+
+				mutationData.put("geneticProfileId", geneticProfile.getStableId());
+				mutationData.put("mutationEventId", mutation.getMutationEventId());
+				mutationData.put("geneSymbol", mutation.getGeneSymbol());
+				mutationData.put("caseId", mutation.getCaseId());
+				mutationData.put("linkToPatientView", linkToPatientView);
+				mutationData.put("proteinChange", mutation.getProteinChange());
+				mutationData.put("mutationType", mutation.getMutationType());
+				mutationData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
+				mutationData.put("cosmicCount", this.getCosmicCount(mutation));
+				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
+				mutationData.put("fisValue", this.getFisValue(mutation));
+				mutationData.put("msaLink", this.getMsaLink(mutation));
+				mutationData.put("xVarLink", this.getXVarLink(mutation));
+				mutationData.put("pdbLink", this.getPdbLink(mutation));
+				mutationData.put("mutationStatus", mutation.getMutationStatus());
+				mutationData.put("validationStatus", mutation.getValidationStatus());
+				mutationData.put("sequencingCenter", this.getSequencingCenter(mutation));
+				mutationData.put("ncbiBuildNo", this.getNcbiBuild(mutation));
+				mutationData.put("chr", this.getChromosome(mutation));
+				mutationData.put("startPos", mutation.getStartPosition());
+				mutationData.put("endPos", mutation.getEndPosition());
+				mutationData.put("referenceAllele", mutation.getReferenceAllele());
+				mutationData.put("variantAllele", this.getVariantAllele(mutation));
+				mutationData.put("tumorFreq", this.getTumorFreq(mutation));
+				mutationData.put("normalFreq", this.getNormalFreq(mutation));
+				mutationData.put("tumorRefCount", this.getTumorRefCount(mutation));
+				mutationData.put("tumorAltCount", this.getTumorAltCount(mutation));
+				mutationData.put("normalRefCount", this.getNormalRefCount(mutation));
+				mutationData.put("normalAltCount", this.getNormalAltCount(mutation));
+				mutationData.put("canonicalTranscript", mutation.isCanonicalTranscript());
+				mutationData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
+				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
+				mutationData.put("uniprotId", this.getUniprotId(mutation));
+				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
+				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
+
+				mutationArray.add(mutationData);
+			}
+		}
+
+		return mutationArray;
+	}
+
+	/**
+	 * Returns special gene data (if exists) for the given mutation. Returns null
+	 * if no special gene exists for the given mutation.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          Map of (field header, field value) pairs.
+	 */
+	protected HashMap<String, String> getSpecialGeneData(ExtendedMutation mutation)
+	{
+		HashMap<String, String> specialGeneData = null;
+
+		SpecialGene specialGene = SpecialGeneFactory.getInstance(mutation.getGeneSymbol());
+
+		//  fields & values for "Special" genes
+		if (specialGene != null)
+		{
+			specialGeneData = new HashMap<String, String>();
+
+			ArrayList<String> specialHeaders = specialGene.getDataFieldHeaders();
+			ArrayList<String> specialData = specialGene.getDataFields(mutation);
+
+			if (specialHeaders.size() == specialData.size())
+			{
+				for (int i=0; i < specialData.size(); i++)
+				{
+					String header = specialHeaders.get(i);
+					String data = specialData.get(i);
+
+					specialGeneData.put(header, data);
+				}
+			}
+			else
+			{
+				//TODO header size vs data size mismatch
+			}
+		}
+
+		return specialGeneData;
+	}
+
 
 	/**
 	 * Returns the MSA (alignment) link for the given mutation.
@@ -279,17 +365,17 @@ public class MutationTableDataServlet extends HttpServlet
 	protected boolean linkIsValid(String link)
 	{
 		return link != null &&
-		   link.length() > 0 &&
-		   !link.equalsIgnoreCase("NA");
+		       link.length() > 0 &&
+		       !link.equalsIgnoreCase("NA");
 	}
 
 	protected String getSequencingCenter(ExtendedMutation mutation)
 	{
-		return SequenceCenterUtil.getSequencingCenterAbbrev(
-				mutation.getSequencingCenter());
+		return SequenceCenterUtil.getSequencingCenterAbbrev(mutation.getSequencingCenter());
 	}
 
 	/**
+	 * TODO move this method to the client side
 	 * Creates an html "a" element for the cosmic overlapping value
 	 * of the given mutation. The text of the element will be the sum
 	 * of all cosmic values, and the id of the element will be the
@@ -307,6 +393,7 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 
 		// calculate total cosmic count
+		// TODO move this method to the client side, remove ExtendedMutationUtil class
 		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
 		if (total > 0)
@@ -317,6 +404,28 @@ public class MutationTableDataServlet extends HttpServlet
 		{
 			return 0;
 		}
+	}
+
+	/**
+	 * Returns one of the tumor sequence alleles which is different from
+	 * the reference allele.
+	 *
+	 * @param mutation  mutation instance
+	 * @return          tumor sequence allele different from the reference allele
+	 */
+	protected String getVariantAllele(ExtendedMutation mutation)
+	{
+		// TODO use mutation.getTumorSeqAllele() instead?
+
+		String varAllele = mutation.getTumorSeqAllele1();
+
+		if (mutation.getReferenceAllele() != null &&
+		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
+		{
+			varAllele = mutation.getTumorSeqAllele2();
+		}
+
+		return varAllele;
 	}
 
 	/**
@@ -453,6 +562,12 @@ public class MutationTableDataServlet extends HttpServlet
 		return freq;
 	}
 
+	protected String getUniprotId(ExtendedMutation mutation)
+	{
+		// TODO uniprot name or uniprot accession
+		return mutation.getOncotatorUniprotName();
+	}
+
 	protected Float getFisValue(ExtendedMutation mutation)
 	{
 		Float fisValue = mutation.getFisValue();
@@ -463,12 +578,6 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 
 		return fisValue;
-	}
-
-	protected String getUniprotId(ExtendedMutation mutation)
-	{
-		// TODO uniprot name or uniprot accession
-		return mutation.getOncotatorUniprotName();
 	}
 
 	/**
@@ -501,8 +610,7 @@ public class MutationTableDataServlet extends HttpServlet
 		// retrieve count map
 		try
 		{
-			counts = DaoMutation.countMutationEvents(
-					geneticProfileId, caseIds);
+			counts = DaoMutation.countMutationEvents(geneticProfileId, caseIds);
 		}
 		catch (DaoException e)
 		{
@@ -510,102 +618,5 @@ public class MutationTableDataServlet extends HttpServlet
 		}
 
 		return counts;
-	}
-
-	/**
-	 * Gets the footer message specific to the provided special gene.
-	 *
-	 * @param specialGene   a special gene
-	 * @return              corresponding footer message
-	 */
-	public String getTableFooterMessage(SpecialGene specialGene)
-	{
-		if (specialGene != null)
-		{
-			return specialGene.getFooter();
-		}
-		else
-		{
-			return "";
-		}
-	}
-
-	/**
-	 * Initializes a map of data column headers.
-	 *
-	 * @param specialGene   a special gene
-	 * @return              a map of variable name and column name pairs
-	 */
-	protected HashMap<String, Object> initHeaders(SpecialGene specialGene)
-	{
-		HashMap<String, Object> headerList = new HashMap<String, Object>();
-
-		headerList.put("caseId", "Case ID");
-		headerList.put("proteinChange", "AA Change");
-		headerList.put("mutationType", "Type");
-		headerList.put("cosmic", "COSMIC");
-		headerList.put("functionalImpactScore", "FIS");
-		headerList.put("msaLink", "Cons");
-		headerList.put("pdbLink", "3D");
-		headerList.put("mutationStatus", "MS");
-		headerList.put("validationStatus", "VS");
-		headerList.put("sequencingCenter", "Center");
-		headerList.put("ncbiBuildNo", "Build");
-		headerList.put("chr", "Chr");
-		headerList.put("startPos", "Start Pos");
-		headerList.put("endPos", "End Pos");
-		headerList.put("referenceAllele", "Ref");
-		headerList.put("variantAllele", "Var");
-		headerList.put("tumorFreq", "Allele Freq (T)");
-		headerList.put("normalFreq", "Allele Freq (N)");
-		headerList.put("tumorRefCount", "Var Ref");
-		headerList.put("tumorAltCount", "Var Alt");
-		headerList.put("normalRefCount", "Norm Ref");
-		headerList.put("normalAltCount", "Norm Alt");
-		headerList.put("mutationCount", "#Mut in Sample");
-
-		JSONArray specialGeneHeaders = new JSONArray();
-
-		//  Add Any Gene-Specfic Headers
-		if (specialGene != null)
-		{
-			for (String header : specialGene.getDataFieldHeaders())
-			{
-				specialGeneHeaders.add(header);
-			}
-		}
-
-		headerList.put("specialGeneHeaders", specialGeneHeaders);
-
-		return headerList;
-	}
-
-	/**
-	 * Read and return a list of extended mutations from the specified value in JSON format
-	 * or an empty list if the value cannot be read.
-	 *
-	 * @param value list of extended mutations in JSON format
-	 * @return a list of extended mutations from the specified value in JSON format, or an
-	 *    empty list if the value cannot be read
-	 */
-	List<ExtendedMutation> readMutations(final String value) {
-		List<ExtendedMutation> mutations = Collections.emptyList();
-		if (value != null) {
-			try {
-				TypeFactory typeFactory = objectMapper.getTypeFactory();
-				CollectionType sequenceList = typeFactory.constructCollectionType(List.class, ExtendedMutation.class);
-				mutations = objectMapper.readValue(value, sequenceList);
-			}
-			catch (JsonParseException e) {
-				logger.warn("could not deserialize extended mutations", e);
-			}
-			catch (JsonMappingException e) {
-				logger.warn("could not deserialize extended mutations", e);
-			}
-			catch (IOException e) {
-				logger.warn("could not deserialize extended mutations", e);
-			}
-		}
-		return mutations;
 	}
 }

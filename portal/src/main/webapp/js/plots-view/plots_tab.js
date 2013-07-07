@@ -1420,7 +1420,6 @@ var PlotsView = (function () {
                     mutationStyleArr.push(obj);
                 }
             }
-            console.log(mutationStyleArr);
 
             var legend = elem.svg.selectAll(".legend")
                 .data(mutationStyleArr)

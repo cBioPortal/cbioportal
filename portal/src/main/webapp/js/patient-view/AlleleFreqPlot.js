@@ -118,7 +118,6 @@ var AlleleFreqPlot = function(div, data) {
     var histogram = d3.layout.histogram()
         .frequency(false)
         .bins(x.ticks(30));
-
     var binned_data = histogram(data);
 
     // calculate the range of values that y takes
@@ -128,11 +127,6 @@ var AlleleFreqPlot = function(div, data) {
     var y = d3.scale.linear()
         .domain(ydomain)
         .range([height, 0]);
-
-    var yAxis = d3.svg.axis()
-        .scale(y)
-        .orient("left")
-        .ticks(5);
 
     var line = d3.svg.line()
         .x(function(d) { return x(d[0]); })
@@ -171,9 +165,30 @@ var AlleleFreqPlot = function(div, data) {
         .style("text-anchor", "end")
         .text("allele frequency");
 
-    // y axis
+    // make the y-axis mutation count
+    mutation_count_range = binned_data.map(function(d) { return d.length; });
+    mutation_count_range = [d3.min(mutation_count_range),
+                                d3.max(mutation_count_range)];
+
+    // create axis
+    var yAxis = d3.svg.axis()
+        .scale(y.copy().domain(mutation_count_range))
+        .orient("left")
+        .ticks(5);
+
+    // render axis
     var y_axis = svg.append("g")
         .call(yAxis);
+
+    // y-axis label
+    y_axis
+        .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(" + 90 + ")")
+        .attr("x", height / 3)
+        .attr("y", margin.left - 10)
+        .style("text-anchor", "start")
+        .text("allele count");
 
     applyCss(y_axis.selectAll('path')).attr('display', 'none');
     applyCss(y_axis.selectAll('line'));
@@ -184,7 +199,8 @@ var AlleleFreqPlot = function(div, data) {
     var binned_yscale = y.copy();
     binned_yscale.domain(binned_ydomain);
 
-    var histogram = svg.selectAll(".bar")
+    // make a bar chart
+    svg.selectAll(".bar")
         .data(binned_data)
         .enter().insert("rect")
         .attr("x", function(d) { return x(d.x) + 1; })

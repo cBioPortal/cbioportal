@@ -164,13 +164,6 @@ var PlotsTwoGenesView = (function(){
             xHasData : false,
             yHasData : false
         },
-    //The template for creating dot unit
-        singleDot = {
-            case_id : "",
-            x_value : "",
-            y_value : "",
-            annotation: ""  //Mutation (for now)
-        },
     //Current Selection from the menu
         menu = {
             geneX : "",
@@ -190,7 +183,14 @@ var PlotsTwoGenesView = (function(){
             yScale : "",
             xAxis : "",
             yAxis : "",
-            dotsGroup : ""
+            dotsGroup : ""   //Group of single Dots
+        },
+    //The template for creating dot unit
+        singleDot = {
+            case_id : "",
+            x_value : "",
+            y_value : "",
+            annotation: ""  //Mutation (for now)
         },
         style = {
             geneX_mut : {
@@ -211,7 +211,7 @@ var PlotsTwoGenesView = (function(){
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "Non Mutated"
+                text : "None Mutated"
             }
         };
 
@@ -565,6 +565,7 @@ var PlotsTwoGenesView = (function(){
             }
 
             //Only show glyphs "mutated" and "non mutated" for same gene situation
+            //TODO: separate same gene situation into different functions
             if (menu.geneX === menu.geneY) {
                 twoGenesStyleArr.splice(1, 1);
                 twoGenesStyleArr.splice(1, 1);

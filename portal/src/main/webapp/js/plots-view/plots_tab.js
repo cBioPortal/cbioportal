@@ -1405,12 +1405,22 @@ var PlotsView = (function () {
 
         function drawCopyNoViewLegends() {
 
+            //Only show glyphs whose mutation type
+            //appeared in the current individual case
+            var _appearedMutationTypes = [];
+            $.each(tmpDataSet, function(index, value) {
+                _appearedMutationTypes.push(value.mutationType);
+            });
+
             //Convert object to array
             var mutationStyleArr = [];
             for (var key in mutationStyle) {
                 var obj = mutationStyle[key];
-                mutationStyleArr.push(obj);
+                if (_appearedMutationTypes.indexOf(key) !== -1) {
+                    mutationStyleArr.push(obj);
+                }
             }
+            console.log(mutationStyleArr);
 
             var legend = elem.svg.selectAll(".legend")
                 .data(mutationStyleArr)

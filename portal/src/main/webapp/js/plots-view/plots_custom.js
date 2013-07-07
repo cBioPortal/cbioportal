@@ -249,7 +249,7 @@ var PlotsCustomView = (function() {
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "Non Mutated"
+                text : "None Mutated"
             }
         };
 

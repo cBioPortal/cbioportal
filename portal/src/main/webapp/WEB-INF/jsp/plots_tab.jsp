@@ -76,7 +76,7 @@
                                 <h5>Gene</h5>
                                 <select id='genes' onchange='PlotsView.init()'></select>
 
-                                <h5>Plots Type</h5>
+                                <h5>Plot Type</h5>
                                 <select id='plots_type' onchange="PlotsMenu.update();"></select>
 
                                 <h5>Data Type</h5>
@@ -111,7 +111,7 @@
                                     x Axis<select id='geneX' onchange="PlotsTwoGenesView.init()"></select><br>
                                     y Axis<select id='geneY' onchange="PlotsTwoGenesView.init()"></select>
 
-                                    <h5>Plots Type</h5>
+                                    <h5>Plot Type</h5>
                                     <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.update()"></select>
 
                                     <h5>Platform</h5>
@@ -144,12 +144,12 @@
                             <tr>
                                 <td style="border:2px solid #BDBDBD;padding:10px;height:360px;width:300px;">
 
-                                    <h4>Plot Prarmeters</h4>
+                                    <h4>Plot Parameters</h4>
 
                                     <h5>x Axis</h5>
                                     Gene<br>
                                     <select id='custom_geneX' onchange="PlotsCustomView.init()"></select><br>
-                                    Plots Type<br>
+                                    Plot Type<br>
                                     <select id='custom_plots_type_x' onchange='PlotsCustomMenu.update()'></select><br>
                                     Platform<br>
                                     <div id='custom_platform_select_div_x'></div>
@@ -158,7 +158,7 @@
                                     <h5>y Axis</h5>
                                     Gene<br>
                                     <select id='custom_geneY' onchange="PlotsCustomView.init()"></select><br>
-                                    Plots Type<br>
+                                    Plot Type<br>
                                     <select id='custom_plots_type_y' onchange='PlotsCustomMenu.update()'></select><br>
                                     Platform<br>
                                     <div id='custom_platform_select_div_y'></div>

@@ -92,10 +92,11 @@ var AlleleFreqPlotUtils = (function() {
 // appends labels and such that are specific to the allele frequency density
 // plot
 var AlleleFreqPlot = function(div, data) {
-    var label_margin = 30;      // the y coordinate of the label
-    var margin = {top: 20, right: 30, bottom: 30 + label_margin / 2, left: 40},
-        width = 560 / 2 - margin.left - margin.right,
-        height = (500 + label_margin) / 2 - margin.top - margin.bottom;
+    var xlabel_margin = 30;      // horizontal label padding for the x-axis
+    var ylabel_margin = 13;      // horizontal label padding for the y-axis (NB: axises have rotated)
+    var margin = {top: 20, right: 30, bottom: 30 + xlabel_margin / 2, left: 50},
+        width = 200,
+        height = (500 + xlabel_margin) / 2 - margin.top - margin.bottom;
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
@@ -161,7 +162,7 @@ var AlleleFreqPlot = function(div, data) {
         .append("text")
         .attr("class", "label")
         .attr("x", width / 2)
-        .attr("y", label_margin)
+        .attr("y", xlabel_margin)
         .style("text-anchor", "middle")
         .text("variant allele frequency");
 
@@ -184,9 +185,9 @@ var AlleleFreqPlot = function(div, data) {
     y_axis
         .append("text")
         .attr("class", "label")
-        .attr("transform", "rotate(" + 90 + ")")
-        .attr("x", height / 2)      // axis' have also been rotated
-        .attr("y", margin.left)
+        .attr("transform", "rotate(" + "-" + 90 + ")")
+        .attr("x", - height / 2)      // axis' have also been rotated
+        .attr("y", - margin.left + ylabel_margin)
         .style("text-anchor", "middle")
         .text("mutation count");
 

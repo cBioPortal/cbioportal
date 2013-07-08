@@ -250,6 +250,12 @@ var PlotsCustomView = (function() {
             }
         };
 
+    function isEmpty(inputVal) {
+        if (inputVal !== "NaN" && inputVal !== "NA") {
+            return false;
+        }
+        return true;
+    }
     function pDataInit(result) {
         var tmp_singleDot = {
             case_id : "",
@@ -330,21 +336,19 @@ var PlotsCustomView = (function() {
         errStatus.xHasData = false;
         errStatus.yHasData = false;
         $.each(tmp_pDataX, function(key, obj) {
-            if (!isNaN(obj.value)) {
+            if (!isEmpty(obj.value)) {
                 errStatus.xHasData = true;
             }
         });
         $.each(tmp_pDataY, function(key, obj) {
-            if (!isNaN(obj.value)) {
+            if (!isEmpty(obj.value)) {
                 errStatus.yHasData = true;
             }
         });
 
-        //merge tmp_pDataX, tmp_pDataY, and filter NaN/NA data
+        //merge tmp_pDataX, tmp_pDataY, and filter empty data
         for (var i = 0; i < tmp_pDataY.length; i++) {
-            if (tmp_pDataX[i].value !== "NaN" && tmp_pDataX[i].value !== "NA" &&
-                tmp_pDataY[i].value !== "NaN" && tmp_pDataY[i].value !== "NA") {
-
+            if (!isEmpty(tmp_pDataX[i].value) && !isEmpty(tmp_pDataY[i].value)) {
                 pData.case_set_length += 1;
 
                 var new_singleDot = jQuery.extend(true, {}, singleDot);
@@ -353,11 +357,11 @@ var PlotsCustomView = (function() {
                 new_singleDot.y_value = tmp_pDataY[i].value;
 
                 var tmp_annotation_str = "";
-                if (tmp_pDataX[i].annotation !== "NaN") {
+                if (!isEmpty(tmp_pDataX[i].annotation)) {
                     tmp_annotation_str +=
                         menu.geneX + ": " + tmp_pDataX[i].annotation + "&nbsp;&nbsp;";
                 }
-                if (tmp_pDataY[i].annotation !== "NaN") {
+                if (!isEmpty(tmp_pDataY[i].annotation)) {
                     tmp_annotation_str +=
                         menu.geneY + ": " + tmp_pDataY[i].annotation;
                 }
@@ -410,8 +414,7 @@ var PlotsCustomView = (function() {
         var tmp_yData = [];
         var tmp_yIndex = 0;
         for (var j = 0; j< pData.case_set_length; j++){
-            if (pData.dotsData[j].x_value !== "NaN" && pData.dotsData[j].y_value !== "NaN" &&
-                pData.dotsData[j].x_value !== "NA" && pData.dotsData[j].y_value !== "NA") {
+            if (!isEmpty(pData.dotsData[j].x_value) && !isEmpty(pData.dotsData[j].y_value)) {
                 tmp_xData[tmp_xIndex] = pData.dotsData[j].x_value;
                 tmp_xIndex += 1;
                 tmp_yData[tmp_yIndex] = pData.dotsData[j].y_value;

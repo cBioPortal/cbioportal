@@ -103,10 +103,18 @@ var PlotsMenu = (function () {
             });
         }
 
+        function isEmpty(inputVal) {
+            if (inputVal !== "NaN" && inputVal !== "NA") {
+                return false;
+            }
+            return true;
+        }
+
         return {
             appendDropDown: appendDropDown,
             toggleVisibility: toggleVisibility,
-            generateList: generateList
+            generateList: generateList,
+            isEmpty: isEmpty
         };
 
     }());
@@ -445,19 +453,14 @@ var PlotsView = (function () {
                 yData = pData.rppa;
             }
 
-            for (var j = 0; j < pData.case_set.length; j++) {
-                if (xData[j] !== "NaN" || xData[j] === "NA") {
+            for (var i = 0; i < pData.case_set.length; i++) {
+                if (!isEmpty(xData[i])) {
                     xHasData = true;
                 }
-            }
-            for (var k = 0; k < pData.case_set.length; k++) {
-                if (yData[k] !== "NaN" || yData[k] === "NA") {
+                if (!isEmpty(yData[i])) {
                     yHasData = true;
                 }
-            }
-            for (var m = 0; m < xData.length; m++) {
-                if ((xData[m] !== "NaN" || xData[m] === "NA") &&
-                    (yData[m] !== "NaN" || yData[m] === "NA")) {
+                if (!isEmpty(xData[i]) && !isEmpty(yData[i])) {
                     combineHasData = true;
                 }
             }
@@ -531,7 +534,7 @@ var PlotsView = (function () {
             var tmp_yData = [];
             var tmp_yIndex = 0;
             for (var j=0; j< pData.case_set.length; j++){
-                if (xData[j] !== "NaN" && yData[j] !== "NaN" && xData[j] !== "NA" && yData[j] !== "NA") {
+                if (!isEmpty(xData[j]) && !isEmpty(yData[j])) {
                     tmp_xData[tmp_xIndex] = xData[j];
                     tmp_xIndex += 1;
                     tmp_yData[tmp_yIndex] = yData[j];
@@ -770,28 +773,22 @@ var PlotsView = (function () {
                 tmpObj.mutationType = pData.mutation_type[i];
                 tmpObj.mutationDetail = pData.mutation_detail[i];
                 if (userSelection.plots_type.indexOf("copy_no") !== -1) { // mrna vs. copy_no
-                    if ((pData.copy_no[i] !== "NaN") &&
-                        (pData.copy_no[i] !== "NA") &&
-                        (pData.mrna[i] !== "NaN") &&
-                        (pData.mrna[i] !== "NA")){
+                    if (!isEmpty(pData.copy_no[i]) &&
+                        !isEmpty(pData.mrna[i])) {
                         tmpObj.xVal = pData.copy_no[i];
                         tmpObj.yVal = pData.mrna[i];
                         tmpDataSet.push(tmpObj);
                     }
                 } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
-                    if ((pData.dna_methylation[i] !== "NaN") &&
-                        (pData.dna_methylation[i] !== "NA") &&
-                        (pData.mrna[i] !== "NaN") &&
-                        (pData.mrna[i] !== "NA")){
+                    if (!isEmpty(pData.dna_methylation[i]) &&
+                        !isEmpty(pData.mrna[i])) {
                         tmpObj.xVal = pData.dna_methylation[i];
                         tmpObj.yVal = pData.mrna[i];
                         tmpDataSet.push(tmpObj);
                     }
                 } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
-                    if ((pData.mrna[i] !== "NaN") &&
-                        (pData.mrna[i] !== "NA") &&
-                        (pData.rppa[i] !== "NaN") &&
-                        (pData.rppa[i] !== "NA")){
+                    if (!isEmpty(pData.rppa[i]) &&
+                        !isEmpty(pData.mrna[i])) {
                         tmpObj.xVal = pData.mrna[i];
                         tmpObj.yVal = pData.rppa[i];
                         tmpDataSet.push(tmpObj);
@@ -1223,7 +1220,7 @@ var PlotsView = (function () {
                 //Find the max/min y value with certain x value;
                 var index_tmp_y_data_array = 0;
                 for (var j = 0; j < yData.length; j++) {
-                    if (yData[j] != "NaN" && xData[j] != "NaN" && yData[j] != "NA" && xData[j] != "NA" && xData[j] == i) {
+                    if (!isEmpty(yData[j]) && !isEmpty(xData[j]) && (xData[j] === i)) {
                         tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
                         index_tmp_y_data_array += 1;
                     }

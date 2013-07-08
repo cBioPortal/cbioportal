@@ -214,6 +214,7 @@ var AlleleFreqPlot = function(div, data) {
     var kde_path = svg.append("path")
         .datum(plot_data)
         .attr("d", line)
+        .attr('class', 'curve')
         .attr('fill', 'none')
         .attr('stroke', '#000')
         .attr('stroke-width', '1.5px');

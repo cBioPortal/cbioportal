@@ -187,7 +187,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 
 <div id="allele_freq_plot" style="display:none;">
-    <button id="allele_freq_plot_toggle" type="button">toggle histogram</button>
+    <button id="allelefreq_histogram_toggle" type="button">toggle histogram</button>
+    <button id="allelefreq_curve_toggle" type="button">toggle curve</button>
 </div>
 <%}%>
 
@@ -216,15 +217,27 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
                         // bind toggle_histogram to toggle histogram button
                         // AFTER we've shuffled it around 
-                        var toggle = true;        // initialize toggle state
-                        $('#allele_freq_plot_toggle').click(function() {
+                        var histogram_toggle = true;        // initialize toggle state
+                        $('#allelefreq_histogram_toggle').click(function() {
                             // qtip interferes with $.toggle
-                            toggle = !toggle;
-                            if (toggle) {
+                            histogram_toggle = !histogram_toggle;
+                            if (histogram_toggle) {
                                 $('#allele_freq_plot rect').removeAttr('display');
                             }
                             else {
                                 $('#allele_freq_plot rect').attr('display', 'none');
+                            }
+                        });
+
+                        var curve_toggle = true;
+                        $('#allelefreq_curve_toggle').click(function() {
+                            // qtip interferes with $.toggle
+                            curve_toggle = !curve_toggle;
+                            if (curve_toggle) {
+                                $('#allele_freq_plot .curve').removeAttr('display');
+                            }
+                            else {
+                                $('#allele_freq_plot .curve').attr('display', 'none');
                             }
                         });
                     }

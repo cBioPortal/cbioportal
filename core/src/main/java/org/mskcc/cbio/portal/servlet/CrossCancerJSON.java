@@ -30,9 +30,17 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.model.ProfileData;
+import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
+import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.util.*;
+import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -50,6 +58,9 @@ public class CrossCancerJSON extends HttpServlet {
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
+    private ServletXssUtil servletXssUtil;
+
+
     /**
      * Initializes the servlet.
      *
@@ -60,6 +71,12 @@ public class CrossCancerJSON extends HttpServlet {
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
+
+        try {
+            servletXssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            throw new ServletException(e);
+        }
     }
 
     /**
@@ -72,26 +89,83 @@ public class CrossCancerJSON extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException
     {
+        XDebug xdebug = new XDebug();
+        xdebug.startTimer();
+
         response.setContentType("application/json");
         PrintWriter writer = response.getWriter();
 
         try {
             List resultsList = new LinkedList();
 
+            // Get the gene list
+            String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+
+            // Get the priority
+            Integer dataTypePriority;
+            try {
+                dataTypePriority
+                        = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+            } catch (NumberFormatException e) {
+                dataTypePriority = 0;
+            }
+            request.setAttribute(QueryBuilder.DATA_PRIORITY, dataTypePriority);
+
+
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
             for (CancerStudy cancerStudy : cancerStudiesList) {
                 Map cancerMap = new LinkedHashMap();
                 resultsList.add(cancerMap);
-                cancerMap.put("studyId", cancerStudy.getCancerStudyStableId());
+                String cancerStudyId = cancerStudy.getCancerStudyStableId();
+                cancerMap.put("studyId", cancerStudyId);
 
-                // TODO: 1) Decide on the caseSetId
+                //  Get all Genetic Profiles Associated with this Cancer Study ID.
+                ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
+
+                //  Get all Case Lists Associated with this Cancer Study ID.
+                ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+
+                //  Get the default case set
+                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
+                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+
+                //  Get the default genomic profiles
+                CategorizedGeneticProfileSet categorizedGeneticProfileSet =
+                        new CategorizedGeneticProfileSet(geneticProfileList);
+                HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
+                switch (dataTypePriority) {
+                    case 2:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
+                        break;
+                    case 1:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
+                        break;
+                    case 0:
+                    default:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
+                }
+
+                ProfileDataSummary genomicData = getGenomicData(
+                        cancerStudyId,
+                        defaultGeneticProfileSet,
+                        defaultCaseSet,
+                        geneList,
+                        caseSetList,
+                        request,
+                        response,
+                        xdebug
+                );
+
+                // TODO: 1) Process these data to extract necessary statistics
+
                 // ...
                 // TODO: 2) Calculate alteration statistics
                 Map alterations = new LinkedHashMap();
                 cancerMap.put("alterations", alterations);
                 alterations.put("mutation", 0);
-                alterations.put("cna", 0);
+                alterations.put("cnaUp", 0);
+                alterations.put("cnaDown", 0);
                 alterations.put("other", 0);
             }
 
@@ -103,5 +177,69 @@ public class CrossCancerJSON extends HttpServlet {
         } finally {
             writer.close();
         }
+    }
+
+    /**
+     * Gets all Genomic Data.
+     */
+    private ProfileDataSummary getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
+                                              CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response, XDebug xdebug) throws IOException,
+            ServletException, DaoException {
+
+        request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
+
+        // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
+        double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
+                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), request);
+        double rppaScore = ZScoreUtil.getRPPAScore(request);
+
+        ParserOutput theOncoPrintSpecParserOutput =
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(geneListStr,
+                        new HashSet<String>(defaultGeneticProfileSet.keySet()),
+                        new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()), zScore, rppaScore);
+
+        ArrayList<String> geneList = new ArrayList<String>();
+        geneList.addAll(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes());
+
+        ArrayList<ProfileData> profileDataList = new ArrayList<ProfileData>();
+        Set<String> warningUnion = new HashSet<String>();
+
+        String caseIds = defaultCaseSet.getCaseListAsString();
+
+        for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
+            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
+            xdebug.logMsg(this, "Using gene list:  " + geneList);
+            GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
+            ProfileData pData = remoteCall.getProfileData();
+            warningUnion.addAll(remoteCall.getWarnings());
+            profileDataList.add(pData);
+        }
+
+        xdebug.logMsg(this, "Merging Profile Data");
+        ProfileMerger merger = new ProfileMerger(profileDataList);
+        ProfileData mergedProfile = merger.getMergedProfile();
+
+        xdebug.logMsg(this, "Merged Profile, Number of genes:  "
+                + mergedProfile.getGeneList().size());
+        xdebug.logMsg(this, "Merged Profile, Number of cases:  "
+                + mergedProfile.getCaseIdList().size());
+
+        request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
+        request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
+        String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerStudyId,
+                geneListStr,
+                mergedProfile,
+                caseList,
+                defaultCaseSet.getStableId(),
+                zScore,
+                rppaScore,
+                new HashSet<String>(defaultGeneticProfileSet.keySet()),
+                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
+                false);
+        ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
+                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
+        return dataSummary;
     }
 }

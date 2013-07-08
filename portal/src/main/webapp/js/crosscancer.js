@@ -54,7 +54,8 @@
             caseSetId: "",
             alterations: {
                 mutation: 0,
-                cna: 0,
+                cnaUp: 0,
+                cnaDown: 0,
                 other: 0
             }
         }
@@ -64,13 +65,13 @@
         model: Study,
         url: "crosscancerquery.json",
         defaults: {
-            genes: "",
+            gene_list: "",
             priority: 0
         },
 
         initialize: function(options) {
             options = _.extend(this.defaults, options);
-            this.url = "?genes=" + options.genes + "&priority=" + options.priority;
+            this.url = "?genes=" + options.gene_list + "&priority=" + options.priority;
 
             return this;
         }

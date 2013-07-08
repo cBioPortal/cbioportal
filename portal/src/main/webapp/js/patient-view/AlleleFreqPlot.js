@@ -93,7 +93,7 @@ var AlleleFreqPlotUtils = (function() {
 // plot
 var AlleleFreqPlot = function(div, data) {
     var xlabel_margin = 30;      // horizontal label padding for the x-axis
-    var ylabel_margin = 13;      // horizontal label padding for the y-axis (NB: axises have rotated)
+    var ylabel_margin = 8;      // horizontal label padding for the y-axis (NB: axises have rotated)
     var margin = {top: 20, right: 30, bottom: 30 + xlabel_margin / 2, left: 50},
         width = 200,
         height = (500 + xlabel_margin) / 2 - margin.top - margin.bottom;
@@ -186,7 +186,8 @@ var AlleleFreqPlot = function(div, data) {
         .append("text")
         .attr("class", "label")
         .attr("transform", "rotate(" + "-" + 90 + ")")
-        .attr("x", - height / 2)      // axis' have also been rotated
+        // axis' have also been rotated
+        .attr("x", - height / 2)
         .attr("y", - margin.left + ylabel_margin)
         .style("text-anchor", "middle")
         .text("mutation count");

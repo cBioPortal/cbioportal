@@ -160,10 +160,10 @@ var AlleleFreqPlot = function(div, data) {
     x_axis
         .append("text")
         .attr("class", "label")
-        .attr("x", width)
+        .attr("x", width / 2)
         .attr("y", label_margin)
-        .style("text-anchor", "end")
-        .text("allele frequency");
+        .style("text-anchor", "middle")
+        .text("variant allele frequency");
 
     // make the y-axis mutation count
     mutation_count_range = binned_data.map(function(d) { return d.length; });
@@ -185,10 +185,10 @@ var AlleleFreqPlot = function(div, data) {
         .append("text")
         .attr("class", "label")
         .attr("transform", "rotate(" + 90 + ")")
-        .attr("x", height / 3)
+        .attr("x", height / 2)      // axis' have also been rotated
         .attr("y", margin.left)
-        .style("text-anchor", "start")
-        .text("allele count");
+        .style("text-anchor", "middle")
+        .text("mutation count");
 
     applyCss(y_axis.selectAll('path')).attr('display', 'none');
     applyCss(y_axis.selectAll('line'));

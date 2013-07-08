@@ -400,7 +400,6 @@ var Oncoprint = function(wrapper, params) {
             return "<a href='" + href + "'>" + sample_id + "</a>";
         };
 
-
         // make qtip
         d3.selectAll('.sample').each(function(d, i) {
             $(this).qtip({

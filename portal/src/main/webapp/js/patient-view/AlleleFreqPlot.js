@@ -186,7 +186,7 @@ var AlleleFreqPlot = function(div, data) {
         .attr("class", "label")
         .attr("transform", "rotate(" + 90 + ")")
         .attr("x", height / 3)
-        .attr("y", margin.left - 10)
+        .attr("y", margin.left)
         .style("text-anchor", "start")
         .text("allele count");
 

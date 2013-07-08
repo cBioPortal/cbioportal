@@ -662,6 +662,22 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .text(yLegend);
 }
 
+function loadSVG() {
+
+    var mySVG = document.getElementById("plots_box");
+    var svgDoc = mySVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xml = xmlSerializer.serializeToString(svgDoc[0]);
+
+    //Quick fix for the Batik display bug
+    //TODO: debug/modify the library
+    xml = xml.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+    xml = xml.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+    return xml;
+
+}
+
 function fetchAxisTitle() {
     var xLegend = "";
     var yLegend = "";
@@ -950,7 +966,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             }
 
-
             var countSubDataSets = 0;
             $.each(subDataSet, function(key, value) {
                 if (subDataSet[key].length !== 0) {
@@ -960,9 +975,27 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             });
 
             //Redefine the axis
-            xScale = d3.scale.linear()
-                .domain([min_x - edge_x, (min_x + countSubDataSets - 1) + edge_x])
-                .range([100, 600]);
+            if (countSubDataSets === 1) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.2), (min_x + 0.2)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 2) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.8), (min_x + countSubDataSets - 1 + 0.8)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 3) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.8, (min_x + countSubDataSets - 1) + 0.8])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 4) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 5) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            }
             xAxis = d3.svg.axis()
                 .scale(xScale)
                 .orient("bottom")

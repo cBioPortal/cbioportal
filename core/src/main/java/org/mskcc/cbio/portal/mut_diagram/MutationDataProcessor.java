@@ -36,6 +36,7 @@ import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 import org.mskcc.cbio.portal.util.OmaLinkUtil;
 import org.mskcc.cbio.portal.util.SequenceCenterUtil;
@@ -328,7 +329,7 @@ public class MutationDataProcessor
 	{
 		Integer count = mutation.getNormalAltCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -340,7 +341,7 @@ public class MutationDataProcessor
 	{
 		Integer count = mutation.getNormalRefCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -352,7 +353,7 @@ public class MutationDataProcessor
 	{
 		Integer count = mutation.getTumorAltCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -364,7 +365,7 @@ public class MutationDataProcessor
 	{
 		Integer count = mutation.getTumorRefCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}

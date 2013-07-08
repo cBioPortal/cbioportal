@@ -7,7 +7,9 @@
 <script type="text/template" id="mutation_view_template">
 	<h4>{{geneSymbol}}: {{mutationSummary}}</h4>
 	<div id='mutation_diagram_toolbar_{{geneSymbol}}' class='mutation-diagram-toolbar'>
-		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}' target='_blank'>{{uniprotId}}</a>
+		<a href='http://www.uniprot.org/uniprot/{{uniprotId}}'
+		   class='mutation-details-uniprot-link'
+		   target='_blank'>{{uniprotId}}</a>
 		<form style="display:inline-block"
 		      action='svgtopdf.do'
 		      method='post'
@@ -16,10 +18,19 @@
 			<input type='hidden' name='filetype' value='pdf'>
 			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.pdf'>
 		</form>
+		<form style="display:inline-block"
+		      action='svgtopdf.do'
+		      method='post'
+		      class='svg-to-file-form'>
+			<input type='hidden' name='svgelement'>
+			<input type='hidden' name='filetype' value='svg'>
+			<input type='hidden' name='filename' value='mutation_diagram_{{geneSymbol}}.svg'>
+		</form>
 		<button class='diagram-to-pdf'>PDF</button>
+		<button class='diagram-to-svg'>SVG</button>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
-	<div id='mutation_table_{{geneSymbol}}'>
+	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
 </script>
@@ -168,30 +179,107 @@
 				var diagram = self._drawMutationDiagram(
 						gene, mutationMap[gene], response, diagramOpts);
 
-				// add listener to the diagram buttons
-				mainView.$el.find(".diagram-to-pdf").click(function (event) {
+				var pdfButton = mainView.$el.find(".diagram-to-pdf");
+				var svgButton = mainView.$el.find(".diagram-to-svg");
+				var toolbar = mainView.$el.find(".mutation-diagram-toolbar");
+
+				// check if diagram is initialized successfully.
+				// if not, disable any diagram related functions
+				if (!diagram)
+				{
+					console.log("Error initializing mutation diagram: %s", gene);
+					toolbar.hide();
+				}
+
+				// helper function to trigger submit event for the svg and pdf button clicks
+				var submitForm = function(alterFn, diagram, formClass)
+				{
+					// alter diagram to have the desired output
+					alterFn(diagram);
+
 					// convert svg content to string
 					var xmlSerializer = new XMLSerializer();
 					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
 
-					// TODO temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
-					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
-						"<text y=\"19\" x=\"0\" dy=\".71em\"");
-					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
-						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
+					// restore previous settings after generating xml string
+					alterFn(diagram, true);
 
-					// TODO try to clone and change the value directly, it is safer
-//					var tempSvg = jQuery.extend(true, {}, diagram.svg);
-//					tempSvg.select(".mut-dia-x-axis").selectAll(".tick").selectAll("text").attr("y", 19);
-//					tempSvg.select(".mut-dia-y-axis").selectAll(".tick").selectAll("text").attr("y", 3);
-//					svgString = xmlSerializer.serializeToString(tempSvg[0][0]);
+					// temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
+//					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
+//						"<text y=\"19\" x=\"0\" dy=\".71em\"");
+//					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
+//						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
 
 					// set actual value of the form element (svgelement)
-					var form = mainView.$el.find(".svg-to-pdf-form");
+					var form = mainView.$el.find("." + formClass);
 					form.find('input[name="svgelement"]').val(svgString);
 
 					// submit form
 					form.submit();
+				};
+
+				//add listener to the svg button
+				svgButton.click(function (event) {
+					// TODO setting & rolling back diagram values (which may not be safe)
+					// helper function to adjust SVG for file output
+					var alterDiagramForSvg = function(diagram, rollback)
+					{
+						var topLabel = gene;
+
+						if (rollback)
+						{
+							topLabel = "";
+						}
+
+						// adding a top left label (to include a label in the file)
+						diagram.updateTopLabel(topLabel);
+					};
+
+					// submit svg form
+					submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+				});
+
+				// add listener to the pdf button
+				pdfButton.click(function (event) {
+					// TODO setting & rolling back diagram values (which may not be safe)
+					// helper function to adjust SVG for PDF output
+					var alterDiagramForPdf = function(diagram, rollback)
+					{
+						var topLabel = gene;
+						var xShift = 8;
+						var yShift = 3;
+
+						if (rollback)
+						{
+							topLabel = "";
+							xShift = -1 * xShift;
+							yShift = -1 * yShift;
+						}
+
+						var xLabels = diagram.svg
+							.select(".mut-dia-x-axis")
+							.selectAll(".tick")
+							.selectAll("text");
+
+						var yLabels = diagram.svg
+							.select(".mut-dia-y-axis")
+							.selectAll(".tick")
+							.selectAll("text");
+
+						// adding a top left label (to include a label in PDF)
+						diagram.updateTopLabel(topLabel);
+
+						// shifting axis tick labels a little bit because of
+						// a bug in the PDF converter library (this is a hack!)
+						var xy = parseInt(xLabels.attr("y"));
+						var yy = parseInt(yLabels.attr("y"));
+
+						xLabels.attr("y", xy + xShift);
+						yLabels.attr("y", yy + yShift);
+					};
+
+					// submit pdf form
+					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 				});
 
 				// TODO draw mutation table
@@ -214,6 +302,15 @@
 			if (!options)
 			{
 				options = {};
+			}
+
+			// do not draw the diagram if there is a critical error with
+			// the sequence data
+			if (sequenceData.sequenceLength == "" ||
+			    sequenceData.sequenceLength <= 0)
+			{
+				// return null to indicate an error
+				return null;
 			}
 
 			// overwrite container in any case (for consistency with the default view)

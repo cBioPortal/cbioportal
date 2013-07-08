@@ -23,25 +23,33 @@ function MutationDiagram(geneSymbol, options, data)
 // use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
-	elWidth: 720,               // width of the container
+	elWidth: 740,               // width of the container
 	elHeight: 180,              // height of the container
 	marginLeft: 40,             // left margin for the plot area
-	marginRight: 20,            // right margin for the plot area
+	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
+	labelTop: "",                 // informative label on top of the diagram (false means "do not draw")
+	labelTopFont: "sans-serif",   // font type of the top label
+	labelTopFontColor: "#2E3436", // font color of the top label
+	labelTopFontSize: "12px",     // font size of the top label
+	labelTopFontWeight: "bold",   // font weight of the top label
+	labelTopMargin: 2,            // left margin for the top label
 	labelX: false,              // informative label of the x-axis (false means "do not draw")
 	labelXFont: "sans-serif",   // font type of the x-axis label
 	labelXFontColor: "#2E3436", // font color of the x-axis label
 	labelXFontSize: "12px",     // font size of x-axis label
+	labelXFontWeight: "normal", // font weight of x-axis label
 	labelY: "# Mutations",      // informative label of the y-axis (false means "do not draw")
 	labelYFont: "sans-serif",   // font type of the y-axis label
 	labelYFontColor: "#2E3436", // font color of the y-axis label
 	labelYFontSize: "12px",     // font size of y-axis label
-	offsetY: 3,                 // offset for y values
-	offsetX: 0,                 // offset for x values
+	labelYFontWeight: "normal", // font weight of y-axis label
+	minLengthX: 0,              // min value of the largest x value to show
+	minLengthY: 5,              // min value of the largest y value to show
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
 	seqHeight: 14,              // height of the sequence rectangle
-	seqPadding: 8,              // padding between sequence and plot area
+	seqPadding: 5,              // padding between sequence and plot area
 	regionHeight: 24,           // height of a region (drawn on the sequence)
 	regionFont: "sans-serif",   // font of the region text
 	regionFontColor: "#FFFFFF", // font color of the region text
@@ -60,9 +68,12 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
-	xAxisPadding: 15,           // padding between x-axis and the sequence
-	xAxisTickInterval: 100,     // major tick interval for x-axis
-	xAxisMaxTickLabel: 5,       // maximum number of visible tick label on the x-axis
+	xAxisPadding: 10,           // padding between x-axis and the sequence
+	xAxisTickIntervals: [       // valid major tick intervals for x-axis
+		100, 200, 400, 500, 1000, 2000, 5000, 10000, 20000, 50000
+	],
+	xAxisTicks: 8,              // maximum number of major ticks for x-axis
+								// (a major tick may not be labeled if it is too close to the max)
 	xAxisTickSize: 6,           // size of the major ticks of x-axis
 	xAxisStroke: "#AAAAAA",     // color of the x-axis lines
 	xAxisFont: "sans-serif",    // font type of the x-axis labels
@@ -70,7 +81,10 @@ MutationDiagram.prototype.defaultOpts = {
 	xAxisFontColor: "#2E3436",  // font color of the x-axis labels
 	yAxisPadding: 5,            // padding between y-axis and the plot area
 	yAxisLabelPadding: 15,      // padding between y-axis and its label
-	yAxisTicks: 3,              // number of major ticks to be displayed on the y-axis
+	yAxisTicks: 10,             // maximum number of major ticks for y-axis
+	yAxisTickIntervals: [       // valid major tick intervals for y-axis
+		1, 2, 5, 10, 20, 50, 100, 200, 500
+	],
 	yAxisTickSize: 6,           // size of the major ticks of y-axis
 	yAxisStroke: "#AAAAAA",     // color of the y-axis lines
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
@@ -301,8 +315,8 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
 	var self = this;
 
-	var xMax = data.sequence.sequenceLength + options.offsetX;
-	var yMax = self.calcMaxCount(data.mutations) + options.offsetY;
+	var xMax = Math.max(data.sequence.sequenceLength, options.minLengthX);
+	var yMax = Math.max(self.calcMaxCount(data.mutations), options.minLengthY);
 	var regions = data.sequence.regions;
 	var mutations = data.mutations;
 	var seqTooltip = data.sequence.identifier + ", " +
@@ -319,17 +333,22 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
 
-	if (options.labelX)
+	if (options.labelX != false)
 	{
-		//TODO self.drawXAxisLabel(svg, options, bounds);
+		//TODO self.xAxisLabel = self.drawXAxisLabel(svg, options, bounds);
 	}
 
 	// draw y-axis
 	self.drawYAxis(svg, yScale, yMax, options, bounds);
 
-	if (options.labelY)
+	if (options.labelY != false)
 	{
-		self.drawYAxisLabel(svg, options, bounds);
+		self.yAxisLabel = self.drawYAxisLabel(svg, options, bounds);
+	}
+
+	if (options.topLabel != false)
+	{
+		self.topLabel = self.drawTopLabel(svg, options, bounds);
 	}
 
 	// group for lollipop labels (draw labels first)
@@ -384,6 +403,62 @@ MutationDiagram.prototype.createSvg = function (container, width, height)
 	return svg;
 };
 
+// helper function to calculate major tick interval for the axis
+/**
+ * Calculates major tick interval for the given possible interval values,
+ * maximum value on the axis, and the desired maximum tick count.
+ *
+ * @param intervals     possible interval values
+ * @param maxValue      highest value on the axis
+ * @param maxTickCount  desired maximum tick count
+ * @return {number}     interval value
+ */
+MutationDiagram.prototype.calcTickInterval = function(intervals, maxValue, maxTickCount)
+{
+	var interval = -1;
+
+	for (var i=0; i < intervals.length; i++)
+	{
+		interval = intervals[i];
+		var count = maxValue / interval;
+
+		//if (Math.round(count) <= maxLabelCount)
+		if (count < maxTickCount - 1)
+		{
+			break;
+		}
+	}
+
+	return interval;
+};
+
+/**
+ * Calculates all tick values for the given max and interval values.
+ *
+ * @param maxValue  maximum value for the axis
+ * @param interval  interval (increment) value
+ * @return {Array}  an array of all tick values
+ */
+MutationDiagram.prototype.getTickValues = function(maxValue, interval)
+{
+	// determine tick values
+	var tickValues = [];
+	var value = 0;
+
+	while (value < maxValue)
+	{
+		tickValues.push(value);
+		// use half interval value for generating minor ticks
+		// TODO change back to full value when there is a fix for d3 minor ticks
+		value += interval / 2;
+	}
+
+	// add the max value in any case
+	tickValues.push(maxValue);
+
+	return tickValues;
+};
+
 /**
  * Draws the x-axis on the bottom side of the plot area.
  *
@@ -399,61 +474,39 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 {
 	var self = this;
 
-	// helper function to calculate display interval for tick labels
-	var calcDisplayInterval = function(interval, maxValue, maxLabelCount) {
-		var displayInterval = maxValue / (maxLabelCount - 1);
+	var interval = self.calcTickInterval(options.xAxisTickIntervals,
+		xMax,
+		options.xAxisTicks);
 
-		if (displayInterval % interval > interval / 2)
-		{
-			displayInterval += + interval - (displayInterval % interval);
-		}
-		else
-		{
-			displayInterval -= (displayInterval % interval);
-		}
-
-		if (displayInterval < interval)
-		{
-			displayInterval = interval;
-		}
-
-		return displayInterval;
-	};
-
-	// determine tick values
-	var tickValues = [];
-
-	var value = 0;
-	var interval = options.xAxisTickInterval;
-
-	while (value < xMax - interval / 2)
-	{
-		tickValues.push(value);
-		value += interval;
-	}
-
-	tickValues.push(xMax);
+	var tickValues = self.getTickValues(xMax, interval);
 
 	// formatter to hide labels
 	var formatter = function(value) {
-		var displayInterval = calcDisplayInterval(interval,
-			xMax,
-			options.xAxisMaxTickLabel);
+//		var displayInterval = calcDisplayInterval(interval,
+//			xMax,
+//			options.xAxisMaxTickLabel);
 
 		// always display max value
 		if (value == xMax)
 		{
 			return value + " aa";
 		}
-		// display value if its multiple of display interval
-		else if (value % displayInterval == 0)
+		// do not display minor values
+		// (this is custom implementation of minor ticks,
+		// minor ticks don't work properly for custom values)
+		else if (value % interval != 0)
+		{
+			return "";
+		}
+		// display major tick value if its not too close to the max value
+		else if (xMax - value > interval / 3)
 		{
 			return value;
 		}
 		// hide remaining labels
 		else
 		{
-			return '';
+			return "";
 		}
 	};
 
@@ -464,7 +517,7 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
 		.orient("bottom")
 		.tickValues(tickValues)
 		.tickFormat(formatter)
-		.tickSubdivide(true)
+		//.tickSubdivide(true) TODO minor ticks have a problem with custom values
 		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis
@@ -501,19 +554,13 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 {
 	var self = this;
 
-	// determine tick values
-	var tickValues = [];
+	var interval = self.calcTickInterval(options.yAxisTickIntervals,
+		yMax,
+		options.yAxisTicks);
 
-	var value = 0;
-	var interval = yMax / (options.yAxisTicks - 1);
-
-	while (value < yMax)
-	{
-		tickValues.push(value);
-		value += interval;
-	}
-
-	tickValues.push(yMax);
+	// passing 2 * interval to avoid non-integer values
+	// (this is also related to minor tick issue)
+	var tickValues = self.getTickValues(yMax, 2 * interval);
 
 	// formatter to hide all except first and last
 	var formatter = function(value) {
@@ -534,7 +581,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 		.orient("left")
 		.tickValues(tickValues)
 		.tickFormat(formatter)
-		.tickSubdivide(true)
+		//.tickSubdivide(true) TODO minor ticks have a problem with custom values
 		.tickSize(tickSize, tickSize/2, 0);
 
 	// calculate y-coordinate of the axis
@@ -554,6 +601,36 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 		options.yAxisFontColor);
 
 	return axis;
+};
+
+/**
+ * Draws the label of the y-axis.
+ *
+ * @param svg       svg to append the label element
+ * @param options   general options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @return          text label (svg element)
+ */
+MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
+{
+	// set x, y of the label as the middle of the top left margins
+	var x = options.labelTopMargin;
+	var y = options.marginTop / 2;
+
+	// append label
+	var label = svg.append("text")
+		.attr("fill", options.labelTopFontColor)
+		.attr("text-anchor", "start")
+		.attr("x", x)
+		.attr("y", y)
+		.attr("class", "mut-dia-top-label")
+		.style("font-family", options.labelTopFont)
+		.style("font-size", options.labelTopFontSize)
+		.style("font-weight", options.labelTopFontWeight)
+		.text(options.labelTop);
+
+	return label;
 };
 
 /**
@@ -586,6 +663,7 @@ MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 		.attr("transform", "rotate(270, " + x + "," + y +")")
 		.style("font-family", options.labelYFont)
 		.style("font-size", options.labelYFontSize)
+		.style("font-weight", options.labelYFontWeight)
 		.text(options.labelY);
 
 	return label;
@@ -691,7 +769,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			var distance = text.attr("x") - (text.node().getComputedTextLength() / 2);
 
 			// adjust label to prevent overlapping with the y-axis
-			if (distance < 0)
+			if (distance < options.marginLeft)
 			{
 				anchor = "start";
 			}
@@ -974,4 +1052,22 @@ MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
 	}
 
 	$(element).qtip(qTipOptions);
+};
+
+/**
+ * Updates the text of the top label.
+ *
+ * @param text  new text to set as the label value
+ */
+MutationDiagram.prototype.updateTopLabel = function(text)
+{
+	var self = this;
+
+	// if no text value is passed used gene symbol to update the value
+	if (text == undefined || text == null)
+	{
+		text = "";
+	}
+
+	self.topLabel.text(text);
 };

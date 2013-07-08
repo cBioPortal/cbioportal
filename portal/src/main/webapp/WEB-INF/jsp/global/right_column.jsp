@@ -50,6 +50,13 @@ if (SkinUtil.showRightNavDataSets()) {
                      cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");
 %>
     <div id='rightmenu-stats-box'></div>
+	<script type="text/javascript">
+		$(document).ready( function() {
+			$.getJSON("portal_meta_data.json", function(json) {
+				RightMenuStudyStatsUtil.plotTree(json);
+			});
+		});
+	</script>
 <%
     } // if showRightNavDataSets
 %>

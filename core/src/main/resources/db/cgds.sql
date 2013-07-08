@@ -35,7 +35,7 @@ CREATE TABLE `type_of_cancer` (
 drop table IF EXISTS cancer_study;
 CREATE TABLE `cancer_study` (
   `CANCER_STUDY_ID` int(11) NOT NULL auto_increment,
-  `CANCER_STUDY_IDENTIFIER` varchar(25),
+  `CANCER_STUDY_IDENTIFIER` varchar(50),
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` varchar(1024) NOT NULL,

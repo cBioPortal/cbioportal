@@ -66,6 +66,9 @@
 		.mutation-diagram-container {
 			margin-bottom: 10px;
 		}
+        .mutation-table-container {
+	        margin-bottom: 40px;
+        }
 </style>
 
 <script type="text/javascript">

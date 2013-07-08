@@ -36,6 +36,7 @@ import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.dao.internal.DarwinDAO;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 
 import java.io.File;
@@ -109,11 +110,13 @@ public class DarwinFetcherImpl implements Fetcher
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
+		// TODO use constants in FileUtils
 		String header = "AGE\t" +
 		                "GENDER\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
-				dataSourceMetadata.getDownloadDirectory() + File.separator + "data_clinical.txt",
+				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					DatatypeMetadata.CLINICAL_STAGING_FILENAME,
 				header + content.toString());
 
 		return clinicalFile;

@@ -1467,11 +1467,11 @@ var PlotsView = (function () {
                 .text(function(d) { return d.legendText; })
         }
 
-        function drawCopyNoViewQtips() {
-            elem.dotsGroup.selectAll('path').each(
-                function(d) {
-                    //Configure the content of the qtip
-                    var content = "<font size='2'>";
+        var Qtips = (function() {
+
+            function confContent(viewType, d) {
+                var content = "<font size='2'>";
+                if (viewType === "CopyNo") {
                     if (Util.dataIsDiscretized()) {
                         content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     } else {
@@ -1484,71 +1484,7 @@ var PlotsView = (function () {
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
                     }
-                    content = content + "</font>";
-
-                    $(this).qtip({
-                        content: {text: content},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                        hide: { fixed:true, delay: 100},
-                        position: {my:'left bottom',at:'top right'}
-                    });
-
-                    var mouseOn = function() {
-                        var dot = d3.select(this);
-                        dot.transition()
-                            .ease("elastic")
-                            .duration(600)
-                            .delay(100)
-                            .attr("d", d3.svg.symbol().size(200)
-                                .type(function(d){
-                                    return mutationStyle[d.mutationType].symbol;
-                                })
-                            )
-                            .attr("fill", function(d){
-                                return mutationStyle[d.mutationType].fill;
-                            })
-                            .attr("stroke", function(d){
-                                return mutationStyle[d.mutationType].stroke;
-                            })
-                            .attr("stroke-width", 1.2);
-                    };
-
-                    var mouseOff = function() {
-                        var dot = d3.select(this);
-                        dot.transition()
-                            .ease("elastic")
-                            .duration(600)
-                            .delay(100)
-                            .attr("d", d3.svg.symbol()
-                                .size(function(d){
-                                    switch (d.mutationType) {
-                                        case "non" : return 15;
-                                        default : return 25;
-                                    }
-                                })
-                                .type(function(d){
-                                    return mutationStyle[d.mutationType].symbol;
-                                })
-                            )
-                            .attr("fill", function(d){
-                                return mutationStyle[d.mutationType].fill;
-                            })
-                            .attr("stroke", function(d){
-                                return mutationStyle[d.mutationType].stroke;
-                            })
-                            .attr("stroke-width", 1.2);
-                    };
-
-                    elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                    elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-            });
-        }
-
-        function drawMethylationViewQtips() {
-            elem.dotsGroup.selectAll('path').each(
-                function(d) {
-                    //Configure the content of the qtip
-                    var content = "<font size='2'>";
+                } else if (viewType === "Methylation") {
                     content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
                         "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     if (d.gisticType !== "Diploid") {
@@ -1560,88 +1496,109 @@ var PlotsView = (function () {
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
                     }
-                    content = content + "</font>";
-
-                    $(this).qtip({
-                        content: {text: content},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                        hide: { fixed:true, delay: 100},
-                        position: {my:'left bottom',at:'top right'}
-                    });
-
-                    var mouseOn = function() {
-                        var dot = d3.select(this);
-                        dot.transition()
-                            .ease("elastic")
-                            .duration(600)
-                            .delay(100)
-                            .attr("d", d3.svg.symbol().size(200));
-                    };
-
-                    var mouseOff = function() {
-                        var dot = d3.select(this);
-                        dot.transition()
-                            .ease("elastic")
-                            .duration(600)
-                            .delay(100)
-                            .attr("d", d3.svg.symbol().size(35));
-                    };
-
-                    elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                    elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-            });
-
-        }
-
-        function drawRPPAViewQtips() {
-            elem.dotsGroup.selectAll('path').each(function(d) {
-
-                //Configure the content of the qtip
-                var content = "<font size='2'>";
-                content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                    "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                if (d.gisticType !== "Diploid") {
-                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                }
-                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
-                    "</a></strong><br>";
-                if (d.mutationType !== 'non') {
-                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                } else if (viewType === "RPPA") {
+                    content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                        "RPPA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.gisticType !== "Diploid") {
+                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                    }
+                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                        "</a></strong><br>";
+                    if (d.mutationType !== 'non') {
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                    }
                 }
                 content = content + "</font>";
+                return content;
+            }
 
-                $(this).qtip({
-                    content: {text: content},
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                    hide: { fixed:true, delay: 100},
-                    position: {my:'left bottom',at:'top right'}
-                });
+            return {
+                init: function(viewType){
+                            elem.dotsGroup.selectAll("path").each(
+                                function(d) {
+                                    var content = confContent(viewType, d);
+                                    $(this).qtip(
+                                        {
+                                            content: {text: content},
+                                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                            hide: { fixed:true, delay: 100},
+                                            position: {my:'left bottom',at:'top right'}
+                                        }
+                                    );
+                                    if (viewType === "CopyNo") {    //Handle special symbols
+                                        var mouseOn = function() {
+                                            var dot = d3.select(this);
+                                            dot.transition()
+                                                .ease("elastic")
+                                                .duration(600)
+                                                .delay(100)
+                                                .attr("d", d3.svg.symbol().size(200)
+                                                    .type(function(d){
+                                                        return mutationStyle[d.mutationType].symbol;
+                                                    })
+                                                )
+                                                .attr("fill", function(d){
+                                                    return mutationStyle[d.mutationType].fill;
+                                                })
+                                                .attr("stroke", function(d){
+                                                    return mutationStyle[d.mutationType].stroke;
+                                                })
+                                                .attr("stroke-width", 1.2);
+                                        };
+                                        var mouseOff = function() {
+                                            var dot = d3.select(this);
+                                            dot.transition()
+                                                .ease("elastic")
+                                                .duration(600)
+                                                .delay(100)
+                                                .attr("d", d3.svg.symbol()
+                                                    .size(function(d){
+                                                        switch (d.mutationType) {
+                                                            case "non" : return 15;
+                                                            default : return 25;
+                                                        }
+                                                    })
+                                                    .type(function(d){
+                                                        return mutationStyle[d.mutationType].symbol;
+                                                    })
+                                                )
+                                                .attr("fill", function(d){
+                                                    return mutationStyle[d.mutationType].fill;
+                                                })
+                                                .attr("stroke", function(d){
+                                                    return mutationStyle[d.mutationType].stroke;
+                                                })
+                                                .attr("stroke-width", 1.2);
+                                        };
+                                        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                                        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                                    } else {
+                                        var mouseOn = function() {
+                                            var dot = d3.select(this);
+                                            dot.transition()
+                                                .ease("elastic")
+                                                .duration(600)
+                                                .delay(100)
+                                                .attr("d", d3.svg.symbol().size(200));
+                                        };
+                                        var mouseOff = function() {
+                                            var dot = d3.select(this);
+                                            dot.transition()
+                                                .ease("elastic")
+                                                .duration(600)
+                                                .delay(100)
+                                                .attr("d", d3.svg.symbol().size(35));
+                                        };
+                                        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                                        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                                    }
+                                }
+                            );
+                      }
+            };
 
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(200));
-                };
-
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(35));
-                };
-
-                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-
-            });
-
-        }
+        }());
 
         return {
             initView: initView,
@@ -1657,9 +1614,7 @@ var PlotsView = (function () {
             drawAxisTitle: drawAxisTitle,
             drawCopyNoViewLegends: drawCopyNoViewLegends,
             drawOtherViewLegends: drawOtherViewLegends,
-            drawCopyNoViewQtips: drawCopyNoViewQtips,
-            drawMethylationViewQtips: drawMethylationViewQtips,
-            drawRPPAViewQtips: drawRPPAViewQtips
+            Qtips: Qtips
         };
 
     }());
@@ -1697,19 +1652,19 @@ var PlotsView = (function () {
                         View.drawLog2Plots();
                     }
                     View.drawCopyNoViewLegends();
-                    View.drawCopyNoViewQtips();
+                    View.Qtips.init("CopyNo");
                 } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
                     View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();
-                    View.drawMethylationViewQtips();
+                    View.Qtips.init("Methylation");
                 } else if (Util.plotsTypeIsRPPA()) {
                     View.initContinuousAxis();
                     View.drawContinuousAxis();
                     View.drawContinuousPlots();
                     View.drawOtherViewLegends();
-                    View.drawRPPAViewQtips();
+                    View.Qtips.init("RPPA");
                 }
                 View.drawAxisTitle();
                 //Img Center: PDF and SVG button

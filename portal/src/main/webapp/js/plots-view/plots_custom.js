@@ -679,55 +679,59 @@ var PlotsCustomView = (function() {
     }
 
     function addQtips() {
-        elem.dotsGroup.selectAll('path').each(function(d) {
-            var content = "<font size='2'>";
-            content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
-            if (menu.geneX === menu.geneY) {
-                content += "x-Val: <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
-                       "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
-            } else {
-                content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
-                    menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
-            }
-            if (d.annotation !== "") {
+        elem.dotsGroup.selectAll('path').each(
+            function(d) {
+                var content = "<font size='2'>";
+                content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                    "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
                 if (menu.geneX === menu.geneY) {
-                    var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                    content += "x-Val: <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
+                           "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 } else {
-                    var tmp_anno_str = d.annotation;
+                    content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
+                        menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 }
-                content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
+                if (d.annotation !== "") {
+                    if (menu.geneX === menu.geneY) {
+                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                    } else {
+                        var tmp_anno_str = d.annotation;
+                    }
+                    content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
+                }
+                content = content + "</font>";
+
+                $(this).qtip(
+                    {
+                        content: {text: content},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        hide: { fixed:true, delay: 100},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
+
+                var mouseOn = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(200).type("circle"));
+                };
+
+                var mouseOff = function() {
+                    var dot = d3.select(this);
+                    dot.transition()
+                        .ease("elastic")
+                        .duration(600)
+                        .delay(100)
+                        .attr("d", d3.svg.symbol().size(25).type("circle"));
+                };
+
+                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
             }
-            content = content + "</font>";
-
-            $(this).qtip({
-                content: {text: content},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                hide: { fixed:true, delay: 100},
-                position: {my:'left bottom',at:'top right'}
-            });
-
-            var mouseOn = function() {
-                var dot = d3.select(this);
-                dot.transition()
-                    .ease("elastic")
-                    .duration(600)
-                    .delay(100)
-                    .attr("d", d3.svg.symbol().size(200).type("circle"));
-            };
-
-            var mouseOff = function() {
-                var dot = d3.select(this);
-                dot.transition()
-                    .ease("elastic")
-                    .duration(600)
-                    .delay(100)
-                    .attr("d", d3.svg.symbol().size(25).type("circle"));
-            };
-
-            elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-            elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-        });
+        );
     }
 
     function drawImgConverter() {

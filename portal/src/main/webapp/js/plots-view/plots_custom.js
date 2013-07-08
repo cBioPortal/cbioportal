@@ -162,23 +162,19 @@ var PlotsCustomMenu = (function(){
 
     return {
         init: function() {
-
             fetchFrameData();
-
             generateList("custom_geneX", gene_list);
             //shift the genelist (temporary solution)
             //TODO:
             var tmp_gene_holder = gene_list.pop();
             gene_list.unshift(tmp_gene_holder);
-
             generateList("custom_geneY", gene_list);
-            content.plots_type_list.forEach( function(plots_type) {
+            content.plots_type_list.forEach(function(plots_type) {
                 appendDropDown("#custom_plots_type_x", plots_type.value, plots_type.name);
             });
-            content.plots_type_list.forEach( function(plots_type) {
+            content.plots_type_list.forEach(function(plots_type) {
                 appendDropDown("#custom_plots_type_y", plots_type.value, plots_type.name);
             });
-
         },
         update: function(){
             updateXselection();
@@ -186,9 +182,10 @@ var PlotsCustomMenu = (function(){
             PlotsCustomView.init();
         }
     };
-}());
+}());   //Closing PlotsCustomMenu
 
 var PlotsCustomView = (function() {
+
     //Extracted data from JSON for plotting
     //Dots collection
     var pData = {
@@ -438,7 +435,6 @@ var PlotsCustomView = (function() {
     }
 
     function initAxis() {
-
         var analyseResult = analyseData();
         var min_x = analyseResult.min_x;
         var max_x = analyseResult.max_x;
@@ -522,7 +518,6 @@ var PlotsCustomView = (function() {
     }
 
     function drawPlots() {
-
         //sort DotsData
         var tmp_dotsData = pData.dotsData;
         var nonMutatedData = [];
@@ -684,7 +679,6 @@ var PlotsCustomView = (function() {
     }
 
     function addQtips() {
-
         elem.dotsGroup.selectAll('path').each(function(d) {
             var content = "<font size='2'>";
             content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -766,13 +760,13 @@ var PlotsCustomView = (function() {
         var _line1 = "";
         var _line2 = " in the selected cancer study.";
         var _line3 = "";
-        if (errStatus.xHasData === false && errStatus.yHasData === true) {
+        if (!errStatus.xHasData && errStatus.yHasData) {
             _line1 = "There is no " + $("#custom_platform_x option:selected").html() + " data for";
             _line2 = menu.geneX + _line2;
-        } else if (errStatus.yHasData === false && errStatus.xHasData === true) {
+        } else if (!errStatus.yHasData && errStatus.xHasData) {
             _line1 = "There is no " + $("#custom_platform_y option:selected").html() + " data for";
             _line2 = menu.geneY + _line2;
-        } else if (errStatus.yHasData === false && errStatus.xHasData === false) {
+        } else if (!errStatus.yHasData && !errStatus.xHasData) {
             _line1 = "There is no " + $("#custom_platform_x option:selected").html() + " data for " + menu.geneX;
             _line3 = _line2;
             _line2 = "and no " + $("#custom_platform_y option:selected").html() + " data for " + menu.geneY;
@@ -842,15 +836,18 @@ var PlotsCustomView = (function() {
             //Including data fetching and drawing
             generatePlots();
 
-            setTimeout(function() {
-                $('#custom-loading-image').hide();
-                $('#custom_view_title').show();
-                $('#plots_box_custom').show();
-            }, 500);
+            setTimeout(
+                function() {
+                    $('#custom-loading-image').hide();
+                    $('#custom_view_title').show();
+                    $('#plots_box_custom').show();
+                },
+                500
+            );
         },
         update : function() {
             //TODO: using cache
         },
         updateMutationDisplay : updateMutationDisplay
     };
-}());
+}());  //Closing PlotsCustomView

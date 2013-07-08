@@ -26,7 +26,6 @@
  */
 
 var PlotsMenu = (function () {
-
     var content = {
             plots_type : {
                 "mrna_copyNo" : {
@@ -85,14 +84,13 @@ var PlotsMenu = (function () {
             $(divId).append("<option value='" + value + "'>" + text + "</option>");
         }
 
-        function toggleVisibilityShow(elemId) {
+        function toggleVisibility(elemId, switchToStatus) {
             var e = document.getElementById(elemId);
-            e.style.display = 'block';
-        }
-
-        function toggleVisibilityHide(elemId) {
-            var e = document.getElementById(elemId);
-            e.style.display = 'none';
+            if (switchToStatus === "show") {
+                e.style.display = 'block';
+            } else if (switchToStatus === "hide") {
+                e.style.display = 'none';
+            }
         }
 
         function generateList(selectId, options) {
@@ -107,34 +105,32 @@ var PlotsMenu = (function () {
 
         return {
             appendDropDown: appendDropDown,
-            toggleVisibilityShow: toggleVisibilityShow,
-            toggleVisibilityHide: toggleVisibilityHide,
+            toggleVisibility: toggleVisibility,
             generateList: generateList
         };
 
     }());
 
     function drawMenu() {
-
         //Gene List
         Util.generateList("genes", gene_list);
 
         //Plots Type field
-        if ( status.has_mrna && status.has_copy_no) {
+        if (status.has_mrna && status.has_copy_no) {
             Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.mrna_copyNo.value,
                 content.plots_type.mrna_copyNo.text
             );
         }
-        if ( status.has_mrna && status.has_dna_methylation) {
+        if (status.has_mrna && status.has_dna_methylation) {
             Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.mrna_methylation.value,
                 content.plots_type.mrna_methylation.text
             );
         }
-        if ( status.has_mrna && status.has_rppa) {
+        if (status.has_mrna && status.has_rppa) {
             Util.appendDropDown(
                 '#plots_type',
                 content.plots_type.rppa_mrna.value,
@@ -160,7 +156,6 @@ var PlotsMenu = (function () {
     }
 
     function setDefaultCopyNoSelection() {
-
         //-----Priority: discretized(gistic, rae), continuous
         //TODO: refactor
         $("#data_type_copy_no > option").each(function() {
@@ -192,7 +187,6 @@ var PlotsMenu = (function () {
     }
 
     function setDefaultMrnaSelection() {
-
         var userSelectedMrnaProfile = "";  //from main query
         //geneticProfiles --> global variable, passing user selected profile IDs
         $.each(geneticProfiles.split(/\s+/), function(index, value){
@@ -232,39 +226,37 @@ var PlotsMenu = (function () {
     }
 
     function updateVisibility() {
-
         //Dynamically show only the plots type related drop div
         var currentPlotsType = $('#plots_type').val();
 
         if (currentPlotsType.indexOf("copy_no") !== -1) {
 
-            Util.toggleVisibilityShow("data_type_mrna_dropdown");
-            Util.toggleVisibilityShow("data_type_copy_no_dropdown");
-            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
-            Util.toggleVisibilityHide("data_type_rppa_dropdown");
-            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+            Util.toggleVisibility("data_type_mrna_dropdown", "show");
+            Util.toggleVisibility("data_type_copy_no_dropdown", "show");
+            Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
+            Util.toggleVisibility("data_type_rppa_dropdown", "hide");
+            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
 
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
 
-            Util.toggleVisibilityShow("data_type_mrna_dropdown");
-            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
-            Util.toggleVisibilityShow("data_type_dna_methylation_dropdown");
-            Util.toggleVisibilityHide("data_type_rppa_dropdown");
-            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+            Util.toggleVisibility("data_type_mrna_dropdown", "show");
+            Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
+            Util.toggleVisibility("data_type_dna_methylation_dropdown", "show");
+            Util.toggleVisibility("data_type_rppa_dropdown", "hide");
+            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
 
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
 
-            Util.toggleVisibilityShow("data_type_mrna_dropdown");
-            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
-            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
-            Util.toggleVisibilityShow("data_type_rppa_dropdown");
-            Util.toggleVisibilityHide("data_type_mutation_dropdown");
+            Util.toggleVisibility("data_type_mrna_dropdown", "show");
+            Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
+            Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
+            Util.toggleVisibility("data_type_rppa_dropdown", "show");
+            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
         }
 
     }
 
     function fetchFrameContent() {
-
         content.data_type.mutation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mutations;
         content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mrna;
         content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles().genetic_profile_copy_no;
@@ -274,16 +266,13 @@ var PlotsMenu = (function () {
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
         status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
-
     }
 
     return {
-
         init: function () {
             fetchFrameContent();
             drawMenu();
         },
-
         update: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
@@ -291,10 +280,9 @@ var PlotsMenu = (function () {
             PlotsView.init();
         }
     };
-}());
+}()); //Closing PlotsMenu
 
 var PlotsView = (function () {
-
     var elem = {
             svg : "",
             xScale : "",
@@ -317,7 +305,6 @@ var PlotsView = (function () {
         text = {
             xTitle : "",
             yTitle : "",
-
             mutations_alias : {
                 frameshift : "frameshift",
                 in_frame : "in_frame",
@@ -328,7 +315,6 @@ var PlotsView = (function () {
                 nonstart : "nonstart",
                 non : "non"
             },
-
             gistic_txt_val : {
                 "-2": "Homdel",
                 "-1": "Hetloss",
@@ -444,7 +430,6 @@ var PlotsView = (function () {
     var Util = (function() {
 
         function dataIsAvailable() {
-
             var xHasData = false;
             var yHasData = false;
             var combineHasData = false;
@@ -477,9 +462,9 @@ var PlotsView = (function () {
                 }
             }
 
-            if ((yHasData === false) ||
-                (xHasData === false) ||
-                (combineHasData === false)) {
+            if ((!yHasData) ||
+                (!xHasData) ||
+                (!combineHasData)) {
                 var errorTxt2 = pData.gene + " in the selected cancer study.";
                 if (yHasData == false) {
                     errorTxt1 = "There is no " +
@@ -521,12 +506,12 @@ var PlotsView = (function () {
             return true;
         };
 
-        function copyData(desArray, oriArray) {
+        function copyData(desArray, srcArray) {
             desArray.length = 0;
             var desArrayIndex = 0;
-            for ( var tmpIndex = 0; tmpIndex < oriArray.length; tmpIndex ++ ){
-                if (oriArray[tmpIndex] !== "" && oriArray[tmpIndex] !== null ) {
-                    desArray[desArrayIndex] = oriArray[tmpIndex];
+            for (var tmpIndex = 0; tmpIndex < srcArray.length; tmpIndex ++ ){
+                if (srcArray[tmpIndex] !== "" && srcArray[tmpIndex] !== null ) {
+                    desArray[desArrayIndex] = srcArray[tmpIndex];
                     desArrayIndex += 1;
                 }
             }
@@ -570,7 +555,7 @@ var PlotsView = (function () {
         }
 
         function searchIndexBottom(arr, ele) {
-            for( var i = 0; i < arr.length; i++) {
+            for(var i = 0; i < arr.length; i++) {
                 if (parseFloat(ele) > parseFloat(arr[i])) {
                     continue ;
                 } else if (parseFloat(ele) == parseFloat(arr[i])) {
@@ -583,7 +568,7 @@ var PlotsView = (function () {
         };
 
         function searchIndexTop(arr, ele) {
-            for( var i = 0; i < arr.length; i++) {
+            for(var i = 0; i < arr.length; i++) {
                 if (ele <= arr[i]) {
                     return i;
                 } else {
@@ -623,7 +608,7 @@ var PlotsView = (function () {
 
         function fetchPlotsData() {
             var result_set = new Array(5);
-            for ( var i = 0 ; i< result_set.length; i++) {
+            for (var i = 0; i< result_set.length; i++) {
                 result_set[i] = new Array();
             }
             //Calling web APIs
@@ -720,13 +705,13 @@ var PlotsView = (function () {
                 var item = mutationMap[pData.case_set[k]];
                 if (item === "Frame_Shift_Del" || item === "Frame_Shift_Ins") {
                     item = text.mutations_alias.frameshift;
-                } else if ((item === "In_Frame_Del")||(item === "In_Frame_Ins")) {
+                } else if ((item === "In_Frame_Del") || (item === "In_Frame_Ins")) {
                     item = text.mutations_alias.in_frame;
-                } else if ((item === "Missense_Mutation")||(item === "Missense")) {
+                } else if ((item === "Missense_Mutation") || (item === "Missense")) {
                     item = text.mutations_alias.missense;
-                } else if ((item === "Nonsense_Mutation")||(item === "Nonsense")) {
+                } else if ((item === "Nonsense_Mutation") || (item === "Nonsense")) {
                     item = text.mutations_alias.nonsense;
-                } else if ((item === "Splice_Site")||(item === "Splice_Site_SNP")) {
+                } else if ((item === "Splice_Site") || (item === "Splice_Site_SNP")) {
                     item = text.mutations_alias.splice;
                 } else if (item === "NonStop_Mutation") {
                     item = text.mutations_alias.nonstop;
@@ -778,7 +763,7 @@ var PlotsView = (function () {
 
         function formDataSet() {
             tmpDataSet.length = 0;
-            for (var i = 0 ; i < pData.case_set.length; i++) {
+            for (var i = 0; i < pData.case_set.length; i++) {
                 var tmpObj = jQuery.extend(true, {}, datum);
                 tmpObj.caseId = pData.case_set[i];
                 tmpObj.gisticType = pData.gisticType[i];
@@ -936,7 +921,7 @@ var PlotsView = (function () {
             var max_y = analyseResult.max_y;
             var edge_y = analyseResult.edge_y;
 
-            if ( userSelection.plots_type.indexOf("methylation") !== -1 &&
+            if (userSelection.plots_type.indexOf("methylation") !== -1 &&
                 userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
                 //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
                 elem.xScale = d3. scale.linear()
@@ -959,7 +944,6 @@ var PlotsView = (function () {
         }
 
         function initDiscretizedAxis() {
-
             var analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
             var min_y = analyseResult.min_y;
             var max_y = analyseResult.max_y;
@@ -1211,7 +1195,6 @@ var PlotsView = (function () {
         }
 
         function drawBoxPlots(){
-
             var xData = pData.copy_no;
             var yData = pData.mrna;
 
@@ -1245,7 +1228,7 @@ var PlotsView = (function () {
                         index_tmp_y_data_array += 1;
                     }
                 }
-                tmp_y_arr.sort(function(a,b){return a-b});
+                tmp_y_arr.sort(function(a,b) { return a-b });
                 if (tmp_y_arr.length === 0) {
                     //TODO: error handle (empty dataset)
                 } else if (tmp_y_arr.length === 1) {
@@ -1259,42 +1242,42 @@ var PlotsView = (function () {
                         .attr("stroke", "grey");
                     pos += 1;
                 } else {
-                    if (tmp_y_arr.length == 2) {
-                        mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1])/2);
+                    if (tmp_y_arr.length === 2) {
+                        mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1]) / 2);
                         quan1 = bottom = elem.yScale(tmp_y_arr[0]);
                         quan2 = top = elem.yScale(tmp_y_arr[1]);
                         IQR = Math.abs(quan2 - quan1);
                         pos += 1;
                     } else {
                         var yl = tmp_y_arr.length;
-                        if (yl % 2 == 0) {
-                            mean = elem.yScale((tmp_y_arr[(yl/2)-1] + tmp_y_arr[yl/2])/2);
-                            if (yl % 4 == 0) {
-                                quan1 = elem.yScale((tmp_y_arr[(yl/4)-1] + tmp_y_arr[yl/4])/2);
-                                quan2 = elem.yScale((tmp_y_arr[(3*yl/4)-1] + tmp_y_arr[3*yl/4])/2);
+                        if (yl % 2 === 0) {
+                            mean = elem.yScale((tmp_y_arr[(yl / 2)-1] + tmp_y_arr[yl / 2]) / 2);
+                            if (yl % 4 === 0) {
+                                quan1 = elem.yScale((tmp_y_arr[(yl / 4)-1] + tmp_y_arr[yl / 4]) / 2);
+                                quan2 = elem.yScale((tmp_y_arr[(3*yl / 4)-1] + tmp_y_arr[3 * yl / 4]) / 2);
                             } else {
-                                quan1 = elem.yScale(tmp_y_arr[Math.floor(yl/4)]);
-                                quan2 = elem.yScale(tmp_y_arr[Math.floor(3*yl/4)]);
+                                quan1 = elem.yScale(tmp_y_arr[Math.floor(yl / 4)]);
+                                quan2 = elem.yScale(tmp_y_arr[Math.floor(3 * yl / 4)]);
                             }
                         } else {
-                            mean = elem.yScale(tmp_y_arr[Math.floor(yl/2)]);
-                            var tmp_yl = Math.floor(yl/2) + 1;
-                            if ( tmp_yl % 2 == 0) {
-                                quan1 = elem.yScale((tmp_y_arr[tmp_yl/2 - 1] + tmp_y_arr[tmp_yl/2])/2);
-                                quan2 = elem.yScale((tmp_y_arr[(3 * tmp_yl/2) - 2] + tmp_y_arr[(3*tmp_yl/2)-1])/2);
+                            mean = elem.yScale(tmp_y_arr[Math.floor(yl / 2)]);
+                            var tmp_yl = Math.floor(yl / 2) + 1;
+                            if (tmp_yl % 2 === 0) {
+                                quan1 = elem.yScale((tmp_y_arr[tmp_yl / 2 - 1] + tmp_y_arr[tmp_yl / 2]) / 2);
+                                quan2 = elem.yScale((tmp_y_arr[(3 * tmp_yl / 2) - 2] + tmp_y_arr[(3 * tmp_yl / 2) - 1]) / 2);
                             } else {
-                                quan1 = elem.yScale(tmp_y_arr[Math.floor(tmp_yl/2)]);
-                                quan2 = elem.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl/2)]);
+                                quan1 = elem.yScale(tmp_y_arr[Math.floor(tmp_yl / 2)]);
+                                quan2 = elem.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
                             }
                         }
                         for (var k = 0 ; k < tmp_y_arr.length ; k++) {
                             scaled_y_arr[k] = parseFloat(elem.yScale(tmp_y_arr[k]));
                         }
-                        scaled_y_arr.sort(function(a,b){return a-b});
+                        scaled_y_arr.sort(function(a,b) { return a-b });
                         IQR = Math.abs(quan2 - quan1);
-                        var index_top = Util.searchIndexTop(scaled_y_arr, (quan2-1.5*IQR));
+                        var index_top = Util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
                         top = scaled_y_arr[index_top];
-                        var index_bottom = Util.searchIndexBottom(scaled_y_arr, (quan1+1.5*IQR));
+                        var index_bottom = Util.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
                         bottom = scaled_y_arr[index_bottom];
 
                         pos += 1;
@@ -1404,7 +1387,6 @@ var PlotsView = (function () {
         }
 
         function drawCopyNoViewLegends() {
-
             //Only show glyphs whose mutation type
             //appeared in the current individual case
             var _appearedMutationTypes = [];
@@ -1446,7 +1428,6 @@ var PlotsView = (function () {
         }
 
         function drawOtherViewLegends() {
-
             var gisticStyleArr = [];
             for (var key in gisticStyle) {
                 var obj = gisticStyle[key];
@@ -1487,130 +1468,127 @@ var PlotsView = (function () {
         }
 
         function drawCopyNoViewQtips() {
+            elem.dotsGroup.selectAll('path').each(
+                function(d) {
+                    //Configure the content of the qtip
+                    var content = "<font size='2'>";
+                    if (Util.dataIsDiscretized()) {
+                        content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    } else {
+                        content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                            "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    }
+                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                        "</a></strong><br>";
+                    if (d.mutationType !== 'non') {
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                    }
+                    content = content + "</font>";
 
-            elem.dotsGroup.selectAll('path').each(function(d) {
+                    $(this).qtip({
+                        content: {text: content},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        hide: { fixed:true, delay: 100},
+                        position: {my:'left bottom',at:'top right'}
+                    });
 
-                //Configure the content of the qtip
-                var content = "<font size='2'>";
-                if (Util.dataIsDiscretized()) {
-                    content += "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                } else {
-                    content += "CNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                        "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                }
-                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
-                    "</a></strong><br>";
-                if (d.mutationType !== 'non') {
-                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
-                }
-                content = content + "</font>";
-
-                $(this).qtip({
-                    content: {text: content},
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                    hide: { fixed:true, delay: 100},
-                    position: {my:'left bottom',at:'top right'}
-                });
-
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(200)
-                            .type(function(d){
-                                return mutationStyle[d.mutationType].symbol;
+                    var mouseOn = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .ease("elastic")
+                            .duration(600)
+                            .delay(100)
+                            .attr("d", d3.svg.symbol().size(200)
+                                .type(function(d){
+                                    return mutationStyle[d.mutationType].symbol;
+                                })
+                            )
+                            .attr("fill", function(d){
+                                return mutationStyle[d.mutationType].fill;
                             })
-                        )
-                        .attr("fill", function(d){
-                            return mutationStyle[d.mutationType].fill;
-                        })
-                        .attr("stroke", function(d){
-                            return mutationStyle[d.mutationType].stroke;
-                        })
-                        .attr("stroke-width", 1.2);
-                };
-
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol()
-                            .size(function(d){
-                                switch (d.mutationType) {
-                                    case "non" : return 15;
-                                    default : return 25;
-                                }
+                            .attr("stroke", function(d){
+                                return mutationStyle[d.mutationType].stroke;
                             })
-                            .type(function(d){
-                                return mutationStyle[d.mutationType].symbol;
+                            .attr("stroke-width", 1.2);
+                    };
+
+                    var mouseOff = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .ease("elastic")
+                            .duration(600)
+                            .delay(100)
+                            .attr("d", d3.svg.symbol()
+                                .size(function(d){
+                                    switch (d.mutationType) {
+                                        case "non" : return 15;
+                                        default : return 25;
+                                    }
+                                })
+                                .type(function(d){
+                                    return mutationStyle[d.mutationType].symbol;
+                                })
+                            )
+                            .attr("fill", function(d){
+                                return mutationStyle[d.mutationType].fill;
                             })
-                        )
-                        .attr("fill", function(d){
-                            return mutationStyle[d.mutationType].fill;
-                        })
-                        .attr("stroke", function(d){
-                            return mutationStyle[d.mutationType].stroke;
-                        })
-                        .attr("stroke-width", 1.2);
-                };
+                            .attr("stroke", function(d){
+                                return mutationStyle[d.mutationType].stroke;
+                            })
+                            .attr("stroke-width", 1.2);
+                    };
 
-                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-
+                    elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                    elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
             });
         }
 
         function drawMethylationViewQtips() {
-            elem.dotsGroup.selectAll('path').each(function(d) {
+            elem.dotsGroup.selectAll('path').each(
+                function(d) {
+                    //Configure the content of the qtip
+                    var content = "<font size='2'>";
+                    content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
+                        "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.gisticType !== "Diploid") {
+                        content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
+                    }
+                    content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
+                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                        "</a></strong><br>";
+                    if (d.mutationType !== 'non') {
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                    }
+                    content = content + "</font>";
 
-                //Configure the content of the qtip
-                var content = "<font size='2'>";
-                content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
-                    "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
-                if (d.gisticType !== "Diploid") {
-                    content = content + "CNA: " + "<strong>" + d.gisticType + "</strong><br>";
-                }
-                content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
-                    "</a></strong><br>";
-                if (d.mutationType !== 'non') {
-                    content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
-                }
-                content = content + "</font>";
+                    $(this).qtip({
+                        content: {text: content},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        hide: { fixed:true, delay: 100},
+                        position: {my:'left bottom',at:'top right'}
+                    });
 
-                $(this).qtip({
-                    content: {text: content},
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                    hide: { fixed:true, delay: 100},
-                    position: {my:'left bottom',at:'top right'}
-                });
+                    var mouseOn = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .ease("elastic")
+                            .duration(600)
+                            .delay(100)
+                            .attr("d", d3.svg.symbol().size(200));
+                    };
 
-                var mouseOn = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(200));
-                };
+                    var mouseOff = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .ease("elastic")
+                            .duration(600)
+                            .delay(100)
+                            .attr("d", d3.svg.symbol().size(35));
+                    };
 
-                var mouseOff = function() {
-                    var dot = d3.select(this);
-                    dot.transition()
-                        .ease("elastic")
-                        .duration(600)
-                        .delay(100)
-                        .attr("d", d3.svg.symbol().size(35));
-                };
-
-                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-
+                    elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                    elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
             });
 
         }
@@ -1688,7 +1666,6 @@ var PlotsView = (function () {
 
     return {
         init: function(){
-
             $('#loading-image').show();
             $('#view_title').hide();
             $('#plots_box').hide();
@@ -1738,13 +1715,15 @@ var PlotsView = (function () {
                 //Img Center: PDF and SVG button
             }
 
-            setTimeout(function() {
-                $('#loading-image').hide();
-                $('#view_title').show();
-                $('#plots_box').show();
-            }, 500);
-
+            setTimeout(
+                function() {
+                    $('#loading-image').hide();
+                    $('#view_title').show();
+                    $('#plots_box').show();
+                },
+                500
+            );
 
         }
     };
-}());
+}()); //Closing PlotsView

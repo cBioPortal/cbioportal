@@ -139,8 +139,8 @@ var PlotsTwoGenesMenu = (function(){
             gene_list.unshift(tmp_gene_holder);
             generateList("geneY", gene_list);
             fetchFrameData();
-            content.plots_type_list.forEach( function(plots_type) {
-                appendDropDown("#two_genes_plots_type", plots_type.value, plots_type.name);
+            content.plots_type_list.forEach(function(plots_type) {
+                    appendDropDown("#two_genes_plots_type", plots_type.value, plots_type.name);
             });
         },
         update: function() {
@@ -150,9 +150,10 @@ var PlotsTwoGenesMenu = (function(){
             PlotsTwoGenesView.init();
         }
     };
-}());
+}());      //Closing PlotsTwoGenesMenu
 
 var PlotsTwoGenesView = (function(){
+
     //Extracted data from JSON for plotting
     //Dots collection
     var pData = {
@@ -350,7 +351,6 @@ var PlotsTwoGenesView = (function(){
     }
 
     function initAxis() {
-
         var analyseResult = analyseData();
         var min_x = analyseResult.min_x;
         var max_x = analyseResult.max_x;
@@ -433,19 +433,18 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawErrorMsg() {
-
         $('#two_genes_view_title').empty();
         elem.svg.empty();
 
         var _line1 = "";
         var _line2 = " in the selected cancer study.";
-        if (errStatus.xHasData === false && errStatus.yHasData === true) {
+        if (!errStatus.xHasData && errStatus.yHasData) {
             _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for";
             _line2 = menu.geneX + _line2;
-        } else if (errStatus.yHasData === false && errStatus.xHasData === true) {
+        } else if (!errStatus.yHasData && errStatus.xHasData) {
             _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for";
             _line2 = menu.geneY + _line2;
-        } else if (errStatus.yHasData === false && errStatus.xHasData === false) {
+        } else if (!errStatus.yHasData && !errStatus.xHasData) {
             _line1 = "There is no " + $("#two_genes_platform option:selected").html() + " data for ";
             if (menu.geneX === menu.geneY) {
                 _line2 = menu.geneX + _line2;
@@ -477,7 +476,6 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawPlots() {
-
         //sort DotsData
         var tmp_dotsData = pData.dotsData;
         var nonMutatedData = [];
@@ -609,7 +607,6 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawImgConverter() {
-
         $('#two_genes_view_title').empty();
         var elt = document.getElementById("two_genes_plots_type");
         var titleText = elt.options[elt.selectedIndex].text;
@@ -658,7 +655,6 @@ var PlotsTwoGenesView = (function(){
     }
 
     function addQtips() {
-
         elem.dotsGroup.selectAll('path').each(function(d) {
             var content = "<font size='2'>";
             content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
@@ -751,15 +747,18 @@ var PlotsTwoGenesView = (function(){
             //Including data fetching and drawing
             generatePlots();
 
-            setTimeout(function() {
-                $('#two-genes-loading-image').hide();
-                $('#two_genes_view_title').show();
-                $('#plots_box_two_genes').show();
-            }, 500);
+            setTimeout(
+                function() {
+                    $('#two-genes-loading-image').hide();
+                    $('#two_genes_view_title').show();
+                    $('#plots_box_two_genes').show();
+                },
+                500
+            );
         },
         update : function() {
             //TODO: use cache
         },
         updateMutationDisplay : updateMutationDisplay
     };
-}());
+}());     //Closing PlotsTwoGeneView

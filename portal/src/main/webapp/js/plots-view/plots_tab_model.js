@@ -71,18 +71,15 @@ var Plots = (function(){
     }
 
     return {
-
         init: function() {
             var paramsGetProfiles = {
                 cancer_study_id: cancer_study_id
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },
-
         getGeneticProfiles: function() {
             return genetic_profiles;
         },
-
         getProfileData: function(gene, genetic_profile_id, case_set_id, callback_func) {
             var paramsGetProfileData = {
                 gene_list: gene,
@@ -91,10 +88,9 @@ var Plots = (function(){
             };
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         }
-
     };
 
-}());
+}());    //Closing Plots
 
 
 

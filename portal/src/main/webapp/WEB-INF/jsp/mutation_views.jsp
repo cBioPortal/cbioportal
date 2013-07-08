@@ -35,6 +35,192 @@
 	</div>
 </script>
 
+<script type="text/template" id="mutation_details_table_template">
+	<table id='mutation_details_table_{{geneSymbol}}' class='display mutation_details_table'
+	       cellpadding='0' cellspacing='0' border='0'>
+		<thead>{{tableHeaders}}</thead>
+		{{tableRows}}
+		<tfoot>{{tableHeaders}}</tfoot>
+	</table>
+</script>
+
+<script type="text/template" id="mutation_details_table_data_row">
+	<tr>
+		<td>
+			<a href='{{linkToPatientView}}' target='_blank'>
+				<b>{{caseId}}</b>
+			</a>
+		</td>
+		<td>
+			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
+				{{proteinChange}}
+			</span>
+		</td>
+		<td>
+			<span class='{{mutationTypeClass}}'>
+				<label>{{mutationTypeText}}</label>
+			</span>
+		</td>
+		<td>
+			<label class='{{cosmicClass}}' alt='{{cosmic}}'>
+				<b>{{cosmicCount}}</b>
+			</label>
+		</td>
+		<td>
+			<span class='oma_link {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
+				<label>{{fisText}}</label>
+			</span>
+		</td>
+		<td>
+			<a href='{{msaLink}}' target='_blank'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;msa&nbsp;
+				</span>
+			</a>
+		</td>
+		<td>
+			<a href='{{pdbLink}}' target='_blank'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;3D&nbsp;
+				</span>
+			</a>
+		</td>
+		<td>
+			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
+				<label>{{mutationStatusText}}</label>
+			</span>
+		</td>
+		<td>
+			<span alt='{{validationStatusTip}}' class="simple-tip {{validationStatusClass}}">
+				<label>{{validationStatusText}}</label>
+			</span>
+		</td>
+		<td>{{sequencingCenter}}</td>
+		<td>{{chr}}</td>
+		<td>
+			<label class='{{startPosClass}}'>
+				{{startPos}}
+			</label>
+		</td>
+		<td>
+			<label class='{{endPosClass}}'>
+				{{endPos}}
+			</label>
+		</td>
+		<td>{{referenceAllele}}</td>
+		<td>{{variantAllele}}</td>
+		<td>
+			<label class='{{tumorFreqClass}} {{tumorFreqTipClass}}'
+			       alt='<b>{{tumorAltCount}}</b> variant reads out of <b>" + {{tumorTotalCount}}</b> total'>
+				{{tumorFreq}}
+			</label>
+		</td>
+		<td>
+			<label class='{{tumorAltCountClass}}'>
+				{{tumorAltCount}}
+			</label>
+		</td>
+		<td>
+			<label class='{{tumorRefCountClass}}'>
+				{{tumorRefCount}}
+			</label>
+		</td>
+		<td>
+			<label class='{{normalFreqClass}} {{normalFreqTipClass}}'
+			       alt='<b>{{normalAltCount}}</b> variant reads out of <b>" + {{normalTotalCount}}</b> total'>
+				{{normalFreq}}
+			</label>
+		</td>
+		<td>
+			<label class='{{normalAltCountClass}}'>
+				{{normalAltCount}}
+			</label>
+		</td>
+		<td>
+			<label class='{{normalRefCountClass}}'>
+				{{normalRefCount}}
+			</label>
+		</td>
+		<td>
+			<label class='{{mutationCountClass}}'>
+				{{mutationCount}}
+			</label>
+		</td>
+	</tr>
+</script>
+
+<script type="text/template" id="mutation_details_table_header_row">
+	<th alt='Case ID' class='mutation-table-header'>
+		Case ID
+	</th>
+	<th alt='Protein Change' class='mutation-table-header'>
+		AA Change
+	</th>
+	<th alt='Mutation Type' class='mutation-table-header'>
+		Type
+	</th>
+	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>
+		COSMIC
+	</th>
+	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations' class='mutation-table-header'>
+		FIS
+	</th>
+	<th alt='Conservation' class='mutation-table-header'>
+		Cons
+	</th>
+	<th alt='3D Structure' class='mutation-table-header'>
+		3D
+	</th>
+	<th alt='Mutation Status' class='mutation-table-header'>
+		MS
+	</th>
+	<th alt='Validation Status' class='mutation-table-header'>
+		VS
+	</th>
+	<th alt='Sequencing Center' class='mutation-table-header'>
+		Center
+	</th>
+	<!--th alt='NCBI Build Number' class='mutation-table-header'>
+		Build
+	</th-->
+	<th alt='Chromosome' class='mutation-table-header'>
+		Chr
+	</th>
+	<th alt='Start Position' class='mutation-table-header'>
+		Start Pos
+	</th>
+	<th alt='End Position' class='mutation-table-header'>
+		End Pos
+	</th>
+	<th alt='Reference Allele' class='mutation-table-header'>
+		Ref
+	</th>
+	<th alt='Variant Allele' class='mutation-table-header'>
+		Var
+	</th>
+	<th alt='Variant allele frequency<br> in the tumor sample' class='mutation-table-header'>
+		Allele Freq (T)
+	</th>
+	<th alt='Variant allele frequency<br> in the normal sample' class='mutation-table-header'>
+		Allele Freq (N)
+	</th>
+	<th alt='Variant Ref Count' class='mutation-table-header'>
+		Var Ref
+	</th>
+	<th alt='Variant Alt Count' class='mutation-table-header'>
+		Var Alt
+	</th>
+	<th alt='Normal Ref Count' class='mutation-table-header'>
+		Norm Ref
+	</th>
+	<th alt='Normal Alt Count' class='mutation-table-header'>
+		Norm Alt
+	</th>
+	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample' class='mutation-table-header'>
+		#Mut in Sample
+	</th>
+</script>
+
 <script type="text/javascript">
 	// TODO this is duplicate! it is better to put this into a global js
 	// This is for the moustache-like templates
@@ -282,7 +468,16 @@
 					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 				});
 
-				// TODO draw mutation table
+				// draw mutation table after a short delay
+				setTimeout(function(){
+					var mutationTableView = new MutationDetailsTableView(
+							{el: "#mutation_table_" + gene,
+							model: {geneSymbol: gene,
+								mutations: mutationMap[gene]}});
+
+					mutationTableView.render();
+				}, 2000);
+
 			};
 
 			// TODO cache sequence for each gene (implement another class for this)?
@@ -326,5 +521,360 @@
 		}
 	});
 
-	//TODO views & templates for mutation table
+	var MutationDetailsTableView = Backbone.View.extend({
+		render: function()
+		{
+			var self = this;
+
+			var mutations = new MutationCollection(self.model.mutations);
+
+			var tableHeaders = _.template(
+					$("#mutation_details_table_header_row").html(), {});
+
+			var tableRows = "";
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				var dataRowVariables = self._getDataRowVars(mutations.at(i));
+
+				var tableDataTemplate = _.template(
+						$("#mutation_details_table_data_row").html(),
+						dataRowVariables);
+
+				tableRows += tableDataTemplate;
+			}
+
+			var tableVariables = {geneSymbol: self.model.geneSymbol,
+				tableHeaders: tableHeaders,
+				tableRows: tableRows};
+
+			// compile the table template
+			var tableTemplate = _.template(
+					$("#mutation_details_table_template").html(),
+					tableVariables);
+
+			// load the compiled HTML into the Backbone "el"
+			self.$el.html(tableTemplate);
+
+			self.format();
+		},
+		_getDataRowVars: function(mutation)
+		{
+			var self = this;
+
+			/**
+			 * Mapping between the mutation type (data) values and
+			 * view values. The first element of an array corresponding to a
+			 * data value is the display text (html), and the second one
+			 * is style (css).
+			 */
+			var mutationTypeMap = {
+				missense_mutation: {label: "Missense", style: "missense_mutation"},
+				nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
+				nonstop_mutation: {label: "Nonstop", style: "trunc_mutation"},
+				frame_shift_del: {label: "FS del", style: "trunc_mutation"},
+				frame_shift_ins: {label: "FS ins", style: "trunc_mutation"},
+				in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
+				in_frame_del: {label: "IF del", style: "inframe_mutation"},
+				splice_site: {label: "Splice", style: "trunc_mutation"},
+				other: {style: "other_mutation"}
+			};
+
+			/**
+			 * Mapping between the validation status (data) values and
+			 * view values. The first element of an array corresponding to a
+			 * data value is the display text (html), and the second one
+			 * is style (css).
+			 */
+			var validationStatusMap = {
+				valid: {label: "V", style: "valid", tooltip: "Valid"},
+				validated: {label: "V", style: "valid", tooltip: "Valid"},
+				wildtype: {label: "W", style: "wildtype", tooltip: "Wildtype"},
+				unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
+				not_tested: {label: "U", style: "unknown", tooltip: "Unknown"},
+				none: {label: "U", style: "unknown", tooltip: "Unknown"},
+				na: {label: "U", style: "unknown", tooltip: "Unknown"}
+			};
+
+			/**
+			 * Mapping between the mutation status (data) values and
+			 * view values. The first element of an array corresponding to a
+			 * data value is the display text (html), and the second one
+			 * is style (css).
+			 */
+			var mutationStatusMap = {
+				somatic: {label: "S", style: "somatic", tooltip: "Somatic"},
+				germline: {label: "G", style: "germline", tooltip: "Germline"},
+				unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
+				none: {label: "U", style: "unknown", tooltip: "Unknown"},
+				na: {label: "U", style: "unknown", tooltip: "Unknown"}
+			};
+
+			var omaScoreMap = {
+				h: {label: "H", style: "oma_high", tooltip: "High"},
+				m: {label: "M", style: "oma_medium", tooltip: "Medium"},
+				l: {label: "L", style: "oma_low", tooltip: "Low"},
+				n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
+			};
+
+			var vars = {};
+
+			vars.caseId = mutation.caseId;
+			vars.linkToPatientView = mutation.linkToPatientView;
+
+			var proteinChange = self._getProteinChange(mutation);
+			vars.proteinChange = proteinChange.text;
+			vars.proteinChangeClass = proteinChange.style;
+			vars.proteinChangeTip = proteinChange.tip;
+
+			var mutationType = self._getMutationType(mutationTypeMap, mutation.mutationType);
+			vars.mutationTypeClass = mutationType.style;
+			vars.mutationTypeText = mutationType.text;
+
+			// TODO remove cosmicCount from model & calculate on the client side
+			var cosmic = self._getCosmic(mutation.cosmic, mutation.cosmicCount);
+			vars.cosmicClass = cosmic.style;
+			vars.cosmicCount = cosmic.count;
+			vars.cosmic = cosmic.value;
+
+			var fis = self._getFis(omaScoreMap, mutation.functionalImpactScore, mutation.fisValue);
+			vars.fisClass = fis.style;
+			vars.fisValue = fis.value;
+			vars.fisText = fis.text;
+
+			vars.xVarLink = mutation.xVarLink;
+			vars.msaLink = mutation.msaLink;
+			vars.pdbLink = mutation.pdbLink;
+
+			var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
+			vars.mutationStatusTip = mutationStatus.tip;
+			vars.mutationStatusClass = mutationStatus.style;
+			vars.mutationStatusText = mutationStatus.text;
+
+			var validationStatus = self._getValidationStatus(validationStatusMap, mutation.validationStatus);
+			vars.validationStatusTip = validationStatus.tip;
+			vars.validationStatusClass = validationStatus.style;
+			vars.validationStatusText = validationStatus.text;
+
+			vars.sequencingCenter = mutation.sequencingCenter;
+			vars.chr = mutation.chr;
+
+			var startPos = self._getIntValue(mutation.startPos);
+			vars.startPos = startPos.text;
+			vars.startPosClass = startPos.style;
+
+			var endPos = self._getIntValue(mutation.endPos);
+			vars.endPos = endPos.text;
+			vars.endPosClass = endPos.style;
+
+			vars.referenceAllele = mutation.referenceAllele;
+			vars.variantAllele = mutation.variantAllele;
+
+			var alleleCount = self._getAlleleCount(mutation.tumorAltCount);
+			vars.tumorAltCount = alleleCount.text;
+			vars.tumorAltCountClass = alleleCount.style;
+
+			alleleCount = self._getAlleleCount(mutation.tumorRefCount);
+			vars.tumorRefCount = alleleCount.text;
+			vars.tumorRefCountClass = alleleCount.style;
+
+			alleleCount = self._getAlleleCount(mutation.normalAltCount);
+			vars.normalAltCount = alleleCount.text;
+			vars.normalAltCountClass = alleleCount.style;
+
+			alleleCount = self._getAlleleCount(mutation.normalRefCount);
+			vars.normalRefCount = alleleCount.text;
+			vars.normalRefCountClass = alleleCount.style;
+
+			var tumorFreq = self._getAlleleFreq(mutation.tumorFreq,
+					mutation.tumorAltCount,
+					mutation.tumorRefCount,
+					"simple-tip-left");
+			vars.tumorFreq = tumorFreq.text;
+			vars.tumorFreqClass = tumorFreq.style;
+			vars.tumorFreqTipClass = tumorFreq.tipClass;
+			vars.tumorTotalCount = tumorFreq.total;
+
+			var normalFreq = self._getAlleleFreq(mutation.normalFreq,
+					mutation.normalAltCount,
+					mutation.normalRefCount,
+					"simple-tip-left");
+			vars.normalFreq = normalFreq.text;
+			vars.normalFreqClass = normalFreq.style;
+			vars.normalFreqTipClass = normalFreq.tipClass;
+			vars.normalTotalCount = normalFreq.total;
+
+			var mutationCount = self._getIntValue(mutation.mutationCount);
+			vars.mutationCount = mutationCount.text;
+			vars.mutationCountClass = mutationCount.style;
+
+			return vars;
+		},
+		format: function()
+		{
+			var self = this;
+
+			// remove invalid links
+			self.$el.find('a[href=""]').remove();
+
+			// TODO format with datatables plugin
+		},
+		_getMutationType: function(map, value)
+		{
+			var style, text;
+			value = value.toLowerCase();
+
+			if (map[value] != null)
+			{
+				style = map[value].style;
+				text = map[value].label;
+			}
+			else
+			{
+				style = map.other.style;
+				text = value;
+			}
+
+			return {style: style, text: text};
+		},
+		_getMutationStatus: function(map, value)
+		{
+			var style = "simple-tip";
+			var text = value;
+			var tip = "";
+			value = value.toLowerCase();
+
+			if (map[value] != null)
+			{
+				style = map[value].style;
+				text = map[value].label;
+				tip = map[value].tooltip;
+			}
+
+			return {style: style, tip: tip, text: text};
+		},
+		_getValidationStatus: function(map, value)
+		{
+			var style, label, tip;
+			value = value.toLowerCase();
+
+			if (map[value] != null)
+			{
+				style = map[value].style;
+				label = map[value].label;
+				tip = map[value].tooltip;
+			}
+			else
+			{
+				style = map.unknown.style;
+				label = map.unknown.label;
+				tip = map.unknown.tooltip;
+			}
+
+			return {style: style, tip: tip, text: label};
+		},
+		_getFis: function(map, fis, fisValue)
+		{
+			var text = "";
+			var style = "";
+			var value = "";
+			fis = fis.toLowerCase();
+
+			if (map[fis] != null)
+			{
+				value = map[fis].tooltip;
+
+				if (fisValue != null)
+				{
+					value = fisValue.toFixed(2);
+				}
+
+				text = map[fis].label;
+				style = map[fis].style;
+			}
+
+			return {style: style, value: value, text: text};
+		},
+		_getAlleleFreq: function(frequency, alt, ref, tipClass)
+		{
+			var text = "NA";
+			var total = alt + ref;
+			var style = "";
+			var tipStyle = "";
+
+			if (frequency)
+			{
+				style = "mutation_table_allele_freq";
+				text = frequency.toFixed(2);
+				tipStyle = tipClass;
+			}
+
+			return {text: text, total: total, style: style, tipClass: tipStyle};
+		},
+		_getProteinChange: function(mutation)
+		{
+			var style = "protein_change";
+			var tip = "";
+
+			// TODO disabled temporarily, enable when isoform support completely ready
+//        if (!mutation.canonicalTranscript)
+//        {
+//            style = "best_effect_transcript " + style;
+//            // TODO find a better way to display isoform information
+//            tip = "Specified protein change is for the best effect transcript " +
+//                "instead of the canonical transcript.<br>" +
+//                "<br>RefSeq mRNA id: " + "<b>" + mutation.refseqMrnaId + "</b>" +
+//                "<br>Codon change: " + "<b>" + mutation.codonChange + "</b>" +
+//                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
+//        }
+
+			return {text: mutation.proteinChange,
+				style : style,
+				tip: tip};
+		},
+		_getCosmic: function(value, count)
+		{
+			var style = "";
+			var cosmic = "";
+			var text = "";
+
+			if (count > 0)
+			{
+				style = "mutation_table_cosmic";
+				cosmic = value;
+				text = count;
+			}
+
+			return {value: cosmic,
+				style: style,
+				count: text};
+	    },
+		_getIntValue: function(value)
+		{
+			var text = value;
+			var style = "mutation_table_int_value";
+
+			if (value == null)
+			{
+				text = "NA";
+				style = "";
+			}
+
+			return {text: text, style: style};
+		},
+		_getAlleleCount: function(count)
+		{
+			var text = count;
+			var style = "mutation_table_allele_count";
+
+			if (count == null)
+			{
+				text = "NA";
+				style = "";
+			}
+
+			return {text: text, style: style};
+	    }
+	});
+
 </script>

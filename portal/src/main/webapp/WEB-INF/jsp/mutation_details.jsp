@@ -105,7 +105,7 @@ $(document).ready(function(){
 					converMutations(geneWithScore, mutationMap, mergedCaseList));
 		%>
 				tableMutations = <%= mutationTableStr %>;
-				delayedMutationTable(tableMutations);
+				//delayedMutationTable(tableMutations);
 		<%
 			}
 		}

@@ -111,10 +111,6 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerStudyServlet</servlet-class>
     </servlet>
 
-    <servlet>
-        <servlet-name>cross_cancer_summary</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerSummaryServlet</servlet-class>
-    </servlet>
 
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
@@ -214,11 +210,6 @@
         <servlet-name>oncoprint_converter</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.OncoPrintConverter</servlet-class>
     </servlet>
-    
-    <servlet>
-        <servlet-name>histogram_converter</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerHistogramConverter</servlet-class>
-    </servlet>
 
     <servlet>
         <servlet-name>MutSigJSON</servlet-name>
@@ -248,11 +239,6 @@
     <servlet-mapping>
         <servlet-name>cross_cancer_query</servlet-name>
         <url-pattern>/cross_cancer.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>cross_cancer_summary</servlet-name>
-        <url-pattern>/cross_cancer_summary.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -365,11 +351,6 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
      </servlet-mapping>   
      
-     <servlet-mapping>
-        <servlet-name>histogram_converter</servlet-name>
-        <url-pattern>/histogram_converter.svg</url-pattern>
-    </servlet-mapping>   
-
     <servlet-mapping>
         <servlet-name>MutSigJSON</servlet-name>
         <url-pattern>/MutSig.json</url-pattern>
@@ -420,7 +401,17 @@
         <servlet-name>patient_view</servlet-name>
         <url-pattern>/case.do</url-pattern>
     </servlet-mapping>
-    
+
+    <servlet>
+        <servlet-name>CrossCancerJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CrossCancerJSON</servlet-name>
+        <url-pattern>/crosscancerquery.json</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>

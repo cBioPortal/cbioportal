@@ -62,7 +62,7 @@
 
     var Studies = Backbone.Collection.extend({
         model: Study,
-        url: "crosscancerquery.do",
+        url: "crosscancerquery.json",
         defaults: {
             genes: "",
             priority: 0

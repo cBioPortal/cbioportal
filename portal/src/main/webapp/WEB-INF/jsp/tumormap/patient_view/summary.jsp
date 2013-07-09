@@ -187,8 +187,12 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 
 <div id="allele_freq_plot" style="display:none;">
-    <button id="allelefreq_histogram_toggle" type="button">toggle histogram</button>
-    <button id="allelefreq_curve_toggle" type="button">toggle curve</button>
+    <label>
+        <input id="allelefreq_histogram_toggle" type="checkbox" checked />histogram
+    </label>
+    <label>
+        <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
+    </label>
 </div>
 <%}%>
 

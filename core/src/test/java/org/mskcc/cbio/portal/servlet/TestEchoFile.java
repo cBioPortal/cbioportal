@@ -33,7 +33,9 @@ import junit.framework.TestCase;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestEchoFile extends TestCase {
 
@@ -44,28 +46,38 @@ public class TestEchoFile extends TestCase {
 
         Reader testReader = new StringReader(testString);
 
-        List<ImmutableMap<String, String>> data = null;
+        List<Map<String, String>> data = null;
         try {
-            data = EchoFile.processStagingCsv(new CSVReader(testReader, '\t'));
+            data = EchoFile.processStagingCsv(new CSVReader(testReader, '\t'), "cna");
         } catch (IOException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+            e.printStackTrace();
         }
-
-        assertEquals(
-                data.get(0),
-                ImmutableMap.of("sample_id", "TCGA-BL-A0CB", "hugo", "ACAP3", "value", "-1")
-        );
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("sample_id",  "TCGA-BL-A0C8");
+        map.put("hugo", "ACAP3");
+        map.put("value", "-1");
+        map.put("datatype", "cna");
 
         assertTrue(data.size() == 3);
     }
 
-    public void testGene2cna() {
+    public void testProcessMutationStagingCsv() {
 
-        // reformat!!
-        String cna = "Hugo_Symbol\tEntrez_Gene_Id\tTCGA-BL-A0C8\tTCGA-BL-A13I\tTCGA-BL-A13J\n" +
-                "ACAP3\t116983\t-1\t0\t0\n";
+        String testString = "Hugo_Symbol\tProtein_Change\tSample_Id\n" +
+                "ACAP3\tQ634K\tfoobar\n";
 
-        EchoFile testEchoFile = new EchoFile();
-        testEchoFile.processCnaString(cna);
+        Reader testReader = new StringReader(testString);
+
+        List<Map<String, String>> data = null;
+        try {
+            data = EchoFile.processMutationStagingCsv(new CSVReader(testReader, '\t'));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(
+                data.get(0),
+                ImmutableMap.of("sample_id", "foobar", "hugo", "ACAP3", "datatype", "mutation", "value", "Q634K")
+        );
     }
 }

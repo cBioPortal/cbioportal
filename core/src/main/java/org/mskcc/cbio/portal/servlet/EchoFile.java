@@ -27,14 +27,12 @@
 package org.mskcc.cbio.portal.servlet;
 
 import au.com.bytecode.opencsv.CSVReader;
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.ArrayUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.owasp.validator.html.PolicyException;
-import sun.misc.IOUtils;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.ServletException;
@@ -46,6 +44,7 @@ import java.util.*;
 public class EchoFile extends HttpServlet {
 
     private ServletXssUtil servletXssUtil;
+    public static final int MAX_NO_GENES = 30;
 
     /**
      * Initializes the servlet.
@@ -66,13 +65,16 @@ public class EchoFile extends HttpServlet {
     /**
      *
      * Takes a csv reader of the staging file format:
-     * 1st line is Hugo_Symbol	Entrez_Gene_Id  sample_id_1	sample_id_2	...
-     * data follows matching this header
+     * 1st line is hugo_symbol	entrez_gene_id  sample_id_1	sample_id_2	...
+     * data follows matching this header and is assumed to be numerical
+     *
+     * NB : only takes the first 50 lines (genes)
      *
      * @param reader CSVReader
-     * @return
+     * @param datatype String
+     * @return List of maps with keys {sample_id, hugo, value, datatype}
      */
-    public static List<ImmutableMap<String, String>> processStagingCsv(CSVReader reader) throws IOException {
+    public static List<Map<String, String>> processStagingCsv(CSVReader reader, String datatype) throws IOException {
 
         String[] header = reader.readNext();
 
@@ -80,72 +82,156 @@ public class EchoFile extends HttpServlet {
         String entrez = header[1];
 
         // validation
-        if  ( !(hugo && header[1].equals("Entrez_Gene_Id")) ) {
+        if  ( !(hugo.toLowerCase().equals("hugo_symbol") && entrez.toLowerCase().equals("entrez_gene_id")) ) {
             throw new IOException("validation error, missing column header(s) Hugo_Symbol or Entrez_Gene_Id");
         }
 
-        String[] sampleIds = (String[]) ArrayUtils.subarray(header, 2, header.length);
+        // grab the sampleIds
+//        String[] sampleIds = (String[]) ArrayUtils.subarray(header, 2, header.length);
 
-        ArrayList<ImmutableMap<String, String>> data = new ArrayList<ImmutableMap<String, String>>();
+        List<Map<String, String>> data = new ArrayList<Map<String, String>>();
 
-        data.add(
-                ImmutableMap.of("sample_id", "TCGA-BL-A0CB", "hugo", "ACAP3", "value", "-1")
-        );
+        String[] row = reader.readNext();
+        int row_count = 0;
+        while (row !=null && row_count < MAX_NO_GENES) {
+            String thisHugo = row[0];
+            String thisEntrez = row[1];
 
-        return data;
-    };
+            // skip past the hugo and the entrez
+            for (int i = 2; i < row.length; i+=1) {
+                Map<String, String> datum = new HashMap<String, String>();
+                datum.put("sample_id", header[i]);
+                datum.put("hugo", thisHugo);
+                datum.put("value", String.valueOf(row[i]));
+                datum.put("datatype", datatype);
+                data.add(datum);
+            }
 
-    public Map<String, Map<String, String>> processCnaString(String cnaData) {
-
-        Map<String, Map<String, String>> sample2gene2cna = new HashMap<String, Map<String, String>>();
-
-        List<String> lines =  Arrays.asList(cnaData.split("\n"));
-        List<String> samples = Arrays.asList(lines.get(0).split("\t"));
-        samples = samples.subList(2, samples.size());
-
-        for (String line : lines.subList(1,lines.size())) {     // the first line is the samples line
-            List<String> values = Arrays.asList(line.split("\t"));
-            String hugo = values.get(0);
-            String entrez = values.get(1);
-
-            //gene2cnaData.put(hugo, values.subList(2, values.size()));
+            row = reader.readNext();
+            row_count += 1;
         }
 
-        return sample2gene2cna;
-    };
+        return data;
+    }
+
+    /**
+     * Assumes that there are columns sample_id, protein_change, hugo_symbol (caps insensitive)
+     *
+     * NB : only takes the first 50 lines (genes)
+     *
+     * @param reader
+     * @return List of maps with keys {sample_id, hugo, value, datatype}
+     */
+    public static List<Map<String, String>> processMutationStagingCsv(CSVReader reader) throws IOException {
+
+        int proteinChangeColumnIndex = -1;
+        int sampleIdColumnIndex = -1;
+        int hugoColumnIndex = -1;
+
+        String[] header = reader.readNext();
+
+        for (int i = 0; i < header.length; i+=1) {
+            String curr = header[i].toLowerCase();
+
+            if (curr.equals("protein_change")) {
+                proteinChangeColumnIndex = i;
+            }
+
+            if (curr.equals("sample_id")) {
+                sampleIdColumnIndex = i;
+            }
+
+            if (curr.equals("hugo_symbol")) {
+                hugoColumnIndex = i;
+            }
+        }
+
+        // make sure everything is initialized
+        if (proteinChangeColumnIndex == -1) {
+            throw new IOException("could not find column 'protein_change'");
+        }
+        if (sampleIdColumnIndex == -1) {
+            throw new IOException("could not find column 'sample_id'");
+        }
+        if (sampleIdColumnIndex == -1) {
+            throw new IOException("could not find column 'hugo_symbol'");
+        }
+
+        String[] row = reader.readNext();
+        List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+        int row_count = 0;
+        while (row != null && row_count < MAX_NO_GENES) {
+
+            Map<String, String> datum = new HashMap<String, String>();
+            datum.put("sample_id", row[sampleIdColumnIndex]);
+            datum.put("hugo", row[hugoColumnIndex]);
+            datum.put("value", row[proteinChangeColumnIndex]);
+            datum.put("datatype", "mutation");
+            data.add(datum);
+
+            row = reader.readNext();
+            row_count += 1;
+        }
+
+        return data;
+    }
+
+//    /**
+//     * Takes a list of cna, mutation, mrna, rppa data and reduces
+//     * into one list of maps indexed by gene and sample_id
+//     *
+//     * @param list
+//     * @return List of maps with keys {sample_id, hugo, [cna], [mutation], [mrna], [rppa]}
+//     */
+//    public static List<ImmutableMap<String, String>> reduceGenomicData(List<ImmutableMap<String, String>> list) {
+//
+//        return new ArrayList<ImmutableMap<String, String>>();
+//    }
 
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
         try {
+            List<Map<String, String>> data = new ArrayList<Map<String, String>>();
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
             for (FileItem item : items) {
+
+                CSVReader reader = new CSVReader(new InputStreamReader(item.getInputStream()), '\t');
+
                 if (item.getFieldName().equals("cna")) {
                     // handle cna data
+                    data.addAll(processStagingCsv(reader, "cna"));
                 }
+
                 else if (item.getFieldName().equals("mutation")) {
                     // handle mutation
+                    data.addAll(processMutationStagingCsv(reader));
                 }
+
                 else if (item.getFieldName().equals("mrna")) {
                     // handle mrna
+                    data.addAll(processStagingCsv(reader, "mrna"));
                 }
-                else if (item.getFieldName().equals("rppa")) {
 
+                else if (item.getFieldName().equals("rppa")) {
+                    // ??? Composite.Element.REF ???
                 }
+
                 else {
-                    // echo back the string
+                    // echo back the raw string
+                    InputStream content = items.get(0).getInputStream();        // this might be bad
+                    java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
+                    Writer writer = response.getWriter();
+                    writer.write(s.hasNext() ? s.next() : "");
                 }
             }
 
-            InputStream content = items.get(0).getInputStream();        // this might be bad
-
-            new CSVReader( new InputStreamReader(content) );
-
-            java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
+            // write the objects out as json
             Writer writer = response.getWriter();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValue(writer, data);
 
-            writer.write(s.hasNext() ? s.next() : "");
         } catch (FileUploadException e) {
             throw new ServletException(e);
         }

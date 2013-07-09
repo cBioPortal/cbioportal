@@ -56,7 +56,8 @@
                 mutation: 0,
                 cnaUp: 0,
                 cnaDown: 0,
-                other: 0
+                other: 0,
+                all: 0
             }
         }
     });

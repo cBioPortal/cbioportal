@@ -1,3 +1,8 @@
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
+<%@ page import="java.util.HashSet" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="java.net.URLEncoder" %>
+
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -31,9 +36,6 @@
 <!-- Include Dynamic Query Javascript -->
 <script type="text/javascript" src="js/dynamicQuery.js"></script>
 
-<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
-<%@ page import="java.util.HashSet" %>
-<%@ page import="java.io.IOException" %>
 <script type="text/javascript">
 
     // Store the currently selected options as global variables;

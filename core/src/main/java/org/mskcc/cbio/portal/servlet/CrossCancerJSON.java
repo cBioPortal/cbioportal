@@ -34,8 +34,10 @@ import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.model.GeneWithScore;
 import org.mskcc.cbio.portal.model.ProfileData;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.remote.GetCaseSets;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
@@ -86,7 +88,7 @@ public class CrossCancerJSON extends HttpServlet {
      * @throws javax.servlet.ServletException if a servlet-specific error occurs
      * @throws java.io.IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException
     {
         XDebug xdebug = new XDebug();
@@ -109,16 +111,17 @@ public class CrossCancerJSON extends HttpServlet {
             } catch (NumberFormatException e) {
                 dataTypePriority = 0;
             }
-            request.setAttribute(QueryBuilder.DATA_PRIORITY, dataTypePriority);
-
 
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
             for (CancerStudy cancerStudy : cancerStudiesList) {
-                Map cancerMap = new LinkedHashMap();
-                resultsList.add(cancerMap);
                 String cancerStudyId = cancerStudy.getCancerStudyStableId();
+                if(cancerStudyId.equalsIgnoreCase("all"))
+                    continue;
+
+                Map cancerMap = new LinkedHashMap();
                 cancerMap.put("studyId", cancerStudyId);
+                resultsList.add(cancerMap);
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
@@ -146,6 +149,8 @@ public class CrossCancerJSON extends HttpServlet {
                         defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
                 }
 
+                cancerMap.put("caseSetId", defaultCaseSet.getStableId());
+
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,
                         defaultGeneticProfileSet,
@@ -153,20 +158,53 @@ public class CrossCancerJSON extends HttpServlet {
                         geneList,
                         caseSetList,
                         request,
-                        response,
-                        xdebug
+                        response
                 );
 
                 // TODO: 1) Process these data to extract necessary statistics
+                ArrayList<GeneWithScore> geneFrequencyList = genomicData.getGeneFrequencyList();
+                int numberOfGenes = geneFrequencyList.size();
+                int noOfMutated = 0,
+                        noOfCnaUp = 0,
+                        noOfCnaDown = 0,
+                        noOfOther = 0,
+                        noOfAll = 0;
 
-                // ...
+                if(numberOfGenes > 1) {
+                    noOfOther = noOfAll = genomicData.getNumCasesAffected();
+                } else if(numberOfGenes == 1) {
+                    String gene = geneFrequencyList.iterator().next().getGene();
+
+                    for (String caseId :defaultCaseSet.getCaseList()) {
+                        if(!genomicData.isCaseAltered(caseId)) continue;
+
+                        boolean isMutated = genomicData.isGeneMutated(gene, caseId);
+                        GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, caseId);
+                        boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
+                        boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
+                        boolean isCnaChanged = isCnaUp || isCnaDown;
+
+                        if(isMutated && !isCnaChanged)
+                            noOfMutated++;
+                        else if(isMutated && isCnaChanged)
+                            noOfOther++;
+                        else if(isCnaUp)
+                            noOfCnaUp++;
+                        else if(isCnaDown)
+                            noOfCnaDown++;
+
+                        noOfAll++;
+                    }
+                }
+
                 // TODO: 2) Calculate alteration statistics
                 Map alterations = new LinkedHashMap();
                 cancerMap.put("alterations", alterations);
-                alterations.put("mutation", 0);
-                alterations.put("cnaUp", 0);
-                alterations.put("cnaDown", 0);
-                alterations.put("other", 0);
+                alterations.put("all", noOfAll);
+                alterations.put("mutation", noOfMutated);
+                alterations.put("cnaUp", noOfCnaUp);
+                alterations.put("cnaDown", noOfCnaDown);
+                alterations.put("other", noOfOther);
             }
 
             JSONValue.writeJSONString(resultsList, writer);
@@ -185,10 +223,8 @@ public class CrossCancerJSON extends HttpServlet {
     private ProfileDataSummary getGenomicData(String cancerStudyId, HashMap<String, GeneticProfile> defaultGeneticProfileSet,
                                               CaseList defaultCaseSet, String geneListStr, ArrayList<CaseList> caseList,
                                               HttpServletRequest request,
-                                              HttpServletResponse response, XDebug xdebug) throws IOException,
+                                              HttpServletResponse response) throws IOException,
             ServletException, DaoException {
-
-        request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
         // parse geneList, written in the OncoPrintSpec language (except for changes by XSS clean)
         double zScore = ZScoreUtil.getZScore(new HashSet<String>(defaultGeneticProfileSet.keySet()),
@@ -209,35 +245,17 @@ public class CrossCancerJSON extends HttpServlet {
         String caseIds = defaultCaseSet.getCaseListAsString();
 
         for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
-            xdebug.logMsg(this, "Getting data for:  " + profile.getProfileName());
-            xdebug.logMsg(this, "Using gene list:  " + geneList);
             GetProfileData remoteCall = new GetProfileData(profile, geneList, caseIds);
             ProfileData pData = remoteCall.getProfileData();
             warningUnion.addAll(remoteCall.getWarnings());
             profileDataList.add(pData);
         }
 
-        xdebug.logMsg(this, "Merging Profile Data");
         ProfileMerger merger = new ProfileMerger(profileDataList);
         ProfileData mergedProfile = merger.getMergedProfile();
 
-        xdebug.logMsg(this, "Merged Profile, Number of genes:  "
-                + mergedProfile.getGeneList().size());
-        xdebug.logMsg(this, "Merged Profile, Number of cases:  "
-                + mergedProfile.getCaseIdList().size());
-
         request.setAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
         request.setAttribute(QueryBuilder.WARNING_UNION, warningUnion);
-        String oncoPrintHtml = MakeOncoPrint.makeOncoPrint(cancerStudyId,
-                geneListStr,
-                mergedProfile,
-                caseList,
-                defaultCaseSet.getStableId(),
-                zScore,
-                rppaScore,
-                new HashSet<String>(defaultGeneticProfileSet.keySet()),
-                new ArrayList<GeneticProfile>(defaultGeneticProfileSet.values()),
-                false);
         ProfileDataSummary dataSummary = new ProfileDataSummary(mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScore, rppaScore);
         return dataSummary;

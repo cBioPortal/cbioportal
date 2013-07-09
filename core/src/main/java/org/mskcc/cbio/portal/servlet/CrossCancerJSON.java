@@ -161,7 +161,6 @@ public class CrossCancerJSON extends HttpServlet {
                         response
                 );
 
-                // TODO: 1) Process these data to extract necessary statistics
                 ArrayList<GeneWithScore> geneFrequencyList = genomicData.getGeneFrequencyList();
                 int numberOfGenes = geneFrequencyList.size();
                 int noOfMutated = 0,
@@ -197,7 +196,6 @@ public class CrossCancerJSON extends HttpServlet {
                     }
                 }
 
-                // TODO: 2) Calculate alteration statistics
                 Map alterations = new LinkedHashMap();
                 cancerMap.put("alterations", alterations);
                 alterations.put("all", noOfAll);

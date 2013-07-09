@@ -66,18 +66,6 @@
         </td>
     </tr>
 </table>
-</div>
-</td>
-</tr>
-<tr>
-    <td colspan="3">
-        <jsp:include page="global/footer.jsp" flush="true"/>
-    </td>
-</tr>
-</table>
-</center>
-</div>
-<jsp:include page="global/xdebug.jsp" flush="true"/>
 
 
 <!-- Crosscancer templates -->
@@ -102,6 +90,24 @@
 <script type="text/template" id="cross-cancer-main-empty-tmpl">
     <h1>Default cross-cancer view</h1>
 </script>
+
+
+
+</div>
+</td>
+</tr>
+<tr>
+    <td colspan="3">
+        <jsp:include page="global/footer.jsp" flush="true"/>
+    </td>
+</tr>
+</table>
+</center>
+</div>
+
+
+
+<jsp:include page="global/xdebug.jsp" flush="true"/>
 
 
 </body>

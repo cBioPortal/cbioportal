@@ -26,81 +26,96 @@
  */
 
 (function($, _, Backbone, d3) {
-    /* Views */
-    var MainView = Backbone.View.extend({
-        el: "#crosscancer-container",
-        template: _.template($("#crosscancer-main-tmpl").html()),
-
-        render: function() {
-            this.$el.html(this.template(this.model));
-            return this;
-        }
-    });
-
-    var EmptyView = Backbone.View.extend({
-        el: "#crosscancer-container",
-        template: _.template($("#crosscancer-main-empty-tmpl").html()),
-
-        render: function() {
-            this.$el.html(this.template(this.model));
-            return this;
-        }
-    });
-
-    /* Models */
-    var Study = Backbone.Model.extend({
-        defaults: {
-            studyId: "",
-            caseSetId: "",
-            alterations: {
-                mutation: 0,
-                cnaUp: 0,
-                cnaDown: 0,
-                other: 0,
-                all: 0
-            }
-        }
-    });
-
-    var Studies = Backbone.Collection.extend({
-        model: Study,
-        url: "crosscancerquery.json",
-        defaults: {
-            gene_list: "",
-            priority: 0
-        },
-
-        initialize: function(options) {
-            options = _.extend(this.defaults, options);
-            this.url = "?genes=" + options.gene_list + "&priority=" + options.priority;
-
-            return this;
-        }
-    });
-
-    /* Routers */
-    AppRouter = Backbone.Router.extend({
-        routes: {
-            "crosscancer/:tab/:priority/:genes": "mainView",
-            "crosscancer/*actions": "emptyView"
-        },
-
-        emptyView: function(actions) {
-            (new EmptyView()).render();
-        },
-
-        mainView: function(tab, priority, genes) {
-            (new MainView({
-                model: {
-                    tab: tab,
-                    priority: priority,
-                    genes: genes
-                }
-            })).render();
-        }
-    });
-
+    // Prepare eveything only if the page is ready to load
     $(function(){
+        /* Views */
+        var MainView = Backbone.View.extend({
+            el: "#crosscancer-container",
+            template: _.template($("#cross-cancer-main-tmpl").html()),
+
+            render: function() {
+                this.$el.html(this.template(this.model));
+                var genes = this.model.genes;
+                var priority = this.model.priority;
+
+                var studies = new Studies({
+                    gene_list: genes,
+                    data_priority: priority
+                });
+
+                studies.fetch({
+                    success: function() {
+                        window.studies = studies;
+                        console.log(studies);
+                    }
+                });
+                return this;
+            }
+        });
+
+        var EmptyView = Backbone.View.extend({
+            el: "#crosscancer-container",
+            template: _.template($("#cross-cancer-main-empty-tmpl").html()),
+
+            render: function() {
+                this.$el.html(this.template(this.model));
+                return this;
+            }
+        });
+
+        /* Models */
+        var Study = Backbone.Model.extend({
+            defaults: {
+                studyId: "",
+                caseSetId: "",
+                alterations: {
+                    mutation: 0,
+                    cnaUp: 0,
+                    cnaDown: 0,
+                    other: 0,
+                    all: 0
+                }
+            }
+        });
+
+        var Studies = Backbone.Collection.extend({
+            model: Study,
+            url: "crosscancerquery.json",
+            defaults: {
+                gene_list: "",
+                data_priority: 0
+            },
+
+            initialize: function(options) {
+                options = _.extend(this.defaults, options);
+                this.url += "?genes=" + options.gene_list + "&priority=" + options.priority;
+
+                return this;
+            }
+        });
+
+        /* Routers */
+        AppRouter = Backbone.Router.extend({
+            routes: {
+                "crosscancer/:tab/:priority/:genes": "mainView",
+                "crosscancer/*actions": "emptyView"
+            },
+
+            emptyView: function(actions) {
+                (new EmptyView()).render();
+            },
+
+            mainView: function(tab, priority, genes) {
+                (new MainView({
+                    model: {
+                        tab: tab,
+                        priority: priority,
+                        genes: genes
+                    }
+                })).render();
+            }
+        });
+
         new AppRouter();
         Backbone.history.start();
     });

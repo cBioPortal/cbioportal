@@ -1,7 +1,0 @@
-brca_tcga
-coadread_tcga
-gbm_tcga
-kirc_tcga
-lusc_tcga
-ov_tcga
-ucec_tcga

@@ -28,44 +28,7 @@
             $("#main_submit").attr("disabled", "disabled");
 
             var genes = [];
-            var content = $("#gene_list").val();
-
-            if( content.toUpperCase().search("DATATYPES") > -1 ) {
-                var endOfStatement = content.search(";");
-                if( endOfStatement < 0 ) {
-                    endOfStatement = content.search("\n");
-                }
-
-                content = content.substring(endOfStatement+1);
-            }
-
-            if( content.search(":") > -1 ) {
-                var lines = content.split("\n");
-                for(var i=0; i < lines.length; i++) {
-                    var tokens = lines[i].split(";");
-                    for(var j=0; j < tokens.length; j++) {
-                        var values = tokens[j].split(":");
-                        genes.push($.trim(values[0]));
-                    }
-                }
-            } else {
-                var values = content.split(" ");
-                for(var i=0; i < values.length; i++) {
-                    var values2 = values[i].split("\n");
-                    for(var j=0; j < values2.length; j++) {
-                        genes.push($.trim(values2[j]));
-                    }
-                }
-            }
-
-            var genesStr = "";
-            for(var i=0; i < genes.length; i++) {
-                if(genes[i] == "")
-                    continue;
-
-                genesStr += genes[i] + " ";
-            }
-
+            var genesStr = $("#gene_list").val();
             $.get(
                   'CheckGeneSymbol.json',
                   { 'genes': genesStr },
@@ -74,43 +37,38 @@
                           var stateList = $("<ul>").addClass("ui-widget icon-collection validation-list");
                           var allValid = true;
 
-                          for(var i=0; i < genes.length; i++) {
-                              var found = false;
+                          for(var j=0; j < symbolResults.length; j++) {
+                              var aResult = symbolResults[j];
                               var multiple = false;
                               var foundSynonym = false;
+                              var valid = true;
                               var symbols = [];
+                              var gene = aResult.name;
 
-                              if(genes[i] == "")
-                                  continue;
-
-                              for(var j=0; j < symbolResults.length; j++) {
-                                  var aResult = symbolResults[j];
-                                  if( aResult.name.toUpperCase() == genes[i].toUpperCase() ) {
-                                      if( aResult.symbols.length == 1 ) {
-                                          found = true;
-                                          multiple = false;
-                                          foundSynonym = aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase();
-                                      } else if( aResult.symbols.length > 1 ) {
-                                          found = true;
-                                          multiple = true;
-                                          symbols = aResult.symbols;
-                                      }
-                                      break;
+                              if( aResult.symbols.length == 1 ) {
+                                  multiple = false;
+                                  if(aResult.symbols[0].toUpperCase() != aResult.name.toUpperCase()) {
+                                      foundSynonym = true;
+                                  } else {
+                                      continue;
                                   }
+                              } else if( aResult.symbols.length > 1 ) {
+                                  multiple = true;
+                                  symbols = aResult.symbols;
+                              } else {
+                                  allValid = false;
                               }
 
-                              if(found && !foundSynonym && !multiple)
-                                  continue;
-                              else
-                                allValid = false;
+                              if(foundSynonym || multiple)
+                                  allValid = false;
 
                               if(multiple) {
                                    var state = $("<li>").addClass("ui-state-default ui-corner-all");
                                    var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
                                    var stateText = $("<span>").addClass("text");
 
-                                   stateText.html(genes[i] + ": ");
-                                   var nameSelect = $("<select>").addClass("geneSelectBox").attr("name", genes[i]);
+                                   stateText.html(gene + ": ");
+                                   var nameSelect = $("<select>").addClass("geneSelectBox").attr("name", gene);
                                    $("<option>").attr("value", "")
                                         .html("select a symbol")
                                         .appendTo(nameSelect);
@@ -132,7 +90,7 @@
                                    state.attr("title",
                                          "Ambiguous gene symbol. Click on one of the alternatives to replace it."
                                    );
-                                   state.attr("name", genes[i]);
+                                   state.attr("name", gene);
                                    state.appendTo(stateList);
                               } else if( foundSynonym ) {
                                      var state = $("<li>").addClass("ui-state-default ui-corner-all");
@@ -149,14 +107,14 @@
 
                                      var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
                                      var stateText = $("<span>").addClass("text");
-                                     stateText.html("<b>" + genes[i] + "</b>: " + trueSymbol);
+                                     stateText.html("<b>" + gene + "</b>: " + trueSymbol);
                                      stateSpan.appendTo(state);
                                      stateText.insertAfter(stateSpan);
                                      state.attr("title",
-                                            "'" + genes[i] + "' is a synonym for '" + trueSymbol + "'. "
+                                            "'" + gene + "' is a synonym for '" + trueSymbol + "'. "
                                                 + "Click here to replace it with the official symbol."
                                      );
-                                     state.attr("name", genes[i] + ":" + trueSymbol);
+                                     state.attr("name", gene + ":" + trueSymbol);
                                      state.appendTo(stateList);
                               } else {
                                      var state = $("<li>").addClass("ui-state-default ui-corner-all");
@@ -171,13 +129,13 @@
                                      });
                                      var stateSpan = $("<span>").addClass("ui-icon ui-icon-circle-close");
                                      var stateText = $("<span>").addClass("text");
-                                     stateText.html(genes[i]);
+                                     stateText.html(gene);
                                      stateSpan.appendTo(state);
                                      stateText.insertAfter(stateSpan);
                                      state.attr("title",
                                         "Could not find gene symbol. Click to remove it from the gene list."
                                      );
-                                     state.attr("name", genes[i]);
+                                     state.attr("name", gene);
                                      state.appendTo(stateList);
                               }
                           }
@@ -189,7 +147,7 @@
                               function(){ $(this).removeClass('ui-state-hover'); }
                           );
 
-                          $('.ui-state-default').tipTip();
+                          //$('.ui-state-default').tipTip();
 
                           if( allValid ) {
                                 $("#main_submit").removeAttr("disabled").removeAttr("title")

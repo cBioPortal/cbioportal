@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.r_bridge;
 
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Survival;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXP;
@@ -46,11 +46,11 @@ public class SurvivalPlot {
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
 
-    public SurvivalPlot (SurvivalPlotType plotType, ArrayList<ClinicalData> clinicalDataList,
+    public SurvivalPlot (SurvivalPlotType plotType, ArrayList<Survival> survivalList,
             ProfileDataSummary dataSummary, String format, HttpServletResponse response) throws IOException {
         try {
             ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame
-                    (clinicalDataList, dataSummary);
+                    (survivalList, dataSummary);
             StringBuffer rCode = new StringBuffer();
 
             if (format == null || ! format.equalsIgnoreCase("pdf")) {

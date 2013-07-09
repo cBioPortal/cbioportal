@@ -30,16 +30,16 @@ package org.mskcc.cbio.cgds.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
+import java.util.*;
 import java.util.regex.Pattern;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
@@ -74,6 +74,7 @@ public class WebService extends HttpServlet {
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
     public static final String INCLUDE_FREE_FORM_CLINICAL_DATA = "include_free_form";
+    public static final String FORMAT = "format";
 
     /**
      * Shutdown the Servlet.
@@ -147,10 +148,14 @@ public class WebService extends HttpServlet {
         String cmd = httpServletRequest.getParameter(CMD);
 
 
-
         try {
-            httpServletResponse.setContentType("text/plain");
-            writer.print(WebApiUtil.WEP_API_HEADER);
+            // set the content type based on the format parameter
+            if ("json".equals(httpServletRequest.getParameter(FORMAT))) {
+                httpServletResponse.setContentType("application/json");
+            }
+            else {
+                httpServletResponse.setContentType("text/plain");
+            }
 
             // Branch, based on command.
             if (null == cmd) {
@@ -205,7 +210,7 @@ public class WebService extends HttpServlet {
             }
 
             HashSet<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(httpServletRequest);
-            if (null == cancerStudyIDs) {
+            if (cancerStudyIDs.isEmpty()) {
                 outputError(writer, "Problem when identifying a cancer study for the request.");
                 return;
             }
@@ -384,18 +389,71 @@ public class WebService extends HttpServlet {
         Boolean suppressMondrianHeader = Boolean.parseBoolean(request.getParameter(SUPPRESS_MONDRIAN_HEADER));
         GetProfileData getProfileData = new GetProfileData(geneticProfileIdList, targetGeneList,
                 caseList, suppressMondrianHeader);
-        String out = getProfileData.getRawContent();
-        writer.print(out);
+
+        String format = WebserviceParserUtils.getFormat(request);
+
+        if (format == null || "txt".equals(format.toLowerCase())) {
+            // default to txt if format parameter is not specified
+            String out = getProfileData.getRawContent();
+            writer.print(out);
+        }
+        else if ("json".equals(format.toLowerCase())) {
+            JSONArray.writeJSONString(getProfileData.getJson(), writer);
+        }
     }
 
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
-            throws DaoException, ProtocolException, UnsupportedEncodingException {
-        String includeFreeForm = request.getParameter(INCLUDE_FREE_FORM_CLINICAL_DATA);
-        HashSet<String> caseSet = new HashSet<String>(WebserviceParserUtils.getCaseList(request));
-        int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils
-                .getCancerStudyIDs(request).iterator().next()).getInternalId();
-        String out = GetClinicalData.getClinicalData(cancerStudyId, caseSet, "1".equals(includeFreeForm));
-        writer.print(out);
+            throws DaoException, ProtocolException, IOException {
+
+        // I was using this for "profiling"
+//        System.out.println( Thread.currentThread().getStackTrace()[1].getMethodName() + " " + new Date().toString() );
+
+        // This was costing ~3 seconds.
+        // The servlet assumes that there is only one cancer study anyway.
+//        Set<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(request);
+//
+//        if (cancerStudyIDs.size() != 1) {
+//            throw new IOException("cannot request data for more than one cancer study");
+//        }
+//        String cancerStudyId = cancerStudyIDs.iterator().next();
+
+        String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+
+        List<String> caseIds = WebserviceParserUtils.getCaseList(request);
+
+        String format = WebserviceParserUtils.getFormat(request);
+
+        String attrId = request.getParameter("attribute_id");
+
+        if (format == null || "txt".equals(format)) { // default to txt if format parameter is not specified
+            if (attrId == null) {
+                writer.print(GetClinicalData.getTxt(cancerStudyId, caseIds));
+            } else {
+                if (caseIds.size() != 1) {
+                    throw new IOException("cannot ask for multiple cases");
+                }
+                writer.print(GetClinicalData.getTxtDatum(cancerStudyId, caseIds.get(0), attrId));
+            }
+        }
+        else if ("json".equals(format)) {
+            if (attrId == null) {
+                JSONObject.writeJSONString(GetClinicalData.getJSON(cancerStudyId, caseIds), writer);
+            } else {
+                JSONObject outObject;
+                if (caseIds.size() == 1) {
+                    outObject = GetClinicalData.getJsonDatum(cancerStudyId, caseIds.get(0), attrId);
+                }
+                else {
+                    outObject = GetClinicalData.getJSON(cancerStudyId, caseIds, attrId);
+                }
+                JSONObject.writeJSONString(outObject, writer);
+            }
+        }
+        else {
+            // die
+            writer.print("There was an error in processing your request.  Please try again");
+            throw new ProtocolException("please specify the format, i.e. format=txt OR format=json");
+        }
     }
 
     /*
@@ -429,14 +487,19 @@ public class WebService extends HttpServlet {
 
     private void getMutationData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
+        ArrayList<String> caseList = null;
+        try {
+            caseList = WebserviceParserUtils.getCaseList(request);
+        } catch (ProtocolException ex) {}
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = WebserviceParserUtils.getGeneticProfileId(request);
-        String geneticProfileId = geneticProfileIdList.get(0);
-        ArrayList<String> targetGeneList = getGeneList(request);
-        String out = GetMutationData.getProfileData(geneticProfileId, targetGeneList,
-                caseList);
-        writer.print(out);
+        
+        for (String geneticProfileId : geneticProfileIdList) {
+            ArrayList<String> targetGeneList = getGeneList(request);
+            String out = GetMutationData.getProfileData(geneticProfileId, targetGeneList,
+                    caseList);
+            writer.print(out);
+        }
     }
 
     private ArrayList<String> getGeneList(HttpServletRequest request) {

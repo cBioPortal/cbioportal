@@ -80,11 +80,13 @@ public class DataImporter
 	 * @param inputMaf      input MAF to process
 	 * @param outputMaf     output MAF to create
 	 * @throws IOException
-	 * @throws SQLException
+	 * @throws MutationAssessorServiceException
 	 */
 	public void addMutAssessorInfo(File inputMaf,
 			File outputMaf) throws IOException, MutationAssessorServiceException
 	{
+		this.outputFileNames(inputMaf, outputMaf);
+
 		BufferedReader reader = new BufferedReader(new FileReader(inputMaf));
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outputMaf));
 
@@ -154,5 +156,10 @@ public class DataImporter
 	public void setAddMissingCols(boolean addMissingCols)
 	{
 		this.addMissingCols = addMissingCols;
+	}
+
+	protected void outputFileNames(File inputMaf, File outputMaf) {
+		System.out.println("Reading MAF from: " + inputMaf.getAbsolutePath());
+		System.out.println("Writing new MAF to: " + outputMaf.getAbsolutePath());
 	}
 }

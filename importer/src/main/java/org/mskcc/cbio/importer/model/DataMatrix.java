@@ -29,6 +29,12 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
+import com.google.common.base.Charsets;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Table;
+import com.google.common.io.Files;
+import org.apache.commons.codec.CharEncoding;
 import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.Converter;
@@ -39,14 +45,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.LinkedList;
-
-import java.io.PrintWriter;
-import java.io.OutputStream;
+import java.io.*;
+import java.util.*;
 
 /**
  * This class recreates the functionality found in 
@@ -67,7 +67,7 @@ public class DataMatrix {
 		public boolean ignoreColumn;
 	}
 
-	// keeps track of number of rows of tabular data
+    // keeps track of number of rows of tabular data
 	private int numberOfRows;
 
 	// this is a list of rows to ignore when dumping the matrix
@@ -145,6 +145,64 @@ public class DataMatrix {
 		// init our case id's object
 		initCaseIDs();
 	}
+
+    /**
+     *
+     * Creates a DataMatrix from a string by splitting on
+     * the rowDelimiter and columnDelimiter respectively.
+     *
+     * The first row becomes the columnNames, other than that, nothing fancy.
+     *
+     * @param String in
+     * @return
+     */
+    public static DataMatrix fromString(String in, String rowDelimiter, String columnDelimiter) {
+        List<LinkedList<String>> rows = new ArrayList<LinkedList<String>>();
+        for (String row : Arrays.asList(in.split(rowDelimiter))) {
+            rows.add( new LinkedList<String>(Arrays.asList(row.split(columnDelimiter))) );
+        }
+
+        return new DataMatrix(rows.subList(1, rows.size()), rows.get(0));
+    }
+
+    /**
+     * Default rowDelimiter is "\n"
+     * Default columnDelimiter is "\t"
+     *
+     * @param String in
+     * @return DataMatrix
+     */
+    public static DataMatrix fromString(String in) {
+        return fromString(in, "\n", "\t");
+    }
+
+    /**
+     *
+     * Creates a new Google Guava Table and populates it with the data from this DataMatrix
+     *
+     * The row keys are the row numbers and the column keys are the column headers in
+     * this DataMatrix.
+     *
+     * @return table
+     */
+    public Table toTable() {
+
+        Table table = HashBasedTable.create();
+        int numRows = getNumberOfRows();
+
+        for (int row_index = 0; row_index < numRows; row_index+=1) {
+
+            List<String> row = getRowData(row_index);
+            int num_columns = row.size();
+
+            for (int column_index = 0; column_index < num_columns; column_index+=1) {
+                table.put(row_index, getColumnHeaders().get(column_index), row.get(column_index));
+            }
+        }
+
+        return table;
+    }
+
 
 	/**
 	 * Converts full TCGA bar code to abbreviated version for use in portal.
@@ -360,6 +418,44 @@ public class DataMatrix {
 
 		return columnHeaders.get(columnIndex).columnData;
 	}
+
+    /**
+     *
+     * Gets the data for a given row by index.  Returns
+     * a copy of the data stored in the internal data structure,
+     * so changes in the returned List will *not* be reflected
+     * in subsequent calls into the class.
+     *
+     * @param rowIndex String
+     * @return List<String>
+     */
+    public List<String> getRowData(int rowIndex) {
+        // todo: someday this might beg for refactoring
+        // w.r.t a DataMatrix class that is row/column agnostic,
+        // i.e. a two level hashmap
+        // this would be a good idea especially if this class moves
+        // to the core module, since it's so handy.
+        // Check out Google Guava Tables.
+
+        LinkedList<String> toReturn = new LinkedList<String>();
+
+        for (int col = 0 ; col < columnHeaders.size(); col++) {
+            List<String> columnData = getColumnData(col);
+            String datum =  columnData.get(rowIndex);
+
+            toReturn.add(datum);
+        }
+
+        return toReturn;
+    }
+
+    /**
+     *
+     * @return number of rows in the dataMatrix
+     */
+    public int getNumberOfRows() {
+        return numberOfRows;
+    }
 
 	/**
 	 * Returns the list of case id's within this matrix.
@@ -609,6 +705,18 @@ public class DataMatrix {
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
+
+        // get a row
+        List<String> aRow = dataMatrix.getRowData(0);
+        List<String> bRow = dataMatrix.getRowData(1);
+        System.out.println("Row 0:");
+        System.out.println(aRow);
+        System.out.println("Row 1:");
+        System.out.println(bRow);
+        System.out.println("From:");
+        dataMatrix.write(System.out);
+        System.out.println();
+        System.out.println();
 
 		// ignore a few rows
 		dataMatrix.ignoreRow(0, true);

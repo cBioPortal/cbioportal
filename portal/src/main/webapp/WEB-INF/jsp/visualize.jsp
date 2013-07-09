@@ -17,7 +17,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cbio.cgds.model.Survival" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
@@ -40,15 +40,38 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 
+    /**
+     * Put together global parameters for injection as javascript variables
+     *
+     */
+    // put geneticProfileIds into the proper form for the JSON request
+    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+    geneticProfiles = geneticProfiles.trim();
+
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+
+    // get cases
+    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    cases = StringEscapeUtils.escapeJavaScript(cases);
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    %>
+
+<script type="text/javascript">
+    window.cases = '<%= cases %>';
+    window.case_ids_key = '<%= caseIdsKey %>';
+    window.gene_list = '<%=geneList%>';
+    window.genetic_profiles = '<%=geneticProfiles%>';
+</script>
+
+<%
 
     boolean showIGVtab = false;
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
@@ -93,11 +116,16 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
+    ArrayList <Survival> survivalList = (ArrayList<Survival>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
+    boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
+    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0; 
+    boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
+    boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
+	
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
@@ -171,34 +199,7 @@
              });
              </script>
 
-            <%
-                /**
-                 * Put together parameters for an AJAX call to GeneAlterations.json
-                 *
-                 */
-
-                // put geneticProfileIds into the proper form for the JSON request
-                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-                geneticProfiles = geneticProfiles.trim();
-
-                // put gene string into a form that javascript can swallow
-                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-                genes = StringEscapeUtils.escapeJavaScript(genes);
-//                genes = genes.replace("\n", " ");
-
-                // get cases
-                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-                samples = StringEscapeUtils.escapeJavaScript(samples);
-            %>
-
 <script type="text/javascript" src="js/MemoSort.js"></script>
-<script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
-</script>
-
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
@@ -269,11 +270,13 @@
                         out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                         + "Mutual Exclusivity</a></li>");
                     }
+			
+			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
+	
+			}
 
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
-                        + "Plots</a></li>");
-
-                    if (showMutTab){
+                         if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
@@ -284,7 +287,7 @@
                         + "Protein Changes</a></li>");
                     }
 
-                    if (clinicalDataList != null && clinicalDataList.size() > 0) {
+                    if (survivalList != null && survivalList.size() > 0) {
                         out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
@@ -345,16 +348,16 @@
             <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
-
-
-            <%@ include file="plots_tab.jsp" %>
-
+		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+            			
+				<%@ include file="plots_tab.jsp" %>
+		<%}%>
             <% if (showIGVtab) { %>
               <%@ include file="igv.jsp" %>
             <% } %>
                     
             <%
-                if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
+                if (survivalList != null && survivalList.size() > 0) { %>
                     <%@ include file="clinical_tab.jsp" %>
             <%    }
             %>

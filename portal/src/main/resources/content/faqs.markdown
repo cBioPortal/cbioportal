@@ -85,14 +85,14 @@ algorithms.  Both algorithms attempt to identify significantly altered regions o
 
 These levels are derived from the copy-number analysis algorithms GISTIC or RAE, and indicate the copy-number level per gene. "-2" is a deep loss, possibly a homozygous deletion, "-1" is a single-copy loss (heterozygous deletion), "0" is diploid, "1" indicates a low-level gain, and "2" is a high-level amplification. Note that these calls are putative.
 
-# How do I analyze my own data sets in the cBio Portal?
+# What are the sources of biological network data?
 
-Currently, we do not support uploading of user data sets into the cBio Portal.  However, the cBio Portal is open source software and you may want to consider deploying your own local instance of the cBio portal.  This may require some assistance from a system administrator.  To ease installation, we have also created a [Amazon Machine Image (AMI) for rapid deployment to Amazon Web Services](http://code.google.com/p/cbio-cancer-genomics-portal/wiki/AmazonEc2AMI).  A complete set of administration documents are available on our [wiki](http://code.google.com/p/cbio-cancer-genomics-portal/w/list)
-
-# Is the cBio Portal open source?
-
-Yes.  The cBio Portal is available under a [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html).  You can download our code and sample data sets at [Google code](http://code.google.com/p/cbio-cancer-genomics-portal/).  If you are interested in contributing, please contact us directly.
+The sources of biological network data are listed <a href="networks.jsp">here</a>.
 
 # How do I get updates on new portal developments and new data sets?
 
-The best option is to follow us on [Twitter](https://twitter.com/cbioportal).  We tweet each time we add a new feature or a new data set.
+Please subscribe to our low-traffic [news mailing list](http://groups.google.com/group/cbioportal-news) or follow us on [Twitter](https://twitter.com/cbioportal).
+
+# What if I have other questions / comments?
+
+Please contact us at [cbioportal@googlegroups.com](mailto:cbioportal@googlegroups.com). Previous discussions about cBioPortal are available on the [user discussion mailing list](http://groups.google.com/group/cbioportal).

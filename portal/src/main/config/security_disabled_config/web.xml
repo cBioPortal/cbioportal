@@ -235,6 +235,16 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -384,6 +394,16 @@
         <servlet-name>GeneDataJSON</servlet-name>
         <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <url-pattern>/clinicalAttributes.json</url-pattern>
+    </servlet-mapping>
     
      <!-- tumor map -->
     <servlet>
@@ -434,6 +454,16 @@
     <servlet-mapping>
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.svgConverter</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <url-pattern>/svgtopdf.do</url-pattern>
     </servlet-mapping>
     
     <servlet>

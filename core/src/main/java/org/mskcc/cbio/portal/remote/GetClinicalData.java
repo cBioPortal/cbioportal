@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.portal.remote;
 
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.dao.DaoSurvival;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Survival;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,15 +44,15 @@ public class GetClinicalData {
      * Gets clinical data for specified cases.
      *
      * @param setOfCaseIds Case IDs.
-     * @return an ArrayList of ClinicalData Objects
+     * @return an ArrayList of Survival Objects
      * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
      */
-    public static ArrayList<ClinicalData> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
+    public static ArrayList<Survival> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
         if (setOfCaseIds != null && setOfCaseIds.size() > 0) {
-            DaoClinicalData daoClinicalData = new DaoClinicalData();
-            return daoClinicalData.getCases(cancerStudyId, setOfCaseIds);
+            DaoSurvival daoSurvival = new DaoSurvival();
+            return daoSurvival.getCases(cancerStudyId, setOfCaseIds);
         } else {
-            return new ArrayList<ClinicalData>();
+            return new ArrayList<Survival>();
         }
     }
 }

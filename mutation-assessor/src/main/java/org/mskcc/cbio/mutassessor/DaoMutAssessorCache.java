@@ -78,7 +78,7 @@ public class DaoMutAssessorCache
 			pstmt = con.prepareStatement
 					("INSERT INTO mutation_assessor_cache (`CACHE_KEY`, `PREDICTED_IMPACT`," +
 					 " `FUNC_IMPACT_SCORE`, `PROTEIN_CHANGE`," +
-					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?)");
+					 " `STRUCTURE_LINK`, `ALIGNMENT_LINK`) VALUES (?,?,?,?,?,?)");
 
 			pstmt.setString(1, record.getKey());
 			pstmt.setString(2, record.getImpact());

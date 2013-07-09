@@ -42,19 +42,20 @@
 
 <!-- for genomic data post request -->
 <script type="text/javascript" src="js/oncoprint.js"></script>
-<script type="text/javascript" src="js/d3.v2.min.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>
 
 <script type="text/javascript">
 
 			var genomicData = {};
 			// Send genomic data query again
 		    var geneDataQuery = {
+                cancer_study_id: "<%=cancerTypeId%>",
 		        genes: genes,
-		        samples: samples,
 		        geneticProfileIds: geneticProfiles,
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
+            geneDataQuery = injectCaseSet(geneDataQuery);
 	
 		    $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
 				genomicData = data;
@@ -110,7 +111,7 @@
                     function(graphml){
                         if (typeof graphml !== "string") {
                             if (window.ActiveXObject) { // IE 
-                                    graphml = graphml.xml; 
+                                    graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } else { // Other browsers 
                                     graphml = (new XMLSerializer()).serializeToString(graphml); 
                             } 

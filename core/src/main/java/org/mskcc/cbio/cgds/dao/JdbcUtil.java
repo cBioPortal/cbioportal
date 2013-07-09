@@ -185,6 +185,25 @@ public class JdbcUtil {
     }
 
     /**
+     * Why does closeAll need a PreparedStatement?
+     * This is a copy of closeAll without the PreparedStatement
+     * @param clazz
+     * @param con
+     * @param rs
+     */
+    public static void closeAll(Class clazz, Connection con, ResultSet rs) {
+        String requester = clazz.getName();
+        closeConnection(requester, con);
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * Gets the SQL string statement associated with a PreparedStatement.
      * <p/>
      * This method compensates for a bug in the DBCP Code.  DBCP wraps an

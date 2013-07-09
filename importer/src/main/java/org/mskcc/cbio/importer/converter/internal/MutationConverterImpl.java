@@ -116,10 +116,11 @@ public class MutationConverterImpl implements Converter {
 	 *
 	 * @param portal String
 	 * @param excludeDatatypes Set<String>
+	 * @param applyCaseLists boolean
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+	public void applyOverrides(String portal, Set<String> excludeDatatypes, boolean applyCaseLists) throws Exception {
 		throw new UnsupportedOperationException();
     }
 
@@ -155,7 +156,7 @@ public class MutationConverterImpl implements Converter {
 		String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 		File overrideFile = fileUtils.getOverrideFile(portalMetadata, cancerStudyMetadata, stagingFilename);
 		// if we have an override file, just copy it over to the staging area - unless this is public portal
-		if (!portalMetadata.getName().contains("public") && overrideFile != null) {
+		if (!portalMetadata.getName().equals(PortalMetadata.PUBLIC_PORTAL) && overrideFile != null) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
 						 overrideFile.getPath());

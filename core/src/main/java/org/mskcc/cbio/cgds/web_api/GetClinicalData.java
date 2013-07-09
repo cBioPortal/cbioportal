@@ -28,10 +28,16 @@
 package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.cgds.model.Survival;
 import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
 
 /**
@@ -50,15 +56,15 @@ public class GetClinicalData {
      */
     public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
-        DaoClinicalData daoClinical = new DaoClinicalData();
+        DaoSurvival daoClinical = new DaoSurvival();
         DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-        
-        List<ClinicalData> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
-        Map<String,ClinicalData> mapClinicalData = new HashMap<String,ClinicalData>();
-        for (ClinicalData cd : caseSurvivalList) {
+
+        List<Survival> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
+        Map<String,Survival> mapClinicalData = new HashMap<String,Survival>();
+        for (Survival cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);
         }
-        
+
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
         Set<String> freeFormParams = Collections.emptySet();
         if (includeFreeFormData) {
@@ -92,31 +98,193 @@ public class GetClinicalData {
             for (String caseId : caseIdList) {
                 buf.append(caseId);
                 if (!caseSurvivalList.isEmpty()) {
-                    ClinicalData cd = mapClinicalData.get(caseId);
+                    Survival cd = mapClinicalData.get(caseId);
                     append(buf, cd==null ? null : cd.getOverallSurvivalMonths());
                     append(buf, cd==null ? null : cd.getOverallSurvivalStatus());
                     append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalMonths());
                     append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalStatus());
                     append(buf, cd==null ? null : cd.getAgeAtDiagnosis());
                 }
-                
+
                 Map<String,String> cff = mapClinicalFreeForms.get(caseId);
                 for (String param : freeFormParams) {
                     append(buf, cff==null ? null : cff.get(param));
                 }
-                
+
                 buf.append('\n');
             }
             return buf.toString();
         } else {
-            buf.append("Error:  No clinical data available for the case set or " 
+            buf.append("Error:  No clinical data available for the case set or "
                     + "case lists specified.  Number of cases:  ")
                     .append(caseIdList.size()).append("\n");
             return buf.toString();
         }
     }
-    
+
     private static void append(StringBuilder buf, Object o) {
         buf.append(TAB).append(o==null ? NA : o);
+    }
+
+    /**
+     * takes an object (Clinical or ClinicalAttribute) and
+     * converts it to a map (JSONObject)
+     *
+     * @param clinical
+     * @return
+     */
+    public static JSONObject reflectToMap(Clinical clinical) {
+        JSONObject map = new JSONObject();
+
+        map.put("attr_id", clinical.getAttrId());
+        map.put("attr_val", clinical.getAttrVal());
+        //TODO: at some point we may want to incorporate the cancer_study_id
+//        map.put("cancer_study_id", Integer.toString(clinical.getCancerStudyId()));
+        map.put("sample", clinical.getCaseId());
+
+        return map;
+    }
+
+    public static JSONObject reflectToMap(ClinicalAttribute clinicalAttribute) {
+        JSONObject map = new JSONObject();
+
+        map.put("attr_id", clinicalAttribute.getAttrId());
+        map.put("datatype", clinicalAttribute.getDatatype());
+        map.put("description", clinicalAttribute.getDescription());
+        map.put("display_name", clinicalAttribute.getDisplayName());
+
+        return map;
+    }
+
+    public static JSONArray clinicals2JSONArray(List<Clinical> clinicals) {
+        JSONArray toReturn = new JSONArray();
+        for (Clinical c : clinicals) {
+            toReturn.add(reflectToMap(c));
+        }
+        return toReturn;
+    }
+
+    /**
+     * Returns a single row the database
+     *
+     * @param cancerStudyId
+     * @param caseId
+     * @param attrId
+     */
+    public static JSONObject getJsonDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
+        return reflectToMap(DaoClinical.getDatum(cancerStudyId, caseId, attrId));
+    }
+
+    public static String getTxtDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
+        Clinical c = DaoClinical.getDatum(cancerStudyId, caseId, attrId);
+
+        return "" + c.getCaseId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
+    }
+
+    /**
+     * Creates a json object with data and attributes fields that correspond to the data
+     * in the clinicals and the set of attributes that exist in the clinicals
+     * @param clinicals
+     * @return
+     * @throws DaoException
+     */
+    public static JSONObject generateJson(List<Clinical> clinicals) throws DaoException {
+        Set<JSONObject> attrs = new HashSet<JSONObject>();
+        JSONObject toReturn = new JSONObject();
+        JSONArray data = new JSONArray();
+
+        for (Clinical c : clinicals) {
+//            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
+            data.add(reflectToMap(c));
+            ClinicalAttribute attr = DaoClinicalAttribute.getDatum(c.getAttrId());
+            attrs.add(reflectToMap(attr));
+//            }
+        }
+
+        Iterator<JSONObject> attrsIt = attrs.iterator();
+        JSONArray attributes = new JSONArray();
+        while (attrsIt.hasNext()) {
+            attributes.add(attrsIt.next());
+        }
+
+        toReturn.put("data", data);
+        toReturn.put("attributes", attributes);
+
+        return toReturn;
+    }
+    /**
+     *
+     * @param cancerStudyId
+     * @return An object with 2 fields:
+     * -- data: array of object literals corresponding to rows in the database
+     * -- attributes: array of clinical attribute metadatas (object literals) that appear in the data
+     * @throws DaoException
+     */
+    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
+        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+
+        return generateJson(clinicals);
+    }
+
+    public static JSONObject getJSON(String cancerStudyId, List<String> caseIds, String attrId) throws DaoException {
+
+        ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
+        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds, attr);
+
+        return generateJson(clinicals);
+    }
+
+    /**
+     * Takes a list of clinicals and turns them into a tab-delimited, new-line ended string.
+     *
+     * invariants : 1. they all must have the same caseId
+     *              2. no repeats
+     *
+     * @param clinicals
+     * @return
+     */
+    public static String makeRow(List<Clinical> clinicals) {
+        // TODO: this needs to be sorted
+
+        String row = clinicals.get(0).getCaseId();
+
+
+        for (Clinical c : clinicals) {
+            row = row + "\t" + c.getAttrVal();
+        }
+
+        return row + "\n";
+    }
+
+    public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
+        List<Clinical> allClinicals = DaoClinical.getData(cancerStudyId, caseIds);
+
+        HashMap<String, List<Clinical>> caseId2Clinical = new HashMap<String, List<Clinical>>();
+        for (Clinical c : allClinicals) {
+            List<Clinical> got = caseId2Clinical.get(c.getCaseId());
+
+            if (got == null) {
+                got = new ArrayList<Clinical>();
+                got.add(c);
+                caseId2Clinical.put(c.getCaseId(), got);
+            } else {
+                got.add(c);
+            }
+        }
+
+        // make header, is order preserved across all rows?
+        List<Clinical> aClinical = caseId2Clinical.values().iterator().next();
+        List<String> headers = new ArrayList<String>();
+        for (Clinical c : aClinical) {
+            headers.add(c.getAttrId().toLowerCase());
+        }
+
+        String txt = "case_id\t" + Joiner.on("\t").join(headers) + "\n";      // start out with just a header
+
+        for (List<Clinical> clinicals : caseId2Clinical.values()) {
+            txt += makeRow(clinicals);
+        }
+
+        return txt;
     }
 }

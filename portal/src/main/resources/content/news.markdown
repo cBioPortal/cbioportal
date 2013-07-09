@@ -1,3 +1,17 @@
+# June 17, 2013
+
+* Improved interface for correlation plots, including information on individual samples via mouse-over.
+* Gene Details from Biogene are now available in the Network view.
+* Added a new study on Adenoid Cystic Carcinoma from MSKCC: Ho et al., Nature Genetics 2013.
+
+# June 4, 2013
+
+* All TCGA data updated to the April Firehose run (April 21, 2012).
+
+# May 14, 2013
+
+* Added a published TCGA study: Acute Myeloid Leukemia (TCGA, NEJM 2013).
+
 # April 28, 2013
 
 * All TCGA data updated to the March Firehose run (March 26, 2012).

@@ -26,9 +26,38 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
+import au.com.bytecode.opencsv.CSVReader;
+import com.google.common.collect.ImmutableMap;
 import junit.framework.TestCase;
 
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.List;
+
 public class TestEchoFile extends TestCase {
+
+    public void testProcessStagingCsv() {
+
+        String testString = "Hugo_Symbol\tEntrez_Gene_Id\tTCGA-BL-A0C8\tTCGA-BL-A13I\tTCGA-BL-A13J\n" +
+                "ACAP3\t116983\t-1\t0\t0\n";
+
+        Reader testReader = new StringReader(testString);
+
+        List<ImmutableMap<String, String>> data = null;
+        try {
+            data = EchoFile.processStagingCsv(new CSVReader(testReader, '\t'));
+        } catch (IOException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+
+        assertEquals(
+                data.get(0),
+                ImmutableMap.of("sample_id", "TCGA-BL-A0CB", "hugo", "ACAP3", "value", "-1")
+        );
+
+        assertTrue(data.size() == 3);
+    }
 
     public void testGene2cna() {
 

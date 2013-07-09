@@ -26,10 +26,13 @@
  */
 package org.mskcc.cbio.portal.servlet;
 
+import au.com.bytecode.opencsv.CSVReader;
+import com.google.common.collect.ImmutableMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.ArrayUtils;
 import org.owasp.validator.html.PolicyException;
 import sun.misc.IOUtils;
 
@@ -60,6 +63,38 @@ public class EchoFile extends HttpServlet {
         }
     }
 
+    /**
+     *
+     * Takes a csv reader of the staging file format:
+     * 1st line is Hugo_Symbol	Entrez_Gene_Id  sample_id_1	sample_id_2	...
+     * data follows matching this header
+     *
+     * @param reader CSVReader
+     * @return
+     */
+    public static List<ImmutableMap<String, String>> processStagingCsv(CSVReader reader) throws IOException {
+
+        String[] header = reader.readNext();
+
+        String hugo = header[0];
+        String entrez = header[1];
+
+        // validation
+        if  ( !(hugo && header[1].equals("Entrez_Gene_Id")) ) {
+            throw new IOException("validation error, missing column header(s) Hugo_Symbol or Entrez_Gene_Id");
+        }
+
+        String[] sampleIds = (String[]) ArrayUtils.subarray(header, 2, header.length);
+
+        ArrayList<ImmutableMap<String, String>> data = new ArrayList<ImmutableMap<String, String>>();
+
+        data.add(
+                ImmutableMap.of("sample_id", "TCGA-BL-A0CB", "hugo", "ACAP3", "value", "-1")
+        );
+
+        return data;
+    };
+
     public Map<String, Map<String, String>> processCnaString(String cnaData) {
 
         Map<String, Map<String, String>> sample2gene2cna = new HashMap<String, Map<String, String>>();
@@ -73,7 +108,7 @@ public class EchoFile extends HttpServlet {
             String hugo = values.get(0);
             String entrez = values.get(1);
 
-            gene2cnaData.put(hugo, values.subList(2, values.size()));
+            //gene2cnaData.put(hugo, values.subList(2, values.size()));
         }
 
         return sample2gene2cna;
@@ -81,6 +116,7 @@ public class EchoFile extends HttpServlet {
 
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
+
         try {
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
@@ -103,6 +139,8 @@ public class EchoFile extends HttpServlet {
             }
 
             InputStream content = items.get(0).getInputStream();        // this might be bad
+
+            new CSVReader( new InputStreamReader(content) );
 
             java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
             Writer writer = response.getWriter();

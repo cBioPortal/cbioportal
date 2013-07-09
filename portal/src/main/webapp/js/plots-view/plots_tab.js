@@ -328,49 +328,49 @@ var PlotsView = (function () {
                 symbol : "triangle-down",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
-                legendText : "frameshift"
+                legendText : "Frameshift"
             },
             nonsense : {
                 symbol : "diamond",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
-                legendText : "nonsense"
+                legendText : "Nonsense"
             },
             splice : {
                 symbol : "triangle-up",
                 fill : "#A4A4A4",
                 stroke : "#B40404",
-                legendText : "splice"
+                legendText : "Splice"
             },
             in_frame : {
                 symbol : "square",
                 fill : "#DF7401",
                 stroke : "#B40404",
-                legendText : "in_frame"
+                legendText : "In_frame"
             },
             nonstart : {
                 symbol : "cross",
                 fill : "#DF7401",
                 stroke : "#B40404",
-                legendText : "nonstart"
+                legendText : "Nonstart"
             },
             nonstop : {
                 symbol : "triangle-up",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
-                legendText : "nonstop"
+                legendText : "Nonstop"
             },
             missense : {
                 symbol : "circle",
                 fill : "#DF7401",
                 stroke : "#B40404",
-                legendText : "missense"
+                legendText : "Missense"
             },
             non : {
                 symbol : "circle",
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                legendText : "none"
+                legendText : "No mutation"
             }
         },
         gisticStyle = {
@@ -1391,17 +1391,24 @@ var PlotsView = (function () {
             //Only show glyphs whose mutation type
             //appeared in the current individual case
             var _appearedMutationTypes = [];
+            _appearedMutationTypes.length = 0;
             $.each(tmpDataSet, function(index, value) {
                 _appearedMutationTypes.push(value.mutationType);
             });
 
             //Convert object to array
             var mutationStyleArr = [];
+            mutationStyleArr.length = 0;
             for (var key in mutationStyle) {
                 var obj = mutationStyle[key];
                 if (_appearedMutationTypes.indexOf(key) !== -1) {
                     mutationStyleArr.push(obj);
                 }
+            }
+            //If only contain non mutation cases, remove the glyphs completely
+            if (mutationStyleArr.length === 1 &&
+                mutationStyleArr[0].legendText === mutationStyle["non"].legendText) {
+                mutationStyleArr.length = 0;
             }
 
             var legend = elem.svg.selectAll(".legend")

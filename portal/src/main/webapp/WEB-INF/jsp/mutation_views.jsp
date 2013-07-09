@@ -62,12 +62,10 @@
 			</span>
 		</td>
 		<td>
-			<label class='{{cosmicClass}}' alt='{{cosmic}}'>
-				<b>{{cosmicCount}}</b>
-			</label>
+			<label class='{{cosmicClass}}' alt='{{cosmic}}'><b>{{cosmicCount}}</b></label>
 		</td>
 		<td>
-			<span class='oma_link {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
+			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
 				<label>{{fisText}}</label>
 			</span>
 		</td>
@@ -98,127 +96,67 @@
 		<td>{{sequencingCenter}}</td>
 		<td>{{chr}}</td>
 		<td>
-			<label class='{{startPosClass}}'>
-				{{startPos}}
-			</label>
+			<label class='{{startPosClass}}'>{{startPos}}</label>
 		</td>
 		<td>
-			<label class='{{endPosClass}}'>
-				{{endPos}}
-			</label>
+			<label class='{{endPosClass}}'>{{endPos}}</label>
 		</td>
 		<td>{{referenceAllele}}</td>
 		<td>{{variantAllele}}</td>
 		<td>
-			<label class='{{tumorFreqClass}} {{tumorFreqTipClass}}'
-			       alt='<b>{{tumorAltCount}}</b> variant reads out of <b>" + {{tumorTotalCount}}</b> total'>
-				{{tumorFreq}}
-			</label>
+			<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>" {{tumorTotalCount}}</b> total'
+			       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
 		</td>
 		<td>
-			<label class='{{tumorAltCountClass}}'>
-				{{tumorAltCount}}
-			</label>
+			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
 		</td>
 		<td>
-			<label class='{{tumorRefCountClass}}'>
-				{{tumorRefCount}}
-			</label>
+			<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
 		</td>
 		<td>
-			<label class='{{normalFreqClass}} {{normalFreqTipClass}}'
-			       alt='<b>{{normalAltCount}}</b> variant reads out of <b>" + {{normalTotalCount}}</b> total'>
-				{{normalFreq}}
-			</label>
+			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>" {{normalTotalCount}}</b> total'
+			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
 		</td>
 		<td>
-			<label class='{{normalAltCountClass}}'>
-				{{normalAltCount}}
-			</label>
+			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
 		</td>
 		<td>
-			<label class='{{normalRefCountClass}}'>
-				{{normalRefCount}}
-			</label>
+			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
 		</td>
 		<td>
-			<label class='{{mutationCountClass}}'>
-				{{mutationCount}}
-			</label>
+			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
 		</td>
 	</tr>
 </script>
 
 <script type="text/template" id="mutation_details_table_header_row">
-	<th alt='Case ID' class='mutation-table-header'>
-		Case ID
-	</th>
-	<th alt='Protein Change' class='mutation-table-header'>
-		AA Change
-	</th>
-	<th alt='Mutation Type' class='mutation-table-header'>
-		Type
-	</th>
-	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>
-		COSMIC
-	</th>
-	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations' class='mutation-table-header'>
-		FIS
-	</th>
-	<th alt='Conservation' class='mutation-table-header'>
-		Cons
-	</th>
-	<th alt='3D Structure' class='mutation-table-header'>
-		3D
-	</th>
-	<th alt='Mutation Status' class='mutation-table-header'>
-		MS
-	</th>
-	<th alt='Validation Status' class='mutation-table-header'>
-		VS
-	</th>
-	<th alt='Sequencing Center' class='mutation-table-header'>
-		Center
-	</th>
-	<!--th alt='NCBI Build Number' class='mutation-table-header'>
-		Build
-	</th-->
-	<th alt='Chromosome' class='mutation-table-header'>
-		Chr
-	</th>
-	<th alt='Start Position' class='mutation-table-header'>
-		Start Pos
-	</th>
-	<th alt='End Position' class='mutation-table-header'>
-		End Pos
-	</th>
-	<th alt='Reference Allele' class='mutation-table-header'>
-		Ref
-	</th>
-	<th alt='Variant Allele' class='mutation-table-header'>
-		Var
-	</th>
-	<th alt='Variant allele frequency<br> in the tumor sample' class='mutation-table-header'>
-		Allele Freq (T)
-	</th>
-	<th alt='Variant allele frequency<br> in the normal sample' class='mutation-table-header'>
-		Allele Freq (N)
-	</th>
-	<th alt='Variant Ref Count' class='mutation-table-header'>
-		Var Ref
-	</th>
-	<th alt='Variant Alt Count' class='mutation-table-header'>
-		Var Alt
-	</th>
-	<th alt='Normal Ref Count' class='mutation-table-header'>
-		Norm Ref
-	</th>
-	<th alt='Normal Alt Count' class='mutation-table-header'>
-		Norm Alt
-	</th>
-	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample' class='mutation-table-header'>
-		#Mut in Sample
-	</th>
+	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
+	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
+	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
+	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
+	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
+	    class='mutation-table-header'>FIS</th>
+	<th alt='Conservation' class='mutation-table-header'>Cons</th>
+	<th alt='3D Structure' class='mutation-table-header'>3D</th>
+	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
+	<th alt='Validation Status' class='mutation-table-header'>VS</th>
+	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
+	<!--th alt='NCBI Build Number' class='mutation-table-header'>Build</th-->
+	<th alt='Chromosome' class='mutation-table-header'>Chr</th>
+	<th alt='Start Position' class='mutation-table-header'>Start Pos</th>
+	<th alt='End Position' class='mutation-table-header'>End Pos</th>
+	<th alt='Reference Allele' class='mutation-table-header'>Ref</th>
+	<th alt='Variant Allele' class='mutation-table-header'>Var</th>
+	<th alt='Variant allele frequency<br> in the tumor sample'
+	    class='mutation-table-header'>Allele Freq (T)</th>
+	<th alt='Variant allele frequency<br> in the normal sample'
+	    class='mutation-table-header'>Allele Freq (N)</th>
+	<th alt='Variant Ref Count' class='mutation-table-header'>Var Ref</th>
+	<th alt='Variant Alt Count' class='mutation-table-header'>Var Alt</th>
+	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
+	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
+	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
+	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
 
 <script type="text/javascript">
@@ -521,6 +459,14 @@
 		}
 	});
 
+	/**
+	 * Default table view for the mutations.
+	 *
+	 * options: {el: [target container],
+	 *           model: {mutations: [mutation data as an array of JSON objects],
+	 *                   geneSymbol: [hugo gene symbol as a string]}
+	 *          }
+	 */
 	var MutationDetailsTableView = Backbone.View.extend({
 		render: function()
 		{
@@ -558,6 +504,15 @@
 
 			self.format();
 		},
+		/**
+		 * Extract & generates data required to visualize a single row of the table.
+		 * The data returned by this function can be used to compile a mutation data
+		 * table row template.
+		 *
+		 * @param mutation  a MutationModel instance
+		 * @return {object} template variables as a single object
+		 * @private
+		 */
 		_getDataRowVars: function(mutation)
 		{
 			var self = this;
@@ -638,7 +593,8 @@
 			vars.cosmic = cosmic.value;
 
 			var fis = self._getFis(omaScoreMap, mutation.functionalImpactScore, mutation.fisValue);
-			vars.fisClass = fis.style;
+			vars.fisClass = fis.fisClass;
+			vars.omaClass = fis.omaClass;
 			vars.fisValue = fis.value;
 			vars.fisText = fis.text;
 
@@ -710,6 +666,9 @@
 
 			return vars;
 		},
+		/**
+		 * Formats the contents of the view after the initial rendering.
+		 */
 		format: function()
 		{
 			var self = this;
@@ -718,7 +677,24 @@
 			self.$el.find('a[href=""]').remove();
 
 			// TODO format with datatables plugin
+
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			var tableUtil = new MutationTableUtil(tableSelector,
+				self.model.geneSymbol,
+				self.model.mutations);
+
+			tableUtil.formatTable();
 		},
+        /**
+         * Returns the text content and the css class for the given
+         * mutation type value.
+         *
+         * @param map   map of <mutationType, {label, style}>
+         * @param value actual string value of the mutation type
+         * @return {{style: string, text: string}}
+         * @private
+         */
 		_getMutationType: function(map, value)
 		{
 			var style, text;
@@ -737,6 +713,15 @@
 
 			return {style: style, text: text};
 		},
+		/**
+         * Returns the text content, the css class, and the tooltip
+		 * for the given mutation type value.
+         *
+         * @param map   map of <mutationStatus, {label, style, tooltip}>
+         * @param value actual string value of the mutation status
+         * @return {{style: string, text: string, tip: string}}
+         * @private
+         */
 		_getMutationStatus: function(map, value)
 		{
 			var style = "simple-tip";
@@ -753,6 +738,15 @@
 
 			return {style: style, tip: tip, text: text};
 		},
+		/**
+		 * Returns the text content, the css class, and the tooltip
+		 * for the given validation status value.
+		 *
+		 * @param map   map of <validationStatus, {label, style, tooltip}>
+		 * @param value actual string value of the validation status
+		 * @return {{style: string, text: string, tip: string}}
+		 * @private
+		 */
 		_getValidationStatus: function(map, value)
 		{
 			var style, label, tip;
@@ -773,10 +767,22 @@
 
 			return {style: style, tip: tip, text: label};
 		},
+		/**
+		 * Returns the text content, the css classes, and the tooltip
+		 * for the given string and numerical values of a
+		 * functional impact score.
+		 *
+		 * @param map       map of <FIS, {label, style, tooltip}>
+		 * @param fis       string value of the functional impact (h, l, m or n)
+		 * @param fisValue  numerical value of the functional impact score
+		 * @return {{fisClass: string, omaClass: string, value: string, text: string}}
+		 * @private
+		 */
 		_getFis: function(map, fis, fisValue)
 		{
 			var text = "";
-			var style = "";
+			var fisClass = "";
+			var omaClass = "";
 			var value = "";
 			fis = fis.toLowerCase();
 
@@ -790,11 +796,23 @@
 				}
 
 				text = map[fis].label;
-				style = map[fis].style;
+				fisClass = map[fis].style;
+				omaClass = "oma_link";
 			}
 
-			return {style: style, value: value, text: text};
+			return {fisClass: fisClass, omaClass: omaClass, value: value, text: text};
 		},
+		/**
+		 * Returns the text content, the css classes, and the total
+		 * allele count for the given allele frequency.
+		 *
+		 * @param frequency allele frequency
+		 * @param alt       alt allele count
+		 * @param ref       ref allele count
+		 * @param tipClass  css class for the tooltip
+		 * @return {{text: string, total: number, style: string, tipClass: string}}
+		 * @private
+		 */
 		_getAlleleFreq: function(frequency, alt, ref, tipClass)
 		{
 			var text = "NA";
@@ -832,6 +850,15 @@
 				style : style,
 				tip: tip};
 		},
+		/**
+		 * Returns the css class, count, and string value
+		 * for the given cosmic value.
+		 *
+		 * @param value cosmic value
+		 * @param count number of occurrences
+		 * @return {{value: string, style: string, count: string}}
+		 * @private
+		 */
 		_getCosmic: function(value, count)
 		{
 			var style = "";
@@ -849,6 +876,13 @@
 				style: style,
 				count: text};
 	    },
+		/**
+		 * Returns the text and css class values for the given integer value.
+		 *
+		 * @param value an integer value
+		 * @return {{text: *, style: string}}
+		 * @private
+		 */
 		_getIntValue: function(value)
 		{
 			var text = value;
@@ -862,6 +896,13 @@
 
 			return {text: text, style: style};
 		},
+		/**
+		 * Returns the text and css class values for the given allele count value.
+		 *
+		 * @param count an integer value
+		 * @return {{text: *, style: string}}
+		 * @private
+		 */
 		_getAlleleCount: function(count)
 		{
 			var text = count;

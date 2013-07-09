@@ -73,7 +73,7 @@ var MutationCollection = Backbone.Collection.extend({
  * @param mutations     MutationCollection (list of mutations)
  * @constructor
  */
-var MutationDetailsUtil = function (mutations)
+var MutationDetailsUtil = function(mutations)
 {
 	this.GERMLINE = "germline"; // germline mutation constant
 
@@ -232,6 +232,36 @@ var MutationDetailsUtil = function (mutations)
 			numSomatic: numSomatic,
 			numGermline: numGermline};
 	};
+
+	/**
+	 * Checks if there is a germline mutation for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsGermline = function(gene)
+	{
+		var self = this;
+		var contains = false;
+
+		gene = gene.toLowerCase();
+
+		if (self._mutationGeneMap[gene] != undefined)
+		{
+			var mutations = self._mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].mutationStatus.toLowerCase() == self.GERMLINE)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
 
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);

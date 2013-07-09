@@ -103,18 +103,10 @@ var PlotsMenu = (function () {
             });
         }
 
-        function isEmpty(inputVal) {
-            if (inputVal !== "NaN" && inputVal !== "NA") {
-                return false;
-            }
-            return true;
-        }
-
         return {
             appendDropDown: appendDropDown,
             toggleVisibility: toggleVisibility,
             generateList: generateList,
-            isEmpty: isEmpty
         };
 
     }());
@@ -378,7 +370,7 @@ var PlotsView = (function () {
                 symbol : "circle",
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                legendText : "non"
+                legendText : "none"
             }
         },
         gisticStyle = {
@@ -436,6 +428,13 @@ var PlotsView = (function () {
         };   //Template for single dot
 
     var Util = (function() {
+
+        function isEmpty(inputVal) {
+            if (inputVal !== "NaN" && inputVal !== "NA") {
+                return false;
+            }
+            return true;
+        }
 
         function dataIsAvailable() {
             var xHasData = false;
@@ -602,7 +601,8 @@ var PlotsView = (function () {
             searchIndexTop: searchIndexTop,
             plotsTypeIsCopyNo: plotsTypeIsCopyNo,
             plotsTypeIsMethylation: plotsTypeIsMethylation,
-            plotsTypeIsRPPA: plotsTypeIsRPPA
+            plotsTypeIsRPPA: plotsTypeIsRPPA,
+            isEmpty: isEmpty
         };
 
     }());
@@ -773,22 +773,22 @@ var PlotsView = (function () {
                 tmpObj.mutationType = pData.mutation_type[i];
                 tmpObj.mutationDetail = pData.mutation_detail[i];
                 if (userSelection.plots_type.indexOf("copy_no") !== -1) { // mrna vs. copy_no
-                    if (!isEmpty(pData.copy_no[i]) &&
-                        !isEmpty(pData.mrna[i])) {
+                    if (!(Util.isEmpty(pData.copy_no[i])) &&
+                        !(Util.isEmpty(pData.mrna[i]))) {
                         tmpObj.xVal = pData.copy_no[i];
                         tmpObj.yVal = pData.mrna[i];
                         tmpDataSet.push(tmpObj);
                     }
                 } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
-                    if (!isEmpty(pData.dna_methylation[i]) &&
-                        !isEmpty(pData.mrna[i])) {
+                    if (!(Util.isEmpty(pData.dna_methylation[i])) &&
+                        !(Util.isEmpty(pData.mrna[i]))) {
                         tmpObj.xVal = pData.dna_methylation[i];
                         tmpObj.yVal = pData.mrna[i];
                         tmpDataSet.push(tmpObj);
                     }
                 } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
-                    if (!isEmpty(pData.rppa[i]) &&
-                        !isEmpty(pData.mrna[i])) {
+                    if (!(Util.isEmpty(pData.rppa[i])) &&
+                        !(Util.isEmpty(pData.mrna[i]))) {
                         tmpObj.xVal = pData.mrna[i];
                         tmpObj.yVal = pData.rppa[i];
                         tmpDataSet.push(tmpObj);
@@ -1220,7 +1220,9 @@ var PlotsView = (function () {
                 //Find the max/min y value with certain x value;
                 var index_tmp_y_data_array = 0;
                 for (var j = 0; j < yData.length; j++) {
-                    if (!isEmpty(yData[j]) && !isEmpty(xData[j]) && (xData[j] === i)) {
+                    if (!(Util.isEmpty(yData[j])) &&
+                        !(Util.isEmpty(xData[j])) &&
+                        (xData[j] === i.toString())) {
                         tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
                         index_tmp_y_data_array += 1;
                     }

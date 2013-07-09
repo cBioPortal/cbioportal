@@ -211,7 +211,6 @@
 
         cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
 
-
         return xmlString;
     }
 

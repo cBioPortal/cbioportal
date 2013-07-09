@@ -201,8 +201,13 @@
     </servlet>
 
 	<servlet>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationTableDataServlet</servlet-class>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.SequenceServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>mutation_data_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
 	</servlet>
 
     <servlet>
@@ -261,8 +266,13 @@
     </servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<url-pattern>/mutation_table_data.json</url-pattern>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<url-pattern>/getPfamSequence.json</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mutation_data_json</servlet-name>
+		<url-pattern>/getMutationData.json</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>

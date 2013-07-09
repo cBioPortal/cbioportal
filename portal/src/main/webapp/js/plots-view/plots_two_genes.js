@@ -617,7 +617,7 @@ var PlotsTwoGenesView = (function(){
         $('#two_genes_view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'pdf');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='hidden' name='filename' value='plots.pdf'>" +
@@ -625,7 +625,7 @@ var PlotsTwoGenesView = (function(){
         $('#two_genes_view_title').append(pdfConverterForm);
 
         var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes', 'svg');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='hidden' name='filename' value='plots.svg'>" +

@@ -743,7 +743,7 @@ var PlotsCustomView = (function() {
 
         var pdfConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom', 'pdf');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='hidden' name='filename' value='plots.pdf'>" +
@@ -752,7 +752,7 @@ var PlotsCustomView = (function() {
 
         var svgConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom', 'svg');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom');\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='hidden' name='filename' value='plots.svg'>" +

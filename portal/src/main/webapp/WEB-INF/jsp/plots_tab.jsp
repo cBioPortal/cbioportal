@@ -193,18 +193,24 @@
 
     // Takes the content in the plots svg element
     // and returns XML serialized *string*
-    function loadSVG(eltId, format) {
-        var mySVG = document.getElementById(eltId);
-        var svgDoc = mySVG.getElementsByTagName("svg");
+    function loadSVG(eltId) {
+
+        var shiftValueOnX = 8;
+        var shiftValueOnY = 3;
+
+        var mySVG = d3.select("#" + eltId);
+        var xAxisGrp = mySVG.select(".plots-x-axis-class");
+        var yAxisGrp = mySVG.select(".plots-y-axis-class");
+
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+
+        var docSVG = document.getElementById(eltId);
+        var svgDoc = docSVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
 
-        //Quick fix for "axis text move up in pdf" bug.
-        //TODO: Modify the Betik library instead.
-        if (format === "pdf") {
-            xmlString = xmlString.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
-            xmlString = xmlString.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
-        }
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+
 
         return xmlString;
     }

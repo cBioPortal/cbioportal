@@ -388,7 +388,8 @@
                     + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
                     out.println("</div>");
                 } else if (showMutTab) { %>
-                    <%@ include file="mutation_details.jsp" %>
+	                <%@ include file="mutation_views.jsp" %>
+	                <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
             <%

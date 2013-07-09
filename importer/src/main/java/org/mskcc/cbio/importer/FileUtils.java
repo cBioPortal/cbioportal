@@ -219,6 +219,17 @@ public interface FileUtils {
 	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
 	/**
+	 * Method which writes a metadata file for
+	 * the given Datatype metadata instance.
+	 *
+	 * @param stagingDirectory  String
+	 * @param datatypeMetadata  DatatypeMetadata
+	 * @param numCases          int
+	 * @throws Exception
+	 */
+	void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata, int numCases) throws Exception;
+
+	/**
 	 * Method which writes a metadata file for the
 	 * given DatatypeMetadata.  DataMatrix may be null.
 	 *

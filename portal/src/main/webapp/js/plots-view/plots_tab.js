@@ -887,14 +887,14 @@ var PlotsView = (function () {
                 $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
             }
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box', 'pdf');\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='plots.pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
             var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box', 'svg');\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
                 "<input type='hidden' name='filename' value='plots.svg'>" +
@@ -1514,87 +1514,87 @@ var PlotsView = (function () {
 
             return {
                 init: function(viewType){
-                            elem.dotsGroup.selectAll("path").each(
-                                function(d) {
-                                    var content = confContent(viewType, d);
-                                    $(this).qtip(
-                                        {
-                                            content: {text: content},
-                                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                                            hide: { fixed:true, delay: 100},
-                                            position: {my:'left bottom',at:'top right'}
-                                        }
-                                    );
-                                    if (viewType === "CopyNo") {    //Handle special symbols
-                                        var mouseOn = function() {
-                                            var dot = d3.select(this);
-                                            dot.transition()
-                                                .ease("elastic")
-                                                .duration(600)
-                                                .delay(100)
-                                                .attr("d", d3.svg.symbol().size(200)
-                                                    .type(function(d){
-                                                        return mutationStyle[d.mutationType].symbol;
-                                                    })
-                                                )
-                                                .attr("fill", function(d){
-                                                    return mutationStyle[d.mutationType].fill;
-                                                })
-                                                .attr("stroke", function(d){
-                                                    return mutationStyle[d.mutationType].stroke;
-                                                })
-                                                .attr("stroke-width", 1.2);
-                                        };
-                                        var mouseOff = function() {
-                                            var dot = d3.select(this);
-                                            dot.transition()
-                                                .ease("elastic")
-                                                .duration(600)
-                                                .delay(100)
-                                                .attr("d", d3.svg.symbol()
-                                                    .size(function(d){
-                                                        switch (d.mutationType) {
-                                                            case "non" : return 15;
-                                                            default : return 25;
-                                                        }
-                                                    })
-                                                    .type(function(d){
-                                                        return mutationStyle[d.mutationType].symbol;
-                                                    })
-                                                )
-                                                .attr("fill", function(d){
-                                                    return mutationStyle[d.mutationType].fill;
-                                                })
-                                                .attr("stroke", function(d){
-                                                    return mutationStyle[d.mutationType].stroke;
-                                                })
-                                                .attr("stroke-width", 1.2);
-                                        };
-                                        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                                        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-                                    } else {
-                                        var mouseOn = function() {
-                                            var dot = d3.select(this);
-                                            dot.transition()
-                                                .ease("elastic")
-                                                .duration(600)
-                                                .delay(100)
-                                                .attr("d", d3.svg.symbol().size(200));
-                                        };
-                                        var mouseOff = function() {
-                                            var dot = d3.select(this);
-                                            dot.transition()
-                                                .ease("elastic")
-                                                .duration(600)
-                                                .delay(100)
-                                                .attr("d", d3.svg.symbol().size(35));
-                                        };
-                                        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-                                        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
-                                    }
+                    elem.dotsGroup.selectAll("path").each(
+                        function(d) {
+                            var content = confContent(viewType, d);
+                            $(this).qtip(
+                                {
+                                    content: {text: content},
+                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    hide: { fixed:true, delay: 100},
+                                    position: {my:'left bottom',at:'top right'}
                                 }
                             );
-                      }
+                            if (viewType === "CopyNo") {    //Handle special symbols
+                                var mouseOn = function() {
+                                    var dot = d3.select(this);
+                                    dot.transition()
+                                        .ease("elastic")
+                                        .duration(600)
+                                        .delay(100)
+                                        .attr("d", d3.svg.symbol().size(200)
+                                            .type(function(d){
+                                                return mutationStyle[d.mutationType].symbol;
+                                            })
+                                        )
+                                        .attr("fill", function(d){
+                                            return mutationStyle[d.mutationType].fill;
+                                        })
+                                        .attr("stroke", function(d){
+                                            return mutationStyle[d.mutationType].stroke;
+                                        })
+                                        .attr("stroke-width", 1.2);
+                                };
+                                var mouseOff = function() {
+                                    var dot = d3.select(this);
+                                    dot.transition()
+                                        .ease("elastic")
+                                        .duration(600)
+                                        .delay(100)
+                                        .attr("d", d3.svg.symbol()
+                                            .size(function(d){
+                                                switch (d.mutationType) {
+                                                    case "non" : return 15;
+                                                    default : return 25;
+                                                }
+                                            })
+                                            .type(function(d){
+                                                return mutationStyle[d.mutationType].symbol;
+                                            })
+                                        )
+                                        .attr("fill", function(d){
+                                            return mutationStyle[d.mutationType].fill;
+                                        })
+                                        .attr("stroke", function(d){
+                                            return mutationStyle[d.mutationType].stroke;
+                                        })
+                                        .attr("stroke-width", 1.2);
+                                };
+                                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                            } else {
+                                var mouseOn = function() {
+                                    var dot = d3.select(this);
+                                    dot.transition()
+                                        .ease("elastic")
+                                        .duration(600)
+                                        .delay(100)
+                                        .attr("d", d3.svg.symbol().size(200));
+                                };
+                                var mouseOff = function() {
+                                    var dot = d3.select(this);
+                                    dot.transition()
+                                        .ease("elastic")
+                                        .duration(600)
+                                        .delay(100)
+                                        .attr("d", d3.svg.symbol().size(35));
+                                };
+                                elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+                                elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+                            }
+                        }
+                    );
+                }
             };
 
         }());

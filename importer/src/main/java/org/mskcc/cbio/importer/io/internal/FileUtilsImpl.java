@@ -653,6 +653,55 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	/**
+	 * Method which writes a metadata file for
+	 * the given Datatype metadata instance.
+	 *
+	 * @param stagingDirectory  String
+	 * @param datatypeMetadata  DatatypeMetadata
+	 * @param numCases          int
+	 * @throws Exception
+	 */
+	public void writeMetadataFile(String stagingDirectory,
+			CancerStudyMetadata cancerStudyMetadata,
+			DatatypeMetadata datatypeMetadata,
+			int numCases) throws Exception
+	{
+		String filename = stagingDirectory + File.separator + datatypeMetadata.getMetaFilename();
+		File metaFile = new File(filename);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writeMetadataFile(), meta file: " + metaFile);
+		}
+
+		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
+		writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+		writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+		String stableID = datatypeMetadata.getMetaStableID();
+		stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		writer.print("stable_id: " + stableID + "\n");
+		writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
+		String profileDescription = datatypeMetadata.getMetaProfileDescription();
+
+		if (numCases < 0)
+		{
+			numCases = 0;
+		}
+
+		//profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
+		profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG,
+			Integer.toString(numCases));
+
+		profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG,
+			cancerStudyMetadata.getTumorType());
+
+		writer.print("profile_description: " + profileDescription + "\n");
+		writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
+
+		writer.flush();
+		writer.close();
+	}
+
+	/**
 	 * Method which writes a metadata file for the
 	 * given DatatypeMetadata.  DataMatrix may be null.
 	 *

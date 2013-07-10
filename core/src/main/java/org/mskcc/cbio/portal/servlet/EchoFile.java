@@ -232,7 +232,7 @@ public class EchoFile extends HttpServlet {
 
                 else {
                     // echo back the raw string
-                    InputStream content = items.get(0).getInputStream();        // this might be bad
+                    InputStream content = item.getInputStream();
                     java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
                     writer.write(s.hasNext() ? s.next() : "");
                 }

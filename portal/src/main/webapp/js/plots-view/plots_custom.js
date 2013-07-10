@@ -404,6 +404,7 @@ var PlotsCustomView = (function() {
             menu.geneX + " " + menu.geneY,
             menu.genetic_profile_id_x + " " + menu.genetic_profile_id_y + " " + cancer_study_id + "_mutations",
             case_set_id,
+            case_ids_key,
             getProfileDataCallBack
         );
     }

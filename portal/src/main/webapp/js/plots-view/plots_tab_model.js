@@ -93,12 +93,14 @@ var Plots = (function(){
         getGeneticProfiles: function() {
             return genetic_profiles;
         },
-        getProfileData: function(gene, genetic_profile_id, case_set_id, callback_func) {
+        getProfileData: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
             var paramsGetProfileData = {
                 gene_list: gene,
                 genetic_profile_id: genetic_profile_id,
-                case_set_id: case_set_id
+                case_set_id: case_set_id,
+                case_ids_key: case_ids_key
             };
+            console.log(paramsGetProfileData);
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         }
     };

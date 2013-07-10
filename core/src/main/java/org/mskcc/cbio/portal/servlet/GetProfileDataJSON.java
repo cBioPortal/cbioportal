@@ -1,3 +1,30 @@
+/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ **
+ ** This library is free software; you can redistribute it and/or modify it
+ ** under the terms of the GNU Lesser General Public License as published
+ ** by the Free Software Foundation; either version 2.1 of the License, or
+ ** any later version.
+ **
+ ** This library is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ ** documentation provided hereunder is on an "as is" basis, and
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has no obligations to provide maintenance, support,
+ ** updates, enhancements or modifications.  In no event shall
+ ** Memorial Sloan-Kettering Cancer Center
+ ** be liable to any party for direct, indirect, special,
+ ** incidental or consequential damages, including lost profits, arising
+ ** out of the use of this software and its documentation, even if
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has been advised of the possibility of such damage.  See
+ ** the GNU Lesser General Public License for more details.
+ **
+ ** You should have received a copy of the GNU Lesser General Public License
+ ** along with this library; if not, write to the Free Software Foundation,
+ ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ **/
+
 package org.mskcc.cbio.portal.servlet;
 
 import org.codehaus.jackson.JsonNode;
@@ -10,11 +37,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
-import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 import org.mskcc.cbio.cgds.dao.*;
 
@@ -22,6 +47,7 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.Gene;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**
  * Retrieves genomic profile data for one or more genes.
@@ -61,6 +87,7 @@ public class GetProfileDataJSON extends HttpServlet  {
 
         //Get URL Parameters
         String caseSetId = httpServletRequest.getParameter("case_set_id");
+        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         String[] geneIdList = httpServletRequest.getParameter("gene_list").split("\\s+");
         String[] geneticProfileIds = httpServletRequest.getParameter("genetic_profile_id").split("\\s+");
 
@@ -72,8 +99,18 @@ public class GetProfileDataJSON extends HttpServlet  {
 
             //Get Case case ID list
             DaoCaseList daoCaseList = new DaoCaseList();
-            CaseList caseList = daoCaseList.getCaseListByStableId(caseSetId);
-            ArrayList<String> caseIdList = caseList.getCaseList();
+            CaseList caseList;
+            ArrayList<String> caseIdList = new ArrayList<String>();
+            if (caseSetId.equals("-1") && caseIdsKey.length() != 0) {
+                String strCaseIds = CaseSetUtil.getCaseIds(caseIdsKey);
+                String[] caseArray = strCaseIds.split("\\s+");
+                for (String item : caseArray) {
+                    caseIdList.add(item);
+                }
+            } else {
+                caseList = daoCaseList.getCaseListByStableId(caseSetId);
+                caseIdList = caseList.getCaseList();
+            }
 
             //Get profile data
             for (String geneId: geneIdList) {

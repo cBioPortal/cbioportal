@@ -723,6 +723,7 @@ var PlotsTwoGenesView = (function(){
             menu.geneX + " " + menu.geneY,
             menu.genetic_profile_id + " " + cancer_study_id + "_mutations",
             case_set_id,
+            case_ids_key,
             getProfileDataCallBack
         );
     }

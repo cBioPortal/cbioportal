@@ -100,7 +100,7 @@ var PlotsTwoGenesMenu = (function(){
 
     function drawPlatFormList() {
         $("#two_genes_platform_select_div").empty();
-        $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init()'>");
+        $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();'>");
 
         if ($("#two_genes_plots_type").val() === "mrna") {
             content.genetic_profile_mrna.forEach (function (profile) {
@@ -135,19 +135,17 @@ var PlotsTwoGenesMenu = (function(){
             //TODO: Always make sure these are two different genes
             generateList("geneX", gene_list);
             //shift the genelist (temporary solution)
-            var tmp_gene_holder = gene_list.pop();
-            gene_list.unshift(tmp_gene_holder);
-            generateList("geneY", gene_list);
+            var tmp_gene_list = jQuery.extend(true, [], gene_list);
+            var tmp_gene_holder = tmp_gene_list.pop();
+            tmp_gene_list.unshift(tmp_gene_holder);
+            generateList("geneY", tmp_gene_list);
             fetchFrameData();
             content.plots_type_list.forEach(function(plots_type) {
                     appendDropDown("#two_genes_plots_type", plots_type.value, plots_type.name);
             });
         },
         update: function() {
-            //Re-draw platform list
             drawPlatFormList();
-            //re-generate the plots view
-            PlotsTwoGenesView.init();
         }
     };
 }());      //Closing PlotsTwoGenesMenu
@@ -346,8 +344,8 @@ var PlotsTwoGenesView = (function(){
     }
 
     function initCanvas() {
-        $('#plots_box_two_genes').empty();
-        elem.svg = d3.select("#plots_box_two_genes")
+        $('#plots_box').empty();
+        elem.svg = d3.select("#plots_box")
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
@@ -439,7 +437,7 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawErrorMsg() {
-        $('#two_genes_view_title').empty();
+        $('#view_title').empty();
         elem.svg.empty();
 
         var _line1 = "";
@@ -460,19 +458,19 @@ var PlotsTwoGenesView = (function(){
         }
 
         elem.svg.append("text")
-            .attr("x", 250)
+            .attr("x", 350)
             .attr("y", 55)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line1)
         elem.svg.append("text")
-            .attr("x", 250)
+            .attr("x", 350)
             .attr("y", 70)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line2)
         elem.svg.append("rect")
-            .attr("x", 50)
+            .attr("x", 150)
             .attr("y", 30)
             .attr("width", 400)
             .attr("height", 60)
@@ -512,7 +510,7 @@ var PlotsTwoGenesView = (function(){
                 return "translate(" + elem.xScale(d.x_value) + ", " + elem.yScale(d.y_value) + ")";
             })
             .attr("d", d3.svg.symbol()
-                .size(25)
+                .size(20)
                 .type("circle"))
             .attr("fill", function(d) {
                 if (showMutation) {
@@ -613,26 +611,26 @@ var PlotsTwoGenesView = (function(){
     }
 
     function drawImgConverter() {
-        $('#two_genes_view_title').empty();
+        $('#view_title').empty();
         var elt = document.getElementById("two_genes_plots_type");
         var titleText = elt.options[elt.selectedIndex].text;
-        $('#two_genes_view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
+        $('#view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='hidden' name='filename' value='plots.pdf'>" +
             "<input type='submit' value='PDF'></form>";
-        $('#two_genes_view_title').append(pdfConverterForm);
+        $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_two_genes');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='hidden' name='filename' value='plots.svg'>" +
             "<input type='submit' value='SVG'></form>";
-        $('#two_genes_view_title').append(svgConverterForm);
+        $('#view_title').append(svgConverterForm);
     }
 
     function drawAxisTitle() {
@@ -702,7 +700,7 @@ var PlotsTwoGenesView = (function(){
                         .ease("elastic")//TODO: default d3 symbol is circle (coincidence!)
                         .duration(600)
                         .delay(100)
-                        .attr("d", d3.svg.symbol().size(25).type("circle"));
+                        .attr("d", d3.svg.symbol().size(20).type("circle"));
                 };
                 elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
                 elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
@@ -747,9 +745,11 @@ var PlotsTwoGenesView = (function(){
 
     return {
         init : function() {
-            $('#two-genes-loading-image').show();
-            $('#two_genes_view_title').hide();
-            $('#plots_box_two_genes').hide();
+            $('#view_title').empty();
+            $('#plots_box').empty();
+            $('#loading-image').show();
+            $('#view_title').hide();
+            $('#plots_box').hide();
 
             getUserSelection();
             //Contains a series of chained function
@@ -758,9 +758,9 @@ var PlotsTwoGenesView = (function(){
 
             setTimeout(
                 function() {
-                    $('#two-genes-loading-image').hide();
-                    $('#two_genes_view_title').show();
-                    $('#plots_box_two_genes').show();
+                    $('#view_title').show();
+                    $('#plots_box').show();
+                    $('#loading-image').hide();
                 },
                 500
             );

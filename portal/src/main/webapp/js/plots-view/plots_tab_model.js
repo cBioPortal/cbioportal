@@ -67,6 +67,19 @@ var Plots = (function(){
         PlotsTwoGenesMenu.update();
         PlotsCustomMenu.init();
         PlotsCustomMenu.update();
+        PlotsView.init();
+
+        $('#plots-menus').bind('tabsshow', function(event, ui) {
+            if (ui.index === 0) {
+                PlotsView.init();
+            } else if (ui.index === 1) {
+                PlotsTwoGenesView.init();
+            } else if (ui.index === 2) {
+                PlotsCustomView.init();
+            } else {
+                //TODO: error handle
+            }
+        });
 
     }
 

@@ -166,9 +166,10 @@ var PlotsCustomMenu = (function(){
             generateList("custom_geneX", gene_list);
             //shift the genelist (temporary solution)
             //TODO:
-            var tmp_gene_holder = gene_list.pop();
-            gene_list.unshift(tmp_gene_holder);
-            generateList("custom_geneY", gene_list);
+            var tmp_gene_list = jQuery.extend(true, [], gene_list);
+            var tmp_gene_holder = tmp_gene_list.pop();
+            tmp_gene_list.unshift(tmp_gene_holder);
+            generateList("custom_geneY", tmp_gene_list);
             content.plots_type_list.forEach(function(plots_type) {
                 appendDropDown("#custom_plots_type_x", plots_type.value, plots_type.name);
             });
@@ -179,7 +180,6 @@ var PlotsCustomMenu = (function(){
         update: function(){
             updateXselection();
             updateYselection();
-            PlotsCustomView.init();
         }
     };
 }());   //Closing PlotsCustomMenu
@@ -378,8 +378,8 @@ var PlotsCustomView = (function() {
     }
 
     function initCanvas() {
-        $('#plots_box_custom').empty();
-        elem.svg = d3.select("#plots_box_custom")
+        $('#plots_box').empty();
+        elem.svg = d3.select("#plots_box")
             .append("svg")
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
@@ -555,7 +555,7 @@ var PlotsCustomView = (function() {
                 return "translate(" + elem.xScale(d.x_value) + ", " + elem.yScale(d.y_value) + ")";
             })
             .attr("d", d3.svg.symbol()
-                .size(25)
+                .size(20)
                 .type("circle"))
             .attr("fill", function(d) {
                 if (showMutation) {
@@ -730,7 +730,7 @@ var PlotsCustomView = (function() {
                         .ease("elastic")
                         .duration(600)
                         .delay(100)
-                        .attr("d", d3.svg.symbol().size(25).type("circle"));
+                        .attr("d", d3.svg.symbol().size(20).type("circle"));
                 };
 
                 elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
@@ -740,30 +740,30 @@ var PlotsCustomView = (function() {
     }
 
     function drawImgConverter() {
-        $('#custom_view_title').empty();
-        $('#custom_view_title').append("Custom View : " + menu.geneX + " vs. " + menu.geneY);
+        $('#view_title').empty();
+        $('#view_title').append("Custom View : " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
             "<input type='hidden' name='filename' value='plots.pdf'>" +
             "<input type='submit' value='PDF'></form>";
-        $('#custom_view_title').append(pdfConverterForm);
+        $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box_custom');\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
             "<input type='hidden' name='filename' value='plots.svg'>" +
             "<input type='submit' value='SVG'></form>";
-        $('#custom_view_title').append(svgConverterForm);
+        $('#view_title').append(svgConverterForm);
     }
 
     function drawErrorMsg() {
-        $('#custom_view_title').empty();
+        $('#view_title').empty();
         elem.svg.empty();
 
         var _line1 = "";
@@ -782,25 +782,25 @@ var PlotsCustomView = (function() {
         }
 
         elem.svg.append("text")
-            .attr("x", 250)
+            .attr("x", 350)
             .attr("y", 55)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line1)
         elem.svg.append("text")
-            .attr("x", 250)
+            .attr("x", 350)
             .attr("y", 70)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line2)
         elem.svg.append("text")
-            .attr("x", 250)
+            .attr("x", 350)
             .attr("y", 85)
             .attr("text-anchor", "middle")
             .attr("fill", "#DF3A01")
             .text(_line3)
         elem.svg.append("rect")
-            .attr("x", 50)
+            .attr("x", 150)
             .attr("y", 30)
             .attr("width", 400)
             .attr("height", 70)
@@ -836,9 +836,11 @@ var PlotsCustomView = (function() {
 
     return {
         init : function() {
-            $('#custom-loading-image').show();
-            $('#custom_view_title').hide();
-            $('#plots_box_custom').hide();
+            $('#view_title').empty();
+            $('#plots_box').empty();
+            $('#loading-image').show();
+            $('#view_title').hide();
+            $('#plots_box').hide();
 
             getUserSelection();
             //Contains a series of chained function
@@ -847,9 +849,9 @@ var PlotsCustomView = (function() {
 
             setTimeout(
                 function() {
-                    $('#custom-loading-image').hide();
-                    $('#custom_view_title').show();
-                    $('#plots_box_custom').show();
+                    $('#view_title').show();
+                    $('#plots_box').show();
+                    $('#loading-image').hide();
                 },
                 500
             );

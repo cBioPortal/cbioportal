@@ -277,7 +277,6 @@ var PlotsMenu = (function () {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
-            PlotsView.init();
         }
     };
 }()); //Closing PlotsMenu
@@ -483,19 +482,19 @@ var PlotsView = (function () {
                 errorTxt1 = errorTxt1.replace("RPPA", "");
 
                 elem.svg.append("text")
-                    .attr("x", 250)
+                    .attr("x", 350)
                     .attr("y", 50)
                     .attr("text-anchor", "middle")
                     .attr("fill", "#DF3A01")
                     .text(errorTxt1)
                 elem.svg.append("text")
-                    .attr("x", 250)
+                    .attr("x", 350)
                     .attr("y", 70)
                     .attr("text-anchor", "middle")
                     .attr("fill", "#DF3A01")
                     .text(errorTxt2)
                 elem.svg.append("rect")
-                    .attr("x", 50)
+                    .attr("x", 150)
                     .attr("y", 30)
                     .attr("width", 400)
                     .attr("height", 50)
@@ -887,14 +886,14 @@ var PlotsView = (function () {
                 $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
             }
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box');\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='plots.pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
             var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG('plots_box');\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
                 "<input type='hidden' name='filename' value='plots.svg'>" +
@@ -1143,12 +1142,7 @@ var PlotsView = (function () {
                             elem.yScale(d.yVal) + ")";
                     })
                     .attr("d", d3.svg.symbol()
-                        .size(function(d){
-                            switch (d.mutationType) {
-                                case "non" : return 15;
-                                default : return 25;
-                            }
-                        })
+                        .size(20)
                         .type(function(d){
                             return mutationStyle[d.mutationType].symbol;
                         })
@@ -1174,12 +1168,7 @@ var PlotsView = (function () {
                     return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
                 })
                 .attr("d", d3.svg.symbol()
-                    .size(function(d){
-                        switch (d.mutationTypes){
-                            case "non" : return 15;
-                            default : return 25;
-                        }
-                    })
+                    .size(20)
                     .type(function(d){
                         return mutationStyle[d.mutationType].symbol;
                     })
@@ -1561,12 +1550,7 @@ var PlotsView = (function () {
                                         .duration(600)
                                         .delay(100)
                                         .attr("d", d3.svg.symbol()
-                                            .size(function(d){
-                                                switch (d.mutationType) {
-                                                    case "non" : return 15;
-                                                    default : return 25;
-                                                }
-                                            })
+                                            .size(20)
                                             .type(function(d){
                                                 return mutationStyle[d.mutationType].symbol;
                                             })
@@ -1629,6 +1613,8 @@ var PlotsView = (function () {
 
     return {
         init: function(){
+            $('#view_title').empty();
+            $('#plots_box').empty();
             $('#loading-image').show();
             $('#view_title').hide();
             $('#plots_box').hide();
@@ -1643,7 +1629,6 @@ var PlotsView = (function () {
             //TODO: error handle
             Data.formDataSet();    //Build the tmp data set for d3 to use
             Data.reorderMutations();
-
             //View Construction
             View.initView();
             if (Util.dataIsAvailable()) {
@@ -1677,16 +1662,14 @@ var PlotsView = (function () {
                 View.drawAxisTitle();
                 //Img Center: PDF and SVG button
             }
-
             setTimeout(
                 function() {
-                    $('#loading-image').hide();
                     $('#view_title').show();
                     $('#plots_box').show();
+                    $('#loading-image').hide();
                 },
                 500
             );
-
         }
     };
 }()); //Closing PlotsView

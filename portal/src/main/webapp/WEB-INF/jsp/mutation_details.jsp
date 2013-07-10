@@ -51,6 +51,12 @@
         .mutation-table-header {
 	        font-weight: bold !important;
         }
+        .tooltip-table-container {
+	        padding: 10px;
+        }
+		.cosmic_details_tip_info {
+			font-size: 90%
+		}
 </style>
 
 <script type="text/javascript">

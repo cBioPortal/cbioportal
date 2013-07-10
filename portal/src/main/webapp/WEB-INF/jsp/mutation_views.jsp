@@ -39,12 +39,12 @@
 	<table id='mutation_details_table_{{geneSymbol}}' class='display mutation_details_table'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>{{tableHeaders}}</thead>
-		{{tableRows}}
+		<tbody>{{tableRows}}</tbody>
 		<tfoot>{{tableHeaders}}</tfoot>
 	</table>
 </script>
 
-<script type="text/template" id="mutation_details_table_data_row">
+<script type="text/template" id="mutation_details_table_data_row_template">
 	<tr>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
@@ -129,7 +129,7 @@
 	</tr>
 </script>
 
-<script type="text/template" id="mutation_details_table_header_row">
+<script type="text/template" id="mutation_details_table_header_row_template">
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
 	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
@@ -159,13 +159,21 @@
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
 
+<script type="text/template" id="mutation_details_cosmic_tip_template">
+	<span class='cosmic_details_tip_info'><b>{{cosmicTotal}} occurrences in COSMIC</b></span>
+	<table class='cosmic_details_table display'
+	       cellpadding='0' cellspacing='0' border='0'>
+		<thead>
+			<tr>
+				<th>Mutation</th>
+				<th>Count</th>
+			</tr>
+		</thead>
+		<tbody>{{cosmicDataRows}}</tbody>
+	</table>
+</script>
+
 <script type="text/javascript">
-	// TODO this is duplicate! it is better to put this into a global js
-	// This is for the moustache-like templates
-	// prevents collisions with JSP tags
-	_.templateSettings = {
-		interpolate : /\{\{(.+?)\}\}/g
-	};
 
 	/**
 	 * Default mutation view for a single gene.
@@ -475,7 +483,7 @@
 			var mutations = new MutationCollection(self.model.mutations);
 
 			var tableHeaders = _.template(
-					$("#mutation_details_table_header_row").html(), {});
+					$("#mutation_details_table_header_row_template").html(), {});
 
 			var tableRows = "";
 
@@ -484,7 +492,7 @@
 				var dataRowVariables = self._getDataRowVars(mutations.at(i));
 
 				var tableDataTemplate = _.template(
-						$("#mutation_details_table_data_row").html(),
+						$("#mutation_details_table_data_row_template").html(),
 						dataRowVariables);
 
 				tableRows += tableDataTemplate;
@@ -918,4 +926,73 @@
 	    }
 	});
 
+	var CosmicTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			// TODO correct style to have a better view
+
+			// initialize cosmic details table
+			this.$el.find(".cosmic_details_table").dataTable({
+				"aaSorting" : [ ], // do not sort by default
+				"sDom": 't', // show only the table
+				"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
+				  { "sType": "numeric", "aTargets": [1]}],
+				//"bJQueryUI": true,
+				//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
+				"bDestroy": false,
+				"bPaginate": false,
+				"bFilter": false});
+		},
+		_parseCosmic: function(cosmic)
+		{
+			var parts = cosmic.split("|");
+			var dataRows = "";
+
+			// COSMIC data (as AA change & frequency pairs)
+			for (var i=0; i < parts.length; i++)
+			{
+				var values = parts[i].split(/\(|\)/, 2);
+
+				if (values.length < 2)
+				{
+					// skip values with no count information
+					continue;
+				}
+
+				// skip data starting with p.? or ?
+				var unknownCosmic = values[0].indexOf("p.?") == 0 ||
+				                    values[0].indexOf("?") == 0;
+
+				if (!unknownCosmic)
+				{
+					dataRows += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
+					//$("#cosmic_details_table").dataTable().fnAddData(values);
+				}
+			}
+
+			return dataRows;
+		},
+		compileTemplate: function()
+		{
+			var dataRows = this._parseCosmic(this.model.cosmic);
+
+			// pass variables in using Underscore.js template
+			var variables = {cosmicDataRows: dataRows,
+				cosmicTotal: this.model.total};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_cosmic_tip_template").html(),
+					variables);
+		}
+	});
 </script>

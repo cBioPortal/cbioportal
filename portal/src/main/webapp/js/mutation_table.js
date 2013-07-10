@@ -167,65 +167,50 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
 		tableSelector.find('.simple-tip-left').qtip(qTipOptionsLeft);
 
-	    // copy default qTip options and modify "content" to customize for cosmic
-	    var qTipOptsCosmic = {};
-	    jQuery.extend(true, qTipOptsCosmic, qTipOptions);
+		// add tooltip for COSMIC value
+		tableSelector.find('.mutation_table_cosmic').each(function() {
+			var label = this;
+			var cosmic = $(label).attr('alt');
 
-		// TODO create a backbone view for the cosmic table!
-	    qTipOptsCosmic.content = { text: function(api) {
-	        var cosmic = $(this).attr('alt');
-	        var parts = cosmic.split("|");
+			// copy default qTip options and modify "content" to customize for cosmic
+			var qTipOptsCosmic = {};
+			jQuery.extend(true, qTipOptsCosmic, qTipOptions);
 
-	        var cosmicTable =
-	            "<table class='" + tableId + "_cosmic_table cosmic_details_table display' " +
-	            "cellpadding='0' cellspacing='0' border='0'>" +
-	            "<thead><tr><th>Mutation</th><th>Count</th></tr></thead>";
+			qTipOptsCosmic.content = { text: function(api) {
+				return "";
+			}};
 
-	        // COSMIC data (as AA change & frequency pairs)
-	        for (var i=0; i < parts.length; i++)
-	        {
-	            var values = parts[i].split(/\(|\)/, 2);
+			qTipOptsCosmic.events = {render: function(event, api)
+			{
+				var model = {cosmic: cosmic,
+					geneSymbol: gene,
+					total: $(label).text()};
 
-	            if (values.length < 2)
-	            {
-	                // skip values with no count information
-	                continue;
-	            }
+				$(this).empty();
+				$(this).append("<div class='tooltip-table-container'></div>");
 
-	            // skip data starting with p.? or ?
-	            var unknownCosmic = values[0].indexOf("p.?") == 0 ||
-	                                values[0].indexOf("?") == 0;
+				var container = $(this).find('.tooltip-table-container');
 
-	            if (!unknownCosmic)
-	            {
-	                cosmicTable += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
+				// create view but do not render, return the html content instead
+				var cosmicView = new CosmicTipView({el: container, model: model});
+				cosmicView.render();
 
-	                //$("#cosmic_details_table").dataTable().fnAddData(values);
-	            }
-	        }
+				// TODO data table doesn't initialize properly
+				// initialize cosmic details table
+//				$(label).dataTable({
+//					"aaSorting" : [ ], // do not sort by default
+//					"sDom": 't', // show only the table
+//					"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
+//					  { "sType": "numeric", "aTargets": [1]}],
+//					//"bJQueryUI": true,
+//					//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
+//					"bDestroy": true,
+//					"bPaginate": false,
+//					"bFilter": false});
+			}};
 
-	        cosmicTable += "</table>";
-
-	        return cosmicTable;
-	    }};
-
-	    qTipOptsCosmic.events = {render: function(event, api)
-	    {
-	        // TODO data table doesn't initialize properly
-	        // initialize cosmic details table
-	        $('.' + tableId + '_cosmic_table').dataTable({
-	             "aaSorting" : [ ], // do not sort by default
-	             "sDom": 't', // show only the table
-	             "aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
-	                 { "sType": "numeric", "aTargets": [1]}],
-	             //"bJQueryUI": true,
-	             //"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
-	             "bDestroy": true,
-	             "bPaginate": false,
-	             "bFilter": false});
-	    }};
-
-		tableSelector.find('.mutation_table_cosmic').qtip(qTipOptsCosmic);
+			$(label).qtip(qTipOptsCosmic);
+		});
 
 	    // copy default qTip options and modify "content"
 	    // to customize for predicted impact score

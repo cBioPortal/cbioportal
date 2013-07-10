@@ -51,6 +51,16 @@ public interface FileUtils {
 
 	public static final String FILE_URL_PREFIX = "file://";
 
+	// clinical data file column headers
+	public static final String CASE_ID = "CASE_ID";
+	public static final String GENDER = "GENDER";
+	public static final String FMI_CASE_ID = "FMI_CASE_ID";
+	public static final String PIPELINE_VER = "PIPELINE_VER";
+	public static final String TUMOR_NUCLEI_PERCENT = "TUMOR_NUCLEI_PERCENT";
+	public static final String MEDIAN_COV = "MEDIAN_COV";
+	public static final String COV_100X = "COV>100X";
+	public static final String ERROR_PERCENT = "ERROR_PERCENT";
+
 	/**
 	 * Computes the MD5 digest for the given file.
 	 * Returns the 32 digit hexadecimal.
@@ -207,6 +217,17 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+
+	/**
+	 * Method which writes a metadata file for
+	 * the given Datatype metadata instance.
+	 *
+	 * @param stagingDirectory  String
+	 * @param datatypeMetadata  DatatypeMetadata
+	 * @param numCases          int
+	 * @throws Exception
+	 */
+	void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata, int numCases) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for the

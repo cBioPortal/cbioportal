@@ -1,3 +1,8 @@
+# July 4, 2013
+
+* Improved rendering of mutation diagrams, including ability to download in PDF format.
+* Improved home page: Searchable cancer study & gene set selectors, data sets selector.
+
 # June 13, 2013
 
 * Improved interface for correlation plots, including information on individual samples via mouse-over.

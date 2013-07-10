@@ -42,11 +42,38 @@ cbio.util = (function() {
         return aa;
     };
 
+    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback)
+    {
+        if (rollback)
+        {
+            shiftValueOnX = -1 * shiftValueOnX;
+            shiftValueOnY = -1 * shiftValueOnY;
+        }
+
+        var xLabels = xAxisGrp
+            .selectAll(".tick")
+            .selectAll("text");
+
+        var yLabels = yAxisGrp
+            .selectAll(".tick")
+            .selectAll("text");
+
+        // TODO:
+        // shifting axis tick labels a little bit because of
+        // a bug in the PDF converter library (this is a hack!)
+        var xy = parseInt(xLabels.attr("y"));
+        var yy = parseInt(yLabels.attr("y"));
+
+        xLabels.attr("y", xy + shiftValueOnX);
+        yLabels.attr("y", yy + shiftValueOnY);
+    };
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
         checkNullOrUndefined: checkNullOrUndefined,
-        arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices
+        arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
+        alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter
     };
 
 })();

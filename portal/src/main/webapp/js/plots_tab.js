@@ -1,3 +1,30 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 var mutations = [],
     mutations_id = [],
     copy_no = [],
@@ -563,6 +590,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
+            .attr('class', "plots-x-axis-class")
             .call(xAxis.ticks(textSet.length))
             .selectAll("text")
             .data(textSet)
@@ -579,6 +607,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
+            .attr('class', "plots-x-axis-class")
             .call(xAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
@@ -600,6 +629,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
         .style("stroke", "grey")
         .style("shape-rendering", "crispEdges")
         .attr("transform", "translate(100, 0)")
+        .attr('class', "plots-y-axis-class")
         .call(yAxis)
         .selectAll("text")
         .style("font-family", "sans-serif")
@@ -634,13 +664,23 @@ function addAxisTitle(svg, xLegend, yLegend) {
         .style("font-weight","bold")
         .text(yLegend);
 }
+
 function loadSVG() {
+
     var mySVG = document.getElementById("plots_box");
     var svgDoc = mySVG.getElementsByTagName("svg");
-    var tmp1 = new XMLSerializer();
-    var tmp2 = tmp1.serializeToString(svgDoc[0]);
-    return tmp2;
+    var xmlSerializer = new XMLSerializer();
+    var xml = xmlSerializer.serializeToString(svgDoc[0]);
+
+    //Quick fix for the Batik display bug
+    //TODO: debug/modify the library
+    xml = xml.replace(/<text y="9" x="0" dy=".71em"/g, "<text y=\"19\" x=\"0\" dy=\".71em\"");
+    xml = xml.replace(/<text x="-9" y="0" dy=".32em"/g, "<text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+    return xml;
+
 }
+
 function fetchAxisTitle() {
     var xLegend = "";
     var yLegend = "";
@@ -855,7 +895,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Define Axis
     var xAxis = d3.svg.axis()
         .scale(xScale)
-        .orient("bottom")
+        .orient("bottom");
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left");
@@ -929,7 +969,6 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
                 }
             }
 
-
             var countSubDataSets = 0;
             $.each(subDataSet, function(key, value) {
                 if (subDataSet[key].length !== 0) {
@@ -939,9 +978,27 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
             });
 
             //Redefine the axis
-            xScale = d3.scale.linear()
-                .domain([min_x - edge_x, (min_x + countSubDataSets - 1) + edge_x])
-                .range([100, 600]);
+            if (countSubDataSets === 1) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.2), (min_x + 0.2)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 2) {
+                xScale = d3.scale.linear()
+                    .domain([(min_x - 0.8), (min_x + countSubDataSets - 1 + 0.8)])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 3) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.8, (min_x + countSubDataSets - 1) + 0.8])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 4) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            } else if (countSubDataSets === 5) {
+                xScale = d3.scale.linear()
+                    .domain([min_x - 0.6, (min_x + countSubDataSets - 1) + 0.6])
+                    .range([100, 600]);
+            }
             xAxis = d3.svg.axis()
                 .scale(xScale)
                 .orient("bottom")

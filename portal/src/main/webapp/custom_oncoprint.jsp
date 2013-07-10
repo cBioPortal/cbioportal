@@ -7,13 +7,14 @@
 <body>
 <form name="echofile" action="echofile" enctype="multipart/form-data" method="POST">
     <input name="cna" type="file" size="40">
-    <input name="mutations" type="file" size="40">
+    <input name="mutation" type="file" size="40">
     <input type="button" value="Go!">
 </form>
 <progress></progress>
 </body>
 
 <script type="text/javascript">
+    var data;
     $(':button').click(function(){
         var formData = new FormData($('form')[0]);
         $.ajax({
@@ -28,7 +29,7 @@
             },
             //Ajax events
 //                beforeSend: beforeSendHandler,
-                success: function(res) { console.log(res); },
+                success: function(res) { data = res; console.log(res); },
 //                error: errorHandler,
             // Form data
             data: formData,

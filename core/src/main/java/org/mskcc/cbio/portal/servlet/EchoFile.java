@@ -188,8 +188,11 @@ public class EchoFile extends HttpServlet {
 //        return new ArrayList<ImmutableMap<String, String>>();
 //    }
 
+
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
+
+        Writer writer = response.getWriter();
 
         try {
             List<Map<String, String>> data = new ArrayList<Map<String, String>>();
@@ -197,43 +200,59 @@ public class EchoFile extends HttpServlet {
 
             for (FileItem item : items) {
 
-                CSVReader reader = new CSVReader(new InputStreamReader(item.getInputStream()), '\t');
+                System.out.println(item);
 
-                if (item.getFieldName().equals("cna")) {
+                if (item.getSize() == 0) {
+                    // skip empty files
+                    continue;
+                }
+
+                CSVReader reader = new CSVReader(new InputStreamReader(item.getInputStream()), '\t');
+                String fieldName = item.getFieldName();
+
+                if (fieldName.equals("cna")) {
                     // handle cna data
                     data.addAll(processStagingCsv(reader, "cna"));
                 }
 
-                else if (item.getFieldName().equals("mutation")) {
+                else if (fieldName.equals("mutation")) {
                     // handle mutation
                     data.addAll(processMutationStagingCsv(reader));
                 }
 
-                else if (item.getFieldName().equals("mrna")) {
+                else if (fieldName.equals("mrna")) {
                     // handle mrna
                     data.addAll(processStagingCsv(reader, "mrna"));
                 }
 
-                else if (item.getFieldName().equals("rppa")) {
+                else if (fieldName.equals("rppa")) {
                     // ??? Composite.Element.REF ???
+                    int x = -1;
                 }
 
                 else {
                     // echo back the raw string
                     InputStream content = items.get(0).getInputStream();        // this might be bad
                     java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
-                    Writer writer = response.getWriter();
                     writer.write(s.hasNext() ? s.next() : "");
                 }
             }
 
             // write the objects out as json
-            Writer writer = response.getWriter();
+            response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(writer, data);
 
-        } catch (FileUploadException e) {
-            throw new ServletException(e);
+        }
+
+        // catch all exceptions
+        catch (Exception e) {
+
+            // log it
+            System.out.println(e);
+
+            // hide details from user
+            throw new ServletException("there was an error processing your request");
         }
     }
 }

@@ -150,6 +150,7 @@ public class CrossCancerJSON extends HttpServlet {
                 }
 
                 cancerMap.put("caseSetId", defaultCaseSet.getStableId());
+                cancerMap.put("caseSetLength", defaultCaseSet.getCaseList().size());
 
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,

@@ -62,7 +62,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
+        var config = new GenomicOverviewConfig(
+                (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),
+                $("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?2 * 150:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
@@ -177,6 +179,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
+        <td><div id="allele-freq-plot-thumbnail"></div></td>
         <td><div id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></div></td>
     </tr>
 </table>
@@ -186,7 +189,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>
 
-<div id="allele_freq_plot" style="display:none;">
+<div id="allele-freq-plot-big" style="display:none;">
     <label>
         <input id="allelefreq_histogram_toggle" type="checkbox" checked />histogram
     </label>
@@ -201,12 +204,24 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {
+
+            var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
+            // create a small plot thumbnail
+            AlleleFreqPlot(thumbnail,
+                AlleleFreqPlotUtils.extract_and_process(genomicEventObs),
+                {width: 50 , height: 50, label_font_size: "7px", xticks: 0, yticks: 0});
+
+            // make the curve lighter
+            var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
+            $(thumbnail).find('.curve').attr('stroke-width', '1px');
+
             // create a plot on a hidden element
-            window.allelefreqplot = AlleleFreqPlot(document.getElementById('allele_freq_plot'),
+            var hidden_plot_id = '#allele-freq-plot-big';
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
                     AlleleFreqPlotUtils.extract_and_process(genomicEventObs));
 
             // add qtip on allele frequency plot thumbnail
-            $('#allele-freq-thumbnail').qtip({
+            $(thumbnail).qtip({
                 content: {text: 'allele frequency plot is broken'},
                 events: {
                     render: function(event, api) {
@@ -226,10 +241,10 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                             // qtip interferes with $.toggle
                             histogram_toggle = !histogram_toggle;
                             if (histogram_toggle) {
-                                $('#allele_freq_plot rect').removeAttr('display');
+                                $(hidden_plot_id + ' rect').removeAttr('display');
                             }
                             else {
-                                $('#allele_freq_plot rect').attr('display', 'none');
+                                $(hidden_plot_id + ' rect').attr('display', 'none');
                             }
                         });
 
@@ -238,10 +253,10 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                             // qtip interferes with $.toggle
                             curve_toggle = !curve_toggle;
                             if (curve_toggle) {
-                                $('#allele_freq_plot .curve').removeAttr('display');
+                                $(hidden_plot_id + ' .curve').removeAttr('display');
                             }
                             else {
-                                $('#allele_freq_plot .curve').attr('display', 'none');
+                                $(hidden_plot_id + ' .curve').attr('display', 'none');
                             }
                         });
                     }

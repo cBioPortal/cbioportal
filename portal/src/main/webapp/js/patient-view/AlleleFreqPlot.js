@@ -87,16 +87,25 @@ var AlleleFreqPlotUtils = (function() {
     };
 }());
 
-// makes a kernel density plot of the data and sticks it into the div
 //
 // appends labels and such that are specific to the allele frequency density
 // plot
-var AlleleFreqPlot = function(div, data) {
-    var xlabel_margin = 30;      // horizontal label padding for the x-axis
-    var ylabel_margin = 8;      // horizontal label padding for the y-axis (NB: axises have rotated)
-    var margin = {top: 20, right: 30, bottom: 30 + xlabel_margin / 2, left: 50},
-        width = 200,
-        height = (500 + xlabel_margin) / 2 - margin.top - margin.bottom;
+//
+// makes a kernel density plot of the data and dumps it into the div.  Optional
+// options parameter which supports attributes:
+//  * `width`               number
+//  * `height`              number
+//  * `label_font_size`     string in pixels (px)
+//
+// *signature:* `DOM el, array, obj -> DOM el (with plot inside)`
+var AlleleFreqPlot = function(div, data, options) {
+    var options = options || { label_font_size: "10.5px", xticks: 3, yticks: 8 };        // init
+
+    var label_margin = options.xticks === 0 ? 13 : 30;
+
+    var margin = {top: 20, right: 30, bottom: 30 + label_margin / 2, left: 50},
+        width = options.width || 200,
+        height = options.height || (500 + label_margin) / 2 - margin.top - margin.bottom;
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
@@ -108,7 +117,7 @@ var AlleleFreqPlot = function(div, data) {
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom")
-        .ticks(3);
+        .ticks(options.xticks);
 
     // make a kde
     var bandwidth = utils.calculate_bandwidth(data);
@@ -134,10 +143,10 @@ var AlleleFreqPlot = function(div, data) {
         .y(function(d) { return y(d[1]); });
 
     var svg = d3.select(div).append("svg")
-        .attr("width", width + margin.left + margin.right)
+        .attr("width", width + margin.left + (options.yticks === 0 ? 0 : margin.right))
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + (options.yticks === 0 ? margin.left / 2 : margin.left) + "," + margin.top + ")");
 
     // x axis
     var x_axis = svg.append("g")
@@ -162,7 +171,8 @@ var AlleleFreqPlot = function(div, data) {
         .append("text")
         .attr("class", "label")
         .attr("x", width / 2)
-        .attr("y", xlabel_margin)
+        .attr("y", label_margin)
+        .attr('font-size', options.label_font_size)
         .style("text-anchor", "middle")
         .text("variant allele frequency");
 
@@ -175,10 +185,11 @@ var AlleleFreqPlot = function(div, data) {
     var yAxis = d3.svg.axis()
         .scale(y.copy().domain(mutation_count_range))
         .orient("left")
-        .ticks(5);
+        .ticks(options.yticks);
 
     // render axis
     var y_axis = svg.append("g")
+        //.attr("transform", "translate(" + -10 + ",0)")
         .call(yAxis);
 
     // y-axis label
@@ -188,11 +199,12 @@ var AlleleFreqPlot = function(div, data) {
         .attr("transform", "rotate(" + "-" + 90 + ")")
         // axis' have also been rotated
         .attr("x", - height / 2)
-        .attr("y", - margin.left + ylabel_margin)
+        .attr("y", - label_margin)
+        .attr('font-size', options.label_font_size)
         .style("text-anchor", "middle")
         .text("mutation count");
 
-    applyCss(y_axis.selectAll('path')).attr('display', 'none');
+    applyCss(y_axis.selectAll('path')).attr('display', options.yticks === 0 ? '' : 'none');
     applyCss(y_axis.selectAll('line'));
 
     // calculate a new domain for the binned data

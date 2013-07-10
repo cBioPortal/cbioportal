@@ -101,11 +101,11 @@ var AlleleFreqPlotUtils = (function() {
 var AlleleFreqPlot = function(div, data, options) {
     var options = options || { label_font_size: "10.5px", xticks: 3, yticks: 8 };        // init
 
-    var label_margin = options.xticks === 0 ? 13 : 30;
+    var label_dist_to_axis = options.xticks === 0 ? 13 : 30;
 
-    var margin = {top: 20, right: 30, bottom: 30 + label_margin / 2, left: 50},
+    var margin = {top: 20, right: 30, bottom: 30 + label_dist_to_axis / 2, left: 50},
         width = options.width || 200,
-        height = options.height || (500 + label_margin) / 2 - margin.top - margin.bottom;
+        height = options.height || (500 + label_dist_to_axis) / 2 - margin.top - margin.bottom;
 
     var utils =  AlleleFreqPlotUtils;        // alias
 
@@ -171,15 +171,16 @@ var AlleleFreqPlot = function(div, data, options) {
         .append("text")
         .attr("class", "label")
         .attr("x", width / 2)
-        .attr("y", label_margin)
+        .attr("y", label_dist_to_axis)
         .attr('font-size', options.label_font_size)
         .style("text-anchor", "middle")
         .text("variant allele frequency");
 
     // make the y-axis mutation count
     mutation_count_range = binned_data.map(function(d) { return d.length; });
+    var max_no_mutations = d3.max(mutation_count_range);
     mutation_count_range = [d3.min(mutation_count_range),
-                                d3.max(mutation_count_range)];
+                                max_no_mutations];
 
     // create axis
     var yAxis = d3.svg.axis()
@@ -192,6 +193,25 @@ var AlleleFreqPlot = function(div, data, options) {
         //.attr("transform", "translate(" + -10 + ",0)")
         .call(yAxis);
 
+    // takes a number and returns a displacement length for the
+    // yaxis label
+    //
+    // *signature:* `number -> number`
+    var displace_by_digits = function(n) {
+        var stringified = "" + n;
+        var no_digits = stringified.split("").length;
+
+        // there will be a comma in the string, i.e. 1,000 not 1000
+        if (no_digits >= 4) {
+            no_digits += 1.5;
+        }
+
+        return no_digits * 7 / 3;
+    };
+
+    var ylabel_dist_to_axis = label_dist_to_axis;
+    ylabel_dist_to_axis += options.yticks === 0 ? 0 : displace_by_digits(max_no_mutations);
+
     // y-axis label
     y_axis
         .append("text")
@@ -199,7 +219,7 @@ var AlleleFreqPlot = function(div, data, options) {
         .attr("transform", "rotate(" + "-" + 90 + ")")
         // axis' have also been rotated
         .attr("x", - height / 2)
-        .attr("y", - label_margin)
+        .attr("y", - ylabel_dist_to_axis)
         .attr('font-size', options.label_font_size)
         .style("text-anchor", "middle")
         .text("mutation count");

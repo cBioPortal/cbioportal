@@ -64,7 +64,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         var chmInfo = new ChmInfo();
         var config = new GenomicOverviewConfig(
                 (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),
-                $("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?2 * 150:50));
+                $("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?2 * 135:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
@@ -179,8 +179,10 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
-        <td><div id="allele-freq-plot-thumbnail"></div></td>
-        <td><div id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></div></td>
+        <td>
+            <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
+            <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
+        </td>
     </tr>
 </table>
 
@@ -209,7 +211,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             // create a small plot thumbnail
             AlleleFreqPlot(thumbnail,
                 AlleleFreqPlotUtils.extract_and_process(genomicEventObs),
-                {width: 50 , height: 50, label_font_size: "7px", xticks: 0, yticks: 0});
+                {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
+                    margin: {bottom: 20}
+                });
 
             // make the curve lighter
             var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
@@ -262,9 +266,9 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                     }
                 },
                 hide: { fixed: true, delay: 100 },
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
                 //position: {my:'left top',at:'bottom center'}
-                position: {my:'top right',at:'bottom left'}
+                position: {my:'top right',at:'top right'},
             });
         });
     });

@@ -103,11 +103,12 @@ var AlleleFreqPlot = function(div, data, options) {
 
     var label_dist_to_axis = options.xticks === 0 ? 13 : 30;
 
-    var margin = {top: 20, right: 30, bottom: 30 + label_dist_to_axis / 2, left: 50},
-        width = options.width || 200,
-        height = options.height || (500 + label_dist_to_axis) / 2 - margin.top - margin.bottom;
+    options.margin = options.margin || {};
+    var margin = $.extend({top: 20, right: 30, bottom: 30 + label_dist_to_axis / 2, left: 50},
+            options.margin);
 
-    var utils =  AlleleFreqPlotUtils;        // alias
+    var width = options.width || 200,
+        height = options.height || (500 + label_dist_to_axis) / 2 - margin.top - margin.bottom;
 
     // x scale and axis
     var x = d3.scale.linear()
@@ -118,6 +119,8 @@ var AlleleFreqPlot = function(div, data, options) {
         .scale(x)
         .orient("bottom")
         .ticks(options.xticks);
+
+    var utils =  AlleleFreqPlotUtils;        // alias
 
     // make a kde
     var bandwidth = utils.calculate_bandwidth(data);

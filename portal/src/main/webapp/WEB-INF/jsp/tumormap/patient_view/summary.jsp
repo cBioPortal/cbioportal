@@ -212,7 +212,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             AlleleFreqPlot(thumbnail,
                 AlleleFreqPlotUtils.extract_and_process(genomicEventObs),
                 {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
-                    margin: {bottom: 20}
+                    margin: {bottom: 15}
                 });
 
             // make the curve lighter

@@ -5,14 +5,24 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 </head>
 <body>
+
 <form name="echofile" action="echofile" enctype="multipart/form-data" method="POST">
-    <input name="cna" type="file" size="40">
-    <input name="mutation" type="file" size="40">
+    <span>
+        <span>Copy Number</span>
+        <input name="cna" type="file" size="40">
+    </span>
+    <span>
+        <span>Mutations</span>
+        <input name="mutation" type="file" size="40">
+    </span>
     <input type="button" value="Go!">
+    <progress></progress>
 </form>
-<progress></progress>
 </body>
 
+<script type="text/javascript" src="js/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/underscore-min.js"></script>
+<script type="text/javascript" src="js/EchoedDataUtils.js"></script>
 <script type="text/javascript">
     var data;
     $(':button').click(function(){

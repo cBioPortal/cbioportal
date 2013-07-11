@@ -200,8 +200,6 @@ public class EchoFile extends HttpServlet {
 
             for (FileItem item : items) {
 
-                System.out.println(item);
-
                 if (item.getSize() == 0) {
                     // skip empty files
                     continue;
@@ -242,7 +240,6 @@ public class EchoFile extends HttpServlet {
             response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValue(writer, data);
-
         }
 
         // catch all exceptions

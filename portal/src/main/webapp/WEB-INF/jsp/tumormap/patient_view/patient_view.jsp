@@ -289,12 +289,15 @@ var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseIdsStr = '<%=caseId%>';
 var caseIds = caseIdsStr.split(" ");
-var mapCaseIdIx = cbio.util.arrayToAssociatedArrayIndices(caseIds,1);
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
+
+var mapCaseColor = {};
+var mapCaseIndices = {};
+var mapCaseLabels = {};
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -620,7 +623,6 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
-var mapCaseColor = {};
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n = caseIds.length;
@@ -636,7 +638,7 @@ function outputClinicalData() {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>";
             
             var state = guessClinicalData(clinicalData, ["tumor_type"]);
-            if (state!==null) mapCaseColor[caseId] = getCaseColor(state);
+            mapCaseColor[caseId] = getCaseColor(state);
 
             var stateInfo = formatStateInfo(clinicalData);
             if (stateInfo) row +="&nbsp;"+stateInfo;
@@ -655,6 +657,7 @@ function outputClinicalData() {
     }
     
     if (n>1) {
+        setCaseIndicesAndLabels();
         plotCaseLabel('.case-label-header');
         $("#clinical_table").append("<tr><td><a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a></td><td></td></tr>");
@@ -678,7 +681,8 @@ function outputClinicalData() {
         if (state!==null) {
             ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
 
-            if (state.toLowerCase() === "metastatic") {
+            var stateLower = state.toLowerCase();
+            if (stateLower === "metastatic" || stateLower === "metastasis") {
                 var loc = guessClinicalData(clinicalData,["tumor location"]);
                 if (loc!==null) 
                     ret += ", Tumor location: "+loc;
@@ -793,9 +797,40 @@ function outputClinicalData() {
     }
 
     function getCaseColor(caseType) {
-        if (!caseType || caseType.toLowerCase()==="primary") return "black";
-        if (caseType.toLowerCase()==="metastatic") return "red";
-        return "orange";
+        if (!caseType) return "black";
+        var caseTypeLower = caseType.toLowerCase();
+        if (caseTypeLower==="primary") return "black";
+        if (caseTypeLower==="metastatic" || caseTypeLower==="metastasis") return "red";
+        if (caseTypeLower==="progressed"
+                ||caseTypeLower==="locally progressed"
+                || caseTypeLower==="local progression") return "orange";
+        return "black";
+    }
+    
+    function setCaseIndicesAndLabels() {
+        var mapColorCases = {};
+        for (var c in mapCaseColor) {
+            var color = mapCaseColor[c];
+            var cases = mapColorCases[color];
+            if (!cases) mapColorCases[color] = {};
+            mapColorCases[color].push(c);
+        }
+        
+        var ix = 1;
+        ["black","orange","red"].forEach( function(color) {
+            var cases = mapColorCases[color];
+            if (!cases) return;
+            var n = cases.length;
+            if (n===1) {
+                mapCaseLabels[cases[0]]='';
+                mapCaseIndices[cases[0]] = ix++;
+            } else {
+                for (var i=0; i<n; i++){
+                    mapCaseLabels[c] = i+1;
+                    mapCaseIndices[c] = ix++;
+                };
+            }
+        });
     }
 }
 
@@ -813,7 +848,7 @@ function plotCaseLabel(svgEl,onlyIfEmpty) {
 }
 
 function plotCaselabelInSVG(svg, caseId) {
-    var ix = mapCaseIdIx[caseId];
+    var label = mapCaseLabels[caseId];
     var color = mapCaseColor[caseId];
     var circle = svg.append("g")
         .attr("transform", "translate(6,6)");
@@ -825,7 +860,7 @@ function plotCaselabelInSVG(svg, caseId) {
         .attr("y",4)
         .attr("font-size",10)
         .attr("fill","white")
-        .text(ix);
+        .text(label);
 }
 
 </script>

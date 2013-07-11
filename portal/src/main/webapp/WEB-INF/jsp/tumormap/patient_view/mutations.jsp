@@ -48,7 +48,7 @@
                                 var samples = mutations.getValue(source[0], "caseIds");
                                 var ix = [];
                                 samples.forEach(function(caseId){
-                                    ix.push(mapCaseIdIx[caseId]);
+                                    ix.push(mapCaseIndices[caseId]);
                                 });
                                 ix.sort();
                                 var ret = 0;

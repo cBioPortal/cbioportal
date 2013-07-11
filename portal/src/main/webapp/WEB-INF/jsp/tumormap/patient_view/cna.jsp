@@ -41,6 +41,20 @@
                                 }
                                 
                                 return ret.join("&nbsp;");
+                            } else if (type==='sort') {
+                                var samples = cnas.getValue(source[0], "caseIds");
+                                var ix = [];
+                                samples.forEach(function(caseId){
+                                    ix.push(mapCaseIndices[caseId]);
+                                });
+                                ix.sort();
+                                var ret = 0;
+                                for (var i=0; i<ix.length; i++) {
+                                    ret += Math.pow(10,i)*ix[i];
+                                }
+                                return ret;
+                            } else if (type==='type') {
+                                return 0.0;
                             } else {
                                 return cnas.getValue(source[0], "caseIds");
                             }

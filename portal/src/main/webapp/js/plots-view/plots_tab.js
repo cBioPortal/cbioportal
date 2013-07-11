@@ -64,11 +64,6 @@ var PlotsMenu = (function () {
                     value: "data_type_rppa",
                     genetic_profile : []
 
-                },
-                "mutation" : { //hidden field
-                    label: "",
-                    value: "data_type_mutation",
-                    genetic_profile : [],
                 }
             }
         },
@@ -113,7 +108,7 @@ var PlotsMenu = (function () {
 
     function drawMenu() {
         //Gene List
-        Util.generateList("genes", gene_list);
+        Util.generateList("gene", gene_list);
 
         //Plots Type field
         if (status.has_mrna && status.has_copy_no) {
@@ -235,7 +230,6 @@ var PlotsMenu = (function () {
             Util.toggleVisibility("data_type_copy_no_dropdown", "show");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
 
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
 
@@ -243,7 +237,6 @@ var PlotsMenu = (function () {
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "show");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
 
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
 
@@ -251,13 +244,12 @@ var PlotsMenu = (function () {
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "show");
-            Util.toggleVisibility("data_type_mutation_dropdown", "hide");
+
         }
 
     }
 
     function fetchFrameContent() {
-        content.data_type.mutation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mutations;
         content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mrna;
         content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles().genetic_profile_copy_no;
         content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
@@ -282,28 +274,8 @@ var PlotsMenu = (function () {
 }()); //Closing PlotsMenu
 
 var PlotsView = (function () {
-    var elem = {
-            svg : "",
-            xScale : "",
-            yScale : "",
-            xAxis : "",
-            yAxis : "",
-            dotsGroup : ""
-        },   //DOM elements
-        pData = {
-            gene : "",
-            case_set : [],
-            gisticType : [],
-            mutation_type : [], //Mutation Types
-            mutation_detail : [], //Mutation Detail (id)
-            copy_no : [],
-            mrna : [],
-            rppa : [],
-            dna_methylation : [],
-        },   //Related Profile data (later translate into datum object)
-        text = {
-            xTitle : "",
-            yTitle : "",
+
+    var text = {
             mutations_alias : {
                 frameshift : "frameshift",
                 in_frame : "in_frame",
@@ -404,27 +376,14 @@ var PlotsView = (function () {
                 legendText : "Homdel"
             },
         },
-        setting = {
-            canvas_width: 700,
-            canvas_height: 600
-        },   //basic d3 canvas settings
         userSelection = {
+            gene: "",
             plots_type: "",
-            mutation_type : "",
             copy_no_type : "",
             mrna_type : "",
             dna_methylation_type : "",
             rppa_type : "",
         },   //current user selection from the side menu
-        tmpDataSet = [],   //Fileter/form multi-demention Dataset for D3 to use
-        datum = {
-            caseId : "",
-            xVal : "",
-            yVal : "",
-            mutationDetail : "",  //Mutation ID
-            mutationType : "",
-            gisticType : "", //Discretized(GISTIC/RAE) Annotation
-        };   //Template for single dot
 
     var Util = (function() {
 
@@ -435,90 +394,19 @@ var PlotsView = (function () {
             return true;
         }
 
-        function dataIsAvailable() {
-            var xHasData = false;
-            var yHasData = false;
-            var combineHasData = false;
-
-            if (plotsTypeIsCopyNo()) {
-                xData = pData.copy_no;
-                yData = pData.mrna;
-            } else if (plotsTypeIsMethylation()) {
-                xData = pData.dna_methylation;
-                yData = pData.mrna;
-            } else if (plotsTypeIsRPPA()) {
-                xData = pData.mrna;
-                yData = pData.rppa;
-            }
-
-            for (var i = 0; i < pData.case_set.length; i++) {
-                if (!isEmpty(xData[i])) {
-                    xHasData = true;
-                }
-                if (!isEmpty(yData[i])) {
-                    yHasData = true;
-                }
-                if (!isEmpty(xData[i]) && !isEmpty(yData[i])) {
-                    combineHasData = true;
-                }
-            }
-
-            if ((!yHasData) ||
-                (!xHasData) ||
-                (!combineHasData)) {
-                var errorTxt2 = pData.gene + " in the selected cancer study.";
-                if (yHasData == false) {
-                    errorTxt1 = "There is no " +
-                        text.yTitle.substring(pData.gene.length+1) +
-                        " data for";
-                } else if (xHasData == false) {
-                    errorTxt1 = "There is no " +
-                        text.xTitle.substring(pData.gene.length+1) +
-                        " data for";
-                } else if (combineHasData == false) {
-                    errorTxt1 = "There is no data for the selected data type combination for";
-                }
-                //Get rid of "RPPA" in error message for rppa view
-                errorTxt1 = errorTxt1.replace("RPPA", "");
-
-                elem.svg.append("text")
-                    .attr("x", 350)
-                    .attr("y", 50)
-                    .attr("text-anchor", "middle")
-                    .attr("fill", "#DF3A01")
-                    .text(errorTxt1)
-                elem.svg.append("text")
-                    .attr("x", 350)
-                    .attr("y", 70)
-                    .attr("text-anchor", "middle")
-                    .attr("fill", "#DF3A01")
-                    .text(errorTxt2)
-                elem.svg.append("rect")
-                    .attr("x", 150)
-                    .attr("y", 30)
-                    .attr("width", 400)
-                    .attr("height", 50)
-                    .attr("fill", "none")
-                    .attr("stroke-width", 1)
-                    .attr("stroke", "#BDBDBD");
-
-                return false;
-            }
-            return true;
+        function plotsTypeIsCopyNo() {
+            return userSelection.plots_type === "mrna_vs_copy_no";
         };
 
-        function copyData(desArray, srcArray) {
-            desArray.length = 0;
-            var desArrayIndex = 0;
-            for (var tmpIndex = 0; tmpIndex < srcArray.length; tmpIndex ++ ){
-                if (srcArray[tmpIndex] !== "" && srcArray[tmpIndex] !== null ) {
-                    desArray[desArrayIndex] = srcArray[tmpIndex];
-                    desArrayIndex += 1;
-                }
-            }
-        }
+        function plotsTypeIsMethylation() {
+            return userSelection.plots_type === "mrna_vs_dna_methylation";
+        };
 
-        function dataIsDiscretized() {
+        function plotsTypeIsRPPA() {
+            return userSelection.plots_type === "rppa_protein_level_vs_mrna";
+        };
+
+        function plotsIsDiscretized() {
             return userSelection.plots_type.indexOf("copy_no") !== -1 &&
                 userSelection.copy_no_type.indexOf("log2") === -1 &&
                 (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
@@ -526,16 +414,16 @@ var PlotsView = (function () {
                     userSelection.copy_no_type.indexOf("CNA") !== -1);
         }
 
-        function analyseData(xData, yData) {
+        function analyseData(inputArr) {
             var tmp_xData = [];
             var tmp_xIndex = 0;
             var tmp_yData = [];
             var tmp_yIndex = 0;
-            for (var j=0; j< pData.case_set.length; j++){
-                if (!isEmpty(xData[j]) && !isEmpty(yData[j])) {
-                    tmp_xData[tmp_xIndex] = xData[j];
+            for (var j = 0; j< inputArr.length; j++){
+                if (!isEmpty(inputArr[j].xVal) && !isEmpty(inputArr[j].yVal)) {
+                    tmp_xData[tmp_xIndex] = inputArr[j].xVal;
                     tmp_xIndex += 1;
-                    tmp_yData[tmp_yIndex] = yData[j];
+                    tmp_yData[tmp_yIndex] = inputArr[j].yVal;
                     tmp_yIndex += 1;
                 }
             }
@@ -553,6 +441,17 @@ var PlotsView = (function () {
                 max_y: max_y,
                 edge_y: edge_y
             };
+        }
+
+        function copyData(desArray, srcArray) {
+            desArray.length = 0;
+            var desArrayIndex = 0;
+            for (var tmpIndex = 0; tmpIndex < srcArray.length; tmpIndex ++ ){
+                if (srcArray[tmpIndex] !== "" && srcArray[tmpIndex] !== null ) {
+                    desArray[desArrayIndex] = srcArray[tmpIndex];
+                    desArrayIndex += 1;
+                }
+            }
         }
 
         function searchIndexBottom(arr, ele) {
@@ -579,231 +478,100 @@ var PlotsView = (function () {
             return arr.length - 1;
         };
 
-        function plotsTypeIsCopyNo() {
-            return userSelection.plots_type.indexOf("copy_no") !== -1;
-        };
-
-        function plotsTypeIsMethylation() {
-            return userSelection.plots_type.indexOf("methylation") !== -1;
-        };
-
-        function plotsTypeIsRPPA() {
-            return userSelection.plots_type.indexOf("rppa") !== -1;
-        };
 
         return {
-            dataIsAvailable: dataIsAvailable,
-            copyData: copyData,
-            dataIsDiscretized: dataIsDiscretized,
-            analyseData: analyseData,
-            searchIndexBottom: searchIndexBottom,
-            searchIndexTop: searchIndexTop,
             plotsTypeIsCopyNo: plotsTypeIsCopyNo,
             plotsTypeIsMethylation: plotsTypeIsMethylation,
             plotsTypeIsRPPA: plotsTypeIsRPPA,
-            isEmpty: isEmpty
+            isEmpty: isEmpty,
+            copyData: copyData,
+            plotsIsDiscretized: plotsIsDiscretized,
+            analyseData: analyseData,
+            searchIndexBottom: searchIndexBottom,
+            searchIndexTop: searchIndexTop
         };
 
     }());
 
-    var Data = (function() {
+    var PlotsData = (function() {
 
-        function fetchPlotsData() {
-            var result_set = new Array(5);
-            for (var i = 0; i< result_set.length; i++) {
-                result_set[i] = new Array();
-            }
-            //Calling web APIs
-            var url_base = "";
-            if (case_set_id === "-1") {
-                url_base = "webservice.do?cmd=getProfileData&case_ids_key=" +
-                    case_ids_key + "&gene_list=" + pData.gene + "&genetic_profile_id=";
-            } else {
-                url_base = "webservice.do?cmd=getProfileData&case_set_id=" +
-                    case_set_id + "&gene_list=" + pData.gene + "&genetic_profile_id=";
-            }
-            var types = [
-                userSelection.mutation_type,
-                userSelection.copy_no_type,
-                userSelection.mrna_type,
-                userSelection.rppa_type,
-                userSelection.dna_methylation_type
-            ];
-            for (var i = 0; i < types.length; i++) {
-                if (types[i]) {
-                    $.ajax({
-                        url: url_base + types[i],
-                        type: 'get',
-                        dataType: 'text',
-                        async: false,
-                        success: function (data) {
-                            if (data !== "") {
-                                if (data.indexOf("No genetic profile available") === -1) {  //Profile Exists
-                                    var tmp_sections = data.split(/\n/);
-                                    //Get Case Set
-                                    var tmp_case_set = String(tmp_sections[3]).trim().split(/\s+/);
-                                    for (var j = 0; j < tmp_case_set.length - 2; j++) {
-                                        pData.case_set[j] = tmp_case_set[j+2];
-                                    }
-                                    //Get profile data (Filter the headers)
-                                    var profile_data = [];
-                                    var tmp_profile_data = String(tmp_sections[4]).trim().split(/\s+/);
-                                    for (var profileDataIndex = 0; profileDataIndex < tmp_profile_data.length; profileDataIndex++) {
-                                        profile_data[profileDataIndex] = tmp_profile_data[profileDataIndex + 2];
-                                    }
-                                    //Fill in Result Data Set
-                                    Util.copyData(result_set[i], profile_data);
-                                }
-                            } else {
-                                alert("ERROR Fetching Data.");
-                            }
-                        }
-                    });
+        var caseSetLength = 0,
+            dotsGroup = [],
+            singleDot = {
+                caseId : "",
+                xVal : "",
+                yVal : "",
+                mutationDetail : "",  //Mutation ID
+                mutationType : "",
+                gisticType : "", //Discretized(GISTIC/RAE) Annotation
+            },   //Template for single dot
+            status = {
+                xHasData: false,
+                yHasData: false,
+                combineHasData: false
+            },
+            attr = {
+                min_x: 0,
+                max_x: 0,
+                min_y: 0,
+                max_y: 0
+            };
+
+        function init(result){
+            status.xHasData = false;
+            status.yHasData = false;
+            status.combineHasData = false;
+            caseSetLength = 0;
+            dotsGroup.length = 0;
+            fetchPlotsData(result);
+            prioritizeMutatedCases();
+            analyseData();
+
+        };
+
+        function fetchPlotsData(result) {
+            var resultObj = result[userSelection.gene];
+            for (var key in resultObj) {  //key is case id
+                caseSetLength += 1;
+                var _obj = resultObj[key];
+                var _singleDot = jQuery.extend(true, {}, singleDot);
+                _singleDot.caseId = key;
+                //TODO: remove hard-coded menu content
+                if (Util.plotsTypeIsCopyNo()) {
+                    _singleDot.xVal = _obj[userSelection.copy_no_type];
+                    _singleDot.yVal = _obj[userSelection.mrna_type];
+                } else if (Util.plotsTypeIsMethylation()) {
+                    _singleDot.xVal = _obj[userSelection.dna_methylation_type];
+                    _singleDot.yVal = _obj[userSelection.mrna_type];
+                } else if (Util.plotsTypeIsRPPA()) {
+                    _singleDot.xVal = _obj[userSelection.mrna_type];
+                    _singleDot.yVal = _obj[userSelection.rppa_type];
                 }
-            }
-            Util.copyData(pData.mutation_detail, result_set[0]);
-            Util.copyData(pData.copy_no, result_set[1]);
-            Util.copyData(pData.mrna, result_set[2]);
-            Util.copyData(pData.rppa, result_set[3]);
-            Util.copyData(pData.dna_methylation, result_set[4]);
-        }
-
-        function fetchMutationType() {
-            var mutationMap = {};
-            for (var i = 0; i < pData.case_set.length; i++) {
-                mutationMap[pData.case_set[i]] = "non";
-            }
-            var url = "";
-            if (case_set_id === "-1") {
-                url = "webservice.do?cmd=getMutationData&case_ids_key=" +
-                    case_ids_key + "&gene_list=" + pData.gene +
-                    "&genetic_profile_id=" + cancer_study_id + "_mutations";
-            } else {
-                url = "webservice.do?cmd=getMutationData&case_set_id="  +
-                    case_set_id + "&gene_list=" + pData.gene +
-                    "&genetic_profile_id=" + cancer_study_id + "_mutations";
-            }
-            $.ajax({
-                url: url,
-                type: 'get',
-                dataType: 'text',
-                async: false,
-                success: function (data) {
-                    if (data != "") {
-                        if (data.indexOf("No genetic profile available") === -1) {  //Profile Exists
-                            tmp_lines = data.split(/\n/);
-                            for (var j = 3; j < tmp_lines.length; j++) {   //Skip first two lines
-                                var tmp_columns = tmp_lines[j].split(/\t/);
-                                //Column2 is case id, column 5 is mutation detail
-                                mutationMap[tmp_columns[2]] = tmp_columns[5];
-                            }
-                        }
-                    } else {
-                        //TODO: Hander Mutation Detail Fetching Error
-                    }
+                _singleDot.mutationDetail = _obj[cancer_study_id + "_mutations"];
+                _singleDot.mutationType = _obj[cancer_study_id + "_mutations"];
+                _singleDot.gisticType = text.gistic_txt_val[_obj[cancer_study_id + "_gistic"]];
+                //Set Data Status
+                if (!Util.isEmpty(_singleDot.xVal)) {
+                    status.xHasData = true;
                 }
-            });
-            for (var k = 0; k < pData.case_set.length; k++) {
-                var item = mutationMap[pData.case_set[k]];
-                if (item === "Frame_Shift_Del" || item === "Frame_Shift_Ins") {
-                    item = text.mutations_alias.frameshift;
-                } else if ((item === "In_Frame_Del") || (item === "In_Frame_Ins")) {
-                    item = text.mutations_alias.in_frame;
-                } else if ((item === "Missense_Mutation") || (item === "Missense")) {
-                    item = text.mutations_alias.missense;
-                } else if ((item === "Nonsense_Mutation") || (item === "Nonsense")) {
-                    item = text.mutations_alias.nonsense;
-                } else if ((item === "Splice_Site") || (item === "Splice_Site_SNP")) {
-                    item = text.mutations_alias.splice;
-                } else if (item === "NonStop_Mutation") {
-                    item = text.mutations_alias.nonstop;
-                } else if (item === "Translation_Start_Site") {
-                    item = text.mutations_alias.nonstart;
-                } else {
-                    item = text.mutations_alias.non;
+                if (!Util.isEmpty(_singleDot.yVal)) {
+                    status.yHasData = true;
                 }
-                pData.mutation_type[k] = item;
-            }
-        }
-
-        function translateGisticType() {
-            var items = []; // tmp container for gistic values.
-            var url;
-            if (case_set_id === "-1") {
-                url = "webservice.do?cmd=getProfileData&case_ids_key=" +
-                    case_ids_key + "&gene_list=" +
-                    pData.gene + "&genetic_profile_id=" +
-                    cancer_study_id + "_gistic";
-            } else {
-                url = "webservice.do?cmd=getProfileData&case_set_id=" +
-                    case_set_id + "&gene_list=" +
-                    pData.gene + "&genetic_profile_id=" +
-                    cancer_study_id + "_gistic";
-
-            }
-            $.ajax({
-                url: url,
-                type: 'get',
-                dataType: 'text',
-                async: false,
-                success: function (data) {
-                    if (data != "") {
-                        if (data.indexOf("No genetic profile available") === -1) {  //Profile Exists
-                            tmp_lines = data.split(/\n/);
-                            items = tmp_lines[4].split(/\t/);
-                            items.splice(0,2);
-                        }
-                    } else {
-                        //TODO: Hander Mutation Detail Fetching Error
-                    }
-                }
-            });
-            for (var i = 0; i < pData.case_set.length; i++) {
-                pData.gisticType[i] = text.gistic_txt_val[items[i]];
-            }
-        }
-
-        function formDataSet() {
-            tmpDataSet.length = 0;
-            for (var i = 0; i < pData.case_set.length; i++) {
-                var tmpObj = jQuery.extend(true, {}, datum);
-                tmpObj.caseId = pData.case_set[i];
-                tmpObj.gisticType = pData.gisticType[i];
-                tmpObj.mutationType = pData.mutation_type[i];
-                tmpObj.mutationDetail = pData.mutation_detail[i];
-                if (userSelection.plots_type.indexOf("copy_no") !== -1) { // mrna vs. copy_no
-                    if (!(Util.isEmpty(pData.copy_no[i])) &&
-                        !(Util.isEmpty(pData.mrna[i]))) {
-                        tmpObj.xVal = pData.copy_no[i];
-                        tmpObj.yVal = pData.mrna[i];
-                        tmpDataSet.push(tmpObj);
-                    }
-                } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
-                    if (!(Util.isEmpty(pData.dna_methylation[i])) &&
-                        !(Util.isEmpty(pData.mrna[i]))) {
-                        tmpObj.xVal = pData.dna_methylation[i];
-                        tmpObj.yVal = pData.mrna[i];
-                        tmpDataSet.push(tmpObj);
-                    }
-                } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
-                    if (!(Util.isEmpty(pData.rppa[i])) &&
-                        !(Util.isEmpty(pData.mrna[i]))) {
-                        tmpObj.xVal = pData.mrna[i];
-                        tmpObj.yVal = pData.rppa[i];
-                        tmpDataSet.push(tmpObj);
-                    }
-                } else {
-                    //TODO: Error Handler
+                //Push into the dots array
+                if (!Util.isEmpty(_singleDot.xVal) &&
+                    !Util.isEmpty(_singleDot.yVal)) {
+                    dotsGroup.push(_singleDot);
+                    status.combineHasData = true;
                 }
             }
         }
 
-        function reorderMutations() {
+        function prioritizeMutatedCases() {
             var nonMutatedData = [];
             var mutatedData= [];
             var dataBuffer = [];
-            tmpDataSet.forEach (function(entry) {
-                if (entry.mutationType != "non") {
+            dotsGroup.forEach (function(entry) {
+                if (!Util.isEmpty(entry.mutationDetail)) {
                     mutatedData.push(entry);
                 } else {
                     nonMutatedData.push(entry);
@@ -815,75 +583,370 @@ var PlotsView = (function () {
             mutatedData.forEach (function(entry) {
                 dataBuffer.push(entry);
             });
-            tmpDataSet = dataBuffer;
+            dotsGroup = dataBuffer;
         }
 
-        return {
-            fetchPlotsData: fetchPlotsData,
-            fetchMutationType: fetchMutationType,
-            translateGisticType: translateGisticType,
-            formDataSet: formDataSet,
-            reorderMutations: reorderMutations
-
-        };
-
-    }());
-
-    var Text = (function() {
-
-        function getDataTypes() {
-            userSelection.plots_type = document.getElementById("plots_type").value;
-            userSelection.mutation_type = document.getElementById("data_type_mutation").value;
-            userSelection.copy_no_type = document.getElementById("data_type_copy_no").value;
-            userSelection.mrna_type = document.getElementById("data_type_mrna").value;
-            userSelection.rppa_type = document.getElementById("data_type_rppa").value;
-            userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
-        }
-
-        function getAxisTitles() {
-            if (userSelection.plots_type.indexOf("copy_no") !== -1) {
-                var e = document.getElementById("data_type_copy_no");
-                text.xTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_mrna");
-                text.yTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
-            } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
-                var e = document.getElementById("data_type_dna_methylation");
-                text.xTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_mrna");
-                text.yTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
-            } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
-                var e = document.getElementById("data_type_mrna");
-                text.xTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_rppa");
-                text.yTitle = pData.gene + ", " + e.options[e.selectedIndex].text;
+        function analyseData() {
+            var tmp_xData = [];
+            var tmp_xIndex = 0;
+            var tmp_yData = [];
+            var tmp_yIndex = 0;
+            for (var j = 0; j < dotsGroup.length; j++){
+                if (!Util.isEmpty(dotsGroup[j].xVal) &&
+                    !Util.isEmpty(dotsGroup[j].yVal)) {
+                    tmp_xData[tmp_xIndex] = dotsGroup[j].xVal;
+                    tmp_xIndex += 1;
+                    tmp_yData[tmp_yIndex] = dotsGroup[j].yVal;
+                    tmp_yIndex += 1;
+                }
             }
+            attr.min_x = Math.min.apply(Math, tmp_xData);
+            attr.max_x = Math.max.apply(Math, tmp_xData);
+            attr.min_y = Math.min.apply(Math, tmp_yData);
+            attr.max_y = Math.max.apply(Math, tmp_yData);
         }
 
         return {
-            getDataTypes : getDataTypes,
-            getAxisTitles : getAxisTitles
+            init: init,
+            getCaseSetLength: function() { return caseSetLength; },
+            getDotsGroup: function() { return dotsGroup; },
+            getDotsGroupLength: function() { return dotsGroup.length; },
+            getDataStatus: function() { return status; },
+            getDataAttr: function() { return attr; }
         };
+
     }());
 
     var View = (function() {
 
-        function initView() {
-            $('#view_title').empty();
-            $('#plots_box').empty();
+        var elem = {
+                svg : ""
+            },   //DOM elements
+            settings = {
+                canvas_width: 700,
+                canvas_height: 600
+            };   //basic d3 canvas settings
+
+        var Axis = (function() {
+            var xScale = "",
+                yScale = "",
+                xAxis = "",
+                yAxis = "",
+                xTitle = "",
+                yTitle = "";
+
+            function getAxisTitles() {
+                //TODO: Change hard-coded menu items value
+                if (Util.plotsTypeIsCopyNo()) {
+                    var e = document.getElementById("data_type_copy_no");
+                    xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    e = document.getElementById("data_type_mrna");
+                    yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                } else if (Util.plotsTypeIsMethylation()) {
+                    var e = document.getElementById("data_type_dna_methylation");
+                    xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    e = document.getElementById("data_type_mrna");
+                    yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                } else if (Util.plotsTypeIsRPPA()) {
+                    var e = document.getElementById("data_type_mrna");
+                    xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    e = document.getElementById("data_type_rppa");
+                    yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                }
+            }
+
+            function initDiscretizedAxis() {
+                var _dataAttr = PlotsData.getDataAttr();
+                var min_y = _dataAttr.min_y;
+                var max_y = _dataAttr.max_y;
+                //reset max_x as the range of slots
+                // -- Not real max x value for scaling!!
+                var slotsCnt = 0;
+                var tmp_copy_no = [];
+                $.each(PlotsData.getDotsGroup(), function(index, value) {
+                    tmp_copy_no.push(value.xVal);
+                })
+                for (var j = -2; j < 3; j++) {
+                    if (tmp_copy_no.indexOf(j.toString()) !== -1) {
+                        slotsCnt += 1;
+                    }
+                }
+                //Set the domain range for different cases
+                var new_min_x, new_max_x;
+                if (slotsCnt === 1) {
+                    new_min_x = -0.5;
+                    new_max_x = 0.5;
+                } else if (slotsCnt === 2) {
+                    new_min_x = -0.8;
+                    new_max_x = 1.8;
+                } else if (slotsCnt === 3) {
+                    new_min_x = -0.8;
+                    new_max_x = 2.8;
+                } else if (slotsCnt === 4) {
+                    new_min_x = -0.6;
+                    new_max_x = 3.6;
+                } else if (slotsCnt === 5) {
+                    new_min_x = -0.6;
+                    new_max_x = 4.6;
+                }
+                var edge_y = (max_y - min_y) * 0.1;
+                //Define the axis
+                xScale = d3.scale.linear()
+                    .domain([new_min_x, new_max_x])
+                    .range([100, 600]);
+                yScale = d3.scale.linear()
+                    .domain([min_y - edge_y, max_y + edge_y])
+                    .range([520, 20]);
+
+                xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient("bottom")
+                yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left");
+            }
+
+            function drawDiscretizedAxis() {
+                var textSet = [];
+                var svg = elem.svg;
+                var tmp_copy_no = [];
+                $.each(PlotsData.getDotsGroup(), function(index, value) {
+                    tmp_copy_no.push(value.xVal);
+                })
+                for (var j = -2; j < 3; j++) {
+                    if (tmp_copy_no.indexOf(j.toString()) !== -1) {
+                        textSet.push(text.gistic_txt_val[j.toString()]);
+                    }
+                }
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 520)")
+                    .attr("class", "plots-x-axis-class")
+                    .call(xAxis.ticks(textSet.length))
+                    .selectAll("text")
+                    .data(textSet)
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "11px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black")
+                    .text(function(d){return d});
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 20)")
+                    .call(xAxis.orient("bottom").ticks(0));
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(100, 0)")
+                    .attr("class", "plots-y-axis-class")
+                    .call(yAxis)
+                    .selectAll("text")
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "11px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black");
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(600, 0)")
+                    .call(yAxis.orient("left").ticks(0));
+            }
+
+            function initContinuousAxis() {
+                var _dataAttr = PlotsData.getDataAttr();
+                var min_x = _dataAttr.min_x;
+                var max_x = _dataAttr.max_x;
+                var min_y = _dataAttr.min_y;
+                var max_y = _dataAttr.max_y;
+                var edge_x = (max_x - min_x) * 0.2;
+                var edge_y = (max_y - min_y) * 0.1;
+
+                if (Util.plotsTypeIsMethylation() &&
+                    userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
+                    //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
+                    xScale = d3. scale.linear()
+                        .domain([-0.02, 1])
+                        .range([100,600]);
+                } else {
+                    xScale = d3.scale.linear()
+                        .domain([min_x - edge_x, max_x + edge_x])
+                        .range([100, 600]);
+                }
+                yScale = d3.scale.linear()
+                    .domain([min_y - edge_y, max_y + edge_y])
+                    .range([520, 20]);
+                xAxis = d3.svg.axis()
+                    .scale(xScale)
+                    .orient("bottom")
+                yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left");
+            }
+
+            function drawContinuousAxis() {
+                var svg = elem.svg;
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 520)")
+                    .call(xAxis)
+                    .selectAll("text")
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "11px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black");
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(0, 20)")
+                    .call(xAxis.orient("bottom").ticks(0));
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(100, 0)")
+                    .call(yAxis)
+                    .selectAll("text")
+                    .style("font-family", "sans-serif")
+                    .style("font-size", "11px")
+                    .style("stroke-width", 0.5)
+                    .style("stroke", "black")
+                    .style("fill", "black");
+                svg.append("g")
+                    .style("stroke-width", 2)
+                    .style("fill", "none")
+                    .style("stroke", "grey")
+                    .style("shape-rendering", "crispEdges")
+                    .attr("transform", "translate(600, 0)")
+                    .call(yAxis.orient("left").ticks(0));
+            }
+
+            function addAxisTitle() {
+                var axisTitleGroup = elem.svg.append("svg:g");
+                axisTitleGroup.append("text")
+                    .attr("class", "x-axis-title")
+                    .attr("x", 350)
+                    .attr("y", 580)
+                    .style("text-anchor", "middle")
+                    .style("font-weight","bold")
+                    .text(xTitle);
+                axisTitleGroup.append("text")
+                    .attr("class", "y-axis-title")
+                    .attr("transform", "rotate(-90)")
+                    .attr("x", -270)
+                    .attr("y", 45)
+                    .style("text-anchor", "middle")
+                    .style("font-weight","bold")
+                    .text(yTitle);
+            }
+
+            return {
+                init: function() {
+                    getAxisTitles();
+                    if (Util.plotsIsDiscretized()) {
+                        initDiscretizedAxis();
+                        drawDiscretizedAxis();
+                    } else {
+                        initContinuousAxis();
+                        drawContinuousAxis();
+                    }
+                    addAxisTitle();
+                },
+                getXScale : function() { return xScale; },
+                getYScale : function() { return yScale; }
+            };
+
+        }());
+
+        function initCanvas() {
             elem.svg = d3.select("#plots_box")
                 .append("svg")
-                .attr("width", setting.canvas_width)
-                .attr("height", setting.canvas_height);
+                .attr("width", settings.canvas_width)
+                .attr("height", settings.canvas_height);
+        }
+
+        function drawErrMsgs() {
+            var _xDataType = "",
+                _yDataType = "";
+            if (Util.plotsTypeIsCopyNo()) {
+                var e = document.getElementById("data_type_copy_no");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_mrna");
+                _yDataType = e.options[e.selectedIndex].text;
+            } else if (Util.plotsTypeIsMethylation()) {
+                var e = document.getElementById("data_type_dna_methylation");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_mrna");
+                _yDataType = e.options[e.selectedIndex].text;
+            } else if (Util.plotsTypeIsRPPA()) {
+                var e = document.getElementById("data_type_mrna");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_rppa");
+                _yDataType = e.options[e.selectedIndex].text;
+            }
+
+            var err_line1 = "There is no data in UNAVAILABLE_DATA_TYPE";
+            var err_line2 = "for " + userSelection.gene + " in selected cancer study.";
+            var _dataStatus = PlotsData.getDataStatus();
+            if (!_dataStatus.xHasData && _dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _xDataType);
+            } else if (_dataStatus.xHasData && !_dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _yDataType);
+            } else if (!_dataStatus.xHasData && !_dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "both selected data types");
+            } else if (_dataStatus.xHasData &&_dataStatus.yHasData &&
+                      !_dataStatus.combineHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "combined data types");
+            }
+
+            elem.svg.append("text")
+                .attr("x", 350)
+                .attr("y", 50)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(err_line1)
+            elem.svg.append("text")
+                .attr("x", 350)
+                .attr("y", 70)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(err_line2)
+            elem.svg.append("rect")
+                .attr("x", 150)
+                .attr("y", 30)
+                .attr("width", 400)
+                .attr("height", 50)
+                .attr("fill", "none")
+                .attr("stroke-width", 1)
+                .attr("stroke", "#BDBDBD");
         }
 
         function drawImgConverter() {
             $('#view_title').empty();
             if (Util.plotsTypeIsCopyNo()) {
-                $('#view_title').append(pData.gene + ": mRNA Expression v. CNA ");
+                $('#view_title').append(userSelection.gene + ": mRNA Expression v. CNA ");
             } else if (Util.plotsTypeIsMethylation()) {
-                $('#view_title').append(pData.gene + ": mRNA Expression v. DNA Methylation ");
+                $('#view_title').append(userSelection.gene + ": mRNA Expression v. DNA Methylation ");
             } else if (Util.plotsTypeIsRPPA()) {
-                $('#view_title').append(pData.gene + ": RPPA protein level v. mRNA Expression ");
+                $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
             }
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
@@ -899,202 +962,6 @@ var PlotsView = (function () {
                 "<input type='hidden' name='filename' value='plots.svg'>" +
                 "<input type='submit' value='SVG'></form>";
             $('#view_title').append(svgConverterForm);
-        }
-
-        function initContinuousAxis() {
-            var analyseResult = {};
-            if (userSelection.plots_type.indexOf("copy_no") !== -1) {
-                analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
-            } else if (userSelection.plots_type.indexOf("dna_methylation") !== -1) {
-                analyseResult = Util.analyseData(pData.dna_methylation, pData.mrna);
-            } else if (userSelection.plots_type.indexOf("rppa") !== -1) {
-                analyseResult = Util.analyseData(pData.mrna, pData.rppa);
-            }
-            var min_x = analyseResult.min_x;
-            var max_x = analyseResult.max_x;
-            var edge_x = analyseResult.edge_x;
-            var min_y = analyseResult.min_y;
-            var max_y = analyseResult.max_y;
-            var edge_y = analyseResult.edge_y;
-
-            if (userSelection.plots_type.indexOf("methylation") !== -1 &&
-                userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
-                //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
-                elem.xScale = d3. scale.linear()
-                    .domain([-0.02, 1])
-                    .range([100,600]);
-            } else {
-                elem.xScale = d3.scale.linear()
-                    .domain([min_x - edge_x, max_x + edge_x])
-                    .range([100, 600]);
-            }
-            elem.yScale = d3.scale.linear()
-                .domain([min_y - edge_y, max_y + edge_y])
-                .range([520, 20]);
-            elem.xAxis = d3.svg.axis()
-                .scale(elem.xScale)
-                .orient("bottom")
-            elem.yAxis = d3.svg.axis()
-                .scale(elem.yScale)
-                .orient("left");
-        }
-
-        function initDiscretizedAxis() {
-            var analyseResult = Util.analyseData(pData.copy_no, pData.mrna);
-            var min_y = analyseResult.min_y;
-            var max_y = analyseResult.max_y;
-            var edge_y = analyseResult.edge_y;
-
-            //reset max_x as the range of slots
-            // -- Not real max x value for scaling!!
-            var slotsCnt = 0;
-            var tmp_copy_no = [];
-            $.each(tmpDataSet, function(index, value) {
-                tmp_copy_no.push(value.xVal);
-            })
-            for (var j = -2; j < 3; j++) {
-                if (tmp_copy_no.indexOf(j.toString()) !== -1) {
-                    slotsCnt += 1;
-                }
-            }
-
-            //Set the domain range for different cases
-            var new_min_x, new_max_x;
-            if (slotsCnt === 1) {
-                new_min_x = -0.5;
-                new_max_x = 0.5;
-            } else if (slotsCnt === 2) {
-                new_min_x = -0.8;
-                new_max_x = 1.8;
-            } else if (slotsCnt === 3) {
-                new_min_x = -0.8;
-                new_max_x = 2.8;
-            } else if (slotsCnt === 4) {
-                new_min_x = -0.6;
-                new_max_x = 3.6;
-            } else if (slotsCnt === 5) {
-                new_min_x = -0.6;
-                new_max_x = 4.6;
-            }
-
-            //Define the axis
-            elem.xScale = d3.scale.linear()
-                .domain([new_min_x, new_max_x])
-                .range([100, 600]);
-            elem.yScale = d3.scale.linear()
-                .domain([min_y - edge_y, max_y + edge_y])
-                .range([520, 20]);
-
-            elem.xAxis = d3.svg.axis()
-                .scale(elem.xScale)
-                .orient("bottom")
-            elem.yAxis = d3.svg.axis()
-                .scale(elem.yScale)
-                .orient("left");
-        }
-
-        function drawDiscretizedAxis() {
-            var textSet = [];
-            var svg = elem.svg;
-
-            var tmp_copy_no = [];
-            $.each(tmpDataSet, function(index, value) {
-                tmp_copy_no.push(value.xVal);
-            })
-            for (var j = -2; j < 3; j++) {
-                if (tmp_copy_no.indexOf(j.toString()) !== -1) {
-                    textSet.push(text.gistic_txt_val[j.toString()]);
-                }
-            }
-
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(0, 520)")
-                .attr("class", "plots-x-axis-class")
-                .call(elem.xAxis.ticks(textSet.length))
-                .selectAll("text")
-                .data(textSet)
-                .style("font-family", "sans-serif")
-                .style("font-size", "11px")
-                .style("stroke-width", 0.5)
-                .style("stroke", "black")
-                .style("fill", "black")
-                .text(function(d){return d});
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(0, 20)")
-                .call(elem.xAxis.orient("bottom").ticks(0));
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(100, 0)")
-                .attr("class", "plots-y-axis-class")
-                .call(elem.yAxis)
-                .selectAll("text")
-                .style("font-family", "sans-serif")
-                .style("font-size", "11px")
-                .style("stroke-width", 0.5)
-                .style("stroke", "black")
-                .style("fill", "black");
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(600, 0)")
-                .call(elem.yAxis.orient("left").ticks(0));
-        }
-
-        function drawContinuousAxis() {
-            var svg = elem.svg;
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(0, 520)")
-                .call(elem.xAxis)
-                .selectAll("text")
-                .style("font-family", "sans-serif")
-                .style("font-size", "11px")
-                .style("stroke-width", 0.5)
-                .style("stroke", "black")
-                .style("fill", "black");
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(0, 20)")
-                .call(elem.xAxis.orient("bottom").ticks(0));
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(100, 0)")
-                .call(elem.yAxis)
-                .selectAll("text")
-                .style("font-family", "sans-serif")
-                .style("font-size", "11px")
-                .style("stroke-width", 0.5)
-                .style("stroke", "black")
-                .style("fill", "black");
-            svg.append("g")
-                .style("stroke-width", 2)
-                .style("fill", "none")
-                .style("stroke", "grey")
-                .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(600, 0)")
-                .call(elem.yAxis.orient("left").ticks(0));
         }
 
         function drawDiscretizedPlots() { //GISTIC, RAE view
@@ -1357,25 +1224,6 @@ var PlotsView = (function () {
                 });
         }
 
-        function drawAxisTitle() {
-            var axisTitleGroup = elem.svg.append("svg:g");
-            axisTitleGroup.append("text")
-                .attr("class", "label")
-                .attr("x", 350)
-                .attr("y", 580)
-                .style("text-anchor", "middle")
-                .style("font-weight","bold")
-                .text(text.xTitle);
-            axisTitleGroup.append("text")
-                .attr("class", "label")
-                .attr("transform", "rotate(-90)")
-                .attr("x", -270)
-                .attr("y", 45)
-                .style("text-anchor", "middle")
-                .style("font-weight","bold")
-                .text(text.yTitle);
-        }
-
         function drawCopyNoViewLegends() {
             //Only show glyphs whose mutation type
             //appeared in the current individual case
@@ -1593,23 +1441,91 @@ var PlotsView = (function () {
         }());
 
         return {
-            initView: initView,
-            drawImgConverter: drawImgConverter,
-            initContinuousAxis: initContinuousAxis,
-            initDiscretizedAxis: initDiscretizedAxis,
-            drawDiscretizedAxis: drawDiscretizedAxis,
-            drawContinuousAxis: drawContinuousAxis,
+            init: function() {
+                initCanvas();
+                if (PlotsData.getDotsGroup().length !== 0) {
+                    drawImgConverter();
+                    Axis.init();
+                } else { //No available data
+                    drawErrMsgs();
+                }
+            },
             drawDiscretizedPlots: drawDiscretizedPlots,
             drawLog2Plots: drawLog2Plots,
             drawBoxPlots: drawBoxPlots,
             drawContinuousPlots: drawContinuousPlots,
-            drawAxisTitle: drawAxisTitle,
             drawCopyNoViewLegends: drawCopyNoViewLegends,
             drawOtherViewLegends: drawOtherViewLegends,
             Qtips: Qtips
         };
 
     }());
+
+    function getUserSelection() {
+        userSelection.gene = document.getElementById("gene").value;
+        userSelection.plots_type = document.getElementById("plots_type").value;
+        userSelection.copy_no_type = document.getElementById("data_type_copy_no").value;
+        userSelection.mrna_type = document.getElementById("data_type_mrna").value;
+        userSelection.rppa_type = document.getElementById("data_type_rppa").value;
+        userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
+    }
+
+    function generatePlots() {
+        getProfileData();
+    }
+
+    function getProfileData() {
+        var _profileIdsStr = cancer_study_id + "_mutations" + " " +
+                             cancer_study_id + "_gistic" + " " +
+                             userSelection.copy_no_type + " " +
+                             userSelection.mrna_type + " " +
+                             userSelection.rppa_type + " " +
+                             userSelection.dna_methylation_type;
+
+        Plots.getProfileData(
+            userSelection.gene,
+            _profileIdsStr,
+            case_set_id,
+            case_ids_key,
+            getProfileDataCallBack
+        );
+    }
+
+    function getProfileDataCallBack(result) {
+
+        PlotsData.init(result);
+        View.init();
+//        if (Util.dataIsAvailable()) {
+//            if (Util.plotsTypeIsCopyNo()) {
+//                if (Util.dataIsDiscretized()) {
+//                    View.initDiscretizedAxis();
+//                    View.drawDiscretizedAxis();
+//                    View.drawBoxPlots();
+//                    View.drawDiscretizedPlots();
+//                } else {
+//                    View.initContinuousAxis();
+//                    View.drawContinuousAxis();
+//                    View.drawLog2Plots();
+//                }
+//                View.drawCopyNoViewLegends();
+//                View.Qtips.init("CopyNo");
+//            } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
+//                View.initContinuousAxis();
+//                View.drawContinuousAxis();
+//                View.drawContinuousPlots();
+//                View.drawOtherViewLegends();
+//                View.Qtips.init("Methylation");
+//            } else if (Util.plotsTypeIsRPPA()) {
+//                View.initContinuousAxis();
+//                View.drawContinuousAxis();
+//                View.drawContinuousPlots();
+//                View.drawOtherViewLegends();
+//                View.Qtips.init("RPPA");
+//            }
+//            View.drawAxisTitle();
+//            //Img Center: PDF and SVG button
+//        }
+    }
 
     return {
         init: function(){
@@ -1619,49 +1535,9 @@ var PlotsView = (function () {
             $('#view_title').hide();
             $('#plots_box').hide();
 
-            //Data Processing
-            pData.gene = document.getElementById("genes").value;
-            Text.getDataTypes();
-            Text.getAxisTitles();
-            Data.fetchPlotsData();
-            Data.translateGisticType();
-            Data.fetchMutationType();
-            //TODO: error handle
-            Data.formDataSet();    //Build the tmp data set for d3 to use
-            Data.reorderMutations();
-            //View Construction
-            View.initView();
-            if (Util.dataIsAvailable()) {
-                View.drawImgConverter();  //PDF, SVG download buttons
-                if (Util.plotsTypeIsCopyNo()) {
-                    if (Util.dataIsDiscretized()) {
-                        View.initDiscretizedAxis();
-                        View.drawDiscretizedAxis();
-                        View.drawBoxPlots();
-                        View.drawDiscretizedPlots();
-                    } else {
-                        View.initContinuousAxis();
-                        View.drawContinuousAxis();
-                        View.drawLog2Plots();
-                    }
-                    View.drawCopyNoViewLegends();
-                    View.Qtips.init("CopyNo");
-                } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
-                    View.initContinuousAxis();
-                    View.drawContinuousAxis();
-                    View.drawContinuousPlots();
-                    View.drawOtherViewLegends();
-                    View.Qtips.init("Methylation");
-                } else if (Util.plotsTypeIsRPPA()) {
-                    View.initContinuousAxis();
-                    View.drawContinuousAxis();
-                    View.drawContinuousPlots();
-                    View.drawOtherViewLegends();
-                    View.Qtips.init("RPPA");
-                }
-                View.drawAxisTitle();
-                //Img Center: PDF and SVG button
-            }
+            getUserSelection();
+            generatePlots();
+
             setTimeout(
                 function() {
                     $('#view_title').show();

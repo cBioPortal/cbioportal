@@ -194,19 +194,6 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 				// create view but do not render, return the html content instead
 				var cosmicView = new CosmicTipView({el: container, model: model});
 				cosmicView.render();
-
-				// TODO data table doesn't initialize properly
-				// initialize cosmic details table
-//				$(label).dataTable({
-//					"aaSorting" : [ ], // do not sort by default
-//					"sDom": 't', // show only the table
-//					"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
-//					  { "sType": "numeric", "aTargets": [1]}],
-//					//"bJQueryUI": true,
-//					//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
-//					"bDestroy": true,
-//					"bPaginate": false,
-//					"bFilter": false});
 			}};
 
 			$(label).qtip(qTipOptsCosmic);
@@ -223,6 +210,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 
 	        var impact = parts[0];
 
+		    // TODO extract to a backbone view
 	        var tip = "Predicted impact score: <b>"+impact+"</b>";
 
 	        var xvia = parts[1];

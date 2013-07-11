@@ -6,57 +6,103 @@
 <div class='section' id='mutation_details'></div>
 
 <style type="text/css" title="currentStyle">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        #mutation_details .ColVis {
-                float: left;
-                padding-right:25%;
-                margin-bottom: 0;
-        }
-        .mutation_datatables_filter {
-                float: right;
-                padding-top:3px;
-        }
-        .mutation_datatables_info {
-                float: left;
-                padding-top:5px;
-                font-size:90%;
-        }
-        .missense_mutation {
-                color: green;
-	            font-weight: bold;
-        }
-        .trunc_mutation {
-                color: red;
-	            font-weight: bold;
-        }
-        .inframe_mutation {
-                color: black;
-	            font-weight: bold;
-        }
-        .other_mutation {
-                color: gray;
-	            font-weight: bold;
-        }
-		.diagram_toolbar {
-                padding-top: 10px;
-                padding-left: 10px;
-		}
-		.mutation-diagram-container {
-			margin-bottom: 10px;
-		}
-        .mutation-table-container {
-	        margin-bottom: 40px;
-        }
-        .mutation-table-header {
-	        font-weight: bold !important;
-        }
-        .tooltip-table-container {
-	        padding: 10px;
-        }
-		.cosmic_details_tip_info {
-			font-size: 90%
-		}
+	@import "css/data_table_jui.css";
+	@import "css/data_table_ColVis.css";
+	#mutation_details .ColVis {
+		float: left;
+		padding-right:25%;
+		margin-bottom: 0;
+	}
+	#mutation_details .unknown {
+		background: #E0E0E0;
+		color:black;
+		padding-left:5px;
+		padding-right:5px;
+	}
+	#mutation_details .protein_change {
+		font-weight: bold;
+		font-style: italic;
+	}
+	#mutation_details .best_effect_transcript {
+		color: red;
+	}
+	#mutation_details .mutation_details_table {
+		font-size: 90%;
+		color: black;
+	}
+	/*
+	th.mutation-details-qtip-style {
+		/*font-size: 115%;
+	}
+	*/
+	#mutation_details .mutation_table_cosmic {
+		/*cursor: pointer;*/
+		color: #1974B8;
+	}
+	#mutation_details .dataTables_filter {
+		width: 200px;
+	}
+	#mutation_details .dataTables_filter input {
+		width: 120px;
+	}
+	#mutation_details .dataTables_info {
+		width: 300px;
+	}
+	#mutation_details .msa-img, #mutation_details .pdb-img {
+		vertical-align: bottom;
+		margin-left: 3px;
+	}
+	.mutation-details-tooltip {
+		font-size: 11px !important;
+	}
+	.mutation_datatables_filter {
+		float: right;
+		padding-top:3px;
+	}
+	.mutation_datatables_info {
+		float: left;
+		padding-top:5px;
+		font-size:90%;
+	}
+	.missense_mutation {
+		color: green;
+		font-weight: bold;
+	}
+	.trunc_mutation {
+		color: red;
+		font-weight: bold;
+	}
+	.inframe_mutation {
+		color: black;
+		font-weight: bold;
+	}
+	.other_mutation {
+		color: gray;
+		font-weight: bold;
+	}
+	.diagram_toolbar {
+		padding-top: 10px;
+		padding-left: 10px;
+	}
+	.mutation-diagram-container {
+		margin-bottom: 10px;
+	}
+	.mutation-table-container {
+		margin-bottom: 40px;
+	}
+	.mutation-table-header {
+		font-weight: bold !important;
+	}
+	.tooltip-table-container {
+		padding: 10px;
+	}
+	.cosmic-details-tip-info {
+		padding-bottom: 5px;
+	}
+	.left-align-td {
+		text-align: left;
+	}
+
 </style>
 
 <script type="text/javascript">

@@ -104,7 +104,7 @@
 		<td>{{referenceAllele}}</td>
 		<td>{{variantAllele}}</td>
 		<td>
-			<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>" {{tumorTotalCount}}</b> total'
+			<label alt='<b>{{tumorAltCount}}</b> variant reads out of <b>{{tumorTotalCount}}</b> total'
 			       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
 		</td>
 		<td>
@@ -114,7 +114,7 @@
 			<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
 		</td>
 		<td>
-			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>" {{normalTotalCount}}</b> total'
+			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
 			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
 		</td>
 		<td>
@@ -160,8 +160,8 @@
 </script>
 
 <script type="text/template" id="mutation_details_cosmic_tip_template">
-	<span class='cosmic_details_tip_info'><b>{{cosmicTotal}} occurrences in COSMIC</b></span>
-	<table class='cosmic_details_table display'
+	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences in COSMIC</b></div>
+	<table class='cosmic-details-table display'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>
 			<tr>
@@ -941,15 +941,16 @@
 			// TODO correct style to have a better view
 
 			// initialize cosmic details table
-			this.$el.find(".cosmic_details_table").dataTable({
+			this.$el.find(".cosmic-details-table").dataTable({
 				"aaSorting" : [ ], // do not sort by default
 				"sDom": 't', // show only the table
-				"aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
-				  { "sType": "numeric", "aTargets": [1]}],
+				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
+				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
 				//"bJQueryUI": true,
 				//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
 				"bDestroy": false,
 				"bPaginate": false,
+				"bJQueryUI": true,
 				"bFilter": false});
 		},
 		_parseCosmic: function(cosmic)
@@ -975,7 +976,7 @@
 				if (!unknownCosmic)
 				{
 					dataRows += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
-					//$("#cosmic_details_table").dataTable().fnAddData(values);
+					//$("#cosmic-details-table").dataTable().fnAddData(values);
 				}
 			}
 

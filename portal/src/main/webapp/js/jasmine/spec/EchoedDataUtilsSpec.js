@@ -4,20 +4,48 @@ describe("EchoedDataUtils", function() {
     it("mangles data into a list of objects indexed by sample_id", function() {
 
         var inward = [
-            {value: "-1", sample_id: "TCGA-BL-A0C8", datatype: "cna", hugo: "GENE1"},
-            {value: "A123B", sample_id: "TCGA-BL-A0C8", datatype: "mutation", hugo: "GENE1"}
+            {value: "-1", sample_id: "TCGA-BL-A0C8", datatype: "cna", gene: "GENE1"},
+            {value: "A123B", sample_id: "TCGA-BL-A0C8", datatype: "mutation", gene: "GENE1"}
         ];
 
-        var outward = [ {sample_id: "TCGA-BL-A0C8", cna: "-1", mutation: "A123B", hugo: "GENE1"} ];
+        var outward = [ {sample_id: "TCGA-BL-A0C8", cna: "-1", mutation: "A123B", gene: "GENE1"} ];
 
         expect(utils.compress(inward)).toEqual(_.chain(outward));
     });
 
     it("knows how to make data oncoprint friendly", function() {
 
-        var inward = [ {sample_id: "TCGA-BL-A0C8", cna: "-1", mutation: "A123B", hugo: "GENE1"} ];
-        var outward = [ {sample: "TCGA-BL-A0C8", cna: "HEMIZYGOUSLYDELETED", mutation: "A123B", hugo: "GENE1"} ];
+        var inward = [ {sample_id: "TCGA-BL-A0C8", cna: "-1", mutation: "A123B", gene: "GENE1"} ];
 
-        expect(utils.oncoprint_wash_inner(_.chain(inward))).toEqual(outward);
+        // this is what oncoprint data looks like
+        var outward = [ {sample: "TCGA-BL-A0C8", cna: "HEMIZYGOUSLYDELETED", mutation: "A123B", gene: "GENE1"} ];
+
+        expect(utils.inner.oncoprint_wash(_.chain(inward))).toEqual(_.chain(outward));
+    });
+
+    it("knows how to join mutation together for a particular sample and gene *on oncoprint data*" , function() {
+        var inward = [
+                {sample: "TCGA-BL-A0C8", mutation: "A123B", gene: "GENE1"},
+                {sample: "TCGA-BL-A0C8", mutation: "B123C", gene: "GENE1"},
+                {sample: "sample2", mutation: "A123B", gene: "GENE1"},
+                {sample: "sample2", mutation: "B123C", gene: "GENE1"}
+            ];
+
+            expect(utils.join_mutations(",", _.chain(inward))).toEqual(_.chain([{
+                sample: "TCGA-BL-A0C8",
+                mutation:"A123B,B123C",
+                gene: "GENE1"
+            },
+            {
+                sample: "sample2",
+                mutation:"A123B,B123C",
+                gene: "GENE1"
+            }
+            ]));
+    });
+
+    it("removes undefined values from objects", function() {
+        expect(utils.remove_undefined(_.chain([{sample: "sample1", mutation: undefined}]))).toEqual(
+            _.chain([{sample: "sample1"}]));
     })
 });

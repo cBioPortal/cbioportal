@@ -101,7 +101,7 @@ public class EchoFile extends HttpServlet {
             for (int i = 2; i < row.length; i+=1) {
                 Map<String, String> datum = new HashMap<String, String>();
                 datum.put("sample_id", header[i]);
-                datum.put("hugo", thisHugo);
+                datum.put("gene", thisHugo);        // lets just call the hugo the gene
                 datum.put("value", String.valueOf(row[i]));
                 datum.put("datatype", datatype);
                 data.add(datum);
@@ -164,7 +164,7 @@ public class EchoFile extends HttpServlet {
 
             Map<String, String> datum = new HashMap<String, String>();
             datum.put("sample_id", row[sampleIdColumnIndex]);
-            datum.put("hugo", row[hugoColumnIndex]);
+            datum.put("gene", row[hugoColumnIndex]);        // lets just call the hugo the gene
             datum.put("value", row[proteinChangeColumnIndex]);
             datum.put("datatype", "mutation");
             data.add(datum);

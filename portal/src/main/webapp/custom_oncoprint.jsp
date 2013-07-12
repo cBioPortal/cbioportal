@@ -18,11 +18,17 @@
     <input type="button" value="Go!">
     <progress></progress>
 </form>
+
+<div id="oncoprint"></div>
 </body>
 
 <script type="text/javascript" src="js/d3.v3.min.js"></script>
 <script type="text/javascript" src="js/underscore-min.js"></script>
 <script type="text/javascript" src="js/EchoedDataUtils.js"></script>
+<script type="text/javascript" src="js/MemoSort.js"></script>
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/oncoprint.js"></script>
 <script type="text/javascript">
     var data;
     $(':button').click(function(){
@@ -39,7 +45,15 @@
             },
             //Ajax events
 //                beforeSend: beforeSendHandler,
-                success: function(res) { data = res; console.log(res); },
+                success: function(res) {
+                    data = res; console.log(res);
+
+                    data = EchoedDataUtils.oncoprint_wash(data);
+                    var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
+                    var params = { geneData: data, genes:genes };
+
+                    Oncoprint(document.getElementById("oncoprint"), params);
+                },
 //                error: errorHandler,
             // Form data
             data: formData,

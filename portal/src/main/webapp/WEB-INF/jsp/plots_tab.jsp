@@ -73,15 +73,6 @@
     <table>
         <tr>
             <td>
-                <div id="plots-view" class="plots plots-view">
-                    <div id='loading-image'>
-                        <img style='padding:200px;' src='images/ajax-loader.gif'>
-                    </div>
-                    <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
-                    <div id="plots_box"></div>
-                </div>
-            </td>
-            <td>
                 <div id="plots-menus" class="plots plots-menus">
                     <ul>
                         <li><a href="#plots_one_gene" title="Single Gene Query" class="plots-tabs-ref"><span>One Gene</span></a></li>
@@ -131,6 +122,15 @@
                         <input type="checkbox" name="show_mutation_custom_view" id="show_mutation_custom_view"
                                value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                     </div>
+                </div>
+            </td>
+            <td>
+                <div id="plots-view" class="plots plots-view">
+                    <div id='loading-image'>
+                        <img style='padding:200px;' src='images/ajax-loader.gif'>
+                    </div>
+                    <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
+                    <div id="plots_box"></div>
                 </div>
             </td>
         </tr>

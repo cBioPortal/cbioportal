@@ -590,6 +590,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
+            .attr('class', "plots-x-axis-class")
             .call(xAxis.ticks(textSet.length))
             .selectAll("text")
             .data(textSet)
@@ -606,6 +607,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 520)")
+            .attr('class', "plots-x-axis-class")
             .call(xAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
@@ -627,6 +629,7 @@ function addAxisText(svg, type, xAxis, yAxis, min_x, max_x, textSet){
         .style("stroke", "grey")
         .style("shape-rendering", "crispEdges")
         .attr("transform", "translate(100, 0)")
+        .attr('class', "plots-y-axis-class")
         .call(yAxis)
         .selectAll("text")
         .style("font-family", "sans-serif")
@@ -892,7 +895,7 @@ function drawScatterPlots(xData, yData, zData, xLegend, yLegend, type, mutations
     //Define Axis
     var xAxis = d3.svg.axis()
         .scale(xScale)
-        .orient("bottom")
+        .orient("bottom");
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient("left");

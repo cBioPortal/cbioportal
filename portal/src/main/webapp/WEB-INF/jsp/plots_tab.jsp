@@ -122,12 +122,24 @@
     // Takes whatever is in the element #plots_box
     // and returns XML serialized *string*
     function loadSVG() {
-        var mySVG = document.getElementById("plots_box");
-        var svgDoc = mySVG.getElementsByTagName("svg");
+
+        var shiftValueOnX = 8;
+        var shiftValueOnY = 3;
+
+        var mySVG = d3.select("#plots_box");
+        var xAxisGrp = mySVG.select(".plots-x-axis-class");
+        var yAxisGrp = mySVG.select(".plots-y-axis-class");
+
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+
+        var docSVG = document.getElementById("plots_box");
+        var svgDoc = docSVG.getElementsByTagName("svg");
         var xmlSerializer = new XMLSerializer();
         var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        xmlString = xmlString.replace(/<\/line><text y="9" x="0" dy=".71em"/g, "</line><text y=\"19\" x=\"0\" dy=\".71em\"");
-        xmlString = xmlString.replace(/<\/line><text x="-9" y="0" dy=".32em"/g, "</line><text x=\"-9\" y=\"3\" dy=\".32em\"");
+
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+
+
         return xmlString;
     }
 

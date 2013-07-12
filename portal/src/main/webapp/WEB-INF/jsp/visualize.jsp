@@ -62,6 +62,7 @@
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    geneList = StringEscapeUtils.escapeJavaScript(geneList);
     %>
 
 <script type="text/javascript">

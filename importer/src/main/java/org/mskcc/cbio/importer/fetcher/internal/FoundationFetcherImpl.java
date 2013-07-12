@@ -442,7 +442,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		fmiCaseID = caseNode.getAttribute("fmiCase");
-		caseID = caseNode.getAttribute("case");
+		caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -514,7 +514,7 @@ class FoundationFetcherImpl implements Fetcher
 			return; // no case to process
 		}
 
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -600,7 +600,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -968,7 +968,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		caseSet.add(caseID);
 
@@ -1119,5 +1119,17 @@ class FoundationFetcherImpl implements Fetcher
 	{
 		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
 		return list.iterator().next();
+	}
+
+	/**
+	 * Extracts case ID from the given node. Also replaces any whitespace
+	 * character with an underscore.
+	 *
+	 * @param caseNode  caseNode containing the case ID information
+	 * @return          case ID as a string
+	 */
+	private String extractCaseId(Element caseNode)
+	{
+		return caseNode.getAttribute("case").replaceAll("\\s", "_");
 	}
 }

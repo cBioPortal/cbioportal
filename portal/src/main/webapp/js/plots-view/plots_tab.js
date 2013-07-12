@@ -295,50 +295,58 @@ var PlotsView = (function () {
                 "2": "Amp"
             }
         },   //Text for the general view
-        mutationStyle = {
+        mutationStyle = {  //Key and "typeName" are always identical
             frameshift : {
+                typeName : "frameshift",
                 symbol : "triangle-down",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
                 legendText : "Frameshift"
             },
             nonsense : {
+                typeName: "nonsense",
                 symbol : "diamond",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
                 legendText : "Nonsense"
             },
             splice : {
+                typeName : "splice",
                 symbol : "triangle-up",
                 fill : "#A4A4A4",
                 stroke : "#B40404",
                 legendText : "Splice"
             },
             in_frame : {
+                typeName : "in_frame",
                 symbol : "square",
                 fill : "#DF7401",
                 stroke : "#B40404",
                 legendText : "In_frame"
             },
             nonstart : {
+                typeName : "nonstart",
                 symbol : "cross",
                 fill : "#DF7401",
                 stroke : "#B40404",
                 legendText : "Nonstart"
             },
             nonstop : {
+                typeName : "nonstop",
                 symbol : "triangle-up",
                 fill : "#1C1C1C",
                 stroke : "#B40404",
                 legendText : "Nonstop"
             },
             missense : {
+                typeName : "missense",
                 symbol : "circle",
                 fill : "#DF7401",
                 stroke : "#B40404",
                 legendText : "Missense"
             },
             non : {
+                typeName : "non",
                 symbol : "circle",
                 fill : "#00AAF8",
                 stroke : "#0089C6",
@@ -518,8 +526,8 @@ var PlotsView = (function () {
                 max_y: 0
             };
 
-        function fetchPlotsData(result) {
-            var resultObj = result[userSelection.gene];
+        function fetchPlotsData(profileDataResult) {
+            var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
                 var _obj = resultObj[key];
@@ -538,7 +546,11 @@ var PlotsView = (function () {
                 }
                 _singleDot.mutationDetail = _obj[cancer_study_id + "_mutations"];
                 _singleDot.mutationType = _obj[cancer_study_id + "_mutations"]; //Translate into type later
-                _singleDot.gisticType = text.gistic_txt_val[_obj[cancer_study_id + "_gistic"]];
+                if (!Util.isEmpty(_obj[cancer_study_id + "_gistic"])) {
+                    _singleDot.gisticType = text.gistic_txt_val[_obj[cancer_study_id + "_gistic"]];
+                } else {
+                    _singleDot.gisticType = "NaN";
+                }
                 //Set Data Status
                 if (!Util.isEmpty(_singleDot.xVal)) {
                     status.xHasData = true;
@@ -548,25 +560,63 @@ var PlotsView = (function () {
                 }
                 //Push into the dots array
                 if (!Util.isEmpty(_singleDot.xVal) &&
-                    !Util.isEmpty(_singleDot.yVal)) {
+                    !Util.isEmpty(_singleDot.yVal) &&
+                    !Util.isEmpty(_singleDot.gisticType)) {
                     dotsGroup.push(_singleDot);
                     status.combineHasData = true;
                 }
             }
         }
 
-        function translateMutationType() {
-            Plots.getMutationType(
-                userSelection.gene,
-                cancer_study_id + "_mutations",
-                case_set_id,
-                case_ids_key,
-                getMutationTypeCallBack
-            );
-            function getMutationTypeCallBack(result) {
-                //Map mutation type for each individual cases
-                console.log(result);
-            }
+        function translateMutationType(mutationTypeResult) {
+            //Map mutation type for each individual cases
+            var mutationDetailsUtil =
+                new MutationDetailsUtil(new MutationCollection(mutationTypeResult));
+            var mutationMap = mutationDetailsUtil.getMutationCaseMap();
+            $.each(dotsGroup, function(index, dot) {
+                if (!mutationMap.hasOwnProperty(dot.caseId.toLowerCase())) {
+                    dot.mutationType = mutationStyle.non.typeName;
+                } else {
+                    var _mutationTypes = []; //one case can have multi-mutations
+                    $.each(mutationMap[dot.caseId.toLowerCase()], function (index, val) {
+                        if ((val.mutationType === "Frame_Shift_Del")||(val.mutationType === "Frame_Shift_Ins")) {
+                            _mutationTypes.push(mutationStyle.frameshift.typeName);
+                        } else if ((val.mutationType === "In_Frame_Del")||(val.mutationType === "In_Frame_Ins")) {
+                            _mutationTypes.push(mutationStyle.in_frame.typeName);
+                        } else if ((val.mutationType === "Missense_Mutation")||(val.mutationType === "Missense")) {
+                            _mutationTypes.push(mutationStyle.missense.typeName);
+                        } else if ((val.mutationType === "Nonsense_Mutation")||(val.mutationType === "Nonsense")) {
+                            _mutationTypes.push(mutationStyle.nonsense.typeName);
+                        } else if ((val.mutationType === "Splice_Site")||(val.mutationType === "Splice_Site_SNP")) {
+                            _mutationTypes.push(mutationStyle.splice.typeName);
+                        } else if (val.mutationType === "NonStop_Mutation") {
+                            _mutationTypes.push(mutationStyle.nonstop.typeName);
+                        } else if (val.mutationType === "Translation_Start_Site") {
+                            _mutationTypes.push(mutationStyle.nonstart.typeName);
+                        } else {
+                            _mutationTypes.push(mutationStyle.non.typeName);
+                        }
+                    });
+                    //Re-order mutations in one case based on priority list
+                    var mutationPriorityList = [];
+                    mutationPriorityList[mutationStyle.frameshift.typeName] = "0";
+                    mutationPriorityList[mutationStyle.in_frame.typeName] = "1";
+                    mutationPriorityList[mutationStyle.missense.typeName] = "2";
+                    mutationPriorityList[mutationStyle.nonsense.typeName] = "3";
+                    mutationPriorityList[mutationStyle.splice.typeName] = "4";
+                    mutationPriorityList[mutationStyle.nonstop.typeName] = "5";
+                    mutationPriorityList[mutationStyle.nonstart.typeName] = "6";
+                    mutationPriorityList[mutationStyle.non.typeName] = "7";
+                    var _primaryMutation = _mutationTypes[0];
+                    $.each(_mutationTypes, function(index, val) {
+                        if (mutationPriorityList[_primaryMutation] > mutationPriorityList[val]) {
+                            _primaryMutation = val;
+                        }
+                    });
+                    dot.mutationType = _primaryMutation;
+
+                }
+            });
         }
 
         function prioritizeMutatedCases() {
@@ -610,14 +660,14 @@ var PlotsView = (function () {
         }
 
         return {
-            init: function(result) {
+            init: function(profileDataResult, mutationTypeResult) {
                 status.xHasData = false;
                 status.yHasData = false;
                 status.combineHasData = false;
                 caseSetLength = 0;
                 dotsGroup.length = 0;
-                fetchPlotsData(result);
-                translateMutationType();
+                fetchPlotsData(profileDataResult);
+                translateMutationType(mutationTypeResult);
                 prioritizeMutatedCases();
                 analyseData();
             },
@@ -1066,17 +1116,14 @@ var PlotsView = (function () {
                         .attr("d", d3.svg.symbol()
                             .size(20)
                             .type(function(d){
-                                //return mutationStyle[d.mutationType].symbol;
-                                return "circle";
+                                return mutationStyle[d.mutationType].symbol;
                             })
                         )
                         .attr("fill", function(d){
-                            //return mutationStyle[d.mutationType].fill;
-                            return "grey";
+                            return mutationStyle[d.mutationType].fill;
                         })
                         .attr("stroke", function(d){
-                            //return mutationStyle[d.mutationType].stroke;
-                            return "black";
+                            return mutationStyle[d.mutationType].stroke;
                         })
                         .attr("stroke-width", 1.2);
                     posVal += 1;
@@ -1223,17 +1270,14 @@ var PlotsView = (function () {
                     .attr("d", d3.svg.symbol()
                         .size(20)
                         .type(function(d){
-                            //return mutationStyle[d.mutationType].symbol;
-                            return "circle";
+                            return mutationStyle[d.mutationType].symbol;
                         })
                     )
                     .attr("fill", function(d){
-                        //return mutationStyle[d.mutationType].fill;
-                        return "grey";
+                        return mutationStyle[d.mutationType].fill;
                     })
                     .attr("stroke", function(d){
-                        //return mutationStyle[d.mutationType].stroke;
-                        return "black";
+                        return mutationStyle[d.mutationType].stroke;
                     })
                     .attr("stroke-width", 1.2);
             }
@@ -1252,13 +1296,13 @@ var PlotsView = (function () {
                         .type("circle"))
                     .attr("fill", function(d) {
                         switch (d.mutationType) {
-                            //case "non" : return "white";
+                            case "non" : return "white";
                             default: return "orange";
                         }
                     })
                     .attr("fill-opacity", function(d) {
                         switch (d.mutationType) {
-                            //case "non" : return 0.0;
+                            case "non" : return 0.0;
                             default : return 1.0;
                         }
                     })
@@ -1267,7 +1311,7 @@ var PlotsView = (function () {
                     })
                     .attr("stroke-width", function(d) {
                         switch (d.mutationType) {
-                            //case "non" : return "1";
+                            case "non" : return "1";
                             default : return "1.1";
                         }
                     });
@@ -1297,7 +1341,7 @@ var PlotsView = (function () {
                 //appeared in the current individual case
                 var _appearedMutationTypes = [];
                 _appearedMutationTypes.length = 0;
-                $.each(tmpDataSet, function(index, value) {
+                $.each(PlotsData.getDotsGroup(), function(index, value) {
                     _appearedMutationTypes.push(value.mutationType);
                 });
 
@@ -1487,7 +1531,7 @@ var PlotsView = (function () {
                     drawImgConverter();
                     Axis.init();
                     ScatterPlots.init();
-                    //Legends.init();
+                    Legends.init();
                     Qtips.init();
                 } else { //No available data
                     drawErrMsgs();
@@ -1527,40 +1571,21 @@ var PlotsView = (function () {
         );
     }
 
-    function getProfileDataCallBack(result) {
+    function getProfileDataCallBack(profileDataResult) {
 
-        PlotsData.init(result);
-        View.init();
-//        if (Util.dataIsAvailable()) {
-//            if (Util.plotsTypeIsCopyNo()) {
-//                if (Util.dataIsDiscretized()) {
-//                    View.initDiscretizedAxis();
-//                    View.drawDiscretizedAxis();
-//                    View.drawBoxPlots();
-//                    View.drawDiscretizedPlots();
-//                } else {
-//                    View.initContinuousAxis();
-//                    View.drawContinuousAxis();
-//                    View.drawLog2Plots();
-//                }
-//                View.drawCopyNoViewLegends();
-//                View.Qtips.init("CopyNo");
-//            } else if (Util.plotsTypeIsMethylation()) { //RPPA and GISTIC view
-//                View.initContinuousAxis();
-//                View.drawContinuousAxis();
-//                View.drawContinuousPlots();
-//                View.drawOtherViewLegends();
-//                View.Qtips.init("Methylation");
-//            } else if (Util.plotsTypeIsRPPA()) {
-//                View.initContinuousAxis();
-//                View.drawContinuousAxis();
-//                View.drawContinuousPlots();
-//                View.drawOtherViewLegends();
-//                View.Qtips.init("RPPA");
-//            }
-//            View.drawAxisTitle();
-//            //Img Center: PDF and SVG button
-//        }
+        Plots.getMutationType(
+            userSelection.gene,
+            cancer_study_id + "_mutations",
+            case_set_id,
+            case_ids_key,
+            getMutationTypeCallBack
+        );
+
+        function getMutationTypeCallBack(mutationTypeResult) {
+            PlotsData.init(profileDataResult, mutationTypeResult);
+            View.init();
+        }
+
     }
 
     return {

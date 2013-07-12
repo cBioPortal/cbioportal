@@ -64,10 +64,11 @@
         padding-bottom: 10px;
         font-weight: bold;
     }
+    #plots .plots-firefox {
+        font-size: 10px;
+    }
 </style>
 
-<script>
-</script>
 
 <div class="section" id="plots" class="plots">
     <table>
@@ -165,6 +166,12 @@
     //Patch for the sub tab css style and qtip bug. (Overwrite, stay bottom)
     $(".plots-tabs-ref").tipTip(
             {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
+    //Patch for fixing the font size in firefox
+    if ($.browser.mozilla) {
+        var element = document.getElementById("plots-menus");
+        element.className += " " + "plots-firefox";
+    }
+
 </script>
 
 

@@ -100,7 +100,6 @@ var Plots = (function(){
                 case_set_id: case_set_id,
                 case_ids_key: case_ids_key
             };
-            console.log(paramsGetProfileData);
             $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
         },
         getMutationType: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {

@@ -298,7 +298,9 @@ var OncoprintUtils = (function() {
     // params: sample
     // returns: boolean, is the sample altered in a particular gene?
     var altered_gene = function(sample_gene) {
-        return !(sample_gene.cna === undefined
+
+        return !(
+                (sample_gene.cna === undefined || sample_gene.cna === "DIPLOID")
                 && sample_gene.mutation === undefined
                 && sample_gene.mrna === undefined
                 && sample_gene.rppa === undefined);

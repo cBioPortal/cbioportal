@@ -327,7 +327,7 @@
 				var submitForm = function(alterFn, diagram, formClass)
 				{
 					// alter diagram to have the desired output
-					alterFn(diagram);
+					alterFn(diagram, false);
 
 					// convert svg content to string
 					var xmlSerializer = new XMLSerializer();
@@ -335,12 +335,6 @@
 
 					// restore previous settings after generating xml string
 					alterFn(diagram, true);
-
-					// temp hack for shifted axis values (see also loadSVG function in plots_tab.jsp)
-//					svgString = svgString.replace(/<text y="9" x="0" dy=".71em"/g,
-//						"<text y=\"19\" x=\"0\" dy=\".71em\"");
-//					svgString = svgString.replace(/<text x="-9" y="0" dy=".32em"/g,
-//						"<text x=\"-9\" y=\"3\" dy=\".32em\"");
 
 					// set actual value of the form element (svgelement)
 					var form = mainView.$el.find("." + formClass);
@@ -350,66 +344,42 @@
 					form.submit();
 				};
 
+				// TODO setting & rolling back diagram values (which may not be safe)
+
+				// helper function to adjust SVG for file output
+				var alterDiagramForSvg = function(diagram, rollback)
+				{
+					var topLabel = gene;
+
+					if (rollback)
+					{
+						topLabel = "";
+					}
+
+					// adding a top left label (to include a label in the file)
+					diagram.updateTopLabel(topLabel);
+				};
+
+				// helper function to adjust SVG for PDF output
+				var alterDiagramForPdf = function(diagram, rollback)
+				{
+					// we also need the same changes (top label) in pdf
+					alterDiagramForSvg(diagram, rollback);
+
+					cbio.util.alterAxesAttrForPDFConverter(
+							diagram.svg.select(".mut-dia-x-axis"), 8,
+							diagram.svg.select(".mut-dia-y-axis"), 3,
+							rollback);
+				};
+
 				//add listener to the svg button
 				svgButton.click(function (event) {
-					// TODO setting & rolling back diagram values (which may not be safe)
-					// helper function to adjust SVG for file output
-					var alterDiagramForSvg = function(diagram, rollback)
-					{
-						var topLabel = gene;
-
-						if (rollback)
-						{
-							topLabel = "";
-						}
-
-						// adding a top left label (to include a label in the file)
-						diagram.updateTopLabel(topLabel);
-					};
-
 					// submit svg form
 					submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
 				});
 
 				// add listener to the pdf button
 				pdfButton.click(function (event) {
-					// TODO setting & rolling back diagram values (which may not be safe)
-					// helper function to adjust SVG for PDF output
-					var alterDiagramForPdf = function(diagram, rollback)
-					{
-						var topLabel = gene;
-						var xShift = 8;
-						var yShift = 3;
-
-						if (rollback)
-						{
-							topLabel = "";
-							xShift = -1 * xShift;
-							yShift = -1 * yShift;
-						}
-
-						var xLabels = diagram.svg
-							.select(".mut-dia-x-axis")
-							.selectAll(".tick")
-							.selectAll("text");
-
-						var yLabels = diagram.svg
-							.select(".mut-dia-y-axis")
-							.selectAll(".tick")
-							.selectAll("text");
-
-						// adding a top left label (to include a label in PDF)
-						diagram.updateTopLabel(topLabel);
-
-						// shifting axis tick labels a little bit because of
-						// a bug in the PDF converter library (this is a hack!)
-						var xy = parseInt(xLabels.attr("y"));
-						var yy = parseInt(yLabels.attr("y"));
-
-						xLabels.attr("y", xy + xShift);
-						yLabels.attr("y", yy + yShift);
-					};
-
 					// submit pdf form
 					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 				});

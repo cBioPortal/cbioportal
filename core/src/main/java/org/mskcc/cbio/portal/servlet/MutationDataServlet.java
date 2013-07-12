@@ -30,23 +30,15 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.Gene;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.remote.GetMutationData;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
-import org.mskcc.cbio.portal.util.OmaLinkUtil;
-import org.mskcc.cbio.portal.util.SequenceCenterUtil;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -77,19 +69,20 @@ public class MutationDataServlet extends HttpServlet
 	{
 		// get request parameters
 		String geneticProfiles = request.getParameter("geneticProfiles");
-		String geneList = request.getParameter("geneList");
-		String caseList = request.getParameter("caseList");
+		String genes = request.getParameter("geneList");
 
 		// parse single strings to create list of strings
 		ArrayList<String> geneticProfileList = this.parseValues(geneticProfiles);
-		ArrayList<String> targetGeneList = this.parseValues(geneList);
-		ArrayList<String> targetCaseList = this.parseValues(caseList);
+		ArrayList<String> targetGeneList = this.parseValues(genes);
 
 		// final array to be sent
 		JSONArray data = new JSONArray();
 
 		try
 		{
+			// generate list by processing possible valid case list parameters
+			ArrayList<String> targetCaseList = this.getCaseList(request);
+
 			for (String profileId : geneticProfileList)
 			{
 				// add mutation data for each genetic profile
@@ -117,6 +110,46 @@ public class MutationDataServlet extends HttpServlet
 	}
 
 	/**
+	 * Generates a case list by processing related request parameters,
+	 * which are caseList, caseSetId and caseIdsKey. If none of these
+	 * parameters are valid, then this method will return an empty list.
+	 *
+	 * @param request   servlet request containing parameters
+	 * @return          a list of cases
+	 * @throws DaoException
+	 */
+	protected ArrayList<String> getCaseList(HttpServletRequest request) throws DaoException
+	{
+		DaoCaseList daoCaseList = new DaoCaseList();
+
+		String caseListStr = request.getParameter("caseList");
+		String caseSetId = request.getParameter("caseSetId");
+		String caseIdsKey = request.getParameter("caseIdsKey");
+
+		ArrayList<String> caseList;
+
+		if (caseSetId != null &&
+		    caseSetId.length() != 0 &&
+		    !caseSetId.equals("-1"))
+		{
+			CaseList list = daoCaseList.getCaseListByStableId(caseSetId);
+			caseList = list.getCaseList();
+		}
+		else if(caseIdsKey != null &&
+		        caseIdsKey.length() != 0)
+		{
+			caseList = this.parseValues(
+					CaseSetUtil.getCaseIds(caseIdsKey));
+		}
+		else
+		{
+			caseList = this.parseValues(caseListStr);
+		}
+
+		return caseList;
+	}
+
+	/**
 	 * Parses string values separated by white spaces or commas.
 	 *
 	 * @param values    string to be parsed
@@ -124,6 +157,13 @@ public class MutationDataServlet extends HttpServlet
 	 */
 	protected ArrayList<String> parseValues(String values)
 	{
+		if (values == null)
+		{
+			// return an empty list for null values
+			return new ArrayList<String>(0);
+		}
+
+		// split by white space
 		String[] parts = values.split("[\\s,]+");
 
 		return new ArrayList<String>(Arrays.asList(parts));
@@ -393,7 +433,7 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		// calculate total cosmic count
-		// TODO move this method to the client side, remove ExtendedMutationUtil class
+		// TODO move this method to the client side
 		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
 
 		if (total > 0)

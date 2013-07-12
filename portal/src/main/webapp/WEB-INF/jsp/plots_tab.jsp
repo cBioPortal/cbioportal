@@ -91,7 +91,7 @@
                     <div id="plots_one_gene">
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
-                        <select id='genes' onchange='PlotsView.init()'></select>
+                        <select id='gene' onchange='PlotsView.init()'></select>
                         <h5>Plot Type</h5>
                         <select id='plots_type' onchange="PlotsMenu.update();PlotsView.init();"></select>
                         <h5>Data Type</h5>

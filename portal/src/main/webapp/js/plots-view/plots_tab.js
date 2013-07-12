@@ -75,6 +75,7 @@ var PlotsMenu = (function () {
         };
 
     var Util = (function() {
+
         function appendDropDown(divId, value, text) {
             $(divId).append("<option value='" + value + "'>" + text + "</option>");
         }
@@ -101,7 +102,7 @@ var PlotsMenu = (function () {
         return {
             appendDropDown: appendDropDown,
             toggleVisibility: toggleVisibility,
-            generateList: generateList,
+            generateList: generateList
         };
 
     }());
@@ -383,7 +384,7 @@ var PlotsView = (function () {
             mrna_type : "",
             dna_methylation_type : "",
             rppa_type : "",
-        },   //current user selection from the side menu
+        };   //current user selection from the side menu
 
     var Util = (function() {
 
@@ -620,17 +621,21 @@ var PlotsView = (function () {
     var View = (function() {
 
         var elem = {
-                svg : ""
+                svg : "",
+                elemDotsGroup : ""
             },   //DOM elements
             settings = {
                 canvas_width: 700,
                 canvas_height: 600
-            };   //basic d3 canvas settings
+            },   //basic d3 canvas settings
+            attr = {
+                xScale : "",
+                yScale : ""
+            };
 
         var Axis = (function() {
-            var xScale = "",
-                yScale = "",
-                xAxis = "",
+
+            var xAxis = "",
                 yAxis = "",
                 xTitle = "",
                 yTitle = "";
@@ -691,18 +696,17 @@ var PlotsView = (function () {
                 }
                 var edge_y = (max_y - min_y) * 0.1;
                 //Define the axis
-                xScale = d3.scale.linear()
+                attr.xScale = d3.scale.linear()
                     .domain([new_min_x, new_max_x])
                     .range([100, 600]);
-                yScale = d3.scale.linear()
+                attr.yScale = d3.scale.linear()
                     .domain([min_y - edge_y, max_y + edge_y])
                     .range([520, 20]);
-
                 xAxis = d3.svg.axis()
-                    .scale(xScale)
+                    .scale(attr.xScale)
                     .orient("bottom")
                 yAxis = d3.svg.axis()
-                    .scale(yScale)
+                    .scale(attr.yScale)
                     .orient("left");
             }
 
@@ -776,22 +780,22 @@ var PlotsView = (function () {
                 if (Util.plotsTypeIsMethylation() &&
                     userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
                     //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
-                    xScale = d3. scale.linear()
+                    attr.xScale = d3. scale.linear()
                         .domain([-0.02, 1])
                         .range([100,600]);
                 } else {
-                    xScale = d3.scale.linear()
+                    attr.xScale = d3.scale.linear()
                         .domain([min_x - edge_x, max_x + edge_x])
                         .range([100, 600]);
                 }
-                yScale = d3.scale.linear()
+                attr.yScale = d3.scale.linear()
                     .domain([min_y - edge_y, max_y + edge_y])
                     .range([520, 20]);
                 xAxis = d3.svg.axis()
-                    .scale(xScale)
+                    .scale(attr.xScale)
                     .orient("bottom")
                 yAxis = d3.svg.axis()
-                    .scale(yScale)
+                    .scale(attr.yScale)
                     .orient("left");
             }
 
@@ -869,448 +873,10 @@ var PlotsView = (function () {
                         drawContinuousAxis();
                     }
                     addAxisTitle();
-                },
-                getXScale : function() { return xScale; },
-                getYScale : function() { return yScale; }
+                }
             };
 
         }());
-
-        function initCanvas() {
-            elem.svg = d3.select("#plots_box")
-                .append("svg")
-                .attr("width", settings.canvas_width)
-                .attr("height", settings.canvas_height);
-        }
-
-        function drawErrMsgs() {
-            var _xDataType = "",
-                _yDataType = "";
-            if (Util.plotsTypeIsCopyNo()) {
-                var e = document.getElementById("data_type_copy_no");
-                _xDataType = e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_mrna");
-                _yDataType = e.options[e.selectedIndex].text;
-            } else if (Util.plotsTypeIsMethylation()) {
-                var e = document.getElementById("data_type_dna_methylation");
-                _xDataType = e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_mrna");
-                _yDataType = e.options[e.selectedIndex].text;
-            } else if (Util.plotsTypeIsRPPA()) {
-                var e = document.getElementById("data_type_mrna");
-                _xDataType = e.options[e.selectedIndex].text;
-                e = document.getElementById("data_type_rppa");
-                _yDataType = e.options[e.selectedIndex].text;
-            }
-
-            var err_line1 = "There is no data in UNAVAILABLE_DATA_TYPE";
-            var err_line2 = "for " + userSelection.gene + " in selected cancer study.";
-            var _dataStatus = PlotsData.getDataStatus();
-            if (!_dataStatus.xHasData && _dataStatus.yHasData) {
-                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _xDataType);
-            } else if (_dataStatus.xHasData && !_dataStatus.yHasData) {
-                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _yDataType);
-            } else if (!_dataStatus.xHasData && !_dataStatus.yHasData) {
-                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "both selected data types");
-            } else if (_dataStatus.xHasData &&_dataStatus.yHasData &&
-                      !_dataStatus.combineHasData) {
-                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "combined data types");
-            }
-
-            elem.svg.append("text")
-                .attr("x", 350)
-                .attr("y", 50)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#DF3A01")
-                .text(err_line1)
-            elem.svg.append("text")
-                .attr("x", 350)
-                .attr("y", 70)
-                .attr("text-anchor", "middle")
-                .attr("fill", "#DF3A01")
-                .text(err_line2)
-            elem.svg.append("rect")
-                .attr("x", 150)
-                .attr("y", 30)
-                .attr("width", 400)
-                .attr("height", 50)
-                .attr("fill", "none")
-                .attr("stroke-width", 1)
-                .attr("stroke", "#BDBDBD");
-        }
-
-        function drawImgConverter() {
-            $('#view_title').empty();
-            if (Util.plotsTypeIsCopyNo()) {
-                $('#view_title').append(userSelection.gene + ": mRNA Expression v. CNA ");
-            } else if (Util.plotsTypeIsMethylation()) {
-                $('#view_title').append(userSelection.gene + ": mRNA Expression v. DNA Methylation ");
-            } else if (Util.plotsTypeIsRPPA()) {
-                $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
-            }
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='plots.pdf'>" +
-                "<input type='submit' value='PDF'></form>";
-            $('#view_title').append(pdfConverterForm);
-            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-                "<input type='hidden' name='svgelement'>" +
-                "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' name='filename' value='plots.svg'>" +
-                "<input type='submit' value='SVG'></form>";
-            $('#view_title').append(svgConverterForm);
-        }
-
-        function drawDiscretizedPlots() { //GISTIC, RAE view
-            elem.dotsGroup = elem.svg.append("svg:g");
-            var ramRatio = 20;  //Noise
-
-            var subDataSet = {
-                Homdel : [],
-                Hetloss : [],
-                Diploid : [],
-                Gain : [],
-                Amp : []
-            };
-            $.each(tmpDataSet, function(index, value) {
-                if (value.gisticType === "Homdel") {
-                    subDataSet.Homdel.push(value);
-                } else if (value.gisticType === "Hetloss") {
-                    subDataSet.Hetloss.push(value);
-                } else if (value.gisticType === "Diploid") {
-                    subDataSet.Diploid.push(value);
-                } else if (value.gisticType === "Gain") {
-                    subDataSet.Gain.push(value);
-                } else if (value.gisticType === "Amp") {
-                    subDataSet.Amp.push(value);
-                }
-            });
-            //Remove empty data set
-            $.each(subDataSet, function(key, value) {
-                if (subDataSet[key].length === 0) {
-                    delete subDataSet[key];
-                }
-            });
-
-            var posVal = 0;
-            $.each(subDataSet, function(key, value) {
-                var subDotsGrp = elem.dotsGroup.append("svg:g");
-                subDotsGrp.selectAll("path")
-                    .data(value)
-                    .enter()
-                    .append("svg:path")
-                    .attr("transform", function(d){
-                        return "translate(" +
-                            (elem.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2)) +
-                            ", " +
-                            elem.yScale(d.yVal) + ")";
-                    })
-                    .attr("d", d3.svg.symbol()
-                        .size(20)
-                        .type(function(d){
-                            return mutationStyle[d.mutationType].symbol;
-                        })
-                    )
-                    .attr("fill", function(d){
-                        return mutationStyle[d.mutationType].fill;
-                    })
-                    .attr("stroke", function(d){
-                        return mutationStyle[d.mutationType].stroke;
-                    })
-                    .attr("stroke-width", 1.2);
-                posVal += 1;
-            });
-        }
-
-        function drawLog2Plots() {
-            elem.dotsGroup = elem.svg.append("svg:g");
-            elem.dotsGroup.selectAll("path")
-                .data(tmpDataSet)
-                .enter()
-                .append("svg:path")
-                .attr("transform", function(d) {
-                    return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
-                })
-                .attr("d", d3.svg.symbol()
-                    .size(20)
-                    .type(function(d){
-                        return mutationStyle[d.mutationType].symbol;
-                    })
-                )
-                .attr("fill", function(d){
-                    return mutationStyle[d.mutationType].fill;
-                })
-                .attr("stroke", function(d){
-                    return mutationStyle[d.mutationType].stroke;
-                })
-                .attr("stroke-width", 1.2);
-        }
-
-        function drawBoxPlots(){
-            var xData = pData.copy_no;
-            var yData = pData.mrna;
-
-            var tmp_data_result = Util.analyseData(xData, yData);
-            var min_x = tmp_data_result.min_x;
-            var max_x = tmp_data_result.max_x;
-
-            //position Indicator
-            //Not using real x value for discretized data
-            var pos = 0;
-
-            for (var i = min_x ; i < max_x + 1; i++) {
-                //Divide data set into sub group based on x(gistic) value
-                var top;
-                var bottom;
-                var quan1;
-                var quan2;
-                var mean;
-                var IQR;
-                var scaled_y_arr=[];
-                var tmp_y_arr = [];
-
-                //Find the middle (vertical) line for one box plot
-                var midLine = elem.xScale(pos);
-
-                //Find the max/min y value with certain x value;
-                var index_tmp_y_data_array = 0;
-                for (var j = 0; j < yData.length; j++) {
-                    if (!(Util.isEmpty(yData[j])) &&
-                        !(Util.isEmpty(xData[j])) &&
-                        (xData[j] === i.toString())) {
-                        tmp_y_arr[index_tmp_y_data_array] = parseFloat(yData[j]);
-                        index_tmp_y_data_array += 1;
-                    }
-                }
-                tmp_y_arr.sort(function(a,b) { return a-b });
-                if (tmp_y_arr.length === 0) {
-                    //TODO: error handle (empty dataset)
-                } else if (tmp_y_arr.length === 1) {
-                    mean = elem.yScale(tmp_y_arr[0]);
-                    elem.svg.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
-                        .attr("y1", mean)
-                        .attr("y2", mean)
-                        .attr("stroke-width", 1)
-                        .attr("stroke", "grey");
-                    pos += 1;
-                } else {
-                    if (tmp_y_arr.length === 2) {
-                        mean = elem.yScale((tmp_y_arr[0] + tmp_y_arr[1]) / 2);
-                        quan1 = bottom = elem.yScale(tmp_y_arr[0]);
-                        quan2 = top = elem.yScale(tmp_y_arr[1]);
-                        IQR = Math.abs(quan2 - quan1);
-                        pos += 1;
-                    } else {
-                        var yl = tmp_y_arr.length;
-                        if (yl % 2 === 0) {
-                            mean = elem.yScale((tmp_y_arr[(yl / 2)-1] + tmp_y_arr[yl / 2]) / 2);
-                            if (yl % 4 === 0) {
-                                quan1 = elem.yScale((tmp_y_arr[(yl / 4)-1] + tmp_y_arr[yl / 4]) / 2);
-                                quan2 = elem.yScale((tmp_y_arr[(3*yl / 4)-1] + tmp_y_arr[3 * yl / 4]) / 2);
-                            } else {
-                                quan1 = elem.yScale(tmp_y_arr[Math.floor(yl / 4)]);
-                                quan2 = elem.yScale(tmp_y_arr[Math.floor(3 * yl / 4)]);
-                            }
-                        } else {
-                            mean = elem.yScale(tmp_y_arr[Math.floor(yl / 2)]);
-                            var tmp_yl = Math.floor(yl / 2) + 1;
-                            if (tmp_yl % 2 === 0) {
-                                quan1 = elem.yScale((tmp_y_arr[tmp_yl / 2 - 1] + tmp_y_arr[tmp_yl / 2]) / 2);
-                                quan2 = elem.yScale((tmp_y_arr[(3 * tmp_yl / 2) - 2] + tmp_y_arr[(3 * tmp_yl / 2) - 1]) / 2);
-                            } else {
-                                quan1 = elem.yScale(tmp_y_arr[Math.floor(tmp_yl / 2)]);
-                                quan2 = elem.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
-                            }
-                        }
-                        for (var k = 0 ; k < tmp_y_arr.length ; k++) {
-                            scaled_y_arr[k] = parseFloat(elem.yScale(tmp_y_arr[k]));
-                        }
-                        scaled_y_arr.sort(function(a,b) { return a-b });
-                        IQR = Math.abs(quan2 - quan1);
-                        var index_top = Util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
-                        top = scaled_y_arr[index_top];
-                        var index_bottom = Util.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
-                        bottom = scaled_y_arr[index_bottom];
-
-                        pos += 1;
-                    }
-
-                    //D3 Drawing
-                    var boxPlotsGroup = elem.svg.append("svg:g");
-                    boxPlotsGroup.append("rect")
-                        .attr("x", midLine-40)
-                        .attr("y", quan2)
-                        .attr("width", 80)
-                        .attr("height", IQR)
-                        .attr("fill", "none")
-                        .attr("stroke-width", 1)
-                        .attr("stroke", "#BDBDBD");
-                    boxPlotsGroup.append("line")
-                        .attr("x1", midLine-40)
-                        .attr("x2", midLine+40)
-                        .attr("y1", mean)
-                        .attr("y2", mean)
-                        .attr("stroke-width", 1)
-                        .attr("stroke", "#BDBDBD");
-                    boxPlotsGroup.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
-                        .attr("y1", top)
-                        .attr("y2", top)
-                        .attr("stroke-width", 1)
-                        .attr("stroke", "#BDBDBD");
-                    boxPlotsGroup.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
-                        .attr("y1", bottom)
-                        .attr("y2", bottom)
-                        .attr("stroke", "#BDBDBD")
-                        .style("stroke-width", 1);
-                    boxPlotsGroup.append("line")
-                        .attr("x1", midLine)
-                        .attr("x2", midLine)
-                        .attr("y1", quan1)
-                        .attr("y2", bottom)
-                        .attr("stroke", "#BDBDBD")
-                        .attr("stroke-width", 1);
-                    boxPlotsGroup.append("line")
-                        .attr("x1", midLine)
-                        .attr("x2", midLine)
-                        .attr("y1", quan2)
-                        .attr("y2", top)
-                        .attr("stroke", "#BDBDBD")
-                        .style("stroke-width", 1);
-                }
-            }
-        }
-
-        function drawContinuousPlots() {  //RPPA, DNA Methylation Views
-            elem.dotsGroup = elem.svg.append("svg:g");
-            elem.dotsGroup.selectAll("path")
-                .data(tmpDataSet)
-                .enter()
-                .append("svg:path")
-                .attr("transform", function(d){
-                    return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
-                })
-                .attr("d", d3.svg.symbol()
-                    .size(35)
-                    .type("circle"))
-                .attr("fill", function(d) {
-                    switch (d.mutationType) {
-                        case "non" : return "white";
-                        default: return "orange";
-                    }
-                })
-                .attr("fill-opacity", function(d) {
-                    switch (d.mutationType) {
-                        case "non" : return 0.0;
-                        default : return 1.0;
-                    }
-                })
-                .attr("stroke", function(d) {
-                    return gisticStyle[d.gisticType].stroke;
-                })
-                .attr("stroke-width", function(d) {
-                    switch (d.mutationType) {
-                        case "non" : return "1";
-                        default : return "1.1";
-                    }
-                });
-        }
-
-        function drawCopyNoViewLegends() {
-            //Only show glyphs whose mutation type
-            //appeared in the current individual case
-            var _appearedMutationTypes = [];
-            _appearedMutationTypes.length = 0;
-            $.each(tmpDataSet, function(index, value) {
-                _appearedMutationTypes.push(value.mutationType);
-            });
-
-            //Convert object to array
-            var mutationStyleArr = [];
-            mutationStyleArr.length = 0;
-            for (var key in mutationStyle) {
-                var obj = mutationStyle[key];
-                if (_appearedMutationTypes.indexOf(key) !== -1) {
-                    mutationStyleArr.push(obj);
-                }
-            }
-            //If only contain non mutation cases, remove the glyphs completely
-            if (mutationStyleArr.length === 1 &&
-                mutationStyleArr[0].legendText === mutationStyle["non"].legendText) {
-                mutationStyleArr.length = 0;
-            }
-
-            var legend = elem.svg.selectAll(".legend")
-                .data(mutationStyleArr)
-                .enter().append("svg:g")
-                .attr("transform", function(d, i) {
-                    return "translate(610, " + (30 + i * 15) + ")";
-                });
-
-            legend.append("path")
-                .data(mutationStyleArr)
-                .attr("width", 18)
-                .attr("height", 16)
-                .attr("d", d3.svg.symbol().size(30)
-                    .type(function(d) {return d.symbol;}))
-                .attr("fill", function(d) {return d.fill;})
-                .attr("stroke", function(d){return d.stroke;})
-                .attr("stroke-width", 1.2);
-
-            legend.append("text")
-                .attr("dx", ".75em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "front")
-                .text(function(d){return d.legendText;});
-        }
-
-        function drawOtherViewLegends() {
-            var gisticStyleArr = [];
-            for (var key in gisticStyle) {
-                var obj = gisticStyle[key];
-                gisticStyleArr.push(obj);
-            }
-
-            var mutatedStyle = {
-                stroke : "none",
-                symbol : "circle",
-                fill : "orange",
-                legendText : "Mutated",
-            }
-            gisticStyleArr.push(mutatedStyle);
-
-            var legend = elem.svg.selectAll(".legend")
-                .data(gisticStyleArr)
-                .enter().append("g")
-                .attr("class", "legend")
-                .attr("transform", function(d, i) {
-                    return "translate(610, " + (30 + i * 15) + ")";
-                })
-
-            legend.append("path")
-                .attr("width", 18)
-                .attr("height", 18)
-                .attr("d", d3.svg.symbol()
-                    .size(40)
-                    .type(function(d) { return d.symbol; }))
-                .attr("fill", function (d) { return d.fill; })
-                .attr("stroke", function (d) { return d.stroke; })
-                .attr("stroke-width", 1.1);
-
-            legend.append("text")
-                .attr("dx", ".75em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "front")
-                .text(function(d) { return d.legendText; })
-        }
 
         var Qtips = (function() {
 
@@ -1440,20 +1006,465 @@ var PlotsView = (function () {
 
         }());
 
+        var ScatterPlots = (function() {
+
+            function drawDiscretizedPlots() { //GISTIC, RAE view
+                elem.elemDotsGroup = elem.svg.append("svg:g");
+                var ramRatio = 20;  //Noise
+                //Divide Data Set by Gistic Type
+                var subDataSet = {
+                    Homdel : [],
+                    Hetloss : [],
+                    Diploid : [],
+                    Gain : [],
+                    Amp : []
+                };
+                $.each(PlotsData.getDotsGroup(), function(index, value) {
+                    if (value.gisticType === "Homdel") {
+                        subDataSet.Homdel.push(value);
+                    } else if (value.gisticType === "Hetloss") {
+                        subDataSet.Hetloss.push(value);
+                    } else if (value.gisticType === "Diploid") {
+                        subDataSet.Diploid.push(value);
+                    } else if (value.gisticType === "Gain") {
+                        subDataSet.Gain.push(value);
+                    } else if (value.gisticType === "Amp") {
+                        subDataSet.Amp.push(value);
+                    }
+                });
+                //Remove empty data set
+                $.each(subDataSet, function(key, value) {
+                    if (subDataSet[key].length === 0) {
+                        delete subDataSet[key];
+                    }
+                });
+                var posVal = 0;    //Index for Positioning
+                $.each(subDataSet, function(key, value) {
+                    var subDotsGrp = elem.elemDotsGroup.append("svg:g");
+                    subDotsGrp.selectAll("path")
+                        .data(value)
+                        .enter()
+                        .append("svg:path")
+                        .attr("transform", function(d){
+                            return "translate(" +
+                                (attr.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2)) +
+                                ", " +
+                                attr.yScale(d.yVal) + ")";
+                        })
+                        .attr("d", d3.svg.symbol()
+                            .size(20)
+                            .type(function(d){
+                                //return mutationStyle[d.mutationType].symbol;
+                                return "circle";
+                            })
+                        )
+                        .attr("fill", function(d){
+                            //return mutationStyle[d.mutationType].fill;
+                            return "grey";
+                        })
+                        .attr("stroke", function(d){
+                            //return mutationStyle[d.mutationType].stroke;
+                            return "black";
+                        })
+                        .attr("stroke-width", 1.2);
+                    posVal += 1;
+                });
+            }
+
+            function drawBoxPlots(){
+                var boxPlotsElem = elem.svg.append("svg:g");
+
+                var min_x = PlotsData.getDataStatus().min_x;
+                var max_x = PlotsData.getDataStatus().max_x;
+                //Not using real x value for positioning discretized data
+                var pos = 0;   //position Indicator
+                var _dotsGroup = PlotsData.getDotsGroup();
+                for (var i = min_x ; i < max_x + 1; i++) {
+                    var top;
+                    var bottom;
+                    var quan1;
+                    var quan2;
+                    var mean;
+                    var IQR;
+                    var scaled_y_arr=[];
+                    var tmp_y_arr = [];
+                    //Find the middle (vertical) line for one box plot
+                    var midLine = attr.xScale(pos);
+                    //Find the max/min y value with certain x value;
+                    $.each(_dotsGroup, function(_dot) {
+                        if (_dot.xVal === i.toString()) {
+                            tmp_y_arr.push(parseFloat(_dot.yVal));
+                        }
+                    });
+                    tmp_y_arr.sort(function(a,b) { return a-b });
+                    if (tmp_y_arr.length === 0) {
+                        //Do nothing
+                    } else if (tmp_y_arr.length === 1) {
+                        mean = attr.yScale(tmp_y_arr[0]);
+                        boxPlotsElem.append("line")
+                            .attr("x1", midLine-30)
+                            .attr("x2", midLine+30)
+                            .attr("y1", mean)
+                            .attr("y2", mean)
+                            .attr("stroke-width", 1)
+                            .attr("stroke", "grey");
+                        pos += 1;
+                    } else if (tmp_y_arr.length === 2) {
+                        mean = attr.yScale((tmp_y_arr[0] + tmp_y_arr[1]) / 2);
+                        quan1 = bottom = attr.yScale(tmp_y_arr[0]);
+                        quan2 = top = attr.yScale(tmp_y_arr[1]);
+                        IQR = Math.abs(quan2 - quan1);
+                        pos += 1;
+                    } else {
+                        var yl = tmp_y_arr.length;
+                        if (yl % 2 === 0) {
+                            mean = attr.yScale((tmp_y_arr[(yl / 2)-1] + tmp_y_arr[yl / 2]) / 2);
+                            if (yl % 4 === 0) {
+                                quan1 = attr.yScale((tmp_y_arr[(yl / 4)-1] + tmp_y_arr[yl / 4]) / 2);
+                                quan2 = attr.yScale((tmp_y_arr[(3*yl / 4)-1] + tmp_y_arr[3 * yl / 4]) / 2);
+                            } else {
+                                quan1 = attr.yScale(tmp_y_arr[Math.floor(yl / 4)]);
+                                quan2 = attr.yScale(tmp_y_arr[Math.floor(3 * yl / 4)]);
+                            }
+                        } else {
+                            mean = attr.yScale(tmp_y_arr[Math.floor(yl / 2)]);
+                            var tmp_yl = Math.floor(yl / 2) + 1;
+                            if (tmp_yl % 2 === 0) {
+                                quan1 = attr.yScale((tmp_y_arr[tmp_yl / 2 - 1] + tmp_y_arr[tmp_yl / 2]) / 2);
+                                quan2 = attr.yScale((tmp_y_arr[(3 * tmp_yl / 2) - 2] + tmp_y_arr[(3 * tmp_yl / 2) - 1]) / 2);
+                            } else {
+                                quan1 = attr.yScale(tmp_y_arr[Math.floor(tmp_yl / 2)]);
+                                quan2 = attr.yScale(tmp_y_arr[tmp_yl - 1 + Math.floor(tmp_yl / 2)]);
+                            }
+                        }
+                        for (var k = 0 ; k < tmp_y_arr.length ; k++) {
+                            scaled_y_arr[k] = parseFloat(attr.yScale(tmp_y_arr[k]));
+                        }
+                        scaled_y_arr.sort(function(a,b) { return a-b });
+                        IQR = Math.abs(quan2 - quan1);
+                        var index_top = Util.searchIndexTop(scaled_y_arr, (quan2 - 1.5 * IQR));
+                        top = scaled_y_arr[index_top];
+                        var index_bottom = Util.searchIndexBottom(scaled_y_arr, (quan1 + 1.5 * IQR));
+                        bottom = scaled_y_arr[index_bottom];
+                        pos += 1;
+                    }
+
+                    console.log(midLine);
+                    console.log(mean);
+                    console.log(bottom);
+                    console.log(top);
+
+                    //D3 Drawing
+                    boxPlotsElem.append("rect")
+                        .attr("x", midLine-40)
+                        .attr("y", quan2)
+                        .attr("width", 80)
+                        .attr("height", IQR)
+                        .attr("fill", "none")
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    boxPlotsElem.append("line")
+                        .attr("x1", midLine-40)
+                        .attr("x2", midLine+40)
+                        .attr("y1", mean)
+                        .attr("y2", mean)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    boxPlotsElem.append("line")
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
+                        .attr("y1", top)
+                        .attr("y2", top)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#BDBDBD");
+                    boxPlotsElem.append("line")
+                        .attr("x1", midLine-30)
+                        .attr("x2", midLine+30)
+                        .attr("y1", bottom)
+                        .attr("y2", bottom)
+                        .attr("stroke", "#BDBDBD")
+                        .style("stroke-width", 1);
+                    boxPlotsElem.append("line")
+                        .attr("x1", midLine)
+                        .attr("x2", midLine)
+                        .attr("y1", quan1)
+                        .attr("y2", bottom)
+                        .attr("stroke", "#BDBDBD")
+                        .attr("stroke-width", 1);
+                    boxPlotsElem.append("line")
+                        .attr("x1", midLine)
+                        .attr("x2", midLine)
+                        .attr("y1", quan2)
+                        .attr("y2", top)
+                        .attr("stroke", "#BDBDBD")
+                        .style("stroke-width", 1);
+                }
+            }
+
+            function drawLog2Plots() {
+                elem.elemDotsGroup = elem.svg.append("svg:g");
+                elem.elemDotsGroup.selectAll("path")
+                    .data(PlotsData.getDotsGroup())
+                    .enter()
+                    .append("svg:path")
+                    .attr("transform", function(d) {
+                        return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
+                    })
+                    .attr("d", d3.svg.symbol()
+                        .size(20)
+                        .type(function(d){
+                            return mutationStyle[d.mutationType].symbol;
+                        })
+                    )
+                    .attr("fill", function(d){
+                        return mutationStyle[d.mutationType].fill;
+                    })
+                    .attr("stroke", function(d){
+                        return mutationStyle[d.mutationType].stroke;
+                    })
+                    .attr("stroke-width", 1.2);
+            }
+
+
+            function drawContinuousPlots() {  //RPPA, DNA Methylation Views
+                elem.dotsGroup = elem.svg.append("svg:g");
+                elem.dotsGroup.selectAll("path")
+                    .data(tmpDataSet)
+                    .enter()
+                    .append("svg:path")
+                    .attr("transform", function(d){
+                        return "translate(" + elem.xScale(d.xVal) + ", " + elem.yScale(d.yVal) + ")";
+                    })
+                    .attr("d", d3.svg.symbol()
+                        .size(35)
+                        .type("circle"))
+                    .attr("fill", function(d) {
+                        switch (d.mutationType) {
+                            case "non" : return "white";
+                            default: return "orange";
+                        }
+                    })
+                    .attr("fill-opacity", function(d) {
+                        switch (d.mutationType) {
+                            case "non" : return 0.0;
+                            default : return 1.0;
+                        }
+                    })
+                    .attr("stroke", function(d) {
+                        return gisticStyle[d.gisticType].stroke;
+                    })
+                    .attr("stroke-width", function(d) {
+                        switch (d.mutationType) {
+                            case "non" : return "1";
+                            default : return "1.1";
+                        }
+                    });
+            }
+
+            return {
+                init: function() {
+                    if (Util.plotsTypeIsCopyNo()) {
+                        if (Util.plotsIsDiscretized()) {    //Gistic, RAE...
+                            drawDiscretizedPlots();
+                            drawBoxPlots();
+                        } else {   //Log2
+                            //drawLog2Plots();
+                        }
+                    } else {  //Methylation, RPPA
+                        //drawContinuousPlots();
+                    }
+                }
+            }
+        }());
+
+        function initCanvas() {
+            elem.svg = d3.select("#plots_box")
+                .append("svg")
+                .attr("width", settings.canvas_width)
+                .attr("height", settings.canvas_height);
+        }
+
+        function drawErrMsgs() {
+            var _xDataType = "",
+                _yDataType = "";
+            if (Util.plotsTypeIsCopyNo()) {
+                var e = document.getElementById("data_type_copy_no");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_mrna");
+                _yDataType = e.options[e.selectedIndex].text;
+            } else if (Util.plotsTypeIsMethylation()) {
+                var e = document.getElementById("data_type_dna_methylation");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_mrna");
+                _yDataType = e.options[e.selectedIndex].text;
+            } else if (Util.plotsTypeIsRPPA()) {
+                var e = document.getElementById("data_type_mrna");
+                _xDataType = e.options[e.selectedIndex].text;
+                e = document.getElementById("data_type_rppa");
+                _yDataType = e.options[e.selectedIndex].text;
+            }
+
+            var err_line1 = "There is no data in UNAVAILABLE_DATA_TYPE";
+            var err_line2 = "for " + userSelection.gene + " in selected cancer study.";
+            var _dataStatus = PlotsData.getDataStatus();
+            if (!_dataStatus.xHasData && _dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _xDataType);
+            } else if (_dataStatus.xHasData && !_dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _yDataType);
+            } else if (!_dataStatus.xHasData && !_dataStatus.yHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "both selected data types");
+            } else if (_dataStatus.xHasData &&_dataStatus.yHasData &&
+                      !_dataStatus.combineHasData) {
+                err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "combined data types");
+            }
+
+            elem.svg.append("text")
+                .attr("x", 350)
+                .attr("y", 50)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(err_line1)
+            elem.svg.append("text")
+                .attr("x", 350)
+                .attr("y", 70)
+                .attr("text-anchor", "middle")
+                .attr("fill", "#DF3A01")
+                .text(err_line2)
+            elem.svg.append("rect")
+                .attr("x", 150)
+                .attr("y", 30)
+                .attr("width", 400)
+                .attr("height", 50)
+                .attr("fill", "none")
+                .attr("stroke-width", 1)
+                .attr("stroke", "#BDBDBD");
+        }
+
+        function drawImgConverter() {
+            $('#view_title').empty();
+            if (Util.plotsTypeIsCopyNo()) {
+                $('#view_title').append(userSelection.gene + ": mRNA Expression v. CNA ");
+            } else if (Util.plotsTypeIsMethylation()) {
+                $('#view_title').append(userSelection.gene + ": mRNA Expression v. DNA Methylation ");
+            } else if (Util.plotsTypeIsRPPA()) {
+                $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
+            }
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='pdf'>" +
+                "<input type='hidden' name='filename' value='plots.pdf'>" +
+                "<input type='submit' value='PDF'></form>";
+            $('#view_title').append(pdfConverterForm);
+            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='svg'>" +
+                "<input type='hidden' name='filename' value='plots.svg'>" +
+                "<input type='submit' value='SVG'></form>";
+            $('#view_title').append(svgConverterForm);
+        }
+
+
+        function drawCopyNoViewLegends() {
+            //Only show glyphs whose mutation type
+            //appeared in the current individual case
+            var _appearedMutationTypes = [];
+            _appearedMutationTypes.length = 0;
+            $.each(tmpDataSet, function(index, value) {
+                _appearedMutationTypes.push(value.mutationType);
+            });
+
+            //Convert object to array
+            var mutationStyleArr = [];
+            mutationStyleArr.length = 0;
+            for (var key in mutationStyle) {
+                var obj = mutationStyle[key];
+                if (_appearedMutationTypes.indexOf(key) !== -1) {
+                    mutationStyleArr.push(obj);
+                }
+            }
+            //If only contain non mutation cases, remove the glyphs completely
+            if (mutationStyleArr.length === 1 &&
+                mutationStyleArr[0].legendText === mutationStyle["non"].legendText) {
+                mutationStyleArr.length = 0;
+            }
+
+            var legend = elem.svg.selectAll(".legend")
+                .data(mutationStyleArr)
+                .enter().append("svg:g")
+                .attr("transform", function(d, i) {
+                    return "translate(610, " + (30 + i * 15) + ")";
+                });
+
+            legend.append("path")
+                .data(mutationStyleArr)
+                .attr("width", 18)
+                .attr("height", 16)
+                .attr("d", d3.svg.symbol().size(30)
+                    .type(function(d) {return d.symbol;}))
+                .attr("fill", function(d) {return d.fill;})
+                .attr("stroke", function(d){return d.stroke;})
+                .attr("stroke-width", 1.2);
+
+            legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d){return d.legendText;});
+        }
+
+        function drawOtherViewLegends() {
+            var gisticStyleArr = [];
+            for (var key in gisticStyle) {
+                var obj = gisticStyle[key];
+                gisticStyleArr.push(obj);
+            }
+
+            var mutatedStyle = {
+                stroke : "none",
+                symbol : "circle",
+                fill : "orange",
+                legendText : "Mutated",
+            }
+            gisticStyleArr.push(mutatedStyle);
+
+            var legend = elem.svg.selectAll(".legend")
+                .data(gisticStyleArr)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(610, " + (30 + i * 15) + ")";
+                })
+
+            legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                    .size(40)
+                    .type(function(d) { return d.symbol; }))
+                .attr("fill", function (d) { return d.fill; })
+                .attr("stroke", function (d) { return d.stroke; })
+                .attr("stroke-width", 1.1);
+
+            legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d) { return d.legendText; })
+        }
+
         return {
             init: function() {
                 initCanvas();
                 if (PlotsData.getDotsGroup().length !== 0) {
                     drawImgConverter();
                     Axis.init();
+                    ScatterPlots.init();
                 } else { //No available data
                     drawErrMsgs();
                 }
             },
-            drawDiscretizedPlots: drawDiscretizedPlots,
-            drawLog2Plots: drawLog2Plots,
-            drawBoxPlots: drawBoxPlots,
-            drawContinuousPlots: drawContinuousPlots,
             drawCopyNoViewLegends: drawCopyNoViewLegends,
             drawOtherViewLegends: drawOtherViewLegends,
             Qtips: Qtips

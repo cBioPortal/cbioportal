@@ -3,23 +3,41 @@
 <head>
     <title></title>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+
+    <style type="text/css">
+        progress {
+            background-color: #f3f3f3;
+            border: 0;
+            height: 18px;
+            border-radius: 9px;
+        }
+    </style>
 </head>
 <body>
 
-<form name="echofile" action="echofile" enctype="multipart/form-data" method="POST">
-    <span>
-        <span>Copy Number</span>
-        <input name="cna" type="file" size="40">
-    </span>
-    <span>
-        <span>Mutations</span>
-        <input name="mutation" type="file" size="40">
-    </span>
-    <input type="button" value="Go!">
-    <progress></progress>
-</form>
 
-<div id="oncoprint"></div>
+<div id="container" style="margin-left:50px; margin-top:50px;">
+    <h1>Custom Oncoprint</h1>
+
+    <form name="echofile" action="echofile" enctype="multipart/form-data" method="POST">
+    <p>Choose data files to upload:</p>
+
+    <div>
+        <span>Copy Number File</span>
+        <input name="cna" type="file" size="40">
+    </div>
+    <div>
+        <span>Mutations File</span>
+        <input name="mutation" type="file" size="40">
+    </div>
+        <input type="button" value="Go!"><br/>
+        <progress></progress>
+    </form>
+
+    <div id="oncoprint"></div>
+    <div id="oncoprint_legend"></div>
+</div>
+
 </body>
 
 <script type="text/javascript" src="js/d3.v3.min.js"></script>
@@ -51,6 +69,7 @@
                     data = EchoedDataUtils.oncoprint_wash(data);
                     var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
                     var params = { geneData: data, genes:genes };
+//                    params.legend =  document.getElementById("oncoprint_legend");
 
                     Oncoprint(document.getElementById("oncoprint"), params);
                 },

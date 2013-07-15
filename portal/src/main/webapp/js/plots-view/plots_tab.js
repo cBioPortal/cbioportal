@@ -394,6 +394,8 @@ var PlotsView = (function () {
             rppa_type : "",
         };   //current user selection from the side menu
 
+    var discretizedDataTypeIndicator = "";
+
     var Util = (function() {
 
         function isEmpty(inputVal) {
@@ -526,21 +528,6 @@ var PlotsView = (function () {
             };
 
         function fetchPlotsData(profileDataResult) {
-
-            var discretizedDataTypeIndicator = cancer_study_id + "_gistic";
-            var sel = document.getElementById("data_type_copy_no");
-            var vals = [];
-            for (var i = 0; i < sel.children.length; ++i) {
-                var child = sel.children[i];
-                if (child.tagName == 'OPTION') vals.push(child.value);
-            }
-            if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
-                if (vals.indexOf(cancer_study_id + "_cna") === -1) {
-                    discretizedDataTypeIndicator = cancer_study_id + "_CNA"; //Cancer Cell Line Encyclopedia
-                } else {
-                    discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
-                }
-            }
 
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
@@ -1571,19 +1558,21 @@ var PlotsView = (function () {
 
     function getProfileData() {
 
-        var discretizedDataTypeIndicator = cancer_study_id + "_gistic";
         var sel = document.getElementById("data_type_copy_no");
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
             if (child.tagName == 'OPTION') vals.push(child.value);
         }
-        if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
-            if (vals.indexOf(cancer_study_id + "_cna") === -1) {
-                discretizedDataTypeIndicator = cancer_study_id + "_CNA"; //Cancer Cell Line Encyclopedia
-            } else {
-                discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
-            }
+
+        if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
+            discretizedDataTypeIndicator = cancer_study_id + "_gistic";
+        } else if (vals.indexOf(cancer_study_id + "_cna") !== -1) {
+            discretizedDataTypeIndicator = cancer_study_id + "_cna";
+        } else if (vals.indexOf(cancer_study_id + "_CNA") !== -1) {
+            discretizedDataTypeIndicator = cancer_study_id + "_cna";
+        } else if (vals.indexOf(cancer_study_id + "_cna_rae") !== -1) {
+            discretizedDataTypeIndicator = cancer_study_id + "_cna_rae";
         }
 
         var _profileIdsStr = cancer_study_id + "_mutations" + " " +

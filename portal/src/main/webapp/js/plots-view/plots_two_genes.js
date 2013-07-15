@@ -28,12 +28,12 @@
 var PlotsTwoGenesMenu = (function(){
 
     var content = {
-            plots_type_list : [
-                { value : "mrna", name :  "mRNA Expression" },
-                { value : "copy_no", name :  "Copy Number Alteration" },
-                { value : "methylation", name :  "DNA Methylation" },
-                { value : "rppa", name :  "RPPA Protein Level" }
-            ],
+            plots_type_list : {
+                "mrna" : { value : "mrna", name :  "mRNA Expression" },
+                "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
+                "methylation" : { value : "methylation", name :  "DNA Methylation" },
+                "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
+            },
             genetic_profile_mutations : [],
             genetic_profile_mrna : [],
             genetic_profile_copy_no : [],
@@ -129,20 +129,35 @@ var PlotsTwoGenesMenu = (function(){
         $("#two_genes_platform_select_div").append("</select>");
     }
 
+    function generatePlotsTypeList() {
+        appendDropDown("#two_genes_plots_type", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
+        if (content.genetic_profile_copy_no.length !== 0) {
+            appendDropDown("#two_genes_plots_type", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+        }
+        if (content.genetic_profile_dna_methylation.length !== 0) {
+            appendDropDown("#two_genes_plots_type", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);
+        }
+        if (content.genetic_profile_rppa.length !== 0) {
+            appendDropDown("#two_genes_plots_type", content.plots_type_list.rppa.value, content.plots_type_list.rppa.name);
+        }
+    }
+
+    function generateGeneList() {
+        //TODO: Enable this view only when there are >2 genes!
+        //TODO: Always make sure these are two different genes
+        generateList("geneX", gene_list);
+        //shift the genelist (temporary solution)
+        var tmp_gene_list = jQuery.extend(true, [], gene_list);
+        var tmp_gene_holder = tmp_gene_list.pop();
+        tmp_gene_list.unshift(tmp_gene_holder);
+        generateList("geneY", tmp_gene_list);
+    }
+
     return {
         init: function() {
-            //TODO: Enable this view only when there are >2 genes!
-            //TODO: Always make sure these are two different genes
-            generateList("geneX", gene_list);
-            //shift the genelist (temporary solution)
-            var tmp_gene_list = jQuery.extend(true, [], gene_list);
-            var tmp_gene_holder = tmp_gene_list.pop();
-            tmp_gene_list.unshift(tmp_gene_holder);
-            generateList("geneY", tmp_gene_list);
             fetchFrameData();
-            content.plots_type_list.forEach(function(plots_type) {
-                    appendDropDown("#two_genes_plots_type", plots_type.value, plots_type.name);
-            });
+            generateGeneList();
+            generatePlotsTypeList();
         },
         update: function() {
             drawPlatFormList();

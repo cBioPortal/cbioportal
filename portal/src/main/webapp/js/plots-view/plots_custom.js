@@ -28,12 +28,12 @@
 var PlotsCustomMenu = (function(){
 
     var content = {
-        plots_type_list : [
-            { value : "mrna", name :  "mRNA Expression" },
-            { value : "copy_no", name :  "Copy Number Alteration" },
-            { value : "methylation", name :  "DNA Methylation" },
-            { value : "rppa", name :  "RPPA Protein Level" }
-        ],
+        plots_type_list : {
+            "mrna" : { value : "mrna", name :  "mRNA Expression" },
+            "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
+            "methylation" : { value : "methylation", name :  "DNA Methylation" },
+            "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
+        },
         genetic_profile_mutations : [],
         genetic_profile_mrna : [],
         genetic_profile_copy_no : [],
@@ -160,22 +160,36 @@ var PlotsCustomMenu = (function(){
 
     }
 
+    function generateGeneList() {
+        generateList("custom_geneX", gene_list);
+        var tmp_gene_list = jQuery.extend(true, [], gene_list);
+        var tmp_gene_holder = tmp_gene_list.pop();
+        tmp_gene_list.unshift(tmp_gene_holder);
+        generateList("custom_geneY", tmp_gene_list);
+    }
+
+    function generatePlotsTypeList() {
+        appendDropDown("#custom_plots_type_x", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
+        appendDropDown("#custom_plots_type_y", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
+        if (content.genetic_profile_copy_no.length !== 0) {
+            appendDropDown("#custom_plots_type_x", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+            appendDropDown("#custom_plots_type_y", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+        }
+        if (content.genetic_profile_dna_methylation.length !== 0) {
+            appendDropDown("#custom_plots_type_x", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);
+            appendDropDown("#custom_plots_type_y", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);
+        }
+        if (content.genetic_profile_rppa.length !== 0) {
+            appendDropDown("#custom_plots_type_x", content.plots_type_list.rppa.value, content.plots_type_list.rppa.name);
+            appendDropDown("#custom_plots_type_y", content.plots_type_list.rppa.value, content.plots_type_list.rppa.name);
+        }
+    }
+
     return {
         init: function() {
             fetchFrameData();
-            generateList("custom_geneX", gene_list);
-            //shift the genelist (temporary solution)
-            //TODO:
-            var tmp_gene_list = jQuery.extend(true, [], gene_list);
-            var tmp_gene_holder = tmp_gene_list.pop();
-            tmp_gene_list.unshift(tmp_gene_holder);
-            generateList("custom_geneY", tmp_gene_list);
-            content.plots_type_list.forEach(function(plots_type) {
-                appendDropDown("#custom_plots_type_x", plots_type.value, plots_type.name);
-            });
-            content.plots_type_list.forEach(function(plots_type) {
-                appendDropDown("#custom_plots_type_y", plots_type.value, plots_type.name);
-            });
+            generateGeneList();
+            generatePlotsTypeList();
         },
         update: function(){
             updateXselection();

@@ -839,9 +839,9 @@ var PlotsView = (function () {
                 var edge_x = (max_x - min_x) * 0.2;
                 var edge_y = (max_y - min_y) * 0.1;
 
-                if (Util.plotsTypeIsMethylation() &&
-                    userSelection.dna_methylation_type.indexOf("hm27") !== -1 ){
-                    //Range for DNA Methylation HM27 need to be fixed as from 0 to 1.
+                if (Util.plotsTypeIsMethylation()){
+                    //Range for DNA Methylation Data Type
+                    //Need to be fixed as from 0 to 1.
                     attr.xScale = d3. scale.linear()
                         .domain([-0.02, 1])
                         .range([100,600]);

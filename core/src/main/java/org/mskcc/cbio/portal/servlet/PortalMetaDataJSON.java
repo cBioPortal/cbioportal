@@ -29,10 +29,13 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.model.TypeOfCancer;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.GeneSet;
@@ -49,10 +52,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This Servlet Returns a JSON Representation of all Cancer Studies and all
@@ -90,13 +90,27 @@ public class PortalMetaDataJSON extends HttpServlet {
             IOException {
         XDebug xdebug = new XDebug(httpServletRequest);
 
-        //  Cancer All Cancer Studies
         try {
-			List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
-
-            //  Get all Genomic Profiles and Case Sets for each Cancer Study
             Map rootMap = new LinkedHashMap();
             Map cancerStudyMap = new LinkedHashMap();
+
+            // Also get cancer study types and add it to the metadata
+            ArrayList<TypeOfCancer> allTypesOfCancer = DaoTypeOfCancer.getAllTypesOfCancer();
+            Collections.sort(allTypesOfCancer, new Comparator<TypeOfCancer>() {
+                @Override
+                public int compare(TypeOfCancer typeOfCancer, TypeOfCancer typeOfCancer1) {
+                    return typeOfCancer.getName().compareTo(typeOfCancer1.getName());
+                }
+            });
+            Map<String, String> typeOfCancerMap = new HashMap<String, String>();
+            Map<String, String> visibleTypeOfCancerMap = new HashMap<String, String>();
+            for (TypeOfCancer typeOfCancer : allTypesOfCancer)
+                typeOfCancerMap.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getName());
+
+            //  Cancer All Cancer Studies
+            List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
+
+            //  Get all Genomic Profiles and Case Sets for each Cancer Study
             rootMap.put("cancer_studies", cancerStudyMap);
             for (CancerStudy cancerStudy : cancerStudiesList) {
                 ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets
@@ -122,6 +136,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                     map.put("id", caseSet.getStableId());
                     map.put("name", caseSet.getName());
                     map.put("description", caseSet.getDescription());
+                    map.put("size", caseSet.getCaseList().size());
                     jsonCaseList.add(map);
                 }
                 Map jsonCancerStudySubMap = new LinkedHashMap();
@@ -135,7 +150,14 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
                 jsonCancerStudySubMap.put("has_gistic_data", cancerStudy.hasGisticData());
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
+
+                String typeOfCancerId = cancerStudy.getTypeOfCancerId();
+                jsonCancerStudySubMap.put("type_of_cancer", typeOfCancerId);
+                visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
             }
+
+            // Only put visible ones
+            rootMap.put("type_of_cancers", visibleTypeOfCancerMap);
 
             //  Get all Gene Sets
             GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();

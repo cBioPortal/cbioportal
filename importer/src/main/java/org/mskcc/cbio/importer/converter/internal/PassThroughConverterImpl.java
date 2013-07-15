@@ -115,10 +115,11 @@ public class PassThroughConverterImpl implements Converter {
 	 *
 	 * @param portal String
 	 * @param excludeDatatypes Set<String>
+	 * @param applyCaseLists boolean
 	 * @throws Exception
 	 */
     @Override
-	public void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception {
+	public void applyOverrides(String portal, Set<String> excludeDatatypes, boolean applyCaseLists) throws Exception {
 		throw new UnsupportedOperationException();
     }
 

@@ -431,6 +431,16 @@
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <url-pattern>/svgtopdf.do</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>ClinicalTrialsJSON</servlet-name>

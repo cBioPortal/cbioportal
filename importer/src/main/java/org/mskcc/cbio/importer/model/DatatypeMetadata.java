@@ -57,6 +57,19 @@ public class DatatypeMetadata {
 	// - used by at least ConverterImpl
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
+	// mutation data staging filename
+	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
+
+	// clinical data staging filename
+	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+
+	// fusion data staging filename
+	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";
+
+	// file used by groups which check in manually curated studies to
+	// indicate the list of sequenced samples
+	public static final String SEQUENCED_SAMPLES_FILENAME = "sequenced_samples.txt";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:

@@ -18,11 +18,6 @@
 	 			</a>
 	 		</td>
 		</tr>
-		<tr>
-			<td></td>
-			<td><span style="font-size:95%; color:black">(Tip:  Hover your mouse over a case set to view a description.)</span>
-			</td>
-		</tr>
 	</table>
 	
 	<div id="custom_case_set_dialog" title="Build a Case Set">

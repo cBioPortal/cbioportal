@@ -54,6 +54,16 @@ public class SkinUtil {
     private static final String PROPERTY_AUTHENTICATION_REQUIRED = "authenticate";
     private static final String PROPERTY_BITLY_USER = "bitly.user";
     private static final String PROPERTY_BITLY_API_KEY = "bitly.api_key";
+    
+    public static String getAppName() {
+        Config config = Config.getInstance();
+        String appName = config.getProperty("app.name");
+        if (appName == null) {
+            return "public_portal";
+        } else {
+            return appName;
+        }
+    }
 
     /**
      * Gets the Site Title.

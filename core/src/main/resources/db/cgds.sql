@@ -23,6 +23,7 @@ drop table IF EXISTS type_of_cancer;
 CREATE TABLE `type_of_cancer` (
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
+  `CLINICAL_TRIAL_KEYWORDS` varchar(1024) NOT NULL,
   PRIMARY KEY  (`TYPE_OF_CANCER_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -41,6 +42,7 @@ CREATE TABLE `cancer_study` (
   `PUBLIC` BOOLEAN NOT NULL,
   `PMID` varchar(20) DEFAULT NULL,
   `CITATION` varchar(200) DEFAULT NULL,
+  `GROUPS` varchar(200) DEFAULT NULL,
   PRIMARY KEY  (`CANCER_STUDY_ID`),
   UNIQUE (`CANCER_STUDY_IDENTIFIER`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
@@ -212,21 +214,21 @@ drop table IF EXISTS mutation_event;
 CREATE TABLE `mutation_event` (
   `MUTATION_EVENT_ID` int(255) NOT NULL auto_increment,
   `ENTREZ_GENE_ID` int(255) NOT NULL,
-  `CHR` varchar(5) NOT NULL,
-  `START_POSITION` bigint(20) NOT NULL,
-  `END_POSITION` bigint(20) NOT NULL,
-  `REFERENCE_ALLELE` varchar(255) NOT NULL,
-  `TUMOR_SEQ_ALLELE` varchar(255) NOT NULL,
-  `PROTEIN_CHANGE` varchar(255) NOT NULL,
-  `MUTATION_TYPE` varchar(255) NOT NULL COMMENT 'e.g. Missense, Nonsence, etc.',
-  `FUNCTIONAL_IMPACT_SCORE` varchar(50) NOT NULL COMMENT 'Result from OMA/XVAR.',
-  `FIS_VALUE` float NOT NULL,
-  `LINK_XVAR` varchar(500) NOT NULL COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
-  `LINK_PDB` varchar(500) NOT NULL,
-  `LINK_MSA` varchar(500) NOT NULL,
-  `NCBI_BUILD` varchar(10) NOT NULL,
-  `STRAND` varchar(2) NOT NULL,
-  `VARIANT_TYPE` varchar(15) NOT NULL,
+  `CHR` varchar(5),
+  `START_POSITION` bigint(20),
+  `END_POSITION` bigint(20),
+  `REFERENCE_ALLELE` varchar(255),
+  `TUMOR_SEQ_ALLELE` varchar(255),
+  `PROTEIN_CHANGE` varchar(255),
+  `MUTATION_TYPE` varchar(255) COMMENT 'e.g. Missense, Nonsence, etc.',
+  `FUNCTIONAL_IMPACT_SCORE` varchar(50) COMMENT 'Result from OMA/XVAR.',
+  `FIS_VALUE` float,
+  `LINK_XVAR` varchar(500) COMMENT 'Link to OMA/XVAR Landing Page for the specific mutation.',
+  `LINK_PDB` varchar(500),
+  `LINK_MSA` varchar(500),
+  `NCBI_BUILD` varchar(10),
+  `STRAND` varchar(2),
+  `VARIANT_TYPE` varchar(15),
   `DB_SNP_RS` varchar(25),
   `DB_SNP_VAL_STATUS` varchar(255),
   `ONCOTATOR_DBSNP_RS` varchar(255),
@@ -241,7 +243,7 @@ CREATE TABLE `mutation_event` (
   `KEYWORD` varchar(50) DEFAULT NULL COMMENT 'e.g. truncating, V200 Missense, E338del, ',
   KEY (`KEYWORD`),
   PRIMARY KEY  (`MUTATION_EVENT_ID`),
-  UNIQUE (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`),
+  UNIQUE (`CHR`, `START_POSITION`, `END_POSITION`, `TUMOR_SEQ_ALLELE`, `ENTREZ_GENE_ID`, `PROTEIN_CHANGE`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 COMMENT='Mutation Data';
 
@@ -254,13 +256,13 @@ CREATE TABLE `mutation` (
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `ENTREZ_GENE_ID` int(255) NOT NULL, # this is included here for performance
-  `CENTER` varchar(100) NOT NULL,
-  `SEQUENCER` varchar(255) NOT NULL,
-  `MUTATION_STATUS` varchar(25) NOT NULL COMMENT 'Germline, Somatic or LOH.',
-  `VALIDATION_STATUS` varchar(25) NOT NULL,
-  `TUMOR_SEQ_ALLELE1` varchar(255) NOT NULL,
-  `TUMOR_SEQ_ALLELE2` varchar(255) NOT NULL,
-  `MATCHED_NORM_SAMPLE_BARCODE` varchar(255) NOT NULL,
+  `CENTER` varchar(100),
+  `SEQUENCER` varchar(255),
+  `MUTATION_STATUS` varchar(25) COMMENT 'Germline, Somatic or LOH.',
+  `VALIDATION_STATUS` varchar(25),
+  `TUMOR_SEQ_ALLELE1` varchar(255),
+  `TUMOR_SEQ_ALLELE2` varchar(255),
+  `MATCHED_NORM_SAMPLE_BARCODE` varchar(255),
   `MATCH_NORM_SEQ_ALLELE1` varchar(255),
   `MATCH_NORM_SEQ_ALLELE2` varchar(255),
   `TUMOR_VALIDATION_ALLELE1` varchar(255),
@@ -516,7 +518,7 @@ CREATE TABLE `case_cna_event` (
   `CNA_EVENT_ID` int(255) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `GENETIC_PROFILE_ID` int(11) NOT NULL,
-  INDEX (`GENETIC_PROFILE_ID`,`CASE_ID`),
+  KEY (`GENETIC_PROFILE_ID`,`CASE_ID`),
   PRIMARY KEY  (`CNA_EVENT_ID`, `CASE_ID`, `GENETIC_PROFILE_ID`),
   FOREIGN KEY (`CNA_EVENT_ID`) REFERENCES `cna_event` (`CNA_EVENT_ID`),
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
@@ -532,7 +534,7 @@ CREATE TABLE `copy_number_seg` (
   `END` int(11) NOT NULL,
   `NUM_PROBES` int(11) NOT NULL,
   `SEGMENT_MEAN` double NOT NULL,
-  INDEX (`CANCER_STUDY_ID`,`CASE_ID`),
+  KEY (`CANCER_STUDY_ID`,`CASE_ID`),
   PRIMARY KEY (`SEG_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
@@ -573,7 +575,7 @@ CREATE TABLE `clinical_trial_keywords` (
   `PROTOCOLID` char(50) NOT NULL,
   `KEYWORD` varchar(256),
   PRIMARY KEY (`PROTOCOLID`, `KEYWORD`),
-  INDEX(`KEYWORD`),
+  KEY(`KEYWORD`),
   FOREIGN KEY (`PROTOCOLID`) REFERENCES `clinical_trials` (`PROTOCOLID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 

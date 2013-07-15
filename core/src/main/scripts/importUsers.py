@@ -57,11 +57,17 @@ GOOGLE_PW = 'google.pw'
 CGDS_USERS_SPREADSHEET = 'users.spreadsheet'
 CGDS_USERS_WORKSHEET = 'users.worksheet'
 
-# database names - used as keys to email subjects/body below
-GDAC_DATABASE_NAME = 'cgds_gdac'
-PRIVATE_DATABASE_NAME = 'cgds_private'
-SU2C_DATABASE_NAME = 'cgds_su2c'
-PROSTATE_DATABASE_NAME = 'cgds_prostate'
+# Google spreadsheet name - used as keys to email subjects/body below
+GDAC_USER_SPREADSHEET = 'Request Access to the cBio GDAC Cancer Genomics Portal'
+SU2C_USER_SPREADSHEET = 'Request Access to the cBio SU2C Cancer Genomics Portal'
+PROSTATE_USER_SPREADSHEET = 'Request Access to the cBio Prostate Cancer Genomics Portal'
+TARGET_USER_SPREADSHEET = 'Request Access to the cBio TARGET Cancer Genomics Portal'
+
+# portal name
+PORTAL_NAME = { GDAC_USER_SPREADSHEET : "gdac-portal",
+                PROSTATE_USER_SPREADSHEET : "prostate-portal",
+                SU2C_USER_SPREADSHEET : "su2c-portal",
+                TARGET_USER_SPREADSHEET : "target-portal" }
 
 # a ref to the google spreadsheet client - used for all i/o to google spreadsheet
 GOOGLE_SPREADSHEET_CLIENT = gdata.spreadsheet.service.SpreadsheetsService()
@@ -79,35 +85,35 @@ STATUS_APPROVED = "APPROVED"
 # consts used in email
 SMTP_SERVER = "cbio.mskcc.org"
 MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
-MESSAGE_BCC = ["cerami@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
-MESSAGE_SUBJECT = { GDAC_DATABASE_NAME : "cBio GDAC Cancer Genomics Portal Access",
-                    PRIVATE_DATABASE_NAME : "cBio Private Cancer Genomics Portal Access",
-                    PROSTATE_DATABASE_NAME : "cBio Prostate Cancer Genomics Portal Access",
-                    SU2C_DATABASE_NAME : "cBio SU2C Cancer Genomics Portal Access" }
-GDAC_MESSAGE_BODY = """Thank you for your interest in the cBio GDAC Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
+MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
+MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "cBioPortal for TCGA Access",
+                    PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
+                    SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
+                    TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET" }
+GDAC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for TCGA. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. The data are only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
 """
 
-PRIVATE_MESSAGE_BODY = """Thank you for your interest in the cBio Private Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/private-portal/. Please let us know if you have any problems logging in.
+SU2C_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for SU2C. We have granted you access. You can login at http://cbio.mskcc.org/su2c-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-SU2C_MESSAGE_BODY = """Thank you for your interest in the cBio SU2C Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/su2c-portal/. Please let us know if you have any problems logging in.
+PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Prostate. We have granted you access. You can login at http://cbio.mskcc.org/prostate-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBio Prostate Cancer Genomics Portal. We have granted you access. You can login at http://cbio.mskcc.org/prostate-portal/. Please let us know if you have any problems logging in.
+TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-TARGET. We have granted you access. You can login at http://cbio.mskcc.org/target-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-MESSAGE_BODY = { GDAC_DATABASE_NAME : GDAC_MESSAGE_BODY,
-                 PRIVATE_DATABASE_NAME : PRIVATE_MESSAGE_BODY,
-                 PROSTATE_DATABASE_NAME : PROSTATE_MESSAGE_BODY,
-                 SU2C_DATABASE_NAME : SU2C_MESSAGE_BODY }
+MESSAGE_BODY = { GDAC_USER_SPREADSHEET : GDAC_MESSAGE_BODY,
+                 PROSTATE_USER_SPREADSHEET : PROSTATE_MESSAGE_BODY,
+                 SU2C_USER_SPREADSHEET : SU2C_MESSAGE_BODY,
+                 TARGET_USER_SPREADSHEET : TARGET_MESSAGE_BODY }
 
 
 # ------------------------------------------------------------------------------
@@ -143,26 +149,26 @@ class User(object):
 #
 def send_mail(to, subject, body, server=SMTP_SERVER):
 
-	assert type(to)==list
+    assert type(to)==list
 
-	msg = MIMEMultipart()
-	msg['Subject'] = subject
-	msg['From'] = MESSAGE_FROM
-	msg['To'] = COMMASPACE.join(to)
-	msg['Date'] = formatdate(localtime=True)
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    msg['From'] = MESSAGE_FROM
+    msg['To'] = COMMASPACE.join(to)
+    msg['Date'] = formatdate(localtime=True)
 
-	msg.attach(MIMEText(body))
+    msg.attach(MIMEText(body))
 
-	# combine to and bcc lists for sending
-	combined_to_list = []
-	for to_name in to:
-		combined_to_list.append(to_name)
-	for bcc_name in MESSAGE_BCC:
-		combined_to_list.append(bcc_name)
+    # combine to and bcc lists for sending
+    combined_to_list = []
+    for to_name in to:
+        combined_to_list.append(to_name)
+    for bcc_name in MESSAGE_BCC:
+        combined_to_list.append(bcc_name)
 
-	smtp = smtplib.SMTP(server)
-	smtp.sendmail(MESSAGE_FROM, combined_to_list, msg.as_string() )
-	smtp.close()
+    smtp = smtplib.SMTP(server)
+    smtp.sendmail(MESSAGE_FROM, combined_to_list, msg.as_string() )
+    smtp.close()
 
 
 # ------------------------------------------------------------------------------
@@ -171,11 +177,11 @@ def send_mail(to, subject, body, server=SMTP_SERVER):
 
 def google_login(user, pw):
 
-	# google spreadsheet
-	GOOGLE_SPREADSHEET_CLIENT.email = user
-	GOOGLE_SPREADSHEET_CLIENT.password = pw
-	GOOGLE_SPREADSHEET_CLIENT.source = sys.argv[0]
-	GOOGLE_SPREADSHEET_CLIENT.ProgrammaticLogin()
+    # google spreadsheet
+    GOOGLE_SPREADSHEET_CLIENT.email = user
+    GOOGLE_SPREADSHEET_CLIENT.password = pw
+    GOOGLE_SPREADSHEET_CLIENT.source = sys.argv[0]
+    GOOGLE_SPREADSHEET_CLIENT.ProgrammaticLogin()
 
 # ------------------------------------------------------------------------------
 # given a feed & feed name, returns its id
@@ -207,15 +213,13 @@ def get_worksheet_feed(ss, ws):
 def insert_new_users(cursor, new_user_list):
 
     try:
-		cursor.executemany("insert into users values(%s, %s, %s)",
-						   [(user.openid_email, user.name, user.enabled) for user in new_user_list])
-		for user in new_user_list:
-			# authorities is semicolon delimited
-			if user.authorities[-1:] == ';':
-				user.authorities = user.authorities[:-1]
-			authorities = user.authorities.split(';')
-			cursor.executemany("insert into authorities values(%s, %s)",
-							   [(user.openid_email, authority) for authority in authorities])
+        cursor.executemany("insert into users values(%s, %s, %s)",
+                           [(user.openid_email, user.name, user.enabled) for user in new_user_list])
+        for user in new_user_list:
+            # authorities is semicolon delimited
+            authorities = user.authorities
+            cursor.executemany("insert into authorities values(%s, %s)",
+                               [(user.openid_email, authority) for authority in authorities])
     except MySQLdb.Error, msg:
         print >> ERROR_FILE, msg
         return False
@@ -266,7 +270,7 @@ def get_user_authorities(cursor, openid_email):
 # ------------------------------------------------------------------------------
 # get current users
 
-def get_new_user_map(worksheet_feed, current_user_map):
+def get_new_user_map(worksheet_feed, current_user_map, portal_name):
 
     # map that we are returning
     # key is the institutional email address + openid (in case 1 use wants multiple openids)
@@ -277,13 +281,16 @@ def get_new_user_map(worksheet_feed, current_user_map):
         # we are only concerned with 'APPROVED' entries
         if (entry.custom[STATUS_KEY].text is not None and
             entry.custom[STATUS_KEY].text.strip() == STATUS_APPROVED):
-			inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
-			openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip()
-			name = entry.custom[FULLNAME_KEY].text.strip()
-			authorities = entry.custom[AUTHORITIES_KEY].text.strip()
-			# do not add entry if this entry is a current user
-			if openid_email not in current_user_map:
-				to_return[inst_email+openid_email] = User(inst_email, openid_email, name, 1, authorities)
+            inst_email = entry.custom[INST_EMAIL_KEY].text.strip()
+            openid_email = entry.custom[OPENID_EMAIL_KEY].text.strip().lower()
+            name = entry.custom[FULLNAME_KEY].text.strip()
+            authorities = entry.custom[AUTHORITIES_KEY].text.strip()
+            # do not add entry if this entry is a current user
+            if openid_email not in current_user_map:
+                if authorities[-1:] == ';':
+                    authorities = authorities[:-1]
+                to_return[openid_email] = User(inst_email, openid_email, name, 1,
+                    [portal_name + ':' + au for au in authorities.split(';')])
 
     return to_return
     
@@ -309,46 +316,38 @@ def get_db_connection(portal_properties):
 
 def get_portal_properties(portal_properties_filename):
 
-	properties = {}
-	portal_properties_file = open(portal_properties_filename, 'r')
-	for line in portal_properties_file:
-		line = line.strip()
-		# skip line if its blank or a comment
-		if len(line) == 0 or line.startswith('#'):
-			continue
+    properties = {}
+    portal_properties_file = open(portal_properties_filename, 'r')
+    for line in portal_properties_file:
+        line = line.strip()
+        # skip line if its blank or a comment
+        if len(line) == 0 or line.startswith('#'):
+            continue
         # store name/value
-		property = line.split('=')
-		# spreadsheet url contains an '=' sign
-		if line.startswith(CGDS_USERS_SPREADSHEET):
-			property = [property[0], line[line.index('=')+1:len(line)]]
-		if (len(property) != 2):
-			print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
-			continue
-		properties[property[0]] = property[1].strip()
-	portal_properties_file.close()
+        property = line.split('=')
+        # spreadsheet url contains an '=' sign
+        if line.startswith(CGDS_USERS_SPREADSHEET):
+            property = [property[0], line[line.index('=')+1:len(line)]]
+        if (len(property) != 2):
+            print >> ERROR_FILE, 'Skipping invalid entry in property file: ' + line
+            continue
+        properties[property[0]] = property[1].strip()
+    portal_properties_file.close()
 
     # error check
-	if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
-		CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
-		CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
-		CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
-		GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
-		GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
-		CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
-		CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
-		print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
-		return None
-
-	# extra verification for database names
-	if (properties[CGDS_DATABASE_NAME] != GDAC_DATABASE_NAME and
-		properties[CGDS_DATABASE_NAME] != PRIVATE_DATABASE_NAME and
-        properties[CGDS_DATABASE_NAME] != PROSTATE_DATABASE_NAME and
-		properties[CGDS_DATABASE_NAME] != SU2C_DATABASE_NAME):
-		print >> ERROR_FILE, 'Unrecognized database name: %s' % CGDS_DATABASE_NAME
-		return None
+    if (CGDS_DATABASE_HOST not in properties or len(properties[CGDS_DATABASE_HOST]) == 0 or
+        CGDS_DATABASE_NAME not in properties or len(properties[CGDS_DATABASE_NAME]) == 0 or
+        CGDS_DATABASE_USER not in properties or len(properties[CGDS_DATABASE_USER]) == 0 or
+        CGDS_DATABASE_PW not in properties or len(properties[CGDS_DATABASE_PW]) == 0 or
+        GOOGLE_ID not in properties or len(properties[GOOGLE_ID]) == 0 or
+        GOOGLE_PW not in properties or len(properties[GOOGLE_PW]) == 0 or
+        CGDS_USERS_SPREADSHEET not in properties or len(properties[CGDS_USERS_SPREADSHEET]) == 0 or
+        CGDS_USERS_WORKSHEET not in properties or len(properties[CGDS_USERS_WORKSHEET]) == 0):
+        print >> ERROR_FILE, 'Missing one or more required properties, please check property file'
+        return None
     
     # return an instance of PortalProperties
-	return PortalProperties(properties[CGDS_DATABASE_HOST],
+    return PortalProperties(properties[CGDS_DATABASE_HOST],
                             properties[CGDS_DATABASE_NAME],
                             properties[CGDS_DATABASE_USER],
                             properties[CGDS_DATABASE_PW],
@@ -361,7 +360,7 @@ def get_portal_properties(portal_properties_filename):
 # adds new users from the google spreadsheet into the cgds portal database
 # returns new user map if users have been inserted, None otherwise
 
-def manage_users(cursor, worksheet_feed):
+def manage_users(cursor, worksheet_feed, portal_name):
 
     # get map of current portal users
     print >> OUTPUT_FILE, 'Getting list of current portal users'
@@ -374,7 +373,7 @@ def manage_users(cursor, worksheet_feed):
 
     # get list of new users and insert
     print >> OUTPUT_FILE, 'Checking for new users'
-    new_user_map = get_new_user_map(worksheet_feed, current_user_map)
+    new_user_map = get_new_user_map(worksheet_feed, current_user_map, portal_name)
     if (len(new_user_map) > 0):
         print >> OUTPUT_FILE, 'We have %s new user(s) to add' % len(new_user_map)
         success = insert_new_users(cursor, new_user_map.values())
@@ -390,24 +389,22 @@ def manage_users(cursor, worksheet_feed):
 
 # ------------------------------------------------------------------------------
 # updates user study access
-def update_user_authorities(cursor, worksheet_feed):
+def update_user_authorities(cursor, worksheet_feed, portal_name):
 
         # get map of current portal users
-        print >> OUTPUT_FILE, 'Getting list of current portal users'
-        current_user_map = get_new_user_map(worksheet_feed, {})
-        if current_user_map is None:
+        print >> OUTPUT_FILE, 'Getting list of current portal users from spreadsheet'
+        all_user_map = get_new_user_map(worksheet_feed, {}, portal_name)
+        if all_user_map is None:
                 return None;
         print >> OUTPUT_FILE, 'Updating authorities for each user in current portal user list'
-        for user in current_user_map.values():
-                if user.authorities[-1:] == ';':
-                        user.authorities = user.authorities[:-1]
-                worksheet_authorities = set(user.authorities.split(';'))
+        for user in all_user_map.values():
+                worksheet_authorities = set(user.authorities)
                 db_authorities = set(get_user_authorities(cursor, user.openid_email))
                 try:
                         cursor.executemany("insert into authorities values(%s, %s)",
                                            [(user.openid_email, authority) for authority in worksheet_authorities - db_authorities])
-                        cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
-                                           [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
+                        #cursor.executemany("delete from authorities where email = (%s) and authority = (%s)",
+                        #                   [(user.openid_email, authority) for authority in db_authorities - worksheet_authorities])
                 except MySQLdb.Error, msg:
                         print >> ERROR_FILE, msg
 
@@ -467,27 +464,36 @@ def main():
 
     # login to google and get spreadsheet feed
     google_login(portal_properties.google_id, portal_properties.google_pw)
-    worksheet_feed = get_worksheet_feed(portal_properties.google_spreadsheet,
-                                        portal_properties.google_worksheet)
 
-    # the 'guts' of the script
-    new_user_map = manage_users(cursor, worksheet_feed)
+    google_spreadsheets = portal_properties.google_spreadsheet.split(';')
 
-    # update user authorities
-    update_user_authorities(cursor, worksheet_feed)
+    for google_spreadsheet in google_spreadsheets:
+        print >> OUTPUT_FILE, 'Importing ' + google_spreadsheet + ' ...'
+
+        worksheet_feed = get_worksheet_feed(google_spreadsheet,
+                                            portal_properties.google_worksheet)
+
+        # the 'guts' of the script
+        new_user_map = manage_users(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+
+        # update user authorities
+        update_user_authorities(cursor, worksheet_feed, PORTAL_NAME[google_spreadsheet])
+
+        # sending emails
+        if new_user_map is not None:
+            if send_email_confirm == 'true':
+                for new_user_key in new_user_map.keys():
+                    new_user = new_user_map[new_user_key]
+                    print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
+                                           (new_user.name, new_user.inst_email))
+                    send_mail([new_user.inst_email],
+                              MESSAGE_SUBJECT[google_spreadsheet],
+                              MESSAGE_BODY[google_spreadsheet])
+
 
     # clean up
     cursor.close()
-    if new_user_map is not None:
-        connection.commit()
-        if send_email_confirm == 'true':
-            for new_user_key in new_user_map.keys():
-                new_user = new_user_map[new_user_key]
-                print >> OUTPUT_FILE, ('Sending confirmation email to new user: %s at %s' %
-                                       (new_user.name, new_user.inst_email))
-                send_mail([new_user.inst_email],
-                          MESSAGE_SUBJECT[portal_properties.cgds_database_name],
-                          MESSAGE_BODY[portal_properties.cgds_database_name])
+    connection.commit()
     connection.close()
 
 

@@ -103,7 +103,7 @@
     assert(cancerStudies.size() > 0);
     for (CancerStudy cancerStudy:  cancerStudies) {
         studiesList += "'" + cancerStudy.getCancerStudyStableId() + "',";
-        studiesNames += "'" + cancerStudy.getName() + "',";
+        studiesNames += "\"" + cancerStudy.getName() + "\",";
     }
     studiesList = studiesList.substring(0, studiesList.length()-1);
     studiesNames = studiesNames.substring(0, studiesNames.length()-1);

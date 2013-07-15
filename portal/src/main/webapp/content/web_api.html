@@ -163,8 +163,8 @@
 <h3 id="query-format_5">Query Format</h3>
 <ul>
 <li><strong>cmd</strong>=getMutationData (required)</li>
-<li><strong>case_set_id</strong>= [case set ID] (required)</li>
-<li><strong>genetic_profile_id</strong>= [a single genetic profile IDs] (required).</li>
+<li><strong>genetic_profile_id</strong>= [one or more mutation profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +</li>
+<li><strong>case_set_id</strong>= [case set ID] (optional). If not provided, all cases that have data in the specified mutation profiles will be queried.</li>
 <li><strong>gene_list</strong>= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +</li>
 </ul>
 <h3 id="response-format_4">Response Format</h3>
@@ -185,9 +185,13 @@
 <li><strong>chr</strong>:  chromosome where mutation occurs.</li>
 <li><strong>start_position</strong>:  start position of mutation.</li>
 <li><strong>end_position</strong>:  end position of mutation.</li>
+<li><strong>genetic_profile_id</strong>:  mutation profile id.</li>
 </ul>
 <h3 id="example_4">Example</h3>
-<p><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=EGFR+PTEN">Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.</a></p>
+<ul>
+<li><a href="webservice.do?cmd=getMutationData&amp;case_set_id=gbm_tcga_all&amp;genetic_profile_id=gbm_tcga_mutations&amp;gene_list=EGFR+PTEN">Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.</a></li>
+<li><a href="webservice.do?cmd=getMutationData&amp;genetic_profile_id=ov_tcga_mutations+ucec_tcga_mutations&amp;gene_list=BRCA1">Get Extended Mutation Data for BRCA1 in TCGA OV and UCEC.</a></li>
+</ul>
 <h2 id="get-clinical-data">Get Clinical Data</h2>
 <h3 id="description_6">Description</h3>
 <p>Retrieves overall survival, disease free survival and age at diagnosis for specified cases.  Due to patient privacy restrictions, no other clinical data is available.</p>

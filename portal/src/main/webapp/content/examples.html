@@ -1,5 +1,5 @@
 <p>
-<a href="index.do?tab_index=tab_visualize&cancer_study_id=coadread_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=coadread_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=coadread_tcga_gistic&Z_SCORE_THRESHOLD=2.0&case_set_id=coadread_tcga_nonhypermut&case_ids=&gene_list=KRAS+NRAS+BRAF&gene_set_choice=user-defined-list&Action=Submit">RAS/RAF alterations in colorectal cancer</a>
+<a href="index.do?tab_index=tab_visualize&cancer_study_id=coadread_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=coadread_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=coadread_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&case_set_id=coadread_tcga_pub_nonhypermut&case_ids=&gene_list=KRAS+NRAS+BRAF&gene_set_choice=user-defined-list&Action=Submit">RAS/RAF alterations in colorectal cancer</a>
 <br/><br/>
 <a href="index.do?tab_index=tab_visualize&cancer_study_id=ov_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=ov_tcga_mutations&Z_SCORE_THRESHOLD=2.0&case_set_id=ov_tcga_3way_complete&case_ids=&gene_list=BRCA1+BRCA2&gene_set_choice=user-defined-list&Action=Submit#mutation_details">BRCA1 and BRCA2 mutations in ovarian cancer</a>
 <br/><br/>

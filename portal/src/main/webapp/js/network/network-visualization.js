@@ -10,8 +10,6 @@ function NetworkVis(divId)
     this.divId = divId;
 
     // relative selectors for the given div id
-
-    this.nodeInspectorSelector = this._createNodeInspector(divId);
     this.edgeInspectorSelector = this._createEdgeInspector(divId);
     this.geneLegendSelector = this._createGeneLegend(divId);
     this.drugLegendSelector = this._createDrugLegend(divId);
@@ -127,7 +125,7 @@ function NetworkVis(divId)
  * Initializes all necessary components. This function should be invoked, before
  * calling any other function in this script.
  *
- * @param vis	CytoscapeWeb.Visualization instance associated with this UI
+ * @param vis   CytoscapeWeb.Visualization instance associated with this UI
  */
 NetworkVis.prototype.initNetworkUI = function(vis)
 {
@@ -200,7 +198,6 @@ NetworkVis.prototype.hideDialogs = function (evt, ui)
 
     // close all dialogs
     $(this.settingsDialogSelector).dialog("close");
-    $(this.nodeInspectorSelector).dialog("close");
     $(this.edgeInspectorSelector).dialog("close");
     $(this.geneLegendSelector).dialog("close");
     $(this.drugLegendSelector).dialog("close");
@@ -211,25 +208,25 @@ NetworkVis.prototype.hideDialogs = function (evt, ui)
  * This function handles incoming commands from the menu UI. All menu items
  * is forwarded to this function with a specific command string.
  *
- * @param command	command as a string
+ * @param command   command as a string
  */
 NetworkVis.prototype.handleMenuEvent = function(command)
 {
     // execute the corresponding function
     var func = this._controlFunctions[command];
 
-	// try to call the handler if it is defined
-	if (func != null)
-	{
-		func();
-	}
+    // try to call the handler if it is defined
+    if (func != null)
+    {
+        func();
+    }
 };
 
 /**
  * Updates selected genes when clicked on a gene on the Genes Tab. This function
  * helps the synchronization between the genes tab and the visualization.
  *
- * @param evt	target event that triggered the action
+ * @param evt   target event that triggered the action
  */
 NetworkVis.prototype.updateSelectedGenes = function(evt)
 {
@@ -270,23 +267,23 @@ NetworkVis.prototype.saveSettings = function()
 
     for (var i=0; i < (this._layoutOptions).length; i++)
     {
-//		if (_layoutOptions[i].id == "weightNorm")
-//		{
-//			// find the selected option and update the corresponding value
+//      if (_layoutOptions[i].id == "weightNorm")
+//      {
+//          // find the selected option and update the corresponding value
 //
-//			if ($("#norm_linear").is(":selected"))
-//			{
-//				_layoutOptions[i].value = $("#norm_linear").val();
-//			}
-//			else if ($("#norm_invlinear").is(":selected"))
-//			{
-//				_layoutOptions[i].value = $("#norm_invlinear").val();
-//			}
-//			else if ($("#norm_log").is(":selected"))
-//			{
-//				_layoutOptions[i].value = $("#norm_log").val();
-//			}
-//		}
+//          if ($("#norm_linear").is(":selected"))
+//          {
+//              _layoutOptions[i].value = $("#norm_linear").val();
+//          }
+//          else if ($("#norm_invlinear").is(":selected"))
+//          {
+//              _layoutOptions[i].value = $("#norm_invlinear").val();
+//          }
+//          else if ($("#norm_log").is(":selected"))
+//          {
+//              _layoutOptions[i].value = $("#norm_log").val();
+//          }
+//      }
 
         if (this._layoutOptions[i].id == "autoStabilize")
         {
@@ -330,292 +327,6 @@ NetworkVis.prototype.defaultSettings = function()
 };
 
 /**
- * Shows the node inspector when double clicked on a node.
- * TODO not showing a node inspector anymore, perform a clean-up after merging into default/stable
- * @param evt	event that triggered this function
- */
-NetworkVis.prototype.showNodeInspector = function(evt)
-{
-    // set the position of the inspector
-
-    // evt.target.x and evt.target.y are local (relative) coordiates inside
-    // the CytoscapeWeb flash object, however those values are used as global
-    // coordinate by the dialog() function. We need to transform the local
-    // coordinates to global coordinates.
-    //$("#node_inspector").dialog("option",
-    //	"position",
-    //	[_mouseX(evt), _mouseY(evt)]);
-
-    // update the contents of the inspector by using the target node
-
-    var data = evt.target.data;
-    this._updateNodeInspectorContent(data, evt.target);
-
-    // open inspector panel
-    $(this.nodeInspectorSelector).dialog("open").height("auto");
-
-    // if the inspector panel height exceeds the max height value
-    // adjust its height (this also adds scroll bars by default)
-    if ($(this.nodeInspectorSelector).height() >
-        $(this.nodeInspectorSelector).dialog("option", "maxHeight"))
-    {
-        $(this.nodeInspectorSelector).dialog("open").height(
-            $(this.nodeInspectorSelector).dialog("option", "maxHeight"));
-    }
-};
-
-/**
- * Updates node inspector data for drug node type
- * @param data double clicked node's ( drug for this method ) data
- * */
-NetworkVis.prototype._updateNodeInspectorForDrug = function(data, node)
-{
-    var targets = new Array();
-    var atc_codes = new Array();
-    var synonyms = new Array();
-
-    //For number of targeted genes
-    if (data["TARGETS"] != "")
-    {
-        targets = data["TARGETS"].split(";");
-
-        $(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-            '<tr align="left" class="targets-data-row"><td>' +
-            '<strong>Number of Genes Targeted: </strong> ' +
-            '<span class="num-of-drug-targets" title="' + data["TARGETS"] + '">' +
-            targets.length + '</span>' +
-            '</td></tr>');
-        $(this.nodeInspectorSelector + " .node_inspector_content .targets-data-row td").append('<br><br>');
-        $(".num-of-drug-targets").tipTip(); // TODO may not be safe...
-    }
-
-    // For drug atc code
-
-    var href = "http://www.whocc.no/atc_ddd_index/?code=";
-    if (data["ATC_CODE"] != "")
-    {
-        $(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-            '<tr align="left" class="atc_codes-data-row"><td>' +
-            '<strong>Drug Class(ATC codes): </strong></td></tr>');
-
-        atc_codes = data["ATC_CODE"].split(";");
-
-        for ( var i = 0; i < atc_codes.length; i++)
-        {
-            $(this.nodeInspectorSelector + " .node_inspector_content .atc_codes-data-row td").append('<a href="' + href+ atc_codes[i] + '" target="_blank">' +
-                                                                       atc_codes[i] + '</a>');
-            if (i != atc_codes.length - 1)
-            {
-                $(this.nodeInspectorSelector + " .node_inspector_content .atc_codes-data-row td").append(', ');
-            }
-        }
-
-        $(this.nodeInspectorSelector + " .node_inspector_content .atc_codes-data-row td").append('<br><br>');
-    }
-
-
-    // For drug Synonyms
-
-    if (data["SYNONYMS"] != "")
-    {
-        $(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-            '<tr align="left" class="synonyms-data-row"><td>' +
-            '<strong>Synonyms: </strong></td></tr>');
-
-        synonyms = data["SYNONYMS"].split(";");
-        if(synonyms.length == 1)
-        {
-            $(this.nodeInspectorSelector + " .node_inspector_content .synonyms-data-row td").append(synonyms[0]);
-            $(this.nodeInspectorSelector + " .node_inspector_content .synonyms-data-row td").append('<br>');
-        }
-        else
-            for ( var i = 0; i < synonyms.length; i++)
-            {
-                $(this.nodeInspectorSelector + " .node_inspector_content .synonyms-data-row td").append('<p style="margin: 0px;"> -' + synonyms[i] + '</p>');
-            }
-        $(this.nodeInspectorSelector + " .node_inspector_content .synonyms-data-row td").append('<br>');
-    }
-
-
-
-    // For Drug description
-    var description = data["DESCRIPTION"];
-    if(description != ""){
-        $(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-            '<tr align="left" class="description-data-row"><td>' +
-            '<strong>Description: </strong></td></tr>');
-        $(this.nodeInspectorSelector + " .node_inspector_content .description-data-row td").append(description);
-        $(this.nodeInspectorSelector + " .node_inspector_content .description-data-row td").append('<br><br>');
-    }
-
-    // For FDA approval
-	$(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-		'<tr align="left" class="fda-data-row"><td>' +
-		'<strong>FDA Approval: </strong></td></tr>');
-
-	var fda_approval = ((data["FDA_APPROVAL"] == "true")? "Approved":"Not Approved");
-
-	$(this.nodeInspectorSelector + " .node_inspector_content .fda-data-row td").append(fda_approval);
-	$(this.nodeInspectorSelector + " .node_inspector_content .fda-data-row td").append('<br>');
-
-	// For Cancer Drug Info
-
-	var cancerDrug = data["CANCER_DRUG"] == "true";
-
-	if(cancerDrug) {
-		$(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-			'<tr align="left" class="cancerdrug-data-row"><td>' +
-			'<strong>Cancer Drug: </strong> Yes<br></td></tr>');
-
-		var numberOfClinicalTrials = data["NUMBER_OF_CLINICAL_TRIALS"];
-
-		if(numberOfClinicalTrials > 0) {
-			$(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-				'<tr align="left" class="clinicaltrials-data-row"><td>' +
-				'<strong>Number Of Clinical Trials: </strong>' + numberOfClinicalTrials  +  '<br><br></td></tr>');
-		}
-	}
-
-	// For Pub Med IDs
-
-    var pubmeds = new Array();
-    var edges = this._vis.edges();
-    var existed = false;
-
-    for (var k = 0; k < edges.length; k++)
-    {
-        if (edges[k].data.source == node.data.id && edges[k].data["INTERACTION_PUBMED_ID"] != "")
-        {
-            if(existed == false)
-            {
-                $(this.nodeInspectorSelector + " .node_inspector_content .data").append(
-                    '<tr align="left" class="pubmed-data-row"><td>' +
-                    '<strong>PubMed IDs:</strong><br></td></tr>');
-                existed = true;
-            }
-
-	        var pubmeds = edges[k].data["INTERACTION_PUBMED_ID"];
-	        var pubmedTokens = pubmeds.split(";");
-
-	        for (var j=0; j < pubmedTokens.length; j++)
-	        {
-		        var link = this._resolveXref(pubmedTokens[j]);
-
-		        if (link.href == "#")
-		        {
-			        // skip unknown sources
-			        continue;
-		        }
-
-		        var xref = '- <a href="' + link.href + '" target="_blank">' + link.pieces[1] + '</a><br>';
-		        $(this.nodeInspectorSelector + " .node_inspector_content .pubmed-data-row td").append(xref);
-	        }
-        }
-    }
-};
-
-
-/**
- * Updates the content of the node inspector with respect to the provided data.
- * Data is assumed to be the data of a node.
- *
- * @param data	node data containing necessary fields
- */
-NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
-{
-    // set title
-
-    var title = data.label;
-
-    if (title == null)
-    {
-        title = data.id;
-    }
-
-    $(this.nodeInspectorSelector).dialog("option",
-                                "title",
-                                title);
-
-    // clean xref, percent, and data rows
-
-    // These rows for drug view of node inspector.
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .targets-data-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .atc_codes-data-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .synonyms-data-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .description-data-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .fda-data-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .pubmed-data-row").remove();
-
-	$(this.nodeInspectorSelector + " .node_inspector_content .data .clinicaltrials-data-row").remove();
-	$(this.nodeInspectorSelector + " .node_inspector_content .data .cancerdrug-data-row").remove();
-
-    // For non drug view of node inspector
-    $(this.nodeInspectorSelector + " .node_inspector_content .data .data-row").remove();
-
-    $(this.nodeInspectorSelector + " .node_inspector_content .xref .xref-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .profile .percent-row").remove();
-    $(this.nodeInspectorSelector + " .node_inspector_content .profile-header .header-row").remove();
-
-    if (data.type == this.DRUG)
-    {
-        this._updateNodeInspectorForDrug(data, node);
-    }
-
-    //_addDataRow(this.edgeInspectorSelector, "node", "ID", data.id);
-
-    if (data.type == this.PROTEIN)
-    {
-        this._addDataRow(this.nodeInspectorSelector, "node", "Gene Symbol", data.label);
-        //_addDataRow(this.nodeInspectorSelector, "node", "User-Specified", data.IN_QUERY);
-
-        // add percentage information
-        this._addPercentages(data);
-    }
-
-    // add cross references
-
-    var links = new Array();
-
-    // parse the xref data, and construct link and labels
-
-    var xrefData = new Array();
-
-    if (data["UNIFICATION_XREF"] != null)
-    {
-        xrefData = data["UNIFICATION_XREF"].split(";");
-    }
-
-    if (data["RELATIONSHIP_XREF"] != null)
-    {
-        xrefData = xrefData.concat(data["RELATIONSHIP_XREF"].split(";"));
-    }
-
-    var link, xref;
-
-    for (var i = 0; i < xrefData.length; i++)
-    {
-        link = this._resolveXref(xrefData[i]);
-        links.push(link);
-    }
-
-    // add each link as an xref entry
-
-    if (links.length > 0)
-    {
-        $(this.nodeInspectorSelector + " .node_inspector_content .xref").append(
-            '<tr class="xref-row"><td><strong>More at: </strong></td></tr>');
-
-        this._addXrefEntry(this.nodeInspectorSelector, 'node', links[0].href, links[0].text);
-    }
-
-    for (i=1; i < links.length; i++)
-    {
-        $(this.nodeInspectorSelector + " .node_inspector_content .xref-row td").append(', ');
-        this._addXrefEntry(this.nodeInspectorSelector, 'node', links[i].href, links[i].text);
-    }
-};
-
-/**
  * Updates the contents of the details tab according to
  * the currently selected elements.
  *
@@ -624,14 +335,14 @@ NetworkVis.prototype._updateNodeInspectorContent = function(data, node)
 NetworkVis.prototype.updateDetailsTab = function(evt)
 {
     // TODO also consider selected edges?
-	var selected = this._vis.selected("nodes");
+    var selected = this._vis.selected("nodes");
     var data;
 
     var self = this;
 
     // clean previous content
     $(self.detailsTabSelector + " div").empty();
-	$(self.detailsTabSelector + " .error").hide();
+    $(self.detailsTabSelector + " .error").hide();
 
     if (selected.length == 1)
     {
@@ -642,7 +353,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
             "Currently more than one node is selected. Please, select only one node to see details.");
-	    $(self.detailsTabSelector + " .error").show();
+        $(self.detailsTabSelector + " .error").show();
         return;
     }
     else
@@ -650,21 +361,21 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
             "Currently there is no selected node. Please, select a node to see details.");
-	    $(self.detailsTabSelector + " .error").show();
+        $(self.detailsTabSelector + " .error").show();
         return;
     }
 
     var handler = function(queryResult) {
         // check the initial conditions, if they don't match do nothing
-	    // (they may not match because of a delay in the ajax request)
+        // (they may not match because of a delay in the ajax request)
 
-	    selected = self._vis.selected("nodes");
+        selected = self._vis.selected("nodes");
 
-	    if (selected.length != 1 ||
-	        data.id != selected[0].data.id)
-	    {
-		    return;
-	    }
+        if (selected.length != 1 ||
+            data.id != selected[0].data.id)
+        {
+            return;
+        }
 
         // update tab content
         $(self.detailsTabSelector + " .biogene-content").empty();
@@ -672,208 +383,63 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
         if (queryResult.returnCode != "SUCCESS")
         {
             $(self.detailsTabSelector + " .error").append(
-	            "Error retrieving data: " + queryResult.returnCode);
-	        $(self.detailsTabSelector + " .error").show();
+                "Error retrieving data: " + queryResult.returnCode);
+            $(self.detailsTabSelector + " .error").show();
         }
         else
         {
-	        if (queryResult.count > 0)
-	        {
-		        // generate the view by using backbone
-		        var biogeneView = new BioGeneView(
-			        {el: self.detailsTabSelector + " .biogene-content",
-					data: queryResult.geneInfo[0]});
-	        }
-	        else
-	        {
-		        $(self.detailsTabSelector + " .error").append(
-			        "No additional information available for the selected node.");
-	        }
+            if (queryResult.count > 0)
+            {
+                // generate the view by using backbone
+                var biogeneView = new BioGeneView(
+                    {el: self.detailsTabSelector + " .biogene-content",
+                    data: queryResult.geneInfo[0]});
+            }
+            else
+            {
+                $(self.detailsTabSelector + " .error").append(
+                    "No additional information available for the selected node.");
+            }
         }
 
-	    // generate view for genomic profile data
-	    var genomicProfileView = new GenomicProfileView(
-		    {el: self.detailsTabSelector + " .genomic-profile-content",
-			data: data});
+        // generate view for genomic profile data
+        var genomicProfileView = new GenomicProfileView(
+            {el: self.detailsTabSelector + " .genomic-profile-content",
+            data: data});
     };
 
 
-	if (data.type == this.DRUG)
-	{
-		// update tab content
-		$(self.detailsTabSelector + " div").empty();
-
-		var drugView = new DrugInfoView({el: this.detailsTabSelector + " .drug-info-content",
-			data: data,
-			linkMap: this._linkMap,
-			idPlaceHolder: this.ID_PLACE_HOLDER,
-			edges: this._vis.edges()});
-	}
-	// send biogene query for only genes
-	else
-	{
-		var queryParams = {"query": data.label,
-			"org": "human",
-			"format": "json"};
-
-		$(self.detailsTabSelector + " .biogene-content").append(
-			'<img src="images/ajax-loader.gif">');
-
-		$.post("bioGeneQuery.do",
-			queryParams,
-			handler);
-	}
-};
-
-/**
- * Add percentages (genomic profile data) to the node inspector with their
- * corresponding colors & names.
- *
- * @param data	node (gene) data
- */
-NetworkVis.prototype._addPercentages = function(data)
-{
-    var percent;
-
-    // init available profiles array
-    var available = new Array();
-    available['CNA'] = new Array();
-    available['MRNA'] = new Array();
-    available['MUTATED'] = new Array();
-
-    // add percentage values
-
-    if (data["PERCENT_CNA_AMPLIFIED"] != null)
+    if (data.type == this.DRUG)
     {
-        percent = (data["PERCENT_CNA_AMPLIFIED"] * 100);
-        this._addPercentRow("cna-amplified", "Amplification", percent, "#FF2500");
-        available['CNA'].push("cna-amplified");
-    }
+        // update tab content
+        $(self.detailsTabSelector + " div").empty();
 
-    if (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] != null)
+        var drugView = new DrugInfoView({el: this.detailsTabSelector + " .drug-info-content",
+            data: data,
+            linkMap: this._linkMap,
+            idPlaceHolder: this.ID_PLACE_HOLDER,
+            edges: this._vis.edges()});
+    }
+    // send biogene query for only genes
+    else
     {
-        percent = (data["PERCENT_CNA_HOMOZYGOUSLY_DELETED"] * 100);
-        this._addPercentRow("cna-homozygously-deleted", "Homozygous Deletion", percent, "#0332FF");
-        available['CNA'].push("cna-homozygously-deleted");
+        var queryParams = {"query": data.label,
+            "org": "human",
+            "format": "json"};
+
+        $(self.detailsTabSelector + " .biogene-content").append(
+            '<img src="images/ajax-loader.gif">');
+
+        $.post("bioGeneQuery.do",
+            queryParams,
+            handler);
     }
-
-    if (data["PERCENT_CNA_GAINED"] != null)
-    {
-        percent = (data["PERCENT_CNA_GAINED"] * 100);
-        this._addPercentRow("cna-gained", "Gain", percent, "#FFC5CC");
-        available['CNA'].push("cna-gained");
-    }
-
-    if (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] != null)
-    {
-        percent = (data["PERCENT_CNA_HEMIZYGOUSLY_DELETED"] * 100);
-        this._addPercentRow("cna-hemizygously-deleted", "Hemizygous Deletion", percent, "#9EDFE0");
-        available['CNA'].push("cna-hemizygously-deleted");
-    }
-
-    if (data["PERCENT_MRNA_WAY_UP"] != null)
-    {
-        percent = (data["PERCENT_MRNA_WAY_UP"] * 100);
-        this._addPercentRow("mrna-way-up", "Up-regulation", percent, "#FFACA9");
-        available['MRNA'].push("mrna-way-up");
-    }
-
-    if (data["PERCENT_MRNA_WAY_DOWN"] != null)
-    {
-        percent = (data["PERCENT_MRNA_WAY_DOWN"] * 100);
-        this._addPercentRow("mrna-way-down", "Down-regulation", percent, "#78AAD6");
-        available['MRNA'].push("mrna-way-down");
-    }
-
-    if (data["PERCENT_MUTATED"] != null)
-    {
-        percent = (data["PERCENT_MUTATED"] * 100);
-        this._addPercentRow("mutated", "Mutation", percent, "#008F00");
-        available['MUTATED'].push("mutated");
-    }
-
-    // add separators
-
-    if (available['CNA'].length > 0)
-    {
-        $(this.nodeInspectorSelector + " .profile ." + available['CNA'][0]).addClass(
-            this.SECTION_SEPARATOR_CLASS);
-    }
-
-    if (available['MRNA'].length > 0)
-    {
-        $(this.nodeInspectorSelector + " .profile ." + available['MRNA'][0]).addClass(
-            this.SECTION_SEPARATOR_CLASS);
-    }
-
-    if (available['MUTATED'].length > 0)
-    {
-        $(this.nodeInspectorSelector + " .profile ." + available['MUTATED'][0]).addClass(
-            this.SECTION_SEPARATOR_CLASS);
-    }
-
-
-    // add header & total alteration value if at least one of the profiles is
-    // available
-
-    if (available['CNA'].length > 0
-            || available['MRNA'].length > 0
-        || available['MUTATED'].length > 0)
-    {
-
-        // add header
-        $(this.nodeInspectorSelector + " .profile-header").append('<tr class="header-row">' +
-                                                    '<td><div>Genomic Profile(s):</div></td></tr>');
-
-        // add total alteration frequency
-
-        percent = (data["PERCENT_ALTERED"] * 100);
-
-        var row = '<tr class="total-alteration percent-row">' +
-                  '<td><div class="percent-label">Total Alteration</div></td>' +
-                  '<td class="percent-cell"></td>' +
-                  '<td><div class="percent-value">' + percent.toFixed(1) + '%</div></td>' +
-                  '</tr>';
-
-        // append as a first row
-        $(this.nodeInspectorSelector + " .profile").prepend(row);
-    }
-};
-
-/**
- * Adds a row to the genomic profile table of the node inspector.
- *
- * @param section	class name of the percentage
- * @param label		label to be displayed
- * @param percent	percentage value
- * @param color		color of the percent bar
- */
-NetworkVis.prototype._addPercentRow = function(section, label, percent, color)
-{
-    var row = '<tr class="' + section + ' percent-row">' +
-              '<td><div class="percent-label"></div></td>' +
-              '<td class="percent-cell"><div class="percent-bar"></div></td>' +
-              '<td><div class="percent-value"></div></td>' +
-              '</tr>';
-
-    $(this.nodeInspectorSelector + " .profile").append(row);
-
-    $(this.nodeInspectorSelector + " .profile ." + section + " .percent-label").text(label);
-
-    $(this.nodeInspectorSelector + " .profile ." + section + " .percent-bar").css(
-        "width", Math.ceil(percent) + "%");
-
-    $(this.nodeInspectorSelector + " .profile ." + section + " .percent-bar").css(
-        "background-color", color);
-
-    $(this.nodeInspectorSelector + " .profile ." + section + " .percent-value").text(
-        percent.toFixed(1) + "%");
 };
 
 /**
  * Shows the edge inspector when double clicked on an edge.
  *
- * @param evt	event that triggered this function
+ * @param evt   event that triggered this function
  */
 NetworkVis.prototype.showEdgeInspector = function(evt)
 {
@@ -900,7 +466,7 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
 
         var edges = evt.target.edges;
 
-//		_addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(evt.target.data["weight"]));
+//      _addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(evt.target.data["weight"]));
 
         // add information for each edge
 
@@ -926,7 +492,7 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
                         data["INTERACTION_DATA_SOURCE"],
                         this.TOP_ROW_CLASS);
 
-//			_addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(data["weight"]));
+//          _addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(data["weight"]));
 
             if (data["INTERACTION_PUBMED_ID"] == "NA")
             {
@@ -959,7 +525,7 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
     {
         this._addDataRow(this.edgeInspectorSelector, "edge", "Source", data["INTERACTION_DATA_SOURCE"]);
         this._addDataRow(this.edgeInspectorSelector, "edge", "Type", _toTitleCase(data["type"]));
-//		_addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(data["weight"]));
+//      _addDataRow(this.edgeInspectorSelector, "edge", "Weight", _toTitleCase(data["weight"]));
 
         if (data["INTERACTION_PUBMED_ID"] != "NA")
         {
@@ -988,9 +554,9 @@ NetworkVis.prototype.showEdgeInspector = function(evt)
 /**
  * Adds PubMed ID's as new data rows to the edge inspector.
  *
- * @param data			edge's data
- * @param summaryEdge	indicated whether the given edge is a summary edge or
- * 						a regular edge
+ * @param data          edge's data
+ * @param summaryEdge   indicated whether the given edge is a summary edge or
+ *                      a regular edge
  */
 NetworkVis.prototype._addPubMedIds = function(data, summaryEdge)
 {
@@ -1043,40 +609,11 @@ NetworkVis.prototype._addPubMedIds = function(data, summaryEdge)
 };
 
 /**
- * This function shows gene details when double clicked on a node name on the
- * genes tab.
- *
- * @param evt	event that triggered the action
- */
-NetworkVis.prototype.showGeneDetails = function(evt)
-{
-    // retrieve the selected node
-    var node = this._vis.node(evt.target.value);
-
-    // TODO position the inspector, (also center the selected gene?)
-
-    // update inspector content
-    this._updateNodeInspectorContent(node.data, node);
-
-    // open inspector panel
-    $(this.nodeInspectorSelector).dialog("open").height("auto");
-
-    // if the inspector panel height exceeds the max height value
-    // adjust its height (this also adds scroll bars by default)
-    if ($(this.nodeInspectorSelector).height() >
-        $(this.nodeInspectorSelector).dialog("option", "maxHeight"))
-    {
-        $(this.nodeInspectorSelector).dialog("open").height(
-            $(this.nodeInspectorSelector).dialog("option", "maxHeight"));
-    }
-};
-
-/**
  * Updates the gene tab if at least one node is selected or deselected on the
  * network. This function helps the synchronization between the genes tab and
  * visualization.
  *
- * @param evt	event that triggered the action
+ * @param evt   event that triggered the action
  */
 NetworkVis.prototype.updateGenesTab = function(evt)
 {
@@ -1172,11 +709,11 @@ NetworkVis.prototype.searchGene = function()
         {
             matched.push(genes[i].data.id);
         }
-//		else if (genes[i].data.id.toLowerCase().indexOf(
-//			query.toLowerCase()) != -1)
-//		{
-//			matched.push(genes[i].data.id);
-//		}
+//      else if (genes[i].data.id.toLowerCase().indexOf(
+//          query.toLowerCase()) != -1)
+//      {
+//          matched.push(genes[i].data.id);
+//      }
     }
 
     // deselect all nodes
@@ -1284,17 +821,19 @@ NetworkVis.prototype.updateEdges = function()
     // this is required to pass "this" instance to the listener
     var self = this;
 
-    var currentVisibility = function(element){
-        return self.currentVisibility(element);
-    };
-
     var edgeVisibility = function(element){
         return self.edgeVisibility(element);
     };
 
+    var showAllNodeVisibility = function(element){
+        return self.dropDownVisibility(element) && 
+            self.currentVisibility(element) &&
+            self.sliderVisibility(element);
+    }
+
     // re-apply filter to update nodes
     //_vis.removeFilter("nodes", false);
-    this._vis.filter("nodes", currentVisibility);
+    this._vis.filter("nodes", showAllNodeVisibility);
 
     // remove current edge filters
     //_vis.removeFilter("edges", false);
@@ -1320,8 +859,8 @@ NetworkVis.prototype.updateEdges = function()
  * function is designed to filter only the genes which are in the array
  * _alreadyFiltered.
  *
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element   gene to be checked for visibility criteria
+ * @return          true if the gene should be visible, false otherwise
  */
 NetworkVis.prototype.currentVisibility = function(element)
 {
@@ -1345,8 +884,8 @@ NetworkVis.prototype.currentVisibility = function(element)
 /**
  * Determines the visibility of an edge for filtering purposes.
  *
- * @param element	egde to be checked for visibility criteria
- * @return			true if the edge should be visible, false otherwise
+ * @param element   egde to be checked for visibility criteria
+ * @return          true if the edge should be visible, false otherwise
  */
 NetworkVis.prototype.edgeVisibility = function(element)
 {
@@ -1393,8 +932,8 @@ NetworkVis.prototype.edgeVisibility = function(element)
  * Determines the visibility of a gene (node) for filtering purposes. This
  * function is designed to filter non-selected genes.
  *
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element   gene to be checked for visibility criteria
+ * @return          true if the gene should be visible, false otherwise
  */
 NetworkVis.prototype.geneVisibility = function(element)
 {
@@ -1428,8 +967,8 @@ NetworkVis.prototype.geneVisibility = function(element)
  * Determines the visibility of a drug (node) for filtering purposes. This
  * function is designed to filter drugs by the drop down selection.
  *
- * @param element	gene to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element   gene to be checked for visibility criteria
+ * @return          true if the gene should be visible, false otherwise
  */
 NetworkVis.prototype.dropDownVisibility = function(element)
 {
@@ -1461,10 +1000,10 @@ NetworkVis.prototype.dropDownVisibility = function(element)
                 visible = true;
             }
             else if(selectedOption.toString() == "SHOW_CANCER") {
-	            if( element.data["CANCER_DRUG"] == "true")
-		            visible = true;
-	            else
-		            visible = false;
+                if( element.data["CANCER_DRUG"] == "true")
+                    visible = true;
+                else
+                    visible = false;
             }
             else {  // check FDA approved
                 if( element.data["FDA_APPROVAL"] == "true")
@@ -1495,8 +1034,8 @@ NetworkVis.prototype.dropDownVisibility = function(element)
  * Determines the visibility of a gene(node) for filtering purposes. This
  * function is designed to filter nodes by the slider value.
  *
- * @param element	node to be checked for visibility criteria
- * @return			true if the gene should be visible, false otherwise
+ * @param element   node to be checked for visibility criteria
+ * @return          true if the gene should be visible, false otherwise
  */
 NetworkVis.prototype.sliderVisibility = function(element)
 {
@@ -1554,8 +1093,8 @@ NetworkVis.prototype.sliderVisibility = function(element)
  * Determines the visibility of a node for filtering purposes. This function is
  * designed to filter disconnected nodes.
  *
- * @param element	node to be checked for visibility criteria
- * @return			true if the node should be visible, false otherwise
+ * @param element   node to be checked for visibility criteria
+ * @return          true if the node should be visible, false otherwise
  */
 NetworkVis.prototype.isolation = function(element)
 {
@@ -1591,8 +1130,8 @@ NetworkVis.prototype.isolation = function(element)
  * returns true otherwise. This function is used to hide (filter) selected
  * nodes & edges.
  *
- * @param element	element to be checked
- * @return			false if selected, true otherwise
+ * @param element   element to be checked
+ * @return          false if selected, true otherwise
  */
 NetworkVis.prototype.selectionVisibility = function(element)
 {
@@ -1627,8 +1166,8 @@ NetworkVis.prototype.selectionVisibility = function(element)
 /**
  * Creates a map (on element id) of selected elements.
  *
- * @param group		data group (nodes, edges, all)
- * @return			a map of selected elements
+ * @param group     data group (nodes, edges, all)
+ * @return          a map of selected elements
  */
 NetworkVis.prototype._selectedElementsMap = function(group)
 {
@@ -1647,7 +1186,7 @@ NetworkVis.prototype._selectedElementsMap = function(group)
 /**
  * Creates a map (on element id) of connected nodes.
  *
- * @return	a map of connected nodes
+ * @return  a map of connected nodes
  */
 NetworkVis.prototype._connectedNodesMap = function()
 {
@@ -1870,20 +1409,20 @@ NetworkVis.prototype._showDrugLegend = function()
 NetworkVis.prototype._showEdgeLegend = function()
 {
 
-//	$("#edge_legend .in-same-component .color-bar").css(
-//		"background-color", "#CD976B");
+//  $("#edge_legend .in-same-component .color-bar").css(
+//      "background-color", "#CD976B");
 //
-//	$("#edge_legend .reacts-with .color-bar").css(
-//		"background-color", "#7B7EF7");
+//  $("#edge_legend .reacts-with .color-bar").css(
+//      "background-color", "#7B7EF7");
 //
-//	$("#edge_legend .state-change .color-bar").css(
-//		"background-color", "#67C1A9");
+//  $("#edge_legend .state-change .color-bar").css(
+//      "background-color", "#67C1A9");
 //
-//	$("#edge_legend .other .color-bar").css(
-//			"background-color", "#A583AB");
+//  $("#edge_legend .other .color-bar").css(
+//          "background-color", "#A583AB");
 //
-//	$("#edge_legend .merged-edge .color-bar").css(
-//		"background-color", "#666666");
+//  $("#edge_legend .merged-edge .color-bar").css(
+//      "background-color", "#666666");
 
     // open legend panel
     //$("#edge_legend").dialog("open").height("auto");
@@ -1893,11 +1432,11 @@ NetworkVis.prototype._showEdgeLegend = function()
 /**
  * Adds a data row to the node or edge inspector.
  *
- * @param selector	node or edge inspector selector (div id)
- * @param type		type of the inspector (should be "node" or "edge")
- * @param label		label of the data field
- * @param value		value of the data field
- * @param section	optional class value for row element
+ * @param selector  node or edge inspector selector (div id)
+ * @param type      type of the inspector (should be "node" or "edge")
+ * @param label     label of the data field
+ * @param value     value of the data field
+ * @param section   optional class value for row element
  */
 NetworkVis.prototype._addDataRow = function(selector, type, label, value /*, section*/)
 {
@@ -1928,10 +1467,10 @@ NetworkVis.prototype._addDataRow = function(selector, type, label, value /*, sec
 /**
  * Adds a cross reference entry to the node or edge inspector.
  *
- * @param selector	node or edge inspector selector (div id)
- * @param type		type of the inspector (should be "node" or "edge")
- * @param href		URL of the reference
- * @param label		label to be displayed
+ * @param selector  node or edge inspector selector (div id)
+ * @param type      type of the inspector (should be "node" or "edge")
+ * @param href      URL of the reference
+ * @param label     label to be displayed
  */
 NetworkVis.prototype._addXrefEntry = function(selector, type, href, label)
 {
@@ -1943,8 +1482,8 @@ NetworkVis.prototype._addXrefEntry = function(selector, type, href, label)
 /**
  * Generates the URL and the display text for the given xref string.
  *
- * @param xref	xref as a string
- * @return		array of href and text pairs for the given xref
+ * @param xref  xref as a string
+ * @return      array of href and text pairs for the given xref
  */
 NetworkVis.prototype._resolveXref = function(xref)
 {
@@ -2000,7 +1539,7 @@ NetworkVis.prototype._resetFlags = function()
 /**
  * Sets the visibility of the complete UI.
  *
- * @param visible	a boolean to set the visibility.
+ * @param visible   a boolean to set the visibility.
  */
 NetworkVis.prototype._setVisibility = function(visible)
 {
@@ -2012,7 +1551,6 @@ NetworkVis.prototype._setVisibility = function(visible)
             $(this.mainMenuSelector).removeClass("hidden-network-ui");
             $(this.quickInfoSelector).removeClass("hidden-network-ui");
             $(this.networkTabsSelector).removeClass("hidden-network-ui");
-            $(this.nodeInspectorSelector).removeClass("hidden-network-ui");
             $(this.edgeInspectorSelector).removeClass("hidden-network-ui");
             $(this.geneLegendSelector).removeClass("hidden-network-ui");
             $(this.drugLegendSelector).removeClass("hidden-network-ui");
@@ -2028,7 +1566,6 @@ NetworkVis.prototype._setVisibility = function(visible)
             $(this.mainMenuSelector).addClass("hidden-network-ui");
             $(this.quickInfoSelector).addClass("hidden-network-ui");
             $(this.networkTabsSelector).addClass("hidden-network-ui");
-            $(this.nodeInspectorSelector).addClass("hidden-network-ui");
             $(this.edgeInspectorSelector).addClass("hidden-network-ui");
             $(this.geneLegendSelector).addClass("hidden-network-ui");
             $(this.drugLegendSelector).addClass("hidden-network-ui");
@@ -2041,8 +1578,8 @@ NetworkVis.prototype._setVisibility = function(visible)
 /**
  * Sets visibility of the given UI component.
  *
- * @param component	an html UI component
- * @param visible	a boolean to set the visibility.
+ * @param component an html UI component
+ * @param visible   a boolean to set the visibility.
  */
 NetworkVis.prototype._setComponentVis = function(component, visible)
 {
@@ -2068,7 +1605,7 @@ NetworkVis.prototype._setComponentVis = function(component, visible)
  * Creates an array containing default option values for the ForceDirected
  * layout.
  *
- * @return	an array of default layout options
+ * @return  an array of default layout options
  */
 NetworkVis.prototype._defaultOptsArray = function()
 {
@@ -2090,41 +1627,41 @@ NetworkVis.prototype._defaultOptsArray = function()
 /**
  * Creates a map for xref entries.
  *
- * @return	an array (map) of xref entries
+ * @return  an array (map) of xref entries
  */
 NetworkVis.prototype._xrefArray = function()
 {
     var linkMap = new Array();
 
     // TODO find missing links (Nucleotide Sequence Database)
-    //linkMap["refseq"] =	"http://www.genome.jp/dbget-bin/www_bget?refseq:";
+    //linkMap["refseq"] =   "http://www.genome.jp/dbget-bin/www_bget?refseq:";
     linkMap["refseq"] = "http://www.ncbi.nlm.nih.gov/protein/";
     linkMap["entrez gene"] = "http://www.ncbi.nlm.nih.gov/gene?term=";
     linkMap["hgnc"] = "http://www.genenames.org/cgi-bin/quick_search.pl?.cgifields=type&type=equals&num=50&search=" + this.ID_PLACE_HOLDER + "&submit=Submit";
     linkMap["uniprot"] = "http://www.uniprot.org/uniprot/";
-	linkMap["uniprotkb"] = "http://www.uniprot.org/uniprot/";
+    linkMap["uniprotkb"] = "http://www.uniprot.org/uniprot/";
     //linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/advancedSearchFT.do?searchString=" + this.ID_PLACE_HOLDER + "&queryBean.stars=3&queryBean.stars=-1";
-	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + this.ID_PLACE_HOLDER;
-	linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + this.ID_PLACE_HOLDER;
+    linkMap["pubmed"] = "http://www.ncbi.nlm.nih.gov/pubmed?term=";
     linkMap["drugbank"] = "http://www.drugbank.ca/drugs/" + this.ID_PLACE_HOLDER;
-	linkMap["kegg"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + this.ID_PLACE_HOLDER;
-	linkMap["kegg drug"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + this.ID_PLACE_HOLDER;
-	linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + this.ID_PLACE_HOLDER;
-	linkMap["chemspider"] = "http://www.chemspider.com/Chemical-Structure." + this.ID_PLACE_HOLDER + ".html";
-	linkMap["kegg compund"] = "http://www.genome.jp/dbget-bin/www_bget?cpd:" + this.ID_PLACE_HOLDER;
-	linkMap["doi"] = "http://www.nature.com/nrd/journal/v10/n8/full/nrd3478.html?";
-	linkMap["nci_drug"] = "http://www.cancer.gov/drugdictionary?CdrID=" + this.ID_PLACE_HOLDER;
-	linkMap["national drug code directory"] = "http://www.fda.gov/Safety/MedWatch/SafetyInformation/SafetyAlertsforHumanMedicalProducts/ucm" + this.ID_PLACE_HOLDER + ".htm";
-	linkMap["pharmgkb"] = "http://www.pharmgkb.org/gene/" + this.ID_PLACE_HOLDER;
-	linkMap["pubchem compund"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=" + this.ID_PLACE_HOLDER + "&loc=ec_rcs";
-	linkMap["pubchem substance"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?sid=" + this.ID_PLACE_HOLDER + "&loc=ec_rss";
-	linkMap["pdb"] = "http://www.rcsb.org/pdb/explore/explore.do?structureId=" + this.ID_PLACE_HOLDER;
-	linkMap["bindingdb"] = "http://www.bindingdb.org/data/mols/tenK3/MolStructure_" + this.ID_PLACE_HOLDER  + ".html";
-	linkMap["genbank"] = "http://www.ncbi.nlm.nih.gov/nucleotide?term=" + this.ID_PLACE_HOLDER;
-	linkMap["iuphar"] = "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=" + this.ID_PLACE_HOLDER;
-	linkMap["drugs product database (dpd)"] = "http://205.193.93.51/dpdonline/searchRequest.do?din=" + this.ID_PLACE_HOLDER;
-	linkMap["guide to pharmacology"] = "http://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=" + this.ID_PLACE_HOLDER;
-	linkMap["nucleotide sequence database"] = "";
+    linkMap["kegg"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + this.ID_PLACE_HOLDER;
+    linkMap["kegg drug"] = "http://www.kegg.jp/dbget-bin/www_bget?dr:" + this.ID_PLACE_HOLDER;
+    linkMap["chebi"] = "http://www.ebi.ac.uk/chebi/searchId.do?chebiId=CHEBI%3A" + this.ID_PLACE_HOLDER;
+    linkMap["chemspider"] = "http://www.chemspider.com/Chemical-Structure." + this.ID_PLACE_HOLDER + ".html";
+    linkMap["kegg compund"] = "http://www.genome.jp/dbget-bin/www_bget?cpd:" + this.ID_PLACE_HOLDER;
+    linkMap["doi"] = "http://www.nature.com/nrd/journal/v10/n8/full/nrd3478.html?";
+    linkMap["nci_drug"] = "http://www.cancer.gov/drugdictionary?CdrID=" + this.ID_PLACE_HOLDER;
+    linkMap["national drug code directory"] = "http://www.fda.gov/Safety/MedWatch/SafetyInformation/SafetyAlertsforHumanMedicalProducts/ucm" + this.ID_PLACE_HOLDER + ".htm";
+    linkMap["pharmgkb"] = "http://www.pharmgkb.org/gene/" + this.ID_PLACE_HOLDER;
+    linkMap["pubchem compund"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=" + this.ID_PLACE_HOLDER + "&loc=ec_rcs";
+    linkMap["pubchem substance"] = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?sid=" + this.ID_PLACE_HOLDER + "&loc=ec_rss";
+    linkMap["pdb"] = "http://www.rcsb.org/pdb/explore/explore.do?structureId=" + this.ID_PLACE_HOLDER;
+    linkMap["bindingdb"] = "http://www.bindingdb.org/data/mols/tenK3/MolStructure_" + this.ID_PLACE_HOLDER  + ".html";
+    linkMap["genbank"] = "http://www.ncbi.nlm.nih.gov/nucleotide?term=" + this.ID_PLACE_HOLDER;
+    linkMap["iuphar"] = "http://www.iuphar-db.org/DATABASE/ObjectDisplayForward?objectId=" + this.ID_PLACE_HOLDER;
+    linkMap["drugs product database (dpd)"] = "http://205.193.93.51/dpdonline/searchRequest.do?din=" + this.ID_PLACE_HOLDER;
+    linkMap["guide to pharmacology"] = "http://www.guidetopharmacology.org/GRAC/LigandDisplayForward?ligandId=" + this.ID_PLACE_HOLDER;
+    linkMap["nucleotide sequence database"] = "";
 
     return linkMap;
 };
@@ -2132,7 +1669,7 @@ NetworkVis.prototype._xrefArray = function()
 /**
  * Creates a map for edge type visibility.
  *
- * @return	an array (map) of edge type visibility.
+ * @return  an array (map) of edge type visibility.
  */
 NetworkVis.prototype._edgeTypeArray = function()
 {
@@ -2151,7 +1688,7 @@ NetworkVis.prototype._edgeTypeArray = function()
 /**
  * Creates a map for edge source visibility.
  *
- * @return	an array (map) of edge source visibility.
+ * @return  an array (map) of edge source visibility.
  */
 NetworkVis.prototype._edgeSourceArray = function()
 {
@@ -2186,8 +1723,8 @@ NetworkVis.prototype._edgeSourceArray = function()
  * weight = Max[(Total Alteration of a node),
  *    Max(Total Alteration of its neighbors) * coeff] * 100
  *
- * @param coeff	coefficient value used in the weight function
- * @returns		a map (array) containing weight values for each gene
+ * @param coeff coefficient value used in the weight function
+ * @returns     a map (array) containing weight values for each gene
  */
 NetworkVis.prototype._geneWeightArray = function(coeff)
 {
@@ -2262,8 +1799,8 @@ NetworkVis.prototype._geneWeightArray = function(coeff)
  * Finds the non-seed gene having the maximum alteration percent in
  * the network, and returns the maximum alteration percent value.
  *
- * @param map	weight map for the genes in the network
- * @return		max alteration percent of non-seed genes
+ * @param map   weight map for the genes in the network
+ * @return      max alteration percent of non-seed genes
  */
 NetworkVis.prototype._maxAlterValNonSeed = function(map)
 {
@@ -2414,12 +1951,6 @@ NetworkVis.prototype._initDialogs = function()
                                      resizable: false,
                                      width: 333});
 
-    // adjust node inspector
-    $(this.nodeInspectorSelector).dialog({autoOpen: false,
-                                    resizable: false,
-                                    width: 366,
-                                    maxHeight: 300});
-
     // adjust edge inspector
     $(this.edgeInspectorSelector).dialog({autoOpen: false,
                                     resizable: false,
@@ -2493,13 +2024,13 @@ NetworkVis.prototype._initSliders = function()
 
     // set max alteration value label
     //$("#weight_slider_area .slider-max label").text(
-    //	_maxAlterationPercent.toFixed(1));
+    //  _maxAlterationPercent.toFixed(1));
 
     // show affinity slider (currently disabled)
-//	$("#affinity_slider_bar").slider(
-//		{value: WEIGHT_COEFF * 100,
-//		change: _affinitySliderChange,
-//		slide: _affinitySliderMove});
+//  $("#affinity_slider_bar").slider(
+//      {value: WEIGHT_COEFF * 100,
+//      change: _affinitySliderChange,
+//      slide: _affinitySliderMove});
 };
 
 /**
@@ -2741,7 +2272,7 @@ NetworkVis.prototype._changeListener = function()
  * Updates the slider values (and filters if necessary), if the input
  * value is valid.
  *
- * @param event		event triggered the action
+ * @param event     event triggered the action
  */
 NetworkVis.prototype._keyPressListener = function(event)
 {
@@ -2856,11 +2387,11 @@ NetworkVis.prototype._keyPressListener = function(event)
  $("#genes_tab table").remove();
 
 
- //	for (var i=0; i < nodes.length; i++)
- //	{
- //		$("#genes_tab .genes_list").append(
- //			"<li> " + nodes[i].data.id + "</li>");
- //	}
+ // for (var i=0; i < nodes.length; i++)
+ // {
+ //     $("#genes_tab .genes_list").append(
+ //         "<li> " + nodes[i].data.id + "</li>");
+ // }
 
 
  $("#genes_tab").append('<table></table>');
@@ -2922,7 +2453,7 @@ NetworkVis.prototype._refreshGenesTab = function()
     var self = this;
 
     var showGeneDetails = function(evt){
-        self.showGeneDetails(evt);
+        $(self.networkTabsSelector).tabs("select", 2);
     };
 
     // get visible genes
@@ -3131,10 +2662,10 @@ NetworkVis.prototype._refreshRelationsTab = function()
     }
 
     // <tr class="unknown">
-    //		<td class="edge-source-checkbox">
-    //				<input type="checkbox" checked="checked">
-    //				<label> Unknown </label>
-    //		</td>
+    //      <td class="edge-source-checkbox">
+    //              <input type="checkbox" checked="checked">
+    //              <label> Unknown </label>
+    //      </td>
     // </tr>
 };
 
@@ -3150,9 +2681,8 @@ NetworkVis.prototype._initControlFunctions = function()
     // (this is required to pass "this" instance to the listener functions)
 
     var showNodeDetails = function(evt) {
-        //self.showNodeInspector(evt);
-	    // open details tab instead
-	    $(self.networkTabsSelector).tabs("select", 2);
+        // open details tab instead
+        $(self.networkTabsSelector).tabs("select", 2);
     };
 
     var showEdgeInspector = function(evt) {
@@ -3372,16 +2902,8 @@ NetworkVis.prototype._hideSelected = function()
  */
 NetworkVis.prototype._unhideAll = function()
 {
-    // remove all filters
-    this._vis.removeFilter(null);
-
     // reset array of already filtered elements
     this._alreadyFiltered = new Array();
-
-    // reset slider UI
-    $("#weight_slider_field").val(0.0);
-    $("#weight_slider_bar").slider("option",
-                                   "value", 0);
 
     // re-apply filtering based on edge types
     this.updateEdges();
@@ -3397,7 +2919,7 @@ NetworkVis.prototype._unhideAll = function()
 /**
  * Creates an array of visible (i.e. non-filtered) genes.
  *
- * @return		array of visible genes
+ * @return      array of visible genes
  */
 NetworkVis.prototype._visibleGenes = function()
 {
@@ -3433,16 +2955,16 @@ NetworkVis.prototype._performLayout = function()
 //
 //    for (var i=0; i < edges.length; i++)
 //    {
-//    	if (edges[i].data.type == "DRUG_TARGET")
-//    	{
-//    		edges[i].data.weight = 0.2;
-//    	}
-//    	else
-//		{
-//    		edges[i].data.weight = 1.0;
-//		}
+//      if (edges[i].data.type == "DRUG_TARGET")
+//      {
+//          edges[i].data.weight = 0.2;
+//      }
+//      else
+//      {
+//          edges[i].data.weight = 1.0;
+//      }
 //
-//    	_vis.updateData("edges", [edges[i]], edges[i].data);
+//      _vis.updateData("edges", [edges[i]], edges[i].data);
 //    }
 
     this._vis.layout(this._graphLayout);
@@ -3661,17 +3183,17 @@ NetworkVis.prototype._updatePropsUI = function()
 
     for (var i=0; i < this._layoutOptions.length; i++)
     {
-//		if (_layoutOptions[i].id == "weightNorm")
-//		{
-//			// clean all selections
-//			$("#norm_linear").removeAttr("selected");
-//			$("#norm_invlinear").removeAttr("selected");
-//			$("#norm_log").removeAttr("selected");
+//      if (_layoutOptions[i].id == "weightNorm")
+//      {
+//          // clean all selections
+//          $("#norm_linear").removeAttr("selected");
+//          $("#norm_invlinear").removeAttr("selected");
+//          $("#norm_log").removeAttr("selected");
 //
-//			// set the correct option as selected
+//          // set the correct option as selected
 //
-//			$("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
-//		}
+//          $("#norm_" + _layoutOptions[i].value).attr("selected", "selected");
+//      }
 
         if (this._layoutOptions[i].id == "autoStabilize")
         {
@@ -3711,25 +3233,6 @@ NetworkVis.prototype._updateLayoutOptions = function()
     }
 
     this._graphLayout.options = options;
-};
-
-NetworkVis.prototype._createNodeInspector = function(divId)
-{
-    var id = "node_inspector_" + divId;
-
-    var html =
-        '<div id="' + id + '" class="network_node_inspector hidden-network-ui" title="Node Inspector">' +
-            '<div class="node_inspector_content content ui-widget-content">' +
-                '<table class="data"></table>' +
-                '<table class="profile-header"></table>' +
-                '<table class="profile"></table>' +
-                '<table class="xref"></table>' +
-            '</div>' +
-        '</div>';
-
-    $("#" + divId).append(html);
-
-    return "#" + id;
 };
 
 NetworkVis.prototype._createEdgeInspector = function(divId)
@@ -4006,11 +3509,11 @@ function _initMenuStyle(divId, hoverClass)
 /**
  * Comparison function to sort genes alphabetically.
  *
- * @param node1	node to compare to node2
+ * @param node1 node to compare to node2
  * @param node2 node to compare to node1
- * @return 		positive integer if node1 is alphabetically greater than node2
- * 				negative integer if node2 is alphabetically greater than node1
- * 				zero if node1 and node2 are alphabetically equal
+ * @return      positive integer if node1 is alphabetically greater than node2
+ *              negative integer if node2 is alphabetically greater than node1
+ *              zero if node1 and node2 are alphabetically equal
  */
 function _geneSort (node1, node2)
 {
@@ -4031,8 +3534,8 @@ function _geneSort (node1, node2)
 /**
  * Generates a shortened version of the given node id.
  *
- * @param id	id of a node
- * @return		a shortened version of the id
+ * @param id    id of a node
+ * @return      a shortened version of the id
  */
 function _shortId(id)
 {
@@ -4056,8 +3559,8 @@ function _shortId(id)
  * Replaces all occurrences of a problematic character with an under dash.
  * Those characters cause problems with the properties of an HTML object.
  *
- * @param str	string to be modified
- * @return		safe version of the given string
+ * @param str   string to be modified
+ * @return      safe version of the given string
  */
 function _safeProperty(str)
 {
@@ -4079,10 +3582,10 @@ function _safeProperty(str)
 /**
  * Replaces all occurrences of the given string in the source string.
  *
- * @param source		string to be modified
- * @param toFind		string to match
- * @param toReplace		string to be replaced with the matched string
- * @return				modified version of the source string
+ * @param source        string to be modified
+ * @param toFind        string to match
+ * @param toReplace     string to be replaced with the matched string
+ * @return              modified version of the source string
  */
 function _replaceAll(source, toFind, toReplace)
 {
@@ -4101,7 +3604,7 @@ function _replaceAll(source, toFind, toReplace)
 /**
  * Checks if the user browser is IE.
  *
- * @return	true if IE, false otherwise
+ * @return  true if IE, false otherwise
  */
 function _isIE()
 {
@@ -4119,7 +3622,7 @@ function _isIE()
  * Converts the given string to title case format. Also replaces each
  * underdash with a space.
  *
- * @param source	source string to be converted to title case
+ * @param source    source string to be converted to title case
  */
 function _toTitleCase(source)
 {
@@ -4176,7 +3679,7 @@ function _toTitleCase(source)
 /**
  * Finds and returns the maximum value in a given map.
  *
- * @param map	map that contains real numbers
+ * @param map   map that contains real numbers
  */
 function _getMaxValue(map)
 {
@@ -4200,7 +3703,7 @@ function _getMaxValue(map)
  * This function is designed to transform slider input, which is between
  * 0 and 100, to provide a better filtering.
  *
- * @param value		input value to be transformed
+ * @param value     input value to be transformed
  */
 function _transformValue(value)
 {
@@ -4229,8 +3732,8 @@ function _transformValue(value)
  *
  * where y = value
  *
- * @param value	value to be reverse transformed
- * @returns		reverse transformed value
+ * @param value value to be reverse transformed
+ * @returns     reverse transformed value
  */
 function _reverseTransformValue(value)
 {
@@ -4257,8 +3760,8 @@ function _reverseTransformValue(value)
  *
  *   p = -b/(3a), q = p^3 + (bc-3ad)/(6a^2), r = c/(3a)
  *
- * @param a	coefficient of the term x^3
- * @param b	coefficient of the term x^2
+ * @param a coefficient of the term x^3
+ * @param b coefficient of the term x^2
  * @param c coefficient of the term x^1
  * @param d coefficient of the term x^0
  *
@@ -4275,8 +3778,8 @@ function _solveCubic(a, b, c, d)
     var sqrt = Math.pow(q*q + Math.pow(r - p*p, 3), 1/2);
 
     //var root = Math.pow(q + sqrt, 1/3) +
-    //	Math.pow(q - sqrt, 1/3) +
-    //	p;
+    //  Math.pow(q - sqrt, 1/3) +
+    //  p;
 
     var x = _cubeRoot(q + sqrt) +
             _cubeRoot(q - sqrt) +
@@ -4289,8 +3792,8 @@ function _solveCubic(a, b, c, d)
  * Evaluates the cube root of the given value. This function also handles
  * negative values unlike the built-in Math.pow() function.
  *
- * @param value	source value
- * @returns		cube root of the source value
+ * @param value source value
+ * @returns     cube root of the source value
  */
 function _cubeRoot(value)
 {

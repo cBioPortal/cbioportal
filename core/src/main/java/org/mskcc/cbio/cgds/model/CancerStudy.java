@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoMutSig;
@@ -36,6 +34,9 @@ import org.mskcc.cbio.cgds.util.EqualsUtil;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
 import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
 
@@ -58,6 +59,7 @@ public class CancerStudy {
     private boolean publicStudy;  // if true, a public study, otherwise private
     private String pmid;
     private String citation;
+    private Set<String> groups;
     
 
     /**
@@ -333,6 +335,27 @@ public class CancerStudy {
      */
     public boolean hasCnaSegmentData() throws DaoException {
         return DaoCopyNumberSegment.segmentDataExistForCancerStudy(studyID);
+    }
+
+    public Set<String> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(Set<String> groups) {
+        this.groups = groups;
+    }
+
+    /**
+     * 
+     * @param groups comma delimited groups
+     */
+    public void setGroups(String groups) {
+        if (groups==null) {
+            this.groups = null;
+            return;
+        }
+        
+        this.groups = new HashSet<String>(Arrays.asList(groups.split(";")));
     }
 
     /**

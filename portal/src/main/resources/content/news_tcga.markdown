@@ -1,3 +1,12 @@
+# June 13, 2013
+
+* Improved interface for correlation plots, including information on individual samples via mouse-over.
+* Gene Details from Biogene are now available in the Network view.
+
+# June 4, 2013
+
+* All TCGA data updated to the April Firehose run (April 21, 2012).
+
 # April 28, 2013
 
 * All TCGA data updated to the March Firehose run (March 26, 2012).

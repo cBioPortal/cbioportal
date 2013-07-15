@@ -93,7 +93,7 @@
                             out.println("<td class='" + style + "' bgcolor=white><nobr><font>");
                         } else if (range3.containsDouble(util.getOddsRatio())) {
                             out.println("<td class='" + style + "' bgcolor=#FFFF99><nobr><font>");
-                        } else if (util.getOddsRatio() > 100.0) {
+                        } else if (util.getOddsRatio() > range3.getMaximumDouble()) {
                             out.println("<td class='" + style + "' bgcolor=#FF9933><nobr><font>");
                         }
                         // outputFormattedDouble (out, util.getOddsRatio());

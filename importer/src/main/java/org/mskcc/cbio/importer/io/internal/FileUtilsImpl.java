@@ -89,6 +89,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	// ref to config
 	private Config config;
 
+	// ref to caseids
+	private CaseIDs caseIDs;
+
 	// location of lift over binary
 	private String liftoverBinary;
 	@Value("${liftover_binary}")
@@ -105,11 +108,13 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * Constructor.
      *
      * @param config Config
+	 * @param caseIDs CaseIDs;
 	 */
-	public FileUtilsImpl(Config config) {
+	public FileUtilsImpl(Config config, CaseIDs caseIDs) {
 
 		// set members
 		this.config = config;
+		this.caseIDs = caseIDs;
 	}
 
 	/**
@@ -185,6 +190,14 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         org.apache.commons.io.FileUtils.forceMkdir(directory);
     }
 
+	/**
+	 * Checks if directory is empty
+	 */
+	@Override
+	public boolean directoryIsEmpty(File directory) throws Exception {
+		return (listFiles(directory, null, true).isEmpty());
+	}
+
     /**
      * Deletes a directory recursively.
      *
@@ -196,6 +209,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
         org.apache.commons.io.FileUtils.deleteDirectory(directory);
     }
+
+    /**
+     * Deletes a file.
+     *
+     * @param file File
+	 * @throws Exception
+     */
+    @Override
+    public void deleteFile(File file) throws Exception {
+		if (file.exists()) org.apache.commons.io.FileUtils.forceDelete(file);
+	}
 
     /**
      * Lists all files in a given directory and its subdirectories.
@@ -258,17 +282,149 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
 	/**
-	 * Get the case list from the staging file.
+	 * Returns a list of missing caselists.  Applicable to
+	 * manually curated  studies checked into a 'studies' directory
 	 *
-	 * @param caseIDs CaseIDs;
-     * @param portalMetadata PortalMetadata
+	 * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @return List<String>
+	 */
+	@Override
+	public List<String> getMissingCaseListFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
+
+		ArrayList toReturn = new ArrayList<String>();
+		String caseListDirectory = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + "case_lists");
+		for (CaseListMetadata caseListMetadata : config.getCaseListMetadata(Config.ALL)) {
+			String caseListFilename = caseListDirectory + File.separator + caseListMetadata.getCaseListFilename();
+			File caseListFile = new File(caseListFilename);
+			if (!caseListFile.exists()) toReturn.add(caseListFilename);
+		}
+		return toReturn;
+	}
+
+	/**
+	 * Generates caselists for the given cancer study.  If strict is false, a check of isTumorCaseID is skipped.
+	 * If overwrite is set, any existing caselist file will be clobbered.
+	 *
+	 * @param overwrite boolean
+	 * @param strict boolean
+	 * @param stagingDirectory String
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @throws Exception
+	 */
+	@Override
+	public void generateCaseLists(boolean overwrite, boolean strict, String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
+
+		// iterate over case lists
+		for (CaseListMetadata caseListMetadata : config.getCaseListMetadata(Config.ALL)) {
+			if (LOG.isInfoEnabled()) {
+				LOG.info("generateCaseLists(), processing cancer study: " + cancerStudyMetadata + ", case list: " + caseListMetadata.getCaseListFilename());
+			}
+			File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																		cancerStudyMetadata.getStudyPath(),
+																		"case_lists",
+																		caseListMetadata.getCaseListFilename());
+			if (caseListFile.exists() && !overwrite) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), caseListFile exists and overwrite is false, skipping caselist...");
+				}
+				continue;
+			}
+			// how many staging files are we working with?
+			String[] stagingFilenames = null;
+			// setup union/intersection bools
+			boolean unionCaseList = 
+				caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+			boolean intersectionCaseList = 
+				caseListMetadata.getStagingFilenames().contains(CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
+			// union (like all cases)
+			if (unionCaseList) {
+				stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+			}
+			// intersection (like complete or cna-seq)
+			else if (intersectionCaseList) {
+				stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_INTERSECTION_DELIMITER);
+			}
+			// just a single staging file
+			else {
+				stagingFilenames = new String[] { caseListMetadata.getStagingFilenames() };
+			}
+			if (LOG.isInfoEnabled()) {
+				LOG.info("generateCaseLists(), stagingFilenames: " + java.util.Arrays.toString(stagingFilenames));
+			}
+			// this is the set we will pass to writeCaseListFile
+			LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
+			// this indicates the number of staging files processed -
+			// used to verify that an intersection should be written
+			int numStagingFilesProcessed = 0;
+			for (String stagingFilename : stagingFilenames) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), processing stagingFile: " + stagingFilename);
+				}
+				// compute the case set
+				List<String> caseList = getCaseListFromStagingFile(strict, caseIDs, cancerStudyMetadata, stagingDirectory, stagingFilename);
+				// we may not have this datatype in study
+				if (caseList.size() == 0) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), stagingFileHeader is empty: " + stagingFilename + ", skipping...");
+					}
+					continue;
+				}
+				// intersection 
+				if (intersectionCaseList) {
+					if (caseSet.isEmpty()) {
+						caseSet.addAll(caseList);
+					}
+					else {
+						caseSet.retainAll(caseList);
+					}
+				}
+				// otherwise union or single staging (treat the same)
+				else {
+					caseSet.addAll(caseList);
+				}
+				++numStagingFilesProcessed;
+			}
+			// write the case list file (don't make empty case lists)
+			if (caseSet.size() > 0) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), calling writeCaseListFile()...");
+				}
+				// do not write out complete cases file unless we've processed all the files required
+				if (intersectionCaseList && (numStagingFilesProcessed != stagingFilenames.length)) {
+					if (LOG.isInfoEnabled()) {
+						LOG.info("generateCaseLists(), number of staging files processed != number staging files required for cases_complete.txt, skipping call to writeCaseListFile()...");
+					}
+					continue;
+				}
+				writeCaseListFile(stagingDirectory, cancerStudyMetadata, caseListMetadata, caseSet.toArray(new String[0]));
+			}
+			else if (LOG.isInfoEnabled()) {
+				LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
+			}
+			// if union, write out the cancer study metadata file
+			if (overwrite && caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("generateCaseLists(), processed all cases list, we can now update cancerStudyMetadata file()...");
+				}
+				writeCancerStudyMetadataFile(stagingDirectory, cancerStudyMetadata, caseSet.size());
+			}
+		}
+	}
+
+	/**
+	 * Get the case list from the staging file.  If strict is false, a check of isTumorCaseID is skipped.
+	 *
+	 * @parma strict boolean
+	 * @param caseIDs CaseIDs;
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param stagingDirectory String
 	 * @param stagingFilename String
 	 * @return List<String>
 	 * @throws Exception
 	 */
 	@Override
-	public List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception {
+	public List<String> getCaseListFromStagingFile(boolean strict, CaseIDs caseIDs, CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String stagingFilename) throws Exception {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("getCaseListFromStagingFile(): " + stagingFilename);
@@ -277,8 +433,19 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// we use set here
 		HashSet<String> caseSet = new HashSet<String>();
 
+		// if we are processing mutations data and a sequencedSamplesFile exists, use it
+		if (stagingFilename.equals(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
+			File sequencedSamplesFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																				cancerStudyMetadata.getStudyPath(),
+																				DatatypeMetadata.SEQUENCED_SAMPLES_FILENAME);
+			if (sequencedSamplesFile.exists()) {
+				if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), sequenceSamplesFile exists, calling getCaseListFromSequencedSamplesFile()");
+				return getCaseListFromSequencedSamplesFile(sequencedSamplesFile);
+			}
+		}
+
 		// staging file
-		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
 		// sanity check
@@ -300,19 +467,28 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 					mafCaseIDColumnIndex = thisRow.indexOf(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
 					// this is not a MAF file, header contains the case ids, return here
 					if (mafCaseIDColumnIndex  == -1) {
+						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
-							if (caseIDs.isTumorCaseID(potentialCaseID)) {
+							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
+								// check to filter out column headers other than sample ids
+								if (potentialCaseID.equals(Converter.GENE_ID_COLUMN_HEADER_NAME) ||
+									potentialCaseID.equals(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME)) {
+									continue;
+								}
 								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 							}
 						}
 						break;
+					}
+					else {
+						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is a MAF, samples ids in col: " + mafCaseIDColumnIndex);
 					}
 					processHeader = false;
 					continue;
 				}
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
-				if (caseIDs.isTumorCaseID(potentialCaseID)) {
+				if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
 					caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 				}
 			}
@@ -432,18 +608,18 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	/**
 	 * Method which writes the cancer study metadata file.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param numCases int
 	 * @throws Exception
 	 *
 	 */
 	@Override
-	public void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
+	public void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
-			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
-																	cancerStudyMetadata.getStudyPath(),
-																	cancerStudyMetadata.getCancerStudyMetadataFilename());
+		File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+																cancerStudyMetadata.getStudyPath(),
+																cancerStudyMetadata.getCancerStudyMetadataFilename());
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writeMetadataFile(), meta file: " + metaFile);
 			}
@@ -467,6 +643,9 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			}
 			if (cancerStudyMetadata.getPMID().length() > 0) {
 				writer.print("pmid: " + cancerStudyMetadata.getPMID() + "\n");
+			}
+			if (cancerStudyMetadata.getGroups().length() > 0) {
+				writer.print("groups: " + cancerStudyMetadata.getGroups() + "\n");
 			}
 
 			writer.flush();
@@ -737,16 +916,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	/**
 	 * Create a case list file from the given case list metadata file.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param caseListMetadata CaseListMetadata
 	 * @param caseList String[]
 	 * @throws Exception
 	 */
 	@Override
-	public void writeCaseListFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception {
+	public void writeCaseListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception {
 
-		File caseListFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File caseListFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	cancerStudyMetadata.getStudyPath(),
 																	"case_lists",
 																	caseListMetadata.getCaseListFilename());
@@ -1066,5 +1245,28 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			toReturn.put(probeId, probeId);
 		}
 		return toReturn;
+	}
+
+	private List<String> getCaseListFromSequencedSamplesFile(File sequencedSamplesFile) throws Exception {
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("getCaseListFromSequencedSamplesFile(): " + sequencedSamplesFile);
+		}
+
+		LinkedHashSet<String> caseSet = new LinkedHashSet<String>();
+		org.apache.commons.io.LineIterator it = org.apache.commons.io.FileUtils.lineIterator(sequencedSamplesFile);
+		try {
+			while (it.hasNext()) {
+				caseSet.add(it.nextLine());
+			}
+		} finally {
+			it.close();
+		}
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("caseSet size: " + caseSet.size());
+		}
+
+		return new ArrayList<String>(caseSet);
 	}
 }

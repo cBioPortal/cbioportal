@@ -84,8 +84,9 @@ tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 # this is for grabbing NCI's Clinical Trial Information
-nci.cancer.ftp.user=user
-nci.cancer.ftp.password=password
+nci.cancer.sftp.user=user
+nci.cancer.sftp.password=password
+sshpass.path=/path/to/bin/sshpass
 
 # additional props used by importer
 
@@ -95,3 +96,13 @@ firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
 # liftover tool
 liftover_binary=
 liftover_chain_file=
+
+# foundation medicine
+foundation.service.user=
+foundation.service.password=
+
+# darwin database
+darwin.db.host=
+darwin.db.name=
+darwin.db.user=
+darwin.db.password=

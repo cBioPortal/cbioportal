@@ -358,7 +358,6 @@ public class QueryBuilder extends HttpServlet {
                 if (caseSet.getStableId().equals(caseSetId)) {
                     caseIds = caseSet.getCaseListAsString();
                     setOfCaseIds = new HashSet<String>(caseSet.getCaseList());
-                    caseSet.getCaseList();
                 }
             }
         }

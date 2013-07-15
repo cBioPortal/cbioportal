@@ -2,11 +2,7 @@
 package org.foundation;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.*;
 
 
 /**
@@ -43,8 +39,8 @@ public class GetCase {
      * 
      * @return
      *     possible object is
-     *     {@link JAXBElement }{@code <}{@link String }{@code >}
-     *     
+     *     {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}
+     *
      */
     public JAXBElement<String> getCaseNo() {
         return caseNo;
@@ -52,10 +48,10 @@ public class GetCase {
 
     /**
      * Sets the value of the caseNo property.
-     * 
+     *
      * @param value
      *     allowed object is
-     *     {@link JAXBElement }{@code <}{@link String }{@code >}
+     *     {@link javax.xml.bind.JAXBElement }{@code <}{@link String }{@code >}
      *     
      */
     public void setCaseNo(JAXBElement<String> value) {

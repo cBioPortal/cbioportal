@@ -70,9 +70,10 @@ public interface Converter {
 	 *
 	 * @param portal String
 	 * @param excludeDatatypes Set<String>
+	 * @param applyCaseLists boolean
 	 * @throws Exception
 	 */
-	void applyOverrides(String portal, Set<String> excludeDatatypes) throws Exception;
+	void applyOverrides(String portal, Set<String> excludeDatatypes, boolean applyCaseLists) throws Exception;
 
 	/**
 	 * Creates a staging file from the given import data.

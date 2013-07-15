@@ -18,14 +18,16 @@ then
 	exit -1
 fi
 
-FTPUSER=`grep "nci.cancer.ftp.user" $1 |cut -f2 -d"="`
-FTPPASSWD=`grep "nci.cancer.ftp.password" $1 |cut -f2 -d"="`
+SFTPUSER=`grep "nci.cancer.sftp.user" $1 |cut -f2 -d"="`
+SFTPPASSWD=`grep "nci.cancer.sftp.password" $1 |cut -f2 -d"="`
+SSHPASSPATH=`grep "sshpass.path" $1 |cut -f2 -d"="`
 
 mkdir -p $PORTAL_DATA_HOME/reference-data
 
 echo -ne "Downloading the PDQ XML files...\t\t" &&
 cd $PORTAL_DATA_HOME/reference-data &&
-wget --quiet --ftp-password=$FTPPASSWD --ftp-user=$FTPUSER ftp://cipsftp.nci.nih.gov/full/CTGovProtocol.tar.gz > /dev/null &&
+$SSHPASSPATH -p "$SFTPPASSWD" sftp "$SFTPUSER@cancerinfo.nci.nih.gov:full/CTGovProtocol.tar.gz" > /dev/null &&
+#wget --quiet --ftp-password=$FTPPASSWD --ftp-user=$FTPUSER ftp://cipsftp.nci.nih.gov/full/CTGovProtocol.tar.gz > /dev/null &&
 echo "[ done ]" &&
 echo -ne "Unzipping the archive...\t\t" &&
 tar -zxf CTGovProtocol.tar.gz &&

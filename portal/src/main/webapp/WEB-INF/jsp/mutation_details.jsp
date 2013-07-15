@@ -9,6 +9,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
 <script type="text/javascript" src="js/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/mutation_diagram.js"></script>
@@ -19,6 +21,9 @@
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
+
+    MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
+    MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
 %>
 <div class='section' id='mutation_details'>
 
@@ -85,31 +90,28 @@
     
 //  Set up Mutation Diagrams
 $(document).ready(function(){
-	var geneSymbol;
-	var diagramMutations;
 	var tableMutations;
+    var diagramSequence;
 
 	<%
     for (GeneWithScore geneWithScore : geneWithScoreList) {
-        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0) { %>
-	        geneSymbol = "<%= geneWithScore.getGene().toUpperCase() %>";
-	        diagramMutations = "<%= outputMutationsJson(geneWithScore, mutationMap) %>";
-	        tableMutations = "<%= outputMutationsJson(geneWithScore, mutationMap, mergedCaseList) %>";
+        String geneStr = geneWithScore.getGene();
+        if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
+        String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
+                geneStr,
+                mutationMap.getExtendedMutations(geneStr)
+        );
 
-	        $.ajax({ url: "mutation_table_data.json",
-		           dataType: "json",
-		           data: {hugoGeneSymbol: geneSymbol,
-			           mutations: tableMutations},
-		           success: delayedMutationTable, // TODO temporary work-around (issue 429)
-		           type: "POST"});
+        String mutationTableStr = mutationTableProcessor.processMutationTable(
+                geneStr,
+                converMutations(geneWithScore, mutationMap, mergedCaseList)
+        );
+    %>
+	        tableMutations = <%= mutationTableStr %>;
+            diagramSequence = <%= mutationDiagramStr %>;
 
-
-	        $.ajax({ url: "mutation_diagram_data.json",
-		           dataType: "json",
-		           data: {hugoGeneSymbol: geneSymbol,
-			           mutations: diagramMutations},
-		           success: drawMutationDiagram,
-		           type: "POST"});
+            drawMutationDiagram(diagramSequence);
+            delayedMutationTable(tableMutations);
 
         <% } %>
     <% } %>
@@ -181,6 +183,26 @@ function toggleMutationDiagram(geneId)
 
 		return stringWriter.toString().replace("\"", "\\\"");
 	}
+
+    private List<ExtendedMutation> converMutations(GeneWithScore geneWithScore,
+                                                       ExtendedMutationMap mutationMap,
+                                                       ArrayList<String> mergedCaseList)
+    {
+        List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
+
+        for (String caseId : mergedCaseList)
+        {
+            List<ExtendedMutation> list = mutationMap.getExtendedMutations(
+                    geneWithScore.getGene(), caseId);
+
+            if (list != null)
+            {
+                mutations.addAll(list);
+            }
+        }
+
+        return mutations;
+    }
 
     private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
             MutationCounter mutationCounter) throws IOException {

@@ -60,6 +60,7 @@
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
 	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/svgtopdf.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>

@@ -51,6 +51,16 @@ public interface FileUtils {
 
 	public static final String FILE_URL_PREFIX = "file://";
 
+	// clinical data file column headers
+	public static final String CASE_ID = "CASE_ID";
+	public static final String GENDER = "GENDER";
+	public static final String FMI_CASE_ID = "FMI_CASE_ID";
+	public static final String PIPELINE_VER = "PIPELINE_VER";
+	public static final String TUMOR_NUCLEI_PERCENT = "TUMOR_NUCLEI_PERCENT";
+	public static final String MEDIAN_COV = "MEDIAN_COV";
+	public static final String COV_100X = "COV>100X";
+	public static final String ERROR_PERCENT = "ERROR_PERCENT";
+
 	/**
 	 * Computes the MD5 digest for the given file.
 	 * Returns the 32 digit hexadecimal.
@@ -78,6 +88,11 @@ public interface FileUtils {
      */
     void makeDirectory(File directory) throws Exception;
 
+	/**
+	 * Checks if directory is empty
+	 */
+	boolean directoryIsEmpty(File directory) throws Exception;
+
     /**
      * Deletes a directory recursively.
      *
@@ -85,6 +100,14 @@ public interface FileUtils {
 	 * @throws Exception
      */
     void deleteDirectory(File directory) throws Exception;
+
+    /**
+     * Deletes a file.
+     *
+     * @param file File
+	 * @throws Exception
+     */
+    void deleteFile(File file) throws Exception;
 
     /**
      * Lists all files in a given directory and its subdirectories.
@@ -113,16 +136,39 @@ public interface FileUtils {
 	DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
 
 	/**
-	 * Get the case list from the staging file.
+	 * Returns a list of missing caselists.  Applicable to
+	 * manually curated  studies checked into a 'studies' directory
 	 *
-	 * @param caseIDs CaseIDs;
-     * @param portalMetadata PortalMetadata
+	 * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @return List<String>
+	 */
+	List<String> getMissingCaseListFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception;
+
+	/**
+	 * Generates caselists for the given cancer study.  If strict is false, a check of isTumorCaseID is skipped.
+	 * If overwrite is set, any existing caselist file will be clobbered.
+	 *
+	 * @param overwrite boolean
+	 * @param strict boolean
+	 * @param stagingDirectory String
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @throws Exception
+	 */
+	void generateCaseLists(boolean overwrite, boolean strict, String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception;
+
+	/**
+	 * Get the case list from the staging file.  If strict is false, a check of isTumorCaseID is skipped.
+	 *
+	 * @param strict boolean
+	 * @param caseIDs CaseIDs;
+	 * @param cancerStudyMetadata CancerStudyMetadata
+	 * @param stagingDirectory String
 	 * @param stagingFilename String
 	 * @return List<String>
 	 * @throws Exception
 	 */
-	List<String> getCaseListFromStagingFile(CaseIDs caseIDs, PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String stagingFilename) throws Exception;
+	List<String> getCaseListFromStagingFile(boolean strict, CaseIDs caseIDs, CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String stagingFilename) throws Exception;
 
 	/**
 	 * Creates a temporary file with the given contents.
@@ -165,12 +211,12 @@ public interface FileUtils {
 	/**
 	 * Method which writes the cancer study metadata file.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param numCases int
 	 * @throws Exception
 	 */
-	void writeCancerStudyMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for the
@@ -256,14 +302,13 @@ public interface FileUtils {
 	/**
 	 * Create a case list file from the given case list metadata file.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param caseListMetadata CaseListMetadata
 	 * @param caseList String[]
 	 * @throws Exception
 	 */
-	void writeCaseListFile(PortalMetadata portalMetadata,
-						   CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception;
+	void writeCaseListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception;
 
 	/**
 	 * Runs all MAFs for the given dataaSourcesMetadata through

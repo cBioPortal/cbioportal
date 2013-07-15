@@ -110,7 +110,7 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
         for (var col=0; col<nCol; col++) {
             var val = dt.getValue(row,col);
             if (val && isColNum[col]) {
-                val = cbio.util.toPrecision(val,3,0.01);
+                val = cbio.util.toPrecision(val,4,0.001);
             }
             dRow.push(val);
         }

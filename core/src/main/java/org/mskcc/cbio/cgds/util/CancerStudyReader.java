@@ -52,11 +52,6 @@ public class CancerStudyReader {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
-      
-      if ( DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier) ) {
-         throw new IllegalArgumentException("cancer study identified by cancer_study_identifier "
-                  + cancerStudyIdentifier + " already in dbms.");
-      }
 
       String name = properties.getProperty("name");
       if (name == null) {
@@ -75,19 +70,21 @@ public class CancerStudyReader {
 
       String pmid = properties.getProperty("pmid");
       String citation = properties.getProperty("citation");
+      String groups = properties.getProperty("groups");
       
       return addCancerStudy(cancerStudyIdentifier, name, description, 
-               typeOfCancer, publicStudy( properties ), pmid, citation);
+               typeOfCancer, publicStudy( properties ), pmid, citation, groups);
    }
 
    private static CancerStudy addCancerStudy(String cancerStudyIdentifier, String name, String description, 
-            String typeOfCancer, boolean publicStudy, String pmid, String citation)
+            String typeOfCancer, boolean publicStudy, String pmid, String citation, String groups)
             throws DaoException {
       CancerStudy cancerStudy = new CancerStudy( name, description, 
                cancerStudyIdentifier, typeOfCancer, publicStudy );
       cancerStudy.setPmid(pmid);
       cancerStudy.setCitation(citation);
-      DaoCancerStudy.addCancerStudy(cancerStudy);
+      cancerStudy.setGroups(groups);
+      DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
       return cancerStudy;
    }
    

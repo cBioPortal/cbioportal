@@ -25,3 +25,4 @@
 <link href="css/data_table.css" type="text/css" rel="stylesheet" />
 <link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>
 <link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>
+<link href="css/chosen.css" type="text/css" rel="stylesheet"/>

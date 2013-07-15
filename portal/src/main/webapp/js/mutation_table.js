@@ -262,7 +262,8 @@ function drawMutationTable(data)
     }
 
     // -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
-    count += data.header.specialGeneHeaders.length - 2;
+    //count += data.header.specialGeneHeaders.length - 2;
+	count -= 1;
 
 	var indexMap = buildColumnIndexMap();
 
@@ -395,9 +396,10 @@ function _generateMutationTable(tableId, data)
     table += '</tfoot></table>';
 
     // footer message for special genes
-    table += '<p><br>' + data.footerMsg + '<br>';
+    //table += '<p><br>' + data.footerMsg + '<br>';
+	table += '<br>';
 
-    return table;
+	return table;
 }
 
 /**
@@ -435,10 +437,10 @@ function _getMutationTableHeaders(data)
 	headers.push(data.header.mutationCount);
 
     // special gene headers
-    for (var i=0; i < data.header.specialGeneHeaders.length; i++)
-    {
-        headers.push(data.header.specialGeneHeaders[i]);
-    }
+//    for (var i=0; i < data.header.specialGeneHeaders.length; i++)
+//    {
+//        headers.push(data.header.specialGeneHeaders[i]);
+//    }
 
     return headers;
 }
@@ -791,10 +793,10 @@ function _getMutationTableRows(data)
 	    row.push(getIntValueHtml(data.mutations[i].mutationCount));
 
         //special gene data
-        for (var j=0; j < data.mutations[i].specialGeneData.length; j++)
-        {
-            row.push(data.mutations[i].specialGeneData[j]);
-        }
+//        for (var j=0; j < data.mutations[i].specialGeneData.length; j++)
+//        {
+//            row.push(data.mutations[i].specialGeneData[j]);
+//        }
 
         rows.push(row);
     }

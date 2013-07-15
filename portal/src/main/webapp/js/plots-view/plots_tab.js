@@ -854,7 +854,7 @@ var PlotsView = (function () {
                     //Range for DNA Methylation Data Type
                     //Need to be fixed as from 0 to 1.
                     attr.xScale = d3. scale.linear()
-                        .domain([-0.02, 1])
+                        .domain([-0.02, 1.02])
                         .range([100,600]);
                 } else {
                     attr.xScale = d3.scale.linear()

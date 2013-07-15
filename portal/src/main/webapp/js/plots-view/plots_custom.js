@@ -477,11 +477,11 @@ var PlotsCustomView = (function() {
         var rangeYmax = max_y + edge_y;
         if (menu.plots_type_x === "methylation") { //Fix the range for methylation data
             rangeXmin = -0.02;
-            rangeXmax = 1;
+            rangeXmax = 1.02;
         }
         if (menu.plots_type_y === "methylation") {
             rangeYmin = -0.02;
-            rangeYmax = 1;
+            rangeYmax = 1.02;
         }
         elem.xScale = d3.scale.linear()
             .domain([rangeXmin, rangeXmax])

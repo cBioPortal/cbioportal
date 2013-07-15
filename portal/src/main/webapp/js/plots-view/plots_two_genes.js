@@ -388,9 +388,9 @@ var PlotsTwoGenesView = (function(){
         ///funciton() datatypeIsMethylation
         if (menu.plots_type === "methylation") { //Fix the range for methylation data
             var rangeXmin = -0.02;
-            var rangeXmax = 1;
+            var rangeXmax = 1.02;
             var rangeYmin = -0.02;
-            var rangeYmax = 1;
+            var rangeYmax = 1.02;
         } else {
             var rangeXmin = min_x - edge_x;
             var rangeXmax = max_x + edge_x;

@@ -172,8 +172,16 @@ var PlotsCustomMenu = (function(){
         appendDropDown("#custom_plots_type_x", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         appendDropDown("#custom_plots_type_y", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         if (content.genetic_profile_copy_no.length !== 0) {
-            appendDropDown("#custom_plots_type_x", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
-            appendDropDown("#custom_plots_type_y", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+            var _flag = false;
+            $.each(content.genetic_profile_copy_no, function(index, val) {
+                if (!dataIsDiscretized(val[1])) {
+                    _flag = true;
+                }
+            });     //If contains continuous data type
+            if (_flag) {
+                appendDropDown("#custom_plots_type_x", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+                appendDropDown("#custom_plots_type_y", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+            }
         }
         if (content.genetic_profile_dna_methylation.length !== 0) {
             appendDropDown("#custom_plots_type_x", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);

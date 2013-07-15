@@ -417,10 +417,10 @@ var PlotsView = (function () {
 
         function plotsIsDiscretized() {
             return userSelection.plots_type.indexOf("copy_no") !== -1 &&
-                userSelection.copy_no_type.indexOf("log2") === -1 &&
-                (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
-                    userSelection.copy_no_type.indexOf("cna") !== -1 ||
-                    userSelection.copy_no_type.indexOf("CNA") !== -1);
+                   userSelection.copy_no_type.indexOf("log2") === -1 &&
+                  (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
+                   userSelection.copy_no_type.indexOf("cna") !== -1 ||
+                   userSelection.copy_no_type.indexOf("CNA") !== -1);
         }
 
         function analyseData(inputArr) {
@@ -487,7 +487,6 @@ var PlotsView = (function () {
             return arr.length - 1;
         };
 
-
         return {
             plotsTypeIsCopyNo: plotsTypeIsCopyNo,
             plotsTypeIsMethylation: plotsTypeIsMethylation,
@@ -527,6 +526,18 @@ var PlotsView = (function () {
             };
 
         function fetchPlotsData(profileDataResult) {
+
+            var discretizedDataTypeIndicator = cancer_study_id + "_gistic";
+            var sel = document.getElementById("data_type_copy_no");
+            var vals = [];
+            for (var i = 0; i < sel.children.length; ++i) {
+                var child = sel.children[i];
+                if (child.tagName == 'OPTION') vals.push(child.value);
+            }
+            if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
+                discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+            }
+
             var resultObj = profileDataResult[userSelection.gene];
             for (var key in resultObj) {  //key is case id
                 caseSetLength += 1;
@@ -546,8 +557,8 @@ var PlotsView = (function () {
                 }
                 _singleDot.mutationDetail = _obj[cancer_study_id + "_mutations"];
                 _singleDot.mutationType = _obj[cancer_study_id + "_mutations"]; //Translate into type later
-                if (!Util.isEmpty(_obj[cancer_study_id + "_gistic"])) {
-                    _singleDot.gisticType = text.gistic_txt_val[_obj[cancer_study_id + "_gistic"]];
+                if (!Util.isEmpty(_obj[discretizedDataTypeIndicator])) {
+                    _singleDot.gisticType = text.gistic_txt_val[_obj[discretizedDataTypeIndicator]];
                 } else {
                     _singleDot.gisticType = "NaN";
                 }
@@ -1555,8 +1566,20 @@ var PlotsView = (function () {
     }
 
     function getProfileData() {
+
+        var discretizedDataTypeIndicator = cancer_study_id + "_gistic";
+        var sel = document.getElementById("data_type_copy_no");
+        var vals = [];
+        for (var i = 0; i < sel.children.length; ++i) {
+            var child = sel.children[i];
+            if (child.tagName == 'OPTION') vals.push(child.value);
+        }
+        if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
+            discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+        }
+
         var _profileIdsStr = cancer_study_id + "_mutations" + " " +
-                             cancer_study_id + "_gistic" + " " +
+                             discretizedDataTypeIndicator + " " +
                              userSelection.copy_no_type + " " +
                              userSelection.mrna_type + " " +
                              userSelection.rppa_type + " " +

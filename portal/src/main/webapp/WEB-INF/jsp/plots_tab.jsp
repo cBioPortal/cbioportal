@@ -67,6 +67,9 @@
     #plots .plots-firefox {
         font-size: 10px;
     }
+    #plots .plots-select {
+        width: 250px;
+    }
 </style>
 
 

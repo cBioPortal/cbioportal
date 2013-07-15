@@ -140,7 +140,7 @@ var PlotsMenu = (function () {
             $("#one_gene_platform_select_div").append(
                 "<div id='" + singleDataTypeObj.value + "_dropdown' style='padding:5px;'>" +
                     "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
-                    "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()'></select></div>"
+                    "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()' class='plots-select'></select></div>"
             );
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
                 var item_profile = singleDataTypeObj.genetic_profile[index];
@@ -535,7 +535,11 @@ var PlotsView = (function () {
                 if (child.tagName == 'OPTION') vals.push(child.value);
             }
             if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
-                discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+                if (vals.indexOf(cancer_study_id + "_cna") === -1) {
+                    discretizedDataTypeIndicator = cancer_study_id + "_CNA"; //Cancer Cell Line Encyclopedia
+                } else {
+                    discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+                }
             }
 
             var resultObj = profileDataResult[userSelection.gene];
@@ -1575,7 +1579,11 @@ var PlotsView = (function () {
             if (child.tagName == 'OPTION') vals.push(child.value);
         }
         if (vals.indexOf(cancer_study_id + "_gistic") === -1) {
-            discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+            if (vals.indexOf(cancer_study_id + "_cna") === -1) {
+                discretizedDataTypeIndicator = cancer_study_id + "_CNA"; //Cancer Cell Line Encyclopedia
+            } else {
+                discretizedDataTypeIndicator = cancer_study_id + "_cna"; //RAE type
+            }
         }
 
         var _profileIdsStr = cancer_study_id + "_mutations" + " " +

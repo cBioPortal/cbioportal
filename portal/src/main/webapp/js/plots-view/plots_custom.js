@@ -55,7 +55,8 @@ var PlotsCustomMenu = (function(){
 
     function dataIsDiscretized(profileText) {
         if (profileText.indexOf("GISTIC") !== -1 ||
-            profileText.indexOf("RAE") !== -1) {
+            profileText.indexOf("RAE") !== -1 ||
+            profileText.indexOf("discretization") !== -1) {
             return true;
         }
         return false;
@@ -100,7 +101,8 @@ var PlotsCustomMenu = (function(){
 
     function updateXselection() {
         $("#custom_platform_select_div_x").empty();
-        $("#custom_platform_select_div_x").append("<select id='custom_platform_x' onchange='PlotsCustomView.init()'>");
+        $("#custom_platform_select_div_x").append(
+            "<select id='custom_platform_x' onchange='PlotsCustomView.init()' class='plots-select'>");
 
         if($("#custom_plots_type_x").val() === "mrna"){
             content.genetic_profile_mrna.forEach (function (profile) {
@@ -131,7 +133,8 @@ var PlotsCustomMenu = (function(){
 
     function updateYselection() {
         $("#custom_platform_select_div_y").empty();
-        $("#custom_platform_select_div_y").append("<select id='custom_platform_y' onchange='PlotsCustomView.init()'>");
+        $("#custom_platform_select_div_y").append(
+            "<select id='custom_platform_y' onchange='PlotsCustomView.init()' class='plots-select'>");
 
         if($("#custom_plots_type_y").val() === "mrna"){
             content.genetic_profile_mrna.forEach (function (profile) {

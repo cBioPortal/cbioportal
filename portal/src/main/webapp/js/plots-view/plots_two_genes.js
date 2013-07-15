@@ -65,7 +65,8 @@ var PlotsTwoGenesMenu = (function(){
 
     function dataIsDiscretized(profileText) {
         if (profileText.indexOf("GISTIC") !== -1 ||
-            profileText.indexOf("RAE") !== -1) {
+            profileText.indexOf("RAE") !== -1 ||
+            profileText.indexOf("discretization") !== -1) {
             return true;
         }
         return false;
@@ -100,7 +101,8 @@ var PlotsTwoGenesMenu = (function(){
 
     function drawPlatFormList() {
         $("#two_genes_platform_select_div").empty();
-        $("#two_genes_platform_select_div").append("<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();'>");
+        $("#two_genes_platform_select_div").append(
+            "<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();' class='plots-select'>");
 
         if ($("#two_genes_plots_type").val() === "mrna") {
             content.genetic_profile_mrna.forEach (function (profile) {

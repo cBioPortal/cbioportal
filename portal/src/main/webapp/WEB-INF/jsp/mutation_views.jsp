@@ -654,14 +654,13 @@
 			// remove invalid links
 			self.$el.find('a[href=""]').remove();
 
-			// TODO format with datatables plugin
-
 			var tableSelector = self.$el.find('.mutation_details_table');
 
 			var tableUtil = new MutationTableUtil(tableSelector,
 				self.model.geneSymbol,
 				self.model.mutations);
 
+			// format the table (convert to a DataTable)
 			tableUtil.formatTable();
 		},
         /**

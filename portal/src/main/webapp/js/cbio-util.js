@@ -44,9 +44,37 @@ cbio.util = (function() {
         yLabels.attr("y", yy + shiftValueOnY);
     };
 
+	/**
+	 * Determines the longest common starting substring
+	 * for the given two strings
+	 *
+	 * @param str1  first string
+	 * @param str2  second string
+	 * @return {String} longest common starting substring
+	 */
+	var lcss = function (str1, str2)
+	{
+		var i = 0;
+
+		while (i < str1.length && i < str2.length)
+		{
+			if (str1[i] === str2[i])
+			{
+				i++;
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		return str1.substring(0, i);
+	};
+
     return {
         toPrecision: toPrecision,
-        alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter
+        alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
+	    lcss : lcss
     };
 
 })();

@@ -129,22 +129,25 @@ public class GetProfileDataJSON extends HttpServlet  {
 
                 //Get raw data (plain text) for each profile
                 for (String geneticProfileId: geneticProfileIds) {
-                    ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticAlterationDataRow(
-                                    gene,
-                                    caseIdList,
-                                    DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId));
+                    try {
+                        ArrayList<String> tmpProfileDataArr = GeneticAlterationUtil.getGeneticAlterationDataRow(
+                                gene,
+                                caseIdList,
+                                DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId));
+                        //Mapping case Id and profile data
+                        HashMap<String,String> tmpResultMap =
+                                new HashMap<String,String>();  //<"case_id", "profile_data">
+                        for (int i = 0; i < caseIdList.size(); i++) {
+                            tmpResultMap.put(caseIdList.get(i), tmpProfileDataArr.get(i));
+                        }
 
-                    //Mapping case Id and profile data
-                    HashMap<String,String> tmpResultMap =
-                            new HashMap<String,String>();  //<"case_id", "profile_data">
-                    for (int i = 0; i < caseIdList.size(); i++) {
-                        tmpResultMap.put(caseIdList.get(i), tmpProfileDataArr.get(i));
+                        for (String caseId: caseIdList) {
+                            ((ObjectNode)(tmpObjMap.get(caseId))).put(geneticProfileId, tmpResultMap.get(caseId));
+                        }
+                    } catch(NullPointerException e) {
+                        //TODO: handle empty dataset
+                        continue;
                     }
-
-                    for (String caseId: caseIdList) {
-                        ((ObjectNode)(tmpObjMap.get(caseId))).put(geneticProfileId, tmpResultMap.get(caseId));
-                    }
-
                 }
 
                 for (String caseId: caseIdList) {

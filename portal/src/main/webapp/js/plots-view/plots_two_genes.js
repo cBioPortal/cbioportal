@@ -270,8 +270,12 @@ var PlotsTwoGenesView = (function(){
                     var obj = geneObj[case_id];
                     var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
                     new_tmp_singleDot.case_id = case_id;
-                    new_tmp_singleDot.value = obj[Object.keys(obj)[0]];//profile id
-                    new_tmp_singleDot.annotation = obj[Object.keys(obj)[1]];//mutation
+                    new_tmp_singleDot.value = obj[Object.keys(obj)[0]]; //profile id
+                    if (obj.hasOwnProperty(Object.keys(obj)[1])) { //mutation
+                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[1]];
+                    } else {
+                        new_tmp_singleDot.annotation = "NaN";
+                    }
                     tmp_pDataX.push(new_tmp_singleDot);
                 }
             } else if (gene === menu.geneY) {
@@ -280,8 +284,12 @@ var PlotsTwoGenesView = (function(){
                     var obj = geneObj[case_id];
                     var new_tmp_singleDot = jQuery.extend(true, {}, tmp_singleDot);
                     new_tmp_singleDot.case_id = case_id;
-                    new_tmp_singleDot.value = obj[Object.keys(obj)[0]];//profile id
-                    new_tmp_singleDot.annotation = obj[Object.keys(obj)[1]];//mutation
+                    new_tmp_singleDot.value = obj[Object.keys(obj)[0]]; //profile id
+                    if (obj.hasOwnProperty(Object.keys(obj)[1])) { //mutation
+                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[1]];
+                    } else {
+                        new_tmp_singleDot.annotation = "NaN";
+                    }
                     tmp_pDataY.push(new_tmp_singleDot);
                 }
             }

@@ -513,7 +513,7 @@ var PlotsView = (function () {
                 yVal : "",
                 mutationDetail : "",  //Mutation ID
                 mutationType : "",
-                gisticType : "", //Discretized(GISTIC/RAE) Annotation
+                gisticType : "" //Discretized(GISTIC/RAE) Annotation
             },   //Template for single dot
             status = {
                 xHasData: false,
@@ -546,8 +546,12 @@ var PlotsView = (function () {
                     _singleDot.xVal = _obj[userSelection.mrna_type];
                     _singleDot.yVal = _obj[userSelection.rppa_type];
                 }
-                _singleDot.mutationDetail = _obj[cancer_study_id + "_mutations"];
-                _singleDot.mutationType = _obj[cancer_study_id + "_mutations"]; //Translate into type later
+                if (_obj.hasOwnProperty(cancer_study_id + "_mutations")) {
+                    _singleDot.mutationDetail = _obj[cancer_study_id + "_mutations"];
+                    _singleDot.mutationType = _obj[cancer_study_id + "_mutations"]; //Translate into type later
+                } else {
+                    _singleDot.mutationType = "non";
+                }
                 if (!Util.isEmpty(_obj[discretizedDataTypeIndicator])) {
                     _singleDot.gisticType = text.gistic_txt_val[_obj[discretizedDataTypeIndicator]];
                 } else {
@@ -669,8 +673,10 @@ var PlotsView = (function () {
                 caseSetLength = 0;
                 dotsGroup.length = 0;
                 fetchPlotsData(profileDataResult);
-                translateMutationType(mutationTypeResult);
-                prioritizeMutatedCases();
+                if (mutationTypeResult !== "") {
+                    translateMutationType(mutationTypeResult);
+                    prioritizeMutatedCases();
+                }
                 analyseData();
             },
             getCaseSetLength: function() { return caseSetLength; },
@@ -1538,7 +1544,7 @@ var PlotsView = (function () {
                 } else { //No available data
                     drawErrMsgs();
                 }
-            },
+            }
         };
 
     }());
@@ -1593,19 +1599,36 @@ var PlotsView = (function () {
 
     function getProfileDataCallBack(profileDataResult) {
 
-        Plots.getMutationType(
-            userSelection.gene,
-            cancer_study_id + "_mutations",
-            case_set_id,
-            case_ids_key,
-            getMutationTypeCallBack
-        );
+        //TODO: error handle should be get Mutation servlet
+        var resultObj = profileDataResult[userSelection.gene];
+        var _hasMutationProfile = true;
+        for (var key in resultObj) {  //key is case id
+            var _obj = resultObj[key];
+            if (!_obj.hasOwnProperty(cancer_study_id + "_mutations")) {
+                _hasMutationProfile = false;
+            } else {
+                _hasMutationProfile = true;
+            }
+        }
+        console.log(_hasMutationProfile);
 
-        function getMutationTypeCallBack(mutationTypeResult) {
-            PlotsData.init(profileDataResult, mutationTypeResult);
+        if (_hasMutationProfile) {
+            Plots.getMutationType(
+                userSelection.gene,
+                cancer_study_id + "_mutations",
+                case_set_id,
+                case_ids_key,
+                getMutationTypeCallBack
+            );
+
+            function getMutationTypeCallBack(mutationTypeResult) {
+                PlotsData.init(profileDataResult, mutationTypeResult);
+                View.init();
+            }
+        } else {
+            PlotsData.init(profileDataResult, "");
             View.init();
         }
-
     }
 
     return {

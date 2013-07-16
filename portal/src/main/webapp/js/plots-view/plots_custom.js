@@ -332,9 +332,13 @@ var PlotsCustomView = (function() {
                                 var tmp_profile_x_index = i;
                             }
                         }
-                        var tmp_profile_annotation_index = Object.keys(obj).length - 1;
                         new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_x_index]];
-                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
+                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
+                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
+                        } else {
+                            new_tmp_singleDot.annotation = "NaN";
+                        }
                         tmp_pDataX.push(new_tmp_singleDot);
                     }
                 } else if (gene === menu.geneY) {
@@ -348,9 +352,13 @@ var PlotsCustomView = (function() {
                                 var tmp_profile_y_index = i;
                             }
                         }
-                        var tmp_profile_annotation_index = Object.keys(obj).length - 1;
                         new_tmp_singleDot.value = obj[Object.keys(obj)[tmp_profile_y_index]];//profile id
-                        new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];//mutation
+                        if (obj.hasOwnProperty(cancer_study_id + "_mutations")) { //mutation
+                            var tmp_profile_annotation_index = Object.keys(obj).indexOf(cancer_study_id + "_mutations");
+                            new_tmp_singleDot.annotation = obj[Object.keys(obj)[tmp_profile_annotation_index]];
+                        } else {
+                            new_tmp_singleDot.annotation = "NaN";
+                        }
                         tmp_pDataY.push(new_tmp_singleDot);
                     }
                 }

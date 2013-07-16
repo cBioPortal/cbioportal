@@ -12,9 +12,9 @@
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
 <%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
-<script type="text/javascript" src="js/raphael/raphael.js"></script>
-<script type="text/javascript" src="js/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/mutation_table.js"></script>
+<script type="text/javascript" src="js/lib/raphael/raphael.js"></script>
+<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/src/mutation_table.js"></script>
 
 <%
     ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)

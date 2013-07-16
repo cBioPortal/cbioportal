@@ -13,7 +13,7 @@
 <script type="text/javascript" src="js/jslab-stdlib.js"></script>
 <script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
 <script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
-<script type="text/javascript" src="js/raphael/raphael.js"></script>
+<script type="text/javascript" src="js/lib/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="js/cbio-util.js"></script>
 <script type="text/javascript" src="js/json2.js"></script>

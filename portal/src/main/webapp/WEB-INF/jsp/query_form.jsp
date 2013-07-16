@@ -28,8 +28,6 @@
         localGeneSetChoice = "user-defined-list";
     }
 %>
-<!-- Include Dynamic Query Javascript -->
-<script type="text/javascript" src="js/dynamicQuery.js"></script>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>

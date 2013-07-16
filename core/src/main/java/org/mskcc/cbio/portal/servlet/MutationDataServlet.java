@@ -128,21 +128,42 @@ public class MutationDataServlet extends HttpServlet
 
 		ArrayList<String> caseList;
 
+		// first check if caseSetId param provided
 		if (caseSetId != null &&
 		    caseSetId.length() != 0 &&
 		    !caseSetId.equals("-1"))
 		{
-			CaseList list = daoCaseList.getCaseListByStableId(caseSetId);
-			caseList = list.getCaseList();
+			caseList = new ArrayList<String>();
+
+			// fetch a case list for each case set id
+			// (this allows providing more than one caseSetId)
+			for (String id : this.parseValues(caseSetId))
+			{
+				CaseList list = daoCaseList.getCaseListByStableId(id);
+
+				if (list != null)
+				{
+					caseList.addAll(list.getCaseList());
+				}
+			}
 		}
+		// if there is no caseSetId, then check for caseIdsKey param
 		else if(caseIdsKey != null &&
 		        caseIdsKey.length() != 0)
 		{
-			caseList = this.parseValues(
-					CaseSetUtil.getCaseIds(caseIdsKey));
+			caseList = new ArrayList<String>();
+
+			// fetch a case list for each case ids key
+			// (this allows providing more than one caseIdsKey)
+			for (String key : this.parseValues(caseIdsKey))
+			{
+				caseList.addAll(this.parseValues(
+					CaseSetUtil.getCaseIds(key)));
+			}
 		}
 		else
 		{
+			// plain list of cases provided, just parse the values
 			caseList = this.parseValues(caseListStr);
 		}
 
@@ -190,14 +211,27 @@ public class MutationDataServlet extends HttpServlet
 		GeneticProfile geneticProfile =
 				DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
-		GetMutationData remoteCallMutation = new GetMutationData();
+		ArrayList<ExtendedMutation> mutationList;
 
 		//convert case list into a set (to be able to use with get mutation data)
 		HashSet<String> setOfCaseIds = new HashSet<String>(targetCaseList);
 
-		// TODO add a method into GetMutationData with 3 params (to avoid passing null)
-		ArrayList<ExtendedMutation> mutationList =
-				remoteCallMutation.getMutationData(geneticProfile, targetGeneList, setOfCaseIds, null);
+		if (geneticProfile != null)
+		{
+			GetMutationData remoteCallMutation = new GetMutationData();
+
+			// TODO add a method into GetMutationData with 3 params (to avoid passing null)
+			mutationList = remoteCallMutation.getMutationData(geneticProfile,
+                  targetGeneList,
+                  setOfCaseIds,
+                  null);
+		}
+		else
+		{
+			// profile id does not exist, just return an empty array
+			return mutationArray;
+		}
+
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);

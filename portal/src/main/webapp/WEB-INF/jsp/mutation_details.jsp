@@ -11,9 +11,9 @@
 <%@ page import="java.io.StringWriter" %>
 
 <!-- TODO include these js files in the global js include? -->
-<script type="text/javascript" src="js/mutation_model.js"></script>
-<script type="text/javascript" src="js/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/mutation_table.js"></script>
+<script type="text/javascript" src="js/src/mutation_model.js"></script>
+<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/src/mutation_table.js"></script>
 
 <%
     // TODO completely remove this block after refactoring

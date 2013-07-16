@@ -286,7 +286,7 @@ if (patientViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/patient-view/genomic-event-observer.js"></script>
+<script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js"></script>
 <script type="text/javascript">
 
 var print = <%=print%>;

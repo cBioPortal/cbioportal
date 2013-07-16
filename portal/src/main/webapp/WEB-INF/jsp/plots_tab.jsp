@@ -32,7 +32,7 @@
         case_ids_key = "<%out.print(caseIdsKey);%>";
     }
 </script>
-<script type="text/javascript" src="js/plots_tab.js"></script>
+<script type="text/javascript" src="js/src/plots_tab.js"></script>
 
 <div class="section" id="plots">
     <table>

@@ -22,11 +22,11 @@
 <script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/jquery.popeye-2.0.4.min.js"></script>
 <script type="text/javascript" src="js/jquery.quovolver.mini.js"></script>
-<script type="text/javascript" src="js/cytoscape_web/AC_OETags.min.js"></script>
-<script type="text/javascript" src="js/cytoscape_web/cytoscapeweb.min.js"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
+<script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/network/network-visualization.js"></script>
-<script type="text/javascript" src="js/network/network-viz.js"></script>
+<script type="text/javascript" src="js/src/network/network-visualization.js"></script>
+<script type="text/javascript" src="js/src/network/network-viz.js"></script>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">

@@ -63,7 +63,7 @@ public class CancerStudyReader {
          throw new IllegalArgumentException("description is not specified.");
       }
 
-      String typeOfCancer = properties.getProperty("type_of_cancer");
+      String typeOfCancer = properties.getProperty("type_of_cancer").toLowerCase();
       if ( typeOfCancer == null) {
          throw new IllegalArgumentException("type of cancer is not specified.");
       }

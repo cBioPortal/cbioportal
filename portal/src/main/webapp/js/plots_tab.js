@@ -453,7 +453,9 @@ function prepDataSet(type, xData, yData, zData, mutations, case_set, mutations_i
             }
         }
         for ( var i = 0; i<xData.length; i++) {
-            if ((xData[i] == "NaN") || (yData[i] == "NaN") || (xData[i] == "NA") || (yData[i] == "NA")) {
+            if ((xData[i] == "NaN") || (xData[i] == "NA") ||
+                (yData[i] == "NaN") || (yData[i] == "NA") ||
+                (zData[i] == "NaN") || (zData[i] == "NA")) {
                 continue;
             }
             dataset[index] = [xData[i], yData[i], zData[i], mutations[i], case_set[i], mutations_id[i]];

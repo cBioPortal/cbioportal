@@ -14,7 +14,18 @@ var AlleleFreqPlotUtils = (function() {
     //
     // returns an array of alt_count / (alt_count + ref_count).  If either
     // alt_count or ref_count equal NO_DATA, then returns 0 in that entry
+    //
+    // or, if there is no valid data, returns `undefined`
     var process_data = function(alt_counts, ref_counts) {
+
+        // validate:
+        // * that data exists
+        var validated = _.find(alt_counts, function(n) { return n !== NO_DATA; });
+
+        if (!validated) {
+            return undefined;
+        }
+
         return d3.zip(alt_counts, ref_counts).map(function(pair) {
             return pair[0] === NO_DATA === pair[1] ? 0 : (pair[0] / (pair[0] + pair[1]));
         });

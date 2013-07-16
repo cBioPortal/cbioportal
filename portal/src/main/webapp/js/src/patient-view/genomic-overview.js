@@ -168,8 +168,6 @@ function plotMuts(p,config,chmInfo,row,mutations) {
     addToolTip(t.node,tip,null,{my:'top right',at:'bottom left'});
 
     p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
-
-    console.log(config);
 }
 
 function loc2string(loc,chmInfo) {

@@ -39,6 +39,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+
 <script type="text/javascript" src="js/src/patient-view/genomic-overview.js"></script>
 <script type="text/javascript" src="js/src/cancer-study-view/scatter-plot-mut-cna.js"></script>
 <script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
@@ -202,15 +204,22 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <%}%>
 
 <%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
-<script type="text/javascript" src="js/patient-view/AlleleFreqPlot.js"></script>
+<script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         genomicEventObs.subscribeMut(function()  {
 
             var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
             // create a small plot thumbnail
-            AlleleFreqPlot(thumbnail,
-                AlleleFreqPlotUtils.extract_and_process(genomicEventObs),
+
+            var processed_data = AlleleFreqPlotUtils.extract_and_process(genomicEventObs);
+
+            if (!processed_data) {
+                // data failed validation, stop the train
+                return;
+            }
+
+            AlleleFreqPlot(thumbnail, processed_data,
                 {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
                     margin: {bottom: 15}
                 });

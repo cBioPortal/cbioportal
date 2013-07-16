@@ -33,10 +33,10 @@
     var gene_list = gene_list_str.split(/\s+/);
 </script>
 
-<script type="text/javascript" src="js/plots-view/plots_tab_model.js"></script>
-<script type="text/javascript" src="js/plots-view/plots_tab.js"></script>
-<script type="text/javascript" src="js/plots-view/plots_two_genes.js"></script>
-<script type="text/javascript" src="js/plots-view/plots_custom.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_tab_model.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_tab.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_two_genes.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_custom.js"></script>
 
 <style>
     #plots .plots {

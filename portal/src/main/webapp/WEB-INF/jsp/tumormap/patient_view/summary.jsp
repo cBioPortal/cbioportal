@@ -58,12 +58,13 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             loadMutCnaAndPlot("mut-cna-scatter");
             addMutCnaPlotTooltip("mut-cna-scatter");
         }
-            
     });
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
-        var config = new GenomicOverviewConfig((genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),$("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?150:50));
+        var config = new GenomicOverviewConfig(
+                (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),
+                $("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?2 * 135:50));
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
@@ -152,7 +153,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         }
         $('#'+scatterPlotDiv).qtip(params);
     }
-    
+
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
         var emId = {};
         emId[caseId] = true;
@@ -178,7 +179,10 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
-        <td><div id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></div></td>
+        <td>
+            <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
+            <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
+        </td>
     </tr>
 </table>
 
@@ -186,7 +190,91 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     <%@ include file="../cancer_study_view/mut_cna_scatter_plot.jsp" %>
     <p id='mut_cna_more_plot_msg'>Each dot represents a tumor sample in <a href='<%=linkToCancerStudy%>'><%=cancerStudy.getName()%></a>.<p>
 </div>
+
+<div id="allele-freq-plot-big" style="display:none;">
+    <label>
+        <input id="allelefreq_histogram_toggle" type="checkbox" checked />histogram
+    </label>
+    <label>
+        <input id="allelefreq_curve_toggle" type="checkbox" checked />density estimation
+    </label>
+</div>
 <%}%>
+
+<%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
+<script type="text/javascript" src="js/patient-view/AlleleFreqPlot.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        genomicEventObs.subscribeMut(function()  {
+
+            var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
+            // create a small plot thumbnail
+            AlleleFreqPlot(thumbnail,
+                AlleleFreqPlotUtils.extract_and_process(genomicEventObs),
+                {width: 62 , height: 64, label_font_size: "7px", xticks: 0, yticks: 0,
+                    margin: {bottom: 15}
+                });
+
+            // make the curve lighter
+            var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
+            $(thumbnail).find('.curve').attr('stroke-width', '1px');
+
+            // create a plot on a hidden element
+            var hidden_plot_id = '#allele-freq-plot-big';
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
+                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs));
+
+            // add qtip on allele frequency plot thumbnail
+            $(thumbnail).qtip({
+                content: {text: 'allele frequency plot is broken'},
+                events: {
+                    render: function(event, api) {
+                        // grab the plot
+                        var $allelefreqplot = $(allelefreqplot);
+                        var content = $allelefreqplot.remove();
+
+                        // and dump it into the qtip
+                        content.show();
+                        content = content[0].outerHTML;
+                        api.set('content.text', content);
+
+                        // bind toggle_histogram to toggle histogram button
+                        // AFTER we've shuffled it around 
+                        var histogram_toggle = true;        // initialize toggle state
+                        $('#allelefreq_histogram_toggle').click(function() {
+                            // qtip interferes with $.toggle
+                            histogram_toggle = !histogram_toggle;
+                            if (histogram_toggle) {
+                                $(hidden_plot_id + ' rect').removeAttr('display');
+                            }
+                            else {
+                                $(hidden_plot_id + ' rect').attr('display', 'none');
+                            }
+                        });
+
+                        var curve_toggle = true;
+                        $('#allelefreq_curve_toggle').click(function() {
+                            // qtip interferes with $.toggle
+                            curve_toggle = !curve_toggle;
+                            if (curve_toggle) {
+                                $(hidden_plot_id + ' .curve').removeAttr('display');
+                            }
+                            else {
+                                $(hidden_plot_id + ' .curve').attr('display', 'none');
+                            }
+                        });
+                    }
+                },
+                hide: { fixed: true, delay: 100 },
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
+                //position: {my:'left top',at:'bottom center'}
+                position: {my:'top right',at:'top right'},
+            });
+        });
+    });
+</script>
+<%}%>
+
 
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <%if(showMutations){%>

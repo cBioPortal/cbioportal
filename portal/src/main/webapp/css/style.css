@@ -662,6 +662,7 @@ td.op_data_cell{
     -webkit-border-radius:  10px;
     padding: 3px;
     /*height: 200px;*/
+    min-height: 200px;
     
     width: 650px;
 }

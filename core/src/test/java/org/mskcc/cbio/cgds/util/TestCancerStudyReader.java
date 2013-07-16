@@ -60,9 +60,9 @@ public class TestCancerStudyReader extends TestCase {
       try {
          cancerStudy = CancerStudyReader.loadCancerStudy( file );
          fail( "Should have thrown DaoException." );
-      } catch (DaoException e) {
+      } catch (Exception e) {
          assertTrue( e.getMessage().equals( 
-                  "cancerStudy.getTypeOfCancerId() 'brcaxxx' does not refer to a TypeOfCancer."));
+                  "brcaxxx is not a supported cancer type."));
       }
    }
 }

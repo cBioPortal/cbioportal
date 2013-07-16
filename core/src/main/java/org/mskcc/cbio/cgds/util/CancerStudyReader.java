@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
 
 /**
  * Reads and loads a cancer study file. (Before July 2011, was called a cancer type file.)
@@ -66,6 +67,9 @@ public class CancerStudyReader {
       String typeOfCancer = properties.getProperty("type_of_cancer").toLowerCase();
       if ( typeOfCancer == null) {
          throw new IllegalArgumentException("type of cancer is not specified.");
+      }
+      if (null==DaoTypeOfCancer.getTypeOfCancerById(typeOfCancer)) {
+         throw new IllegalArgumentException(typeOfCancer+" is not a supported cancer type.");
       }
 
       String pmid = properties.getProperty("pmid");

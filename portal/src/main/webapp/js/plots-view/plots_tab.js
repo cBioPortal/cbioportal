@@ -1610,7 +1610,6 @@ var PlotsView = (function () {
                 _hasMutationProfile = true;
             }
         }
-        console.log(_hasMutationProfile);
 
         if (_hasMutationProfile) {
             Plots.getMutationType(
@@ -1621,15 +1620,18 @@ var PlotsView = (function () {
                 getMutationTypeCallBack
             );
 
-            function getMutationTypeCallBack(mutationTypeResult) {
-                PlotsData.init(profileDataResult, mutationTypeResult);
-                View.init();
-            }
         } else {
             PlotsData.init(profileDataResult, "");
             View.init();
         }
+
+        function getMutationTypeCallBack(mutationTypeResult) {
+            PlotsData.init(profileDataResult, mutationTypeResult);
+            View.init();
+        }
+
     }
+
 
     return {
         init: function(){

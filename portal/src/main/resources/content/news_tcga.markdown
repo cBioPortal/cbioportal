@@ -1,4 +1,4 @@
-# July 12, 2013
+# July 16, 2013
 
 * All TCGA data updated to the May Firehose run (May 23, 2012).
     * TCGA Pancreatic Cancer study (provisional) added.

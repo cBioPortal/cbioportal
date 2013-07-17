@@ -3081,7 +3081,7 @@ NetworkVis.prototype._toggleAutoLayout = function()
 
     // update check icon of the corresponding menu item
 
-    var item = $(this.settingsDialogSelector + " #auto_layout");
+    var item = $(this.mainMenuSelector + " #auto_layout");
 
     if (this._autoLayout)
     {
@@ -3089,7 +3089,7 @@ NetworkVis.prototype._toggleAutoLayout = function()
     }
     else
     {
-        item.removeClass(CHECKED_CLASS);
+        item.removeClass(this.CHECKED_CLASS);
     }
 };
 

@@ -45,6 +45,7 @@ boolean showPathways = showPlaceHoder & (showMutations | showCNA);
 boolean showSimilarPatient = showPlaceHoder & (showMutations | showCNA);
 
 boolean hasCnaSegmentData = ((Boolean)request.getAttribute(PatientView.HAS_SEGMENT_DATA));
+boolean hasAlleleFrequencyData =  ((Boolean)request.getAttribute(PatientView.HAS_ALLELE_FREQUENCY_DATA));
 boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = true;
 boolean showDrugs = true;
@@ -295,6 +296,7 @@ var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProf
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
+var hasAlleleFrequencyData = <%=hasAlleleFrequencyData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseId = '<%=patient%>';
 var cancerStudyName = "<%=cancerStudy.getName()%>";

@@ -64,9 +64,13 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function initGenomicsOverview() {
         var chmInfo = new ChmInfo();
+
+        var genomic_overview_length = $("#td-content").width() - 50;
+        genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
+        genomic_overview_length -= (hasAlleleFrequencyData ? 110 : 0);
+
         var config = new GenomicOverviewConfig(
-                (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0),
-                $("#td-content").width()-(genomicEventObs.hasMut&&genomicEventObs.hasSeg?2 * 135:50));
+                (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0), genomic_overview_length);
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
@@ -203,7 +207,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 <%}%>
 
-<%if(showMutations){ // if there is mutation data, then you can calculate allele frequency%>
+<%if(hasAlleleFrequencyData){%>
 <script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {

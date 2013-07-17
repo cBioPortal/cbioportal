@@ -40,7 +40,7 @@
             </table>
         </div>
         <div id="oncoprint_body">
-            <script type="text/javascript" src="js/oncoprint.js?b38533a455c5"></script>
+            <script type="text/javascript" src="js/src/oncoprint.js"></script>
 
             <script type="text/javascript">
                 var oncoPrintParams = {
@@ -70,6 +70,7 @@
                     oncoprint.draw();
                     var geneDataManager = DataManagerFactory.getGeneDataManager();
                     geneDataManager.fire(data);
+
 
                     $('#oncoprint #loader_img').hide();
                     $('#oncoprint #everything').show();

@@ -84,12 +84,12 @@ var Oncoprint = function(wrapper, params) {
         if (up) {
             return "M 0 " + LITTLE_RECT_HEIGHT + " l "  + base + " -" + LITTLE_RECT_HEIGHT
                 + " l " + base + " " + LITTLE_RECT_HEIGHT + " l 0 0";
-//                return "M 0 7 l 2.75 -7 l 2.75 7 l 0 0";
+            //                return "M 0 7 l 2.75 -7 l 2.75 7 l 0 0";
         }
-//        return "M 0 16 l " + base + " 7 l " + base + " -7 l 0 0";
+        //        return "M 0 16 l " + base + " 7 l " + base + " -7 l 0 0";
         return "M 0 15 l " + base + " " + LITTLE_RECT_HEIGHT + " l "
             + base + " -" + LITTLE_RECT_HEIGHT + " l 0 0";
-//            return "M 0 16 l 2.75 7 l 2.75 -7 l 0 0";
+        //            return "M 0 16 l 2.75 7 l 2.75 -7 l 0 0";
     };
 
     var getRectPadding = function() {
@@ -103,7 +103,7 @@ var Oncoprint = function(wrapper, params) {
 
     var getHeight = function() {
         return (RECT_HEIGHT + TRACK_PADDING) * no_genes;
-//        return RECT_HEIGHT * no_genes;
+        //        return RECT_HEIGHT * no_genes;
         // for some reason, the CSS in the portal creates space between tracks
     };
 
@@ -121,27 +121,27 @@ var Oncoprint = function(wrapper, params) {
         var join_with_hugo = samples_visualized.map(function(i) {
             return {
                 sample: i,
-                hugo: hugo
+            hugo: hugo
             };
         });
 
         var sample = track.selectAll('.sample')
             .data(join_with_hugo, function(d) { return d.sample;});
 
-//        // update
-//        sample.transition()
-//            .duration(500)
-//            .attr('transform', function(d) {
-//                return translate(x(d.sample), y(hugo));
-//            });
+        //        // update
+        //        sample.transition()
+        //            .duration(500)
+        //            .attr('transform', function(d) {
+        //                return translate(x(d.sample), y(hugo));
+        //            });
 
         // enter
         var sample_enter = sample.enter()
             .append('g')
-                .attr('class', 'sample')
-                .attr('transform', function(d) {
-                    return translate(x(d.sample), y(hugo));
-                });
+            .attr('class', 'sample')
+            .attr('transform', function(d) {
+                return translate(x(d.sample), y(hugo));
+            });
 
         var rect_width = getRectWidth();
 
@@ -152,7 +152,7 @@ var Oncoprint = function(wrapper, params) {
                 cna = cna === null ? 'none' : cna;
                 return cna_fills[cna];
             })
-            .attr('width', rect_width)
+        .attr('width', rect_width)
             .attr('height', RECT_HEIGHT);
 
         var mrna = sample_enter.append('rect')
@@ -180,7 +180,7 @@ var Oncoprint = function(wrapper, params) {
             .attr('fill', MUT_COLOR)
             .attr('y', LITTLE_RECT_HEIGHT)
             .attr('width', rect_width)
-//            .attr('width', mutation_width)
+            //            .attr('width', mutation_width)
             .attr('height', LITTLE_RECT_HEIGHT);
 
         // remove all the null mutation squares
@@ -200,19 +200,19 @@ var Oncoprint = function(wrapper, params) {
                 }
                 return RPPA_LIGHT;
             })
-            .attr('d', function(d) {
-                var rppa = query.data(d.sample, hugo, 'rppa');
+        .attr('d', function(d) {
+            var rppa = query.data(d.sample, hugo, 'rppa');
 
-                if (rppa === UPREGULATED) {
-                    return up_triangle;
-                }
-                if (rppa === DOWNREGULATED) {
-                    return down_triangle;
-                }
-                if (rppa === null) {
-                    return 'M 0 0';
-                }
-            });
+            if (rppa === UPREGULATED) {
+                return up_triangle;
+            }
+            if (rppa === DOWNREGULATED) {
+                return down_triangle;
+            }
+            if (rppa === null) {
+                return 'M 0 0';
+            }
+        });
 
         rppa.filter(function(d) {
             var rppa = query.data(d.sample, hugo, 'rppa');
@@ -233,20 +233,20 @@ var Oncoprint = function(wrapper, params) {
 
         var captions = {
             cna: {
-                AMPLIFIED: "Amplification",
-                GAINED: "Gain",
-                DIPLOID: "Diploid",
-                HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
-                HOMODELETED: "Homozygous Deletion"
-            },
+                     AMPLIFIED: "Amplification",
+                     GAINED: "Gain",
+                     DIPLOID: "Diploid",
+                     HEMIZYGOUSLYDELETED: "Heterozygous Deletion",
+                     HOMODELETED: "Homozygous Deletion"
+                 },
             mrna: {
-                UPREGULATED: "mRNA Upregulation",
-                DOWNREGULATED: "mRNA Downregulation"
-            },
+                      UPREGULATED: "mRNA Upregulation",
+                      DOWNREGULATED: "mRNA Downregulation"
+                  },
             rppa: {
-                UPREGULATED: "RPPA Upregulation",
-                DOWNREGULATED: "RPPA Downregulation"
-            },
+                      UPREGULATED: "RPPA Upregulation",
+                      DOWNREGULATED: "RPPA Downregulation"
+                  },
             mutation: "Mutation"
         };
 
@@ -285,17 +285,17 @@ var Oncoprint = function(wrapper, params) {
             var svg = getSvg(captions.cna[cna]);
 
             svg.append('rect')
-                .attr('fill', function(d) {
-                    return cna_fills[cna];
-                })
-                .attr('width', rect_width)
-                .attr('height', RECT_HEIGHT);
+            .attr('fill', function(d) {
+                return cna_fills[cna];
+            })
+        .attr('width', rect_width)
+            .attr('height', RECT_HEIGHT);
 
-            var text = svg.append('text')
-                .attr('fill', 'black')
-                .attr('x', text_padding)
-                .attr('y', .75 * RECT_HEIGHT)
-                .text(captions.cna[cna]);
+        var text = svg.append('text')
+            .attr('fill', 'black')
+            .attr('x', text_padding)
+            .attr('y', .75 * RECT_HEIGHT)
+            .text(captions.cna[cna]);
         });
 
         for (var mrna in range.mrna) {
@@ -400,16 +400,15 @@ var Oncoprint = function(wrapper, params) {
             return "<a href='" + href + "'>" + sample_id + "</a>";
         };
 
-
         // make qtip
         d3.selectAll('.sample').each(function(d, i) {
             $(this).qtip({
                 content: {text: 'oncoprint qtip failed'},
                 events: {
                     render: function(event, api) {
-                        var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
-                        api.set('content.text', content);
-                    }
+                                var content = '<font size="2">' + formatMutation(d.sample, d.hugo) + patientViewUrl(d.sample) + '</font>';
+                                api.set('content.text', content);
+                            }
                 },
                 hide: { fixed: true, delay: 100 },
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
@@ -428,7 +427,7 @@ var Oncoprint = function(wrapper, params) {
                 step: .01,
                 value: 1,
                 change: function(event, ui) {
-//                    console.log(ui.value);
+                    //                    console.log(ui.value);
                     oncoprint.scaleWidth(ui.value);
                 }
             }).appendTo($('#oncoprint_controls #zoom'));
@@ -448,13 +447,13 @@ var Oncoprint = function(wrapper, params) {
                 var cleaned_hugo = cleanHugo(gene_obj.hugo);
 
                 label.append('tspan')
-                    .text(cleaned_hugo);
+                .text(cleaned_hugo);
             });
 
             var longest = d3.max(
                 label_svg.selectAll('text')[0]
-                    .map(function(text, i) {return text.getBBox().width; })
-            );
+                .map(function(text, i) {return text.getBBox().width; })
+                );
 
             label_svg.remove();
             // bye bye pretend svg
@@ -467,68 +466,68 @@ var Oncoprint = function(wrapper, params) {
         $(wrapper).append($header);
 
         $header.append(
-            '<p>Case Set: ' + params.case_set_str + '</p></div>'
+                '<p>Case Set: ' + params.case_set_str + '</p></div>'
                 + '<p>Altered in ' + query.altered_samples.length + ' (' + d3.format("%")(query.percent_altered) + ')'
-                + ' of cases</p></div>');
+                    + ' of cases</p></div>');
 
-        var visualized_samples = getVisualizedSamples();
+                var visualized_samples = getVisualizedSamples();
 
-        x.domain(visualized_samples);
+                x.domain(visualized_samples);
 
-//        var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
-        var table_wrap = d3.select(wrapper).append('table').append('tr');
+                //        var table_wrap = d3.select(wrapper).insert('table', ':first-child').append('tr');
+                var table_wrap = d3.select(wrapper).append('table').append('tr');
 
-        var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
-            .attr('id', "label")
-            .attr('width', label_width)
-            .attr('height', getHeight());
+                var label_svg = table_wrap.insert('td').insert('svg', ':first-child')
+                .attr('id', "label")
+                .attr('width', label_width)
+                .attr('height', getHeight());
 
-        // td-content is some parent td
-        var body_wrap = table_wrap.append('td').append('div')
-            .style('width', $('#td-content').width() - 70 - label_width + 'px') // buffer of, say, 70
-            .style('display', 'inline-block')
-            .style('overflow-x', 'auto')
-            .style('overflow-y', 'hidden');
+                // td-content is some parent td
+                var body_wrap = table_wrap.append('td').append('div')
+                .style('width', $('#td-content').width() - 70 - label_width + 'px') // buffer of, say, 70
+                .style('display', 'inline-block')
+                .style('overflow-x', 'auto')
+                .style('overflow-y', 'hidden');
 
-        svg = body_wrap.append('svg')
-            .attr('id', 'body')
-            .attr('width', getXScale(samples_all.length))
-            .attr('height', getHeight());
+                svg = body_wrap.append('svg')
+                    .attr('id', 'body')
+                    .attr('width', getXScale(samples_all.length))
+                    .attr('height', getHeight());
 
-        gene_data.forEach(function(gene_obj) {
+                gene_data.forEach(function(gene_obj) {
 
-            var hugo = gene_obj.hugo;
-            var cleaned_hugo = cleanHugo(hugo);
+                    var hugo = gene_obj.hugo;
+                    var cleaned_hugo = cleanHugo(hugo);
 
-            var track = svg.append('g')
-                .attr('class', 'track');
+                    var track = svg.append('g')
+                    .attr('class', 'track');
 
-            var label = label_svg.append('text')
-                .attr('x', 0)
-                .attr('y', y(hugo) + .75 * RECT_HEIGHT);
+                var label = label_svg.append('text')
+                    .attr('x', 0)
+                    .attr('y', y(hugo) + .75 * RECT_HEIGHT);
 
-            label.append('tspan')
-                .attr('font-weight', 'bold')
-                .attr('text-anchor', 'start')
-                .text(cleaned_hugo);
+                label.append('tspan')
+                    .attr('font-weight', 'bold')
+                    .attr('text-anchor', 'start')
+                    .text(cleaned_hugo);
 
-            label.append('tspan')
-                .attr('text-anchor', 'end')
-                .attr('x', label_width)
-                .text(gene_obj.percent_altered);
+                label.append('tspan')
+                    .attr('text-anchor', 'end')
+                    .attr('x', label_width)
+                    .text(gene_obj.percent_altered);
 
-            redraw(visualized_samples, track, hugo);
-        });
+                redraw(visualized_samples, track, hugo);
+                });
 
-        makeQtip();
+                makeQtip();
 
-        if (params.vis_key) {       // toggle the key to the visualization
-            legend();
-        }
+                if (params.vis_key) {       // toggle the key to the visualization
+                    legend();
+                }
 
-        if (params.customize) {         // toggle the setup of the customization controls
-            widthScrollerSetup();
-        }
+                if (params.customize) {         // toggle the setup of the customization controls
+                    widthScrollerSetup();
+                }
     };
 
     var transition = function() {
@@ -544,37 +543,37 @@ var Oncoprint = function(wrapper, params) {
 
             var hugo = genes_list[i];
 
-//            var transition = d3.select(val).transition();
+            //            var transition = d3.select(val).transition();
             var transition = d3.select(val);
 
             transition.selectAll('.sample')
-//                .transition()
-//                .duration(1000)
-                .attr('transform', function(d) {
-                    return translate(x(d.sample), y(hugo));
-                });
+            //                .transition()
+            //                .duration(1000)
+            .attr('transform', function(d) {
+                return translate(x(d.sample), y(hugo));
+            });
 
-            var rect_width = getRectWidth();
-            transition.selectAll('rect')
-//                .transition()
-//                .duration(1000)
-                .attr('width', rect_width);
+        var rect_width = getRectWidth();
+        transition.selectAll('rect')
+            //                .transition()
+            //                .duration(1000)
+            .attr('width', rect_width);
 
-            var up_triangle = getTrianglePath(rect_width, true);
-            var down_triangle = getTrianglePath(rect_width, false);
-            transition.selectAll('.rppa')
-//                .transition()
-//                .duration(1000)
-                .attr('d', function(d) {
-                    var rppa = query.data(d.sample, hugo, 'rppa');
+        var up_triangle = getTrianglePath(rect_width, true);
+        var down_triangle = getTrianglePath(rect_width, false);
+        transition.selectAll('.rppa')
+            //                .transition()
+            //                .duration(1000)
+            .attr('d', function(d) {
+                var rppa = query.data(d.sample, hugo, 'rppa');
 
-                    if (rppa === UPREGULATED) {
-                        return up_triangle;
-                    }
-                    if (rppa === DOWNREGULATED) {
-                        return down_triangle;
-                    }
-                });
+                if (rppa === UPREGULATED) {
+                    return up_triangle;
+                }
+                if (rppa === DOWNREGULATED) {
+                    return down_triangle;
+                }
+            });
         });
 
         svg.transition().duration(1000).style('width', getXScale(no_samples));
@@ -627,8 +626,8 @@ var Oncoprint = function(wrapper, params) {
         makeQtip();
     };
 
-//  For the given oncoprint reference, returns the SVG Dom as string
-//  for the body canvas.
+    //  For the given oncoprint reference, returns the SVG Dom as string
+    //  for the body canvas.
     that.getOncoPrintBodyXML = function() {
         // hard coding this for now
 
@@ -651,7 +650,7 @@ var Oncoprint = function(wrapper, params) {
         export_svg
             .append(labels)
             .append(tracks);
-//            .append(visualizedKeys(query.data_types));
+        //            .append(visualizedKeys(query.data_types));
 
         return (new XMLSerializer()).serializeToString(export_svg[0])
             .replace(' xmlns="http://www.w3.org/1999/xhtml"', '');
@@ -662,4 +661,3 @@ var Oncoprint = function(wrapper, params) {
 
     return that;
 };
-

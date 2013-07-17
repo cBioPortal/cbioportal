@@ -162,7 +162,7 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';

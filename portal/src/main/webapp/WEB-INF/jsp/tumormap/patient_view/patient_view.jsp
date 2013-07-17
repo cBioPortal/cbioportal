@@ -299,6 +299,7 @@ var clinicalDataMap = <%=jsonClinicalData%>;
 
 var mapCaseColor = {};
 var mapCaseLabels = {};
+var mapCaseIndices = {};
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -643,6 +644,7 @@ function outputClinicalData() {
         if (ret===0) return c1<c2?-1:1;
         return ret;
     });
+    mapCaseIndices = cbio.util.arrayToAssociatedArrayIndices(caseIds);
 
     // set labels
     var mapColorCases = {};

@@ -220,7 +220,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,case
         var tip = "Mean copy number log2 value: "+segMean+"<br/>from "+loc2string([chm,start],chmInfo)+"<br/>to "+loc2string([chm,end],chmInfo);
         addToolTip(r.node,tip);
     }if (caseId!==null) {
-        var label = mapCaseLabel[caseId];
+        var label = mapCaseLabels[caseId];
         p.circle(6,yRow+config.rowHeight/2,6).attr({'stroke':mapCaseColor[caseId], 'fill':mapCaseColor[caseId]});
         p.text(6,yRow+config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
     } else {

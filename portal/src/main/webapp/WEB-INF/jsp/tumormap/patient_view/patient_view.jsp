@@ -811,26 +811,27 @@ function outputClinicalData() {
         var mapColorCases = {};
         for (var c in mapCaseColor) {
             var color = mapCaseColor[c];
-            var cases = mapColorCases[color];
-            if (!cases) mapColorCases[color] = {};
+            if (!(color in mapColorCases)) mapColorCases[color] = [];
             mapColorCases[color].push(c);
         }
         
-        var ix = 1;
-        ["black","orange","red"].forEach( function(color) {
+        var colors = ["black","orange","red"];
+        for (var ix=0; ix<3; ix++) {
+            var color = colors[ix];
             var cases = mapColorCases[color];
-            if (!cases) return;
+            if (!cases) continue;
             var n = cases.length;
             if (n===1) {
                 mapCaseLabels[cases[0]]='';
-                mapCaseIndices[cases[0]] = ix++;
+                mapCaseIndices[cases[0]] = ix+1;
             } else {
                 for (var i=0; i<n; i++){
-                    mapCaseLabels[c] = i+1;
-                    mapCaseIndices[c] = ix++;
+                    var _case = cases[i];
+                    mapCaseLabels[_case] = i+1;
+                    mapCaseIndices[_case] = ix+1;
                 };
             }
-        });
+        }
     }
 }
 

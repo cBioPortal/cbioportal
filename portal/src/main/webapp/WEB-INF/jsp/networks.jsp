@@ -54,12 +54,6 @@
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
 	
-		    $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
-				genomicData = data;
-		        var geneDataManager = DataManagerFactory.getGeneDataManager();
-		        geneDataManager.fire(data);
-		    });
-
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
                 var msgbegin = "<!--messages begin:";

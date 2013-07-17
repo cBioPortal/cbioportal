@@ -101,7 +101,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String,List> data = initMap();
         Map<Long, Integer> mapMutationEventIndex = new HashMap<Long, Integer>();
         for (ExtendedMutation mutation : mutations) {
-            exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,
+            exportMutation(data, mapMutationEventIndex, patients.length>1, mutation, cancerStudy,
                     drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
                     keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
@@ -355,7 +355,7 @@ public class MutationsJSON extends HttpServlet {
     }
     
     private void exportMutation(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
-            ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
+            boolean multiSamples, ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
             int geneContext, int keywordContext, Map<String,Integer> cosmic, Map<String,Object> mrna,
             DaoGeneOptimized daoGeneOptimized) throws ServletException {
         Long eventId = mutation.getMutationEventId();
@@ -383,10 +383,10 @@ public class MutationsJSON extends HttpServlet {
         data.get("var").add(mutation.getTumorSeqAllele());
         data.get("type").add(mutation.getMutationType());
         data.get("status").add(mutation.getMutationStatus());
-        data.get("alt-count").add(mutation.getTumorAltCount());
-        data.get("ref-count").add(mutation.getTumorRefCount());
-        data.get("normal-alt-count").add(mutation.getNormalAltCount());
-        data.get("normal-ref-count").add(mutation.getNormalRefCount());
+        data.get("alt-count").add(multiSamples?-1:mutation.getTumorAltCount()); // if multi samples, -1
+        data.get("ref-count").add(multiSamples?-1:mutation.getTumorRefCount());
+        data.get("normal-alt-count").add(multiSamples?-1:mutation.getNormalAltCount());
+        data.get("normal-ref-count").add(multiSamples?-1:mutation.getNormalRefCount());
         data.get("validation").add(mutation.getValidationStatus());
         data.get("mrna").add(mrna);
         

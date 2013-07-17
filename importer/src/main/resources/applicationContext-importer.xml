@@ -53,8 +53,10 @@
 
   <!-- datasource for darwin -->
   <b:bean id="darwinDataSource" destroy-method="close" class="org.apache.commons.dbcp.BasicDataSource">
-	<b:property name="driverClassName" value="com.mysql.jdbc.Driver"/>
-	<b:property name="url" value="jdbc:mysql://${darwin.db.host}/${darwin.db.name}"/>
+	<!--b:property name="driverClassName" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+	<b:property name="url" value="jdbc:sqlserver://${darwin.db.host};databaseName=${darwin.db.name}"/-->
+	<b:property name="driverClassName" value="net.sourceforge.jtds.jdbc.Driver"/>
+	<b:property name="url" value="jdbc:jtds:sqlserver://${darwin.db.host}/${darwin.db.name}"/>
 	<b:property name="username" value="${darwin.db.user}"/>
 	<b:property name="password" value="${darwin.db.password}"/>
   </b:bean>
@@ -91,6 +93,9 @@
   <b:bean id="importDataRecordDAO" class="org.mskcc.cbio.importer.dao.internal.ImportDataRecordHibernateDAO">
 	<b:property name="sessionFactory" ref="importerSessionFactory"/>
   </b:bean>
+  <b:bean id="darwinDAO" class="org.mskcc.cbio.importer.dao.internal.DarwinDAO">
+	  <b:property name="dataSource" ref="darwinDataSource" />
+  </b:bean>
   <b:bean id="tcgaFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FirehoseFetcherImpl">
 	<b:constructor-arg ref="config"/>
 	<b:constructor-arg ref="fileUtils"/>
@@ -100,8 +105,7 @@
   <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
     <b:constructor-arg ref="config"/>
     <b:constructor-arg ref="fileUtils"/>
-    <b:constructor-arg ref="databaseUtils"/>
-    <b:constructor-arg ref="importDataRecordDAO"/>
+    <b:constructor-arg ref="darwinDAO"/>
   </b:bean>
   <b:bean id="foundationFetcher" class="org.mskcc.cbio.importer.fetcher.internal.FoundationFetcherImpl">
 	<b:constructor-arg ref="config"/>

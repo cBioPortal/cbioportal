@@ -33,8 +33,6 @@
         localGeneSetChoice = "user-defined-list";
     }
 %>
-<!-- Include Dynamic Query Javascript -->
-<script type="text/javascript" src="js/dynamicQuery.js"></script>
 
 <%
     /**
@@ -96,7 +94,9 @@
         <%@ include file="step5_json.jsp" %>
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
-        <input id="main_submit" type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
+        &nbsp;<br/>
+        <input id="main_submit" class="ui-button ui-widget ui-state-default ui-corner-all" style="height: 34px;"
+                   type=submit name="<%= QueryBuilder.ACTION_NAME%>" value="<%= QueryBuilder.ACTION_SUBMIT %>"/>
         </form>
     </div>
 </div>

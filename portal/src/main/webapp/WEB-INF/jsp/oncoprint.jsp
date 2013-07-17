@@ -66,8 +66,7 @@
 
         </div>
         <div id="oncoprint_body">
-            <script type="text/javascript" src="js/oncoprint.js"></script>
-            <img class="loader_img" style="display:hidden;" src="images/ajax-loader.gif"/>
+            <script type="text/javascript" src="js/src/oncoprint.js"></script>
 
             <script type="text/javascript">
 

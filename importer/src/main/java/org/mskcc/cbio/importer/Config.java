@@ -183,4 +183,12 @@ public interface Config {
 	 * @return Collection<CancerStudyMetadata>
 	 */
 	Collection<CancerStudyMetadata> getCancerStudyMetadata(String portalName);
+
+	/**
+	 * Gets a CancerStudyMetadata for the given cancer study.
+	 *
+     * @param cancerStudyName String  - fully qualified path as entered on worksheet, e.g.: prad/mskcc/foundation
+	 * @return CancerStudyMetadata or null if not found
+	 */
+	CancerStudyMetadata getCancerStudyMetadataByName(String cancerStudyName);
 }

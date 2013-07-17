@@ -42,6 +42,7 @@ public class PatientView extends HttpServlet {
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
+    public static final String HAS_ALLELE_FREQUENCY_DATA = "has_allele_frequency_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String MRNA_PROFILE = "mrna_profile";
@@ -122,13 +123,37 @@ public class PatientView extends HttpServlet {
                                "An error occurred while trying to connect to the database.", xdebug);
         } 
     }
-    
+
+    /**
+     *
+     * Tests whether there is allele frequency data for a patient in a cancer study.
+     * It gets all the mutations and then checks the values for allele frequency.
+     *
+     * @return Boolean
+     *
+     * @author Gideon Dresdner
+     */
+    public boolean hasAlleleFrequencyData(CancerStudy cancerStudy, String patientId, GeneticProfile mutationProfile) throws DaoException {
+        List<ExtendedMutation> mutations
+                = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(), patientId);
+
+        for (ExtendedMutation mutation : mutations) {
+            if (mutation.getTumorAltCount() != -1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private boolean validate(HttpServletRequest request) throws DaoException {
         String caseId = (String) request.getAttribute(PATIENT_ID);
         String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-        
-        request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE); // by default; in case return false;
-        
+
+        // by default; in case return false;
+        request.setAttribute(HAS_SEGMENT_DATA, Boolean.FALSE);
+        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, Boolean.FALSE);
+
         Case _case = null;
         CancerStudy cancerStudy = null;
         if (cancerStudyId==null) {
@@ -138,7 +163,7 @@ public class PatientView extends HttpServlet {
                 _case = cases.get(0);
                 cancerStudy = DaoCancerStudy
                     .getCancerStudyByInternalId(_case.getCancerStudyId());
-                
+
                 if (nCases>1) {
                     StringBuilder sb = new StringBuilder();
                     sb.append("There ").append(nCases==2?"is an":("are "+(nCases-1)+" "))
@@ -160,28 +185,32 @@ public class PatientView extends HttpServlet {
                 request.setAttribute(ERROR, "We have no information about cancer study "+cancerStudyId);
                 return false;
             }
-            
+
             _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
         }
         if (_case==null) {
             request.setAttribute(ERROR, "We have no information about patient "+caseId);
             return false;
         }
-        
+
         String cancerStudyIdentifier = cancerStudy.getCancerStudyStableId();
-        
+
         if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
             request.setAttribute(ERROR,
                     "You are not authorized to view the cancer study with id: '" +
                     cancerStudyIdentifier + "'. ");
             return false;
         }
-        
+
         request.setAttribute(PATIENT_CASE_OBJ, _case);
         request.setAttribute(CANCER_STUDY, cancerStudy);
-        
+
         request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
                 .segmentDataExistForCase(cancerStudy.getInternalId(), caseId));
+
+        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA,
+                hasAlleleFrequencyData(cancerStudy, caseId, cancerStudy.getMutationProfile(_case.getCaseId())));
+
         return true;
     }
     

@@ -32,12 +32,6 @@ package org.mskcc.cbio.maf;
  */
 public class MafRecord
 {
-    public final static String NA_STRING = "NA";
-    // TODO use MIN instead of -1, we may have fields with negative values
-    public final static long NA_LONG = Long.MIN_VALUE;
-    public final static int NA_INT = -1;
-    public final static float NA_FLOAT = -1;
-
 	// standard MAF cols
     private String chr;
     private String ncbiBuild;
@@ -74,7 +68,7 @@ public class MafRecord
     
     private String mannualAminoAcidChange;
 
-	// TODO allele frequency cols
+	// allele frequency cols
     private int tumorAltCount;
     private int tumorRefCount;
     private int normalAltCount;

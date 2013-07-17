@@ -94,112 +94,113 @@ public final class DaoMutation {
                             Integer.toString(mutation.getNormalRefCount()));
 
                     if (newMutationEvent) {
-                        return addMutationEvent(mutation)+1;
+                        return addMutationEvent(mutation.getEvent())+1;
                     } else {
                         return 1;
                     }
             }
     }
         
-        private static int addMutationEvent(ExtendedMutation mutation) throws DaoException {
+        public static int addMutationEvent(MutationEvent event) throws DaoException {
             // use this code if bulk loading
             // write to the temp file maintained by the MySQLbulkLoader
             MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
-                    Long.toString(mutation.getMutationEventId()),
-                    Long.toString(mutation.getGene().getEntrezGeneId()),
-                    mutation.getChr(),
-                    Long.toString(mutation.getStartPosition()),
-                    Long.toString(mutation.getEndPosition()),
-                    mutation.getReferenceAllele(),
-                    mutation.getTumorSeqAllele(),
-                    mutation.getProteinChange(),
-                    mutation.getMutationType(),
-                    mutation.getFunctionalImpactScore(),
-                    Float.toString(mutation.getFisValue()),
-                    mutation.getLinkXVar(),
-                    mutation.getLinkPdb(),
-                    mutation.getLinkMsa(),
-                    mutation.getNcbiBuild(),
-                    mutation.getStrand(),
-                    mutation.getVariantType(),
-                    mutation.getDbSnpRs(),
-                    mutation.getDbSnpValStatus(),
-                    mutation.getOncotatorDbSnpRs(),
-                    filterCosmic(mutation),
-                    mutation.getOncotatorRefseqMrnaId(),
-                    mutation.getOncotatorCodonChange(),
-                    mutation.getOncotatorUniprotName(),
-                    mutation.getOncotatorUniprotAccession(),
-                    Integer.toString(mutation.getOncotatorProteinPosStart()),
-                    Integer.toString(mutation.getOncotatorProteinPosEnd()),
-                    boolToStr(mutation.isCanonicalTranscript()),
-                    extractMutationKeyword(mutation));
+                    Long.toString(event.getMutationEventId()),
+                    Long.toString(event.getGene().getEntrezGeneId()),
+                    event.getChr(),
+                    Long.toString(event.getStartPosition()),
+                    Long.toString(event.getEndPosition()),
+                    event.getReferenceAllele(),
+                    event.getTumorSeqAllele(),
+                    event.getProteinChange(),
+                    event.getMutationType(),
+                    event.getFunctionalImpactScore(),
+                    Float.toString(event.getFisValue()),
+                    event.getLinkXVar(),
+                    event.getLinkPdb(),
+                    event.getLinkMsa(),
+                    event.getNcbiBuild(),
+                    event.getStrand(),
+                    event.getVariantType(),
+                    event.getDbSnpRs(),
+                    event.getDbSnpValStatus(),
+                    event.getOncotatorDbSnpRs(),
+                    filterCosmic(event),
+                    event.getOncotatorRefseqMrnaId(),
+                    event.getOncotatorCodonChange(),
+                    event.getOncotatorUniprotName(),
+                    event.getOncotatorUniprotAccession(),
+                    Integer.toString(event.getOncotatorProteinPosStart()),
+                    Integer.toString(event.getOncotatorProteinPosEnd()),
+                    boolToStr(event.isCanonicalTranscript()),
+                    extractMutationKeyword(event));
             // add cosmic
             for (CosmicMutationFrequency cosmic :
-                    parseCosmic(mutation)) {
-                importCosmic(mutation.getMutationEventId(), cosmic);
+                    parseCosmic(event)) {
+                importCosmic(event.getMutationEventId(), cosmic);
             }
             // return 1 because normal insert will return 1 if no error occurs
             return 1;
     }
         
-    private static String extractMutationKeyword(ExtendedMutation mutation) {
-        String type = mutation.getMutationType();
+    private static String extractMutationKeyword(MutationEvent event) {
+        String hugo = event.getGene().getHugoGeneSymbolAllCaps();
+        String type = event.getMutationType();
         if (type.equals("Nonsense_Mutation") ||
             type.equals("Splice_Site") || 
             type.startsWith("Frame_Shift_") || 
             type.equals("Nonstop_Mutation")) {
-            return mutation.getGeneSymbol() + " truncating";
+            return hugo + " truncating";
         }
         
         if (type.equals("Missense_Mutation")) {
-            String aa = mutation.getProteinChange();
+            String aa = event.getProteinChange();
             if (aa.startsWith("M1")&&!aa.equals("M1M")) { // how about indels on the first position?
                 // non-start
-                return mutation.getGeneSymbol() + " truncating";
+                return hugo + " truncating";
             }
             
             Pattern p = Pattern.compile("([A-Z][0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-                return mutation.getGeneSymbol() + " " + m.group(1) + " missense";
+                return hugo + " " + m.group(1) + " missense";
             }
         }
         
         if (type.equals("In_Frame_Ins")) {
-            String aa = mutation.getProteinChange();
+            String aa = event.getProteinChange();
             if (aa.contains("*")) { // insert *
-                return mutation.getGeneSymbol() + " truncating";
+                return hugo + " truncating";
             }
             
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + " ins";
+               return hugo + " " + m.group(1) + " ins";
             }
         }
         
         if (type.equals("In_Frame_Del")) {
-            String aa = mutation.getProteinChange();
+            String aa = event.getProteinChange();
             // only the first deleted residue was considered
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + " del";
+               return hugo + " " + m.group(1) + " del";
             }
         }
         
         if (type.equals("Silent")) {
-            String aa = mutation.getProteinChange();
+            String aa = event.getProteinChange();
             Pattern p = Pattern.compile("([0-9]+)");
             Matcher m = p.matcher(aa);
             if (m.find()) {
-               return mutation.getGeneSymbol() + " " + m.group(1) + "silent";
+               return hugo + " " + m.group(1) + "silent";
             }
         }
             
         // RNA or Translation_Start_Site
-        return "Chm"+mutation.getChr()+","+mutation.getStartPosition();
+        return "Chm"+event.getChr()+","+event.getStartPosition();
     }
 
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<String> targetCaseList,
@@ -1049,8 +1050,8 @@ public final class DaoMutation {
     
     // the follwing methods deal with cosmic data in oncocator report
     // TODO: need to be refactored using latest cosmic data.
-    static String filterCosmic(ExtendedMutation mutation) {
-        List<CosmicMutationFrequency> cmfs = parseCosmic(mutation);
+    static String filterCosmic(MutationEvent event) {
+        List<CosmicMutationFrequency> cmfs = parseCosmic(event);
         StringBuilder sb = new StringBuilder();
         for (CosmicMutationFrequency cmf : cmfs) {
             sb.append(cmf.getAminoAcidChange()).append("(")
@@ -1062,8 +1063,8 @@ public final class DaoMutation {
         return sb.toString();
     }
     
-    private static List<CosmicMutationFrequency> parseCosmic(ExtendedMutation mutation) {
-        String strCosmic = mutation.getOncotatorCosmicOverlapping();
+    private static List<CosmicMutationFrequency> parseCosmic(MutationEvent event) {
+        String strCosmic = event.getOncotatorCosmicOverlapping();
         if (strCosmic==null || strCosmic.isEmpty()) {
             return Collections.emptyList();
         }
@@ -1075,9 +1076,9 @@ public final class DaoMutation {
             Matcher m = p.matcher(part);
             if (m.matches()) {
                 String aa = m.group(1);
-                if (matchCosmic(mutation, aa)) {
+                if (matchCosmic(event, aa)) {
                     int count = Integer.parseInt(m.group(2));
-                    list.add(new CosmicMutationFrequency(mutation.getEntrezGeneId(), aa, count));
+                    list.add(new CosmicMutationFrequency(event.getGene().getEntrezGeneId(), aa, count));
                 }
             } 
 //            else if (!part.equals("NA")) {
@@ -1088,12 +1089,12 @@ public final class DaoMutation {
         return list;
     }
     
-    private static boolean matchCosmic(ExtendedMutation mutation, String cosmicAAChange) {
+    private static boolean matchCosmic(MutationEvent event, String cosmicAAChange) {
         if (cosmicAAChange.endsWith("p.?")||cosmicAAChange.endsWith("p.0?")) {
             return false;
         }
         
-        String type = mutation.getMutationType();
+        String type = event.getMutationType();
         if (cosmicAAChange.matches(
                 "(p\\.[A-Z]?[0-9]+_[A-Z]?[0-9]+((>)|(ins))[A-Z]+)|(p\\.[A-Z][0-9]+>[A-Z][A-Z]+)|(p\\.[A-Z]?[0-9]+.+del[A-Z]*)")) {
             // in frame del or ins

@@ -129,11 +129,19 @@ public class PatientView extends HttpServlet {
      * Tests whether there is allele frequency data for a patient in a cancer study.
      * It gets all the mutations and then checks the values for allele frequency.
      *
+     * If mutationProfile is null then returns false
+     *
      * @return Boolean
      *
      * @author Gideon Dresdner
      */
     public boolean hasAlleleFrequencyData(CancerStudy cancerStudy, String patientId, GeneticProfile mutationProfile) throws DaoException {
+
+        if (mutationProfile == null) {
+            // fail quietly
+            return false;
+        }
+
         List<ExtendedMutation> mutations
                 = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(), patientId);
 

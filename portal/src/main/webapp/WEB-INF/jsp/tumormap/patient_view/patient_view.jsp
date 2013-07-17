@@ -296,7 +296,6 @@ var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 
 var mapCaseColor = {};
-var mapCaseIndices = {};
 var mapCaseLabels = {};
 
 $(document).ready(function(){
@@ -625,7 +624,45 @@ function idRegEx(ids) {
 
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
-    var n = caseIds.length;
+    var n=caseIds.length;
+    
+    // set mapCaseColor
+    for (var i=0; i<n; i++) {
+        var caseId = caseIds[i];
+        var clinicalData = clinicalDataMap[caseId];
+        var state = guessClinicalData(clinicalData, ["tumor_type"]);
+        mapCaseColor[caseId] = getCaseColor(state);
+    }
+    
+    // reorder based on color
+    var colors = {black:1, orange:2, red:3};
+    caseIds.sort(function(c1, c2){
+        var ret = colors[mapCaseColor[c1]]-colors[mapCaseColor[c2]];
+        if (ret===0) return c1<c2?-1:1;
+        return ret;
+    });
+
+    // set labels
+    var mapColorCases = {};
+    caseIds.forEach(function (caseId) {
+        var color = mapCaseColor[caseId];
+        if (!(color in mapColorCases)) mapColorCases[color] = [];
+        mapColorCases[color].push(caseId);
+    });
+    for (var color in mapColorCases) {
+        var cases = mapColorCases[color];
+        var len = cases.length;
+        if (len===1) {
+            mapCaseLabels[cases[0]]='';
+        } else {
+            for (var i=0; i<len; i++){
+                var _case = cases[i];
+                mapCaseLabels[_case] = i+1;
+            };
+        }
+    }
+        
+    // output
     for (var i=0; i<n; i++) {
         var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
@@ -637,9 +674,6 @@ function outputClinicalData() {
         } else {
             row += "<svg width='12' height='12' class='case-label-header' alt='"+caseId+"'></svg>";
             
-            var state = guessClinicalData(clinicalData, ["tumor_type"]);
-            mapCaseColor[caseId] = getCaseColor(state);
-
             var stateInfo = formatStateInfo(clinicalData);
             if (stateInfo) row +="&nbsp;"+stateInfo;
         }
@@ -657,7 +691,6 @@ function outputClinicalData() {
     }
     
     if (n>1) {
-        setCaseIndicesAndLabels();
         plotCaseLabel('.case-label-header');
         $("#clinical_table").append("<tr><td><a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a></td><td></td></tr>");
@@ -805,33 +838,6 @@ function outputClinicalData() {
                 ||caseTypeLower==="locally progressed"
                 || caseTypeLower==="local progression") return "orange";
         return "black";
-    }
-    
-    function setCaseIndicesAndLabels() {
-        var mapColorCases = {};
-        for (var c in mapCaseColor) {
-            var color = mapCaseColor[c];
-            if (!(color in mapColorCases)) mapColorCases[color] = [];
-            mapColorCases[color].push(c);
-        }
-        
-        var colors = ["black","orange","red"];
-        for (var ix=0; ix<3; ix++) {
-            var color = colors[ix];
-            var cases = mapColorCases[color];
-            if (!cases) continue;
-            var n = cases.length;
-            if (n===1) {
-                mapCaseLabels[cases[0]]='';
-                mapCaseIndices[cases[0]] = ix+1;
-            } else {
-                for (var i=0; i<n; i++){
-                    var _case = cases[i];
-                    mapCaseLabels[_case] = i+1;
-                    mapCaseIndices[_case] = ix+1;
-                };
-            }
-        }
     }
 }
 

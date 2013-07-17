@@ -312,6 +312,7 @@ public final class ExtendedMutation
             hash = 37 * hash + (int) (this.endPosition ^ (this.endPosition >>> 32));
             hash = 37 * hash + (this.proteinChange != null ? this.proteinChange.hashCode() : 0);
             hash = 37 * hash + (this.tumorSeqAllele != null ? this.tumorSeqAllele.hashCode() : 0);
+            hash = 37 * hash + (this.mutationType != null ? this.mutationType.hashCode() : 0);
             return hash;
         }
 
@@ -340,6 +341,9 @@ public final class ExtendedMutation
                 return false;
             }
             if ((this.tumorSeqAllele == null) ? (other.tumorSeqAllele != null) : !this.tumorSeqAllele.equals(other.tumorSeqAllele)) {
+                return false;
+            }
+            if ((this.mutationType == null) ? (other.mutationType != null) : !this.mutationType.equals(other.mutationType)) {
                 return false;
             }
             return true;

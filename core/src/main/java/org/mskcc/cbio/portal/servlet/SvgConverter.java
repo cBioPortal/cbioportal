@@ -151,11 +151,11 @@ public class SvgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToPDF(HttpServletResponse response, String svgContent, String filename)
+    private void convertToPDF(HttpServletResponse response, String xml, String filename)
 		    throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
-            InputStream is = new ByteArrayInputStream(svgContent.getBytes());
+            InputStream is = new ByteArrayInputStream(xml.getBytes());
             TranscoderInput input = new TranscoderInput(is);
             TranscoderOutput output = new TranscoderOutput(out);
             Transcoder transcoder = new PDFTranscoder();

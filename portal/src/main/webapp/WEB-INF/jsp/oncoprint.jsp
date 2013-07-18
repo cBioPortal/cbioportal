@@ -41,8 +41,8 @@
                 <table style="padding-left:13px; padding-top:5px">
                     <tr>
                         <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                        <td><input id='toggle_unaltered_cases' type='checkbox' onclick='oncoprint.toggleUnalteredCases();'>Remove Unaltered Cases</td>
-                        <td><input id='toggle_whitespace' type='checkbox' onclick='oncoprint.toggleWhiteSpace();'>Remove Whitespace</td>
+                        <td><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</td>
+                        <td><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</td>
                     </tr>
                     <tr>
                         <td>
@@ -65,161 +65,9 @@
             </div>
 
         </div>
-        <div id="oncoprint_body">
-            <script type="text/javascript" src="js/src/oncoprint.js"></script>
 
-            <script type="text/javascript">
-
-                // This is for the moustache-like templates
-                // prevents collisions with JSP tags
-                _.templateSettings = {
-                    interpolate : /\{\{(.+?)\}\}/g
-                };
-
-                var oncoPrintParams = {
-                    geneData: undefined,
-                    cancer_study_id: "<%=cancerTypeId%>",
-                    case_set_str: "<%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%>",
-                    num_cases_affected: "<%=dataSummary.getNumCasesAffected()%>",
-                    percent_cases_affected: "<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>",
-                    vis_key: true,
-                    customize: true
-                };
-
-                var geneDataColl = new GeneDataColl({
-                    cancer_study_id: cancer_study_id_selected,
-                    genes: typeof gene_list === "string" ? GeneSet(gene_list).getAllGenes().join(" ") : GeneSet(gene_list.innerHTML).getAllGenes().join(" "),
-                    case_list: cases,
-                    genetic_profiles: genetic_profiles,
-                    z_score_threshold: zscore_threshold,
-                    rppa_score_threshold: rppa_score_threshold
-                });
-
-                // takes a div and creates a zoombar on it.  Inside it refers
-                // to a global var called `oncoprint` on which it zooms.
-                var oncoprintZoomSetup = function(div) {
-                    return $('<div>', { id: "width_slider", width: "100"})
-                            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
-                                change: function(event, ui) {
-                                    oncoprint.zoom(ui.value, 'animation');       // N.B.
-                                }}).appendTo($(div));
-                };
-
-                var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
-
-                clinicalAttributes.fetch({
-                    success: function(attrs) {
-                        OncoprintUI.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-                        $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
-                    }
-                });
-
-                var oncoprint;
-                var zoom;
-                geneDataColl.fetch({
-                    type: "POST",
-                    success: function(data) {
-                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: data.toJSON(),
-                            genes: geneDataColl.genes.split(" "),
-                            legend: document.getElementById('oncoprint_legend')
-                        });
-                        $('#oncoprint .loader_img').hide();
-                        $('#oncoprint #everything').show();
-
-                        zoom = oncoprintZoomSetup($('#oncoprint_controls #zoom'));
-                    }
-                });
-
-                var select_clinical_attributes_id = '#select_clinical_attributes';
-                var oncoprintClinicals;
-                var sortBy = $('#oncoprint_controls #sort_by');
-                $('#oncoprint_controls #sort_by').chosen({width: "240px", disable_search: true });
-
-                // params: bool
-                // enable or disable all the various oncoprint controls
-                // true -> enable
-                // false -> disable
-                var toggleControls = function(bool) {
-                    var whitespace = $('#toggle_whitespace');
-                    var unaltered = $('#toggle_unaltered_cases');
-                    var select_clinical_attributes =  $(select_clinical_attributes_id);
-
-                    var enable_disable = !bool;
-
-                    whitespace.attr('disabled', enable_disable);
-                    unaltered.attr('disabled', enable_disable);
-                    select_clinical_attributes.prop('disabled', enable_disable).trigger("liszt:updated");
-                    zoom.attr('disabled', enable_disable);
-                    sortBy.prop('disabled', enable_disable).trigger("liszt:updated");
-                };
-
-                // handler for when user selects a clinical attribute to visualization
-                var clinicalAttributeSelected = function() {
-                    oncoprint.remove_oncoprint();
-                    $('#oncoprint_body .loader_img').show();
-                    toggleControls(false);
-
-                    var clinicalAttribute = $(select_clinical_attributes_id + ' option:selected')[0].__data__;
-
-                    if (clinicalAttribute.attr_id === undefined) {      // selected "none"
-                        $('#oncoprint_body .loader_img').hide();
-
-                        oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                            geneData: geneDataColl.toJSON(),
-                            genes: geneDataColl.genes.split(" "),
-                            legend: document.getElementById('oncoprint_legend')
-                        });
-
-                        // disable the option to sort by clinical data
-                        $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
-                    } else {
-                        oncoprintClinicals = new ClinicalColl({
-                            cancer_study_id: cancer_study_id_selected,
-                            attr_id: clinicalAttribute.attr_id,
-                            case_list: cases
-                        });
-
-                        oncoprintClinicals.fetch({
-                            type: "POST",
-                            success: function(response) {
-                                $('#oncoprint_body .loader_img').hide();
-
-                                oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
-                                    geneData: geneDataColl.toJSON(),
-                                    clinicalData: response.toJSON(),
-                                    genes: geneDataColl.genes.split(" "),
-                                    clinical_attrs: response.attributes(),
-                                    legend: document.getElementById('oncoprint_legend')
-                                });
-
-                                // enable the option to sort by clinical data
-                                $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);
-
-                                // sort by genes by default
-                                sortBy.val('genes');
-
-                                toggleControls(true);
-
-                                // set the zoom to be whatever the slider currently says it is
-                                oncoprint.zoom(zoom.slider("value"));
-                                oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
-                                oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                                OncoprintUI.make_mouseover(d3.selectAll('.sample rect'))        // hack =(
-                            }
-                        });
-                    }
-                };
-                $(select_clinical_attributes_id).change(clinicalAttributeSelected);
-
-                $(document).ready(function() {
-                    // bind away
-                    $('#oncoprint_controls #sort_by').change(function() {
-                        oncoprint.sortBy(sortBy.val(), cases.split(" "));
-                    });
-                });
-            </script>
-        </div>
+        <div id="oncoprint_body"></div>
+        <script data-main="js/src/oncoprint/main-boilerplate.js" type="text/javascript" src="js/require.js"></script>
 
         <div id="oncoprint_legend"></div>
         <script type="text/template" id="glyph_template">

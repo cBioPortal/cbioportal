@@ -42,8 +42,22 @@ cbio.util = (function() {
         return aa;
     };
 
-    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback)
-    {
+    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
+
+        // To alter attributes of the input D3 SVG object (axis)
+        // in order to prevent the text of the axes from moving up
+        // when converting the SVG to PDF
+        // (TODO: This is a temporary solution, need to debug batik library)
+        //
+        // @param xAxisGrp: the x axis D3 object
+        // @param shiftValueOnX: increased/decreased value of the x axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param yAxisGrp: the y axis D3 object
+        // @param shiftValueOnY: increased/decreased value of the y axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param rollback: the switch to control moving up/down the axes' text (true -> move up; false -> move down)
+        //
+
         if (rollback)
         {
             shiftValueOnX = -1 * shiftValueOnX;

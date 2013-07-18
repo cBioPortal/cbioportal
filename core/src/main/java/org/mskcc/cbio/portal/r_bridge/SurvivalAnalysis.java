@@ -28,7 +28,7 @@
 package org.mskcc.cbio.portal.r_bridge;
 
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Patient;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
@@ -59,7 +59,7 @@ public class SurvivalAnalysis {
      * @param dataSummary       Profile Data Summary Object.
      * @throws IOException      IO Error.
      */
-    public SurvivalAnalysis (ArrayList<ClinicalData> clinicalDataList,
+    public SurvivalAnalysis (ArrayList<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) throws IOException,
             REXPMismatchException, REngineException {
         ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame

@@ -29,10 +29,9 @@ package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
+import org.mskcc.cbio.cgds.model.Patient;
 
 /**
  * Utility class to get clinical data
@@ -50,30 +49,28 @@ public class GetClinicalData {
      */
     public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
-        DaoClinicalData daoClinical = new DaoClinicalData();
-        DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
         
-        List<ClinicalData> caseSurvivalList = daoClinical.getCases(cancerStudyId, caseIdList);
-        Map<String,ClinicalData> mapClinicalData = new HashMap<String,ClinicalData>();
-        for (ClinicalData cd : caseSurvivalList) {
+        List<Patient> caseSurvivalList = DaoClinicalData.getCases(cancerStudyId, caseIdList);
+        Map<String,Patient> mapClinicalData = new HashMap<String,Patient>();
+        for (Patient cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);
         }
         
         Map<String,Map<String,String>> mapClinicalFreeForms = Collections.emptyMap();
         Set<String> freeFormParams = Collections.emptySet();
         if (includeFreeFormData) {
-            List<ClinicalFreeForm> clinicalFreeForms = daoClinicalFreeForm.getCasesByCases(cancerStudyId, caseIdList);
+            List<ClinicalData> clinicalFreeForms = DaoClinicalData.getCasesByCases(cancerStudyId, new ArrayList(caseIdList));
             mapClinicalFreeForms = new HashMap<String,Map<String,String>>();
             freeFormParams = new HashSet<String>();
-            for (ClinicalFreeForm cff : clinicalFreeForms) {
-                freeFormParams.add(cff.getParamName());
+            for (ClinicalData cff : clinicalFreeForms) {
+                freeFormParams.add(cff.getAttrId());
                 String caseId = cff.getCaseId();
                 Map<String,String> cffs = mapClinicalFreeForms.get(caseId);
                 if (cffs==null) {
                     cffs = new HashMap<String,String>();
                     mapClinicalFreeForms.put(caseId, cffs);
                 }
-                cffs.put(cff.getParamName(),cff.getParamValue());
+                cffs.put(cff.getAttrId(),cff.getAttrVal());
             }
         }
 
@@ -92,7 +89,7 @@ public class GetClinicalData {
             for (String caseId : caseIdList) {
                 buf.append(caseId);
                 if (!caseSurvivalList.isEmpty()) {
-                    ClinicalData cd = mapClinicalData.get(caseId);
+                    Patient cd = mapClinicalData.get(caseId);
                     append(buf, cd==null ? null : cd.getOverallSurvivalMonths());
                     append(buf, cd==null ? null : cd.getOverallSurvivalStatus());
                     append(buf, cd==null ? null : cd.getDiseaseFreeSurvivalMonths());

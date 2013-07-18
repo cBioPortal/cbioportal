@@ -27,10 +27,9 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Patient;
+import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -44,25 +43,26 @@ import junit.framework.TestCase;
  */
 public class TestDaoClinical extends TestCase {
 
+	private static final int DUMMY_CANCER_STUDY_ID = 1;
+
     /**
      * Basic Unit Tests.
      * @throws DaoException Database Access Error.
      */
     public void testDaoCase() throws DaoException {
         ResetDatabase.resetDatabase();
-        DaoClinicalData daoClinical = new DaoClinicalData();
 
-        daoClinical.addCase(1,"TCGA-12-1234", new Double(0.5), "ALIVE", null, null, null);
-        daoClinical.addCase(1,"TCGA-12-1235", new Double(0.7), "ALIVE", new Double(0.9),
+        DaoClinicalData.addCase(1,"TCGA-12-1234", new Double(0.5), "ALIVE", null, null, null);
+        DaoClinicalData.addCase(1,"TCGA-12-1235", new Double(0.7), "ALIVE", new Double(0.9),
                 "RECURRED", new Double(65));
 
         HashSet<String> caseSet = new HashSet<String>();
         caseSet.add("TCGA-12-1234");
         caseSet.add("TCGA-12-1235");
-        ArrayList <ClinicalData> caseList = daoClinical.getCases(1,caseSet);
+        ArrayList <Patient> caseList = DaoClinicalData.getCases(1,caseSet);
 
         assertEquals (2, caseList.size());
-        ClinicalData caseSurvival = caseList.get(0);
+        Patient caseSurvival = caseList.get(0);
         assertEquals ("TCGA-12-1234", caseSurvival.getCaseId());
         assertEquals (new Double(0.5), caseSurvival.getOverallSurvivalMonths());
         assertEquals ("ALIVE", caseSurvival.getOverallSurvivalStatus());
@@ -77,5 +77,25 @@ public class TestDaoClinical extends TestCase {
         assertEquals (new Double(0.9), caseSurvival.getDiseaseFreeSurvivalMonths());
         assertEquals ("RECURRED", caseSurvival.getDiseaseFreeSurvivalStatus());
         assertEquals (new Double(65), caseSurvival.getAgeAtDiagnosis());
+
+		// test for the former DaoClinicalFreeForm
+        ResetDatabase.resetDatabase();
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-1", "CNA_CLUSTER", "1");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-2", "CNA_CLUSTER", "2");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-3", "CNA_CLUSTER", "2");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-4", "CNA_CLUSTER", "1");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-1", "HYPER_MUTATED", "YES");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-2", "HYPER_MUTATED", "YES");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-3", "HYPER_MUTATED", "NO");
+        DaoClinicalData.addDatum(DUMMY_CANCER_STUDY_ID, "TCGA-4", "HYPER_MUTATED", "NO");
+
+        ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(DUMMY_CANCER_STUDY_ID, "CNA_CLUSTER");
+        assertEquals ("CNA_CLUSTER", paramMap.getName());
+        assertEquals("1", paramMap.getValue("TCGA-1"));
+        assertEquals("2", paramMap.getValue("TCGA-3"));
+        assertEquals(2, paramMap.getDistinctCategories().size());
+
+        HashSet<String> paramSet = DaoClinicalData.getDistinctParameters(DUMMY_CANCER_STUDY_ID);
+        assertEquals (2, paramSet.size());
     }
 }

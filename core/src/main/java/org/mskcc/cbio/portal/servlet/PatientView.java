@@ -62,9 +62,6 @@ public class PatientView extends HttpServlet {
     
     private ServletXssUtil servletXssUtil;
     
-    private static final DaoClinicalData daoClinicalData = new DaoClinicalData();
-    private static final DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
@@ -218,8 +215,8 @@ public class PatientView extends HttpServlet {
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
         String patient = (String)request.getAttribute(PATIENT_ID);
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        ClinicalData clinicalData = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
-        Map<String,ClinicalFreeForm> clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
+        Patient clinicalData = DaoClinicalData.getCase(cancerStudy.getInternalId(),patient);
+        Map<String,ClinicalData> clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
         
         request.setAttribute(CLINICAL_DATA, mergeClinicalData(clinicalData, clinicalFreeForms));
         
@@ -382,35 +379,43 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private Map<String,ClinicalFreeForm> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
-        List<ClinicalFreeForm> list = daoClinicalFreeForm.getCasesById(cancerStudyId, patient);
-        Map<String,ClinicalFreeForm> map = new HashMap<String,ClinicalFreeForm>(list.size());
-        for (ClinicalFreeForm cff : list) {
-            map.put(cff.getParamName().toLowerCase(), cff);
+    private Map<String,ClinicalData> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
+        List<ClinicalData> list = DaoClinicalData.getCasesById(cancerStudyId, patient);
+        Map<String,ClinicalData> map = new HashMap<String,ClinicalData>(list.size());
+        for (ClinicalData cff : list) {
+            map.put(cff.getAttrId().toLowerCase(), cff);
         }
         return map;
     }
     
-    private Map<String,String> mergeClinicalData(ClinicalData cd, Map<String,ClinicalFreeForm> cffs) {
+    private Map<String,String> mergeClinicalData(Patient cd, Map<String,ClinicalData> cffs) throws DaoException {
         Map<String,String> map = new HashMap<String,String>();
         if (cd!=null&&cd.getAgeAtDiagnosis()!=null) {
-            map.put("Age",cd.getAgeAtDiagnosis().toString());
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(ClinicalAttribute.AGE_AT_DIAGNOSIS);
+            map.put(ca.getDisplayName(),cd.getAgeAtDiagnosis().toString());
         }
         if (cd!=null&&cd.getOverallSurvivalStatus()!=null) {
-            map.put("Overall survival status", cd.getOverallSurvivalStatus());
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(ClinicalAttribute.OS_STATUS);
+            map.put(ca.getDisplayName(), cd.getOverallSurvivalStatus());
         }
         if (cd!=null&&cd.getOverallSurvivalMonths()!=null) {
-            map.put("Overall survival months", Long.toString(Math.round(cd.getOverallSurvivalMonths())));
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(ClinicalAttribute.OS_MONTHS);
+            map.put(ca.getDisplayName(), Long.toString(Math.round(cd.getOverallSurvivalMonths())));
         }
         if (cd!=null&&cd.getDiseaseFreeSurvivalStatus()!=null) {
-            map.put("Disease-free survival status", cd.getDiseaseFreeSurvivalStatus());
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(ClinicalAttribute.DFS_STATUS);
+            map.put(ca.getDisplayName(), cd.getDiseaseFreeSurvivalStatus());
         }
         if (cd!=null&&cd.getDiseaseFreeSurvivalMonths()!=null) {
-            map.put("Disease-free survival months", Long.toString(Math.round(cd.getDiseaseFreeSurvivalMonths())));
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(ClinicalAttribute.DFS_MONTHS);
+            map.put(ca.getDisplayName(), Long.toString(Math.round(cd.getDiseaseFreeSurvivalMonths())));
         }
         
-        for (ClinicalFreeForm cff : cffs.values()) {
-            map.put(cff.getParamName(), cff.getParamValue());
+        for (ClinicalData cff : cffs.values()) {
+			// skip survival attributes otherwise we will have dups in map
+			if (ClinicalAttribute.survivalAttributes.contains(cff.getAttrId())) continue;
+			ClinicalAttribute ca = DaoClinicalAttribute.getDatum(cff.getAttrId());
+            map.put(ca.getDisplayName(), cff.getAttrVal());
         }
         
         return map;
@@ -436,12 +441,12 @@ public class PatientView extends HttpServlet {
         return null;
     }
     
-    private String guessClinicalData(Map<String,ClinicalFreeForm> clinicalFreeForms,
+    private String guessClinicalData(Map<String,ClinicalData> clinicalFreeForms,
             String[] paramName) {
         for (String name : paramName) {
-            ClinicalFreeForm form = clinicalFreeForms.get(name.toLowerCase());
+            ClinicalData form = clinicalFreeForms.get(name.toLowerCase());
             if (form!=null) {
-                return form.getParamValue();
+                return form.getAttrVal();
             }
         }
         

@@ -684,6 +684,8 @@ var OncoprintUI = (function() {
 // Creates an oncoprint on the div.
 // The parameters is an object that contains:
 // clinicalData, clinical_attrs (list), genes (list), geneData,
+//
+// and width (number) for the width of the oncoprint
 // and legend (undefined or div element)
 var Oncoprint = function(div, params) {
     params.clinicalData = params.clinicalData || [];        // initialize
@@ -798,6 +800,7 @@ var Oncoprint = function(div, params) {
         .data(attributes)
         .enter()
         .append('text')
+        .attr('font-size', '12px')
         .attr('x', 0)
         .attr('y', function(d) {
             return (dims.vert_space / 1.80) + vertical_pos(d); });
@@ -821,10 +824,14 @@ var Oncoprint = function(div, params) {
         // because it messes with the label placement in the pdf download
         .filter(function(d) { return gene2percent[d] === undefined; }).remove();
 
+
+    var container_width = $('#td-content').width();              // snatch this from the main portal page
+    container_width = (container_width ? container_width : params.width);    // see if this has specified by user
+    container_width = (container_width ? container_width : 1250);            // default setting
     var main_svg = table
         .append('td')
             .append('div')      // control overflow to the right
-            .style('width', $('#td-content').width() - 70 - dims.label_width + 'px') // buffer of, say, 70
+            .style('width', container_width - 70 - dims.label_width + 'px') // buffer of, say, 70
             .style('display', 'inline-block')
             .style('overflow-x', 'auto')
             .style('overflow-y', 'hidden')

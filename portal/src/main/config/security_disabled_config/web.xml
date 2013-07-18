@@ -480,6 +480,27 @@
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetGeneticProfilesJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <url-pattern>/getGeneticProfile.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProfileDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <url-pattern>/getProfileData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>

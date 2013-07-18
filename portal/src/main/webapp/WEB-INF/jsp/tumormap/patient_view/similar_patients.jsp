@@ -46,8 +46,7 @@ A genomic overview with events aligned across patients goes here...
                             } else if (type==='display') {
                                 var patientId = source[ 0 ];
                                 var study = source[ 1 ];
-                                return "<a href='case.do?<%=PatientView.PATIENT_ID%>="+patientId
-                                    + (<%=(isDemoMode==null)%>?"":"&demo=<%=isDemoMode%>")+"&cancer_study_id="+study+"'><b>"+patientId+"</b></a>";
+                                return formatPatientLink(patientId,study);
                             } else {
                                 return source[0];
                             }
@@ -106,7 +105,7 @@ A genomic overview with events aligned across patients goes here...
     }
     
     function ajaxBuildSimilarPatientsDataTable() {
-        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',cancer_study_id:cancerStudyId};
+        var params = {<%=PatientView.CASE_ID%>::caseIdsStr,cancer_study_id:cancerStudyId};
         if (genomicEventObs.hasMut) {
             params['<%=SimilarPatientsJSON.MUTATION%>'] = genomicEventObs.mutations.getEventIds(true).join(',');
         }

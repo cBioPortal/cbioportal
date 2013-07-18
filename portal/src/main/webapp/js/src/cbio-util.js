@@ -17,9 +17,47 @@ cbio.util = (function() {
         
         return ret;
     };
+    
+    var getObjectLength = function(object) {
+        var length = 0;
 
-    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback)
-    {
+        for (var i in object) {
+          if (Object.prototype.hasOwnProperty.call(object, i)){
+            length++;
+          }
+        }
+        return length;
+    };
+    
+    var checkNullOrUndefined = function(o) {
+        return o === null || typeof o === "undefined";
+    };
+    
+    var arrayToAssociatedArrayIndices = function(arr, offset) {
+        if (checkNullOrUndefined(offset)) offset=0;
+        var aa = {};
+        for (var i=0, n=arr.length; i<n; i++) {
+            aa[arr[i]] = i+offset;
+        }
+        return aa;
+    };
+
+    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
+
+        // To alter attributes of the input D3 SVG object (axis)
+        // in order to prevent the text of the axes from moving up
+        // when converting the SVG to PDF
+        // (TODO: This is a temporary solution, need to debug batik library)
+        //
+        // @param xAxisGrp: the x axis D3 object
+        // @param shiftValueOnX: increased/decreased value of the x axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param yAxisGrp: the y axis D3 object
+        // @param shiftValueOnY: increased/decreased value of the y axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param rollback: the switch to control moving up/down the axes' text (true -> move up; false -> move down)
+        //
+
         if (rollback)
         {
             shiftValueOnX = -1 * shiftValueOnX;
@@ -73,8 +111,27 @@ cbio.util = (function() {
 
     return {
         toPrecision: toPrecision,
+        getObjectLength: getObjectLength,
+        checkNullOrUndefined: checkNullOrUndefined,
+        arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
-	    lcss : lcss
+	    lcss: lcss
     };
 
 })();
+
+if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fun /*, thisp*/) {
+        var len = this.length >>> 0;
+        if (typeof fun !== "function") {
+            throw new TypeError();
+        }
+
+        var thisp = arguments[1];
+        for (var i = 0; i < len; i++) {
+            if (i in this) {
+                fun.call(thisp, this[i], i, this);
+            }
+        }
+    };
+}

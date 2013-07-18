@@ -524,6 +524,9 @@
     <servlet-mapping>
         <servlet-name>EchoFile</servlet-name>
         <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
         <servlet-name>GetGeneticProfileJSON</servlet-name>
         <url-pattern>/getGeneticProfile.json</url-pattern>
     </servlet-mapping>

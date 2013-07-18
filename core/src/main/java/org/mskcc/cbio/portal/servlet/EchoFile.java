@@ -176,19 +176,6 @@ public class EchoFile extends HttpServlet {
         return data;
     }
 
-//    /**
-//     * Takes a list of cna, mutation, mrna, rppa data and reduces
-//     * into one list of maps indexed by gene and sample_id
-//     *
-//     * @param list
-//     * @return List of maps with keys {sample_id, hugo, [cna], [mutation], [mrna], [rppa]}
-//     */
-//    public static List<ImmutableMap<String, String>> reduceGenomicData(List<ImmutableMap<String, String>> list) {
-//
-//        return new ArrayList<ImmutableMap<String, String>>();
-//    }
-
-
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
@@ -199,7 +186,6 @@ public class EchoFile extends HttpServlet {
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
             for (FileItem item : items) {
-
                 if (item.getSize() == 0) {
                     // skip empty files
                     continue;

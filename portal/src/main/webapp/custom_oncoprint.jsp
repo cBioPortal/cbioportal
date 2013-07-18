@@ -2,8 +2,6 @@
 <html>
 <head>
     <title></title>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/jquery.qtip.min.css"/>
 
@@ -92,13 +90,14 @@
 
 </body>
 
-<script type="text/javascript" src="js/d3.v3.min.js"></script>
-<script type="text/javascript" src="js/underscore-min.js"></script>
-<script type="text/javascript" src="js/EchoedDataUtils.js"></script>
-<script type="text/javascript" src="js/MemoSort.js"></script>
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="js/oncoprint.js"></script>
+<script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/lib/d3.v3.min.js"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+
+<script type="text/javascript" src="js/src/EchoedDataUtils.js"></script>
+<script type="text/javascript" src="js/src/MemoSort.js"></script>
+<script type="text/javascript" src="js/src/oncoprint.js"></script>
 <script type="text/javascript">
 
     // This is for the moustache-like templates
@@ -110,6 +109,7 @@
     // some hacks to get the oncoprint spiffy for this page.
     // Perhaps these should be properly incorporated as options.
     var hacks_on_callback = function() {
+        // remove text: "Copy number alterations are putative."
         $('#oncoprint_legend p').remove();
     };
 

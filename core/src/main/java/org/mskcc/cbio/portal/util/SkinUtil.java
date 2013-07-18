@@ -264,10 +264,16 @@ public class SkinUtil {
                 + "=" + cancerStudyId;
     }
     
-    public static String getTumorTissueImageUrl(String studyId) {
+    public static String getDigitalSlideArchiveIframeUrl(String caseId) {
         Config config = Config.getInstance();
-        String url = config.getProperty("tumor_image.url");
-        return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
+        String url = config.getProperty("digitalslidearchive.iframe.url");
+        return url+caseId;
+    }
+    
+    public static String getDigitalSlideArchiveMetaUrl(String caseId) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("digitalslidearchive.meta.url");
+        return url+caseId;
     }
     
     public static String getTCGAPathReportUrl(String typeOfCancer) {

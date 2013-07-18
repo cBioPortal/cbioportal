@@ -275,9 +275,9 @@ public class PatientView extends HttpServlet {
         }
         
         // images
-        List<String> tisImages = getTissueImages(cancerStudy.getCancerStudyStableId(), patient);
-        if (tisImages!=null) {
-            request.setAttribute(TISSUE_IMAGES, tisImages);
+        String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), patient);
+        if (tisImageUrl!=null) {
+            request.setAttribute(TISSUE_IMAGES, tisImageUrl);
         }
         
         // path report
@@ -337,56 +337,45 @@ public class PatientView extends HttpServlet {
         return map;
     }
     
-    // Map<StudyId, Map<CaseId, List<ImageName>>>
-    private static Map<String,Map<String,List<String>>> tissueImages
-            = new HashMap<String,Map<String,List<String>>>();
-    private synchronized List<String> getTissueImages(String cancerStudyId, String caseId) {
-            
-        Map<String,List<String>> map = tissueImages.get(cancerStudyId);
-        if (map==null) {
-            map = new HashMap<String,List<String>>();
-            tissueImages.put(cancerStudyId, map);
-            
-            String imageListUrl = SkinUtil.getTumorTissueImageUrl(cancerStudyId)+"image_list.txt";
-            if (imageListUrl==null) {
-                return null;
-            }
-        
-            MultiThreadedHttpConnectionManager connectionManager =
-                    ConnectionManager.getConnectionManager();
-            HttpClient client = new HttpClient(connectionManager);
-            GetMethod method = new GetMethod(imageListUrl);
-
-            try {
-                int statusCode = client.executeMethod(method);
-                if (statusCode == HttpStatus.SC_OK) {
-                    BufferedReader bufReader = new BufferedReader(
-                            new InputStreamReader(method.getResponseBodyAsStream()));
-                    for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
-                        String[] parts = line.split("\t");
-                        String cId = parts[0];
-                        String imageName = parts[1];
-                        List<String> list = map.get(cId);
-                        if (list==null) {
-                            list = new ArrayList<String>();
-                            map.put(cId, list);
-                        }
-                        list.add(imageName);
-                    }
-                } else {
-                    //  Otherwise, throw HTTP Exception Object
-                    logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
-                            + " Base URL:  " + cancerStudyId);
-                }
-            } catch (Exception ex) {
-                logger.error(ex.getMessage());
-            } finally {
-                //  Must release connection back to Apache Commons Connection Pool
-                method.releaseConnection();
-            }
+    private String getTissueImageIframeUrl(String cancerStudyId, String caseId) {
+        if (!caseId.toUpperCase().startsWith("TCGA-")) {
+            return null;
         }
         
-        return map.get(caseId);
+        // test if images exist for the case
+        String metaUrl = SkinUtil.getDigitalSlideArchiveMetaUrl(caseId);
+        MultiThreadedHttpConnectionManager connectionManager =
+                    ConnectionManager.getConnectionManager();
+        HttpClient client = new HttpClient(connectionManager);
+        GetMethod method = new GetMethod(metaUrl);
+
+        Pattern p = Pattern.compile("<data total_count='([0-9]+)'>");
+        try {
+            int statusCode = client.executeMethod(method);
+            if (statusCode == HttpStatus.SC_OK) {
+                BufferedReader bufReader = new BufferedReader(
+                        new InputStreamReader(method.getResponseBodyAsStream()));
+                for (String line=bufReader.readLine(); line!=null; line=bufReader.readLine()) {
+                    Matcher m = p.matcher(line);
+                    if (m.find()) {
+                        int count = Integer.parseInt(m.group(1));
+                        return count>0 ? SkinUtil.getDigitalSlideArchiveIframeUrl(caseId) : null;
+                    }
+                }
+                
+            } else {
+                //  Otherwise, throw HTTP Exception Object
+                logger.error(statusCode + ": " + HttpStatus.getStatusText(statusCode)
+                        + " Base URL:  " + metaUrl);
+            }
+        } catch (Exception ex) {
+            logger.error(ex.getMessage());
+        } finally {
+            //  Must release connection back to Apache Commons Connection Pool
+            method.releaseConnection();
+        }
+        
+        return null;
     }
     
     // Map<TypeOfCancer, Map<CaseId, List<ImageName>>>

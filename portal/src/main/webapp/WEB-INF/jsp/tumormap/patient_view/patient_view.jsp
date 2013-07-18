@@ -15,9 +15,11 @@ String caseId = (String)request.getAttribute(PatientView.CASE_ID);
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
-List<String> tissueImages = (List<String>)request.getAttribute(PatientView.TISSUE_IMAGES);
+
+String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
+boolean showTissueImages = tissueImageUrl!=null;
+
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID_ATTR_NAME);
-boolean showTissueImages = tissueImages!=null && !tissueImages.isEmpty();
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 String drugType = request.getParameter("drug_type");
@@ -119,7 +121,7 @@ if (patientViewError!=null) {
     <%}%>
     
     <%if(showTissueImages){%>
-    <li><a href='#images' class='patient-tab'>Tissue Images</a></li>
+    <li><a id="link-tissue-images" href='#images' class='patient-tab'>Tissue Images</a></li>
     <%}%>
     
     <%if(pathReportUrl!=null){%>

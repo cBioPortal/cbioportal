@@ -202,12 +202,13 @@ function switchToTab(toTab) {
 }
 
 function getRefererCaseId() {
-    var match = /<%=PatientView.PATIENT_ID%>=([^&]+)/.exec(document.referrer);
-    return match ? match[1] : null;
+    //var match = /case_id=([^&]+)/.exec(document.referrer);
+    //return match ? match[1] : null;
+    return null;
 }
 
 function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
+    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='+cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
 }
 
 </script>

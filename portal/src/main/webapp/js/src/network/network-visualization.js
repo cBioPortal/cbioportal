@@ -3089,7 +3089,7 @@ NetworkVis.prototype._toggleAutoLayout = function()
     }
     else
     {
-        item.removeClass(CHECKED_CLASS);
+        item.removeClass(this.CHECKED_CLASS);
     }
 };
 

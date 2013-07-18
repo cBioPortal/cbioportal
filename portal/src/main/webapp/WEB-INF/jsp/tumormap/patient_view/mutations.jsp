@@ -806,7 +806,7 @@
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
                     'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
                 $('.all-mutation-table-name').html(
-                    "This tumor has "+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
+                    ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();

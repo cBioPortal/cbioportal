@@ -370,7 +370,7 @@
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
                         'cna_table', '<"H"<"all-cna-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events");
                 $('.all-cna-table-name').html(
-                    "This tumor has "+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
+                    ""+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
                 $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();

@@ -229,7 +229,6 @@
                 samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
-<script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
         var genes = "<%=genes%>",

@@ -632,13 +632,29 @@ var Oncoprint = function(wrapper, params) {
     that.getOncoPrintBodyXML = function() {
         // hard coding this for now
 
+
+        // takes a string "translate(x,y)" and returns an object {x y}
+        // containing those values
+        //
+        // *signature*: str -> {x y}
+        var detranslate = function(str) {
+            var regex = /translate\(\s*([^\s,)]+)[ ,]([^\s,)]+)/
+            var parts  = regex.exec(str);
+            parts = parts.slice(1).map(parseFloat);
+
+            return _.object(['x', 'y'], parts);
+        };
+
         var labels = $('#oncoprint svg#label').children().clone();
         var tracks = $('#oncoprint svg#body').children().clone();
 
         tracks.each(function(track_i, track) {
-            // for each track loop over the samples
             $(track).children().each(function(sample_i, sample) {
-                $(sample).attr('transform', translate(x(sample_i) + label_width, y(track_i)));
+                // shift everything over to the right to make room for the
+                // labels
+                var translate_str = $(sample).attr('transform');
+                var coordinates = detranslate(translate_str);
+                $(sample).attr('transform', translate(coordinates.x + label_width, coordinates.y));
             });
         });
 

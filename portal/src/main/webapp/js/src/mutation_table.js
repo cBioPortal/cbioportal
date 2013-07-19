@@ -235,19 +235,68 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	/**
 	 * Helper function for predicted impact score sorting.
 	 */
-	function _assignValueToPredictedImpact(str)
+	function _assignValueToPredictedImpact(text, score)
 	{
-		str = str.toLowerCase();
+		// using score by itself may be sufficient,
+		// but sometimes we have no numerical score value
 
-		if (str == "low" || str == "l") {
-			return 2;
-		} else if (str == "medium" || str == "m") {
-			return 3;
-		} else if (str == "high" || str == "h") {
-			return 4;
-		} else if (str == "neutral" || str == "n") {
-			return 1;
+		var value;
+		text = text.toLowerCase();
+
+		if (text == "low" || text == "l") {
+			value = 2;
+		} else if (text == "medium" || text == "m") {
+			value = 3;
+		} else if (text == "high" || text == "h") {
+			value = 4;
+		} else if (text == "neutral" || text == "n") {
+			value = 1;
 		} else {
+			value = -1;
+		}
+
+		if (value > 0 && !isNaN(score))
+		{
+			//assuming FIS values cannot exceed 1000
+			value += score / 1000;
+		}
+
+		return value;
+	}
+
+	/**
+	 * Helper function for predicted impact score sorting.
+	 * Gets the score from the "alt" property within the given html string.
+	 */
+	function _getFisValue(a)
+	{
+		var score = "";
+		var altValue = $(a).attr("alt");
+
+		var parts = altValue.split("|");
+
+		if (parts.length > 0)
+		{
+			if (parts[0].length > 0)
+			{
+				score = parseFloat(parts[0]);
+			}
+		}
+
+		return score;
+	}
+
+	/**
+	 * Helper function for sorting string values within label tag.
+	 */
+	function _getLabelTextValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return $(a).text().trim();
+		}
+		else
+		{
 			return -1;
 		}
 	}
@@ -395,8 +444,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		 * Ascending sort function for predicted impact column.
 		 */
 		jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
-			var av = _assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
-			var bv = _assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
+			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
 
 			return _compareSortAsc(a, b, av, bv);
 		};
@@ -405,8 +454,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		 * Descending sort function for predicted impact column.
 		 */
 		jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
-			var av = _assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
-			var bv = _assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
+			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
+			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
 
 			return _compareSortDesc(a, b, av, bv);
 		};

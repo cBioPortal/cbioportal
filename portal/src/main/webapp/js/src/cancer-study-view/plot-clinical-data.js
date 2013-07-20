@@ -166,7 +166,7 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
                 if (type==='set') {
                     source[colPatientIdCol]=value;
                 } else if (type==='display') {
-                    return formatPatientLink(source[colPatientIdCol],cancerStudyId);
+                    return formatPatientLink(source[colPatientIdCol],cancerStudyId,true);
                 } else {
                     return source[colPatientIdCol];
                 }

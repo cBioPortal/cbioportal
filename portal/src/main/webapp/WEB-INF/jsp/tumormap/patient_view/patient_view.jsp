@@ -91,7 +91,7 @@ if (patientViewError!=null) {
 
 <%if(patientID!=null) {%>
     <p style="background-color: lightyellow;"> This patient has 
-        <a title="Go to patient-centric view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&case_id=<%=patientID%>">multiple tumors</a>.
+        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&patient_id=<%=patientID%>">multiple tumors</a>.
     </p>
 <%}%>
 
@@ -614,9 +614,9 @@ function d3MrnaBar(div,mrnaPerc) {
 
 }
 
-function formatPatientLink(caseId,cancerStudyId) {
+function formatPatientLink(caseId,cancerStudyId,isPatient) {
     return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
-            +cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
+            +cancerStudyId+'&'+(isPatient?'patient_id':'case_id')+'='+caseId+'">'+caseId+'</a>';
 }
 
 function trimHtml(html) {

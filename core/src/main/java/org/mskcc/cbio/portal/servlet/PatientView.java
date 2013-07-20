@@ -6,10 +6,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.RequestDispatcher;
@@ -41,6 +42,7 @@ public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
     public static final String ERROR = "error";
     public static final String CASE_ID = "case_id";
+    public static final String PATIENT_ID = "patient_id";
     public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
     public static final String PATIENT_CASE_OBJ = "case_obj";
     public static final String CANCER_STUDY = "cancer_study";
@@ -103,14 +105,13 @@ public class PatientView extends HttpServlet {
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
         //  Get patient ID
-        String patientID = request.getParameter(CASE_ID);
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
 
-        request.setAttribute(QueryBuilder.HTML_TITLE, "Patient "+patientID);
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
             if (validate(request)) {
+                request.setAttribute(QueryBuilder.HTML_TITLE, "Patient: "+request.getAttribute(CASE_ID));
                 setGeneticProfiles(request);
                 setClinicalInfo(request);
                 setNumCases(request);
@@ -163,11 +164,12 @@ public class PatientView extends HttpServlet {
         request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, Boolean.FALSE);
         
         String caseIdsStr = request.getParameter(CASE_ID);
-        if (caseIdsStr == null || caseIdsStr.isEmpty()) {
-            request.setAttribute(ERROR, "Please specify at least one case ID. ");
+        String patientIdsStr = request.getParameter(PATIENT_ID);
+        if ((caseIdsStr == null || caseIdsStr.isEmpty())
+                && (patientIdsStr == null || patientIdsStr.isEmpty())) {
+            request.setAttribute(ERROR, "Please specify at least one case ID or patient ID. ");
             return false;
         }
-        String[] patientIds = caseIdsStr.split(" +");
         
         String cancerStudyId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
         if (cancerStudyId==null) {
@@ -181,18 +183,24 @@ public class PatientView extends HttpServlet {
             return false;
         }
 
-        LinkedHashSet<Case> cases = new LinkedHashSet<Case>(patientIds.length);
+        Set<Case> cases = new HashSet<Case>();
         List<String> sampleIds = new ArrayList<String>();
-        for (String patientId : patientIds) {
-            Case _case = DaoCase.getCase(patientId, cancerStudy.getInternalId());
-            if (_case != null) {
-                cases.add(_case);
-                sampleIds.add(_case.getCaseId());
-            } else {
+        if (caseIdsStr!=null) {
+            for (String caseId : caseIdsStr.split(" +")) {
+                Case _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
+                if (_case != null) {
+                    cases.add(_case);
+                    sampleIds.add(_case.getCaseId());
+                }
+            }
+        }
+        
+        if (patientIdsStr!=null) {
+            for (String patientId : patientIdsStr.split(" +")) {
                 List<String> samples = daoClinicalFreeForm.getCaseIdsByAttribute(
                     cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
                 for (String sample : samples) {
-                    _case = DaoCase.getCase(sample, cancerStudy.getInternalId());
+                    Case _case = DaoCase.getCase(sample, cancerStudy.getInternalId());
                     if (_case != null) {
                         cases.add(_case);
                         sampleIds.add(_case.getCaseId());
@@ -202,7 +210,7 @@ public class PatientView extends HttpServlet {
         }
 
         if (cases.isEmpty()) {
-            request.setAttribute(ERROR, "We have no information about patients "+caseIdsStr);
+            request.setAttribute(ERROR, "We have no information about the patient.");
             return false;
         }
         
@@ -223,8 +231,8 @@ public class PatientView extends HttpServlet {
 
         request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
-        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, patientIds.length>1 ? Boolean.FALSE :
-                hasAlleleFrequencyData(cancerStudy, patientIds[0], cancerStudy.getMutationProfile(patientIds[0])));
+        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, sampleIds.size()>1 ? Boolean.FALSE :
+                hasAlleleFrequencyData(cancerStudy, sampleIds.get(0), cancerStudy.getMutationProfile(sampleIds.get(0))));
         
         return true;
     }
@@ -259,16 +267,15 @@ public class PatientView extends HttpServlet {
     }
     
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {
-        LinkedHashSet<Case> cases = (LinkedHashSet<Case>)request.getAttribute(PATIENT_CASE_OBJ);
+        Set<Case> cases = (Set<Case>)request.getAttribute(PATIENT_CASE_OBJ);
         
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
         String patient = null;
-        ClinicalData cd = null;
         Map<String,ClinicalFreeForm> clinicalFreeForms = Collections.emptyMap();
         Map<String,Map<String,String>> clinicalData = new LinkedHashMap<String,Map<String,String>>();
         for (Case _case : cases) {
             patient = _case.getCaseId();
-            cd = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
+            ClinicalData cd = daoClinicalData.getCase(cancerStudy.getInternalId(),patient);
             clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
             clinicalData.put(patient,mergeClinicalData(cd, clinicalFreeForms));
         }

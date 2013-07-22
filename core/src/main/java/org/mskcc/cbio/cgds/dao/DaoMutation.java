@@ -30,7 +30,6 @@ package org.mskcc.cbio.cgds.dao;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -340,8 +339,12 @@ public final class DaoMutation {
             }
             return mutationList;
         }
+        
+        public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, String caseId) throws DaoException {
+            return getMutations(geneticProfileId, new String[]{caseId});
+        }
     
-        public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, String CaseId) throws DaoException {
+        public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, String[] caseIds) throws DaoException {
             Connection con = null;
             PreparedStatement pstmt = null;
             ResultSet rs = null;
@@ -351,9 +354,8 @@ public final class DaoMutation {
                 pstmt = con.prepareStatement
                         ("SELECT * FROM mutation "
                         + "INNER JOIN mutation_event ON mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID "
-                        + "WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ?");
+                        + "WHERE GENETIC_PROFILE_ID = ? AND CASE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
                 pstmt.setInt(1, geneticProfileId);
-                pstmt.setString(2, CaseId);
                 rs = pstmt.executeQuery();
                 while  (rs.next()) {
                     ExtendedMutation mutation = extractMutation(rs);

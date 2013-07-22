@@ -145,7 +145,7 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static List<CnaEvent> getCnaEvents(String caseId, int profileId) throws DaoException {
+    public static List<CnaEvent> getCnaEvents(String[] caseIds, int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -154,10 +154,10 @@ public final class DaoCnaEvent {
             pstmt = con.prepareStatement
 		("SELECT case_cna_event.CNA_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
                     + " ENTREZ_GENE_ID, ALTERATION FROM case_cna_event, cna_event"
-                    + " WHERE `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?"
-                    + " AND case_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID");
-            pstmt.setString(1, caseId);
-            pstmt.setInt(2, profileId);
+                    + " WHERE `GENETIC_PROFILE_ID`=?"
+                    + " AND case_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
+                    + " AND CASE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
+            pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {

@@ -71,6 +71,7 @@
                     var geneDataManager = DataManagerFactory.getGeneDataManager();
                     geneDataManager.fire(data);
 
+
                     $('#oncoprint #loader_img').hide();
                     $('#oncoprint #everything').show();
                 });

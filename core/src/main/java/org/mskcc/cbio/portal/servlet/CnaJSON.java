@@ -9,8 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONValue;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
@@ -60,7 +59,7 @@ public class CnaJSON extends HttpServlet {
     
     private void processGetCnaRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String patient = request.getParameter(PatientView.PATIENT_ID);
+        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cnaProfileId = request.getParameter(PatientView.CNA_PROFILE);
         String mrnaProfileId = request.getParameter(PatientView.MRNA_PROFILE);
         String drugType = request.getParameter(PatientView.DRUG_TYPE);
@@ -81,19 +80,20 @@ public class CnaJSON extends HttpServlet {
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            cnaEvents = DaoCnaEvent.getCnaEvents(patient, cnaProfile.getGeneticProfileId());
+            cnaEvents = DaoCnaEvent.getCnaEvents(caseIds, cnaProfile.getGeneticProfileId());
             String concatEventIds = getConcatEventIds(cnaEvents);
             int profileId = cnaProfile.getGeneticProfileId();
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);
             contextMap = DaoCnaEvent.countSamplesWithCnaEvents(concatEventIds, profileId);
-            if (mrnaProfileId!=null) {
-                mrnaContext = getMrnaContext(patient, cnaEvents, mrnaProfileId);
+            if (mrnaProfileId!=null && caseIds.length==1) {
+                mrnaContext = getMrnaContext(caseIds[0], cnaEvents, mrnaProfileId);
             }
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
         Map<String,List> data = initMap();
+        Map<Long, Integer> mapEventIndex = new HashMap<Long, Integer>();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (CnaEvent cnaEvent : cnaEvents) {
             Set<String> drug = Collections.emptySet();
@@ -102,7 +102,7 @@ public class CnaJSON extends HttpServlet {
             } catch (Exception e) {
                 logger.error(e.getMessage());
             }
-            exportCnaEvent(data, cnaEvent, cancerStudy, drug,
+            exportCnaEvent(data, mapEventIndex, cnaEvent, cancerStudy, drug,
                     contextMap.get(cnaEvent.getEventId()),
                     mrnaContext.get(cnaEvent.getEntrezGeneId()),
                     daoGeneOptimized);
@@ -110,8 +110,9 @@ public class CnaJSON extends HttpServlet {
 
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(data, out);
+            out.write(mapper.writeValueAsString(data));
         } finally {            
             out.close();
         }
@@ -120,29 +121,34 @@ public class CnaJSON extends HttpServlet {
     private void processGetSegmentsRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        JSONArray table = new JSONArray();
 
-        String patients = request.getParameter(PatientView.PATIENT_ID);
+        String[] caseIds = request.getParameter(PatientView.CASE_ID).split(" +");
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         List<CopyNumberSegment> segs = Collections.emptyList();
         
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
-            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(patients.split("[, ]+")), studyId);
+            segs = DaoCopyNumberSegment.getSegmentForCases(Arrays.asList(caseIds), studyId);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
         
+        Map<String,List> map = new HashMap<String,List>();
+        for (String caseId : caseIds) {
+            map.put(caseId, new ArrayList());
+        }
+        
         for (CopyNumberSegment seg : segs) {
-            exportCopyNumberSegment(table, seg);
+            exportCopyNumberSegment(map.get(seg.getCaseId()), seg);
         }
 
         response.setContentType("application/json");
         
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(table, out);
+            out.write(mapper.writeValueAsString(map));
         } finally {            
             out.close();
         }
@@ -168,8 +174,9 @@ public class CnaJSON extends HttpServlet {
         response.setContentType("application/json");
         
         PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
         try {
-            JSONValue.writeJSONString(fraction, out);
+            out.write(mapper.writeValueAsString(fraction));
         } finally {            
             out.close();
         }
@@ -296,6 +303,7 @@ public class CnaJSON extends HttpServlet {
     private Map<String,List> initMap() {
         Map<String,List> map = new HashMap<String,List>();
         map.put("id", new ArrayList());
+        map.put("caseIds", new ArrayList());
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
         map.put("alter", new ArrayList());
@@ -308,19 +316,26 @@ public class CnaJSON extends HttpServlet {
         return map;
     }
     
-    private void exportCnaEvent(Map<String,List> data, CnaEvent cnaEvent,
-            CancerStudy cancerStudy, Set<String> drugs, Integer context,
+    private void exportCnaEvent(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
+            CnaEvent cnaEvent, CancerStudy cancerStudy, Set<String> drugs, Integer context,
             Map<String,Object> mrna, DaoGeneOptimized daoGeneOptimized) 
             throws ServletException {
-        String symbol = null;
-        try {
-            symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
-                    .getHugoGeneSymbolAllCaps();
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
+        Long eventId = cnaEvent.getEventId();
+        Integer ix = mapMutationEventIndex.get(eventId);
+        if (ix!=null) { // multiple samples
+            List.class.cast(data.get("caseIds").get(ix)).add(cnaEvent.getCaseId());
             return;
         }
+        
+        mapMutationEventIndex.put(eventId, data.get("id").size());
+        
+        List<String> samples = new ArrayList<String>();
+        samples.add(cnaEvent.getCaseId());
+        data.get("caseIds").add(samples);
+        
         data.get("id").add(cnaEvent.getEventId());
+        String symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
+                    .getHugoGeneSymbolAllCaps();
         data.get("gene").add(symbol);
         data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());
@@ -353,16 +368,16 @@ public class CnaJSON extends HttpServlet {
         data.get("drug").add(drugs);
     }
     
-    private void exportCopyNumberSegment(JSONArray table, CopyNumberSegment seg) 
+    private void exportCopyNumberSegment(List list, CopyNumberSegment seg) 
             throws ServletException {
-        JSONArray row = new JSONArray();
+        List row = new ArrayList();
         row.add(seg.getCaseId());
         row.add(seg.getChr());
         row.add(seg.getStart());
         row.add(seg.getEnd());
         row.add(seg.getNumProbes());
         row.add(seg.getSegMean());
-        table.add(row);
+        list.add(row);
     }
     
     private static final Map<Integer,Map<String,Map<CnaEvent.CNA,List>>> gisticMap // map from cancer study id

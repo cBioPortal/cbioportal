@@ -3,9 +3,9 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,gene:1,aa:2,chr:3,start:4,end:5,ref:6,_var:7,validation:8,type:9,
-                  tumor_freq:10,tumor_var_reads:11,tumor_ref_reads:12,norm_freq:13,norm_var_reads:14,
-                  norm_ref_reads:15,mrna:16,altrate:17,cosmic:18,ma:19,cons:20,'3d':21,drug:22};
+    var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
+                  tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
+                  norm_ref_reads:16,mrna:17,altrate:18,cosmic:19,ma:20,cons:21,'3d':22,drug:23};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -22,6 +22,47 @@
                         "aTargets": [ mutTableIndices["id"] ],
                         "bVisible": false,
                         "mData" : 0
+                    },
+                    {// case_ids
+                        "aTargets": [ mutTableIndices["case_ids"] ],
+                        "sClass": "center-align-td",
+                        "bVisible": caseIds.length>1,
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var samples = mutations.getValue(source[0], "caseIds");
+                                var ret = [];
+                                for (var i=0, n=caseIds.length; i<n; i++) {
+                                    var caseId = caseIds[i];
+                                    if ($.inArray(caseId,samples)>=0) {
+                                        ret.push("<svg width='12' height='12' class='"
+                                            +table_id+"-case-label' alt='"+caseId+"'></svg>");
+                                    } else {
+                                        ret.push("<svg width='12'></svg>");
+                                    }
+                                }
+                                
+                                return "<div>"+ret.join("&nbsp;")+"</div>";
+                            } else if (type==='sort') {
+                                var samples = mutations.getValue(source[0], "caseIds");
+                                var ix = [];
+                                samples.forEach(function(caseId){
+                                    ix.push(mapCaseIndices[caseId]);
+                                });
+                                ix.sort();
+                                var ret = 0;
+                                for (var i=0; i<ix.length; i++) {
+                                    ret += Math.pow(10,i)*ix[i];
+                                }
+                                return ret;
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return mutations.getValue(source[0], "caseIds");
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
                     },
                     {// gene
                         "aTargets": [ mutTableIndices["gene"] ],
@@ -371,6 +412,7 @@
                     },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
+                        "bVisible": !mutations.colAllNull('mrna'),
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": 
@@ -379,7 +421,7 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = mutations.getValue(source[0], 'mrna');
-                                if (!mrna) return "<span style='color:gray;' class='"
+                                if (mrna===null) return "<span style='color:gray;' class='"
                                            +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
@@ -593,6 +635,9 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    if (caseIds.length>1) {
+                        plotCaseLabel('.'+table_id+'-case-label',true);
+                    }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);
                     addNoteTooltip("."+table_id+"-tip");
@@ -656,7 +701,7 @@
                 tip = "<b>MutSig</b><br/>Q-value: "+mutsig.toPrecision(2);
                 var circle = svg.append("g")
                     .attr("transform", "translate(80,6)");
-                d3CircledChar(circle,"M");
+                d3CircledChar(circle,"M","#55C","#66C");
                 qtip($(circle), tip);
             }
             
@@ -705,7 +750,7 @@
         $('#mutation_id_filter_msg').hide();
         $('#mutation_wrapper_table').hide();
         var params = {
-            <%=PatientView.PATIENT_ID%>:'<%=patient%>',
+            <%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
         
@@ -761,7 +806,7 @@
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(false),
                     'mutation_table', '<"H"<"all-mutation-table-name">fr>t<"F"C<"datatable-paging"pil>>', 100, "No mutation events", false);
                 $('.all-mutation-table-name').html(
-                    "This tumor has "+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
+                    ""+genomicEventObs.mutations.getNumEvents()+" nonsynonymous mutations");
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();

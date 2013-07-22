@@ -34,6 +34,8 @@
         }
 </style>
 
+<script type="text/javascript" src="js/src/protein_exp.js"></script>
+
 <script type="text/javascript">
     function parsePValue(str) {
         return parseFloat(str.replace(/<[^>]*>/g,""));
@@ -81,6 +83,39 @@
                     r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
             }
             return r+'</select>';
+    }
+
+    /**
+     * Get data for the rppa plots
+     *
+     * @global: dataSummary
+     * @global: mergedCaseLists
+     * @return: unalteredCaseList
+     * @return: alteredCaseList
+     *
+     * @author: Yichao S
+     * @date: Jul 2013
+     */
+    function getRppaPlotsData() {
+        var caseLists = {
+            alteredCaseList: [],
+            unalteredCaseList: []
+        };
+
+        <%
+            for (String caseId : mergedCaseList) {
+                if (dataSummary.isCaseAltered(caseId)) {
+        %>
+                    caseLists.alteredCaseList.push("<%=caseId%>");
+        <%
+                } else {
+        %>
+                    caseLists.unalteredCaseList.push("<%=caseId%>");
+        <%
+                }
+            }
+        %>
+        return caseLists;
     }
     
     $(document).ready(function(){
@@ -302,11 +337,24 @@
                             xlabel += " (p-value: "+pvalue+")";
                         }
                         var ylabel = "RPPA score ("+antibody+")";
-                        var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
-                        var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
-                        html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>' 
-                                + '<img src="boxplot.do?'+param+'">';
-                        oTable.fnOpen( nTr, html, 'rppa-details' );
+
+
+                        /**
+                         * Replace the R plots by D3 plots for rppa value
+                         * clustered by altered and unaltered cases
+                         *
+                         * @author YichaoS
+                         * @date Jul 2013
+                        */
+                        //var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
+                        //var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
+                        //html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>'
+                        //        + '<img src="boxplot.do?'+param+'">';
+                        var title = "Boxplots of RPPA data (" + antibody + ") for altered and unaltered cases ";
+                        var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
+                        _divName = _divName.replace(/\//g, "");
+                        oTable.fnOpen( nTr, "<div id='" + _divName + "'></div>", 'rppa-details' );
+                        rppaPlots.init(xlabel, ylabel, title, getRppaPlotsData(), _divName);
                     }
                 } );
                 

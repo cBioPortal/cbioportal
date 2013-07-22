@@ -235,7 +235,7 @@ var PlotsTwoGenesView = (function(){
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "None Mutated"
+                text : "Neither Mutated"
             }
         };
 
@@ -765,6 +765,7 @@ var PlotsTwoGenesView = (function(){
         pDataInit(result);
         initCanvas();
         if (pData.dotsData.length !== 0) {
+            $("#show_mutation").attr("disabled", false);
             initAxis();
             drawAxis();
             drawPlots();
@@ -773,6 +774,7 @@ var PlotsTwoGenesView = (function(){
             addQtips();
             drawImgConverter();
         } else {
+            $("#show_mutation").attr("disabled", true);
             drawErrorMsg();
         }
     }

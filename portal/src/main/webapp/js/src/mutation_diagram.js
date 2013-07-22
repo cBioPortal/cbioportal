@@ -170,28 +170,6 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 	var self = this;
 	var data = {};
 
-	// helper function to determine the longest common starting substring
-	// for the given two strings
-	// TODO move it to a general utility class
-	var lcss = function (str1, str2)
-	{
-		var i = 0;
-
-		while (i < str1.length && i < str2.length)
-		{
-			if (str1[i] === str2[i])
-			{
-				i++;
-			}
-			else
-			{
-				break;
-			}
-		}
-
-		return str1.substring(0, i);
-	};
-
 	// helper function to generate a label by joining all unique
 	// protein change information in the given array of mutations
 	var generateLabel = function(mutations)
@@ -226,7 +204,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 
 		if (mutationArray.length > 1)
 		{
-			startStr = lcss(mutationArray[0],
+			startStr = cbio.util.lcss(mutationArray[0],
 				mutationArray[mutationArray.length - 1]);
 
 //			 console.log(mutationArray[0] + " n " +

@@ -258,6 +258,44 @@ public class DaoClinicalFreeForm {
         }
     }
     
+    /**
+     * Retrieve case IDs based on attribute.
+     * @param cancerStudyId
+     * @param paramName
+     * @param paramValue
+     * @return a list of IDs of cases that have the same value for and attribute.
+     * @throws DaoException 
+     */
+    public List<String> getCaseIdsByAttribute(int cancerStudyId, String paramName, String paramValue) throws DaoException {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try{
+            con = JdbcUtil.getDbConnection(DaoClinicalFreeForm.class);
+            pstmt = con.prepareStatement ("SELECT CASE_ID FROM `clinical_free_form`"
+                    + "WHERE CANCER_STUDY_ID="+cancerStudyId
+                    + " AND PARAM_NAME=? AND PARAM_VALUE=?");
+            pstmt.setString(1, paramName);
+            pstmt.setString(2, paramValue);
+            rs = pstmt.executeQuery();
+            
+            List<String> cases = new ArrayList<String>();
+            
+            while (rs.next())
+            {
+                cases.add(rs.getString("CASE_ID"));
+            }
+            
+            return cases;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalFreeForm.class, con, pstmt, rs);
+        }
+        
+    }
+    
     private List<ClinicalFreeForm> retrieveClinicalFreeFormData(ResultSet rs) throws SQLException {
         ArrayList<ClinicalFreeForm> dataList = new ArrayList<ClinicalFreeForm>();
             

@@ -87,7 +87,7 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(tumor_type)|(metastasis site)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
 }
 
 // draw datatable
@@ -96,8 +96,11 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
     var nCol = dt.getNumberOfColumns();
     var headers = [];
     var isColNum = [];
+    var colPatientIdCol = -1;
     for (var col=0; col<nCol; col++) {
-        headers.push(getNiceHeader(dt.getColumnLabel(col)));
+        var label = dt.getColumnLabel(col);
+        if (label.toLowerCase() === "patient_id") colPatientIdCol = col;
+        headers.push(getNiceHeader(label));
         isColNum.push(dt.getColumnType(col)==='number');
     }
     $('#'+tableId+' thead tr').html("<th><b>"+headers.join("</b></th><th><b>")+"</b></th>");
@@ -155,6 +158,21 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
                 }
             }
         ];
+    if (colPatientIdCol!==-1) {
+        colDefs.push({
+            "aTargets": [ colPatientIdCol ],
+            "sClass": "case-id-td",
+            "mDataProp": function(source,type,value) {
+                if (type==='set') {
+                    source[colPatientIdCol]=value;
+                } else if (type==='display') {
+                    return formatPatientLink(source[colPatientIdCol],cancerStudyId,true);
+                } else {
+                    return source[colPatientIdCol];
+                }
+            }
+        });
+    }
     for (var col=1; col<nCol; col++) {
         if (isColNum[col]) {
             colDefs.push({

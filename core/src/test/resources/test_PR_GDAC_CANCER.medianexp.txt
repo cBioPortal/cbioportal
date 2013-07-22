@@ -1,0 +1,7 @@
+Hugo_Symbol	Entrez_Gene_Id		TCGA-02-0001-01C-01R	TCGA-02-0002-01A-01R	TCGA-02-0003-01A-01R	TCGA-02-0004-01A-01R	TCGA-02-0005-01A-01D-0182-01	TCGA-02-0006-01A-01D-0182-01
+Composite Element REF	signal	signal	signal	signal	signal	signal
+AACS	65985	  1	0	0	-1	1	1
+ELMO2	10		  3	-1	-1	1	1	5
+TP53	35		  2	1	0	0	1	1
+RPS11	35		  0	4	2	2	0	-2
+PNMA1	34		  1	2	-2	2	-2	4

@@ -1,0 +1,235 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>cgdstutorial</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2012-06-27"><meta name="m-file" content="cgdstutorial"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">CGDS toolbox examples ('showdemo cgdstutorial')</a></li><li><a href="#2">Show toolbox help</a></li><li><a href="#3">Get list of available cancer types</a></li><li><a href="#4">Get available genetic profiles for a given cancer type</a></li><li><a href="#5">Get available case lists (collections of samples) for a given cancer type</a></li><li><a href="#6">Get multiple types of genetic profile data for a specific gene</a></li><li><a href="#7">Plot mRNA levels as a function of copy number status</a></li><li><a href="#8">Get genetic profile data for multiple specified genes</a></li><li><a href="#9">Get clinical data for all patients in a given case list</a></li><li><a href="#10">Survival plots for patients with and without IDH1 mutations</a></li><li><a href="#11">Run a function in non-verbose mode</a></li></ul></div><h2>CGDS toolbox examples ('showdemo cgdstutorial')<a name="1"></a></h2><p>The CGDS toolbox provides a set of functions for retrieving data from the cBio Cancer Genomics Data Portal web API. Get started by adding the CGDS toolbox directory to the path and setting the server URL.</p><pre class="codeinput"><span class="comment">% modify path to make toolbox functions globally available in matlab</span>
+<span class="comment">% this will depend on install location, and is only necessary if you want</span>
+<span class="comment">% to make the functions available from any directory</span>
+addpath(<span class="string">'/Users/Erik/Documents/MATLAB/cgds'</span>);
+
+<span class="comment">% Set web API URL (including trailing '/' but excluding 'webservice.do')</span>
+cgdsURL = <span class="string">'http://www.cbioportal.org/public-portal/'</span>;
+</pre><h2>Show toolbox help<a name="2"></a></h2><p>Use 'helpwin cgds' if you prefer to display it in the Help window.</p><pre class="codeinput">help <span class="string">cgds</span>;
+</pre><pre class="codeoutput">Contents of cgds:
+
+cgdstutorial                   - CGDS toolbox examples ('showdemo cgdstutorial')
+getcancerstudies               - Get cancer studies from the cBio CGDS portal.
+getcaselists                   - Get case lists from the cBio CGDS portal.
+getclinicaldata                - Get clinical data from the cBio CGDS portal.
+getgeneticprofiles             - Get genetic profiles from the cBio CGDS portal.
+getprofiledata                 - Get genomic profile data from the cBio CGDS portal.
+
+</pre><h2>Get list of available cancer types<a name="3"></a></h2><pre class="codeinput">cancerStudies = getcancerstudies(cgdsURL)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+
+cancerStudies = 
+
+    cancerTypeId: {20x1 cell}
+            name: {20x1 cell}
+     description: {20x1 cell}
+
+</pre><h2>Get available genetic profiles for a given cancer type<a name="4"></a></h2><p>This example retreives available profiles for glioblastoma (GBM).</p><pre class="codeinput">geneticProfiles = getgeneticprofiles(cgdsURL, <span class="string">'gbm_tcga'</span>)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+
+geneticProfiles = 
+
+             geneticProfileId: {12x1 cell}
+           geneticProfileName: {12x1 cell}
+    geneticProfileDescription: {12x1 cell}
+                 cancerTypeId: {12x1 cell}
+        geneticAlterationType: {12x1 cell}
+
+</pre><h2>Get available case lists (collections of samples) for a given cancer type<a name="5"></a></h2><pre class="codeinput">caseLists = getcaselists(cgdsURL, <span class="string">'gbm_tcga'</span>)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+
+caseLists = 
+
+             caseListId: {21x1 cell}
+           caseListName: {21x1 cell}
+    caseListDescription: {21x1 cell}
+           cancerTypeId: {21x1 cell}
+                caseIds: {21x1 cell}
+
+</pre><h2>Get multiple types of genetic profile data for a specific gene<a name="6"></a></h2><p>This fetches both mRNA expression and copy number status for P53 in GBM. The last argument causes data to be returned as a numeric matrix. Set to false when fetching non-numeric data, e.g. mutations. 'gbm_mrna' and 'gbm_gistic' are genetic profile IDs in geneticProfiles.geneticProfileID. 'gbm_all' is a case list ID from caseLists.caseListId.</p><pre class="codeinput">profileData = getprofiledata(cgdsURL, <span class="string">'gbm_tcga_all'</span>, <span class="keyword">...</span>
+                             {<span class="string">'gbm_tcga_mrna'</span> <span class="string">'gbm_tcga_gistic'</span>}, <span class="keyword">...</span>
+                             <span class="string">'TP53'</span>, true)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+
+profileData = 
+
+    geneticProfileId: {2x1 cell}
+      alterationType: {2x1 cell}
+              geneId: {2x1 cell}
+              common: {2x1 cell}
+              caseId: {577x1 cell}
+                data: [2x577 double]
+
+</pre><h2>Plot mRNA levels as a function of copy number status<a name="7"></a></h2><pre class="codeinput">boxplot(profileData.data(1,:),profileData.data(2,:));
+title(<span class="string">'TP53'</span>); xlabel(<span class="string">'CNA'</span>); ylabel(<span class="string">'mRNA level'</span>);
+</pre><img vspace="5" hspace="5" src="cgdstutorial_01.png" alt=""> <h2>Get genetic profile data for multiple specified genes<a name="8"></a></h2><p>This fetches mutation data for five different genes. Only one genetic profile ID is allowed in this case. Note that genes may be returned in a different order than requested.</p><pre class="codeinput">profileData = getprofiledata(cgdsURL, <span class="string">'gbm_tcga_sequenced'</span>, <span class="keyword">...</span>
+                             <span class="string">'gbm_tcga_mutations'</span>, <span class="keyword">...</span>
+                             {<span class="string">'TP53'</span> <span class="string">'NF1'</span> <span class="string">'EGFR'</span> <span class="string">'PTEN'</span> <span class="string">'IDH1'</span>}, false)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+# DATA_TYPE	 Mutations
+# COLOR_GRADIENT_SETTINGS	 MUTATION_EXTENDED
+
+profileData = 
+
+    geneId: {5x1 cell}
+    common: {5x1 cell}
+    caseId: {145x1 cell}
+      data: {5x145 cell}
+
+</pre><h2>Get clinical data for all patients in a given case list<a name="9"></a></h2><pre class="codeinput">clinicalData = getclinicaldata(cgdsURL, <span class="string">'gbm_tcga_sequenced'</span>)
+</pre><pre class="codeoutput"># CGDS Kernel:  Data served up fresh at:  Mon Jun 25 07:04:02 EDT 2012
+
+clinicalData = 
+
+                       caseId: {140x1 cell}
+        overallSurvivalMonths: [140x1 double]
+        overallSurvivalStatus: {140x1 cell}
+    diseaseFreeSurvivalMonths: [140x1 double]
+    diseaseFreeSurvivalStatus: {140x1 cell}
+               ageAtDiagnosis: [140x1 double]
+
+</pre><h2>Survival plots for patients with and without IDH1 mutations<a name="10"></a></h2><pre class="codeinput">isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), <span class="string">'NaN'</span>)));
+isCensored = strcmp(clinicalData.overallSurvivalStatus, <span class="string">'LIVING'</span>);
+ecdf(clinicalData.overallSurvivalMonths(isMutated), <span class="keyword">...</span>
+     <span class="string">'censoring'</span>,isCensored(isMutated),<span class="string">'function'</span>,<span class="string">'survivor'</span>);
+set(get(gca,<span class="string">'Children'</span>), <span class="string">'Color'</span>, [1 0 0]); hold <span class="string">on</span>;
+ecdf(clinicalData.overallSurvivalMonths(~isMutated), <span class="keyword">...</span>
+     <span class="string">'censoring'</span>,isCensored(~isMutated),<span class="string">'function'</span>,<span class="string">'survivor'</span>);
+xlabel(<span class="string">'Overall survival (months)'</span>); ylabel(<span class="string">'Proportion surviving'</span>);
+legend({<span class="string">'IDH1 mutated'</span> <span class="string">'IDH1 wild type'</span>});
+</pre><img vspace="5" hspace="5" src="cgdstutorial_02.png" alt=""> <h2>Run a function in non-verbose mode<a name="11"></a></h2><pre class="codeinput">cancerStudies = getcancerstudies(cgdsURL, <span class="string">'silent'</span>);
+</pre><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% CGDS toolbox examples ('showdemo cgdstutorial')
+% The CGDS toolbox provides a set of functions for retrieving data from the
+% cBio Cancer Genomics Data Portal web API. Get started by adding the CGDS
+% toolbox directory to the path and setting the server URL.
+
+% modify path to make toolbox functions globally available in matlab
+% this will depend on install location, and is only necessary if you want
+% to make the functions available from any directory
+addpath('/Users/Erik/Documents/MATLAB/cgds');
+
+% Set web API URL (including trailing '/' but excluding 'webservice.do')
+cgdsURL = 'http://www.cbioportal.org/public-portal/';
+
+%% Show toolbox help
+% Use 'helpwin cgds' if you prefer to display it in the Help window.
+help cgds;
+
+%% Get list of available cancer types
+cancerStudies = getcancerstudies(cgdsURL)
+
+%% Get available genetic profiles for a given cancer type
+% This example retreives available profiles for glioblastoma (GBM).
+geneticProfiles = getgeneticprofiles(cgdsURL, 'gbm_tcga')
+
+%% Get available case lists (collections of samples) for a given cancer type  
+caseLists = getcaselists(cgdsURL, 'gbm_tcga')
+
+%% Get multiple types of genetic profile data for a specific gene
+% This fetches both mRNA expression and copy number status for P53 in GBM.
+% The last argument causes data to be returned as a numeric matrix. Set to
+% false when fetching non-numeric data, e.g. mutations. 'gbm_mrna' and
+% 'gbm_gistic' are genetic profile IDs in geneticProfiles.geneticProfileID.
+% 'gbm_all' is a case list ID from caseLists.caseListId.
+profileData = getprofiledata(cgdsURL, 'gbm_tcga_all', ...
+                             {'gbm_tcga_mrna' 'gbm_tcga_gistic'}, ...
+                             'TP53', true)
+
+%% Plot mRNA levels as a function of copy number status
+boxplot(profileData.data(1,:),profileData.data(2,:));
+title('TP53'); xlabel('CNA'); ylabel('mRNA level');
+
+%% Get genetic profile data for multiple specified genes
+% This fetches mutation data for five different genes. Only one genetic
+% profile ID is allowed in this case. Note that genes may be returned in a
+% different order than requested.
+profileData = getprofiledata(cgdsURL, 'gbm_tcga_sequenced', ...
+                             'gbm_tcga_mutations', ...
+                             {'TP53' 'NF1' 'EGFR' 'PTEN' 'IDH1'}, false)
+
+%% Get clinical data for all patients in a given case list
+clinicalData = getclinicaldata(cgdsURL, 'gbm_tcga_sequenced')
+
+%% Survival plots for patients with and without IDH1 mutations
+isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
+isCensored = strcmp(clinicalData.overallSurvivalStatus, 'LIVING');
+ecdf(clinicalData.overallSurvivalMonths(isMutated), ...
+     'censoring',isCensored(isMutated),'function','survivor');
+set(get(gca,'Children'), 'Color', [1 0 0]); hold on;
+ecdf(clinicalData.overallSurvivalMonths(~isMutated), ...
+     'censoring',isCensored(~isMutated),'function','survivor');
+xlabel('Overall survival (months)'); ylabel('Proportion surviving');
+legend({'IDH1 mutated' 'IDH1 wild type'});
+
+%% Run a function in non-verbose mode
+cancerStudies = getcancerstudies(cgdsURL, 'silent');
+
+##### SOURCE END #####
+--></body></html>

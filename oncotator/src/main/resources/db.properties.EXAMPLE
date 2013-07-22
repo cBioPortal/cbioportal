@@ -1,0 +1,4 @@
+db.name=oncotator
+db.user=cbio
+db.password=somepassword
+db.host=localhost

@@ -1,0 +1,63 @@
+#build_custom_case_set
+{
+	cursor: pointer;
+	font-size: 120%;
+	color: #1974B8;
+	white-space: nowrap;
+}
+
+#ui-dialog-title-custom_case_set_dialog
+{
+	font-size: 14px;
+}
+
+#custom_case_set_dialog .ui-dropdownchecklist-text
+{
+	font-size: 12px;
+}
+
+#case_set_dialog_header
+{
+	width: 100%;
+	margin-bottom: 5px;
+}
+
+#case_set_dialog_header #current_number_of_cases
+{
+	font-size: 18px;
+	font-weight: bold;
+}
+
+#case_set_dialog_footer
+{
+	margin-top: 15px;
+	margin-right: 0;
+	margin-left: auto;
+}
+
+/* style for warning messages in the dialog */
+#case_set_dialog_header .custom_case_set_warning
+{
+	color: red;
+	font-weight: bold;
+	white-space: nowrap;
+}
+
+/* centering the contents */
+#case_set_dialog_content
+{
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* adjusts background of dropdown checklist items */
+#case_set_dialog_content .ui-dropdownchecklist-item
+{
+	background: none;
+}
+
+/* assign a different color for hovered dropdown checklist items */
+#case_set_dialog_content .ui-state-hover
+{
+	background-color: #DDEEFF;
+}

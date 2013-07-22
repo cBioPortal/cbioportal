@@ -1,0 +1,40 @@
+<!-- Include Global List of Javascript Files to Load -->
+<!--script type="text/javascript" src="js/main.js"></script-->
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+<script type="text/javascript" src="js/jquery.tipTip.minified.js"></script>
+<script type="text/javascript" src="js/jquery.address-1.4.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/jquery.cookie.js"></script>
+<script type="text/javascript" src="js/cgx_jquery.js"></script>
+<script type="text/javascript" src="js/global-tabs.js"></script>
+<script type="text/javascript" src="js/jquery.popeye-2.1.min.js"></script>
+<script type="text/javascript" src="js/mailme.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/jquery.quovolver.mini.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script>
+<script type="text/javascript" src="js/jslab-stdlib.js"></script>
+<script type="text/javascript" src="js/customCaseSet.js"></script>
+<script type="text/javascript" src="js/ui.dropdownchecklist-1.4-min.js"></script>
+<script type="text/javascript" src="js/jquery.dataTables.ColVis.min.js"></script> 
+<script type="text/javascript" src="js/jquery.qtip.min.js"></script> 
+<script type="text/javascript" src="js/gene_set.js"></script>
+<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
+<script type="text/javascript" src="js/DataManagerFactory.js"></script>
+<script type="text/javascript" src="js/QueryGeneData.js"></script>
+<script type="text/javascript" src="js/cbio-util.js"></script>
+<script type="text/javascript" src="js/json2.js"></script>
+<script type="text/javascript" src="js/underscore-min.js"></script>
+<script type="text/javascript">
+    // This is for the moustache-like templates
+    // prevents collisions with JSP tags
+    _.templateSettings = {
+        interpolate : /\{\{(.+?)\}\}/g
+    };
+</script>
+<script type="text/javascript" src="js/backbone-min.js"></script>
+<script type="text/javascript" src="js/d3.min.js"></script>
+<script type="text/javascript" src="js/jquery.expander.min.js"></script>
+<script type="text/javascript" src="js/gene-symbol-validator.js"></script>
+<script type="text/javascript" src="js/chosen.jquery.js"></script>
+<script type="text/javascript" src="js/d3.right-menu-stats.js"></script>

@@ -1,0 +1,96 @@
+9606	1	A1BG	A1B|ABG|DKFZp686F0970|GAB|HYST2477	alpha-1-B glycoprotein
+9606	2	A2M	A2MD|CPAMD5|DKFZp779B086|FWP007|S863-7	alpha-2-macroglobulin
+9606	3	A2MP1	A2MP	alpha-2-macroglobulin pseudogene 1
+9606	9	NAT1	AAC1|MNAT|NAT-1|NATI	N-acetyltransferase 1 (arylamine N-acetyltransferase)
+9606	10	NAT2	AAC2|PNAT	N-acetyltransferase 2 (arylamine N-acetyltransferase)
+9606	11	AACP	NATP	arylamide acetylase pseudogene
+9606	12	SERPINA3	AACT|ACT|GIG25|MGC88254	serpin peptidase inhibitor, clade A (alpha-1 antiproteinase, antitrypsin), member 3
+9606	13	AADAC	CES5A1|DAC	arylacetamide deacetylase (esterase)
+9606	14	AAMP	-	angio-associated, migratory cell protein
+9606	15	AANAT	DSPS|SNAT	aralkylamine N-acetyltransferase
+9606	16	AARS	CMT2N	alanyl-tRNA synthetase
+9606	17	AAVS1	AAV	adeno-associated virus integration site 1
+9606	18	ABAT	FLJ17813|FLJ30272|GABA-AT|GABAT|NPD009	4-aminobutyrate aminotransferase
+9606	19	ABCA1	ABC-1|ABC1|CERP|FLJ14958|HDLDT1|MGC164864|MGC165011|TGD	ATP-binding cassette, sub-family A (ABC1), member 1
+9606	20	ABCA2	ABC2|MGC129761	ATP-binding cassette, sub-family A (ABC1), member 2
+9606	21	ABCA3	ABC-C|ABC3|EST111653|LBM180|MGC166979|MGC72201|SMDP3	ATP-binding cassette, sub-family A (ABC1), member 3
+9606	22	ABCB7	ABC7|ASAT|Atm1p|EST140535	ATP-binding cassette, sub-family B (MDR/TAP), member 7
+9606	23	ABCF1	ABC27|ABC50	ATP-binding cassette, sub-family F (GCN20), member 1
+9606	24	ABCA4	ABC10|ABCR|ARMD2|CORD3|DKFZp781N1972|FFM|FLJ17534|RMP|RP19|STGD|STGD1	ATP-binding cassette, sub-family A (ABC1), member 4
+9606	25	ABL1	ABL|JTK7|bcr/abl|c-ABL|p150|v-abl	c-abl oncogene 1, non-receptor tyrosine kinase
+9606	26	ABP1	ABP|AOC1|DAO|DAO1|KAO	amiloride binding protein 1 (amine oxidase (copper-containing))
+9606	27	ABL2	ABLL|ARG|FLJ22224|FLJ31718|FLJ41441	v-abl Abelson murine leukemia viral oncogene homolog 2
+9606	28	ABO	A3GALNT|A3GALT1|GTB|NAGAT	ABO blood group (transferase A, alpha 1-3-N-acetylgalactosaminyltransferase; transferase B, alpha 1-3-galactosyltransferase)
+9606	29	ABR	FLJ45954|MDB	active BCR-related gene
+9606	30	ACAA1	ACAA|PTHIO|THIO	acetyl-CoA acyltransferase 1
+9606	31	ACACA	ACAC|ACACAD|ACC|ACC1|ACCA	acetyl-CoA carboxylase alpha
+9606	32	ACACB	ACC2|ACCB|HACC275	acetyl-CoA carboxylase beta
+9606	33	ACADL	ACAD4|FLJ94052|LCAD	acyl-CoA dehydrogenase, long chain
+9606	34	ACADM	ACAD1|FLJ18227|FLJ93013|FLJ99884|MCAD|MCADH	acyl-CoA dehydrogenase, C-4 to C-12 straight chain
+9606	35	ACADS	ACAD3|SCAD	acyl-CoA dehydrogenase, C-2 to C-3 short chain
+9606	36	ACADSB	2-MEBCAD|ACAD7|SBCAD	acyl-CoA dehydrogenase, short/branched chain
+9606	37	ACADVL	ACAD6|LCACD|VLCAD	acyl-CoA dehydrogenase, very long chain
+9606	38	ACAT1	ACAT|MAT|T2|THIL	acetyl-CoA acetyltransferase 1
+9606	39	ACAT2	-	acetyl-CoA acetyltransferase 2
+9606	40	ACCN1	ACCN|ASIC2|ASIC2a|BNC1|BNaC1|MDEG|hBNaC1	amiloride-sensitive cation channel 1, neuronal
+9606	41	ACCN2	ASIC|ASIC1|ASIC1A|BNaC2|hBNaC2	amiloride-sensitive cation channel 2, neuronal
+9606	43	ACHE	ACEE|ARACHE|N-ACHE|YT	acetylcholinesterase
+9606	46	ACLS	-	acrocallosal syndrome
+9606	47	ACLY	ACL|ATPCL|CLATP	ATP citrate lyase
+9606	48	ACO1	ACONS|IREB1|IREBP|IREBP1|IRP1	aconitase 1, soluble
+9606	49	ACR	-	acrosin
+9606	50	ACO2	ACONM|MGC20605|MGC33908	aconitase 2, mitochondrial
+9606	51	ACOX1	ACOX|MGC1198|PALMCOX|SCOX	acyl-CoA oxidase 1, palmitoyl
+9606	52	ACP1	HAAP|MGC111030|MGC3499	acid phosphatase 1, soluble
+9606	53	ACP2	-	acid phosphatase 2, lysosomal
+9606	54	ACP5	MGC117378|SPENCDI|TRAP	acid phosphatase 5, tartrate resistant
+9606	55	ACPP	5'-NT|ACP-3|ACP3|PAP	acid phosphatase, prostate
+9606	56	ACRV1	D11S4365|SP-10|SPACA2	acrosomal vesicle protein 1
+9606	58	ACTA1	ACTA|ASMA|CFTD|CFTD1|CFTDM|MPFD|NEM1|NEM2|NEM3	actin, alpha 1, skeletal muscle
+9606	59	ACTA2	AAT6|ACTSA|MYMY5	actin, alpha 2, smooth muscle, aorta
+9606	60	ACTB	PS1TP5BP1	actin, beta
+9606	62	ACTBP2	-	actin, beta pseudogene 2
+9606	63	ACTBP3	-	actin, beta pseudogene 3
+9606	64	ACTBP4	-	actin, beta pseudogene 4
+9606	66	ACTBP6	H8-PSI-BETA-AC3	actin, beta pseudogene 6
+9606	67	ACTBP7	-	actin, beta pseudogene 7
+9606	68	ACTBP8	ACTBP2	actin, beta pseudogene 8
+9606	69	ACTBP9	-	actin, beta pseudogene 9
+9606	70	ACTC1	ACTC|ASD5|CMD1R|CMH11|LVNC4	actin, alpha, cardiac muscle 1
+9606	71	ACTG1	ACT|ACTG|DFNA20|DFNA26	actin, gamma 1
+9606	72	ACTG2	ACT|ACTA3|ACTE|ACTL3|ACTSG	actin, gamma 2, smooth muscle, enteric
+9606	73	ACTG1P1	ACT1GP1|ACTGP1|HY-psi-gamma-AC6	actin, gamma 1 pseudogene 1
+9606	74	ACTG1P2	ACTGP2|ACTL2	actin, gamma 1 pseudogene 2
+9606	75	ACTG1P3	ACTGP3|dJ545L17.4	actin, gamma 1 pseudogene 3
+9606	76	ACTG1P4	ACTGP4	actin, gamma 1 pseudogene 4
+9606	78	ACTG1P6	ACTGP6	actin, gamma 1 pseudogene 6
+9606	79	ACTG1P7	ACTGP7	actin, gamma 1 pseudogene 7
+9606	80	ACTG1P8	ACTGP8	actin, gamma 1 pseudogene 8
+9606	81	ACTN4	ACTININ-4|DKFZp686K23158|FSGS|FSGS1	actinin, alpha 4
+9606	82	ACTG1P9	ACTGP9	actin, gamma 1 pseudogene 9
+9606	83	ACTG1P10	ACTGP10|ACTL1|ACTP1	actin, gamma 1 pseudogene 10
+9606	84	ACTL4	-	actin-like 4
+9606	86	ACTL6A	ACTL6|ARPN-BETA|Arp4|BAF53A|INO80K|MGC5382	actin-like 6A
+9606	87	ACTN1	FLJ40884|FLJ54432	actinin, alpha 1
+9606	88	ACTN2	CMD1AA	actinin, alpha 2
+9606	89	ACTN3	MGC117002|MGC117005	actinin, alpha 3
+9606	90	ACVR1	ACTRI|ACVR1A|ACVRLK2|ALK2|FOP|SKR1|TSRI	activin A receptor, type I
+9606	91	ACVR1B	ACTRIB|ACVRLK4|ALK4|SKR2	activin A receptor, type IB
+9606	92	ACVR2A	ACTRII|ACVR2	activin A receptor, type IIA
+9606	93	ACVR2B	ACTRIIB|ActR-IIB|HTX4|MGC116908	activin A receptor, type IIB
+9606	94	ACVRL1	ACVRLK1|ALK-1|ALK1|HHT|HHT2|ORW2|SKR3|TSR-I	activin A receptor type II-like 1
+9606	95	ACY1	ACY-1|ACY1D	aminoacylase 1
+9606	97	ACYP1	ACYPE	acylphosphatase 1, erythrocyte (common) type
+9606	98	ACYP2	ACYM|ACYP	acylphosphatase 2, muscle type
+9606	100	ADA	-	adenosine deaminase
+9606	101	ADAM8	CD156|MGC134985|MS2	ADAM metallopeptidase domain 8
+9606	102	ADAM10	AD10|CD156c|HsT18717|MADM|kuz	ADAM metallopeptidase domain 10
+9606	103	ADAR	ADAR1|DRADA|DSH|DSRAD|G1P1|IFI-4|IFI4|K88DSRBP|P136	adenosine deaminase, RNA-specific
+9606	104	ADARB1	ADAR2|DRABA2|DRADA2|RED1	adenosine deaminase, RNA-specific, B1
+9606	105	ADARB2	ADAR3|FLJ25034|FLJ36975|FLJ41340|RED2	adenosine deaminase, RNA-specific, B2
+9606	106	ADCP1	-	adenosine deaminase complexing protein 1
+9606	107	ADCY1	AC1	adenylate cyclase 1 (brain)
+9606	108	ADCY2	AC2|FLJ16822|FLJ45092|HBAC2|KIAA1060|MGC133314	adenylate cyclase 2 (brain)
+9606	109	ADCY3	AC3|KIAA0511	adenylate cyclase 3
+9606	111	ADCY5	AC5	adenylate cyclase 5
+9606	112	ADCY6	AC6|DKFZp779F075|KIAA0422	adenylate cyclase 6

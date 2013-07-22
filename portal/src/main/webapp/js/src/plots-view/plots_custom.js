@@ -271,7 +271,7 @@ var PlotsCustomView = (function() {
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "None Mutated"
+                text : "Neither Mutated"
             }
         };
 
@@ -855,6 +855,7 @@ var PlotsCustomView = (function() {
         pDataInit(result);
         initCanvas();
         if (pData.dotsData.length !== 0) {
+            $("#show_mutation_custom_view").attr("disabled", false);
             initAxis();
             drawAxis();
             drawPlots();
@@ -863,6 +864,7 @@ var PlotsCustomView = (function() {
             addQtips();
             drawImgConverter();
         } else {
+            $("#show_mutation_custom_view").attr("disabled", true);
             drawErrorMsg();
         }
 

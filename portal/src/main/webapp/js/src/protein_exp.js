@@ -8,8 +8,22 @@ var rppaPlots = (function() {
         function init(caseLists) {
             alteredCaseList = caseLists.alteredCaseList;
             unalteredCaseList = caseLists.unalteredCaseList;
-            console.log(alteredCaseList);
-            console.log(unalteredCaseList);
+            getProfileData();
+
+        }
+
+        function getProfileData() {
+            var paramsGetProfileData = {
+                gene_list: gene,
+                genetic_profile_id: genetic_profile_id,
+                case_set_id: case_set_id,
+                case_ids_key: case_ids_key
+            };
+            $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
+        }
+
+        function getProfileDataCallBack() {
+
         }
 
         return {

@@ -288,12 +288,12 @@
                         + "Mutual Exclusivity</a></li>");
                     }
 			
-			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-	
-			}
+                    if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+                                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
 
-                         if (showMutTab){
+                    }
+
+                    if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");

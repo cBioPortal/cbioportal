@@ -5,7 +5,15 @@
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
     String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String case_set_id = (String)request.getParameter("case_set_id");
 %>
+<script>
+    var case_set_id = "<%out.print(case_set_id);%>";
+    case_ids_key = "";
+    if (case_set_id === "-1") {
+        case_ids_key = "<%out.print(caseIdsKey);%>";
+    }
+</script>
 
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";

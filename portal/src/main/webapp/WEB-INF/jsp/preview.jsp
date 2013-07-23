@@ -5,7 +5,7 @@
                 <img src="images/previews/thumb_patient_view.png" alt="" />
             </a>
             <span class="ppy-extcaption">
-                <strong>Patient-specific view for TCGA endometrial cancer case <a href="case.do?case_id=TCGA-BK-A0CC&cancer_study_id=ucec_tcga">TCGA-BK-A0CC</a>.</strong>
+                <strong>Patient-specific view for a TCGA endometrial cancer case.</strong>
                 <br /><br />The most prominent or most interesting genomic alteration events from an individual tumor sample can now be browsed and analyzed in the portal.
                 <br /><br />Data source: TCGA Uterine Corpus Endometrioid Carcinoma.
             </span>
@@ -108,8 +108,9 @@
                 caption:    'hover',
                 navigation: 'hover',
                 //navigation: 'permanent',
-                direction:  'left'
-            }
+                direction:  'left',
+                slidespeed: 5000
+            };
 
             $('#ppy2').popeye(options);
         });

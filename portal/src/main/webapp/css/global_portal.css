@@ -880,8 +880,8 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 .welcome {
     padding: 3px;
-    height: 200px;
-
+    /*height: 200px;*/
+    min-height: 200px;
 }
 
 #right_side {
@@ -1294,3 +1294,43 @@ cc-ie-message {
 .ui-tooltip-lightyellow {
     background-color: lightyellow;
 }
+
+/* Float on alright! */
+#ppy2 {
+    z-index: 9999999;
+}
+
+/* right menu d3 map */
+#rightmenu-stats-box {
+    padding-left: 15px;
+}
+
+#rightmenu-stats-box rect {
+    fill: none;
+    pointer-events: all;
+}
+
+#rightmenu-stats-box line {
+    stroke: #000;
+    stroke-width: 1.5px;
+}
+
+/* Gene validation */
+#genestatus ul.validation-list {margin: 0; padding: 0;}
+#genestatus * li.ui-state-default {
+    margin: 2px;
+    position: relative;
+    padding: 4px 0;
+    cursor: pointer;
+    float: left;
+    list-style: none;
+    height: 20px;
+}
+#genestatus * span.ui-icon {float: left; margin: 0 4px;}
+#genestatus * span.text {float: left; padding-right: 5px;}
+.geneset-button .ui-button-text { padding: 0.35em; }
+.ui-autocomplete-input { padding: 0.48em 0 0.47em 0.45em; }
+ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
+#genestatus { clear: both; }
+#example_gene_set { clear: both; }
+

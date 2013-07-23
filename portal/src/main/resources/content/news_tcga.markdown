@@ -1,3 +1,18 @@
+# July 16, 2013
+
+* All TCGA data updated to the May Firehose run (May 23, 2012).
+    * TCGA Pancreatic Cancer study (provisional) added.
+
+# July 4, 2013
+
+* Improved rendering of mutation diagrams, including ability to download in PDF format.
+* Improved home page: Searchable cancer study & gene set selectors, data sets selector.
+
+# June 13, 2013
+
+* Improved interface for correlation plots, including information on individual samples via mouse-over.
+* Gene Details from Biogene are now available in the Network view.
+
 # June 4, 2013
 
 * All TCGA data updated to the April Firehose run (April 21, 2012).

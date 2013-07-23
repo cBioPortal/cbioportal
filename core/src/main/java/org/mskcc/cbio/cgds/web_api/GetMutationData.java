@@ -80,6 +80,8 @@ public class GetMutationData {
         buf.append("chr\t");
         buf.append("start_position\t");
         buf.append("end_position\t");
+	    buf.append("reference_allele\t");
+	    buf.append("variant_allele\t");
         buf.append("genetic_profile_id");
         buf.append("\n");
 
@@ -107,6 +109,8 @@ public class GetMutationData {
                     buf.append(mutation.getChr()).append(TAB);
                     buf.append(mutation.getStartPosition()).append(TAB);
                     buf.append(mutation.getEndPosition()).append(TAB);
+	                buf.append(mutation.getReferenceAllele()).append(TAB);
+	                buf.append(mutation.getTumorSeqAllele()).append(TAB);
                     buf.append(geneticProfileId);
                     buf.append("\n");
                 }

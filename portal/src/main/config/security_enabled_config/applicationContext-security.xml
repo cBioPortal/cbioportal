@@ -55,11 +55,14 @@
 	  <intercept-url pattern="/portal_meta_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/mutation_diagram_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/getPfamSequence.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
 	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/svgtopdf.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>

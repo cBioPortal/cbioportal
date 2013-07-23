@@ -35,7 +35,7 @@
     </p>
     
     <form action="http://groups.google.com/group/cbioportal-news/boxsubscribe">
-      &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for email news alerts:</b></br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<b>Sign up for low-volume email news alerts:</b></br>
       &nbsp;&nbsp;&nbsp;&nbsp;<input type="text" name="email">
       <input type="submit" name="sub" value="Subscribe">
     </form>
@@ -49,36 +49,14 @@ if (SkinUtil.showRightNavDataSets()) {
     out.println("<P>The Portal contains data for <b>" + dataSetsUtil.getTotalNumberOfSamples() + " tumor samples from " +
                      cancerStudyStats.size() + " cancer studies.</b> [<a href='data_sets.jsp'>Details.</a>]</p>");
 %>
-    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
-    <script type='text/javascript'>
-    google.load('visualization', '1.0', {'packages':['corechart']});
-    google.setOnLoadCallback(drawChart);
-    function drawChart() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Cancer Study');
-        data.addColumn('number', 'Samples');
-<%
-    out.println("data.addRows([");
-    for (CancerStudyStats stats : cancerStudyStats) {
-        out.println("[\"" + stats.getStudyName() + "\", " + stats.getAll() + "],");
-    }
-    out.println("]);");
-%>
-    var options = {
-        'backgroundColor' : '#F1F6FE',
-        'is3D' : false,
-        'pieSliceText' : 'value',
-        'tooltip':{'text' : 'value'},
-        'width' : 300,
-        'legend' : {'position' : 'none'},
-        'left' : 0,'top' : 0,
-        'height' : 300
-    };
-    var chart = new google.visualization.PieChart(document.getElementById('chart_div1'));
-    chart.draw(data, options);
-}
-    </script>
-    <div id='chart_div1'></div>
+    <div id='rightmenu-stats-box'></div>
+	<script type="text/javascript">
+		$(document).ready( function() {
+			$.getJSON("portal_meta_data.json", function(json) {
+				RightMenuStudyStatsUtil.plotTree(json);
+			});
+		});
+	</script>
 <%
     } // if showRightNavDataSets
 %>

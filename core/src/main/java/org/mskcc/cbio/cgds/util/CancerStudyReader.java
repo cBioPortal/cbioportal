@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
 
 /**
  * Reads and loads a cancer study file. (Before July 2011, was called a cancer type file.)
@@ -52,11 +53,6 @@ public class CancerStudyReader {
       if (cancerStudyIdentifier == null) {
          throw new IllegalArgumentException("cancer_study_identifier is not specified.");
       }
-      
-      if ( DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudyIdentifier) ) {
-         throw new IllegalArgumentException("cancer study identified by cancer_study_identifier "
-                  + cancerStudyIdentifier + " already in dbms.");
-      }
 
       String name = properties.getProperty("name");
       if (name == null) {
@@ -68,9 +64,12 @@ public class CancerStudyReader {
          throw new IllegalArgumentException("description is not specified.");
       }
 
-      String typeOfCancer = properties.getProperty("type_of_cancer");
+      String typeOfCancer = properties.getProperty("type_of_cancer").toLowerCase();
       if ( typeOfCancer == null) {
          throw new IllegalArgumentException("type of cancer is not specified.");
+      }
+      if (null==DaoTypeOfCancer.getTypeOfCancerById(typeOfCancer)) {
+         throw new IllegalArgumentException(typeOfCancer+" is not a supported cancer type.");
       }
 
       String pmid = properties.getProperty("pmid");
@@ -89,7 +88,7 @@ public class CancerStudyReader {
       cancerStudy.setPmid(pmid);
       cancerStudy.setCitation(citation);
       cancerStudy.setGroups(groups);
-      DaoCancerStudy.addCancerStudy(cancerStudy);
+      DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
       return cancerStudy;
    }
    

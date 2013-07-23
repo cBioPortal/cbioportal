@@ -204,16 +204,16 @@
     <servlet>
         <servlet-name>link_out</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.LinkOut</servlet-class>
-    </servlet>    
-
-    <servlet>
-        <servlet-name>mutation_diagram_data_json</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.MutationDiagramDataServlet</servlet-class>
     </servlet>
 
 	<servlet>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationTableDataServlet</servlet-class>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.SequenceServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>mutation_data_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
 	</servlet>
 
     <servlet>
@@ -261,14 +261,14 @@
         <url-pattern>/portal_meta_data.json</url-pattern>
     </servlet-mapping>
 
-    <servlet-mapping>
-        <servlet-name>mutation_diagram_data_json</servlet-name>
-        <url-pattern>/mutation_diagram_data.json</url-pattern>
-    </servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<url-pattern>/getPfamSequence.json</url-pattern>
+	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<url-pattern>/mutation_table_data.json</url-pattern>
+		<servlet-name>mutation_data_json</servlet-name>
+		<url-pattern>/getMutationData.json</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>
@@ -431,6 +431,16 @@
         <servlet-name>CnaJSON</servlet-name>
         <url-pattern>/cna.json</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>SVGtoPDFConverter</servlet-name>
+        <url-pattern>/svgtopdf.do</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>ClinicalTrialsJSON</servlet-name>
@@ -471,6 +481,27 @@
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetGeneticProfilesJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <url-pattern>/getGeneticProfile.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProfileDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <url-pattern>/getProfileData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
      
     <welcome-file-list>

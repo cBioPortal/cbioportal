@@ -60,6 +60,12 @@ public class DatatypeMetadata {
 	// mutation data staging filename
 	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
 
+	// clinical data staging filename
+	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+
+	// fusion data staging filename
+	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";
+
 	// file used by groups which check in manually curated studies to
 	// indicate the list of sequenced samples
 	public static final String SEQUENCED_SAMPLES_FILENAME = "sequenced_samples.txt";

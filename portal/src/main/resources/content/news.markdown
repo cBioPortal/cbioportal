@@ -1,3 +1,10 @@
+# July 25, 2013
+
+* Multi-gene correlation plots.
+* Variant allele frequency distribution plots for individual tumor samples.
+* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](case.do?cancer_study_id=ucec_tcga&case_id=TCGA-BK-A0CC).
+* Support for multiple tumor samples for a single patient.
+
 # July 16, 2013
 
 * All TCGA data updated to the May Firehose run (May 23, 2012).

@@ -11,8 +11,30 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
+        // bind away
+        var bindings = function(oncoprint) {
+            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
+
+            // *NB* to be the best of my knowledge,
+            // the user-defined case list is going to depend on the cna file
+            $('#oncoprint_controls #sort_by').change(function() {
+                oncoprint.sortBy(sortBy.val(), cases);
+            });
+
+            $('#toggle_unaltered_cases').click(function() {
+                oncoprint.toggleUnalteredCases();
+                OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+//            oncoprint.sortBy(sortBy.val());
+            });
+
+            $('#toggle_whitespace').click(function() {
+                oncoprint.toggleWhiteSpace();
+            });
+        };
+
         var data;
         var oncoprint;
+        var cases;
         $('#submit').click(function(){
             var formData = new FormData($('form')[0]);
             $.ajax({
@@ -28,23 +50,36 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 //Ajax events
 //                beforeSend: beforeSendHandler,
                 success: function(res) {
-                    data = res;
-                   // console.log(res);
+                    // console.log(res);
 
+                    var oncoprint_el = document.getElementById("oncoprint");
+
+                    $(oncoprint_el).empty();    // clear out the div each time
+
+                    data = res;     // set data
+
+                    cases = EchoedDataUtils.samples(data);
+
+                    // set up oncoprint params
                     data = EchoedDataUtils.oncoprint_wash(data);
                     var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
                     var params = { geneData: data, genes:genes };
                     params.legend =  document.getElementById("oncoprint_legend");
 
-                    oncoprint = Oncoprint(document.getElementById("oncoprint"), params);
+                    // exec
+                    oncoprint = Oncoprint(oncoprint_el, params);
 
                     // remove text: "Copy number alterations are putative."
                     $('#oncoprint_legend p').remove();
 
-                    OncoprintUtils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
+                    // don't want to setup the zoom slider multiple times
+                    var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+                    zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
 
                     // show controls when there's data
                     $('#oncoprint_controls').show();
+
+                    bindings(oncoprint);
                 },
 //                error: errorHandler,
                 // Form data
@@ -64,23 +99,4 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
         $('#oncoprint_controls').html($('#custom-controls-template').html()) // populate with template html
             .hide(); // hide until there's data
-
-        $(document).ready(function() {
-
-            // bind away
-            $('#oncoprint_controls #sort_by').change(function() {
-                oncoprint.sortBy(sortBy.val(), cases.split(" "));
-            });
-
-            $('#toggle_unaltered_cases').click(function() {
-                oncoprint.toggleUnalteredCases();
-                utils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
-//            oncoprint.sortBy(sortBy.val());
-            });
-
-            $('#toggle_whitespace').click(function() {
-                oncoprint.toggleWhiteSpace();
-            });
-
-        });
 });

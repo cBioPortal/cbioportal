@@ -121,12 +121,24 @@ define("EchoedDataUtils",
                 .value();
         };
 
+        // takes a list of data that has an attribute "sample_id"
+        // and returns a list of unique samples (presumably in order)
+        //
+        // *signature:* `list -> list`
+        var samples = function(data) {
+            return _.chain(data)
+                .map(function(d) { return d.sample_id; })
+                .uniq()
+                .value();
+        };
+
         return {
             compress: compress,
             inner: inner,
             oncoprint_wash: oncoprint_wash,
             join_mutations: join_mutations,
-            remove_undefined: remove_undefined
+            remove_undefined: remove_undefined,
+            samples: samples
         };
     }())
 );

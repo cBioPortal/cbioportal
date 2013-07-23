@@ -12,6 +12,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         };
 
         var data;
+        var oncoprint;
         $('#submit').click(function(){
             var formData = new FormData($('form')[0]);
             $.ajax({
@@ -27,17 +28,23 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 //Ajax events
 //                beforeSend: beforeSendHandler,
                 success: function(res) {
-                    data = res; console.log(res);
+                    data = res;
+                   // console.log(res);
 
                     data = EchoedDataUtils.oncoprint_wash(data);
                     var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
                     var params = { geneData: data, genes:genes };
                     params.legend =  document.getElementById("oncoprint_legend");
 
-                    Oncoprint(document.getElementById("oncoprint"), params);
+                    oncoprint = Oncoprint(document.getElementById("oncoprint"), params);
 
                     // remove text: "Copy number alterations are putative."
                     $('#oncoprint_legend p').remove();
+
+                    OncoprintUtils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
+
+                    // show controls when there's data
+                    $('#oncoprint_controls').show();
                 },
 //                error: errorHandler,
                 // Form data
@@ -54,4 +61,26 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 $('progress').attr({value:e.loaded,max:e.total});
             }
         }
+
+        $('#oncoprint_controls').html($('#custom-controls-template').html()) // populate with template html
+            .hide(); // hide until there's data
+
+        $(document).ready(function() {
+
+            // bind away
+            $('#oncoprint_controls #sort_by').change(function() {
+                oncoprint.sortBy(sortBy.val(), cases.split(" "));
+            });
+
+            $('#toggle_unaltered_cases').click(function() {
+                oncoprint.toggleUnalteredCases();
+                utils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+//            oncoprint.sortBy(sortBy.val());
+            });
+
+            $('#toggle_whitespace').click(function() {
+                oncoprint.toggleWhiteSpace();
+            });
+
+        });
 });

@@ -1,9 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<html>
-<head>
-    <title></title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="css/jquery.qtip.min.css"/>
+<jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true">
+    <jsp:param name="html_title" value="boo ya"></jsp:param>
+</jsp:include>
 
     <style type="text/css">
         progress {
@@ -13,7 +11,9 @@
             border-radius: 9px;
         }
     </style>
-</head>
+
+<script type="text/javascript" src="js/lib/jquery-ui-1.8.14.custom.min.js"></script>
+
 <body>
 
 <div id="container" style="margin-left:50px; margin-top:50px;">
@@ -33,14 +33,20 @@
         <input id="submit" type="button" value="Go!"><progress></progress>
     </form>
 
+    <div id="oncoprint_controls"></div>
+    <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
+
     <div id="oncoprint"></div>
 </div>
 
+</div>
+</td>
+</tr>
+</table>
+</div>
 </body>
+<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
+</html>
 
-<script type="text/javascript" src="js/lib/jquery.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.qtip.min.js"></script>
-<script type="text/javascript" src="js/lib/d3.v3.min.js"></script>
-<script type="text/javascript" src="js/lib/underscore-min.js"></script>
 <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>
 </html>

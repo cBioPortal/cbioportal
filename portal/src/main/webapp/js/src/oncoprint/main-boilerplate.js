@@ -24,16 +24,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         customize: true
     };
 
-    // takes a div and creates a zoombar on it.  Inside it refers
-    // to a global var called `oncoprint` on which it zooms.
-    var oncoprintZoomSetup = function(div) {
-        return $('<div>', { id: "width_slider", width: "100"})
-            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
-                change: function(event, ui) {
-                    oncoprint.zoom(ui.value, 'animation');       // N.B.
-                }}).appendTo($(div));
-    };
-
     var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
 
     clinicalAttributes.fetch({
@@ -78,7 +68,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             $('#oncoprint .loader_img').hide();
             $('#oncoprint #everything').show();
 
-            zoom = oncoprintZoomSetup($('#oncoprint_controls #zoom'));
+            zoom = utils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
         }
     });
 

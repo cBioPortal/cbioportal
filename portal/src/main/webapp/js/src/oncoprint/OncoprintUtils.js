@@ -643,6 +643,18 @@ define("OncoprintUtils", (function() {
         });
     };
 
+    // takes a div and creates a zoombar on it.
+    // It calls the function fun on the change event of the zoombar
+    //
+    // *signature:* `DOM el, function -> DOM el`
+    var zoomSetup = function(div, fun) {
+        return $('<div>', { id: "width_slider", width: "100"})
+            .slider({ text: "Adjust Width ", min: .1, max: 1, step: .01, value: 1,
+                change: function(event, ui) {
+                    fun(ui.value, 'animation');       // N.B.
+                }}).appendTo($(div));
+    };
+
     return {
         is_discrete: is_discrete,
         nest_data: nest_data,
@@ -667,7 +679,8 @@ define("OncoprintUtils", (function() {
         cna_fills: cna_fills,
         colors: colors,
         populate_clinical_attr_select: populate_clinical_attr_select,
-        make_mouseover: make_mouseover
+        make_mouseover: make_mouseover,
+        zoomSetup: zoomSetup
     };
 })()
 );

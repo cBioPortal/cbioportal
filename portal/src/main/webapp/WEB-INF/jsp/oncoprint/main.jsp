@@ -23,7 +23,7 @@
             </form>
         </span>
 
-        <%@ include file="oncoprint/controls.jsp" %>
+        <%@ include file="controls.jsp" %>
 
         <div id="oncoprint_body"></div>
         <script data-main="js/src/oncoprint/main-boilerplate.js" type="text/javascript" src="js/require.js"></script>

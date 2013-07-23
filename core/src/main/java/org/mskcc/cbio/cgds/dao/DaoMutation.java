@@ -27,8 +27,7 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -46,8 +45,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.Case;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
 
 /**
@@ -845,7 +842,7 @@ public final class DaoMutation {
      * @return Map &lt; entrez, sampleCount &gt;
      * @throws DaoException 
      */
-    public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
+        public static Map<Long, Integer> countSamplesWithMutatedGenes(String concatEntrezGeneIds, int profileId) throws DaoException {
         if (concatEntrezGeneIds.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -1256,5 +1253,22 @@ public final class DaoMutation {
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
+    }
+
+    /**
+     *
+     * Returns a list of maps Cancer Study -> number of cases with the mutation, i.e.
+     * [ list of {CancerStudy -> number of cases} ]
+     *
+     * @param entrez
+     * @param aaChange
+     * @return
+     */
+    public static List<Map<CancerStudy, Integer>> acrossAllCancerStudies(long entrez, String aaChange) {
+
+        DaoMutation.countSamplesWithMutat
+
+
+        return new ArrayList<Map<CancerStudy, Integer>>();
     }
 }

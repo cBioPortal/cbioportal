@@ -362,7 +362,7 @@
                         var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
                         _divName = _divName.replace(/\//g, "");
                         oTable.fnOpen( nTr, "<div id='" + _divName + "'></div>", 'rppa-details' );
-                        rppaPlots.init(xlabel, ylabel, title, getRppaPlotsData(), _divName, aData[0]); //aData[0]-->protein array id
+                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsData(), aData[0]); //aData[0]-->protein array id
                     }
                 } );
                 

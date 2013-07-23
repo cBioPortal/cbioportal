@@ -30,10 +30,11 @@
         <span>Mutations File</span>
         <input name="mutation" type="file" size="40">
     </div>
-        <input type="button" value="Go!"><progress></progress>
+        <input id="submit" type="button" value="Go!"><progress></progress>
     </form>
 
-    <%@ include file="WEB-INF/jsp/oncoprint/main.jsp"%>
+    <div id="oncoprint"></div>
+</div>
 
 </body>
 

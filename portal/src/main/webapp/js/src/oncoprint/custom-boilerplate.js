@@ -11,15 +11,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
-        // some hacks to get the oncoprint spiffy for this page.
-        // Perhaps these should be properly incorporated as options.
-        var hacks_on_callback = function() {
-            // remove text: "Copy number alterations are putative."
-            $('#oncoprint_legend p').remove();
-        };
-
         var data;
-        $(':button').click(function(){
+        $('#submit').click(function(){
             var formData = new FormData($('form')[0]);
             $.ajax({
                 url: 'echofile',
@@ -43,7 +36,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
                     Oncoprint(document.getElementById("oncoprint"), params);
 
-                    hacks_on_callback();
+                    // remove text: "Copy number alterations are putative."
+                    $('#oncoprint_legend p').remove();
                 },
 //                error: errorHandler,
                 // Form data

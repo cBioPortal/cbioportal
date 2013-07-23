@@ -16,8 +16,8 @@
     <table style="padding-left:13px; padding-top:5px">
     <tr>
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                <td><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</td>
-                <td><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</td>
+                <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
+                <td><input id='toggle_whitespace' type='checkbox'><label>Remove Whitespace</label></td>
             </tr>
             <tr>
                 <td>
@@ -58,8 +58,7 @@
         <table style="padding-left:13px; padding-top:5px">
             <tr>
                 <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
-                <td><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</td>
-                <td><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</td>
+                <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
             </tr>
             <tr>
                 <td>
@@ -70,6 +69,7 @@
                         <option value="custom">user-defined case list / default</option>
                     </select>
                 </td>
+                <td><label><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</label></td>
             </tr>
         </table>
     </div>

@@ -43,9 +43,9 @@
 </td>
 </tr>
 </table>
+<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
 </div>
 </body>
-<jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
 </html>
 
 <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>

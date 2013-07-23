@@ -14,6 +14,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         // bind away
         var bindings = function(oncoprint) {
             var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
+            sortBy.chosen({width: "240px", disable_search: true });
 
             // *NB* to be the best of my knowledge,
             // the user-defined case list is going to depend on the cna file
@@ -31,6 +32,9 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 oncoprint.toggleWhiteSpace();
             });
         };
+
+        // don't want to setup the zoom slider multiple times
+        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
 
         var data;
         var oncoprint;
@@ -72,8 +76,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     // remove text: "Copy number alterations are putative."
                     $('#oncoprint_legend p').remove();
 
-                    // don't want to setup the zoom slider multiple times
-                    var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
                     zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
 
                     // show controls when there's data

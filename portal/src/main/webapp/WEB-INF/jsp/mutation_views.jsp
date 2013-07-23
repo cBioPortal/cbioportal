@@ -244,7 +244,6 @@
 		 * @param container     target container selector for the main view
 		 * @param cases         array of case ids (samples)
 		 * @param diagramOpts   [optional] mutation diagram options
-		 * TODO table options?
 		 */
 		_initDefaultView: function(container, cases, diagramOpts)
 		{
@@ -276,7 +275,6 @@
 		 * @param gene          hugo gene symbol
 	     * @param cases         array of case ids (samples)
 	     * @param diagramOpts   [optional] mutation diagram options
-	     * TODO table options?
 		 */
 		_initView: function(gene, cases, diagramOpts)
 		{
@@ -287,6 +285,11 @@
 			// sequence information.
 			var init = function(response)
 			{
+				// TODO response may be null for unknown genes...
+
+				// get the first sequence from the response
+				var sequence = response[0];
+
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
@@ -295,7 +298,7 @@
 				// prepare data for mutation view
 				var mutationInfo = {geneSymbol: gene,
 					mutationSummary: summary,
-					uniprotId : response.identifier};
+					uniprotId : sequence.metadata.identifier};
 
 				// reset the loader image
 				self.$el.find("#mutation_details_loader").empty();
@@ -309,7 +312,7 @@
 
 				// draw mutation diagram
 				var diagram = self._drawMutationDiagram(
-						gene, mutationMap[gene], response, diagramOpts);
+						gene, mutationMap[gene], sequence, diagramOpts);
 
 				var pdfButton = mainView.$el.find(".diagram-to-pdf");
 				var svgButton = mainView.$el.find(".diagram-to-svg");
@@ -417,8 +420,8 @@
 
 			// do not draw the diagram if there is a critical error with
 			// the sequence data
-			if (sequenceData.sequenceLength == "" ||
-			    sequenceData.sequenceLength <= 0)
+			if (sequenceData["length"] == "" ||
+			    parseInt(sequenceData["length"]) <= 0)
 			{
 				// return null to indicate an error
 				return null;

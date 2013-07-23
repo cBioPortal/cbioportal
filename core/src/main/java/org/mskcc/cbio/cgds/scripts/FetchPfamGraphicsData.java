@@ -31,6 +31,8 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Fetches PFAM graphic data.
@@ -58,6 +60,8 @@ public class FetchPfamGraphicsData
 		int numLines = 0;
 		int numErrors = 0;
 
+		Set<String> keySet = new HashSet<String>();
+
 		// read all
 		while ((line = in.readLine()) != null)
 		{
@@ -71,7 +75,15 @@ public class FetchPfamGraphicsData
 			if (parts.length > 1)
 			{
 				String uniprotId = parts[1];
+
+				// avoid to add a duplicate entry
+				if (keySet.contains(uniprotId))
+				{
+					continue;
+				}
+
 				String pfamJson = fetch(uniprotId);
+				keySet.add(uniprotId);
 
 				// replace all tabs and new lines with a single space
 				pfamJson = pfamJson.trim().replaceAll("\t", " ").replaceAll("\n", " ");

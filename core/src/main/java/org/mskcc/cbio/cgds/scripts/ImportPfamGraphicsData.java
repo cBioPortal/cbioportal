@@ -35,6 +35,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Imports a pfam graphics mapping file.
@@ -72,13 +74,26 @@ public class ImportPfamGraphicsData
 		BufferedReader in = new BufferedReader(new FileReader(pfamFile));
 		String line;
 		int rows = 0;
+		Set<String> keySet = new HashSet<String>();
 
 		while ((line = in.readLine()) != null)
 		{
 			// parts[0]: uniprot id, parts[1]: pfam data as JSON
 			String[] parts = line.split("\t");
-			dao.addPfamGraphics(parts[0], parts[1]);
-			rows++;
+
+			if (parts.length > 1)
+			{
+				String uniprotId = parts[0];
+				String jsonString = parts[1];
+
+				// avoid to add a duplicate entry
+				if (!keySet.contains(uniprotId))
+				{
+					keySet.add(uniprotId);
+					dao.addPfamGraphics(uniprotId, jsonString);
+					rows++;
+				}
+			}
 		}
 
 		System.out.println("Total number of pfam graphics saved: " + rows);

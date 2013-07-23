@@ -46,7 +46,5 @@
 <jsp:include page="WEB-INF/jsp/global/footer.jsp" flush="true" />
 </div>
 </body>
-</html>
-
 <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>
 </html>

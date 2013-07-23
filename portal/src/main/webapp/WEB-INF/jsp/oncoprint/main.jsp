@@ -1,4 +1,3 @@
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
     <img class="loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
@@ -23,11 +22,11 @@
             </form>
         </span>
 
-        <%@ include file="controls.jsp" %>
+        <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
 
         <div id="oncoprint_body"></div>
-        <script data-main="js/src/oncoprint/main-boilerplate.js" type="text/javascript" src="js/require.js"></script>
 
+        <%@ include file="controls-templates.jsp" %>
         <div id="oncoprint_legend"></div>
         <script type="text/template" id="glyph_template">
             <svg height="23" width="6">
@@ -44,5 +43,6 @@
             <span style="position: relative; bottom: 6px;">{{text}}</span>
         </script>
 
+        <script data-main="js/src/oncoprint/main-boilerplate.js" type="text/javascript" src="js/require.js"></script>
     </div>
 </div>

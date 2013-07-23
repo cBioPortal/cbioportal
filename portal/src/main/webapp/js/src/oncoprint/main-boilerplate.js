@@ -10,6 +10,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         interpolate : /\{\{(.+?)\}\}/g
     };
 
+    // add in the controls from template
+    document.getElementById('oncoprint_controls').innerHTML
+        = _.template(document.getElementById('main-controls-template').innerHTML)();
+
     var oncoPrintParams = {
         geneData: undefined,
         cancer_study_id: "<%=cancerTypeId%>",
@@ -152,7 +156,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     oncoprint.zoom(zoom.slider("value"));
                     oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                     oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-                    utils.make_mouseover(d3.selectAll('.sample rect'))        // hack =(
+                    utils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
                 }
             });
         }

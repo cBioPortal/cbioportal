@@ -5,25 +5,24 @@ var rppaPlots = (function() {
         var alteredCaseList =  [],
             unalteredCaseList =  [];
 
-        function init(caseLists) {
+        function init(caseLists, proteinArrayId) {
             alteredCaseList = caseLists.alteredCaseList;
             unalteredCaseList = caseLists.unalteredCaseList;
-            getProfileData();
+            getProteinArrayData(proteinArrayId);
 
         }
 
-        function getProfileData() {
-            var paramsGetProfileData = {
-                gene_list: gene,
-                genetic_profile_id: genetic_profile_id,
+        function getProteinArrayData(proteinArrayId) {
+            var paramsGetProteinArrayData = {
+                cancer_study_id: cancer_study_id,
                 case_set_id: case_set_id,
-                case_ids_key: case_ids_key
+                case_ids_key: case_ids_key,
+                protein_array_id: proteinArrayId
             };
-            $.post("getProfileData.json", paramsGetProfileData, callback_func, "json");
+            $.post("getProteinArrayData.json", paramsGetProteinArrayData, getProfileDataCallBack, "json");
         }
 
-        function getProfileDataCallBack() {
-
+        function getProfileDataCallBack(result) {
         }
 
         return {
@@ -44,8 +43,6 @@ var rppaPlots = (function() {
             yLabel = _yLabel;
             title = _title;
             divName = _divName;
-            console.log(xLabel, yLabel, title);
-            console.log(divName);
             $("#" + divName).append(title);
         }
 
@@ -61,8 +58,8 @@ var rppaPlots = (function() {
 
     }());
 
-    function init(xLabel, yLabel, title, caseLists, divName) {
-        data.init(caseLists);
+    function init(xLabel, yLabel, title, caseLists, divName, proteinArrayId) {
+        data.init(caseLists, proteinArrayId);
         view.init(xLabel, yLabel, title, divName);
     }
 

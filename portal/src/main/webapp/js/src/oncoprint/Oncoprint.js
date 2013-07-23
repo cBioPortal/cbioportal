@@ -541,24 +541,22 @@ define("Oncoprint",
 
                     return {
                         remove_oncoprint: remove_oncoprint,
-                            memoSort: memoSort,
-                            randomMemoSort: randomMemoSort,
-                            getData: function() { return state.data; },
-                            toggleWhiteSpace: toggleWhiteSpace,
-                            zoom: zoom,
-                            showUnalteredCases: showUnalteredCases,
-                            toggleUnalteredCases: function() {
-                                show_unaltered_bool = !show_unaltered_bool;
-                                showUnalteredCases(show_unaltered_bool);
-                            },
-                            sortBy: sortBy,
-                            getPdfInput: getPdfInput
+                        memoSort: memoSort,
+                        randomMemoSort: randomMemoSort,
+                        getData: function() { return state.data; },
+                        toggleWhiteSpace: toggleWhiteSpace,
+                        zoom: zoom,
+                        showUnalteredCases: showUnalteredCases,
+                        toggleUnalteredCases: function() {
+                            show_unaltered_bool = !show_unaltered_bool;
+                            showUnalteredCases(show_unaltered_bool);
+                        },
+                        sortBy: sortBy,
+                        getPdfInput: getPdfInput
                     };
                 })();
 
-                // sort by gene data initially
                 State.memoSort(params.genes.concat(clinical_attrs));
-
                 utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'));
 
                 return State;

@@ -10,7 +10,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         interpolate : /\{\{(.+?)\}\}/g
     };
 
-    // add in the controls from template
+    // add in controls from template
     document.getElementById('oncoprint_controls').innerHTML
         = _.template(document.getElementById('main-controls-template').innerHTML)();
 
@@ -38,9 +38,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     clinicalAttributes.fetch({
         success: function(attrs) {
-                     utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-                     $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
-                 }
+            utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
+            $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
+        }
     });
 
     var oncoprint;
@@ -152,7 +152,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                     toggleControls(true);
 
-                    // set the zoom to be whatever the slider currently says it is
+                    // sync
                     oncoprint.zoom(zoom.slider("value"));
                     oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
                     oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
@@ -171,6 +171,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
         $('#toggle_unaltered_cases').click(function() {
             oncoprint.toggleUnalteredCases();
+            utils.make_mouseover(d3.selectAll('.sample rect'));     // hack =(
+//            oncoprint.sortBy(sortBy.val());
         });
 
         $('#toggle_whitespace').click(function() {

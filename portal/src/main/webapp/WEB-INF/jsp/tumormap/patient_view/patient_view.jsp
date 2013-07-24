@@ -308,6 +308,10 @@ $(document).ready(function(){
     outputClinicalData();
     setUpPatientTabs();
     initTabs();
+    var openTab = window.location.hash.substr(1);
+    if (openTab) {
+        switchToTab(openTab);
+    }
 });
 
 function setUpPatientTabs() {
@@ -347,6 +351,9 @@ function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();
     $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+    if (toTab==='images') {
+        loadImages();
+    }
 }
 
 function getEventString(eventTableData,dataCol,overviewCol) {

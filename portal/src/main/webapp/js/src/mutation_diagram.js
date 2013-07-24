@@ -90,15 +90,45 @@ MutationDiagram.prototype.defaultOpts = {
 	yAxisFont: "sans-serif",    // font type of the y-axis labels
 	yAxisFontSize: "10px",      // font size of the y-axis labels
 	yAxisFontColor: "#2E3436",  // font color of the y-axis labels
-	lollipopTipOpts: {          // tooltip (qTip) options for a lollipop circle
-		hide: {fixed: true, delay: 100 },
-		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-		position: {my:'bottom left', at:'top center'}
+	/**
+	 * Default lollipop tooltip function.
+	 *
+	 * @param element   target svg element (lollipop circle)
+	 * @param pileup    a pileup model instance
+	 */
+	lollipopTipFn: function (element, pileup) {
+		var mutationStr = pileup.count > 1 ? "mutations" : "mutation";
+
+		var text = "<b>" + pileup.count + " " + mutationStr + "</b>" +
+		           "<br/>Amino Acid Change: " + pileup.label;
+
+		// TODO find a better way to set font size
+		var options = {content: {text: '<font size="2">'+text+'</font>'},
+			hide: {fixed: true, delay: 100},
+			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+			position: {my:'bottom left', at:'top center'}};
+
+		$(element).qtip(options);
 	},
-	regionTipOpts: {            // tooltip (qTip) options for a region rectangle
-		hide: {fixed: true, delay: 100 },
-		style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-		position: {my:'bottom left', at:'top center'}
+	/**
+	 * Default region tooltip function.
+	 *
+	 * @param element   target svg element (region rectangle)
+	 * @param region    a JSON object representing the region
+	 */
+	regionTipFn: function (element, region) {
+		var text = region.metadata.identifier + " " +
+		           region.type.toLowerCase() + ", " +
+		           region.metadata.description +
+		           " (" + region.metadata.start + " - " + region.metadata.end + ")";
+
+		// TODO find a better way to set font size
+		var options = {content: {text: '<font size="2">'+text+'</font>'},
+			hide: {fixed: true, delay: 100},
+			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+			position: {my:'bottom left', at:'top center'}};
+
+		$(element).qtip(options);
 	}
 };
 
@@ -258,7 +288,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		pileup.location = parseInt(key);
 		pileup.label = generateLabel(mutations[key]);
 
-		mutationList.push(pileup);
+		mutationList.push(new Pileup(pileup));
 	}
 
 	// sort (descending) the list wrt mutation count
@@ -684,7 +714,7 @@ MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, font
  *
  * @param circles   circle group (svg element) to append the lollipop circle
  * @param lines     line group (svg element) to append the lollipop lines
- * @param pileup list (array) of mutations (pileup) at a specific location
+ * @param pileup    list (array) of mutations (pileup) at a specific location
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
@@ -698,9 +728,6 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 
 	var count = pileup.count;
 	var start = pileup.location;
-	var mutationStr = count > 1 ? "mutations" : "mutation";
-	var title = "<b>" + count + " " + mutationStr + "</b>" +
-	            "<br/>Amino Acid Change: " + pileup.label;
 
 	var x = xScale(start);
 	var y = yScale(count);
@@ -711,7 +738,8 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('r', options.lollipopRadius)
 		.attr('fill', options.lollipopFillColor);
 
-	self.addTooltip(circle, title, options.lollipopTipOpts);
+	var addTooltip = options.lollipopTipFn;
+	addTooltip(circle, pileup);
 
 	var line = lines.append('line')
 		.attr('x1', x)
@@ -845,10 +873,6 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 	var end = region.metadata.end;
 	var label = region.text;
 	var color = region.colour;
-	var tooltip = region.metadata.identifier + " " +
-	              region.type.toLowerCase() + ", " +
-	              region.metadata.description +
-	              " (" + start + " - " + end + ")";
 
 	var width = Math.abs(xScale(start) - xScale(end));
 	var height = options.regionHeight;
@@ -867,8 +891,10 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		.attr('width', width)
 		.attr('height', height);
 
+	var addTooltip = options.regionTipFn;
+
 	// add tooltip to the rect
-	self.addTooltip(rect, tooltip, options.regionTipOpts);
+	addTooltip(rect, region);
 
 	if (options.showRegionText)
 	{
@@ -878,7 +904,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 		if (text)
 		{
 			// add tooltip to the text
-			self.addTooltip(text, tooltip, options.regionTipOpts);
+			addTooltip(text, region);
 		}
 	}
 
@@ -1013,24 +1039,6 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 		y: y,
 		width: width,
 		height: height};
-};
-
-
-MutationDiagram.prototype.addTooltip = function(element, txt, tipOpts)
-{
-	var qTipOptions = jQuery.extend(true, {}, tipOpts);
-
-	if (qTipOptions.content == null)
-	{
-		// TODO setting font size inside content may not be safe
-		qTipOptions.content = {text: '<font size="2">'+txt+'</font>'};
-	}
-	else
-	{
-		// TODO edit content (insert txt)
-	}
-
-	$(element).qtip(qTipOptions);
 };
 
 /**

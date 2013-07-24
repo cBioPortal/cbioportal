@@ -292,13 +292,14 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 {
 	var self = this;
+	var sequenceLength = parseInt(data.sequence["length"]);
 
-	var xMax = Math.max(data.sequence.sequenceLength, options.minLengthX);
+	var xMax = Math.max(sequenceLength, options.minLengthX);
 	var yMax = Math.max(self.calcMaxCount(data.mutations), options.minLengthY);
 	var regions = data.sequence.regions;
 	var mutations = data.mutations;
-	var seqTooltip = data.sequence.identifier + ", " +
-	               data.sequence.description + " (" + data.sequence.sequenceLength + "aa)";
+	var seqTooltip = data.sequence.metadata.identifier + ", " +
+	               data.sequence.metadata.description + " (" + sequenceLength + "aa)";
 
 	var xScale = d3.scale.linear()
 		.domain([0, xMax])
@@ -840,13 +841,13 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
 {
 	var self = this;
 
-	var start = region.start;
-	var end = region.end;
+	var start = region.metadata.start;
+	var end = region.metadata.end;
 	var label = region.text;
-	var color = region.color;
-	var tooltip = region.identifier + " " +
+	var color = region.colour;
+	var tooltip = region.metadata.identifier + " " +
 	              region.type.toLowerCase() + ", " +
-	              region.description +
+	              region.metadata.description +
 	              " (" + start + " - " + end + ")";
 
 	var width = Math.abs(xScale(start) - xScale(end));

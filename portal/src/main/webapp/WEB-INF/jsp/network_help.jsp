@@ -62,7 +62,7 @@
 </p>
 
 <p class="regular">
-	If you mouse over a node, or select View::Always Show Profile Data, 
+	If you mouse over a node, or select "View::Always Show Profile Data", 
 	you will see additional details regarding the genomic alterations affecting the gene. 
 	This breaks down into mutation, copy number and mRNA expression changes affecting the gene across all cases.
 </p>
@@ -187,7 +187,7 @@
 </p>
 <p class="regular">
 	You can export a network to a PNG file. 
-	To do so, select File::Save as Image (PNG). 
+	To do so, select "File::Save as Image (PNG)". 
 	We do not currently support export to PDF.
 </p>
 

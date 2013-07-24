@@ -101,7 +101,7 @@ if (includeNetLegend==null) {
 	    	<a id="network_menu_legends">Legends</a>
 	    	<ul id="legends_menu">
 	    		<li>
-	    			<a id="show_gene_legend">
+	    			<a id="show_node_legend">
 	    				Gene Legend
 	    			</a>
 	    		</li>

@@ -118,6 +118,8 @@ function NetworkVis(divId)
 
     // CytoscapeWeb.Visualization instance
     this._vis = null;
+
+    this.isEdgeClicked = false;
 }
 
 
@@ -335,25 +337,48 @@ NetworkVis.prototype.defaultSettings = function()
 NetworkVis.prototype.updateDetailsTab = function(evt)
 {
     // TODO also consider selected edges?
-    var selected = this._vis.selected("nodes");
+    var selected = this._vis.selected();
     var data;
-
+    var areEdges = true;
     var self = this;
+
+    for (var i = 0; i < selected.length; i++)
+    {
+        if(selected[i].group != "edges")
+        {
+            areEdges = false;
+            break;
+        }
+    }
 
     // clean previous content
     $(self.detailsTabSelector + " div").empty();
     $(self.detailsTabSelector + " .error").hide();
 
-    if (selected.length == 1)
+    if (selected.length == 1 && !areEdges)
     {
         data = selected[0].data;
     }
-    else if (selected.length > 1)
+    else if (selected.length > 1 && !areEdges)
     {
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
             "Currently more than one node is selected. Please, select only one node to see details.");
         $(self.detailsTabSelector + " .error").show();
+        return;
+    }
+    else if (selected.length >= 1 && areEdges)
+    {
+        if(this.isEdgeClicked)
+        {
+            //this.addInteractionInfoOnClick(evt, this.detailsTabSelector);
+            this.addInteractionInfo(evt, this.detailsTabSelector, evt.target.merged, "click");
+        }
+        else{
+            //this.addInteractionInfoOnSelect(evt, this.detailsTabSelector);
+            this.addInteractionInfo(evt, this.detailsTabSelector, this._linksMerged, "select");
+        }
+
         return;
     }
     else
@@ -435,6 +460,189 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
             handler);
     }
 };
+
+NetworkVis.prototype.addInteractionInfo = function(evt, selector, isMerged, selectType)
+{
+    //this.createEdgeDetailsSelector(selector);
+    var dataRow;
+
+    var data = (selectType == "click") ? (evt.target.data) : (evt.target[0].data);
+
+    // clean xref & data rows
+    $(selector + " .edge_inspector_content .data .data-row").remove();
+    $(selector + " .edge_inspector_content .xref .xref-row").remove();
+
+    var title = this._vis.node(data.source).data.label + " - " +
+        this._vis.node(data.target).data.label;
+
+    if (isMerged)
+    {
+        title += ' (Summary Edge)';
+        var text = '<div class="header"><span class="title"><label>';
+            text +=  title;
+            text += '</label></span></div>';
+        $(selector + " .edge-inspector-content").append(text);
+
+        var edges = (selectType == "click") ? (evt.target.edges) : (evt.target);
+
+        // add information for each edge
+
+        for (var i = 0; i < edges.length; i++)
+        {
+            // skip filtered-out edges
+            if (!this.edgeVisibility(edges[i]))
+            {
+                continue;
+            }
+
+            data = edges[i].data;
+
+            // add an empty row for better edge separation
+            $(selector + " .edge-inspector-content").append(
+                '<tr align="left" class="empty-row data-row"><td> </td></tr>');
+
+            // add edge data
+            dataRow = this._addDataRow2("edge",
+                        "Source",
+                        data["INTERACTION_DATA_SOURCE"],
+                        this.TOP_ROW_CLASS);
+            $(selector + " .edge-inspector-content").append(dataRow);
+
+            if (data["INTERACTION_PUBMED_ID"] == "NA")
+            {
+                // no PubMed ID, add only type information
+                dataRow = this._addDataRow2("edge",
+                            "Type",
+                            _toTitleCase(data["type"]),
+                            this.BOTTOM_ROW_CLASS);
+                $(selector + " .edge-inspector-content").append(dataRow);
+            }
+            else
+            {
+                // add type information
+                dataRow = this._addDataRow2("edge",
+                            "Type",
+                            _toTitleCase(data["type"]),
+                            this.INNER_ROW_CLASS);
+                $(selector + " .edge-inspector-content").append(dataRow);
+
+                dataRow = this._addPubMedIds2(data, true);
+                $(selector + " .edge-inspector-content").append(dataRow);
+            }
+        }
+        // add an empty row for the last edge
+        $(selector + " .edge-inspector-content").append(
+            '<tr align="left" class="empty-row data-row"><td> </td></tr>');
+    }
+    else
+    {
+        var text = '<div class="header"><span class="title"><label>';
+            text +=  title;
+            text += '</label></span></div>';
+
+        $(selector + " .edge-inspector-content").append(text);
+
+        // add an empty row for better edge separation
+        $(selector + " .edge-inspector-content").append(
+                '<tr align="left" class="empty-row data-row"><td> </td></tr>');
+
+        dataRow = this._addDataRow2("edge", "Source", data["INTERACTION_DATA_SOURCE"]);
+        $(selector + " .edge-inspector-content").append(dataRow);
+        dataRow = this._addDataRow2("edge", "Type", _toTitleCase(data["type"]));
+        $(selector + " .edge-inspector-content").append(dataRow);
+
+        if (data["INTERACTION_PUBMED_ID"] != "NA")
+        {
+            dataRow = this._addPubMedIds2(data, false);
+            $(selector + " .edge-inspector-content").append(dataRow);
+        }
+    }
+
+    $(selector).show();
+}
+
+NetworkVis.prototype._addDataRow2 = function(type, label, value /*, section*/)
+{
+    var section = arguments[3];
+
+    if (section == null)
+    {
+        section = "";
+    }
+    else
+    {
+        section += " ";
+    }
+
+    // replace null string with a predefined string
+
+    if (value == null)
+    {
+        value = this.UNKNOWN;
+    }
+
+    var info ='<tr align="left"><td>' +
+        '<strong>' + label + ':</strong> ' + value +
+        '</td></tr>';
+
+    return info;
+};
+
+/**
+ * Adds PubMed ID's as new data rows to the edge inspector.
+ *
+ * @param data          edge's data
+ * @param summaryEdge   indicated whether the given edge is a summary edge or
+ *                      a regular edge
+ */
+NetworkVis.prototype._addPubMedIds2 = function(data, summaryEdge)
+{
+    var ids = data["INTERACTION_PUBMED_ID"].split(";");
+    var link, xref;
+    var links = new Array();
+    // collect pubmed id(s) into an array
+
+    for (var i = 0; i < ids.length; i++)
+    {
+        link = this._resolveXref(ids[i]);
+
+        if (link.href == "#")
+        {
+            // skip unknown sources
+            continue;
+        }
+
+        xref = '<a href="' + link.href + '" target="_blank">' +
+               link.pieces[1] + '</a>';
+
+        links.push(xref);
+    }
+
+    var xrefList = links[0];
+
+    for (var i = 1; i < links.length; i++)
+    {
+        xrefList += ", " + links[i];
+    }
+
+    if (summaryEdge)
+    {
+        // class of this row should be BOTTOM_ROW_CLASS (this is needed
+        // to separate edges visually)
+
+        return this._addDataRow2("edge",
+                    "PubMed ID(s)",
+                    xrefList,
+                    this.BOTTOM_ROW_CLASS);
+    }
+    else
+    {
+        return this._addDataRow2("edge",
+                    "PubMed ID(s)",
+                    xrefList);
+    }
+};
+
 
 /**
  * Shows the edge inspector when double clicked on an edge.
@@ -2679,14 +2887,20 @@ NetworkVis.prototype._initControlFunctions = function()
 
     // define listeners as local variables
     // (this is required to pass "this" instance to the listener functions)
-
     var showNodeDetails = function(evt) {
         // open details tab instead
         $(self.networkTabsSelector).tabs("select", 2);
     };
 
-    var showEdgeInspector = function(evt) {
-        self.showEdgeInspector(evt);
+    var handleEdgeSelect = function(evt) {
+        self.isEdgeClicked = false;
+        self.updateDetailsTab(evt);
+    };
+
+    var showEdgeDetails = function(evt) {
+        self.isEdgeClicked = true;
+        $(self.networkTabsSelector).tabs("select", 2);
+        self.updateDetailsTab(evt);
     };
 
     var handleNodeSelect = function(evt) {
@@ -2813,14 +3027,13 @@ NetworkVis.prototype._initControlFunctions = function()
     this._controlFunctions["highlight_neighbors"] = highlightNeighbors;
     this._controlFunctions["remove_highlights"] = removeHighlights;
     this._controlFunctions["hide_non_selected"] = filterNonSelected;
-    this._controlFunctions["show_gene_legend"] = showNodeLegend;
+    this._controlFunctions["show_node_legend"] = showNodeLegend;
     this._controlFunctions["show_drug_legend"] = showDrugLegend;
     this._controlFunctions["show_edge_legend"] = showEdgeLegend;
 
     // add menu listeners
     $(this.mainMenuSelector + " #network_menu a").unbind(); // TODO temporary workaround (there is listener attaching itself to every 'a's)
     $(this.mainMenuSelector + " #network_menu a").click(handleMenuEvent);
-    $("#help_tab a").click(handleMenuEvent);
 
     // add button listeners
 
@@ -2844,22 +3057,29 @@ NetworkVis.prototype._initControlFunctions = function()
 
     this._vis.addListener("dblclick",
                      "edges",
-                     showEdgeInspector);
+                     showEdgeDetails);
+
+    // add listener for edge select & deselect actions
+    this._vis.addListener("select",
+                    "edges",
+                     handleEdgeSelect);
+
+    this._vis.addListener("deselect",
+                    "edges",
+                     handleEdgeSelect);
 
     // add listener for node select & deselect actions
-
     this._vis.addListener("select",
-                     "nodes",
+                    "nodes",
                      handleNodeSelect);
 
     this._vis.addListener("deselect",
-                     "nodes",
+                    "nodes",
                      handleNodeSelect);
 
     // TODO temp debug option, remove when done
     //_vis.addContextMenuItem("node details", "nodes", jokerAction);
 };
-
 /**
  * Initializes the layout options by default values and updates the
  * corresponding UI content.

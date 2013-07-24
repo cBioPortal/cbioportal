@@ -10,7 +10,7 @@
 	Source of Pathway Data
 <p>
 <p class="regular">
-	Pathway and interaction data is derived from <a href="http://www.hprd.org/" target="_blank">HPRD</a>, 
+	Pathway and interaction data is from <a href="http://www.hprd.org/" target="_blank">HPRD</a>, 
 	<a href="http://www.reactome.org/" target="_blank">Reactome</a>, 
 	<a href="http://pid.nci.nih.gov/" target="_blank">NCI-Nature Pathway Interaction Database</a>, 
 	and the <a href="http://cancer.cellmap.org/cellmap/" target="_blank">MSKCC Cancer Call Map</a>, 
@@ -67,7 +67,7 @@
 	This breaks down into mutation, copy number and mRNA expression changes affecting the gene across all cases.
 </p>
 <p class="regular">
-	Click <a onclick="handleMenuEvent('node_legend')">here</a> to see the gene legend.
+	Click <a id="show_gene_legend" onclick="handleMenuEvent('gene_legend');">here</a> to see the gene legend.
 </p>
 
 <p class="heading">
@@ -83,7 +83,7 @@
 	 (regardless of whether or not any such gene is in the current network of interest) targeted by this drug.
 </p>
 <p class="regular">
-	Click <a onclick="handleMenuEvent('drug_legend')">here</a> to see the drug legend.
+	Click <a id="show_drug_legend" onclick="handleMenuEvent('drug_legend');">here</a> to see the drug legend.
 </p>
 
 <p class="heading">
@@ -118,7 +118,7 @@
 	</ul>	
 </p>
 <p class="regular">
-	Click <a onclick="handleMenuEvent('edge_legend')">here</a> to see the color codes.
+	Click <a id="show_edge_legend" onclick="handleMenuEvent('edge_legend')">here</a> to see the color codes.
 </p>
 <p class="regular">
 	Complete details are available on the <a href="http://www.pathwaycommons.org/pc/sif_interaction_rules.do" target="_blank">Pathway Commons web site</a>.
@@ -136,9 +136,10 @@
 	<ul>
 		<li>
 			<span class="bold">Hide Selected/Crop:</span>
-			Selected nodes can be hidden using either "Hide Selected" in the "Topology" menu or "Hide Selected" button on the "Genes &amp; Drugs" tab.
-			Alternatively, you can select the set of nodes that you would like to view and hide the rest of the network 
-			using either "Show Only Selected" in the "Topology" menu or "Show Only Selected" button on the "Genes &amp; Drugs" tab.
+			Selected nodes can be hidden using "Topology::Hide Selected". 
+			Alternatively, you can select the set of nodes that you would like to view and hide the rest 
+			of the network using "Topology::Show Only Selected". 
+			Alternatively, buttons are available for these operations on the "Genes &amp; Drugs" tab. 
 		</li>
 		<li>
 			<span class="bold">Filter by Interaction Type or Source:</span> 
@@ -175,17 +176,17 @@
 </p>
 <p class="regular">
 	A Force-Directed layout algorithm is used by default. 
-	However, you may choose to re-perform the layout with different parameters or 
+	However, you may choose to re-perform the layout with different parameters (by selecting "Layout::Layout Properties ...")  or 
 	after the topology of the network changes with operations such as hiding or filtering. 
 	If you would like the layout to be performed automatically upon such operations 
-	simply check "Auto Layout on Changes" in the "Layout" menu.
+	simply check "Layout::Auto Layout on Changes".
 </p>
 
 <p class="heading">
 	Exporting Networks
 </p>
 <p class="regular">
-	You can export a network to an PNG file. 
+	You can export a network to a PNG file. 
 	To do so, select File::Save as Image (PNG). 
 	We do not currently support export to PDF.
 </p>

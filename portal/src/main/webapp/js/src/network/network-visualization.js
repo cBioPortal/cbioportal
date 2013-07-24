@@ -1864,7 +1864,7 @@ NetworkVis.prototype._initMainMenu = function()
     $(this.mainMenuSelector + " #auto_layout").addClass(this.MENU_SEPARATOR_CLASS);
     $(this.mainMenuSelector + " #auto_layout").addClass(this.LAST_CLASS);
 
-    $(this.mainMenuSelector + " #show_node_legend").addClass(this.FIRST_CLASS);
+    $(this.mainMenuSelector + " #show_gene_legend").addClass(this.FIRST_CLASS);
     $(this.mainMenuSelector + " #show_edge_legend").addClass(this.LAST_CLASS);
 
     // init check icons for checkable menu items
@@ -2813,13 +2813,14 @@ NetworkVis.prototype._initControlFunctions = function()
     this._controlFunctions["highlight_neighbors"] = highlightNeighbors;
     this._controlFunctions["remove_highlights"] = removeHighlights;
     this._controlFunctions["hide_non_selected"] = filterNonSelected;
-    this._controlFunctions["show_node_legend"] = showNodeLegend;
+    this._controlFunctions["show_gene_legend"] = showNodeLegend;
     this._controlFunctions["show_drug_legend"] = showDrugLegend;
     this._controlFunctions["show_edge_legend"] = showEdgeLegend;
 
     // add menu listeners
     $(this.mainMenuSelector + " #network_menu a").unbind(); // TODO temporary workaround (there is listener attaching itself to every 'a's)
     $(this.mainMenuSelector + " #network_menu a").click(handleMenuEvent);
+    $("#help_tab a").click(handleMenuEvent);
 
     // add button listeners
 

@@ -76,6 +76,9 @@
                                             </li>
                                             <% } %>
                                             <li class="internal">
+                                                <a href="custom_oncoprint.jsp">Custom Oncoprint</a>
+                                            </li>
+                                            <li class="internal">
                                                 <a href="about_us.jsp">About</a>
                                             </li>
                                         </ul>

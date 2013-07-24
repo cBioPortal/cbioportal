@@ -1,4 +1,7 @@
 describe("MemoSort", function() {
+
+    requirejs('MemoSort');
+
     it("sort samples with multiple genes", function() {
 
         var sample1 = { "sample": "sample_1",

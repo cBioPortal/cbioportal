@@ -1,4 +1,4 @@
-// boilerplate for the main portal page
+// boilerplate for the "make your own oncoprint page"
 //
 // Gideon Dresdner July 2013
 
@@ -31,6 +31,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             $('#toggle_whitespace').click(function() {
                 oncoprint.toggleWhiteSpace();
             });
+
+            return false;
         };
 
         // don't want to setup the zoom slider multiple times
@@ -39,8 +41,9 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         var data;
         var oncoprint;
         var cases;
-        $('#submit').click(function(){
+        $('#submit').click(function() {
             var formData = new FormData($('form')[0]);
+
             $.ajax({
                 url: 'echofile',
                 type: 'POST',
@@ -82,6 +85,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     $('#oncoprint_controls').show();
 
                     bindings(oncoprint);
+
+                    return false;
                 },
 //                error: errorHandler,
                 // Form data

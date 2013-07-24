@@ -176,12 +176,38 @@ public class EchoFile extends HttpServlet {
         return data;
     }
 
+    /**
+     * Request has an optional parameter <code>str</code>.  If it is provided, then its value is echoed back as a
+     * raw string and the servlet returns, doing *nothing else at all*
+     *
+     * Otherwise, the request expects one or more of the following parameters with files as values:
+     *
+     * <code>cna</code>
+     * <code>mutation</code>
+     * <code>mrna</code>
+     * <code>rppa</code>
+     *
+     * If a file is provided via a different parameter, that file is simply echoed back as a raw string.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     protected void doPost(HttpServletRequest request,
                           HttpServletResponse response) throws ServletException, IOException {
 
         Writer writer = response.getWriter();
 
         try {
+
+            String str = request.getParameter("str");
+
+            if (str != null) {
+                writer.write(request.getParameter("str"));
+                return;
+            }
+
             List<Map<String, String>> data = new ArrayList<Map<String, String>>();
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
@@ -237,5 +263,20 @@ public class EchoFile extends HttpServlet {
             // hide details from user
             throw new ServletException("there was an error processing your request");
         }
+    }
+
+    /**
+     * Forwards to doPost
+     *
+     * doGet == doPost
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    protected void doGet(HttpServletRequest request,
+                          HttpServletResponse response) throws ServletException, IOException {
+        doPost(request, response);
     }
 }

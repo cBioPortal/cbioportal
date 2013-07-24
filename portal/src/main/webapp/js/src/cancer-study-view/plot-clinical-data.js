@@ -87,7 +87,7 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(survival)|(grade)|(stage)|(histology)|(disease state)|(tumor_type)|(metastasis site)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
 }
 
 // draw datatable
@@ -166,7 +166,7 @@ function drawDataTable(tableId,dt,caseMap,cancerStudyId) {
                 if (type==='set') {
                     source[colPatientIdCol]=value;
                 } else if (type==='display') {
-                    return formatPatientLink(source[colPatientIdCol],cancerStudyId);
+                    return formatPatientLink(source[colPatientIdCol],cancerStudyId,true);
                 } else {
                     return source[colPatientIdCol];
                 }

@@ -255,33 +255,13 @@
  * #################### Node details ######################
  * ########################################################
  */
- 
-.node_inspector_content
-{
-	text-align: left;
-}
 
 .genomic-profile-content
 {
 	padding-bottom: 10px;
 }
 
-.node_inspector_content .data-row
-{
-	font-size: 12pt;
-}
 
-.node_inspector_content .xref-row td a
-{
-	color:blue;
-}
-
-.node_inspector_content .atc_codes-data-row td a
-{
-	color:blue;
-}
-
-.network_node_inspector .percent-bar,
 .genomic-profile-content .percent-bar
 {
 	margin-top: 0.5em;
@@ -290,11 +270,6 @@
 	height: 0.3em;
 	border-right: 0px solid #b0b0b0;
 	clear: both;
-}
-
-.network_node_inspector .percent-cell
-{
-	width: 120px;
 }
 
 .genomic-profile-content .percent-cell
@@ -307,23 +282,9 @@
 	width: 55%;
 }
 
-.network_node_inspector .percent-value,
 .genomic-profile-content .percent-value
 {
 	text-align: right;
-}
-
-.network_node_inspector .percent-text
-{
-	
-}
-
-.network_node_inspector .profile
-{
-	border-collapse: collapse;
-	margin-bottom: 0.5em;
-	margin-left: 0.5em;
-	margin-right: 0.5em;
 }
 
 .genomic-profile-content .profile
@@ -331,47 +292,21 @@
 	border-collapse: collapse;
 }
 
-.network_node_inspector .profile-header,
 .genomic-profile-content .profile-header
 {
 	margin-top: 0.5em;
 	font-weight: bold;
 }
 
-.network_node_inspector li {
-	font-size:12px;
-}
-
-.network_node_inspector li a:link{
-	text-decoration:none;
-	color: #1974b8;
-}
-.network_node_inspector li a:hover{
-	text-decoration:none;
-	color: #1974b8;
-}
-.network_node_inspector li a:active{
-	text-decoration:none;
-	color: #1974b8;
-}
-.network_node_inspector li a:visited{
-	text-decoration:none;
-	color: #1974b8;
-}
-
-.network_node_inspector li a { outline: none }
-
 /*  
  * IE ignores borders for tr elements, so setting borders for all td elements
  * inside a tr.
  */
-.network_node_inspector .section-separator td,
 .genomic-profile-content .section-separator td
 {
 	border-top: 1px solid #aaaaaa;
 }
 
-.network_node_inspector .total-alteration td,
 .genomic-profile-content .total-alteration-separator td
 {
 	border-bottom: 2px solid #aaaaaa;
@@ -772,12 +707,15 @@
 
 #element_details_tab .title
 {
-	text-align: center;
+	margin-left: 3px;
+	text-align: left;
+	color:#000000;
 }
 
 #element_details_tab .title label
 {
 	font-weight: bold;
+	color:#000000;
 }
 
 #element_details_tab td

@@ -190,6 +190,7 @@ if (includeHelpTab==null) {
 		<div class="genomic-profile-content"></div>
 		<div class="biogene-content"></div>
 		<div class="drug-info-content"></div>
+		<div class="edge-inspector-content"></div>
 	</div>
     <%if(includeHelpTab){%>
     <div id="help_tab">

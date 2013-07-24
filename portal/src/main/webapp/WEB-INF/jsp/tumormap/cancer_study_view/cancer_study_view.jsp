@@ -207,8 +207,9 @@ function getRefererCaseId() {
     return null;
 }
 
-function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='+cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
+function formatPatientLink(caseId,cancerStudyId,isPatient) {
+    return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
+            +cancerStudyId+'&'+(isPatient?'patient_id':'case_id')+'='+caseId+'">'+caseId+'</a>';
 }
 
 </script>

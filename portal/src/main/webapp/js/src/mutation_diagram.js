@@ -19,7 +19,6 @@ function MutationDiagram(geneSymbol, options, data)
 }
 
 // TODO add more options for a more customizable diagram:
-// default tooltip templates?
 // use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
@@ -277,7 +276,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 	}
 
 	// convert map into an array of piled mutation objects
-	var mutationList = [];
+	var pileupList = [];
 
 	for (var key in mutations)
 	{
@@ -288,11 +287,11 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		pileup.location = parseInt(key);
 		pileup.label = generateLabel(mutations[key]);
 
-		mutationList.push(new Pileup(pileup));
+		pileupList.push(new Pileup(pileup));
 	}
 
 	// sort (descending) the list wrt mutation count
-	mutationList.sort(function(a, b) {
+	pileupList.sort(function(a, b) {
 		var diff = b.count - a.count;
 
 		// if equal, then compare wrt position (for consistency)
@@ -304,7 +303,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		return diff;
 	});
 
-	data.mutations = mutationList;
+	data.pileups = pileupList;
 	data.sequence = sequenceData;
 
 	return data;
@@ -325,9 +324,9 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var sequenceLength = parseInt(data.sequence["length"]);
 
 	var xMax = Math.max(sequenceLength, options.minLengthX);
-	var yMax = Math.max(self.calcMaxCount(data.mutations), options.minLengthY);
+	var yMax = Math.max(self.calcMaxCount(data.pileups), options.minLengthY);
 	var regions = data.sequence.regions;
-	var mutations = data.mutations;
+	var pileups = data.pileups;
 	var seqTooltip = data.sequence.metadata.identifier + ", " +
 	               data.sequence.metadata.description + " (" + sequenceLength + "aa)";
 
@@ -360,27 +359,13 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		self.topLabel = self.drawTopLabel(svg, options, bounds);
 	}
 
-	// group for lollipop labels (draw labels first)
-	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
-	// group for lollipop lines (lines should be drawn before circles)
-	var gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
-	// group for lollipop circles (circles should be drawn later)
-	var gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
-
-	// draw lollipop lines
-	for (var i = 0; i < mutations.length; i++)
-	{
-		self.drawLollipop(gCircle,
-				gLine,
-				mutations[i],
-				options,
-				bounds,
-				xScale,
-				yScale);
-	}
-
-	// draw lollipop labels
-	self.drawLollipopLabels(gText, mutations, options, xScale, yScale);
+	// draw the plot area content
+	self.drawPlot(svg,
+		pileups,
+		options,
+		bounds,
+		xScale,
+		yScale);
 
 	// draw sequence
 	var sequence = self.drawSequence(svg, options, bounds);
@@ -392,6 +377,45 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	{
 		self.drawRegion(svg, regions[i], options, bounds, xScale);
 	}
+};
+
+/**
+ * Draw lollipop lines, circles and labels on the plot area
+ * for the provided mutations (pileups).
+ *
+ * @param svg       svg container for the diagram
+ * @param pileups   array of mutations (pileups)
+ * @param options   options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @param yScale    scale function for the y-axis
+ */
+MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xScale, yScale)
+{
+	var self = this;
+
+	// group for lollipop labels (draw labels first)
+	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
+	// group for lollipop lines (lines should be drawn before circles)
+	var gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
+	// group for lollipop circles (circles should be drawn later)
+	var gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+
+	// draw lollipop lines and circles
+	for (var i = 0; i < pileups.length; i++)
+	{
+		self.drawLollipop(gCircle,
+				gLine,
+				pileups[i],
+				options,
+				bounds,
+				xScale,
+				yScale);
+	}
+
+	// draw lollipop labels
+	self.drawLollipopLabels(gText, pileups, options, xScale, yScale);
 };
 
 /**
@@ -757,12 +781,12 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
  * by options.lollipopLabelCount.
  *
  * @param labels        text group (svg element) for labels
- * @param mutations     array of mutations (pileups)
+ * @param pileups       array of mutations (pileups)
  * @param options       general options object
  * @param xScale        scale function for the x-axis
  * @param yScale        scale function for the y-axis
  */
-MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, options, xScale, yScale)
+MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, options, xScale, yScale)
 {
 	// helper function to adjust text position to prevent overlapping with the y-axis
 	var getTextAnchor = function(text, textAnchor)
@@ -794,15 +818,15 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 
 	// do not show any label if there are too many ties
 	// exception: if there is only one mutation then display the label in any case
-	if (mutations.length > 1)
+	if (pileups.length > 1)
 	{
-		var max = mutations[0].count;
+		var max = pileups[0].count;
 
 		// at the end of this loop, numberOfTies will be the number of points with
 		// max y-value (number of tied points)
-		for (var numberOfTies = 0; numberOfTies < mutations.length; numberOfTies++)
+		for (var numberOfTies = 0; numberOfTies < pileups.length; numberOfTies++)
 		{
-			if (mutations[numberOfTies].count < max)
+			if (pileups[numberOfTies].count < max)
 			{
 				break;
 			}
@@ -819,20 +843,20 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 
 	// show (lollipopLabelCount) label(s)
 	for (var i = 0;
-	     i < count && i < mutations.length;
+	     i < count && i < pileups.length;
 	     i++)
 	{
 		// check for threshold value
-		if (mutations.length > 1 &&
-		    mutations[i].count < options.lollipopLabelThreshold)
+		if (pileups.length > 1 &&
+		    pileups[i].count < options.lollipopLabelThreshold)
 		{
 			// do not processes remaining values below threshold
 			// (assuming mutations array is sorted)
 			break;
 		}
 
-		var x = xScale(mutations[i].location);
-		var y = yScale(mutations[i].count) -
+		var x = xScale(pileups[i].location);
+		var y = yScale(pileups[i].count) -
 		        (options.lollipopTextPadding + options.lollipopRadius);
 
 		// init text
@@ -844,7 +868,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
-			.text(mutations[i].label);
+			.text(pileups[i].label);
 
 		// adjust anchor
 		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);

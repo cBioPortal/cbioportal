@@ -31,7 +31,9 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.simple.JSONObject;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.http.HttpServlet;
@@ -64,130 +66,10 @@ public class EchoFile extends HttpServlet {
 
     /**
      *
-     * Takes a csv reader of the staging file format:
-     * 1st line is hugo_symbol	entrez_gene_id  sample_id_1	sample_id_2	...
-     * data follows matching this header and is assumed to be numerical
+     * If you specify the `str` parameter in the request, the servlet echoes back the string as is.
      *
-     * NB : only takes the first 50 lines (genes)
-     *
-     * @param reader CSVReader
-     * @param datatype String
-     * @return List of maps with keys {sample_id, hugo, value, datatype}
-     */
-    public static List<Map<String, String>> processStagingCsv(CSVReader reader, String datatype) throws IOException {
-
-        String[] header = reader.readNext();
-
-        String hugo = header[0];
-        String entrez = header[1];
-
-        // validation
-        if  ( !(hugo.toLowerCase().equals("hugo_symbol") && entrez.toLowerCase().equals("entrez_gene_id")) ) {
-            throw new IOException("validation error, missing column header(s) Hugo_Symbol or Entrez_Gene_Id");
-        }
-
-        // grab the sampleIds
-//        String[] sampleIds = (String[]) ArrayUtils.subarray(header, 2, header.length);
-
-        List<Map<String, String>> data = new ArrayList<Map<String, String>>();
-
-        String[] row = reader.readNext();
-        int row_count = 0;
-        while (row !=null && row_count < MAX_NO_GENES) {
-            String thisHugo = row[0];
-            String thisEntrez = row[1];
-
-            // skip past the hugo and the entrez
-            for (int i = 2; i < row.length; i+=1) {
-                Map<String, String> datum = new HashMap<String, String>();
-                datum.put("sample_id", header[i]);
-                datum.put("gene", thisHugo);        // lets just call the hugo the gene
-                datum.put("value", String.valueOf(row[i]));
-                datum.put("datatype", datatype);
-                data.add(datum);
-            }
-
-            row = reader.readNext();
-            row_count += 1;
-        }
-
-        return data;
-    }
-
-    /**
-     * Assumes that there are columns sample_id, protein_change, hugo_symbol (caps insensitive)
-     *
-     * NB : only takes the first 50 lines (genes)
-     *
-     * @param reader
-     * @return List of maps with keys {sample_id, hugo, value, datatype}
-     */
-    public static List<Map<String, String>> processMutationStagingCsv(CSVReader reader) throws IOException {
-
-        int proteinChangeColumnIndex = -1;
-        int sampleIdColumnIndex = -1;
-        int hugoColumnIndex = -1;
-
-        String[] header = reader.readNext();
-
-        for (int i = 0; i < header.length; i+=1) {
-            String curr = header[i].toLowerCase();
-
-            if (curr.equals("protein_change")) {
-                proteinChangeColumnIndex = i;
-            }
-
-            if (curr.equals("sample_id")) {
-                sampleIdColumnIndex = i;
-            }
-
-            if (curr.equals("hugo_symbol")) {
-                hugoColumnIndex = i;
-            }
-        }
-
-        // make sure everything is initialized
-        if (proteinChangeColumnIndex == -1) {
-            throw new IOException("could not find column 'protein_change'");
-        }
-        if (sampleIdColumnIndex == -1) {
-            throw new IOException("could not find column 'sample_id'");
-        }
-        if (sampleIdColumnIndex == -1) {
-            throw new IOException("could not find column 'hugo_symbol'");
-        }
-
-        String[] row = reader.readNext();
-        List<Map<String, String>> data = new ArrayList<Map<String, String>>();
-        int row_count = 0;
-        while (row != null && row_count < MAX_NO_GENES) {
-
-            Map<String, String> datum = new HashMap<String, String>();
-            datum.put("sample_id", row[sampleIdColumnIndex]);
-            datum.put("gene", row[hugoColumnIndex]);        // lets just call the hugo the gene
-            datum.put("value", row[proteinChangeColumnIndex]);
-            datum.put("datatype", "mutation");
-            data.add(datum);
-
-            row = reader.readNext();
-            row_count += 1;
-        }
-
-        return data;
-    }
-
-    /**
-     * Request has an optional parameter <code>str</code>.  If it is provided, then its value is echoed back as a
-     * raw string and the servlet returns, doing *nothing else at all*
-     *
-     * Otherwise, the request expects one or more of the following parameters with files as values:
-     *
-     * <code>cna</code>
-     * <code>mutation</code>
-     * <code>mrna</code>
-     * <code>rppa</code>
-     *
-     * If a file is provided via a different parameter, that file is simply echoed back as a raw string.
+     * If you specify files in the request, each file gets echoed back as a json object
+     * { name -> string (content of file)}
      *
      * @param request
      * @param response
@@ -208,7 +90,8 @@ public class EchoFile extends HttpServlet {
                 return;
             }
 
-            List<Map<String, String>> data = new ArrayList<Map<String, String>>();
+            Map fieldName2fileContent = new JSONObject();
+
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
             for (FileItem item : items) {
@@ -217,41 +100,22 @@ public class EchoFile extends HttpServlet {
                     continue;
                 }
 
-                CSVReader reader = new CSVReader(new InputStreamReader(item.getInputStream()), '\t');
+                InputStream contentStream = item.getInputStream();
                 String fieldName = item.getFieldName();
 
-                if (fieldName.equals("cna")) {
-                    // handle cna data
-                    data.addAll(processStagingCsv(reader, "cna"));
-                }
+                // slurp the file as a string
+                String encoding = "UTF-8";
+                StringWriter stringWriter = new StringWriter();
+                IOUtils.copy(contentStream, stringWriter, encoding);
+                String contentString = writer.toString();
 
-                else if (fieldName.equals("mutation")) {
-                    // handle mutation
-                    data.addAll(processMutationStagingCsv(reader));
-                }
-
-                else if (fieldName.equals("mrna")) {
-                    // handle mrna
-                    data.addAll(processStagingCsv(reader, "mrna"));
-                }
-
-                else if (fieldName.equals("rppa")) {
-                    // ??? Composite.Element.REF ???
-                    int x = -1;
-                }
-
-                else {
-                    // echo back the raw string
-                    InputStream content = item.getInputStream();
-                    java.util.Scanner s = new java.util.Scanner(content, "UTF-8").useDelimiter("\\A");
-                    writer.write(s.hasNext() ? s.next() : "");
-                }
+                fieldName2fileContent.put(fieldName, contentString);
             }
 
             // write the objects out as json
             response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
-            mapper.writeValue(writer, data);
+            mapper.writeValue(writer, fieldName2fileContent);
         }
 
         // catch all exceptions

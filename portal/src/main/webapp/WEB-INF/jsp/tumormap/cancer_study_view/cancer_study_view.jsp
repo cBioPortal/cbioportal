@@ -162,7 +162,7 @@ if (cancerStudyViewError!=null) {
         }
 </style>
 
-<script type="text/javascript" src="js/cancer-study-view/load-clinical-data.js"></script>
+<script type="text/javascript" src="js/src/cancer-study-view/load-clinical-data.js"></script>
 
 <script type="text/javascript">
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
@@ -202,12 +202,14 @@ function switchToTab(toTab) {
 }
 
 function getRefererCaseId() {
-    var match = /<%=PatientView.PATIENT_ID%>=([^&]+)/.exec(document.referrer);
-    return match ? match[1] : null;
+    //var match = /case_id=([^&]+)/.exec(document.referrer);
+    //return match ? match[1] : null;
+    return null;
 }
 
-function formatPatientLink(caseId,cancerStudyId) {
-    return caseId==null?"":'<a title="Go to patient-centric view" href="case.do?case_id='+caseId+'&cancer_study_id='+cancerStudyId+'">'+caseId+'</a>'
+function formatPatientLink(caseId,cancerStudyId,isPatient) {
+    return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
+            +cancerStudyId+'&'+(isPatient?'patient_id':'case_id')+'='+caseId+'">'+caseId+'</a>';
 }
 
 </script>

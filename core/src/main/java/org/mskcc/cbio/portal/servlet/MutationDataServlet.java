@@ -250,7 +250,7 @@ public class MutationDataServlet extends HttpServlet
 						.getCancerStudyStableId();
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO entrez gene id, symbol all caps
+				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
@@ -489,17 +489,15 @@ public class MutationDataServlet extends HttpServlet
 	 */
 	protected String getVariantAllele(ExtendedMutation mutation)
 	{
-		// TODO use mutation.getTumorSeqAllele() instead?
+//		String varAllele = mutation.getTumorSeqAllele1();
+//
+//		if (mutation.getReferenceAllele() != null &&
+//		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
+//		{
+//			varAllele = mutation.getTumorSeqAllele2();
+//		}
 
-		String varAllele = mutation.getTumorSeqAllele1();
-
-		if (mutation.getReferenceAllele() != null &&
-		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
-		{
-			varAllele = mutation.getTumorSeqAllele2();
-		}
-
-		return varAllele;
+		return mutation.getTumorSeqAllele();
 	}
 
 	/**

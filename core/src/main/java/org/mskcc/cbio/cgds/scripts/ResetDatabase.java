@@ -65,11 +65,8 @@ public class ResetDatabase {
         DaoGeneticProfile.deleteAllRecords();
         DaoCaseList daoCaseList = new DaoCaseList();
         daoCaseList.deleteAllRecords();
-        DaoClinical.deleteAllRecords();
-        DaoClinicalAttribute daoClinicalAttribute = new DaoClinicalAttribute();
-        daoClinicalAttribute.deleteAllRecords();
-        DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-        daoClinicalFreeForm.deleteAllRecords();
+        DaoClinicalData daoClinicalData = new DaoClinicalData();
+        daoClinicalData.deleteAllRecords();
         DaoMutation.deleteAllRecords();
         DaoMutationFrequency daoMutationFrequency = new DaoMutationFrequency();
         daoMutationFrequency.deleteAllRecords();

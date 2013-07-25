@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.r_bridge;
 
-import org.mskcc.cbio.cgds.model.Survival;
+import org.mskcc.cbio.cgds.model.Patient;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * @author Ethan Cerami.
  */
 public class ConvertClinicalToDataFrame {
-    private ArrayList<Survival> survivalList;
+    private ArrayList<Patient> clinicalDataList;
     private ProfileDataSummary dataSummary;
     private String QUOTE = "\"";
 
@@ -47,7 +47,7 @@ public class ConvertClinicalToDataFrame {
      *
      * @param survivalList ArrayList of Clinical Data Objects.
      */
-    public ConvertClinicalToDataFrame(ArrayList<Survival> survivalList,
+    public ConvertClinicalToDataFrame(ArrayList<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) {
         this.survivalList = survivalList;
         this.dataSummary = dataSummary;
@@ -68,8 +68,8 @@ public class ConvertClinicalToDataFrame {
                 + " DFS_STATUS=rep(NA, " + numItems + "), "
                 + " GENE_SET_ALTERED=rep(NA, " + numItems + "), "
                 + " stringsAsFactors=FALSE)\n");
-        for (int i = 0; i < survivalList.size(); i++) {
-            Survival survival = survivalList.get(i);
+        for (int i = 0; i < clinicalDataList.size(); i++) {
+            Patient clinicalData = clinicalDataList.get(i);
             int rIndex = i + 1;
 
             // status = 1 (Died from Disease)

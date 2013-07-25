@@ -17,7 +17,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Survival" %>
+<%@ page import="org.mskcc.cbio.cgds.model.Patient" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
@@ -117,7 +117,7 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <Survival> survivalList = (ArrayList<Survival>)
+    ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;

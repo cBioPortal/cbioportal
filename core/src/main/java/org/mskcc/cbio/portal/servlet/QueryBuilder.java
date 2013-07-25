@@ -46,7 +46,7 @@ import org.mskcc.cbio.cgds.model.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.mskcc.cbio.cgds.model.Survival;
+import org.mskcc.cbio.cgds.model.Patient;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.remote.*;
@@ -451,7 +451,7 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get Clinical Data
             xdebug.logMsg(this, "Getting Clinical Data:");
-            ArrayList <Survival> survivalList =
+            ArrayList <Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(DaoCancerStudy
                     .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
             xdebug.logMsg(this, "Got Clinical Data for:  " + survivalList.size()
@@ -504,7 +504,7 @@ public class QueryBuilder extends HttpServlet {
 
     private void outputDfsSurvivalPlot(ProfileData mergedProfile,
             ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            ArrayList<Survival> survivalList, String format,
+            ArrayList<Patient> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
@@ -514,7 +514,7 @@ public class QueryBuilder extends HttpServlet {
 
     private void outputOsSurvivalPlot(ProfileData mergedProfile,
             ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            ArrayList<Survival> survivalList, String format,
+            ArrayList<Patient> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );

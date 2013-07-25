@@ -124,13 +124,15 @@ public class DaoClinicalAttribute {
 
         Connection con = null;
         ResultSet rs = null;
+		PreparedStatement pstmt = null;
+
         String sql = "SELECT DISTINCT ATTR_ID FROM clinical WHERE `CASE_ID` IN ("
                 + sampleIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
-            Statement stmt = con.createStatement();
-            rs = stmt.executeQuery(sql);
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
 
              while(rs.next()) {
                 String attrId = rs.getString("ATTR_ID");
@@ -140,7 +142,7 @@ public class DaoClinicalAttribute {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, rs);
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
 
         return toReturn;
@@ -166,6 +168,15 @@ public class DaoClinicalAttribute {
         }
         return all;
     }
+
+	public static Map<String, String> getAllMap() throws DaoException {
+
+		HashMap<String, String> toReturn = new HashMap<String, String>();
+		for (ClinicalAttribute clinicalAttribute : DaoClinicalAttribute.getAll()) {
+			toReturn.put(clinicalAttribute.getAttrId(), clinicalAttribute.getDisplayName());
+		}
+		return toReturn;
+	}
 
     /**
      * Deletes all Records.

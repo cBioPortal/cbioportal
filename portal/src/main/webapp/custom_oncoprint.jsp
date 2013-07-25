@@ -61,9 +61,8 @@
                 discrete, ranging from <code>-2</code> to <code>+2</code>.
             </p>
 
-            <textarea id="cna-file-example">
-                <jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include>
-            </textarea>
+            <textarea id="cna-file-example"><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
+
         </div>
 
         <div>
@@ -75,9 +74,8 @@
                 All other fields are ignored.
             </p>
 
-            <textarea id="mutation-file-example">
-                <jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include>
-            </textarea>
+            <textarea id="mutation-file-example"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
+
         </div>
 
     </div>

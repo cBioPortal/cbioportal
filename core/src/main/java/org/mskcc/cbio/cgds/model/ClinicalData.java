@@ -32,11 +32,18 @@ package org.mskcc.cbio.cgds.model;
  *
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
  */
-public class Clinical {
+public class ClinicalData {
     private int cancerStudyId;
     private String caseId;
     private String attrId;
     private String attrVal;
+
+    /**
+     * Constructor
+     */
+    public ClinicalData() {
+        this(-1, "", "", "");
+    }
 
     /**
      * Constructor
@@ -46,19 +53,15 @@ public class Clinical {
      * @param attrId            database id of the attribute
      * @param attrVal           value of the clinical attribute given above
      */
-    public Clinical(int cancerStudyId,
-                    String caseId,
-                    String attrId,
-                    String attrVal) {
+    public ClinicalData(int cancerStudyId,
+                        String caseId,
+                        String attrId,
+                        String attrVal) {
 
         this.cancerStudyId = cancerStudyId;
         this.caseId = caseId.toUpperCase();     // N.B. this may be inefficient but it ensures the standard
         this.attrId = attrId;
         this.attrVal = attrVal;
-    }
-
-    public Clinical() {
-        this(-1, "", "", "");
     }
 
     public int getCancerStudyId() {
@@ -94,6 +97,6 @@ public class Clinical {
     }
 
     public String toString() {
-        return String.format("Clinical[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, caseId, attrId, attrVal);
+        return String.format("ClinicalData[cancerStudyId=%d, %s, %s, %s]", cancerStudyId, caseId, attrId, attrVal);
     }
 }

@@ -27,7 +27,7 @@
 package org.mskcc.cbio.portal.servlet;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
 import javax.servlet.http.HttpServletRequest;
@@ -39,7 +39,7 @@ public class TestClinicalJSON extends TestCase {
     public void testReflectToMap() {
         ClinicalJSON clinicalJSON = new ClinicalJSON();
 
-        Map<String, String> map = clinicalJSON.reflectToMap( new Clinical(-1, "caseId", "attrId", "attrVal") );
+        Map<String, String> map = clinicalJSON.reflectToMap( new ClinicalData(-1, "caseId", "attrId", "attrVal") );
 
         assertTrue( map.get("attr_id").equals("attrId") );
         assertTrue( map.get("attr_val").equals("attrVal") );

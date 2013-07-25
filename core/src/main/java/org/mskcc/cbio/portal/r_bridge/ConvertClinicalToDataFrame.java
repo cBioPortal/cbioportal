@@ -45,11 +45,11 @@ public class ConvertClinicalToDataFrame {
     /**
      * Constructor.
      *
-     * @param survivalList ArrayList of Clinical Data Objects.
+     * @param clinicalDataList ArrayList of Clinical Data Objects.
      */
     public ConvertClinicalToDataFrame(ArrayList<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) {
-        this.survivalList = survivalList;
+        this.clinicalDataList = clinicalDataList;
         this.dataSummary = dataSummary;
     }
 
@@ -59,7 +59,7 @@ public class ConvertClinicalToDataFrame {
      * @return
      */
     public String getRCode() {
-        int numItems = survivalList.size();
+        int numItems = clinicalDataList.size();
         StringBuffer rCode = new StringBuffer();
         rCode.append("df <- data.frame(CASE_ID=rep(\"NA\"," + numItems + "), "
                 + " OS_MONTHS=rep(NA, " + numItems + "), "
@@ -74,14 +74,14 @@ public class ConvertClinicalToDataFrame {
 
             // status = 1 (Died from Disease)
             // status = 0 (Still alive at last follow-up)
-            rCode.append("df[" + rIndex + ", ] <- list(\"" + survival.getCaseId() + "\",");
-            if (survival.getOverallSurvivalMonths() == null) {
+            rCode.append("df[" + rIndex + ", ] <- list(\"" + clinicalData.getCaseId() + "\",");
+            if (clinicalData.getOverallSurvivalMonths() == null) {
                 rCode.append("NA");
             } else {
-                rCode.append(survival.getOverallSurvivalMonths());
+                rCode.append(clinicalData.getOverallSurvivalMonths());
             }
             rCode.append(", ");
-            String osStatus = survival.getOverallSurvivalStatus();
+            String osStatus = clinicalData.getOverallSurvivalStatus();
             if (osStatus == null || osStatus.length() == 0) {
                 rCode.append("NA");
             } else {
@@ -91,17 +91,17 @@ public class ConvertClinicalToDataFrame {
                     rCode.append("0");
                 } else {
                     throw new IllegalArgumentException("Could not parse OS status:  " +
-                            survival.getOverallSurvivalStatus());
+                            clinicalData.getOverallSurvivalStatus());
                 }
             }
             rCode.append(", ");
-            if (survival.getDiseaseFreeSurvivalMonths() == null) {
+            if (clinicalData.getDiseaseFreeSurvivalMonths() == null) {
                 rCode.append("NA");
             } else {
-                rCode.append(survival.getDiseaseFreeSurvivalMonths());
+                rCode.append(clinicalData.getDiseaseFreeSurvivalMonths());
             }
             rCode.append(", ");
-            String dfsStatus = survival.getDiseaseFreeSurvivalStatus();
+            String dfsStatus = clinicalData.getDiseaseFreeSurvivalStatus();
             if (dfsStatus == null || dfsStatus.length() == 0) {
                 rCode.append("NA");
             } else {
@@ -117,7 +117,7 @@ public class ConvertClinicalToDataFrame {
             }
 
             rCode.append(", ");
-            boolean caseIsAltered = dataSummary.isCaseAltered(survival.getCaseId());
+            boolean caseIsAltered = dataSummary.isCaseAltered(clinicalData.getCaseId());
             if (caseIsAltered) {
                 rCode.append("TRUE");
             } else {

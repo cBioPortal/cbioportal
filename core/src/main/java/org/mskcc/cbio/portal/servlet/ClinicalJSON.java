@@ -30,10 +30,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.mskcc.cbio.cgds.dao.DaoClinical;
+import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -75,7 +76,7 @@ public class ClinicalJSON extends HttpServlet {
      * @param clinical
      * @return
      */
-    public JSONObject reflectToMap(Clinical clinical) {
+    public JSONObject reflectToMap(ClinicalData clinical) {
         JSONObject map = new JSONObject();
 
         map.put("attr_id", clinical.getAttrId());
@@ -98,9 +99,9 @@ public class ClinicalJSON extends HttpServlet {
         return map;
     }
 
-    public JSONArray clinicals2JSONArray(List<Clinical> clincials) {
+    public JSONArray clinicals2JSONArray(List<ClinicalData> clincials) {
         JSONArray toReturn = new JSONArray();
-        for (Clinical c : clincials) {
+        for (ClinicalData c : clincials) {
             toReturn.add(reflectToMap(c));
         }
         return toReturn;
@@ -124,15 +125,15 @@ public class ClinicalJSON extends HttpServlet {
         String samples = request.getParameter("samples");
         String cancerStudyId = request.getParameter("cancer_study_id");
 
-        List<Clinical> clinicals;
+        List<ClinicalData> clinicals;
         JSONArray maps = null;
 
         try {
             if (samples == null || samples.equals(ALL) ) {
-                clinicals = DaoClinical.getData(cancerStudyId);
+                clinicals = DaoClinicalData.getData(cancerStudyId);
                 maps = clinicals2JSONArray(clinicals);
             } else {
-                clinicals = DaoClinical.getData(cancerStudyId,
+                clinicals = DaoClinicalData.getData(cancerStudyId,
                         Arrays.asList(samples.trim().split(SAMPLES_DELIMITER)));
                 maps = clinicals2JSONArray(clinicals);
             }
@@ -140,7 +141,7 @@ public class ClinicalJSON extends HttpServlet {
             throw new ServletException(e);
         }
 
-        for (Clinical c : clinicals) {
+        for (ClinicalData c : clinicals) {
             maps.add(reflectToMap(c));
         }
 

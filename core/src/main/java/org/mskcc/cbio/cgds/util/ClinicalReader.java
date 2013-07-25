@@ -27,7 +27,7 @@
 package org.mskcc.cbio.cgds.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.Clinical;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,7 +46,7 @@ public class ClinicalReader {
 
     public ClinicalReader() { }
 
-    public ArrayList<Clinical> read(File file, int cancerStudyId) throws IOException {
+    public ArrayList<ClinicalData> read(File file, int cancerStudyId) throws IOException {
 
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
@@ -76,7 +76,7 @@ public class ClinicalReader {
             System.out.println(line);
         }
 
-        ArrayList<Clinical> clinicals = new ArrayList<Clinical>();
+        ArrayList<ClinicalData> clinicals = new ArrayList<ClinicalData>();
 
         return clinicals;
     }

@@ -454,9 +454,9 @@ public class QueryBuilder extends HttpServlet {
             ArrayList <Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(DaoCancerStudy
                     .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
-            xdebug.logMsg(this, "Got Clinical Data for:  " + survivalList.size()
+            xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
                 +  " cases.");
-            request.setAttribute(CLINICAL_DATA_LIST, survivalList);
+            request.setAttribute(CLINICAL_DATA_LIST, clinicalDataList);
 
             xdebug.logMsg(this, "Merged Profile, Number of genes:  "
                     + mergedProfile.getGeneList().size());
@@ -482,10 +482,10 @@ public class QueryBuilder extends HttpServlet {
                             zScoreThreshold, rppaScoreThreshold);
                 } else if (output.equals(OS_SURVIVAL_PLOT)) {
                     outputOsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, rppaScoreThreshold, survivalList, format, response);
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
                 } else if (output.equals(DFS_SURVIVAL_PLOT)) {
                     outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, rppaScoreThreshold, survivalList, format, response);
+                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
 				// (via LinkOut servlet - report=oncoprint_html arg)
                 }
             } else {
@@ -509,7 +509,7 @@ public class QueryBuilder extends HttpServlet {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS,
-                survivalList, dataSummary, format, response);
+                clinicalDataList, dataSummary, format, response);
     }
 
     private void outputOsSurvivalPlot(ProfileData mergedProfile,
@@ -519,7 +519,7 @@ public class QueryBuilder extends HttpServlet {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
         SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
-                survivalList, dataSummary, format, response);
+                clinicalDataList, dataSummary, format, response);
     }
 
     private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,

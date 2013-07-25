@@ -247,7 +247,7 @@ public class PatientView extends HttpServlet {
         Patient clinicalData = DaoClinicalData.getCase(cancerStudy.getInternalId(),patient);
         Map<String,ClinicalData> clinicalFreeForms = getClinicalFreeform(cancerStudy.getInternalId(),patient);
         
-        request.setAttribute(CLINICAL_DATA, survival);
+        request.setAttribute(CLINICAL_DATA, clinicalData);
         
         // patient info
         StringBuilder patientInfo = new StringBuilder();
@@ -259,7 +259,7 @@ public class PatientView extends HttpServlet {
         if (gender!=null) {
             patientInfo.append(gender);
         }
-        Double age = survival ==null?null: survival.getAgeAtDiagnosis();
+        Double age = clinicalData ==null?null: clinicalData.getAgeAtDiagnosis();
         if (age!=null) {
             if (gender!=null) {
                 patientInfo.append(", ");
@@ -360,10 +360,10 @@ public class PatientView extends HttpServlet {
         request.setAttribute(DISEASE_INFO, diseaseInfo.toString());
         
         // patient status
-        String oss = survival ==null?null: survival.getOverallSurvivalStatus();
-        String dfss = survival ==null?null: survival.getDiseaseFreeSurvivalStatus();
-        Double osm = survival ==null?null: survival.getOverallSurvivalMonths();
-        Double dfsm = survival ==null?null: survival.getDiseaseFreeSurvivalMonths();
+        String oss = clinicalData ==null?null: clinicalData.getOverallSurvivalStatus();
+        String dfss = clinicalData ==null?null: clinicalData.getDiseaseFreeSurvivalStatus();
+        Double osm = clinicalData ==null?null: clinicalData.getOverallSurvivalMonths();
+        Double dfsm = clinicalData ==null?null: clinicalData.getDiseaseFreeSurvivalMonths();
         StringBuilder patientStatus = new StringBuilder();
         if (oss!=null && !oss.equalsIgnoreCase("unknown")) {
             patientStatus.append("<font color='")

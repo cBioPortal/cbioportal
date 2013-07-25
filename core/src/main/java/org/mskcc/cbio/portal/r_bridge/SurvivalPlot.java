@@ -50,7 +50,7 @@ public class SurvivalPlot {
             ProfileDataSummary dataSummary, String format, HttpServletResponse response) throws IOException {
         try {
             ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame
-                    (survivalList, dataSummary);
+                    (clinicalDataList, dataSummary);
             StringBuffer rCode = new StringBuffer();
 
             if (format == null || ! format.equalsIgnoreCase("pdf")) {

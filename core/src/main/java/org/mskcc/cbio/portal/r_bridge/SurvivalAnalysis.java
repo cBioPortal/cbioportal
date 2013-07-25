@@ -55,15 +55,15 @@ public class SurvivalAnalysis {
 
     /**
      * Constructor.
-     * @param survivalList  Array List of Clinical Data Objects.
+     * @param clinicalDataList  Array List of Clinical Data Objects.
      * @param dataSummary       Profile Data Summary Object.
-     * @throws IOException      IO Error.
+     * @throws java.io.IOException      IO Error.
      */
     public SurvivalAnalysis (ArrayList<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) throws IOException,
             REXPMismatchException, REngineException {
         ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame
-                (survivalList, dataSummary);
+                (clinicalDataList, dataSummary);
 
         rCode = new StringBuffer();
         String rDataFrame = rConverter.getRCode();

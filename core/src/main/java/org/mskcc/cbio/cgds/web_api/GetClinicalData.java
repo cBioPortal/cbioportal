@@ -28,8 +28,14 @@
 package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
+
+import com.google.common.base.Joiner;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.mskcc.cbio.cgds.model.Patient;
 
@@ -124,7 +130,7 @@ public class GetClinicalData {
      * @param clinical
      * @return
      */
-    public static JSONObject reflectToMap(Clinical clinical) {
+    public static JSONObject reflectToMap(ClinicalData clinical) {
         JSONObject map = new JSONObject();
 
         map.put("attr_id", clinical.getAttrId());
@@ -147,9 +153,9 @@ public class GetClinicalData {
         return map;
     }
 
-    public static JSONArray clinicals2JSONArray(List<Clinical> clinicals) {
+    public static JSONArray clinicals2JSONArray(List<ClinicalData> clinicals) {
         JSONArray toReturn = new JSONArray();
-        for (Clinical c : clinicals) {
+        for (ClinicalData c : clinicals) {
             toReturn.add(reflectToMap(c));
         }
         return toReturn;
@@ -163,11 +169,11 @@ public class GetClinicalData {
      * @param attrId
      */
     public static JSONObject getJsonDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
-        return reflectToMap(DaoClinical.getDatum(cancerStudyId, caseId, attrId));
+        return reflectToMap(DaoClinicalData.getDatum(cancerStudyId, caseId, attrId));
     }
 
     public static String getTxtDatum(String cancerStudyId, String caseId, String attrId) throws DaoException {
-        Clinical c = DaoClinical.getDatum(cancerStudyId, caseId, attrId);
+        ClinicalData c = DaoClinicalData.getDatum(cancerStudyId, caseId, attrId);
 
         return "" + c.getCaseId() + "\t" + c.getAttrId() + "\t" + c.getAttrVal();
     }
@@ -179,12 +185,12 @@ public class GetClinicalData {
      * @return
      * @throws DaoException
      */
-    public static JSONObject generateJson(List<Clinical> clinicals) throws DaoException {
+    public static JSONObject generateJson(List<ClinicalData> clinicals) throws DaoException {
         Set<JSONObject> attrs = new HashSet<JSONObject>();
         JSONObject toReturn = new JSONObject();
         JSONArray data = new JSONArray();
 
-        for (Clinical c : clinicals) {
+        for (ClinicalData c : clinicals) {
 //            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
             data.add(reflectToMap(c));
             ClinicalAttribute attr = DaoClinicalAttribute.getDatum(c.getAttrId());
@@ -212,7 +218,7 @@ public class GetClinicalData {
      * @throws DaoException
      */
     public static JSONObject getJSON(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds);
+        List<ClinicalData> clinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
 
         return generateJson(clinicals);
     }
@@ -220,7 +226,7 @@ public class GetClinicalData {
     public static JSONObject getJSON(String cancerStudyId, List<String> caseIds, String attrId) throws DaoException {
 
         ClinicalAttribute attr = DaoClinicalAttribute.getDatum(attrId);
-        List<Clinical> clinicals = DaoClinical.getData(cancerStudyId, caseIds, attr);
+        List<ClinicalData> clinicals = DaoClinicalData.getData(cancerStudyId, caseIds, attr);
 
         return generateJson(clinicals);
     }
@@ -234,13 +240,13 @@ public class GetClinicalData {
      * @param clinicals
      * @return
      */
-    public static String makeRow(List<Clinical> clinicals) {
+    public static String makeRow(List<ClinicalData> clinicals) {
         // TODO: this needs to be sorted
 
         String row = clinicals.get(0).getCaseId();
 
 
-        for (Clinical c : clinicals) {
+        for (ClinicalData c : clinicals) {
             row = row + "\t" + c.getAttrVal();
         }
 
@@ -248,14 +254,14 @@ public class GetClinicalData {
     }
 
     public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
-        List<Clinical> allClinicals = DaoClinical.getData(cancerStudyId, caseIds);
+        List<ClinicalData> allClinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
 
-        HashMap<String, List<Clinical>> caseId2Clinical = new HashMap<String, List<Clinical>>();
-        for (Clinical c : allClinicals) {
-            List<Clinical> got = caseId2Clinical.get(c.getCaseId());
+        HashMap<String, List<ClinicalData>> caseId2Clinical = new HashMap<String, List<ClinicalData>>();
+        for (ClinicalData c : allClinicals) {
+            List<ClinicalData> got = caseId2Clinical.get(c.getCaseId());
 
             if (got == null) {
-                got = new ArrayList<Clinical>();
+                got = new ArrayList<ClinicalData>();
                 got.add(c);
                 caseId2Clinical.put(c.getCaseId(), got);
             } else {
@@ -264,15 +270,15 @@ public class GetClinicalData {
         }
 
         // make header, is order preserved across all rows?
-        List<Clinical> aClinical = caseId2Clinical.values().iterator().next();
+        List<ClinicalData> aClinical = caseId2Clinical.values().iterator().next();
         List<String> headers = new ArrayList<String>();
-        for (Clinical c : aClinical) {
+        for (ClinicalData c : aClinical) {
             headers.add(c.getAttrId().toLowerCase());
         }
 
         String txt = "case_id\t" + Joiner.on("\t").join(headers) + "\n";      // start out with just a header
 
-        for (List<Clinical> clinicals : caseId2Clinical.values()) {
+        for (List<ClinicalData> clinicals : caseId2Clinical.values()) {
             txt += makeRow(clinicals);
         }
 

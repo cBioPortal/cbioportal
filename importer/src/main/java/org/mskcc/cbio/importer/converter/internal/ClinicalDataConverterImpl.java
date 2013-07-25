@@ -32,7 +32,7 @@ package org.mskcc.cbio.importer.converter.internal;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.importer.internal.ImportClinical;
+import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -312,7 +312,7 @@ public class ClinicalDataConverterImpl implements Converter {
             colNames.add(normalName);
 
             // case id is always the first column
-            String prefix = normalName.equals(ImportClinical.CASE_ID) ? ImportClinical.METADATA_PREIX : "";
+            String prefix = normalName.equals(ImportClinicalData.CASE_ID) ? ImportClinicalData.METADATA_PREIX : "";
 
             String displayName = metaData.getDisplayName();
             displayNames.add(prefix + displayName);
@@ -335,10 +335,10 @@ public class ClinicalDataConverterImpl implements Converter {
 
         // case id should be the first column
         // N.B. don't put this block before creating the outMatrix
-        int caseIdIndex = colNames.indexOf(ImportClinical.CASE_ID);
+        int caseIdIndex = colNames.indexOf(ImportClinicalData.CASE_ID);
         if (caseIdIndex != -1) {
             String currFirstCol = colNames.get(0);
-            colNames.set(0, ImportClinical.CASE_ID);       // flip
+            colNames.set(0, ImportClinicalData.CASE_ID);       // flip
             colNames.set(caseIdIndex, currFirstCol);
         } else if (LOG.isInfoEnabled()) {
             LOG.info("clinical data has no column that maps to a CASE_ID column!");

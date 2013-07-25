@@ -26,12 +26,15 @@
  */
 package org.mskcc.cbio.cgds.dao;
 
+import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.model.Patient;
 import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,7 +57,7 @@ public class TestDaoClinical extends TestCase {
         HashSet<String> caseSet = new HashSet<String>();
         caseSet.add("TCGA-12-1234");
         caseSet.add("TCGA-12-1235");
-        ArrayList <Patient> caseList = DaoClinicalData.getCases(1,caseSet);
+        ArrayList<Patient> caseList = DaoClinicalData.getCases(1,caseSet);
 
         assertEquals (2, caseList.size());
         Patient caseSurvival = caseList.get(0);

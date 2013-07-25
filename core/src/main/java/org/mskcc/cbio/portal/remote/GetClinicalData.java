@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.remote;
 
-import org.mskcc.cbio.cgds.dao.DaoSurvival;
+import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.Patient;
 

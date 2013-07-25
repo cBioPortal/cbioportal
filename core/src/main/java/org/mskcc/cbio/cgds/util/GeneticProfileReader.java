@@ -143,13 +143,16 @@ public class GeneticProfileReader {
       String profileName = properties.getProperty("profile_name");
       String profileDescription = properties.getProperty("profile_description");
       String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
+	  String datatype = properties.getProperty("datatype");
       if (profileName == null) {
          throw new IllegalArgumentException("profile_name is not specified.");
       } else if (profileDescription == null) {
          throw new IllegalArgumentException("profile_description is not specified.");
       } else if (geneticAlterationTypeString == null) {
          throw new IllegalArgumentException("genetic_alteration_type is not specified.");
-      }
+      } else if (datatype == null) {
+		  datatype = "";
+	  }
 
       boolean showProfileInAnalysisTab = true;
       String showProfileInAnalysisTabStr = properties.getProperty("show_profile_in_analysis_tab");
@@ -166,6 +169,7 @@ public class GeneticProfileReader {
       geneticProfile.setProfileName(profileName);
       geneticProfile.setProfileDescription(profileDescription);
       geneticProfile.setGeneticAlterationType(alterationType);
+	  geneticProfile.setDatatype(datatype);
       geneticProfile.setShowProfileInAnalysisTab(showProfileInAnalysisTab);
       geneticProfile.setTargetLine(properties.getProperty("target_line"));
       return geneticProfile;

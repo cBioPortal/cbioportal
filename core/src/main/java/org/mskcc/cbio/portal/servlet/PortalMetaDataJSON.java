@@ -127,6 +127,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                     map.put("show_in_analysis_tab", geneticProfile.showProfileInAnalysisTab());
                     map.put("name", geneticProfile.getProfileName());
                     map.put("description", geneticProfile.getProfileDescription());
+					map.put("datatype", geneticProfile.getDatatype());
                     jsonGenomicProfileList.add(map);
                 }
 

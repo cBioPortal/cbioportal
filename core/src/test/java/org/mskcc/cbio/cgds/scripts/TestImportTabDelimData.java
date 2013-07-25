@@ -193,6 +193,7 @@ public class TestImportTabDelimData extends TestCase {
         geneticProfile.setCancerStudyId(1);
         geneticProfile.setStableId("gbm_mrna");
         geneticProfile.setGeneticAlterationType(GeneticAlterationType.MRNA_EXPRESSION);
+        geneticProfile.setDatatype("CONTINUOUS");
         geneticProfile.setProfileName("MRNA Data");
         geneticProfile.setProfileDescription("mRNA Data");
         DaoGeneticProfile.addGeneticProfile(geneticProfile);

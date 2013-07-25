@@ -6,15 +6,14 @@
         </h4>
 
         <span>
-            <form style="display:inline;" action="svgtopdf.do" method="post" onsubmit="this.elements['svgelement'].value=oncoprint.getPdfInput();">
+            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
 
                 <input type="hidden" name="svgelement">
                 <input type="hidden" name="filetype" value="pdf">
                 <input type="submit" value="PDF">
             </form>
 
-            <form style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST"
-                  onsubmit="this.elements['xml'].value=oncoprint.getPdfInput(); return true;" target="_blank">
+            <form id="svg-form" style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" target="_blank">
                 <input type="hidden" name="xml">
                 <input type="hidden" name="longest_label_length">
                 <input type="hidden" name="format" value="svg">

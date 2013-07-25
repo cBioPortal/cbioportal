@@ -168,5 +168,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         $('#toggle_whitespace').click(function() {
             oncoprint.toggleWhiteSpace();
         });
+
+        $('#pdf-form').submit(function() {
+            var that = $(this)[0];
+            that.elements['svgelement'].value=oncoprint.getPdfInput();
+            return;
+        });
+
+        $('#svg-form').submit(function() {
+            var that = $(this)[0];
+            that.elements['xml'].value=oncoprint.getPdfInput();
+            return;
+        });
     });
 });

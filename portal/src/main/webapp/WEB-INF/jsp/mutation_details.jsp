@@ -1,51 +1,30 @@
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.cgds.model.ExtendedMutation" %>
-<%@ page import="org.mskcc.cbio.portal.html.MutationTableUtil" %>
 <%@ page import="org.mskcc.cbio.portal.model.ExtendedMutationMap" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.MutationCounter" %>
+<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="java.io.StringWriter" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
 
-<script type="text/javascript" src="js/raphael/raphael.js"></script>
-<script type="text/javascript" src="js/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/mutation_table.js"></script>
+<!-- TODO include these js files in the global js include? -->
+<script type="text/javascript" src="js/src/mutation_model.js"></script>
+<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/src/mutation_table.js"></script>
 
 <%
-    ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
+    // TODO completely remove this block after refactoring
+	ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
             request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
     ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
             mergedProfile.getCaseIdList());
 
-    MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
     MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
 %>
-<div class='section' id='mutation_details'>
-
-<%
-    if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
-        for (GeneWithScore geneWithScore : geneWithScoreList) {
-            //outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
-	        MutationCounter mutationCounter = new MutationCounter(
-			        geneWithScore.getGene(), mutationMap);
-
-	        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
-	        {
-		        outputHeader(out, geneWithScore, mutationCounter);
-	        }
-        }
-    } else {
-        outputNoMutationDetails(out);
-    }
-%>
-
-</div>
-
+<div class='section' id='mutation_details'></div>
 
 <style type="text/css" title="currentStyle">
         @import "css/data_table_jui.css";
@@ -80,41 +59,67 @@
                 color: gray;
 	            font-weight: bold;
         }
-		.diagram_uniprot_link {
+		.diagram_toolbar {
                 padding-top: 10px;
                 padding-left: 10px;
 		}
+		.mutation-diagram-container {
+			margin-bottom: 10px;
+		}
+        .mutation-table-container {
+	        margin-bottom: 40px;
+        }
 </style>
 
 <script type="text/javascript">
     
-//  Set up Mutation Diagrams
+// Set up Mutation View
 $(document).ready(function(){
-	var tableMutations;
-    var diagramSequence;
+	// TODO accessing global "samples" variable...
+	var sampleArray = samples.trim().split(/\s+/);
 
-	<%
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        String geneStr = geneWithScore.getGene();
-        if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
-        String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
-                geneStr,
-                mutationMap.getExtendedMutations(geneStr)
-        );
+	/**
+	 * Processes the raw mutation data returned from the servlet, and
+	 * initializes the mutation view.
+	 *
+	 * @param data  raw mutation data returned from the servlet
+	 */
+	var initMutationView = function(data)
+	{
+		var model = {mutations: data,
+			sampleArray: sampleArray};
 
-        String mutationTableStr = mutationTableProcessor.processMutationTable(
-                geneStr,
-                converMutations(geneWithScore, mutationMap, mergedCaseList)
-        );
-    %>
-	        tableMutations = <%= mutationTableStr %>;
-            diagramSequence = <%= mutationDiagramStr %>;
+		var defaultView = new MutationDetailsView(
+			{el: "#mutation_details", model: model});
 
-            drawMutationDiagram(diagramSequence);
-            delayedMutationTable(tableMutations);
+		defaultView.render();
 
-        <% } %>
-    <% } %>
+		// TODO completely remove this part after refactoring the mutation table
+		var tableMutations;
+		<%
+		for (GeneWithScore geneWithScore : geneWithScoreList) {
+			String geneStr = geneWithScore.getGene();
+			if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
+				String mutationTableStr =
+					mutationTableProcessor.processMutationTable(geneStr,
+					converMutations(geneWithScore, mutationMap, mergedCaseList));
+		%>
+				tableMutations = <%= mutationTableStr %>;
+				delayedMutationTable(tableMutations);
+		<%
+			}
+		}
+		%>
+	};
+
+	// TODO getting these params from global variables defined in visualize.jsp
+	// we should refactor/redefine these global variables in a better way
+	var params = {geneList: genes,
+		geneticProfiles: geneticProfiles,
+		caseList: samples};
+
+	// get mutation data & init view for the current gene and case lists
+	$.post("getMutationData.json", params, initMutationView, "json");
 });
 
 /**
@@ -122,7 +127,7 @@ $(document).ready(function(){
  *
  * @param geneId    id of the target diagram
  */
-function toggleMutationDiagram(geneId)
+function _toggleMutationDiagram(geneId)
 {
     var option = $("#mutation_diagram_select_" + geneId).val();
 
@@ -142,48 +147,7 @@ function toggleMutationDiagram(geneId)
 
 
 <%!
-	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
-		ObjectMapper objectMapper = new ObjectMapper();
-        StringWriter stringWriter = new StringWriter();
-        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
-        try {
-            objectMapper.writeValue(stringWriter, mutations);
-        }
-        catch (Exception e) {
-            // ignore
-        }
-        return stringWriter.toString().replace("\"", "\\\"");
-    }
-
-	private String outputMutationsJson(GeneWithScore geneWithScore,
-			ExtendedMutationMap mutationMap,
-			ArrayList<String> mergedCaseList)
-	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		StringWriter stringWriter = new StringWriter();
-		List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
-
-		for (String caseId : mergedCaseList)
-		{
-			List<ExtendedMutation> list = mutationMap.getExtendedMutations(
-					geneWithScore.getGene(), caseId);
-
-			if (list != null)
-			{
-				mutations.addAll(list);
-			}
-		}
-
-		try {
-			objectMapper.writeValue(stringWriter, mutations);
-		}
-		catch (Exception e) {
-			// ignore
-		}
-
-		return stringWriter.toString().replace("\"", "\\\"");
-	}
-
+	// TODO remove all methods after refactoring
     private List<ExtendedMutation> converMutations(GeneWithScore geneWithScore,
                                                        ExtendedMutationMap mutationMap,
                                                        ArrayList<String> mergedCaseList)
@@ -202,31 +166,5 @@ function toggleMutationDiagram(geneId)
         }
 
         return mutations;
-    }
-
-    private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
-            MutationCounter mutationCounter) throws IOException {
-        out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
-        out.println(mutationCounter.getTextSummary());
-        out.println("</h4>");
-	    // TODO histogram is disabled (will be enabled in the next release)
-//	    out.println("<select class='mutation_diagram_toggle' " +
-//	                "id='mutation_diagram_select_" + geneWithScore.getGene().toUpperCase() + "'" +
-//	                "onchange='toggleMutationDiagram(\"" + geneWithScore.getGene().toUpperCase() + "\")'>" +
-//	               "<option value='diagram'>Lollipop Diagram</option>" +
-//	               "<option value='histogram'>Histogram</option>" +
-//	               "</select>");
-	    out.println("<div id='uniprot_link_" + geneWithScore.getGene().toUpperCase() + "' " +
-	                "class='diagram_uniprot_link'></div>");
-        out.println("<div id='mutation_diagram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-	    out.println("<div id='mutation_histogram_" + geneWithScore.getGene().toUpperCase() + "'></div>");
-	    out.println("<div id='mutation_table_" + geneWithScore.getGene().toUpperCase() + "'>" +
-	                "<img src='images/ajax-loader.gif'/>" +
-	                "</div>");
-    }
-
-    private void outputNoMutationDetails(JspWriter out) throws IOException {
-        out.println("<p>There are no mutation details available for the gene set entered.</p>");
-        out.println("<br><br>");
     }
 %>

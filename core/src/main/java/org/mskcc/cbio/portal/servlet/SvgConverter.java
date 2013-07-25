@@ -24,10 +24,11 @@ import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 
-public class svgConverter extends HttpServlet {
+public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
     private ServletXssUtil servletXssUtil;
+	private static String DEFAULT_FILENAME = "result";
 
     /**
      * Initializes the servlet.
@@ -76,6 +77,8 @@ public class svgConverter extends HttpServlet {
 
         String xml = "";
         String format = "";
+	String filename = "";
+
         if (httpServletRequest instanceof FileUploadRequestWrapper) {
 
             // get instance of our request wrapper
@@ -86,19 +89,30 @@ public class svgConverter extends HttpServlet {
 
             // get xml parameter
             xml = wrapper.getParameter("svgelement");
+
+	    // get filename parameter
+	    filename = wrapper.getParameter("filename");
         }
         else {
+            
             format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+            
             // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
+	        
+            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
+	    if (filename == null ||
+	        filename.length() == 0)
+	    {
+		    filename = DEFAULT_FILENAME;
+	    }
+
         if (format.equals("pdf")) {
-            convertToPDF(httpServletResponse, xml);
-        } else if (format.equals("png")) {
-            convertToPNG(httpServletResponse, xml);
+            convertToPDF(httpServletResponse, xml, filename);
         } else if (format.equals("svg")) {
-            convertToSVG(httpServletResponse, xml);
+            convertToSVG(httpServletResponse, xml, filename);
         }
     }
 
@@ -110,11 +124,11 @@ public class svgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToSVG(HttpServletResponse response, String xml) throws ServletException, IOException {
-
+    private void convertToSVG(HttpServletResponse response, String xml, String filename)
+		    throws ServletException, IOException {
         try {
             response.setContentType("application/svg+xml");
-            response.setHeader("content-disposition", "inline; filename='plots.svg'");
+            response.setHeader("content-disposition", "inline; filename=" + filename);
             PrintWriter writer = response.getWriter();
             try {
                 writer.write(xml);
@@ -137,7 +151,8 @@ public class svgConverter extends HttpServlet {
      * @throws ServletException
      * @throws IOException
      */
-    private void convertToPDF(HttpServletResponse response, String xml) throws ServletException, IOException {
+    private void convertToPDF(HttpServletResponse response, String xml, String filename)
+		    throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
             InputStream is = new ByteArrayInputStream(xml.getBytes());
@@ -146,7 +161,7 @@ public class svgConverter extends HttpServlet {
             Transcoder transcoder = new PDFTranscoder();
             transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
             response.setContentType("application/pdf");
-            response.setHeader("content-disposition", "inline; filename='plots.pdf'");
+            response.setHeader("content-disposition", "inline; filename=" + filename);
             transcoder.transcode(input, output);
         } catch (Exception e) {
             System.err.println(e.toString());
@@ -172,7 +187,7 @@ public class svgConverter extends HttpServlet {
             transcoder.addTranscodingHint( PNGTranscoder.KEY_WIDTH, new Float(1500));
             transcoder.addTranscodingHint( PNGTranscoder.KEY_HEIGHT, new Float(1500));
             response.setContentType("application/png");
-            response.setHeader("content-disposition", "inline; filename='plots.png'");
+            response.setHeader("content-disposition", "inline; filename=plots.png");
             transcoder.transcode(input, output);
         } catch (Exception e) {
             System.err.println(e.toString());

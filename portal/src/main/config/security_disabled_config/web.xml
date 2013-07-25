@@ -201,8 +201,13 @@
     </servlet>
 
 	<servlet>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.MutationTableDataServlet</servlet-class>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.SequenceServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>mutation_data_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
 	</servlet>
 
     <servlet>
@@ -228,6 +233,11 @@
     <servlet>
         <servlet-name>GeneDataJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>EchoFile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
     </servlet>
 
     <servlet>
@@ -271,8 +281,13 @@
     </servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>mutation_table_data_json</servlet-name>
-		<url-pattern>/mutation_table_data.json</url-pattern>
+		<servlet-name>pfam_sequence_json</servlet-name>
+		<url-pattern>/getPfamSequence.json</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mutation_data_json</servlet-name>
+		<url-pattern>/getMutationData.json</url-pattern>
 	</servlet-mapping>
 
     <servlet-mapping>
@@ -453,7 +468,7 @@
 
     <servlet>
         <servlet-name>SVGtoPDFConverter</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.svgConverter</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SvgConverter</servlet-class>
     </servlet>
 
     <servlet-mapping>
@@ -500,6 +515,32 @@
         <servlet-name>DrugsJSON</servlet-name>
         <url-pattern>/drugs.json</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetGeneticProfilesJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>EchoFile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>GetGeneticProfileJSON</servlet-name>
+        <url-pattern>/getGeneticProfile.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProfileDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProfileDataJSON</servlet-name>
+        <url-pattern>/getProfileData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>

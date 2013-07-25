@@ -42,6 +42,7 @@ import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
+import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
@@ -374,7 +375,7 @@ public class MutationTableDataServlet extends HttpServlet
 	{
 		Integer count = mutation.getNormalAltCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -386,7 +387,7 @@ public class MutationTableDataServlet extends HttpServlet
 	{
 		Integer count = mutation.getNormalRefCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -398,7 +399,7 @@ public class MutationTableDataServlet extends HttpServlet
 	{
 		Integer count = mutation.getTumorAltCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}
@@ -410,7 +411,7 @@ public class MutationTableDataServlet extends HttpServlet
 	{
 		Integer count = mutation.getTumorRefCount();
 
-		if (count == MafRecord.NA_INT)
+		if (count == TabDelimitedFileUtil.NA_INT)
 		{
 			count = null;
 		}

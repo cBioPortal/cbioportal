@@ -32,7 +32,9 @@ package org.mskcc.cbio.importer.fetcher.internal;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.Fetcher;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.DatabaseUtils;
+import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.ReferenceMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
@@ -54,6 +56,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.mskcc.cbio.maf.FusionFileUtil;
+import org.mskcc.cbio.maf.MafUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -65,7 +69,22 @@ import org.xml.sax.SAXException;
 /**
  * Class which implements the fetcher interface.
  */
-class FoundationFetcherImpl implements Fetcher {
+class FoundationFetcherImpl implements Fetcher
+{
+	public static final String CANCER_STUDY = "prad/mskcc/foundation";
+	public static final String MUTATION_METADATA = "mutation-foundation";
+	public static final String CNA_METADATA = "cna-foundation";
+	// TODO this metadata does not exist yet in the spreadsheet
+	public static final String FUSION_METADATA = "fusion";
+
+	// some default data values
+	public static final String DEFAULT_CENTER = "foundation";
+	public static final String DEFAULT_BUILD = "37";
+	public static final String DEFAULT_METHOD = "NA";
+	public static final String UNKNOWN = "unknown";
+	public static final String IN_FRAME = "in-frame";
+	public static final String OUT_OF_FRAME = "out of frame";
+
 
 	// our logger
 	private static final Log LOG = LogFactory.getLog(FoundationFetcherImpl.class);
@@ -161,6 +180,9 @@ class FoundationFetcherImpl implements Fetcher {
 		// mutation data content
 		StringBuilder dataMutationsContent = new StringBuilder();
 
+		// fusion data content
+		StringBuilder dataFusionsContent = new StringBuilder();
+
 		// CNA data content
 		HashMap<String, Integer> valueMap = new HashMap<String, Integer>();
 		Set<String> caseSet = new HashSet<String>();
@@ -184,6 +206,7 @@ class FoundationFetcherImpl implements Fetcher {
 
 				this.addClinicalData(doc, dataClinicalContent);
 				this.addMutationData(doc, dataMutationsContent);
+				this.addFusionData(doc, dataFusionsContent);
 				this.addCNAData(doc, valueMap, caseSet, geneSet);
 				this.generateCaseFile(doc, caseRecord);
 
@@ -194,11 +217,13 @@ class FoundationFetcherImpl implements Fetcher {
 		// generate data files
 		this.generateClinicalDataFile(dataClinicalContent);
 		this.generateMutationDataFile(dataMutationsContent);
+		this.generateFusionDataFile(dataFusionsContent);
 		this.generateCNADataFile(valueMap, caseSet, geneSet);
 
 		// generate meta files
 		this.generateStudyMetaFile(numCases);
 		this.generateMutationMetaFile(numCases);
+		//this.generateFusionMetaFile(numCases); // TODO enable when ready
 		this.generateCNAMetaFile(numCases);
 	}
 
@@ -241,44 +266,67 @@ class FoundationFetcherImpl implements Fetcher {
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
-		String header = "CASE_ID\t" +
-		                "GENDER\t" +
-		                "FMI_CASE_ID\t" +
-		                "PIPELINE_VER\t" +
-		                "TUMOR_NUCLEI_PERCENT\t" +
-		                "MEDIAN_COV\t" +
-		                "COV>100X\t" +
-		                "ERROR_PERCENT\n";
+		String header = FileUtils.CASE_ID + "\t" +
+		                FileUtils.GENDER + "\t" +
+		                FileUtils.FMI_CASE_ID + "\t" +
+		                FileUtils.PIPELINE_VER + "\t" +
+		                FileUtils.TUMOR_NUCLEI_PERCENT + "\t" +
+		                FileUtils.MEDIAN_COV + "\t" +
+		                FileUtils.COV_100X + "\t" +
+		                FileUtils.ERROR_PERCENT + "\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_clinical.txt",
+			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				DatatypeMetadata.CLINICAL_STAGING_FILENAME,
 			header + content.toString());
 
 		return clinicalFile;
 	}
 
+	protected File generateFusionDataFile(StringBuilder content) throws Exception
+	{
+		String header = MafUtil.HUGO_SYMBOL + "\t" +
+		                MafUtil.ENTREZ_GENE_ID + "\t" +
+		                MafUtil.CENTER + "\t" +
+		                MafUtil.TUMOR_SAMPLE_BARCODE + "\t" +
+		                FusionFileUtil.FUSION + "\t" +
+		                FusionFileUtil.DNA_SUPPORT + "\t" +
+		                FusionFileUtil.RNA_SUPPORT + "\t" +
+		                FusionFileUtil.METHOD + "\t" +
+		                FusionFileUtil.FRAME + "\n";
+
+		File fusionFile = fileUtils.createFileWithContents(
+				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					DatatypeMetadata.FUSIONS_STAGING_FILENAME,
+				header + content.toString());
+
+		return fusionFile;
+	}
+
 	protected File generateMutationDataFile(StringBuilder content) throws Exception
 	{
-		String header = "hugo_symbol\t" +
-		                "NCBI_build\t" +
-		                "chromosome\t" +
-		                "start_position\t" +
-		                "end_position\t" +
-		                "strand\t" +
-		                "variant_classification\t" +
-		                "reference_allele\t" +
-		                "tumor_seq_allele1\t" +
-		                "tumor_seq_allele2\t" +
-		                "tumor_sample_barcode\t" +
-		                "validation_status\t" +
-		                "mutation_status\t" +
-		                "amino_acid_change\t" +
-		                "transcript\t" +
-		                "t_ref_count\t" +
-		                "t_alt_count\n";
+		String header = MafUtil.HUGO_SYMBOL + "\t" +
+		                MafUtil.CENTER + "\t" +
+		                MafUtil.NCBI_BUILD + "\t" +
+		                MafUtil.CHROMOSOME+ "\t" +
+		                MafUtil.START_POSITION + "\t" +
+		                MafUtil.END_POSITION + "\t" +
+		                MafUtil.STRAND + "\t" +
+		                MafUtil.VARIANT_CLASSIFICATION + "\t" +
+		                MafUtil.REFERENCE_ALLELE + "\t" +
+		                MafUtil.TUMOR_SEQ_ALLELE_1 + "\t" +
+		                MafUtil.TUMOR_SEQ_ALLELE_2 + "\t" +
+		                MafUtil.TUMOR_SAMPLE_BARCODE + "\t" +
+		                MafUtil.VALIDATION_STATUS + "\t" +
+		                MafUtil.MUTATION_STATUS + "\t" +
+		                MafUtil.AMINO_ACID_CHANGE_MANNUAL + "\t" +
+		                MafUtil.TRANSCRIPT + "\t" +
+		                MafUtil.T_REF_COUNT + "\t" +
+		                MafUtil.T_ALT_COUNT + "\n";
 
 		File mafFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + "data_mutations_extended.txt",
+			dataSourceMetadata.getDownloadDirectory() + File.separator +
+				DatatypeMetadata.MUTATIONS_STAGING_FILENAME,
 			header + content.toString());
 
 		return mafFile;
@@ -291,7 +339,7 @@ class FoundationFetcherImpl implements Fetcher {
 
 		// generate header line
 
-		content.append("Gene Symbol");
+		content.append(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME);
 
 		for (String caseID : caseSet)
 		{
@@ -322,91 +370,57 @@ class FoundationFetcherImpl implements Fetcher {
 			content.append("\n");
 		}
 
-		File cnaFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "data_CNA.txt", content.toString());
-
-		return cnaFile;
-	}
-
-	protected File generateStudyMetaFile(Integer numCases) throws Exception
-	{
-		StringBuilder content = new StringBuilder();
-
-		content.append("type_of_cancer: prad\n");
-		content.append("cancer_study_identifier: prad_foundation\n");
-		content.append("name: Prostate Adenocarcinoma (Foundation)\n");
-		content.append("description: Foundation Medicine\n"); // TODO description with # of cases?
-
-		File studyFile = fileUtils.createFileWithContents(dataSourceMetadata.getDownloadDirectory() +
-			File.separator + "meta_study.txt", content.toString());
-
-		return studyFile;
-	}
-
-	protected File generateCNAMetaFile(Integer numCases) throws Exception
-	{
-		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("cna-foundation");
-		DatatypeMetadata metadata = list.iterator().next();
+		DatatypeMetadata metadata = this.getDatatypeMetadata("cna-foundation");
 
 		File cnaFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
-			this.generateMetaFileContent(metadata, numCases).toString());
+				dataSourceMetadata.getDownloadDirectory() + File.separator +
+					metadata.getStagingFilename(),
+				content.toString());
 
 		return cnaFile;
 	}
 
-	protected File generateMutationMetaFile(Integer numCases) throws Exception
+	protected void generateStudyMetaFile(Integer numCases) throws Exception
 	{
-		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata("mutation");
-		DatatypeMetadata metadata = list.iterator().next();
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		File cnaFile = fileUtils.createFileWithContents(
-			dataSourceMetadata.getDownloadDirectory() + File.separator + metadata.getMetaFilename(),
-			this.generateMetaFileContent(metadata, numCases).toString());
-
-		return cnaFile;
+		// TODO this creates subdirectories, we should fix it
+		this.fileUtils.writeCancerStudyMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			numCases);
 	}
 
-	protected StringBuilder generateMetaFileContent(DatatypeMetadata metadata, Integer numCases)
+	protected void generateCNAMetaFile(Integer numCases) throws Exception
 	{
-		StringBuilder content = new StringBuilder();
+		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(CNA_METADATA);
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		content.append("cancer_study_identifier: prad_foundation\n");
-		content.append("genetic_alteration_type: ");
-		content.append(metadata.getMetaGeneticAlterationType());
-		content.append("\n");
+		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			datatypeMetadata,
+			numCases);
+	}
 
-		String stableID = metadata.getMetaStableID();
-		stableID = stableID.replaceAll(
-				DatatypeMetadata.CANCER_STUDY_TAG, "prad_foundation");
-		content.append("stable_id: ");
-		content.append(stableID);
-		content.append("\n");
+	protected void generateMutationMetaFile(Integer numCases) throws Exception
+	{
+		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(MUTATION_METADATA);
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		content.append("show_profile_in_analysis_tab: ");
-		content.append(metadata.getMetaShowProfileInAnalysisTab());
-		content.append("\n");
+		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			datatypeMetadata,
+			numCases);
+	}
 
-		String profileDescription = metadata.getMetaProfileDescription();
+	protected void generateFusionMetaFile(Integer numCases) throws Exception
+	{
+		DatatypeMetadata datatypeMetadata = this.getDatatypeMetadata(FUSION_METADATA);
+		CancerStudyMetadata cancerMetadata = this.config.getCancerStudyMetadataByName(CANCER_STUDY);
 
-		if (numCases != null) {
-			profileDescription = profileDescription.replaceAll(
-					DatatypeMetadata.NUM_GENES_TAG, numCases.toString());
-			profileDescription = profileDescription.replaceAll(
-					DatatypeMetadata.NUM_CASES_TAG, numCases.toString());
-		}
-
-		profileDescription = profileDescription.replaceAll(
-				DatatypeMetadata.TUMOR_TYPE_TAG, "prad");
-
-		content.append("profile_description: ");
-		content.append(profileDescription);
-		content.append("\n");
-		content.append("profile_name: ");
-		content.append(metadata.getMetaProfileName());
-		content.append("\n");
-
-		return content;
+		this.fileUtils.writeMetadataFile(dataSourceMetadata.getDownloadDirectory(),
+			cancerMetadata,
+			datatypeMetadata,
+			numCases);
 	}
 
 	protected void addClinicalData(Document caseDoc, StringBuilder content)
@@ -428,7 +442,7 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		fmiCaseID = caseNode.getAttribute("fmiCase");
-		caseID = caseNode.getAttribute("case");
+		caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -491,6 +505,91 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("\n");
 	}
 
+	protected void addFusionData(Document caseDoc, StringBuilder content)
+	{
+		Element caseNode = this.extractCaseNode(caseDoc);
+
+		if (caseNode == null)
+		{
+			return; // no case to process
+		}
+
+		String caseID = this.extractCaseId(caseNode);
+
+		Element variantReport = this.extractVariantReport(caseNode);
+
+		if (variantReport != null)
+		{
+			NodeList rearrangements = variantReport.getElementsByTagName("rearrangement");
+
+			for (int i = 0; i < rearrangements.getLength(); i++)
+			{
+				Node rearrangement = rearrangements.item(i);
+
+				if (rearrangement.getNodeType() == Node.ELEMENT_NODE)
+				{
+					String inFrame = ((Element)rearrangement).getAttribute("in-frame");
+					String targetedGene = ((Element)rearrangement).getAttribute("targeted-gene");
+					String otherGene = ((Element)rearrangement).getAttribute("other-gene");
+					//String position1 = ((Element)shortVar).getAttribute("pos1");
+					//String position2 = ((Element)shortVar).getAttribute("pos2");
+					String supportingReadPairs = ((Element)rearrangement).getAttribute("supporting-read-pairs");
+					String description = ((Element)rearrangement).getAttribute("description");
+					String status = ((Element)rearrangement).getAttribute("status");
+
+					String frame = this.parseInFrame(inFrame);
+					this.appendFusionData(content, targetedGene, otherGene, caseID, frame);
+				}
+			}
+		}
+	}
+
+	protected void appendFusionData(StringBuilder content,
+			String targetedGene,
+			String otherGene,
+			String caseId,
+			String frame)
+	{
+		// append the data as a single line
+		content.append(targetedGene); // Hugo_Symbol
+		content.append("\t");
+		content.append(""); // Entrez_Gene_Id
+		content.append("\t");
+		content.append(DEFAULT_CENTER); // Center
+		content.append("\t");
+		content.append(caseId); // Tumor_Sample_Barcode
+		content.append("\t");
+		content.append(targetedGene); // Fusion
+		content.append("-");
+		content.append(otherGene);
+		content.append(" fusion"); // Fusion
+		content.append("\t");
+		content.append("yes"); // TODO DNA support
+		content.append("\t");
+		content.append(UNKNOWN); // RNA support
+		content.append("\t");
+		content.append(DEFAULT_METHOD); // Method
+		content.append("\t");
+		content.append(frame);
+		content.append("\n");
+	}
+
+	protected String parseInFrame(String inFrame)
+	{
+		String value = UNKNOWN;
+
+		if (inFrame.equalsIgnoreCase("yes"))
+		{
+			value = IN_FRAME;
+		}
+		else if (inFrame.equalsIgnoreCase("no"))
+		{
+			value = OUT_OF_FRAME;
+		}
+
+		return value;
+	}
+
 	protected void addMutationData(Document caseDoc, StringBuilder content)
 	{
 		Element caseNode = this.extractCaseNode(caseDoc);
@@ -501,7 +600,7 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -599,7 +698,9 @@ class FoundationFetcherImpl implements Fetcher {
 		// append the data as a single line
 		content.append(gene); // hugo_symbol
 		content.append("\t");
-		content.append("37"); // NCBI_build (assuming it is always hg19/37)
+		content.append(DEFAULT_CENTER); // Center
+		content.append("\t");
+		content.append(DEFAULT_BUILD); // NCBI_build (assuming it is always hg19/37)
 		content.append("\t");
 		content.append(chromosome);
 		content.append("\t");
@@ -619,8 +720,10 @@ class FoundationFetcherImpl implements Fetcher {
 		content.append("\t");
 		content.append(caseID); // tumor_sample_barcode
 		content.append("\t");
-		content.append("Unknown\t"); // validation_status
-		content.append("Unknown\t"); // mutation_status
+		content.append(UNKNOWN); // validation_status
+		content.append("\t");
+		content.append(UNKNOWN); // mutation_status
+		content.append("\t");
 		content.append(proteinEffect); // amino_acid_change
 		content.append("\t");
 		content.append(transcript);
@@ -865,7 +968,7 @@ class FoundationFetcherImpl implements Fetcher {
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		caseSet.add(caseID);
 
@@ -1003,5 +1106,30 @@ class FoundationFetcherImpl implements Fetcher {
 	@Override
 	public void fetchReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
 		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * Retrieves the first matching DatatypeMetadata instance
+	 * for the given datatype string.
+	 *
+	 * @param datatype  data type as a string
+	 * @return          corresponding DatatypeMetadata
+	 */
+	private DatatypeMetadata getDatatypeMetadata(String datatype)
+	{
+		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
+		return list.iterator().next();
+	}
+
+	/**
+	 * Extracts case ID from the given node. Also replaces any whitespace
+	 * character with an underscore.
+	 *
+	 * @param caseNode  caseNode containing the case ID information
+	 * @return          case ID as a string
+	 */
+	private String extractCaseId(Element caseNode)
+	{
+		return caseNode.getAttribute("case").replaceAll("\\s", "_");
 	}
 }

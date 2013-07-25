@@ -108,8 +108,9 @@
                 caption:    'hover',
                 navigation: 'hover',
                 //navigation: 'permanent',
-                direction:  'left'
-            }
+                direction:  'left',
+                slidespeed: 5000
+            };
 
             $('#ppy2').popeye(options);
         });

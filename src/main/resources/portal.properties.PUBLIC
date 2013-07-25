@@ -100,3 +100,9 @@ liftover_chain_file=
 # foundation medicine
 foundation.service.user=
 foundation.service.password=
+
+# darwin database
+darwin.db.host=
+darwin.db.name=
+darwin.db.user=
+darwin.db.password=

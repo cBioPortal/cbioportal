@@ -403,7 +403,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
 			}
 			// if union, write out the cancer study metadata file
-			if (caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
+			if (overwrite && caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), processed all cases list, we can now update cancerStudyMetadata file()...");
 				}
@@ -470,6 +470,11 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 						if (LOG.isInfoEnabled()) LOG.info("getCaseListFromStagingFile(), this is not a MAF header contains sample ids...");
 						for (String potentialCaseID : thisRow) {
 							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
+								// check to filter out column headers other than sample ids
+								if (potentialCaseID.equals(Converter.GENE_ID_COLUMN_HEADER_NAME) ||
+									potentialCaseID.equals(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME)) {
+									continue;
+								}
 								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
 							}
 						}
@@ -645,6 +650,55 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
 			writer.flush();
 			writer.close();
+	}
+
+	/**
+	 * Method which writes a metadata file for
+	 * the given Datatype metadata instance.
+	 *
+	 * @param stagingDirectory  String
+	 * @param datatypeMetadata  DatatypeMetadata
+	 * @param numCases          int
+	 * @throws Exception
+	 */
+	public void writeMetadataFile(String stagingDirectory,
+			CancerStudyMetadata cancerStudyMetadata,
+			DatatypeMetadata datatypeMetadata,
+			int numCases) throws Exception
+	{
+		String filename = stagingDirectory + File.separator + datatypeMetadata.getMetaFilename();
+		File metaFile = new File(filename);
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("writeMetadataFile(), meta file: " + metaFile);
+		}
+
+		PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
+		writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
+		writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+		String stableID = datatypeMetadata.getMetaStableID();
+		stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		writer.print("stable_id: " + stableID + "\n");
+		writer.print("show_profile_in_analysis_tab: " + datatypeMetadata.getMetaShowProfileInAnalysisTab() + "\n");
+		String profileDescription = datatypeMetadata.getMetaProfileDescription();
+
+		if (numCases < 0)
+		{
+			numCases = 0;
+		}
+
+		//profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_GENES_TAG, Integer.toString(dataMatrix.getGeneIDs().size()));
+		profileDescription = profileDescription.replaceAll(DatatypeMetadata.NUM_CASES_TAG,
+			Integer.toString(numCases));
+
+		profileDescription = profileDescription.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG,
+			cancerStudyMetadata.getTumorType());
+
+		writer.print("profile_description: " + profileDescription + "\n");
+		writer.print("profile_name: " + datatypeMetadata.getMetaProfileName() + "\n");
+
+		writer.flush();
+		writer.close();
 	}
 
 	/**

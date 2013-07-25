@@ -130,6 +130,19 @@
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
+<%!
+    public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
+        int counter = 0;
+        for (int i = 0; i < profileList.size(); i++) {
+            GeneticProfile profile = profileList.get(i);
+            if (profile.getGeneticAlterationType() == type) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+%>
+
 
 <jsp:include page="global/header.jsp" flush="true" />
 
@@ -200,7 +213,29 @@
              });
              </script>
 
-<script type="text/javascript" src="js/MemoSort.js"></script>
+            <%
+                /**
+                 * Put together parameters for an AJAX call to GeneAlterations.json
+                 *
+                 */
+
+                // put gene string into a form that javascript can swallow
+                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+                genes = StringEscapeUtils.escapeJavaScript(genes);
+//                genes = genes.replace("\n", " ");
+
+                // get cases
+                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+                samples = StringEscapeUtils.escapeJavaScript(samples);
+            %>
+
+<script type="text/javascript">
+    //  make global variables
+        var genes = "<%=genes%>",
+            samples = "<%=samples%>",
+            geneticProfiles = "<%=geneticProfiles%>";
+</script>
+
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
             <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
             <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
@@ -346,7 +381,7 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-            <%@ include file="oncoprint.jsp" %>
+            <%@ include file="oncoprint/main.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
 		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
@@ -372,7 +407,8 @@
                     + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
                     out.println("</div>");
                 } else if (showMutTab) { %>
-                    <%@ include file="mutation_details.jsp" %>
+	                <%@ include file="mutation_views.jsp" %>
+	                <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
             <%

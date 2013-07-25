@@ -1,7 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.r_bridge.SurvivalAnalysis" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="org.mskcc.cbio.portal.util.UrlUtil" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Survival" %>
 
 <div class="section" id="survival">
 
@@ -26,7 +25,7 @@
             out.println("<H4>No cases are altered for the specified gene set.  Therefore, survival analysis is not available.");
         } else {
             try {
-                SurvivalAnalysis survivalAnalysis = new SurvivalAnalysis(survivalList, dataSummary);
+                SurvivalAnalysis survivalAnalysis = new SurvivalAnalysis(clinicalDataList, dataSummary);
                 DecimalFormat decimalFormat = new DecimalFormat("#.######");
                 if (survivalAnalysis.getOsError() == 1) {
                     out.println("<H4>Overall Survival:  Not Available Due to Missing or Incomplete Data.</h4>");

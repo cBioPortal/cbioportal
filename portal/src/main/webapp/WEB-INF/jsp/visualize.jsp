@@ -323,7 +323,7 @@
                         + "Protein Changes</a></li>");
                     }
 
-                    if (survivalList != null && survivalList.size() > 0) {
+                    if (clinicalDataList != null && clinicalDataList.size() > 0) {
                         out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
@@ -393,7 +393,7 @@
             <% } %>
                     
             <%
-                if (survivalList != null && survivalList.size() > 0) { %>
+                if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
                     <%@ include file="clinical_tab.jsp" %>
             <%    }
             %>

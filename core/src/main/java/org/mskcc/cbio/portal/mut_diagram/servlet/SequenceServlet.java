@@ -144,8 +144,6 @@ public class SequenceServlet extends HttpServlet
 		jsonObject.put("description", description);
 		jsonObject.put("regions", regions);
 
-		response.setContentType("application/json");
-
 		this.writeOutput(response, jsonObject);
 
 	}
@@ -153,6 +151,7 @@ public class SequenceServlet extends HttpServlet
 	protected void writeOutput(HttpServletResponse response,
 			JSONObject jsonObject) throws IOException
 	{
+		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
 
 		try

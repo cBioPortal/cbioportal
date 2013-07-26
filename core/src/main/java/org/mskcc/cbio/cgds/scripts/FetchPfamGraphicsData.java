@@ -50,8 +50,12 @@ public class FetchPfamGraphicsData
 	 *
 	 * @param inputFilename     name of the uniprot id mapping file
 	 * @param outputFilename    name of the output pfam graphics file
+	 * @param incremental       indicates incremental fetching
+	 * @return  total number of errors
 	 */
-	public static int driver(String inputFilename, String outputFilename) throws IOException
+	public static int driver(String inputFilename,
+			String outputFilename,
+			boolean incremental) throws IOException
 	{
 		BufferedReader in = new BufferedReader(new FileReader(inputFilename));
 		BufferedWriter out = new BufferedWriter(new FileWriter(outputFilename));
@@ -60,7 +64,11 @@ public class FetchPfamGraphicsData
 		int numLines = 0;
 		int numErrors = 0;
 
-		Set<String> keySet = new HashSet<String>();
+		// TODO if incremental:
+		// 1. open the file in append mode, do not overwrite
+		// 2. check if a certain uniprot id is already mapped in the file
+		// 3. populate key set if incremental option is selected
+		Set<String> keySet = initKeySet(outputFilename, incremental);
 
 		// read all
 		while ((line = in.readLine()) != null)
@@ -115,6 +123,18 @@ public class FetchPfamGraphicsData
 		return numErrors;
 	}
 
+	private static Set<String> initKeySet(String outputFilename, boolean incremental)
+	{
+		HashSet<String> keySet = new HashSet<String>();
+
+		if (incremental)
+		{
+			// TODO populate keyset by processing output file
+		}
+
+		return keySet;
+	}
+
 	/**
 	 * Fetches the JSON data from the PFAM graphics service for the
 	 * specified uniprot id.
@@ -123,7 +143,7 @@ public class FetchPfamGraphicsData
 	 * @return  pfam graphic data as a JSON string
 	 * @throws  IOException
 	 */
-	public static String fetch(String uniprotId) throws IOException
+	private static String fetch(String uniprotId) throws IOException
 	{
 		URL url = new URL(URL_PREFIX + uniprotId + URL_SUFFIX);
 
@@ -148,28 +168,64 @@ public class FetchPfamGraphicsData
 
 	public static void main(String[] args)
 	{
-		// check args
-		if (args.length < 2)
+		// default config params
+		boolean noFetch = false;     // skip fetching
+		boolean incremental = false; // overwrite or append data
+
+		// process program arguments
+
+		int i;
+
+		// this is for program arguments starting with a dash
+		// these arguments must come before IO file names
+		for (i = 0; i < args.length; i++)
+		{
+			if (args[i].startsWith("-"))
+			{
+				if (args[i].equalsIgnoreCase("-nofetch"))
+				{
+					noFetch = true;
+				}
+				else if (args[i].equalsIgnoreCase("-append"))
+				{
+					incremental = true;
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+
+		// check IO file name args
+		if (args.length - i < 2)
 		{
 			System.out.println("command line usage:  fetchPfamGraphicsData.sh " +
 			                   "<uniprot_id_mapping_file> <output_pfam_mapping_file>");
 			System.exit(1);
 		}
 
-		String input = args[0];
-		String output = args[1];
+		String input = args[i];
+		String output = args[i+1];
+
+		if (noFetch)
+		{
+			// do nothing, just terminate
+			System.out.println("-nofetch argument provided, terminating...");
+			return;
+		}
 
 		try
 		{
 			System.out.println("Fetching started...");
 			Date start = new Date();
-			int numErrors = driver(input, output);
+			int numErrors = driver(input, output, incremental);
 			Date end = new Date();
 			System.out.println("Fetching finished.");
 
 			double timeElapsed = (end.getTime() - start.getTime()) / 1000.0;
 
-			System.out.println("\nTotal time elapsed: " + timeElapsed);
+			System.out.println("\nTotal time elapsed: " + timeElapsed + " seconds");
 
 			if (numErrors > 0)
 			{

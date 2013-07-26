@@ -208,7 +208,7 @@
 
 	<servlet>
 		<servlet-name>pfam_sequence_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.mut_diagram.servlet.SequenceServlet</servlet-class>
+		<servlet-class>org.mskcc.cbio.portal.servlet.PfamSequenceServlet</servlet-class>
 	</servlet>
 
 	<servlet>

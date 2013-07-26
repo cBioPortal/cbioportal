@@ -1,8 +1,3 @@
-<!-- TODO include these js files in the global js include? -->
-<script type="text/javascript" src="js/src/mutation_model.js"></script>
-<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/src/mutation_table.js"></script>
-
 <div class='section' id='mutation_details'></div>
 
 <style type="text/css" title="currentStyle">

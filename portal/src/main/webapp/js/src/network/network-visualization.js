@@ -363,7 +363,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
-            "Currently more than one node is selected. Please, select only one node to see details.");
+            "Currently more than one node/edge is selected. Please, select only one node/edge to see details.");
         $(self.detailsTabSelector + " .error").show();
         return;
     }
@@ -371,11 +371,9 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         if(this.isEdgeClicked)
         {
-            //this.addInteractionInfoOnClick(evt, this.detailsTabSelector);
             this.addInteractionInfo(evt, this.detailsTabSelector, evt.target.merged, "click");
         }
         else{
-            //this.addInteractionInfoOnSelect(evt, this.detailsTabSelector);
             this.addInteractionInfo(evt, this.detailsTabSelector, this._linksMerged, "select");
         }
 
@@ -385,7 +383,7 @@ NetworkVis.prototype.updateDetailsTab = function(evt)
     {
         //$(self.detailsTabSelector + " div").empty();
         $(self.detailsTabSelector + " .error").append(
-            "Currently there is no selected node. Please, select a node to see details.");
+            "Currently there is no selected node/edge. Please, select a node to see details.");
         $(self.detailsTabSelector + " .error").show();
         return;
     }

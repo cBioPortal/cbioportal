@@ -5,16 +5,21 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 <%@ page import="java.util.Map" %>
-<%@ page import="org.json.simple.JSONValue" %>
+<%@ page import="java.util.Set" %>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
+<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 
 
 <%
+ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("tumormap", true);
-String caseId = (String)request.getAttribute(PatientView.CASE_ID);
+Set<String> caseIds = (Set<String>)request.getAttribute(PatientView.CASE_ID);
+String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
+String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
-String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
+String jsonClinicalData = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 
 String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
 boolean showTissueImages = tissueImageUrl!=null;
@@ -71,7 +76,7 @@ if (mrnaProfile!=null) {
 }
 
 if (patientViewError!=null) {
-    out.print(caseId);
+    out.print(caseIdStr);
     out.print(": ");
     out.println();
     out.print(patientViewError);
@@ -291,8 +296,8 @@ var mrnaProfileId = <%=mrnaProfileStableId==null%>?null:'<%=mrnaProfileStableId%
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
 var hasAlleleFrequencyData = <%=hasAlleleFrequencyData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
-var caseIdsStr = '<%=caseId%>';
-var caseIds = caseIdsStr.split(" ");
+var caseIdsStr = '<%=caseIdStr%>';
+var caseIds = <%=jsonCaseIds%>;
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);

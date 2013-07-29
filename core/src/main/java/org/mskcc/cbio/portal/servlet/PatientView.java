@@ -272,7 +272,6 @@ public class PatientView extends HttpServlet {
         Set<String> cases = (Set<String>)request.getAttribute(CASE_ID);
         
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        String patient = null;
         List<ClinicalData> cds = DaoClinicalData.getData(cancerStudy.getInternalId(), cases);
         Map<String,Map<String,String>> clinicalData = new LinkedHashMap<String,Map<String,String>>();
         for (ClinicalData cd : cds) {
@@ -292,8 +291,10 @@ public class PatientView extends HttpServlet {
             return;
         }
         
+        String caseId = cases.iterator().next();
+        
         // images
-        String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), patient);
+        String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), caseId);
         if (tisImageUrl!=null) {
             request.setAttribute(TISSUE_IMAGES, tisImageUrl);
         }
@@ -301,14 +302,14 @@ public class PatientView extends HttpServlet {
         // path report
         String typeOfCancer = cancerStudy.getTypeOfCancerId();
         if (cancerStudy.getCancerStudyStableId().contains(typeOfCancer+"_tcga")) {
-            String pathReport = getTCGAPathReport(typeOfCancer, patient);
+            String pathReport = getTCGAPathReport(typeOfCancer, caseId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
             }
         }
         
         // other cases with the same patient id
-        Map<String,String> attrMap = clinicalData.get(cases.iterator().next());
+        Map<String,String> attrMap = clinicalData.get(caseId);
         if (attrMap!=null) {
             String patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
             List<String> samples = DaoClinicalData.getCaseIdsByAttribute(

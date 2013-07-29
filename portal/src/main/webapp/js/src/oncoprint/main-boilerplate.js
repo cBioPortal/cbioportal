@@ -14,16 +14,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     document.getElementById('oncoprint_controls').innerHTML
         = _.template(document.getElementById('main-controls-template').innerHTML)();
 
-    var oncoPrintParams = {
-        geneData: undefined,
-        cancer_study_id: "<%=cancerTypeId%>",
-        case_set_str: "<%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%>",
-        num_cases_affected: "<%=dataSummary.getNumCasesAffected()%>",
-        percent_cases_affected: "<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>",
-        vis_key: true,
-        customize: true
-    };
-
     var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
 
     clinicalAttributes.fetch({

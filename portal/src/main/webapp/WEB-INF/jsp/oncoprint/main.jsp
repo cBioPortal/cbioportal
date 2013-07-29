@@ -24,6 +24,11 @@
         <div id="oncoprint_controls" style="margin-top:10px; margin-bottom:20px;"></div>
         <%@ include file="controls-templates.jsp" %>
 
+        <div style="margin-left:3;">
+            <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>
+            <p>Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</p>
+        </div>
+
         <div id="oncoprint_body"></div>
 
         <div id="oncoprint_legend"></div>

@@ -47,6 +47,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         rppa_score_threshold: rppa_score_threshold
     });
 
+    var outer_loader_img = $('#oncoprint #outer_loader_img');
+    var inner_loader_img = $('#oncoprint #inner_loader_img');
+
     geneDataColl.fetch({
         type: "POST",
         success: function(data) {
@@ -55,7 +58,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             genes: geneDataColl.genes.split(" "),
             legend: document.getElementById('oncoprint_legend')
             });
-            $('#oncoprint .loader_img').hide();
+            outer_loader_img.hide();
             $('#oncoprint #everything').show();
 
             zoom = utils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
@@ -88,13 +91,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     // handler for when user selects a clinical attribute to visualization
     var clinicalAttributeSelected = function() {
         oncoprint.remove_oncoprint();
-        $('#oncoprint_body .loader_img').show();
+        inner_loader_img.show();
         toggleControls(false);
 
         var clinicalAttribute = $(select_clinical_attributes_id + ' option:selected')[0].__data__;
 
         if (clinicalAttribute.attr_id === undefined) {      // selected "none"
-            $('#oncoprint_body .loader_img').hide();
+            inner_loader_img.hide();
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: geneDataColl.toJSON(),
@@ -114,7 +117,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             oncoprintClinicals.fetch({
                 type: "POST",
                 success: function(response) {
-                    $('#oncoprint_body .loader_img').hide();
+                    inner_loader_img.hide();
 
                     oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                         geneData: geneDataColl.toJSON(),

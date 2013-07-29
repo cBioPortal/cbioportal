@@ -1,5 +1,5 @@
 <div id="oncoprint" style="padding-top:10px; padding-bottom:10px; padding-left:10px; border: 1px solid #CCC;">
-    <img class="loader_img" src="images/ajax-loader.gif"/>
+    <img id="outer_loader_img" src="images/ajax-loader.gif"/>
     <div style="display:none;" id="everything">
         <h4 style="display:inline;">OncoPrint
             <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
@@ -28,6 +28,8 @@
             <p>Case Set: <%=StringEscapeUtils.escapeHtml(OncoPrintUtil.getCaseSetDescription(caseSetId, caseSets))%></p>
             <p>Altered in <%=dataSummary.getNumCasesAffected()%> (<%=OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesAffected())%>) of cases</p>
         </div>
+
+        <img id="inner_loader_img" src="images/ajax-loader.gif" style="display:none;">
 
         <div id="oncoprint_body"></div>
 

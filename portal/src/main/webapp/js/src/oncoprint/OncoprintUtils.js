@@ -169,6 +169,19 @@ define("OncoprintUtils", (function() {
 
         if (there_is_data(cnas)) {
             to_return.cna = cnas;
+
+            // sort the order that the cnas show up in the legend
+            var cna_order = {
+                "AMPLIFIED": 0,
+                "GAINED": 1,
+                "DIPLOID": 2,
+                "HEMIZYGOUSLYDELETED": 3,
+                "HOMODELETED": 4
+            };
+
+            to_return.cna = to_return.cna.sort(function(x, y) {
+                return cna_order[x] - cna_order[y];
+            });
         }
 
         if (there_is_data(mutations)) {
@@ -182,18 +195,6 @@ define("OncoprintUtils", (function() {
         if (there_is_data(rppas)) {
             to_return.rppa = rppas;
         }
-
-        // sort the order that the cnas show up in the legend
-        var cna_order = {
-            "AMPLIFIED": 0,
-            "GAINED": 1,
-            "DIPLOID": 2,
-            "HEMIZYGOUSLYDELETED": 3,
-            "HOMODELETED": 4
-        };
-        to_return.cna = to_return.cna.sort(function(x, y) {
-            return cna_order[x] - cna_order[y];
-        });
 
         return to_return;
     };

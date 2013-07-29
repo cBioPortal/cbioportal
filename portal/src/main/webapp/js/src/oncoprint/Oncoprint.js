@@ -279,9 +279,10 @@ define("Oncoprint",
                     // initialize state variables
                     var state = {
                         data: data,
-                    whitespace: true,
-                    rect_width: dims.rect_width,
-                    hor_padding: dims.hor_padding
+                        whitespace: true,
+                        rect_width: dims.rect_width,
+                        hor_padding: dims.hor_padding,
+                        attrs: params.genes.concat(clinical_attrs)
                     };
 
                     // takes a list of samples and returns an object that contains
@@ -407,14 +408,13 @@ define("Oncoprint",
                     // throws unsupported sort option if something other than the 3 options
                     // above is given.
                     var sortBy = function(by, cases) {
-                        var attrs;
                         if (by === 'genes') {
-                            attrs = params.genes.concat(clinical_attrs);
-                            state.data = MemoSort(state.data, attrs);
+                            state.attrs = params.genes.concat(clinical_attrs);
+                            state.data = MemoSort(state.data, state.attrs);
                         }
                         else if (by === 'clinical') {
-                            attrs = clinical_attrs.concat(params.genes);
-                            state.data = MemoSort(state.data, attrs);
+                            state.attrs = clinical_attrs.concat(params.genes);
+                            state.data = MemoSort(state.data, state.attrs);
                         }
                         else if (by === 'alphabetical') {
                             state.data = state.data.sort(function(x,y) {
@@ -469,10 +469,10 @@ define("Oncoprint",
                             return array;
                         };
 
-                        var attrs = shuffle(attributes);
-                        state.data = MemoSort(state.data, attrs);
+                        state.attrs = shuffle(attributes);
+                        state.data = MemoSort(state.data, state.attrs);
                         horizontal_translate(ANIMATION_DURATION);
-                        return attrs;
+                        return state.attrs;
                     };
 
                     var zoom = function(scalar, animation) {
@@ -490,13 +490,7 @@ define("Oncoprint",
                         } else {
                             horizontal_translate();
                         }
-
-                        d3.selectAll('.sample rect')
-                            .transition()
-                            .duration(ANIMATION_DURATION)
-                            .attr('width', state.rect_width);
                     };
-
 
                     // takes an oncoprint object and returns a seralized string
                     //
@@ -556,7 +550,6 @@ define("Oncoprint",
                     };
                 })();
 
-                State.memoSort(params.genes.concat(clinical_attrs));
                 utils.make_mouseover(d3.selectAll('#' + div.id + ' .sample *'));
 
                 return State;

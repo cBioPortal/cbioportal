@@ -55,11 +55,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         success: function(data) {
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: data.toJSON(),
-            genes: genes.split(" "),
-            legend: document.getElementById('oncoprint_legend')
+                genes: genes.split(" "),
+                legend: document.getElementById('oncoprint_legend')
             });
             outer_loader_img.hide();
             $('#oncoprint #everything').show();
+
+            oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
             zoom = utils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
         }
@@ -101,18 +103,17 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: geneDataColl.toJSON(),
-                      genes: geneDataColl.genes.split(" "),
-                      legend: document.getElementById('oncoprint_legend')
+                genes: genes.split(" "),
+                legend: document.getElementById('oncoprint_legend')
             });
+
+            oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
             // disable the option to sort by clinical data
             $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
-            oncoprintClinicals = new ClinicalColl({
-                cancer_study_id: cancer_study_id_selected,
-                attr_id: clinicalAttribute.attr_id,
-                case_list: cases
-            });
+            oncoprintClinicals = new ClinicalColl({});
+
 
             oncoprintClinicals.fetch({
                 type: "POST",
@@ -121,11 +122,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
                     oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                         geneData: geneDataColl.toJSON(),
-                              clinicalData: response.toJSON(),
-                              genes: geneDataColl.genes.split(" "),
-                              clinical_attrs: response.attributes(),
-                              legend: document.getElementById('oncoprint_legend')
+                        clinicalData: response.toJSON(),
+                        genes: genes.split(" "),
+                        clinical_attrs: response.attributes(),
+                        legend: document.getElementById('oncoprint_legend')
                     });
+
+                    oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
                     // enable the option to sort by clinical data
                     $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);

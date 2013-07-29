@@ -38,24 +38,24 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         throw new Error(err);
     }
 
-    var geneDataColl = new GeneDataColl({
-        cancer_study_id: cancer_study_id_selected,
-        genes: genes,
-        case_list: cases,
-        genetic_profiles: genetic_profiles,
-        z_score_threshold: zscore_threshold,
-        rppa_score_threshold: rppa_score_threshold
-    });
-
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');
 
+    var geneDataColl = new GeneDataColl();
     geneDataColl.fetch({
         type: "POST",
+        data: {
+            cancer_study_id: cancer_study_id_selected,
+            genes: genes,
+            case_list: cases,
+            geneticProfileIds: genetic_profiles,
+            z_score_threshold: zscore_threshold,
+            rppa_score_threshold: rppa_score_threshold
+        },
         success: function(data) {
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: data.toJSON(),
-            genes: geneDataColl.genes.split(" "),
+            genes: genes.split(" "),
             legend: document.getElementById('oncoprint_legend')
             });
             outer_loader_img.hide();

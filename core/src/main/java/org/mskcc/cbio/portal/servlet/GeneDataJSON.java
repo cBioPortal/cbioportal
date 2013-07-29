@@ -218,12 +218,8 @@ public class GeneDataJSON extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-//        JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents, dataSummary);  // dataSummary ->  getPercentCasesWhereGeneIsAltered
         JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents);
         JSONArray.writeJSONString(jsonArray, out);
-
-//        JSONObject geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);
-//        JSONObject.writeJSONString(geneticEventsJSON, out);
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
@@ -78,7 +78,7 @@ var GeneSymbolValidator = (function($) {
                         allValid = false;
 
                     if(multiple) {
-                        var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                        var state = $("<li>").addClass("ui-state-default ui-corner-all ui-validator");
                         var stateSpan = $("<span>").addClass("ui-icon ui-icon-help");
                         var stateText = $("<span>").addClass("text");
 
@@ -108,7 +108,7 @@ var GeneSymbolValidator = (function($) {
                         state.attr("name", gene);
                         state.appendTo(stateList);
                     } else if( foundSynonym ) {
-                        var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                        var state = $("<li>").addClass("ui-state-default ui-corner-all ui-validator");
                         var trueSymbol = aResult.symbols[0];
 
                         state.click(function(){
@@ -132,7 +132,7 @@ var GeneSymbolValidator = (function($) {
                         state.attr("name", gene + ":" + trueSymbol);
                         state.appendTo(stateList);
                     } else {
-                        var state = $("<li>").addClass("ui-state-default ui-corner-all");
+                        var state = $("<li>").addClass("ui-state-default ui-corner-all ui-validator");
                         state.click(function(){
                             $(this).toggleClass('ui-state-active');
                             geneName = $(this).attr("name");
@@ -162,7 +162,7 @@ var GeneSymbolValidator = (function($) {
                     function(){ $(this).removeClass('ui-state-hover'); }
                 );
 
-                $('.ui-state-default').tipTip();
+                $('.ui-validator').tipTip();
 
                 if( allValid ) {
                     $("#main_submit").removeAttr("disabled").removeAttr("title")
@@ -198,12 +198,6 @@ var GeneSymbolValidator = (function($) {
                     invalidText.insertAfter(invalidSpan);
                     invalidState.addClass("ui-state-active");
                     invalidState.prependTo(stateList);
-
-                    /*
-                     $("#main_submit")
-                     .attr("title", "Gene symbols are not valid. Please edit the gene list.")
-                     .tipTip();
-                     */
 
                     $("<br>").appendTo(stateList);
                     $("<br>").appendTo(stateList);

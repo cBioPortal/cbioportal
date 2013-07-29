@@ -255,8 +255,8 @@ public class SkinUtil {
     }
     
     public static String getLinkToPatientView(String caseId, String cancerStudyId) {
-        return "case.do?" + org.mskcc.cbio.portal.servlet.PatientView.PATIENT_ID
-                + "=" + caseId + "&" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId;
+        return "case.do?" + QueryBuilder.CANCER_STUDY_ID + "=" + cancerStudyId
+                 + "&"+ org.mskcc.cbio.portal.servlet.PatientView.CASE_ID + "=" + caseId;
     }
     
     public static String getLinkToCancerStudyView(String cancerStudyId) {
@@ -264,10 +264,16 @@ public class SkinUtil {
                 + "=" + cancerStudyId;
     }
     
-    public static String getTumorTissueImageUrl(String studyId) {
+    public static String getDigitalSlideArchiveIframeUrl(String caseId) {
         Config config = Config.getInstance();
-        String url = config.getProperty("tumor_image.url");
-        return url==null||url.isEmpty() ? null : (url+studyId+"/tissue_images/");
+        String url = config.getProperty("digitalslidearchive.iframe.url");
+        return url+caseId;
+    }
+    
+    public static String getDigitalSlideArchiveMetaUrl(String caseId) {
+        Config config = Config.getInstance();
+        String url = config.getProperty("digitalslidearchive.meta.url");
+        return url+caseId;
     }
     
     public static String getTCGAPathReportUrl(String typeOfCancer) {

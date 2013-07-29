@@ -2,6 +2,7 @@
                 <thead>
                     <tr valign="bottom">
                         <th>Mutation Event ID</th>
+                        <th class="mut-header" alt="Cases/Samples"><b>Tumors</b></th>
                         <th class="mut-header" alt="HUGO symbol of mutated genes"><b>Gene</b></th>
                         <th class="mut-header" alt="Protein change"><b>Protein Change</b></th>
                         <th class="mut-header" alt="Chromosome"><b>Chr</b></th>

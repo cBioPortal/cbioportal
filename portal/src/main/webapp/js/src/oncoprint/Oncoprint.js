@@ -372,12 +372,10 @@ define("Oncoprint",
                         show_unaltered_bool = bool;     // set the state
 
                         if (bool) {
-                            //                state.data = MemoSort(data, attributes);
                             state.data = data;
                             update(state.data);
                         } else {
                             var altered_data = data.filter(function(d) { return altered.has(d.key); });
-                            //                state.data = MemoSort(altered_data, attributes);
                             state.data = altered_data;
                             update(state.data);
                         }

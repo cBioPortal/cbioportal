@@ -63,7 +63,19 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
 	lollipopTextPadding: 5,         // padding between the label and the circle
 	lollipopTextAngle: 0,           // rotation angle for the lollipop label
-	lollipopFillColor: "#B40000",   // TODO more than one color wrt mutation type?
+//	lollipopFillColor: "#B40000",
+	lollipopFillColor: {            // color of the lollipop circle
+		missense_mutation: "#008000",
+		nonsense_mutation: "#FF0000",
+		nonstop_mutation: "#FF0000",
+		frame_shift_del: "#FF0000",
+		frame_shift_ins: "#FF0000",
+		in_frame_ins: "#000000",
+		in_frame_del: "#000000",
+		splice_site: "#FF0000",
+		other: "#808080",       // all other mutation types
+		default: "#800080"      // default is used when there is a tie
+	},
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
@@ -760,7 +772,7 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('cx', x)
 		.attr('cy', y)
 		.attr('r', options.lollipopRadius)
-		.attr('fill', options.lollipopFillColor);
+		.attr('fill', self.getLollipopFillColor(options, pileup));
 
 	var addTooltip = options.lollipopTipFn;
 	addTooltip(circle, pileup);
@@ -774,6 +786,50 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('stroke-width', options.lollipopStrokeWidth);
 
 	return {"circle": circle, "line": line};
+};
+
+/**
+ * Returns the fill color of the lollipop circle for the given pileup
+ * of mutations.
+ *
+ * @param options   general options object
+ * @param pileup    list (array) of mutations (pileup) at a specific location
+ * @return  fill color
+ */
+MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
+{
+	var self = this;
+	var color = options.lollipopFillColor;
+	var value;
+
+	if (_.isFunction(color))
+	{
+		value = color();
+	}
+	//TODO else if (isString(color))
+	// assuming color is a map
+	else
+	{
+		var types = PileupUtil.getMutationTypeArray(pileup);
+
+		console.log(types);
+
+		if (types.length > 1 &&
+		    types[0].count == types[1].count)
+		{
+			value = color.default;
+		}
+		else if (color[types[0].type] == undefined)
+		{
+			value = color.other;
+		}
+		else
+		{
+			value = color[types[0].type];
+		}
+	}
+
+	return value;
 };
 
 /**

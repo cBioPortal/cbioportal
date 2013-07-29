@@ -283,3 +283,70 @@ var MutationDetailsUtil = function(mutations)
 	this._mutationCaseMap = this._generateCaseMap(mutations);
 	this._mutations = mutations;
 };
+
+/**
+ * Singleton utility class for pileup related tasks.
+ */
+var PileupUtil = (function()
+{
+	/**
+	 * Processes a Pileup instance, and creates a map of
+	 * <mutation type, mutation array> pairs.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {object} map of mutations (keyed on mutation type)
+	 * @private
+	 */
+	var generateTypeMap = function(pileup)
+	{
+		var mutations = pileup.mutations;
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var type = mutations[i].mutationType.toLowerCase();
+
+			if (mutationMap[type] == undefined)
+			{
+				mutationMap[type] = [];
+			}
+
+			mutationMap[type].push(mutations[i]);
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes a Pileup instance, and creates an array of
+	 * <mutation type, count> pairs. The final array is sorted
+	 * by mutation count
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {Array}  array of mutation type and count pairs
+	 */
+	var generateTypeArray = function (pileup)
+	{
+		var map = generateTypeMap(pileup);
+		var typeArray = [];
+
+		// convert to array and sort by length (count)
+		for (var key in map)
+		{
+			typeArray.push({type: key, count: map[key].length});
+			typeArray.sort(function(a, b) {
+				// descending sort
+				return b.count - a.count;
+			});
+		}
+
+		return typeArray;
+	};
+
+	return {
+		getMutationTypeMap: generateTypeMap,
+		getMutationTypeArray: generateTypeArray
+	};
+})();
+

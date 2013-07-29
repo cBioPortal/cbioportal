@@ -36,7 +36,7 @@ import org.mskcc.cbio.cgds.model.Patient;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
-import java.util.ArrayList;
+import java.util.List;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 
 /**
@@ -67,7 +67,7 @@ public class TestImportClinicalData extends TestCase {
         caseSet.add("TCGA-24-2030");
         caseSet.add("TCGA-24-2261");
 
-        ArrayList<Patient> clinicalCaseList = DaoClinicalData.getCases(1,caseSet);
+        List<Patient> clinicalCaseList = DaoClinicalData.getSurvivalData(1,caseSet);
         assertEquals (3, clinicalCaseList.size());
 
         Patient clinical0 = clinicalCaseList.get(0);

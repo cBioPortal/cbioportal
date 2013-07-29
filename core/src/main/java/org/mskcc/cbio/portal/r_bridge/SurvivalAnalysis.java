@@ -33,7 +33,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -59,7 +59,7 @@ public class SurvivalAnalysis {
      * @param dataSummary       Profile Data Summary Object.
      * @throws java.io.IOException      IO Error.
      */
-    public SurvivalAnalysis (ArrayList<Patient> clinicalDataList,
+    public SurvivalAnalysis (List<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) throws IOException,
             REXPMismatchException, REngineException {
         ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame

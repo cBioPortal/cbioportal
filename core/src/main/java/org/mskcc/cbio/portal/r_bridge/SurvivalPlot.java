@@ -33,7 +33,7 @@ import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXP;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -46,7 +46,7 @@ public class SurvivalPlot {
     public static final int PLOT_WIDTH = 600;
     public static final int PLOT_HEIGHT = 600;
 
-    public SurvivalPlot (SurvivalPlotType plotType, ArrayList<Patient> clinicalDataList,
+    public SurvivalPlot (SurvivalPlotType plotType, List<Patient> clinicalDataList,
             ProfileDataSummary dataSummary, String format, HttpServletResponse response) throws IOException {
         try {
             ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame

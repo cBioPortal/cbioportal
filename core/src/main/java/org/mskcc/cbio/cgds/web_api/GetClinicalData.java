@@ -56,7 +56,7 @@ public class GetClinicalData {
     public static String getClinicalData(int cancerStudyId, Set<String> caseIdList, boolean includeFreeFormData)
             throws DaoException {
 
-        List<Patient> caseSurvivalList = DaoClinicalData.getCases(cancerStudyId, caseIdList);
+        List<Patient> caseSurvivalList = DaoClinicalData.getSurvivalData(cancerStudyId, caseIdList);
         Map<String,Patient> mapClinicalData = new HashMap<String,Patient>();
         for (Patient cd : caseSurvivalList) {
             mapClinicalData.put(cd.getCaseId(), cd);

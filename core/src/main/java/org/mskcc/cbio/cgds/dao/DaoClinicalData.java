@@ -245,13 +245,13 @@ public final class DaoClinicalData {
      * @param caseIds
      * @return
      */
-    public static List<ClinicalData> getData(String cancerStudyId, List<String> caseIds) throws DaoException {
+    public static List<ClinicalData> getData(String cancerStudyId, Collection<String> caseIds) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
 		return DaoClinicalData.getData(cancerStudy.getInternalId(), caseIds);
 	}
 
-    public static List<ClinicalData> getData(int cancerStudyId, List<String> caseIds) throws DaoException {
+    public static List<ClinicalData> getData(int cancerStudyId, Collection<String> caseIds) throws DaoException {
 
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -278,7 +278,7 @@ public final class DaoClinicalData {
     }
 
 
-    public static List<ClinicalData> getData(String cancerStudyId, List<String> caseIds, ClinicalAttribute attr) throws DaoException {
+    public static List<ClinicalData> getData(String cancerStudyId, Collection<String> caseIds, ClinicalAttribute attr) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
 
         Connection con = null;
@@ -346,7 +346,7 @@ public final class DaoClinicalData {
      * @param caseIds
      * @return
      */
-    private static String generateCaseIdsSql(List<String> caseIds) {
+    private static String generateCaseIdsSql(Collection<String> caseIds) {
         String caseIdsSql = "'" + StringUtils.join(caseIds, "','") + "'";
         return caseIdsSql;
     }
@@ -389,36 +389,30 @@ public final class DaoClinicalData {
 	/*********************************************************
 	 * Previous DaoClinicalData class methods (accessors only)
 	 *********************************************************/
-
-	public static int addCase(int cancerStudyId, String caseId, Double overallSurvivalMonths, String overallSurvivalStatus,
-					   Double diseaseFreeSurvivalMonths, String diseaseFreeSurvivalStatus,
-					   Double ageAtDiagnosis) throws DaoException { return 0; }
 	
-	public static Patient getCase(int cancerStudyId, String _case)  throws DaoException {
-
-		if (cancerStudyId < 0 || _case == null || _case.length() == 0) {
-			throw new IllegalArgumentException("Invalid cancer study or case id: [" +
-											   cancerStudyId + ", " + _case + "]");
-		}
-		
-		HashMap<String,ClinicalData> clinicalData = new HashMap<String,ClinicalData>();
-		for (String survivalAttribute : ClinicalAttribute.survivalAttributes) {
-			ClinicalData cd = DaoClinicalData.getDatum(cancerStudyId, _case, survivalAttribute);
-			if (cd != null) clinicalData.put(survivalAttribute, cd);
-		}
-		
-		return new Patient(_case, clinicalData);
+	public static Patient getSurvivalData(int cancerStudyId, String _case)  throws DaoException {
+            List<Patient> patients = getSurvivalData(cancerStudyId, Collections.singleton(_case));
+            return patients.isEmpty() ? null : patients.get(0);
 	}
 
-	public static ArrayList<Patient> getCases(int cancerStudyId, Set<String> caseSet) throws DaoException {
+	public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> caseSet) throws DaoException {
+            List<ClinicalData> data = getData(cancerStudyId, caseSet);
+            Map<String,Map<String,ClinicalData>> clinicalData = new HashMap<String,Map<String,ClinicalData>>();
+            for (ClinicalData cd : data) {
+                String caseId = cd.getCaseId();
+                Map<String,ClinicalData> msc = clinicalData.get(cd.getCaseId());
+                if (msc==null) {
+                    msc = new HashMap<String,ClinicalData>();
+                    clinicalData.put(caseId, msc);
+                }
+                msc.put(cd.getAttrId(), cd);
+            }
 
-		ArrayList<Patient> toReturn = new ArrayList<Patient>();
-		for (String _case : caseSet) {
-			Patient p = DaoClinicalData.getCase(cancerStudyId, _case);
-			if (p != null) toReturn.add(p);
-		}
-
-		return toReturn;
+            ArrayList<Patient> toReturn = new ArrayList<Patient>();
+            for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
+                toReturn.add(new Patient(entry.getKey(), entry.getValue()));
+            }
+            return toReturn;
 	}
 
 	/**************************************************************

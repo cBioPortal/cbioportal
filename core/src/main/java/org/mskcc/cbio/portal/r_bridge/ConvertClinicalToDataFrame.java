@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.r_bridge;
 import org.mskcc.cbio.cgds.model.Patient;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Converts a List of Survival Objects to an R Data Frame.
@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * @author Ethan Cerami.
  */
 public class ConvertClinicalToDataFrame {
-    private ArrayList<Patient> clinicalDataList;
+    private List<Patient> clinicalDataList;
     private ProfileDataSummary dataSummary;
     private String QUOTE = "\"";
 
@@ -47,7 +47,7 @@ public class ConvertClinicalToDataFrame {
      *
      * @param clinicalDataList ArrayList of Clinical Data Objects.
      */
-    public ConvertClinicalToDataFrame(ArrayList<Patient> clinicalDataList,
+    public ConvertClinicalToDataFrame(List<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) {
         this.clinicalDataList = clinicalDataList;
         this.dataSummary = dataSummary;

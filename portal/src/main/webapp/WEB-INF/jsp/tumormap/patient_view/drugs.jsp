@@ -123,9 +123,9 @@
                             aTarget = cnaTargets[j];
                             usedTargets.push(aTarget);
                             if($.inArray(aTarget, mutTargets) > 0) {
-                                altText = "This tumor has both a mutation and a copy-number alteration in this gene";
+                                altText = "There are both a mutation and a copy-number alteration in this gene";
                             } else {
-                                altText = "This tumor has a copy-number alteration in this gene";
+                                altText = "There is a copy-number alteration in this gene";
                             }
 
                             if($.inArray(aTarget, targets) < 0) {
@@ -145,7 +145,7 @@
                                 usedTargets.push(aTarget);
                             }
 
-                            altText = "This tumor has a mutation in this gene.";
+                            altText = "There is a mutation in this gene.";
 
                             if($.inArray(aTarget, targets) < 0) {
                                 altText += upstreamTxt;

@@ -49,6 +49,21 @@ var MutationModel = Backbone.Model.extend({
 });
 
 /**
+ * Pileup Model.
+ *
+ * This model is designed to represent multiple mutations at the same
+ * position. This is intended to be used for mutation diagram.
+ */
+var Pileup = Backbone.Model.extend({
+	initialize: function(attributes) {
+		this.mutations = attributes.mutations; // array of mutations at this data point
+		this.count = attributes.count; // number of mutations at this data point
+		this.location = attributes.location; // the location of the mutations
+		this.label = attributes.label; // text label for this data point
+	}
+});
+
+/**
  * Collection of mutations (MutationModel instances).
  */
 var MutationCollection = Backbone.Collection.extend({
@@ -73,7 +88,7 @@ var MutationCollection = Backbone.Collection.extend({
  * @param mutations     MutationCollection (list of mutations)
  * @constructor
  */
-var MutationDetailsUtil = function (mutations)
+var MutationDetailsUtil = function(mutations)
 {
 	this.GERMLINE = "germline"; // germline mutation constant
 
@@ -232,6 +247,36 @@ var MutationDetailsUtil = function (mutations)
 			numSomatic: numSomatic,
 			numGermline: numGermline};
 	};
+
+	/**
+	 * Checks if there is a germline mutation for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsGermline = function(gene)
+	{
+		var self = this;
+		var contains = false;
+
+		gene = gene.toLowerCase();
+
+		if (self._mutationGeneMap[gene] != undefined)
+		{
+			var mutations = self._mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].mutationStatus.toLowerCase() == self.GERMLINE)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
 
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);

@@ -488,4 +488,34 @@ public final class DaoClinicalData {
 
 		return DaoClinicalData.getData(cancerStudyId, caseIds);
 	}
+        
+        public static List<String> getCaseIdsByAttribute(int cancerStudyId, String paramName, String paramValue) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+
+            try{
+                con = JdbcUtil.getDbConnection(DaoClinicalData.class);
+                pstmt = con.prepareStatement ("SELECT CASE_ID FROM `clinical_free_form`"
+                        + "WHERE CANCER_STUDY_ID="+cancerStudyId
+                        + " AND PARAM_NAME=? AND PARAM_VALUE=?");
+                pstmt.setString(1, paramName);
+                pstmt.setString(2, paramValue);
+                rs = pstmt.executeQuery();
+
+                List<String> cases = new ArrayList<String>();
+
+                while (rs.next())
+                {
+                    cases.add(rs.getString("CASE_ID"));
+                }
+
+                return cases;
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+            }
+
+        }
 }

@@ -1,941 +1,222 @@
 /**
- * Ascending sort function for protein (amino acid) change column.
- */
-jQuery.fn.dataTableExt.oSort['aa-change-col-asc'] = function(a,b) {
-    var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-    var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-
-    if (ares) {
-        if (bres) {
-            var ia = parseInt(ares[1]);
-            var ib = parseInt(bres[1]);
-            return ia==ib ? 0 : (ia<ib ? -1:1);
-        } else {
-            return -1;
-        }
-    } else {
-        if (bres) {
-            return 1;
-        } else {
-            return a==b ? 0 : (a<b ? -1:1);
-        }
-    }
-};
-
-/**
- * Descending sort function for protein (amino acid) change column.
- */
-jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
-    var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-    var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
-
-    if (ares) {
-        if (bres) {
-            var ia = parseInt(ares[1]);
-            var ib = parseInt(bres[1]);
-            return ia==ib ? 0 : (ia<ib ? 1:-1);
-        } else {
-            return -1;
-        }
-    } else {
-        if (bres) {
-            return 1;
-        } else {
-            return a==b ? 0 : (a<b ? 1:-1);
-        }
-    }
-};
-
-/**
- * Helper function for predicted impact score sorting.
- */
-function _assignValueToPredictedImpact(str)
-{
-    str = str.toLowerCase();
-
-    if (str == "low" || str == "l") {
-        return 2;
-    } else if (str == "medium" || str == "m") {
-        return 3;
-    } else if (str == "high" || str == "h") {
-        return 4;
-    } else if (str == "neutral" || str == "n") {
-        return 1;
-    } else {
-        return -1;
-    }
-}
-
-/**
- * Ascending sort function for predicted impact column.
- */
-jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
-    var av = _assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
-    var bv = _assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
-
-    return _compareSortAsc(a, b, av, bv);
-};
-
-/**
- * Descending sort function for predicted impact column.
- */
-jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
-    var av = _assignValueToPredictedImpact(a.replace(/<[^>]*>/g,""));
-    var bv = _assignValueToPredictedImpact(b.replace(/<[^>]*>/g,""));
-
-    return _compareSortDesc(a, b, av, bv);
-};
-
-/**
- * Ascending sort function for columns having int within label tag.
- */
-jQuery.fn.dataTableExt.oSort['label-int-col-asc'] = function(a,b) {
-    var av = _getLabelTextIntValue(a);
-    var bv = _getLabelTextIntValue(b);
-
-    return _compareSortAsc(a, b, av, bv);
-};
-
-/**
- * Descending sort function for columns having int within label tag.
- */
-jQuery.fn.dataTableExt.oSort['label-int-col-desc'] = function(a,b) {
-    var av = _getLabelTextIntValue(a);
-    var bv = _getLabelTextIntValue(b);
-
-    return _compareSortDesc(a, b, av, bv);
-};
-
-/**
- * Ascending sort function for columns having float within label tag.
- */
-jQuery.fn.dataTableExt.oSort['label-float-col-asc'] = function(a,b) {
-    var av = _getLabelTextFloatValue(a);
-    var bv = _getLabelTextFloatValue(b);
-
-    return _compareSortAsc(a, b, av, bv);
-};
-
-/**
- * Descending sort function for columns having float within label tag.
- */
-jQuery.fn.dataTableExt.oSort['label-float-col-desc'] = function(a,b) {
-    var av = _getLabelTextFloatValue(a);
-    var bv = _getLabelTextFloatValue(b);
-
-    return _compareSortDesc(a, b, av, bv);
-};
-
-/**
- * Helper function for sorting int values within label tag.
- */
-function _getLabelTextIntValue(a)
-{
-    if (a.indexOf("label") != -1)
-    {
-        return parseInt($(a).text());
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-/**
- * Helper function for sorting float values within label tag.
- */
-function _getLabelTextFloatValue(a)
-{
-    if (a.indexOf("label") != -1)
-    {
-        return parseFloat($(a).text());
-    }
-    else
-    {
-        return -1;
-    }
-}
-
-/**
- * Comparison function for ascending sort operations.
+ * Utility class for formatting a table of mutations.
+ * This class is specifically designed to convert a regular
+ * html table into a DataTable.
  *
- * @param a
- * @param b
- * @param av
- * @param bv
- * @return
- * @private
+ * @param tableSelector jQuery selector for the target table
+ * @param gene          hugo gene symbol
+ * @param mutations     mutations as an array of raw JSON objects
+ * @constructor
  */
-function _compareSortAsc(a, b, av, bv)
+var MutationTableUtil = function(tableSelector, gene, mutations)
 {
-    if (av >= 0) {
-        if (bv >= 0) {
-            return av==bv ? 0 : (av<bv ? -1:1);
-        } else {
-            return -1;
-        }
-    } else {
-        if (bv >= 0) {
-            return 1;
-        } else {
-            return a==b ? 0 : (a<b ? 1:-1);
-        }
-    }
-}
+	var mutationUtil = new MutationDetailsUtil(
+		new MutationCollection(mutations));
 
-/**
- * Comparison function for descending sort operations.
- *
- * @param a
- * @param b
- * @param av
- * @param bv
- * @return
- * @private
- */
-function _compareSortDesc(a, b, av, bv)
-{
-    if (av >= 0) {
-        if (bv >= 0) {
-            return av==bv ? 0 : (av<bv ? 1:-1);
-        } else {
-            return -1;
-        }
-    } else {
-        if (bv >= 0) {
-            return 1;
-        } else {
-            return a==b ? 0 : (a<b ? -1:1);
-        }
-    }
-}
-
-function delayedMutationTable(data)
-{
-    //TODO temporary work-around for the missing columns in the filter (issue 429)
-    setTimeout(function(){drawMutationTable(data);},
-               4000);
-}
-
-/**
- * Generates an HTML mutation details table for the given data.
- *
- * @param data  mutation data for a single gene
- */
-function drawMutationTable(data)
-{
-	// build a map, instead of using integer constants for column indexes
-	var buildColumnIndexMap = function() {
-		var headers = _getMutationTableHeaders(data);
-
+	/**
+	 * Creates a mapping for given column headers. The mapped values
+	 * will be the array indices for each element.
+	 *
+	 * @param headers   column header names
+	 * @return {object} map of <column name, column index>
+	 * @private
+	 */
+	function _buildColumnIndexMap(headers)
+	{
 		var map = {};
 
 		for (var i=0; i < headers.length; i++)
 		{
-			map[headers[i].toLowerCase()] = i;
+			if (map[headers[i].toLowerCase()] == undefined ||
+			    map[headers[i].toLowerCase()] == null)
+			{
+				map[headers[i].toLowerCase()] = i;
+			}
 		}
 
 		return map;
-	};
-
-	var divId = "mutation_table_" + data.hugoGeneSymbol.toUpperCase();
-    var tableId = "mutation_details_table_" + data.hugoGeneSymbol.toUpperCase();
-
-    // generate mutation table HTML for the provided data
-    $("#" + divId).empty();
-    $("#" + divId).append(_generateMutationTable(tableId, data));
-
-//    $("#" + divId).append("<table cellpadding='0' cellspacing='0' border='0' " +
-//                          "class='display mutation_details_table' " +
-//                          "id='" + tableId + "'></table>");
-//
-//    var rows = _getMutationTableRows(data);
-//    var columns = _getMutationTableColumns(data);
-
-    // set hidden column indices
-    var hiddenCols = [];
-    var count = 0;
-
-    for (var key in data.header)
-    {
-        count++;
-    }
-
-    // -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
-    //count += data.header.specialGeneHeaders.length - 2;
-	count -= 1;
-
-	var indexMap = buildColumnIndexMap();
-
-    // hide special gene columns and less important columns by default
-    for (var col=9; col<count; col++)
-    {
-        // do not hide allele frequency (T) and count columns
-        if (!(col == indexMap["allele freq (t)"] ||
-              col == indexMap["#mut in sample"]))
-        {
-            hiddenCols.push(col);
-        }
-    }
-
-	// conditionally hide mutation status column if there is no germline mutation
-	var containsGermline = false;
-
-	for (var i=0; i < data.mutations.length; i++)
-	{
-		if (data.mutations[i].mutationStatus.toLowerCase() == "germline")
-		{
-			containsGermline = true;
-			break;
-		}
 	}
 
-	if (!containsGermline)
+	/**
+	 * Creates an array of indices for the columns to be hidden.
+	 *
+	 * @param headers           column header names
+	 * @param indexMap          map of <column name, column index>
+	 * @param containsGermline  whether the table contains a germline mutation
+	 * @return {Array}          an array of column indices
+	 * @private
+	 */
+	function _getHiddenColumns(headers, indexMap, containsGermline)
 	{
-		hiddenCols.push(indexMap["ms"]);
+		// set hidden column indices
+		var hiddenCols = [];
+		var count = 0;
+
+		for (var key in headers)
+		{
+			count++;
+		}
+
+		// -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
+		//count += data.header.specialGeneHeaders.length - 2;
+		//count -= 1;
+
+		// hide special gene columns and less important columns by default
+		for (var col=9; col<count; col++)
+		{
+			// do not hide allele frequency (T) and count columns
+			if (!(col == indexMap["allele freq (t)"] ||
+			      col == indexMap["#mut in sample"]))
+			{
+				hiddenCols.push(col);
+			}
+		}
+
+		// conditionally hide mutation status column if there is no germline mutation
+		if (!containsGermline)
+		{
+			hiddenCols.push(indexMap["ms"]);
+		}
+
+		return hiddenCols;
 	}
 
-    // format the table with the dataTable plugin
-    var oTable = $("#mutation_details #" + tableId).dataTable({
-        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
-        "bJQueryUI": true,
-        "bPaginate": false,
-        "bFilter": true,
-//      "aaData" : rows,
-//      "aoColumns" : columns,
-        "aoColumnDefs":[
-            {"sType": 'aa-change-col',
-                "aTargets": [ indexMap["aa change"] ]},
-            {"sType": 'label-int-col',
-                "sClass": "right-align-td",
-                "aTargets": [indexMap["cosmic"],
-	                indexMap["start pos"],
-	                indexMap["end pos"],
-	                indexMap["var alt"],
-	                indexMap["var ref"],
-	                indexMap["norm alt"],
-	                indexMap["norm ref"],
-                    indexMap["#mut in sample"]]},
-            {"sType": 'label-float-col',
-                "sClass": "right-align-td",
-                "aTargets": [indexMap["allele freq (t)"],
-	                indexMap["allele freq (n)"]]},
-            {"sType": 'predicted-impact-col',
-                "aTargets": [indexMap["fis"]]},
-            {"asSorting": ["desc", "asc"],
-                "aTargets": [indexMap["cosmic"],
-	                indexMap["fis"],
-                    indexMap["cons"],
-                    indexMap["3d"],
-                    indexMap["#mut in sample"]]},
-            {"bVisible": false,
-                "aTargets": hiddenCols}
-        ],
-        "fnDrawCallback": function(oSettings) {
-            // add tooltips to the table
-            addMutationTableTooltips(tableId);
-        }
-    });
+	/**
+	 * Initializes the data tables plug-in for the given table selector.
+	 *
+	 * @param tableSelector jQuery selector for the target table
+	 * @param indexMap      map of <column name, column index>
+	 * @param hiddenCols    indices of the hidden columns
+	 * @private
+	 */
+	function _initDataTable(tableSelector, indexMap, hiddenCols)
+	{
+		// format the table with the dataTable plugin
+	    var oTable = tableSelector.dataTable({
+	        "sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
+	        "bJQueryUI": true,
+	        "bPaginate": false,
+	        "bFilter": true,
+//	        "aaData" : rows,
+//	        "aoColumns" : columns,
+	        "aoColumnDefs":[
+	            {"sType": 'aa-change-col',
+	                "aTargets": [ indexMap["aa change"] ]},
+	            {"sType": 'label-int-col',
+	                "sClass": "right-align-td",
+	                "aTargets": [indexMap["cosmic"],
+		                indexMap["start pos"],
+		                indexMap["end pos"],
+		                indexMap["var alt"],
+		                indexMap["var ref"],
+		                indexMap["norm alt"],
+		                indexMap["norm ref"],
+	                    indexMap["#mut in sample"]]},
+	            {"sType": 'label-float-col',
+	                "sClass": "right-align-td",
+	                "aTargets": [indexMap["allele freq (t)"],
+		                indexMap["allele freq (n)"]]},
+	            {"sType": 'predicted-impact-col',
+	                "aTargets": [indexMap["fis"]]},
+	            {"asSorting": ["desc", "asc"],
+	                "aTargets": [indexMap["cosmic"],
+		                indexMap["fis"],
+	                    indexMap["cons"],
+	                    indexMap["3d"],
+	                    indexMap["#mut in sample"]]},
+	            {"bVisible": false,
+	                "aTargets": hiddenCols}
+	        ],
+	        "fnDrawCallback": function(oSettings) {
+	            // add tooltips to the table
+	            _addMutationTableTooltips(tableSelector);
+	        }
+	    });
+
+	    oTable.css("width", "100%");
+	}
+
+	/**
+	 * Add tooltips for the table header and the table data rows.
+	 *
+	 * @param tableSelector   jQuery selector for the target table
+	 * @private
+	 */
+	function _addMutationTableTooltips(tableSelector)
+	{
+	    var qTipOptions = {content: {attr: 'alt'},
+	        hide: { fixed: true, delay: 100 },
+	        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
+	        position: {my:'top left', at:'bottom right'}};
+
+	    var qTipOptionsHeader = {};
+		var qTipOptionsFooter = {};
+	    var qTipOptionsLeft = {};
+	    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
+		jQuery.extend(true, qTipOptionsFooter, qTipOptions);
+	    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
+	    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
+		qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
+	    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
+
+	    tableSelector.find('thead th').qtip(qTipOptionsHeader);
+		tableSelector.find('tfoot th').qtip(qTipOptionsFooter);
+	    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
+
+		tableSelector.find('.simple-tip').qtip(qTipOptions);
+		tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
+		tableSelector.find('.simple-tip-left').qtip(qTipOptionsLeft);
+
+		// add tooltip for COSMIC value
+		tableSelector.find('.mutation_table_cosmic').each(function() {
+			var label = this;
+			var cosmic = $(label).attr('alt');
+
+			// copy default qTip options and modify "content" to customize for cosmic
+			var qTipOptsCosmic = {};
+			jQuery.extend(true, qTipOptsCosmic, qTipOptions);
+
+			qTipOptsCosmic.content = { text: function(api) {
+				return "";
+			}};
+
+			qTipOptsCosmic.events = {render: function(event, api)
+			{
+				var model = {cosmic: cosmic,
+					geneSymbol: gene,
+					total: $(label).text()};
 
-    oTable.css("width", "100%");
-}
+				$(this).empty();
+				$(this).append("<div class='tooltip-table-container'></div>");
 
-/**
- * Generates and HTML table with the specified id for the given data.
- *
- * @param tableId   HTML id for the table
- * @param data      mutation data for a single gene
- * @return          HTML representation of the table
- */
-function _generateMutationTable(tableId, data)
-{
-    var i, j;
-    var headers = _getMutationTableHeaders(data);
-    var dataRows = _getMutationTableRows(data);
+				var container = $(this).find('.tooltip-table-container');
 
-    var table = "<table cellpadding='0' cellspacing='0' border='0' " +
-    "class='display mutation_details_table' " +
-    "id='" + tableId + "'>";
+				// create view but do not render, return the html content instead
+				var cosmicView = new CosmicTipView({el: container, model: model});
+				cosmicView.render();
+			}};
 
-    // column headers in table head
+			$(label).qtip(qTipOptsCosmic);
+		});
 
-    table += '<thead>';
+	    // copy default qTip options and modify "content"
+	    // to customize for predicted impact score
+	    var qTipOptsOma = {};
+	    jQuery.extend(true, qTipOptsOma, qTipOptions);
 
-    for (i = 0; i < headers.length; i++)
-    {
-        table += '<th alt="' + _getMutationTableHeaderTip(headers[i]) + '"><b>' +
-                 headers[i] + '</b></th>';
-    }
+	    qTipOptsOma.content = { text: function(api) {
+	        var links = $(this).attr('alt');
+	        var parts = links.split("|");
 
-    table += '</thead>';
+	        var impact = parts[0];
 
-    // data rows
+		    // TODO extract to a backbone view
+	        var tip = "Predicted impact score: <b>"+impact+"</b>";
 
-    for (i = 0; i < dataRows.length; i++)
-    {
-        table += '<tr>';
-
-        for (j = 0; j < dataRows[i].length; j++)
-        {
-            table += '<td>' + dataRows[i][j] + '</td>'
-        }
-
-        table += '</tr>';
-    }
-
-    // column headers in table foot
-
-    table += '<tfoot>';
-
-    for (i = 0; i < headers.length; i++)
-    {
-        table += '<th alt="' + _getMutationTableHeaderTip(headers[i]) + '"><b>' +
-                 headers[i] + '</b></th>';
-    }
-
-    table += '</tfoot></table>';
-
-    // footer message for special genes
-    //table += '<p><br>' + data.footerMsg + '<br>';
-	//table += '<br>';
-
-	return table;
-}
-
-/**
- * Returns an array of header display names for the given mutation data.
- *
- * @param data  mutation data for a single gene
- * @return      array of column header names
- */
-function _getMutationTableHeaders(data)
-{
-    var headers = new Array();
-
-    // default headers
-    headers.push(data.header.caseId);
-    headers.push(data.header.proteinChange);
-    headers.push(data.header.mutationType);
-    headers.push(data.header.cosmic);
-    headers.push(data.header.functionalImpactScore);
-    headers.push(data.header.msaLink);
-    headers.push(data.header.pdbLink);
-    headers.push(data.header.mutationStatus);
-    headers.push(data.header.validationStatus);
-    headers.push(data.header.sequencingCenter);
-    headers.push(data.header.chr);
-    headers.push(data.header.startPos);
-    headers.push(data.header.endPos);
-    headers.push(data.header.referenceAllele);
-    headers.push(data.header.variantAllele);
-    headers.push(data.header.tumorFreq);
-    headers.push(data.header.tumorAltCount);
-    headers.push(data.header.tumorRefCount);
-    headers.push(data.header.normalFreq);
-    headers.push(data.header.normalAltCount);
-    headers.push(data.header.normalRefCount);
-	headers.push(data.header.mutationCount);
-
-    // special gene headers
-//    for (var i=0; i < data.header.specialGeneHeaders.length; i++)
-//    {
-//        headers.push(data.header.specialGeneHeaders[i]);
-//    }
-
-    return headers;
-}
-
-/**
- * Returns the tooltip for the given display name of a table column header.
- *
- * @param header    display name of a table column header
- * @return          corresponding tooltip
- */
-function _getMutationTableHeaderTip(header)
-{
-    var tooltipMap = {"case id" : "Case ID",
-        "aa change": "Protein Change",
-        "type": "Mutation Type",
-        "cosmic": "Overlapping mutations in COSMIC",
-        "fis": "Predicted Functional Impact Score (via Mutation Assessor) for missense mutations",
-        "3d": "3-D Structure",
-	    "cons": "Conservation",
-        "ms": "Mutation Status",
-        "vs": "Validation Status",
-        "center": "Sequencing Center",
-        "build": "NCBI Build Number",
-        "chr": "Chromosome",
-        "start pos": "Start Position",
-        "end pos": "End Position",
-        "ref": "Reference Allele",
-        "var": "Variant Allele",
-        "allele freq (t)": "Variant allele frequency<br> in the tumor sample",
-        "allele freq (n)": "Variant allele frequency<br> in the normal sample",
-        "var ref": "Variant Ref Count",
-        "var alt": "Variant Alt Count",
-        "norm ref": "Normal Ref Count",
-        "norm alt": "Normal Alt Count",
-	    "#mut in sample" : "Total number of<br> nonsynonymous mutations<br> in the sample"};
-
-    return tooltipMap[header.toLowerCase()];
-}
-
-/**
- * Generates all data rows (main content) of the mutation table.
- *
- * @param data  mutation data for a single gene
- * @return      an array of row data as HTML
- */
-function _getMutationTableRows(data)
-{
-    /**
-     * Mapping between the mutation type (data) values and
-     * view values. The first element of an array corresponding to a
-     * data value is the display text (html), and the second one
-     * is style (css).
-     */
-    var mutationTypeMap = {
-        missense_mutation: {label: "Missense", style: "missense_mutation"},
-        nonsense_mutation: {label: "Nonsense", style: "trunc_mutation"},
-	    nonstop_mutation: {label: "Nonstop", style: "trunc_mutation"},
-	    frame_shift_del: {label: "FS del", style: "trunc_mutation"},
-        frame_shift_ins: {label: "FS ins", style: "trunc_mutation"},
-        in_frame_ins: {label: "IF ins", style: "inframe_mutation"},
-        in_frame_del: {label: "IF del", style: "inframe_mutation"},
-        splice_site: {label: "Splice", style: "trunc_mutation"},
-        other: {style: "other_mutation"}
-    };
-
-    /**
-     * Mapping between the validation status (data) values and
-     * view values. The first element of an array corresponding to a
-     * data value is the display text (html), and the second one
-     * is style (css).
-     */
-    var validationStatusMap = {
-        valid: {label: "V", style: "valid", tooltip: "Valid"},
-        validated: {label: "V", style: "valid", tooltip: "Valid"},
-        wildtype: {label: "W", style: "wildtype", tooltip: "Wildtype"},
-        unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
-        not_tested: {label: "U", style: "unknown", tooltip: "Unknown"},
-        none: {label: "U", style: "unknown", tooltip: "Unknown"},
-        na: {label: "U", style: "unknown", tooltip: "Unknown"}
-    };
-
-    /**
-     * Mapping between the mutation status (data) values and
-     * view values. The first element of an array corresponding to a
-     * data value is the display text (html), and the second one
-     * is style (css).
-     */
-    var mutationStatusMap = {
-        somatic: {label: "S", style: "somatic", tooltip: "Somatic"},
-        germline: {label: "G", style: "germline", tooltip: "Germline"},
-        unknown: {label: "U", style: "unknown", tooltip: "Unknown"},
-        none: {label: "U", style: "unknown", tooltip: "Unknown"},
-        na: {label: "U", style: "unknown", tooltip: "Unknown"}
-    };
-
-    var omaScoreMap = {
-        h: {label: "H", style: "oma_high", tooltip: "High"},
-        m: {label: "M", style: "oma_medium", tooltip: "Medium"},
-        l: {label: "L", style: "oma_low", tooltip: "Low"},
-        n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
-    };
-
-    // inner functions used for html generation
-
-    var getMutationTypeHtml = function(value) {
-        var style, label;
-
-        if (mutationTypeMap[value] != null)
-        {
-            style = mutationTypeMap[value].style;
-            label = mutationTypeMap[value].label;
-        }
-        else
-        {
-            style = mutationTypeMap.other.style;
-            label = value;
-        }
-
-        return '<span class="' + style + '"><label>' + label + '</label></span>';
-    };
-
-    var getMutationStatusHtml = function(value) {
-        var style, label, tip;
-
-        if (mutationStatusMap[value] != null)
-        {
-            style = mutationStatusMap[value].style;
-            label = mutationStatusMap[value].label;
-            tip = mutationStatusMap[value].tooltip;
-        }
-        else
-        {
-            style = " ";
-            label = value;
-        }
-
-        return '<span alt="' + tip + '" class="simple-tip ' + style + '"><label>' +
-               label + '</label></span>';
-    };
-
-    var getValidationStatusHtml = function(value) {
-        var style, label, tip;
-
-        if (validationStatusMap[value] != null)
-        {
-            style = validationStatusMap[value].style;
-            label = validationStatusMap[value].label;
-            tip = validationStatusMap[value].tooltip;
-        }
-        else
-        {
-            style = validationStatusMap.unknown.style;
-            label = validationStatusMap.unknown.label;
-            tip = validationStatusMap.unknown.tooltip;
-        }
-
-        return '<span alt="' + tip + '" class="simple-tip ' + style + '"><label>' +
-               label + '</label></span>';
-    };
-
-    var getFisHtml = function(value, xVarLink, fisValue) {
-
-        var html;
-
-        if (omaScoreMap[value] != null)
-        {
-            var tooltip = omaScoreMap[value].tooltip;
-
-	        if (fisValue != null)
-            {
-	            tooltip = fisValue.toFixed(2);
-            }
-
-	        html = '<span class="oma_link ' + omaScoreMap[value].style + '" alt="' +
-                   tooltip + "|" + xVarLink + '">' +
-                   '<label>' + omaScoreMap[value].label + '</label>' +
-                   '</span>';
-        }
-        else
-        {
-            html = "";
-        }
-
-        return html;
-    };
-
-    var getPdbLinkHtml = function(value) {
-        var html;
-
-        if (value != null &&
-            value.length > 0 &&
-            value != "NA")
-        {
-            html = '<a href="' + value + '" target="_blank">' +
-                     '<span style="background-color:#88C;color:white;">&nbsp;3D&nbsp;</span>' +
-                     '</a>';
-        }
-        else
-        {
-            html = "";
-        }
-
-        return html;
-    };
-
-	var getMsaLinkHtml = function(value) {
-		var html;
-
-		if (value != null &&
-		    value.length > 0 &&
-		    value != "NA")
-		{
-			html = '<a href="' + value + '" target="_blank">' +
-			       '<span style="background-color:#88C;color:white">&nbsp;msa&nbsp;</span>' +
-			       '</a>';
-		}
-		else
-		{
-			html = "";
-		}
-
-		return html;
-	};
-
-    var getCosmicHtml = function(value, count) {
-        var html;
-
-        if (count <= 0)
-        {
-            html = "<label></label>";
-        }
-        else
-        {
-            html = '<label class="mutation_table_cosmic" alt="' + value + '">' +
-                   '<b>' + count + '</b></label>';
-        }
-
-        return html;
-    };
-
-    var getAlleleFreqHtml = function(frequency, alt, ref, tipClass) {
-		var html;
-        var tip = "<b>" + alt + "</b> variant reads out of <b>" + (alt + ref) + "</b> total";
-
-        if (frequency == null)
-        {
-            html = "<label>NA</label>";
-        }
-        else
-        {
-            html = '<label class="mutation_table_allele_freq ' + tipClass + '" alt="' + tip + '">' +
-                   frequency.toFixed(2) + '</label>';
-        }
-
-        return html;
-    };
-
-	var getAlleleCountHtml = function(count) {
-        var html;
-
-        if (count == null)
-        {
-            html = "<label>NA</label>";
-        }
-        else
-        {
-            html = '<label class="mutation_table_allele_count">' +
-                   + count + '</label>';
-        }
-
-        return html;
-    };
-
-    var getProteinChangeHtml = function(mutation) {
-        var style = "protein_change";
-        var tip = "";
-
-        // TODO disabled temporarily, enable when isoform support completely ready
-//        if (!mutation.canonicalTranscript)
-//        {
-//            style = "best_effect_transcript " + style;
-//            // TODO find a better way to display isoform information
-//            tip = "Specified protein change is for the best effect transcript " +
-//                "instead of the canonical transcript.<br>" +
-//                "<br>RefSeq mRNA id: " + "<b>" + mutation.refseqMrnaId + "</b>" +
-//                "<br>Codon change: " + "<b>" + mutation.codonChange + "</b>" +
-//                "<br>Uniprot id: " + "<b>" + mutation.uniprotId + "</b>";
-//        }
-
-        return '<span class="' + style + '" alt="' + tip + '">' +
-            mutation.proteinChange +
-            '</span>';
-    };
-
-	var getIntValueHtml = function(value){
-		var html;
-
-		if (value == null)
-		{
-			html = "<label>NA</label>";
-		}
-		else
-		{
-			html = '<label class="mutation_table_int_value">' +
-			       + value + '</label>';
-		}
-
-		return html;
-	};
-
-    // generate rows as HTML
-
-    var row;
-    var rows = new Array();
-
-    for (var i=0; i<data.mutations.length; i++)
-    {
-        row = new Array();
-
-        row.push('<a href="' + data.mutations[i].linkToPatientView + '" target="_blank">' +
-                 '<b>' + data.mutations[i].caseId + "</b></a>");
-        row.push(getProteinChangeHtml(data.mutations[i]));
-        row.push(getMutationTypeHtml(data.mutations[i].mutationType.toLowerCase()));
-        row.push(getCosmicHtml(data.mutations[i].cosmic, data.mutations[i].cosmicCount));
-        row.push(getFisHtml(data.mutations[i].functionalImpactScore.toLowerCase(),
-                            data.mutations[i].xVarLink,
-                            data.mutations[i].fisValue));
-	    row.push(getMsaLinkHtml(data.mutations[i].msaLink));
-        row.push(getPdbLinkHtml(data.mutations[i].pdbLink));
-        row.push(getMutationStatusHtml(data.mutations[i].mutationStatus.toLowerCase()));
-        row.push(getValidationStatusHtml(data.mutations[i].validationStatus.toLowerCase()));
-        row.push(data.mutations[i].sequencingCenter);
-        row.push(data.mutations[i].chr);
-        row.push(getIntValueHtml(data.mutations[i].startPos));
-        row.push(getIntValueHtml(data.mutations[i].endPos));
-        row.push(data.mutations[i].referenceAllele);
-        row.push(data.mutations[i].variantAllele);
-        row.push(getAlleleFreqHtml(data.mutations[i].tumorFreq,
-                data.mutations[i].tumorAltCount,
-                data.mutations[i].tumorRefCount,
-                "simple-tip-left"));
-        row.push(getAlleleCountHtml(data.mutations[i].tumorAltCount));
-        row.push(getAlleleCountHtml(data.mutations[i].tumorRefCount));
-        row.push(getAlleleFreqHtml(data.mutations[i].normalFreq,
-                data.mutations[i].normalAltCount,
-                data.mutations[i].normalRefCount,
-                "simple-tip-left"));
-        row.push(getAlleleCountHtml(data.mutations[i].normalAltCount));
-        row.push(getAlleleCountHtml(data.mutations[i].normalRefCount));
-	    row.push(getIntValueHtml(data.mutations[i].mutationCount));
-
-        //special gene data
-//        for (var j=0; j < data.mutations[i].specialGeneData.length; j++)
-//        {
-//            row.push(data.mutations[i].specialGeneData[j]);
-//        }
-
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-// not used anymore, using dataTable's own column show/hide plugin instead.
-function _mutationTableToggleText(options)
-{
-    var selectedOptions = options.filter(":selected");
-    var numberOfSelected = selectedOptions.size();
-    var text = "";
-
-    if (0 == numberOfSelected)
-    {
-        text = "No column selected";
-    }
-    else if (options.size() == numberOfSelected)
-    {
-        text = "All columns selected";
-    }
-    else
-    {
-        text = numberOfSelected +
-               " (out of " +
-               (options.size() - 1) + // excluding "select all"
-               ") columns selected";
-    }
-
-    return text;
-}
-
-/**
- * Add tooltips for the table header and the table data rows.
- *
- * @param tableId   id of the target table
- */
-function addMutationTableTooltips(tableId)
-{
-    var qTipOptions = {content: {attr: 'alt'},
-        hide: { fixed: true, delay: 100 },
-        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top left', at:'bottom right'}};
-
-    var qTipOptionsHeader = new Object();
-	var qTipOptionsFooter = new Object();
-    var qTipOptionsLeft = new Object();
-    jQuery.extend(true, qTipOptionsHeader, qTipOptions);
-	jQuery.extend(true, qTipOptionsFooter, qTipOptions);
-    jQuery.extend(true, qTipOptionsLeft, qTipOptions);
-    qTipOptionsHeader.position = {my:'bottom center', at:'top center'};
-	qTipOptionsFooter.position = {my:'top center', at:'bottom center'};
-    qTipOptionsLeft.position = {my:'top right', at:'bottom left'};
-
-    $('#' + tableId + ' thead th').qtip(qTipOptionsHeader);
-	$('#' + tableId + ' tfoot th').qtip(qTipOptionsFooter);
-    //$('#mutation_details .mutation_details_table td').qtip(qTipOptions);
-
-    $('#' + tableId + ' .simple-tip').qtip(qTipOptions);
-    $('#' + tableId + ' .best_effect_transcript').qtip(qTipOptions);
-    $('#' + tableId + ' .simple-tip-left').qtip(qTipOptionsLeft);
-
-    // copy default qTip options and modify "content" to customize for cosmic
-    var qTipOptsCosmic = new Object();
-    jQuery.extend(true, qTipOptsCosmic, qTipOptions);
-
-    qTipOptsCosmic.content = { text: function(api) {
-        var cosmic = $(this).attr('alt');
-        var parts = cosmic.split("|");
-
-        var cosmicTable =
-            "<table class='" + tableId + "_cosmic_table cosmic_details_table display' " +
-            "cellpadding='0' cellspacing='0' border='0'>" +
-            "<thead><tr><th>Mutation</th><th>Count</th></tr></thead>";
-
-        // COSMIC data (as AA change & frequency pairs)
-        for (var i=0; i < parts.length; i++)
-        {
-            var values = parts[i].split(/\(|\)/, 2);
-
-            if (values.length < 2)
-            {
-                // skip values with no count information
-                continue;
-            }
-
-            // skip data starting with p.? or ?
-            var unknownCosmic = values[0].indexOf("p.?") == 0 ||
-                                values[0].indexOf("?") == 0;
-
-            if (!unknownCosmic)
-            {
-                cosmicTable += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
-
-                //$("#cosmic_details_table").dataTable().fnAddData(values);
-            }
-        }
-
-        cosmicTable += "</table>";
-
-        return cosmicTable;
-    }};
-
-    qTipOptsCosmic.events = {render: function(event, api)
-    {
-        // TODO data table doesn't initialize properly
-        // initialize cosmic details table
-        $('.' + tableId + '_cosmic_table').dataTable({
-             "aaSorting" : [ ], // do not sort by default
-             "sDom": 't', // show only the table
-             "aoColumnDefs": [{ "sType": "aa-change-col", "aTargets": [0]},
-                 { "sType": "numeric", "aTargets": [1]}],
-             //"bJQueryUI": true,
-             //"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
-             "bDestroy": true,
-             "bPaginate": false,
-             "bFilter": false});
-    }};
-
-    $('#' + tableId + ' .mutation_table_cosmic').qtip(qTipOptsCosmic);
-
-    // copy default qTip options and modify "content"
-    // to customize for predicted impact score
-    var qTipOptsOma = new Object();
-    jQuery.extend(true, qTipOptsOma, qTipOptions);
-
-    qTipOptsOma.content = { text: function(api) {
-        var links = $(this).attr('alt');
-        var parts = links.split("|");
-
-        var impact = parts[0];
-
-        var tip = "Predicted impact score: <b>"+impact+"</b>";
-
-        var xvia = parts[1];
-        if (xvia&&xvia!='NA')
-            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
-                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+	        var xvia = parts[1];
+	        if (xvia&&xvia!='NA')
+	            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
+	                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
 
 //        var msa = parts[2];
 //        if (msa&&msa!='NA')
@@ -945,8 +226,305 @@ function addMutationTableTooltips(tableId)
 //		    if (pdb&&pdb!='NA')
 //			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
 
-        return tip;
-    }};
+	        return tip;
+	    }};
 
-    $('#' + tableId + ' .oma_link').qtip(qTipOptsOma);
-}
+		tableSelector.find('.oma_link').qtip(qTipOptsOma);
+	}
+
+	/**
+	 * Helper function for predicted impact score sorting.
+	 */
+	function _assignValueToPredictedImpact(text, score)
+	{
+		// using score by itself may be sufficient,
+		// but sometimes we have no numerical score value
+
+		var value;
+		text = text.toLowerCase();
+
+		if (text == "low" || text == "l") {
+			value = 2;
+		} else if (text == "medium" || text == "m") {
+			value = 3;
+		} else if (text == "high" || text == "h") {
+			value = 4;
+		} else if (text == "neutral" || text == "n") {
+			value = 1;
+		} else {
+			value = -1;
+		}
+
+		if (value > 0 && !isNaN(score))
+		{
+			//assuming FIS values cannot exceed 1000
+			value += score / 1000;
+		}
+
+		return value;
+	}
+
+	/**
+	 * Helper function for predicted impact score sorting.
+	 * Gets the score from the "alt" property within the given html string.
+	 */
+	function _getFisValue(a)
+	{
+		var score = "";
+		var altValue = $(a).attr("alt");
+
+		var parts = altValue.split("|");
+
+		if (parts.length > 0)
+		{
+			if (parts[0].length > 0)
+			{
+				score = parseFloat(parts[0]);
+			}
+		}
+
+		return score;
+	}
+
+	/**
+	 * Helper function for sorting string values within label tag.
+	 */
+	function _getLabelTextValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return $(a).text().trim();
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Helper function for sorting int values within label tag.
+	 */
+	function _getLabelTextIntValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return parseInt($(a).text());
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Helper function for sorting float values within label tag.
+	 */
+	function _getLabelTextFloatValue(a)
+	{
+		if (a.indexOf("label") != -1)
+		{
+			return parseFloat($(a).text());
+		}
+		else
+		{
+			return -1;
+		}
+	}
+
+	/**
+	 * Comparison function for ascending sort operations.
+	 *
+	 * @param a
+	 * @param b
+	 * @param av
+	 * @param bv
+	 * @return
+	 * @private
+	 */
+	function _compareSortAsc(a, b, av, bv)
+	{
+		if (av >= 0) {
+			if (bv >= 0) {
+				return av==bv ? 0 : (av<bv ? -1:1);
+			} else {
+				return -1;
+			}
+		} else {
+			if (bv >= 0) {
+				return 1;
+			} else {
+				return a==b ? 0 : (a<b ? 1:-1);
+			}
+		}
+	}
+
+	/**
+	 * Comparison function for descending sort operations.
+	 *
+	 * @param a
+	 * @param b
+	 * @param av
+	 * @param bv
+	 * @return
+	 * @private
+	 */
+	function _compareSortDesc(a, b, av, bv)
+	{
+		if (av >= 0) {
+			if (bv >= 0) {
+				return av==bv ? 0 : (av<bv ? 1:-1);
+			} else {
+				return -1;
+			}
+		} else {
+			if (bv >= 0) {
+				return 1;
+			} else {
+				return a==b ? 0 : (a<b ? -1:1);
+			}
+		}
+	}
+
+	/**
+	 * Adds custom DataTables sort function for specific columns.
+	 *
+	 * @private
+	 */
+	function _addSortFunctions()
+	{
+		/**
+		 * Ascending sort function for protein (amino acid) change column.
+		 */
+		jQuery.fn.dataTableExt.oSort['aa-change-col-asc'] = function(a,b) {
+			var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+			var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+			if (ares) {
+				if (bres) {
+					var ia = parseInt(ares[1]);
+					var ib = parseInt(bres[1]);
+					return ia==ib ? 0 : (ia<ib ? -1:1);
+				} else {
+					return -1;
+				}
+			} else {
+				if (bres) {
+					return 1;
+				} else {
+					return a==b ? 0 : (a<b ? -1:1);
+				}
+			}
+		};
+
+		/**
+		 * Descending sort function for protein (amino acid) change column.
+		 */
+		jQuery.fn.dataTableExt.oSort['aa-change-col-desc'] = function(a,b) {
+			var ares = a.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+			var bres = b.match(/.*[A-Z]([0-9]+)[^0-9]+/);
+
+			if (ares) {
+				if (bres) {
+					var ia = parseInt(ares[1]);
+					var ib = parseInt(bres[1]);
+					return ia==ib ? 0 : (ia<ib ? 1:-1);
+				} else {
+					return -1;
+				}
+			} else {
+				if (bres) {
+					return 1;
+				} else {
+					return a==b ? 0 : (a<b ? 1:-1);
+				}
+			}
+		};
+
+		/**
+		 * Ascending sort function for predicted impact column.
+		 */
+		jQuery.fn.dataTableExt.oSort['predicted-impact-col-asc']  = function(a,b) {
+			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
+			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
+
+			return _compareSortAsc(a, b, av, bv);
+		};
+
+		/**
+		 * Descending sort function for predicted impact column.
+		 */
+		jQuery.fn.dataTableExt.oSort['predicted-impact-col-desc']  = function(a,b) {
+			var av = _assignValueToPredictedImpact(_getLabelTextValue(a), _getFisValue(a));
+			var bv = _assignValueToPredictedImpact(_getLabelTextValue(b), _getFisValue(b));
+
+			return _compareSortDesc(a, b, av, bv);
+		};
+
+		/**
+		 * Ascending sort function for columns having int within label tag.
+		 */
+		jQuery.fn.dataTableExt.oSort['label-int-col-asc'] = function(a,b) {
+			var av = _getLabelTextIntValue(a);
+			var bv = _getLabelTextIntValue(b);
+
+			return _compareSortAsc(a, b, av, bv);
+		};
+
+		/**
+		 * Descending sort function for columns having int within label tag.
+		 */
+		jQuery.fn.dataTableExt.oSort['label-int-col-desc'] = function(a,b) {
+			var av = _getLabelTextIntValue(a);
+			var bv = _getLabelTextIntValue(b);
+
+			return _compareSortDesc(a, b, av, bv);
+		};
+
+		/**
+		 * Ascending sort function for columns having float within label tag.
+		 */
+		jQuery.fn.dataTableExt.oSort['label-float-col-asc'] = function(a,b) {
+			var av = _getLabelTextFloatValue(a);
+			var bv = _getLabelTextFloatValue(b);
+
+			return _compareSortAsc(a, b, av, bv);
+		};
+
+		/**
+		 * Descending sort function for columns having float within label tag.
+		 */
+		jQuery.fn.dataTableExt.oSort['label-float-col-desc'] = function(a,b) {
+			var av = _getLabelTextFloatValue(a);
+			var bv = _getLabelTextFloatValue(b);
+
+			return _compareSortDesc(a, b, av, bv);
+		};
+	}
+
+	/**
+	 * Formats the table with data tables plugin.
+	 */
+	this.formatTable = function()
+	{
+		var headers = [];
+
+		// extract table header strings into an array
+		tableSelector.find("thead .mutation-table-header").each(function(){
+			headers.push($(this).text().trim());
+		});
+
+		// build a map, to be able to use string constants
+		// instead of integer constants for table columns
+		var indexMap = _buildColumnIndexMap(headers);
+
+		// determine hidden columns
+		var hiddenCols = _getHiddenColumns(headers, indexMap,
+			mutationUtil.containsGermline(gene));
+
+		// add custom sort functions for specific columns
+		_addSortFunctions();
+
+		// actual initialization of the DataTables plug-in
+		_initDataTable(tableSelector, indexMap, hiddenCols);
+	};
+};

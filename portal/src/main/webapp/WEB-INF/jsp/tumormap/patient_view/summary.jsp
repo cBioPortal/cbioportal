@@ -68,15 +68,17 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
         var genomic_overview_length = $("#td-content").width() - 50;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
         genomic_overview_length -= (hasAlleleFrequencyData ? 110 : 0);
-
         var config = new GenomicOverviewConfig(
-                (genomicEventObs.hasMut?1:0)+(genomicEventObs.hasSeg?1:0), genomic_overview_length);
+                (genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0), genomic_overview_length);
+
         config.cnTh = [<%=genomicOverviewCopyNumberCnaCutoff[0]%>,<%=genomicOverviewCopyNumberCnaCutoff[1]%>];
         var paper = createRaphaelCanvas("genomics-overview", config);
         plotChromosomes(paper,config,chmInfo);
         if (genomicEventObs.hasMut) {
             genomicEventObs.subscribeMut(function(){
-                plotMuts(paper,config,chmInfo,genomicEventObs.hasSeg?1:0,genomicEventObs.mutations);
+                for (var i=0, n=caseIds.length; i<n; i++) {
+                    plotMuts(paper,config,chmInfo,i+(genomicEventObs.hasSeg?n:0),genomicEventObs.mutations,n>1?caseIds[i]:null);
+                };
             });
         }
         
@@ -86,16 +88,18 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function plotCopyNumberOverview(paper,config,chmInfo,hasMut) {
+
         var params = {
             <%=CnaJSON.CMD%>:'<%=CnaJSON.GET_SEGMENT_CMD%>',
-            <%=PatientView.PATIENT_ID%>:'<%=patient%>',
+            <%=PatientView.CASE_ID%>:caseIdsStr,
             cancer_study_id: cancerStudyId
         };
-
         $.post("cna.json", 
             params,
             function(segs){
-                plotCnSegs(paper,config,chmInfo,0,segs,1,2,3,5);
+                for (var i=0, n=caseIds.length; i<n; i++) {
+                    plotCnSegs(paper,config,chmInfo,i,segs[caseIds[i]],1,2,3,5,n>1?caseIds[i]:null);
+                }
             }
             ,"json"
         );
@@ -162,13 +166,16 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
     function scatterPlotMutVsCna(dt,hLog,vLog,scatterPlotDiv,caseIdDiv) {
         var emId = {};
-        emId[caseId] = true;
+        caseIds.forEach(function(caseId) {
+            emId[caseId] = true;}
+        );
+        
         var scatter = plotMutVsCna(null,scatterPlotDiv,caseIdDiv,cancerStudyId,dt,emId,2,1,null,hLog,vLog);
         google.visualization.events.addListener(scatter, 'select', function(e){
             var s = scatter.getSelection();
             if (s.length>1) return;
             if (caseIdDiv) {
-                var caseId = s.length==0 ? null : dt.getValue(s[0].row,0);
+                var caseId = s.length===0 ? null : dt.getValue(s[0].row,0);
                 $('#case-id-div').html(formatPatientLink(caseId,cancerStudyId));
             }
         });
@@ -185,7 +192,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 <table>
     <tr>
         <td><div id="genomics-overview"></div></td>
-        <td>
+        <td valign="top">
             <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
             <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
         </td>

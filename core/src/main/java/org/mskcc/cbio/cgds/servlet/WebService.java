@@ -405,18 +405,6 @@ public class WebService extends HttpServlet {
     private void getClinicalData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, IOException {
 
-        // I was using this for "profiling"
-//        System.out.println( Thread.currentThread().getStackTrace()[1].getMethodName() + " " + new Date().toString() );
-
-        // This was costing ~3 seconds.
-        // The servlet assumes that there is only one cancer study anyway.
-//        Set<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(request);
-//
-//        if (cancerStudyIDs.size() != 1) {
-//            throw new IOException("cannot request data for more than one cancer study");
-//        }
-//        String cancerStudyId = cancerStudyIDs.iterator().next();
-
         String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
 
         List<String> caseIds = WebserviceParserUtils.getCaseList(request);

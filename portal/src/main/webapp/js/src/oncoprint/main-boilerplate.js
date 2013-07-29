@@ -14,9 +14,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     document.getElementById('oncoprint_controls').innerHTML
         = _.template(document.getElementById('main-controls-template').innerHTML)();
 
-    var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
+    var clinicalAttributes = new ClinicalAttributesColl();
 
     clinicalAttributes.fetch({
+        type: 'POST',
+        data: { case_list: cases },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
@@ -112,11 +114,15 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             // disable the option to sort by clinical data
             $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
-            oncoprintClinicals = new ClinicalColl({});
-
+            oncoprintClinicals = new ClinicalColl();
 
             oncoprintClinicals.fetch({
                 type: "POST",
+                data: {
+                    cancer_study_id: cancer_study_id_selected,
+                    attribute_id: clinicalAttribute.attr_id,
+                    case_list: cases
+                },
                 success: function(response) {
                     inner_loader_img.hide();
 

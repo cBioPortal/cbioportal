@@ -50,26 +50,11 @@ var ModelUtils = (function() {
 
 var ClinicalColl = Backbone.Collection.extend({
     model: Backbone.Model.extend({}),
-    initialize: function(options) {
-        this.cancer_study_id = options.cancer_study_id;
-        this.case_list = options.case_list;
-        this.attr_id = options.attr_id;
-    },
     parse: function(response) {
         this.attributes = function() { return response.attributes; };   // save the attributes
         return response.data;    // but the data is what is to be model-ed
     },
-    url: function() {
-        var url_str = "webservice.do?cmd=getClinicalData&format=json&";
-        if (this.cancer_study_id) {
-            url_str += "cancer_study_id=" + this.cancer_study_id + "&";
-        }
-        if (this.attr_id) {
-            url_str += "attribute_id=" + this.attr_id + "&";
-        }
-        url_str += "case_list=" + this.case_list;
-        return url_str;
-    }
+    url: "webservice.do?cmd=getClinicalData&format=json"
 });
 
 var GeneDataColl = Backbone.Collection.extend({
@@ -77,21 +62,9 @@ var GeneDataColl = Backbone.Collection.extend({
     url: "GeneData.json"
 });
 
-// params : object literal { case_list: <string of cases separated by space> }
-
-// on fetch(), populates list of object literals with the fields:
-// [attr_id, display_name, description, datatype]
 var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
-    initialize: function(attributes) {
-        this.case_list = attributes.case_list;
-    },
     url: function() {
-        return "clinicalAttributes.json?case_list=" + this.case_list;
+        return "clinicalAttributes.json";
     }
 });
-
-// example
-//
-// var foobar = new ClinicalAttributesColl({case_list: cases.split(" ")});
-// x.fetch();

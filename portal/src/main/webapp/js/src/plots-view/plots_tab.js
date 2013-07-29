@@ -1576,7 +1576,7 @@ var PlotsView = (function () {
         } else if (vals.indexOf(cancer_study_id + "_cna") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_cna";
         } else if (vals.indexOf(cancer_study_id + "_CNA") !== -1) {
-            discretizedDataTypeIndicator = cancer_study_id + "_cna";
+            discretizedDataTypeIndicator = cancer_study_id + "_CNA";
         } else if (vals.indexOf(cancer_study_id + "_cna_rae") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_cna_rae";
         }

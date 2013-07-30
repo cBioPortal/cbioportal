@@ -45,7 +45,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_data_row_template">
-	<tr>
+	<tr alt='{{mutationId}}'>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
@@ -392,7 +392,8 @@
 					var mutationTableView = new MutationDetailsTableView(
 							{el: "#mutation_table_" + gene,
 							model: {geneSymbol: gene,
-								mutations: mutationMap[gene]}});
+								mutations: mutationMap[gene],
+								syncFn: self._updateMutationDiagram}});
 
 					mutationTableView.render();
 				}, 2000);
@@ -437,6 +438,19 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
+		},
+		/**
+		 * Updates the mutation diagram after each change in the mutation table.
+		 * This maintains synchronizing between the table and the diagram.
+		 *
+		 * @param tableSelector selector for the mutation table
+		 */
+		_updateMutationDiagram: function(tableSelector)
+		{
+			var self = this;
+			//var oTable = tableSelector.dataTable();
+			// TODO synchronize mutation table and diagram after each filtering
+			//console.log(tableSelector.find("tr"));
 		}
 	});
 
@@ -445,7 +459,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {mutations: [mutation data as an array of JSON objects],
-	 *                   geneSymbol: [hugo gene symbol as a string]}
+	 *                   geneSymbol: [hugo gene symbol as a string],
+	 *                   syncFn: sync function for outside sources}
 	 *          }
 	 */
 	var MutationDetailsTableView = Backbone.View.extend({
@@ -555,6 +570,9 @@
 
 			var vars = {};
 
+			// TODO mutation event id is not unique, find a unique way to represent each mutation
+			// it might be better to generate mutation id on the server side...
+			vars.mutationId = mutation.mutationEventId;
 			vars.caseId = mutation.caseId;
 			vars.linkToPatientView = mutation.linkToPatientView;
 
@@ -661,7 +679,8 @@
 
 			var tableUtil = new MutationTableUtil(tableSelector,
 				self.model.geneSymbol,
-				self.model.mutations);
+				self.model.mutations,
+				self.model.syncFn);
 
 			// format the table (convert to a DataTable)
 			tableUtil.formatTable();
@@ -910,16 +929,12 @@
 		},
 		format: function()
 		{
-			// TODO correct style to have a better view
-
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
 				"aaSorting" : [ ], // do not sort by default
 				"sDom": 't', // show only the table
 				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
 				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
-				//"bJQueryUI": true,
-				//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
 				"bDestroy": false,
 				"bPaginate": false,
 				"bJQueryUI": true,

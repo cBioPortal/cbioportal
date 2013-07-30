@@ -6,9 +6,10 @@
  * @param tableSelector jQuery selector for the target table
  * @param gene          hugo gene symbol
  * @param mutations     mutations as an array of raw JSON objects
+ * @param callback      callback function to call after each drawing
  * @constructor
  */
-var MutationTableUtil = function(tableSelector, gene, mutations)
+var MutationTableUtil = function(tableSelector, gene, mutations, callback)
 {
 	var mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
@@ -130,6 +131,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	        "fnDrawCallback": function(oSettings) {
 	            // add tooltips to the table
 	            _addMutationTableTooltips(tableSelector);
+		        // callback for sync with the diagram
+		        if (callback != undefined)
+		        {
+		            callback(tableSelector);
+		        }
 	        }
 	    });
 

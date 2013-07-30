@@ -816,8 +816,6 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 	{
 		var types = PileupUtil.getMutationTypeArray(pileup);
 
-		console.log(types);
-
 		if (types.length > 1 &&
 		    types[0].count == types[1].count)
 		{

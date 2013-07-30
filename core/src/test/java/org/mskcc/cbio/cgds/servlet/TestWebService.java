@@ -292,15 +292,15 @@ public class TestWebService extends TestCase {
       
       String publicSid = "stableIdpublic";
       publicGeneticProfile = new GeneticProfile( publicSid, publicCancerStudy.getInternalId(),
-               GeneticAlterationType.COPY_NUMBER_ALTERATION,
-               "profileName", "profileDescription", true);
+												 GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
+												 "profileName", "profileDescription", true);
       DaoGeneticProfile.addGeneticProfile( publicGeneticProfile );
       // have to refetch from the dbms to get the profile_id; sigh!
       publicGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId( publicSid ); 
       String privateSid = "stableIdPrivate";
       privateGeneticProfile = new GeneticProfile( privateSid, privateCancerStudy1.getInternalId(),
-               GeneticAlterationType.COPY_NUMBER_ALTERATION,
-               "profileName", "profileDescription", true);
+												  GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
+												  "profileName", "profileDescription", true);
       DaoGeneticProfile.addGeneticProfile( privateGeneticProfile );
       privateGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(privateSid);
    }

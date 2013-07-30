@@ -976,7 +976,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 } else if (Util.plotsTypeIsMethylation()) {
                     content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
@@ -988,7 +988,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 } else if (Util.plotsTypeIsRPPA()) {
                     content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
@@ -1000,7 +1000,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 }
                 content = content + "</font>";

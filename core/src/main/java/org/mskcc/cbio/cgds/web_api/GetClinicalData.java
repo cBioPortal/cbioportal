@@ -29,7 +29,6 @@ package org.mskcc.cbio.cgds.web_api;
 
 import java.util.*;
 
-import com.google.common.base.Joiner;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
@@ -240,48 +239,44 @@ public class GetClinicalData {
      * @param clinicals
      * @return
      */
-    public static String makeRow(List<ClinicalData> clinicals) {
-        // TODO: this needs to be sorted
-
-        String row = clinicals.get(0).getCaseId();
-
-
-        for (ClinicalData c : clinicals) {
-            row = row + "\t" + c.getAttrVal();
-        }
-
-        return row + "\n";
-    }
-
     public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
         List<ClinicalData> allClinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
 
-        HashMap<String, List<ClinicalData>> caseId2Clinical = new HashMap<String, List<ClinicalData>>();
+        TreeSet<String> headers = new TreeSet<String>();
+        Map<String, Map<String,ClinicalData>> caseId2Clinical = new HashMap<String, Map<String,ClinicalData>>();
         for (ClinicalData c : allClinicals) {
-            List<ClinicalData> got = caseId2Clinical.get(c.getCaseId());
+            Map<String,ClinicalData> got = caseId2Clinical.get(c.getCaseId());
 
             if (got == null) {
-                got = new ArrayList<ClinicalData>();
-                got.add(c);
+                got = new HashMap<String,ClinicalData>();
                 caseId2Clinical.put(c.getCaseId(), got);
-            } else {
-                got.add(c);
             }
+            
+            got.put(c.getAttrId(),c);
+            headers.add(c.getAttrId());
+        }
+        
+        StringBuilder sb = new StringBuilder();
+        sb.append("CASE_ID");
+        for (String h : headers) {
+            sb.append('\t').append(h);
+        }
+        sb.append('\n');
+
+        for (Map.Entry<String, Map<String,ClinicalData>> entry : caseId2Clinical.entrySet()) {
+            String caseId = entry.getKey();
+            sb.append(caseId);
+            Map<String,ClinicalData> value = entry.getValue();
+            for (String h : headers) {
+                sb.append('\t');
+                ClinicalData cd = value.get(h);
+                if (cd!=null) {
+                    sb.append(cd.getAttrVal());
+                }
+            }
+            sb.append('\n');
         }
 
-        // make header, is order preserved across all rows?
-        List<ClinicalData> aClinical = caseId2Clinical.values().iterator().next();
-        List<String> headers = new ArrayList<String>();
-        for (ClinicalData c : aClinical) {
-            headers.add(c.getAttrId().toLowerCase());
-        }
-
-        String txt = "case_id\t" + Joiner.on("\t").join(headers) + "\n";      // start out with just a header
-
-        for (List<ClinicalData> clinicals : caseId2Clinical.values()) {
-            txt += makeRow(clinicals);
-        }
-
-        return txt;
+        return sb.toString();
     }
 }

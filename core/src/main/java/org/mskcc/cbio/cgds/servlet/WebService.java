@@ -406,6 +406,14 @@ public class WebService extends HttpServlet {
             throws DaoException, ProtocolException, IOException {
 
         String cancerStudyId = WebserviceParserUtils.getCancerStudyId(request);
+        if (cancerStudyId==null) {
+            Set<String> cancerStudyIds = WebserviceParserUtils.getCancerStudyIDs(request);
+            if (cancerStudyIds.size()!=1) {
+                writer.print("The cmd only support one and only one cancer study.");
+                return;
+            }
+            cancerStudyId = cancerStudyIds.iterator().next();
+        }
 
         List<String> caseIds = WebserviceParserUtils.getCaseList(request);
 

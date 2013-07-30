@@ -119,6 +119,7 @@
     var clincialDataTable = null;
     function loadClinicalData(caseSetId) {
         var params = {cmd:'getClinicalData',
+                    cancer_study_id:cancerStudyId,
                     case_set_id:caseSetId,
                     include_free_form:1};
         $.get("webservice.do",

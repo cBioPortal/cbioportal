@@ -14,9 +14,11 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     document.getElementById('oncoprint_controls').innerHTML
         = _.template(document.getElementById('main-controls-template').innerHTML)();
 
-    var clinicalAttributes = new ClinicalAttributesColl({case_list: cases});
+    var clinicalAttributes = new ClinicalAttributesColl();
 
     clinicalAttributes.fetch({
+        type: 'POST',
+        data: { case_list: cases },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
@@ -55,11 +57,13 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         success: function(data) {
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: data.toJSON(),
-            genes: genes.split(" "),
-            legend: document.getElementById('oncoprint_legend')
+                genes: genes.split(" "),
+                legend: document.getElementById('oncoprint_legend')
             });
             outer_loader_img.hide();
             $('#oncoprint #everything').show();
+
+            oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
             zoom = utils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
         }
@@ -101,31 +105,36 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: geneDataColl.toJSON(),
-                      genes: geneDataColl.genes.split(" "),
-                      legend: document.getElementById('oncoprint_legend')
+                genes: genes.split(" "),
+                legend: document.getElementById('oncoprint_legend')
             });
+
+            oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
             // disable the option to sort by clinical data
             $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', true);
         } else {
-            oncoprintClinicals = new ClinicalColl({
-                cancer_study_id: cancer_study_id_selected,
-                attr_id: clinicalAttribute.attr_id,
-                case_list: cases
-            });
+            oncoprintClinicals = new ClinicalColl();
 
             oncoprintClinicals.fetch({
                 type: "POST",
+                data: {
+                    cancer_study_id: cancer_study_id_selected,
+                    attribute_id: clinicalAttribute.attr_id,
+                    case_list: cases
+                },
                 success: function(response) {
                     inner_loader_img.hide();
 
                     oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                         geneData: geneDataColl.toJSON(),
-                              clinicalData: response.toJSON(),
-                              genes: geneDataColl.genes.split(" "),
-                              clinical_attrs: response.attributes(),
-                              legend: document.getElementById('oncoprint_legend')
+                        clinicalData: response.toJSON(),
+                        genes: genes.split(" "),
+                        clinical_attrs: response.attributes(),
+                        legend: document.getElementById('oncoprint_legend')
                     });
+
+                    oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
                     // enable the option to sort by clinical data
                     $(sortBy.add('option[value="clinical"]')[1]).prop('disabled', false);

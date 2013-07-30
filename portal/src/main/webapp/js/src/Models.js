@@ -48,49 +48,13 @@ var ModelUtils = (function() {
     };
 })();
 
-// params: sample, cancer_study_id, attr_id
-// When you use the method `fetch()`, the attr_val is added to the object (from server)
-var ClinicalModel = Backbone.Model.extend({
-    initialize: function(attributes) {
-        this.sample = attributes.sample;
-        this.cancer_study_id = attributes.cancer_study_id;
-        this.attr_id = attributes.attr_id;
-    },
-    url: function() {
-        return "webservice.do?cmd=getClinicalData&format=json"
-                + "&case_list=" + this.sample
-                + "&cancer_study_id=" + this.cancer_study_id
-                + "&attribute_id=" + this.attr_id;
-    }
-});
-
-// params: [cancer_study_id] , [attr_id], case_list (list of case_ids separated by space)
-// when you call the method fetch() you get back a list of ClinicalModels
-// AND a list of attribute objects which provide metadata about attributes in the cohort
 var ClinicalColl = Backbone.Collection.extend({
-    model: ClinicalModel,
-    initialize: function(options) {
-        this.cancer_study_id = options.cancer_study_id;
-        this.case_list = options.case_list;
-        this.attr_id = options.attr_id;
-//        this.case_set_id = options.case_set_id;
-//        this.case_ids_key = options.case_ids_key;
-    },
+    model: Backbone.Model.extend({}),
     parse: function(response) {
         this.attributes = function() { return response.attributes; };   // save the attributes
         return response.data;    // but the data is what is to be model-ed
     },
-    url: function() {
-        var url_str = "webservice.do?cmd=getClinicalData&format=json&";
-        if (this.cancer_study_id) {
-            url_str += "cancer_study_id=" + this.cancer_study_id + "&";
-        }
-        if (this.attr_id) {
-            url_str += "attribute_id=" + this.attr_id + "&";
-        }
-        url_str += "case_list=" + this.case_list;
-        return url_str;
-    }
+    url: "webservice.do?cmd=getClinicalData&format=json"
 });
 
 var GeneDataColl = Backbone.Collection.extend({
@@ -98,21 +62,9 @@ var GeneDataColl = Backbone.Collection.extend({
     url: "GeneData.json"
 });
 
-// params : object literal { case_list: <string of cases separated by space> }
-
-// on fetch(), populates list of object literals with the fields:
-// [attr_id, display_name, description, datatype]
 var ClinicalAttributesColl= Backbone.Collection.extend({
     model: Backbone.Model.extend({}),       // the trivial model
-    initialize: function(attributes) {
-        this.case_list = attributes.case_list;
-    },
     url: function() {
-        return "clinicalAttributes.json?case_list=" + this.case_list;
+        return "clinicalAttributes.json";
     }
 });
-
-// example
-//
-// var foobar = new ClinicalAttributesColl({case_list: cases.split(" ")});
-// x.fetch();

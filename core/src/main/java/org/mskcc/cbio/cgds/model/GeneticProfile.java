@@ -37,6 +37,7 @@ public class GeneticProfile {
     private String stableId;
     private int cancerStudyId;
     private GeneticAlterationType geneticAlterationType;
+    private String datatype;
     private String profileName;
     private String profileDescription;
     private String targetLine;
@@ -47,11 +48,12 @@ public class GeneticProfile {
    }
 
    public GeneticProfile(String stableId, int cancerStudyId, GeneticAlterationType geneticAlterationType,
-            String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
+						 String datatype, String profileName, String profileDescription, boolean showProfileInAnalysisTab) {
       super();
       this.stableId = stableId;
       this.cancerStudyId = cancerStudyId;
       this.geneticAlterationType = geneticAlterationType;
+      this.datatype = datatype;
       this.profileName = profileName;
       this.profileDescription = profileDescription;
       this.showProfileInAnalysisTab = showProfileInAnalysisTab;
@@ -87,6 +89,14 @@ public class GeneticProfile {
 
     public void setGeneticAlterationType(GeneticAlterationType geneticAlterationType) {
         this.geneticAlterationType = geneticAlterationType;
+    }
+
+    public String getDatatype() {
+        return datatype;
+    }
+
+    public void setDatatype(String datatype) {
+        this.datatype = datatype;
     }
 
     public String getProfileName() {

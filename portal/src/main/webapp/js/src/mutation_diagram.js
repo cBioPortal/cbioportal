@@ -76,6 +76,8 @@ MutationDiagram.prototype.defaultOpts = {
 		other: "#808080",       // all other mutation types
 		default: "#800080"      // default is used when there is a tie
 	},
+	lollipopBorderColor: "#BABDB6",
+	lollipopBorderWidth: 0.5,
 	lollipopRadius: 3,              // radius of the lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
@@ -772,7 +774,9 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('cx', x)
 		.attr('cy', y)
 		.attr('r', options.lollipopRadius)
-		.attr('fill', self.getLollipopFillColor(options, pileup));
+		.attr('fill', self.getLollipopFillColor(options, pileup))
+		.attr('stroke', options.lollipopBorderColor)
+		.attr('stroke-width', options.lollipopBorderWidth);
 
 	var addTooltip = options.lollipopTipFn;
 	addTooltip(circle, pileup);

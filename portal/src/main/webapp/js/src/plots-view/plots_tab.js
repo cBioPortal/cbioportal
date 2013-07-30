@@ -133,7 +133,6 @@ var PlotsMenu = (function () {
                 content.plots_type.rppa_mrna.text
             );
         }
-
         //Data Type Field : profile
         for (var key in content.data_type) {
             var singleDataTypeObj = content.data_type[key];
@@ -148,7 +147,24 @@ var PlotsMenu = (function () {
                     "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
             }
         }
+    }
 
+    function updateMenu() {
+        $("#one_gene_platform_select_div").empty();
+        //Data Type Field : profile
+        for (var key in content.data_type) {
+            var singleDataTypeObj = content.data_type[key];
+            $("#one_gene_platform_select_div").append(
+                "<div id='" + singleDataTypeObj.value + "_dropdown' style='padding:5px;'>" +
+                    "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
+                    "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()' class='plots-select'></select></div>"
+            );
+            for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
+                var item_profile = singleDataTypeObj.genetic_profile[index];
+                $("#" + singleDataTypeObj.value).append(
+                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+            }
+        }
     }
 
     function setDefaultCopyNoSelection() {
@@ -224,37 +240,29 @@ var PlotsMenu = (function () {
     function updateVisibility() {
         //Dynamically show only the plots type related drop div
         var currentPlotsType = $('#plots_type').val();
-
         if (currentPlotsType.indexOf("copy_no") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "show");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "show");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "show");
-
         }
-
     }
 
-    function fetchFrameContent() {
-        content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function fetchFrameContent(selectedGene) {
+        content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_mrna;
+        content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_copy_no;
+        content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_dna_methylation;
+        content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_rppa;
         status.has_mrna = (content.data_type.mrna.genetic_profile.length !== 0);
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
@@ -263,10 +271,15 @@ var PlotsMenu = (function () {
 
     return {
         init: function () {
-            fetchFrameContent();
+            fetchFrameContent(gene_list[0]);
             drawMenu();
+            setDefaultMrnaSelection();
+            setDefaultCopyNoSelection();
+            updateVisibility();
         },
         update: function() {
+            fetchFrameContent(document.getElementById("gene").value);
+            updateMenu();
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();

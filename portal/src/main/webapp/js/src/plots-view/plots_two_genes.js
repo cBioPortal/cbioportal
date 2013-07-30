@@ -51,12 +51,38 @@ var PlotsTwoGenesMenu = (function(){
         });
     }
 
-    function fetchFrameData() {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function mergeList(arrX, arrY) {
+        var result = [];
+        var _arrY = [];
+        $.each(arrY, function(index, val) {
+            _arrY.push(val[0]);
+        });
+        $.each(arrX, function(index, val) {
+            if (_arrY.indexOf(val[0]) !== -1) {
+                result.push(arrX[index]);
+            }
+        });
+        return result;
+    }
+
+    function fetchFrameData(geneX, geneY) {
+        content.genetic_profile_mutations = Plots.getGeneticProfiles(geneX).genetic_profile_mutations;
+        content.genetic_profile_mrna = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_mrna,
+            Plots.getGeneticProfiles(geneY).genetic_profile_mrna
+        );
+        content.genetic_profile_copy_no = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_copy_no,
+            Plots.getGeneticProfiles(geneY).genetic_profile_copy_no
+        );
+        content.genetic_profile_dna_methylation = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_dna_methylation,
+            Plots.getGeneticProfiles(geneY).genetic_profile_dna_methylation
+        );
+        content.genetic_profile_rppa = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_rppa,
+            Plots.getGeneticProfiles(geneY).genetic_profile_rppa
+        );
     }
 
     function appendDropDown(divId, value, text) {
@@ -165,11 +191,13 @@ var PlotsTwoGenesMenu = (function(){
 
     return {
         init: function() {
-            fetchFrameData();
             generateGeneList();
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
+            drawPlatFormList();
         },
         update: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             drawPlatFormList();
         }
     };

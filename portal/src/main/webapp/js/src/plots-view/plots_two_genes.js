@@ -701,9 +701,10 @@ var PlotsTwoGenesView = (function(){
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                        var tmp_anno_str =
+                            d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
                     } else {
-                        var tmp_anno_str = d.annotation;
+                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }

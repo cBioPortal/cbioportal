@@ -35,6 +35,7 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.FusionFileUtil;
 import org.mskcc.cbio.maf.FusionRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
 import java.io.BufferedReader;
@@ -106,7 +107,7 @@ public class ImportFusionData
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = ExtendedMutationUtil.getCaseId(barCode);
+				String caseId = CaseIdUtil.getCaseId(barCode);
 
 				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
 				{

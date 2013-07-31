@@ -49,6 +49,7 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.MafUtil;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
 /**
@@ -165,7 +166,7 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = ExtendedMutationUtil.getCaseId(barCode);
+				String caseId = CaseIdUtil.getCaseId(barCode);
 
 				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {
 					DaoCaseProfile.addCaseProfile(caseId, geneticProfileId);

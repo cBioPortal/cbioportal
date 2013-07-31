@@ -51,38 +51,12 @@ var PlotsTwoGenesMenu = (function(){
         });
     }
 
-    function mergeList(arrX, arrY) {
-        var result = [];
-        var _arrY = [];
-        $.each(arrY, function(index, val) {
-            _arrY.push(val[0]);
-        });
-        $.each(arrX, function(index, val) {
-            if (_arrY.indexOf(val[0]) !== -1) {
-                result.push(arrX[index]);
-            }
-        });
-        return result;
-    }
-
-    function fetchFrameData(geneX, geneY) {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles(geneX).genetic_profile_mutations;
-        content.genetic_profile_mrna = mergeList(
-            Plots.getGeneticProfiles(geneX).genetic_profile_mrna,
-            Plots.getGeneticProfiles(geneY).genetic_profile_mrna
-        );
-        content.genetic_profile_copy_no = mergeList(
-            Plots.getGeneticProfiles(geneX).genetic_profile_copy_no,
-            Plots.getGeneticProfiles(geneY).genetic_profile_copy_no
-        );
-        content.genetic_profile_dna_methylation = mergeList(
-            Plots.getGeneticProfiles(geneX).genetic_profile_dna_methylation,
-            Plots.getGeneticProfiles(geneY).genetic_profile_dna_methylation
-        );
-        content.genetic_profile_rppa = mergeList(
-            Plots.getGeneticProfiles(geneX).genetic_profile_rppa,
-            Plots.getGeneticProfiles(geneY).genetic_profile_rppa
-        );
+    function fetchFrameData() {
+        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
+        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
+        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
+        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
+        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
     }
 
     function appendDropDown(divId, value, text) {
@@ -191,13 +165,11 @@ var PlotsTwoGenesMenu = (function(){
 
     return {
         init: function() {
+            fetchFrameData();
             generateGeneList();
-            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
-            drawPlatFormList();
         },
         update: function() {
-            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             drawPlatFormList();
         }
     };
@@ -729,10 +701,9 @@ var PlotsTwoGenesView = (function(){
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str =
-                            d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
+                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
                     } else {
-                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
+                        var tmp_anno_str = d.annotation;
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }

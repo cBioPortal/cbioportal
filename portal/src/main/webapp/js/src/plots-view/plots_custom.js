@@ -732,9 +732,9 @@ var PlotsCustomView = (function() {
                 }
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
+                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
                     } else {
-                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
+                        var tmp_anno_str = d.annotation;
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }

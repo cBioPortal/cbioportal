@@ -34,19 +34,35 @@ var PlotsCustomMenu = (function(){
             "methylation" : { value : "methylation", name :  "DNA Methylation" },
             "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
         },
-        genetic_profile_mutations : [],
-        genetic_profile_mrna : [],
-        genetic_profile_copy_no : [],
-        genetic_profile_rppa : [],
-        genetic_profile_dna_methylation : []
+        geneX_genetic_profiles: {
+            genetic_profile_mutations : [],
+            genetic_profile_mrna : [],
+            genetic_profile_copy_no : [],
+            genetic_profile_rppa : [],
+            genetic_profile_dna_methylation : []
+        },
+        geneY_genetic_profiles: {
+            genetic_profile_mutations : [],
+            genetic_profile_mrna : [],
+            genetic_profile_copy_no : [],
+            genetic_profile_rppa : [],
+            genetic_profile_dna_methylation : []
+        }
     };
 
-    function fetchFrameData() {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function fetchFrameData(geneX, geneY) {
+        //geneX
+        content.geneX_genetic_profiles.genetic_profile_mutations = Plots.getGeneticProfiles(geneX).genetic_profile_mutations;
+        content.geneX_genetic_profiles.genetic_profile_mrna = Plots.getGeneticProfiles(geneX).genetic_profile_mrna;
+        content.geneX_genetic_profiles.genetic_profile_copy_no = Plots.getGeneticProfiles(geneX).genetic_profile_copy_no;
+        content.geneX_genetic_profiles.genetic_profile_dna_methylation = Plots.getGeneticProfiles(geneX).genetic_profile_dna_methylation;
+        content.geneX_genetic_profiles.genetic_profile_rppa = Plots.getGeneticProfiles(geneX).genetic_profile_rppa;
+        //geneY
+        content.geneY_genetic_profiles.genetic_profile_mutations = Plots.getGeneticProfiles(geneY).genetic_profile_mutations;
+        content.geneY_genetic_profiles.genetic_profile_mrna = Plots.getGeneticProfiles(geneY).genetic_profile_mrna;
+        content.geneY_genetic_profiles.genetic_profile_copy_no = Plots.getGeneticProfiles(geneY).genetic_profile_copy_no;
+        content.geneY_genetic_profiles.genetic_profile_dna_methylation = Plots.getGeneticProfiles(geneY).genetic_profile_dna_methylation;
+        content.geneY_genetic_profiles.genetic_profile_rppa = Plots.getGeneticProfiles(geneY).genetic_profile_rppa;
     }
 
     function appendDropDown(divId, value, text) {
@@ -105,25 +121,25 @@ var PlotsCustomMenu = (function(){
             "<select id='custom_platform_x' onchange='PlotsCustomView.init()' class='plots-select'>");
 
         if($("#custom_plots_type_x").val() === "mrna"){
-            content.genetic_profile_mrna.forEach (function (profile) {
+            content.geneX_genetic_profiles.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection("#custom_plots_type_x", "#custom_platform_x");
         } else if($("#custom_plots_type_x").val() === "copy_no"){
-            content.genetic_profile_copy_no.forEach (function (profile) {
+            content.geneX_genetic_profiles.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
                     $("#custom_platform_x")
                         .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if($("#custom_plots_type_x").val() === "methylation"){
-            content.genetic_profile_dna_methylation.forEach (function (profile) {
+            content.geneX_genetic_profiles.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
         } else if($("#custom_plots_type_x").val() === "rppa"){
-            content.genetic_profile_rppa.forEach (function (profile) {
+            content.geneX_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
@@ -137,25 +153,25 @@ var PlotsCustomMenu = (function(){
             "<select id='custom_platform_y' onchange='PlotsCustomView.init()' class='plots-select'>");
 
         if($("#custom_plots_type_y").val() === "mrna"){
-            content.genetic_profile_mrna.forEach (function (profile) {
+            content.geneY_genetic_profiles.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection("#custom_plots_type_y", "#custom_platform_y");
         } else if($("#custom_plots_type_y").val() === "copy_no"){
-            content.genetic_profile_copy_no.forEach (function (profile) {
+            content.geneY_genetic_profiles.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
                     $("#custom_platform_y")
                         .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if($("#custom_plots_type_y").val() === "methylation"){
-            content.genetic_profile_dna_methylation.forEach (function (profile) {
+            content.geneY_genetic_profiles.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
         } else if($("#custom_plots_type_y").val() === "rppa"){
-            content.genetic_profile_rppa.forEach (function (profile) {
+            content.geneY_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
@@ -174,36 +190,56 @@ var PlotsCustomMenu = (function(){
     function generatePlotsTypeList() {
         appendDropDown("#custom_plots_type_x", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         appendDropDown("#custom_plots_type_y", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
-        if (content.genetic_profile_copy_no.length !== 0) {
+        if (content.geneX_genetic_profiles.genetic_profile_copy_no.length !== 0) {
             var _flag = false;
-            $.each(content.genetic_profile_copy_no, function(index, val) {
+            $.each(content.geneX_genetic_profiles.genetic_profile_copy_no, function(index, val) {
                 if (!dataIsDiscretized(val[1])) {
                     _flag = true;
                 }
             });     //If contains continuous data type
             if (_flag) {
                 appendDropDown("#custom_plots_type_x", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
+            }
+        }
+        if (content.geneY_genetic_profiles.genetic_profile_copy_no.length !== 0) {
+            var _flag = false;
+            $.each(content.geneX_genetic_profiles.genetic_profile_copy_no, function(index, val) {
+                if (!dataIsDiscretized(val[1])) {
+                    _flag = true;
+                }
+            });     //If contains continuous data type
+            if (_flag) {
                 appendDropDown("#custom_plots_type_y", content.plots_type_list.copy_no.value, content.plots_type_list.copy_no.name);
             }
         }
-        if (content.genetic_profile_dna_methylation.length !== 0) {
+        if (content.geneX_genetic_profiles.genetic_profile_dna_methylation.length !== 0) {
             appendDropDown("#custom_plots_type_x", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);
+        }
+        if (content.geneY_genetic_profiles.genetic_profile_dna_methylation.length !== 0) {
             appendDropDown("#custom_plots_type_y", content.plots_type_list.methylation.value, content.plots_type_list.methylation.name);
         }
-        if (content.genetic_profile_rppa.length !== 0) {
+        if (content.geneX_genetic_profiles.genetic_profile_rppa.length !== 0) {
             appendDropDown("#custom_plots_type_x", content.plots_type_list.rppa.value, content.plots_type_list.rppa.name);
+        }
+        if (content.geneY_genetic_profiles.genetic_profile_rppa.length !== 0) {
             appendDropDown("#custom_plots_type_y", content.plots_type_list.rppa.value, content.plots_type_list.rppa.name);
         }
     }
 
     return {
         init: function() {
-            fetchFrameData();
             generateGeneList();
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
-        },
-        update: function(){
             updateXselection();
+            updateYselection();
+        },
+        updateX: function(){
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
+            updateXselection();
+        },
+        updateY: function(){
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             updateYselection();
         }
     };
@@ -725,16 +761,16 @@ var PlotsCustomView = (function() {
                     "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
                 if (menu.geneX === menu.geneY) {
                     content += "x-Val: <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
-                           "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
+                        "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 } else {
                     content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                         menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 }
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
                     } else {
-                        var tmp_anno_str = d.annotation;
+                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }
@@ -779,20 +815,20 @@ var PlotsCustomView = (function() {
 
         var pdfConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='pdf'>" +
-            "<input type='hidden' name='filename' value='plots.pdf'>" +
-            "<input type='submit' value='PDF'></form>";
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='pdf'>" +
+                "<input type='hidden' name='filename' value='plots.pdf'>" +
+                "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm =
             "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
-            "<input type='hidden' name='svgelement'>" +
-            "<input type='hidden' name='filetype' value='svg'>" +
-            "<input type='hidden' name='filename' value='plots.svg'>" +
-            "<input type='submit' value='SVG'></form>";
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='svg'>" +
+                "<input type='hidden' name='filename' value='plots.svg'>" +
+                "<input type='submit' value='SVG'></form>";
         $('#view_title').append(svgConverterForm);
     }
 

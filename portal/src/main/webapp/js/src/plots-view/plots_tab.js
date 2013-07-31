@@ -133,7 +133,6 @@ var PlotsMenu = (function () {
                 content.plots_type.rppa_mrna.text
             );
         }
-
         //Data Type Field : profile
         for (var key in content.data_type) {
             var singleDataTypeObj = content.data_type[key];
@@ -148,7 +147,24 @@ var PlotsMenu = (function () {
                     "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
             }
         }
+    }
 
+    function updateMenu() {
+        $("#one_gene_platform_select_div").empty();
+        //Data Type Field : profile
+        for (var key in content.data_type) {
+            var singleDataTypeObj = content.data_type[key];
+            $("#one_gene_platform_select_div").append(
+                "<div id='" + singleDataTypeObj.value + "_dropdown' style='padding:5px;'>" +
+                    "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
+                    "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()' class='plots-select'></select></div>"
+            );
+            for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
+                var item_profile = singleDataTypeObj.genetic_profile[index];
+                $("#" + singleDataTypeObj.value).append(
+                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+            }
+        }
     }
 
     function setDefaultCopyNoSelection() {
@@ -224,37 +240,29 @@ var PlotsMenu = (function () {
     function updateVisibility() {
         //Dynamically show only the plots type related drop div
         var currentPlotsType = $('#plots_type').val();
-
         if (currentPlotsType.indexOf("copy_no") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "show");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "show");
             Util.toggleVisibility("data_type_rppa_dropdown", "hide");
-
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
-
             Util.toggleVisibility("data_type_mrna_dropdown", "show");
             Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
             Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
             Util.toggleVisibility("data_type_rppa_dropdown", "show");
-
         }
-
     }
 
-    function fetchFrameContent() {
-        content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function fetchFrameContent(selectedGene) {
+        content.data_type.mrna.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_mrna;
+        content.data_type.copy_no.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_copy_no;
+        content.data_type.dna_methylation.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_dna_methylation;
+        content.data_type.rppa.genetic_profile = Plots.getGeneticProfiles(selectedGene).genetic_profile_rppa;
         status.has_mrna = (content.data_type.mrna.genetic_profile.length !== 0);
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
@@ -263,10 +271,15 @@ var PlotsMenu = (function () {
 
     return {
         init: function () {
-            fetchFrameContent();
+            fetchFrameContent(gene_list[0]);
             drawMenu();
+            setDefaultMrnaSelection();
+            setDefaultCopyNoSelection();
+            updateVisibility();
         },
         update: function() {
+            fetchFrameContent(document.getElementById("gene").value);
+            updateMenu();
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
@@ -419,10 +432,10 @@ var PlotsView = (function () {
 
         function plotsIsDiscretized() {
             return userSelection.plots_type.indexOf("copy_no") !== -1 &&
-                   userSelection.copy_no_type.indexOf("log2") === -1 &&
-                  (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
-                   userSelection.copy_no_type.indexOf("cna") !== -1 ||
-                   userSelection.copy_no_type.indexOf("CNA") !== -1);
+                userSelection.copy_no_type.indexOf("log2") === -1 &&
+                (userSelection.copy_no_type.indexOf("gistic") !== -1 ||
+                    userSelection.copy_no_type.indexOf("cna") !== -1 ||
+                    userSelection.copy_no_type.indexOf("CNA") !== -1);
         }
 
         function analyseData(inputArr) {
@@ -963,7 +976,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 } else if (Util.plotsTypeIsMethylation()) {
                     content += "Methylation: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
@@ -975,7 +988,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 } else if (Util.plotsTypeIsRPPA()) {
                     content += "mRNA: <strong>" + parseFloat(d.xVal).toFixed(3) + "</strong><br>" +
@@ -987,7 +1000,7 @@ var PlotsView = (function () {
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
-                        content = content + "Mutation: " + "<strong>" + d.mutationDetail + "<br>";
+                        content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
                     }
                 }
                 content = content + "</font>";
@@ -1481,7 +1494,7 @@ var PlotsView = (function () {
             } else if (!_dataStatus.xHasData && !_dataStatus.yHasData) {
                 err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "both selected data types");
             } else if (_dataStatus.xHasData &&_dataStatus.yHasData &&
-                      !_dataStatus.combineHasData) {
+                !_dataStatus.combineHasData) {
                 err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", "combined data types");
             }
 
@@ -1582,11 +1595,11 @@ var PlotsView = (function () {
         }
 
         var _profileIdsStr = cancer_study_id + "_mutations" + " " +
-                             discretizedDataTypeIndicator + " " +
-                             userSelection.copy_no_type + " " +
-                             userSelection.mrna_type + " " +
-                             userSelection.rppa_type + " " +
-                             userSelection.dna_methylation_type;
+            discretizedDataTypeIndicator + " " +
+            userSelection.copy_no_type + " " +
+            userSelection.mrna_type + " " +
+            userSelection.rppa_type + " " +
+            userSelection.dna_methylation_type;
 
         Plots.getProfileData(
             userSelection.gene,

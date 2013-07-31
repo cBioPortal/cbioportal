@@ -86,7 +86,7 @@
                     <div id="plots_one_gene">
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
-                        <select id='gene' onchange='PlotsView.init()'></select>
+                        <select id='gene' onchange='PlotsView.init();PlotsMenu.update();'></select>
                         <h5>Plot Type</h5>
                         <select id='plots_type' onchange="PlotsMenu.update();PlotsView.init();"></select>
                         <h5>Data Type</h5>
@@ -95,8 +95,8 @@
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
                         <h5>Genes</h5>
-                        x Axis<select id='geneX' onchange="PlotsTwoGenesView.init()"></select><br>
-                        y Axis<select id='geneY' onchange="PlotsTwoGenesView.init()"></select>
+                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select><br>
+                        y Axis<select id='geneY' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select>
                         <h5>Plot Type</h5>
                         <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select>
                         <h5>Platform</h5>
@@ -109,17 +109,17 @@
                         <h4>Plot Parameters</h4>
                         <h5>x Axis</h5>
                         Gene<br>
-                        <select id='custom_geneX' onchange="PlotsCustomView.init()"></select><br>
+                        <select id='custom_geneX' onchange="PlotsCustomMenu.updateX();PlotsCustomView.init();"></select><br>
                         Plot Type<br>
-                        <select id='custom_plots_type_x' onchange='PlotsCustomMenu.update();PlotsCustomView.init();'></select><br>
+                        <select id='custom_plots_type_x' onchange='PlotsCustomMenu.updateX();PlotsCustomView.init();'></select><br>
                         Platform<br>
                         <div id='custom_platform_select_div_x'></div>
                         <br>
                         <h5>y Axis</h5>
                         Gene<br>
-                        <select id='custom_geneY' onchange="PlotsCustomView.init()"></select><br>
+                        <select id='custom_geneY' onchange="PlotsCustomMenu.updateY();PlotsCustomView.init()"></select><br>
                         Plot Type<br>
-                        <select id='custom_plots_type_y' onchange='PlotsCustomMenu.update();PlotsCustomView.init();'></select><br>
+                        <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
                         Platform<br>
                         <div id='custom_platform_select_div_y'></div>
                         <br><label for="show_mutation_custom_view">Show Mutation Data</label>
@@ -176,5 +176,4 @@
     }
 
 </script>
-
 

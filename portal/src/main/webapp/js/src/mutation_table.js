@@ -6,13 +6,15 @@
  * @param tableSelector jQuery selector for the target table
  * @param gene          hugo gene symbol
  * @param mutations     mutations as an array of raw JSON objects
- * @param callback      callback function to call after each drawing
  * @constructor
  */
-var MutationTableUtil = function(tableSelector, gene, mutations, callback)
+var MutationTableUtil = function(tableSelector, gene, mutations)
 {
 	var mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
+
+	// a list of registered callback functions
+	var callbackFunctions = [];
 
 	/**
 	 * Creates a mapping for given column headers. The mapped values
@@ -131,10 +133,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations, callback)
 	        "fnDrawCallback": function(oSettings) {
 	            // add tooltips to the table
 	            _addMutationTableTooltips(tableSelector);
-		        // callback for sync with the diagram
-		        if (callback != undefined)
+
+		        // call registered callback functions
+		        for (var i=0; i < callbackFunctions.length; i++)
 		        {
-		            callback(tableSelector);
+			        callbackFunctions[i](tableSelector);
 		        }
 	        }
 	    });
@@ -533,4 +536,34 @@ var MutationTableUtil = function(tableSelector, gene, mutations, callback)
 		// actual initialization of the DataTables plug-in
 		_initDataTable(tableSelector, indexMap, hiddenCols);
 	};
+
+	/**
+	 * Registers a callback function which is to be called
+	 * for each rendering of the table.
+	 *
+	 * @param callbackFn    function to register
+	 */
+	this.registerCallback = function(callbackFn)
+	{
+		if (_.isFunction(callbackFn))
+		{
+			callbackFunctions.push(callbackFn);
+		}
+	};
+
+	/**
+	 * Removes a previously registered callback function.
+	 *
+	 * @param callbackFn    function to unregister
+	 */
+	this.unregisterCallback = function(callbackFn)
+	{
+		var index = $.inArray(callbackFn);
+
+		// remove the function at the specified index
+		if (index >= 0)
+		{
+			callbackFunctions.splice(index, 1);
+		}
+	}
 };

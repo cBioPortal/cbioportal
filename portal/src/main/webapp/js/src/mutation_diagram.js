@@ -13,9 +13,13 @@ function MutationDiagram(geneSymbol, options, data)
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
-	self.data = data;
-	self.geneSymbol = geneSymbol;
-	self.svg = null; // init as null, will be assigned while creating the svg
+	self.rawData = data; // data returned by server
+	self.geneSymbol = geneSymbol; // hugo gene symbol
+
+	// init other class members as null, will be assigned later
+	self.svg = null;    // svg element (d3)
+	self.bounds = null; // bounds of the plot area
+	self.data = null;   // processed data
 }
 
 // TODO add more options for a more customizable diagram:
@@ -167,21 +171,33 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	bounds.x = self.options.marginLeft;
 	bounds.y = self.options.elHeight - self.options.marginBottom;
 
+	// save a reference for future access
+	self.bounds = bounds;
+
 	// helper function for actual initialization
 	var init = function(sequenceData) {
-		self.data = self.processData(self.data, sequenceData);
 
+		// create a data object
+		var data = {};
+		data.pileups = self.processData(self.rawData);
+		data.sequence = sequenceData;
+
+		// save a reference for future access
+		self.data = data;
+
+		// init svg container
 		var svg = self.createSvg(container,
 				self.options.elWidth,
 				self.options.elHeight);
 
+		// save a reference for future access
+		self.svg = svg;
+
+		// draw the whole diagram
 		self.drawDiagram(svg,
 				bounds,
 				self.options,
-				self.data);
-
-		// save a reference to svg element for future access
-		self.svg = svg;
+				data);
 	};
 
 	// if no sequence data is provided, try to get it from the servlet
@@ -198,20 +214,18 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	{
 		init(sequenceData);
 	}
-
 };
 
 /**
- * Processes the data returned from the server.
+ * Converts the mutation data returned from the server into
+ * a list of Pileup instances.
  *
- * @param mutationData  list of all mutations
- * @param sequenceData  sequence data returned from the servlet
- * @return      a new data object with pileup mutations and sequence data
+ * @param mutationData  list of mutations
+ * @return {Array}      a list of pileup mutations
  */
-MutationDiagram.prototype.processData = function (mutationData, sequenceData)
+MutationDiagram.prototype.processData = function (mutationData)
 {
 	var self = this;
-	var data = {};
 
 	// helper function to generate a label by joining all unique
 	// protein change information in the given array of mutations
@@ -317,10 +331,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		return diff;
 	});
 
-	data.pileups = pileupList;
-	data.sequence = sequenceData;
-
-	return data;
+	return pileupList;
 };
 
 /**
@@ -438,7 +449,7 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
  * @param container main container (div, etc.)
  * @param width     width of the svg area
  * @param height    height of the svg area
- * @return          svg component
+ * @return {object} svg component
  */
 MutationDiagram.prototype.createSvg = function (container, width, height)
 {
@@ -515,7 +526,7 @@ MutationDiagram.prototype.getTickValues = function(maxValue, interval)
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          svg group containing all the axis components
+ * @return {object} svg group containing all the axis components
  */
 MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bounds)
 {
@@ -595,7 +606,7 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          svg group containing all the axis components
+ * @return {object} svg group containing all the axis components
  */
 MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bounds)
 {
@@ -657,7 +668,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          text label (svg element)
+ * @return {object} text label (svg element)
  */
 MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
 {
@@ -687,7 +698,7 @@ MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          text label (svg element)
+ * @return {object} text label (svg element)
  */
 MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 {
@@ -758,7 +769,7 @@ MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, font
  *                  x, y is the actual position of the origin
  * @param xScale    scale function for the x-axis
  * @param yScale    scale function for the y-axis
- * @return          object (lollipop circle & line as svg elements)
+ * @return {object} lollipop circle & line as svg elements
  */
 MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, options, bounds, xScale, yScale)
 {
@@ -798,7 +809,7 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
  *
  * @param options   general options object
  * @param pileup    list (array) of mutations (pileup) at a specific location
- * @return  fill color
+ * @return {String} fill color
  */
 MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 {
@@ -810,8 +821,12 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 	{
 		value = color();
 	}
-	//TODO else if (isString(color))
-	// assuming color is a map
+	// check if the color is fixed
+	else if (typeof color === "string")
+	{
+		value = color;
+	}
+	// assuming color is a map (an object)
 	else
 	{
 		var types = PileupUtil.getMutationTypeArray(pileup);
@@ -945,7 +960,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
  * @param xScale    scale function for the x-axis
- * @return          region rectangle & its text (as an svg group element)
+ * @return {object} region rectangle & its text (as an svg group element)
  */
 MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xScale)
 {
@@ -1002,7 +1017,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
  * @param group     target svg group to append the text
  * @param options   general options object
  * @param width     width of the region rectangle
- * @return          region text (svg element)
+ * @return {object} region text (svg element)
  */
 MutationDiagram.prototype.drawRegionText = function(label, group, options, width)
 {
@@ -1059,7 +1074,7 @@ MutationDiagram.prototype.drawRegionText = function(label, group, options, width
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          sequence rectangle (svg element)
+ * @return {object} sequence rectangle (svg element)
  */
 MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 {
@@ -1077,7 +1092,7 @@ MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
  * Returns the number of mutations at the hottest spot.
  *
  * @param mutations array of piled up mutation data
- * @return          number of mutations at the hottest spot
+ * @return {Number} number of mutations at the hottest spot
  */
 MutationDiagram.prototype.calcMaxCount = function(mutations)
 {

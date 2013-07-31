@@ -679,8 +679,10 @@
 
 			var tableUtil = new MutationTableUtil(tableSelector,
 				self.model.geneSymbol,
-				self.model.mutations,
-				self.model.syncFn);
+				self.model.mutations);
+
+			// add a callback function for sync purposes
+			tableUtil.registerCallback(self.model.syncFn);
 
 			// format the table (convert to a DataTable)
 			tableUtil.formatTable();

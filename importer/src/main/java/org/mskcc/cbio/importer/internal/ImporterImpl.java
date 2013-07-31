@@ -308,7 +308,7 @@ class ImporterImpl implements Importer {
 					continue;
 				}
 				// if MAF, oncotate
-				if (stagingFilename.equals(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
+				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
 					stagingFilename = getOncotatedFile(stagingFilename);
 				}
 				if (datatypeMetadata.requiresMetafile()) {
@@ -324,6 +324,11 @@ class ImporterImpl implements Importer {
 				}
 				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
 				mainMethod.invoke(null, (Object)args);
+
+				// clean up
+				if (!stagingFilename.equals(getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename()))) {
+					fileUtils.deleteFile(new File(stagingFilename));
+				}
 			}
 
 			// create missing case lists

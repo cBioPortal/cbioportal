@@ -905,7 +905,7 @@ var PlotsCustomView = (function() {
             $('#view_title').show();
             $('#plots_box').show();
             $('#loading-image').hide();
-eg
+
             drawErrorMsg();
         }
 

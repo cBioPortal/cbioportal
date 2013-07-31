@@ -108,9 +108,8 @@ var PlotsMenu = (function () {
     }());
 
     function drawMenu() {
-        //Gene List
-        Util.generateList("gene", gene_list);
-
+        $("#plots_type").empty();
+        $("#one_gene_platform_select_div").empty();
         //Plots Type field
         if (status.has_mrna && status.has_copy_no) {
             Util.appendDropDown(
@@ -151,7 +150,6 @@ var PlotsMenu = (function () {
 
     function updateMenu() {
         $("#one_gene_platform_select_div").empty();
-        //Data Type Field : profile
         for (var key in content.data_type) {
             var singleDataTypeObj = content.data_type[key];
             $("#one_gene_platform_select_div").append(
@@ -272,14 +270,20 @@ var PlotsMenu = (function () {
     return {
         init: function () {
             fetchFrameContent(gene_list[0]);
+            Util.generateList("gene", gene_list);
             drawMenu();
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
         },
-        update: function() {
+        updateMenu: function() {
             fetchFrameContent(document.getElementById("gene").value);
-            updateMenu();
+            drawMenu();
+            setDefaultMrnaSelection();
+            setDefaultCopyNoSelection();
+            updateVisibility();
+        },
+        updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
@@ -1635,11 +1639,19 @@ var PlotsView = (function () {
 
         } else {
             PlotsData.init(profileDataResult, "");
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             View.init();
         }
 
         function getMutationTypeCallBack(mutationTypeResult) {
             PlotsData.init(profileDataResult, mutationTypeResult);
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             View.init();
         }
 
@@ -1657,14 +1669,14 @@ var PlotsView = (function () {
             getUserSelection();
             generatePlots();
 
-            setTimeout(
-                function() {
-                    $('#view_title').show();
-                    $('#plots_box').show();
-                    $('#loading-image').hide();
-                },
-                500
-            );
+//            setTimeout(
+//                function() {
+//                    $('#view_title').show();
+//                    $('#plots_box').show();
+//                    $('#loading-image').hide();
+//                },
+//                500
+//            );
         }
     };
 

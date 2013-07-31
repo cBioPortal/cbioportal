@@ -892,6 +892,10 @@ var PlotsCustomView = (function() {
         initCanvas();
         if (pData.dotsData.length !== 0) {
             $("#show_mutation_custom_view").attr("disabled", false);
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             initAxis();
             drawAxis();
             drawPlots();
@@ -901,6 +905,10 @@ var PlotsCustomView = (function() {
             drawImgConverter();
         } else {
             $("#show_mutation_custom_view").attr("disabled", true);
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+eg
             drawErrorMsg();
         }
 
@@ -919,14 +927,14 @@ var PlotsCustomView = (function() {
             //Including data fetching and drawing
             generatePlots();
 
-            setTimeout(
-                function() {
-                    $('#view_title').show();
-                    $('#plots_box').show();
-                    $('#loading-image').hide();
-                },
-                500
-            );
+//            setTimeout(
+//                function() {
+//                    $('#view_title').show();
+//                    $('#plots_box').show();
+//                    $('#loading-image').hide();
+//                },
+//                500
+//            );
         },
         update : function() {
             //TODO: using cache

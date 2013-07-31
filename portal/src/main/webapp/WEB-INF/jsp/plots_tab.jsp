@@ -86,19 +86,19 @@
                     <div id="plots_one_gene">
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
-                        <select id='gene' onchange='PlotsView.init();PlotsMenu.update();'></select>
+                        <select id='gene' onchange='PlotsMenu.updateMenu();PlotsView.init();'></select>
                         <h5>Plot Type</h5>
-                        <select id='plots_type' onchange="PlotsMenu.update();PlotsView.init();"></select>
+                        <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
                         <h5>Data Type</h5>
                         <div id='one_gene_platform_select_div'></div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
                         <h5>Genes</h5>
-                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select><br>
-                        y Axis<select id='geneY' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select>
+                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select><br>
+                        y Axis<select id='geneY' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select>
                         <h5>Plot Type</h5>
-                        <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select>
+                        <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.updateDataType();PlotsTwoGenesView.init();"></select>
                         <h5>Platform</h5>
                         <div id='two_genes_platform_select_div'></div>
                         <br><label for="show_mutation">Show Mutation Data</label>

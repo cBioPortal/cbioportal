@@ -158,6 +158,7 @@ var PlotsTwoGenesMenu = (function(){
     }
 
     function generatePlotsTypeList() {
+        $("#two_genes_plots_type").empty();
         appendDropDown("#two_genes_plots_type", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         if (content.genetic_profile_copy_no.length !== 0) {
             var _flag = false;
@@ -196,7 +197,12 @@ var PlotsTwoGenesMenu = (function(){
             generatePlotsTypeList();
             drawPlatFormList();
         },
-        update: function() {
+        updateMenu: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
+            generatePlotsTypeList();
+            drawPlatFormList();
+        },
+        updateDataType: function() {
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             drawPlatFormList();
         }
@@ -792,8 +798,15 @@ var PlotsTwoGenesView = (function(){
 
     function getProfileDataCallBack(result) {
         pDataInit(result);
+
+
         initCanvas();
+
         if (pData.dotsData.length !== 0) {
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             $("#show_mutation").attr("disabled", false);
             initAxis();
             drawAxis();
@@ -803,6 +816,10 @@ var PlotsTwoGenesView = (function(){
             addQtips();
             drawImgConverter();
         } else {
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             $("#show_mutation").attr("disabled", true);
             drawErrorMsg();
         }
@@ -821,14 +838,14 @@ var PlotsTwoGenesView = (function(){
             //Including data fetching and drawing
             generatePlots();
 
-            setTimeout(
-                function() {
-                    $('#view_title').show();
-                    $('#plots_box').show();
-                    $('#loading-image').hide();
-                },
-                500
-            );
+//            setTimeout(
+//                function() {
+//                    $('#view_title').show();
+//                    $('#plots_box').show();
+//                    $('#loading-image').hide();
+//                },
+//                500
+//            );
         },
         update : function() {
             //TODO: use cache

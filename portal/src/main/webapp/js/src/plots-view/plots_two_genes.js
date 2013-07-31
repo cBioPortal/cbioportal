@@ -798,8 +798,6 @@ var PlotsTwoGenesView = (function(){
 
     function getProfileDataCallBack(result) {
         pDataInit(result);
-
-
         initCanvas();
 
         if (pData.dotsData.length !== 0) {
@@ -837,15 +835,6 @@ var PlotsTwoGenesView = (function(){
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
-
-//            setTimeout(
-//                function() {
-//                    $('#view_title').show();
-//                    $('#plots_box').show();
-//                    $('#loading-image').hide();
-//                },
-//                500
-//            );
         },
         update : function() {
             //TODO: use cache

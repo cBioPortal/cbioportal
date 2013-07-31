@@ -70,6 +70,9 @@
     #plots .plots-select {
         width: 250px;
     }
+    #plots .ui-tabs .ui-state-disabled {
+        display: none; /* disabled tabs don't show up */
+    }
 </style>
 
 
@@ -143,7 +146,12 @@
 
 <script>
 
-    $("#plots-menus").tabs();
+    if (gene_list.length !== 1) {
+        $("#plots-menus").tabs();
+    } else {
+        $("#plots-menus").tabs();
+        $("#plots-menus").tabs("disable", 1);
+    }
     window.onload = Plots.init();
 
     // Takes the content in the plots svg element
@@ -176,4 +184,3 @@
     }
 
 </script>
-

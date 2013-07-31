@@ -119,7 +119,6 @@ var PlotsCustomMenu = (function(){
         $("#custom_platform_select_div_x").empty();
         $("#custom_platform_select_div_x").append(
             "<select id='custom_platform_x' onchange='PlotsCustomView.init()' class='plots-select'>");
-
         if($("#custom_plots_type_x").val() === "mrna"){
             content.geneX_genetic_profiles.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_x")
@@ -144,7 +143,6 @@ var PlotsCustomMenu = (function(){
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
         }
-
     }
 
     function updateYselection() {
@@ -176,7 +174,6 @@ var PlotsCustomMenu = (function(){
                     .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
             });
         }
-
     }
 
     function generateGeneList() {
@@ -926,15 +923,6 @@ eg
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
-
-//            setTimeout(
-//                function() {
-//                    $('#view_title').show();
-//                    $('#plots_box').show();
-//                    $('#loading-image').hide();
-//                },
-//                500
-//            );
         },
         update : function() {
             //TODO: using cache

@@ -1580,14 +1580,12 @@ var PlotsView = (function () {
     }
 
     function getProfileData() {
-
         var sel = document.getElementById("data_type_copy_no");
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
             if (child.tagName == 'OPTION') vals.push(child.value);
         }
-
         if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_gistic";
         } else if (vals.indexOf(cancer_study_id + "_cna") !== -1) {
@@ -1597,14 +1595,12 @@ var PlotsView = (function () {
         } else if (vals.indexOf(cancer_study_id + "_cna_rae") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_cna_rae";
         }
-
         var _profileIdsStr = cancer_study_id + "_mutations" + " " +
             discretizedDataTypeIndicator + " " +
             userSelection.copy_no_type + " " +
             userSelection.mrna_type + " " +
             userSelection.rppa_type + " " +
             userSelection.dna_methylation_type;
-
         Plots.getProfileData(
             userSelection.gene,
             _profileIdsStr,
@@ -1615,7 +1611,6 @@ var PlotsView = (function () {
     }
 
     function getProfileDataCallBack(profileDataResult) {
-
         //TODO: error handle should be get Mutation servlet
         var resultObj = profileDataResult[userSelection.gene];
         var _hasMutationProfile = true;
@@ -1668,15 +1663,6 @@ var PlotsView = (function () {
 
             getUserSelection();
             generatePlots();
-
-//            setTimeout(
-//                function() {
-//                    $('#view_title').show();
-//                    $('#plots_box').show();
-//                    $('#loading-image').hide();
-//                },
-//                500
-//            );
         }
     };
 

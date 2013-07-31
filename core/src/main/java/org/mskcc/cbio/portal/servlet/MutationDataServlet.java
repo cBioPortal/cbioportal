@@ -232,9 +232,10 @@ public class MutationDataServlet extends HttpServlet
 			return mutationArray;
 		}
 
-
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+
+		int id = 0;
 
 		for (ExtendedMutation mutation : mutationList)
 		{
@@ -242,7 +243,6 @@ public class MutationDataServlet extends HttpServlet
 
 			if (targetCaseList.contains(caseId))
 			{
-
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
@@ -253,6 +253,10 @@ public class MutationDataServlet extends HttpServlet
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
+
+				// mutationId is not a unique id wrt the whole DB,
+				// but it is unique wrt the returned data set
+				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
 
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
@@ -291,6 +295,8 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
+
+				id++;
 			}
 		}
 

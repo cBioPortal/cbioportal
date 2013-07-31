@@ -6,6 +6,7 @@
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
+		this.mutationId = attributes.mutationId;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
@@ -102,6 +103,11 @@ var MutationDetailsUtil = function(mutations)
 		return this._mutationCaseMap;
 	};
 
+	this.getMutationIdMap = function()
+	{
+		return this._mutationIdMap;
+	};
+
 	/**
 	 * Processes the collection of mutations, and creates a map of
 	 * <geneSymbol, mutation array> pairs.
@@ -153,6 +159,28 @@ var MutationDetailsUtil = function(mutations)
 			}
 
 			mutationMap[caseId].push(mutations.at(i));
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <mutation id, mutation> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on mutation id)
+	 * @private
+	 */
+	this._generateIdMap = function(mutations)
+	{
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var mutationId = mutations.at(i).mutationId;
+			mutationMap[mutationId] = mutations.at(i);
 		}
 
 		return mutationMap;
@@ -281,6 +309,7 @@ var MutationDetailsUtil = function(mutations)
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);
 	this._mutationCaseMap = this._generateCaseMap(mutations);
+	this._mutationIdMap = this._generateIdMap(mutations);
 	this._mutations = mutations;
 };
 

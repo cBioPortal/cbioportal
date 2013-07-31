@@ -20,6 +20,15 @@ function MutationDiagram(geneSymbol, options, data)
 	self.svg = null;    // svg element (d3)
 	self.bounds = null; // bounds of the plot area
 	self.data = null;   // processed data
+	self.gCircle = null; // svg group for lollipop circles
+	self.gLine = null;   // svg group for lollipop lines
+	self.gLabel = null;  // svg group for lollipop labels
+	self.xScale = null;  // scale function for x-axis
+	self.yScale = null;  // scale function for y-axis
+	self.topLabel = null;   // label on top-left corner of the diagram
+	self.xAxisLabel = null; // label for x-axis
+	self.yAxisLabel = null; // label for y-axis
+
 }
 
 // TODO add more options for a more customizable diagram:
@@ -220,7 +229,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
  * Converts the mutation data returned from the server into
  * a list of Pileup instances.
  *
- * @param mutationData  list of mutations
+ * @param mutationData  list (MutationCollection) of mutations
  * @return {Array}      a list of pileup mutations
  */
 MutationDiagram.prototype.processData = function (mutationData)
@@ -359,9 +368,13 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		.domain([0, xMax])
 		.range([bounds.x, bounds.x + bounds.width]);
 
+	self.xScale = xScale;
+
 	var yScale = d3.scale.linear()
 		.domain([0, yMax])
 		.range([bounds.y, bounds.y - bounds.height]);
+
+	self.yScale = yScale;
 
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
@@ -421,11 +434,28 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
 	var self = this;
 
 	// group for lollipop labels (draw labels first)
-	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
+	var gText = self.gLabel;
+	if (gText === null)
+	{
+		gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
+		self.gLabel = gText;
+	}
+
 	// group for lollipop lines (lines should be drawn before circles)
-	var gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
+	var gLine = self.gLine;
+	if (gLine === null)
+	{
+		gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
+		self.gLine = gLine;
+	}
+
 	// group for lollipop circles (circles should be drawn later)
-	var gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+	var gCircle = self.gCircle;
+	if (gCircle === null)
+	{
+		gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+		self.gCircle = gCircle;
+	}
 
 	// draw lollipop lines and circles
 	for (var i = 0; i < pileups.length; i++)
@@ -1136,6 +1166,64 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 		y: y,
 		width: width,
 		height: height};
+};
+
+/**
+ * Updates the plot area of the diagram for the given set of mutation data.
+ * This function assumes that the provided mutation data is a subset
+ * of the original data. Therefore this function only modifies the plot area
+ * elements (lollipops, labels, etc.)
+ *
+ * @param mutationData  a collection of mutations
+ */
+MutationDiagram.prototype.updatePlot = function(mutationData)
+{
+	var self = this;
+	var pileups = this.processData(mutationData);
+
+	// select all plot area elements
+	var labels = self.gLabel.selectAll("text");
+	var lines = self.gLine.selectAll("line");
+	var circles = self.gCircle.selectAll("circle");
+
+	// remove all plot elements (no animation)
+	labels.remove();
+	lines.remove();
+	circles.remove();
+
+	// TODO alternative animated version:
+	// fade out and then remove all
+//	labels.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+//
+//	lines.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+//
+//	circles.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+
+	// for the alternative animated version
+	// this call should also be delayed to have a nicer effect
+
+	// re-draw plot area contents for new data
+	self.drawPlot(self.svg,
+	              pileups,
+	              self.options,
+	              self.bounds,
+	              self.xScale,
+	              self.yScale);
 };
 
 /**

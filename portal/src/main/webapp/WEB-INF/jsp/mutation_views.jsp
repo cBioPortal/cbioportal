@@ -45,7 +45,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_data_row_template">
-	<tr alt='{{mutationId}}'>
+	<tr id='{{mutationId}}'>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
@@ -280,6 +280,87 @@
 		{
 			var self = this;
 			var mutationMap = self.util.getMutationGeneMap();
+			var mutationDiagram = null;
+
+			/**
+			 * Updates the mutation diagram after each change in the mutation table.
+			 * This maintains synchronizing between the table and the diagram.
+			 *
+			 * @param tableSelector selector for the mutation table
+			 */
+			var updateMutationDiagram = function(tableSelector)
+			{
+				var mutationMap = self.util.getMutationIdMap();
+				var currentMutations = [];
+
+				//var oTable = tableSelector.dataTable();
+				// TODO synchronize mutation table and diagram after each filtering
+				var rows = tableSelector.find("tr");
+				_.each(rows, function(element, index) {
+					var mutationId = $(element).attr("id");
+
+					if (mutationId)
+					{
+						var mutation = mutationMap[mutationId];
+						currentMutations.push(mutation);
+					}
+				});
+
+				if (mutationDiagram !== null)
+				{
+					var mutationData = new MutationCollection(currentMutations);
+					mutationDiagram.updatePlot(mutationData);
+				}
+			};
+
+			// helper function to trigger submit event for the svg and pdf button clicks
+			var submitForm = function(mainView, alterFn, diagram, formClass)
+			{
+				// alter diagram to have the desired output
+				alterFn(diagram, false);
+
+				// convert svg content to string
+				var xmlSerializer = new XMLSerializer();
+				var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+				// restore previous settings after generating xml string
+				alterFn(diagram, true);
+
+				// set actual value of the form element (svgelement)
+				var form = mainView.$el.find("." + formClass);
+				form.find('input[name="svgelement"]').val(svgString);
+
+				// submit form
+				form.submit();
+			};
+
+			// TODO setting & rolling back diagram values (which may not be safe)
+
+			// helper function to adjust SVG for file output
+			var alterDiagramForSvg = function(diagram, rollback)
+			{
+				var topLabel = gene;
+
+				if (rollback)
+				{
+					topLabel = "";
+				}
+
+				// adding a top left label (to include a label in the file)
+				diagram.updateTopLabel(topLabel);
+			};
+
+			// helper function to adjust SVG for PDF output
+			var alterDiagramForPdf = function(diagram, rollback)
+			{
+				// we also need the same changes (top label) in pdf
+				alterDiagramForSvg(diagram, rollback);
+
+				cbio.util.alterAxesAttrForPDFConverter(
+						diagram.svg.select(".mut-dia-x-axis"), 8,
+						diagram.svg.select(".mut-dia-y-axis"), 3,
+						rollback);
+			};
 
 			// callback function to init view after retrieving
 			// sequence information.
@@ -326,65 +407,16 @@
 					toolbar.hide();
 				}
 
-				// helper function to trigger submit event for the svg and pdf button clicks
-				var submitForm = function(alterFn, diagram, formClass)
-				{
-					// alter diagram to have the desired output
-					alterFn(diagram, false);
-
-					// convert svg content to string
-					var xmlSerializer = new XMLSerializer();
-					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
-
-					// restore previous settings after generating xml string
-					alterFn(diagram, true);
-
-					// set actual value of the form element (svgelement)
-					var form = mainView.$el.find("." + formClass);
-					form.find('input[name="svgelement"]').val(svgString);
-
-					// submit form
-					form.submit();
-				};
-
-				// TODO setting & rolling back diagram values (which may not be safe)
-
-				// helper function to adjust SVG for file output
-				var alterDiagramForSvg = function(diagram, rollback)
-				{
-					var topLabel = gene;
-
-					if (rollback)
-					{
-						topLabel = "";
-					}
-
-					// adding a top left label (to include a label in the file)
-					diagram.updateTopLabel(topLabel);
-				};
-
-				// helper function to adjust SVG for PDF output
-				var alterDiagramForPdf = function(diagram, rollback)
-				{
-					// we also need the same changes (top label) in pdf
-					alterDiagramForSvg(diagram, rollback);
-
-					cbio.util.alterAxesAttrForPDFConverter(
-							diagram.svg.select(".mut-dia-x-axis"), 8,
-							diagram.svg.select(".mut-dia-y-axis"), 3,
-							rollback);
-				};
-
 				//add listener to the svg button
 				svgButton.click(function (event) {
 					// submit svg form
-					submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+					submitForm(mainView, alterDiagramForSvg, diagram, "svg-to-file-form");
 				});
 
 				// add listener to the pdf button
 				pdfButton.click(function (event) {
 					// submit pdf form
-					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+					submitForm(mainView, alterDiagramForPdf, diagram, "svg-to-pdf-form");
 				});
 
 				// draw mutation table after a short delay
@@ -393,11 +425,13 @@
 							{el: "#mutation_table_" + gene,
 							model: {geneSymbol: gene,
 								mutations: mutationMap[gene],
-								syncFn: self._updateMutationDiagram}});
+								syncFn: updateMutationDiagram}});
 
 					mutationTableView.render();
-				}, 2000);
 
+					// update reference after rendering the table
+					mutationDiagram = diagram;
+				}, 2000);
 			};
 
 			// TODO cache sequence for each gene (implement another class for this)?
@@ -438,19 +472,6 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
-		},
-		/**
-		 * Updates the mutation diagram after each change in the mutation table.
-		 * This maintains synchronizing between the table and the diagram.
-		 *
-		 * @param tableSelector selector for the mutation table
-		 */
-		_updateMutationDiagram: function(tableSelector)
-		{
-			var self = this;
-			//var oTable = tableSelector.dataTable();
-			// TODO synchronize mutation table and diagram after each filtering
-			//console.log(tableSelector.find("tr"));
 		}
 	});
 
@@ -570,9 +591,7 @@
 
 			var vars = {};
 
-			// TODO mutation event id is not unique, find a unique way to represent each mutation
-			// it might be better to generate mutation id on the server side...
-			vars.mutationId = mutation.mutationEventId;
+			vars.mutationId = mutation.mutationId;
 			vars.caseId = mutation.caseId;
 			vars.linkToPatientView = mutation.linkToPatientView;
 

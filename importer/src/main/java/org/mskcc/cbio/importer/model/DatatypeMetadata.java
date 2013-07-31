@@ -102,6 +102,7 @@ public class DatatypeMetadata {
     private String metaFilename;
     private String metaStableID;
     private String metaGeneticAlterationType;
+	private String metaDatatypeType; // DISCRETE, CONTINUOUS, Z-SCORE
     private Boolean metaShowProfileInAnalysisTab;
     private String metaProfileName;
 	private String metaProfileDescription;
@@ -114,7 +115,7 @@ public class DatatypeMetadata {
      */
     public DatatypeMetadata(String[] properties) {
 
-		if (properties.length < 14) {
+		if (properties.length < 15) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -147,9 +148,10 @@ public class DatatypeMetadata {
 		this.metaFilename = properties[8].trim();
 		this.metaStableID = properties[9].trim();
 		this.metaGeneticAlterationType = properties[10];
-		this.metaShowProfileInAnalysisTab = new Boolean(properties[11].trim());
-		this.metaProfileName = properties[12].trim();
-		this.metaProfileDescription = properties[13].trim();
+		this.metaDatatypeType = properties[11];
+		this.metaShowProfileInAnalysisTab = new Boolean(properties[12].trim());
+		this.metaProfileName = properties[13].trim();
+		this.metaProfileDescription = properties[14].trim();
 	}
 
 	public String getDatatype() { return datatype; }
@@ -182,6 +184,7 @@ public class DatatypeMetadata {
 	public String getMetaFilename() { return metaFilename; }
 	public String getMetaStableID() { return metaStableID; }
 	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }
+	public String getMetaDatatypeType() { return metaDatatypeType; }
 	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
 	public String getMetaProfileName() { return metaProfileName; }
 	public String getMetaProfileDescription() { return metaProfileDescription; }

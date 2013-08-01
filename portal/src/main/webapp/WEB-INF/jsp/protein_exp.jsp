@@ -94,7 +94,7 @@
     }
 
     /**
-     * Get data for the rppa plots
+     * Get altered and unaltered case lists for the rppa plots
      *
      * @global: dataSummary
      * @global: mergedCaseLists
@@ -104,7 +104,7 @@
      * @author: Yichao S
      * @date: Jul 2013
      */
-    function getRppaPlotsData() {
+    function getRppaPlotsCaseLists() {
         var caseLists = {
             alteredCaseList: [],
             unalteredCaseList: []
@@ -124,6 +124,21 @@
             }
         %>
         return caseLists;
+    }
+
+    function loadSVG(divName) {
+        var shiftValueOnX = 8;
+        var shiftValueOnY = 3;
+        var mySVG = d3.select("#" + divName);
+        var xAxisGrp = mySVG.select(".rppa-plots-x-axis-class");
+        var yAxisGrp = mySVG.select(".rppa-plots-y-axis-class");
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+        var docSVG = document.getElementById(divName);
+        var svgDoc = docSVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+        return xmlString;
     }
     
     $(document).ready(function(){
@@ -361,8 +376,8 @@
                         var title = "Boxplots of RPPA data (" + antibody + ") for altered and unaltered cases ";
                         var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
                         _divName = _divName.replace(/\//g, "");
-                        oTable.fnOpen( nTr, "<div id='" + _divName + "'></div>", 'rppa-details' );
-                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsData(), aData[0]); //aData[0]-->protein array id
+                        oTable.fnOpen( nTr, "<div id='" + _divName + "'><img style='padding:200px;' src='images/ajax-loader.gif'></div>", 'rppa-details' );
+                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseLists(), aData[0]); //aData[0]-->protein array id
                     }
                 } );
                 

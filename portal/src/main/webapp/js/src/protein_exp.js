@@ -1,3 +1,39 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
+/******************************************************************************************
+ * Creating RPPA plots for "protein change" tab
+ * @author Yichao Sun
+ *
+ * This code performs the following functions:
+ * 1. Generates RPPA plots using D3 when user expanding any row in the table
+ * 2. Annotates the plots with caseId, alteration details, specific RPPA value
+ ******************************************************************************************/
+
 var rppaPlots = (function() {
 
     var data = (function() {
@@ -70,9 +106,10 @@ var rppaPlots = (function() {
             },
             settings = {
                 canvas_width: 720,
-                canvas_height: 600
+                canvas_height: 600,
+                dots_fill_color: "#58ACFA",
+                dots_stroke_color: "#0174DF"
             };
-
 
         function pDataInit() {
             dotsArr.length = 0;
@@ -198,14 +235,21 @@ var rppaPlots = (function() {
                 .attr("d", d3.svg.symbol()
                     .size(20)
                     .type("circle"))
-                .attr("fill", "blue")
-                .attr("stroke", "black")
+                .attr("fill", settings.dots_fill_color)
+                .attr("stroke", settings.dots_stroke_color)
                 .attr("stroke-width", "1.2");
         }
 
         function appendHeader() {
             $("#" + divName).empty();
             $("#" + divName).append(title);
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=loadSVG('" + divName + "');\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='pdf'>" +
+                "<input type='hidden' name='filename' value='rppa-plots.pdf'>" +
+                "<input type='submit' value='PDF'></form>";
+            $("#" + divName).append(pdfConverterForm);
         }
 
         function drawBoxPlot() {
@@ -281,30 +325,30 @@ var rppaPlots = (function() {
 
                     //D3 Drawing
                     boxPlotsElem.append("rect")
-                        .attr("x", midLine-40)
+                        .attr("x", midLine-60)
                         .attr("y", quan2)
-                        .attr("width", 80)
+                        .attr("width", 120)
                         .attr("height", IQR)
                         .attr("fill", "none")
                         .attr("stroke-width", 1)
                         .attr("stroke", "#BDBDBD");
                     boxPlotsElem.append("line")
-                        .attr("x1", midLine-40)
-                        .attr("x2", midLine+40)
+                        .attr("x1", midLine-60)
+                        .attr("x2", midLine+60)
                         .attr("y1", mean)
                         .attr("y2", mean)
-                        .attr("stroke-width", 1)
+                        .attr("stroke-width", 3)
                         .attr("stroke", "#BDBDBD");
                     boxPlotsElem.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
+                        .attr("x1", midLine-40)
+                        .attr("x2", midLine+40)
                         .attr("y1", top)
                         .attr("y2", top)
                         .attr("stroke-width", 1)
                         .attr("stroke", "#BDBDBD");
                     boxPlotsElem.append("line")
-                        .attr("x1", midLine-30)
-                        .attr("x2", midLine+30)
+                        .attr("x1", midLine-40)
+                        .attr("x2", midLine+40)
                         .attr("y1", bottom)
                         .attr("y2", bottom)
                         .attr("stroke", "#BDBDBD")
@@ -452,7 +496,6 @@ var rppaPlots = (function() {
         view.init();
 
     }
-
 
     return {
         init: function(xLabel, yLabel, title, divName, caseLists, proteinArrayId) {

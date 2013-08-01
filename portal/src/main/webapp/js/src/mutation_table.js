@@ -185,22 +185,15 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			var qTipOptsCosmic = {};
 			jQuery.extend(true, qTipOptsCosmic, qTipOptions);
 
-			qTipOptsCosmic.content = { text: function(api) {
-				return "";
-			}};
-
-			qTipOptsCosmic.events = {render: function(event, api)
-			{
+			qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
+			qTipOptsCosmic.events = {render: function(event, api) {
 				var model = {cosmic: cosmic,
 					geneSymbol: gene,
 					total: $(label).text()};
 
-				$(this).empty();
-				$(this).append("<div class='tooltip-table-container'></div>");
+				var container = $(this).find('.ui-tooltip-content');
 
-				var container = $(this).find('.tooltip-table-container');
-
-				// create view but do not render, return the html content instead
+				// create & render cosmic tip view
 				var cosmicView = new CosmicTipView({el: container, model: model});
 				cosmicView.render();
 			}};
@@ -208,37 +201,30 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			$(label).qtip(qTipOptsCosmic);
 		});
 
-	    // copy default qTip options and modify "content"
-	    // to customize for predicted impact score
-	    var qTipOptsOma = {};
-	    jQuery.extend(true, qTipOptsOma, qTipOptions);
+		// add tooltip for Predicted Impact Score (FIS)
+		tableSelector.find('.oma_link').each(function() {
+			var links = $(this).attr('alt');
+			var parts = links.split("|");
 
-	    qTipOptsOma.content = { text: function(api) {
-	        var links = $(this).attr('alt');
-	        var parts = links.split("|");
+			// copy default qTip options and modify "content"
+			// to customize for predicted impact score
+			var qTipOptsOma = {};
+			jQuery.extend(true, qTipOptsOma, qTipOptions);
 
-	        var impact = parts[0];
+			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
+			qTipOptsOma.events = {render: function(event, api) {
+				var model = {impact: parts[0],
+					xvia: parts[1]};
 
-		    // TODO extract to a backbone view
-	        var tip = "Predicted impact score: <b>"+impact+"</b>";
+				var container = $(this).find('.ui-tooltip-content');
 
-	        var xvia = parts[1];
-	        if (xvia&&xvia!='NA')
-	            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
-	                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+				// create & render FIS tip view
+				var fisTipView = new PredictedImpactTipView({el:container, model: model});
+				fisTipView.render();
+			}};
 
-//        var msa = parts[2];
-//        if (msa&&msa!='NA')
-//            tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
-
-//		    var pdb = parts[3];
-//		    if (pdb&&pdb!='NA')
-//			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
-
-	        return tip;
-	    }};
-
-		tableSelector.find('.oma_link').qtip(qTipOptsOma);
+			$(this).qtip(qTipOptsOma);
+		});
 	}
 
 	/**

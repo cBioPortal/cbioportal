@@ -31,8 +31,7 @@ function MutationDiagram(geneSymbol, options, data)
 
 }
 
-// TODO add more options for a more customizable diagram:
-// use percent values instead of pixel values for some components?
+// TODO use percent values instead of pixel values for some components?
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
@@ -125,11 +124,13 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopTipFn: function (element, pileup) {
 		var mutationStr = pileup.count > 1 ? "mutations" : "mutation";
 
-		var text = "<b>" + pileup.count + " " + mutationStr + "</b>" +
-		           "<br/>Amino Acid Change: " + pileup.label;
+		var model = {count: pileup.count,
+			label: pileup.label};
 
-		// TODO find a better way to set font size
-		var options = {content: {text: '<font size="2">'+text+'</font>'},
+		var tooltipView = new LollipopTipView({model: model});
+		var content = tooltipView.compileTemplate();
+
+		var options = {content: {text: content},
 			hide: {fixed: true, delay: 100},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
@@ -143,13 +144,13 @@ MutationDiagram.prototype.defaultOpts = {
 	 * @param region    a JSON object representing the region
 	 */
 	regionTipFn: function (element, region) {
+		// TODO extract to a backbone view?
 		var text = region.metadata.identifier + " " +
 		           region.type.toLowerCase() + ", " +
 		           region.metadata.description +
 		           " (" + region.metadata.start + " - " + region.metadata.end + ")";
 
-		// TODO find a better way to set font size
-		var options = {content: {text: '<font size="2">'+text+'</font>'},
+		var options = {content: {text: '<span class="diagram-region-tip">'+text+'</span>'},
 			hide: {fixed: true, delay: 100},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
@@ -977,8 +978,6 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
 		text.attr("text-anchor", textAnchor);
 	}
-
-	// TODO return a collection of text elements?
 };
 
 /**

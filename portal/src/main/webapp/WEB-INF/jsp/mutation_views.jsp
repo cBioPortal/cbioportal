@@ -173,6 +173,23 @@
 	</table>
 </script>
 
+<script type="text/template" id="mutation_details_lollipop_tip_template">
+	<span class='diagram-lollipop-tip'>
+		<b>{{count}} {{mutationStr}}</b>
+		<br/>AA Change: {{label}}
+	</span>
+</script>
+
+<script type="text/template" id="mutation_details_fis_tip_template">
+	Predicted impact score: <b>{{impact}}</b>
+	<div class='mutation-assessor-link'>
+		<a href='{{linkOut}}' target='_blank'>
+			<img height=15 width=19 src='images/ma.png'>
+			Go to Mutation Assessor
+		</a>
+	</div>
+</script>
+
 <script type="text/javascript">
 
 	/**
@@ -938,6 +955,14 @@
 	    }
 	});
 
+	/**
+	 * Tooltip view for the mutation table's cosmic column.
+	 *
+	 * options: {el: [target container],
+	 *           model: {cosmic: [raw cosmic text],
+	 *                   total: [number of total cosmic occurrences]}
+	 *          }
+	 */
 	var CosmicTipView = Backbone.View.extend({
 		render: function()
 		{
@@ -1004,4 +1029,83 @@
 					variables);
 		}
 	});
+
+	/**
+	 * Tooltip view for the mutation diagram's lollipop circles.
+	 *
+	 * options: {el: [target container],
+	 *           model: {count: [number of mutations],
+	 *                   label: [info for that location]}
+	 *          }
+	 */
+	var LollipopTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			// implement if necessary...
+		},
+		compileTemplate: function()
+		{
+			var mutationStr = this.model.count > 1 ? "mutations" : "mutation";
+
+			// pass variables in using Underscore.js template
+			var variables = {count: this.model.count,
+				mutationStr: mutationStr,
+				label: this.model.label};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_lollipop_tip_template").html(),
+					variables);
+		}
+	});
+
+	/**
+	 * Tooltip view for the mutation tables's FIS column.
+	 *
+	 * options: {el: [target container],
+	 *           model: {xvia: [link to Mutation Assessor],
+	 *                   impact: [impact text or value]}
+	 *          }
+	 */
+	var PredictedImpactTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			var xvia = this.model.xvia;
+
+			if (xvia == null || xvia == "NA")
+			{
+				this.$el.find(".mutation-assessor-link").hide();
+			}
+		},
+		compileTemplate: function()
+		{
+			// pass variables in using Underscore.js template
+			var variables = {linkOut: this.model.xvia,
+				impact: this.model.impact};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_fis_tip_template").html(),
+					variables);
+		}
+	});
+
 </script>

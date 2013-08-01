@@ -50,6 +50,9 @@
 		vertical-align: bottom;
 		margin-left: 3px;
 	}
+	.diagram-lollipop-tip, .diagram-region-tip {
+		font-size: 12px;
+	}
 	.mutation-details-tooltip {
 		font-size: 11px !important;
 	}
@@ -90,9 +93,6 @@
 	}
 	.mutation-table-header {
 		font-weight: bold !important;
-	}
-	.tooltip-table-container {
-		padding: 10px;
 	}
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;

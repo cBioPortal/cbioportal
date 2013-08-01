@@ -66,11 +66,18 @@ var rppaPlots = (function() {
         }
 
         return {
-            setCaseLists: function(caseLists) {
+            setCaseLists: function(caseListsJSON) {
                 alteredCaseList.length = 0;
                 unalteredCaseList.length = 0;
-                alteredCaseList = caseLists.alteredCaseList;
-                unalteredCaseList = caseLists.unalteredCaseList;
+                for (var key in caseListsJSON) {
+                    if (caseListsJSON.hasOwnProperty(key)) {
+                        if (caseListsJSON[key] === "altered") {
+                            alteredCaseList.push(key);
+                        } else if (caseListsJSON[key] === "unaltered") {
+                            unalteredCaseList.push(key);
+                        }
+                    }
+                }
             },
             init: init,
             getAlteredCases: function() {
@@ -127,7 +134,6 @@ var rppaPlots = (function() {
                 _singleDot.caseId = val.caseId;
                 dotsArr.push(_singleDot);
             });
-            console.log(dotsArr.length);
         }
 
         function initCanvas() {

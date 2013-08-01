@@ -1,7 +1,8 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.remote.GetProteinArrayData" %>
-<%@ page import="java.util.Set" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.json.simple.JSONObject"%>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
     String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -104,26 +105,20 @@
      * @author: Yichao S
      * @date: Jul 2013
      */
-    function getRppaPlotsCaseLists() {
-        var caseLists = {
-            alteredCaseList: [],
-            unalteredCaseList: []
-        };
-
+    function getRppaPlotsCaseList() {
         <%
+            JSONObject result = new JSONObject();
             for (String caseId : mergedCaseList) {
+                //Is altered or not (x value)
                 if (dataSummary.isCaseAltered(caseId)) {
-        %>
-                    caseLists.alteredCaseList.push("<%=caseId%>");
-        <%
+                    result.put(caseId, "altered");
                 } else {
-        %>
-                    caseLists.unalteredCaseList.push("<%=caseId%>");
-        <%
+                    result.put(caseId, "unaltered");
                 }
             }
         %>
-        return caseLists;
+        var obj = jQuery.parseJSON('<%=result%>');
+        return obj;
     }
 
     function loadSVG(divName) {
@@ -377,7 +372,7 @@
                         var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
                         _divName = _divName.replace(/\//g, "");
                         oTable.fnOpen( nTr, "<div id='" + _divName + "'><img style='padding:200px;' src='images/ajax-loader.gif'></div>", 'rppa-details' );
-                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseLists(), aData[0]); //aData[0]-->protein array id
+                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseList(), aData[0]); //aData[0]-->protein array id
                     }
                 } );
                 

@@ -731,7 +731,7 @@ function outputClinicalData() {
             if (stateLower === "metastatic" || stateLower === "metastasis") {
                 var loc = guessClinicalData(clinicalData,["tumor location","tumor site","metastasis site"]);
                 if (loc!==null) 
-                    ret += ", Tumor location: "+loc;
+                    ret += " ("+loc+")";
             }
         }
         return ret;

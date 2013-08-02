@@ -46,6 +46,7 @@
 
 <script type="text/template" id="mutation_details_table_data_row_template">
 	<tr id='{{mutationId}}'>
+		<td>{{mutationId}}</td>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
@@ -130,6 +131,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_header_row_template">
+	<th alt='Mutation ID' class='mutation-table-header'>Mutation ID</th>
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
 	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
@@ -310,8 +312,7 @@
 				var mutationMap = self.util.getMutationIdMap();
 				var currentMutations = [];
 
-				//var oTable = tableSelector.dataTable();
-				// TODO synchronize mutation table and diagram after each filtering
+				// add current mutations into an array
 				var rows = tableSelector.find("tr");
 				_.each(rows, function(element, index) {
 					var mutationId = $(element).attr("id");
@@ -319,15 +320,49 @@
 					if (mutationId)
 					{
 						var mutation = mutationMap[mutationId];
-						currentMutations.push(mutation);
+
+						if (mutation)
+						{
+							currentMutations.push(mutation);
+						}
 					}
 				});
 
+				// update mutation diagram with the current mutations
 				if (mutationDiagram !== null)
 				{
 					var mutationData = new MutationCollection(currentMutations);
 					mutationDiagram.updatePlot(mutationData);
 				}
+			};
+
+			/**
+			 * Add listeners to the diagram plot elements.
+			 *
+			 * @param diagram   mutation diagram
+			 * @param tableView mutation table view
+			 */
+			var addPlotListeners = function(diagram, tableView)
+			{
+				diagram.addListener("circle", "mouseout", function() {
+					// remove all highlights
+					tableView.clearHighlights();
+				});
+
+				diagram.addListener("circle", "mouseover", function(datum, index) {
+					// highlight mutations for the provided mutations
+					tableView.highlight(datum.mutations);
+				});
+
+				diagram.addListener("circle", "click", function(datum, index) {
+					// remove all highlights
+					tableView.clearHighlights();
+
+					// filter table for the given mutations
+					tableView.filter(datum.mutations);
+
+					// TODO also highlight the circle clicked?
+				});
 			};
 
 			// helper function to trigger submit event for the svg and pdf button clicks
@@ -350,8 +385,6 @@
 				// submit form
 				form.submit();
 			};
-
-			// TODO setting & rolling back diagram values (which may not be safe)
 
 			// helper function to adjust SVG for file output
 			var alterDiagramForSvg = function(diagram, rollback)
@@ -448,6 +481,9 @@
 
 					// update reference after rendering the table
 					mutationDiagram = diagram;
+
+					// add default event listeners for the diagram
+					addPlotListeners(diagram, mutationTableView);
 				}, 2000);
 			};
 
@@ -537,6 +573,87 @@
 			self.$el.html(tableTemplate);
 
 			self.format();
+		},
+		/**
+		 * Formats the contents of the view after the initial rendering.
+		 */
+		format: function()
+		{
+			var self = this;
+
+			// remove invalid links
+			self.$el.find('a[href=""]').remove();
+
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			var tableUtil = new MutationTableUtil(tableSelector,
+				self.model.geneSymbol,
+				self.model.mutations);
+
+			// add a callback function for sync purposes
+			tableUtil.registerCallback(self.model.syncFn);
+
+			// format the table (convert to a DataTable)
+			tableUtil.formatTable();
+
+			// save a reference to the util for future access
+			self.tableUtil = tableUtil;
+		},
+		/**
+		 * Highlights the given mutations in the table.
+		 *
+		 * @param mutations mutations to highlight
+		 */
+		highlight: function(mutations)
+		{
+			var self = this;
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			for (var i = 0; i < mutations.length; i++)
+			{
+				var row = tableSelector.find("#" + mutations[i].mutationId);
+				// TODO find a better way to highlight
+				row.addClass("ui-state-highlight");
+			}
+		},
+		/**
+		 * Clears all highlights from the mutation table.
+		 */
+		clearHighlights: function()
+		{
+			var self = this;
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			// TODO this depends on highlight function
+			tableSelector.find('tr').removeClass("ui-state-highlight");
+		},
+		/**
+		 * Filters out all other mutations than the given mutations.
+		 *
+		 * @param mutations mutations to keep
+		 */
+		filter: function(mutations)
+		{
+			var self = this;
+			var tableSelector = self.$el.find('.mutation_details_table');
+			var oTable = tableSelector.dataTable();
+
+			var regex = "";
+			for (var i = 0; i < mutations.length; i++)
+			{
+				// TODO construct combined id regex
+				regex = mutations[i].mutationId;
+			}
+
+			// disable callbacks before filtering, otherwise it creates a chain reaction
+			self.tableUtil.setCallbackActive(false);
+
+			// apply filter
+			// TODO this doesn't show the filter text in the box, which may be confusing
+			oTable.fnFilter(regex, null, false, true, false);
+
+			// enable callbacks after filtering
+			self.tableUtil.setCallbackActive(true);
 		},
 		/**
 		 * Extract & generates data required to visualize a single row of the table.
@@ -700,28 +817,6 @@
 			vars.mutationCountClass = mutationCount.style;
 
 			return vars;
-		},
-		/**
-		 * Formats the contents of the view after the initial rendering.
-		 */
-		format: function()
-		{
-			var self = this;
-
-			// remove invalid links
-			self.$el.find('a[href=""]').remove();
-
-			var tableSelector = self.$el.find('.mutation_details_table');
-
-			var tableUtil = new MutationTableUtil(tableSelector,
-				self.model.geneSymbol,
-				self.model.mutations);
-
-			// add a callback function for sync purposes
-			tableUtil.registerCallback(self.model.syncFn);
-
-			// format the table (convert to a DataTable)
-			tableUtil.formatTable();
 		},
         /**
          * Returns the text content and the css class for the given

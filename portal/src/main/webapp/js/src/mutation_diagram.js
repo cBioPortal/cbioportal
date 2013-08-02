@@ -10,6 +10,9 @@ function MutationDiagram(geneSymbol, options, data)
 {
 	var self = this;
 
+	// event listeners
+	self.listeners = {};
+
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
@@ -820,6 +823,9 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth);
 
+	// bind pileup data with the lollipop circle
+	circle.datum(pileup);
+
 	var addTooltip = options.lollipopTipFn;
 	addTooltip(circle, pileup);
 
@@ -1223,6 +1229,20 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	              self.bounds,
 	              self.xScale,
 	              self.yScale);
+
+	// also re-add listeners
+	for (var selector in self.listeners)
+	{
+		var target = self.svg.selectAll(selector);
+
+		for (var event in self.listeners[selector])
+		{
+			target.on(event,
+				self.listeners[selector][event]);
+		}
+	}
+
+	// TODO show an info message to indicate the data is filtered
 };
 
 /**
@@ -1241,4 +1261,49 @@ MutationDiagram.prototype.updateTopLabel = function(text)
 	}
 
 	self.topLabel.text(text);
+};
+
+/**
+ * Adds an event listener for specific diagram elements.
+ *
+ * @param selector  selector string for elements
+ * @param event     name of the event
+ * @param handler   event handler function
+ */
+MutationDiagram.prototype.addListener = function(selector, event, handler)
+{
+	var self = this;
+
+	// TODO define string constants for selectors?
+
+	self.svg.selectAll(selector).on(event, handler);
+
+	// save the listener for future reference
+	if (self.listeners[selector] == null)
+	{
+		self.listeners[selector] = {};
+	}
+
+	self.listeners[selector][event] = handler;
+
+};
+
+/**
+ * Removes an event listener for specific diagram elements.
+ *
+ * @param selector  selector string for elements
+ * @param event     name of the event
+ */
+MutationDiagram.prototype.removeListener = function(selector, event)
+{
+	var self = this;
+
+	self.svg.selectAll(selector).on(event, null);
+
+	// remove listener from the map
+	if (self.listeners[selector] &&
+	    self.listeners[selector][event])
+	{
+		delete self.listeners[selector][event];
+	}
 };

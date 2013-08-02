@@ -16,6 +16,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	// a list of registered callback functions
 	var callbackFunctions = [];
 
+	// flag used to switch callbacks on/off
+	var callbackActive = true;
+
 	/**
 	 * Creates a mapping for given column headers. The mapped values
 	 * will be the array indices for each element.
@@ -60,12 +63,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			count++;
 		}
 
-		// -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
-		//count += data.header.specialGeneHeaders.length - 2;
-		//count -= 1;
+		// always hide id
+		hiddenCols.push(indexMap["mutation id"]);
 
-		// hide special gene columns and less important columns by default
-		for (var col=9; col<count; col++)
+		// hide less important columns by default
+		for (var col=indexMap["vs"] + 1; col<count; col++)
 		{
 			// do not hide allele frequency (T) and count columns
 			if (!(col == indexMap["allele freq (t)"] ||
@@ -130,14 +132,18 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	            {"bVisible": false,
 	                "aTargets": hiddenCols}
 	        ],
+			"oColVis": {"aiExclude": [indexMap["mutation id"]]}, // always hide id column
 	        "fnDrawCallback": function(oSettings) {
 	            // add tooltips to the table
 	            _addMutationTableTooltips(tableSelector);
 
-		        // call registered callback functions
-		        for (var i=0; i < callbackFunctions.length; i++)
+		        if (callbackActive)
 		        {
-			        callbackFunctions[i](tableSelector);
+			        // call registered callback functions
+			        for (var i=0; i < callbackFunctions.length; i++)
+			        {
+				        callbackFunctions[i](tableSelector);
+			        }
 		        }
 	        }
 	    });
@@ -551,5 +557,15 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		{
 			callbackFunctions.splice(index, 1);
 		}
-	}
+	};
+
+	/**
+	 * Enables/disables callback functions.
+	 *
+	 * @param active    boolean value
+	 */
+	this.setCallbackActive = function(active)
+	{
+		callbackActive = active;
+	};
 };

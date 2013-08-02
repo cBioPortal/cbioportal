@@ -169,8 +169,8 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         
     if (caseId!==null) {
         var label = mapCaseLabels[caseId];
-        p.circle(6,yRow-config.rowHeight/2,6).attr({'stroke':mapCaseColor[caseId], 'fill':mapCaseColor[caseId]});
-        p.text(6,yRow-config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
+        p.circle(8,yRow-config.rowHeight/2,6).attr({'stroke':mapCaseColor[caseId], 'fill':mapCaseColor[caseId]});
+        p.text(8,yRow-config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
     } else {
         p.text(0,yRow-config.rowHeight/2,'MUT').attr({'text-anchor': 'start'});
     }
@@ -221,8 +221,8 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,case
         addToolTip(r.node,tip);
     }if (caseId!==null) {
         var label = mapCaseLabels[caseId];
-        p.circle(6,yRow+config.rowHeight/2,6).attr({'stroke':mapCaseColor[caseId], 'fill':mapCaseColor[caseId]});
-        p.text(6,yRow+config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
+        p.circle(8,yRow+config.rowHeight/2,6).attr({'stroke':mapCaseColor[caseId], 'fill':mapCaseColor[caseId]});
+        p.text(8,yRow+config.rowHeight/2,label).attr({'text-anchor': 'center', 'fill':'white'});
     } else {
         p.text(0,yRow+config.rowHeight/2,'CNA').attr({'text-anchor': 'start'});
     }

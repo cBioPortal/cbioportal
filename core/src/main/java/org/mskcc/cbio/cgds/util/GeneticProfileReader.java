@@ -73,7 +73,7 @@ public class GeneticProfileReader {
          // target line isn't stored in the dbms
          existingGeneticProfile.setTargetLine(geneticProfile.getTargetLine()); 
 
-         System.out.println("Action:  Clobbering all old data");
+/*         System.out.println("Action:  Clobbering all old data");
          System.out.println("Deleting all matching records in table:  gene_in_profile");
          System.out.println("Deleting all matching records in table:  genetic_alteration");
          DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
@@ -90,6 +90,7 @@ public class GeneticProfileReader {
          DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
          daoGeneticProfileCases.deleteAllCasesInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
          daoGeneticAlteration.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
+*/
          return existingGeneticProfile;
       } else {
          // add new profile

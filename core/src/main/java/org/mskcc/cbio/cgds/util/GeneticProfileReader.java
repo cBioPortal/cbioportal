@@ -144,10 +144,14 @@ public class GeneticProfileReader {
       String profileDescription = properties.getProperty("profile_description");
       String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
       if (profileName == null) {
-         throw new IllegalArgumentException("profile_name is not specified.");
-      } else if (profileDescription == null) {
-         throw new IllegalArgumentException("profile_description is not specified.");
-      } else if (geneticAlterationTypeString == null) {
+         profileName = geneticAlterationTypeString;
+      }
+      
+      if (profileDescription == null) {
+         profileDescription = geneticAlterationTypeString;
+      }
+      
+      if (geneticAlterationTypeString == null) {
          throw new IllegalArgumentException("genetic_alteration_type is not specified.");
       }
 

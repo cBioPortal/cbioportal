@@ -294,13 +294,13 @@ public class ExtendedMutationUtil
 	{
 		Integer defaultInt = TabDelimitedFileUtil.NA_INT;
 		String defaultStr = TabDelimitedFileUtil.NA_STRING;
-		Long defaultLong = TabDelimitedFileUtil.NA_LONG;
+		//Long defaultLong = TabDelimitedFileUtil.NA_LONG;
+		Long defaultLong = -1L;
 		Float defaultFloat = TabDelimitedFileUtil.NA_FLOAT;
 		CanonicalGene defaultGene = new CanonicalGene("INVALID");
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
-		mutation.setMutationEventId(-1L); // default dummy event id
 		mutation.setGeneticProfileId(defaultInt);
 		mutation.setCaseId(defaultStr);
 		mutation.setGene(defaultGene);

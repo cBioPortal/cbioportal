@@ -90,7 +90,7 @@
                 
                 oTable.css("width","100%");
                 
-                $('.smg-table-name').html(n+" significantly mutated genes by <a href='https://confluence.broadinstitute.org/display/CGATools/MutSig'>MutSig</a>");
+                $('.smg-table-name').html(n+" significantly mutated genes by <a href='http://www.broadinstitute.org/cancer/cga/mutsig'>MutSig</a>");
                 $('.smg-table-name').addClass('data-table-name');
                 
                 $('#smg_wrapper_table').show();

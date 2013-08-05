@@ -88,7 +88,15 @@ public class TestImportFusionData extends TestCase
 		assertEquals("saturn", list.get(0).getSequencingCenter());
 		assertEquals("FGFR3", list.get(0).getGeneSymbol());
 		assertEquals("Fusion", list.get(0).getMutationType());
-		assertEquals("Fusion", list.get(0).getProteinChange());
+		assertEquals("Fusion1", list.get(0).getProteinChange());
+
+		list = DaoMutation.getMutations(1, "TCGA-YY-A2YY");
+
+		assertEquals(1, list.size());
+		assertEquals("jupiter", list.get(0).getSequencingCenter());
+		assertEquals("ERBB2", list.get(0).getGeneSymbol());
+		assertEquals("Fusion", list.get(0).getMutationType());
+		assertEquals("Fusion2", list.get(0).getProteinChange());
 	}
 
 	private void loadGenes() throws DaoException

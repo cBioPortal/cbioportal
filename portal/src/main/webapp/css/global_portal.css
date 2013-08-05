@@ -880,8 +880,8 @@ html { min-height: 100%; margin-bottom: 1px; min-width: 100%; margin-right: 1px;
 
 .welcome {
     padding: 3px;
-    height: 200px;
-
+    /*height: 200px;*/
+    min-height: 200px;
 }
 
 #right_side {
@@ -1333,4 +1333,8 @@ cc-ie-message {
 ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 #genestatus { clear: both; }
 #example_gene_set { clear: both; }
+
+.chzn-container .chzn-results {
+    max-height: 350px !important;
+}
 

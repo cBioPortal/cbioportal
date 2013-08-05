@@ -1,21 +1,15 @@
 
-
-<%
-String tissueImageUrl = SkinUtil.getTumorTissueImageUrl(cancerStudy.getCancerStudyStableId());
-String jsonTissueImageNames = JSONValue.toJSONString(tissueImages);
-%>
-
 <script type="text/javascript">
     var tissueImageUrl = '<%=tissueImageUrl%>';
-    var tissueImageNames = <%=jsonTissueImageNames%>;
-    $(document).ready(function(){
-        $("#tissue-images-div").html('<p>Click on an image to view in high resolution.</p>');
-        for (var i=0, len=tissueImageNames.length; i<len; i++) {
-            var image = tissueImageUrl+tissueImageNames[i];
-            var htm = "<a href='"+image+".jpg' alt='click to open the high resolution image'><img class='tissue-image' src='"+image+".png'></a><br/>"
-            $("#tissue-images-div").append(htm);
+    
+    var tissueImageLoaded = false;
+    function loadImages(){
+        if (!tissueImageLoaded) {
+            $("#tissue-images-div").html('<iframe id="frame" src="'+tissueImageUrl+'" width="100%" height="700px"></iframe>');
+            tissueImageLoaded = true;
         }
-    });
+    }
+    $("#link-tissue-images").click(loadImages);
 </script>
 
 <div id="tissue-images-div"><img src="images/ajax-loader.gif"/></div>

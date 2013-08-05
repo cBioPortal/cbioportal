@@ -44,6 +44,7 @@ public class ReferenceMetadata {
 
 	// bean properties
 	private String referenceType;
+	private Boolean fetchData; // fetch?
 	private Boolean importData; // import?
 	private String fetcherName;
 	private List<String> fetcherArgs;
@@ -63,20 +64,22 @@ public class ReferenceMetadata {
 		}
 
 		this.referenceType = properties[0].trim();
-		this.importData = new Boolean(properties[1].trim());
-		this.fetcherName = MetadataUtils.getCanonicalPath(properties[2].trim());
+		this.fetchData = new Boolean(properties[1].trim());
+		this.importData = new Boolean(properties[2].trim());
+		this.fetcherName = MetadataUtils.getCanonicalPath(properties[3].trim());
 		this.fetcherArgs = new ArrayList<String>();
-		for (String fetcherArg : properties[3].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+		for (String fetcherArg : properties[4].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
 			this.fetcherArgs.add(MetadataUtils.getCanonicalPath(fetcherArg));
 		}
-		this.importerName = MetadataUtils.getCanonicalPath(properties[4].trim());
+		this.importerName = MetadataUtils.getCanonicalPath(properties[5].trim());
 		this.importerArgs = new ArrayList<String>();
-		for (String importerArg : properties[5].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
+		for (String importerArg : properties[6].trim().split(REFERENCE_DATA_ARGS_DELIMITER)) {
 			this.importerArgs.add(MetadataUtils.getCanonicalPath(importerArg));
 		}
 	}
 
 	public String getReferenceType() { return referenceType; }
+	public Boolean getFetch() { return fetchData; }
 	public Boolean getImport() { return importData; }
 	public String getFetcherName() { return fetcherName; }
 	public List<String> getFetcherArgs() { return fetcherArgs; }

@@ -462,6 +462,16 @@ CREATE TABLE `text_cache` (
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
+-- Table structure for table `pfam_graphics`
+--
+drop table IF EXISTS pfam_graphics;
+CREATE TABLE `pfam_graphics` (
+  `UNIPROT_ID` varchar(255) NOT NULL,
+  `JSON_DATA` longtext NOT NULL,
+  PRIMARY KEY (`UNIPROT_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
 -- Table structure for table `drug_interaction`
 --
 drop table IF EXISTS drug_interaction;

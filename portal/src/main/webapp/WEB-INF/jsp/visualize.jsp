@@ -106,6 +106,19 @@
     boolean includeNetworks = SkinUtil.includeNetworks();
 %>
 
+<%!
+    public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
+        int counter = 0;
+        for (int i = 0; i < profileList.size(); i++) {
+            GeneticProfile profile = profileList.get(i);
+            if (profile.getGeneticAlterationType() == type) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+%>
+
 
 <jsp:include page="global/header.jsp" flush="true" />
 
@@ -196,7 +209,7 @@
                 samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
-<script type="text/javascript" src="js/MemoSort.js"></script>
+<script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
     //  make global variables
         var genes = "<%=genes%>",

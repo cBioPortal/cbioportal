@@ -74,7 +74,6 @@ class FoundationFetcherImpl implements Fetcher
 	public static final String CANCER_STUDY = "prad/mskcc/foundation";
 	public static final String MUTATION_METADATA = "mutation-foundation";
 	public static final String CNA_METADATA = "cna-foundation";
-	// TODO this metadata does not exist yet in the spreadsheet
 	public static final String FUSION_METADATA = "fusion";
 
 	// some default data values
@@ -223,7 +222,7 @@ class FoundationFetcherImpl implements Fetcher
 		// generate meta files
 		this.generateStudyMetaFile(numCases);
 		this.generateMutationMetaFile(numCases);
-		//this.generateFusionMetaFile(numCases); // TODO enable when ready
+		this.generateFusionMetaFile(numCases);
 		this.generateCNAMetaFile(numCases);
 	}
 
@@ -564,7 +563,7 @@ class FoundationFetcherImpl implements Fetcher
 		content.append(otherGene);
 		content.append(" fusion"); // Fusion
 		content.append("\t");
-		content.append("yes"); // TODO DNA support
+		content.append("yes"); // DNA support
 		content.append("\t");
 		content.append(UNKNOWN); // RNA support
 		content.append("\t");

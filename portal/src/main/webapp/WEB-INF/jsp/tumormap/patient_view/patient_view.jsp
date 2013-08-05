@@ -302,7 +302,7 @@ var clinicalDataMap = <%=jsonClinicalData%>;
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}
-}
+};
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
@@ -619,6 +619,72 @@ function d3MrnaBar(div,mrnaPerc) {
         .attr("cy", height/2)
         .attr("r", circleR)
         .attr("fill", mrnaPerc>75 ? "red" : (mrnaPerc<25?"blue":"gray"));
+
+}
+
+function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
+    $(div).each(function() {
+        if (!$(this).is(":empty")) return;
+        var gene = $(this).attr("alt");
+        var refCount = mutations.getValue(gene, refReadCount);
+        var altCount = mutations.getValue(gene, altReadCount);
+        var allFreq = {};
+        for (var caseId in refCount) {
+            var ac = altCount[caseId];
+            var rc = refCount[caseId];
+            if (ac&&rc) allFreq[caseId] = (ac/(ac+rc)).toFixed(2);
+        }
+        d3AlleleFreqBar($(this)[0],allFreq);
+        
+        // tooltip
+        var arr = [];
+        caseIds.forEach(function(caseId){
+            var ac = altCount[caseId];
+            var rc = refCount[caseId];
+            if (ac&&rc) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;"
+                    +(ac/(ac+rc)).toFixed(2));
+        });
+        var tip = arr.join("<br/>");
+        $(this).qtip({
+            content: {text: tip},
+            events: {
+                render: function(event, api) {
+                    plotCaseLabel('.case-label-tip', true, true);
+                }
+            },
+            hide: { fixed: true, delay: 10 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top left',at:'bottom center'}
+        });
+    });
+}
+
+function d3AlleleFreqBar(div,alleFreq) {
+    var barWidth = 6,
+        barMargin = 3,
+        width = (barWidth+barMargin)*caseIds.length,
+        height = 12;
+
+    var y = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, height]);
+
+    var svg = d3.select(div).append('svg')
+        .attr("width", width)
+        .attr("height", height);
+
+    var chart = svg.selectAll(".bar")
+        .data(caseIds) 
+        .enter()
+        .append("g")
+        .attr("class", "bar")
+        .attr("transform", function(caseId,i) { return "translate(" + ((barWidth+barMargin)*i)
+            + "," + y(1-(alleFreq[caseId]?alleFreq[caseId]:0)) + ")"; });
+
+    chart.append("rect")
+        .attr("width", barWidth)
+        .attr("height", function(caseId,i) { return y(alleFreq[caseId]?alleFreq[caseId]:0);})
+        .attr("fill", function(caseId, i) { return caseMetaData.color[caseId]; } );
 
 }
 

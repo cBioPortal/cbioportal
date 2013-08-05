@@ -256,7 +256,7 @@
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
                         "bVisible": hasAlleleFrequencyData,
-                        "sClass": "right-align-td",
+                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -266,20 +266,15 @@
                                 if (caseIds.length===1) {
                                     var ac = altCount[caseIds[0]];
                                     var rc = refCount[caseIds[0]];
-                                    if (!ac&&!rc) return "";
+                                    if (!ac||!rc) return "";
                                     var freq = ac / (ac + rc);
                                     var tip = ac + " variant reads out of " + (rc+ac) + " total";
                                     return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
                                 }
                                 
-                                var arr = [];
-                                caseIds.forEach(function(caseId){
-                                    var ac = altCount[caseId];
-                                    var rc = refCount[caseId];
-                                    if (ac||rc) arr.push(caseId+": "+(ac/(ac+rc)).toFixed(2));
-                                });
-                                
-                                return arr.join("<br/>"); 
+                                if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
+                                    return "";
+                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'alt-count')[caseIds[0]];
@@ -351,8 +346,8 @@
                     },
                     {// normal read count frequency
                         "aTargets": [ mutTableIndices["norm_freq"] ],
-                        "bVisible": !compact&&!mutations.colAllNull('alt-count',-1),
-                        "sClass": "right-align-td",
+                        "bVisible": !compact&&hasAlleleFrequencyData,
+                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -368,14 +363,9 @@
                                     return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
                                 }
                                 
-                                var arr = [];
-                                caseIds.forEach(function(caseId){
-                                    var ac = altCount[caseId];
-                                    var rc = refCount[caseId];
-                                    if (ac||rc) arr.push(caseId+": "+(ac/(ac+rc)).toFixed(2));
-                                });
-                                
-                                return arr.join("<br/>"); 
+                                if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
+                                    return "";
+                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
@@ -672,6 +662,8 @@
                 "fnDrawCallback": function( oSettings ) {
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
+                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
+                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);

@@ -1338,7 +1338,7 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 MutationDiagram.prototype.clearHighlights = function()
 {
 	var self = this;
-	var circles = d3.selectAll('.mut-dia-lollipop-circles');
+	var circles = self.gCircle.selectAll("circle");
 
 	circles.attr("r", self.options.lollipopRadius);
 };

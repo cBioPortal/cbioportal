@@ -488,11 +488,11 @@
 					tableView.clearHighlights();
 					diagram.clearHighlights('circle');
 
-					// filter table for the given mutations
-					tableView.filter(datum.mutations);
-
 					// highlight the target circle on the diagram
 					diagram.highlight(this);
+
+					// filter table for the given mutations
+					tableView.filter(datum.mutations);
 
 					// show filter reset info
 					mainMutationView.showFilterInfo();

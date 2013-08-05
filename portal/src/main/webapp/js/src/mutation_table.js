@@ -19,6 +19,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	// flag used to switch callbacks on/off
 	var callbackActive = true;
 
+	// reference to the data table object
+	var dataTable = null;
+
 	/**
 	 * Creates a mapping for given column headers. The mapped values
 	 * will be the array indices for each element.
@@ -92,6 +95,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	 * @param tableSelector jQuery selector for the target table
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
+	 * @return {object}     DataTable instance
 	 * @private
 	 */
 	function _initDataTable(tableSelector, indexMap, hiddenCols)
@@ -149,6 +153,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	    });
 
 	    oTable.css("width", "100%");
+
+		// return the data table instance
+		return oTable;
 	}
 
 	/**
@@ -502,6 +509,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		};
 	}
 
+	this.getDataTable = function()
+	{
+		return dataTable;
+	};
+
 	/**
 	 * Formats the table with data tables plugin.
 	 */
@@ -526,7 +538,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_initDataTable(tableSelector, indexMap, hiddenCols);
+		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols);
 	};
 
 	/**

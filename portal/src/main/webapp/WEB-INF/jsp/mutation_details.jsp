@@ -88,6 +88,14 @@
 	.mutation-diagram-container {
 		margin-bottom: 10px;
 	}
+	.mutation-diagram-filter-info {
+		margin-left: 20px;
+		color: red;
+	}
+	.mutation-diagram-filter-reset {
+		color: #1974B8 !important;
+		cursor: pointer;
+	}
 	.mutation-table-container {
 		margin-bottom: 40px;
 	}

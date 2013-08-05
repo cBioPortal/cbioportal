@@ -94,6 +94,7 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopBorderColor: "#BABDB6",
 	lollipopBorderWidth: 0.5,
 	lollipopRadius: 3,              // radius of the lollipop circles
+	lollipopHighlightRadius: 6,     // radius of the highlighted lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
 	xAxisPadding: 10,           // padding between x-axis and the sequence
@@ -1179,7 +1180,13 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
  * of the original data. Therefore this function only modifies the plot area
  * elements (lollipops, labels, etc.)
  *
+ * If the number of mutations provided in mutationData is less than the number
+ * mutation in the original data set, this function returns true to indicate
+ * the provided data set is a subset of the original data. If the number of
+ * mutations is the same, then returns false.
+ *
  * @param mutationData  a collection of mutations
+ * @return {boolean}    true if the diagram is filtered, false otherwise
  */
 MutationDiagram.prototype.updatePlot = function(mutationData)
 {
@@ -1242,7 +1249,24 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 		}
 	}
 
-	// TODO show an info message to indicate the data is filtered
+	var filtered = false;
+
+	if (mutationData.length < self.rawData.length)
+	{
+		filtered = true;
+	}
+
+	return filtered;
+};
+
+/**
+ * Resets the plot area back to its initial state.
+ */
+MutationDiagram.prototype.resetPlot = function()
+{
+	var self = this;
+
+	self.updatePlot(self.rawData);
 };
 
 /**
@@ -1306,4 +1330,34 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 	{
 		delete self.listeners[selector][event];
 	}
+};
+
+/**
+ * Resets all highlighted circles back to their original state.
+ */
+MutationDiagram.prototype.clearHighlights = function()
+{
+	var self = this;
+	var circles = d3.selectAll('.mut-dia-lollipop-circles');
+
+	circles.attr("r", self.options.lollipopRadius);
+};
+
+/**
+ * Highlights a single circle. This function assumes that the provided
+ * selector is a selector for one of the SVG circle elements on the
+ * diagram.
+ *
+ * @param selector  selector for a specific circle element
+ */
+MutationDiagram.prototype.highlight = function(selector)
+{
+	var self = this;
+	var circle = d3.select(selector);
+
+	circle.transition()
+		.ease("elastic")
+		.duration(600)
+		.delay(100)
+		.attr("r", self.options.lollipopHighlightRadius);
 };

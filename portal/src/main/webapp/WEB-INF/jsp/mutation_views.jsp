@@ -28,6 +28,10 @@
 		</form>
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
+		<span class='mutation-diagram-filter-info'>
+			Current view shows filtered results.
+			Click <a class='mutation-diagram-filter-reset'>here</a> to reset all filters.
+		</span>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
@@ -217,6 +221,119 @@
 
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
+
+			// format after rendering
+			this.format()
+		},
+		format: function() {
+			// hide the mutation diagram filter info text by default
+			this.hideFilterInfo();
+			// hide the toolbar by default
+			this.$el.find(".mutation-diagram-toolbar").hide();
+		},
+		/**
+		 * Initializes the toolbar over the mutation diagram.
+		 *
+		 * @param diagram   the mutation diagram instance
+		 */
+		initToolbar: function(diagram) {
+			var self = this;
+
+			var toolbar = self.$el.find(".mutation-diagram-toolbar");
+			var pdfButton = self.$el.find(".diagram-to-pdf");
+			var svgButton = self.$el.find(".diagram-to-svg");
+
+			// helper function to trigger submit event for the svg and pdf button clicks
+			var submitForm = function(alterFn, diagram, formClass)
+			{
+				// alter diagram to have the desired output
+				alterFn(diagram, false);
+
+				// convert svg content to string
+				var xmlSerializer = new XMLSerializer();
+				var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+				// restore previous settings after generating xml string
+				alterFn(diagram, true);
+
+				// set actual value of the form element (svgelement)
+				var form = self.$el.find("." + formClass);
+				form.find('input[name="svgelement"]').val(svgString);
+
+				// submit form
+				form.submit();
+			};
+
+			// helper function to adjust SVG for file output
+			var alterDiagramForSvg = function(diagram, rollback)
+			{
+				var topLabel = gene;
+
+				if (rollback)
+				{
+					topLabel = "";
+				}
+
+				// adding a top left label (to include a label in the file)
+				diagram.updateTopLabel(topLabel);
+			};
+
+			// helper function to adjust SVG for PDF output
+			var alterDiagramForPdf = function(diagram, rollback)
+			{
+				// we also need the same changes (top label) in pdf
+				alterDiagramForSvg(diagram, rollback);
+
+				cbio.util.alterAxesAttrForPDFConverter(
+						diagram.svg.select(".mut-dia-x-axis"), 8,
+						diagram.svg.select(".mut-dia-y-axis"), 3,
+						rollback);
+			};
+
+			//add listener to the svg button
+			svgButton.click(function (event) {
+				// submit svg form
+				submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+			});
+
+			// add listener to the pdf button
+			pdfButton.click(function (event) {
+				// submit pdf form
+				submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+			});
+
+			toolbar.show();
+		},
+		/**
+		 * Initializes the filter reset link, which is a part of filter info
+		 * text on top of the diagram.
+		 *
+		 * @param diagram   mutation diagram instance
+		 * @param tableView [optional] mutation table view instance
+		 */
+		initResetFilterInfo: function(diagram, tableView) {
+			var self = this;
+			var resetLink = self.$el.find(".mutation-diagram-filter-reset");
+
+			// add listener to diagram reset link
+			resetLink.click(function (event) {
+				// reset the diagram contents
+				diagram.resetPlot();
+				// also reset the table filters (if provided)
+				if (tableView)
+				{
+					// pass an empty array to show everything
+					tableView.filter([], true);
+				}
+				// hide the filter info text
+				self.hideFilterInfo();
+			});
+		},
+		showFilterInfo: function() {
+			this.$el.find(".mutation-diagram-filter-info").show();
+		},
+		hideFilterInfo: function() {
+			this.$el.find(".mutation-diagram-filter-info").hide();
 		}
 	});
 
@@ -300,6 +417,7 @@
 			var self = this;
 			var mutationMap = self.util.getMutationGeneMap();
 			var mutationDiagram = null;
+			var mainMutationView = null;
 
 			/**
 			 * Updates the mutation diagram after each change in the mutation table.
@@ -332,7 +450,18 @@
 				if (mutationDiagram !== null)
 				{
 					var mutationData = new MutationCollection(currentMutations);
-					mutationDiagram.updatePlot(mutationData);
+					var filtered = mutationDiagram.updatePlot(mutationData);
+
+					if (filtered)
+					{
+						// display info text
+						mainMutationView.showFilterInfo();
+					}
+					else
+					{
+						// hide info text
+						mainMutationView.hideFilterInfo();
+					}
 				}
 			};
 
@@ -355,61 +484,19 @@
 				});
 
 				diagram.addListener("circle", "click", function(datum, index) {
-					// remove all highlights
+					// remove all table & diagram highlights
 					tableView.clearHighlights();
+					diagram.clearHighlights('circle');
 
 					// filter table for the given mutations
 					tableView.filter(datum.mutations);
 
-					// TODO also highlight the circle clicked?
+					// highlight the target circle on the diagram
+					diagram.highlight(this);
+
+					// show filter reset info
+					mainMutationView.showFilterInfo();
 				});
-			};
-
-			// helper function to trigger submit event for the svg and pdf button clicks
-			var submitForm = function(mainView, alterFn, diagram, formClass)
-			{
-				// alter diagram to have the desired output
-				alterFn(diagram, false);
-
-				// convert svg content to string
-				var xmlSerializer = new XMLSerializer();
-				var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
-
-				// restore previous settings after generating xml string
-				alterFn(diagram, true);
-
-				// set actual value of the form element (svgelement)
-				var form = mainView.$el.find("." + formClass);
-				form.find('input[name="svgelement"]').val(svgString);
-
-				// submit form
-				form.submit();
-			};
-
-			// helper function to adjust SVG for file output
-			var alterDiagramForSvg = function(diagram, rollback)
-			{
-				var topLabel = gene;
-
-				if (rollback)
-				{
-					topLabel = "";
-				}
-
-				// adding a top left label (to include a label in the file)
-				diagram.updateTopLabel(topLabel);
-			};
-
-			// helper function to adjust SVG for PDF output
-			var alterDiagramForPdf = function(diagram, rollback)
-			{
-				// we also need the same changes (top label) in pdf
-				alterDiagramForSvg(diagram, rollback);
-
-				cbio.util.alterAxesAttrForPDFConverter(
-						diagram.svg.select(".mut-dia-x-axis"), 8,
-						diagram.svg.select(".mut-dia-y-axis"), 3,
-						rollback);
 			};
 
 			// callback function to init view after retrieving
@@ -441,33 +528,23 @@
 
 				mainView.render();
 
+				// update the reference after rendering the view
+				mainMutationView = mainView;
+
 				// draw mutation diagram
 				var diagram = self._drawMutationDiagram(
 						gene, mutationMap[gene], sequence, diagramOpts);
 
-				var pdfButton = mainView.$el.find(".diagram-to-pdf");
-				var svgButton = mainView.$el.find(".diagram-to-svg");
-				var toolbar = mainView.$el.find(".mutation-diagram-toolbar");
-
 				// check if diagram is initialized successfully.
-				// if not, disable any diagram related functions
-				if (!diagram)
+				if (diagram)
+				{
+					// init diagram toolbar
+					mainView.initToolbar(diagram);
+				}
+				else
 				{
 					console.log("Error initializing mutation diagram: %s", gene);
-					toolbar.hide();
 				}
-
-				//add listener to the svg button
-				svgButton.click(function (event) {
-					// submit svg form
-					submitForm(mainView, alterDiagramForSvg, diagram, "svg-to-file-form");
-				});
-
-				// add listener to the pdf button
-				pdfButton.click(function (event) {
-					// submit pdf form
-					submitForm(mainView, alterDiagramForPdf, diagram, "svg-to-pdf-form");
-				});
 
 				// draw mutation table after a short delay
 				setTimeout(function(){
@@ -484,6 +561,9 @@
 
 					// add default event listeners for the diagram
 					addPlotListeners(diagram, mutationTableView);
+
+					// init reset info text content for the diagram
+					mainView.initResetFilterInfo(diagram, mutationTableView);
 				}, 2000);
 			};
 
@@ -631,26 +711,51 @@
 		 * Filters out all other mutations than the given mutations.
 		 *
 		 * @param mutations mutations to keep
+		 * @param updateBox [optional] show the filter text in the search box
+		 * @param limit     [optional] column to limit filtering to
 		 */
-		filter: function(mutations)
+		filter: function(mutations, updateBox, limit)
 		{
 			var self = this;
-			var tableSelector = self.$el.find('.mutation_details_table');
-			var oTable = tableSelector.dataTable();
+			var oTable = self.tableUtil.getDataTable();
 
-			var regex = "";
+			var ids = [];
+
 			for (var i = 0; i < mutations.length; i++)
 			{
-				// TODO construct combined id regex
-				regex = mutations[i].mutationId;
+				ids.push(mutations[i].mutationId);
 			}
+
+			var regex = "(" + ids.join("|") + ")";
 
 			// disable callbacks before filtering, otherwise it creates a chain reaction
 			self.tableUtil.setCallbackActive(false);
 
 			// apply filter
-			// TODO this doesn't show the filter text in the box, which may be confusing
-			oTable.fnFilter(regex, null, false, true, false);
+
+			if (limit == undefined)
+			{
+				limit = null;
+			}
+
+			// TODO not updating the filter text in the box may be confusing
+			if (updateBox == undefined)
+			{
+				updateBox = false;
+			}
+
+			var asRegex = true;
+			var smartFilter = true;
+			var caseInsensitive = true;
+
+			// empty mutation list, just show everything
+			if (ids.length == 0)
+			{
+				regex = "";
+				asRegex = false;
+			}
+
+			oTable.fnFilter(regex, limit, asRegex, smartFilter, updateBox, caseInsensitive);
 
 			// enable callbacks after filtering
 			self.tableUtil.setCallbackActive(true);

@@ -45,7 +45,7 @@
                                 var samples = cnas.getValue(source[0], "caseIds");
                                 var ix = [];
                                 samples.forEach(function(caseId){
-                                    ix.push(mapCaseIndices[caseId]);
+                                    ix.push(caseMetaData.index[caseId]);
                                 });
                                 ix.sort();
                                 var ret = 0;

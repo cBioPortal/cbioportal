@@ -48,7 +48,7 @@
                                 var samples = mutations.getValue(source[0], "caseIds");
                                 var ix = [];
                                 samples.forEach(function(caseId){
-                                    ix.push(mapCaseIndices[caseId]);
+                                    ix.push(caseMetaData.index[caseId]);
                                 });
                                 ix.sort();
                                 var ret = 0;
@@ -255,6 +255,7 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
+                        "bVisible": !mutations.colAllNull('alt-count',-1),
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -333,7 +334,7 @@
                     },
                     {// normal read count frequency
                         "aTargets": [ mutTableIndices["norm_freq"] ],
-                        "bVisible": !compact,
+                        "bVisible": !compact&&!mutations.colAllNull('alt-count',-1),
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {

@@ -12,6 +12,7 @@
 boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("tumormap", true);
 String caseId = (String)request.getAttribute(PatientView.CASE_ID);
+boolean multiSamples = caseId.contains(" ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));

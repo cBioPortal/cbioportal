@@ -58,7 +58,7 @@ public class IGVLinking {
 	// returns null if exception has been thrown during processing
 	public static String getIGVActionForBAMViewing(String caseId, String chromosome, long startPos, long endPos)
 	{
-		if (caseId == null || IGVLinking.encryptionBinMissing()) {
+		if (caseId == null || !IGVLinking.encryptionBinLocated()) {
 			return null;
 		}
 
@@ -76,7 +76,7 @@ public class IGVLinking {
 		return action;
 	}
 
-	private static boolean encryptionBinMissing()
+	private static boolean encryptionBinLocated()
 	{
 		return new File(GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY)).exists();
 	}
@@ -224,7 +224,7 @@ public class IGVLinking {
 		return (GlobalProperties.getProperty(GlobalProperties.OPENSSL_BINARY) +
 				" rsautl -sign" +
 				" -inkey " + GlobalProperties.getProperty(GlobalProperties.SIGNATURE_KEY) +
-				" -keyform PEM -pubin" +
+				" -keyform PEM" +
 				" -in " + encryptedMessage.getCanonicalPath() + 
 				" -out " + signedMessage.getCanonicalPath());
 	}

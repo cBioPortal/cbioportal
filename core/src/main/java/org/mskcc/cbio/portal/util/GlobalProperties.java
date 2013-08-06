@@ -41,6 +41,7 @@ public class GlobalProperties {
 	public static final String SIGNATURE_KEY = "sig_key";
 	public static final String ENCRYPTION_KEY = "encrypt_key";
 	public static final String BROAD_BAM_URL = "broad_bam_url";
+	public static final String IGV_BAM_LINKING = "igv_bam_linking";
 
 	private static Map<String, String> properties;
     
@@ -54,6 +55,7 @@ public class GlobalProperties {
 		properties.put(SIGNATURE_KEY, config.getProperty("signature.key"));
 		properties.put(ENCRYPTION_KEY, config.getProperty("encryption.key"));
 		properties.put(BROAD_BAM_URL, config.getProperty("broad.bam.url"));
+		properties.put(IGV_BAM_LINKING, config.getProperty("igv.bam.linking"));
     }
 
     public static String getPathwayCommonsUrl()
@@ -74,5 +76,9 @@ public class GlobalProperties {
 	public static String getProperty(String property)
 	{
 		return (properties.containsKey(property)) ? properties.get(property) : "";
+	}
+
+	public static boolean wantIGVBAMLinking() {
+		return new Boolean(properties.get(IGV_BAM_LINKING));
 	}
 }

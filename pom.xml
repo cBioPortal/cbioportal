@@ -35,7 +35,7 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
-		<final-war-name>igv-linking-portal</final-war-name>
+		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
 	<profile>

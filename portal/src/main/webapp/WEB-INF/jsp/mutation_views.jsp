@@ -2,6 +2,19 @@
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
+	<div id='mutation_details_content'>
+		{{content}}
+	</div>
+</script>
+
+<script type="text/template" id="default_mutation_details_info_template">
+	<p>There are no mutation details available for the gene set entered.</p>
+	<br>
+	<br>
+</script>
+
+<script type="text/template" id="default_mutation_details_content_template">
+	<div id='mutation_details_{{geneSymbol}}'></div>
 </script>
 
 <script type="text/template" id="mutation_view_template">
@@ -355,7 +368,8 @@
 					new MutationCollection(self.model.mutations));
 
 			// TODO make the image customizable?
-			var variables = {loaderImage: "images/ajax-loader.gif"};
+			var variables = {loaderImage: "images/ajax-loader.gif",
+				content: self._generateContent()};
 
 			// compile the template using underscore
 			var template = _.template(
@@ -365,9 +379,41 @@
 			// load the compiled HTML into the Backbone "el"
 			self.$el.html(template);
 
-			self._initDefaultView(self.$el,
-				self.model.sampleArray,
-				self.model.diagramOpts);
+			if (self.model.mutations.length > 0)
+			{
+				self._initDefaultView(self.model.sampleArray,
+					self.model.diagramOpts);
+			}
+		},
+		/**
+		 * Generates the content structure by creating div elements for each
+		 * gene.
+		 *
+		 * @return {String} content backbone with div elements for each gene
+		 */
+		_generateContent: function()
+		{
+			var self = this;
+			var content = "";
+
+			// check if there is mutation data
+			if (self.model.mutations.length == 0)
+			{
+				// display information if no data is available
+				content = _.template($("#default_mutation_details_info_template").html());
+			}
+			else
+			{
+				// create a div for for each gene
+				for (var key in self.util.getMutationGeneMap())
+				{
+					content += _.template(
+						$("#default_mutation_details_content_template").html(),
+						{geneSymbol: key});
+				}
+			}
+
+			return content;
 		},
 		/**
 		 * Initializes the mutation view for the current mutation data.
@@ -377,32 +423,17 @@
 		 * If you want to have more customized components, it is better
 		 * to initialize all the component separately.
 		 *
-		 * @param container     target container selector for the main view
 		 * @param cases         array of case ids (samples)
 		 * @param diagramOpts   [optional] mutation diagram options
 		 */
-		_initDefaultView: function(container, cases, diagramOpts)
+		_initDefaultView: function(cases, diagramOpts)
 		{
 			var self = this;
 
-			// check if there is mutation data
-			if (self.model.mutations.length == 0)
+			// init main view for each gene
+			for (var key in self.util.getMutationGeneMap())
 			{
-				// display information if no data is available
-				// TODO also factor this out as a backbone template?
-				container.html(
-					"<p>There are no mutation details available for the gene set entered.</p>" +
-					"<br><br>");
-			}
-			else
-			{
-				// init main view for each gene
-				for (var key in self.util.getMutationGeneMap())
-				{
-					// TODO also factor this out to a backbone template?
-					container.append("<div id='mutation_details_" + key +"'></div>");
-					self._initView(key, cases, diagramOpts);
-				}
+				self._initView(key, cases, diagramOpts);
 			}
 		},
 	    /**
@@ -483,6 +514,7 @@
 					tableView.highlight(datum.mutations);
 				});
 
+				// TODO it may be nice to unselect (if already selected) on a second click
 				diagram.addListener("circle", "click", function(datum, index) {
 					// remove all table & diagram highlights
 					tableView.clearHighlights();
@@ -567,7 +599,7 @@
 				}, 2000);
 			};
 
-			// TODO cache sequence for each gene (implement another class for this)?
+			// get sequence data for the current gene & init view
 			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
 		},
 		/**

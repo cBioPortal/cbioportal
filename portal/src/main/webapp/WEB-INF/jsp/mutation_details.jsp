@@ -1,7 +1,9 @@
 <!-- TODO include these js files in the global js include? -->
 <script type="text/javascript" src="js/src/mutation_histogram.js"></script>
 
-<div class='section' id='mutation_details'></div>
+<div class='section' id='mutation_details'>
+	<img src='images/ajax-loader.gif'/>
+</div>
 
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css";

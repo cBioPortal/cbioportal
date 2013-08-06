@@ -249,6 +249,12 @@ public class MutationDataServlet extends HttpServlet
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+				String IGVForBAMViewingAction = IGVLinking.getIGVActionForBAMViewing(mutation.getCaseId(),
+																					 this.getChromosome(mutation),
+																					 mutation.getStartPosition(),
+																					 mutation.getEndPosition());
+																					 
+																					 
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);

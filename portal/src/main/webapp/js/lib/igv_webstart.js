@@ -209,3 +209,12 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 }
 
+function prepIGVLaunch(dataURL, locusString) {
+
+    var port = 60151;
+    var genomeID = "hg18";
+    var mergeFlag = false;
+    var trackName = null;
+
+    appRequest(port, dataURL, genomeID, mergeFlag, locusString, trackName);
+}

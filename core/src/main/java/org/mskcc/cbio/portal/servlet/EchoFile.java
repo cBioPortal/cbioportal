@@ -24,6 +24,7 @@
  * along with this library; if not, write to the Free Software Foundation,
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
+
 package org.mskcc.cbio.portal.servlet;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -90,7 +91,7 @@ public class EchoFile extends HttpServlet {
                 return;
             }
 
-            Map fieldName2fileContent = new JSONObject();
+            Map fieldName2fileContent = new HashMap<String, String>();
 
             List<FileItem> items = new ServletFileUpload(new DiskFileItemFactory()).parseRequest(request);
 
@@ -107,7 +108,7 @@ public class EchoFile extends HttpServlet {
                 String encoding = "UTF-8";
                 StringWriter stringWriter = new StringWriter();
                 IOUtils.copy(contentStream, stringWriter, encoding);
-                String contentString = writer.toString();
+                String contentString = stringWriter.toString();
 
                 fieldName2fileContent.put(fieldName, contentString);
             }

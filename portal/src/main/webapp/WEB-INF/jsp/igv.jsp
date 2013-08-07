@@ -56,7 +56,8 @@
                 </p>
 
                 <br>
-                    <a id="igvLaunch" href="#" onclick="<%=IGVLinking.getIGVActionForSEGViewing(cancerTypeId, encodedGeneList) %>"><img src="images/webstart.jpg" alt=""/></a>
+                    <% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>
+                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>')"><img src="images/webstart.jpg" alt=""/></a>
                 <br>
 
                 <p>

@@ -46,15 +46,15 @@ public class IGVLinking {
 	private static final Log LOG = LogFactory.getLog(IGVLinking.class);
 	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy"); //  MM/dd/yyyy HH:mm:ss
 
-	public static String getIGVActionForSEGViewing(String cancerTypeId, String encodedGeneList)
+	public static String[] getIGVArgsForSegViewing(String cancerTypeId, String encodedGeneList)
 	{
 		// routine defined in igv_webstart.js
 		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + "_scna_hg18.seg";
-		return "prepIGVLaunch('" + segFileURL + "','" + encodedGeneList + "')";
+		return new String[] { segFileURL, encodedGeneList };
 	}
 
 	// returns null if exception has been thrown during processing
-	public static String getIGVActionForBAMViewing(String cancerStudyStableId, String caseId,
+	public static String[] getIGVArgsForBAMViewing(String cancerStudyStableId, String caseId,
 												   String chromosome, long startPos, long endPos)
 	{
 		if (!IGVLinking.validBAMActionArgs(cancerStudyStableId, caseId) ||
@@ -65,15 +65,15 @@ public class IGVLinking {
 		String bamFileURL = getBAMFileURL(caseId);
 		if (bamFileURL == null) return null;
 		
-		String action = null;
+		String locus = null;
 		try {
-			action = getAction(bamFileURL, chromosome, startPos, endPos);
+			locus = getLocus(chromosome, startPos, endPos);
 		}
 		catch (Exception e) {
 			if (LOG.isInfoEnabled()) LOG.info("getIGVActionForBAMViewing(), error processing request...");
 		}
 
-		return action;
+		return (locus == null) ? null : new String[] { bamFileURL, locus };
 	}
 
 	private static boolean validBAMActionArgs(String cancerStudy, String caseId)
@@ -151,11 +151,11 @@ public class IGVLinking {
 		return sb.toString();
 	}
 
-	private static String getAction(String bamFileURL, String chromosome, long startPos, long endPos) throws Exception
+	private static String getLocus(String chromosome, long startPos, long endPos) throws Exception
 	{
 		// an IGV locus string, e.g. chr1:000-200
 		String locus = chromosome + ":" + String.valueOf(startPos) + "-" + String.valueOf(endPos);
-		return "prepIGVLaunch('" + bamFileURL + "','" + URLEncoder.encode(locus, "US-ASCII") + "')";
+		return URLEncoder.encode(locus, "US-ASCII");
 	}
 
 	private static File encrypt(File messageToEncrypt) throws Exception

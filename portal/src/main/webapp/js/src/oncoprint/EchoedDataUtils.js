@@ -130,12 +130,17 @@ define("EchoedDataUtils", function() {
             .value();
     };
 
+    // *signature:* `string -> [{sample_id, gene, cna}]`
+    var parse_cna_tsv = function(str) {
+    };
+
     return {
         compress: compress,
         inner: inner,
         oncoprint_wash: oncoprint_wash,
         join_mutations: join_mutations,
         remove_undefined: remove_undefined,
-        samples: samples
+        samples: samples,
+        parse_cna_tsv: parse_cna_tsv
     };
 });

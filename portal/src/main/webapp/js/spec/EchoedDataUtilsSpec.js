@@ -50,6 +50,16 @@ require("EchoedDataUtils", function() {
             expect(utils.remove_undefined(_.chain([{sample: "sample1", mutation: undefined}]))).toEqual(
                 _.chain([{sample: "sample1"}]));
         })
+
+        it("knows how to make a cna tsv string into data", function() {
+
+            var str_in = "Hugo_Symbol\tEntrez_Gene_Id\tTCGA-BL-A0C8\tTCGA-BL-A13I\nBRCA2\t675\t0\t0\n";
+
+            var data_out = [ {sample_id: "TCGA-BL-A0C8", gene: "BRCA2", cna: "0"},
+                {sample_id: "TCGA-BL-A13I", gene: "BRCA2", cna: "0"} ];
+
+            expect(utils.parse_cna_tsv(str_in)).toEqual(data_out);
+        });
     });
 
 });

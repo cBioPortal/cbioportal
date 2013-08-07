@@ -470,22 +470,23 @@ public class MutationsJSON extends HttpServlet {
      */
     private Map<Long, Map<String,Integer>> getCosmic(
             List<ExtendedMutation> mutations) throws DaoException {
-        Set<Long> mutIds = new HashSet<Long>(mutations.size());
+        Set<String> mutKeywords = new HashSet<String>();
         for (ExtendedMutation mut : mutations) {
-            mutIds.add(mut.getMutationEventId());
+            mutKeywords.add(mut.getKeyword());
         }
         
-        Map<Long, List<CosmicMutationFrequency>> map = 
-                DaoMutation.getCosmicMutationFrequency(mutIds);
+        Map<String, List<CosmicMutationFrequency>> map = 
+                DaoCosmicData.getCosmicDataByKeyword(mutKeywords);
         Map<Long, Map<String,Integer>> ret
                 = new HashMap<Long, Map<String,Integer>>(map.size());
-        for (Map.Entry<Long, List<CosmicMutationFrequency>> entry : map.entrySet()) {
-            Long id = entry.getKey();
+        for (ExtendedMutation mut : mutations) {
+            String keyword = mut.getKeyword();
+            List<CosmicMutationFrequency> cmfs = map.get(keyword);
             Map<String,Integer> mapSI = new HashMap<String,Integer>();
-            for (CosmicMutationFrequency cmf : entry.getValue()) {
+            for (CosmicMutationFrequency cmf : cmfs) {
                 mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
             }
-            ret.put(id, mapSI);
+            ret.put(mut.getMutationEventId(), mapSI);
         }
         return ret;
     }

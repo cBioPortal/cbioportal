@@ -28,9 +28,8 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.dao.DaoCosmicData;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
@@ -40,48 +39,74 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
+import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
 
 /**
  * Command Line Tool to Import Background Gene Data.
  */
-public class ImportGeneData {
+public class ImportCosmicData {
     private ProgressMonitor pMonitor;
-    private File geneFile;
+    private File file;
 
-    public ImportGeneData(File geneFile, ProgressMonitor pMonitor) {
-        this.geneFile = geneFile;
+    public ImportCosmicData(File file, ProgressMonitor pMonitor) {
+        this.file = file;
         this.pMonitor = pMonitor;
     }
 
     public void importData() throws IOException, DaoException {
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        Pattern p = Pattern.compile("GENE=([^;]+);STRAND=(.);CDS=([^;]+);AA=p\\.([^;]+);CNT=([0-9]+)");
         MySQLbulkLoader.bulkLoadOn();
-        FileReader reader = new FileReader(geneFile);
+        FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         while (line != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
             }
             if (!line.startsWith("#")) {
-                String parts[] = line.split("\t");
-                int entrezGeneId = Integer.parseInt(parts[1]);
-                String geneSymbol = parts[2];
-                Set<String> aliases;
-                if (parts[4].equals("-")) {
-                    aliases = Collections.emptySet();
-                } else {
-                    aliases = new HashSet<String>(Arrays.asList(parts[4].split("\\|")));
+                String parts[] = line.split("\t",-1);
+                if (parts.length<8) {
+                    System.err.println("Wrong line in cosmic: "+line);
+                    continue;
                 }
                 
-                CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,
-                        aliases);
-                daoGene.addGene(gene);
+                String id = parts[2];
+                Matcher m = p.matcher(parts[7]);
+                if (m.find()) {
+                    String gene = m.group(1);
+                    CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene);
+                    if (canonicalGene==null) {
+                        System.err.println("Gene symbol in COSMIC not recognized: "+gene);
+                        continue;
+                    }
+                    
+                    String aa = m.group(4);
+                    String keyword = MutationKeywordUtils.guessCosmicKeyword(aa);
+                    if (keyword == null) {
+                        continue;
+                    }
+                    
+                    int count = Integer.parseInt(m.group(5));
+                
+                    CosmicMutationFrequency cmf = new CosmicMutationFrequency(id, 
+                            canonicalGene.getEntrezGeneId(), aa, gene + " " + keyword, count);
+                    
+                    cmf.setChr(parts[1]);
+                    cmf.setStartPosition(Long.parseLong(parts[1]));
+                    cmf.setReferenceAllele(parts[3]);
+                    cmf.setTumorSeqAllele(parts[4]);
+                    cmf.setStrand(m.group(2));
+                    cmf.setCds(m.group(3));
+                
+                    DaoCosmicData.addCosmic(cmf);
+                }
             }
             line = buf.readLine();
         }
@@ -91,23 +116,21 @@ public class ImportGeneData {
         }        
     }
 
-
     public static void main(String[] args) throws Exception {
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
-        daoGene.deleteAllRecords();
         if (args.length == 0) {
-            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt>");
+            System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
             System.exit(1);
         }
+        DaoCosmicData.deleteAllRecords();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
-        File geneFile = new File(args[0]);
-        System.out.println("Reading data from:  " + geneFile.getAbsolutePath());
-        int numLines = FileUtil.getNumLines(geneFile);
+        File file = new File(args[0]);
+        System.out.println("Reading data from:  " + file.getAbsolutePath());
+        int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
-        ImportGeneData parser = new ImportGeneData(geneFile, pMonitor);
+        ImportGeneData parser = new ImportGeneData(file, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");

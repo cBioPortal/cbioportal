@@ -97,6 +97,8 @@ darwin.db.password=
 
 # igv bam linking
 igv.bam.linking=false
+# colon delimited
+igv.bam.linking.studies=prad_su2c
 
 # openssl
 openssl.binary=/usr/bin/openssl

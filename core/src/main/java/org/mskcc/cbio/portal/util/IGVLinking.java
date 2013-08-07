@@ -26,8 +26,6 @@
 **/
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.portal.util.GlobalProperties;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
 import org.apache.commons.logging.Log;
@@ -56,9 +54,11 @@ public class IGVLinking {
 	}
 
 	// returns null if exception has been thrown during processing
-	public static String getIGVActionForBAMViewing(String caseId, String chromosome, long startPos, long endPos)
+	public static String getIGVActionForBAMViewing(String cancerStudyStableId, String caseId,
+												   String chromosome, long startPos, long endPos)
 	{
-		if (caseId == null || !IGVLinking.encryptionBinLocated()) {
+		if (!IGVLinking.validBAMActionArgs(cancerStudyStableId, caseId) ||
+			!IGVLinking.encryptionBinLocated()) {
 			return null;
 		}
 
@@ -74,6 +74,11 @@ public class IGVLinking {
 		}
 
 		return action;
+	}
+
+	private static boolean validBAMActionArgs(String cancerStudy, String caseId)
+	{
+		return (caseId != null && GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy));
 	}
 
 	private static boolean encryptionBinLocated()

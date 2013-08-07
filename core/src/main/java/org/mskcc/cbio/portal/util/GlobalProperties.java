@@ -27,8 +27,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Utility class for getting / setting global properties.
@@ -42,6 +41,7 @@ public class GlobalProperties {
 	public static final String ENCRYPTION_KEY = "encrypt_key";
 	public static final String BROAD_BAM_URL = "broad_bam_url";
 	public static final String IGV_BAM_LINKING = "igv_bam_linking";
+	public static final String IGV_BAM_LINKING_STUDIES = "igv_bam_linking_studies";
 
 	private static Map<String, String> properties;
     
@@ -56,6 +56,7 @@ public class GlobalProperties {
 		properties.put(ENCRYPTION_KEY, config.getProperty("encryption.key"));
 		properties.put(BROAD_BAM_URL, config.getProperty("broad.bam.url"));
 		properties.put(IGV_BAM_LINKING, config.getProperty("igv.bam.linking"));
+		properties.put(IGV_BAM_LINKING_STUDIES, config.getProperty("igv.bam.linking.studies"));
     }
 
     public static String getPathwayCommonsUrl()
@@ -79,6 +80,11 @@ public class GlobalProperties {
 	}
 
 	public static boolean wantIGVBAMLinking() {
-		return new Boolean(properties.get(IGV_BAM_LINKING));
+		return properties.get(IGV_BAM_LINKING).equals("true");
+	}
+
+	public static Collection<String> getIGVBAMLinkingStudies() {
+		String[] studies = properties.get(IGV_BAM_LINKING_STUDIES).split(":");
+		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 }

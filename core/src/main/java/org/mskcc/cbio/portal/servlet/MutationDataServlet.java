@@ -251,7 +251,8 @@ public class MutationDataServlet extends HttpServlet
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 				String IGVForBAMViewingAction = null;
 				if (GlobalProperties.wantIGVBAMLinking()) {
-					IGVForBAMViewingAction = IGVLinking.getIGVActionForBAMViewing(mutation.getCaseId(),
+				    IGVForBAMViewingAction = IGVLinking.getIGVActionForBAMViewing(cancerStudyStableId,
+																				  mutation.getCaseId(),
 																				  this.getChromosome(mutation),
 																				  mutation.getStartPosition(),
 																				  mutation.getEndPosition());

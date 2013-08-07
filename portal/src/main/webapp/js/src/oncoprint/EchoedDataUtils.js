@@ -130,19 +130,22 @@ define("EchoedDataUtils", function() {
             .value();
     };
 
-    // *signature:* `string -> _.chain([{sample_id, gene, cna}])`
+    var tsv = {
+        newline : "\n",
+        sep : "\t"
+    };
+
+    // *signature:* `string -> _.chain( [{sample_id, gene, cna}] )`
     var parse_cna_tsv = function(str) {
-        var newline = "\n";
-        var sep = "\t";
-        var lines = str.split(newline);
+        var lines = str.split(tsv.newline);
 
         var sample_ids = _.first(lines)
-            .split(sep)
+            .split(tsv.sep)
             .slice(2);
 
         return _.chain(_.rest(lines))
             .map(function(line) {
-                var values = line.split(sep);
+                var values = line.split(tsv.sep);
                 var gene = values[0];
                 var entrez = values[1];
                 var cnas = values.slice(2);
@@ -155,6 +158,23 @@ define("EchoedDataUtils", function() {
                     };
                 });
             });
+    };
+
+    // *signature:* `string -> _.chain( [{sample_id, gene, mutation}] )`
+    var parse_mutation_tsv = function(str) {
+        str = str.toLowerCase();
+        var data = d3.tsv.parse(str);
+
+        var rename = function(obj, old2new) {
+            _.reduce(old2New, function(o, n, old) {
+            // ...
+            },
+            obj);
+        };
+
+        return _.map(data, function(d) {
+            return rename(d, {"hugo_symbol": "gene", "protein_change": "mutation"});
+        });
     };
 
     return {

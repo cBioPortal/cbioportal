@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
 
 /**
@@ -249,14 +250,7 @@ public class MutationDataServlet extends HttpServlet
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
-				String[] IGVForBAMViewingArgs = null;
-				if (GlobalProperties.wantIGVBAMLinking()) {
-				    IGVForBAMViewingArgs = IGVLinking.getIGVArgsForBAMViewing(cancerStudyStableId,
-																			  mutation.getCaseId(),
-																			  this.getChromosome(mutation),
-																			  mutation.getStartPosition(),
-																			  mutation.getEndPosition());
-				}
+				String IGVForBAMViewingLink = getIGVForBAMViewingLink(cancerStudyStableId, mutation);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
@@ -698,5 +692,28 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		return counts;
+	}
+
+	private String getIGVForBAMViewingLink(String cancerStudyStableId, ExtendedMutation mutation)
+	{
+		String link = null;
+
+		if (GlobalProperties.wantIGVBAMLinking()) {
+			String locus = (this.getChromosome(mutation) + ":" +
+							String.valueOf(mutation.getStartPosition()) + "-" +
+							String.valueOf(mutation.getEndPosition()));
+			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
+				try {
+					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
+													   mutation.getCaseId(),
+													   URLEncoder.encode(locus,"US-ASCII"));
+				}
+				catch (java.io.UnsupportedEncodingException e) {
+					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());
+				}
+			}
+		}
+
+		return link;
 	}
 }

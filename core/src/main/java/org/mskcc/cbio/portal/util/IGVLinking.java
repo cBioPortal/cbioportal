@@ -54,31 +54,28 @@ public class IGVLinking {
 	}
 
 	// returns null if exception has been thrown during processing
-	public static String[] getIGVArgsForBAMViewing(String cancerStudyStableId, String caseId,
-												   String chromosome, long startPos, long endPos)
+	public static String[] getIGVArgsForBAMViewing(String cancerStudyStableId, String caseId, String locus)
 	{
-		if (!IGVLinking.validBAMActionArgs(cancerStudyStableId, caseId) ||
+		if (!IGVLinking.validBAMViewingArgs(cancerStudyStableId, caseId, locus) ||
 			!IGVLinking.encryptionBinLocated()) {
 			return null;
 		}
 
 		String bamFileURL = getBAMFileURL(caseId);
 		if (bamFileURL == null) return null;
-		
-		String locus = null;
-		try {
-			locus = getLocus(chromosome, startPos, endPos);
-		}
-		catch (Exception e) {
-			if (LOG.isInfoEnabled()) LOG.info("getIGVActionForBAMViewing(), error processing request...");
-		}
 
-		return (locus == null) ? null : new String[] { bamFileURL, locus };
+		String encodedLocus = getEncodedLocus(locus);
+		if (encodedLocus == null) return null;
+
+		return new String[] { bamFileURL, encodedLocus };
 	}
 
-	private static boolean validBAMActionArgs(String cancerStudy, String caseId)
+	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)
 	{
-		return (caseId != null && GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy));
+		return (caseId != null && caseId.length() > 0 &&
+				locus != null && locus.length() > 0 &&
+				cancerStudy != null && cancerStudy.length() > 0 &&
+				GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy));
 	}
 
 	private static boolean encryptionBinLocated()
@@ -151,11 +148,15 @@ public class IGVLinking {
 		return sb.toString();
 	}
 
-	private static String getLocus(String chromosome, long startPos, long endPos) throws Exception
+	private static String getEncodedLocus(String locus)
 	{
-		// an IGV locus string, e.g. chr1:000-200
-		String locus = chromosome + ":" + String.valueOf(startPos) + "-" + String.valueOf(endPos);
-		return URLEncoder.encode(locus, "US-ASCII");
+		String encodedLocus = null;
+		try {
+			encodedLocus = URLEncoder.encode(locus, "US-ASCII");
+		}
+		catch(Exception e){}
+
+		return encodedLocus;
 	}
 
 	private static File encrypt(File messageToEncrypt) throws Exception

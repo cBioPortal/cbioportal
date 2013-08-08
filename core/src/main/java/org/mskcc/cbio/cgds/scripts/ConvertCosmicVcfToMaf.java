@@ -56,7 +56,7 @@ public class ConvertCosmicVcfToMaf {
         FileWriter writer = new FileWriter(maf);
         BufferedWriter bufWriter = new BufferedWriter(writer);
         bufWriter.append("COSMIC_ID\tCOSMIC_COUNT\tChromosome\tStart_Position\tEnd_Position\t"
-                + "Reference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tNCBI_Build\tCOSMIC_Info");
+                + "Reference_Allele\tTumor_Seq_Allele1\tTumor_Seq_Allele2\tNCBI_Build\tCOSMIC_Info\n");
         
         FileReader reader = new FileReader(vcf);
         BufferedReader buf = new BufferedReader(reader);
@@ -93,7 +93,8 @@ public class ConvertCosmicVcfToMaf {
                             .append(alt).append("\t")
                             .append(alt).append("\t")
                             .append("37\t")
-                            .append(info);
+                            .append(info)
+                            .append("\n");
                 }
             }
         }

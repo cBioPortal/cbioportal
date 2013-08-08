@@ -81,6 +81,9 @@ public class ImportCosmicData {
                 Matcher m = p.matcher(parts[7]);
                 if (m.find()) {
                     String gene = m.group(1);
+                    if (gene.contains("_ENST")) {
+                        gene = gene.substring(gene.indexOf("_ENST"));
+                    }
                     CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene);
                     if (canonicalGene==null) {
                         System.err.println("Gene symbol in COSMIC not recognized: "+gene);

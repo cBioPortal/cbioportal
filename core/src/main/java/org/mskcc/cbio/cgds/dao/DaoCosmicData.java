@@ -56,6 +56,12 @@ public class DaoCosmicData {
                     // write to the temp file maintained by the MySQLbulkLoader
                     MySQLbulkLoader.getMySQLbulkLoader("cosmic_mutation").insertRecord(
                             cosmic.getId(),
+                            cosmic.getChr(),
+                            Long.toString(cosmic.getStartPosition()),
+                            cosmic.getReferenceAllele(),
+                            cosmic.getTumorSeqAllele(),
+                            cosmic.getStrand(),
+                            cosmic.getCds(),
                             Long.toString(cosmic.getEntrezGeneId()),
                             cosmic.getAminoAcidChange(),
                             Integer.toString(cosmic.getFrequency()),
@@ -141,7 +147,7 @@ public class DaoCosmicData {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-            pstmt.executeUpdate();
+            con = JdbcUtil.getDbConnection(DaoCosmicData.class);
             pstmt = con.prepareStatement("TRUNCATE TABLE cosmic_mutation");
             pstmt.executeUpdate();
         } catch (SQLException e) {

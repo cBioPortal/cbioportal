@@ -231,7 +231,7 @@ public class PatientView extends HttpServlet {
 
         request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
-        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, sampleIds.size()>1 ? Boolean.FALSE :
+        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, 
                 hasAlleleFrequencyData(cancerStudy, sampleIds.get(0), cancerStudy.getMutationProfile(sampleIds.get(0))));
         
         return true;

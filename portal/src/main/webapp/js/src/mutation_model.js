@@ -286,7 +286,7 @@ var MutationDetailsUtil = function(mutations)
 		var self = this;
 		var contains = false;
 
-		gene = gene.toLowerCase();
+		gene = gene.toUpperCase();
 
 		if (self._mutationGeneMap[gene] != undefined)
 		{

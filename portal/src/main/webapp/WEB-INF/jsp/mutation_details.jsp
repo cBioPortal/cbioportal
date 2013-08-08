@@ -96,6 +96,9 @@
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
 	}
+	.igv-link {
+		cursor: pointer;
+	}
 	.left-align-td {
 		text-align: left;
 	}

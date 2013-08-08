@@ -84,7 +84,7 @@
 			</a>
 		</td>
 		<td>
-			<a class='igv-link'>
+			<a class='igv-link' alt='{{igvLink}}'>
 				<span style="background-color:#88C;color:white">
 					&nbsp;IGV&nbsp;
 				</span>
@@ -590,6 +590,7 @@
 			vars.xVarLink = mutation.xVarLink;
 			vars.msaLink = mutation.msaLink;
 			vars.pdbLink = mutation.pdbLink;
+			vars.igvLink = mutation.igvLink;
 
 			var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 			vars.mutationStatusTip = mutationStatus.tip;
@@ -664,10 +665,21 @@
 
 			// remove invalid links
 			self.$el.find('a[href=""]').remove();
+			self.$el.find('a[alt=""]').remove();
 
+			// add click listener for each igv link to get the actual parameters
+			// from another servlet
 			_.each(self.$el.find('.igv-link'), function(element, index) {
-				// TODO send AJAX request to the server, call prepIGVLaunch with returned data
-				// prepIGVLaunch(bamFileUrl, locus);
+				var url = $(element).attr("alt");
+
+				$(element).click(function(evt) {
+					// get parameters from the server and call related igv function
+					$.getJSON(url, function(data) {
+						console.log(data);
+						// TODO this call displays warning message (resend)
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus);
+					});
+				});
 			});
 
 			var tableSelector = self.$el.find('.mutation_details_table');

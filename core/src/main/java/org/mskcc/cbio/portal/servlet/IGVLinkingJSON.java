@@ -26,6 +26,7 @@
 **/
 package org.mskcc.cbio.portal.servlet;
 
+import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.util.IGVLinking;
 
 import org.json.simple.JSONArray;
@@ -69,15 +70,15 @@ public class IGVLinkingJSON extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException
 	{
-		JSONArray igvArgs = new JSONArray();
+		JSONObject igvArgs = new JSONObject();
 
 		String[] parameters = getParameters(request);
 		if (parameters != null) {
 			String[] args = IGVLinking.getIGVArgsForBAMViewing(parameters[CANCER_STUDY_ID_INDEX],
 															   parameters[CASE_ID_INDEX],
 															   parameters[LOCUS_INDEX]);
-			igvArgs.add(args[0]);
-			igvArgs.add(args[1]);
+			igvArgs.put("bamFileUrl", args[0]);
+			igvArgs.put("encodedLocus", args[1]);
 		}
 
         response.setContentType("application/json");

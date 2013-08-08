@@ -117,7 +117,6 @@ public class ImportCosmicData {
     }
 
     public static void main(String[] args) throws Exception {
-        args = new String[] {"/Users/jj/projects/cbio-portal-data/reference-data/CosmicCodingMuts.vcf"};
         if (args.length == 0) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
             System.exit(1);

@@ -63,18 +63,31 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
                     $(oncoprint_el).empty();    // clear out the div each time
 
-                    data = res;     // set data
+                    var parsers = {
+                        cna: EchoedDataUtils.munge_cna,
+                        mutation: EchoedDataUtils.munge_mutation
+                    };
+
+                    data = _.chain(res)
+                        .map(function(d, type) {
+                            return parsers[type](d);
+                        })
+                        .flatten()
+                        .value();
+
+                    data = EchoedDataUtils.join_all(data);
 
                     cases = EchoedDataUtils.samples(data);
 
                     // set up oncoprint params
-                    data = EchoedDataUtils.oncoprint_wash(data);
                     var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
                     var params = { geneData: data, genes:genes };
                     params.legend =  document.getElementById("oncoprint_legend");
 
                     // exec
                     oncoprint = Oncoprint(oncoprint_el, params);
+
+                    oncoprint.memoSort(genes);
 
                     // remove text: "Copy number alterations are putative."
                     $('#oncoprint_legend p').remove();

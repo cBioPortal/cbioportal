@@ -1,44 +1,11 @@
 define("EchoedDataUtils", function() {
-    // Takes data of the form: {value sample_id datatype gene}, nests and
-    // mangles to get a list of data of the form indexed by sample_id, i.e. a
-    // list of the form {sample_id [cna mutation etc]}
-    //
-    // *signature:* `[list of {objects}] -> _.chain([list of {objects}])`
-    var compress = function(data) {
-        var nestBy = function(key) {
-            return function(acc, d) {
-                acc[d[key]] = acc[d[key]] || [];
-                acc[d[key]].push(d);
-
-                return acc;
-            };
-        };
-
-        return _.chain(data)
-    .groupBy(function(d) {
-        return d.sample_id;
-    })
-        .values()
-            .map(function(datas) {
-                return _.reduce(datas, function(acc, d) {
-                    acc.gene = d.gene;      // resetting on every iteration, ...not good
-                    acc.sample_id = d.sample_id;
-                    acc[d.datatype] = d.value;
-
-                    // N.B. this is conflating unknown cna value with DIPLOID
-                    // because that's the way it currently is in the oncoprint
-                    acc = _.defaults(acc, { cna: "DIPLOID" });
-
-                    return acc;
-                }, {});
-            });
-    };
 
     // joins mutations from a particular gene a particular patient into a
     // string where the delimiter is the `on` parameter
     //
-    // *signature:* `string _.chain -> _.chain`
-    var join_mutations = function(on, chain) {
+    // *signature:* `string, coll -> _.chain(coll)`
+    var join_mutations = function(on, coll) {
+        var chain = _.chain(coll);
 
         return chain.groupBy(function(d) { return d.sample; })
             .values()
@@ -48,53 +15,42 @@ define("EchoedDataUtils", function() {
                 .values()
                 .value();
             })
-        .map(function(sample_gene_group) {
-            return sample_gene_group[0].reduce(function(acc, d) {
+            .map(function(sample_gene_group) {
+                return sample_gene_group[0].reduce(function(acc, d) {
 
-                var joined_mutation = acc.mutation === undefined ? d.mutation : acc.mutation + "," + d.mutation;
+                    var joined_mutation = acc.mutation === undefined ? d.mutation : acc.mutation + "," + d.mutation;
 
-                // initialize
-                acc = _.extend(acc, d);
+                    // initialize
+                    acc = _.extend(acc, d);
 
-                // update
-                acc = _.extend(acc, { mutation: joined_mutation });
+                    // update
+                    acc = _.extend(acc, { mutation: joined_mutation });
 
-                return acc;
-            }, {});
-        })
-        .flatten();
+                    return acc;
+                }, {});
+            })
+            .flatten();
     };
 
-    var num2cna = {
-        "2": "AMPLIFIED",
-        "1": "GAINED",
-        "0": "DIPLOID",
-        "-1": "HEMIZYGOUSLYDELETED",
-        "-2": "HOMODELETED"
-    };
 
-    var replace_key = function(obj, original, replace) {
-        obj[replace] = obj[original];
-        delete obj[original];
+    // converts cna numbers (-1, 0, ...) into strings (HEMIZYGOUSLYDELETED, DIPLOID, ...)
+    // *signature:* `coll -> _.chain( [list of data] )`
+    var convert_num2cna = function(coll) {
+        var num2cna = {
+            "2": "AMPLIFIED",
+            "1": "GAINED",
+            "0": "DIPLOID",
+            "-1": "HEMIZYGOUSLYDELETED",
+            "-2": "HOMODELETED"
+        };
 
-        return obj;
-    };
+        coll = _.chain(coll);
 
-    // inner functions, not for external use
-    var inner = {
-        // evalues the chain after doing some key/value replacements
-        // *signature:* `_.chain([list of {objects}]) -> _.chain([list of {objects}])`
-        oncoprint_wash : function(chain) {
-                             return chain.map(function(d) {
-                                 d = replace_key(d, 'sample_id', 'sample');
+        return coll.map(function(d) {
+            d.cna = num2cna[d.cna];
 
-                                 if (d.cna !== undefined) {
-                                     d.cna = num2cna[d.cna];
-                                 }
-
-                                 return d;
-                             })
-                         }
+            return d;
+        });
     };
 
     // removes all properties that have a value of undefined from a list of
@@ -111,12 +67,13 @@ define("EchoedDataUtils", function() {
         });
     };
 
+    // *signature:* `[list of data] -> [munged data]`
     var oncoprint_wash = function(data) {
-        return remove_undefined(
-                join_mutations(",",
-                    inner.oncoprint_wash(
-                        compress(data))))
-            .value();
+        var coll = _.chain(data);
+
+        return join_mutations(
+            convert_num2cna(
+                remove_undefined(coll))).value();
     };
 
     // takes a list of data that has an attribute "sample_id"
@@ -135,7 +92,7 @@ define("EchoedDataUtils", function() {
         sep : "\t"
     };
 
-    // *signature:* `string -> _.chain( [{sample_id, gene, cna}] )`
+    // *signature:* `string -> [{sample_id, gene, cna}]`
     var parse_cna_tsv = function(str) {
         var lines = str.split(tsv.newline);
 
@@ -153,37 +110,89 @@ define("EchoedDataUtils", function() {
                 return _.map(cnas, function(cna, index) {
                     return {
                         cna: cna,
-                        sample_id: sample_ids[index],
+                        sample: sample_ids[index],
                         gene: gene
                     };
                 });
-            });
+            })
+            .flatten()
+            .value();
     };
 
     // *signature:* `string -> _.chain( [{sample_id, gene, mutation}] )`
     var parse_mutation_tsv = function(str) {
-        str = str.toLowerCase();
         var data = d3.tsv.parse(str);
 
-        var rename = function(obj, old2new) {
-            _.reduce(old2New, function(o, n, old) {
-            // ...
-            },
-            obj);
+        var aliases = {
+            protein_change: "mutation",
+            sample_id: "sample",
+            hugo_symbol: "gene"
         };
 
-        return _.map(data, function(d) {
-            return rename(d, {"hugo_symbol": "gene", "protein_change": "mutation"});
-        });
+        // *signature:* `{mutation datum} -> {datum with renamed keys}`
+        var munge_keys = function(d) {
+            var toReturn = {};
+
+            _.each(d, function(val, key) {
+                key = key.toLowerCase();
+                key = aliases[key] || key;
+                toReturn[key] = val;
+            });
+
+            toReturn = _.pick(toReturn, _.values(aliases));
+
+            return toReturn;
+        };
+
+        return data.map(munge_keys);
+    };
+
+    var munge_cna = _.compose(convert_num2cna, parse_cna_tsv);
+
+    var on_comma =  function(data) {
+        // todo: in leiu of an outdated verison of underscore without _.partial
+        return join_mutations(",", data);
+    };
+
+    var munge_mutation = _.compose(on_comma, parse_mutation_tsv);
+
+    // joins data on a key
+    // *signature:* `coll -> coll`
+    var join_all = function(coll) {
+
+        coll = _.chain(coll);
+
+        // takes a list of records and joins them into one record, overriding
+        // common keys as it goes
+        var join = function(coll) {
+            return coll.reduce(function(curr, acc) {
+                return _.extend(acc, curr);
+            });
+        };
+
+        return coll
+            .groupBy(function(d) {
+                return d.sample;
+            })
+            .values()
+            .map(function(group) {
+                return _.chain(group)
+                    .groupBy(group, function(d) {
+                        return d.gene;
+                    })
+                    .values()
+                    .map(join)
+                    .value();
+            })
+            .flatten();
     };
 
     return {
-        compress: compress,
-        inner: inner,
-        oncoprint_wash: oncoprint_wash,
         join_mutations: join_mutations,
         remove_undefined: remove_undefined,
         samples: samples,
-        parse_cna_tsv: parse_cna_tsv
+        munge_cna: function(data) { return munge_cna(data).value(); },
+        munge_mutation: function(data) { return munge_mutation(data).value(); },
+        join_all: function(data) { return join_all(data).value(); }
     };
 });

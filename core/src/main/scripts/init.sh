@@ -25,3 +25,6 @@
 
 # Drug
 ./importPiHelperData.pl
+
+# Pfam Graphic Data
+./importPfamGraphicsData.pl $PORTAL_DATA_HOME/reference-data/pfam-graphics.txt

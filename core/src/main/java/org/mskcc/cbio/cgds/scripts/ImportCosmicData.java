@@ -46,9 +46,6 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
 
-/**
- * Command Line Tool to Import Background Gene Data.
- */
 public class ImportCosmicData {
     private ProgressMonitor pMonitor;
     private File file;
@@ -78,6 +75,12 @@ public class ImportCosmicData {
                 }
                 
                 String id = parts[2];
+                if (!id.matches("COSM[0-9]+")) {
+                    System.err.println("Wrong cosmic ID: "+id);
+                } else {
+                    id = id.substring(4);
+                }
+                
                 Matcher m = p.matcher(parts[7]);
                 if (m.find()) {
                     String gene = m.group(1);
@@ -104,7 +107,7 @@ public class ImportCosmicData {
                     CosmicMutationFrequency cmf = new CosmicMutationFrequency(id, 
                             canonicalGene.getEntrezGeneId(), aa, gene + " " + keyword, count);
                     
-                    cmf.setChr(parts[1]);
+                    cmf.setChr(parts[0]);
                     cmf.setStartPosition(Long.parseLong(parts[1]));
                     cmf.setReferenceAllele(parts[3]);
                     cmf.setTumorSeqAllele(parts[4]);
@@ -115,7 +118,7 @@ public class ImportCosmicData {
                 }
             }
         }
-        reader.close();
+        buf.close();
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }        

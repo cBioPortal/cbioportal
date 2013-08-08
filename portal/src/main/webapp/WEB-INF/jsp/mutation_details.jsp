@@ -1,3 +1,5 @@
+<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
+
 <div class='section' id='mutation_details'></div>
 
 <style type="text/css" title="currentStyle">

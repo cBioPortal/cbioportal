@@ -43,10 +43,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	 * @param headers           column header names
 	 * @param indexMap          map of <column name, column index>
 	 * @param containsGermline  whether the table contains a germline mutation
+	 * @param containsIgvLink   whether the table contains a valid link to IGV
 	 * @return {Array}          an array of column indices
 	 * @private
 	 */
-	function _getHiddenColumns(headers, indexMap, containsGermline)
+	function _getHiddenColumns(headers, indexMap, containsGermline, containsIgvLink)
 	{
 		// set hidden column indices
 		var hiddenCols = [];
@@ -62,7 +63,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		//count -= 1;
 
 		// hide special gene columns and less important columns by default
-		for (var col=9; col<count; col++)
+		for (var col=10; col<count; col++)
 		{
 			// do not hide allele frequency (T) and count columns
 			if (!(col == indexMap["allele freq (t)"] ||
@@ -76,6 +77,12 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		if (!containsGermline)
 		{
 			hiddenCols.push(indexMap["ms"]);
+		}
+
+		// conditionally hide BAM file column if there is no valid link available
+		if (!containsIgvLink)
+		{
+			hiddenCols.push(indexMap["bam"]);
 		}
 
 		return hiddenCols;
@@ -518,8 +525,10 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		var indexMap = _buildColumnIndexMap(headers);
 
 		// determine hidden columns
-		var hiddenCols = _getHiddenColumns(headers, indexMap,
-			mutationUtil.containsGermline(gene));
+		var hiddenCols = _getHiddenColumns(headers,
+			indexMap,
+			mutationUtil.containsGermline(gene),
+			mutationUtil.containsIgvLink(gene));
 
 		// add custom sort functions for specific columns
 		_addSortFunctions();

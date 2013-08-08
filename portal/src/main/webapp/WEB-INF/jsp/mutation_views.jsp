@@ -84,6 +84,13 @@
 			</a>
 		</td>
 		<td>
+			<a class='igv-link'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;IGV&nbsp;
+				</span>
+			</a>
+		</td>
+		<td>
 			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
@@ -138,6 +145,7 @@
 	    class='mutation-table-header'>FIS</th>
 	<th alt='Conservation' class='mutation-table-header'>Cons</th>
 	<th alt='3D Structure' class='mutation-table-header'>3D</th>
+	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
@@ -656,6 +664,11 @@
 
 			// remove invalid links
 			self.$el.find('a[href=""]').remove();
+
+			_.each(self.$el.find('.igv-link'), function(element, index) {
+				// TODO send AJAX request to the server, call prepIGVLaunch with returned data
+				// prepIGVLaunch(bamFileUrl, locus);
+			});
 
 			var tableSelector = self.$el.find('.mutation_details_table');
 

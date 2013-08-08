@@ -81,7 +81,7 @@ public class ConvertCosmicVcfToMaf {
                     String chr = parts[0];
                     long start = Long.parseLong(parts[1]);
                     String ref = parts[3];
-                    String alt = parts[4];
+                    String alt = parts[4].equals(".")?"-":parts[4];
                     long end = start + ref.length() -1;
                     
                     bufWriter.append(id).append("\t")

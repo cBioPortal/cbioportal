@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,6 +92,9 @@ public class DaoCosmicData {
         for (ExtendedMutation mut : mutations) {
             String keyword = mut.getKeyword();
             List<CosmicMutationFrequency> cmfs = map.get(keyword);
+            if (cmfs==null) {
+                return Collections.emptyMap();
+            }
             Map<String,Integer> mapSI = new HashMap<String,Integer>();
             for (CosmicMutationFrequency cmf : cmfs) {
                 mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());

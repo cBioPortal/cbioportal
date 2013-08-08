@@ -82,7 +82,7 @@ public class ImportCosmicData {
                 if (m.find()) {
                     String gene = m.group(1);
                     if (gene.contains("_ENST")) {
-                        gene = gene.substring(gene.indexOf("_ENST"));
+                        gene = gene.substring(0,gene.indexOf("_ENST"));
                     }
                     CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene);
                     if (canonicalGene==null) {

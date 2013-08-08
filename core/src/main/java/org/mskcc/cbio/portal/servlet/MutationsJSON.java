@@ -83,7 +83,7 @@ public class MutationsJSON extends HttpServlet {
             if (mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
                 mutations = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(),patients);
-                cosmic = getCosmic(mutations);
+                cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
                 String concatEventIds = getConcatEventIds(mutations);
                 int profileId = mutationProfile.getGeneticProfileId();
                 daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -460,35 +460,6 @@ public class MutationsJSON extends HttpServlet {
             }
         }
         return mapGeneQvalue.get(gene);
-    }
-    
-    /**
-     * 
-     * @param mutations
-     * @return Map of event id to map of aa change to count
-     * @throws DaoException 
-     */
-    private Map<Long, Map<String,Integer>> getCosmic(
-            List<ExtendedMutation> mutations) throws DaoException {
-        Set<String> mutKeywords = new HashSet<String>();
-        for (ExtendedMutation mut : mutations) {
-            mutKeywords.add(mut.getKeyword());
-        }
-        
-        Map<String, List<CosmicMutationFrequency>> map = 
-                DaoCosmicData.getCosmicDataByKeyword(mutKeywords);
-        Map<Long, Map<String,Integer>> ret
-                = new HashMap<Long, Map<String,Integer>>(map.size());
-        for (ExtendedMutation mut : mutations) {
-            String keyword = mut.getKeyword();
-            List<CosmicMutationFrequency> cmfs = map.get(keyword);
-            Map<String,Integer> mapSI = new HashMap<String,Integer>();
-            for (CosmicMutationFrequency cmf : cmfs) {
-                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
-            }
-            ret.put(mut.getMutationEventId(), mapSI);
-        }
-        return ret;
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

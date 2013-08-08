@@ -34,10 +34,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
+import org.mskcc.cbio.cgds.model.ExtendedMutation;
 
 /**
  *
@@ -60,6 +63,35 @@ public class DaoCosmicData {
 
                     return 1;
             }
+    }
+    
+    /**
+     * 
+     * @param mutations
+     * @return Map of event id to map of aa change to count
+     * @throws DaoException 
+     */
+    public static Map<Long, Map<String,Integer>> getCosmicForMutationEvents(
+            List<ExtendedMutation> mutations) throws DaoException {
+        Set<String> mutKeywords = new HashSet<String>();
+        for (ExtendedMutation mut : mutations) {
+            mutKeywords.add(mut.getKeyword());
+        }
+        
+        Map<String, List<CosmicMutationFrequency>> map = 
+                DaoCosmicData.getCosmicDataByKeyword(mutKeywords);
+        Map<Long, Map<String,Integer>> ret
+                = new HashMap<Long, Map<String,Integer>>(map.size());
+        for (ExtendedMutation mut : mutations) {
+            String keyword = mut.getKeyword();
+            List<CosmicMutationFrequency> cmfs = map.get(keyword);
+            Map<String,Integer> mapSI = new HashMap<String,Integer>();
+            for (CosmicMutationFrequency cmf : cmfs) {
+                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
+            }
+            ret.put(mut.getMutationEventId(), mapSI);
+        }
+        return ret;
     }
     
     /**

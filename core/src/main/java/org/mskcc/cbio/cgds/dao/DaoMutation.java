@@ -34,20 +34,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.Case;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
 
@@ -126,7 +121,6 @@ public final class DaoMutation {
                     event.getDbSnpRs(),
                     event.getDbSnpValStatus(),
                     event.getOncotatorDbSnpRs(),
-                    event.getOncotatorCosmicOverlapping(),
                     event.getOncotatorRefseqMrnaId(),
                     event.getOncotatorCodonChange(),
                     event.getOncotatorUniprotName(),
@@ -475,7 +469,6 @@ public final class DaoMutation {
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
         event.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
-        event.setOncotatorCosmicOverlapping(rs.getString("ONCOTATOR_COSMIC_OVERLAPPING"));
         event.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
         event.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
         event.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));

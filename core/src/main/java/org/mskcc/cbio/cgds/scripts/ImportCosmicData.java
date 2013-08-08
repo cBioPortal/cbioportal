@@ -117,6 +117,7 @@ public class ImportCosmicData {
     }
 
     public static void main(String[] args) throws Exception {
+        args = new String[] {"/Users/jj/projects/cbio-portal-data/reference-data/CosmicCodingMuts.vcf"};
         if (args.length == 0) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
             System.exit(1);
@@ -130,7 +131,7 @@ public class ImportCosmicData {
         int numLines = FileUtil.getNumLines(file);
         System.out.println(" --> total number of lines:  " + numLines);
         pMonitor.setMaxValue(numLines);
-        ImportGeneData parser = new ImportGeneData(file, pMonitor);
+        ImportCosmicData parser = new ImportCosmicData(file, pMonitor);
         parser.importData();
         ConsoleUtil.showWarnings(pMonitor);
         System.err.println("Done.");

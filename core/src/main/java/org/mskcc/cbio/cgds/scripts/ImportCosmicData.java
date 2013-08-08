@@ -64,8 +64,8 @@ public class ImportCosmicData {
         MySQLbulkLoader.bulkLoadOn();
         FileReader reader = new FileReader(file);
         BufferedReader buf = new BufferedReader(reader);
-        String line = buf.readLine();
-        while (line != null) {
+        String line;
+        while ((line = buf.readLine()) != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
@@ -108,7 +108,6 @@ public class ImportCosmicData {
                     DaoCosmicData.addCosmic(cmf);
                 }
             }
-            line = buf.readLine();
         }
         reader.close();
         if (MySQLbulkLoader.isBulkLoad()) {

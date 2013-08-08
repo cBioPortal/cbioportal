@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoCosmicData;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
@@ -53,7 +51,7 @@ public class ConvertCosmicVcfToMaf {
         this.pMonitor = pMonitor;
     }
 
-    public void convert() throws IOException, DaoException {
+    public void convert() throws IOException {
         Pattern p = Pattern.compile(".+;CNT=([0-9]+)");
         FileWriter writer = new FileWriter(maf);
         BufferedWriter bufWriter = new BufferedWriter(writer);
@@ -108,7 +106,6 @@ public class ConvertCosmicVcfToMaf {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf> <CosmicCodingMuts.maf>");
             System.exit(1);
         }
-        DaoCosmicData.deleteAllRecords();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 

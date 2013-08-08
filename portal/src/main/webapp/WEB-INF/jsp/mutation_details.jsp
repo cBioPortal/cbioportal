@@ -90,11 +90,13 @@
 	.mutation-diagram-container {
 		margin-bottom: 10px;
 	}
-	.mutation-diagram-filter-info {
-		margin-left: 20px;
+	.mutation-details-filter-info {
+		font-size: 14px;
+		font-family: verdana,arial,sans-serif;
 		color: red;
+		margin-bottom: 10px;
 	}
-	.mutation-diagram-filter-reset {
+	.mutation-details-filter-reset {
 		color: #1974B8 !important;
 		cursor: pointer;
 	}

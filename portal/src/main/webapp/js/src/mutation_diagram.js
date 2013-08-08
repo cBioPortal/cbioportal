@@ -1333,6 +1333,28 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 };
 
 /**
+ * Checks whether a diagram circle is highlighted or not.
+ *
+ * @param selector  selector for a specific circle element
+ * @return {boolean} true if highlighted, false otherwise
+ */
+MutationDiagram.prototype.isHighlighted = function(selector)
+{
+	var self = this;
+	var circle = d3.select(selector);
+	var highlighted = false;
+
+	// assuming regular radius and highlight radius are not the same
+	// TODO use a property, datum, or a map to make this check safer
+	if (circle.attr("r") == self.options.lollipopHighlightRadius)
+	{
+		highlighted = true;
+	}
+
+	return highlighted;
+};
+
+/**
  * Resets all highlighted circles back to their original state.
  */
 MutationDiagram.prototype.clearHighlights = function()
@@ -1360,4 +1382,23 @@ MutationDiagram.prototype.highlight = function(selector)
 		.duration(600)
 		.delay(100)
 		.attr("r", self.options.lollipopHighlightRadius);
+};
+
+/**
+ * Removes highlight of a single circle. This function assumes that the provided
+ * selector is a selector for one of the SVG circle elements on the
+ * diagram.
+ *
+ * @param selector  selector for a specific circle element
+ */
+MutationDiagram.prototype.removeHighlight = function(selector)
+{
+	var self = this;
+	var circle = d3.select(selector);
+
+	circle.transition()
+		.ease("elastic")
+		.duration(600)
+		.delay(100)
+		.attr("r", self.options.lollipopRadius);
 };

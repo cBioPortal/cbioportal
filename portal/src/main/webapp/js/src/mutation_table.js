@@ -22,6 +22,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	// reference to the data table object
 	var dataTable = null;
 
+	// this is used to check if search string is changed after each redraw
+	var prevSearch = "";
+
 	/**
 	 * Creates a mapping for given column headers. The mapped values
 	 * will be the array indices for each element.
@@ -141,7 +144,12 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	            // add tooltips to the table
 	            _addMutationTableTooltips(tableSelector);
 
-		        if (callbackActive)
+		        var currSearch = oSettings.oPreviousSearch.sSearch;
+
+		        // call the functions only if the corresponding flag is set
+		        // and there is a change in the search term
+		        if (callbackActive &&
+		            prevSearch != currSearch)
 		        {
 			        // call registered callback functions
 			        for (var i=0; i < callbackFunctions.length; i++)
@@ -149,6 +157,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 				        callbackFunctions[i](tableSelector);
 			        }
 		        }
+
+		        // update prev search string reference for future use
+		        prevSearch = currSearch;
 	        }
 	    });
 

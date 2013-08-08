@@ -41,12 +41,12 @@
 		</form>
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
-		<span class='mutation-diagram-filter-info'>
-			Current view shows filtered results.
-			Click <a class='mutation-diagram-filter-reset'>here</a> to reset all filters.
-		</span>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+	<div class='mutation-details-filter-info'>
+		Current view shows filtered results.
+		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
+	</div>
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
@@ -326,7 +326,7 @@
 		 */
 		initResetFilterInfo: function(diagram, tableView) {
 			var self = this;
-			var resetLink = self.$el.find(".mutation-diagram-filter-reset");
+			var resetLink = self.$el.find(".mutation-details-filter-reset");
 
 			// add listener to diagram reset link
 			resetLink.click(function (event) {
@@ -343,10 +343,10 @@
 			});
 		},
 		showFilterInfo: function() {
-			this.$el.find(".mutation-diagram-filter-info").show();
+			this.$el.find(".mutation-details-filter-info").show();
 		},
 		hideFilterInfo: function() {
-			this.$el.find(".mutation-diagram-filter-info").hide();
+			this.$el.find(".mutation-details-filter-info").hide();
 		}
 	});
 
@@ -514,21 +514,35 @@
 					tableView.highlight(datum.mutations);
 				});
 
-				// TODO it may be nice to unselect (if already selected) on a second click
 				diagram.addListener("circle", "click", function(datum, index) {
-					// remove all table & diagram highlights
-					tableView.clearHighlights();
-					diagram.clearHighlights('circle');
+					// if already highlighted, remove highlight on a second click
+					if (diagram.isHighlighted(this))
+					{
+						// remove highlight for the target circle
+						diagram.removeHighlight(this);
 
-					// highlight the target circle on the diagram
-					diagram.highlight(this);
+						// TODO roll back the table to its previous state
+						// filter table with the current mutations on the diagram
+						// (or use the search text in the table's search box?)
+					}
+					else
+					{
+						// remove all table & diagram highlights
+						tableView.clearHighlights();
+						diagram.clearHighlights('circle');
 
-					// filter table for the given mutations
-					tableView.filter(datum.mutations);
+						// highlight the target circle on the diagram
+						diagram.highlight(this);
 
-					// show filter reset info
-					mainMutationView.showFilterInfo();
+						// filter table for the given mutations
+						tableView.filter(datum.mutations);
+
+						// show filter reset info
+						mainMutationView.showFilterInfo();
+					}
 				});
+
+				//TODO also add listener to diagram background to remove highlights
 			};
 
 			// callback function to init view after retrieving

@@ -121,19 +121,20 @@ define("EchoedDataUtils", function() {
     // joins on gene and sample to create a single object with
     // a single mutation string with mutations separated by `on`
     //
-    // *signature:* `string -> function(coll)`
+    // *signature:* `string -> function(coll) -> coll`
     var join_mutations_on = function(on) {
         return function(coll) {
             coll = _.chain(coll);
 
             var join_mutation_on = function(on) {
                 return function(list) {
-                    _.reduce(list, function(curr, acc) {
-
-                        // append mutation to end
-                        var new_mutation_str  = acc.mutation + on + curr.mutation;
+                    return _.reduce(list, function(curr, acc) {
 
                         acc = _.extend(acc, curr);
+
+                        var new_mutation_str = _.compact([acc.mutation, curr.mutation]).join(on)    // append mutation to end
+                            || undefined;                                                           // or undefined if === ""
+
                         acc.mutation = new_mutation_str;
 
                         return acc;

@@ -1,5 +1,5 @@
 /**
- * Constructor for MutationDiagram class.
+ * Constructor for the MutationDiagram class.
  *
  * @param geneSymbol    hugo gene symbol
  * @param options       visual options object
@@ -18,6 +18,7 @@ function MutationDiagram(geneSymbol, options, data)
 
 	self.rawData = data; // data returned by server
 	self.geneSymbol = geneSymbol; // hugo gene symbol
+	self.currentData = data; // current data set (updated after each filtering)
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
@@ -35,6 +36,10 @@ function MutationDiagram(geneSymbol, options, data)
 }
 
 // TODO use percent values instead of pixel values for some components?
+
+/**
+ * Default visual options.
+ */
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
@@ -148,13 +153,16 @@ MutationDiagram.prototype.defaultOpts = {
 	 * @param region    a JSON object representing the region
 	 */
 	regionTipFn: function (element, region) {
-		// TODO extract to a backbone view?
-		var text = region.metadata.identifier + " " +
-		           region.type.toLowerCase() + ", " +
-		           region.metadata.description +
-		           " (" + region.metadata.start + " - " + region.metadata.end + ")";
+		var model = {identifier: region.metadata.identifier,
+			type: region.type,
+			description: region.metadata.description,
+			start: region.metadata.start,
+			end: region.metadata.end};
 
-		var options = {content: {text: '<span class="diagram-region-tip">'+text+'</span>'},
+		var tooltipView = new RegionTipView({model: model});
+		var content = tooltipView.compileTemplate();
+
+		var options = {content: {text: content},
 			hide: {fixed: true, delay: 100},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
@@ -1188,7 +1196,8 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
  * Updates the plot area of the diagram for the given set of mutation data.
  * This function assumes that the provided mutation data is a subset
  * of the original data. Therefore this function only modifies the plot area
- * elements (lollipops, labels, etc.)
+ * elements (lollipops, labels, etc.). If the provided data set is not a subset
+ * of the original data, then the behavior of this function is unpredicted.
  *
  * If the number of mutations provided in mutationData is less than the number
  * mutation in the original data set, this function returns true to indicate
@@ -1201,6 +1210,7 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 MutationDiagram.prototype.updatePlot = function(mutationData)
 {
 	var self = this;
+	// TODO for a safer update, verify the provided data
 	var pileups = this.processData(mutationData);
 
 	// select all plot area elements
@@ -1259,14 +1269,10 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 		}
 	}
 
-	var filtered = false;
+	// update current data
+	self.currentData = mutationData;
 
-	if (mutationData.length < self.rawData.length)
-	{
-		filtered = true;
-	}
-
-	return filtered;
+	return self.isFiltered();
 };
 
 /**
@@ -1354,8 +1360,10 @@ MutationDiagram.prototype.isHighlighted = function(selector)
 	var circle = d3.select(selector);
 	var highlighted = false;
 
+	// TODO relying on graphical attributes!
+	// ...use a property, datum, or a map to make this check safer
+
 	// assuming regular radius and highlight radius are not the same
-	// TODO use a property, datum, or a map to make this check safer
 	if (circle.attr("r") == self.options.lollipopHighlightRadius)
 	{
 		highlighted = true;
@@ -1411,4 +1419,25 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 		.duration(300)
 		.delay(10)
 		.attr("r", self.options.lollipopRadius);
+};
+
+/**
+ * Checks the diagram for filtering. If the current data set
+ * is a subset of the initial data set, then it means
+ * the diagram is filtered. If the current data set is the
+ * initial data set, then the diagram is not filtered.
+ *
+ * @return {boolean} true if current view is filtered, false otherwise
+ */
+MutationDiagram.prototype.isFiltered = function()
+{
+	var self = this;
+	var filtered = false;
+
+	if (self.currentData.length < self.rawData.length)
+	{
+		filtered = true;
+	}
+
+	return filtered;
 };

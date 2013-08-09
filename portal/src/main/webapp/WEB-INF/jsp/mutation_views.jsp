@@ -199,6 +199,12 @@
 	</span>
 </script>
 
+<script type="text/template" id="mutation_details_region_tip_template">
+	<span class="diagram-region-tip">
+		{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})
+	</span>
+</script>
+
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-link'>
@@ -482,9 +488,9 @@
 				if (mutationDiagram !== null)
 				{
 					var mutationData = new MutationCollection(currentMutations);
-					var filtered = mutationDiagram.updatePlot(mutationData);
+					mutationDiagram.updatePlot(mutationData);
 
-					if (filtered)
+					if (mutationDiagram.isFiltered())
 					{
 						// display info text
 						mainMutationView.showFilterInfo();
@@ -519,17 +525,21 @@
 					// if already highlighted, remove highlight on a second click
 					if (diagram.isHighlighted(this))
 					{
-						// remove all table highlights
-						tableView.clearHighlights();
-
 						// remove highlight for the target circle
 						diagram.removeHighlight(this);
+
+						// remove all table highlights
+						tableView.clearHighlights();
 
 						// roll back the table to its previous state
 						// (to the last state when a manual filtering applied)
 						tableView.rollBack();
 
-						// TODO show/hide filter reset info
+						// hide filter reset info
+						if (!diagram.isFiltered())
+						{
+							mainMutationView.hideFilterInfo();
+						}
 					}
 					else
 					{
@@ -560,7 +570,11 @@
 					// remove all diagram highligts
 					diagram.clearHighlights('circle');
 
-					// TODO show/hide filter reset info
+					// hide filter reset info
+					if (!diagram.isFiltered())
+					{
+						mainMutationView.hideFilterInfo();
+					}
 				});
 			};
 
@@ -1378,7 +1392,48 @@
 	});
 
 	/**
-	 * Tooltip view for the mutation tables's FIS column.
+	 * Tooltip view for the mutation diagram's region rectangles.
+	 *
+	 * options: {el: [target container],
+	 *           model: {identifier: [region identifier],
+	 *                   type: [region type],
+	 *                   description: [region description],
+	 *                   start: [start position],
+	 *                   end: [end position]}
+	 *          }
+	 */
+	var RegionTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			// implement if necessary...
+		},
+		compileTemplate: function()
+		{
+			// pass variables in using Underscore.js template
+			var variables = {identifier: this.model.identifier,
+				type: this.model.type.toLowerCase(),
+				description: this.model.description,
+				start: this.model.start,
+				end: this.model.end};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_region_tip_template").html(),
+					variables);
+		}
+	});
+
+	/**
+	 * Tooltip view for the mutation table's FIS column.
 	 *
 	 * options: {el: [target container],
 	 *           model: {xvia: [link to Mutation Assessor],

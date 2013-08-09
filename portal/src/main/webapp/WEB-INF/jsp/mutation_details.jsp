@@ -100,6 +100,9 @@
 		color: #1974B8 !important;
 		cursor: pointer;
 	}
+	.mutation-table-highlight {
+		background-color: #E9E900 !important;
+	}
 	.mutation-table-container {
 		margin-bottom: 40px;
 	}

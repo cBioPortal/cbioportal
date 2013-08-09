@@ -402,6 +402,16 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		self.topLabel = self.drawTopLabel(svg, options, bounds);
 	}
 
+	// draw a fully transparent rectangle for proper background click handling
+	var rect = svg.append('rect')
+		.attr('fill', '#FFFFFF')
+		.attr('opacity', 0)
+		.attr('x', bounds.x)
+		.attr('y', bounds.y - bounds.height)
+		.attr('width', bounds.width)
+		.attr('height', bounds.height)
+		.attr('class', 'background');
+
 	// draw the plot area content
 	self.drawPlot(svg,
 		pileups,

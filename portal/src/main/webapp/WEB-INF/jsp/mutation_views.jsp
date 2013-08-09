@@ -335,8 +335,8 @@
 				// also reset the table filters (if provided)
 				if (tableView)
 				{
-					// pass an empty array to show everything
-					tableView.filter([], true);
+					// reset all previous table filters
+					tableView.resetFilters();
 				}
 				// hide the filter info text
 				self.hideFilterInfo();
@@ -518,12 +518,17 @@
 					// if already highlighted, remove highlight on a second click
 					if (diagram.isHighlighted(this))
 					{
+						// remove all table highlights
+						tableView.clearHighlights();
+
 						// remove highlight for the target circle
 						diagram.removeHighlight(this);
 
-						// TODO roll back the table to its previous state
-						// filter table with the current mutations on the diagram
-						// (or use the search text in the table's search box?)
+						// roll back the table to its previous state
+						// (to the last state when a manual filtering applied)
+						tableView.rollBack();
+
+						// TODO show/hide filter reset info
 					}
 					else
 					{
@@ -542,7 +547,18 @@
 					}
 				});
 
-				//TODO also add listener to diagram background to remove highlights
+				//TODO add listener to the diagram background to remove highlights
+				diagram.addListener(".background", "click", function(datum, index) {
+					// remove all table highlights
+					tableView.clearHighlights();
+					diagram.clearHighlights('circle');
+
+					// roll back the table to its previous state
+					// (to the last state when a manual filtering applied)
+					tableView.rollBack();
+
+					// TODO show/hide filter reset info
+				});
 			};
 
 			// callback function to init view after retrieving
@@ -738,8 +754,7 @@
 			for (var i = 0; i < mutations.length; i++)
 			{
 				var row = tableSelector.find("#" + mutations[i].mutationId);
-				// TODO find a better way to highlight
-				row.addClass("ui-state-highlight");
+				row.addClass("mutation-table-highlight");
 			}
 		},
 		/**
@@ -751,7 +766,7 @@
 			var tableSelector = self.$el.find('.mutation_details_table');
 
 			// TODO this depends on highlight function
-			tableSelector.find('tr').removeClass("ui-state-highlight");
+			tableSelector.find('tr').removeClass("mutation-table-highlight");
 		},
 		/**
 		 * Filters out all other mutations than the given mutations.
@@ -765,6 +780,7 @@
 			var self = this;
 			var oTable = self.tableUtil.getDataTable();
 
+			// construct regex
 			var ids = [];
 
 			for (var i = 0; i < mutations.length; i++)
@@ -773,12 +789,67 @@
 			}
 
 			var regex = "(" + ids.join("|") + ")";
+			var asRegex = true;
+
+			// empty mutation list, just show everything
+			if (ids.length == 0)
+			{
+				regex = "";
+				asRegex = false;
+			}
 
 			// disable callbacks before filtering, otherwise it creates a chain reaction
 			self.tableUtil.setCallbackActive(false);
 
 			// apply filter
+			self._applyFilter(oTable, regex, asRegex, updateBox, limit);
 
+			// enable callbacks after filtering
+			self.tableUtil.setCallbackActive(true);
+		},
+		/**
+		 * Resets all table filters (rolls back to initial state)
+		 */
+		resetFilters: function()
+		{
+			var self = this;
+			// pass an empty array to show everything
+			self.filter([], true);
+			// also clean filter related variables
+			self.tableUtil.cleanFilters();
+		},
+		/**
+		 * Rolls back the table to the last state where a manual search
+		 * (manual filtering) performed. This function is required since
+		 * we also filter the table programmatically.
+		 */
+		rollBack: function()
+		{
+			var self = this;
+			var oTable = self.tableUtil.getDataTable();
+
+			// disable callbacks before filtering, otherwise it creates a chain reaction
+			self.tableUtil.setCallbackActive(false);
+
+			// re-apply last manual filter string
+			var searchStr = self.tableUtil.getManualSearch();
+			self._applyFilter(oTable, searchStr, false);
+
+			// enable callbacks after filtering
+			self.tableUtil.setCallbackActive(true);
+		},
+		/**
+		 * Filters the given data table with the provided filter string.
+		 *
+		 * @param oTable    target data table to be filtered
+		 * @param filterStr filter string to apply with the filter
+		 * @param asRegex   indicates if the given filterStr is a regex or not
+		 * @param updateBox [optional] show the filter text in the search box
+		 * @param limit     [optional] column to limit filtering to
+		 * @private
+		 */
+		_applyFilter: function(oTable, filterStr, asRegex, updateBox, limit)
+		{
 			if (limit == undefined)
 			{
 				limit = null;
@@ -790,21 +861,10 @@
 				updateBox = false;
 			}
 
-			var asRegex = true;
 			var smartFilter = true;
 			var caseInsensitive = true;
 
-			// empty mutation list, just show everything
-			if (ids.length == 0)
-			{
-				regex = "";
-				asRegex = false;
-			}
-
-			oTable.fnFilter(regex, limit, asRegex, smartFilter, updateBox, caseInsensitive);
-
-			// enable callbacks after filtering
-			self.tableUtil.setCallbackActive(true);
+			oTable.fnFilter(filterStr, limit, asRegex, smartFilter, updateBox, caseInsensitive);
 		},
 		/**
 		 * Extract & generates data required to visualize a single row of the table.

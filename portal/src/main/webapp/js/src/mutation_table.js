@@ -25,6 +25,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	// this is used to check if search string is changed after each redraw
 	var prevSearch = "";
 
+	// last search string manually entered by the user
+	var manualSearch = "";
+
 	/**
 	 * Creates a mapping for given column headers. The mapped values
 	 * will be the array indices for each element.
@@ -156,6 +159,10 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			        {
 				        callbackFunctions[i](tableSelector);
 			        }
+
+			        // assuming callbacks are active for only manual filtering
+			        // so update manual search string only if callbacks are active
+			        manualSearch = currSearch;
 		        }
 
 		        // update prev search string reference for future use
@@ -590,5 +597,20 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	this.setCallbackActive = function(active)
 	{
 		callbackActive = active;
+	};
+
+	/**
+	 * Resets filtering related variables to their initial state.
+	 * Does not remove actual table filters.
+	 */
+	this.cleanFilters = function()
+	{
+		prevSearch = "";
+		manualSearch = "";
+	};
+
+	this.getManualSearch = function()
+	{
+		return manualSearch;
 	};
 };

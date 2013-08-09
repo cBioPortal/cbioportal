@@ -93,7 +93,7 @@ public class DaoCosmicData {
             String keyword = mut.getKeyword();
             List<CosmicMutationFrequency> cmfs = map.get(keyword);
             if (cmfs==null) {
-                return Collections.emptyMap();
+                continue;
             }
             Map<String,Integer> mapSI = new HashMap<String,Integer>();
             for (CosmicMutationFrequency cmf : cmfs) {

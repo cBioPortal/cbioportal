@@ -848,7 +848,7 @@
 			if (count > 0)
 			{
 				style = "mutation_table_cosmic";
-				cosmic = value;
+				cosmic = JSON.stringify(value);
 				text = count;
 			}
 

@@ -15,7 +15,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         var oncoprint_el = document.getElementById("oncoprint");
 
         var exec = function(data) {
-            data = EchoedDataUtils.join(data, 'sample', 'gene');
+//            data = EchoedDataUtils.join(data, 'sample', 'gene');
 
             // set up oncoprint params
             var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();

@@ -48,36 +48,47 @@
         </div>
     </form>
 
-    <div>
-        <span class="help-block">README</span>
+    <div id="accordian2">
 
-        <div>
-            <p>
-                Copy Number files should be tab delimited. They should also have
-                the following fields, in this order, on the first line:
-                <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-                sample ids.  Subsequant lines have data for hugo gene symbols,
-                entrez gene ids, and for each sample.  Data for each sample is
-                discrete, ranging from <code>-2</code> to <code>+2</code>.
-            </p>
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                    Example
+                </a>
+            </div>
+            <div id="collapseOne" class="accordion-body collapse in">
+                <div class="accordion-inner">
+                    <div>
+                        <p>
+                            Copy Number files should be tab delimited. They should also have
+                            the following fields, in this order, on the first line:
+                            <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
+                            sample ids.  Subsequant lines have data for hugo gene symbols,
+                            entrez gene ids, and for each sample.  Data for each sample is
+                            discrete, ranging from <code>-2</code> to <code>+2</code>.
+                        </p>
 
-            <textarea id="cna-file-example" rows=5 style="width:70%;"><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
+                        <textarea id="cna-file-example" rows=5 style="width:70%;"><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
 
+                    </div>
+
+                    <div>
+                        <p>
+                            Mutation files should be tab delimited.  They should also have the
+                            following fields, in this order, on the first line:
+                            <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
+                            <code>sample_id</code>, <code>protein_change</code> (ignores case).
+                            All other fields are ignored.
+                        </p>
+
+                        <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
+                    </div>
+
+                    <button id="create_sample" type="button" class="btn btn-default">Create Oncoprint From Textboxes</button>
+                </div>
+            </div>
         </div>
 
-        <div>
-            <p>
-                Mutation files should be tab delimited.  They should also have the
-                following fields, in this order, on the first line:
-                <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
-                <code>sample_id</code>, <code>protein_change</code> (ignores case).
-                All other fields are ignored.
-            </p>
-
-            <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
-        </div>
-
-        <button id="create_sample" type="button" class="btn btn-default">Create Oncoprint From Textboxes</button>
     </div>
 
     <div id="oncoprint_controls"></div>

@@ -54,6 +54,8 @@ define("EchoedDataUtils", function() {
     var parse_cna_tsv = function(str) {
         var lines = str.split(tsv.newline);
 
+        lines = lines.map(function(str) { return str.trim(); });
+
         var sample_ids = _.first(lines)
             .split(tsv.sep)
             .slice(2);

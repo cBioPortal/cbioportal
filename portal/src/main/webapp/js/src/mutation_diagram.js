@@ -1389,8 +1389,8 @@ MutationDiagram.prototype.highlight = function(selector)
 
 	circle.transition()
 		.ease("elastic")
-		.duration(600)
-		.delay(100)
+		.duration(300)
+		.delay(10)
 		.attr("r", self.options.lollipopHighlightRadius);
 };
 
@@ -1408,7 +1408,7 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 
 	circle.transition()
 		.ease("elastic")
-		.duration(600)
-		.delay(100)
+		.duration(300)
+		.delay(10)
 		.attr("r", self.options.lollipopRadius);
 };

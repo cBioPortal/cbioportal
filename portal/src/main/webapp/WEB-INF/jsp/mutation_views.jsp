@@ -247,9 +247,10 @@
 		/**
 		 * Initializes the toolbar over the mutation diagram.
 		 *
-		 * @param diagram   the mutation diagram instance
+		 * @param diagram       the mutation diagram instance
+		 * @param geneSymbol    gene symbol as a string
 		 */
-		initToolbar: function(diagram) {
+		initToolbar: function(diagram, geneSymbol) {
 			var self = this;
 
 			var toolbar = self.$el.find(".mutation-diagram-toolbar");
@@ -280,7 +281,7 @@
 			// helper function to adjust SVG for file output
 			var alterDiagramForSvg = function(diagram, rollback)
 			{
-				var topLabel = gene;
+				var topLabel = geneSymbol;
 
 				if (rollback)
 				{
@@ -547,15 +548,17 @@
 					}
 				});
 
-				//TODO add listener to the diagram background to remove highlights
+				// add listener to the diagram background to remove highlights
 				diagram.addListener(".background", "click", function(datum, index) {
 					// remove all table highlights
 					tableView.clearHighlights();
-					diagram.clearHighlights('circle');
 
 					// roll back the table to its previous state
 					// (to the last state when a manual filtering applied)
 					tableView.rollBack();
+
+					// remove all diagram highligts
+					diagram.clearHighlights('circle');
 
 					// TODO show/hide filter reset info
 				});
@@ -601,7 +604,7 @@
 				if (diagram)
 				{
 					// init diagram toolbar
-					mainView.initToolbar(diagram);
+					mainView.initToolbar(diagram, gene);
 				}
 				else
 				{

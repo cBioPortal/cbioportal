@@ -20,7 +20,8 @@ function MutationDiagram(geneSymbol, options, data)
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.currentData = data; // current data set (updated after each filtering)
 
-	self.highlighted = false; // indicates whether at least one circle is highlighted
+	self.highlighted = {}; // map of highlighted circles (initially empty)
+	self.inTransition = false; // indicates if the diagram is in a graphical transition
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
@@ -1225,7 +1226,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	lines.remove();
 	circles.remove();
 
-	// TODO alternative animated version:
+	// alternative animated version:
 	// fade out and then remove all
 //	labels.transition()
 //		.style("opacity", 0)
@@ -1274,8 +1275,8 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// update current data
 	self.currentData = mutationData;
 
-	// reset highlight indicator
-	self.highlighted = false;
+	// reset highlight map
+	self.highlighted = {};
 
 	return self.isFiltered();
 };
@@ -1368,20 +1369,21 @@ MutationDiagram.prototype.isHighlighted = function(selector)
 
 	if (selector == undefined)
 	{
-		highlighted = self.highlighted;
+		highlighted = !(_.isEmpty(self.highlighted));
 	}
 	else
 	{
 		var circle = d3.select(selector);
+		var location = circle.datum().location;
 
-		// TODO relying on graphical attributes!
-		// ...use a property, datum, or a map to make this check safer
-
-		// assuming regular radius and highlight radius are not the same
-		if (circle.attr("r") == self.options.lollipopHighlightRadius)
+		if (self.highlighted[location] != undefined)
 		{
 			highlighted = true;
 		}
+
+		// alternative check with graphical attributes...
+		// assuming regular radius and highlight radius are not the same
+		// highlighted = (circle.attr("r") == self.options.lollipopHighlightRadius)
 	}
 
 	return highlighted;
@@ -1396,7 +1398,7 @@ MutationDiagram.prototype.clearHighlights = function()
 	var circles = self.gCircle.selectAll("circle");
 
 	circles.attr("r", self.options.lollipopRadius);
-	self.highlighted = false;
+	self.highlighted = {};
 };
 
 /**
@@ -1411,14 +1413,19 @@ MutationDiagram.prototype.highlight = function(selector)
 	var self = this;
 	var circle = d3.select(selector);
 
+	self.inTransition = true;
+
 	circle.transition()
 		.ease("elastic")
-		.duration(300)
-		.delay(10)
+		.duration(600)
 		.attr("r", self.options.lollipopHighlightRadius)
 		.each("end", function() {
-			self.highlighted = true;
+			self.inTransition = false;
 		});
+
+	// add circle to the map
+	var location = circle.datum().location;
+	self.highlighted[location] = circle;
 };
 
 /**
@@ -1433,16 +1440,19 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	var self = this;
 	var circle = d3.select(selector);
 
+	self.inTransition = true;
+
 	circle.transition()
 		.ease("elastic")
-		.duration(300)
-		.delay(10)
+		.duration(600)
 		.attr("r", self.options.lollipopRadius)
 		.each("end", function() {
-			// TODO assuming there is only one highlighted circle
-		    // ...we need to use a map if more than one highlight is required
-			self.highlighted = false;
+			self.inTransition = false;
 		});
+
+	// remove circle from the map
+	var location = circle.datum().location;
+	delete self.highlighted[location];
 };
 
 /**
@@ -1464,4 +1474,15 @@ MutationDiagram.prototype.isFiltered = function()
 	}
 
 	return filtered;
+};
+
+/**
+ * Returns true if the diagram is currently in graphical transition,
+ * false otherwise.
+ *
+ * @return {boolean} true if diagram is in transition, false o.w.
+ */
+MutationDiagram.prototype.isInTransition = function()
+{
+	return this.inTransition;
 };

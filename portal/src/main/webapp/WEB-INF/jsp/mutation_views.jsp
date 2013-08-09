@@ -522,6 +522,13 @@
 				});
 
 				diagram.addListener("circle", "click", function(datum, index) {
+					// just ignore the action if the diagram is already in a graphical transition.
+					// this is to prevent inconsistency due to fast clicks on the diagram.
+					if (diagram.isInTransition())
+					{
+						return;
+					}
+
 					// if already highlighted, remove highlight on a second click
 					if (diagram.isHighlighted(this))
 					{
@@ -544,8 +551,8 @@
 					else
 					{
 						// remove all table & diagram highlights
-						tableView.clearHighlights();
 						diagram.clearHighlights('circle');
+						tableView.clearHighlights();
 
 						// highlight the target circle on the diagram
 						diagram.highlight(this);
@@ -560,6 +567,13 @@
 
 				// add listener to the diagram background to remove highlights
 				diagram.addListener(".background", "click", function(datum, index) {
+					// just ignore the action if the diagram is already in a graphical transition.
+					// this is to prevent inconsistency due to fast clicks on the diagram.
+					if (diagram.isInTransition())
+					{
+						return;
+					}
+
 					// check if there is a highlighted circle
 					// no action required if no circle is highlighted
 					if (!diagram.isHighlighted())
@@ -567,15 +581,15 @@
 						return;
 					}
 
+					// remove all diagram highligts
+					diagram.clearHighlights('circle');
+
 					// remove all table highlights
 					tableView.clearHighlights();
 
 					// roll back the table to its previous state
 					// (to the last state when a manual filtering applied)
 					tableView.rollBack();
-
-					// remove all diagram highligts
-					diagram.clearHighlights('circle');
 
 					// hide filter reset info
 					if (!diagram.isFiltered())

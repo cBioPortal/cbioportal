@@ -16,9 +16,7 @@
     }
 </style>
 
-<link href="css/bootstrap-noglobal/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
-
-<script type="text/javascript" src="js/lib/jquery-ui-1.8.14.custom.min.js"></script>
+<link href="css/bootstrap.min.css" type="text/css" rel="stylesheet" />
 
 <body>
 
@@ -26,7 +24,7 @@
     <h1>Oncoprint</h1>
 
     <form class="form-horizontal" enctype="multipart/form-data" method="post">
-        <span class="help-block">Choose data files to upload:</span>
+       <p>Choose data files to upload</p>
 
         <div class="control-group" style="margin-bottom:0;">
             <label class="control-label" for="cna">Copy Number File</label>
@@ -42,19 +40,21 @@
             </div>
         </div>
 
-        <div class="control-group">
+        <div class="control-group" style="margin-top: 20px;">
             <div class="controls">
-                <input id="submit" type="button" value="Create Oncoprint" class="btn">
+                <input id="submit" type="button" value="Create" class="btn">
                 <br/>
                 <br/>
-                <progress></progress>
+                <%--<progress></progress>--%>
             </div>
         </div>
     </form>
 
+    <p>Example</p>
+
     <div>
         <div>
-            <p>
+            <p style="width:70%;">
                 Copy Number files should be tab delimited. They should also have
                 the following fields, in this order, on the first line:
                 <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
@@ -67,8 +67,8 @@
 
         </div>
 
-        <div>
-            <p>
+        <div style="margin-top:20px;">
+            <p style="width:70%;">
                 Mutation files should be tab delimited.  They should also have the
                 following fields, in this order, on the first line:
                 <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
@@ -79,14 +79,14 @@
             <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
         </div>
 
-        <button id="create_sample" type="button" class="btn btn-default">Create Oncoprint From Textboxes</button>
+        <button id="create_sample" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
     </div>
 
     <div id="oncoprint_controls"></div>
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
 
-    <div id='oncoprint'></div>
+    <div id='oncoprint' style="margin-bottom:40px;"></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>
 
 </div>

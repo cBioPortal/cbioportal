@@ -130,7 +130,7 @@ define("EchoedDataUtils", function() {
         };
 
         // *signature:* `{mutation datum} -> {datum with renamed keys}`
-        var munge_keys = function(d) {
+        var munge = function(d) {
             var toReturn = {};
 
             _.each(d, function(val, key) {
@@ -141,10 +141,15 @@ define("EchoedDataUtils", function() {
 
             toReturn = _.pick(toReturn, _.values(aliases));
 
+            if (toReturn.mutation === "NaN") {
+                // remove NaN mutations
+                delete toReturn.mutation;
+            }
+
             return toReturn;
         };
 
-        return data.map(munge_keys);
+        return data.map(munge);
     };
 
     var munge_cna = _.compose(convert_num2cna, parse_cna_tsv);
@@ -157,34 +162,32 @@ define("EchoedDataUtils", function() {
     var munge_mutation = _.compose(on_comma, parse_mutation_tsv);
 
     // joins data on a key
-    // *signature:* `coll -> coll`
-    var join_all = function(coll) {
+    // *signature:* `coll, *keys -> coll`
+    var join = function() {
 
+        coll = arguments[0];
         coll = _.chain(coll);
 
         // takes a list of records and joins them into one record, overriding
         // common keys as it goes
-        var join = function(coll) {
+        var _join = function(coll) {
             return coll.reduce(function(curr, acc) {
                 return _.extend(acc, curr);
             });
         };
 
-        return coll
-            .groupBy(function(d) {
-                return d.sample;
-            })
-            .values()
-            .map(function(group) {
-                return _.chain(group)
-                    .groupBy(group, function(d) {
-                        return d.gene;
+        var keys = _.toArray(arguments).slice(1);
+
+        return coll.groupBy(function(d) {
+                return keys
+                    .map(function(key) {
+                        return d[key];
                     })
-                    .values()
-                    .map(join)
-                    .value();
+                    .join(" ");     // make a key
             })
-            .flatten();
+            .values()               // throw away the key
+            .map(_join)
+            .value();
     };
 
     return {
@@ -193,6 +196,6 @@ define("EchoedDataUtils", function() {
         samples: samples,
         munge_cna: function(data) { return munge_cna(data).value(); },
         munge_mutation: function(data) { return munge_mutation(data).value(); },
-        join_all: function(data) { return join_all(data).value(); }
+        join: join
     };
 });

@@ -11,6 +11,9 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
+
+        var oncoprint_el = document.getElementById("oncoprint");
+
         // bind away
         var bindings = function(oncoprint) {
             var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
@@ -34,6 +37,26 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
             return false;
         };
+
+        $(document).ready(function() {
+            $('#create_sample').click(function() {
+                var data = EchoedDataUtils.munge_mutation($('#mutation-file-example').val())
+                    .concat(
+                        EchoedDataUtils.munge_cna($('#cna-file-example').val()))
+
+                data = EchoedDataUtils.join(data);
+
+                // set up oncoprint params
+                var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
+                var params = { geneData: data, genes:genes };
+                params.legend =  document.getElementById("oncoprint_legend");
+
+                $(oncoprint_el).empty();    // clear out the div each time
+
+                // exec
+                oncoprint = Oncoprint(oncoprint_el, params);
+            });
+        });
 
         // don't want to setup the zoom slider multiple times
         var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
@@ -59,10 +82,6 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 success: function(res) {
                     // console.log(res);
 
-                    var oncoprint_el = document.getElementById("oncoprint");
-
-                    $(oncoprint_el).empty();    // clear out the div each time
-
                     var parsers = {
                         cna: EchoedDataUtils.munge_cna,
                         mutation: EchoedDataUtils.munge_mutation
@@ -75,7 +94,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         .flatten()
                         .value();
 
-                    data = EchoedDataUtils.join_all(data);
+                    data = EchoedDataUtils.join(data, 'sample', 'gene');
 
                     cases = EchoedDataUtils.samples(data);
 
@@ -83,6 +102,8 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
                     var params = { geneData: data, genes:genes };
                     params.legend =  document.getElementById("oncoprint_legend");
+
+                    $(oncoprint_el).empty();    // clear out the div each time
 
                     // exec
                     oncoprint = Oncoprint(oncoprint_el, params);

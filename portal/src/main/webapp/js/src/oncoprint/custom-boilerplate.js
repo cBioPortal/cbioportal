@@ -14,8 +14,27 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
 
         var oncoprint_el = document.getElementById("oncoprint");
 
-        // bind away
-        var bindings = function(oncoprint) {
+        var exec = function(data) {
+            data = EchoedDataUtils.join(data, 'sample', 'gene');
+
+            // set up oncoprint params
+            var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
+            var params = { geneData: data, genes:genes };
+            params.legend =  document.getElementById("oncoprint_legend");
+
+            $(oncoprint_el).empty();    // clear out the div each time
+
+            // exec
+            oncoprint = Oncoprint(oncoprint_el, params);
+
+            oncoprint.memoSort(genes);
+
+            // remove text: "Copy number alterations are putative."
+            $('#oncoprint_legend p').remove();
+
+            // set up the controls
+            zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
+
             var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
             sortBy.chosen({width: "240px", disable_search: true });
 
@@ -35,26 +54,19 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 oncoprint.toggleWhiteSpace();
             });
 
+            // show controls when there's data
+            $('#oncoprint_controls').show();
+
             return false;
         };
 
         $(document).ready(function() {
             $('#create_sample').click(function() {
-                var data = EchoedDataUtils.munge_mutation($('#mutation-file-example').val())
-                    .concat(
-                        EchoedDataUtils.munge_cna($('#cna-file-example').val()))
+                var mutation_data = EchoedDataUtils.munge_mutation($('#mutation-file-example').val().trim());
+                var cna_data = EchoedDataUtils.munge_cna($('#cna-file-example').val().trim());
+                var data = mutation_data.concat(cna_data);
 
-                data = EchoedDataUtils.join(data);
-
-                // set up oncoprint params
-                var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
-                var params = { geneData: data, genes:genes };
-                params.legend =  document.getElementById("oncoprint_legend");
-
-                $(oncoprint_el).empty();    // clear out the div each time
-
-                // exec
-                oncoprint = Oncoprint(oncoprint_el, params);
+                exec(data);
             });
         });
 
@@ -94,31 +106,9 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                         .flatten()
                         .value();
 
-                    data = EchoedDataUtils.join(data, 'sample', 'gene');
-
                     cases = EchoedDataUtils.samples(data);
 
-                    // set up oncoprint params
-                    var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
-                    var params = { geneData: data, genes:genes };
-                    params.legend =  document.getElementById("oncoprint_legend");
-
-                    $(oncoprint_el).empty();    // clear out the div each time
-
-                    // exec
-                    oncoprint = Oncoprint(oncoprint_el, params);
-
-                    oncoprint.memoSort(genes);
-
-                    // remove text: "Copy number alterations are putative."
-                    $('#oncoprint_legend p').remove();
-
-                    zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
-
-                    // show controls when there's data
-                    $('#oncoprint_controls').show();
-
-                    bindings(oncoprint);
+                    exec(data);
 
                     return false;
                 },

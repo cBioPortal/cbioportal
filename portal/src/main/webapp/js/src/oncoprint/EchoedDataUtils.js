@@ -1,38 +1,5 @@
 define("EchoedDataUtils", function() {
 
-    // joins mutations from a particular gene a particular patient into a
-    // string where the delimiter is the `on` parameter
-    //
-    // *signature:* `string, coll -> _.chain(coll)`
-    var join_mutations = function(on, coll) {
-        var chain = _.chain(coll);
-
-        return chain.groupBy(function(d) { return d.sample; })
-            .values()
-            .map(function(sample) {
-                return _.chain(sample)
-                .groupBy(function(d) {return d.gene; })
-                .values()
-                .value();
-            })
-            .map(function(sample_gene_group) {
-                return sample_gene_group[0].reduce(function(acc, d) {
-
-                    var joined_mutation = acc.mutation === undefined ? d.mutation : acc.mutation + "," + d.mutation;
-
-                    // initialize
-                    acc = _.extend(acc, d);
-
-                    // update
-                    acc = _.extend(acc, { mutation: joined_mutation });
-
-                    return acc;
-                }, {});
-            })
-            .flatten();
-    };
-
-
     // converts cna numbers (-1, 0, ...) into strings (HEMIZYGOUSLYDELETED, DIPLOID, ...)
     // *signature:* `coll -> _.chain( [list of data] )`
     var convert_num2cna = function(coll) {
@@ -65,15 +32,6 @@ define("EchoedDataUtils", function() {
             });
             return d;
         });
-    };
-
-    // *signature:* `[list of data] -> [munged data]`
-    var oncoprint_wash = function(data) {
-        var coll = _.chain(data);
-
-        return join_mutations(
-            convert_num2cna(
-                remove_undefined(coll))).value();
     };
 
     // takes a list of data that has an attribute "sample_id"
@@ -133,6 +91,7 @@ define("EchoedDataUtils", function() {
         var munge = function(d) {
             var toReturn = {};
 
+            // rename keys per aliases
             _.each(d, function(val, key) {
                 key = key.toLowerCase();
                 key = aliases[key] || key;
@@ -141,9 +100,12 @@ define("EchoedDataUtils", function() {
 
             toReturn = _.pick(toReturn, _.values(aliases));
 
+            // remove NaN mutations
             if (toReturn.mutation === "NaN") {
-                // remove NaN mutations
-                delete toReturn.mutation;
+                toReturn = {
+                    sample: toReturn.sample,
+                    gene: toReturn.gene
+                };
             }
 
             return toReturn;
@@ -154,12 +116,38 @@ define("EchoedDataUtils", function() {
 
     var munge_cna = _.compose(convert_num2cna, parse_cna_tsv);
 
-    var on_comma =  function(data) {
-        // todo: in leiu of an outdated verison of underscore without _.partial
-        return join_mutations(",", data);
+    // joins on gene and sample to create a single object with
+    // a single mutation string with mutations separated by `on`
+    //
+    // *signature:* `string -> function(coll)`
+    var join_mutations_on = function(on) {
+        return function(coll) {
+            coll = _.chain(coll);
+
+            var join_mutation_on = function(on) {
+                return function(list) {
+                    _.reduce(list, function(curr, acc) {
+
+                        // append mutation to end
+                        var new_mutation_str  = acc.mutation + on + curr.mutation;
+
+                        acc = _.extend(acc, curr);
+                        acc.mutation = new_mutation_str;
+
+                        return acc;
+                    }, {});
+                };
+            };
+
+            return coll.groupBy(function(d) {
+                return d.sample + " " + d.gene;
+            })
+                .values()
+                .map(join_mutation_on(","));
+        }
     };
 
-    var munge_mutation = _.compose(on_comma, parse_mutation_tsv);
+    var munge_mutation = _.compose(join_mutations_on(","), parse_mutation_tsv);
 
     // joins data on a key
     // *signature:* `coll, *keys -> coll`
@@ -191,7 +179,7 @@ define("EchoedDataUtils", function() {
     };
 
     return {
-        join_mutations: join_mutations,
+        join_mutations_on: join_mutations_on,
         remove_undefined: remove_undefined,
         samples: samples,
         munge_cna: function(data) { return munge_cna(data).value(); },

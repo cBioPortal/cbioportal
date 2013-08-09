@@ -20,6 +20,8 @@ function MutationDiagram(geneSymbol, options, data)
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.currentData = data; // current data set (updated after each filtering)
 
+	self.highlighted = false; // indicates whether at least one circle is highlighted
+
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
 	self.bounds = null; // bounds of the plot area
@@ -1272,6 +1274,9 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// update current data
 	self.currentData = mutationData;
 
+	// reset highlight indicator
+	self.highlighted = false;
+
 	return self.isFiltered();
 };
 
@@ -1350,23 +1355,33 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 
 /**
  * Checks whether a diagram circle is highlighted or not.
+ * If no selector provided, then checks if the there is
+ * at least one highlighted circle.
  *
- * @param selector  selector for a specific circle element
+ * @param selector  [optional] selector for a specific circle element
  * @return {boolean} true if highlighted, false otherwise
  */
 MutationDiagram.prototype.isHighlighted = function(selector)
 {
 	var self = this;
-	var circle = d3.select(selector);
 	var highlighted = false;
 
-	// TODO relying on graphical attributes!
-	// ...use a property, datum, or a map to make this check safer
-
-	// assuming regular radius and highlight radius are not the same
-	if (circle.attr("r") == self.options.lollipopHighlightRadius)
+	if (selector == undefined)
 	{
-		highlighted = true;
+		highlighted = self.highlighted;
+	}
+	else
+	{
+		var circle = d3.select(selector);
+
+		// TODO relying on graphical attributes!
+		// ...use a property, datum, or a map to make this check safer
+
+		// assuming regular radius and highlight radius are not the same
+		if (circle.attr("r") == self.options.lollipopHighlightRadius)
+		{
+			highlighted = true;
+		}
 	}
 
 	return highlighted;
@@ -1381,6 +1396,7 @@ MutationDiagram.prototype.clearHighlights = function()
 	var circles = self.gCircle.selectAll("circle");
 
 	circles.attr("r", self.options.lollipopRadius);
+	self.highlighted = false;
 };
 
 /**
@@ -1399,7 +1415,10 @@ MutationDiagram.prototype.highlight = function(selector)
 		.ease("elastic")
 		.duration(300)
 		.delay(10)
-		.attr("r", self.options.lollipopHighlightRadius);
+		.attr("r", self.options.lollipopHighlightRadius)
+		.each("end", function() {
+			self.highlighted = true;
+		});
 };
 
 /**
@@ -1418,7 +1437,12 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 		.ease("elastic")
 		.duration(300)
 		.delay(10)
-		.attr("r", self.options.lollipopRadius);
+		.attr("r", self.options.lollipopRadius)
+		.each("end", function() {
+			// TODO assuming there is only one highlighted circle
+		    // ...we need to use a map if more than one highlight is required
+			self.highlighted = false;
+		});
 };
 
 /**

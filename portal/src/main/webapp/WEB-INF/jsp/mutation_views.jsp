@@ -560,6 +560,13 @@
 
 				// add listener to the diagram background to remove highlights
 				diagram.addListener(".background", "click", function(datum, index) {
+					// check if there is a highlighted circle
+					// no action required if no circle is highlighted
+					if (!diagram.isHighlighted())
+					{
+						return;
+					}
+
 					// remove all table highlights
 					tableView.clearHighlights();
 

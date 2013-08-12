@@ -266,14 +266,23 @@ define("OncoprintUtils", (function() {
                 // attr -> [attr_id, d3 scale]
                 var scale;
 
-                // manually set the colors for certain attributes
+                // manually override colors for sex (if only De Beauvoir could witness this)
                 if (attr.attr_id.toUpperCase() === "SEX"
                     || attr.attr_id.toUpperCase() === "GENDER") {
                     scale = d3.scale.ordinal()
                 .domain(["MALE", "male", "FEMALE", "female"])
                 .range(["#3790d6", "#3790d6", "pink", "pink"]);
 
-            return [attr.attr_id, scale];
+                    return [attr.attr_id, scale];
+                }
+
+                // manually override colors for genomic subtypes to match the endometrial paper (doi:10.1038/nature12113)
+                if (attr.attr_id.toUpperCase() === "SUBTYPE") {
+                    scale = d3.scale.ordinal()
+                        .domain(["POLE (Ultra-mutated)", "MSI (Hyper-mutated)", "Copy-number low (Endometriod)", "Copy-number high (Serous-like)"])
+                        .range(["#3366cc", "#109618", "#ff9900", "#dc3912"]);
+
+                    return [attr.attr_id, scale];
                 }
 
                 // calculate the proper colors for all other attributes

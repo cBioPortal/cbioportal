@@ -51,9 +51,10 @@ public class DaoTypeOfCancer {
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
-         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, " + "`NAME` ) VALUES (?,?)");
+         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, `NAME`, `CLINICAL_TRIAL_KEYWORDS` ) VALUES (?,?,?)");
          pstmt.setString(1, typeOfCancer.getTypeOfCancerId());
          pstmt.setString(2, typeOfCancer.getName());
+         pstmt.setString(3, typeOfCancer.getClinicalTrialKeywords());
          int rows = pstmt.executeUpdate();
          return rows;
       } catch (SQLException e) {
@@ -160,6 +161,7 @@ public class DaoTypeOfCancer {
 
       typeOfCancer.setTypeOfCancerId(rs.getString("TYPE_OF_CANCER_ID"));
       typeOfCancer.setName(rs.getString("NAME"));
+      typeOfCancer.setClinicalTrialKeywords(rs.getString("CLINICAL_TRIAL_KEYWORDS"));
       return typeOfCancer;
    }
 }

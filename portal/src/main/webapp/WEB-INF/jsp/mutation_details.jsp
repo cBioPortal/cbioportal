@@ -1,285 +1,156 @@
-<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ExtendedMutation" %>
-<%@ page import="org.mskcc.cbio.portal.html.MutationTableUtil" %>
-<%@ page import="org.mskcc.cbio.portal.model.ExtendedMutationMap" %>
-<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.MutationCounter" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.io.IOException" %>
-<%@ page import="java.io.StringWriter" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationDiagramProcessor" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.Mutation3dProcessor" %>
+<!-- TODO include these js files in the global js include? -->
+<script type="text/javascript" src="js/src/mutation_histogram.js"></script>
 
-<script type="text/javascript" src="js/jsmol/JSmol.min.nojq.js"></script>
-<script type="text/javascript" src="js/raphael/raphael.js"></script>
-<script type="text/javascript" src="js/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/mutation_table.js"></script>
-
-<script type="text/javascript">
-
-function _initJsmol(data)
-{
-	var pdbid = data.pdbId;
-	var appletName = 'applet_' + data.hugoGeneSymbol;
-	var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
-
-    var jsmolOpts = {
-        width: 300,
-        height: 200,
-        debug: false,
-        color: "white",
-        use: "HTML5",
-        j2sPath: "js/jsmol/j2s",
-        script: "load ="+pdbid+";",
-        //defaultModel: "$dopamine",
-        disableJ2SLoadMonitor: true,
-        disableInitialConsole: true
-    };
-
-    if (jQuery.isFunction(callbackfun)) {
-	    jsmolOpts['readyFunction'] = callbackfun;
-    }
-
-	Jmol.getApplet(appletName, jsmolOpts);
-}
-</script>
-
-<%
-    ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
-            request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
-    ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
-            mergedProfile.getCaseIdList());
-
-    MutationDiagramProcessor mutationDiagramProcessor = new MutationDiagramProcessor();
-    MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
-%>
 <div class='section' id='mutation_details'>
-
-<%
-    if (mutationMap.getNumGenesWithExtendedMutations() > 0) {
-        for (GeneWithScore geneWithScore : geneWithScoreList) {
-            //outputGeneTable(geneWithScore, mutationMap, out, mergedCaseList);
-	        MutationCounter mutationCounter = new MutationCounter(
-			        geneWithScore.getGene(), mutationMap);
-
-	        if (mutationMap.getNumExtendedMutations(geneWithScore.getGene()) > 0)
-	        {
-		        outputHeader(out, geneWithScore, mutationCounter);
-	        }
-        }
-    } else {
-        outputNoMutationDetails(out);
-    }
-%>
-
+	<img src='images/ajax-loader.gif'/>
 </div>
 
-
 <style type="text/css" title="currentStyle">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        #mutation_details .ColVis {
-                float: left;
-                padding-right:25%;
-                margin-bottom: 0;
-        }
-        .mutation_datatables_filter {
-                float: right;
-                padding-top:3px;
-        }
-        .mutation_datatables_info {
-                float: left;
-                padding-top:5px;
-                font-size:90%;
-        }
-        .missense_mutation {
-                color: green;
-	            font-weight: bold;
-        }
-        .trunc_mutation {
-                color: red;
-	            font-weight: bold;
-        }
-        .inframe_mutation {
-                color: black;
-	            font-weight: bold;
-        }
-        .other_mutation {
-                color: gray;
-	            font-weight: bold;
-        }
-		.diagram_uniprot_link {
-                padding-top: 10px;
-                padding-left: 10px;
-		}
+	@import "css/data_table_jui.css";
+	@import "css/data_table_ColVis.css";
+	#mutation_details .ColVis {
+		float: left;
+		padding-right:25%;
+		margin-bottom: 0;
+	}
+	#mutation_details .unknown {
+		background: #E0E0E0;
+		color:black;
+		padding-left:5px;
+		padding-right:5px;
+	}
+	#mutation_details .protein_change {
+		font-weight: bold;
+		font-style: italic;
+	}
+	#mutation_details .best_effect_transcript {
+		color: red;
+	}
+	#mutation_details .mutation_details_table {
+		font-size: 90%;
+		color: black;
+	}
+	/*
+	th.mutation-details-qtip-style {
+		/*font-size: 115%;
+	}
+	*/
+	#mutation_details .mutation_table_cosmic {
+		/*cursor: pointer;*/
+		color: #1974B8;
+	}
+	#mutation_details .dataTables_filter {
+		width: 200px;
+	}
+	#mutation_details .dataTables_filter input {
+		width: 120px;
+	}
+	#mutation_details .dataTables_info {
+		width: 300px;
+	}
+	#mutation_details .msa-img, #mutation_details .pdb-img {
+		vertical-align: bottom;
+		margin-left: 3px;
+	}
+	.diagram-lollipop-tip, .diagram-region-tip {
+		font-size: 12px;
+	}
+	.mutation-details-tooltip {
+		font-size: 11px !important;
+	}
+	.mutation_datatables_filter {
+		float: right;
+		padding-top:3px;
+	}
+	.mutation_datatables_info {
+		float: left;
+		padding-top:5px;
+		font-size:90%;
+	}
+	.missense_mutation {
+		color: green;
+		font-weight: bold;
+	}
+	.trunc_mutation {
+		color: red;
+		font-weight: bold;
+	}
+	.inframe_mutation {
+		color: black;
+		font-weight: bold;
+	}
+	.other_mutation {
+		color: gray;
+		font-weight: bold;
+	}
+	.diagram_toolbar {
+		padding-top: 10px;
+		padding-left: 10px;
+	}
+	.mutation-diagram-container {
+		margin-bottom: 10px;
+	}
+	.mutation-details-filter-info {
+		font-size: 14px;
+		font-family: verdana,arial,sans-serif;
+		color: red;
+		margin-bottom: 10px;
+	}
+	.mutation-details-filter-reset {
+		color: #1974B8 !important;
+		cursor: pointer;
+	}
+	.mutation-table-highlight {
+		background-color: #E9E900 !important;
+	}
+	.mutation-table-container {
+		margin-bottom: 40px;
+	}
+	.mutation-table-header {
+		font-weight: bold !important;
+	}
+	.cosmic-details-tip-info {
+		padding-bottom: 5px;
+	}
+	.left-align-td {
+		text-align: left;
+	}
+
 </style>
 
 <script type="text/javascript">
-
-//  Set up Mutation Diagrams
+    
+// Set up Mutation View
 $(document).ready(function(){
-	var tableMutations;
-    var diagramSequence;
+	// TODO accessing global "samples" variable...
+	var sampleArray = samples.trim().split(/\s+/);
 
-	<%
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        String geneStr = geneWithScore.getGene();
-        if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
-        String mutationDiagramStr = mutationDiagramProcessor.getMutationDiagram(
-                geneStr,
-                mutationMap.getExtendedMutations(geneStr)
-        );
+	/**
+	 * Processes the raw mutation data returned from the servlet, and
+	 * initializes the mutation view.
+	 *
+	 * @param data  raw mutation data returned from the servlet
+	 */
+	var initMutationView = function(data)
+	{
+		var model = {mutations: data,
+			sampleArray: sampleArray};
 
-        String mutationTableStr = mutationTableProcessor.processMutationTable(
-                geneStr,
-                converMutations(geneWithScore, mutationMap, mergedCaseList)
-        );
-    %>
-	        tableMutations = <%= mutationTableStr %>;
-            diagramSequence = <%= mutationDiagramStr %>;
+		var defaultView = new MutationDetailsView(
+			{el: "#mutation_details", model: model});
 
-            drawMutationDiagram(diagramSequence);
-            drawMutationTable(tableMutations);
+		defaultView.render();
+	};
 
-//                var str="<script>alert('loading 3d...');callJsmol('1crn', 'applet_"+geneSymbol+"', function(applet) {/*alert('add your callback functions here');*/});";
-//                    str+="<";
-//                    str+="/script>";
-//                $("#mutation_3d_structure_"+geneSymbol).append(str);
+	// TODO getting these params from global variables defined in visualize.jsp
+	// we should refactor/redefine these global variables in a better way
 
+	var params = {geneList: geneList,
+		geneticProfiles: geneticProfiles,
+		caseList: samples};
 
-        <% } %>
-    <% } %>
+	// get mutation data & init view for the current gene and case lists
+	$.post("getMutationData.json", params, initMutationView, "json");
 });
 
-/**
- * Toggles the diagram between lollipop view and histogram view.
- *
- * @param geneId    id of the target diagram
- */
-function toggleMutationDiagram(geneId)
-{
-    var option = $("#mutation_diagram_select_" + geneId).val();
-
-    if (option == "diagram")
-    {
-	    $("#mutation_diagram_" + geneId).show();
-	    $("#mutation_histogram_" + geneId).hide();
-    }
-    else if (option == "histogram")
-    {
-	    $("#mutation_diagram_" + geneId).hide();
-	    $("#mutation_histogram_" + geneId).show();
-    }
-}
-
 </script>
-
-
-<%!
-	private String outputMutationsJson(final GeneWithScore geneWithScore, final ExtendedMutationMap mutationMap) {
-		ObjectMapper objectMapper = new ObjectMapper();
-        StringWriter stringWriter = new StringWriter();
-        List<ExtendedMutation> mutations = mutationMap.getExtendedMutations(geneWithScore.getGene());
-        try {
-            objectMapper.writeValue(stringWriter, mutations);
-        }
-        catch (Exception e) {
-            // ignore
-        }
-        return stringWriter.toString().replace("\"", "\\\"");
-    }
-
-	private String outputMutationsJson(GeneWithScore geneWithScore,
-			ExtendedMutationMap mutationMap,
-			ArrayList<String> mergedCaseList)
-	{
-		ObjectMapper objectMapper = new ObjectMapper();
-		StringWriter stringWriter = new StringWriter();
-		List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
-
-		for (String caseId : mergedCaseList)
-		{
-			List<ExtendedMutation> list = mutationMap.getExtendedMutations(
-					geneWithScore.getGene(), caseId);
-
-			if (list != null)
-			{
-				mutations.addAll(list);
-			}
-		}
-
-		try {
-			objectMapper.writeValue(stringWriter, mutations);
-		}
-		catch (Exception e) {
-			// ignore
-		}
-
-		return stringWriter.toString().replace("\"", "\\\"");
-	}
-
-    private List<ExtendedMutation> converMutations(GeneWithScore geneWithScore,
-                                                       ExtendedMutationMap mutationMap,
-                                                       ArrayList<String> mergedCaseList)
-    {
-        List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
-
-        for (String caseId : mergedCaseList)
-        {
-            List<ExtendedMutation> list = mutationMap.getExtendedMutations(
-                    geneWithScore.getGene(), caseId);
-
-            if (list != null)
-            {
-                mutations.addAll(list);
-            }
-        }
-
-        return mutations;
-    }
-
-    private void outputHeader(JspWriter out, GeneWithScore geneWithScore,
-            MutationCounter mutationCounter) throws IOException {
-        out.println("<table><tr><td>");
-        out.print("<h4>" + geneWithScore.getGene().toUpperCase() + ": ");
-        out.println(mutationCounter.getTextSummary());
-        out.println("</h4>");
-        String geneSymbol = geneWithScore.getGene().toUpperCase();
-	    // TODO histogram is disabled (will be enabled in the next release)
-//	    out.println("<select class='mutation_diagram_toggle' " +
-//	                "id='mutation_diagram_select_" + geneSymbol + "'" +
-//	                "onchange='toggleMutationDiagram(\"" + geneSymbol + "\")'>" +
-//	               "<option value='diagram'>Lollipop Diagram</option>" +
-//	               "<option value='histogram'>Histogram</option>" +
-//	               "</select>");
-        out.println("<div id='uniprot_link_" + geneSymbol + "' " +
-                    "class='diagram_uniprot_link'></div>");
-        out.println("<div id='mutation_diagram_" + geneSymbol + "'></div>");
-        out.println("<div id='mutation_histogram_" + geneSymbol + "'></div>");
-        out.println("</td><td>");
-        outputJsmolContainer(out, geneWithScore);
-        out.println("</td></tr></table>");
-        out.println("<div id='mutation_table_" + geneSymbol + "'>" +
-                    "<img src='images/ajax-loader.gif'/>" +
-                    "</div>");
-    }
-
-    private void outputNoMutationDetails(JspWriter out) throws IOException {
-        out.println("<p>There are no mutation details available for the gene set entered.</p>");
-        out.println("<br><br>");
-    }
-
-	private void outputJsmolContainer(JspWriter out, GeneWithScore geneWithScore) throws IOException
-	{
-		Mutation3dProcessor proteinProcessor = new Mutation3dProcessor();
-		String geneSymbol = geneWithScore.getGene().toUpperCase();
-		String data = proteinProcessor.process(geneWithScore);
-		// TODO Jsmol doesn't work unless it is defined inside in a script inside a div...
-		out.println("<div id='mutation_3d_structure_" + geneSymbol + "'>");
-		out.println("<script type='text/javascript'>_initJsmol(" + data + ");</script>");
-		out.println("</div>");
-	}
-%>

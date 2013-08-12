@@ -205,7 +205,7 @@ public class WebService extends HttpServlet {
             }
 
             HashSet<String> cancerStudyIDs = WebserviceParserUtils.getCancerStudyIDs(httpServletRequest);
-            if (null == cancerStudyIDs) {
+            if (cancerStudyIDs.isEmpty()) {
                 outputError(writer, "Problem when identifying a cancer study for the request.");
                 return;
             }
@@ -429,14 +429,19 @@ public class WebService extends HttpServlet {
 
     private void getMutationData(HttpServletRequest request, PrintWriter writer)
             throws DaoException, ProtocolException, UnsupportedEncodingException {
-        ArrayList<String> caseList = WebserviceParserUtils.getCaseList(request);
+        ArrayList<String> caseList = null;
+        try {
+            caseList = WebserviceParserUtils.getCaseList(request);
+        } catch (ProtocolException ex) {}
         validateRequestForProfileOrMutationData(request);
         ArrayList<String> geneticProfileIdList = WebserviceParserUtils.getGeneticProfileId(request);
-        String geneticProfileId = geneticProfileIdList.get(0);
-        ArrayList<String> targetGeneList = getGeneList(request);
-        String out = GetMutationData.getProfileData(geneticProfileId, targetGeneList,
-                caseList);
-        writer.print(out);
+        
+        for (String geneticProfileId : geneticProfileIdList) {
+            ArrayList<String> targetGeneList = getGeneList(request);
+            String out = GetMutationData.getProfileData(geneticProfileId, targetGeneList,
+                    caseList);
+            writer.print(out);
+        }
     }
 
     private ArrayList<String> getGeneList(HttpServletRequest request) {

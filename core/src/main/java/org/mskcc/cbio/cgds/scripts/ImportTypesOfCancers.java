@@ -38,6 +38,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Properties;
+import java.util.Scanner;
 
 /**
  * Load all the types of cancer and their names from a file.
@@ -59,16 +60,18 @@ public class ImportTypesOfCancers {
     }
 
     public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
-        Properties properties = new Properties();
-        properties.load(new FileInputStream(file));
         DaoTypeOfCancer.deleteAllRecords();
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
+        Scanner scanner = new Scanner(file);
 
-        for (Iterator<Object> types = properties.keySet().iterator(); types.hasNext();) {
+        while(scanner.hasNextLine()) {
+            String[] tokens = scanner.nextLine().split("\t", -1);
+            assert tokens.length == 3;
 
-            String typeOfCancerId = (String) types.next();
+            String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
-            aTypeOfCancer.setName(properties.getProperty(typeOfCancerId));
+            aTypeOfCancer.setName(tokens[1].trim());
+            aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
         pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");

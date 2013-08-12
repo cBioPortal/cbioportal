@@ -98,7 +98,41 @@
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     
+    boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
+    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0; 
+    boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
+    boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
+	
     boolean includeNetworks = SkinUtil.includeNetworks();
+%>
+
+<%!
+    public int countProfiles (ArrayList<GeneticProfile> profileList, GeneticAlterationType type) {
+        int counter = 0;
+        for (int i = 0; i < profileList.size(); i++) {
+            GeneticProfile profile = profileList.get(i);
+            if (profile.getGeneticAlterationType() == type) {
+                counter++;
+            }
+        }
+        return counter;
+    }
+
+	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
+	{
+		// translate Onco Query Language
+		ArrayList<String> listOfGenes =
+			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+
+		String genes = "";
+
+		for(String gene: listOfGenes)
+		{
+			genes += gene + " ";
+		}
+
+		return genes.trim();
+	}
 %>
 
 
@@ -191,12 +225,21 @@
                 samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
-<script type="text/javascript" src="js/MemoSort.js"></script>
+<script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
+	//  make global variables -- TODO move these global variables into a better jsp file
+
+	// raw gene list (as it is entered by the user, it may contain onco query language)
+	var genes = "<%=genes%>";
+
+	// gene list after being processed by the onco query language parser
+	var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
+
+	// list of samples (case ids)
+	var samples = "<%=samples%>";
+
+	// genetic profile ids
+	var geneticProfiles = "<%=geneticProfiles%>";
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
@@ -269,11 +312,13 @@
                         out.println ("<li><a href='#gene_correlation' class='result-tab' title='Mutual exclusivity and co-occurrence analysis'>"
                         + "Mutual Exclusivity</a></li>");
                     }
+			
+			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
+	
+			}
 
-                    out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>"
-                        + "Plots</a></li>");
-
-                    if (showMutTab){
+                         if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
@@ -345,10 +390,10 @@
             <%@ include file="oncoprint.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
-
-
-            <%@ include file="plots_tab.jsp" %>
-
+		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+            			
+				<%@ include file="plots_tab.jsp" %>
+		<%}%>
             <% if (showIGVtab) { %>
               <%@ include file="igv.jsp" %>
             <% } %>
@@ -368,7 +413,8 @@
                     + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
                     out.println("</div>");
                 } else if (showMutTab) { %>
-                    <%@ include file="mutation_details.jsp" %>
+	                <%@ include file="mutation_views.jsp" %>
+	                <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
             <%

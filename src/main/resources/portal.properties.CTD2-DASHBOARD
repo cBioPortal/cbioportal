@@ -81,7 +81,8 @@ bitly.api_key=[put your bitly api key here]
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5
 
-tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
+digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name=
+digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 # this is for grabbing NCI's Clinical Trial Information
@@ -96,3 +97,13 @@ firehose_get_script=$PORTAL_HOME/importer/src/main/scripts/firehose_get
 # liftover tool
 liftover_binary=
 liftover_chain_file=
+
+# foundation medicine
+foundation.service.user=
+foundation.service.password=
+
+# darwin database
+darwin.db.host=
+darwin.db.name=
+darwin.db.user=
+darwin.db.password=

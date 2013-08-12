@@ -201,6 +201,8 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                 specificMutationUpper = specificMutationUpper.substring(2);
             }
             
+            specificMutationUpper = specificMutationUpper.replaceAll(" ","_");
+            
             if (mutationPatterns.contains(specificMutationUpper)) {
                 // complete match, including specific mutation to an amino acid such V600E, D200fs
                 return true;
@@ -295,6 +297,10 @@ public class DiscreteDataTypeSetSpec extends DataTypeSpec{
                     //SPLICE
                     if (specificMutationUpper.matches("[A-Z][0-9]+_SPLICE") ||
                             specificMutationUpper.matches("E[0-9]+[\\+\\-][0-9]+")) {
+                        return true;
+                    }
+                } else if (mutationPattern.equals("FUSION")) {
+                    if (specificMutationUpper.endsWith("FUSION")) {
                         return true;
                     }
                 }

@@ -11,7 +11,7 @@ public class Case {
 
     public Case(String caseId, int cancerStudyId) {
         if (caseId==null) {
-            throw new java.lang.IllegalArgumentException("Case cannot be null");
+            throw new java.lang.IllegalArgumentException("caseId cannot be null");
         }
         this.caseId = caseId;
         this.cancerStudyId = cancerStudyId;

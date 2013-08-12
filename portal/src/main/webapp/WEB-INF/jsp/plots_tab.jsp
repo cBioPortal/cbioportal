@@ -7,241 +7,174 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
-<script type="text/javascript">
-$(document).ready(function() {
+<%
+    String cancer_study_id = (String)request.getParameter("cancer_study_id");
+    String case_set_id = (String)request.getParameter("case_set_id");
+    String genetic_profile_id = (String)request.getParameter("genetic_profile_id");
+    //Translate Onco Query Language
+    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    String tmpGeneStr = "";
+    for(String gene: listOfGenes) {
+        tmpGeneStr += gene + " ";
+    }
+    tmpGeneStr = tmpGeneStr.trim();
 
-     $('#plot_it').click(function(){
-        var cancer_study_id = $('#plots input:hidden:eq(0)').val();
-        var case_set_id =  $('#plots input:hidden:eq(1)').val();
-        var case_ids_key =  $('#plots input:hidden:eq(2)').val();
-        var normal_case_set_id =  $('#plots input:hidden:eq(3)').val();
-        var gene = $('select[name="gene"] option:selected').val();
-        var mutation_profile_id = $('select[name="mutation_profile_id"] option:selected').val();
-        var mrna_profile_id = $('select[name="mrnra_profile_id"] option:selected').val();
-        var cna_profile_id = $('select[name="cna_profile_id"] option:selected').val();
-        var methylation_profile_id = $('select[name="methylation_profile_id"] option:selected').val();
-        var rppa_protein_profile_id = $('select[name="rppa_protein_profile_id"] option:selected').val();
-        var plot_type = $('select[name="plot_type"] option:selected').val();
-        var includeNormals = $('input:checkbox[name=include_normals]:checked').val();
+%>
 
-        var toLoad = "generatePlots.do?cancer_study_id="+cancer_study_id+
-                "&case_set_id="+case_set_id+
-                "&case_ids_key="+encodeURIComponent(case_ids_key)+
-                "&gene="+gene+
-                "&mutation_profile_id="+mutation_profile_id+
-                "&mrnra_profile_id="+mrna_profile_id+
-                "&cna_profile_id="+cna_profile_id+
-                "&normal_case_set_id="+normal_case_set_id+
-                "&include_normals="+includeNormals;
-                if(methylation_profile_id){
-                    toLoad = toLoad+"&methylation_profile_id="+methylation_profile_id;
-                }
-                if(rppa_protein_profile_id){
-                    toLoad = toLoad+"&rppa_protein_profile_id="+rppa_protein_profile_id;
-                }
-                toLoad = toLoad + "&plot_type="+plot_type;
-
-                $('#load').remove();
-         //hide div that will contain html page
-         //show ajax loader image
-        $('#progress_bar').append('<div id="load">&nbsp;</div>');
-        $('#load').fadeIn('slow');
-        $('#plot_images').hide('fast',loadContent);
-
-        function loadContent() {
-            //load html content into div (while still hidden)
-            //call showNewContent only after content is finished loading
-            $('#plot_images').load(toLoad,'',showNewContent());
-        }
-        function showNewContent() {
-            //show content, hide loader only after content is shown
-            $('#plot_images').delay(500).fadeIn('slow',hideLoader());
-        }
-        function hideLoader() {
-            //hide loader image
-            $('#load').fadeOut('fast');
-        }
-        return false;
-
-     });
-
-     var dropdowns = $('#plots select');
-
-     $.each(dropdowns, function(){
-         var num = $('option', this).length;
-         var position = $(this).position();
-         if (num < 2){
-             $(this).hide();
-         }
-     })
-    
-     $('#tabs li a[href="#plots"]').click(function(){
-        $('#plot_it').trigger('click');
-     });
-});
+<script>
+    var cancer_study_id = "<%out.print(cancer_study_id);%>",
+            case_set_id = "<%out.print(case_set_id);%>";
+    case_ids_key = "";
+    if (case_set_id === "-1") {
+        case_ids_key = "<%out.print(caseIdsKey);%>";
+    }
+    var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
+    var gene_list_str = "<%out.print(tmpGeneStr);%>";
+    var gene_list = gene_list_str.split(/\s+/);
 </script>
 
-<div class="section" id="plots">
+<script type="text/javascript" src="js/src/plots-view/plots_tab_model.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_tab.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_two_genes.js"></script>
+<script type="text/javascript" src="js/src/plots-view/plots_custom.js"></script>
 
-<%
-    //  Output List of Target Genes
-    out.println ("<table cellpadding=0 cellspacing=0>");
-    out.println ("<tr valign='top'><td bgcolor=#FFFFFF valign=top>");
-
-    out.println("<form id=\"plot_form\" action=\"generatePlots.do\" method=\"GET\">");
-    out.println("<fieldset><legend>Plot Parameters</legend>");
-
-    out.println("<b>Gene:");
-
-    if (geneWithScoreList.size() == 1) {
-        out.println (geneWithScoreList.get(0).getGene().toUpperCase());
+<style>
+    #plots .plots {
+        height: 610px;
     }
-    out.println("</b><br><br>");
-
-    //  Output Cancer Type ID and Case Set ID
-    out.println ("<input type='hidden' name='" + QueryBuilder.CANCER_STUDY_ID
-            + "' value='" + cancerTypeId + "'>");
-
-    out.println ("<input type='hidden' name='" + QueryBuilder.CASE_SET_ID
-            + "' value='" + caseSetId + "'>");
-
-    out.println ("<input type='hidden' name='" + QueryBuilder.CASE_IDS_KEY
-            + "' value='" + caseIdsKey + "'>");
-
-
-
-    out.println ("<select style=\"width:180;\" name='gene'>");
-    for (GeneWithScore geneWithScore : geneWithScoreList) {
-        out.println("<option value='" + geneWithScore.getGene() + "'>"
-                + geneWithScore.getGene().toUpperCase() + "</option>");
-
+    #plots .plots.plots-menus {
+        width: 320px;
+        height: 685px;
     }
-    out.println("</select>");
-
-    int mutationProfileCounter = countProfiles(profileList, GeneticAlterationType.MUTATION_EXTENDED);
-    int mRNAProfileCounter = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION);
-    int cnaProfileCounter = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION);
-    int methylationProfileCounter = countProfiles(profileList, GeneticAlterationType.METHYLATION);
-    int rppaProteinProfileCounter = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL);
-
-    if (mutationProfileCounter <=1 && mRNAProfileCounter <=1 && cnaProfileCounter <= 1
-            && methylationProfileCounter <=1 && rppaProteinProfileCounter <= 1) {
-        out.println ("<BR><BR>");
-    } else {
-        out.println ("<BR><BR><b>Data Types:</b><br><br>");
+    #plots .plots.plots-view {
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
+        padding: 40px;
+        width: 720px;
     }
+    #plots .plots-tabs-ref {
+        font-size: 11px !important;
+    }
+    #plots h4 {
+        padding-top: 15px;
+        padding-bottom: 15px;
+    }
+    #plots h5 {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        font-weight: bold;
+    }
+    #plots .plots-firefox {
+        font-size: 10px;
+    }
+    #plots .plots-select {
+        width: 250px;
+    }
+</style>
 
 
-    //  Output Mutation Profiles
-    if (mutationProfileCounter > 0) {
-        outputProfiles(GeneratePlots.MUTATION_PROFILE_ID, profileList,
-            GeneticAlterationType.MUTATION_EXTENDED, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output mRNA Profiles
-    if (mRNAProfileCounter > 0) {
-        outputProfiles(GeneratePlots.MRNA_PROFILE_ID, profileList,
-            GeneticAlterationType.MRNA_EXPRESSION, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output CNA Profiles
-    if (cnaProfileCounter > 0) {
-        outputProfiles(GeneratePlots.CNA_PROFILE_ID, profileList,
-            GeneticAlterationType.COPY_NUMBER_ALTERATION, geneticProfileIdSet, out);
-        out.println("<BR>");
-    }
-
-    //  Output Methylation Profiles
-    if (methylationProfileCounter > 0) {
-        outputProfiles(GeneratePlots.METHYLATION_PROFILE_ID, profileList,
-            GeneticAlterationType.METHYLATION, geneticProfileIdSet, out);
-    }
-
-    //  Output rppa Profiles
-    if (rppaProteinProfileCounter > 0) {
-        outputProfiles(GeneratePlots.RPPA_PROTEIN_PROFILE_ID, profileList,
-            GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, geneticProfileIdSet, out);
-    }
-
-    if (methylationProfileCounter > 0 || rppaProteinProfileCounter > 0) {
-        out.println ("<BR><BR><b>Plot Type:</b><br><br>");
-    }
-    out.println ("<select style=\"width:180;\"name='plot_type'>");
-    out.println ("<option value='mrna_cna'>mRNA v. Copy Number</option>");
-    if (methylationProfileCounter > 0) {
-        out.println ("<option value='mrna_methylation'>mRNA v. DNA Methylation</option>");
-    }
-    if (rppaProteinProfileCounter > 0) {
-        out.println ("<option value='mrna_rppa_protein'> RPPA protein level v. mRNA</option>");
-    }
-    out.println ("</select>");
-
-    for (CaseList caseSet:  caseSets) {
-        if (caseSet.getName().toLowerCase().contains("normal")) {
-            out.println ("&nbsp;<BR><INPUT TYPE=CHECKBOX NAME='" + GeneratePlots.INCLUDE_NORMALS +"' VALUE='INCLUDE_NORMALS'/>Include Normals");
-            out.println ("<INPUT TYPE=HIDDEN NAME=" + GeneratePlots.NORMAL_CASE_SET_ID + "' VALUE='"
-                    + caseSet.getStableId() + "'/>");
-        }
-    }
-
-    if (mRNAProfileCounter > 0 && cnaProfileCounter > 0) {
-        out.println ("<br><br><a href='javascript:void(); return false;' id='plot_it'><img src='images/next_button.gif'></a>");
-    } else {
-        out.println ("<B>Unfortunately, this cancer types is missing certain data types, and the plot feature is therefore not available.</B>");
-    }
-    out.println ("</fieldset>");
-    out.println ("</form>");
-    out.println ("</td>");
-    out.println ("<td valign=top width=650px>");
-    out.println ("<div id='progress_bar'>");
-    out.println ("<div id=\"plot_images\"></div></div>");
-    out.println ("</td>");
-    out.println ("</tr>");
-%>
-</table>
+<div class="section" id="plots" class="plots">
+    <table>
+        <tr>
+            <td>
+                <div id="plots-menus" class="plots plots-menus">
+                    <ul>
+                        <li><a href="#plots_one_gene" title="Single Gene Query" class="plots-tabs-ref"><span>One Gene</span></a></li>
+                        <li><a href="#plots_two_genes" title="Cross Gene Query" class="plots-tabs-ref"><span>Two Genes</span></a></li>
+                        <li><a href="#plots_custom" title="Advanced Cross Gene Query" class="plots-tabs-ref"><span>Custom</span></a></li>
+                    </ul>
+                    <div id="plots_one_gene">
+                        <h4>Plot Parameters</h4>
+                        <h5>Gene</h5>
+                        <select id='gene' onchange='PlotsView.init()'></select>
+                        <h5>Plot Type</h5>
+                        <select id='plots_type' onchange="PlotsMenu.update();PlotsView.init();"></select>
+                        <h5>Data Type</h5>
+                        <div id='one_gene_platform_select_div'></div>
+                    </div>
+                    <div id="plots_two_genes">
+                        <h4>Plot Parameters</h4>
+                        <h5>Genes</h5>
+                        x Axis<select id='geneX' onchange="PlotsTwoGenesView.init()"></select><br>
+                        y Axis<select id='geneY' onchange="PlotsTwoGenesView.init()"></select>
+                        <h5>Plot Type</h5>
+                        <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.update();PlotsTwoGenesView.init();"></select>
+                        <h5>Platform</h5>
+                        <div id='two_genes_platform_select_div'></div>
+                        <br><label for="show_mutation">Show Mutation Data</label>
+                        <input type="checkbox" name="show_mutation" id="show_mutation"
+                               value="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
+                    </div>
+                    <div id="plots_custom">
+                        <h4>Plot Parameters</h4>
+                        <h5>x Axis</h5>
+                        Gene<br>
+                        <select id='custom_geneX' onchange="PlotsCustomView.init()"></select><br>
+                        Plot Type<br>
+                        <select id='custom_plots_type_x' onchange='PlotsCustomMenu.update();PlotsCustomView.init();'></select><br>
+                        Platform<br>
+                        <div id='custom_platform_select_div_x'></div>
+                        <br>
+                        <h5>y Axis</h5>
+                        Gene<br>
+                        <select id='custom_geneY' onchange="PlotsCustomView.init()"></select><br>
+                        Plot Type<br>
+                        <select id='custom_plots_type_y' onchange='PlotsCustomMenu.update();PlotsCustomView.init();'></select><br>
+                        Platform<br>
+                        <div id='custom_platform_select_div_y'></div>
+                        <br><label for="show_mutation_custom_view">Show Mutation Data</label>
+                        <input type="checkbox" name="show_mutation_custom_view" id="show_mutation_custom_view"
+                               value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div id="plots-view" class="plots plots-view">
+                    <div id='loading-image'>
+                        <img style='padding:200px;' src='images/ajax-loader.gif'>
+                    </div>
+                    <b><div id='view_title' style="display:inline-block;padding-left:100px;"></div></b>
+                    <div id="plots_box"></div>
+                </div>
+            </td>
+        </tr>
+    </table>
 </div>
 
-<%!
-    // Counts Number of Genetic Profiles of the Specified Alteration Type.
-    public int countProfiles(ArrayList<GeneticProfile> profileList,
-            GeneticAlterationType type) {
-        int counter = 0;
-        for (int i = 0; i < profileList.size(); i++) {
-            GeneticProfile profile = profileList.get(i);
-            if (profile.getGeneticAlterationType() == type) {
-                counter++;
-            }
-        }
-        return counter;
+<script>
+
+    $("#plots-menus").tabs();
+    window.onload = Plots.init();
+
+    // Takes the content in the plots svg element
+    // and returns XML serialized *string*
+    function loadSVG() {
+        var shiftValueOnX = 8;
+        var shiftValueOnY = 3;
+        var mySVG = d3.select("#plots_box");
+        var xAxisGrp = mySVG.select(".plots-x-axis-class");
+        var yAxisGrp = mySVG.select(".plots-y-axis-class");
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+        var docSVG = document.getElementById("plots_box");
+        var svgDoc = docSVG.getElementsByTagName("svg");
+        var xmlSerializer = new XMLSerializer();
+        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+        return xmlString;
     }
 
-    // Outputs Genetic Profiles of the Specified Alteration Type
-    public void outputProfiles(String id, ArrayList<GeneticProfile> profileList,
-            GeneticAlterationType type, HashSet<String> geneticProfileIdSet,
-            JspWriter out) throws IOException {
-        out.println("<select style=\"width:180px;\" name='" + id + "'>");
-        boolean mRNASelected = false;
-        for (int i = 0; i < profileList.size(); i++) {
-            GeneticProfile profile = profileList.get(i);
-            if (profile.getGeneticAlterationType() == type) {
-                out.print("<option value='" + profile.getStableId()
-                        + "' title='" + profile.getProfileDescription() + "' ");
-                if (geneticProfileIdSet.contains(profile.getStableId())) {
-                    out.print ("SELECTED ");
-                } else if (type.equals(GeneticAlterationType.MRNA_EXPRESSION)) {
-                    //  Output the first Non-Z-Score mRNA Profile as Default
-                    if (!profile.getProfileName().toLowerCase().contains("z-score")
-                            && mRNASelected == false) {
-                        out.print ("SELECTED ");
-                        mRNASelected = true;
-                    }
-                }
-                out.print (">");
-                out.print (profile.getProfileName() + "</option>");
-            }
-        }
-        out.println("</select>");
+</script>
+
+<script>
+    //Patch for the sub tab css style and qtip bug. (Overwrite, stay bottom)
+    $(".plots-tabs-ref").tipTip(
+            {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
+    //Patch for fixing the font size in firefox
+    if ($.browser.mozilla) {
+        var element = document.getElementById("plots-menus");
+        element.className += " " + "plots-firefox";
     }
-%>
+
+</script>
+
+

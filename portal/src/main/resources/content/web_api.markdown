@@ -198,8 +198,8 @@ For data of type EXTENDED_MUTATION, you can request the full set of annotated ex
 ### Query Format
 
 * **cmd**=getMutationData (required)
-* **case\_set\_id**= [case set ID] (required)
-* **genetic\_profile\_id**= [a single genetic profile IDs] (required).
+* **genetic\_profile\_id**= [one or more mutation profile IDs] (required). Multiple genetic profile IDs must be separated by comma (,) characters, or URL encoded spaces, e.g. +
+* **case\_set\_id**= [case set ID] (optional). If not provided, all cases that have data in the specified mutation profiles will be queried.
 * **gene\_list**= [one or more genes, specified as HUGO Gene Symbols or Entrez Gene IDs] (required). Multiple genes must be separated by comma (,) characters, or  URL encoded spaces, e.g. +
 
 ### Response Format
@@ -221,10 +221,12 @@ A tab-delimited file with the following columns:
 * **chr**:  chromosome where mutation occurs.
 * **start\_position**:  start position of mutation.
 * **end\_position**:  end position of mutation.
+* **genetic\_profile\_id**:  mutation profile id.
 
 ### Example
 
-[Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.](webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN)
+* [Get Extended Mutation Data for EGFR and PTEN in TCGA GBM.](webservice.do?cmd=getMutationData&case_set_id=gbm_tcga_all&genetic_profile_id=gbm_tcga_mutations&gene_list=EGFR+PTEN)
+* [Get Extended Mutation Data for BRCA1 in TCGA OV and UCEC.](webservice.do?cmd=getMutationData&genetic_profile_id=ov_tcga_mutations+ucec_tcga_mutations&gene_list=BRCA1)
 
 ## Get Clinical Data
 

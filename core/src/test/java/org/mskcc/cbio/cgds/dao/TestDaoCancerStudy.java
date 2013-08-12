@@ -28,8 +28,6 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
@@ -42,7 +40,7 @@ import java.util.ArrayList;
 /**
  * JUnit Tests for DaoCancer Study.
  *
- * @author Ethan Cerami, Arthur Goldberg.
+ * @author Arman Aksoy, Ethan Cerami, Arthur Goldberg.
  */
 public class TestDaoCancerStudy extends TestCase {
 
@@ -56,36 +54,37 @@ public class TestDaoCancerStudy extends TestCase {
         // load cancers
 		// TBD: change this to use getResourceAsStream()
         ImportTypesOfCancers.load(new ProgressMonitor(), new File("target/test-classes/cancers.txt"));
+        assertEquals("breast", DaoTypeOfCancer.getTypeOfCancerById("BRCA").getClinicalTrialKeywords());
+        assertEquals("colon,rectum,colorectal",
+                DaoTypeOfCancer.getTypeOfCancerById("COADREAD").getClinicalTrialKeywords());
 
         CancerStudy cancerStudy = new CancerStudy("GBM", "GBM Description", "gbm", "brca", false);
         DaoCancerStudy.addCancerStudy(cancerStudy);
 
         //   `CANCER_STUDY_ID` auto_increment counts from 1
         assertEquals(1, cancerStudy.getInternalId());
+        
+        cancerStudy.setDescription("Glioblastoma");
+        DaoCancerStudy.addCancerStudy(cancerStudy,true);
+        assertEquals(2, cancerStudy.getInternalId());
+        
+        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
+        assertEquals("gbm", cancerStudy.getCancerStudyStableId());
+        assertEquals("GBM", cancerStudy.getName());
+        assertEquals("Glioblastoma", cancerStudy.getDescription());
 
         cancerStudy.setName("Breast");
         cancerStudy.setCancerStudyStablId("breast");
         cancerStudy.setDescription("Breast Description");
         DaoCancerStudy.addCancerStudy(cancerStudy);
-        assertEquals(2, cancerStudy.getInternalId()); //
+        assertEquals(3, cancerStudy.getInternalId());
 
-        ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
-        assertEquals(2, list.size());
-
-        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(1);
-        assertEquals("gbm", cancerStudy.getCancerStudyStableId());
-        assertEquals("GBM", cancerStudy.getName());
-        assertEquals("GBM Description", cancerStudy.getDescription());
-        assertEquals(1, cancerStudy.getInternalId());
-
-        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(2);
+        cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(3);
         assertEquals("Breast Description", cancerStudy.getDescription());
         assertEquals("Breast", cancerStudy.getName());
 
-        cancerStudy = DaoCancerStudy.getCancerStudyByStableId("gbm");
-        assertEquals("gbm", cancerStudy.getCancerStudyStableId());
-        assertEquals("GBM", cancerStudy.getName());
-        assertEquals("GBM Description", cancerStudy.getDescription());
+        ArrayList<CancerStudy> list = DaoCancerStudy.getAllCancerStudies();
+        assertEquals(2, list.size());
 
         assertEquals(null, DaoCancerStudy.getCancerStudyByStableId("no such study"));
         assertTrue(DaoCancerStudy.doesCancerStudyExistByStableId

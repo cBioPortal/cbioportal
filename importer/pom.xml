@@ -63,6 +63,13 @@
 	  <version>1.2</version>
 	</dependency>
 
+	<dependency>
+	  <groupId>net.sourceforge.jtds</groupId>
+	  <artifactId>jtds</artifactId>
+	  <version>1.2.4</version>
+	  <scope>runtime</scope>
+	</dependency>
+
 	<!-- apache commons basic data source -->
 	<dependency>
 	  <groupId>commons-dbcp</groupId>

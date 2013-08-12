@@ -84,6 +84,8 @@ public class GeneticAlterationType {
             return METHYLATION_BINARY;
         } else if (type.equals(MUTATION_EXTENDED.toString())) {
            return MUTATION_EXTENDED;
+        } else if (type.equals(FUSION.toString())) {
+	        return FUSION;
         } else if (type.equals(PROTEIN_LEVEL.toString())) {
            return PROTEIN_LEVEL;
         } else if (type.equals(PHOSPHORYLATION.toString())) {
@@ -102,6 +104,12 @@ public class GeneticAlterationType {
      */
     public static final GeneticAlterationType MUTATION_EXTENDED
             = new GeneticAlterationType("MUTATION_EXTENDED");
+
+	/**
+	 * Fusion alteration Type.
+	 */
+	public static final GeneticAlterationType FUSION
+			= new GeneticAlterationType("FUSION");
 
     /**
      * Copy Number alteration type.

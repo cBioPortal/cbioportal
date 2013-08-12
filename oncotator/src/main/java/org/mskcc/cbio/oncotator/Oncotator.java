@@ -279,8 +279,8 @@ public class Oncotator
 	}
 
 	protected void outputFileNames(File inputMafFile, File outputMafFile) {
-		System.out.println("Reading MAF From:  " + inputMafFile.getAbsolutePath());
-		System.out.println("Writing new MAF To:  " + outputMafFile.getAbsolutePath());
+		System.out.println("Reading MAF from: " + inputMafFile.getAbsolutePath());
+		System.out.println("Writing new MAF to: " + outputMafFile.getAbsolutePath());
 	}
 
 	protected void conditionallyAbort(int numRecordsProcessed) {

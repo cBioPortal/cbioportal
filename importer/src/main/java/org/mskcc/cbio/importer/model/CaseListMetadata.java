@@ -46,6 +46,9 @@ public class CaseListMetadata {
 	// delimiter between download archive pairs
 	public static final String CASE_LIST_INTERSECTION_DELIMITER = "&";
 
+	// all cases indicator
+	public static final String ALL_CASES_FILENAME = "cases_all.txt";
+
 	// bean properties
 	private String caseListFilename;
     private String stagingFilenames;

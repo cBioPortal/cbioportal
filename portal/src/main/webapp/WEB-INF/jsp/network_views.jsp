@@ -224,12 +224,6 @@
 
 <script type="text/javascript">
 
-	// This is for the moustache-like templates
-	// prevents collisions with JSP tags
-	_.templateSettings = {
-		interpolate : /\{\{(.+?)\}\}/g
-	};
-
 	/**
 	 * Backbone View Class for the drug data.
 	 *

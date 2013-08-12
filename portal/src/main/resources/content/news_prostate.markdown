@@ -1,3 +1,18 @@
+# July 25, 2013
+
+* Multi-gene correlation plots.
+* Variant allele frequency distribution plots for individual tumor samples.
+* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](case.do?cancer_study_id=prad_tcga&case_id=TCGA-CH-5788#images).
+* Support for multiple tumor samples for a single patient. [Example](case.do?cancer_study_id=prad_mich&patient_id=WA43).
+
+# July 16, 2013
+
+* Data of TCGA prostate study updated to the May Firehose run (May 23, 2012).
+
+# June 4, 2013
+
+* Data of TCGA prostate study updated to the April Firehose run (April 21, 2012).
+
 # April 28, 2013
 
 * Data of TCGA prostate study updated to the March Firehose run (March 26, 2012).

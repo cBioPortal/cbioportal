@@ -1,3 +1,28 @@
+# July 23, 2013
+
+* Multi-gene correlation plots.
+* Variant allele frequency distribution plots for individual tumor samples.
+* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](case.do?cancer_study_id=ucec_tcga&case_id=TCGA-BK-A0CC#images).
+
+# July 16, 2013
+
+* All TCGA data updated to the May Firehose run (May 23, 2012).
+    * TCGA Pancreatic Cancer study (provisional) added.
+
+# July 4, 2013
+
+* Improved rendering of mutation diagrams, including ability to download in PDF format.
+* Improved home page: Searchable cancer study & gene set selectors, data sets selector.
+
+# June 13, 2013
+
+* Improved interface for correlation plots, including information on individual samples via mouse-over.
+* Gene Details from Biogene are now available in the Network view.
+
+# June 4, 2013
+
+* All TCGA data updated to the April Firehose run (April 21, 2012).
+
 # April 28, 2013
 
 * All TCGA data updated to the March Firehose run (March 26, 2012).

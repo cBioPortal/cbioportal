@@ -57,6 +57,19 @@ public class DatatypeMetadata {
 	// - used by at least ConverterImpl
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
+	// mutation data staging filename
+	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
+
+	// clinical data staging filename
+	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+
+	// fusion data staging filename
+	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";
+
+	// file used by groups which check in manually curated studies to
+	// indicate the list of sequenced samples
+	public static final String SEQUENCED_SAMPLES_FILENAME = "sequenced_samples.txt";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:
@@ -89,6 +102,7 @@ public class DatatypeMetadata {
     private String metaFilename;
     private String metaStableID;
     private String metaGeneticAlterationType;
+	private String metaDatatypeType; // DISCRETE, CONTINUOUS, Z-SCORE
     private Boolean metaShowProfileInAnalysisTab;
     private String metaProfileName;
 	private String metaProfileDescription;
@@ -101,7 +115,7 @@ public class DatatypeMetadata {
      */
     public DatatypeMetadata(String[] properties) {
 
-		if (properties.length < 14) {
+		if (properties.length < 15) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -134,9 +148,10 @@ public class DatatypeMetadata {
 		this.metaFilename = properties[8].trim();
 		this.metaStableID = properties[9].trim();
 		this.metaGeneticAlterationType = properties[10];
-		this.metaShowProfileInAnalysisTab = new Boolean(properties[11].trim());
-		this.metaProfileName = properties[12].trim();
-		this.metaProfileDescription = properties[13].trim();
+		this.metaDatatypeType = properties[11];
+		this.metaShowProfileInAnalysisTab = new Boolean(properties[12].trim());
+		this.metaProfileName = properties[13].trim();
+		this.metaProfileDescription = properties[14].trim();
 	}
 
 	public String getDatatype() { return datatype; }
@@ -169,6 +184,7 @@ public class DatatypeMetadata {
 	public String getMetaFilename() { return metaFilename; }
 	public String getMetaStableID() { return metaStableID; }
 	public String getMetaGeneticAlterationType() { return metaGeneticAlterationType; }
+	public String getMetaDatatypeType() { return metaDatatypeType; }
 	public Boolean getMetaShowProfileInAnalysisTab() { return metaShowProfileInAnalysisTab; }
 	public String getMetaProfileName() { return metaProfileName; }
 	public String getMetaProfileDescription() { return metaProfileDescription; }

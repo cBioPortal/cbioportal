@@ -94,7 +94,7 @@ public final class WebserviceParserUtils {
      *
      * @param request
      * @return the cancer_study_ids associated with the request, which will be empty
-     *         if none can be determined; or null if a problem arises.
+     *         if none can be determined; or empty set if a problem arises.
      * @throws DaoException
      * @throws ProtocolException
      */
@@ -110,7 +110,7 @@ public final class WebserviceParserUtils {
             if (DaoCancerStudy.doesCancerStudyExistByStableId(studyIDstring)) {
                 cancerStudies.add(studyIDstring);
             } else {
-                return null;
+                return cancerStudies;
             }
         }
 
@@ -120,7 +120,7 @@ public final class WebserviceParserUtils {
             for (String geneticProfileId : geneticProfileIds) {
 
                 if (geneticProfileId == null) {
-                    return null;
+                    return cancerStudies;
                 }
 
                 GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
@@ -138,13 +138,13 @@ public final class WebserviceParserUtils {
             DaoCaseList aDaoCaseList = new DaoCaseList();
             CaseList aCaseList = aDaoCaseList.getCaseListByStableId(caseSetId);
             if (aCaseList == null) {
-                return null;
+                return cancerStudies;
             }
             if (DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
                 cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
                         (aCaseList.getCancerStudyId()).getCancerStudyStableId());
             } else {
-                return null;
+                return cancerStudies;
             }
         }
 
@@ -169,18 +169,18 @@ public final class WebserviceParserUtils {
 
                 int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
                 if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
-                    return null;
+                    return cancerStudies;
                 }
 
                 GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
                 if (aGeneticProfile == null) {
-                    return null;
+                    return cancerStudies;
                 }
                 if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
                     cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
                             (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 } else {
-                    return null;
+                    return cancerStudies;
                 }
             }
         }

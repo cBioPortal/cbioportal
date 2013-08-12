@@ -102,27 +102,65 @@ public class OncotatorParser
 		    oncoRecord.setDbSnpValStatus(dbSnpValStatus.getTextValue());
 	    }
 
-        JsonNode bestCanonicalTranscriptIdxNode = rootNode.path("best_canonical_transcript");
-	    JsonNode bestEffectTranscriptIdxNode = rootNode.path("best_effect_transcript");
-	    JsonNode transcriptsNode = rootNode.path("transcripts");
-	    int transcriptIndex;
+	    Transcript bestCanonical = findBestCanonical(rootNode);
+	    Transcript bestEffect = findBestEffect(rootNode);
 
-        if (!bestCanonicalTranscriptIdxNode.isMissingNode())
-        {
-            transcriptIndex = bestCanonicalTranscriptIdxNode.getIntValue();
-	        oncoRecord.setBestCanonicalTranscript(parseTranscriptNode(
-			        transcriptsNode, transcriptIndex));
-        }
-
-	    if (!bestEffectTranscriptIdxNode.isMissingNode())
+	    if (bestCanonical != null)
 	    {
-		    transcriptIndex = bestEffectTranscriptIdxNode.getIntValue();
-		    oncoRecord.setBestEffectTranscript(parseTranscriptNode(
-				    transcriptsNode, transcriptIndex));
+	        oncoRecord.setBestCanonicalTranscript(bestCanonical);
+	    }
+
+	    if (bestEffect != null)
+	    {
+		    oncoRecord.setBestEffectTranscript(bestEffect);
 	    }
 
         return oncoRecord;
     }
+
+	/**
+	 * Determines the best canonical transcript for the given root node.
+	 *
+	 * @param rootNode  root node representing the whole JSON
+	 * @return          best canonical transcript for this mutation
+	 */
+	public static Transcript findBestCanonical(JsonNode rootNode)
+	{
+		// TODO do not use index provided by oncotator, define own mapping
+		JsonNode transcriptIdxNode = rootNode.path("best_canonical_transcript");
+		Transcript transcript = null;
+
+		if (!transcriptIdxNode.isMissingNode())
+		{
+			int transcriptIndex = transcriptIdxNode.getIntValue();
+			JsonNode transcriptsNode = rootNode.path("transcripts");
+			transcript = parseTranscriptNode(transcriptsNode, transcriptIndex);
+		}
+
+		return transcript;
+	}
+
+	/**
+	 * Determines the best effect transcript for the given root node.
+	 *
+	 * @param rootNode  root node representing the whole JSON
+	 * @return          best effect transcript for this mutation
+	 */
+	public static Transcript findBestEffect(JsonNode rootNode)
+	{
+		// TODO do not use index provided by oncotator, define own mapping
+		JsonNode transcriptIdxNode = rootNode.path("best_effect_transcript");
+		Transcript transcript = null;
+
+		if (!transcriptIdxNode.isMissingNode())
+		{
+			int transcriptIndex = transcriptIdxNode.getIntValue();
+			JsonNode transcriptsNode = rootNode.path("transcripts");
+			transcript = parseTranscriptNode(transcriptsNode, transcriptIndex);
+		}
+
+		return transcript;
+	}
 
 	/**
 	 * Parses a transcript node at the specified index within the given

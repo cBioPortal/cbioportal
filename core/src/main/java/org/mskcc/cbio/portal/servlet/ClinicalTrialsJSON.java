@@ -70,13 +70,13 @@ public class ClinicalTrialsJSON extends HttpServlet {
         try {
             DaoClinicalTrial daoClinicalTrial = DaoClinicalTrial.getInstance();
             for (String studyToken : studyTokens) {
-                if(studyToken.length() < 5) continue; // prevent overloads!
+                if(studyToken.length() < 4) continue; // prevent overloads!
                 List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(studyToken);
                 studyTrials.addAll(clinicalTrials);
             }
 
             for (String keyword : keywordStr.split(",")) {
-                if(keyword.length() < 5) continue; // prevent overloads!
+                if(keyword.length() < 4) continue; // prevent overloads!
                 List<ClinicalTrial> clinicalTrials = daoClinicalTrial.fuzzySearchClinicalTrials(keyword);
                 drugTrials.addAll(clinicalTrials);
             }

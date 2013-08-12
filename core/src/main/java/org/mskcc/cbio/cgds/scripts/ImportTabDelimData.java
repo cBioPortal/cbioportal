@@ -118,7 +118,7 @@ public class ImportTabDelimData {
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);
         String headerLine = buf.readLine();
-        String parts[] = headerLine.split("\t",-1);
+        String parts[] = headerLine.split("\t");
         String caseIds[];
 
         //  Branch, depending on targetLine setting

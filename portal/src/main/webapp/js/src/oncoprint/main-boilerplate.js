@@ -16,6 +16,18 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var clinicalAttributes = new ClinicalAttributesColl();
 
+    var $zoom_el = $('#oncoprint_controls #zoom');
+    var zoom;
+
+    // basically a hack to prevent the zoom function from a particular oncoprint
+    // from getting bound to the UI slider forever
+    var reset_zoom = function() {
+        $zoom_el.empty();
+        zoom = utils.zoomSetup($zoom_el, oncoprint.zoom);
+
+        return zoom;
+    };
+
     clinicalAttributes.fetch({
         type: 'POST',
         data: { case_list: cases },
@@ -26,7 +38,6 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
     });
 
     var oncoprint;
-    var zoom;
 
     var genes = window.gene_list;
     try {
@@ -65,7 +76,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint.sortBy(sortBy.val(), cases.split(" "));
 
-            zoom = utils.zoomSetup($('#oncoprint_controls #zoom'), oncoprint.zoom);
+            zoom = reset_zoom();
         }
     });
 
@@ -143,6 +154,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     sortBy.val('genes');
 
                     toggleControls(true);
+
+                    zoom = reset_zoom();
 
                     // sync
                     oncoprint.zoom(zoom.slider("value"));

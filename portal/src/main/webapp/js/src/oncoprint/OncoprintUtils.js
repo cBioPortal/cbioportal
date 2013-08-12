@@ -103,7 +103,7 @@ define("OncoprintUtils", (function() {
     // params: [list of raw clinical data]
     //
     // returns: map of an attribute id to its respective range
-    // where a range is a 2-ple if the correspondings attribute values are numerical
+    // where a range is a 2-ple if the corresponding attribute values are numerical
     // and a list of values otherwise
     var attr2range = function(clinicalData) {
         var attr2range_builder = function(prev, curr) {

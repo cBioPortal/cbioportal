@@ -163,11 +163,12 @@ public class ImportTabDelimData {
                 parts = line.split("\t",-1);
                 
                 if (parts.length>lenParts) {
-                    throw new java.lang.IllegalArgumentException("The following line has more fields than the headers: \n"+line);
+                    System.err.println("The following line has more fields (" + parts.length
+                            + ") than the headers(" + lenParts + "): \n"+line);
                 }
 
                 int startIndex = getStartIndex();
-                String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);
+                String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length>lenParts?lenParts:parts.length);
 
                 String method = null;
                 String geneId = null;

@@ -117,7 +117,7 @@ public class ImportTabDelimData {
         FileReader reader = new FileReader(mutationFile);
         BufferedReader buf = new BufferedReader(reader);
         String headerLine = buf.readLine();
-        String parts[] = headerLine.split("\t");
+        String parts[] = headerLine.split("\t",-1);
         String caseIds[];
 
         //  Branch, depending on targetLine setting
@@ -162,8 +162,8 @@ public class ImportTabDelimData {
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 parts = line.split("\t",-1);
                 
-                if (parts.length!=lenParts) {
-                    throw new java.lang.IllegalArgumentException("The following line has different number of fields from the headers: \n"+line);
+                if (parts.length>lenParts) {
+                    throw new java.lang.IllegalArgumentException("The following line has more fields than the headers: \n"+line);
                 }
 
                 int startIndex = getStartIndex();

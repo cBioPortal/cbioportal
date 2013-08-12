@@ -150,6 +150,8 @@ public class ImportTabDelimData {
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
 
+        int lenParts = parts.length;
+        
         while (line != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
@@ -159,6 +161,10 @@ public class ImportTabDelimData {
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 parts = line.split("\t",-1);
+                
+                if (parts.length!=lenParts) {
+                    throw new java.lang.IllegalArgumentException("The following line has different number of fields from the headers: \n"+line);
+                }
 
                 int startIndex = getStartIndex();
                 String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);

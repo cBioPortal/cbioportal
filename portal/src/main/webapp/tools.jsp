@@ -82,7 +82,7 @@
         <button id="create_sample" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
     </div>
 
-    <div id="oncoprint_controls"></div>
+    <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
 

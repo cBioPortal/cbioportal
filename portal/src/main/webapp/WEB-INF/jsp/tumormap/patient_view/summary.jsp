@@ -66,7 +66,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
         var genomic_overview_length = $("#td-content").width() - 50;
         genomic_overview_length -= ((genomicEventObs.hasMut && genomicEventObs.hasSeg) ? 110 : 0);
-        genomic_overview_length -= (hasAlleleFrequencyData ? 110 : 0);
+        genomic_overview_length -= (hasAlleleFrequencyData&&caseIds.length===1 ? 110 : 0);
         var config = new GenomicOverviewConfig(
                 (genomicEventObs.hasMut?caseIds.length:0)+(genomicEventObs.hasSeg?caseIds.length:0), genomic_overview_length);
 
@@ -213,7 +213,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 <%}%>
 
-<%if(hasAlleleFrequencyData){%>
+<%if(hasAlleleFrequencyData && caseIds.size()>1){%>
 <script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
@@ -222,7 +222,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             var thumbnail = document.getElementById('allele-freq-plot-thumbnail');
             // create a small plot thumbnail
 
-            var processed_data = AlleleFreqPlotUtils.extract_and_process(genomicEventObs);
+            var processed_data = AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]);
 
             if (!processed_data) {
                 // data failed validation, stop the train
@@ -241,7 +241,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
             window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
-                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs));
+                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]));
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({

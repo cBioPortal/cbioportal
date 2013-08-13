@@ -51,16 +51,16 @@ public class TestProfileMerger extends TestCase {
         ArrayList<ProfileData> profileList = new ArrayList<ProfileData>();
 
         GeneticProfile profile0 = new GeneticProfile
-                ("gbm", 1, GeneticAlterationType.COPY_NUMBER_ALTERATION,
-                        "CNA", "NA", true);
+			("gbm", 1, GeneticAlterationType.COPY_NUMBER_ALTERATION, "DISCRETE",
+			 "CNA", "NA", true);
 		// TBD: change this to use getResourceAsStream()
         String matrix0[][] = WebFileConnect.retrieveMatrix(new File("target/test-classes/cna_sample.txt"));
         ProfileData data0 = new ProfileData(profile0, matrix0);
         profileList.add(data0);
 
         GeneticProfile profile1 = new GeneticProfile
-                ("gbm", 1, GeneticAlterationType.MUTATION_EXTENDED,
-                        "MUTATION", "NA", true);
+			("gbm", 1, GeneticAlterationType.MUTATION_EXTENDED, "MAF",
+			 "MUTATION", "NA", true);
 		// TBD: change this to use getResourceAsStream()
         String matrix1[][] = WebFileConnect.retrieveMatrix(new File("target/test-classes/mutation_sample.txt"));
         ProfileData data1 = new ProfileData(profile1, matrix1);

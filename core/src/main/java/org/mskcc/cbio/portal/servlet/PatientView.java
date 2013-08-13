@@ -227,14 +227,9 @@ public class PatientView extends HttpServlet {
 
         request.setAttribute(HAS_SEGMENT_DATA, DaoCopyNumberSegment
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
-        if (sampleIds.size()>1) {
-            request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, Boolean.FALSE);
-        } else {
-            String sampleId = sampleIds.iterator().next();
-            request.setAttribute(HAS_ALLELE_FREQUENCY_DATA,
-                hasAlleleFrequencyData(cancerStudy, sampleId, cancerStudy.getMutationProfile(sampleId)));
-        }
-        
+        String firstSampleId = sampleIds.iterator().next();
+        request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, 
+                hasAlleleFrequencyData(cancerStudy, firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
         
         return true;
     }

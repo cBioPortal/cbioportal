@@ -212,6 +212,11 @@
 	</servlet>
 
 	<servlet>
+		<servlet-name>mutation_3d_json</servlet-name>
+		<servlet-class>org.mskcc.cbio.portal.servlet.Mutation3dServlet</servlet-class>
+	</servlet>
+
+	<servlet>
 		<servlet-name>mutation_data_json</servlet-name>
 		<servlet-class>org.mskcc.cbio.portal.servlet.MutationDataServlet</servlet-class>
 	</servlet>
@@ -264,6 +269,11 @@
 	<servlet-mapping>
 		<servlet-name>pfam_sequence_json</servlet-name>
 		<url-pattern>/getPfamSequence.json</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>mutation_3d_json</servlet-name>
+		<url-pattern>/get3dPdb.json</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

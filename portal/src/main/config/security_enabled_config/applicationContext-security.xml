@@ -57,6 +57,7 @@
 	  <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getPfamSequence.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/get3dPdb.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>

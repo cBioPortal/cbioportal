@@ -42,7 +42,19 @@
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
 	</div>
-	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+	<table>
+		<tr>
+			<td>
+				<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+			</td>
+			<td>
+				<div id='mutation_3d_{{geneSymbol}}' class='mutation-3d-container'>
+					<img src='images/jmol.png' class='mutation-3d-placeholder'/>
+				</div>
+			</td>
+		</tr>
+	</table>
+
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
@@ -245,10 +257,35 @@
 			this.format()
 		},
 		format: function() {
+			var self = this;
+
 			// hide the mutation diagram filter info text by default
-			this.hideFilterInfo();
+			self.hideFilterInfo();
 			// hide the toolbar by default
-			this.$el.find(".mutation-diagram-toolbar").hide();
+			self.$el.find(".mutation-diagram-toolbar").hide();
+			// add click listener for the static 3d image
+			self.$el.find(".mutation-3d-container").click(function(){
+				// 3D viewer container
+				var viewer = $("#mutation_3d_structure");
+				//var viewer = $(self.model.applet);
+
+				// hide 3d viewer
+				viewer.hide();
+
+				// show all other placeholders...
+				$(".mutation-3d-placeholder").show();
+
+				// hide placeholder for this one
+				$(this).find(".mutation-3d-placeholder").hide();
+
+				// reposition & show the 3d viewer
+				$(this).append(viewer);
+
+				// TODO reload the jmol content with pdb id and mutation context
+				//Jmol.scriptWait("mutation_details_viewer", "load=2bq0");
+				viewer.show();
+			});
+
 		},
 		/**
 		 * Initializes the toolbar over the mutation diagram.

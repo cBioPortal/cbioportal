@@ -502,6 +502,16 @@
         <url-pattern>/getProfileData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.PancancerMutationsJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>PancancerMutationsJSON</servlet-name>
+        <url-pattern>/pancancerMutations.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
      
     <welcome-file-list>

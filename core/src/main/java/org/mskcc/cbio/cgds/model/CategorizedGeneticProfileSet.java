@@ -28,6 +28,8 @@
 package org.mskcc.cbio.cgds.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 /**
@@ -74,6 +76,16 @@ public class CategorizedGeneticProfileSet {
                 = new ArrayList<ArrayList<GeneticProfile>>();
         orderOfPredenceList.add(gisticProfileList);
         orderOfPredenceList.add(raeProfileList);
+        // Now prioritize the ones that are shown in the analysis tab
+        Collections.sort(otherCnaProfileList, new Comparator<GeneticProfile>() {
+            @Override
+            public int compare(GeneticProfile geneticProfileA, GeneticProfile geneticProfileB) {
+                int a = geneticProfileA.showProfileInAnalysisTab() ? 1 : 0;
+                int b = geneticProfileB.showProfileInAnalysisTab() ? 1 : 0;
+
+                return b-a;
+            }
+        });
         orderOfPredenceList.add(otherCnaProfileList);
         return getFirstPriorityProfile(orderOfPredenceList);
     }

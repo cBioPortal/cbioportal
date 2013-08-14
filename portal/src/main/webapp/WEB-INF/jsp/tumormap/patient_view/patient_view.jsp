@@ -12,6 +12,7 @@
 boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("tumormap", true);
 String caseId = (String)request.getAttribute(PatientView.CASE_ID);
+boolean multiSamples = caseId.contains(" ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
 String jsonClinicalData = JSONValue.toJSONString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
@@ -91,7 +92,7 @@ if (patientViewError!=null) {
 
 <%if(patientID!=null) {%>
     <p style="background-color: lightyellow;"> This patient has 
-        <a title="Go to patient-centric view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&case_id=<%=patientID%>">multiple tumors</a>.
+        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&patient_id=<%=patientID%>">multiple tumors</a>.
     </p>
 <%}%>
 
@@ -299,15 +300,19 @@ var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>,
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 
-var mapCaseColor = {};
-var mapCaseLabels = {};
-var mapCaseIndices = {};
+var caseMetaData = {
+    color : {}, label : {}, index : {}, tooltip : {}
+};
 
 $(document).ready(function(){
     if (print) $('#page_wrapper_table').css('width', '900px');
     outputClinicalData();
     setUpPatientTabs();
     initTabs();
+    var openTab = window.location.hash.substr(1);
+    if (openTab) {
+        switchToTab(openTab);
+    }
 });
 
 function setUpPatientTabs() {
@@ -347,6 +352,9 @@ function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();
     $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+    if (toTab==='images') {
+        loadImages();
+    }
 }
 
 function getEventString(eventTableData,dataCol,overviewCol) {
@@ -366,12 +374,12 @@ function getEventIndexMap(eventTableData,idCol) {
     return m;
 }
     
-function addNoteTooltip(elem, content) {
+function addNoteTooltip(elem, content, position) {
     $(elem).qtip({
-        content: (typeof variable === 'undefined' ? {attr: 'alt'} : content),
+        content: (typeof content === 'undefined' ? {attr: 'alt'} : content),
         hide: { fixed: true, delay: 100 },
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
-        position: {my:'top left',at:'bottom center'}
+        position: (typeof position === 'undefined' ? {my:'top left',at:'bottom center'} : position)
     });
 }
 
@@ -614,9 +622,75 @@ function d3MrnaBar(div,mrnaPerc) {
 
 }
 
-function formatPatientLink(caseId,cancerStudyId) {
+function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
+    $(div).each(function() {
+        if (!$(this).is(":empty")) return;
+        var gene = $(this).attr("alt");
+        var refCount = mutations.getValue(gene, refReadCount);
+        var altCount = mutations.getValue(gene, altReadCount);
+        var allFreq = {};
+        for (var caseId in refCount) {
+            var ac = altCount[caseId];
+            var rc = refCount[caseId];
+            if (ac&&rc) allFreq[caseId] = (ac/(ac+rc)).toFixed(2);
+        }
+        d3AlleleFreqBar($(this)[0],allFreq);
+        
+        // tooltip
+        var arr = [];
+        caseIds.forEach(function(caseId){
+            var ac = altCount[caseId];
+            var rc = refCount[caseId];
+            if (ac&&rc) arr.push("<svg width='12' height='12' class='case-label-tip' alt='"+caseId+"'></svg>&nbsp;"
+                    +(ac/(ac+rc)).toFixed(2));
+        });
+        var tip = arr.join("<br/>");
+        $(this).qtip({
+            content: {text: tip},
+            events: {
+                render: function(event, api) {
+                    plotCaseLabel('.case-label-tip', true, true);
+                }
+            },
+            hide: { fixed: true, delay: 10 },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            position: {my:'top left',at:'bottom center'}
+        });
+    });
+}
+
+function d3AlleleFreqBar(div,alleFreq) {
+    var barWidth = 6,
+        barMargin = 3,
+        width = (barWidth+barMargin)*caseIds.length,
+        height = 12;
+
+    var y = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, height]);
+
+    var svg = d3.select(div).append('svg')
+        .attr("width", width)
+        .attr("height", height);
+
+    var chart = svg.selectAll(".bar")
+        .data(caseIds) 
+        .enter()
+        .append("g")
+        .attr("class", "bar")
+        .attr("transform", function(caseId,i) { return "translate(" + ((barWidth+barMargin)*i)
+            + "," + y(1-(alleFreq[caseId]?alleFreq[caseId]:0)) + ")"; });
+
+    chart.append("rect")
+        .attr("width", barWidth)
+        .attr("height", function(caseId,i) { return y(alleFreq[caseId]?alleFreq[caseId]:0);})
+        .attr("fill", function(caseId, i) { return caseMetaData.color[caseId]; } );
+
+}
+
+function formatPatientLink(caseId,cancerStudyId,isPatient) {
     return caseId===null?"":'<a title="Go to patient-centric view" href="case.do?cancer_study_id='
-            +cancerStudyId+'&case_id='+caseId+'">'+caseId+'</a>';
+            +cancerStudyId+'&'+(isPatient?'patient_id':'case_id')+'='+caseId+'">'+caseId+'</a>';
 }
 
 function trimHtml(html) {
@@ -627,53 +701,19 @@ function idRegEx(ids) {
     return "(^"+ids.join("$)|(^")+"$)";
 }
 
+
+
 function outputClinicalData() {
     $("#clinical_div").append("<table id='clinical_table' width='100%'></table>");
     var n=caseIds.length;
-    
-    // set mapCaseColor
-    for (var i=0; i<n; i++) {
-        var caseId = caseIds[i];
-        var clinicalData = clinicalDataMap[caseId];
-        var state = guessClinicalData(clinicalData, ["tumor_type"]);
-        mapCaseColor[caseId] = getCaseColor(state);
-    }
-    
-    // reorder based on color
-    var colors = {black:1, orange:2, red:3};
-    caseIds.sort(function(c1, c2){
-        var ret = colors[mapCaseColor[c1]]-colors[mapCaseColor[c2]];
-        if (ret===0) return c1<c2?-1:1;
-        return ret;
-    });
-    mapCaseIndices = cbio.util.arrayToAssociatedArrayIndices(caseIds);
-
-    // set labels
-    var mapColorCases = {};
-    caseIds.forEach(function (caseId) {
-        var color = mapCaseColor[caseId];
-        if (!(color in mapColorCases)) mapColorCases[color] = [];
-        mapColorCases[color].push(caseId);
-    });
-    for (var color in mapColorCases) {
-        var cases = mapColorCases[color];
-        var len = cases.length;
-        if (len===1) {
-            mapCaseLabels[cases[0]]='';
-        } else {
-            for (var i=0; i<len; i++){
-                var _case = cases[i];
-                mapCaseLabels[_case] = i+1;
-            };
-        }
-    }
+    if (n>1) initCaseMetaData();
         
     // output
     for (var i=0; i<n; i++) {
         var caseId = caseIds[i];
         var clinicalData = clinicalDataMap[caseId];
         
-        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;</div>";
+        var row = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>&nbsp;";
         if (n===1) {
             var patientInfo = formatPatientInfo(clinicalData);
             row +="&nbsp;"+patientInfo;
@@ -697,9 +737,62 @@ function outputClinicalData() {
     }
     
     if (n>1) {
-        plotCaseLabel('.case-label-header');
+        plotCaseLabel('.case-label-header', false, true);
         $("#clinical_table").append("<tr><td><a href=\"study.do?cancer_study_id="+
                 cancerStudyId+"\">"+cancerStudyName+"</a></td><td></td></tr>");
+    }
+    
+    function initCaseMetaData() {
+        var n=caseIds.length;
+        // set caseMetaData.color
+        for (var i=0; i<n; i++) {
+            var caseId = caseIds[i];
+            var clinicalData = clinicalDataMap[caseId];
+            var state = guessClinicalData(clinicalData, ["tumor_type"]);
+            caseMetaData.color[caseId] = getCaseColor(state);
+        }
+
+        // reorder based on color
+        var colors = {black:1, orange:2, red:3};
+        caseIds.sort(function(c1, c2){
+            var ret = colors[caseMetaData.color[c1]]-colors[caseMetaData.color[c2]];
+            if (ret===0) return c1<c2?-1:1;
+            return ret;
+        });
+        caseMetaData.index = cbio.util.arrayToAssociatedArrayIndices(caseIds);
+
+        // set labels
+        var mapColorCases = {};
+        caseIds.forEach(function (caseId) {
+            var color = caseMetaData.color[caseId];
+            if (!(color in mapColorCases)) mapColorCases[color] = [];
+            mapColorCases[color].push(caseId);
+        });
+        for (var color in mapColorCases) {
+            var cases = mapColorCases[color];
+            var len = cases.length;
+            if (len===1) {
+                caseMetaData.label[cases[0]]='';
+            } else {
+                for (var i=0; i<len; i++){
+                    var _case = cases[i];
+                    caseMetaData.label[_case] = i+1;
+                };
+            }
+        }
+
+        // set tooltips
+        for (var i=0; i<n; i++) {
+            var caseId = caseIds[i];
+            var clinicalData = clinicalDataMap[caseId];
+
+            var tip = "<tr><td><b><u>"+formatPatientLink(caseId, cancerStudyId)+"</b></u>";
+
+            var stateInfo = formatStateInfo(clinicalData);
+            if (stateInfo) tip +="&nbsp;"+stateInfo;
+
+            caseMetaData.tooltip[caseId] = tip;
+        }
     }
     
     function formatPatientInfo(clinicalData) {
@@ -722,9 +815,9 @@ function outputClinicalData() {
 
             var stateLower = state.toLowerCase();
             if (stateLower === "metastatic" || stateLower === "metastasis") {
-                var loc = guessClinicalData(clinicalData,["tumor location"]);
+                var loc = guessClinicalData(clinicalData,["tumor location","tumor site","metastasis site"]);
                 if (loc!==null) 
-                    ret += ", Tumor location: "+loc;
+                    ret += " ("+loc+")";
             }
         }
         return ret;
@@ -847,7 +940,7 @@ function outputClinicalData() {
     }
 }
 
-function plotCaseLabel(svgEl,onlyIfEmpty) {
+function plotCaseLabel(svgEl,onlyIfEmpty, noTip) {
     $(svgEl).each(function() {
         if (onlyIfEmpty && !$(this).is(":empty")) return;
         var caseId = $(this).attr('alt');
@@ -856,13 +949,14 @@ function plotCaseLabel(svgEl,onlyIfEmpty) {
     
         if (caseId) {
             plotCaselabelInSVG(svg, caseId);
+            if (!noTip) addNoteTooltip($(this), caseMetaData.tooltip[caseId], {my:'middle left',at:'middle right'});
         }
     });
 }
 
 function plotCaselabelInSVG(svg, caseId) {
-    var label = mapCaseLabels[caseId];
-    var color = mapCaseColor[caseId];
+    var label = caseMetaData.label[caseId];
+    var color = caseMetaData.color[caseId];
     var circle = svg.append("g")
         .attr("transform", "translate(6,6)");
     circle.append("circle")

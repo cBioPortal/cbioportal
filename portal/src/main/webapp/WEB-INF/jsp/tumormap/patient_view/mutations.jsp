@@ -48,7 +48,7 @@
                                 var samples = mutations.getValue(source[0], "caseIds");
                                 var ix = [];
                                 samples.forEach(function(caseId){
-                                    ix.push(mapCaseIndices[caseId]);
+                                    ix.push(caseMetaData.index[caseId]);
                                 });
                                 ix.sort();
                                 var ret = 0;
@@ -255,23 +255,30 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
-                        "sClass": "right-align-td",
+                        "bVisible": hasAlleleFrequencyData,
+                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'ref-count');
                                 var altCount = mutations.getValue(source[0], 'alt-count');
-                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
-                                if (!altCount&&!refCount) return '';
+                                if (caseIds.length===1) {
+                                    var ac = altCount[caseIds[0]];
+                                    var rc = refCount[caseIds[0]];
+                                    if (!ac||!rc) return "";
+                                    var freq = ac / (ac + rc);
+                                    var tip = ac + " variant reads out of " + (rc+ac) + " total";
+                                    return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
+                                }
                                 
-                                var freq = altCount / (altCount + refCount);
-                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
-                                return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
+                                if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
+                                    return "";
+                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
-                                var refCount = mutations.getValue(source[0], 'ref-count');
-                                var altCount = mutations.getValue(source[0], 'alt-count');
-                                if ((!altCount||altCount<0)&&(!refCount||refCount<0)) return 0;
+                                var refCount = mutations.getValue(source[0], 'ref-count')[caseIds[0]];
+                                var altCount = mutations.getValue(source[0], 'alt-count')[caseIds[0]];
+                                if (!altCount&&!refCount) return 0;
                                 return altCount / (altCount + refCount);
                             } else if (type==='type') {
                                 return 0.0;
@@ -290,13 +297,16 @@
                                 return;
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'alt-count');
-                                if (altCount==null||altCount<0) return '';
-                                if (!altCount) return '';
+                                if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
                                 
-                                return altCount; 
+                                var arr = [];
+                                for (var ac in altCount) {
+                                    arr.push(ac+": "+altCount[ac].toFixed(2));
+                                } 
+                                return arr.join("<br/>")
                             } else if (type==='sort') {
-                                var altCount = mutations.getValue(source[0], 'alt-count');
-                                if (!altCount||altCount<0) return 0;
+                                var altCount = mutations.getValue(source[0], 'alt-count')[caseIds[0]];
+                                if (!altCount) return 0;
                                 return altCount;
                             } else if (type==='type') {
                                 return 0.0;
@@ -314,14 +324,17 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var refCount = mutations.getValue(source[0], 'ref-count');
-                                if (refCount===null||refCount<0) return '';
-                                if (!refCount) return '';
+                                var altCount = mutations.getValue(source[0], 'ref-count');
+                                if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
                                 
-                                return refCount; 
+                                var arr = [];
+                                for (var ac in altCount) {
+                                    arr.push(ac+": "+altCount[ac].toFixed(2));
+                                } 
+                                return arr.join("<br/>")
                             } else if (type==='sort') {
-                                var refCount = mutations.getValue(source[0], 'ref-count');
-                                if (!refCount||refCount<0) return 0;
+                                var refCount = mutations.getValue(source[0], 'ref-count')[caseIds[0]];
+                                if (!refCount) return 0;
                                 return refCount;
                             } else if (type==='type') {
                                 return 0.0;
@@ -333,23 +346,29 @@
                     },
                     {// normal read count frequency
                         "aTargets": [ mutTableIndices["norm_freq"] ],
-                        "bVisible": !compact,
-                        "sClass": "right-align-td",
+                        "bVisible": !compact&&hasAlleleFrequencyData,
+                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
                                 var refCount = mutations.getValue(source[0], 'normal-ref-count');
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (refCount===null||altCount===null||refCount<0||altCount<0) return '';
-                                if (!altCount&&!refCount) return '';
+                                if (caseIds.length===1) {
+                                    var ac = altCount[caseIds[0]];
+                                    var rc = refCount[caseIds[0]];
+                                    if (!ac&&!rc) return "";
+                                    var freq = ac / (ac + rc);
+                                    var tip = ac + " variant reads out of " + (rc+ac) + " total";
+                                    return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>";
+                                }
                                 
-                                var freq = altCount / (altCount + refCount);
-                                var tip = altCount + " variant reads out of " + (refCount+altCount) + " total";
-                                return "<span class='"+table_id+"-tip' alt='"+tip+"'>"+freq.toFixed(2)+"</span>"; 
+                                if ($.isEmptyObject(refCount)||$.isEmptyObject(altCount))
+                                    return "";
+                                return "<div class='"+table_id+"-tumor-freq' alt='"+source[0]+"'></div>"; 
                             } else if (type==='sort') {
-                                var refCount = mutations.getValue(source[0], 'normal-ref-count');
-                                var altCount = mutations.getValue(source[0], 'normal-alt-count');
+                                var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
+                                var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
                                 if (!altCount&&!refCount) return 0;
                                 return altCount / (altCount + refCount);
                             } else if (type==='type') {
@@ -369,13 +388,16 @@
                                 return;
                             } else if (type==='display') {
                                 var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (altCount===null||altCount<0) return '';
-                                if (!altCount) return '';
+                                if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
                                 
-                                return altCount; 
+                                var arr = [];
+                                for (var ac in altCount) {
+                                    arr.push(ac+": "+altCount[ac].toFixed(2));
+                                } 
+                                return arr.join("<br/>")
                             } else if (type==='sort') {
-                                var altCount = mutations.getValue(source[0], 'normal-alt-count');
-                                if (!altCount||altCount<0) return 0;
+                                var altCount = mutations.getValue(source[0], 'normal-alt-count')[caseIds[0]];
+                                if (!altCount) return 0;
                                 return altCount;
                             } else if (type==='type') {
                                 return 0.0;
@@ -393,14 +415,17 @@
                             if (type==='set') {
                                 return;
                             } else if (type==='display') {
-                                var refCount = mutations.getValue(source[0], 'normal-ref-count');
-                                if (refCount===null||refCount<0) return '';
-                                if (!refCount) return '';
+                                var altCount = mutations.getValue(source[0], 'normal-ref-count');
+                                if (caseIds.length===1) return altCount[caseIds[0]]?altCount[caseIds[0]]:"";
                                 
-                                return refCount; 
+                                var arr = [];
+                                for (var ac in altCount) {
+                                    arr.push(ac+": "+altCount[ac].toFixed(2));
+                                } 
+                                return arr.join("<br/>")
                             } else if (type==='sort') {
-                                var refCount = mutations.getValue(source[0], 'normal-ref-count');
-                                if (!refCount||refCount<0) return 0;
+                                var refCount = mutations.getValue(source[0], 'normal-ref-count')[caseIds[0]];
+                                if (!refCount) return 0;
                                 return refCount;
                             } else if (type==='type') {
                                 return 0.0;
@@ -637,6 +662,8 @@
                 "fnDrawCallback": function( oSettings ) {
                     if (caseIds.length>1) {
                         plotCaseLabel('.'+table_id+'-case-label',true);
+                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"alt-count","ref-count");
+                        plotAlleleFreq("."+table_id+"-tumor-freq",mutations,"normal-alt-count","normal-ref-count");
                     }
                     plotMrna("."+table_id+"-mrna",mutations);
                     plotMutRate("."+table_id+"-mut-cohort",mutations);

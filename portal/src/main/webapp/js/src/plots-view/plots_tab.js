@@ -1471,8 +1471,8 @@ var PlotsView = (function () {
                 _yDataType = e.options[e.selectedIndex].text;
             }
 
-            var err_line1 = "There is no data in UNAVAILABLE_DATA_TYPE";
-            var err_line2 = "for " + userSelection.gene + " in selected cancer study.";
+            var err_line1 = "There is no UNAVAILABLE_DATA_TYPE data";
+            var err_line2 = "for " + userSelection.gene + " in the selected cancer study.";
             var _dataStatus = PlotsData.getDataStatus();
             if (!_dataStatus.xHasData && _dataStatus.yHasData) {
                 err_line1 = err_line1.replace("UNAVAILABLE_DATA_TYPE", _xDataType);
@@ -1576,7 +1576,7 @@ var PlotsView = (function () {
         } else if (vals.indexOf(cancer_study_id + "_cna") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_cna";
         } else if (vals.indexOf(cancer_study_id + "_CNA") !== -1) {
-            discretizedDataTypeIndicator = cancer_study_id + "_cna";
+            discretizedDataTypeIndicator = cancer_study_id + "_CNA";
         } else if (vals.indexOf(cancer_study_id + "_cna_rae") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_cna_rae";
         }

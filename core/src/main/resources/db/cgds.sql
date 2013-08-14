@@ -153,6 +153,7 @@ CREATE TABLE `genetic_profile` (
   `STABLE_ID` varchar(50) NOT NULL,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `GENETIC_ALTERATION_TYPE` varchar(255) NOT NULL,
+  `DATATYPE` varchar(255) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `DESCRIPTION` mediumtext,
   `SHOW_PROFILE_IN_ANALYSIS_TAB` binary(1) NOT NULL,
@@ -459,6 +460,16 @@ CREATE TABLE `text_cache` (
   `TEXT` text NOT NULL,
   `DATE_TIME_STAMP` datetime NOT NULL,
   PRIMARY KEY (`HASH_KEY`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Table structure for table `pfam_graphics`
+--
+drop table IF EXISTS pfam_graphics;
+CREATE TABLE `pfam_graphics` (
+  `UNIPROT_ID` varchar(255) NOT NULL,
+  `JSON_DATA` longtext NOT NULL,
+  PRIMARY KEY (`UNIPROT_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --

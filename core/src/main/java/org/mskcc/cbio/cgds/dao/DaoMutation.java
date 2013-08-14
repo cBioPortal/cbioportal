@@ -871,7 +871,7 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
+
     public static Map<String, Integer> countSamplesWithKeywords(Collection<String> keywords, int profileId) throws DaoException {
         if (keywords.isEmpty()) {
             return Collections.emptyMap();
@@ -889,7 +889,7 @@ public final class DaoMutation {
                     + StringUtils.join(keywords,"','")
                     + "') GROUP BY `KEYWORD`";
             pstmt = con.prepareStatement(sql);
-            
+
             Map<String, Integer> map = new HashMap<String, Integer>();
             rs = pstmt.executeQuery();
             while (rs.next()) {
@@ -902,7 +902,58 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
+
+    /**
+     *
+     * Counts all the samples in each cancer study in the collection of geneticProfileIds by mutation keyword
+     *
+     * @param keywords
+     * @param internalProfileIds
+     * @return data         Collection of Maps {"keyword" , "geneticProfileIds" , "count"}
+     * @throws DaoException
+     * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+     */
+    public static Collection<Map<String, Object>> countSamplesWithKeywords(Collection<String> keywords, Collection<Integer> internalProfileIds) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+
+            String sql = "SELECT KEYWORD, GENETIC_PROFILE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
+                    "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
+                    "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
+                    "AND KEYWORD IN ('" + StringUtils.join(keywords, "','") + "') " +
+                    "GROUP BY KEYWORD, GENETIC_PROFILE_ID";
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+            while (rs.next()) {
+
+                Map<String, Object> d = new HashMap<String, Object>();
+
+                String keyword = rs.getString(1);
+                Integer geneticProfileId = rs.getInt(2);
+                Integer count = rs.getInt(3);
+
+                d.put("keyword", keyword);
+                d.put("geneticProfileId", geneticProfileId);
+                d.put("count", count);
+
+                data.add(d);
+            }
+
+            return data;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
     public static Set<Long> getMutatedGenesForACase(String caseId, int profileId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;

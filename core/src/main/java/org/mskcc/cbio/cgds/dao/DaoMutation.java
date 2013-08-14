@@ -573,7 +573,6 @@ public final class DaoMutation {
     
     /**
      * return the number of all mutations for a profile
-     * @param caseIds if null, return all case available
      * @param profileId
      * @return Map &lt; case id, mutation count &gt;
      * @throws DaoException 
@@ -749,7 +748,7 @@ public final class DaoMutation {
     
     
     /**
-     * @param concatEventIds event ids concatenated by comma (,)
+     * @param entrezGeneIds event ids concatenated by comma (,)
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
@@ -1304,22 +1303,5 @@ public final class DaoMutation {
         } finally {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
-    }
-
-    /**
-     *
-     * Returns a list of maps Cancer Study -> number of cases with the mutation, i.e.
-     * [ list of {CancerStudy -> number of cases} ]
-     *
-     * @param entrez
-     * @param aaChange
-     * @return
-     */
-    public static List<Map<CancerStudy, Integer>> acrossAllCancerStudies(long entrez, String aaChange) {
-
-        DaoMutation.countSamplesWithMutat
-
-
-        return new ArrayList<Map<CancerStudy, Integer>>();
     }
 }

@@ -5,54 +5,7 @@
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
-
-<script type="text/javascript">
-	var _singletonJmolApplet = null;
-
-	// TODO temporary test function, may need to create a proper class for 3d viewer
-	function _initJmolForMutationDetails()
-	{
-		var appletName = 'mutation_details_viewer';
-		var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
-
-		var jsmolOpts = {
-			width: 300,
-			height: 180,
-			debug: false,
-			color: "white",
-			//use: "HTML5",
-			//j2sPath: "js/jsmol/j2s",
-			//script: "load ="+pdbid+";",
-			//defaultModel: "$dopamine",
-			// TODO this is a fixed test script, a different pdb id should be loaded for each gene
-			script: "load =2bq0",
-			jarPath: "js/lib/jmol/",
-			jarFile: "JmolAppletSigned.jar",
-			disableJ2SLoadMonitor: true,
-			disableInitialConsole: true
-		};
-
-		if (jQuery.isFunction(callbackfun)) {
-			jsmolOpts['readyFunction'] = callbackfun;
-		}
-
-		return Jmol.getApplet(appletName, jsmolOpts);
-	}
-</script>
-
-<div id='mutation_3d_structure'>
-	<script type="text/javascript">
-		// TODO find a better way to init jmol applet without embedding script into a div
-
-		// init jmol only once
-		if (!_singletonJmolApplet)
-		{
-			console.log("initializing jmol applet...");
-			_singletonJmolApplet = _initJmolForMutationDetails();
-			//Jmol.scriptWait(_singletonJmolApplet, "load =2bq0");
-		}
-	</script>
-</div>
+<script type="text/javascript" src="js/src/mutation_3d_viewer.js"></script>
 
 <div class='section' id='mutation_details'>
 	<img src='images/ajax-loader.gif'/>
@@ -162,6 +115,13 @@
 	.mutation-table-header {
 		font-weight: bold !important;
 	}
+	.mutation-3d-container {
+		position: fixed;
+		float: right;
+		right: 0;
+		top: 0;
+		z-index: 100;
+	}
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
 	}
@@ -172,8 +132,11 @@
 </style>
 
 <script type="text/javascript">
-// initially hide the 3d viewer
-$("#mutation_3d_structure").hide();
+
+// TODO 3d Visualizer should be initialized before document get ready
+// ...due to incompatible Jmol initialization behavior
+var _mut3dVis = new Mutation3dVis("default3dView", {});
+_mut3dVis.init();
 
 // Set up Mutation View
 $(document).ready(function(){
@@ -192,7 +155,7 @@ $(document).ready(function(){
 			sampleArray: sampleArray};
 
 		var defaultView = new MutationDetailsView(
-			{el: "#mutation_details", model: model});
+			{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
 
 		defaultView.render();
 	};

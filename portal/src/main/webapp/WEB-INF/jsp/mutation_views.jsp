@@ -1,4 +1,5 @@
 <script type="text/template" id="default_mutation_details_template">
+	<div id='mutation_3d_visualizer' class='mutation-3d-container'></div>
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
@@ -48,9 +49,8 @@
 				<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 			</td>
 			<td>
-				<div id='mutation_3d_{{geneSymbol}}' class='mutation-3d-container'>
-					<img src='images/jmol.png' class='mutation-3d-placeholder'/>
-				</div>
+				<!-- TODO replace this image with a toggle button -->
+				<img src='images/jmol.png' class='mutation-3d-vis'/>
 			</td>
 		</tr>
 	</table>
@@ -235,7 +235,8 @@
 	 * options: {el: [target container],
 	 *           model: {geneSymbol: [hugo gene symbol],
 	 *                   mutationSummary: [single line summary text],
-	 *                   uniprotId: [gene identifier]}
+	 *                   uniprotId: [gene identifier]},
+	 *          mut3dVis: [optional] reference to the 3d structure visualizer
 	 *          }
 	 */
 	var MainMutationView = Backbone.View.extend({
@@ -264,28 +265,17 @@
 			// hide the toolbar by default
 			self.$el.find(".mutation-diagram-toolbar").hide();
 			// add click listener for the static 3d image
-			self.$el.find(".mutation-3d-container").click(function(){
-				// 3D viewer container
-				var viewer = $("#mutation_3d_structure");
-				//var viewer = $(self.model.applet);
+			self.$el.find(".mutation-3d-vis").click(function(){
+				var vis = self.options.mut3dVis;
 
-				// hide 3d viewer
-				viewer.hide();
-
-				// show all other placeholders...
-				$(".mutation-3d-placeholder").show();
-
-				// hide placeholder for this one
-				$(this).find(".mutation-3d-placeholder").hide();
-
-				// reposition & show the 3d viewer
-				$(this).append(viewer);
-
-				// TODO reload the jmol content with pdb id and mutation context
-				//Jmol.scriptWait("mutation_details_viewer", "load=2bq0");
-				viewer.show();
+				if (vis != null)
+				{
+					// TODO reload the jmol content with pdb id and mutation context
+					//vis.updateContainer(self.$el.find(".mut-3d-container"));
+					vis.reload("2bq0");
+					vis.show();
+				}
 			});
-
 		},
 		/**
 		 * Initializes the toolbar over the mutation diagram.
@@ -402,6 +392,7 @@
 	 *           model: {mutations: [mutation data as an array of JSON objects],
 	 *                   sampleArray: [list of case ids as an array of strings],
 	 *                   diagramOpts: [mutation diagram options -- optional]}
+	 *           mut3dVis: [optional] reference to the 3d structure visualizer
 	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
@@ -427,6 +418,14 @@
 			{
 				self._initDefaultView(self.model.sampleArray,
 					self.model.diagramOpts);
+			}
+
+			var mut3dVis = self.options.mut3dVis;
+
+			// update the container of 3d visualizer
+			if (mut3dVis != null)
+			{
+				mut3dVis.updateContainer(self.$el.find("#mutation_3d_visualizer"));
 			}
 		},
 		/**
@@ -661,7 +660,8 @@
 				// init the view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
-					model: mutationInfo});
+					model: mutationInfo,
+					mut3dVis: self.options.mut3dVis});
 
 				mainView.render();
 

@@ -62,7 +62,7 @@ public final class CacheFeatureService implements FeatureService {
     public List<Sequence> getFeatures(final String uniProtId) {
         checkNotNull(uniProtId, "uniProtId must not be null");
         try {
-            return cache.get(uniProtId);
+            return cache.getIfPresent(uniProtId);
         }
         catch (Exception e) {
             logger.error("could not load features from cache for " + uniProtId, e);

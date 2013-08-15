@@ -142,7 +142,6 @@
 </div>
 
 <script>
-
     $("#plots-menus").tabs();
     window.onload = Plots.init();
 

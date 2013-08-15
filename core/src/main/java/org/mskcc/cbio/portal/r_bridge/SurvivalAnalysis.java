@@ -28,12 +28,12 @@
 package org.mskcc.cbio.portal.r_bridge;
 
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Patient;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
 
 /**
@@ -57,9 +57,9 @@ public class SurvivalAnalysis {
      * Constructor.
      * @param clinicalDataList  Array List of Clinical Data Objects.
      * @param dataSummary       Profile Data Summary Object.
-     * @throws IOException      IO Error.
+     * @throws java.io.IOException      IO Error.
      */
-    public SurvivalAnalysis (ArrayList<ClinicalData> clinicalDataList,
+    public SurvivalAnalysis (List<Patient> clinicalDataList,
             ProfileDataSummary dataSummary) throws IOException,
             REXPMismatchException, REngineException {
         ConvertClinicalToDataFrame rConverter = new ConvertClinicalToDataFrame

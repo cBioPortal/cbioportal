@@ -91,6 +91,6 @@ describe("QueryGeneData", function() {
     });
 
     it('get non null data types', function() {
-        expect(query.data_types).toEqual(["cna", "mutation", "mrna"]);
+        expect(query.data_types()).toEqual(["cna", "mutation", "mrna"]);
     })
 });

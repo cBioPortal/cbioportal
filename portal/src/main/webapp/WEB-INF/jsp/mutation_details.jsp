@@ -121,6 +121,18 @@
 		right: 0;
 		top: 0;
 		z-index: 100;
+		border-style: outset;
+		border-color: #BABDB6;
+		background-color: #FFFFFF;
+		padding: 5px 10px 30px;
+	}
+	.mutation-3d-close {
+		float: right;
+		cursor: pointer;
+	}
+	.mutation-3d-vis img{
+		width: 24px;
+		height: 24px
 	}
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;

@@ -8,8 +8,8 @@ var Mutation3dVis = function(name, options)
 	var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
 
 	var defaultOpts = {
-		width: 300,
-		height: 180,
+		width: 400,
+		height: 300,
 		debug: false,
 		color: "white",
 		//use: "HTML5",
@@ -38,8 +38,8 @@ var Mutation3dVis = function(name, options)
 
 	function updateContainer(container)
 	{
-		_container = container;
-		$(container).append(_wrapper);
+		_container = $(container);
+		_container.append(_wrapper);
 	}
 
 	function show()
@@ -60,13 +60,12 @@ var Mutation3dVis = function(name, options)
 	{
 		if (_wrapper != null)
 		{
-			_wrapper.show();
+			_wrapper.hide();
 		}
 
-		// TODO show in dialog
 		if (_container != null)
 		{
-			_container.show();
+			_container.hide();
 		}
 	}
 

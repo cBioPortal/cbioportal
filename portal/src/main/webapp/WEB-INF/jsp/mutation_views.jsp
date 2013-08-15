@@ -1,5 +1,7 @@
 <script type="text/template" id="default_mutation_details_template">
-	<div id='mutation_3d_visualizer' class='mutation-3d-container'></div>
+	<div id='mutation_3d_visualizer' class='mutation-3d-container'>
+		<a class='mutation-3d-close'>X</a>
+	</div>
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
@@ -49,8 +51,14 @@
 				<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 			</td>
 			<td>
-				<!-- TODO replace this image with a toggle button -->
-				<img src='images/jmol.png' class='mutation-3d-vis'/>
+				<button class='mutation-3d-vis'>
+					<table>
+						<tr>
+							<td><img alt="J" src='images/jmol.png'/></td>
+							<td><label>Visualize in Jmol</label></td>
+						</tr>
+					</table>
+				</button>
 			</td>
 		</tr>
 	</table>
@@ -264,7 +272,7 @@
 			self.hideFilterInfo();
 			// hide the toolbar by default
 			self.$el.find(".mutation-diagram-toolbar").hide();
-			// add click listener for the static 3d image
+			// add click listener for the 3d visualizer
 			self.$el.find(".mutation-3d-vis").click(function(){
 				var vis = self.options.mut3dVis;
 
@@ -272,8 +280,8 @@
 				{
 					// TODO reload the jmol content with pdb id and mutation context
 					//vis.updateContainer(self.$el.find(".mut-3d-container"));
-					vis.reload("2bq0");
 					vis.show();
+					vis.reload("2bq0");
 				}
 			});
 		},
@@ -419,14 +427,32 @@
 				self._initDefaultView(self.model.sampleArray,
 					self.model.diagramOpts);
 			}
-
+		},
+		/**
+		 * Formats the contents of the view after the initial rendering.
+		 */
+		format: function()
+		{
+			var self = this;
 			var mut3dVis = self.options.mut3dVis;
+
+			// initially hide the 3d visualizer container
+			var container3d = self.$el.find("#mutation_3d_visualizer");
+			container3d.hide();
 
 			// update the container of 3d visualizer
 			if (mut3dVis != null)
 			{
-				mut3dVis.updateContainer(self.$el.find("#mutation_3d_visualizer"));
+				mut3dVis.updateContainer(container3d);
 			}
+
+			// add click listener to the close icon of the 3d vis container
+			self.$el.find(".mutation-3d-close").click(function() {
+				if (mut3dVis != null)
+				{
+					mut3dVis.hide();
+				}
+			});
 		},
 		/**
 		 * Generates the content structure by creating div elements for each

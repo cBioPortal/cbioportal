@@ -32,11 +32,12 @@ import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.model.Patient;
+import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 
+import java.util.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
+
 import org.mskcc.cbio.cgds.model.CancerStudy;
 
 /**
@@ -45,6 +46,8 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
  * @author Ethan Cerami.
  */
 public class TestImportClinicalData extends TestCase {
+
+	private static final int CANCER_STUDY_ID = 1;
 
     /**
      * Test importing of Clinical Data File.
@@ -58,11 +61,11 @@ public class TestImportClinicalData extends TestCase {
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/clinical_test.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
-        cancerStudy.setInternalId(1);
+        cancerStudy.setInternalId(CANCER_STUDY_ID);
         ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
         importClinicalData.importData();
 
-        HashSet <String> caseSet = new HashSet<String>();
+        LinkedHashSet <String> caseSet = new LinkedHashSet<String>();
         caseSet.add("TCGA-04-1331");
         caseSet.add("TCGA-24-2030");
         caseSet.add("TCGA-24-2261");
@@ -86,5 +89,14 @@ public class TestImportClinicalData extends TestCase {
 
         Patient clinical2 = clinicalCaseList.get(2);
         assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
+
+		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, "TUMORGRADE");
+		assertEquals ("TUMORGRADE", paramMap.getName());
+		assertEquals("G3", paramMap.getValue("TCGA-04-1331"));
+        assertEquals("G2", paramMap.getValue("TCGA-04-1337"));
+        assertEquals(2, paramMap.getDistinctCategories().size());
+
+		Set<String> paramSet = DaoClinicalData.getDistinctParameters(CANCER_STUDY_ID);
+        assertEquals (12, paramSet.size());
     }
 }

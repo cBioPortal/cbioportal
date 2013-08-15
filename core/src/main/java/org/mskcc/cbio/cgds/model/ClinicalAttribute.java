@@ -35,7 +35,7 @@ public class ClinicalAttribute  {
 
 	// some defined statics
 	public static final String NA = "NA";
-	public static final String MISSING = "missing";
+	public static final String MISSING = "MISSING";
 	public static final String OS_STATUS = "OS_STATUS";
 	public static final String OS_MONTHS = "OS_MONTHS";
 	public static final String DFS_STATUS = "DFS_STATUS";

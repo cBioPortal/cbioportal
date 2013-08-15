@@ -69,14 +69,14 @@ public class Patient {
 
 	private Double getDoubleValue(String attribute) {
 		ClinicalData data = clinicalDataMap.get(attribute);
-		return (data == null ||
+		return (data == null || data.getAttrVal().length() == 0 ||
 				data.getAttrVal().equals(ClinicalAttribute.NA) ||
 				data.getAttrVal().equals(ClinicalAttribute.MISSING)) ? null : Double.valueOf(data.getAttrVal());
 	}
 
 	private String getStringValue(String attribute) {
 		ClinicalData data = clinicalDataMap.get(attribute);
-		return (data == null ||
+		return (data == null || data.getAttrVal().length() == 0 ||
 				data.getAttrVal().equals(ClinicalAttribute.NA) ||
 				data.getAttrVal().equals(ClinicalAttribute.MISSING)) ? null : data.getAttrVal();
 	}

@@ -397,7 +397,7 @@ public final class DaoClinicalData {
 
 	public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> caseSet) throws DaoException {
             List<ClinicalData> data = getData(cancerStudyId, caseSet);
-            Map<String,Map<String,ClinicalData>> clinicalData = new HashMap<String,Map<String,ClinicalData>>();
+            Map<String,Map<String,ClinicalData>> clinicalData = new LinkedHashMap<String,Map<String,ClinicalData>>();
             for (ClinicalData cd : data) {
                 String caseId = cd.getCaseId();
                 Map<String,ClinicalData> msc = clinicalData.get(cd.getCaseId());
@@ -429,7 +429,7 @@ public final class DaoClinicalData {
 		HashMap<String, String> parameterMap = new HashMap<String,String>();
 		for (ClinicalData clinical : DaoClinicalData.getDataByAttributeId(cancerStudyId, attributeId)) {
 			String value = clinical.getAttrVal();
-			if (!value.equals(ClinicalAttribute.NA)) {
+			if (value.length() > 0 && !value.equals(ClinicalAttribute.NA)) {
 				parameterMap.put(clinical.getCaseId(), clinical.getAttrVal());
 			}
 		}

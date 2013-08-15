@@ -106,19 +106,69 @@
      * @date: Jul 2013
      */
     function getRppaPlotsCaseList() {
-        <%
-            JSONObject result = new JSONObject();
-            for (String caseId : mergedCaseList) {
-                //Is altered or not (x value)
-                if (dataSummary.isCaseAltered(caseId)) {
-                    result.put(caseId, "altered");
-                } else {
-                    result.put(caseId, "unaltered");
-                }
+    <%
+        JSONObject result = new JSONObject();
+        for (String caseId : mergedCaseList) {
+            //Is altered or not (x value)
+            if (dataSummary.isCaseAltered(caseId)) {
+                result.put(caseId, "altered");
+            } else {
+                result.put(caseId, "unaltered");
             }
-        %>
+        }
+    %>
         var obj = jQuery.parseJSON('<%=result%>');
         return obj;
+    }
+
+    function getAlterations() {
+    <%
+        JSONObject alterationResults = new JSONObject();
+        for (String caseId : mergedCaseList) {
+            JSONObject _alterationResult = new JSONObject();
+            for (GeneWithScore geneWithScore : geneWithScoreList) {
+                String singleGeneResult = "";
+                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
+                ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
+                        zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
+                if( null == parser){
+                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
+                    break;
+                }
+                if (parser.isCnaAmplified()) {
+                    singleGeneResult += "AMP;";
+                }
+                if (parser.isCnaHomozygouslyDeleted()) {
+                    singleGeneResult += "HOMDEL;";
+                }
+                if (parser.isCnaGained()) {
+                    singleGeneResult += "GAIN;";
+                }
+                if (parser.isCnaHemizygouslyDeleted()) {
+                    singleGeneResult += "HETLOSS;";
+                }
+                if (parser.isMutated()) {
+                    singleGeneResult += "MUT;";
+                }
+                if (parser.isMRNAWayUp()) {
+                    singleGeneResult += "UP;";
+                }
+                if (parser.isMRNAWayDown()) {
+                    singleGeneResult += "DOWN;";
+                }
+                if (parser.isRPPAWayUp()) {
+                    singleGeneResult += "RPPA-UP;";
+                }
+                if (parser.isRPPAWayDown()) {
+                    singleGeneResult += "RPPA-DOWN;";
+                }
+                _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
+            }
+            alterationResults.put(caseId, _alterationResult);
+        }
+    %>
+        var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;
+        return alterationResults;
     }
 
     function loadSVG(divName) {
@@ -135,7 +185,7 @@
         cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
         return xmlString;
     }
-    
+
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
         var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
@@ -372,7 +422,7 @@
                         var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
                         _divName = _divName.replace(/\//g, "");
                         oTable.fnOpen( nTr, "<div id='" + _divName + "'><img style='padding:200px;' src='images/ajax-loader.gif'></div>", 'rppa-details' );
-                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseList(), aData[0]); //aData[0]-->protein array id
+                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseList(), aData[0], getAlterations()); //aData[0]-->protein array id
                     }
                 } );
                 

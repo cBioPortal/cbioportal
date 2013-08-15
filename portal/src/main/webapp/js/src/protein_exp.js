@@ -43,14 +43,15 @@ var rppaPlots = (function() {
             alteredCases = [],
             unalteredCases = [];
 
-        function setArrayData(proteinArrayData) {
+        function setArrayData(proteinArrayData, alterationsObj) {
             alteredCases.length = 0;
             unalteredCases.length = 0;
             for (var key in proteinArrayData) {
                 if (proteinArrayData.hasOwnProperty(key)) {
                     var _tmp = {
                         "caseId": key,
-                        "value": proteinArrayData[key]
+                        "value": proteinArrayData[key],
+                        "alterations": alterationsObj[key]
                     };
                     if (alteredCaseList.indexOf(key) !== -1) {
                         alteredCases.push(_tmp);
@@ -61,8 +62,8 @@ var rppaPlots = (function() {
             }
         }
 
-        function init(proteinArrayDAta) {
-            setArrayData(proteinArrayDAta)
+        function init(proteinArrayData, alterationsObj) {
+            setArrayData(proteinArrayData, alterationsObj);
         }
 
         return {
@@ -109,7 +110,7 @@ var rppaPlots = (function() {
                 yScale : "",
                 xAxis : "",
                 yAxis : "",
-                dotsGroup : "",   //Group of single Dots
+                dotsGroup : ""   //Group of single Dots
             },
             settings = {
                 canvas_width: 720,
@@ -125,6 +126,15 @@ var rppaPlots = (function() {
                 _singleDot.xVal = 0;
                 _singleDot.yVal = val.value;
                 _singleDot.caseId = val.caseId;
+                //Convert alteration JSON to string
+                var _altStr = "";
+                var p = val.alterations;
+                for (var key in p) {
+                    if (p.hasOwnProperty(key) && (p[key] !== "")) {
+                        _altStr += key + " -> " + p[key];
+                    }
+                }
+                _singleDot.annotation = _altStr;
                 dotsArr.push(_singleDot);
             });
             $.each(data.getUnAlteredCases(), function(index, val){
@@ -383,7 +393,10 @@ var rppaPlots = (function() {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.caseId +
                         "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId + "</a></strong><br>";
-                    content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>"
+                    content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
+                    if (d.hasOwnProperty("annotation")) {
+                        content += "Altertions: <strong>" + d.annotation + "</strong>";
+                    }
                     content = content + "</font>";
 
                     $(this).qtip(
@@ -487,30 +500,31 @@ var rppaPlots = (function() {
 
     }());
 
-    function generatePlots(proteinArrayId) {
+    function generatePlots(proteinArrayId, alterationsObj) {
         var paramsGetProteinArrayData = {
             cancer_study_id: cancer_study_id,
             case_set_id: case_set_id,
             case_ids_key: case_ids_key,
             protein_array_id: proteinArrayId
         };
-        $.post("getProteinArrayData.json", paramsGetProteinArrayData, getProfileDataCallBack, "json");
+        $.post("getProteinArrayData.json", paramsGetProteinArrayData, getProfileDataCallBack(alterationsObj), "json");
     }
 
-    function getProfileDataCallBack(result) {
-        data.init(result);
-        view.init();
-
+    function getProfileDataCallBack(alterationsObj) {
+        return function(result) {
+            data.init(result, alterationsObj);
+            view.init();
+        }
     }
 
     return {
-        init: function(xLabel, yLabel, title, divName, caseLists, proteinArrayId) {
+        init: function(xLabel, yLabel, title, divName, caseLists, proteinArrayId, alterationsObj) {
             //Set all the parameters
             data.setCaseLists(caseLists);
             view.setAttr(xLabel, yLabel, title, divName);
             //Get data from server and drawing
-            generatePlots(proteinArrayId);
-        },
+            generatePlots(proteinArrayId, alterationsObj);
+        }
     }
 
 }());

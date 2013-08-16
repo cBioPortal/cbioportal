@@ -28,8 +28,6 @@ package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.LineIterator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -43,13 +41,14 @@ import java.net.URLEncoder;
  */
 public class IGVLinking {
 
-	private static final Log LOG = LogFactory.getLog(IGVLinking.class);
 	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy"); //  MM/dd/yyyy HH:mm:ss
+	private static final String TOKEN_REGEX = "<TOKEN>";
+	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
 
 	public static String[] getIGVArgsForSegViewing(String cancerTypeId, String encodedGeneList)
 	{
 		// routine defined in igv_webstart.js
-		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + "_scna_hg18.seg";
+		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
 		return new String[] { segFileURL, encodedGeneList };
 	}
 
@@ -86,9 +85,8 @@ public class IGVLinking {
 	private static String getBAMFileURL(String caseId)
 	{
 		String token = IGVLinking.getToken(caseId);
-		return (token != null) ?
-			(GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_URL) + token) : null;
-			
+		return (token == null) ? null :
+			GlobalProperties.getProperty(GlobalProperties.BROAD_BAM_URL).replace(TOKEN_REGEX, token);
 	}
 
 	private static String getToken(String caseId)
@@ -121,7 +119,7 @@ public class IGVLinking {
 	private static File getMessageToEncrypt(String caseId, String timestamp) throws Exception
 	{
 		File token = FileUtils.getFile(FileUtils.getTempDirectoryPath(), "broad-bam-token.txt");
-		FileUtils.writeStringToFile(token, "<" + caseId + "><"  + timestamp + ">", "UTF-8", false);
+		FileUtils.writeStringToFile(token, caseId + " "  + timestamp, "UTF-8", false);
 		return token;
 	}
 

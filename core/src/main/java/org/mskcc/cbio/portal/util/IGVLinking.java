@@ -41,7 +41,6 @@ import java.net.URLEncoder;
  */
 public class IGVLinking {
 
-	private static final SimpleDateFormat TIMESTAMP_FORMAT = new SimpleDateFormat("MM/dd/yyyy"); //  MM/dd/yyyy HH:mm:ss
 	private static final String TOKEN_REGEX = "<TOKEN>";
 	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
 
@@ -113,7 +112,7 @@ public class IGVLinking {
 
 	private static String getCurrentTime()
 	{
-		return TIMESTAMP_FORMAT.format(Calendar.getInstance().getTime());
+		return Long.toString(Calendar.getInstance().getTime().getTime());
 	}
 
 	private static File getMessageToEncrypt(String caseId, String timestamp) throws Exception

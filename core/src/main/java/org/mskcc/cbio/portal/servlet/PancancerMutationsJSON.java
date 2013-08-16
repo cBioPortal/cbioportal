@@ -122,7 +122,10 @@ public class PancancerMutationsJSON extends HttpServlet {
             throw new ServletException(e);
         }
 
+
         PrintWriter writer = response.getWriter();
+        response.setContentType("application/json");
+
         JSONArray.writeJSONString((List) data, writer);
     }
 

@@ -118,7 +118,7 @@ public class IGVLinking {
 	private static File getMessageToEncrypt(String caseId, String timestamp) throws Exception
 	{
 		File token = FileUtils.getFile(FileUtils.getTempDirectoryPath(), "broad-bam-token.txt");
-		FileUtils.writeStringToFile(token, caseId + " "  + timestamp, "UTF-8", false);
+		FileUtils.writeStringToFile(token, timestamp + " "  + caseId, "UTF-8", false);
 		return token;
 	}
 

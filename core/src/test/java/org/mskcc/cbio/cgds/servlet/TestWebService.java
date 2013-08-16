@@ -63,7 +63,7 @@ public class TestWebService extends TestCase {
       NullHttpServletRequest aNullHttpServletRequest = new NullHttpServletRequest();
       NullHttpServletResponse aNullHttpServletResponse = new NullHttpServletResponse();
       webService.processClient( aNullHttpServletRequest, aNullHttpServletResponse );
-      assertTrue( aNullHttpServletResponse.getOutput().contains("# CGDS Kernel:  Data served up fresh at") );
+      assertTrue( aNullHttpServletResponse.getOutput().contains("Error: you must specify a cmd parameter.\n") );
       
       checkRequest( mkStringArray( WebService.CMD, "getTypesOfCancer" ), 
                mkStringArray( "type_of_cancer_id\tname", "BLCA\tBladder Urothelial Carcinoma" ) );
@@ -162,13 +162,12 @@ public class TestWebService extends TestCase {
       }
 
       webService.processClient( aNullHttpServletRequest, aNullHttpServletResponse );
-      assertTrue( aNullHttpServletResponse.getOutput().contains("# CGDS Kernel:  Data served up fresh at") );
       if( debug ){
          System.out.println( "\nResponse says:\n" + aNullHttpServletResponse.getOutput() );
       }
       String[] lines = aNullHttpServletResponse.getOutput().split("\n");
       for( int i=0; i<responseLines.length; i++ ){
-          assertEquals( responseLines[i], lines[i+1]);
+          assertEquals( responseLines[i], lines[i]);
       }
    }
    

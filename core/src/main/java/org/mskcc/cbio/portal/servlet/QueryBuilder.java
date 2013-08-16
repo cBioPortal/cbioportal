@@ -42,10 +42,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
+import org.mskcc.cbio.cgds.model.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.cgds.model.Patient;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.remote.*;
@@ -53,11 +54,6 @@ import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
 import org.mskcc.cbio.cgds.validate.gene.GeneValidator;
 import org.mskcc.cbio.cgds.validate.gene.GeneValidationException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
@@ -455,7 +451,7 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get Clinical Data
             xdebug.logMsg(this, "Getting Clinical Data:");
-            ArrayList <ClinicalData> clinicalDataList =
+            List <Patient> clinicalDataList =
                     GetClinicalData.getClinicalData(DaoCancerStudy
                     .getCancerStudyByStableId(cancerTypeId).getInternalId(),setOfCaseIds);
             xdebug.logMsg(this, "Got Clinical Data for:  " + clinicalDataList.size()
@@ -508,7 +504,7 @@ public class QueryBuilder extends HttpServlet {
 
     private void outputDfsSurvivalPlot(ProfileData mergedProfile,
             ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            ArrayList<ClinicalData> clinicalDataList, String format,
+            List<Patient> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
@@ -518,7 +514,7 @@ public class QueryBuilder extends HttpServlet {
 
     private void outputOsSurvivalPlot(ProfileData mergedProfile,
             ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            ArrayList<ClinicalData> clinicalDataList, String format,
+            List<Patient> clinicalDataList, String format,
             HttpServletResponse response) throws IOException {
         ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );

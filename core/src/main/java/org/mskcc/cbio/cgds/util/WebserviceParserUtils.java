@@ -30,7 +30,9 @@ package org.mskcc.cbio.cgds.util;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,13 +55,21 @@ import org.mskcc.cbio.portal.util.CaseSetUtil;
 public final class WebserviceParserUtils {
     
     private WebserviceParserUtils() {}
-    
+
+    /**
+     * Grabs the appropriate stuff from a request and returns a list of case_ids
+     * @param request
+     * @return
+     * @throws ProtocolException
+     * @throws DaoException
+     */
     public static ArrayList<String> getCaseList(HttpServletRequest request) throws ProtocolException,
             DaoException {
         String cases = request.getParameter(WebService.CASE_LIST);
         String caseSetId = request.getParameter(WebService.CASE_SET_ID);
         String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
-        
+        String samples = request.getParameter("samples");
+
         if (cases == null &&
         	caseIdsKey != null)
         {
@@ -74,18 +84,22 @@ public final class WebserviceParserUtils {
                 throw new ProtocolException("Invalid " + WebService.CASE_SET_ID + ":  " + caseSetId + ".");
             }
             caseList = selectedCaseList.getCaseList();
-        } else if (cases != null) {
+        }
+        else if (cases != null) {
             for (String _case : cases.split("[\\s,]+")) {
                 _case = _case.trim();
                 if (_case.length() == 0) continue;
                 caseList.add(_case);
             }
-        } else {
+        }
+        else if (samples != null) {     // todo: this is a hack, samples is just another word for cases
+            return new ArrayList(Arrays.asList(samples.split(" ")));
+        }
+        else {
             throw new ProtocolException(WebService.CASE_SET_ID + " or " + WebService.CASE_LIST + " must be specified.");
         }
         return caseList;
     }
-    
 
     /**
      * Given an HttpServletRequest, determine all cancer_study_ids associated with it.
@@ -211,5 +225,19 @@ public final class WebserviceParserUtils {
             cancerStudyId = request.getParameter(WebService.CANCER_TYPE_ID);
         }
         return cancerStudyId;
+    }
+
+    /**
+     * Get the return format requested
+     */
+
+    public static String getFormat(HttpServletRequest request) {
+        String format = request.getParameter(WebService.FORMAT);
+
+        return format == null ? format : format.toLowerCase();
+    }
+
+    public static String getCaseSetId(HttpServletRequest request) {
+        return request.getParameter(WebService.CASE_SET_ID);
     }
 }

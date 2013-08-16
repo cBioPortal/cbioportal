@@ -235,6 +235,21 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.PancancerMutationsJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>EchoFile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -384,6 +399,16 @@
         <servlet-name>GeneDataJSON</servlet-name>
         <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <url-pattern>/clinicalAttributes.json</url-pattern>
+    </servlet-mapping>
     
      <!-- tumor map -->
     <servlet>
@@ -490,6 +515,11 @@
         <servlet-name>GetGeneticProfileJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GetGeneticProfilesJSON</servlet-class>
     </servlet>
+
+    <servlet-mapping>
+        <servlet-name>EchoFile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
 
     <servlet-mapping>
         <servlet-name>GetGeneticProfileJSON</servlet-name>

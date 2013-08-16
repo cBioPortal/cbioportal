@@ -427,6 +427,9 @@
 				self._initDefaultView(self.model.sampleArray,
 					self.model.diagramOpts);
 			}
+
+			// format after render
+			self.format();
 		},
 		/**
 		 * Formats the contents of the view after the initial rendering.

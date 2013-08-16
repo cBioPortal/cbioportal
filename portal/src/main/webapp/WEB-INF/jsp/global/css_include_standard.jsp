@@ -21,7 +21,7 @@
 <% if (special_style != null) { %>
     <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
 <% } %>
-<link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet" />
+<link href="css/smoothness/jquery-ui-1.10.3.custom.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table.css" type="text/css" rel="stylesheet" />
 <link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>
 <link href="css/jquery.qtip.min.css" type="text/css" rel="stylesheet"/>

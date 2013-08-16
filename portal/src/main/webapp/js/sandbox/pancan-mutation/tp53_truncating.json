@@ -1,1 +1,162 @@
-[{"count":19,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":94,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":39,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":3,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":88,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":36,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":2,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":7,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":6,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":2,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":8,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"},{"count":15,"keyword":"TP53 truncating","cancer_study":"Bladder Urothelial Carcinoma (TCGA, Provisional)"}]
+[
+{
+    "count": 19,
+        "keyword": "TP53 truncating",
+        "cancer_study": "Bladder Urothelial Carcinoma (TCGA, Provisional)"
+},
+{
+    "count": 94,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, Provisional)"
+},
+{
+    "count": 39,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Lung Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "count": 3,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Thyroid Carcinoma (TCGA, Provisional)"
+},
+{
+    "count": 88,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Head and Neck Squamous Cell Carcinoma (TCGA, In preparation)"
+},
+{
+    "count": 36,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Stomach Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "count": 2,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Prostate Adenocarcinoma (Broad/Cornell, Cell 2013)"
+},
+{
+    "count": 7,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Prostate Adenocarcinoma, Metastatic (Michigan, Nature 2012)"
+},
+{
+    "count": 6,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Prostate Adenocarcinoma (Nelson Lab, Fred Hutchinson CRC)"
+},
+{
+    "count": 2,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Adenoid Cystic Carcinoma (MSKCC, Nature Genetics 2013)"
+},
+{
+    "count": 8,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Hypodiploid Acute Lymphoid Leukemia (St Jude, Nature Genetics 2013)"
+},
+{
+    "count": 15,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Bladder Cancer (MSKCC, JCO 2013)"
+},
+{
+    "count": 22,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Bladder Cancer (MSKCC 2013)"
+},
+{
+    "count": 12,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Invasive Carcinoma (British Columbia, Nature 2012)"
+},
+{
+    "count": 10,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Invasive Carcinoma (Broad, Nature 2012)"
+},
+{
+    "count": 8,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Cancer, Metastatic HER2 (MSKCC 2013)"
+},
+{
+    "count": 10,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Cancer, Metastatic (MSKCC 2013)"
+},
+{
+    "count": 15,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Invasive Carcinoma (Sanger, Nature 2012)"
+},
+{
+    "count": 73,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Invasive Carcinoma (TCGA, Provisional)"
+},
+{
+    "count": 73,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Breast Invasive Carcinoma (TCGA, Nature 2012)"
+},
+{
+    "count": 161,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Cancer Cell Line Encyclopedia (Novartis/Broad, Nature 2012)"
+},
+{
+    "count": 115,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Cancer Cell Line Project (Sanger/HMS, Nature 2012)"
+},
+{
+    "count": 1,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Cervical Squamous Cell Carcinoma and Endocervical Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "count": 1,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Chronic Lymphocytic Leukemia (Oviedo, Spain, Nature Genetics 2011)"
+},
+{
+    "count": 12,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Colorectal Cancer (Genentech, Nature 2012)"
+},
+{
+    "count": 15,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Colorectal Cancer Triplets (MSKCC)"
+},
+{
+    "count": 85,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Provisional)"
+},
+{
+    "count": 37,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Colon and Rectum Adenocarcinoma (TCGA, Nature 2012)"
+},
+{
+    "count": 19,
+    "keyword": "TP53 truncating",
+    "cancer_study": "DMP TSACP Clinical Runs (MSKCC 2013)"
+},
+{
+    "count": 34,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Esophageal Adenocarcinoma (Broad, Nature Genetics 2013)"
+},
+{
+    "count": 23,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Glioblastoma Multiforme (TCGA, Provisional)"
+},
+{
+    "count": 7,
+    "keyword": "TP53 truncating",
+    "cancer_study": "Glioblastoma (TCGA, Nature 2008)"
+}
+]

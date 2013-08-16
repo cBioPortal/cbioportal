@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<title>FIXME</title>
+<title>Pancan Mutations</title>
 <!--
 <link rel="stylesheet" type="text/css" href="FIXME" />
 <script type="text/javascript" src="FIXME"></script>
@@ -22,8 +22,6 @@
         var el = document.getElementById('histogram');
 
         d3.json('tp53_truncating.json', function(data) {
-            console.log(data);
-
             pancanHistogram(data, el);
         });
 
@@ -33,8 +31,9 @@
 </head>
 <body>
 
-    <div id="histogram">
-    </div>
+    <h1>Pancan Mutations | TP53 Truncating</h1>
+
+    <div id="histogram"></div>
 
 </body>
 </html>

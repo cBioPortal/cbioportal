@@ -908,7 +908,7 @@ public final class DaoMutation {
      *
      * @param keywords
      * @param internalProfileIds
-     * @return data         Collection of Maps {"keyword" , "geneticProfileIds" , "count"}
+     * @return Collection of Maps {"keyword" , "geneticProfileIds" , "count"}
      * @throws DaoException
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      */
@@ -924,6 +924,8 @@ public final class DaoMutation {
                     "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "AND KEYWORD IN ('" + StringUtils.join(keywords, "','") + "') " +
                     "GROUP BY KEYWORD, GENETIC_PROFILE_ID";
+
+            System.out.println(sql);
 
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();

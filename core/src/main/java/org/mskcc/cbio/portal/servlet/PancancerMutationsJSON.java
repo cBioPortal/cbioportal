@@ -29,8 +29,14 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.cgds.dao.DaoMutation;
+import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -39,6 +45,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
@@ -67,7 +77,6 @@ public class PancancerMutationsJSON extends HttpServlet {
             throws ServletException, IOException {
 
         String mutationKeysRawJson = request.getParameter("mutation_keys");
-        System.out.println(mutationKeysRawJson);
 
         if (mutationKeysRawJson == null || mutationKeysRawJson.equals("")) {
             throw new ServletException("no mutation_keys parameter provided");
@@ -75,7 +84,46 @@ public class PancancerMutationsJSON extends HttpServlet {
 
         JSONArray mutationKeys = (JSONArray) JSONValue.parse(mutationKeysRawJson);
 
+        // iterate over all cancer studies, for each one grab all the genetic profiles,
+        // only grab the ones that are mutation profiles,
+        // and for each mutation profile count samples by mutation keyword
+        List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
+        Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
+        for (CancerStudy cancerStudy : allCancerStudies) {
+            Integer internalId = cancerStudy.getInternalId();
+
+            System.out.println(internalId);
+
+            List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
+
+
+            System.out.println(geneticProfiles);
+
+
+            for (GeneticProfile geneticProfile : geneticProfiles) {
+
+                System.out.println(geneticProfile);
+
+                if (geneticProfile.getGeneticAlterationType().toString()
+                        .equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+
+                    internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
+                }
+            }
+        }
+
+        if (internalGeneticProfileIds.isEmpty()) {
+            throw new ServletException("no genetic_profile_ids found");
+        }
+
+        Collection<Map<String, Object>> data;
+        try {
+            data = DaoMutation.countSamplesWithKeywords(mutationKeys, internalGeneticProfileIds);
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        }
+
         PrintWriter writer = response.getWriter();
-        JSONArray.writeJSONString(mutationKeys, writer);
+        JSONArray.writeJSONString((List) data, writer);
     }
 }

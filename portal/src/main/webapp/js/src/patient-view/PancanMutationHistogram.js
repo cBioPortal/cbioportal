@@ -3,13 +3,13 @@ define(function() {
         console.log(data);
 
         data = data.sort(function(d, e) {
-            return d.count - e.count;
+            return e.count - d.count;
         });
 
         params = params || {
-            margin: {top: 20, right: 10, bottom: 20, left: 10},
-            width: 400,
-            height: 400,
+            margin: {top: 20, right: 10, bottom: 600, left: 50},
+            width: 800,
+            height: 400 + 600,
         };
 
         // margin conventions http://bl.ocks.org/mbostock/3019563
@@ -27,8 +27,54 @@ define(function() {
             .domain(data.map(function(d) { return d.cancer_study; }));
 
         var y = d3.scale.linear()
-            .range([0, height])
+            .range([height, 0])
             .domain([0, d3.max(data.map(function(d) { return d.count; }))]);
+
+        // make axises
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left");
+        yAxis.tickSize(yAxis.tickSize(), 0, 0);
+
+        // append axises
+
+        var xAxisEl = svg.append("g")
+            .attr("transform", "translate(0," + height + ")")
+            .attr('id', 'x-axis')
+            .call(xAxis);
+
+        xAxisEl.attr('fill', 'none')
+            .attr('stroke', '#000')
+            .attr('shape-rendering', 'crispEdges')
+            ;
+
+        xAxisEl.selectAll('text')
+            .attr('transform', 'rotate(90)')
+            .attr('x', 10)
+            .attr('dy', -.3 * x.rangeBand())
+            .style('text-anchor', 'start')
+            ;
+
+        var yAxisEl = svg.append("g")
+            .call(yAxis)
+            .attr('stroke', '#000')
+            .attr('shape-rendering', 'crispEdges');
+
+        yAxisEl.selectAll('path')
+            .attr('fill', 'none');
+
+        yAxisEl
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", - params.margin.left)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text("Frequency");
 
         // make a bar chart
         svg.selectAll(".bar")
@@ -40,7 +86,6 @@ define(function() {
             .attr("height", function(d) { return height - y(d.count); })
             .attr('fill', '#1974b8')
             ;
-
 
     };
 });

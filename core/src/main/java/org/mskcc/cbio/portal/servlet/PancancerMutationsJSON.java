@@ -125,4 +125,9 @@ public class PancancerMutationsJSON extends HttpServlet {
         PrintWriter writer = response.getWriter();
         JSONArray.writeJSONString((List) data, writer);
     }
+
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
+    }
 }

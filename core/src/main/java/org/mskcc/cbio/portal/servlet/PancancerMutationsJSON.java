@@ -72,6 +72,14 @@ public class PancancerMutationsJSON extends HttpServlet {
         }
     }
 
+    /**
+     * the request requires a parameter "mutation_keys" which is a JSON list of strings.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

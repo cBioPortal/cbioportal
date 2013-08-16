@@ -939,7 +939,7 @@ public final class DaoMutation {
 
                 // can you do the boogie woogie to get a cancerStudy's name?
                 // this is computing a join and in not optimal
-                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
+                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
                 Integer cancerStudyId = geneticProfile.getCancerStudyId();
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
                 String name = cancerStudy.getName();

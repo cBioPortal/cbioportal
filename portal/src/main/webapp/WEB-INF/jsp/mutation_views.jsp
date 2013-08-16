@@ -281,7 +281,7 @@
 					// TODO reload the jmol content with pdb id and mutation context
 					//vis.updateContainer(self.$el.find(".mut-3d-container"));
 					vis.show();
-					vis.reload("2bq0");
+					vis.reload(self.model.pdbData.pdbId);
 				}
 			});
 		},
@@ -666,22 +666,18 @@
 
 			// callback function to init view after retrieving
 			// sequence information.
-			var init = function(response)
+			var init = function(sequence, pdbData)
 			{
-				// TODO response may be null for unknown genes...
-
-				// get the first sequence from the response
-				var sequence = response[0];
-
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
 				var summary = self.util.generateSummary(mutationCount);
 
 				// prepare data for mutation view
-				var mutationInfo = {geneSymbol: gene,
+				var model = {geneSymbol: gene,
 					mutationSummary: summary,
-					uniprotId : sequence.metadata.identifier};
+					uniprotId: sequence.metadata.identifier,
+					pdbData: pdbData};
 
 				// reset the loader image
 				self.$el.find("#mutation_details_loader").empty();
@@ -689,7 +685,7 @@
 				// init the view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
-					model: mutationInfo,
+					model: model,
 					mut3dVis: self.options.mut3dVis});
 
 				mainView.render();
@@ -733,8 +729,27 @@
 				}, 2000);
 			};
 
-			// get sequence data for the current gene & init view
-			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+			// Gets the pdb data from the server by using the uniprot identifier
+			// within the given sequence data, and then initializes the view
+			var getPdbData = function(sequenceData)
+			{
+				// TODO sequenceData may be null for unknown genes...
+
+				// get the first sequence from the response
+				var sequence = sequenceData[0];
+
+				// TODO also send mutation positions to get the specific chains
+				// ...use mutation details util
+				$.getJSON("get3dPdb.json",
+					{uniprotId: sequence.metadata.identifier},
+					function(pdbData) {
+						// init view with the sequence and pdb data
+						init(sequence, pdbData);
+				});
+			};
+
+			// get sequence data & pdb data for the current gene & init view
+			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
 		},
 		/**
 		 * Initializes the mutation diagram view.

@@ -23,14 +23,6 @@ import java.util.Set;
  */
 public class Mutation3dServlet extends HttpServlet
 {
-	private IdMappingService idMappingService;
-
-	public Mutation3dServlet()
-	{
-		this.idMappingService = new CgdsIdMappingService(
-				DaoGeneOptimized.getInstance());
-	}
-
 	@Override
 	protected void doGet(final HttpServletRequest request,
 			final HttpServletResponse response)
@@ -48,18 +40,9 @@ public class Mutation3dServlet extends HttpServlet
 		JSONObject jsonObject = new JSONObject();
 
 		String pdbId = null;
-		String uniprotId = null;
 
-		// TODO sanitize geneSymbol if necessary
-		String hugoGeneSymbol = request.getParameter("geneSymbol");
-
-		List<String> uniProtIds = this.idMappingService.getUniProtIds(hugoGeneSymbol);
-
-		// TODO getting the first uniprot id only
-		if (uniProtIds.size() > 0)
-		{
-			uniprotId = uniProtIds.get(0);
-		}
+		// TODO sanitize id if necessary... and, allow more than one uniprot id?
+		String uniprotId = request.getParameter("uniprotId");
 
 		try
 		{
@@ -80,7 +63,6 @@ public class Mutation3dServlet extends HttpServlet
 		// TODO using mutation locations also get locations on the chain
 		// see DaoPdbUniprotResidueMapping.mapToPdbChains() -> need to implement this first
 
-		//jsonObject.put("hugoGeneSymbol", hugoGeneSymbol);
 		jsonObject.put("pdbId", pdbId);
 
 		this.writeOutput(response, jsonObject);

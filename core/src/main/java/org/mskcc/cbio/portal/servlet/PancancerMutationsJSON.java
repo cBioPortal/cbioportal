@@ -92,20 +92,11 @@ public class PancancerMutationsJSON extends HttpServlet {
         for (CancerStudy cancerStudy : allCancerStudies) {
             Integer internalId = cancerStudy.getInternalId();
 
-            System.out.println(internalId);
-
             List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
-
-
-            System.out.println(geneticProfiles);
-
 
             for (GeneticProfile geneticProfile : geneticProfiles) {
 
-                System.out.println(geneticProfile);
-
-                if (geneticProfile.getGeneticAlterationType().toString()
-                        .equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
 
                     internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
                 }

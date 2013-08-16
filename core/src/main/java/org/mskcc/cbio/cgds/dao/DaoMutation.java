@@ -908,7 +908,7 @@ public final class DaoMutation {
      *
      * @param keywords
      * @param internalProfileIds
-     * @return Collection of Maps {"keyword" , "geneticProfileIds" , "count"}
+     * @return Collection of Maps {"keyword" , "cancer_study" , "count"} where cancer_study = cancerStudy.getName();
      * @throws DaoException
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      */
@@ -925,8 +925,6 @@ public final class DaoMutation {
                     "AND KEYWORD IN ('" + StringUtils.join(keywords, "','") + "') " +
                     "GROUP BY KEYWORD, GENETIC_PROFILE_ID";
 
-            System.out.println(sql);
-
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
@@ -939,8 +937,15 @@ public final class DaoMutation {
                 Integer geneticProfileId = rs.getInt(2);
                 Integer count = rs.getInt(3);
 
+                // can you do the boogie woogie to get a cancerStudy's name?
+                // this is computing a join and in not optimal
+                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(2);
+                Integer cancerStudyId = geneticProfile.getCancerStudyId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String name = cancerStudy.getName();
+
                 d.put("keyword", keyword);
-                d.put("geneticProfileId", geneticProfileId);
+                d.put("cancer_study", name);
                 d.put("count", count);
 
                 data.add(d);

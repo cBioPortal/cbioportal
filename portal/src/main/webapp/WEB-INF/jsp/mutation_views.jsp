@@ -677,7 +677,7 @@
 					$.getJSON(url, function(data) {
 						console.log(data);
 						// TODO this call displays warning message (resend)
-						prepIGVLaunch(data.bamFileUrl, data.encodedLocus);
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
 					});
 				});
 			});

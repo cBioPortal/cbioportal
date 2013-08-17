@@ -41,6 +41,8 @@ import java.net.URLEncoder;
  */
 public class IGVLinking {
 
+	private static final String REFERENCE_GENOME_18 = "hg18";
+	private static final String REFERENCE_GENOME_19 = "hg19";
 	private static final String TOKEN_REGEX = "<TOKEN>";
 	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
 
@@ -48,7 +50,7 @@ public class IGVLinking {
 	{
 		// routine defined in igv_webstart.js
 		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
-		return new String[] { segFileURL, encodedGeneList };
+		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18 };
 	}
 
 	// returns null if exception has been thrown during processing
@@ -65,7 +67,7 @@ public class IGVLinking {
 		String encodedLocus = getEncodedLocus(locus);
 		if (encodedLocus == null) return null;
 
-		return new String[] { bamFileURL, encodedLocus };
+		return new String[] { bamFileURL, encodedLocus, REFERENCE_GENOME_19 };
 	}
 
 	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)

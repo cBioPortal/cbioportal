@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.remote.ConnectionManager;
 import org.mskcc.cbio.portal.util.SkinUtil;
 import org.mskcc.cbio.portal.util.XDebug;
@@ -49,6 +50,7 @@ public class PatientView extends HttpServlet {
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String HAS_ALLELE_FREQUENCY_DATA = "has_allele_frequency_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
+    public static final String CANCER_STUDY_TO_NUM_CASES = "cancer_study_to_num_cases";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String MRNA_PROFILE = "mrna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
@@ -70,6 +72,15 @@ public class PatientView extends HttpServlet {
     
     // class which process access control to cancer studies
     private AccessControl accessControl;
+
+    private static Map<String, Integer> CANCER_STUDY_TO_NUM_SEQUENCED_CASES;
+    static {
+        try {
+            CANCER_STUDY_TO_NUM_SEQUENCED_CASES = DaoMutation.countCasesInAllCancerStudies();
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
 
     /**
      * Initializes the servlet.
@@ -111,6 +122,7 @@ public class PatientView extends HttpServlet {
                 setGeneticProfiles(request);
                 setClinicalInfo(request);
                 setNumCases(request);
+                setCancerStudy2NumSequencedCases(request);
             }
             RequestDispatcher dispatcher =
                     getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
@@ -120,7 +132,11 @@ public class PatientView extends HttpServlet {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
             forwardToErrorPage(request, response,
                                "An error occurred while trying to connect to the database.", xdebug);
-        } 
+        } catch (ProtocolException e) {
+            xdebug.logMsg(this, "Got Protocol Exception " + e.getMessage());
+            forwardToErrorPage(request, response,
+                    "An error occurred while trying to authenticate.", xdebug);
+        }
     }
 
     /**
@@ -257,6 +273,10 @@ public class PatientView extends HttpServlet {
                     DaoCaseProfile.countCasesInProfile(mrnaProfile.getGeneticProfileId()));
         }
     }
+
+    private void setCancerStudy2NumSequencedCases(HttpServletRequest request) throws DaoException, ProtocolException {
+        request.setAttribute(CANCER_STUDY_TO_NUM_CASES, CANCER_STUDY_TO_NUM_SEQUENCED_CASES);
+    }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
@@ -307,10 +327,13 @@ public class PatientView extends HttpServlet {
         Map<String,String> attrMap = clinicalData.get(caseId);
         if (attrMap!=null) {
             String patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
-            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
-                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
-            if (samples.size()>1) {
-                request.setAttribute(PATIENT_ID_ATTR_NAME, patientId);
+
+            if (patientId != null) {
+                List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
+                        cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
+                if (samples.size()>1) {
+                    request.setAttribute(PATIENT_ID_ATTR_NAME, patientId);
+                }
             }
         }
     }

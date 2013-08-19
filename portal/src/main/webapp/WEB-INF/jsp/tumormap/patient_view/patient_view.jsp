@@ -972,6 +972,8 @@ function plotCaselabelInSVG(svg, caseId) {
         .text(label);
 }
 
+window.cancerStudy2NumSequencedCases = <%=jsonMapper.writeValueAsString(request.getAttribute(PatientView.CANCER_STUDY_TO_NUM_CASES))%>;
+
 </script>
 
 </body>

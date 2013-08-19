@@ -439,6 +439,8 @@
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
 
+			// TODO create another backbone view for 3D visualizer?
+
 			// initially hide the 3d visualizer container
 			var container3d = self.$el.find("#mutation_3d_visualizer");
 			container3d.hide();
@@ -737,11 +739,19 @@
 
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
+				var mutations = self.util.getMutationGeneMap()[gene];
 
-				// TODO also send mutation positions to get the specific chains
-				// ...use mutation details util
+				var positions = "";
+
+				for(var i=0; i < mutations.length; i++)
+				{
+					positions += mutations[i].proteinPosStart + " ";
+				}
+
+				// get pdb data for the current mutations
 				$.getJSON("get3dPdb.json",
-					{uniprotId: sequence.metadata.identifier},
+					{uniprotId: sequence.metadata.identifier,
+					positions: positions.trim()},
 					function(pdbData) {
 						// init view with the sequence and pdb data
 						init(sequence, pdbData);

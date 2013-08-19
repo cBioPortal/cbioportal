@@ -3,7 +3,7 @@ define(function() {
         console.log(data);
 
         data = data.sort(function(d, e) {
-            return e.count - d.count;
+            return e.value - d.value;
         });
 
         params = params || {
@@ -28,7 +28,7 @@ define(function() {
 
         var y = d3.scale.linear()
             .range([height, 0])
-            .domain([0, d3.max(data.map(function(d) { return d.count; }))]);
+            .domain([0, d3.max(data.map(function(d) { return d.value; }))]);
 
         // make axises
 
@@ -38,6 +38,7 @@ define(function() {
 
         var yAxis = d3.svg.axis()
             .scale(y)
+            .tickFormat(d3.format("%.0"))
             .orient("left");
         yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
@@ -68,22 +69,14 @@ define(function() {
         yAxisEl.selectAll('path')
             .attr('fill', 'none');
 
-        yAxisEl
-            .append("text")
-            .attr("transform", "rotate(-90)")
-            .attr("y", - params.margin.left)
-            .attr("dy", ".71em")
-            .style("text-anchor", "end")
-            .text("Frequency");
-
         // make a bar chart
         svg.selectAll(".bar")
             .data(data)
             .enter().insert("rect")
             .attr("x", function(d) { return x(d.cancer_study); })
-            .attr("y", function(d) { return y(d.count); })
+            .attr("y", function(d) { return y(d.value); })
             .attr("width", x.rangeBand())
-            .attr("height", function(d) { return height - y(d.count); })
+            .attr("height", function(d) { return height - y(d.value); })
             .attr('fill', '#1974b8')
             ;
 

@@ -166,7 +166,7 @@ public class ImportTabDelimData {
                 
                 if (parts.length>lenParts) {
                     System.err.println("The following line has more fields (" + parts.length
-                            + ") than the headers(" + lenParts + "): \n"+line);
+                            + ") than the headers(" + lenParts + "): \n"+parts[0]);
                 }
 
                 int startIndex = getStartIndex();

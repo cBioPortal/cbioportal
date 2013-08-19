@@ -127,13 +127,19 @@ var rppaPlots = (function() {
                 _singleDot.yVal = val.value;
                 _singleDot.caseId = val.caseId;
                 //Convert alteration JSON to string
-                var _altStr = "";
+                var _altStr = "<table style='border: 1px solid darkgrey;border-collapse:collapse;'>";
                 var p = val.alterations;
                 for (var key in p) {
                     if (p.hasOwnProperty(key) && (p[key] !== "")) {
-                        _altStr += key + " -> " + p[key];
+                        var str = p[key];
+                        var last = str.lastIndexOf(';');
+                        var butLast = str.substring(0, last).replace(/;/g, ", ");
+                        var res = butLast + str.substring(last).replace(";", "");
+                        _altStr += "<tr style='border: 1px solid darkgrey'><td style='border: 1px solid darkgrey'>" +
+                                    key + "</td><td>" + res + "</td></tr>";
                     }
                 }
+                _altStr += "</table>";
                 _singleDot.annotation = _altStr;
                 dotsArr.push(_singleDot);
             });

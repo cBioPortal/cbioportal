@@ -291,6 +291,8 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
 				mutationData.put("uniprotId", this.getUniprotId(mutation));
+				mutationData.put("proteinPosStart", mutation.getOncotatorProteinPosStart());
+				mutationData.put("proteinPosEnd", mutation.getOncotatorProteinPosEnd());
 				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 

@@ -7,9 +7,9 @@ define(function() {
         });
 
         params = params || {
-            margin: {top: 20, right: 10, bottom: 600, left: 50},
-            width: 800,
-            height: 400 + 600,
+            margin: {top: 20, right: 10, bottom: 20, left: 40},
+            width: 840,
+            height: 400,
         };
 
         // margin conventions http://bl.ocks.org/mbostock/3019563
@@ -34,6 +34,7 @@ define(function() {
 
         var xAxis = d3.svg.axis()
             .scale(x)
+            .tickFormat("")
             .orient("bottom");
 
         var yAxis = d3.svg.axis()
@@ -80,5 +81,12 @@ define(function() {
             .attr('fill', '#1974b8')
             ;
 
+        // add pointer triangle that points to this cancer study
+        var cancerStudy = "Cancer Cell Line Encyclopedia (Novartis/Broad, Nature 2012)";
+        svg.append('path')
+            .attr('transform', 'translate('
+                        + (x(cancerStudy) + x.rangeBand() * .5)
+                        + ',' + (height + 15 )+ ')')
+            .attr('d', d3.svg.symbol().type('triangle-up'))
     };
 });

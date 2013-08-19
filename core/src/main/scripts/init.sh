@@ -1,5 +1,5 @@
 # First, verify if all symbols in the sample genesets are latest
-./verifyGeneSets.pl $PORTAL_DATA_HOME/reference-data/human_genes.txt
+#./verifyGeneSets.pl $PORTAL_DATA_HOME/reference-data/human-genes.txt
 
 # Clear the Database
 ./resetDb.pl
@@ -25,3 +25,6 @@
 
 # Drug
 ./importPiHelperData.pl
+
+# Pfam Graphic Data
+./importPfamGraphicsData.pl $PORTAL_DATA_HOME/reference-data/pfam-graphics.txt

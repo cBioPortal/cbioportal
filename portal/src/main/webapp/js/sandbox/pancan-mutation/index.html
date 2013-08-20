@@ -26,7 +26,7 @@
         var el = document.getElementById('histogram');
 
         d3.json('tp53_truncating.json', function(data) {
-            pancanHistogram(data, el);
+            pancanHistogram(data, el, {cancerStudyName: "Uterine Corpus Endometrioid Carcinoma (TCGA, Nature 2013)"});
         });
 
     })

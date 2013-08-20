@@ -117,6 +117,22 @@
         }
         return counter;
     }
+
+	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
+	{
+		// translate Onco Query Language
+		ArrayList<String> listOfGenes =
+			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+
+		String genes = "";
+
+		for(String gene: listOfGenes)
+		{
+			genes += gene + " ";
+		}
+
+		return genes.trim();
+	}
 %>
 
 
@@ -211,10 +227,19 @@
 
 <script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
+	//  make global variables -- TODO move these global variables into a better jsp file
+
+	// raw gene list (as it is entered by the user, it may contain onco query language)
+	var genes = "<%=genes%>";
+
+	// gene list after being processed by the onco query language parser
+	var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
+
+	// list of samples (case ids)
+	var samples = "<%=samples%>";
+
+	// genetic profile ids
+	var geneticProfiles = "<%=geneticProfiles%>";
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">

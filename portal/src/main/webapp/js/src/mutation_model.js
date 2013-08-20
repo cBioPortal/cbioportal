@@ -38,6 +38,8 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.proteinPosStart = attributes.proteinPosStart;
+		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
 		this.cosmicCount = attributes.cosmicCount; // TODO calculate this on the client side?
 		this.specialGeneData = attributes.specialGeneData;
@@ -258,7 +260,7 @@ var MutationDetailsUtil = function(mutations)
 		var self = this;
 		var contains = false;
 
-		gene = gene.toLowerCase();
+		gene = gene.toUpperCase();
 
 		if (self._mutationGeneMap[gene] != undefined)
 		{

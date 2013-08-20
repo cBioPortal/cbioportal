@@ -6,15 +6,24 @@
             <small>(<a href="faq.jsp#what-are-oncoprints">What are OncoPrints?</a>)</small>
         </h4>
 
-        <form id="oncoprintForm" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST"
-              onsubmit="this.elements['xml'].value=oncoprint.getOncoPrintBodyXML(); return true;" target="_blank">
-            <input type="hidden" name="xml">
-            <input type="hidden" name="longest_label_length">
-            <input type="hidden" name="format" value="svg">
-            <p>Download OncoPrint:&nbsp;&nbsp;&nbsp;<input type="submit" value="SVG"></p>
-        </form>
+        <p style="display:inline;">Download OncoPrint:&nbsp;&nbsp;&nbsp;</p>
 
-        <div id="oncoprint_controls">
+        <span>
+            <form id="oncoprintForm" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" onsubmit="this.elements['xml'].value=oncoprint.getOncoPrintBodyXML(); return true;" target="_blank" style="display:inline;">
+                <input type="hidden" name="xml">
+                <input type="hidden" name="longest_label_length">
+                <input type="hidden" name="format" value="svg">
+                <input type="submit" value="SVG">
+            </form>
+            <form action="svgtopdf.do" method="POST" onsubmit="this.elements['svgelement'].value=oncoprint.getOncoPrintBodyXML(); return true;" style="display:inline;">
+                <input type="hidden" name="svgelement">
+                <input type="hidden" name="filetype" value="pdf">
+                <input type="hidden" name="filename" value="oncoprint.pdf">
+                <input type="submit" value="PDF">
+            </form>
+        </span>
+
+        <div id="oncoprint_controls" style="margin-top:15px;">
             <style>
                 .onco-customize {
                     color:#2153AA; font-weight: bold; cursor: pointer;

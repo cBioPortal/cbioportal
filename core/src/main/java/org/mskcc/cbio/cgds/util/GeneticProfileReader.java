@@ -70,35 +70,15 @@ public class GeneticProfileReader {
          // the dbms already contains a GeneticProfile with the file's stable_id
          System.out.println("Warning: Possible Error: Existing Profile Found with Stable ID:  "
                   + existingGeneticProfile.getStableId());
-         // target line isn't stored in the dbms
-         existingGeneticProfile.setTargetLine(geneticProfile.getTargetLine()); 
-
-         System.out.println("Action:  Clobbering all old data");
-         System.out.println("Deleting all matching records in table:  gene_in_profile");
-         System.out.println("Deleting all matching records in table:  genetic_alteration");
-         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-         daoGeneticAlteration.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
-
-         System.out.println("Deleting all matching records in table:  micro_rna_alteration");
-         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
-         daoMicroRnaAlteration.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
-
-         System.out.println("Deleting all matching records in table:  mutation");
-         DaoMutation.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
-
-         System.out.println("Deleting all matching cases in table:  genetic_profile_cases");
-         DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-         daoGeneticProfileCases.deleteAllCasesInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
-         daoGeneticAlteration.deleteAllRecordsInGeneticProfile(existingGeneticProfile.getGeneticProfileId());
-         return existingGeneticProfile;
       } else {
          // add new profile
          DaoGeneticProfile.addGeneticProfile(geneticProfile);
-         // load it into a GeneticProfile
-         GeneticProfile newGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
-         newGeneticProfile.setTargetLine(geneticProfile.getTargetLine());
-         return newGeneticProfile;
       }
+      
+      // Get ID
+      GeneticProfile gp = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId());
+      geneticProfile.setGeneticProfileId(gp.getGeneticProfileId());
+      return geneticProfile;
    }
 
    /**
@@ -144,10 +124,14 @@ public class GeneticProfileReader {
       String profileDescription = properties.getProperty("profile_description");
       String geneticAlterationTypeString = properties.getProperty("genetic_alteration_type");
       if (profileName == null) {
-         throw new IllegalArgumentException("profile_name is not specified.");
-      } else if (profileDescription == null) {
-         throw new IllegalArgumentException("profile_description is not specified.");
-      } else if (geneticAlterationTypeString == null) {
+         profileName = geneticAlterationTypeString;
+      }
+      
+      if (profileDescription == null) {
+         profileDescription = geneticAlterationTypeString;
+      }
+      
+      if (geneticAlterationTypeString == null) {
          throw new IllegalArgumentException("genetic_alteration_type is not specified.");
       }
 

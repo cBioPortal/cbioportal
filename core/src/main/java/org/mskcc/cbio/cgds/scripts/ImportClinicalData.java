@@ -88,6 +88,11 @@ public class ImportClinicalData {
             }
 
             String[] fields = line.split(DELIMITER);
+            if (fields.length > columnAttrs.size()) {
+                System.err.println("more attributes than header: "+line);
+                continue;
+            }
+            
             String caseId = null;
             for (int i = 0; i < fields.length; i++) {
                 ClinicalData clinical = new ClinicalData();

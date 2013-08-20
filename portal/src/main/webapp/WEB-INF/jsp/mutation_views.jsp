@@ -51,14 +51,7 @@
 				<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
 			</td>
 			<td>
-				<button class='mutation-3d-vis'>
-					<table>
-						<tr>
-							<td><img alt="J" src='images/jmol.png'/></td>
-							<td><label>Visualize in Jmol</label></td>
-						</tr>
-					</table>
-				</button>
+				<div id='mutation_3d_{{geneSymbol}}' class="mutation-3d-view-container"></div>
 			</td>
 		</tr>
 	</table>
@@ -70,6 +63,17 @@
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
+</script>
+
+<script type="text/template" id="mutation_3d_view_template">
+	<button class='mutation-3d-vis'>
+		<table>
+			<tr>
+				<td><img alt="J" src='images/jmol.png'/></td>
+				<td><label>Visualize in Jmol</label></td>
+			</tr>
+		</table>
+	</button>
 </script>
 
 <script type="text/template" id="mutation_details_table_template">
@@ -263,7 +267,7 @@
 			this.$el.html(template);
 
 			// format after rendering
-			this.format()
+			this.format();
 		},
 		format: function() {
 			var self = this;
@@ -272,18 +276,6 @@
 			self.hideFilterInfo();
 			// hide the toolbar by default
 			self.$el.find(".mutation-diagram-toolbar").hide();
-			// add click listener for the 3d visualizer
-			self.$el.find(".mutation-3d-vis").click(function(){
-				var vis = self.options.mut3dVis;
-
-				if (vis != null)
-				{
-					// TODO reload the jmol content with pdb id and mutation context
-					//vis.updateContainer(self.$el.find(".mut-3d-container"));
-					vis.show();
-					vis.reload(self.model.pdbData.pdbId);
-				}
-			});
 		},
 		/**
 		 * Initializes the toolbar over the mutation diagram.
@@ -439,7 +431,7 @@
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
 
-			// TODO create another backbone view for 3D visualizer?
+			// TODO find a proper way to move this into Mutation3dView...
 
 			// initially hide the 3d visualizer container
 			var container3d = self.$el.find("#mutation_3d_visualizer");
@@ -678,13 +670,12 @@
 				// prepare data for mutation view
 				var model = {geneSymbol: gene,
 					mutationSummary: summary,
-					uniprotId: sequence.metadata.identifier,
-					pdbData: pdbData};
+					uniprotId: sequence.metadata.identifier};
 
 				// reset the loader image
 				self.$el.find("#mutation_details_loader").empty();
 
-				// init the view
+				// init the main view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
 					model: model,
@@ -709,6 +700,14 @@
 				{
 					console.log("Error initializing mutation diagram: %s", gene);
 				}
+
+				// init the 3d view
+				var view3d = new Mutation3dView({
+					el: "#mutation_3d_" + gene,
+					model: self.util.processPdbData(gene, pdbData),
+					mut3dVis: self.options.mut3dVis});
+
+				view3d.render();
 
 				// draw mutation table after a short delay
 				setTimeout(function(){
@@ -739,19 +738,28 @@
 
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
-				var mutations = self.util.getMutationGeneMap()[gene];
 
-				var positions = "";
+				// get protein positions for current mutations
+				var positions = self.util.getProteinPositions(gene);
 
-				for(var i=0; i < mutations.length; i++)
-				{
-					positions += mutations[i].proteinPosStart + " ";
-				}
+				var positionData = [];
+
+				_.each(positions, function(ele, i) {
+					if (ele.start > -1)
+					{
+						positionData.push(ele.start);
+					}
+
+					if (ele.end > ele.start)
+					{
+						positionData.push(ele.end);
+					}
+				});
 
 				// get pdb data for the current mutations
 				$.getJSON("get3dPdb.json",
 					{uniprotId: sequence.metadata.identifier,
-					positions: positions.trim()},
+					positions: positionData.join(" ")},
 					function(pdbData) {
 						// init view with the sequence and pdb data
 						init(sequence, pdbData);
@@ -796,6 +804,48 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
+		}
+	});
+
+	/**
+	 * 3D Visualizer template.
+	 *
+	 * TODO currently this view does not contain the actual viewer!
+	 * ...actual viewer is a global instance bound to MainMutationView
+	 *
+	 * options: {el: [target container],
+	 *           model: PdbModel,
+	 *           mut3dVis: [optional] reference to the 3d structure visualizer
+	 *          }
+	 */
+	var Mutation3dView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template using underscore
+			var template = _.template(
+					$("#mutation_3d_view_template").html());
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+
+			// format after rendering
+			this.format();
+		},
+		format: function()
+		{
+			var self = this;
+
+			// add click listener for the 3d visualizer
+			self.$el.find(".mutation-3d-vis").click(function() {
+				var vis = self.options.mut3dVis;
+
+				if (vis != null)
+				{
+					// reload the visualizer content with the current pdb data
+					vis.show();
+					vis.reload(self.model);
+				}
+			});
 		}
 	});
 

@@ -67,6 +67,21 @@ var Pileup = Backbone.Model.extend({
 });
 
 /**
+ * PDB data model.
+ *
+ * Contains PDB id, chain id, and uniprot id info as well as a mapping for
+ * pdb positions to uniprot positions.
+ */
+var PdbModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		this.pdbId = attributes.pdbId; // pdb id (e.g: 1d5r)
+		this.chainId = attributes.chainId; // chain id (e.g: A, B, etc.)
+		this.uniprotId = attributes.uniprotId; // uniprot id (e.g: PTEN_HUMAN)
+		this.positionMap = attributes.positionMap; // map of (uniprot position, pdb position) pairs
+	}
+});
+
+/**
  * Collection of mutations (MutationModel instances).
  */
 var MutationCollection = Backbone.Collection.extend({
@@ -108,6 +123,51 @@ var MutationDetailsUtil = function(mutations)
 	this.getMutationIdMap = function()
 	{
 		return this._mutationIdMap;
+	};
+
+	/**
+	 * Retrieves protein positions corresponding to the mutations
+	 * for the given gene symbol.
+	 *
+	 * @param gene      hugo gene symbol
+	 * @return {Array}  array of protein positions
+	 */
+	this.getProteinPositions = function(gene)
+	{
+		var mutations = this._mutationGeneMap[gene];
+
+		var positions = [];
+
+		for(var i=0; i < mutations.length; i++)
+		{
+			var position = {id: mutations[i].id,
+				start: mutations[i].proteinPosStart,
+				end: mutations[i].proteinPosEnd};
+
+			positions.push(position);
+		}
+
+		return positions;
+	};
+
+	this.processPdbData = function(gene, data)
+	{
+		var positionMap = {};
+		var mutations = this._mutationGeneMap[gene];
+
+		// re-map mutation ids with positions by using the raw position map
+		for(var i=0; i < mutations.length; i++)
+		{
+			positionMap[mutations[i].mutationId] = {
+				start: data.positionMap[mutations[i].proteinPosStart],
+				end: data.positionMap[mutations[i].proteinPosEnd]};
+		}
+
+		// update position map
+		data.positionMap = positionMap;
+
+		// return new pdb model
+		return new PdbModel(data);
 	};
 
 	/**

@@ -46,23 +46,25 @@ public class Mutation3dServlet extends HttpServlet
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
 		Set<Integer> positions = this.parsePositions(request.getParameter("positions"));
-		Map<Integer, Integer> chainMap = null;
+		Map<Integer, Integer> positionMap = null;
 
 		try
 		{
 			Map<String, Set<String>> pdbChainMap =
 				DaoPdbUniprotResidueMapping.mapToPdbChains(uniprotId);
 
-			// TODO getting only the first pdb id & the first chain
+			// TODO getting only the first pdb id
 			if (pdbChainMap.keySet().iterator().hasNext())
 			{
 				pdbId = pdbChainMap.keySet().iterator().next();
 
+				// TODO getting only the first chain
 				if (pdbChainMap.get(pdbId).iterator().hasNext())
 				{
 					chainId = pdbChainMap.get(pdbId).iterator().next();
 
-					chainMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
+					// get the pdb positions corresponding to the given uniprot positions
+					positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
 						uniprotId, positions, pdbId, chainId);
 				}
 			}
@@ -72,12 +74,9 @@ public class Mutation3dServlet extends HttpServlet
 			e.printStackTrace();
 		}
 
-		// TODO using mutation locations also get locations on the chain
-		// see DaoPdbUniprotResidueMapping.mapToPdbChains() -> need to implement this first
-
 		jsonObject.put("pdbId", pdbId);
 		jsonObject.put("chainId", chainId);
-		jsonObject.put("chainMap", chainMap);
+		jsonObject.put("positionMap", positionMap);
 
 		this.writeOutput(response, jsonObject);
 	}

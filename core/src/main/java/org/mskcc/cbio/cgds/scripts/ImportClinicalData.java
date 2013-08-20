@@ -76,13 +76,13 @@ public class ImportClinicalData {
 
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
 
-        String line = buff.readLine();
+        String line;
         List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
-        while (line != null) {
-
-            if (line.substring(0,1).equals(METADATA_PREIX)) {
+        while ((line = buff.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.isEmpty() || line.substring(0,1).equals(METADATA_PREIX)) {
                 // ignore lines with the METADATA_PREFIX
-                line = buff.readLine();
                 continue;
             }
 
@@ -102,7 +102,6 @@ public class ImportClinicalData {
                     clinicals.add(clinical);
                 }
             }
-            line = buff.readLine();
         }
         DaoClinicalData.addAllData(clinicals);
 	}
@@ -138,7 +137,7 @@ public class ImportClinicalData {
 
 				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, pMonitor);
                 importClinicalData.importData();
-                System.err.println("Success!");
+                System.out.println("Success!");
 			}
 		}
 		catch (Exception e) {

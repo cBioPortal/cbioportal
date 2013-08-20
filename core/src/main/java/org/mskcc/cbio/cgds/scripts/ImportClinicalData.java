@@ -39,6 +39,7 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 
 public class ImportClinicalData {
 
@@ -70,7 +71,7 @@ public class ImportClinicalData {
      * @throws org.mskcc.cbio.cgds.dao.DaoException
      */
     public void importData() throws IOException, DaoException {
-
+        MySQLbulkLoader.bulkLoadOn();
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
 
@@ -103,8 +104,11 @@ public class ImportClinicalData {
                 }
             }
         }
-        DaoClinicalData.addAllData(clinicals);
-	}
+        
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
+        }
+    }
 
     /**
      *

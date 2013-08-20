@@ -61,6 +61,16 @@ public final class DaoClinicalData {
                         String caseId,
                         String attrId,
                         String attrVal) throws DaoException {
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.getMySQLbulkLoader("clinical").insertRecord(
+                    Integer.toString(cancerStudyId),
+                    caseId,
+                    attrId,
+                    attrVal
+                    );
+            return 1;
+        }
+        
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -84,42 +94,6 @@ public final class DaoClinicalData {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
-        }
-    }
-
-    /**
-     * Adds a list of <code>ClinicalData</code> objects into the db
-     *
-     * @param clinicals
-     * @return int rows added
-     * @throws DaoException
-     */
-    public static int addAllData(Collection<ClinicalData> clinicals) throws DaoException {
-        Connection con = null;
-        ResultSet rs = null;
-        PreparedStatement pstmt;
-
-        String sql = "INSERT INTO clinical (`CANCER_STUDY_ID`, `CASE_ID`, `ATTR_ID`, `ATTR_VALUE`)";
-        sql += "VALUES";
-
-        for (ClinicalData clinical : clinicals) {
-            sql = sql + "(" +
-                    "'" + clinical.getCancerStudyId() + "'," +
-                    "'" + clinical.getCaseId() + "'," +
-                    "'" + clinical.getAttrId() + "'," +
-                    "'" + clinical.getAttrVal() + "'),";
-        }
-        sql = sql.substring(0, sql.length()-1); // get rid of that last comma
-        try {
-            con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-            pstmt = con.prepareStatement(sql);
-            int rows = pstmt.executeUpdate();
-
-            return rows;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoClinicalData.class, con, null, rs);
         }
     }
 

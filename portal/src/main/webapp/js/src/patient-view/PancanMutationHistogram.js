@@ -1,9 +1,13 @@
 define(function() {
     return function(data, el, params) {
-        console.log(data);
+
+        // compute frequences
+        data.forEach(function(d) {
+            d.frequency = d.count / d.total;
+        });
 
         data = data.sort(function(d, e) {
-            return e.value - d.value;
+            return e.frequency - d.frequency;
         });
 
         params = params || {
@@ -28,7 +32,7 @@ define(function() {
 
         var y = d3.scale.linear()
             .range([height, 0])
-            .domain([0, d3.max(data.map(function(d) { return d.value; }))]);
+            .domain([0, d3.max(data.map(function(d) { return d.frequency; }))]);
 
         // make axises
 
@@ -71,14 +75,16 @@ define(function() {
             .attr('fill', 'none');
 
         // make a bar chart
-        svg.selectAll(".bar")
+        var bar = svg.selectAll(".bar")
             .data(data)
             .enter().insert("rect")
             .attr("x", function(d) { return x(d.cancer_study); })
-            .attr("y", function(d) { return y(d.value); })
+            .attr("y", function(d) { return y(d.frequency); })
             .attr("width", x.rangeBand())
-            .attr("height", function(d) { return height - y(d.value); })
+            .attr("height", function(d) { return height - y(d.frequency); })
             .attr('fill', '#1974b8')
+            .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
+            .on("mouseout", function() { d3.select(this).attr('opacity', '1'); })
             ;
 
         // add pointer triangle that points to this cancer study
@@ -87,6 +93,23 @@ define(function() {
             .attr('transform', 'translate('
                         + (x(cancerStudy) + x.rangeBand() * .5)
                         + ',' + (height + 15 )+ ')')
-            .attr('d', d3.svg.symbol().type('triangle-up'))
+            .attr('d', d3.svg.symbol().type('triangle-up'));
+
+        // add qtips for each bar
+        bar.each(function(d) {
+            $(this).qtip({
+                content: {text: 'mouseover failed'},
+                position: {my:'left bottom', at:'top right'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        api.set('content.text',
+                            "<b>" + d.count + "/" + d.total + "</b>"
+                             + "<br/>" + d.cancer_study);
+                    }
+                }
+            });
+        });
     };
 });

@@ -77,6 +77,7 @@ public class TestGetProfileData extends TestCase {
         geneticProfile.setCancerStudyId(1);
         geneticProfile.setStableId("gbm_rae");
         geneticProfile.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+        geneticProfile.setDatatype("DISCRETE");
         DaoGeneticProfile.addGeneticProfile(geneticProfile);
 
         ArrayList <String> geneticProfileIdList = new ArrayList<String>();

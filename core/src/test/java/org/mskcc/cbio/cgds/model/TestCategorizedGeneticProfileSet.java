@@ -96,35 +96,36 @@ public class TestCategorizedGeneticProfileSet extends TestCase {
 
     private void addMRNAProfile(ArrayList<GeneticProfile> profileList) {
         GeneticProfile geneticProfile = new GeneticProfile("gbm_mrna", 1,
-                GeneticAlterationType.MRNA_EXPRESSION, "GBM mRNA", "GBM Affymetrix mRNA", true);
+														   GeneticAlterationType.MRNA_EXPRESSION,
+														   "CONTINUOUS", "GBM mRNA", "GBM Affymetrix mRNA", true);
         profileList.add(geneticProfile);
     }
     
     private void addRaeProfile(ArrayList<GeneticProfile> profileList) {
         GeneticProfile gisticProfile = new GeneticProfile("gbm_rae", 1,
-                GeneticAlterationType.COPY_NUMBER_ALTERATION, "GBM RAE",
-                "GBM RAE Results", true);
+														  GeneticAlterationType.COPY_NUMBER_ALTERATION,
+														  "DISCRETE", "GBM RAE", "GBM RAE Results", true);
         profileList.add(gisticProfile);
     }
 
     private void addMutationProfile(ArrayList<GeneticProfile> profileList) {
         GeneticProfile mutationProfile = new GeneticProfile("gbm_mut", 1,
-                GeneticAlterationType.MUTATION_EXTENDED, "GBM Mutations",
-                "GBM Whole Exome Mutations", true);
+															GeneticAlterationType.MUTATION_EXTENDED,
+															"MAF", "GBM Mutations", "GBM Whole Exome Mutations", true);
         profileList.add(mutationProfile);
     }
 
     private void addGisticProfile(ArrayList<GeneticProfile> profileList) {
         GeneticProfile gisticProfile = new GeneticProfile("gbm_gistic", 1,
-                GeneticAlterationType.COPY_NUMBER_ALTERATION, "GBM GISTIC",
-                "GBM GISTIC Results", true);
+														  GeneticAlterationType.COPY_NUMBER_ALTERATION,
+														  "DISCRETE", "GBM GISTIC", "GBM GISTIC Results", true);
         profileList.add(gisticProfile);
     }
 
     private void addCnaPathwayProfile(ArrayList<GeneticProfile> profileList) {
         GeneticProfile otherCNAProfile = new GeneticProfile("cna_pathways", 1,
-                GeneticAlterationType.COPY_NUMBER_ALTERATION, "CNA Pathways",
-                "CNA Pathway Results", true);
+															GeneticAlterationType.COPY_NUMBER_ALTERATION,
+															"DISCRETE", "CNA Pathways", "CNA Pathway Results", true);
         profileList.add(otherCNAProfile);
     }
 }

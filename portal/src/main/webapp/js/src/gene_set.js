@@ -8,8 +8,8 @@
 GeneSet = function(raw_genes_str) {
 
     if (typeof(raw_genes_str) !== 'string') {
-        throw "Error: GeneSet only takes strings, given type '"
-                    + typeof(raw_genes_str) + "'";
+        throw new Error("Error: GeneSet only takes strings, given type '"
+                    + typeof(raw_genes_str) + "'");
         return -1;
     }
 

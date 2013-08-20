@@ -390,7 +390,8 @@ public class Admin implements Runnable {
 		else {
 			Fetcher fetcher = (Fetcher)getBean("referenceDataFetcher");
 			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
-				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+				if ((referenceType.equals(Config.ALL) && referenceMetadata.getFetch())
+					|| referenceMetadata.getReferenceType().equals(referenceType)) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("fetchReferenceData(), calling fetcher for: " + referenceMetadata.getReferenceType());
 					}

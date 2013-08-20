@@ -47,19 +47,13 @@
 			var genomicData = {};
 			// Send genomic data query again
 		    var geneDataQuery = {
+                cancer_study_id: "<%=cancerTypeId%>",
 		        genes: genes,
-		        samples: samples,
 		        geneticProfileIds: geneticProfiles,
 		        z_score_threshold: <%=zScoreThreshold%>,
 		        rppa_score_threshold: <%=rppaScoreThreshold%>
 		    };
 	
-		    $.post(DataManagerFactory.getGeneDataJsonUrl(), geneDataQuery, function(data) {
-				genomicData = data;
-		        var geneDataManager = DataManagerFactory.getGeneDataManager();
-		        geneDataManager.fire(data);
-		    });
-
             // show messages in graphml
             function showNetworkMessage(graphml, divNetMsg) {
                 var msgbegin = "<!--messages begin:";

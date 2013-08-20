@@ -947,9 +947,11 @@ public final class DaoMutation {
                 Integer cancerStudyId = geneticProfile.getCancerStudyId();
                 CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
                 String name = cancerStudy.getName();
+                String cancerType = cancerStudy.getTypeOfCancerId();
 
                 d.put("keyword", keyword);
                 d.put("cancer_study", name);
+                d.put("cancer_type", cancerType);
                 d.put("count", count);
 
                 data.add(d);

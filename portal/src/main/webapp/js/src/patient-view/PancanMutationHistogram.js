@@ -74,6 +74,20 @@ define(function() {
         yAxisEl.selectAll('path')
             .attr('fill', 'none');
 
+        // colors for each bar by cancer_type
+        var google_charts_colors = ["#3366cc","#dc3912","#ff9900","#109618",
+        "#990099","#0099c6","#dd4477","#66aa00",
+        "#b82e2e","#316395","#994499","#22aa99",
+        "#aaaa11","#6633cc","#e67300","#8b0707",
+        "#651067","#329262","#5574a6","#3b3eac",
+        "#b77322","#16d620","#b91383","#f4359e",
+        "#9c5935","#a9c413","#2a778d","#668d1c",
+        "#bea413","#0c5922","#743411"];
+
+        var color_scale = d3.scale.ordinal()
+            .domain(data.map(function(d) { return d.cancer_type; }))
+            .range(google_charts_colors);
+
         // make a bar chart
         var bar = svg.selectAll(".bar")
             .data(data)
@@ -82,7 +96,9 @@ define(function() {
             .attr("y", function(d) { return y(d.frequency); })
             .attr("width", x.rangeBand())
             .attr("height", function(d) { return height - y(d.frequency); })
-            .attr('fill', '#1974b8')
+            .attr('fill', function(d) {
+                return color_scale(d.cancer_type);
+            })
             .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
             .on("mouseout", function() { d3.select(this).attr('opacity', '1'); })
             ;

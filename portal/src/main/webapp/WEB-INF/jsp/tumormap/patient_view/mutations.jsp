@@ -3,9 +3,13 @@
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
-                  tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
-                  norm_ref_reads:16,mrna:17,altrate:18,cosmic:19,ma:20,cons:21,'3d':22,drug:23};
+    var mutTableIndices = ["id", "case_ids", "gene", "aa", "chr", "start", "end", "ref", "_var",
+            "validation", "type", "tumor_freq", "tumor_var_reads", "tumor_ref_reads",
+            "norm_freq", "norm_var_reads", "norm_ref_reads", "mrna", "altrate", "pancan_mutations", "cosmic",
+            "ma", "cons", "3d", "drug"];
+
+    mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
+
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -478,6 +482,24 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// pancan mutations
+                        "aTargets": [ mutTableIndices["pancan_mutations"] ],
+                        "sClass": "center-align-td",
+                        "mDataProp": function(source,type,value) {
+                            var keyword = mutations.getValue(source[0], "key");
+
+                            if (type === 'display') {
+                                if (genomicEventObs.pancan_mutation_frequencies) {
+                                    return "hello world";
+                                } else {
+                                    return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
+                                }
+                            }
+
+                            return "foobar";
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// cosmic
                         "aTargets": [ mutTableIndices["cosmic"] ],
                         "sClass": "right-align-td",
@@ -684,6 +706,21 @@
 
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
+
+        genomicEventObs.subscribePancanMutationsFrequency(function() {
+            var num_rows = oTable.fnSettings().fnRecordsTotal();
+            var pancan_column = mutTableIndices['pancan_mutations'];
+            var dummy = false;      // doesn't matter
+
+            // now that there's data, update the pancan column which checks whether or not there is data
+            for (var i = 0; i < num_rows; i+=1) {
+                oTable.fnUpdate(dummy, i, pancan_column, false, false);
+            }
+
+            // redraw based on the update
+            oTable.fnDraw();
+        });
+
         return oTable;
     }
 
@@ -791,11 +828,20 @@
                         
         $.post("mutations.json", 
             params,
-            function(data){
+            function(data) {
                 determineOverviewMutations(data);
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
-                
+
+                $.post("pancancerMutations.json", {mutation_keys: JSON.stringify(genomicEventObs.mutations.data.key)}, function(res) {
+
+                    // munge data to get it into the format: keyword -> {keyword, cancer_study, cancer_type, count} where `keyword` is the same
+                    genomicEventObs.pancan_mutation_frequencies = d3.nest().key(function(d) { return d.keyword; }).entries(res)
+                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+
+                    genomicEventObs.fire("pancan-mutation-frequency-built");
+                });
+
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);

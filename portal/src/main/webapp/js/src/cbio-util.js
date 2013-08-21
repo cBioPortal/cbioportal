@@ -32,7 +32,8 @@ cbio.util = (function() {
     var checkNullOrUndefined = function(o) {
         return o === null || typeof o === "undefined";
     };
-    
+
+    // convert from array to associative array of element to index
     var arrayToAssociatedArrayIndices = function(arr, offset) {
         if (checkNullOrUndefined(offset)) offset=0;
         var aa = {};

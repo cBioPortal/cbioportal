@@ -150,17 +150,28 @@ var MutationDetailsUtil = function(mutations)
 		return positions;
 	};
 
+	/**
+	 * Processes the pdb data (recieved from the server) to map positions
+	 * to mutation ids.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param data  pdb data with a position map
+	 * @return {PdbModel}   PdbModel instance representing the processed data
+	 */
 	this.processPdbData = function(gene, data)
 	{
 		var positionMap = {};
 		var mutations = this._mutationGeneMap[gene];
 
-		// re-map mutation ids with positions by using the raw position map
-		for(var i=0; i < mutations.length; i++)
+		if (data.positionMap != null)
 		{
-			positionMap[mutations[i].mutationId] = {
-				start: data.positionMap[mutations[i].proteinPosStart],
-				end: data.positionMap[mutations[i].proteinPosEnd]};
+			// re-map mutation ids with positions by using the raw position map
+			for(var i=0; i < mutations.length; i++)
+			{
+				positionMap[mutations[i].mutationId] = {
+					start: data.positionMap[mutations[i].proteinPosStart],
+					end: data.positionMap[mutations[i].proteinPosEnd]};
+			}
 		}
 
 		// update position map

@@ -111,13 +111,14 @@ var Mutation3dVis = function(name, options)
 	 */
 	function reload(pdbData)
 	{
+		// TODO pdbId and/or chainId may be null
+
 		// load the corresponding pdb
 		Jmol.script(_applet, "load=" + pdbData.pdbId);
 
 		var selection = [];
 
-		// TODO change the action from selection to stg else (color coding?)
-		// select residues
+		// highlight the positions (residues)
 		for (var mutationId in pdbData.positionMap)
 		{
 			var pdbPos = pdbData.positionMap[mutationId];
@@ -134,9 +135,15 @@ var Mutation3dVis = function(name, options)
 		// save current selection for a possible future restore
 		_initialSelection = selection;
 
+		var script = "ribbon ONLY;" + // show ribbon view
+		             //"color ribbons blue;" +
+		             "spin ON;" + // turn on spinning
+		             "select " + selection.join(", ") + ";" + // select positions
+		             "color purple;"; // color selection with a different color
+		             //"selectionHalos ON;";
+
 		// select residues on the 3D viewer & highlight them
-		Jmol.script(_applet, "select " + selection.join(", "));
-		Jmol.script(_applet, "selectionHalos ON");
+		Jmol.script(_applet, script);
 	}
 
 	// return public functions

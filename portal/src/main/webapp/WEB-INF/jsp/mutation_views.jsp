@@ -84,7 +84,7 @@
 			</a>
 		</td>
 		<td>
-			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
+			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
 		</td>

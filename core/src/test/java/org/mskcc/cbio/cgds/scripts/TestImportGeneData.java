@@ -51,12 +51,12 @@ public class TestImportGeneData extends TestCase {
         ImportGeneData parser = new ImportGeneData(file, pMonitor);
         parser.importData();
 
-        CanonicalGene gene = daoGene.getGene(35);
-        assertEquals("ACADS", gene.getHugoGeneSymbolAllCaps());
-        gene = daoGene.getGene(112);
-        assertEquals("ADCY6", gene.getHugoGeneSymbolAllCaps());
+        CanonicalGene gene = daoGene.getGene(10);
+        assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
+        gene = daoGene.getGene(15);
+        assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
 
-        gene = daoGene.getGene("ACYP1");
-        assertEquals(97, gene.getEntrezGeneId());
+        gene = daoGene.getGene("ABCA3");
+        assertEquals(21, gene.getEntrezGeneId());
     }
 }

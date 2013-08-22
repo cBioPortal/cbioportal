@@ -312,7 +312,7 @@ public class ClinicalDataConverterImpl implements Converter {
             colNames.add(normalName);
 
             // case id is always the first column
-            String prefix = normalName.equals(ImportClinicalData.CASE_ID) ? ImportClinicalData.METADATA_PREIX : "";
+            String prefix = normalName.equals(ImportClinicalData.CASE_ID_COLUMN_NAME) ? ImportClinicalData.METADATA_PREIX : "";
 
             String displayName = metaData.getDisplayName();
             displayNames.add(prefix + displayName);
@@ -335,10 +335,10 @@ public class ClinicalDataConverterImpl implements Converter {
 
         // case id should be the first column
         // N.B. don't put this block before creating the outMatrix
-        int caseIdIndex = colNames.indexOf(ImportClinicalData.CASE_ID);
+        int caseIdIndex = colNames.indexOf(ImportClinicalData.CASE_ID_COLUMN_NAME);
         if (caseIdIndex != -1) {
             String currFirstCol = colNames.get(0);
-            colNames.set(0, ImportClinicalData.CASE_ID);       // flip
+            colNames.set(0, ImportClinicalData.CASE_ID_COLUMN_NAME);       // flip
             colNames.set(caseIdIndex, currFirstCol);
         } else if (LOG.isInfoEnabled()) {
             LOG.info("clinical data has no column that maps to a CASE_ID column!");

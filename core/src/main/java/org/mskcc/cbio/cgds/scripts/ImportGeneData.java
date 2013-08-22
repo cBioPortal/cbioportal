@@ -72,16 +72,18 @@ public class ImportGeneData {
                 String parts[] = line.split("\t");
                 int entrezGeneId = Integer.parseInt(parts[1]);
                 String geneSymbol = parts[2];
+                String locusTag = parts[3];
                 String strAliases = parts[4];
                 String strXrefs = parts[5];
                 String cytoband = parts[7];
                 String desc = parts[8];
                 String type = parts[9];
-                Set<String> aliases;
-                if (strAliases.equals("-")) {
-                    aliases = Collections.emptySet();
-                } else {
-                    aliases = new HashSet<String>(Arrays.asList(strAliases.split("\\|")));
+                Set<String> aliases = new HashSet<String>();
+                if (!locusTag.equals("-")) {
+                    aliases.add(locusTag);
+                }
+                if (!strAliases.equals("-")) {
+                    aliases.addAll(Arrays.asList(strAliases.split("\\|")));
                 }
                 
                 CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,

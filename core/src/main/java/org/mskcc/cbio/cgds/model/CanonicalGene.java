@@ -44,6 +44,7 @@ public class CanonicalGene extends Gene {
     private String hugoGeneSymbol;
     private Set<String> aliases;
     private double somaticMutationFrequency;
+    private String cytoband;
 
     public CanonicalGene(String hugoGeneSymbol) {
         this(-1, hugoGeneSymbol);
@@ -61,6 +62,14 @@ public class CanonicalGene extends Gene {
         this.entrezGeneId = entrezGeneId;
         this.hugoGeneSymbol = hugoGeneSymbol;
         setAliases(aliases);
+    }
+
+    public String getCytoband() {
+        return cytoband;
+    }
+
+    public void setCytoband(String cytoband) {
+        this.cytoband = cytoband;
     }
 
     public Set<String> getAliases() {

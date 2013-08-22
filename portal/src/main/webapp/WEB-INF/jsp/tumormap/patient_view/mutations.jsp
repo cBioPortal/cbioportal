@@ -488,9 +488,23 @@
                         "mDataProp": function(source,type,value) {
                             var keyword = mutations.getValue(source[0], "key");
 
+                            var sum = function(a,b) { return a + b; };
+
+                            var total_sequenced_patients = _.chain(window.cancerStudy2NumSequencedCases)
+                                    .values()
+                                    .reduce(sum)
+                                    .value();
+
+                            var format_percent = d3.format("%.00");
+
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    return "hello world";
+                                    var data = genomicEventObs.pancan_mutation_frequencies[keyword];
+
+                                    return format_percent(_.chain(data)
+                                            .map(function(d) { return d.count; })
+                                            .reduce(sum)
+                                            .value() / total_sequenced_patients);
                                 } else {
                                     return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }

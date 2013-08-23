@@ -34,11 +34,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.io.IOException;
 
 /**
  * Data Access Object to Gene Table.
@@ -46,7 +44,7 @@ import java.io.IOException;
  *
  * @author Ethan Cerami.
  */
-class DaoGene {
+final class DaoGene {
     private static DaoGene daoGene;
 
     /**
@@ -54,30 +52,16 @@ class DaoGene {
      */
     private DaoGene() {
     }
-
-    /**
-     * Gets Global Singleton Instance.
-     *
-     * @return DaoGeneOptimized Singleton.
-     * @throws DaoException Database Error.
-     */
-    public static synchronized DaoGene getInstance() throws DaoException {
-        if (daoGene == null) {
-            daoGene = new DaoGene();
-        }
-        
-        return daoGene;
-    }
     
     private static int fakeEntrezId = -1;
-    private synchronized int getNextFakeEntrezId() throws DaoException {
+    private static synchronized int getNextFakeEntrezId() throws DaoException {
         while (getGene(fakeEntrezId)!=null) {
             fakeEntrezId --;
         }
         return fakeEntrezId;
     }
     
-    public synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
+    public static synchronized int addGeneWithoutEntrezGeneId(CanonicalGene gene) throws DaoException {
         CanonicalGene existingGene = getGene(gene.getHugoGeneSymbolAllCaps());
         gene.setEntrezGeneId(existingGene==null?getNextFakeEntrezId():existingGene.getEntrezGeneId());
         return addGene(gene);
@@ -90,41 +74,42 @@ class DaoGene {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    public int addGene(CanonicalGene gene) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            if (MySQLbulkLoader.isBulkLoad()) {
-                //  write to the temp file maintained by the MySQLbulkLoader
-                MySQLbulkLoader.getMySQLbulkLoader("gene").insertRecord(Long.toString(gene.getEntrezGeneId()),
-                        gene.getHugoGeneSymbolAllCaps(),gene.getCytoband());
-                addGeneAliases(gene);
-                // return 1 because normal insert will return 1 if no error occurs
-                return 1;
-            } else {
+    public static int addGene(CanonicalGene gene) throws DaoException {
+        if (MySQLbulkLoader.isBulkLoad()) {
+            //  write to the temp file maintained by the MySQLbulkLoader
+            MySQLbulkLoader.getMySQLbulkLoader("gene").insertRecord(Long.toString(gene.getEntrezGeneId()),
+                    gene.getHugoGeneSymbolAllCaps(),gene.getCytoband(),gene.getLength()==0?null:Integer.toString(gene.getLength()));
+            addGeneAliases(gene);
+            // return 1 because normal insert will return 1 if no error occurs
+            return 1;
+        } else {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
                 int rows = 0;
                 CanonicalGene existingGene = getGene(gene.getEntrezGeneId());
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection(DaoGene.class);
                     pstmt = con.prepareStatement
-                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`CYTOBAND`) "
-                                    + "VALUES (?,?,?)");
+                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`CYTOBAND`,`LENGTH`) "
+                                    + "VALUES (?,?,?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
                     pstmt.setString(3, gene.getCytoband());
+                    pstmt.setInt(4, gene.getLength());
                     rows += pstmt.executeUpdate();
-                    
+
                 }
-                    
+
                 rows += addGeneAliases(gene);
-                    
+
                 return rows;
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
             }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
     
@@ -134,7 +119,7 @@ class DaoGene {
      * @return number of records successfully added.
      * @throws DaoException Database Error.
      */
-    public int addGeneAliases(CanonicalGene gene)  throws DaoException {
+    public static int addGeneAliases(CanonicalGene gene)  throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -182,7 +167,7 @@ class DaoGene {
      * @return Canonical Gene Object.
      * @throws DaoException Database Error.
      */
-    public CanonicalGene getGene(long entrezGeneId) throws DaoException {
+    public static CanonicalGene getGene(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -210,7 +195,7 @@ class DaoGene {
      * @return a set of aliases.
      * @throws DaoException Database Error.
      */
-    private Set<String> getAliases(long entrezGeneId) throws DaoException {
+    private static Set<String> getAliases(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null, rs1 = null;
@@ -231,38 +216,6 @@ class DaoGene {
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
-    
-    /**
-     * 
-     * @return
-     * @throws DaoException 
-     */
-    private Map<Long,Set<String>> getAliases()  throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null, rs1 = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoGene.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM gene_alias");
-            rs = pstmt.executeQuery();
-            Map<Long,Set<String>> map = new HashMap<Long,Set<String>>();
-            while (rs.next()) {
-                long entrez = rs.getLong("ENTREZ_GENE_ID");
-                Set<String> aliases = map.get(entrez);
-                if (aliases==null) {
-                    aliases = new HashSet<String>();
-                    map.put(entrez, aliases);
-                }
-                aliases.add(rs.getString("GENE_ALIAS"));
-            }
-            return map;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
-        }
-    }
 
     /**
      * Gets all Genes in the Database.
@@ -270,9 +223,8 @@ class DaoGene {
      * @return ArrayList of Canonical Genes.
      * @throws DaoException Database Error.
      */
-    public ArrayList<CanonicalGene> getAllGenes() throws DaoException {
+    public static ArrayList<CanonicalGene> getAllGenes() throws DaoException {
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
-        Map<Long,Set<String>> mapEntrezAliases = getAliases();
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -300,7 +252,7 @@ class DaoGene {
      * @return Canonical Gene Object.
      * @throws DaoException Database Error.
      */
-    public CanonicalGene getGene(String hugoGeneSymbol) throws DaoException {
+    public static CanonicalGene getGene(String hugoGeneSymbol) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -322,12 +274,13 @@ class DaoGene {
         }
     }
     
-    private CanonicalGene extractGene(ResultSet rs) throws SQLException, DaoException {
+    private static CanonicalGene extractGene(ResultSet rs) throws SQLException, DaoException {
         long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
             Set<String> aliases = getAliases(entrezGeneId);
             CanonicalGene gene = new CanonicalGene(entrezGeneId,
                     rs.getString("HUGO_GENE_SYMBOL"), aliases);
             gene.setCytoband(rs.getString("CYTOBAND"));
+            rs.getInt("LENGTH");
             return gene;
     }
 
@@ -337,7 +290,7 @@ class DaoGene {
      * @return number of gene records.
      * @throws DaoException Database Error.
      */
-    public int getCount() throws DaoException {
+    public static int getCount() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -361,7 +314,7 @@ class DaoGene {
      * 
      * @param entrezGeneId 
      */
-    public void deleteGene(long entrezGeneId) throws DaoException {
+    public static void deleteGene(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -383,7 +336,7 @@ class DaoGene {
      * 
      * @param entrezGeneId 
      */
-    public void deleteGeneAlias(long entrezGeneId) throws DaoException {
+    public static void deleteGeneAlias(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -404,7 +357,7 @@ class DaoGene {
      *
      * @throws DaoException Database Error.
      */
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -420,7 +373,7 @@ class DaoGene {
         deleteAllAliasRecords();
     }
     
-    private void deleteAllAliasRecords() throws DaoException {
+    private static void deleteAllAliasRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

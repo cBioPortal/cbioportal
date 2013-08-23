@@ -48,8 +48,7 @@ public class TestImportGeneData extends TestCase {
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/genes_test.txt");
-        ImportGeneData parser = new ImportGeneData(file, pMonitor);
-        parser.importData();
+        ImportGeneData.importData(pMonitor, file);
 
         CanonicalGene gene = daoGene.getGene(10);
         assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());

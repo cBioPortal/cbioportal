@@ -84,6 +84,21 @@ public class PancancerMutationsJSON extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        Collection<String> hugos = new ArrayList<String>();
+        hugos.add("EGFR");
+
+        Collection<Integer> profileIds = new ArrayList<Integer>();
+        profileIds.add(5);
+
+        try {
+            Collection<Map<String, Object>> data = DaoMutation.countSamplesWithGenes(hugos, profileIds);
+
+            System.out.println(data);
+
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        }
+
         String mutationKeysRawJson = request.getParameter("mutation_keys");
 
         if (mutationKeysRawJson == null || mutationKeysRawJson.equals("")) {

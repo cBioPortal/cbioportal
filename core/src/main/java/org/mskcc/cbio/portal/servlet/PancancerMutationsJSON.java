@@ -105,7 +105,6 @@ public class PancancerMutationsJSON extends HttpServlet {
             for (GeneticProfile geneticProfile : geneticProfiles) {
 
                 if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
-
                     internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
                 }
             }

@@ -912,7 +912,7 @@ public final class DaoMutation {
      *
      * @param keywords
      * @param internalProfileIds
-     * @return Collection of Maps {"keyword" , "cancer_study" , "count"} where cancer_study = cancerStudy.getName();
+     * @return Collection of Maps {"keyword" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
      * @throws DaoException
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      */
@@ -950,6 +950,85 @@ public final class DaoMutation {
                 String cancerType = cancerStudy.getTypeOfCancerId();
 
                 d.put("keyword", keyword);
+                d.put("cancer_study", name);
+                d.put("cancer_type", cancerType);
+                d.put("count", count);
+
+                data.add(d);
+            }
+
+            return data;
+
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
+
+    /**
+     *
+     * Counts up all the samples that have any mutation in a gene by genomic profile (ids)
+     *
+     * @param hugos
+     * @param internalProfileIds
+     * @return Collection of Maps {"gene" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
+     * and gene is the hugo gene symbol.
+     *
+     * @throws DaoException
+     * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+     */
+    public static Collection<Map<String, Object>> countSamplesWithGenes(Collection<String> hugos, Collection<Integer> internalProfileIds) throws DaoException {
+
+        // convert hugos to entrezs
+        // and simultaneously construct a map to turn them back into hugo gene symbols later
+        List<Long> entrezs = new ArrayList<Long>();
+        Map<Long, CanonicalGene> entrez2CanonicalGene = new HashMap<Long, CanonicalGene>();
+        DaoGene daoGene = DaoGene.getInstance();
+        for (String hugo : hugos) {
+            CanonicalGene canonicalGene = daoGene.getGene(hugo);
+            Long entrez = canonicalGene.getEntrezGeneId();
+
+            entrezs.add(entrez);
+            entrez2CanonicalGene.put(entrez, canonicalGene);
+        }
+
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+
+            String sql = "select mutation.ENTREZ_GENE_ID, mutation.GENETIC_PROFILE_ID, count(distinct CASE_ID) from mutation, mutation_event\n" +
+                    "where GENETIC_PROFILE_ID in (" + StringUtils.join(internalProfileIds, ",") + ")\n" +
+                    "and mutation.ENTREZ_GENE_ID in (" + StringUtils.join(entrezs, ",")  + ")\n" +
+                    "and mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID\n" +
+                    "group by ENTREZ_GENE_ID, GENETIC_PROFILE_ID";
+
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+
+            Collection<Map<String, Object>> data = new ArrayList<Map<String, Object>>();
+            while (rs.next()) {
+
+                Map<String, Object> d = new HashMap<String, Object>();
+
+                Long entrez = rs.getLong(1);
+                Integer geneticProfileId = rs.getInt(2);
+                Integer count = rs.getInt(3);
+
+                // can you do the boogie woogie to get a cancerStudy's name?
+                // this is computing a join and in not optimal
+                GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+                Integer cancerStudyId = geneticProfile.getCancerStudyId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String name = cancerStudy.getName();
+                String cancerType = cancerStudy.getTypeOfCancerId();
+
+                CanonicalGene canonicalGene = entrez2CanonicalGene.get(entrez);
+                String hugo = canonicalGene.getHugoGeneSymbolAllCaps();
+
+                d.put("gene", hugo);
                 d.put("cancer_study", name);
                 d.put("cancer_type", cancerType);
                 d.put("count", count);

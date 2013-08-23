@@ -59,10 +59,8 @@ public class DaoGeneOptimized {
      */
     private DaoGeneOptimized () {
         try {
-            DaoGene daoGene = DaoGene.getInstance();
-
             //  Automatically populate hashmap upon init
-            ArrayList<CanonicalGene> globalGeneList = daoGene.getAllGenes();
+            ArrayList<CanonicalGene> globalGeneList = DaoGene.getAllGenes();
             for (CanonicalGene currentGene:  globalGeneList) {
                 cacheGene(currentGene);
             }
@@ -99,20 +97,34 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     public int addGene(CanonicalGene gene) throws DaoException {
-        DaoGene daoGene = DaoGene.getInstance();
         int ret;
         if (gene.getEntrezGeneId()>0) {
-            ret = daoGene.addGene(gene);
+            ret = DaoGene.addGene(gene);
         } else {
-            ret = daoGene.addGeneWithoutEntrezGeneId(gene);
+            ret = DaoGene.addGeneWithoutEntrezGeneId(gene);
         }
         cacheGene(gene);
         return ret;
     }
     
+    /**
+     * Update database with gene length
+     * @return number of records updated.
+     * @throws DaoException 
+     */
+    public int flushUpdateToDatabase() throws DaoException {
+        DaoGene.deleteAllRecords();
+        MySQLbulkLoader.bulkLoadOn();
+        int ret = 0;
+        for (CanonicalGene gene : getAllGenes()) {
+            ret += DaoGene.addGene(gene);
+        }
+        MySQLbulkLoader.flushAll();
+        return ret;
+    }
+    
     public void deleteGene(CanonicalGene gene) throws DaoException {
-        DaoGene daoGene = DaoGene.getInstance();
-        daoGene.deleteGene(gene.getEntrezGeneId());
+        DaoGene.deleteGene(gene.getEntrezGeneId());
         geneSymbolMap.remove(gene.getHugoGeneSymbolAllCaps());
         for (String alias : gene.getAliases()) {
             String aliasUp = alias.toUpperCase();
@@ -253,7 +265,6 @@ public class DaoGeneOptimized {
      * @throws DaoException Database Error.
      */
     public void deleteAllRecords() throws DaoException {
-        DaoGene daoGene = DaoGene.getInstance();
-        daoGene.deleteAllRecords();
+        DaoGene.deleteAllRecords();
     }
 }

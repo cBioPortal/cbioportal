@@ -45,7 +45,7 @@ public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID = "CASE_ID";
+    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -76,9 +76,9 @@ public class ImportClinicalData {
         BufferedReader buff = new BufferedReader(reader);
 
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
+        int iCaseId = findCaseIDColumn(columnAttrs);
 
         String line;
-        List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
         while ((line = buff.readLine()) != null) {
             line = line.trim();
             
@@ -93,19 +93,10 @@ public class ImportClinicalData {
                 continue;
             }
             
-            String caseId = null;
+            String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
-                ClinicalData clinical = new ClinicalData();
-                clinical.setCancerStudyId(cancerStudy.getInternalId());
-
-                if (columnAttrs.get(i).getAttrId().equals(CASE_ID)) {
-                    caseId = fields[i];
-                    continue;
-                } else {
-                    clinical.setCaseId(caseId);
-                    clinical.setAttrId(columnAttrs.get(i).getAttrId());
-                    clinical.setAttrVal(fields[i]);
-                    clinicals.add(clinical);
+                if (i!=iCaseId) {
+                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
                 }
             }
         }
@@ -190,6 +181,16 @@ public class ImportClinicalData {
         }
 
         return attrs;
+    }
+    
+    private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
+        for (int i=0; i<attrs.size(); i++) {
+            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
+                return i;
+            }
+        }
+        
+        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
     }
 
     /**

@@ -86,6 +86,7 @@ public class ImportGeneData {
                 if (!cytoband.equals("-")) {
                     gene.setCytoband(cytoband);
                 }
+                gene.setType(type);
                 daoGene.addGene(gene);
             }
             line = buf.readLine();

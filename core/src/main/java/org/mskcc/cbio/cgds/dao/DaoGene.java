@@ -78,7 +78,7 @@ final class DaoGene {
         if (MySQLbulkLoader.isBulkLoad()) {
             //  write to the temp file maintained by the MySQLbulkLoader
             MySQLbulkLoader.getMySQLbulkLoader("gene").insertRecord(Long.toString(gene.getEntrezGeneId()),
-                    gene.getHugoGeneSymbolAllCaps(),gene.getCytoband(),gene.getLength()==0?null:Integer.toString(gene.getLength()));
+                    gene.getHugoGeneSymbolAllCaps(),gene.getType(),gene.getCytoband(),gene.getLength()==0?null:Integer.toString(gene.getLength()));
             addGeneAliases(gene);
             // return 1 because normal insert will return 1 if no error occurs
             return 1;
@@ -93,11 +93,12 @@ final class DaoGene {
                     con = JdbcUtil.getDbConnection(DaoGene.class);
                     pstmt = con.prepareStatement
                             ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`CYTOBAND`,`LENGTH`) "
-                                    + "VALUES (?,?,?,?)");
+                                    + "VALUES (?,?,?,?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());
-                    pstmt.setString(3, gene.getCytoband());
-                    pstmt.setInt(4, gene.getLength());
+                    pstmt.setString(3, gene.getType());
+                    pstmt.setString(4, gene.getCytoband());
+                    pstmt.setInt(5, gene.getLength());
                     rows += pstmt.executeUpdate();
 
                 }
@@ -280,7 +281,9 @@ final class DaoGene {
             CanonicalGene gene = new CanonicalGene(entrezGeneId,
                     rs.getString("HUGO_GENE_SYMBOL"), aliases);
             gene.setCytoband(rs.getString("CYTOBAND"));
-            rs.getInt("LENGTH");
+            gene.setLength(rs.getInt("LENGTH"));
+            gene.setType(rs.getString("TYPE"));
+            
             return gene;
     }
 

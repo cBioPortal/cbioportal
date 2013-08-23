@@ -112,6 +112,7 @@ drop table IF EXISTS gene;
 CREATE TABLE `gene` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
+  `TYPE` varchar(50),
   `CYTOBAND` varchar(50),
   `LENGTH` int(11),
   PRIMARY KEY  (`ENTREZ_GENE_ID`),

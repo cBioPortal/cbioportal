@@ -42,11 +42,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.BitSet;
 
 /**
  * Command Line Tool to Import Background Gene Data.
@@ -137,47 +136,21 @@ public class ImportGeneData {
     }
     
     private static int calculateGeneLength(List<long[]> loci) {
-        boolean[] remove = new boolean[loci.size()];
-        for (int i=1, n=loci.size(); i<n; i++) {
-            long[] curr = loci.get(i);
-            for (int j=0; j<i; j++) {
-                if (remove[j]) {
-                    continue;
-                }
-                long[] pre = loci.get(j);
-                if (curr[0]<pre[0]) {
-                    if (curr[1]<pre[0]) {
-                        // do nothing
-                    } else {
-                        pre[0] = curr[0];
-                        if (curr[1]>pre[1]) {
-                            pre[1] = curr[1];
-                        }
-                        remove[j] = true;
-                    }
-                } else { //curr[0]>=pre[0]
-                    if (curr[0]<=pre[1]) {
-                        if (curr[1]>pre[1]) {
-                            pre[1] = curr[1];
-                        }
-                        remove[j] = true;
-                    } else { //curr[0]>pre[0]
-                        // do nothing
-                    }
-                }
-                
+        long min = Long.MAX_VALUE, max=-1;
+        for (long[] l : loci) {
+            if (l[0]<min) {
+                min = l[0];
             }
+            if (l[1]>max) {
+                max = l[1];
+            }
+        }
+        BitSet bitSet = new BitSet((int)(max-min));
+        for (long[] l : loci) {
+            bitSet.set((int)(l[0]-min), ((int)(l[1]-min)));
         }
         
-        long len = 0;
-        for (int i=1, n=loci.size(); i<n; i++) {
-            if (remove[i]) {
-                continue;
-            }
-            long[] curr = loci.get(i);
-            len += curr[1]-curr[0];
-        }
-        return (int)len;
+        return bitSet.cardinality();
     }
 
     public static void main(String[] args) throws Exception {

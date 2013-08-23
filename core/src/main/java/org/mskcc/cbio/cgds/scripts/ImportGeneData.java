@@ -90,6 +90,7 @@ public class ImportGeneData {
             }
             line = buf.readLine();
         }
+        reader.close();
         if (MySQLbulkLoader.isBulkLoad()) {
            MySQLbulkLoader.flushAll();
         }        

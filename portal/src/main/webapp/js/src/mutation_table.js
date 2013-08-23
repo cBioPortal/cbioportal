@@ -170,7 +170,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		// add tooltip for COSMIC value
 		tableSelector.find('.mutation_table_cosmic').each(function() {
 			var label = this;
-			var cosmic = $(label).attr('alt');
+			var cosmic = JSON.parse($(label).attr('alt'));
 
 			// copy default qTip options and modify "content" to customize for cosmic
 			var qTipOptsCosmic = {};

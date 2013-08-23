@@ -159,7 +159,7 @@ public class ImportGeneData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.deleteAllRecords();
         if (args.length == 0) {
-            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <microrna.txt> <all_exon_loci.txt>");
+            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <microrna.txt> <all_exon_loci.bed>");
             System.exit(1);
         }
         ProgressMonitor pMonitor = new ProgressMonitor();

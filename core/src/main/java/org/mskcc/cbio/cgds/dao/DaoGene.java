@@ -92,7 +92,7 @@ final class DaoGene {
                 if (existingGene == null) {
                     con = JdbcUtil.getDbConnection(DaoGene.class);
                     pstmt = con.prepareStatement
-                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`CYTOBAND`,`LENGTH`) "
+                            ("INSERT INTO gene (`ENTREZ_GENE_ID`,`HUGO_GENE_SYMBOL`,`TYPE`,`CYTOBAND`,`LENGTH`) "
                                     + "VALUES (?,?,?,?,?)");
                     pstmt.setLong(1, gene.getEntrezGeneId());
                     pstmt.setString(2, gene.getHugoGeneSymbolAllCaps());

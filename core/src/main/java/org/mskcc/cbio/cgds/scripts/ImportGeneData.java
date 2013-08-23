@@ -158,7 +158,7 @@ public class ImportGeneData {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         daoGene.deleteAllRecords();
         if (args.length == 0) {
-            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <all_exon_loci.txt>");
+            System.out.println("command line usage:  importGenes.pl <ncbi_genes.txt> <microrna.txt> <all_exon_loci.txt>");
             System.exit(1);
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
@@ -175,7 +175,16 @@ public class ImportGeneData {
         System.err.println("Done.");
         
         if (args.length>=2) {
-            File lociFile = new File(args[1]);
+            File miRNAFile = new File(args[1]);
+            System.out.println("Reading miRNA data from:  " + miRNAFile.getAbsolutePath());
+            numLines = FileUtil.getNumLines(miRNAFile);
+            System.out.println(" --> total number of lines:  " + numLines);
+            pMonitor.setMaxValue(numLines);
+            ImportMicroRNAIDs.importData(pMonitor, miRNAFile);
+        }
+        
+        if (args.length>=3) {
+            File lociFile = new File(args[2]);
             System.out.println("Reading loci data from:  " + lociFile.getAbsolutePath());
             numLines = FileUtil.getNumLines(lociFile);
             System.out.println(" --> total number of lines:  " + numLines);

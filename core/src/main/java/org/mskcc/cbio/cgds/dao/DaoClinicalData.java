@@ -470,11 +470,11 @@ public final class DaoClinicalData {
 
             try{
                 con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-                pstmt = con.prepareStatement ("SELECT CASE_ID FROM `clinical_free_form`"
-                        + "WHERE CANCER_STUDY_ID="+cancerStudyId
-                        + " AND PARAM_NAME=? AND PARAM_VALUE=?");
-                pstmt.setString(1, paramName);
-                pstmt.setString(2, paramValue);
+                pstmt = con.prepareStatement ("SELECT CASE_ID FROM `clinical`"
+                        + "WHERE CANCER_STUDY_ID=? AND ATTR_ID=? AND ATTR_VALUE=?");
+                pstmt.setInt(1, cancerStudyId);
+                pstmt.setString(2, paramName);
+                pstmt.setString(3, paramValue);
                 rs = pstmt.executeQuery();
 
                 List<String> cases = new ArrayList<String>();

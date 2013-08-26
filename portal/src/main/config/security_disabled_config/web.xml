@@ -202,7 +202,7 @@
 
 	<servlet>
 		<servlet-name>mutation_3d_json</servlet-name>
-		<servlet-class>org.mskcc.cbio.portal.servlet.Mutation3dServlet</servlet-class>
+		<servlet-class>org.mskcc.cbio.portal.servlet.PdbDataServlet</servlet-class>
 	</servlet>
 
 	<servlet>

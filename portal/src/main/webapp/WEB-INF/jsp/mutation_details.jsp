@@ -6,6 +6,7 @@
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
 <script type="text/javascript" src="js/src/mutation_3d_viewer.js"></script>
+<script type="text/javascript" src="js/src/mutation_pdb_panel.js"></script>
 
 <div class='section' id='mutation_details'>
 	<img src='images/ajax-loader.gif'/>

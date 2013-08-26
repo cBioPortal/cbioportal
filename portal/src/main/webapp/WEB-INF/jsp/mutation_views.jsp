@@ -54,6 +54,12 @@
 				<div id='mutation_3d_{{geneSymbol}}' class="mutation-3d-view-container"></div>
 			</td>
 		</tr>
+		<tr>
+			<td>
+				<div id='mutation_pdb_panel_{{geneSymbol}}' class='mutation-pdb-panel-container'></div>
+			</td>
+			<td></td>
+		</tr>
 	</table>
 
 	<div class='mutation-details-filter-info'>
@@ -695,6 +701,9 @@
 				{
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
+
+					// draw pdb panel
+					var pdbPanel = self._drawPdbPanel(gene, pdbData, diagram);
 				}
 				else
 				{
@@ -804,6 +813,18 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
+		},
+		_drawPdbPanel: function(gene, pdbData, mutationDiagram)
+		{
+			var xScale = mutationDiagram.xScale;
+			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
+				marginLeft: mutationDiagram.options.marginLeft,
+				marginRight: mutationDiagram.options.marginRight};
+
+			var panel = new MutationPdbPanel(options, pdbData, xScale);
+			panel.init();
+
+			return panel;
 		}
 	});
 

@@ -298,6 +298,26 @@ public final class DaoMutation {
             }
             return mutationList;
         }
+    
+        public static boolean hasAlleleFrequencyData (int geneticProfileId, String caseId) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
+                pstmt = con.prepareStatement
+                        ("SELECT EXISTS (SELECT 1 FROM mutation "
+                        + "WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ? AND TUMOR_ALT_COUNT>=0 AND TUMOR_REF_COUNT>=0)");
+                pstmt.setInt(1, geneticProfileId);
+                pstmt.setString(2, caseId);
+                rs = pstmt.executeQuery();
+                return rs.next() && rs.getInt(1)==1;
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+            }
+        }
 
         public static ArrayList<ExtendedMutation> getSimilarMutations (long entrezGeneId, String aminoAcidChange, String excludeCaseId) throws DaoException {
             Connection con = null;

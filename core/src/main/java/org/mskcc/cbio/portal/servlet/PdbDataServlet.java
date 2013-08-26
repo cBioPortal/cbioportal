@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoException;
@@ -62,11 +63,8 @@ public class PdbDataServlet extends HttpServlet
 			final HttpServletResponse response)
 			throws ServletException, IOException
 	{
-		// final object to be send as JSON
-		JSONObject jsonObject = new JSONObject();
-
-		String pdbId = null;
-		String chainId = null;
+		// final array to be send as JSON
+		JSONArray jsonArray = new JSONArray();
 
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
@@ -76,22 +74,30 @@ public class PdbDataServlet extends HttpServlet
 		try
 		{
 			Map<String, Set<String>> pdbChainMap =
-				DaoPdbUniprotResidueMapping.mapToPdbChains(uniprotId);
+					DaoPdbUniprotResidueMapping.mapToPdbChains(uniprotId);
 
-			// TODO getting only the first pdb id
-			if (pdbChainMap.keySet().iterator().hasNext())
+			for (String pdbId : pdbChainMap.keySet())
 			{
-				pdbId = pdbChainMap.keySet().iterator().next();
+				JSONObject pdb = new JSONObject();
+				JSONArray chainArray = new JSONArray();
 
-				// TODO getting only the first chain
-				if (pdbChainMap.get(pdbId).iterator().hasNext())
+				pdb.put("pdbId", pdbId);
+
+				for (String chainId : pdbChainMap.get(pdbId))
 				{
-					chainId = pdbChainMap.get(pdbId).iterator().next();
-
 					// get the pdb positions corresponding to the given uniprot positions
 					positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
-						uniprotId, positions, pdbId, chainId);
+							uniprotId, positions, pdbId, chainId);
+
+					JSONObject chain = new JSONObject();
+
+					chain.put("chainId", chainId);
+					chain.put("positionMap", positionMap);
+					chainArray.add(chain);
 				}
+
+				pdb.put("chains", chainArray);
+				jsonArray.add(pdb);
 			}
 		}
 		catch (DaoException e)
@@ -99,11 +105,7 @@ public class PdbDataServlet extends HttpServlet
 			e.printStackTrace();
 		}
 
-		jsonObject.put("pdbId", pdbId);
-		jsonObject.put("chainId", chainId);
-		jsonObject.put("positionMap", positionMap);
-
-		this.writeOutput(response, jsonObject);
+		this.writeOutput(response, jsonArray);
 	}
 
 	protected Set<Integer> parsePositions(String positions)

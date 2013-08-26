@@ -69,15 +69,18 @@ var Pileup = Backbone.Model.extend({
 /**
  * PDB data model.
  *
- * Contains PDB id, chain id, and uniprot id info as well as a mapping for
- * pdb positions to uniprot positions.
+ * Contains PDB id and a chain list (where each element in the list has
+ * a chain id and a mapping for pdb positions to uniprot positions).
  */
 var PdbModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.pdbId = attributes.pdbId; // pdb id (e.g: 1d5r)
-		this.chainId = attributes.chainId; // chain id (e.g: A, B, etc.)
-		this.uniprotId = attributes.uniprotId; // uniprot id (e.g: PTEN_HUMAN)
-		this.positionMap = attributes.positionMap; // map of (uniprot position, pdb position) pairs
+
+		// each object in the chains array has two fields:
+		// chainId -> (e.g: A, B, etc.)
+		// and
+		// positionMap -> map of (uniprot position, pdb position) pairs
+		this.chains = attributes.chains; // array of chain id and position mapping pairs
 	}
 });
 
@@ -160,25 +163,37 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.processPdbData = function(gene, data)
 	{
-		var positionMap = {};
 		var mutations = this._mutationGeneMap[gene];
+		var pdbModel = null;
 
-		if (data.positionMap != null)
+		//TODO using only the first pdb id
+		if (data.length > 0)
 		{
-			// re-map mutation ids with positions by using the raw position map
-			for(var i=0; i < mutations.length; i++)
-			{
-				positionMap[mutations[i].mutationId] = {
-					start: data.positionMap[mutations[i].proteinPosStart],
-					end: data.positionMap[mutations[i].proteinPosEnd]};
-			}
+			var pdb = data[0];
+
+			_.each(pdb.chains, function(ele, idx) {
+				var positionMap = {};
+
+				if (ele.positionMap != null)
+				{
+					// re-map mutation ids with positions by using the raw position map
+					for(var i=0; i < mutations.length; i++)
+					{
+						positionMap[mutations[i].mutationId] = {
+							start: ele.positionMap[mutations[i].proteinPosStart],
+							end: ele.positionMap[mutations[i].proteinPosEnd]};
+					}
+				}
+
+				// update position map
+				ele.positionMap = positionMap;
+			});
+
+			pdbModel = new PdbModel(pdb);
 		}
 
-		// update position map
-		data.positionMap = positionMap;
-
 		// return new pdb model
-		return new PdbModel(data);
+		return pdbModel;
 	};
 
 	/**

@@ -118,10 +118,14 @@ var Mutation3dVis = function(name, options)
 
 		var selection = [];
 
+		// TODO select the correct chain wrt user selection
+		// ...(need to add the selection feature first)
+		var chain = pdbData.chains[0];
+
 		// highlight the positions (residues)
-		for (var mutationId in pdbData.positionMap)
+		for (var mutationId in chain.positionMap)
 		{
-			var pdbPos = pdbData.positionMap[mutationId];
+			var pdbPos = chain.positionMap[mutationId];
 			var posStr = pdbPos.start;
 
 			if (pdbPos.end > pdbPos.start)
@@ -129,15 +133,14 @@ var Mutation3dVis = function(name, options)
 				posStr += "-" + pdbPos.end;
 			}
 
-			selection.push(posStr + ":" + pdbData.chainId);
+			selection.push(posStr + ":" + chain.chainId);
 		}
 
 		// save current selection for a possible future restore
 		_initialSelection = selection;
 
 		var script = "ribbon ONLY;" + // show ribbon view
-		             //"color ribbons blue;" +
-		             "spin ON;" + // turn on spinning
+		             //"spin ON;" + // turn on spinning
 		             "select " + selection.join(", ") + ";" + // select positions
 		             "color purple;"; // color selection with a different color
 		             //"selectionHalos ON;";

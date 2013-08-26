@@ -95,6 +95,7 @@
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->

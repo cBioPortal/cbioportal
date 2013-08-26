@@ -22,53 +22,33 @@
 
 <div id="container" style="margin-left:50px; margin-top:50px;">
     <h1>Oncoprint</h1>
+    <p>(<a href="/faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
 
-    <form class="form-horizontal" enctype="multipart/form-data" method="post">
-       <p>Choose data files to upload</p>
+    <div id="inner-conainter" style="width:70%;">
+        <div id="error-box" style="display:none;" class="alert alert-error">There was an error with your file formats.</div>
 
-        <div class="control-group" style="margin-bottom:0;">
-            <label class="control-label" for="cna">Copy Number File</label>
-            <div class="controls">
-                <input id="cna" name="cna" type="file">
+        <p>
+            Copy Number files should be tab delimited. They should also have
+            the following fields, in this order, on the first line:
+            <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
+            sample ids.  Subsequant lines have data for hugo gene symbols,
+            entrez gene ids, and for each sample.  Data for each sample is
+            discrete, ranging from <code>-2</code> to <code>+2</code>.
+        </p>
+
+        <textarea id="cna-file-example" rows=5><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
+
+        <form id="cna-form" class="form-horizontal" enctype="multipart/form-data" method="post">
+            <div class="control-group" style="margin-bottom:0;">
+                <label class="control-label" for="cna">Copy Number File</label>
+                <div class="controls">
+                    <input id="cna" name="cna" type="file">
+                </div>
             </div>
-        </div>
-
-        <div class="control-group">
-            <label class="control-label" for="mutation">Mutation File</label>
-            <div class="controls">
-                <input id="mutation" name="mutation" type="file">
-            </div>
-        </div>
-
-        <div class="control-group" style="margin-top: 20px;">
-            <div class="controls">
-                <input id="submit" type="button" value="Create" class="btn">
-                <br/>
-                <br/>
-                <%--<progress></progress>--%>
-            </div>
-        </div>
-    </form>
-
-    <p>Example</p>
-
-    <div>
-        <div>
-            <p style="width:70%;">
-                Copy Number files should be tab delimited. They should also have
-                the following fields, in this order, on the first line:
-                <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-                sample ids.  Subsequant lines have data for hugo gene symbols,
-                entrez gene ids, and for each sample.  Data for each sample is
-                discrete, ranging from <code>-2</code> to <code>+2</code>.
-            </p>
-
-            <textarea id="cna-file-example" rows=5 style="width:70%;"><jsp:include page="WEB-INF/jsp/oncoprint/cna-file-example.txt"></jsp:include></textarea>
-
-        </div>
+        </form>
 
         <div style="margin-top:20px;">
-            <p style="width:70%;">
+            <p>
                 Mutation files should be tab delimited.  They should also have the
                 following fields, in this order, on the first line:
                 <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>,
@@ -77,9 +57,18 @@
             </p>
 
             <textarea id="mutation-file-example" rows=5 style="width:40%;"><jsp:include page="WEB-INF/jsp/oncoprint/mutation-file-example.txt"></jsp:include></textarea>
+
+            <form id="mutation-form" class="form-horizontal" enctype="multipart/form-data" method="post">
+                <div class="control-group">
+                    <label class="control-label" for="mutation">Mutation File</label>
+                    <div class="controls">
+                        <input id="mutation" name="mutation" type="file">
+                    </div>
+                </div>
+            </form>
         </div>
 
-        <button id="create_sample" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
+        <button id="create_oncoprint" type="button" class="btn" style="margin-top:20px; margin-bottom:20px;">Create</button>
     </div>
 
     <div id="oncoprint_controls" style="margin-bottom: 20px;"></div>

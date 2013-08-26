@@ -122,7 +122,7 @@ public class EchoFile extends HttpServlet {
         // catch all exceptions
         catch (Exception e) {
 
-            // log it
+            // "log" it
             System.out.println(e);
 
             // hide details from user

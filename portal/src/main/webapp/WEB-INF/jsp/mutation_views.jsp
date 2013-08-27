@@ -102,7 +102,7 @@
 			</a>
 		</td>
 		<td>
-			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
+			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
 		</td>
@@ -1249,7 +1249,7 @@
 			if (count > 0)
 			{
 				style = "mutation_table_cosmic";
-				cosmic = value;
+				cosmic = JSON.stringify(value);
 				text = count;
 			}
 
@@ -1332,32 +1332,14 @@
 		},
 		_parseCosmic: function(cosmic)
 		{
-			var parts = cosmic.split("|");
-			var dataRows = "";
+			var dataRows = [];
 
 			// COSMIC data (as AA change & frequency pairs)
-			for (var i=0; i < parts.length; i++)
-			{
-				var values = parts[i].split(/\(|\)/, 2);
+                        for (var aa in cosmic) {
+                            dataRows.push( aa + "</td><td>" + cosmic[aa]);
+                        }
 
-				if (values.length < 2)
-				{
-					// skip values with no count information
-					continue;
-				}
-
-				// skip data starting with p.? or ?
-				var unknownCosmic = values[0].indexOf("p.?") == 0 ||
-				                    values[0].indexOf("?") == 0;
-
-				if (!unknownCosmic)
-				{
-					dataRows += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
-					//$("#cosmic-details-table").dataTable().fnAddData(values);
-				}
-			}
-
-			return dataRows;
+			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},
 		compileTemplate: function()
 		{

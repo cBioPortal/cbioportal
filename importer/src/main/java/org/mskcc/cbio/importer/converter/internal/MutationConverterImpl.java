@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.util.MapperUtil;
+import org.mskcc.cbio.importer.util.MutationFileUtil;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
@@ -145,7 +146,6 @@ public class MutationConverterImpl implements Converter {
 			return;
 		}
 		DataMatrix dataMatrix = dataMatrices[0];
-		//dataMatrix.convertCaseIDs(Converter.MUTATION_CASE_ID_COLUMN_HEADER);
 		List<String> columnHeaders = dataMatrix.getColumnHeaders();
 
 		if (LOG.isInfoEnabled()) {
@@ -166,7 +166,7 @@ public class MutationConverterImpl implements Converter {
 									datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 		}
 		// override file does not exist, we will have to create a staging file - check if file needs to be oncotated
-		else if (columnHeaders.contains("ONCOTATOR_VARIANT_CLASSIFICATION")) {
+		else if (MutationFileUtil.isOncotated(columnHeaders)) {
 			// we should almost always never get here - when do we have an oncated maf that doesn't exist
 			// in overrides?  ...when firehose starts providing oncotated mafs, thats when...
 			if (LOG.isInfoEnabled()) {

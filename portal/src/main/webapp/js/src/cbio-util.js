@@ -10,29 +10,29 @@ cbio.util = (function() {
         if (0.000001 <= number && number < threshold) {
             return number.toExponential(precision);
         }
-        
+
         var ret = number.toPrecision(precision);
         if (ret.indexOf(".")!==-1)
             ret = ret.replace(/\.?0+$/,'');
-        
+
         return ret;
     };
-    
+
     var getObjectLength = function(object) {
         var length = 0;
 
         for (var i in object) {
-          if (Object.prototype.hasOwnProperty.call(object, i)){
-            length++;
-          }
+            if (Object.prototype.hasOwnProperty.call(object, i)){
+                length++;
+            }
         }
         return length;
     };
-    
+
     var checkNullOrUndefined = function(o) {
         return o === null || typeof o === "undefined";
     };
-    
+
     var arrayToAssociatedArrayIndices = function(arr, offset) {
         if (checkNullOrUndefined(offset)) offset=0;
         var aa = {};
@@ -82,32 +82,32 @@ cbio.util = (function() {
         yLabels.attr("y", yy + shiftValueOnY);
     };
 
-	/**
-	 * Determines the longest common starting substring
-	 * for the given two strings
-	 *
-	 * @param str1  first string
-	 * @param str2  second string
-	 * @return {String} longest common starting substring
-	 */
-	var lcss = function (str1, str2)
-	{
-		var i = 0;
+    /**
+     * Determines the longest common starting substring
+     * for the given two strings
+     *
+     * @param str1  first string
+     * @param str2  second string
+     * @return {String} longest common starting substring
+     */
+    var lcss = function (str1, str2)
+    {
+        var i = 0;
 
-		while (i < str1.length && i < str2.length)
-		{
-			if (str1[i] === str2[i])
-			{
-				i++;
-			}
-			else
-			{
-				break;
-			}
-		}
+        while (i < str1.length && i < str2.length)
+        {
+            if (str1[i] === str2[i])
+            {
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
 
-		return str1.substring(0, i);
-	};
+        return str1.substring(0, i);
+    };
 
     return {
         toPrecision: toPrecision,
@@ -115,7 +115,7 @@ cbio.util = (function() {
         checkNullOrUndefined: checkNullOrUndefined,
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
-	    lcss: lcss
+        lcss: lcss
     };
 
 })();

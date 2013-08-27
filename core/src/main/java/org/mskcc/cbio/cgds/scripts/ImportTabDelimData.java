@@ -43,6 +43,7 @@ import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
 
 /**
  * Code to Import Copy Number Alteration or MRNA Expression Data.
@@ -128,6 +129,7 @@ public class ImportTabDelimData {
             caseIds = new String[parts.length - 2];
             System.arraycopy(parts, 2, caseIds, 0, parts.length - 2);
         }
+		convertBarcodes(caseIds);
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
 
         // Add Cases to the Database
@@ -150,6 +152,8 @@ public class ImportTabDelimData {
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
 
+        int lenParts = parts.length;
+        
         while (line != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
@@ -159,9 +163,14 @@ public class ImportTabDelimData {
             //  Ignore lines starting with #
             if (!line.startsWith("#") && line.trim().length() > 0) {
                 parts = line.split("\t",-1);
+                
+                if (parts.length>lenParts) {
+                    System.err.println("The following line has more fields (" + parts.length
+                            + ") than the headers(" + lenParts + "): \n"+parts[0]);
+                }
 
                 int startIndex = getStartIndex();
-                String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length);
+                String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length>lenParts?lenParts:parts.length);
 
                 String method = null;
                 String geneId = null;
@@ -286,4 +295,11 @@ public class ImportTabDelimData {
     }
         return startIndex;
     }
+
+	private void convertBarcodes(String caseIds[])
+	{
+		for (int lc = 0; lc < caseIds.length; lc++) {
+			caseIds[lc] = CaseIdUtil.getCaseId(caseIds[lc]);
+		}
+	}
 }

@@ -15,6 +15,13 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
+		this.cosmicCount = 0;
+                if (this.cosmic) {
+                    for (var aa in this.cosmic) {
+                        this.cosmicCount += this.cosmic[aa];
+                    }
+                }
+                
 		this.functionalImpactScore = attributes.functionalImpactScore;
 		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;
@@ -39,8 +46,9 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.proteinPosStart = attributes.proteinPosStart;
+		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
-		this.cosmicCount = attributes.cosmicCount; // TODO calculate this on the client side?
 		this.specialGeneData = attributes.specialGeneData;
 	},
 	url: function() {

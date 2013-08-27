@@ -83,7 +83,7 @@ public class MutationsJSON extends HttpServlet {
             if (mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
                 mutations = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(),patients);
-                cosmic = getCosmic(mutations);
+                cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
                 String concatEventIds = getConcatEventIds(mutations);
                 int profileId = mutationProfile.getGeneticProfileId();
                 daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -460,34 +460,6 @@ public class MutationsJSON extends HttpServlet {
             }
         }
         return mapGeneQvalue.get(gene);
-    }
-    
-    /**
-     * 
-     * @param mutations
-     * @return Map of event id to map of aa change to count
-     * @throws DaoException 
-     */
-    private Map<Long, Map<String,Integer>> getCosmic(
-            List<ExtendedMutation> mutations) throws DaoException {
-        Set<Long> mutIds = new HashSet<Long>(mutations.size());
-        for (ExtendedMutation mut : mutations) {
-            mutIds.add(mut.getMutationEventId());
-        }
-        
-        Map<Long, List<CosmicMutationFrequency>> map = 
-                DaoMutation.getCosmicMutationFrequency(mutIds);
-        Map<Long, Map<String,Integer>> ret
-                = new HashMap<Long, Map<String,Integer>>(map.size());
-        for (Map.Entry<Long, List<CosmicMutationFrequency>> entry : map.entrySet()) {
-            Long id = entry.getKey();
-            Map<String,Integer> mapSI = new HashMap<String,Integer>();
-            for (CosmicMutationFrequency cmf : entry.getValue()) {
-                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
-            }
-            ret.put(id, mapSI);
-        }
-        return ret;
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

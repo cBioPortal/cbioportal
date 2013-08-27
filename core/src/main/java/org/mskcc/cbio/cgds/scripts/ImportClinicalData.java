@@ -39,12 +39,13 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 
 public class ImportClinicalData {
 
     public static final String METADATA_PREIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID = "CASE_ID";
+    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
 
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
@@ -70,42 +71,40 @@ public class ImportClinicalData {
      * @throws org.mskcc.cbio.cgds.dao.DaoException
      */
     public void importData() throws IOException, DaoException {
-
+        MySQLbulkLoader.bulkLoadOn();
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
 
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
+        int iCaseId = findCaseIDColumn(columnAttrs);
 
-        String line = buff.readLine();
-        List<ClinicalData> clinicals = new ArrayList<ClinicalData>();
-        while (line != null) {
-
-            if (line.substring(0,1).equals(METADATA_PREIX)) {
+        String line;
+        while ((line = buff.readLine()) != null) {
+            line = line.trim();
+            
+            if (line.isEmpty() || line.substring(0,1).equals(METADATA_PREIX)) {
                 // ignore lines with the METADATA_PREFIX
-                line = buff.readLine();
                 continue;
             }
 
             String[] fields = line.split(DELIMITER);
-            String caseId = null;
+            if (fields.length > columnAttrs.size()) {
+                System.err.println("more attributes than header: "+line);
+                continue;
+            }
+            
+            String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
-                ClinicalData clinical = new ClinicalData();
-                clinical.setCancerStudyId(cancerStudy.getInternalId());
-
-                if (columnAttrs.get(i).getAttrId().equals(CASE_ID)) {
-                    caseId = fields[i];
-                    continue;
-                } else {
-                    clinical.setCaseId(caseId);
-                    clinical.setAttrId(columnAttrs.get(i).getAttrId());
-                    clinical.setAttrVal(fields[i]);
-                    clinicals.add(clinical);
+                if (i!=iCaseId) {
+                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
                 }
             }
-            line = buff.readLine();
         }
-        DaoClinicalData.addAllData(clinicals);
-	}
+        
+        if (MySQLbulkLoader.isBulkLoad()) {
+            MySQLbulkLoader.flushAll();
+        }
+    }
 
     /**
      *
@@ -138,7 +137,7 @@ public class ImportClinicalData {
 
 				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, pMonitor);
                 importClinicalData.importData();
-                System.err.println("Success!");
+                System.out.println("Success!");
 			}
 		}
 		catch (Exception e) {
@@ -182,6 +181,16 @@ public class ImportClinicalData {
         }
 
         return attrs;
+    }
+    
+    private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
+        for (int i=0; i<attrs.size(); i++) {
+            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
+                return i;
+            }
+        }
+        
+        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
     }
 
     /**

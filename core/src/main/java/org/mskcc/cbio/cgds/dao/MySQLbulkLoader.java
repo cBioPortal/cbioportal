@@ -142,17 +142,17 @@ public class MySQLbulkLoader {
          return;
       }
       try {
-         tempFileWriter.write( fieldValues[0] );
+         tempFileWriter.write( fieldValues[0]==null ? "\\N" : fieldValues[0] );
          for( int i=1; i<fieldValues.length; i++ ){
             tempFileWriter.write( "\t" );
-            tempFileWriter.write( fieldValues[i] );
+            tempFileWriter.write( fieldValues[i]==null ? "\\N" : fieldValues[i] );
          }
          tempFileWriter.newLine();
 
          if( rows++ < numDebuggingRowsToPrint ){
-            StringBuffer sb = new StringBuffer( fieldValues[0] );
+            StringBuffer sb = new StringBuffer( fieldValues[0]==null ? "\\N" : fieldValues[0] );
             for( int i=1; i<fieldValues.length; i++ ){
-               sb.append( "\t" ).append( fieldValues[i] );
+               sb.append( "\t" ).append( fieldValues[i]==null ? "\\N" : fieldValues[i] );
             }
             System.err.println( "MySQLbulkLoader: Wrote " + sb.toString() + " to '" + tempFileName + "'.");
          }

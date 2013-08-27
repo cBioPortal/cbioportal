@@ -112,6 +112,9 @@ drop table IF EXISTS gene;
 CREATE TABLE `gene` (
   `ENTREZ_GENE_ID` int(255) NOT NULL,
   `HUGO_GENE_SYMBOL` varchar(255) NOT NULL,
+  `TYPE` varchar(50),
+  `CYTOBAND` varchar(50),
+  `LENGTH` int(11),
   PRIMARY KEY  (`ENTREZ_GENE_ID`),
   KEY `HUGO_GENE_SYMBOL` (`HUGO_GENE_SYMBOL`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -233,7 +236,6 @@ CREATE TABLE `mutation_event` (
   `DB_SNP_RS` varchar(25),
   `DB_SNP_VAL_STATUS` varchar(255),
   `ONCOTATOR_DBSNP_RS` varchar(255),
-  `ONCOTATOR_COSMIC_OVERLAPPING` varchar(3072),
   `ONCOTATOR_REFSEQ_MRNA_ID` varchar(64),
   `ONCOTATOR_CODON_CHANGE` varchar(255),
   `ONCOTATOR_UNIPROT_ENTRY_NAME` varchar(64),
@@ -557,22 +559,20 @@ CREATE TABLE `copy_number_seg` (
 
 drop table IF EXISTS cosmic_mutation;
 CREATE TABLE `cosmic_mutation` (
-  `COSMIC_MUTATION_ID` int(255) NOT NULL auto_increment COMMENT 'this is not a real COSMIC ID but an internal one', 
+  `COSMIC_MUTATION_ID` varchar(30) NOT NULL,
+  `CHR` varchar(5),
+  `START_POSITION` bigint(20),
+  `REFERENCE_ALLELE` varchar(255),
+  `TUMOR_SEQ_ALLELE` varchar(255),
+  `STRAND` varchar(2),
+  `CODON_CHANGE` varchar(255),
   `ENTREZ_GENE_ID` int(255) NOT NULL,
-  `AMINO_ACID_CHANGE` varchar(255) NOT NULL,
+  `PROTEIN_CHANGE` varchar(255) NOT NULL,
   `COUNT` int(11) NOT NULL,
+  `KEYWORD` varchar(50) DEFAULT NULL,
+  KEY (`KEYWORD`),
   PRIMARY KEY (`COSMIC_MUTATION_ID`),
-  UNIQUE (`ENTREZ_GENE_ID`,`AMINO_ACID_CHANGE`),
   FOREIGN KEY (`ENTREZ_GENE_ID`) REFERENCES `gene` (`ENTREZ_GENE_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
-
-drop table IF EXISTS mutation_event_cosmic_mapping;
-CREATE TABLE `mutation_event_cosmic_mapping` (
-  `MUTATION_EVENT_ID` int(255) NOT NULL,
-  `COSMIC_MUTATION_ID` int(255) NOT NULL,
-  PRIMARY KEY (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`),
-  FOREIGN KEY (`MUTATION_EVENT_ID`) REFERENCES `mutation_event` (`MUTATION_EVENT_ID`),
-  FOREIGN KEY (`COSMIC_MUTATION_ID`) REFERENCES `cosmic_mutation` (`COSMIC_MUTATION_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 drop table IF EXISTS clinical_trials; 

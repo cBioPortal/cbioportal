@@ -890,10 +890,26 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 	{
 		var types = PileupUtil.getMutationTypeArray(pileup);
 
+		// check tie condition
 		if (types.length > 1 &&
 		    types[0].count == types[1].count)
 		{
-			value = color.default;
+			var groups = PileupUtil.getMutationTypeGroups(pileup);
+
+			// if all of the same group (for example: all truncating mutations)
+			if (groups.length == 1)
+			{
+				// color with the group color
+				// (assuming all types have the same color)
+				// TODO define group colors explicitly to be safer
+				value = color[types[0].type];
+			}
+			// if not of the same group
+			else
+			{
+				// use default color
+				value = color.default;
+			}
 		}
 		else if (color[types[0].type] == undefined)
 		{

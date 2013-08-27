@@ -85,6 +85,16 @@ var PdbModel = Backbone.Model.extend({
 });
 
 /**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbCollection = Backbone.Collection.extend({
+	model: PdbModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+/**
  * Collection of mutations (MutationModel instances).
  */
 var MutationCollection = Backbone.Collection.extend({
@@ -159,12 +169,13 @@ var MutationDetailsUtil = function(mutations)
 	 *
 	 * @param gene  hugo gene symbol
 	 * @param data  pdb data with a position map
-	 * @return {PdbModel}   PdbModel instance representing the processed data
+	 * @return {PdbCollection}   PdbModel instances representing the processed data
 	 */
 	this.processPdbData = function(gene, data)
 	{
 		var mutations = this._mutationGeneMap[gene];
 		var pdbModel = null;
+		var pdbList = [];
 
 		//TODO using only the first pdb id
 		if (data.length > 0)
@@ -190,10 +201,11 @@ var MutationDetailsUtil = function(mutations)
 			});
 
 			pdbModel = new PdbModel(pdb);
+			pdbList.push(pdbModel);
 		}
 
 		// return new pdb model
-		return pdbModel;
+		return new PdbCollection(pdbList);
 	};
 
 	/**

@@ -94,9 +94,6 @@
 		padding-top: 10px;
 		padding-left: 10px;
 	}
-	.mutation-diagram-container {
-		margin-bottom: 10px;
-	}
 	.mutation-details-filter-info {
 		font-size: 14px;
 		font-family: verdana,arial,sans-serif;

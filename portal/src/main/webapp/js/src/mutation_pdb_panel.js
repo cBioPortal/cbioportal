@@ -2,7 +2,7 @@
  * Constructor for the MutationPdbPanel class.
  *
  * @param options   visual options object
- * @param data      PDB data
+ * @param data      PDB data (collection of PdbModel instances)
  * @param xScale    scale function for the x axis
  * @constructor
  */
@@ -26,6 +26,9 @@ function MutationPdbPanel(options, data, xScale)
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
+	// reference to the main svg element
+	var _svg = null;
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -40,8 +43,9 @@ function MutationPdbPanel(options, data, xScale)
 		// TODO using only the first PDB id
 		if (data.length > 0)
 		{
-			var pdb = data[0];
+			var pdb = data.at(0);
 
+			// create a rectangle for each chain
 			_.each(pdb.chains, function(ele, idx) {
 				// TODO ele.start & ele.end is not defined yet...
 				//var start = ele.start;
@@ -64,6 +68,9 @@ function MutationPdbPanel(options, data, xScale)
 					.attr('y', y)
 					.attr('width', width)
 					.attr('height', height);
+
+				// bind chain data to the rectangle
+				rect.datum({pdbId: pdb.pdbId, chain: ele});
 			});
 		}
 	}
@@ -83,13 +90,44 @@ function MutationPdbPanel(options, data, xScale)
 		// init svg container
 		var container = d3.select(_options.el);
 
+		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
 		                    _options.elHeight);
 
+		_svg = svg;
+
+		// draw the panel
 		drawPanel(svg, _options, data, xScale);
 	}
 
-	return {init: init};
+	/**
+	 * Adds an event listener for specific diagram elements.
+	 *
+	 * @param selector  selector string for elements
+	 * @param event     name of the event
+	 * @param handler   event handler function
+	 */
+	function addListener(selector, event, handler)
+	{
+		// TODO define string constants for selectors?
+
+		_svg.selectAll(selector).on(event, handler);
+	}
+
+	/**
+	 * Removes an event listener for specific diagram elements.
+	 *
+	 * @param selector  selector string for elements
+	 * @param event     name of the event
+	 */
+	function removeListener(selector, event)
+	{
+		_svg.selectAll(selector).on(event, null);
+	}
+
+	return {init: init,
+		addListener: addListener,
+		removeListener: removeListener};
 }
 

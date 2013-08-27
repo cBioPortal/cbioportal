@@ -668,6 +668,8 @@
 			// sequence information.
 			var init = function(sequence, pdbData)
 			{
+				// collection of pdb model instances
+				var pdbColl = self.util.processPdbData(gene, pdbData);
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
@@ -702,21 +704,26 @@
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
 
-					// draw pdb panel
-					var pdbPanel = self._drawPdbPanel(gene, pdbData, diagram);
+					// init the 3d view
+					var view3d = new Mutation3dView({
+						el: "#mutation_3d_" + gene,
+						model: pdbColl,
+						mut3dVis: self.options.mut3dVis});
+
+					view3d.render();
+
+					// init pdb panel
+					var pdbPanel = self._initPdbPanel(gene,
+							pdbColl,
+							diagram,
+							self.options.mut3dVis);
 				}
 				else
 				{
 					console.log("Error initializing mutation diagram: %s", gene);
 				}
 
-				// init the 3d view
-				var view3d = new Mutation3dView({
-					el: "#mutation_3d_" + gene,
-					model: self.util.processPdbData(gene, pdbData),
-					mut3dVis: self.options.mut3dVis});
 
-				view3d.render();
 
 				// draw mutation table after a short delay
 				setTimeout(function(){
@@ -814,15 +821,23 @@
 
 			return mutationDiagram;
 		},
-		_drawPdbPanel: function(gene, pdbData, mutationDiagram)
+		_initPdbPanel: function(gene, pdbColl, mutationDiagram, vis)
 		{
 			var xScale = mutationDiagram.xScale;
 			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
 				marginLeft: mutationDiagram.options.marginLeft,
 				marginRight: mutationDiagram.options.marginRight};
 
-			var panel = new MutationPdbPanel(options, pdbData, xScale);
+			// init panel
+			var panel = new MutationPdbPanel(options, pdbColl, xScale);
 			panel.init();
+
+			// TODO do not show the panel until Jmol button is clicked
+
+			// add event listeners for chain selection
+			panel.addListener("rect", "click", function(datum, index) {
+				vis.reload(datum.pdbId, datum.chain);
+			});
 
 			return panel;
 		}
@@ -835,7 +850,7 @@
 	 * ...actual viewer is a global instance bound to MainMutationView
 	 *
 	 * options: {el: [target container],
-	 *           model: PdbModel,
+	 *           model: PdbCollection (collection of PdbModel instances),
 	 *           mut3dVis: [optional] reference to the 3d structure visualizer
 	 *          }
 	 */
@@ -860,11 +875,15 @@
 			self.$el.find(".mutation-3d-vis").click(function() {
 				var vis = self.options.mut3dVis;
 
-				if (vis != null)
+				if (vis != null &&
+				    self.model.length > 0)
 				{
-					// reload the visualizer content with the current pdb data
+					// reload the visualizer content with the default pdb and chain
+					var pdbId = self.model.at(0).pdbId;
+					var chain = self.model.at(0).chains[0];
+
 					vis.show();
-					vis.reload(self.model);
+					vis.reload(pdbId, chain);
 				}
 			});
 		}

@@ -105,22 +105,20 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Reloads the protein view for the given PDB data
+	 * Reloads the protein view for the given PDB id
+	 * and the chain.
 	 *
-	 * @param pdbData   PDB data retrieved from the server
+	 * @param pdbId   PDB id
+	 * @param chain   chain with mapped positions
 	 */
-	function reload(pdbData)
+	function reload(pdbId, chain)
 	{
 		// TODO pdbId and/or chainId may be null
 
 		// load the corresponding pdb
-		Jmol.script(_applet, "load=" + pdbData.pdbId);
+		Jmol.script(_applet, "load=" + pdbId);
 
 		var selection = [];
-
-		// TODO select the correct chain wrt user selection
-		// ...(need to add the selection feature first)
-		var chain = pdbData.chains[0];
 
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)

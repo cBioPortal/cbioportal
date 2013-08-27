@@ -268,7 +268,6 @@ public final class DaoCancerStudy {
                 "delete from mutation where GENETIC_PROFILE_ID IN (select GENETIC_PROFILE_ID from genetic_profile where CANCER_STUDY_ID=?);",
                 "delete from case_list_list where LIST_ID IN (select LIST_ID from case_list where CANCER_STUDY_ID=?);",
                 "delete from clinical where CANCER_STUDY_ID=?;",
-                "delete from clinical_attribute where CANCER_STUDY_ID=?;",
                 "delete from copy_number_seg where CANCER_STUDY_ID=?;",
                 "delete from case_list where CANCER_STUDY_ID=?;",
                 "delete from genetic_profile where CANCER_STUDY_ID=?;",

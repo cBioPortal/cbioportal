@@ -73,43 +73,15 @@ public class PancancerMutationsJSON extends HttpServlet {
     }
 
     /**
-     * the request requires a parameter "mutation_keys" which is a JSON list of strings.
+     * iterate over all cancer studies, for each one grab all the genetic profiles,
+     * but only grab the ones that are mutation profiles,
+     * and for each mutation profile count samples by mutation keyword
      *
-     * @param request
-     * @param response
-     * @throws ServletException
-     * @throws IOException
+     * @param keywords  List of keywords as there are in the mutation sql table
+     * @return data     Collection of (Map: String -> Object)
+     * @throws DaoException
      */
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-        Collection<String> hugos = new ArrayList<String>();
-        hugos.add("EGFR");
-
-        Collection<Integer> profileIds = new ArrayList<Integer>();
-        profileIds.add(5);
-
-        try {
-            Collection<Map<String, Object>> data = DaoMutation.countSamplesWithGenes(hugos, profileIds);
-
-            System.out.println(data);
-
-        } catch (DaoException e) {
-            throw new ServletException(e);
-        }
-
-        String mutationKeysRawJson = request.getParameter("mutation_keys");
-
-        if (mutationKeysRawJson == null || mutationKeysRawJson.equals("")) {
-            throw new ServletException("no mutation_keys parameter provided");
-        }
-
-        JSONArray mutationKeys = (JSONArray) JSONValue.parse(mutationKeysRawJson);
-
-        // iterate over all cancer studies, for each one grab all the genetic profiles,
-        // only grab the ones that are mutation profiles,
-        // and for each mutation profile count samples by mutation keyword
+    public Collection<Map<String, Object>> byKeywords(List<String> keywords) throws DaoException {
         List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
         Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
         for (CancerStudy cancerStudy : allCancerStudies) {
@@ -126,19 +98,89 @@ public class PancancerMutationsJSON extends HttpServlet {
         }
 
         if (internalGeneticProfileIds.isEmpty()) {
-            throw new ServletException("no genetic_profile_ids found");
+            throw new DaoException("no genetic_profile_ids found");
         }
 
-        Collection<Map<String, Object>> data;
-        try {
-            data = DaoMutation.countSamplesWithKeywords(mutationKeys, internalGeneticProfileIds);
-        } catch (DaoException e) {
-            throw new ServletException(e);
+        Collection<Map<String, Object>> data = DaoMutation.countSamplesWithKeywords(keywords, internalGeneticProfileIds);
+
+        return data;
+    }
+
+    /**
+     *
+     * @param hugos
+     * @return
+     * @throws DaoException
+     */
+    public Collection<Map<String, Object>> byHugos(List<String> hugos) throws DaoException {
+        List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
+        Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
+
+        for (CancerStudy cancerStudy : allCancerStudies) {
+            Integer internalId = cancerStudy.getInternalId();
+
+            List<GeneticProfile> geneticProfiles = DaoGeneticProfile.getAllGeneticProfiles(internalId);
+
+            for (GeneticProfile geneticProfile : geneticProfiles) {
+
+                if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                    internalGeneticProfileIds.add(geneticProfile.getGeneticProfileId());
+                }
+            }
         }
 
+        if (internalGeneticProfileIds.isEmpty()) {
+            throw new DaoException("no genetic_profile_ids found");
+        }
 
+        Collection<Map<String, Object>> data = DaoMutation.countSamplesWithGenes(hugos, internalGeneticProfileIds);
+
+        return data;
+    }
+
+    /**
+     * the request requires a parameter "mutation_keys" which is a JSON list of strings.
+     *
+     * @param request
+     * @param response
+     * @throws ServletException
+     * @throws IOException
+     */
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        Collection<Map<String, Object>> data = null;
         PrintWriter writer = response.getWriter();
         response.setContentType("application/json");
+
+        String cmd = request.getParameter("cmd");
+        String query = request.getParameter("q");
+
+        if (query == null || query.equals("")) {
+            throw new ServletException("no q parameter provided");
+        }
+        JSONArray queryTerms = (JSONArray) JSONValue.parse(query);
+
+        if (cmd.equals("byKeywords")) {
+            try {
+                data = byKeywords(queryTerms);
+            } catch (DaoException e) {
+                throw new ServletException(e);
+            }
+        }
+
+        else if (cmd.equals("byHugos")) {
+            try {
+                data = byHugos(queryTerms);
+            } catch (DaoException e) {
+                throw new ServletException(e);
+            }
+        }
+
+        else {
+            throw new ServletException("cmd not found");
+        }
 
         JSONArray.writeJSONString((List) data, writer);
     }

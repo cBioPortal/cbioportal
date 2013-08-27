@@ -1321,12 +1321,12 @@
 		{
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
-				"aaSorting" : [ ], // do not sort by default
-				"sDom": 't', // show only the table
+				"aaSorting" : [[1, "desc"]], // sort by count at init
+				"sDom": 'tp', // show the table and the pagination buttons
 				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
 				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
 				"bDestroy": false,
-				"bPaginate": false,
+				"bPaginate": true,
 				"bJQueryUI": true,
 				"bFilter": false});
 		},
@@ -1335,9 +1335,9 @@
 			var dataRows = [];
 
 			// COSMIC data (as AA change & frequency pairs)
-                        for (var aa in cosmic) {
-                            dataRows.push( aa + "</td><td>" + cosmic[aa]);
-                        }
+			for (var aa in cosmic) {
+				dataRows.push( aa + "</td><td>" + cosmic[aa]);
+			}
 
 			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},

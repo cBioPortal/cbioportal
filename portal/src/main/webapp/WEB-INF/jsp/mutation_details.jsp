@@ -112,6 +112,9 @@
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
 	}
+	.cosmic-details-table {
+		font-size: 11px !important;
+	}
 	.left-align-td {
 		text-align: left;
 	}

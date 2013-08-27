@@ -531,6 +531,16 @@
         <url-pattern>/getProfileData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProteinArrayDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <url-pattern>/getProteinArrayData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>

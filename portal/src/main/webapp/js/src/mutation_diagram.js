@@ -1,5 +1,5 @@
 /**
- * Constructor for MutationDiagram class.
+ * Constructor for the MutationDiagram class.
  *
  * @param geneSymbol    hugo gene symbol
  * @param options       visual options object
@@ -10,17 +10,39 @@ function MutationDiagram(geneSymbol, options, data)
 {
 	var self = this;
 
+	// event listeners
+	self.listeners = {};
+
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
-	self.data = data;
-	self.geneSymbol = geneSymbol;
-	self.svg = null; // init as null, will be assigned while creating the svg
+	self.rawData = data; // data returned by server
+	self.geneSymbol = geneSymbol; // hugo gene symbol
+	self.currentData = data; // current data set (updated after each filtering)
+
+	self.highlighted = {}; // map of highlighted circles (initially empty)
+	self.inTransition = false; // indicates if the diagram is in a graphical transition
+
+	// init other class members as null, will be assigned later
+	self.svg = null;    // svg element (d3)
+	self.bounds = null; // bounds of the plot area
+	self.data = null;   // processed data
+	self.gCircle = null; // svg group for lollipop circles
+	self.gLine = null;   // svg group for lollipop lines
+	self.gLabel = null;  // svg group for lollipop labels
+	self.xScale = null;  // scale function for x-axis
+	self.yScale = null;  // scale function for y-axis
+	self.topLabel = null;   // label on top-left corner of the diagram
+	self.xAxisLabel = null; // label for x-axis
+	self.yAxisLabel = null; // label for y-axis
+
 }
 
-// TODO add more options for a more customizable diagram:
-// default tooltip templates?
-// use percent values instead of pixel values for some components?
+// TODO use percent values instead of pixel values for some components?
+
+/**
+ * Default visual options.
+ */
 MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
@@ -64,8 +86,23 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
 	lollipopTextPadding: 5,         // padding between the label and the circle
 	lollipopTextAngle: 0,           // rotation angle for the lollipop label
-	lollipopFillColor: "#B40000",   // TODO more than one color wrt mutation type?
+//	lollipopFillColor: "#B40000",
+	lollipopFillColor: {            // color of the lollipop circle
+		missense_mutation: "#008000",
+		nonsense_mutation: "#FF0000",
+		nonstop_mutation: "#FF0000",
+		frame_shift_del: "#FF0000",
+		frame_shift_ins: "#FF0000",
+		in_frame_ins: "#000000",
+		in_frame_del: "#000000",
+		splice_site: "#FF0000",
+		other: "#808080",       // all other mutation types
+		default: "#800080"      // default is used when there is a tie
+	},
+	lollipopBorderColor: "#BABDB6",
+	lollipopBorderWidth: 0.5,
 	lollipopRadius: 3,              // radius of the lollipop circles
+	lollipopHighlightRadius: 6,     // radius of the highlighted lollipop circles
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
 	xAxisPadding: 10,           // padding between x-axis and the sequence
@@ -99,11 +136,13 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopTipFn: function (element, pileup) {
 		var mutationStr = pileup.count > 1 ? "mutations" : "mutation";
 
-		var text = "<b>" + pileup.count + " " + mutationStr + "</b>" +
-		           "<br/>Amino Acid Change: " + pileup.label;
+		var model = {count: pileup.count,
+			label: pileup.label};
 
-		// TODO find a better way to set font size
-		var options = {content: {text: '<font size="2">'+text+'</font>'},
+		var tooltipView = new LollipopTipView({model: model});
+		var content = tooltipView.compileTemplate();
+
+		var options = {content: {text: content},
 			hide: {fixed: true, delay: 100},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
@@ -117,13 +156,16 @@ MutationDiagram.prototype.defaultOpts = {
 	 * @param region    a JSON object representing the region
 	 */
 	regionTipFn: function (element, region) {
-		var text = region.metadata.identifier + " " +
-		           region.type.toLowerCase() + ", " +
-		           region.metadata.description +
-		           " (" + region.metadata.start + " - " + region.metadata.end + ")";
+		var model = {identifier: region.metadata.identifier,
+			type: region.type,
+			description: region.metadata.description,
+			start: region.metadata.start,
+			end: region.metadata.end};
 
-		// TODO find a better way to set font size
-		var options = {content: {text: '<font size="2">'+text+'</font>'},
+		var tooltipView = new RegionTipView({model: model});
+		var content = tooltipView.compileTemplate();
+
+		var options = {content: {text: content},
 			hide: {fixed: true, delay: 100},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
@@ -154,21 +196,33 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	bounds.x = self.options.marginLeft;
 	bounds.y = self.options.elHeight - self.options.marginBottom;
 
+	// save a reference for future access
+	self.bounds = bounds;
+
 	// helper function for actual initialization
 	var init = function(sequenceData) {
-		self.data = self.processData(self.data, sequenceData);
 
+		// create a data object
+		var data = {};
+		data.pileups = self.processData(self.rawData);
+		data.sequence = sequenceData;
+
+		// save a reference for future access
+		self.data = data;
+
+		// init svg container
 		var svg = self.createSvg(container,
 				self.options.elWidth,
 				self.options.elHeight);
 
+		// save a reference for future access
+		self.svg = svg;
+
+		// draw the whole diagram
 		self.drawDiagram(svg,
 				bounds,
 				self.options,
-				self.data);
-
-		// save a reference to svg element for future access
-		self.svg = svg;
+				data);
 	};
 
 	// if no sequence data is provided, try to get it from the servlet
@@ -185,20 +239,18 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	{
 		init(sequenceData);
 	}
-
 };
 
 /**
- * Processes the data returned from the server.
+ * Converts the mutation data returned from the server into
+ * a list of Pileup instances.
  *
- * @param mutationData  list of all mutations
- * @param sequenceData  sequence data returned from the servlet
- * @return      a new data object with pileup mutations and sequence data
+ * @param mutationData  list (MutationCollection) of mutations
+ * @return {Array}      a list of pileup mutations
  */
-MutationDiagram.prototype.processData = function (mutationData, sequenceData)
+MutationDiagram.prototype.processData = function (mutationData)
 {
 	var self = this;
-	var data = {};
 
 	// helper function to generate a label by joining all unique
 	// protein change information in the given array of mutations
@@ -277,7 +329,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 	}
 
 	// convert map into an array of piled mutation objects
-	var mutationList = [];
+	var pileupList = [];
 
 	for (var key in mutations)
 	{
@@ -288,11 +340,11 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		pileup.location = parseInt(key);
 		pileup.label = generateLabel(mutations[key]);
 
-		mutationList.push(new Pileup(pileup));
+		pileupList.push(new Pileup(pileup));
 	}
 
 	// sort (descending) the list wrt mutation count
-	mutationList.sort(function(a, b) {
+	pileupList.sort(function(a, b) {
 		var diff = b.count - a.count;
 
 		// if equal, then compare wrt position (for consistency)
@@ -304,10 +356,7 @@ MutationDiagram.prototype.processData = function (mutationData, sequenceData)
 		return diff;
 	});
 
-	data.mutations = mutationList;
-	data.sequence = sequenceData;
-
-	return data;
+	return pileupList;
 };
 
 /**
@@ -325,9 +374,9 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var sequenceLength = parseInt(data.sequence["length"]);
 
 	var xMax = Math.max(sequenceLength, options.minLengthX);
-	var yMax = Math.max(self.calcMaxCount(data.mutations), options.minLengthY);
+	var yMax = Math.max(self.calcMaxCount(data.pileups), options.minLengthY);
 	var regions = data.sequence.regions;
-	var mutations = data.mutations;
+	var pileups = data.pileups;
 	var seqTooltip = data.sequence.metadata.identifier + ", " +
 	               data.sequence.metadata.description + " (" + sequenceLength + "aa)";
 
@@ -335,9 +384,13 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		.domain([0, xMax])
 		.range([bounds.x, bounds.x + bounds.width]);
 
+	self.xScale = xScale;
+
 	var yScale = d3.scale.linear()
 		.domain([0, yMax])
 		.range([bounds.y, bounds.y - bounds.height]);
+
+	self.yScale = yScale;
 
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
@@ -360,27 +413,23 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		self.topLabel = self.drawTopLabel(svg, options, bounds);
 	}
 
-	// group for lollipop labels (draw labels first)
-	var gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
-	// group for lollipop lines (lines should be drawn before circles)
-	var gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
-	// group for lollipop circles (circles should be drawn later)
-	var gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+	// draw a fully transparent rectangle for proper background click handling
+	var rect = svg.append('rect')
+		.attr('fill', '#FFFFFF')
+		.attr('opacity', 0)
+		.attr('x', bounds.x)
+		.attr('y', bounds.y - bounds.height)
+		.attr('width', bounds.width)
+		.attr('height', bounds.height)
+		.attr('class', 'background');
 
-	// draw lollipop lines
-	for (var i = 0; i < mutations.length; i++)
-	{
-		self.drawLollipop(gCircle,
-				gLine,
-				mutations[i],
-				options,
-				bounds,
-				xScale,
-				yScale);
-	}
-
-	// draw lollipop labels
-	self.drawLollipopLabels(gText, mutations, options, xScale, yScale);
+	// draw the plot area content
+	self.drawPlot(svg,
+		pileups,
+		options,
+		bounds,
+		xScale,
+		yScale);
 
 	// draw sequence
 	var sequence = self.drawSequence(svg, options, bounds);
@@ -395,12 +444,68 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 };
 
 /**
+ * Draw lollipop lines, circles and labels on the plot area
+ * for the provided mutations (pileups).
+ *
+ * @param svg       svg container for the diagram
+ * @param pileups   array of mutations (pileups)
+ * @param options   options object
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param xScale    scale function for the x-axis
+ * @param yScale    scale function for the y-axis
+ */
+MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xScale, yScale)
+{
+	var self = this;
+
+	// group for lollipop labels (draw labels first)
+	var gText = self.gLabel;
+	if (gText === null)
+	{
+		gText = svg.append("g").attr("class", "mut-dia-lollipop-labels");
+		self.gLabel = gText;
+	}
+
+	// group for lollipop lines (lines should be drawn before circles)
+	var gLine = self.gLine;
+	if (gLine === null)
+	{
+		gLine = svg.append("g").attr("class", "mut-dia-lollipop-lines");
+		self.gLine = gLine;
+	}
+
+	// group for lollipop circles (circles should be drawn later)
+	var gCircle = self.gCircle;
+	if (gCircle === null)
+	{
+		gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
+		self.gCircle = gCircle;
+	}
+
+	// draw lollipop lines and circles
+	for (var i = 0; i < pileups.length; i++)
+	{
+		self.drawLollipop(gCircle,
+				gLine,
+				pileups[i],
+				options,
+				bounds,
+				xScale,
+				yScale);
+	}
+
+	// draw lollipop labels
+	self.drawLollipopLabels(gText, pileups, options, xScale, yScale);
+};
+
+/**
  * Creates the main svg (graphical) component.
  *
  * @param container main container (div, etc.)
  * @param width     width of the svg area
  * @param height    height of the svg area
- * @return          svg component
+ * @return {object} svg component
  */
 MutationDiagram.prototype.createSvg = function (container, width, height)
 {
@@ -477,7 +582,7 @@ MutationDiagram.prototype.getTickValues = function(maxValue, interval)
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          svg group containing all the axis components
+ * @return {object} svg group containing all the axis components
  */
 MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bounds)
 {
@@ -557,7 +662,7 @@ MutationDiagram.prototype.drawXAxis = function(svg, xScale, xMax, options, bound
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          svg group containing all the axis components
+ * @return {object} svg group containing all the axis components
  */
 MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bounds)
 {
@@ -619,7 +724,7 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          text label (svg element)
+ * @return {object} text label (svg element)
  */
 MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
 {
@@ -649,7 +754,7 @@ MutationDiagram.prototype.drawTopLabel = function(svg, options, bounds)
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          text label (svg element)
+ * @return {object} text label (svg element)
  */
 MutationDiagram.prototype.drawYAxisLabel = function(svg, options, bounds)
 {
@@ -720,7 +825,7 @@ MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, font
  *                  x, y is the actual position of the origin
  * @param xScale    scale function for the x-axis
  * @param yScale    scale function for the y-axis
- * @return          object (lollipop circle & line as svg elements)
+ * @return {object} lollipop circle & line as svg elements
  */
 MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, options, bounds, xScale, yScale)
 {
@@ -736,7 +841,12 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('cx', x)
 		.attr('cy', y)
 		.attr('r', options.lollipopRadius)
-		.attr('fill', options.lollipopFillColor);
+		.attr('fill', self.getLollipopFillColor(options, pileup))
+		.attr('stroke', options.lollipopBorderColor)
+		.attr('stroke-width', options.lollipopBorderWidth);
+
+	// bind pileup data with the lollipop circle
+	circle.datum(pileup);
 
 	var addTooltip = options.lollipopTipFn;
 	addTooltip(circle, pileup);
@@ -753,16 +863,78 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 };
 
 /**
+ * Returns the fill color of the lollipop circle for the given pileup
+ * of mutations.
+ *
+ * @param options   general options object
+ * @param pileup    list (array) of mutations (pileup) at a specific location
+ * @return {String} fill color
+ */
+MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
+{
+	var self = this;
+	var color = options.lollipopFillColor;
+	var value;
+
+	if (_.isFunction(color))
+	{
+		value = color();
+	}
+	// check if the color is fixed
+	else if (typeof color === "string")
+	{
+		value = color;
+	}
+	// assuming color is a map (an object)
+	else
+	{
+		var types = PileupUtil.getMutationTypeArray(pileup);
+
+		// check tie condition
+		if (types.length > 1 &&
+		    types[0].count == types[1].count)
+		{
+			var groups = PileupUtil.getMutationTypeGroups(pileup);
+
+			// if all of the same group (for example: all truncating mutations)
+			if (groups.length == 1)
+			{
+				// color with the group color
+				// (assuming all types have the same color)
+				// TODO define group colors explicitly to be safer
+				value = color[types[0].type];
+			}
+			// if not of the same group
+			else
+			{
+				// use default color
+				value = color.default;
+			}
+		}
+		else if (color[types[0].type] == undefined)
+		{
+			value = color.other;
+		}
+		else
+		{
+			value = color[types[0].type];
+		}
+	}
+
+	return value;
+};
+
+/**
  * Put labels over the lollipop circles. The number of labels to be displayed is defined
  * by options.lollipopLabelCount.
  *
  * @param labels        text group (svg element) for labels
- * @param mutations     array of mutations (pileups)
+ * @param pileups       array of mutations (pileups)
  * @param options       general options object
  * @param xScale        scale function for the x-axis
  * @param yScale        scale function for the y-axis
  */
-MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, options, xScale, yScale)
+MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, options, xScale, yScale)
 {
 	// helper function to adjust text position to prevent overlapping with the y-axis
 	var getTextAnchor = function(text, textAnchor)
@@ -794,15 +966,15 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 
 	// do not show any label if there are too many ties
 	// exception: if there is only one mutation then display the label in any case
-	if (mutations.length > 1)
+	if (pileups.length > 1)
 	{
-		var max = mutations[0].count;
+		var max = pileups[0].count;
 
 		// at the end of this loop, numberOfTies will be the number of points with
 		// max y-value (number of tied points)
-		for (var numberOfTies = 0; numberOfTies < mutations.length; numberOfTies++)
+		for (var numberOfTies = 0; numberOfTies < pileups.length; numberOfTies++)
 		{
-			if (mutations[numberOfTies].count < max)
+			if (pileups[numberOfTies].count < max)
 			{
 				break;
 			}
@@ -819,20 +991,20 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 
 	// show (lollipopLabelCount) label(s)
 	for (var i = 0;
-	     i < count && i < mutations.length;
+	     i < count && i < pileups.length;
 	     i++)
 	{
 		// check for threshold value
-		if (mutations.length > 1 &&
-		    mutations[i].count < options.lollipopLabelThreshold)
+		if (pileups.length > 1 &&
+		    pileups[i].count < options.lollipopLabelThreshold)
 		{
 			// do not processes remaining values below threshold
 			// (assuming mutations array is sorted)
 			break;
 		}
 
-		var x = xScale(mutations[i].location);
-		var y = yScale(mutations[i].count) -
+		var x = xScale(pileups[i].location);
+		var y = yScale(pileups[i].count) -
 		        (options.lollipopTextPadding + options.lollipopRadius);
 
 		// init text
@@ -844,14 +1016,12 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
 			.attr("transform", "rotate(" + options.lollipopTextAngle + ", " + x + "," + y +")")
 			.style("font-size", options.lollipopFontSize)
 			.style("font-family", options.lollipopFont)
-			.text(mutations[i].label);
+			.text(pileups[i].label);
 
 		// adjust anchor
 		var textAnchor = getTextAnchor(text, options.lollipopTextAnchor);
 		text.attr("text-anchor", textAnchor);
 	}
-
-	// TODO return a collection of text elements?
 };
 
 /**
@@ -863,7 +1033,7 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, mutations, opti
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
  * @param xScale    scale function for the x-axis
- * @return          region rectangle & its text (as an svg group element)
+ * @return {object} region rectangle & its text (as an svg group element)
  */
 MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xScale)
 {
@@ -920,7 +1090,7 @@ MutationDiagram.prototype.drawRegion = function(svg, region, options, bounds, xS
  * @param group     target svg group to append the text
  * @param options   general options object
  * @param width     width of the region rectangle
- * @return          region text (svg element)
+ * @return {object} region text (svg element)
  */
 MutationDiagram.prototype.drawRegionText = function(label, group, options, width)
 {
@@ -977,7 +1147,7 @@ MutationDiagram.prototype.drawRegionText = function(label, group, options, width
  * @param options   general options object
  * @param bounds    bounds of the plot area {width, height, x, y}
  *                  x, y is the actual position of the origin
- * @return          sequence rectangle (svg element)
+ * @return {object} sequence rectangle (svg element)
  */
 MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 {
@@ -995,7 +1165,7 @@ MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
  * Returns the number of mutations at the hottest spot.
  *
  * @param mutations array of piled up mutation data
- * @return          number of mutations at the hottest spot
+ * @return {Number} number of mutations at the hottest spot
  */
 MutationDiagram.prototype.calcMaxCount = function(mutations)
 {
@@ -1042,6 +1212,102 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 };
 
 /**
+ * Updates the plot area of the diagram for the given set of mutation data.
+ * This function assumes that the provided mutation data is a subset
+ * of the original data. Therefore this function only modifies the plot area
+ * elements (lollipops, labels, etc.). If the provided data set is not a subset
+ * of the original data, then the behavior of this function is unpredicted.
+ *
+ * If the number of mutations provided in mutationData is less than the number
+ * mutation in the original data set, this function returns true to indicate
+ * the provided data set is a subset of the original data. If the number of
+ * mutations is the same, then returns false.
+ *
+ * @param mutationData  a collection of mutations
+ * @return {boolean}    true if the diagram is filtered, false otherwise
+ */
+MutationDiagram.prototype.updatePlot = function(mutationData)
+{
+	var self = this;
+	// TODO for a safer update, verify the provided data
+	var pileups = this.processData(mutationData);
+
+	// select all plot area elements
+	var labels = self.gLabel.selectAll("text");
+	var lines = self.gLine.selectAll("line");
+	var circles = self.gCircle.selectAll("circle");
+
+	// remove all plot elements (no animation)
+	labels.remove();
+	lines.remove();
+	circles.remove();
+
+	// alternative animated version:
+	// fade out and then remove all
+//	labels.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+//
+//	lines.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+//
+//	circles.transition()
+//		.style("opacity", 0)
+//		.duration(1000)
+//		.each("end", function() {
+//			$(this).remove();
+//		});
+
+	// for the alternative animated version
+	// this call should also be delayed to have a nicer effect
+
+	// re-draw plot area contents for new data
+	self.drawPlot(self.svg,
+	              pileups,
+	              self.options,
+	              self.bounds,
+	              self.xScale,
+	              self.yScale);
+
+	// also re-add listeners
+	for (var selector in self.listeners)
+	{
+		var target = self.svg.selectAll(selector);
+
+		for (var event in self.listeners[selector])
+		{
+			target.on(event,
+				self.listeners[selector][event]);
+		}
+	}
+
+	// update current data
+	self.currentData = mutationData;
+
+	// reset highlight map
+	self.highlighted = {};
+
+	return self.isFiltered();
+};
+
+/**
+ * Resets the plot area back to its initial state.
+ */
+MutationDiagram.prototype.resetPlot = function()
+{
+	var self = this;
+
+	self.updatePlot(self.rawData);
+};
+
+/**
  * Updates the text of the top label.
  *
  * @param text  new text to set as the label value
@@ -1057,4 +1323,182 @@ MutationDiagram.prototype.updateTopLabel = function(text)
 	}
 
 	self.topLabel.text(text);
+};
+
+/**
+ * Adds an event listener for specific diagram elements.
+ *
+ * @param selector  selector string for elements
+ * @param event     name of the event
+ * @param handler   event handler function
+ */
+MutationDiagram.prototype.addListener = function(selector, event, handler)
+{
+	var self = this;
+
+	// TODO define string constants for selectors?
+
+	self.svg.selectAll(selector).on(event, handler);
+
+	// save the listener for future reference
+	if (self.listeners[selector] == null)
+	{
+		self.listeners[selector] = {};
+	}
+
+	self.listeners[selector][event] = handler;
+
+};
+
+/**
+ * Removes an event listener for specific diagram elements.
+ *
+ * @param selector  selector string for elements
+ * @param event     name of the event
+ */
+MutationDiagram.prototype.removeListener = function(selector, event)
+{
+	var self = this;
+
+	self.svg.selectAll(selector).on(event, null);
+
+	// remove listener from the map
+	if (self.listeners[selector] &&
+	    self.listeners[selector][event])
+	{
+		delete self.listeners[selector][event];
+	}
+};
+
+/**
+ * Checks whether a diagram circle is highlighted or not.
+ * If no selector provided, then checks if the there is
+ * at least one highlighted circle.
+ *
+ * @param selector  [optional] selector for a specific circle element
+ * @return {boolean} true if highlighted, false otherwise
+ */
+MutationDiagram.prototype.isHighlighted = function(selector)
+{
+	var self = this;
+	var highlighted = false;
+
+	if (selector == undefined)
+	{
+		highlighted = !(_.isEmpty(self.highlighted));
+	}
+	else
+	{
+		var circle = d3.select(selector);
+		var location = circle.datum().location;
+
+		if (self.highlighted[location] != undefined)
+		{
+			highlighted = true;
+		}
+
+		// alternative check with graphical attributes...
+		// assuming regular radius and highlight radius are not the same
+		// highlighted = (circle.attr("r") == self.options.lollipopHighlightRadius)
+	}
+
+	return highlighted;
+};
+
+/**
+ * Resets all highlighted circles back to their original state.
+ */
+MutationDiagram.prototype.clearHighlights = function()
+{
+	var self = this;
+	var circles = self.gCircle.selectAll("circle");
+
+	circles.attr("r", self.options.lollipopRadius);
+	self.highlighted = {};
+};
+
+/**
+ * Highlights a single circle. This function assumes that the provided
+ * selector is a selector for one of the SVG circle elements on the
+ * diagram.
+ *
+ * @param selector  selector for a specific circle element
+ */
+MutationDiagram.prototype.highlight = function(selector)
+{
+	var self = this;
+	var circle = d3.select(selector);
+
+	self.inTransition = true;
+
+	circle.transition()
+		.ease("elastic")
+		.duration(600)
+		.attr("r", self.options.lollipopHighlightRadius)
+		.each("end", function() {
+			self.inTransition = false;
+		});
+
+	// add circle to the map
+	var location = circle.datum().location;
+	self.highlighted[location] = circle;
+};
+
+/**
+ * Removes highlight of a single circle. This function assumes that the provided
+ * selector is a selector for one of the SVG circle elements on the
+ * diagram.
+ *
+ * @param selector  selector for a specific circle element
+ */
+MutationDiagram.prototype.removeHighlight = function(selector)
+{
+	var self = this;
+	var circle = d3.select(selector);
+
+	self.inTransition = true;
+
+	circle.transition()
+		.ease("elastic")
+		.duration(600)
+		.attr("r", self.options.lollipopRadius)
+		.each("end", function() {
+			self.inTransition = false;
+		});
+
+	// remove circle from the map
+	var location = circle.datum().location;
+	delete self.highlighted[location];
+};
+
+/**
+ * Checks the diagram for filtering. If the current data set
+ * is a subset of the initial data set, then it means
+ * the diagram is filtered. If the current data set is the
+ * initial data set, then the diagram is not filtered.
+ *
+ * @return {boolean} true if current view is filtered, false otherwise
+ */
+MutationDiagram.prototype.isFiltered = function()
+{
+	var self = this;
+	var filtered = false;
+
+	if (self.currentData.length < self.rawData.length)
+	{
+		filtered = true;
+	}
+
+	return filtered;
+};
+
+/**
+ * Returns true if the diagram is currently in graphical transition,
+ * false otherwise.
+ *
+ * @return {boolean} true if diagram is in transition, false o.w.
+ */
+MutationDiagram.prototype.isInTransition = function()
+{
+	return this.inTransition;
 };

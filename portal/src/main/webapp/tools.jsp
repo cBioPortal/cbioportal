@@ -75,8 +75,26 @@
 
     <jsp:include page="WEB-INF/jsp/oncoprint/controls-templates.jsp"></jsp:include>
 
-    <div id='oncoprint' style="margin-bottom:40px;"></div>
+    <div id='oncoprint'></div>
     <script data-main="js/src/oncoprint/custom-boilerplate.js" type="text/javascript" src="js/require.js"></script>
+
+    <div id="download_oncoprint" style="display:none; margin-bottom:40px; margin-top:20px;">
+        <span>
+            <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
+
+                <input type="hidden" name="svgelement">
+                <input type="hidden" name="filetype" value="pdf">
+                <input type="submit" value="PDF">
+            </form>
+
+            <form id="svg-form" style="display:inline;" action="oncoprint_converter.svg" enctype="multipart/form-data" method="POST" target="_blank">
+                <input type="hidden" name="xml">
+                <input type="hidden" name="longest_label_length">
+                <input type="hidden" name="format" value="svg">
+                <input type="submit" value="SVG">
+            </form>
+        </span>
+    </div>
 
 </div>
 

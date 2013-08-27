@@ -57,6 +57,21 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             // show controls when there's data
             $('#oncoprint_controls').show();
 
+            // setup the download buttons
+            var $pdf_form = $('#pdf-form');
+            $pdf_form.submit(function() {
+                var that = $(this)[0];
+                that.elements['svgelement'].value=oncoprint.getPdfInput();
+                return;
+            });
+
+            var $svg_form = $('#svg-form');
+            $svg_form.submit(function() {
+                var that = $(this)[0];
+                that.elements['xml'].value=oncoprint.getPdfInput();
+                return;
+            });
+
             return false;
         };
 
@@ -101,6 +116,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                     try {
                         exec(data);
                         $error_box.hide();
+                        $('#download_oncoprint').show();
                     } catch(e) {
                         // catch all errors and console.log them,
                         // make sure that nothing is shown in the oncoprint box

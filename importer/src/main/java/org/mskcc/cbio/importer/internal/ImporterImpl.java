@@ -43,6 +43,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.util.MetadataUtils;
+import org.mskcc.cbio.importer.util.MutationFileUtil;
 
 import org.mskcc.cbio.cgds.scripts.ImportCaseList;
 import org.mskcc.cbio.cgds.scripts.ImportCancerStudy;
@@ -306,6 +307,10 @@ class ImporterImpl implements Importer {
 					}
 					continue;
 				}
+				// if MAF, oncotate
+				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
+					stagingFilename = getOncotatedFile(stagingFilename);
+				}
 				if (datatypeMetadata.requiresMetafile()) {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
@@ -319,6 +324,11 @@ class ImporterImpl implements Importer {
 				}
 				Method mainMethod = ClassLoader.getMethod(datatypeMetadata.getImporterClassName(), "main");
 				mainMethod.invoke(null, (Object)args);
+
+				// clean up
+				if (!stagingFilename.equals(getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename()))) {
+					fileUtils.deleteFile(new File(stagingFilename));
+				}
 			}
 
 			// create missing case lists
@@ -366,5 +376,20 @@ class ImporterImpl implements Importer {
 	 */
 	private String getImportFilename(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
 		return (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + filename);
+	}
+
+	private String getOncotatedFile(String stagingFilename) throws Exception
+	{
+		if (MutationFileUtil.isOncotated(stagingFilename)) {
+			return stagingFilename;
+		}
+		File stagingFile = new File(stagingFilename);
+		File tmpMAF = org.apache.commons.io.FileUtils.getFile(org.apache.commons.io.FileUtils.getTempDirectory(),
+															  ""+System.currentTimeMillis()+".tmpMAF");
+
+		// oncotate the MAF (input is tmp maf, output is original maf)
+		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath(),
+							  FileUtils.FILE_URL_PREFIX + tmpMAF.getCanonicalPath());
+		return tmpMAF.getCanonicalPath();
 	}
 }

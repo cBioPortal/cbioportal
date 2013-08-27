@@ -17,7 +17,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cbio.cgds.model.Patient" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
@@ -40,15 +40,39 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 
+    /**
+     * Put together global parameters for injection as javascript variables
+     *
+     */
+    // put geneticProfileIds into the proper form for the JSON request
+    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+    geneticProfiles = geneticProfiles.trim();
+
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+
+    // get cases
+    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    cases = StringEscapeUtils.escapeJavaScript(cases);
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
     String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    geneList = StringEscapeUtils.escapeJavaScript(geneList);
+    %>
+
+<script type="text/javascript">
+    window.cases = '<%= cases %>';
+    window.case_ids_key = '<%= caseIdsKey %>';
+    window.gene_list = '<%=geneList%>';
+    window.genetic_profiles = '<%=geneticProfiles%>';
+</script>
+
+<%
 
     boolean showIGVtab = false;
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
@@ -93,7 +117,7 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
+    ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
@@ -117,6 +141,22 @@
         }
         return counter;
     }
+
+	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
+	{
+		// translate Onco Query Language
+		ArrayList<String> listOfGenes =
+			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+
+		String genes = "";
+
+		for(String gene: listOfGenes)
+		{
+			genes += gene + " ";
+		}
+
+		return genes.trim();
+	}
 %>
 
 
@@ -195,10 +235,6 @@
                  *
                  */
 
-                // put geneticProfileIds into the proper form for the JSON request
-                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-                geneticProfiles = geneticProfiles.trim();
-
                 // put gene string into a form that javascript can swallow
                 String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
                 genes = StringEscapeUtils.escapeJavaScript(genes);
@@ -209,12 +245,20 @@
                 samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
-<script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
+	//  make global variables -- TODO move these global variables into a better jsp file
+
+	// raw gene list (as it is entered by the user, it may contain onco query language)
+	var genes = "<%=genes%>";
+
+	// gene list after being processed by the onco query language parser
+	var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
+
+	// list of samples (case ids)
+	var samples = "<%=samples%>";
+
+	// genetic profile ids
+	var geneticProfiles = "<%=geneticProfiles%>";
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
@@ -362,7 +406,7 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-            <%@ include file="oncoprint.jsp" %>
+            <%@ include file="oncoprint/main.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
 		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>

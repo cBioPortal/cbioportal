@@ -126,7 +126,8 @@ $(document).ready(function(){
 
 	// TODO getting these params from global variables defined in visualize.jsp
 	// we should refactor/redefine these global variables in a better way
-	var params = {geneList: genes,
+
+	var params = {geneList: geneList,
 		geneticProfiles: geneticProfiles,
 		caseList: samples};
 

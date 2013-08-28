@@ -179,12 +179,13 @@
 </script>
 
 <script type="text/template" id="mutation_details_cosmic_tip_template">
-	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences in COSMIC</b></div>
+	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences of mutations with the same effect in COSMIC</b></div>
 	<table class='cosmic-details-table display'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>
 			<tr>
-				<th>Mutation</th>
+				<th>COSMIC ID</th>
+				<th>Protein Change</th>
 				<th>Count</th>
 			</tr>
 		</thead>
@@ -1321,10 +1322,15 @@
 		{
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
-				"aaSorting" : [[1, "desc"]], // sort by count at init
-				"sDom": 'tp', // show the table and the pagination buttons
-				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
-				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
+				"aaSorting" : [[2, "desc"]], // sort by count at init
+				"sDom": 'pt', // show the table and the pagination buttons
+				"aoColumnDefs": [
+                                    { "mRender": function ( data, type, full ) {
+                                            return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                                       },
+                                       "aTargets": [0]},
+                                    { "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
+                                    { "sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 				"bDestroy": false,
 				"bPaginate": true,
 				"bJQueryUI": true,
@@ -1335,9 +1341,9 @@
 			var dataRows = [];
 
 			// COSMIC data (as AA change & frequency pairs)
-			for (var aa in cosmic) {
-				dataRows.push( aa + "</td><td>" + cosmic[aa]);
-			}
+			cosmic.forEach(function(c) {
+                            dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+                        });
 
 			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},

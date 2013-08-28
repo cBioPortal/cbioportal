@@ -15,13 +15,14 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
-		this.cosmicCount = 0;
+		var cosmicCount = 0;
                 if (this.cosmic) {
-                    for (var aa in this.cosmic) {
-                        this.cosmicCount += this.cosmic[aa];
-                    }
-                }
-                
+                    this.cosmic.forEach(function(c) {
+                        cosmicCount += c[2];
+                    });
+                };
+                this.cosmicCount = cosmicCount;
+
 		this.functionalImpactScore = attributes.functionalImpactScore;
 		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;

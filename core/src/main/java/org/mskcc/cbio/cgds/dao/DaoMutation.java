@@ -29,17 +29,11 @@ package org.mskcc.cbio.cgds.dao;
 
 import org.mskcc.cbio.cgds.model.*;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
@@ -940,9 +934,9 @@ public final class DaoMutation {
         // and simultaneously construct a map to turn them back into hugo gene symbols later
         List<Long> entrezs = new ArrayList<Long>();
         Map<Long, CanonicalGene> entrez2CanonicalGene = new HashMap<Long, CanonicalGene>();
-        DaoGene daoGene = DaoGene.getInstance();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         for (String hugo : hugos) {
-            CanonicalGene canonicalGene = daoGene.getGene(hugo);
+            CanonicalGene canonicalGene = daoGeneOptimized.getGene(hugo);
             Long entrez = canonicalGene.getEntrezGeneId();
 
             entrezs.add(entrez);
@@ -1133,216 +1127,6 @@ public final class DaoMutation {
             pstmt.executeUpdate();
             pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event");
             pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-    }
-    
-<<<<<<< local
-    
-    // the follwing methods deal with cosmic data in oncocator report
-    // TODO: need to be refactored using latest cosmic data.
-    static String filterCosmic(MutationEvent event) {
-        List<CosmicMutationFrequency> cmfs = parseCosmic(event);
-        StringBuilder sb = new StringBuilder();
-        for (CosmicMutationFrequency cmf : cmfs) {
-            sb.append(cmf.getAminoAcidChange()).append("(")
-                    .append(cmf.getFrequency()).append(")|");
-        }
-        if (sb.length()>0) {
-            sb.deleteCharAt(sb.length()-1);
-        }
-        return sb.toString();
-    }
-    
-    private static List<CosmicMutationFrequency> parseCosmic(MutationEvent event) {
-        String strCosmic = event.getOncotatorCosmicOverlapping();
-        if (strCosmic==null || strCosmic.isEmpty()) {
-            return Collections.emptyList();
-        }
-        
-        String[] parts = strCosmic.split("\\|");
-        List<CosmicMutationFrequency> list = new ArrayList<CosmicMutationFrequency>(parts.length);
-        Pattern p = Pattern.compile("(p\\..+)\\(([0-9]+)\\)");
-        for (String part : parts) {
-            Matcher m = p.matcher(part);
-            if (m.matches()) {
-                String aa = m.group(1);
-                if (matchCosmic(event, aa)) {
-                    int count = Integer.parseInt(m.group(2));
-                    list.add(new CosmicMutationFrequency(event.getGene().getEntrezGeneId(), aa, count));
-                }
-            } 
-//            else if (!part.equals("NA")) {
-//                System.err.println("wrong cosmic string: "+part);
-//            }
-        }
-        
-        return list;
-    }
-    
-    private static boolean matchCosmic(MutationEvent event, String cosmicAAChange) {
-        if (cosmicAAChange.endsWith("p.?")||cosmicAAChange.endsWith("p.0?")) {
-            return false;
-        }
-        
-        String type = event.getMutationType();
-        if (cosmicAAChange.matches(
-                "(p\\.[A-Z]?[0-9]+_[A-Z]?[0-9]+((>)|(ins))[A-Z]+)|(p\\.[A-Z][0-9]+>[A-Z][A-Z]+)|(p\\.[A-Z]?[0-9]+.+del[A-Z]*)")) {
-            // in frame del or ins
-            return type.toLowerCase().startsWith("in_frame_");
-        }
-        
-        if (cosmicAAChange.matches("p\\.[A-Z][0-9]+>?[A-Z]")) {
-            return type.toLowerCase().startsWith("missense");
-        }
-        
-        return type.toLowerCase().startsWith("nonsense") ||
-            type.toLowerCase().startsWith("splice_site") ||
-            type.toLowerCase().startsWith("frame_shift_") ||
-            type.toLowerCase().startsWith("nonstop");
-        
-        // TODO: how about Translation_Start_Site
-    }
-    
-    private static int importCosmic(long eventId, CosmicMutationFrequency cosmic) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            int cosmicId = importCosmic(cosmic, con);
-            if (cosmicId==0) {
-                CosmicMutationFrequency cmf = getCosmicMutationFrequency(cosmic.getEntrezGeneId(),
-                        cosmic.getAminoAcidChange(), con);
-                cosmicId = cmf.getId();
-            }
-            
-            pstmt = con.prepareStatement("INSERT INTO mutation_event_cosmic_mapping"
-                    + " (`MUTATION_EVENT_ID`,`COSMIC_MUTATION_ID`) VALUES(?,?)");
-            pstmt.setLong(1, eventId);
-            pstmt.setInt(2, cosmicId);
-            return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-        
-    }
-    
-    private static int importCosmic(CosmicMutationFrequency cosmic, Connection con) throws DaoException {
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            if (null != getCosmicMutationFrequency(
-                    cosmic.getEntrezGeneId(), cosmic.getAminoAcidChange(),con)) {
-                return 0;
-            }
-            
-            pstmt = con.prepareStatement("INSERT INTO cosmic_mutation (`ENTREZ_GENE_ID`,"
-                    + "`AMINO_ACID_CHANGE`,`COUNT`) VALUES(?,?,?)",
-                        Statement.RETURN_GENERATED_KEYS);
-            pstmt.setLong(1, cosmic.getEntrezGeneId());
-            pstmt.setString(2, cosmic.getAminoAcidChange());
-            pstmt.setInt(3, cosmic.getFrequency());
-            pstmt.executeUpdate();
-            rs = pstmt.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
-                throw new DaoException("auto key for cosmic not generated.");
-            }
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(pstmt, rs);
-        }
-    }
-    
-    public static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
-            String aaChange) throws DaoException {
-        Connection con = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            return getCosmicMutationFrequency(entrez, aaChange, con);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeConnection(DaoMutation.class, con);
-        }
-    }
-    
-    private static CosmicMutationFrequency getCosmicMutationFrequency(long entrez,
-            String aaChange, Connection con) throws DaoException {
-        if (con == null) {
-            throw new NullPointerException("Null SQL connection");
-        }
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            String sql = "SELECT * FROM cosmic_mutation "
-                    + "WHERE `ENTREZ_GENE_ID`=? AND `AMINO_ACID_CHANGE`=?";
-            pstmt = con.prepareStatement(sql);
-            pstmt.setLong(1, entrez);
-            pstmt.setString(2, aaChange);
-            
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return new CosmicMutationFrequency(rs.getInt("COSMIC_MUTATION_ID"),
-                        entrez, aaChange, rs.getInt("COUNT"));
-            }
-            return null;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(pstmt, rs);
-        }
-    }
-    
-    public static Map<Long, List<CosmicMutationFrequency>> getCosmicMutationFrequency(
-            Collection<Long> mutationEventIds)  throws DaoException {
-        return getCosmicMutationFrequency(StringUtils.join(mutationEventIds,","));
-    }
-
-    /**
-     * get cosmic data for a mutation event
-     * @param strMutationEventIds
-     * @return Map &lt; mutation event id &gt; , list of cosmic &gt; &gt;
-     * @throws DaoException 
-     */
-    public static Map<Long, List<CosmicMutationFrequency>> getCosmicMutationFrequency(
-            String strMutationEventIds) throws DaoException {
-        if (strMutationEventIds==null || strMutationEventIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT MUTATION_EVENT_ID, cosmic_mutation.COSMIC_MUTATION_ID,"
-                    + " `ENTREZ_GENE_ID`, `AMINO_ACID_CHANGE`, `COUNT`"
-                    + " FROM cosmic_mutation, mutation_event_cosmic_mapping"
-                    + " WHERE `MUTATION_EVENT_ID` IN ("+ strMutationEventIds +")"
-                    + " AND cosmic_mutation.COSMIC_MUTATION_ID=mutation_event_cosmic_mapping.COSMIC_MUTATION_ID";
-            pstmt = con.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-            
-            Map<Long,List<CosmicMutationFrequency>> map = new HashMap<Long,List<CosmicMutationFrequency>>();
-            while (rs.next()) {
-                long eventId = rs.getLong(1);
-                List<CosmicMutationFrequency> list = map.get(eventId);
-                if (list==null) {
-                    list = new ArrayList<CosmicMutationFrequency>();
-                    map.put(eventId, list);
-                }
-                list.add(new CosmicMutationFrequency(rs.getInt(2),rs.getLong(3),rs.getString(4),rs.getInt(5)));
-            }
-            
-            return map;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

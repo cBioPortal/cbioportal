@@ -112,9 +112,7 @@ public class PatientView extends HttpServlet {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
-        //  Get patient ID
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
-
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
@@ -150,23 +148,14 @@ public class PatientView extends HttpServlet {
      *
      * @author Gideon Dresdner
      */
-    public boolean hasAlleleFrequencyData(CancerStudy cancerStudy, String patientId, GeneticProfile mutationProfile) throws DaoException {
+    public boolean hasAlleleFrequencyData(String patientId, GeneticProfile mutationProfile) throws DaoException {
 
         if (mutationProfile == null) {
             // fail quietly
             return false;
         }
 
-        List<ExtendedMutation> mutations
-                = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(), patientId);
-
-        for (ExtendedMutation mutation : mutations) {
-            if (mutation.getTumorAltCount() != -1) {
-                return true;
-            }
-        }
-
-        return false;
+        return DaoMutation.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), patientId);
     }
 
     private boolean validate(HttpServletRequest request) throws DaoException {
@@ -245,7 +234,7 @@ public class PatientView extends HttpServlet {
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
         String firstSampleId = sampleIds.iterator().next();
         request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, 
-                hasAlleleFrequencyData(cancerStudy, firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
+                hasAlleleFrequencyData(firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
         
         return true;
     }

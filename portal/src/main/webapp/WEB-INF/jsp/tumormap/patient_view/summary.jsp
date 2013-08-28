@@ -213,7 +213,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 <%}%>
 
-<%if(hasAlleleFrequencyData && caseIds.size()>1){%>
+<%if(hasAlleleFrequencyData && caseIds.size() == 1) {%>
 <script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {

@@ -159,17 +159,12 @@ public final class DaoCopyNumberSegment {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        String sql = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
-            sql = "SELECT  1"
-                + " FROM `copy_number_seg`"
-                + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
-                + " LIMIT 1";
-            
-            pstmt = con.prepareStatement(sql);
+            pstmt = con.prepareStatement("SELECT EXISTS (SELECT 1 FROM `copy_number_seg` WHERE `CANCER_STUDY_ID`=?)");
+            pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
-            return rs.next();
+            return rs.next() && rs.getInt(1)==1;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -188,18 +183,14 @@ public final class DaoCopyNumberSegment {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        String sql = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
-            sql = "SELECT  1"
-                + " FROM `copy_number_seg`"
-                + " WHERE `CANCER_STUDY_ID`="+cancerStudyId
-                + " AND `CASE_ID`='"+caseId+"'"
-                + " LIMIT 1";
-            
-            pstmt = con.prepareStatement(sql);
+            pstmt = con.prepareStatement("SELECT EXISTS(SELECT 1 FROM `copy_number_seg`"
+                + " WHERE `CANCER_STUDY_ID`=? AND `CASE_ID`=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.setString(2, caseId);
             rs = pstmt.executeQuery();
-            return rs.next();
+            return rs.next() && rs.getInt(1)==1;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

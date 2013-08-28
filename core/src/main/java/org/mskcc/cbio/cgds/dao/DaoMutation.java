@@ -33,23 +33,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
+import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
 
 /**
  * Data access object for Mutation table
@@ -104,6 +102,7 @@ public final class DaoMutation {
         public static int addMutationEvent(MutationEvent event) throws DaoException {
             // use this code if bulk loading
             // write to the temp file maintained by the MySQLbulkLoader
+            String keyword = MutationKeywordUtils.guessOncotatorMutationKeyword(event.getProteinChange(), event.getMutationType());
             MySQLbulkLoader.getMySQLbulkLoader("mutation_event").insertRecord(
                     Long.toString(event.getMutationEventId()),
                     Long.toString(event.getGene().getEntrezGeneId()),
@@ -125,7 +124,6 @@ public final class DaoMutation {
                     event.getDbSnpRs(),
                     event.getDbSnpValStatus(),
                     event.getOncotatorDbSnpRs(),
-                    filterCosmic(event),
                     event.getOncotatorRefseqMrnaId(),
                     event.getOncotatorCodonChange(),
                     event.getOncotatorUniprotName(),
@@ -133,74 +131,8 @@ public final class DaoMutation {
                     Integer.toString(event.getOncotatorProteinPosStart()),
                     Integer.toString(event.getOncotatorProteinPosEnd()),
                     boolToStr(event.isCanonicalTranscript()),
-                    extractMutationKeyword(event));
-            // add cosmic
-            for (CosmicMutationFrequency cosmic :
-                    parseCosmic(event)) {
-                importCosmic(event.getMutationEventId(), cosmic);
-            }
-            // return 1 because normal insert will return 1 if no error occurs
+                    keyword==null ? "\\N":(event.getGene().getHugoGeneSymbolAllCaps()+" "+keyword));
             return 1;
-    }
-        
-    private static String extractMutationKeyword(MutationEvent event) {
-        String hugo = event.getGene().getHugoGeneSymbolAllCaps();
-        String type = event.getMutationType();
-        if (type.equals("Nonsense_Mutation") ||
-            type.equals("Splice_Site") || 
-            type.startsWith("Frame_Shift_") || 
-            type.equals("Nonstop_Mutation")) {
-            return hugo + " truncating";
-        }
-        
-        if (type.equals("Missense_Mutation")) {
-            String aa = event.getProteinChange();
-            if (aa.startsWith("M1")&&!aa.equals("M1M")) { // how about indels on the first position?
-                // non-start
-                return hugo + " truncating";
-            }
-            
-            Pattern p = Pattern.compile("([A-Z][0-9]+)");
-            Matcher m = p.matcher(aa);
-            if (m.find()) {
-                return hugo + " " + m.group(1) + " missense";
-            }
-        }
-        
-        if (type.equals("In_Frame_Ins")) {
-            String aa = event.getProteinChange();
-            if (aa.contains("*")) { // insert *
-                return hugo + " truncating";
-            }
-            
-            Pattern p = Pattern.compile("([0-9]+)");
-            Matcher m = p.matcher(aa);
-            if (m.find()) {
-               return hugo + " " + m.group(1) + " ins";
-            }
-        }
-        
-        if (type.equals("In_Frame_Del")) {
-            String aa = event.getProteinChange();
-            // only the first deleted residue was considered
-            Pattern p = Pattern.compile("([0-9]+)");
-            Matcher m = p.matcher(aa);
-            if (m.find()) {
-               return hugo + " " + m.group(1) + " del";
-            }
-        }
-        
-        if (type.equals("Silent")) {
-            String aa = event.getProteinChange();
-            Pattern p = Pattern.compile("([0-9]+)");
-            Matcher m = p.matcher(aa);
-            if (m.find()) {
-               return hugo + " " + m.group(1) + "silent";
-            }
-        }
-            
-        // RNA or Translation_Start_Site
-        return "Chm"+event.getChr()+","+event.getStartPosition();
     }
 
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<String> targetCaseList,
@@ -368,6 +300,26 @@ public final class DaoMutation {
                 JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
             }
             return mutationList;
+        }
+    
+        public static boolean hasAlleleFrequencyData (int geneticProfileId, String caseId) throws DaoException {
+            Connection con = null;
+            PreparedStatement pstmt = null;
+            ResultSet rs = null;
+            try {
+                con = JdbcUtil.getDbConnection(DaoMutation.class);
+                pstmt = con.prepareStatement
+                        ("SELECT EXISTS (SELECT 1 FROM mutation "
+                        + "WHERE GENETIC_PROFILE_ID = ? AND CASE_ID = ? AND TUMOR_ALT_COUNT>=0 AND TUMOR_REF_COUNT>=0)");
+                pstmt.setInt(1, geneticProfileId);
+                pstmt.setString(2, caseId);
+                rs = pstmt.executeQuery();
+                return rs.next() && rs.getInt(1)==1;
+            } catch (SQLException e) {
+                throw new DaoException(e);
+            } finally {
+                JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+            }
         }
 
         public static ArrayList<ExtendedMutation> getSimilarMutations (long entrezGeneId, String aminoAcidChange, String excludeCaseId) throws DaoException {
@@ -540,7 +492,6 @@ public final class DaoMutation {
         event.setDbSnpValStatus(rs.getString("DB_SNP_VAL_STATUS"));
         event.setReferenceAllele(rs.getString("REFERENCE_ALLELE"));
         event.setOncotatorDbSnpRs(rs.getString("ONCOTATOR_DBSNP_RS"));
-        event.setOncotatorCosmicOverlapping(rs.getString("ONCOTATOR_COSMIC_OVERLAPPING"));
         event.setOncotatorRefseqMrnaId(rs.getString("ONCOTATOR_REFSEQ_MRNA_ID"));
         event.setOncotatorCodonChange(rs.getString("ONCOTATOR_CODON_CHANGE"));
         event.setOncotatorUniprotName(rs.getString("ONCOTATOR_UNIPROT_ENTRY_NAME"));
@@ -1182,10 +1133,6 @@ public final class DaoMutation {
             pstmt.executeUpdate();
             pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event");
             pstmt.executeUpdate();
-            pstmt = con.prepareStatement("TRUNCATE TABLE mutation_event_cosmic_mapping");
-            pstmt.executeUpdate();
-            pstmt = con.prepareStatement("TRUNCATE TABLE cosmic_mutation");
-            pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -1193,6 +1140,7 @@ public final class DaoMutation {
         }
     }
     
+<<<<<<< local
     
     // the follwing methods deal with cosmic data in oncocator report
     // TODO: need to be refactored using latest cosmic data.

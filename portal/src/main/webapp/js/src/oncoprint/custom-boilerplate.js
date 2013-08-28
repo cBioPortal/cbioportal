@@ -11,10 +11,10 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
-
+        var oncoprint;
         var oncoprint_el = document.getElementById("oncoprint");
-
-        var exec = function(data) {
+        var $oncoprint_el = $(oncoprint_el);
+        function exec(data) {
 //            data = EchoedDataUtils.join(data, 'sample', 'gene');
 
             // set up oncoprint params
@@ -22,7 +22,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             var params = { geneData: data, genes:genes };
             params.legend =  document.getElementById("oncoprint_legend");
 
-            $(oncoprint_el).empty();    // clear out the div each time
+            $oncoprint_el.empty();    // clear out the div each time
 
             // exec
             oncoprint = Oncoprint(oncoprint_el, params);
@@ -57,76 +57,76 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             // show controls when there's data
             $('#oncoprint_controls').show();
 
+            // setup the download buttons
+            var $pdf_form = $('#pdf-form');
+            $pdf_form.submit(function() {
+                var that = $(this)[0];
+                that.elements['svgelement'].value=oncoprint.getPdfInput();
+                return;
+            });
+
+            var $svg_form = $('#svg-form');
+            $svg_form.submit(function() {
+                var that = $(this)[0];
+                that.elements['xml'].value=oncoprint.getPdfInput();
+                return;
+            });
+
             return false;
         };
-
-        $(document).ready(function() {
-            $('#create_sample').click(function() {
-                var mutation_data = EchoedDataUtils.munge_mutation($('#mutation-file-example').val().trim());
-                var cna_data = EchoedDataUtils.munge_cna($('#cna-file-example').val().trim());
-                var data = mutation_data.concat(cna_data);
-
-                exec(data);
-            });
-        });
 
         // don't want to setup the zoom slider multiple times
         var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
 
-        var data;
-        var oncoprint;
         var cases;
-        $('#submit').click(function() {
-            var formData = new FormData($('form')[0]);
+        $('#create_oncoprint').click(function() {
+            var cnaForm = $('#cna-form');
+            var mutationForm = $('#mutation-form');
 
-            $.ajax({
-                url: 'echofile',
-                type: 'POST',
-                xhr: function() {  // custom xhr
-                    var myXhr = $.ajaxSettings.xhr();
-                    if(myXhr.upload){ // check if upload property exists
-                        myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // for handling the progress of the upload
-                    }
-                    return myXhr;
-                },
-                //Ajax events
-//                beforeSend: beforeSendHandler,
-                success: function(res) {
-                    // console.log(res);
+            var postFile = function(url, formData, callback) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    success: callback,
+                    data: formData,
+                    //Options to tell jQuery not to process data or worry about content-type.
+                    cache: false,
+                    contentType: false,
+                    processData: false
+                });
+            };
 
-                    var parsers = {
-                        cna: EchoedDataUtils.munge_cna,
-                        mutation: EchoedDataUtils.munge_mutation
-                    };
+            postFile('echofile', new FormData(cnaForm[0]), function(cnaResponse) {
+                postFile('echofile', new FormData(mutationForm[0]), function(mutationResponse) {
 
-                    data = _.chain(res)
-                        .map(function(d, type) {
-                            return parsers[type](d);
-                        })
-                        .flatten()
-                        .value();
+                    var mutationTextAreaString = $('#mutation-file-example').val().trim(),
+                        cnaTextAreaString = $('#cna-file-example').val().trim();
+
+                    var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
+                    mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
+
+                    var rawCnaString = _.isEmpty(cnaResponse) ? cnaTextAreaString : cnaResponse.cna;
+                    cna_data = EchoedDataUtils.munge_cna(rawCnaString);
+
+                    var data = mutation_data.concat(cna_data);
 
                     cases = EchoedDataUtils.samples(data);
 
-                    exec(data);
-
-                    return false;
-                },
-//                error: errorHandler,
-                // Form data
-                data: formData,
-                //Options to tell JQuery not to process data or worry about content-type
-                cache: false,
-                contentType: false,
-                processData: false
+                    var $error_box = $('#error-box');
+                    try {
+                        exec(data);
+                        $error_box.hide();
+                        $('#download_oncoprint').show();
+                    } catch(e) {
+                        // catch all errors and console.log them,
+                        // make sure that nothing is shown in the oncoprint box
+                        console.log("error creating oncoprint ", e);
+                        $oncoprint_el.empty();
+                        $error_box.show();
+                    }
+                });
             });
         });
-
-        function progressHandlingFunction(e){
-            if(e.lengthComputable){
-                $('progress').attr({value:e.loaded,max:e.total});
-            }
-        }
 
         $('#oncoprint_controls').html($('#custom-controls-template').html()) // populate with template html
             .hide(); // hide until there's data

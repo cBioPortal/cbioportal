@@ -74,7 +74,7 @@ public class BcrDictHandlerTest {
 
         BcrClinicalAttributeEntry bcr = bcrs.get(0);
 
-        assertTrue(bcr.getId().equals("anattributeid"));
+        assertTrue(bcr.getId().equals("an_attribute_id"));
         assertTrue(bcr.getDescription().equals("the great thing about standards is that there are so many of them"));
         assertTrue(bcr.getDisplayName().equals("The OFFICIAL name"));
         assertTrue(bcr.getDiseaseSpecificity().equals("TCGA1 TCGA2"));

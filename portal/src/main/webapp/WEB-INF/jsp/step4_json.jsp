@@ -26,7 +26,6 @@
         $(document).ready(function() {
             GeneSymbolValidator.initialize();
         });
-
     </script>
 
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required

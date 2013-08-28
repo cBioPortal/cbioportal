@@ -3,7 +3,6 @@
 <%@ page import="org.mskcc.cbio.cgds.model.Case" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.json.simple.JSONValue" %>
 <%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
 
 <style type="text/css" title="currentStyle">
@@ -26,14 +25,14 @@
 </style>
 
 <%
-String jsonCaseIds = "[]";
+String jsonCaseIdsInStudy = "[]";
 if (mutationProfile!=null && hasCnaSegmentData) {
     List<Case> cases = DaoCase.getAllCaseIdsInCancer(cancerStudy.getInternalId());
-    List<String> caseIds = new ArrayList<String>(cases.size());
+    List<String> caseIdsInStudy = new ArrayList<String>(cases.size());
     for (Case c : cases) {
-        caseIds.add(c.getCaseId());
+        caseIdsInStudy.add(c.getCaseId());
     }
-    jsonCaseIds = JSONValue.toJSONString(caseIds);
+    jsonCaseIdsInStudy = jsonMapper.writeValueAsString(caseIdsInStudy);
 }
 String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
@@ -127,7 +126,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     }
     
     function loadMutCnaAndPlot(scatterPlotDiv,caseIdDiv) {
-        loadMutCountCnaFrac(<%=jsonCaseIds%>, cancerStudyId,
+        loadMutCountCnaFrac(<%=jsonCaseIdsInStudy%>, cancerStudyId,
             <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>',
             hasCnaSegmentData,
             function(dt){
@@ -214,7 +213,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 </div>
 <%}%>
 
-<%if(hasAlleleFrequencyData && !multiSamples){%>
+<%if(hasAlleleFrequencyData && caseIds.size()>1){%>
 <script type="text/javascript" src="js/src/patient-view/AlleleFreqPlot.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {

@@ -1,4 +1,4 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+/** Copyright (c) 2013 Memorial Sloan-Kettering Cancer Center.
 **
 ** This library is free software; you can redistribute it and/or modify it
 ** under the terms of the GNU Lesser General Public License as published
@@ -25,44 +25,42 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.model;
+// package
+package org.mskcc.cbio.importer.util;
 
-/**
- * Represents a single row in the clinical_free_form table.
- * 
- * @author Selcuk Onur Sumer
- */
-public class ClinicalFreeForm
+// imports
+import org.mskcc.cbio.importer.Admin;
+import org.mskcc.cbio.importer.FileUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.io.LineIterator;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.io.File;
+import java.util.List;
+import java.util.Arrays;
+
+public class MutationFileUtil
 {
-	private int cancerStudyId;
-	private String caseId;
-	private String paramName;
-	private String paramValue;
-	
-	public ClinicalFreeForm(int cancerStudyId, String caseId,
-			String paramName, String paramValue)
+
+	private static final String KNOWN_ONCOTATOR_HEADER = "ONCOTATOR_VARIANT_CLASSIFICATION";
+	private static final ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
+
+	public static boolean isOncotated(String filename) throws Exception
 	{
-		super();
-		this.cancerStudyId = cancerStudyId;
-		this.caseId = caseId;
-		this.paramName = paramName;
-		this.paramValue = paramValue;
+		File file = new File(filename);
+		FileUtils fileUtils = (FileUtils)MutationFileUtil.context.getBean("fileUtils");
+		LineIterator it = fileUtils.getFileContents(FileUtils.FILE_URL_PREFIX + file.getCanonicalPath());
+		String[] columnHeaders = it.nextLine().split("\t");
+		it.close();
+		return MutationFileUtil.isOncotated(Arrays.asList(columnHeaders));
 	}
 
-	
-	public int getCancerStudyId() {
-		return cancerStudyId;
-	}
-	
-	public String getCaseId() {
-		return caseId;
-	}
-	
-	public String getParamName() {
-		return paramName;
-	}
-	
-	public String getParamValue() {
-		return paramValue;
+	public static boolean isOncotated(List<String> columnHeaders)
+	{
+		return columnHeaders.contains(KNOWN_ONCOTATOR_HEADER);
 	}
 }

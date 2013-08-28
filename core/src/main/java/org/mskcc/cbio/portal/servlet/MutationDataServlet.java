@@ -231,10 +231,13 @@ public class MutationDataServlet extends HttpServlet
 			// profile id does not exist, just return an empty array
 			return mutationArray;
 		}
-
+                
+                Map<Long, Map<String,Integer>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+
+		int id = 0;
 
 		for (ExtendedMutation mutation : mutationList)
 		{
@@ -242,7 +245,6 @@ public class MutationDataServlet extends HttpServlet
 
 			if (targetCaseList.contains(caseId))
 			{
-
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
@@ -254,6 +256,10 @@ public class MutationDataServlet extends HttpServlet
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
+				// mutationId is not a unique id wrt the whole DB,
+				// but it is unique wrt the returned data set
+				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -261,8 +267,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
-				mutationData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
-				mutationData.put("cosmicCount", this.getCosmicCount(mutation));
+				mutationData.put("cosmic", cosmic.get(mutation.getMutationEventId()));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
 				mutationData.put("fisValue", this.getFisValue(mutation));
 				mutationData.put("msaLink", this.getMsaLink(mutation));
@@ -287,10 +292,14 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
 				mutationData.put("uniprotId", this.getUniprotId(mutation));
+				mutationData.put("proteinPosStart", mutation.getOncotatorProteinPosStart());
+				mutationData.put("proteinPosEnd", mutation.getOncotatorProteinPosEnd());
 				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
+
+				id++;
 			}
 		}
 
@@ -446,38 +455,6 @@ public class MutationDataServlet extends HttpServlet
 	protected String getSequencingCenter(ExtendedMutation mutation)
 	{
 		return SequenceCenterUtil.getSequencingCenterAbbrev(mutation.getSequencingCenter());
-	}
-
-	/**
-	 * TODO move this method to the client side
-	 * Creates an html "a" element for the cosmic overlapping value
-	 * of the given mutation. The text of the element will be the sum
-	 * of all cosmic values, and the id of the element will be the
-	 * (non-parsed) cosmic overlapping string.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          string representing an "a" element for the cosmic value
-	 */
-	protected int getCosmicCount(ExtendedMutation mutation)
-	{
-		if (mutation.getOncotatorCosmicOverlapping() == null ||
-		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
-		{
-			return 0;
-		}
-
-		// calculate total cosmic count
-		// TODO move this method to the client side
-		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
-
-		if (total > 0)
-		{
-			return total;
-		}
-		else
-		{
-			return 0;
-		}
 	}
 
 	/**

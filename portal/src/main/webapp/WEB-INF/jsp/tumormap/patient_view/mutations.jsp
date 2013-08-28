@@ -737,7 +737,8 @@
         function qtip(el, tip) {
             $(el).qtip({
                 content: {text: tip},
-                hide: { fixed: true, delay: 200 },
+	            show: {event: "mouseover"},
+                hide: {fixed: true, delay: 200, event: "mouseout"},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
                 position: {my:'top right',at:'bottom center'}
             });
@@ -765,7 +766,8 @@
                     } );
                 }
             },
-            hide: { fixed: true, delay: 100 },
+	        show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
             position: {my:'top right',at:'bottom center'}
         });

@@ -185,7 +185,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	function _addMutationTableTooltips(tableSelector)
 	{
 	    var qTipOptions = {content: {attr: 'alt'},
-	        hide: { fixed: true, delay: 100 },
+		    show: {event: 'mouseover'},
+	        hide: {fixed: true, delay: 100, event: 'mouseout'},
 	        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
 	        position: {my:'top left', at:'bottom right'}};
 

@@ -847,14 +847,14 @@
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
 
-                $.post("pancancerMutations.json", {mutation_keys: JSON.stringify(genomicEventObs.mutations.data.key)}, function(res) {
-
-                    // munge data to get it into the format: keyword -> {keyword, cancer_study, cancer_type, count} where `keyword` is the same
-                    genomicEventObs.pancan_mutation_frequencies = d3.nest().key(function(d) { return d.keyword; }).entries(res)
-                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
-
-                    genomicEventObs.fire("pancan-mutation-frequency-built");
-                });
+//                $.post("pancancerMutations.json", {mutation_keys: JSON.stringify(genomicEventObs.mutations.data.key)}, function(res) {
+//
+//                    // munge data to get it into the format: keyword -> {keyword, cancer_study, cancer_type, count} where `keyword` is the same
+//                    genomicEventObs.pancan_mutation_frequencies = d3.nest().key(function(d) { return d.keyword; }).entries(res)
+//                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+//
+//                    genomicEventObs.fire("pancan-mutation-frequency-built");
+//                });
 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 

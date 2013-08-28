@@ -912,7 +912,7 @@ public final class DaoMutation {
      *
      * @param keywords
      * @param internalProfileIds
-     * @return Collection of Maps {"keyword" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
+     * @return Collection of Maps {"keyword" , "hugo" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
      * @throws DaoException
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      */
@@ -923,7 +923,7 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
 
-            String sql = "SELECT KEYWORD, GENETIC_PROFILE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
+            String sql = "SELECT KEYWORD, GENETIC_PROFILE_ID, mutation.ENTREZ_GENE_ID, count(DISTINCT CASE_ID) FROM mutation, mutation_event " +
                     "WHERE GENETIC_PROFILE_ID IN (" + StringUtils.join(internalProfileIds, ",") + ") " +
                     "AND mutation.MUTATION_EVENT_ID=mutation_event.MUTATION_EVENT_ID " +
                     "AND KEYWORD IN ('" + StringUtils.join(keywords, "','") + "') " +
@@ -939,7 +939,8 @@ public final class DaoMutation {
 
                 String keyword = rs.getString(1);
                 Integer geneticProfileId = rs.getInt(2);
-                Integer count = rs.getInt(3);
+                Long entrez = rs.getLong(3);
+                Integer count = rs.getInt(4);
 
                 // can you do the boogie woogie to get a cancerStudy's name?
                 // this is computing a join and in not optimal
@@ -949,7 +950,11 @@ public final class DaoMutation {
                 String name = cancerStudy.getName();
                 String cancerType = cancerStudy.getTypeOfCancerId();
 
+                CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(entrez);
+                String hugo = gene.getHugoGeneSymbolAllCaps();
+
                 d.put("keyword", keyword);
+                d.put("hugo", hugo);
                 d.put("cancer_study", name);
                 d.put("cancer_type", cancerType);
                 d.put("count", count);
@@ -972,7 +977,7 @@ public final class DaoMutation {
      *
      * @param hugos
      * @param internalProfileIds
-     * @return Collection of Maps {"gene" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
+     * @return Collection of Maps {"hugo" , "cancer_study" , "count"} where cancer_study == cancerStudy.getName();
      * and gene is the hugo gene symbol.
      *
      * @throws DaoException
@@ -1028,7 +1033,7 @@ public final class DaoMutation {
                 CanonicalGene canonicalGene = entrez2CanonicalGene.get(entrez);
                 String hugo = canonicalGene.getHugoGeneSymbolAllCaps();
 
-                d.put("gene", hugo);
+                d.put("hugo", hugo);
                 d.put("cancer_study", name);
                 d.put("cancer_type", cancerType);
                 d.put("count", count);

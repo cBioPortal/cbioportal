@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoException;
 
 /**
  *
@@ -15,7 +14,7 @@ public class CnaEvent {
     private String caseId;
     private int cnaProfileId;
     private long eventId;
-    private long entrezGeneId;
+    private CanonicalGene gene;
     private CNA alteration;
     
     public static enum CNA {
@@ -53,9 +52,9 @@ public class CnaEvent {
     }
 
     public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
+        setEntrezGeneId(entrezGeneId);
         this.caseId = caseId;
         this.cnaProfileId = cnaProfileId;
-        this.entrezGeneId = entrezGeneId;
         this.alteration = CNA.getByCode(alteration);
         if (this.alteration == null) {
             throw new IllegalArgumentException("wrong copy number alteration");
@@ -91,15 +90,18 @@ public class CnaEvent {
     }
 
     public long getEntrezGeneId() {
-        return entrezGeneId;
+        return gene.getEntrezGeneId();
     }
     
     public String getGeneSymbol() {
-        return DaoGeneOptimized.getInstance().getGene(entrezGeneId).getHugoGeneSymbolAllCaps();
+        return gene.getHugoGeneSymbolAllCaps();
     }
 
     public void setEntrezGeneId(long entrezGeneId) {
-        this.entrezGeneId = entrezGeneId;
+        this.gene = DaoGeneOptimized.getInstance().getGene(entrezGeneId);
+        if (this.gene == null) {
+            throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
+        } 
     }
 
     public long getEventId() {

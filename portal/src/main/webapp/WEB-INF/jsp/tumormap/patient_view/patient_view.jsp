@@ -928,6 +928,7 @@ function outputClinicalData() {
     }
 
     function guessClinicalData(clinicalData, paramNames) {
+        if (!clinicalData) return null;
         for (var i=0, len=paramNames.length; i<len; i++) {
             var data = clinicalData[paramNames[i]];
             if (typeof data !== 'undefined' && data !== null) return data;

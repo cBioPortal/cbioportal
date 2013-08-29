@@ -13,6 +13,21 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	var mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
 
+	// a list of registered callback functions
+	var callbackFunctions = [];
+
+	// flag used to switch callbacks on/off
+	var callbackActive = true;
+
+	// reference to the data table object
+	var dataTable = null;
+
+	// this is used to check if search string is changed after each redraw
+	var prevSearch = "";
+
+	// last search string manually entered by the user
+	var manualSearch = "";
+
 	/**
 	 * Creates a mapping for given column headers. The mapped values
 	 * will be the array indices for each element.
@@ -57,12 +72,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			count++;
 		}
 
-		// -2 because of the fields "specialGeneHeaders" and "ncbiBuildNo"
-		//count += data.header.specialGeneHeaders.length - 2;
-		//count -= 1;
+		// always hide id
+		hiddenCols.push(indexMap["mutation id"]);
 
-		// hide special gene columns and less important columns by default
-		for (var col=9; col<count; col++)
+		// hide less important columns by default
+		for (var col=indexMap["vs"] + 1; col<count; col++)
 		{
 			// do not hide allele frequency (T) and count columns
 			if (!(col == indexMap["allele freq (t)"] ||
@@ -87,6 +101,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	 * @param tableSelector jQuery selector for the target table
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
+	 * @return {object}     DataTable instance
 	 * @private
 	 */
 	function _initDataTable(tableSelector, indexMap, hiddenCols)
@@ -127,13 +142,38 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	            {"bVisible": false,
 	                "aTargets": hiddenCols}
 	        ],
+			"oColVis": {"aiExclude": [indexMap["mutation id"]]}, // always hide id column
 	        "fnDrawCallback": function(oSettings) {
 	            // add tooltips to the table
 	            _addMutationTableTooltips(tableSelector);
+
+		        var currSearch = oSettings.oPreviousSearch.sSearch;
+
+		        // call the functions only if the corresponding flag is set
+		        // and there is a change in the search term
+		        if (callbackActive &&
+		            prevSearch != currSearch)
+		        {
+			        // call registered callback functions
+			        for (var i=0; i < callbackFunctions.length; i++)
+			        {
+				        callbackFunctions[i](tableSelector);
+			        }
+
+			        // assuming callbacks are active for only manual filtering
+			        // so update manual search string only if callbacks are active
+			        manualSearch = currSearch;
+		        }
+
+		        // update prev search string reference for future use
+		        prevSearch = currSearch;
 	        }
 	    });
 
 	    oTable.css("width", "100%");
+
+		// return the data table instance
+		return oTable;
 	}
 
 	/**
@@ -145,7 +185,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	function _addMutationTableTooltips(tableSelector)
 	{
 	    var qTipOptions = {content: {attr: 'alt'},
-	        hide: { fixed: true, delay: 100 },
+		    show: {event: 'mouseover'},
+	        hide: {fixed: true, delay: 100, event: 'mouseout'},
 	        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
 	        position: {my:'top left', at:'bottom right'}};
 
@@ -170,28 +211,23 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		// add tooltip for COSMIC value
 		tableSelector.find('.mutation_table_cosmic').each(function() {
 			var label = this;
-			var cosmic = JSON.parse($(label).attr('alt'));
+			var mutationId = $(label).attr('alt');
+			var mutation = mutationUtil.getMutationIdMap()[mutationId];
 
 			// copy default qTip options and modify "content" to customize for cosmic
 			var qTipOptsCosmic = {};
 			jQuery.extend(true, qTipOptsCosmic, qTipOptions);
 
-			qTipOptsCosmic.content = { text: function(api) {
-				return "";
-			}};
-
-			qTipOptsCosmic.events = {render: function(event, api)
-			{
-				var model = {cosmic: cosmic,
+			qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
+			qTipOptsCosmic.events = {render: function(event, api) {
+				var model = {cosmic: mutation.cosmic,
+					keyword: mutation.keyword,
 					geneSymbol: gene,
 					total: $(label).text()};
 
-				$(this).empty();
-				$(this).append("<div class='tooltip-table-container'></div>");
+				var container = $(this).find('.ui-tooltip-content');
 
-				var container = $(this).find('.tooltip-table-container');
-
-				// create view but do not render, return the html content instead
+				// create & render cosmic tip view
 				var cosmicView = new CosmicTipView({el: container, model: model});
 				cosmicView.render();
 			}};
@@ -199,37 +235,30 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 			$(label).qtip(qTipOptsCosmic);
 		});
 
-	    // copy default qTip options and modify "content"
-	    // to customize for predicted impact score
-	    var qTipOptsOma = {};
-	    jQuery.extend(true, qTipOptsOma, qTipOptions);
+		// add tooltip for Predicted Impact Score (FIS)
+		tableSelector.find('.oma_link').each(function() {
+			var links = $(this).attr('alt');
+			var parts = links.split("|");
 
-	    qTipOptsOma.content = { text: function(api) {
-	        var links = $(this).attr('alt');
-	        var parts = links.split("|");
+			// copy default qTip options and modify "content"
+			// to customize for predicted impact score
+			var qTipOptsOma = {};
+			jQuery.extend(true, qTipOptsOma, qTipOptions);
 
-	        var impact = parts[0];
+			qTipOptsOma.content = {text: "NA"}; // content is overwritten on render
+			qTipOptsOma.events = {render: function(event, api) {
+				var model = {impact: parts[0],
+					xvia: parts[1]};
 
-		    // TODO extract to a backbone view
-	        var tip = "Predicted impact score: <b>"+impact+"</b>";
+				var container = $(this).find('.ui-tooltip-content');
 
-	        var xvia = parts[1];
-	        if (xvia&&xvia!='NA')
-	            tip += "<br/><a href='"+xvia+"' target='_blank'>" +
-	                   "<img height=15 width=19 src='images/ma.png'> Go to Mutation Assessor</a>";
+				// create & render FIS tip view
+				var fisTipView = new PredictedImpactTipView({el:container, model: model});
+				fisTipView.render();
+			}};
 
-//        var msa = parts[2];
-//        if (msa&&msa!='NA')
-//            tip += "<br/><a href='"+msa+"'><img src='images/msa.png'> View Multiple Sequence Alignment</a>";
-
-//		    var pdb = parts[3];
-//		    if (pdb&&pdb!='NA')
-//			    tip += "<br/><a href='"+pdb+"'><img src='images/pdb.png'> View Protein Structure</a>";
-
-	        return tip;
-	    }};
-
-		tableSelector.find('.oma_link').qtip(qTipOptsOma);
+			$(this).qtip(qTipOptsOma);
+		});
 	}
 
 	/**
@@ -501,6 +530,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		};
 	}
 
+	this.getDataTable = function()
+	{
+		return dataTable;
+	};
+
 	/**
 	 * Formats the table with data tables plugin.
 	 */
@@ -525,6 +559,61 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		_initDataTable(tableSelector, indexMap, hiddenCols);
+		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols);
+	};
+
+	/**
+	 * Registers a callback function which is to be called
+	 * for each rendering of the table.
+	 *
+	 * @param callbackFn    function to register
+	 */
+	this.registerCallback = function(callbackFn)
+	{
+		if (_.isFunction(callbackFn))
+		{
+			callbackFunctions.push(callbackFn);
+		}
+	};
+
+	/**
+	 * Removes a previously registered callback function.
+	 *
+	 * @param callbackFn    function to unregister
+	 */
+	this.unregisterCallback = function(callbackFn)
+	{
+		var index = $.inArray(callbackFn);
+
+		// remove the function at the specified index
+		if (index >= 0)
+		{
+			callbackFunctions.splice(index, 1);
+		}
+	};
+
+	/**
+	 * Enables/disables callback functions.
+	 *
+	 * @param active    boolean value
+	 */
+	this.setCallbackActive = function(active)
+	{
+		callbackActive = active;
+	};
+
+	/**
+	 * Resets filtering related variables to their initial state.
+	 * Does not remove actual table filters.
+	 */
+	this.cleanFilters = function()
+	{
+		prevSearch = "";
+		manualSearch = "";
+	};
+
+	this.getManualSearch = function()
+	{
+		return manualSearch;
 	};
 };

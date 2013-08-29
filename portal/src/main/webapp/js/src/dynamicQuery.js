@@ -436,7 +436,9 @@ function updateCaseListSmart() {
                 position: {
                     my: 'left middle',
                     at: 'middle right'
-                }
+                },
+	            show: "mouseover",
+	            hide: "mouseout"
             });
         }
     );

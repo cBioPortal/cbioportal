@@ -28,18 +28,18 @@
 var PlotsTwoGenesMenu = (function(){
 
     var content = {
-            plots_type_list : {
-                "mrna" : { value : "mrna", name :  "mRNA Expression" },
-                "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
-                "methylation" : { value : "methylation", name :  "DNA Methylation" },
-                "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
-            },
-            genetic_profile_mutations : [],
-            genetic_profile_mrna : [],
-            genetic_profile_copy_no : [],
-            genetic_profile_rppa : [],
-            genetic_profile_dna_methylation : []
-        };
+        plots_type_list : {
+            "mrna" : { value : "mrna", name :  "mRNA Expression" },
+            "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
+            "methylation" : { value : "methylation", name :  "DNA Methylation" },
+            "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
+        },
+        genetic_profile_mutations : [],
+        genetic_profile_mrna : [],
+        genetic_profile_copy_no : [],
+        genetic_profile_rppa : [],
+        genetic_profile_dna_methylation : []
+    };
 
     function generateList(selectId, options) {
         var select = document.getElementById(selectId);
@@ -51,12 +51,38 @@ var PlotsTwoGenesMenu = (function(){
         });
     }
 
-    function fetchFrameData() {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function mergeList(arrX, arrY) {
+        var result = [];
+        var _arrY = [];
+        $.each(arrY, function(index, val) {
+            _arrY.push(val[0]);
+        });
+        $.each(arrX, function(index, val) {
+            if (_arrY.indexOf(val[0]) !== -1) {
+                result.push(arrX[index]);
+            }
+        });
+        return result;
+    }
+
+    function fetchFrameData(geneX, geneY) {
+        content.genetic_profile_mutations = Plots.getGeneticProfiles(geneX).genetic_profile_mutations;
+        content.genetic_profile_mrna = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_mrna,
+            Plots.getGeneticProfiles(geneY).genetic_profile_mrna
+        );
+        content.genetic_profile_copy_no = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_copy_no,
+            Plots.getGeneticProfiles(geneY).genetic_profile_copy_no
+        );
+        content.genetic_profile_dna_methylation = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_dna_methylation,
+            Plots.getGeneticProfiles(geneY).genetic_profile_dna_methylation
+        );
+        content.genetic_profile_rppa = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_rppa,
+            Plots.getGeneticProfiles(geneY).genetic_profile_rppa
+        );
     }
 
     function appendDropDown(divId, value, text) {
@@ -132,6 +158,7 @@ var PlotsTwoGenesMenu = (function(){
     }
 
     function generatePlotsTypeList() {
+        $("#two_genes_plots_type").empty();
         appendDropDown("#two_genes_plots_type", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         if (content.genetic_profile_copy_no.length !== 0) {
             var _flag = false;
@@ -165,11 +192,18 @@ var PlotsTwoGenesMenu = (function(){
 
     return {
         init: function() {
-            fetchFrameData();
             generateGeneList();
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
+            drawPlatFormList();
         },
-        update: function() {
+        updateMenu: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
+            generatePlotsTypeList();
+            drawPlatFormList();
+        },
+        updateDataType: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             drawPlatFormList();
         }
     };
@@ -701,9 +735,10 @@ var PlotsTwoGenesView = (function(){
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                        var tmp_anno_str =
+                            d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
                     } else {
-                        var tmp_anno_str = d.annotation;
+                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }
@@ -713,7 +748,8 @@ var PlotsTwoGenesView = (function(){
                     {
                         content: {text: content},
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                        hide: { fixed:true, delay: 100},
+	                    show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
                     }
                 );
@@ -764,7 +800,12 @@ var PlotsTwoGenesView = (function(){
     function getProfileDataCallBack(result) {
         pDataInit(result);
         initCanvas();
+
         if (pData.dotsData.length !== 0) {
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             $("#show_mutation").attr("disabled", false);
             initAxis();
             drawAxis();
@@ -774,6 +815,10 @@ var PlotsTwoGenesView = (function(){
             addQtips();
             drawImgConverter();
         } else {
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
             $("#show_mutation").attr("disabled", true);
             drawErrorMsg();
         }
@@ -791,15 +836,6 @@ var PlotsTwoGenesView = (function(){
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
-
-            setTimeout(
-                function() {
-                    $('#view_title').show();
-                    $('#plots_box').show();
-                    $('#loading-image').hide();
-                },
-                500
-            );
         },
         update : function() {
             //TODO: use cache

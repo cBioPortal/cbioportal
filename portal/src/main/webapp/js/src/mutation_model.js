@@ -15,14 +15,7 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
-		var cosmicCount = 0;
-                if (this.cosmic) {
-                    this.cosmic.forEach(function(c) {
-                        cosmicCount += c[2];
-                    });
-                };
-                this.cosmicCount = cosmicCount;
-
+		this.cosmicCount = this.calcCosmicCount(attributes.cosmic);
 		this.functionalImpactScore = attributes.functionalImpactScore;
 		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;
@@ -51,10 +44,24 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
 		this.specialGeneData = attributes.specialGeneData;
+		this.keyword = attributes.keyword;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service
 		var urlStr = "webservice.do?cmd=...";
+	},
+	calcCosmicCount: function(cosmic)
+	{
+		var cosmicCount = 0;
+
+		if (cosmic)
+		{
+			cosmic.forEach(function(c) {
+				cosmicCount += c[2];
+			});
+		}
+
+		return cosmicCount;
 	}
 });
 

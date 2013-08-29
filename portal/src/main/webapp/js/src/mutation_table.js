@@ -211,8 +211,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		// add tooltip for COSMIC value
 		tableSelector.find('.mutation_table_cosmic').each(function() {
 			var label = this;
-			// TODO instead of parsing attr alt, use data directly
-			var cosmic = JSON.parse($(label).attr('alt'));
+			var mutationId = $(label).attr('alt');
+			var mutation = mutationUtil.getMutationIdMap()[mutationId];
 
 			// copy default qTip options and modify "content" to customize for cosmic
 			var qTipOptsCosmic = {};
@@ -220,7 +220,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 
 			qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsCosmic.events = {render: function(event, api) {
-				var model = {cosmic: cosmic,
+				var model = {cosmic: mutation.cosmic,
+					keyword: mutation.keyword,
 					geneSymbol: gene,
 					total: $(label).text()};
 

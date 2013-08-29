@@ -20,7 +20,25 @@ function MutationPdbPanel(options, data, xScale)
 		marginTop: 0,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
-		chainPadding: 2     // padding between chain rectangles
+		chainPadding: 2,    // padding between chain rectangles
+		/**
+		 * Default chain tooltip function.
+		 *
+		 * @param element   target svg element (rectangle)
+		 * @param datum     chain data
+		 */
+		chainTipFn: function (element, datum) {
+			// TODO improve tip (and define backbone view?)
+			var tip = datum.pdbId + ":" + datum.chain.chainId +
+			          " (" + datum.chain.start + " - " + datum.chain.end + ")";
+
+			var options = {content: {text: tip},
+				hide: {fixed: true, delay: 100},
+				style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+				position: {my:'bottom left', at:'top center'}};
+
+			$(element).qtip(options);
+		}
 	};
 
 	// merge options with default options to use defaults for missing values
@@ -47,13 +65,10 @@ function MutationPdbPanel(options, data, xScale)
 
 			// create a rectangle for each chain
 			_.each(pdb.chains, function(ele, idx) {
-				// TODO ele.start & ele.end is not defined yet...
-				//var start = ele.start;
-				//var end = ele.end;
+				var start = ele.start;
+				var end = ele.end;
 
-				// TODO replace these test values with actual ones
-				var start = 100;
-				var end = 200;
+				// TODO assign a different color for each chain
 				var color = "#AABBCC";
 
 				var width = Math.abs(xScale(start) - xScale(end));
@@ -70,7 +85,12 @@ function MutationPdbPanel(options, data, xScale)
 					.attr('height', height);
 
 				// bind chain data to the rectangle
-				rect.datum({pdbId: pdb.pdbId, chain: ele});
+				var datum = {pdbId: pdb.pdbId, chain: ele};
+				rect.datum(datum);
+
+				// add tooltip
+				var addTooltip = options.chainTipFn;
+				addTooltip(rect, datum);
 			});
 		}
 	}

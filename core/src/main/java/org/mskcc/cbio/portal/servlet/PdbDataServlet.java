@@ -69,7 +69,6 @@ public class PdbDataServlet extends HttpServlet
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
 		Set<Integer> positions = this.parsePositions(request.getParameter("positions"));
-		Map<Integer, Integer> positionMap = null;
 
 		try
 		{
@@ -86,12 +85,17 @@ public class PdbDataServlet extends HttpServlet
 				for (String chainId : pdbChainMap.get(pdbId))
 				{
 					// get the pdb positions corresponding to the given uniprot positions
-					positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
+					Map<Integer, Integer> positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
 							uniprotId, positions, pdbId, chainId);
+
+					Integer[] endPositions = DaoPdbUniprotResidueMapping.getEndPositions(
+							uniprotId, pdbId, chainId);
 
 					JSONObject chain = new JSONObject();
 
 					chain.put("chainId", chainId);
+					chain.put("start", endPositions[0]);
+					chain.put("end", endPositions[1]);
 					chain.put("positionMap", positionMap);
 					chainArray.add(chain);
 				}

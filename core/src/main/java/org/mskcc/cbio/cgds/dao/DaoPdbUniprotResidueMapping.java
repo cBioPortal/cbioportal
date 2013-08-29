@@ -200,4 +200,42 @@ public final class DaoPdbUniprotResidueMapping {
 		    JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
 	    }
     }
+
+	public static Integer[] getEndPositions(String uniprotId,
+			String pdbId,
+			String chainId) throws DaoException
+	{
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+			pstmt = con.prepareStatement("SELECT MIN(`UNIPROT_POSITION`) AS MIN_POSITION, " +
+			                             "MAX(`UNIPROT_POSITION`) AS MAX_POSITION " +
+			                             "FROM pdb_uniprot_residue_mapping " +
+			                             "WHERE PDB_ID=? AND CHAIN=? AND UNIPROT_ID=?");
+			pstmt.setString(1, pdbId);
+			pstmt.setString(2, chainId);
+			pstmt.setString(3, uniprotId);
+
+			rs = pstmt.executeQuery();
+			Integer[] positions = new Integer[2];
+
+			if (rs.next())
+			{
+				Integer minPos = rs.getInt(1);
+				Integer maxPos = rs.getInt(2);
+
+				positions[0] = minPos;
+				positions[1] = maxPos;
+			}
+
+			return positions;
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+		}
+	}
 }

@@ -31,7 +31,7 @@
             Copy Number files should be tab delimited. They should also have
             the following fields, in this order, on the first line:
             <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-            sample ids.  Subsequant lines have data for hugo gene symbols,
+            sample ids.  Subsequent lines have data for hugo gene symbols,
             entrez gene ids, and for each sample.  Data for each sample is
             discrete, ranging from <code>-2</code> to <code>+2</code>.
         </p>

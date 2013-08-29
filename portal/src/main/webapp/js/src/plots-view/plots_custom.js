@@ -777,7 +777,8 @@ var PlotsCustomView = (function() {
                     {
                         content: {text: content},
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                        hide: { fixed:true, delay: 100},
+                        show: {event: "mouseover"},
+	                    hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
                     }
                 );

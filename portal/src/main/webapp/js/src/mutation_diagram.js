@@ -143,7 +143,8 @@ MutationDiagram.prototype.defaultOpts = {
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
-			hide: {fixed: true, delay: 100},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			show: {event: 'mouseover'},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
 
@@ -166,7 +167,8 @@ MutationDiagram.prototype.defaultOpts = {
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
-			hide: {fixed: true, delay: 100},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			show: {event: 'mouseover'},
 			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
 			position: {my:'bottom left', at:'top center'}};
 

@@ -381,7 +381,8 @@ function getEventIndexMap(eventTableData,idCol) {
 function addNoteTooltip(elem, content, position) {
     $(elem).qtip({
         content: (typeof content === 'undefined' ? {attr: 'alt'} : content),
-        hide: { fixed: true, delay: 100 },
+	    show: {event: "mouseover"},
+        hide: {fixed: true, delay: 100, event: "mouseout"},
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
         position: (typeof position === 'undefined' ? {my:'top left',at:'bottom center'} : position)
     });
@@ -429,7 +430,8 @@ function addMoreClinicalTooltip(elemId, caseId) {
                     } );
                 }
             },
-            hide: { fixed: true, delay: 100 },
+	        show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: {my:'top right',at:'bottom right'}
         });
@@ -493,7 +495,8 @@ function addDrugsTooltip(elem, my, at) {
                     }
                 }
             },
-            hide: { fixed: true, delay: 100 },
+            show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: { my: my, at: at }
         });
@@ -583,7 +586,8 @@ function plotMrna(div,alts) {
         $(this).qtip({
             content: {text: "mRNA level of the gene in this tumor<br/><b>mRNA z-score</b>: "
                         +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
-            hide: { fixed: true, delay: 10 },
+	        show: {event: "mouseover"},
+            hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });
@@ -656,7 +660,8 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
                     plotCaseLabel('.case-label-tip', true, true);
                 }
             },
-            hide: { fixed: true, delay: 10 },
+	        show: {event: "mouseover"},
+            hide: {fixed: true, delay: 10, event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });

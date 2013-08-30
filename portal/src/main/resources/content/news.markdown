@@ -1,3 +1,13 @@
+# September 3, 2013:
+
+* OncoPrints now allow the display of an optional track with clinical annotation [Example picture of endometrial cancer - see below]
+* New standalone oncoprint tool [link](tools.jsp)
+* Updated COSMIC data (v66 Release)
+* Improved plots of protein changes
+* Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters
+* Addition of DNA cytoband information in the patient view of copy-number changes
+<center>![Oncoprint with clinical track](images/previews/oncoprint_clinical_track.png)</center>
+
 # July 25, 2013
 
 * Multi-gene correlation plots.

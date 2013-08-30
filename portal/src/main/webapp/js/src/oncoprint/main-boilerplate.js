@@ -30,7 +30,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     clinicalAttributes.fetch({
         type: 'POST',
-        data: { case_list: cases },
+        data: { case_list: window.VisState.getCases() },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
@@ -39,14 +39,10 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var oncoprint;
 
-    var genes = window.gene_list;
+    var cases = window.VisState.getCases();
+    var genes = window.VisState.getGeneList();
     try {
-        if (_.isArray(genes)) {
-            genes = genes.join(" ");
-        }
-        if (_.isElement(genes)) {
-            genes = GeneSet(window.gene_list.innerHTML).getAllGenes().join(" ");
-        }
+        genes = GeneSet(genes).getAllGenes().join(" ");
     } catch (err) {
         throw new Error(err);
     }
@@ -61,9 +57,9 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             cancer_study_id: cancer_study_id_selected,
             genes: genes,
             case_list: cases,
-            geneticProfileIds: genetic_profiles,
-            z_score_threshold: zscore_threshold,
-            rppa_score_threshold: rppa_score_threshold
+            geneticProfileIds: window.VisState.getGeneticProfiles(),
+            z_score_threshold: window.VisState.getZscoreThreshold(),
+            rppa_score_threshold: window.VisState.getRppaScoreThreshold()
         },
         success: function(data) {
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {

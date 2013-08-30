@@ -66,10 +66,14 @@
     %>
 
 <script type="text/javascript">
-    window.cases = '<%= cases %>';
-    window.case_ids_key = '<%= caseIdsKey %>';
-    window.gene_list = '<%=geneList%>';
-    window.genetic_profiles = '<%=geneticProfiles%>';
+    window.VisState = {
+        getCases: function() { return '<%= cases %>'; },
+        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
+        getGeneList: function() { return '<%=geneList%>'; },
+        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
+        getZscoreThreshold: function() { return window.zscore_threshold; },
+        getRppaScoreThreshold: function() { return window.rppa_score_threshold; }
+    };
 </script>
 
 <%

@@ -755,7 +755,7 @@ function outputClinicalData() {
         for (var i=0; i<n; i++) {
             var caseId = caseIds[i];
             var clinicalData = clinicalDataMap[caseId];
-            var state = guessClinicalData(clinicalData, ["tumor_type"]);
+            var state = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
             caseMetaData.color[caseId] = getCaseColor(state);
         }
 
@@ -804,10 +804,10 @@ function outputClinicalData() {
     
     function formatPatientInfo(clinicalData) {
         var patientInfo = [];
-        var gender = guessClinicalData(clinicalData, ['gender']);
+        var gender = guessClinicalData(clinicalData, ['GENDER']);
         if (gender!==null)
             patientInfo.push(gender);
-        var age = guessClinicalData(clinicalData, ['age']);
+        var age = guessClinicalData(clinicalData, ['AGE']);
         if (age!==null)
             patientInfo.push(Math.floor(age) + " years old");
 
@@ -816,13 +816,13 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var state = guessClinicalData(clinicalData, ["tumor_type"]);
+        var state = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
         if (state!==null) {
             ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
 
             var stateLower = state.toLowerCase();
             if (stateLower === "metastatic" || stateLower === "metastasis") {
-                var loc = guessClinicalData(clinicalData,["tumor location","tumor site","metastasis site"]);
+                var loc = guessClinicalData(clinicalData,["TUMOR_SITE"]);
                 if (loc!==null) 
                     ret += " ("+loc+")";
             }
@@ -839,54 +839,54 @@ function outputClinicalData() {
         if (stateInfo) diseaseInfo.push(stateInfo);
 
         var gleason = guessClinicalData(clinicalData,
-                        ["gleason score","overall_gleason_score"]);
+                        ["GLEASON_SCORE"]);
         var strGleason = null;
         if (gleason!==null) {
             strGleason = "Gleason: "+gleason;
         } 
 
-        var primaryGleason = guessClinicalData(clinicalData, ["primary_gleason_grade"]);
-        var secondaryGleason = guessClinicalData(clinicalData, ["secondary_gleason_grade"]);
+        var primaryGleason = guessClinicalData(clinicalData, ["GLEASON_SCORE_1"]);
+        var secondaryGleason = guessClinicalData(clinicalData, ["GLEASON_SOCRE_2"]);
         if (primaryGleason!==null && secondaryGleason!==null) {
             strGleason += " (" + primaryGleason + "+" + secondaryGleason + ")";
         }
         if (gleason) diseaseInfo.push(strGleason);
 
-        var histology = guessClinicalData(clinicalData,["histology", "histological_type"]);
+        var histology = guessClinicalData(clinicalData,["HISTOLOGY"]);
         if (histology!==null) {
             diseaseInfo.push(histology);
         }
 
-        var stage = guessClinicalData(clinicalData, ["tumor_stage","2009stagegroup","tumorstage"]);
+        var stage = guessClinicalData(clinicalData, ["TUMOR_STAGE_2009"]);
         if (stage!==null && stage.toLowerCase()!=="unknown") {
             diseaseInfo.push(stage); 
         }
 
-        var grade = guessClinicalData(clinicalData,["tumor_grade", "tumorgrade"]);
+        var grade = guessClinicalData(clinicalData,["TUMOR_GRADE"]);
         if (grade!==null) {
             diseaseInfo.push(grade);
         }
 
         // TODO: this is a hacky way to include the information in prad_mich
-        var etsRafSpink1Status = guessClinicalData(clinicalData,["ets/raf/spink1 status"]);
+        var etsRafSpink1Status = guessClinicalData(clinicalData,["ETS/RAF/SPINK1 STATUS"]);
         if (etsRafSpink1Status!==null) {
             diseaseInfo.push(etsRafSpink1Status);
         }
 
         // TODO: this is a hacky way to include the information in prad_broad
-        var tmprss2ErgFusionStatus = guessClinicalData(clinicalData,["tmprss2-erg fusion status"]);
+        var tmprss2ErgFusionStatus = guessClinicalData(clinicalData,["TMPRSS2-ERG FUSION STATUS"]);
         if (tmprss2ErgFusionStatus!==null) {
             diseaseInfo.push("TMPRSS2-ERG Fusion: "+tmprss2ErgFusionStatus);
         }
 
         // TODO: this is a hacky way to include the information in prad_mskcc
-        var ergFusion = guessClinicalData(clinicalData, ["erg-fusion acgh"]);
+        var ergFusion = guessClinicalData(clinicalData, ["ERG-FUSION ACGH"]);
         if (ergFusion!==null) {
             diseaseInfo.push("ERG-fusion aCGH: "+ergFusion);
         }
 
         // TODO: this is a hacky way to include the serum psa information for prad
-        var serumPsa = guessClinicalData(clinicalData, ["serum psa (ng/ml)","serum psa"]);
+        var serumPsa = guessClinicalData(clinicalData, ["SERUM_PSA"]);
         if (serumPsa!==null) {
             diseaseInfo.push("Serum PSA: "+serumPsa);
         }
@@ -895,12 +895,12 @@ function outputClinicalData() {
     }
 
     function formatPatientStatus(clinicalData) {
-        var oss = guessClinicalData(clinicalData, ["overall_survival_status"]);
+        var oss = guessClinicalData(clinicalData, ["OS_STATUS"]);
         var ossLow = oss===null?null:oss.toLowerCase();
-        var dfss = guessClinicalData(clinicalData, ["disease-free_survival_status"]);
+        var dfss = guessClinicalData(clinicalData, ["DFS_STATUS"]);
         var dfssLow = dfss===null?null:dfss.toLowerCase();
-        var osm = guessClinicalData(clinicalData, ["overall_survival_months"]);
-        var dfsm = guessClinicalData(clinicalData, ["disease-free_survival_months"]);
+        var osm = guessClinicalData(clinicalData, ["OS_MONTHS"]);
+        var dfsm = guessClinicalData(clinicalData, ["DFS_MONTHS"]);
         var patientStatus = "";
         if (oss!==null && ossLow!=="unknown") {
             patientStatus += "<font color='"
@@ -916,7 +916,7 @@ function outputClinicalData() {
             if (patientStatus) patientStatus += ", ";
             
             patientStatus += "<font color='"
-                    + (dfssLow==="DiseaseFree" ? "green":"red")
+                    + (dfssLow==="diseasefree" ? "green":"red")
                     + "'>"
                     + dfss
                     + "</font>";
@@ -928,6 +928,7 @@ function outputClinicalData() {
     }
 
     function guessClinicalData(clinicalData, paramNames) {
+        if (!clinicalData) return null;
         for (var i=0, len=paramNames.length; i<len; i++) {
             var data = clinicalData[paramNames[i]];
             if (typeof data !== 'undefined' && data !== null) return data;

@@ -88,6 +88,9 @@ public class PdbDataServlet extends HttpServlet
 					Map<Integer, Integer> positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
 							uniprotId, positions, pdbId, chainId);
 
+					// TODO using only start and end positions does not work,
+					// ...positions are not continuous, so exclude gaps, create segments
+					// ...chain.segments -> [{start: x1, end:y1}, ...]
 					Integer[] endPositions = DaoPdbUniprotResidueMapping.getEndPositions(
 							uniprotId, pdbId, chainId);
 

@@ -14,13 +14,23 @@ function MutationPdbPanel(options, data, xScale)
 	var _defaultOpts = {
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
-		elHeight: 60,       // height of the container (TODO this should vary by the number of chains)
+		elHeight: "auto",   // height of the container
 		marginLeft: 40,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 0,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 2,    // padding between chain rectangles
+		// TODO duplicate google colors, taken from OncoprintUtils.js (default branch)
+		// ...use OncoprintUtils or move colors to a general util class after merging
+		colors: ["#3366cc","#dc3912","#ff9900","#109618",
+			"#990099","#0099c6","#dd4477","#66aa00",
+			"#b82e2e","#316395","#994499","#22aa99",
+			"#aaaa11","#6633cc","#e67300","#8b0707",
+			"#651067","#329262","#5574a6","#3b3eac",
+			"#b77322","#16d620","#b91383","#f4359e",
+			"#9c5935","#a9c413","#2a778d","#668d1c",
+			"#bea413","#0c5922","#743411"],
 		/**
 		 * Default chain tooltip function.
 		 *
@@ -28,9 +38,12 @@ function MutationPdbPanel(options, data, xScale)
 		 * @param datum     chain data
 		 */
 		chainTipFn: function (element, datum) {
-			// TODO improve tip (and define backbone view?)
-			var tip = datum.pdbId + ":" + datum.chain.chainId +
-			          " (" + datum.chain.start + " - " + datum.chain.end + ")";
+			// TODO define a backbone view: PdbChainTipView
+			var tip = "<span class='pdb-chain-tip'>" +
+			          "<b>PDB:</b> " + datum.pdbId + "<br>" +
+			          "<b>Chain:</b> " + datum.chain.chainId +
+			          " (" + datum.chain.start + " - " + datum.chain.end + ")" +
+			          "</span>";
 
 			var options = {content: {text: tip},
 				hide: {fixed: true, delay: 100},
@@ -58,23 +71,23 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function drawPanel(svg, options, data, xScale)
 	{
-		// TODO using only the first PDB id
-		if (data.length > 0)
-		{
-			var pdb = data.at(0);
+		// we need to count chains to calculate y value
+		var count = 0;
 
+		// TODO rank chains by length. also limit number of chains?
+		data.each(function(pdb, idx) {
 			// create a rectangle for each chain
 			_.each(pdb.chains, function(ele, idx) {
 				var start = ele.start;
 				var end = ele.end;
 
-				// TODO assign a different color for each chain
-				var color = "#AABBCC";
+				// assign a different color for each chain
+				var color = options.colors[count % options.colors.length];
 
 				var width = Math.abs(xScale(start) - xScale(end));
 				var height = options.chainHeight;
 				var y = options.marginTop +
-				        idx * (options.chainHeight + options.chainPadding);
+				        count * (options.chainHeight + options.chainPadding);
 				var x = xScale(start);
 
 				var rect = svg.append('rect')
@@ -91,8 +104,34 @@ function MutationPdbPanel(options, data, xScale)
 				// add tooltip
 				var addTooltip = options.chainTipFn;
 				addTooltip(rect, datum);
+
+				// increment counter
+				count++;
 			});
+		});
+	}
+
+	function calcHeight(elHeight)
+	{
+		var height = 0;
+
+		if (elHeight != "auto")
+		{
+			height = elHeight;
 		}
+		else
+		{
+			var chainCount = 0;
+
+			data.each(function(pdb, idx) {
+				chainCount += pdb.chains.length;
+			});
+
+			height = _options.marginTop + _options.marginBottom +
+				chainCount * (_options.chainHeight + _options.chainPadding);
+		}
+
+		return height;
 	}
 
 	function createSvg(container, width, height)
@@ -113,7 +152,7 @@ function MutationPdbPanel(options, data, xScale)
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    _options.elHeight);
+		                    calcHeight(_options.elHeight));
 
 		_svg = svg;
 

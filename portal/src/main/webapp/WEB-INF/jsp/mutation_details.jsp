@@ -59,7 +59,7 @@
 		vertical-align: bottom;
 		margin-left: 3px;
 	}
-	.diagram-lollipop-tip, .diagram-region-tip {
+	.diagram-lollipop-tip, .diagram-region-tip, .pdb-chain-tip {
 		font-size: 12px;
 	}
 	.mutation-details-tooltip {

@@ -177,11 +177,7 @@ var MutationDetailsUtil = function(mutations)
 		var pdbModel = null;
 		var pdbList = [];
 
-		//TODO using only the first pdb id
-		if (data.length > 0)
-		{
-			var pdb = data[0];
-
+		_.each(data, function(pdb, idx) {
 			_.each(pdb.chains, function(ele, idx) {
 				var positionMap = {};
 
@@ -202,7 +198,7 @@ var MutationDetailsUtil = function(mutations)
 
 			pdbModel = new PdbModel(pdb);
 			pdbList.push(pdbModel);
-		}
+		});
 
 		// return new pdb model
 		return new PdbCollection(pdbList);

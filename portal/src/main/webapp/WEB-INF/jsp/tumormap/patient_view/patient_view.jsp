@@ -908,7 +908,7 @@ function outputClinicalData() {
                     + "'>"
                     + oss
                     + "</font>";
-            if (osm!==null) {
+            if (osm!==null && osm!=='NA') {
                 patientStatus += " (" + Math.round(osm) + " months)";
             }
         }
@@ -920,7 +920,7 @@ function outputClinicalData() {
                     + "'>"
                     + dfss
                     + "</font>";
-            if (dfsm!==null) {
+            if (dfsm!==null && dfsm!=='NA') {
                 patientStatus += " (" + Math.round(dfsm) + " months)";
             }
         }

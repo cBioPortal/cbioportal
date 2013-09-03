@@ -66,7 +66,7 @@
     %>
 
 <script type="text/javascript">
-    window.VisState = {
+    window.PortalGlobals = {
         getCases: function() { return '<%= cases %>'; },
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
         getGeneList: function() { return '<%=geneList%>'; },

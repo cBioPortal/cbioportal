@@ -120,6 +120,8 @@ var Mutation3dVis = function(name, options)
 
 		var selection = [];
 
+		// TODO focus on the current chain (fade unrelated residues)
+
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)
 		{

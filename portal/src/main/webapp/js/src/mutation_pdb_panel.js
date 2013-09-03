@@ -35,14 +35,16 @@ function MutationPdbPanel(options, data, xScale)
 		 * Default chain tooltip function.
 		 *
 		 * @param element   target svg element (rectangle)
-		 * @param datum     chain data
+		 * @param segment   a single segment on the chain
 		 */
-		chainTipFn: function (element, datum) {
+		chainTipFn: function (element, segment) {
 			// TODO define a backbone view: PdbChainTipView
+			var datum = element.datum();
+
 			var tip = "<span class='pdb-chain-tip'>" +
 			          "<b>PDB:</b> " + datum.pdbId + "<br>" +
 			          "<b>Chain:</b> " + datum.chain.chainId +
-			          " (" + datum.chain.start + " - " + datum.chain.end + ")" +
+			          " (" + segment.start + " - " + segment.end + ")" +
 			          "</span>";
 
 			var options = {content: {text: tip},
@@ -76,34 +78,39 @@ function MutationPdbPanel(options, data, xScale)
 
 		// TODO rank chains by length. also limit number of chains?
 		data.each(function(pdb, idx) {
-			// create a rectangle for each chain
+			// create rectangle(s) for each chain
 			_.each(pdb.chains, function(ele, idx) {
-				var start = ele.start;
-				var end = ele.end;
+				// chain datum
+				var datum = {pdbId: pdb.pdbId, chain: ele};
 
-				// assign a different color for each chain
+				// assign a different color to each chain
 				var color = options.colors[count % options.colors.length];
 
-				var width = Math.abs(xScale(start) - xScale(end));
-				var height = options.chainHeight;
-				var y = options.marginTop +
-				        count * (options.chainHeight + options.chainPadding);
-				var x = xScale(start);
+				// add a rectangle for each segment
+				_.each(ele.segments, function(ele, idx) {
+					var start = ele.start;
+					var end = ele.end;
 
-				var rect = svg.append('rect')
-					.attr('fill', color)
-					.attr('x', x)
-					.attr('y', y)
-					.attr('width', width)
-					.attr('height', height);
+					var width = Math.abs(xScale(start) - xScale(end));
+					var height = options.chainHeight;
+					var y = options.marginTop +
+					        count * (options.chainHeight + options.chainPadding);
+					var x = xScale(start);
 
-				// bind chain data to the rectangle
-				var datum = {pdbId: pdb.pdbId, chain: ele};
-				rect.datum(datum);
+					var rect = svg.append('rect')
+						.attr('fill', color)
+						.attr('x', x)
+						.attr('y', y)
+						.attr('width', width)
+						.attr('height', height);
 
-				// add tooltip
-				var addTooltip = options.chainTipFn;
-				addTooltip(rect, datum);
+					// bind chain data to the rectangle
+					rect.datum(datum);
+
+					// add tooltip
+					var addTooltip = options.chainTipFn;
+					addTooltip(rect, ele);
+				});
 
 				// increment counter
 				count++;

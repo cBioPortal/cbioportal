@@ -39,9 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * PDB Data Servlet designed to provide PDB data for a specific uniprot id.
@@ -88,18 +86,18 @@ public class PdbDataServlet extends HttpServlet
 					Map<Integer, Integer> positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
 							uniprotId, positions, pdbId, chainId);
 
-					// TODO using only start and end positions does not work,
-					// ...positions are not continuous, so exclude gaps, create segments
-					// ...chain.segments -> [{start: x1, end:y1}, ...]
-					Integer[] endPositions = DaoPdbUniprotResidueMapping.getEndPositions(
-							uniprotId, pdbId, chainId);
+					// Positions are not continuous, so exclude gaps, create segments
+					// chain.segments -> [{start: x1, end:y1}, ...]
+					JSONArray segments = this.segmentArray(
+						DaoPdbUniprotResidueMapping.getAllPositions(
+							uniprotId, pdbId, chainId));
 
 					JSONObject chain = new JSONObject();
 
 					chain.put("chainId", chainId);
-					chain.put("start", endPositions[0]);
-					chain.put("end", endPositions[1]);
+					chain.put("segments", segments);
 					chain.put("positionMap", positionMap);
+
 					chainArray.add(chain);
 				}
 
@@ -113,6 +111,66 @@ public class PdbDataServlet extends HttpServlet
 		}
 
 		this.writeOutput(response, jsonArray);
+	}
+
+	/**
+	 * Creates a JSONArray of segment objects for the given positions.
+	 * Each segment object has two fields: {start, end}.
+	 *
+	 * If positions list is not empty, this function will return a JSONArray
+	 * containing at least one segment.
+	 *
+	 * @param positions a list of uniprot positions
+	 * @return  an array of segment objects
+	 * @throws DaoException
+	 */
+	protected JSONArray segmentArray(List<Integer> positions) throws DaoException
+	{
+		JSONArray segments = new JSONArray();
+
+		Integer start = null;
+		Integer end = null;
+		HashMap<String, Integer> segment;
+
+		// iterate all positions to determine segment start and end
+		for (Integer pos : positions)
+		{
+			if (start == null)
+			{
+				// init start & end
+				start = pos;
+				end = pos;
+			}
+			// a distance greater than 1 means a gap
+			else if (pos - end > 1)
+			{
+				// add a new segment
+				segment = new HashMap<String, Integer>();
+				segment.put("start", start);
+				segment.put("end", end);
+				segments.add(segment);
+
+				// reset start & end
+				start = pos;
+				end = pos;
+			}
+			else
+			{
+				// update end position
+				end = pos;
+			}
+		}
+
+		// add the last segment
+		if (start != null)
+		{
+			segment = new HashMap<String, Integer>();
+			segment.put("start", start);
+			segment.put("end", end);
+			segments.add(segment);
+		}
+
+		return segments;
 	}
 
 	protected Set<Integer> parsePositions(String positions)

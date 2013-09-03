@@ -455,6 +455,9 @@
 				{
 					mut3dVis.hide();
 				}
+
+				// hide the pdb panel
+				self.$el.find(".mutation-pdb-panel-container").hide();
 			});
 		},
 		/**
@@ -707,16 +710,11 @@
 					// init the 3d view
 					var view3d = new Mutation3dView({
 						el: "#mutation_3d_" + gene,
-						model: pdbColl,
-						mut3dVis: self.options.mut3dVis});
+						model: {pdbColl: pdbColl, geneSymbol: gene},
+						mut3dVis: self.options.mut3dVis,
+						diagram: diagram});
 
 					view3d.render();
-
-					// init pdb panel
-					var pdbPanel = self._initPdbPanel(gene,
-							pdbColl,
-							diagram,
-							self.options.mut3dVis);
 				}
 				else
 				{
@@ -820,49 +818,38 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
-		},
-		_initPdbPanel: function(gene, pdbColl, mutationDiagram, vis)
-		{
-			var xScale = mutationDiagram.xScale;
-			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
-				marginLeft: mutationDiagram.options.marginLeft,
-				marginRight: mutationDiagram.options.marginRight};
-
-			// init panel
-			var panel = new MutationPdbPanel(options, pdbColl, xScale);
-			panel.init();
-
-			// TODO do not show the panel until Jmol button is clicked
-
-			// add event listeners for chain selection
-			panel.addListener("rect", "click", function(datum, index) {
-				vis.reload(datum.pdbId, datum.chain);
-			});
-
-			return panel;
 		}
 	});
 
 	/**
-	 * 3D Visualizer template.
+	 * 3D Visualizer view.
 	 *
-	 * TODO currently this view does not contain the actual viewer!
-	 * ...actual viewer is a global instance bound to MainMutationView
+	 * TODO this view does not initialize the actual visualizer!
+	 * ...3D visualizer is a global instance bound to MainMutationView
 	 *
 	 * options: {el: [target container],
-	 *           model: PdbCollection (collection of PdbModel instances),
-	 *           mut3dVis: [optional] reference to the 3d structure visualizer
+	 *           model: {geneSymbol: hugo gene symbol,
+	 *                   pdbColl: collection of PdbModel instances},
+	 *           mut3dVis: [optional] reference to the 3d structure visualizer,
+	 *           diagram: [optional] reference to the mutation diagram
 	 *          }
 	 */
 	var Mutation3dView = Backbone.View.extend({
 		render: function()
 		{
+			var self = this;
+
 			// compile the template using underscore
 			var template = _.template(
 					$("#mutation_3d_view_template").html());
 
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
+
+			// init pdb panel and hide initially
+			var pdbPanel = this._initPdbPanel();
+			pdbPanel.hide();
+			self.pdbPanel = pdbPanel;
 
 			// format after rendering
 			this.format();
@@ -874,18 +861,52 @@
 			// add click listener for the 3d visualizer
 			self.$el.find(".mutation-3d-vis").click(function() {
 				var vis = self.options.mut3dVis;
+				var panel = self.pdbPanel;
+				var pdbColl = self.model.pdbColl;
 
 				if (vis != null &&
-				    self.model.length > 0)
+				    pdbColl.length > 0)
 				{
 					// reload the visualizer content with the default pdb and chain
-					var pdbId = self.model.at(0).pdbId;
-					var chain = self.model.at(0).chains[0];
+					var pdbId = pdbColl.at(0).pdbId;
+					var chain = pdbColl.at(0).chains[0];
 
 					vis.show();
 					vis.reload(pdbId, chain);
+					panel.show();
 				}
 			});
+		},
+		/**
+		 * Initializes the PDB chain panel.
+		 *
+		 * @return {MutationPdbPanel}   panel instance
+		 */
+		_initPdbPanel: function()
+		{
+			var self = this;
+
+			var gene = self.model.geneSymbol;
+			var pdbColl = self.model.pdbColl;
+			var mutationDiagram = self.options.diagram;
+			var vis = self.options.mut3dVis;
+
+			var xScale = mutationDiagram.xScale;
+			// TODO mutation_pdb_panel_{{geneSymbol}} is not defined within this template
+			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
+				marginLeft: mutationDiagram.options.marginLeft,
+				marginRight: mutationDiagram.options.marginRight};
+
+			// init panel
+			var panel = new MutationPdbPanel(options, pdbColl, xScale);
+			panel.init();
+
+			// add event listeners for chain selection
+			panel.addListener("rect", "click", function(datum, index) {
+				vis.reload(datum.pdbId, datum.chain);
+			});
+
+			return panel;
 		}
 	});
 

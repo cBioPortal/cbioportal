@@ -111,10 +111,17 @@ function MutationPdbPanel(options, data, xScale)
 		});
 	}
 
+	/**
+	 * Calculates the height of the panel wrt to provided elHeight option.
+	 *
+	 * @param elHeight  provided height value
+	 * @return {number}
+	 */
 	function calcHeight(elHeight)
 	{
 		var height = 0;
 
+		// if not auto, then just copy the value
 		if (elHeight != "auto")
 		{
 			height = elHeight;
@@ -134,6 +141,14 @@ function MutationPdbPanel(options, data, xScale)
 		return height;
 	}
 
+	/**
+	 * Creates the main svg element.
+	 *
+	 * @param container target container (html element)
+	 * @param width     widht of the svg
+	 * @param height    height of the svg
+	 * @return {object} svg instance (D3)
+	 */
 	function createSvg(container, width, height)
 	{
 		var svg = container.append("svg");
@@ -144,6 +159,9 @@ function MutationPdbPanel(options, data, xScale)
 		return svg;
 	}
 
+	/**
+	 * Initializes the panel.
+	 */
 	function init()
 	{
 		// init svg container
@@ -185,8 +203,26 @@ function MutationPdbPanel(options, data, xScale)
 		_svg.selectAll(selector).on(event, null);
 	}
 
+	/**
+	 * Shows the panel.
+	 */
+	function show()
+	{
+		$(_options.el).show();
+	}
+
+	/**
+	 * Hides the panel.
+	 */
+	function hide()
+	{
+		$(_options.el).hide();
+	}
+
 	return {init: init,
 		addListener: addListener,
-		removeListener: removeListener};
+		removeListener: removeListener,
+		show: show,
+		hide: hide};
 }
 

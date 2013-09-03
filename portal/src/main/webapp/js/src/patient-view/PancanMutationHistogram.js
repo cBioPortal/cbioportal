@@ -53,13 +53,36 @@ define(function() {
             d.count = new_count;
         });
 
-        var all_data = bykeyword_data.concat(bygene_data);
+        // avoid mixing in to the global `_` object
+        var underscore = _.noConflict();
+        underscore.mixin({
+            unzip: function(array) {
+                return underscore.zip.apply(underscore, array);
+            }
+        });
 
-        // compute frequences
-        all_data.forEach(function(d) {
+        var all_data = bykeyword_data.concat(bygene_data);
+        all_data = underscore.chain(all_data)
+            .map(function(d) {
+                // compute frequences
                 var num_sequenced_samples = cancer_study2num_sequenced_samples[d.cancer_study];
+                d.num_sequenced_samples = num_sequenced_samples;
                 d.frequency = d.count / num_sequenced_samples;
-            });
+                return d;
+            })
+            .groupBy(function(d) {
+                // group the data by cancer study, sort by total count (total height of
+                // bar), and then unzip to create two separate layers
+                return d.cancer_study;
+            })
+            .map(underscore.identity)    // extract groups
+            .sortBy(function(grp) {
+                var total_frequency
+                    = underscore.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
+                return -1 * total_frequency;
+            })
+            .unzip()        // turn into layers for d3.stack
+            .value();
 
         // *signature:* `{hugo, cancer_study} -> string`
         // throws an Error
@@ -112,12 +135,12 @@ define(function() {
             .y(function(d) { return d.frequency; })
             ;
 
-        var layers = stack([bykeyword_data, bygene_data]);
+        var layers = stack(all_data);
         console.log(layers);
 
         var x = d3.scale.ordinal()
             .rangeRoundBands([0, width], .1)
-            .domain(all_data.map(function(d) { return d.cancer_study; }));
+            .domain(all_data[0].map(function(d) { return d.cancer_study; }));
 
         yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
         var y = d3.scale.linear()
@@ -172,7 +195,26 @@ define(function() {
             .attr("x", function(d) { return x(d.cancer_study); })
             .attr("y", function(d) { return y(d.y0 + d.y); })
             .attr("width", x.rangeBand())
-            .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); });
+            .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+            .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
+            .on("mouseout", function() { d3.select(this).attr('opacity', '1'); });
+
+        // add qtips for each bar
+        svg.selectAll('rect').each(function(d) {
+            $(this).qtip({
+                content: {text: 'mouseover failed'},
+                position: {my:'left bottom', at:'top right'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        api.set('content.text',
+                            "<b>" + d.count + "/" + d.num_sequenced_samples + "</b>"
+                             + "<br/>" + d.cancer_study);
+                    }
+                }
+            });
+        });
 
         //// find the cancer type form the cancer study name
         ////var this_cancer_study = data.filter(function(d) {
@@ -234,22 +276,5 @@ define(function() {
         //    .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
         //    .on("mouseout", function() { d3.select(this).attr('opacity', '1'); })
         //    ;
-
-        //// add qtips for each bar
-        //bar.each(function(d) {
-        //    $(this).qtip({
-        //        content: {text: 'mouseover failed'},
-        //        position: {my:'left bottom', at:'top right'},
-        //        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-        //        hide: { fixed: true, delay: 100 },
-        //        events: {
-        //            render: function(event, api) {
-        //                api.set('content.text',
-        //                    "<b>" + d.count + "/" + d.total + "</b>"
-        //                     + "<br/>" + d.cancer_study);
-        //            }
-        //        }
-        //    });
-        //});
     };
 });

@@ -868,19 +868,19 @@ function outputClinicalData() {
         }
 
         // TODO: this is a hacky way to include the information in prad_mich
-        var etsRafSpink1Status = guessClinicalData(clinicalData,["ETS/RAF/SPINK1 STATUS"]);
+        var etsRafSpink1Status = guessClinicalData(clinicalData,["ETS/RAF/SPINK1_STATUS"]);
         if (etsRafSpink1Status!==null) {
             diseaseInfo.push(etsRafSpink1Status);
         }
 
         // TODO: this is a hacky way to include the information in prad_broad
-        var tmprss2ErgFusionStatus = guessClinicalData(clinicalData,["TMPRSS2-ERG FUSION STATUS"]);
+        var tmprss2ErgFusionStatus = guessClinicalData(clinicalData,["TMPRSS2-ERG_FUSION_STATUS"]);
         if (tmprss2ErgFusionStatus!==null) {
             diseaseInfo.push("TMPRSS2-ERG Fusion: "+tmprss2ErgFusionStatus);
         }
 
         // TODO: this is a hacky way to include the information in prad_mskcc
-        var ergFusion = guessClinicalData(clinicalData, ["ERG-FUSION ACGH"]);
+        var ergFusion = guessClinicalData(clinicalData, ["ERG-FUSION_ACGH"]);
         if (ergFusion!==null) {
             diseaseInfo.push("ERG-fusion aCGH: "+ergFusion);
         }
@@ -908,7 +908,7 @@ function outputClinicalData() {
                     + "'>"
                     + oss
                     + "</font>";
-            if (osm!==null) {
+            if (osm!==null && osm!=='NA') {
                 patientStatus += " (" + Math.round(osm) + " months)";
             }
         }
@@ -920,7 +920,7 @@ function outputClinicalData() {
                     + "'>"
                     + dfss
                     + "</font>";
-            if (dfsm!==null) {
+            if (dfsm!==null && dfsm!=='NA') {
                 patientStatus += " (" + Math.round(dfsm) + " months)";
             }
         }

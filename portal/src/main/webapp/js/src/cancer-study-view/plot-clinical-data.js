@@ -87,7 +87,7 @@ function togglePlotAllOrSelect(divRemoveFirst, divRemoveLast) {
 
 function selectedCol(dt,col) {
     var c = dt.getColumnLabel(col);
-    return c.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(grade)|(stage)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(score)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
+    return c.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(fraction_of_copy_number_altered_genome)/);
 }
 
 // draw datatable

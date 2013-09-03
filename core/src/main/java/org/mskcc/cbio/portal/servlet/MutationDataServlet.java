@@ -260,7 +260,7 @@ public class MutationDataServlet extends HttpServlet
 				// mutationId is not a unique id wrt the whole DB,
 				// but it is unique wrt the returned data set
 				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
-
+				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -307,7 +307,7 @@ public class MutationDataServlet extends HttpServlet
 		return mutationArray;
 	}
         
-        // this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
         private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
             if (cosmic==null) {
                 return null;

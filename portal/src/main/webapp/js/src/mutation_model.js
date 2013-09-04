@@ -74,13 +74,10 @@ var Pileup = Backbone.Model.extend({
  */
 var PdbModel = Backbone.Model.extend({
 	initialize: function(attributes) {
-		this.pdbId = attributes.pdbId; // pdb id (e.g: 1d5r)
-
-		// each object in the chains array has two fields:
-		// chainId -> (e.g: A, B, etc.)
-		// and
-		// positionMap -> map of (uniprot position, pdb position) pairs
-		this.chains = attributes.chains; // array of chain id and position mapping pairs
+		// pdb id (e.g: 1d5r)
+		this.pdbId = attributes.pdbId;
+		// collection of PdbChainModel instances
+		this.chains = new PdbChainCollection(attributes.chains);
 	}
 });
 
@@ -89,6 +86,27 @@ var PdbModel = Backbone.Model.extend({
  */
 var PdbCollection = Backbone.Collection.extend({
 	model: PdbModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+var PdbChainModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		// chain id (A, B, C, X, etc.)
+		this.chainId = attributes.chainId;
+		//  map of (uniprot position, pdb position) pairs
+		this.positionMap = attributes.positionMap;
+		// array of start position and end position pairs
+		this.segments = attributes.segments;
+	}
+});
+
+/**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbChainCollection = Backbone.Collection.extend({
+	model: PdbChainModel,
 	initialize: function(options) {
 		// TODO add & set attributes if required
 	}

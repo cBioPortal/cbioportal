@@ -16,32 +16,36 @@ var Mutation3dVis = function(name, options)
 	// Jmol applet reference
 	var _applet = null;
 
-	// initial selection (mutation positions on the protein)
-	var _initialSelection = null;
+	// current selection (mutation positions on the protein)
+	var _selection = null;
 
-	// TODO take this as a parameter
-	var callbackfun = function(applet) {/*alert('add your callback functions here');*/};
+	// current chain (PdbChainModel instance)
+	var _chain = null;
 
+	// default visualization options
 	var defaultOpts = {
-		width: 400,
-		height: 300,
-		debug: false,
-		color: "white",
-		//use: "HTML5",
-		//j2sPath: "js/jsmol/j2s",
-		//script: "load ="+pdbid+";",
-		//defaultModel: "$dopamine",
-		jarPath: "js/lib/jmol/",
-		jarFile: "JmolAppletSigned.jar",
-		disableJ2SLoadMonitor: true,
-		disableInitialConsole: true
+		// applet/application (Jmol) options
+		appOptions: {
+			width: 400,
+			height: 300,
+			debug: false,
+			color: "white",
+			//use: "HTML5",
+			//j2sPath: "js/jsmol/j2s",
+			//script: "load ="+pdbid+";",
+			//defaultModel: "$dopamine",
+			jarPath: "js/lib/jmol/",
+			jarFile: "JmolAppletSigned.jar",
+			disableJ2SLoadMonitor: true,
+			disableInitialConsole: true
+		},
+		defaultColor: "xDDDDDD", // default color of ribbons
+		translucency: 5, // translucency (opacity) of the default color
+		chainColor: "x888888", // color of the selected chain
+		mutationColor: "xFF0000" // color of the selected mutations
 	};
 
 	var _options = jQuery.extend(true, {}, defaultOpts, options);
-
-	if (jQuery.isFunction(callbackfun)) {
-		_options['readyFunction'] = callbackfun;
-	}
 
 	/**
 	 * Initializes the visualizer.
@@ -49,7 +53,7 @@ var Mutation3dVis = function(name, options)
 	function init()
 	{
 		// init applet
-		_applet = Jmol.getApplet(name, _options);
+		_applet = Jmol.getApplet(name, _options.appOptions);
 
 		// update wrapper reference
 		// TODO the wrapper id depends on the JMol implementation
@@ -85,7 +89,6 @@ var Mutation3dVis = function(name, options)
 		{
 			_container.show();
 		}
-
 	}
 
 	/**
@@ -109,7 +112,7 @@ var Mutation3dVis = function(name, options)
 	 * and the chain.
 	 *
 	 * @param pdbId   PDB id
-	 * @param chain   chain with mapped positions
+	 * @param chain   PdbChainModel instance
 	 */
 	function reload(pdbId, chain)
 	{
@@ -120,7 +123,7 @@ var Mutation3dVis = function(name, options)
 
 		var selection = [];
 
-		// TODO focus on the current chain (fade unrelated residues)
+		// TODO focus on the current segment instead of the chain?
 
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)
@@ -136,16 +139,22 @@ var Mutation3dVis = function(name, options)
 			selection.push(posStr + ":" + chain.chainId);
 		}
 
-		// save current selection for a possible future restore
-		_initialSelection = selection;
+		// save current chain & selection for a possible future restore
+		_selection = selection;
+		_chain = chain;
+
+		// select residues on the 3D viewer & highlight them
 
 		var script = "ribbon ONLY;" + // show ribbon view
 		             //"spin ON;" + // turn on spinning
-		             "select " + selection.join(", ") + ";" + // select positions
-		             "color purple;"; // color selection with a different color
-		             //"selectionHalos ON;";
+		             "select all;" + // select everything
+		             "color [" + _options.defaultColor + "] " + // set default color
+		             "translucent [" + _options.translucency + "];" + // set default opacity
+		             "select :" + chain.chainId + ";" + // select the chain
+		             "color [" + _options.chainColor + "];" + // set chain color
+		             "select " + selection.join(", ") + ";" + // select positions (mutations)
+		             "color red;"; // highlight selected area
 
-		// select residues on the 3D viewer & highlight them
 		Jmol.script(_applet, script);
 	}
 

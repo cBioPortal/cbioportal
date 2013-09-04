@@ -42,7 +42,7 @@ function MutationPdbPanel(options, data, xScale)
 			var datum = element.datum();
 
 			var tip = "<span class='pdb-chain-tip'>" +
-			          "<b>PDB:</b> " + datum.pdbId + "<br>" +
+			          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
 			          "<b>Chain:</b> " + datum.chain.chainId +
 			          " (" + segment.start + " - " + segment.end + ")" +
 			          "</span>";
@@ -66,10 +66,10 @@ function MutationPdbPanel(options, data, xScale)
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
 	 *
-	 * @param svg
-	 * @param options
-	 * @param data
-	 * @param xScale
+	 * @param svg       svg element (D3)
+	 * @param options   visual options object
+	 * @param data      PDB data (collection of PdbModel instances)
+	 * @param xScale    scale function for the x-axis
 	 */
 	function drawPanel(svg, options, data, xScale)
 	{
@@ -79,7 +79,7 @@ function MutationPdbPanel(options, data, xScale)
 		// TODO rank chains by length. also limit number of chains?
 		data.each(function(pdb, idx) {
 			// create rectangle(s) for each chain
-			_.each(pdb.chains, function(ele, idx) {
+			pdb.chains.each(function(ele, idx) {
 				// chain datum
 				var datum = {pdbId: pdb.pdbId, chain: ele};
 

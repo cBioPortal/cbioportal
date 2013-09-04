@@ -869,7 +869,7 @@
 				{
 					// reload the visualizer content with the default pdb and chain
 					var pdbId = pdbColl.at(0).pdbId;
-					var chain = pdbColl.at(0).chains[0];
+					var chain = pdbColl.at(0).chains.at(0);
 
 					vis.show();
 					vis.reload(pdbId, chain);

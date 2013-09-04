@@ -51,16 +51,14 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
         d.count = new_count;
     });
 
-    // avoid mixing in to the global `_` object
-    var underscore = _.noConflict();
-    underscore.mixin({
+    _.mixin({
         unzip: function(array) {
-            return underscore.zip.apply(underscore, array);
+            return _.zip.apply(_, array);
         }
     });
 
     var all_data = bykeyword_data.concat(bygene_data);
-    all_data = underscore.chain(all_data)
+    all_data = _.chain(all_data)
         .map(function(d) {
             // compute frequences
             var num_sequenced_samples = cancer_study2num_sequenced_samples[d.cancer_study];
@@ -73,10 +71,10 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
             // bar), and then unzip to create two separate layers
             return d.cancer_study;
         })
-        .map(underscore.identity)    // extract groups
+        .map(_.identity)    // extract groups
         .sortBy(function(grp) {
             var total_frequency
-                = underscore.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
+                = _.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
             return -1 * total_frequency;
         })
         .unzip()        // turn into layers for d3.stack
@@ -198,7 +196,7 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
         .on("mouseout", function() { d3.select(this).attr('opacity', '1'); });
 
     // add in the mouseover bars first, i.e. on the bottom most layer
-    var cancer_studies = underscore.map(all_data[0], function(d) { return d.cancer_study; });
+    var cancer_studies = _.map(all_data[0], function(d) { return d.cancer_study; });
     var mouseOverBar = svg.selectAll('.mouseOver')
         .data(cancer_studies)
         .enter()
@@ -223,8 +221,8 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
             events: {
                 render: function(event, api) {
                     var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
-                    var truncating = data.filter(function(d) { return underscore.has(d, "keyword"); })[0] || {};
-                    var non_truncating = data.filter(function(d) { return !underscore.has(d, "keyword"); })[0] || {};
+                    var truncating = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+                    var non_truncating = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
                     var cancer_study = non_truncating.cancer_study;     // there should always be non truncating data, even if there isn't truncating data
                     var text = "<b>" + cancer_study + "</b>" + "<br/>"
                         + "truncating: " + (truncating.count || 0) + "<br/>"

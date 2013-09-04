@@ -37,24 +37,110 @@
 
 var survivalCurves = (function() {
 
+    var util = (function() {
+
+        function sortByAttribute(objs, attrName) {
+            function compare(a,b) {
+                if (a[attrName] < b[attrName])
+                    return -1;
+                if (a[attrName] > b[attrName])
+                    return 1;
+                return 0;
+            }
+            objs.sort(compare);
+            return objs;
+        }
+
+        return {
+            sortByAttribute: sortByAttribute
+        }
+
+    }());
+
     var data  = (function() {
 
-        //os_months object
-        //dfs_months object
+        var datum = {
+                case_id: "",
+                time: "",    //num of months
+                status: "", //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+                num_at_risk: -1
+            },
+            os_altered_group = [],
+            os_unaltered_group = [],
+            dfs_altered_group = [],
+            dfs_unaltered_group = [];
 
-        function setResult() {
+        var totalAlter = 0,
+            totalUnalter = 0;
 
+        //Count the total number of altered and unaltered cases
+        function cntAlter(caseLists) {
+            for (var key in caseLists) {
+                if (caseLists[key] === "altered") totalAlter += 1;
+                else if (caseLists[key] === "unaltered") totalUnalter += 1;
+            }
+        }
+
+        //Settle the overall survival datum group
+        function setOSGroups(result, caseLists) {
+            for (var caseId in result) {
+                if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
+                    var _datum = jQuery.extend(true, {}, datum);
+                    _datum.case_id = result[caseId].case_id;
+                    _datum.time = result[caseId].os_months;
+                    _datum.status = result[caseId].os_status;
+                    if (caseLists[caseId] === "altered") {
+                        os_altered_group.push(_datum);
+                    } else if (caseLists[caseId] === "unaltered") {
+                        totalUnalter += -1;
+                    }
+                }
+            }
+            util.sortByAttribute(os_altered_group, "time");
+            util.sortByAttribute(os_unaltered_group, "time");
+
+            for (var i in os_altered_group) {
+                os_altered_group[i].num_at_risk = totalAlter;
+                totalAlter -= 1;
+            }
+            for (var i in os_unaltered_group) {
+                os_unaltered_group[i].num_at_risk = totalUnalter;
+                totalUnalter -= 1;
+            }
+
+        }
+
+
+
+        function setDFSGroups(result, caseLists) {
+
+            for (var caseId in result) {
+                if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
+                    var _datum = jQuery.extend(true, {}, datum);
+                    _datum.case_id = result[caseId].case_id;
+                    _datum.time = result[caseId].dfs_months;
+                    _datum.status = result[caseId].dfs_status;
+                    if (caseLists[caseId] === "altered") {
+                        dfs_altered_group.push(_datum);
+                    } else if (caseLists[caseId] === "unaltered") {
+                        dfs_unaltered_group.push(_datum);
+                    }
+                }
+            }
         }
 
         return {
             init: function(result, caseLists) {
-                setAlterationGroups(result, caseLists);
-
+                cntAlter(caseLists);
+                setOSGroups(result, caseLists);
+                setDFSGroups(result, caseLists);
             }
         }
     }());
 
     var view = (function() {
+
+
 
     }());
 

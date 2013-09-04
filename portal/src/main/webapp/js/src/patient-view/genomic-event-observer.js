@@ -4,7 +4,7 @@ function GenomicEventObserver(hasMut, hasCna, hasSeg) {
     this.fns_mut = [];
     this.fns_cna = [];
     this.fns_pancan_mutation_frequency = [];
-    this.pancan_mutation_frequencies;   // keyword -> {keyword, cancer_study, cancer_type, count} where `keyword` is the same
+    this.pancan_mutation_frequencies;   // keyword or hugo -> datum { cancer_study, cancer_type, count, hugo, [keyword] }
     this.hasMut = hasMut;
     this.hasCna = hasCna;
     this.hasSeg = hasSeg;

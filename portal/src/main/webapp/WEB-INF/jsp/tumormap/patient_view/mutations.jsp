@@ -847,14 +847,29 @@
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
 
-//                $.post("pancancerMutations.json", {mutation_keys: JSON.stringify(genomicEventObs.mutations.data.key)}, function(res) {
-//
-//                    // munge data to get it into the format: keyword -> {keyword, cancer_study, cancer_type, count} where `keyword` is the same
-//                    genomicEventObs.pancan_mutation_frequencies = d3.nest().key(function(d) { return d.keyword; }).entries(res)
-//                            .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
-//
-//                    genomicEventObs.fire("pancan-mutation-frequency-built");
-//                });
+                var pancanMutationsUrl = "pancancerMutations.json";
+
+                $.post(pancanMutationsUrl,
+                        { cmd: "byKeywords", q: JSON.stringify(genomicEventObs.mutations.data.key)}, function(byKeywordResponse) {
+
+                    function munge(response, key) {
+                        // munge data to get it into the format: keyword -> corresponding datum
+                        return d3.nest().key(function(d) { return d[key]; }).entries(response)
+                                .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+                    }
+
+                    genomicEventObs.pancan_mutation_frequencies =  munge(byKeywordResponse, "keyword");
+
+                    $.post(pancanMutationsUrl, {cmd: "byHugos", q: JSON.stringify(genomicEventObs.mutations.data.gene)}, function(byHugoResponse) {
+
+                        genomicEventObs.pancan_mutation_frequencies
+                                = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"))
+
+                        console.log(genomicEventObs.pancan_mutation_frequencies);
+
+                        genomicEventObs.fire("pancan-mutation-frequency-built");
+                    })
+                });
 
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 

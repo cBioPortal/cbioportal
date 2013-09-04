@@ -76,7 +76,7 @@ function MutationPdbPanel(options, data, xScale)
 		// we need to count chains to calculate y value
 		var count = 0;
 
-		// TODO rank chains by length. also limit number of chains?
+		// TODO rank chains by length, show a few ones by default, allow user to expand/shrink
 		data.each(function(pdb, idx) {
 			// create rectangle(s) for each chain
 			pdb.chains.each(function(ele, idx) {

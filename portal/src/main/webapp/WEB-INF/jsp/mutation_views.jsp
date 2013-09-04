@@ -871,6 +871,8 @@
 					var pdbId = pdbColl.at(0).pdbId;
 					var chain = pdbColl.at(0).chains.at(0);
 
+					// TODO update pdb id and chain info inside the vis div
+					// ..it may be better to do this in vis.reload function
 					vis.show();
 					vis.reload(pdbId, chain);
 					panel.show();
@@ -904,6 +906,8 @@
 			// add event listeners for chain selection
 			panel.addListener("rect", "click", function(datum, index) {
 				vis.reload(datum.pdbId, datum.chain);
+				// TODO update pdb id and chain info inside the vis div
+				// ..it may be better to do this in vis.reload function
 			});
 
 			return panel;

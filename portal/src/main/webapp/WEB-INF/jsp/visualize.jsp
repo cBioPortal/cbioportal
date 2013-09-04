@@ -97,7 +97,7 @@
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
 
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
-    String geneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
+    String geneSetChoice = xssUtil.getCleanInput(request, QueryBuilder.GENE_SET_CHOICE);
     if (geneSetChoice == null) {
         geneSetChoice = "user-defined-list";
     }

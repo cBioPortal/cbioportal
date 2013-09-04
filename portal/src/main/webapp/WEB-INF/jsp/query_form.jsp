@@ -27,8 +27,8 @@
         localTabIndex = URLEncoder.encode(localTabIndex);
     }
 
-    String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
-    String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+    String localGeneSetChoice = localXssUtil.getCleanInput(request, QueryBuilder.GENE_SET_CHOICE);
+    String clientTranspose = localXssUtil.getCleanInput(request, QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
     if (localGeneSetChoice == null) {
         localGeneSetChoice = "user-defined-list";
     }
@@ -86,7 +86,7 @@
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
         <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
-        	value='<%= request.getParameter("clinical_param_selection") %>'>
+        	value='<%= localXssUtil.getCleanInput(request, "clinical_param_selection") %>'>
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>

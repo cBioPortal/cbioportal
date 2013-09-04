@@ -6,7 +6,7 @@
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
     String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String case_set_id = (String)request.getParameter("case_set_id");
+    String case_set_id = xssUtil.getCleanInput(request, "case_set_id");
 %>
 <script>
     var case_set_id = "<%out.print(case_set_id);%>";

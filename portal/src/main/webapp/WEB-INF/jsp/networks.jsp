@@ -12,19 +12,19 @@
 	String caseIdsKey4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     String caseSetId4Network = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
     String zScoreThesholdStr4Network = request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString();
-    String useXDebug = request.getParameter("xdebug");
+    String useXDebug = xssUtil.getCleanInput(request, "xdebug");
     if (useXDebug==null)
         useXDebug = "0";
-    String netSrc = request.getParameter("netsrc");
+    String netSrc = xssUtil.getCleanInput(request, "netsrc");
     if (netSrc==null)
         netSrc = "cgds";
-    String netSize = request.getParameter("netsize");
+    String netSize = xssUtil.getCleanInput(request, "netsize");
     if (netSize==null)
         netSize = "large";
-    String nLinker = request.getParameter("linkers");
+    String nLinker = xssUtil.getCleanInput(request, "linkers");
     if (nLinker==null)
         nLinker = "50";
-    String diffusion = request.getParameter("diffusion");
+    String diffusion = xssUtil.getCleanInput(request, "diffusion");
     if (diffusion==null)
         diffusion = "0";
 %>

@@ -2,6 +2,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
+<script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js"></script>
 <script type="text/javascript">
     var mutTableIndices = ["id", "case_ids", "gene", "aa", "chr", "start", "end", "ref", "_var",
             "validation", "type", "tumor_freq", "tumor_var_reads", "tumor_ref_reads",
@@ -486,25 +487,38 @@
                         "aTargets": [ mutTableIndices["pancan_mutations"] ],
                         "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
-                            var keyword = mutations.getValue(source[0], "key");
-
-                            var sum = function(a,b) { return a + b; };
-
-                            var total_sequenced_patients = _.chain(window.cancerStudy2NumSequencedCases)
-                                    .values()
-                                    .reduce(sum)
-                                    .value();
-
-                            var format_percent = d3.format("%.00");
-
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
-                                    var data = genomicEventObs.pancan_mutation_frequencies[keyword];
 
-                                    return format_percent(_.chain(data)
-                                            .map(function(d) { return d.count; })
-                                            .reduce(sum)
-                                            .value() / total_sequenced_patients);
+                                    var keyword = mutations.getValue(source[0], "key");
+                                    var hugo = mutations.getValue(source[0], "gene");
+                                    var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
+
+                                    var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+
+                                    $(invisible_container).empty();
+
+                                    PancanMutationHistogram(byKeywordData,
+                                            byHugoData,
+                                            window.cancerStudy2NumSequencedCases,
+                                            invisible_container);
+
+                                    return "<p>foobar</p>";
+
+//                                    var sum = function(a,b) { return a + b; };
+//
+//                                    var total_sequenced_patients = _.chain(window.cancerStudy2NumSequencedCases)
+//                                            .values()
+//                                            .reduce(sum)
+//                                            .value();
+//
+//                                    var format_percent = d3.format("%.00");
+//
+//                                    return format_percent(_.chain(data)
+//                                            .map(function(d) { return d.count; })
+//                                            .reduce(sum)
+//                                            .value() / total_sequenced_patients);
                                 } else {
                                     return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
@@ -1003,6 +1017,7 @@
 <div id="mutation_wait"><img src="images/ajax-loader.gif"/></div>
 <div id="mutation_id_filter_msg"><font color="red">The following table contains filtered mutations.</font>
 <button onclick="unfilterMutationsTableByIds(); return false;" style="font-size: 1em;">Show all mutations</button></div>
+<div  id="pancan_mutations_histogram_container"></div>
 <table cellpadding="0" cellspacing="0" border="0" id="mutation_wrapper_table" width="100%">
     <tr>
         <td>

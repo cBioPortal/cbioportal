@@ -79,10 +79,10 @@ public class JdbcUtil {
             activeConnectionCount.put(requester, count==null ? 1 : (count+1));
         }
         
-        //if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
+        if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
             System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive()
                         + "\n" + activeConnectionCount.toString());
-        //}
+        }
         return con;
     }
 

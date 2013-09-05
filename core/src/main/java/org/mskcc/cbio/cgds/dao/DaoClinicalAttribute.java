@@ -165,6 +165,8 @@ public class DaoClinicalAttribute {
 
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
         return all;
     }

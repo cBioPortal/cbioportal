@@ -204,7 +204,13 @@ function switchToTab(toTab) {
 function getRefererCaseId() {
     //var match = /case_id=([^&]+)/.exec(document.referrer);
     //return match ? match[1] : null;
-    return null;
+    var idStr = /^#?case_ids=(.+)/.exec(location.hash);
+    if (!idStr) return null;
+    var ids = {};
+    idStr[1].split(/[ ,]+/).forEach(function(id) {
+        ids[id] = true;
+    });
+    return ids;
 }
 
 function formatPatientLink(caseId,cancerStudyId,isPatient) {

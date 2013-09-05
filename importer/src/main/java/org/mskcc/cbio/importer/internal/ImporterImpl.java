@@ -299,7 +299,7 @@ class ImporterImpl implements Importer {
 
 				// get the metafile/staging file for this cancer_study / datatype
 				String stagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename());
-				stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+
 				// datatype might not exists for cancer study
 				if (!(new File(stagingFilename)).exists()) {
 					if (LOG.isInfoEnabled()) {
@@ -375,7 +375,9 @@ class ImporterImpl implements Importer {
 	 * @throws Exception
 	 */
 	private String getImportFilename(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
-		return (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + filename);
+		String stagingFilename = (rootDirectory + File.separator + cancerStudyMetadata.getStudyPath() + File.separator + filename);
+		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
+		return stagingFilename;
 	}
 
 	private String getOncotatedFile(String stagingFilename) throws Exception

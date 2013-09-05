@@ -22,7 +22,7 @@
 
 <div id="container" style="margin-left:50px; margin-top:50px;">
     <h1>Oncoprint</h1>
-    <p>(<a href="/faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
+    <p>(<a href="faq.jsp#what-are-oncoprints">What are Oncoprints?</a>)</p>
 
     <div id="inner-conainter" style="width:70%;">
         <div id="error-box" style="display:none;" class="alert alert-error">There was an error with your file formats.</div>
@@ -31,7 +31,7 @@
             Copy Number files should be tab delimited. They should also have
             the following fields, in this order, on the first line:
             <code>Hugo_Symbol</code>, <code>Entrez_Gene_Id</code>, followed by
-            sample ids.  Subsequant lines have data for hugo gene symbols,
+            sample ids.  Subsequent lines have data for hugo gene symbols,
             entrez gene ids, and for each sample.  Data for each sample is
             discrete, ranging from <code>-2</code> to <code>+2</code>.
         </p>

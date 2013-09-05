@@ -34,7 +34,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,7 +44,6 @@ import java.util.Set;
  * @author Ethan Cerami.
  */
 final class DaoGene {
-    private static DaoGene daoGene;
 
     /**
      * Private Constructor to enforce Singleton Pattern.

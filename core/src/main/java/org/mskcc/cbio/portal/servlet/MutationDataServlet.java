@@ -48,6 +48,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.util.*;
+import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -232,7 +233,7 @@ public class MutationDataServlet extends HttpServlet
 			return mutationArray;
 		}
                 
-                Map<Long, Map<String,Integer>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
+                Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
@@ -259,7 +260,7 @@ public class MutationDataServlet extends HttpServlet
 				// mutationId is not a unique id wrt the whole DB,
 				// but it is unique wrt the returned data set
 				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
-
+				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -267,7 +268,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
-				mutationData.put("cosmic", cosmic.get(mutation.getMutationEventId()));
+				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
 				mutationData.put("fisValue", this.getFisValue(mutation));
 				mutationData.put("msaLink", this.getMsaLink(mutation));
@@ -305,6 +306,22 @@ public class MutationDataServlet extends HttpServlet
 
 		return mutationArray;
 	}
+        
+        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+        private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
+            if (cosmic==null) {
+                return null;
+            }
+            List<List> mat = new ArrayList(cosmic.size());
+            for (CosmicMutationFrequency cmf : cosmic) {
+                List l = new ArrayList(3);
+                l.add(cmf.getId());
+                l.add(cmf.getAminoAcidChange());
+                l.add(cmf.getFrequency());
+                mat.add(l);
+            }
+            return mat;
+        }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null

@@ -78,28 +78,25 @@ public class DaoCosmicData {
      * @return Map of event id to map of aa change to count
      * @throws DaoException 
      */
-    public static Map<Long, Map<String,Integer>> getCosmicForMutationEvents(
+    public static Map<Long, Set<CosmicMutationFrequency>> getCosmicForMutationEvents(
             List<ExtendedMutation> mutations) throws DaoException {
         Set<String> mutKeywords = new HashSet<String>();
         for (ExtendedMutation mut : mutations) {
             mutKeywords.add(mut.getKeyword());
         }
         
-        Map<String, List<CosmicMutationFrequency>> map = 
+        Map<String, Set<CosmicMutationFrequency>> map = 
                 DaoCosmicData.getCosmicDataByKeyword(mutKeywords);
-        Map<Long, Map<String,Integer>> ret
-                = new HashMap<Long, Map<String,Integer>>(map.size());
+        Map<Long, Set<CosmicMutationFrequency>> ret
+                = new HashMap<Long, Set<CosmicMutationFrequency>>(map.size());
         for (ExtendedMutation mut : mutations) {
             String keyword = mut.getKeyword();
-            List<CosmicMutationFrequency> cmfs = map.get(keyword);
-            if (cmfs==null) {
+            Set<CosmicMutationFrequency> cmfs = map.get(keyword);
+            if (cmfs==null || cmfs.isEmpty()) {
                 continue;
             }
-            Map<String,Integer> mapSI = new HashMap<String,Integer>();
-            for (CosmicMutationFrequency cmf : cmfs) {
-                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
-            }
-            ret.put(mut.getMutationEventId(), mapSI);
+            
+            ret.put(mut.getMutationEventId(), cmfs);
         }
         return ret;
     }
@@ -110,7 +107,7 @@ public class DaoCosmicData {
      * @return Map<keyword, List<cosmic>>
      * @throws DaoException 
      */
-    public static Map<String,List<CosmicMutationFrequency>> getCosmicDataByKeyword(Collection<String> keywordS) throws DaoException {
+    public static Map<String,Set<CosmicMutationFrequency>> getCosmicDataByKeyword(Collection<String> keywordS) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -119,15 +116,15 @@ public class DaoCosmicData {
             pstmt = con.prepareStatement("SELECT * FROM cosmic_mutation "
                     + " WHERE KEYWORD in ('" + StringUtils.join(keywordS, "','") + "')");
             rs = pstmt.executeQuery();
-            Map<String,List<CosmicMutationFrequency>> ret = new HashMap<String,List<CosmicMutationFrequency>>();
+            Map<String,Set<CosmicMutationFrequency>> ret = new HashMap<String,Set<CosmicMutationFrequency>>();
             while (rs.next()) {
                 CosmicMutationFrequency cmf = extractCosmic(rs);
-                List<CosmicMutationFrequency> list = ret.get(cmf.getKeyword());
-                if (list==null) {
-                    list = new ArrayList<CosmicMutationFrequency>();
-                    ret.put(cmf.getKeyword(), list);
+                Set<CosmicMutationFrequency> cmfs = ret.get(cmf.getKeyword());
+                if (cmfs==null) {
+                    cmfs = new HashSet<CosmicMutationFrequency>();
+                    ret.put(cmf.getKeyword(), cmfs);
                 }
-                list.add(cmf);
+                cmfs.add(cmf);
             }
             return ret;
         } catch (SQLException e) {

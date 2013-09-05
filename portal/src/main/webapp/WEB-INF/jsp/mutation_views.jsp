@@ -80,7 +80,7 @@
 			</span>
 		</td>
 		<td>
-			<label class='{{cosmicClass}}' alt='{{cosmic}}'><b>{{cosmicCount}}</b></label>
+			<label class='{{cosmicClass}}' alt='{{mutationId}}'><b>{{cosmicCount}}</b></label>
 		</td>
 		<td>
 			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
@@ -179,12 +179,15 @@
 </script>
 
 <script type="text/template" id="mutation_details_cosmic_tip_template">
-	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences in COSMIC</b></div>
+	<div class='cosmic-details-tip-info'>
+		<b>{{cosmicTotal}} occurrences of {{mutationKeyword}} mutations in COSMIC</b>
+	</div>
 	<table class='cosmic-details-table display'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>
 			<tr>
-				<th>Mutation</th>
+				<th>COSMIC ID</th>
+				<th>Protein Change</th>
 				<th>Count</th>
 			</tr>
 		</thead>
@@ -987,11 +990,9 @@
 			vars.mutationTypeClass = mutationType.style;
 			vars.mutationTypeText = mutationType.text;
 
-			// TODO remove cosmicCount from model & calculate on the client side
-			var cosmic = self._getCosmic(mutation.cosmic, mutation.cosmicCount);
+			var cosmic = self._getCosmic(mutation.cosmicCount);
 			vars.cosmicClass = cosmic.style;
 			vars.cosmicCount = cosmic.count;
-			vars.cosmic = cosmic.value;
 
 			var fis = self._getFis(omaScoreMap, mutation.functionalImpactScore, mutation.fisValue);
 			vars.fisClass = fis.fisClass;
@@ -1232,29 +1233,24 @@
 				tip: tip};
 		},
 		/**
-		 * Returns the css class, count, and string value
-		 * for the given cosmic value.
+		 * Returns the css class and text for the given cosmic count.
 		 *
-		 * @param value cosmic value
 		 * @param count number of occurrences
-		 * @return {{value: string, style: string, count: string}}
+		 * @return {{style: string, count: string}}
 		 * @private
 		 */
-		_getCosmic: function(value, count)
+		_getCosmic: function(count)
 		{
 			var style = "";
-			var cosmic = "";
 			var text = "";
 
 			if (count > 0)
 			{
 				style = "mutation_table_cosmic";
-				cosmic = JSON.stringify(value);
 				text = count;
 			}
 
-			return {value: cosmic,
-				style: style,
+			return {style: style,
 				count: text};
 	    },
 		/**
@@ -1304,6 +1300,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {cosmic: [raw cosmic text],
+	 *                   geneSymbol: [hugo gene symbol],
+	 *                   keyword: [mutation keyword],
 	 *                   total: [number of total cosmic occurrences]}
 	 *          }
 	 */
@@ -1321,10 +1319,15 @@
 		{
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
-				"aaSorting" : [[1, "desc"]], // sort by count at init
-				"sDom": 'tp', // show the table and the pagination buttons
-				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
-				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
+				"aaSorting" : [[2, "desc"]], // sort by count at init
+				"sDom": 'pt', // show the table and the pagination buttons
+				"aoColumnDefs": [
+                                    { "mRender": function ( data, type, full ) {
+                                            return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                                       },
+                                       "aTargets": [0]},
+                                    { "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
+                                    { "sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 				"bDestroy": false,
 				"bPaginate": true,
 				"bJQueryUI": true,
@@ -1333,11 +1336,11 @@
 		_parseCosmic: function(cosmic)
 		{
 			var dataRows = [];
-
+			// TODO create a backbone template for the cosmic table row
 			// COSMIC data (as AA change & frequency pairs)
-			for (var aa in cosmic) {
-				dataRows.push( aa + "</td><td>" + cosmic[aa]);
-			}
+			cosmic.forEach(function(c) {
+                            dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+                        });
 
 			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},
@@ -1347,7 +1350,8 @@
 
 			// pass variables in using Underscore.js template
 			var variables = {cosmicDataRows: dataRows,
-				cosmicTotal: this.model.total};
+				cosmicTotal: this.model.total,
+				mutationKeyword: this.model.keyword};
 
 			// compile the template using underscore
 			return _.template(

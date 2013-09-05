@@ -210,6 +210,9 @@ public final class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
         return clinicals;
     }
 
@@ -248,6 +251,9 @@ public final class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
         return clinicals;
     }
 
@@ -277,6 +283,9 @@ public final class DaoClinicalData {
             }
         } catch (SQLException e) {
             throw new DaoException(e);
+        }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
         return clinicals;
     }

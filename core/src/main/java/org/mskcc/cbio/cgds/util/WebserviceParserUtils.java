@@ -123,9 +123,9 @@ public final class WebserviceParserUtils {
         if (studyIDstring != null) {
             if (DaoCancerStudy.doesCancerStudyExistByStableId(studyIDstring)) {
                 cancerStudies.add(studyIDstring);
-            } else {
-                return cancerStudies;
             }
+            
+            return cancerStudies;
         }
 
         // a genetic_profile_id is explicitly provided, as in getProfileData
@@ -133,9 +133,10 @@ public final class WebserviceParserUtils {
             ArrayList<String> geneticProfileIds = getGeneticProfileId(request);
             for (String geneticProfileId : geneticProfileIds) {
 
-                if (geneticProfileId == null) {
-                    return cancerStudies;
-                }
+                // that's the point of this code??
+//                if (geneticProfileId == null) {
+//                    return cancerStudies;
+//                }
 
                 GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
                 if (aGeneticProfile != null &&
@@ -144,6 +145,8 @@ public final class WebserviceParserUtils {
                             (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
                 }
             }
+            
+            return cancerStudies;
         }
 
         // a case_set_id is explicitly provided, as in getProfileData, getMutationData, getClinicalData, etc.
@@ -151,53 +154,52 @@ public final class WebserviceParserUtils {
         if (caseSetId != null) {
             DaoCaseList aDaoCaseList = new DaoCaseList();
             CaseList aCaseList = aDaoCaseList.getCaseListByStableId(caseSetId);
-            if (aCaseList == null) {
-                return cancerStudies;
-            }
-            if (DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
+            
+            if (aCaseList != null && DaoCancerStudy.doesCancerStudyExistByInternalId(aCaseList.getCancerStudyId())) {
                 cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
                         (aCaseList.getCancerStudyId()).getCancerStudyStableId());
-            } else {
-                return cancerStudies;
-            }
-        }
-
-        // a case_list is explicitly provided, as in getClinicalData, etc.
-        String caseList = request.getParameter(WebService.CASE_LIST);
-        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
-        
-        // no case list provided, but case IDs key provided
-        if (caseList == null
-        	&& caseIdsKey != null)
-        {
-        	// try to get case list by using the key
-        	caseList = CaseSetUtil.getCaseIds(caseIdsKey);
+            } 
+            
+            return cancerStudies;
         }
         
-        if (caseList != null) {
-            for (String aCase : caseList.split("[\\s,]+")) {
-                aCase = aCase.trim();
-                if (aCase.length() == 0) {
-                    continue;
-                }
-
-                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
-                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
-                    return cancerStudies;
-                }
-
-                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
-                if (aGeneticProfile == null) {
-                    return cancerStudies;
-                }
-                if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
-                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
-                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
-                } else {
-                    return cancerStudies;
-                }
-            }
-        }
+        // Cannot not this any more because case IDs are not necessary unique.
+//        // a case_list is explicitly provided, as in getClinicalData, etc.
+//        String caseList = request.getParameter(WebService.CASE_LIST);
+//        String caseIdsKey = request.getParameter(WebService.CASE_IDS_KEY);
+//        
+//        // no case list provided, but case IDs key provided
+//        if (caseList == null
+//        	&& caseIdsKey != null)
+//        {
+//        	// try to get case list by using the key
+//        	caseList = CaseSetUtil.getCaseIds(caseIdsKey);
+//        }
+//        
+//        if (caseList != null) {
+//            for (String aCase : caseList.split("[\\s,]+")) {
+//                aCase = aCase.trim();
+//                if (aCase.length() == 0) {
+//                    continue;
+//                }
+//
+//                int profileId = DaoCaseProfile.getProfileIdForCase(aCase);
+//                if (DaoCaseProfile.NO_SUCH_PROFILE_ID == profileId) {
+//                    return cancerStudies;
+//                }
+//
+//                GeneticProfile aGeneticProfile = DaoGeneticProfile.getGeneticProfileById(profileId);
+//                if (aGeneticProfile == null) {
+//                    return cancerStudies;
+//                }
+//                if (DaoCancerStudy.doesCancerStudyExistByInternalId(aGeneticProfile.getCancerStudyId())) {
+//                    cancerStudies.add(DaoCancerStudy.getCancerStudyByInternalId
+//                            (aGeneticProfile.getCancerStudyId()).getCancerStudyStableId());
+//                } else {
+//                    return cancerStudies;
+//                }
+//            }
+//        }
         return cancerStudies;
     }
 

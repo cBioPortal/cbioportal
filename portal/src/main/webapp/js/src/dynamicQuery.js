@@ -611,8 +611,11 @@ function caseSetSelected() {
     //  Otherwise, make sure to hide it.
     if (caseSetId == "-1") {
         $("#custom_case_list_section").show();
+        // if custom case list was selected, post to avoid long url problem.
+        $("#main_form").attr("method","post");
     } else {
         $("#custom_case_list_section").hide();
+        $("#main_form").attr("method","get");
     }
 }
 

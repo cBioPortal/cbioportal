@@ -210,6 +210,9 @@ public final class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
         return clinicals;
     }
 
@@ -248,6 +251,9 @@ public final class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
         return clinicals;
     }
 
@@ -264,9 +270,9 @@ public final class DaoClinicalData {
         String caseIdsSql = generateCaseIdsSql(caseIds);
 
         String sql = "SELECT * FROM clinical WHERE"
-                + "`CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
-                + " " + "AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
-                + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+                + " `CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
+                + " AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
+                + " AND `CASE_ID` IN (" + caseIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -278,10 +284,13 @@ public final class DaoClinicalData {
         } catch (SQLException e) {
             throw new DaoException(e);
         }
+        finally {
+                JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
+        }
         return clinicals;
     }
 
-    public static List<ClinicalData> getDataByAttributeId(int cancerStudyId, String attributeId) throws DaoException {
+    public static List<ClinicalData> getDataByAttributeIds(int cancerStudyId, Collection<String> attributeIds) throws DaoException {
 
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -292,12 +301,9 @@ public final class DaoClinicalData {
 		try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
-                    "CANCER_STUDY_ID=? " +
-                    "AND ATTR_ID=? ");
-
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, attributeId);
+            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE" +
+                    " CANCER_STUDY_ID= " + cancerStudyId +
+                    " AND ATTR_ID IN ('"+ StringUtils.join(attributeIds, "','")+"') ");
 
             rs = pstmt.executeQuery();
             while(rs.next()) {
@@ -393,22 +399,39 @@ public final class DaoClinicalData {
 	 * Previous DaoClinicalFreeForm class methods (accessors only)
 	 *************************************************************/
 
-	public static ClinicalParameterMap getDataSlice(int cancerStudyId, String attributeId) throws DaoException {
+	public static List<ClinicalParameterMap> getDataSlice(int cancerStudyId, Collection<String> attributeIds) throws DaoException {
 		
-		if (cancerStudyId < 0 || attributeId == null || attributeId.length() == 0) {
-			throw new IllegalArgumentException("Invalid cancer study id or attribute id: [" +
-											   cancerStudyId + ", " + attributeId + "]");
-		}
+//		if (cancerStudyId < 0 || attributeId == null || attributeId.length() == 0) {
+//			throw new IllegalArgumentException("Invalid cancer study id or attribute id: [" +
+//											   cancerStudyId + ", " + attributeId + "]");
+//		}
+            
+                Map<String,Map<String, String>> mapAttrCaseValue = new HashMap<String,Map<String, String>>();
+                for (ClinicalData cd : getDataByAttributeIds(cancerStudyId, attributeIds)) {
 
-		HashMap<String, String> parameterMap = new HashMap<String,String>();
-		for (ClinicalData clinical : DaoClinicalData.getDataByAttributeId(cancerStudyId, attributeId)) {
-			String value = clinical.getAttrVal();
-			if (value.length() > 0 && !value.equals(ClinicalAttribute.NA)) {
-				parameterMap.put(clinical.getCaseId(), clinical.getAttrVal());
-			}
-		}
-
-		return new ClinicalParameterMap(attributeId, parameterMap);
+                    String attrId = cd.getAttrId();
+                    String value = cd.getAttrVal();
+                    String caseId = cd.getCaseId();
+                    
+                    if (value.isEmpty() || value.equals(ClinicalAttribute.NA)) {
+                        continue;
+                    }
+                    
+                    Map<String, String> mapCaseValue = mapAttrCaseValue.get(attrId);
+                    if (mapCaseValue == null) {
+                        mapCaseValue = new HashMap<String, String>();
+                        mapAttrCaseValue.put(attrId, mapCaseValue);
+                    }
+                    
+                    mapCaseValue.put(caseId, value);
+                }
+                
+                List<ClinicalParameterMap> maps = new ArrayList<ClinicalParameterMap>();
+                for (Map.Entry<String,Map<String, String>> entry : mapAttrCaseValue.entrySet()) {
+                    maps.add(new ClinicalParameterMap(entry.getKey(), entry.getValue()));
+                }
+                
+                return maps;
 	}
 	public static HashSet<String> getDistinctParameters(int cancerStudyId) throws DaoException {
 

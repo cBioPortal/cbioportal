@@ -1,4 +1,4 @@
-# September 3, 2013:
+# September 9, 2013:
 
 * [New standalone oncoprint tool](tools.jsp)
 * Updated COSMIC data (v66 Release)

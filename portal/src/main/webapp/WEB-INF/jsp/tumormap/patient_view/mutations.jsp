@@ -771,10 +771,16 @@
                                 var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
                                 var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
                                 var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                                PancanMutationHistogram(byKeywordData, byHugoData, window.cancerStudy2NumSequencedCases, invisible_container);
+                                var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancerStudy2NumSequencedCases, invisible_container);
 
                                 var content = invisible_container.innerHTML;
                                 api.set('content.text', content);
+
+                                var svg_width = $(invisible_container).find('svg').attr('width');
+                                $(this).css('max-width', parseInt(svg_width));
+
+                                var this_svg = $(this).find('svg')[0];
+                                histogram.qtip(this_svg);
 
                                 $(invisible_container).empty();     // N.B.
                             }

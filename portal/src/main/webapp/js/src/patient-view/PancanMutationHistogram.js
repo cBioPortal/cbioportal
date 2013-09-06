@@ -198,52 +198,57 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
         .on("mouseout", function() { d3.select(this).attr('opacity', '1'); });
 
-    // add in the mouseover bars first, i.e. on the bottom most layer
-    var cancer_studies = _.map(all_data[0], function(d) { return d.cancer_study; });
-    var mouseOverBar = svg.selectAll('.mouseOver')
-        .data(cancer_studies)
-        .enter()
-        .append('rect')
-        .attr('class', 'mouseOver')
-        .attr('x', function(d) {
-            return x(d);
-        })
-        .attr('opacity', '0')
-        .attr('height', height + 5)
-        .attr('width', x.rangeBand())
-        .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
-        .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
+    function qtip(svg) {
+        // add in the mouseover bars first, i.e. on the bottom most layer
+        var cancer_studies = _.map(all_data[0], function(d) { return d.cancer_study; });
+        var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
+            .data(cancer_studies)
+            .enter()
+            .append('rect')
+            .attr('class', 'mouseOver')
+            .attr('x', function(d) {
+                return x(d) + params.margin.left;
+            })
+            .attr('opacity', '0')
+            .attr('height', height + params.margin.top + 5)
+            .attr('width', x.rangeBand())
+            .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
+            .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
 
-    // add qtips for each bar
-    mouseOverBar.each(function(d) {
-        $(this).qtip({
-            content: {text: 'mouseover failed'},
-            position: {my:'left top', at:'center right'},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-            hide: { fixed: true, delay: 100 },
-            events: {
-                render: function(event, api) {
-                    var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
-                    var truncating = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
-                    var non_truncating = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
-                    var cancer_study = non_truncating.cancer_study;     // there should always be non truncating data, even if there isn't truncating data
-                    var text = "<b>" + cancer_study + "</b>" + "<br/>"
-                        + "truncating: " + (truncating.count || 0) + "<br/>"
-                        + "non truncating: " + (non_truncating.count || 0) + "<br/>"
-                        + "# sequenced samples: " + non_truncating.num_sequenced_samples;
+        // add qtips for each bar
+        mouseOverBar.each(function(d) {
+            $(this).qtip({
+                content: {text: 'mouseover failed'},
+                position: {my:'left top', at:'center right'},
+                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                hide: { fixed: true, delay: 100 },
+                events: {
+                    render: function(event, api) {
+                        var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
+                        var truncating = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+                        var non_truncating = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+                        var cancer_study = non_truncating.cancer_study;     // there should always be non truncating data, even if there isn't truncating data
+                        var text = "<b>" + cancer_study + "</b>" + "<br/>"
+                            + "truncating: " + (truncating.count || 0) + "<br/>"
+                            + "non truncating: " + (non_truncating.count || 0) + "<br/>"
+                            + "# sequenced samples: " + non_truncating.num_sequenced_samples;
 
-                    api.set('content.text', text);
-                    //     api.set('content.text',
-                    //         "<b>" + d.count + "/" + d.num_sequenced_samples + "</b>"
-                    //          + "<br/>" + d.cancer_study);
+                        api.set('content.text', text);
+                        //     api.set('content.text',
+                        //         "<b>" + d.count + "/" + d.num_sequenced_samples + "</b>"
+                        //          + "<br/>" + d.cancer_study);
+                    }
                 }
-            }
+            });
         });
-    });
+    }
 
     function getRectsByCancerStudy(cancer_study) {
         return rect.filter(function(d) { return d.cancer_study === cancer_study; });
     }
 
-    return el;
+    return {
+        el: el,
+        qtip: qtip
+    };
 };

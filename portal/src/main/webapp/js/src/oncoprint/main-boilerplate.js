@@ -30,7 +30,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     clinicalAttributes.fetch({
         type: 'POST',
-        data: { cancer_study_id: cancer_study_id,
+        data: { cancer_study_id: cancer_study_id_selected,
             case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());

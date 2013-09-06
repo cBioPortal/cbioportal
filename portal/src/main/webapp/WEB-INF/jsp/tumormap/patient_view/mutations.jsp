@@ -499,12 +499,20 @@
 
                                     $(invisible_container).empty();
 
-                                    PancanMutationHistogram(byKeywordData,
-                                            byHugoData,
-                                            window.cancerStudy2NumSequencedCases,
-                                            invisible_container);
+//                                    PancanMutationHistogram(byKeywordData,
+//                                            byHugoData,
+//                                            window.cancerStudy2NumSequencedCases,
+//                                            invisible_container);
 
-                                    return "<p>foobar</p>";
+                                    // This is for the moustache-like templates
+                                    // prevents collisions with JSP tags
+                                    _.templateSettings = {
+                                        interpolate : /\{\{(.+?)\}\}/g
+                                    };
+
+                                    var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'>{{value}}</div>");
+
+                                    return thumbnail_template({gene: hugo, keyword: keyword, value: "foobar"});
 
 //                                    var sum = function(a,b) { return a + b; };
 //
@@ -740,13 +748,44 @@
             var pancan_column = mutTableIndices['pancan_mutations'];
             var dummy = false;      // doesn't matter
 
-            // now that there's data, update the pancan column which checks whether or not there is data
+            // now that there's data, iterate throw the pancan column which checks whether there is pancan data or not
             for (var i = 0; i < num_rows; i+=1) {
                 oTable.fnUpdate(dummy, i, pancan_column, false, false);
             }
 
             // redraw based on the update
             oTable.fnDraw();
+
+            // batch bar chart generation
+            (function($thumbnails) {
+                $thumbnails.each(function(idx, thumbnail) {
+
+                    // qtip on each pancan mutations histogram thumbnail
+                    var $thumbnail = $(thumbnail);
+                    $thumbnail.qtip({
+                        content: {text: 'pancancer mutation bar chart is broken'},
+                        events: {
+                            render: function(event, api) {
+                                var gene = $thumbnail.attr('gene');
+                                var keyword = $thumbnail.attr('keyword');
+                                var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+                                var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+                                var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+                                PancanMutationHistogram(byKeywordData, byHugoData, window.cancerStudy2NumSequencedCases, invisible_container);
+
+                                var content = invisible_container.innerHTML;
+                                api.set('content.text', content);
+
+                                $(invisible_container).empty();     // N.B.
+                            }
+                        },
+                        hide: { fixed: true, delay: 100 },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
+                        //position: {my:'left top',at:'bottom center'}
+                        position: {my:'top right',at:'top right'}
+                    });
+                });
+            })($('.pancan_mutations_histogram_thumbnail'));
         });
 
         return oTable;
@@ -861,30 +900,6 @@
                 genomicEventObs.mutations.setData(data);
                 genomicEventObs.fire('mutations-built');
 
-                var pancanMutationsUrl = "pancancerMutations.json";
-
-                $.post(pancanMutationsUrl,
-                        { cmd: "byKeywords", q: JSON.stringify(genomicEventObs.mutations.data.key)}, function(byKeywordResponse) {
-
-                    function munge(response, key) {
-                        // munge data to get it into the format: keyword -> corresponding datum
-                        return d3.nest().key(function(d) { return d[key]; }).entries(response)
-                                .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
-                    }
-
-                    genomicEventObs.pancan_mutation_frequencies =  munge(byKeywordResponse, "keyword");
-
-                    $.post(pancanMutationsUrl, {cmd: "byHugos", q: JSON.stringify(genomicEventObs.mutations.data.gene)}, function(byHugoResponse) {
-
-                        genomicEventObs.pancan_mutation_frequencies
-                                = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"))
-
-                        console.log(genomicEventObs.pancan_mutation_frequencies);
-
-                        genomicEventObs.fire("pancan-mutation-frequency-built");
-                    })
-                });
-
                 // summary table
                 buildMutationsDataTable(genomicEventObs.mutations,genomicEventObs.mutations.getEventIds(true), 'mutation_summary_table', 
                             '<"H"<"mutation-summary-table-name">fr>t<"F"<"mutation-show-more"><"datatable-paging"pl>>', 25, "No mutation events of interest", true);
@@ -926,6 +941,27 @@
                 $('.all-mutation-table-name').addClass("datatable-name");
                 $('#mutation_wrapper_table').show();
                 $('#mutation_wait').remove();
+
+                var pancanMutationsUrl = "pancancerMutations.json";
+                $.post(pancanMutationsUrl,
+                        { cmd: "byKeywords", q: JSON.stringify(genomicEventObs.mutations.data.key)}, function(byKeywordResponse) {
+
+                            function munge(response, key) {
+                                // munge data to get it into the format: keyword -> corresponding datum
+                                return d3.nest().key(function(d) { return d[key]; }).entries(response)
+                                        .reduce(function(acc, next) { acc[next.key] = next.values; return acc;}, {});
+                            }
+
+                            genomicEventObs.pancan_mutation_frequencies =  munge(byKeywordResponse, "keyword");
+
+                            $.post(pancanMutationsUrl, {cmd: "byHugos", q: JSON.stringify(genomicEventObs.mutations.data.gene)}, function(byHugoResponse) {
+
+                                genomicEventObs.pancan_mutation_frequencies
+                                        = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"));
+                                genomicEventObs.fire("pancan-mutation-frequency-built");
+                            });
+                        });
+
             }
             ,"json"
         );

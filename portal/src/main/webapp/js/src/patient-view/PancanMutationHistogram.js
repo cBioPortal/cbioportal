@@ -1,4 +1,4 @@
-function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_sequenced_samples, el, params) {
+function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_sequenced_samples, el, params) {
     params = $.extend({
         margin: {top: 20, right: 10, bottom: 20, left: 40},
         width: 840,
@@ -6,23 +6,31 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
         cancerStudyName: undefined
     }, params);
 
+    function deep_copy(list_of_objects) {
+        return list_of_objects.map(_.clone);
+    }
+
+    var bykeyword_data = deep_copy(byKeywordData);
+    var bygene_data = deep_copy(byGeneData);
+
     // --- data munging --- //
 
     // make sure there is bykeyword data for every bygene data, i.e. for
     // every cancer study.  Ones that are missing from bykeyword data are
     // just given a count of zero.
-    bykeyword_data = bykeyword_data.concat((function() {
+    var bygeneData_setminus_byKeywordData = (function() {
         var bykeyword_keys = d3.set(bykeyword_data.map(keygen));
 
-        var bygeneData_setminus_byKeywordData = bygene_data.filter(function(d) {
+        var setminus = bygene_data.filter(function(d) {
             var key = keygen(d);
             return !bykeyword_keys.has(key);
         });
 
-        bygeneData_setminus_byKeywordData.forEach(function(d) { d.count = 0; });  // count = 0 in those cancer studies
+        setminus.forEach(function(d) { d.count = 0; });  // count = 0 in those cancer studies
 
-        return bygeneData_setminus_byKeywordData;
-    })());
+        return setminus;
+    })();
+    bykeyword_data = bykeyword_data.concat(bygeneData_setminus_byKeywordData);
 
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");
@@ -32,23 +40,16 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
 
     // the counts in bygene_data include the counts in bykeyword_data, so
     // we are going to subtract them off
-    bygene_data.forEach(function(d) {
-        var keyword_data = getKeywordDataImpl(d);
-
-        if (keyword_data === undefined) {
-            console.log(d);
-        }
-
-        var subtract_off = keyword_data.count;
-
-        var new_count = d.count - subtract_off;
+    bygene_data.forEach(function(bygene_datum) {
+        var bykeyword_datum = getKeywordDataImpl(bygene_datum);
+        var new_count = bygene_datum.count - bykeyword_datum.count;
 
         if (new_count < 0) {
-            throw new Error("more mutations for a particular keyword than"
-                + "for all keywords linked to gene");
+            throw new Error("more mutations for a particular keyword than "
+                + "for all keywords of a particular gene");
         }
 
-        d.count = new_count;
+        bygene_datum.count = new_count;
     });
 
     _.mixin({
@@ -95,16 +96,18 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
 
     // *signature:* `keyword_data -> ( {hugo, cancer_study} -> keyword datum )`
     function getKeywordData(bykeyword_data) {
+        // key -> bykeyword datum
+        var map = bykeyword_data.reduce(function(acc, next) {
+            var key;
+            try { key = keygen(next); } catch (e) { throw new Error(e); }
+
+            if (_.has(acc, key)) { throw new Error("multiple bykeyword data with the same key"); }
+
+            acc[key] = next;
+            return acc;
+        }, {});
+
         return (function(d) {
-
-            // key -> bykeyword datum
-            var map = bykeyword_data.reduce(function(acc, next) {
-                var key = keygen(next);
-
-                acc[key] = next;
-                return acc;
-            }, {});
-
             var key;
             try { key = keygen(d); } catch(e) { throw new Error(e); }
 
@@ -132,7 +135,7 @@ function PancanMutationHistogram(bykeyword_data, bygene_data, cancer_study2num_s
         ;
 
     var layers = stack(all_data);
-    console.log(layers);
+//    console.log(layers);
 
     var x = d3.scale.ordinal()
         .rangeRoundBands([0, width], .1)

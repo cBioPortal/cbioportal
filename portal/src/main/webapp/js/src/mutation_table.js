@@ -63,11 +63,12 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		//count -= 1;
 
 		// hide special gene columns and less important columns by default
-		for (var col=10; col<count; col++)
+		for (var col=9; col<count; col++)
 		{
 			// do not hide allele frequency (T) and count columns
 			if (!(col == indexMap["allele freq (t)"] ||
-			      col == indexMap["#mut in sample"]))
+			      col == indexMap["#mut in sample"] ||
+			      col == indexMap["bam"]))
 			{
 				hiddenCols.push(col);
 			}

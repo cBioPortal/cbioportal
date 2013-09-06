@@ -84,13 +84,6 @@
 			</a>
 		</td>
 		<td>
-			<a class='igv-link' alt='{{igvLink}}'>
-				<span style="background-color:#88C;color:white">
-					&nbsp;IGV&nbsp;
-				</span>
-			</a>
-		</td>
-		<td>
 			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
@@ -131,6 +124,13 @@
 			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
 		</td>
 		<td>
+			<a class='igv-link' alt='{{igvLink}}'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;IGV&nbsp;
+				</span>
+			</a>
+		</td>
+		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
 		</td>
 	</tr>
@@ -145,7 +145,6 @@
 	    class='mutation-table-header'>FIS</th>
 	<th alt='Conservation' class='mutation-table-header'>Cons</th>
 	<th alt='3D Structure' class='mutation-table-header'>3D</th>
-	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Mutation Status' class='mutation-table-header'>MS</th>
 	<th alt='Validation Status' class='mutation-table-header'>VS</th>
 	<th alt='Sequencing Center' class='mutation-table-header'>Center</th>
@@ -163,6 +162,7 @@
 	<th alt='Variant Alt Count' class='mutation-table-header'>Var Alt</th>
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
+	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>

@@ -59,7 +59,7 @@ public class ClinicalData {
                         String attrVal) {
 
         this.cancerStudyId = cancerStudyId;
-        this.caseId = caseId.toUpperCase();     // N.B. this may be inefficient but it ensures the standard
+        this.caseId = caseId;
         this.attrId = attrId;
         this.attrVal = attrVal;
     }

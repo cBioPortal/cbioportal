@@ -262,6 +262,7 @@
 		  <configuration>
 			<forkMode>always</forkMode>
 			<filtering>true</filtering>
+                        <argLine>-Xmx1024m</argLine>
 			<testFailureIgnore>false</testFailureIgnore>
 			<systemProperties>
 			  <property>

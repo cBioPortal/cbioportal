@@ -115,11 +115,11 @@ public class PatientView extends HttpServlet {
                 String msg = (String)request.getAttribute(ERROR);
                 xdebug.logMsg(this, msg);
                 forwardToErrorPage(request, response, msg, xdebug);
+            } else {
+                RequestDispatcher dispatcher =
+                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
+                dispatcher.forward(request, response);
             }
-            
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
-            dispatcher.forward(request, response);
         
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());

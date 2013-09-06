@@ -150,8 +150,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
     function addMutCnaPlotTooltip(scatterPlotDiv) {
         var params = {
             content: $('#mut_cna_scatter_dialog').remove(),
-            show: { delay: 200 },
-            hide: { fixed: true, delay: 100 },
+            show: {delay: 200, event: "mouseover" },
+            hide: {fixed: true, delay: 100,  event: "mouseout"},
             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: {my:'top right',at:'top left'},
             events: {
@@ -283,7 +283,8 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                         });
                     }
                 },
-                hide: { fixed: true, delay: 100 },
+	            show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event: "mouseout"},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
                 //position: {my:'left top',at:'bottom center'}
                 position: {my:'top right',at:'top right'}

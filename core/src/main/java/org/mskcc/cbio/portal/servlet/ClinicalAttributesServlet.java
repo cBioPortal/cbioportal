@@ -45,6 +45,7 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
     private ServletXssUtil servletXssUtil;
@@ -78,9 +79,10 @@ public class ClinicalAttributesServlet extends HttpServlet {
             JSONArray toWrite = new JSONArray();
             response.setContentType("text/json");
 
+            int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(WebserviceParserUtils.getCancerStudyId(request)).getInternalId();
             List<String> caseIds = WebserviceParserUtils.getCaseList(request);
             Set<String> caseIdSet = new HashSet<String>(caseIds);
-            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(caseIdSet);
+            List<ClinicalAttribute> clinicalAttributes = DaoClinicalAttribute.getDataBySamples(cancerStudyId, caseIdSet);
 
             for (ClinicalAttribute attr : clinicalAttributes) {
                 toWrite.add(ClinicalJSON.reflectToMap(attr));

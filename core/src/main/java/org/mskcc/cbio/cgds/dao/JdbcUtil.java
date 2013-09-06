@@ -130,7 +130,12 @@ public class JdbcUtil {
                 con.close();
                 
                 if (requester!=null) {
-                    activeConnectionCount.put(requester, activeConnectionCount.get(requester)-1);
+                    int count = activeConnectionCount.get(requester)-1;
+                    if (count==0) {
+                        activeConnectionCount.remove(requester);
+                    } else {
+                        activeConnectionCount.put(requester, count);
+                    }
                 }
                 
                 if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {

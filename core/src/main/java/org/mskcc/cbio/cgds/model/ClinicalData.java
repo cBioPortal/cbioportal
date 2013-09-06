@@ -77,7 +77,7 @@ public class ClinicalData {
     }
 
     public void setCaseId(String caseId) {
-        this.caseId = caseId.toUpperCase();     // todo: N.B.
+        this.caseId = caseId;
     }
 
     public String getAttrId() {

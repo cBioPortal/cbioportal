@@ -240,8 +240,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
 
             // create a plot on a hidden element
             var hidden_plot_id = '#allele-freq-plot-big';
-            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0],
-                    AlleleFreqPlotUtils.extract_and_process(genomicEventObs, caseIds[0]));
+            window.allelefreqplot = AlleleFreqPlot($(hidden_plot_id)[0], processed_data);
 
             // add qtip on allele frequency plot thumbnail
             $(thumbnail).qtip({

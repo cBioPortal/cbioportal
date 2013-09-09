@@ -71,6 +71,10 @@
                 </td>
                 <td><label><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</label></td>
             </tr>
+            <tr>
+                <td></td>
+                <td><label><input id='all_cna_levels' type='checkbox'>Show All CNA levels</label></td>
+            </tr>
         </table>
     </div>
 </script>

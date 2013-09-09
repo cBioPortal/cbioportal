@@ -492,24 +492,12 @@
 
                                     var keyword = mutations.getValue(source[0], "key");
                                     var hugo = mutations.getValue(source[0], "gene");
-                                    var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
-                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
-
-                                    var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-
-                                    $(invisible_container).empty();
-
-//                                    PancanMutationHistogram(byKeywordData,
-//                                            byHugoData,
-//                                            window.cancerStudy2NumSequencedCases,
-//                                            invisible_container);
 
                                     // This is for the moustache-like templates
                                     // prevents collisions with JSP tags
                                     _.templateSettings = {
                                         interpolate : /\{\{(.+?)\}\}/g
                                     };
-
                                     var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'>{{value}}</div>");
 
                                     return thumbnail_template({gene: hugo, keyword: keyword, value: "foobar"});

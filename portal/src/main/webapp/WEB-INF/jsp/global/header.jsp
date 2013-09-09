@@ -75,9 +75,9 @@
                                                 <a href="news.jsp">News</a>
                                             </li>
                                             <% } %>
-                                            <li class="internal">
+                                            <!--li class="internal">
                                                 <a href="tools.jsp">Tools</a>
-                                            </li>
+                                            </li-->
                                             <li class="internal">
                                                 <a href="about_us.jsp">About</a>
                                             </li>

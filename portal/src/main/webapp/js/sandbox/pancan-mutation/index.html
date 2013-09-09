@@ -17,36 +17,34 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/qtip2/2.1.1/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.8/require.min.js"></script>
+<script type="text/javascript" src="../../src/patient-view/PancanMutationHistogram.js"></script>
+
+</head>
+<body>
+    <div id="histogram"></div>
+</body>
 
 <script>
-    require.config({
-        baseUrl: "../../"
-    });
-    require(["src/patient-view/PancanMutationHistogram"], function(pancanHistogram) {
+    var el = document.getElementById('histogram');
 
-        var el = document.getElementById('histogram');
-
-        //d3.json('tp53_truncating.json', function(data) {
-        //    pancanHistogram(data, el, {cancerStudyName: "Uterine Corpus Endometrioid Carcinoma (TCGA, Nature 2013)"});
-        //});
+    // This is for the moustache-like templates
+    // prevents collisions with JSP tags
+    _.templateSettings = {
+        interpolate : /\{\{(.+?)\}\}/g
+    };
 
     d3.json('bykeyword.json', function(bykeyword_data) {
         d3.json('byhugo.json', function(byhugo_data) {
             d3.json('cancer_study2num_sequenced_samples.json', function(cancer_study2num_sequenced_samples) {
-                pancanHistogram(bykeyword_data, byhugo_data, cancer_study2num_sequenced_samples, el);
+                var barchart = PancanMutationHistogram(bykeyword_data,
+                    byhugo_data,
+                    cancer_study2num_sequenced_samples,
+                    el);
+
+                barchart.qtip($(barchart.el).find("svg")[0]);
             });
         });
     });
-
-    });
 </script>
 
-</head>
-<body>
-
-    <h1>Pancan Mutations | TP53 Truncating</h1>
-
-    <div id="histogram"></div>
-
-</body>
 </html>

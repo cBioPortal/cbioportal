@@ -153,9 +153,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .tickFormat("")
         .orient("bottom");
 
+    var percent_format = d3.format("%.0");
     var yAxis = d3.svg.axis()
         .scale(y)
-        .tickFormat(d3.format("%.0"))
+        .tickFormat(percent_format)
         .orient("left");
     yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
@@ -195,8 +196,16 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .attr("y", function(d) { return y(d.y0 + d.y); })
         .attr("width", x.rangeBand())
         .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
-        .on("mouseover", function() { d3.select(this).attr('opacity', '0.5'); })
-        .on("mouseout", function() { d3.select(this).attr('opacity', '1'); });
+
+    // title
+    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+    var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
+    svg.append('text')
+        .text(title_string)
+        .attr('x', .35 * d3.max(x.range()))
+        .attr('y', .15 * d3.max(y.range()))
+        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+        .style("font-size", "18px")
 
     function qtip(svg) {
         // add in the mouseover bars first, i.e. on the bottom most layer
@@ -215,6 +224,22 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
             .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
             .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
 
+        function qtip_template(d) {
+            var percent = percent_format(d.frequency || 0);
+            var count = d.count || 0;
+            var total = cancer_study2num_sequenced_samples[d.cancer_study];
+
+            return (_.template("<span>{{percent}} ({{count}} / {{total}})</span>"))({percent: percent, count: count, total: total});
+        }
+
+        function repeat_string(str, n) {
+            var repeated_str = "";
+            for (var i = 0; i < n; i++) {
+                repeated_str+=str;
+            }
+            return repeated_str;
+        }
+
         // add qtips for each bar
         mouseOverBar.each(function(d) {
             $(this).qtip({
@@ -225,18 +250,15 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
                 events: {
                     render: function(event, api) {
                         var data = getRectsByCancerStudy(d).map(function(rect) { return rect[0].__data__; });
-                        var truncating = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
-                        var non_truncating = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
-                        var cancer_study = non_truncating.cancer_study;     // there should always be non truncating data, even if there isn't truncating data
-                        var text = "<b>" + cancer_study + "</b>" + "<br/>"
-                            + "truncating: " + (truncating.count || 0) + "<br/>"
-                            + "non truncating: " + (non_truncating.count || 0) + "<br/>"
-                            + "# sequenced samples: " + non_truncating.num_sequenced_samples;
+                        var bykeyword = data.filter(function(d) { return _.has(d, "keyword"); })[0] || {};
+                        var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
+                        var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
+                        var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
+                            + "<p style='color: " + googleblue + "; margin-bottom:0;'>non truncating:" + repeat_string("&nbsp;", 1) + qtip_template(bygene) + "</p>"
+                            + "<p style='color: " + googlered + "; margin-top:0;'>truncating:" + repeat_string("&nbsp;", 7) + qtip_template(bykeyword) + "</p>"
+                        ;
 
                         api.set('content.text', text);
-                        //     api.set('content.text',
-                        //         "<b>" + d.count + "/" + d.num_sequenced_samples + "</b>"
-                        //          + "<br/>" + d.cancer_study);
                     }
                 }
             });

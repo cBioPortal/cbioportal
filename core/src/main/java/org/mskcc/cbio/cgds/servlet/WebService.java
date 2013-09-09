@@ -73,7 +73,6 @@ public class WebService extends HttpServlet {
     public static final String SECRET_KEY = "secret_key";
     public static final String PROTEIN_ARRAY_TYPE = "protein_array_type";
     public static final String PROTEIN_ARRAY_ID = "protein_array_id";
-    public static final String INCLUDE_FREE_FORM_CLINICAL_DATA = "include_free_form";
     public static final String FORMAT = "format";
 
     /**

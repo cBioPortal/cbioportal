@@ -543,7 +543,17 @@
     </servlet-mapping>
 
     <!-- end tumor map -->
-     
+
+    <servlet>
+        <servlet-name>Echofile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Echofile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>

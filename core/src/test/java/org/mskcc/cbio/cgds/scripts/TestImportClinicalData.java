@@ -90,7 +90,7 @@ public class TestImportClinicalData extends TestCase {
         Patient clinical2 = clinicalCaseList.get(2);
         assertEquals (null, clinical2.getDiseaseFreeSurvivalMonths());
 
-		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, "TUMORGRADE");
+		ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(CANCER_STUDY_ID, Arrays.asList("TUMORGRADE")).get(0);
 		assertEquals ("TUMORGRADE", paramMap.getName());
 		assertEquals("G3", paramMap.getValue("TCGA-04-1331"));
         assertEquals("G2", paramMap.getValue("TCGA-04-1337"));

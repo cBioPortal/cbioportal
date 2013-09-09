@@ -126,20 +126,20 @@
 			       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
 		</td>
 		<td>
-			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
 		</td>
 		<td>
 			<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
 		</td>
 		<td>
-			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
-			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
-		</td>
-		<td>
-			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
+			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
 		</td>
 		<td>
 			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+		</td>
+		<td>
+			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
 		</td>
 		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>

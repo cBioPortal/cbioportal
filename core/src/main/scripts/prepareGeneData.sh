@@ -1,19 +1,23 @@
 #!/bin/bash
 
-rm -rf $PORTAL_DATA_HOME/reference-data/gene_info_tmp
-mkdir $PORTAL_DATA_HOME/reference-data/gene_info_tmp
+echo "downloading Homo_sapiens.gene_info.gz from ncbi..."
+wget -P $PORTAL_DATA_HOME/reference-data/ ftp://ftp.ncbi.nih.gov//gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz
+echo "unzipping..."
+gunzip $PORTAL_DATA_HOME/reference-data/Homo_sapiens.gene_info.gz
+mv $PORTAL_DATA_HOME/reference-data/Homo_sapiens.gene_info $PORTAL_DATA_HOME/reference-data/human-genes.txt
 
-echo "downloading gene_info.gz from ncbi.nih.gov..."
-wget -P $PORTAL_DATA_HOME/reference-data/gene_info_tmp/ ftp://ftp.ncbi.nih.gov/gene/DATA/gene_info.gz
 
-echo "extracting gene_info.gz and selecting human gene data..."
-gunzip $PORTAL_DATA_HOME/reference-data/gene_info_tmp/gene_info.gz
-grep ^9606 $PORTAL_DATA_HOME/reference-data/gene_info_tmp/gene_info > $PORTAL_DATA_HOME/reference-data/gene_info_tmp/human-genes.txt
+# loci data for calculating gene length
 
-echo "copying to $PORTAL_DATA_HOME/reference-data, $PORTAL_DATA_HOME/reference-data/gene_info_tmp/human-genes.txt..."
-cp $PORTAL_DATA_HOME/reference-data/gene_info_tmp/human-genes.txt $PORTAL_DATA_HOME/reference-data/
+echo "downloading gencode.v17.annotation.gtf.gz from sanger"
+wget -P $PORTAL_DATA_HOME/reference-data/ ftp://ftp.sanger.ac.uk/pub/gencode/release_17/gencode.v17.annotation.gtf.gz
 
-echo "cleaning up /tmp..."
-rm -rf $PORTAL_DATA_HOME/reference-data/gene_info_tmp
+echo "unzipping..."
+gunzip $PORTAL_DATA_HOME/reference-data/gencode.v17.annotation.gtf.gz
 
-echo "done."
+echo "trimming..."
+grep -v ^# $PORTAL_DATA_HOME/reference-data/gencode.v17.annotation.gtf | perl -ne 'chomp; @c=split(/\t/); $c[0]=~s/^chr//; $c[3]--; $c[8]=~s/.*gene_name\s\"([^"]+)\".*/$1/; print join("\t",@c[0,3,4,8,5,6])."\n" if($c[2] eq "CDS" or $c[2] eq "exon")' > $PORTAL_DATA_HOME/reference-data/all_exon_loci.bed
+
+rm $PORTAL_DATA_HOME/reference-data/gencode.v17.annotation.gtf
+
+echo "done"

@@ -243,7 +243,8 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,case
 function addToolTip(node,tip,showDelay,position) {
     var param = {
         content: {text:tip},
-        hide: { fixed: true, delay: 100 },
+	    show: {event: "mouseover"},
+        hide: {fixed: true, delay: 100, event:"mouseout"},
         style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
     };
     if (showDelay)

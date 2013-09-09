@@ -231,6 +231,21 @@
         <servlet-class>org.mskcc.cbio.portal.servlet.GeneDataJSON</servlet-class>
     </servlet>
 
+    <servlet>
+        <servlet-name>EchoFile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalJSON</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.ClinicalAttributesServlet</servlet-class>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>webservice</servlet-name>
         <url-pattern>/webservice.do</url-pattern>
@@ -380,6 +395,16 @@
         <servlet-name>GeneDataJSON</servlet-name>
         <url-pattern>/GeneData.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>EchoFile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalJSON</servlet-name>
+        <url-pattern>/clinical.json</url-pattern>
+    </servlet-mapping>
      
      <!-- tumor map -->
     <servlet>
@@ -451,6 +476,11 @@
         <servlet-name>ClinicalTrialsJSON</servlet-name>
         <url-pattern>/clinicaltrials.json</url-pattern>
     </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>ClinicalAttributesServlet</servlet-name>
+        <url-pattern>/clinicalAttributes.json</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>SimilarPatientsJSON</servlet-name>
@@ -502,9 +532,30 @@
         <url-pattern>/getProfileData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProteinArrayDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <url-pattern>/getProteinArrayData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
-     
+
+    <servlet>
+        <servlet-name>Echofile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Echofile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>
+
 </web-app>

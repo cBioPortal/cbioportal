@@ -63,7 +63,8 @@ var survivalCurves = (function() {
                 case_id: "",
                 time: "",    //num of months
                 status: "", //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
-                num_at_risk: -1
+                num_at_risk: -1,
+                survival_rate: 0
             },
             os_altered_group = [],
             os_unaltered_group = [],
@@ -82,17 +83,24 @@ var survivalCurves = (function() {
         }
 
         //Settle the overall survival datum group
+        //order by time, filtered NA cases and add on num of risk for each time point
         function setOSGroups(result, caseLists) {
+            var _totalAlter = 0,
+                _totalUnalter = 0;
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].os_months;
                     _datum.status = result[caseId].os_status;
-                    if (caseLists[caseId] === "altered") {
-                        os_altered_group.push(_datum);
-                    } else if (caseLists[caseId] === "unaltered") {
-                        totalUnalter += -1;
+                    if (_datum.time !== "NA") {
+                        if (caseLists[caseId] === "altered") {
+                            os_altered_group.push(_datum);
+                            _totalAlter += 1;
+                        } else if (caseLists[caseId] === "unaltered") {
+                            os_unaltered_group.push(_datum);
+                            _totalUnalter += 1;
+                        }
                     }
                 }
             }
@@ -100,32 +108,48 @@ var survivalCurves = (function() {
             util.sortByAttribute(os_unaltered_group, "time");
 
             for (var i in os_altered_group) {
-                os_altered_group[i].num_at_risk = totalAlter;
-                totalAlter -= 1;
+                os_altered_group[i].num_at_risk = _totalAlter;
+                _totalAlter += -1;
             }
             for (var i in os_unaltered_group) {
-                os_unaltered_group[i].num_at_risk = totalUnalter;
-                totalUnalter -= 1;
+                os_unaltered_group[i].num_at_risk = _totalUnalter;
+                _totalUnalter += -1;
             }
-
         }
 
-
-
+        //Settle the disease free survival datum group
+        //order by time, filtered NA cases and add on num of risk for each time point
         function setDFSGroups(result, caseLists) {
-
+            var _totalAlter = 0,
+                _totalUnalter = 0;
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].dfs_months;
                     _datum.status = result[caseId].dfs_status;
-                    if (caseLists[caseId] === "altered") {
-                        dfs_altered_group.push(_datum);
-                    } else if (caseLists[caseId] === "unaltered") {
-                        dfs_unaltered_group.push(_datum);
+                    if (_datum.time !== "NA") {
+                        if (caseLists[caseId] === "altered") {
+                            dfs_altered_group.push(_datum);
+                            _totalAlter += 1;
+                        } else if (caseLists[caseId] === "unaltered") {
+                            dfs_unaltered_group.push(_datum);
+                            _totalUnalter += 1;
+                        }
                     }
                 }
+            }
+
+            util.sortByAttribute(dfs_altered_group, "time");
+            util.sortByAttribute(dfs_unaltered_group, "time");
+
+            for (var i in dfs_altered_group) {
+                dfs_altered_group[i].num_at_risk = _totalAlter;
+                _totalAlter += -1;
+            }
+            for (var i in dfs_unaltered_group) {
+                dfs_unaltered_group[i].num_at_risk = _totalUnalter;
+                _totalUnalter += -1;
             }
         }
 
@@ -134,6 +158,10 @@ var survivalCurves = (function() {
                 cntAlter(caseLists);
                 setOSGroups(result, caseLists);
                 setDFSGroups(result, caseLists);
+                kmEstimator.calc(os_altered_group);
+                kmEstimator.calc(os_unaltered_group);
+                kmEstimator.calc(dfs_altered_group);
+                kmEstimator.calc(dfs_unaltered_group);
             }
         }
     }());
@@ -142,6 +170,31 @@ var survivalCurves = (function() {
 
 
 
+    }());
+
+    var kmEstimator = (function() {
+
+        return {
+            calc: function(inputGrp) { //calculate the survival rate for each time point
+                //each item in the input already has fields: time, num at risk, event/status(0-->censored)
+                var _prev_value = 1;  //buffer for the previous value
+                for (var i in inputGrp) {
+                    var _case = inputGrp[i];
+                    if (_case.status === "1") {
+                        _case.survival_rate = _prev_value * ((_case.num_at_risk - 1) / _case.num_at_risk) ;
+                        _prev_value = _case.survival_rate;
+                    } else if (_case.status === "0") {
+                        _case.survival_rate = _prev_value; //survival rate remain the same if the event is "censored"
+                    } else {
+                        //TODO: error
+                    }
+                    console.log("time:" + _case.time);
+                    console.log("num at risk:" + _case.num_at_risk);
+                    console.log("event:" + _case.status);
+                    console.log("value:" + _case.survival_rate);
+                }
+            }
+        }
     }());
 
     return {

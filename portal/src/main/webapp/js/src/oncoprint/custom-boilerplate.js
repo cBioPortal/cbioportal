@@ -20,25 +20,27 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         var $oncoprint_el = $(oncoprint_el);
         function exec(data) {
 
-            var cna_threshold_mapping = {
-                "AMPLIFIED": "AMPLIFIED",
-                "GAINED": "DIPLOID",
-                "DIPLOID": "DIPLOID",
-                "HEMIZYGOUSLYDELETED": "DIPLOID",
-                "HOMODELETED": "HOMODELETED"
-            };
+            var data_thresholded = (function() {
+                var cna_threshold_mapping = {
+                    "AMPLIFIED": "AMPLIFIED",
+                    "GAINED": "DIPLOID",
+                    "DIPLOID": "DIPLOID",
+                    "HEMIZYGOUSLYDELETED": "DIPLOID",
+                    "HOMODELETED": "HOMODELETED"
+                };
 
-            // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
-            // returning a new object with modified cna values
-            // *signature:* obj -> obj
-            function cna_threshold(d) {
-                if (!d.cna) { return d; }
-                var e = _.clone(d);
-                e.cna = cna_threshold_mapping[e.cna];
-                return e;
-            }
+                // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
+                // returning a new object with modified cna values
+                // *signature:* obj -> obj
+                function cna_threshold(d) {
+                    if (!d.cna) { return d; }
+                    var e = _.clone(d);
+                    e.cna = cna_threshold_mapping[e.cna];
+                    return e;
+                }
 
-            var data_thresholded = _.map(data, cna_threshold);
+                return _.map(data, cna_threshold);
+            }());
 
             // set up oncoprint params
             var genes = _.chain(data_thresholded).map(function(d){ return d.gene; }).uniq().value();

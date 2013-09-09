@@ -11,11 +11,14 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
+        // don't want to setup the zoom slider multiple times
+        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+
         var oncoprint;
+        var cases;
         var oncoprint_el = document.getElementById("oncoprint");
         var $oncoprint_el = $(oncoprint_el);
         function exec(data) {
-//            data = EchoedDataUtils.join(data, 'sample', 'gene');
 
             // set up oncoprint params
             var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
@@ -33,7 +36,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             $('#oncoprint_legend p').remove();
 
             // set up the controls
-            zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
+            var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
 
             var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
             sortBy.chosen({width: "240px", disable_search: true });
@@ -72,13 +75,19 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 return;
             });
 
+            // sync controls with oncoprint
+            oncoprint.zoom(zoom.slider("value"));
+            oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+            oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+            oncoprint.sortBy(sortBy.val());
+            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+
             return false;
         };
 
-        // don't want to setup the zoom slider multiple times
-        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+        // populate with template html
+        $('#oncoprint_controls').html($('#custom-controls-template').html()).hide(); // hide until there's data
 
-        var cases;
         $('#create_oncoprint').click(function() {
             var cnaForm = $('#cna-form');
             var mutationForm = $('#mutation-form');
@@ -127,7 +136,4 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 });
             });
         });
-
-        $('#oncoprint_controls').html($('#custom-controls-template').html()) // populate with template html
-            .hide(); // hide until there's data
 });

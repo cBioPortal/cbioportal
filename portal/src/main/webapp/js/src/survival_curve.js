@@ -162,11 +162,89 @@ var survivalCurves = (function() {
                 kmEstimator.calc(os_unaltered_group);
                 kmEstimator.calc(dfs_altered_group);
                 kmEstimator.calc(dfs_unaltered_group);
+            },
+            getOSAlteredData: function() {
+                return os_altered_group;
+            },
+            getOSUnalteredData: function() {
+                return os_unaltered_group;
+            },
+            getDFSAlteredData: function() {
+                return dfs_altered_group;
+            },
+            getDFSUnalteredData: function() {
+                return dfs_unaltered_group;
             }
         }
     }());
 
     var view = (function() {
+        var elem = {
+                svgOS : "",
+                svgDFS: "",
+                xScale : "",
+                yScale : "",
+                xAxis : "",
+                yAxis : "",
+                osAlterLine: "",
+                osUnalterLine: "",
+                dfsAlterLine: "",
+                dfsUnalterLine: ""
+            },
+            settings = {
+                canvas_width: 720,
+                canvas_height: 600
+            };
+
+        function initCanvas() {
+            $('#os_survival_curve').empty();
+            $('#dfs_survival_curve').empty();
+            elem.svgOS = d3.select("#os_survival_curve")
+                .append("svg")
+                .attr("width", settings.canvas_width)
+                .attr("height", settings.canvas_height);
+            elem.svgDFS = d3.select("#dfs_survival_curve")
+                .append("svg")
+                .attr("width", settings.canvas_width)
+                .attr("height", settings.canvas_height);
+        }
+
+        function initAxis() {
+            elem.xScale = d3.time.scale()
+                .domain([0,200])
+                .range([100, 600]);
+            elem.yScale = d3.scale.linear()
+                .domain([0,1])
+                .range([500, 100]);
+            elem.xAxis = d3.svg.axis()
+                .scale(elem.xScale)
+                .orient("bottom");
+            elem.yAxis = d3.svg.axis()
+                .scale(elem.yScale)
+                .orient("left");
+        }
+
+        function initLines() {
+            elem.osAlterLine = d3.svg.line()
+                .interpolate("step-after")
+                .x(function(d) { return elem.xScale(d.time); })
+                .y(function(d) { return elem.yScale(d.survival_rate); });
+        }
+
+        function draw() {
+            elem.svgOS.append("path")
+                .attr("d", elem.osAlterLine(data.getOSAlteredData()));
+        }
+
+        return {
+            init: function() {
+                initCanvas();
+                initAxis();
+                initLines();
+                draw();
+            }
+
+        }
 
 
 
@@ -209,6 +287,7 @@ var survivalCurves = (function() {
             function getResultInit(caseLists) {
                 return function(result) {
                     data.init(result, caseLists);
+                    view.init();
                 }
             }
         }

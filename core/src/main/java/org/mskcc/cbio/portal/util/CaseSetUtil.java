@@ -60,7 +60,6 @@ public class CaseSetUtil
 			String caseIds) throws DaoException
 	{
 		ArrayList<String> invalidCases = new ArrayList<String>();
-		DaoClinicalData daoClinicalData = new DaoClinicalData();
 		
 		// get list of all case sets for the given cancer study
 		ArrayList<CaseList> caseLists = GetCaseSets.getCaseSets(studyId);
@@ -69,7 +68,7 @@ public class CaseSetUtil
 		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyId);
 		
 		// get all cases in the clinical free form table for the given cancer study
-		Set<String> freeFormCases = daoClinicalData.getAllCases(study.getInternalId());
+		Set<String> freeFormCases = DaoClinicalData.getAllCases(study.getInternalId());
 		
 		if (!caseLists.isEmpty() &&
 			caseIds != null)

@@ -408,7 +408,7 @@ public class CancerStudy {
     }
 
     public boolean hasMutSigData() throws DaoException {
-        return !DaoMutSig.getInstance().hasMutsig(this);
+        return !DaoMutSig.hasMutsig(this);
     }
 
     public boolean hasGisticData() throws DaoException {

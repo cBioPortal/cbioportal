@@ -172,9 +172,7 @@ public class ImportClinicalData {
         for (int i = 0; i < colnames.length; i+=1) {
             ClinicalAttribute attr =
                     new ClinicalAttribute(colnames[i], displayNames[i], descriptions[i], datatypes[i]);
-            try {
-                DaoClinicalAttribute.getDatum(attr.getAttrId());
-            } catch (DaoException e) {
+            if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
                 DaoClinicalAttribute.addDatum(attr);
             }
             attrs.add(attr);

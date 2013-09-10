@@ -129,9 +129,16 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
         // populate with template html
         $('#oncoprint_controls').html($('#custom-controls-template').html()).hide(); // hide until there's data
 
+        var $cnaForm = $('#cna-form');
+        var $mutationForm = $('#mutation-form');
+        var $mutation_file_example = $('#mutation-file-example');
+        var $cna_file_example = $('#cna-file-example');
+
+        // delete text when a file is selected
+        $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
+        $mutationForm.find("#mutation").change(function() { $mutation_file_example.html(""); });
+
         $('#create_oncoprint').click(function() {
-            var cnaForm = $('#cna-form');
-            var mutationForm = $('#mutation-form');
 
             var postFile = function(url, formData, callback) {
                 $.ajax({
@@ -146,11 +153,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 });
             };
 
-            postFile('echofile', new FormData(cnaForm[0]), function(cnaResponse) {
-                postFile('echofile', new FormData(mutationForm[0]), function(mutationResponse) {
+            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
+                postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var mutationTextAreaString = $('#mutation-file-example').val().trim(),
-                        cnaTextAreaString = $('#cna-file-example').val().trim();
+                    var mutationTextAreaString = $mutation_file_example.val().trim(),
+                        cnaTextAreaString = $cna_file_example.val().trim();
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                     mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);

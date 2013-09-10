@@ -61,8 +61,9 @@
 
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
+
     String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    oql = StringEscapeUtils.escapeJavaScript(oql);
+    oql = oql.replaceAll("\\s+", " ");
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),

@@ -37,6 +37,7 @@ import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.cgds.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;

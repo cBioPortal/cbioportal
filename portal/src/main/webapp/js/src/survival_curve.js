@@ -192,7 +192,8 @@ var survivalCurves = (function() {
                 osAlterDots: "",
                 osUnalterDots: "",
                 dfsAlterDots: "",
-                dfsUnalterDots: ""
+                dfsUnalterDots: "",
+                osAlterCensoredDots: ""
             },
             settings = {
                 canvas_width: 600,
@@ -218,6 +219,7 @@ var survivalCurves = (function() {
             elem.osUnalterDots = elem.svgOS.append("g");
             elem.dfsAlterDots = elem.svgDFS.append("g");
             elem.dfsUnalterDots = elem.svgDFS.append("g");
+            elem.osAlterCensoredDots = elem.svgOS.append("g");
         }
 
         function initAxis() {
@@ -364,6 +366,41 @@ var survivalCurves = (function() {
 
         }
 
+        function drawCensoredDots(svg, data, color) {
+            svg.selectAll("path")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) {return elem.xScale(d.time)})
+                .attr("x2", function(d) {return elem.xScale(d.time)})
+                .attr("y1", function(d) {return elem.yScale(d.survival_rate) + 5})
+                .attr("y2", function(d) {return elem.yScale(d.survival_rate) - 5})
+                .attr("stroke", color)
+                .style("opacity", function(d) {
+                    if (d.status === "1") {
+                        return 0; //hidden
+                    } else if (d.status === "0") { //censored
+                        return 1;
+                    }
+                });
+            svg.selectAll("path")
+                .data(data)
+                .enter()
+                .append("line")
+                .attr("x1", function(d) {return elem.xScale(d.time) + 5})
+                .attr("x2", function(d) {return elem.xScale(d.time) - 5})
+                .attr("y1", function(d) {return elem.yScale(d.survival_rate)})
+                .attr("y2", function(d) {return elem.yScale(d.survival_rate)})
+                .attr("stroke", color)
+                .style("opacity", function(d) {
+                    if (d.status === "1") {
+                        return 0; //hidden
+                    } else if (d.status === "0") { //censored
+                        return 1;
+                    }
+                });
+        }
+
         return {
             init: function() {
                 initCanvas();
@@ -377,6 +414,8 @@ var survivalCurves = (function() {
                 drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
                 drawInvisiableDots(elem.dfsAlterDots, settings.altered_mouseover_color, data.getDFSAlteredData());
                 drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
+                //overlay censored data (as a plus sign)
+                drawCensoredDots(elem.osAlterCensoredDots, data.getOSAlteredData(), settings.altered_line_color);
                 //Add mouseover
                 addQtips(elem.osAlterDots);
                 addQtips(elem.osUnalterDots);

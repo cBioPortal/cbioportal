@@ -61,14 +61,14 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             // set up the controls
             var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
 
-            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
-            sortBy.chosen({width: "240px", disable_search: true });
+//            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
+//            sortBy.chosen({width: "240px", disable_search: true });
 
-            // *NB* to be the best of my knowledge,
-            // the user-defined case list is going to depend on the cna file
-            $('#oncoprint_controls #sort_by').change(function() {
-                oncoprint.sortBy(sortBy.val(), cases);
-            });
+//            // *NB* to be the best of my knowledge,
+//            // the user-defined case list is going to depend on the cna file
+//            $('#oncoprint_controls #sort_by').change(function() {
+//                oncoprint.sortBy(sortBy.val(), cases);
+//            });
 
             $('#toggle_unaltered_cases').click(function() {
                 oncoprint.toggleUnalteredCases();
@@ -120,7 +120,7 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             oncoprint.zoom(zoom.slider("value"));
             oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
             oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
-            oncoprint.sortBy(sortBy.val());
+//            oncoprint.sortBy(sortBy.val());
             OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
 
             return false;

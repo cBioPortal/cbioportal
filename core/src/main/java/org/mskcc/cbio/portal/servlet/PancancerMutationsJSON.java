@@ -38,7 +38,10 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -58,6 +61,7 @@ import java.util.Map;
 public class PancancerMutationsJSON extends HttpServlet {
     private ServletXssUtil servletXssUtil;
     private static Log log = LogFactory.getLog(PancancerMutationsJSON.class);
+    private static AccessControl accessControl = null;
 
     /**
      * Initializes the servlet.
@@ -74,6 +78,21 @@ public class PancancerMutationsJSON extends HttpServlet {
     }
 
     /**
+     * Initializes the AccessControl member.
+     *
+     * TODO: may want to refactor this into a public method somewhere that other's can use.  I grabbed this from `TumorMapServlet`
+     */
+    private static synchronized AccessControl getaccessControl() {
+        if (accessControl==null) {ApplicationContext context =
+                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+            accessControl = (AccessControl)context.getBean("accessControl");
+        }
+
+        return accessControl;
+    }
+
+
+    /**
      * iterate over all cancer studies, for each one grab all the genetic profiles,
      * but only grab the ones that are mutation profiles,
      * and for each mutation profile count samples by mutation keyword
@@ -82,9 +101,10 @@ public class PancancerMutationsJSON extends HttpServlet {
      * @return data     Collection of (Map: String -> Object)
      * @throws DaoException
      */
-    public Collection<Map<String, Object>> byKeywords(List<String> keywords) throws DaoException {
-        List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
+    public Collection<Map<String, Object>> byKeywords(List<String> keywords) throws DaoException, ProtocolException {
+        List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
         Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
+
         for (CancerStudy cancerStudy : allCancerStudies) {
             Integer internalId = cancerStudy.getInternalId();
 
@@ -113,8 +133,8 @@ public class PancancerMutationsJSON extends HttpServlet {
      * @return
      * @throws DaoException
      */
-    public Collection<Map<String, Object>> byHugos(List<String> hugos) throws DaoException {
-        List<CancerStudy> allCancerStudies = DaoCancerStudy.getAllCancerStudies();
+    public Collection<Map<String, Object>> byHugos(List<String> hugos) throws DaoException, ProtocolException {
+        List<CancerStudy> allCancerStudies = getaccessControl().getCancerStudies();
         Collection<Integer> internalGeneticProfileIds = new ArrayList<Integer>();
 
         for (CancerStudy cancerStudy : allCancerStudies) {
@@ -168,6 +188,8 @@ public class PancancerMutationsJSON extends HttpServlet {
                 data = byKeywords(queryTerms);
             } catch (DaoException e) {
                 throw new ServletException(e);
+            } catch (ProtocolException e) {
+                throw new ServletException(e);
             }
         }
 
@@ -175,6 +197,8 @@ public class PancancerMutationsJSON extends HttpServlet {
             try {
                 data = byHugos(queryTerms);
             } catch (DaoException e) {
+                throw new ServletException(e);
+            } catch (ProtocolException e) {
                 throw new ServletException(e);
             }
         }

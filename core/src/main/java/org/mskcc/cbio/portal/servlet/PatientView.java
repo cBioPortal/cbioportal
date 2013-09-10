@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.cgds.dao.*;
@@ -171,6 +172,7 @@ public class PatientView extends HttpServlet {
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
+	        cancerStudyId = StringEscapeUtils.escapeJavaScript(cancerStudyId);
             request.setAttribute(ERROR, "We have no information about cancer study "+cancerStudyId);
             return false;
         }

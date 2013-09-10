@@ -51,9 +51,10 @@
      */
     // put geneticProfileIds into the proper form for the JSON request
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-    geneticProfiles = geneticProfiles.trim();
+    geneticProfiles = StringEscapeUtils.escapeJavaScript(geneticProfiles.trim());
 
     String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+	caseIdsKey = StringEscapeUtils.escapeJavaScript(caseIdsKey);
 
     // get cases
     String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
@@ -308,7 +309,7 @@
                                     currentValue = Utilities.appendSemis(currentValue);
                                     //  Extra spaces must be removed.  Otherwise OMA Links will not work.
                                     currentValue = currentValue.replaceAll("\\s+", " ");
-                                    currentValue = URLEncoder.encode(currentValue);
+                                    //currentValue = URLEncoder.encode(currentValue);
                                 }
                                 else if (paramName.equals(QueryBuilder.CASE_IDS) ||
                                 		paramName.equals(QueryBuilder.CLINICAL_PARAM_SELECTION))
@@ -323,7 +324,13 @@
                                 	// parameter in the future
                                 	continue;
                                 }
-                                
+
+		                        // this is required to prevent XSS attacks
+                                currentValue = xssUtil.getCleanInput(currentValue);
+                                //currentValue = StringEscapeUtils.escapeJavaScript(currentValue);
+                                //currentValue = StringEscapeUtils.escapeHtml(currentValue);
+                                currentValue = URLEncoder.encode(currentValue);
+
                                 buf.append (paramName + "=" + currentValue + "&");
                             }
                         }

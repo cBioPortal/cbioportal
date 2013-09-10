@@ -189,7 +189,8 @@ var survivalCurves = (function() {
                 osAlterLine: "",
                 osUnalterLine: "",
                 dfsAlterLine: "",
-                dfsUnalterLine: ""
+                dfsUnalterLine: "",
+                osAlterDots: ""
             },
             settings = {
                 canvas_width: 720,
@@ -207,6 +208,7 @@ var survivalCurves = (function() {
                 .append("svg")
                 .attr("width", settings.canvas_width)
                 .attr("height", settings.canvas_height);
+            elem.osAlterDots = elem.svgOS.append("g");
         }
 
         function initAxis() {
@@ -231,9 +233,75 @@ var survivalCurves = (function() {
                 .y(function(d) { return elem.yScale(d.survival_rate); });
         }
 
-        function draw() {
+        function drawLines() {
             elem.svgOS.append("path")
-                .attr("d", elem.osAlterLine(data.getOSAlteredData()));
+                .attr("d", elem.osAlterLine(data.getOSAlteredData()))
+                .style("fill", "none")
+                .style("stroke", "red");
+            elem.svgOS.append("path")
+                .attr("d", elem.osAlterLine(data.getOSUnalteredData()))
+                .style("fill", "none")
+                .style("stroke", "blue");
+            elem.svgDFS.append("path")
+                .attr("d", elem.osAlterLine(data.getDFSAlteredData()))
+                .style("fill", "none")
+                .style("stroke", "red");
+            elem.svgDFS.append("path")
+                .attr("d", elem.osAlterLine(data.getDFSUnalteredData()))
+                .style("fill", "none")
+                .style("stroke", "blue");
+        }
+
+        function drawInvisiableDots() {
+            elem.osAlterDots.selectAll("path")
+                .data(data.getOSAlteredData())
+                .enter()
+                .append("svg:path")
+                .attr("d", d3.svg.symbol()
+                    .size(400)
+                    .type("circle"))
+                .attr("transform", function(d){
+                    return "translate(" + elem.xScale(d.time) + ", " + elem.yScale(d.survival_rate) + ")";
+                })
+                .attr("fill", "grey")
+                .style("opacity", 0);
+        }
+
+        function addQtips() {
+            elem.osAlterDots.selectAll('path').each(
+                function(d) {
+                    var content = "<font size='2'>";
+                    content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                        "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>" + "</font>";
+
+                    $(this).qtip(
+                        {
+                            content: {text: content},
+                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right'}
+                        }
+                    );
+
+                    var mouseOn = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .duration(400)
+                            .style("opacity", .6);
+                    };
+
+                    var mouseOff = function() {
+                        var dot = d3.select(this);
+                        dot.transition()
+                            .duration(400)
+                            .style("opacity", 0);
+                    };
+
+                    elem.osAlterDots.selectAll("path").on("mouseover", mouseOn);
+                    elem.osAlterDots.selectAll("path").on("mouseout", mouseOff);
+                }
+            );
         }
 
         return {
@@ -241,7 +309,9 @@ var survivalCurves = (function() {
                 initCanvas();
                 initAxis();
                 initLines();
-                draw();
+                drawLines();
+                drawInvisiableDots();
+                addQtips();
             }
 
         }
@@ -266,10 +336,6 @@ var survivalCurves = (function() {
                     } else {
                         //TODO: error
                     }
-                    console.log("time:" + _case.time);
-                    console.log("num at risk:" + _case.num_at_risk);
-                    console.log("event:" + _case.status);
-                    console.log("value:" + _case.survival_rate);
                 }
             }
         }

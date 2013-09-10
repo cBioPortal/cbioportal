@@ -779,12 +779,13 @@
 			// add click listener for each igv link to get the actual parameters
 			// from another servlet
 			_.each(self.$el.find('.igv-link'), function(element, index) {
+				// TODO use mutation id, instead of binding url to attr alt
 				var url = $(element).attr("alt");
 
 				$(element).click(function(evt) {
 					// get parameters from the server and call related igv function
 					$.getJSON(url, function(data) {
-						console.log(data);
+						//console.log(data);
 						// TODO this call displays warning message (resend)
 						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
 					});

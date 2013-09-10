@@ -191,7 +191,7 @@ var survivalCurves = (function() {
                 osUnalterDots: ""
             },
             settings = {
-                canvas_width: 720,
+                canvas_width: 600,
                 canvas_height: 600,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -215,12 +215,17 @@ var survivalCurves = (function() {
         }
 
         function initAxis() {
-            elem.xScale = d3.time.scale()
-                .domain([0,200])
+            var _dataset = [];
+            _dataset.push(d3.max(data.getOSAlteredData(), function(d) { return d.time; }));
+            _dataset.push(d3.max(data.getOSUnalteredData(), function(d) { return d.time; }));
+            _dataset.push(d3.max(data.getDFSAlteredData(), function(d) { return d.time; }));
+            _dataset.push(d3.max(data.getDFSUnalteredData(), function(d) { return d.time; }));
+            elem.xScale = d3.scale.linear()
+                .domain([0, d3.max(_dataset)])
                 .range([100, 600]);
             elem.yScale = d3.scale.linear()
-                .domain([0,1])
-                .range([500, 100]);
+                .domain([0,1]) //fixed to be 0-1
+                .range([550, 50]);
             elem.xAxis = d3.svg.axis()
                 .scale(elem.xScale)
                 .orient("bottom");
@@ -275,7 +280,7 @@ var survivalCurves = (function() {
                 function(d) {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+                        "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                     content += "OBS Time: <strong>" + d.time + "</strong><br>";
                     content += "KM Est: <strong>" + d.survival_rate.toFixed(3) + "</strong></font>";
 
@@ -314,9 +319,13 @@ var survivalCurves = (function() {
                 initCanvas();
                 initAxis();
                 initLines();
-                drawLines();
-                drawInvisiableDots(elem.osAlterDots, "#F5BCA9", data.getOSAlteredData());
-                drawInvisiableDots(elem.osUnalterDots, "#81BEF7", data.getOSUnalteredData());
+            },
+            generate: function() {
+                drawLines(); //draw all four curves together
+                //overlay invisible dots for mouseover purpose
+                drawInvisiableDots(elem.osAlterDots, settings.altered_mouseover_color, data.getOSAlteredData());
+                drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
+                //Add mouseover
                 addQtips(elem.osAlterDots);
                 addQtips(elem.osUnalterDots);
             }
@@ -341,7 +350,7 @@ var survivalCurves = (function() {
                     } else if (_case.status === "0") {
                         _case.survival_rate = _prev_value; //survival rate remain the same if the event is "censored"
                     } else {
-                        //TODO: error
+                        //TODO: error handling
                     }
                 }
             }
@@ -361,6 +370,7 @@ var survivalCurves = (function() {
                 return function(result) {
                     data.init(result, caseLists);
                     view.init();
+                    view.generate();
                 }
             }
         }

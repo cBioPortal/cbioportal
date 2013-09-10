@@ -39,7 +39,7 @@
     ArrayList<CaseList> caseSets = (ArrayList<CaseList>)
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
+    String caseIds = xssUtil.getCleanerInput(request, QueryBuilder.CASE_IDS);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -51,19 +51,18 @@
      */
     // put geneticProfileIds into the proper form for the JSON request
     String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-    geneticProfiles = StringEscapeUtils.escapeJavaScript(geneticProfiles.trim());
+    geneticProfiles = xssUtil.getCleanerInput(geneticProfiles.trim());
 
     String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-	caseIdsKey = StringEscapeUtils.escapeJavaScript(caseIdsKey);
+	caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     // get cases
     String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    cases = StringEscapeUtils.escapeJavaScript(cases);
+    cases = xssUtil.getCleanerInput(cases);
 
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
-    String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    oql = StringEscapeUtils.escapeJavaScript(oql);
+    String oql = xssUtil.getCleanerInput(request, QueryBuilder.GENE_LIST);
 
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),

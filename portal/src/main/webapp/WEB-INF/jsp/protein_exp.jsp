@@ -6,8 +6,9 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
-    String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String case_set_id = xssUtil.getCleanInput(request, "case_set_id");
+    String cancerStudyId_RPPA = xssUtil.getCleanerInput(
+		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
+    String case_set_id = xssUtil.getCleanerInput(request, "case_set_id");
 %>
 <script>
     var case_set_id = "<%out.print(case_set_id);%>";

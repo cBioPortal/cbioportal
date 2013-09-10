@@ -8,9 +8,9 @@
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
 
 <%
-    String cancer_study_id = xssUtil.getCleanInput(request, "cancer_study_id");
-    String case_set_id = xssUtil.getCleanInput(request, "case_set_id");
-    String genetic_profile_id = xssUtil.getCleanInput(request, "genetic_profile_id");
+    String cancer_study_id = xssUtil.getCleanerInput(request, "cancer_study_id");
+    String case_set_id = xssUtil.getCleanerInput(request, "case_set_id");
+    String genetic_profile_id = xssUtil.getCleanerInput(request, "genetic_profile_id");
     //Translate Onco Query Language
     ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";

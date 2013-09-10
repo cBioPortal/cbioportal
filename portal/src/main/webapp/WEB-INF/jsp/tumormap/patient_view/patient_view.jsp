@@ -29,7 +29,7 @@ boolean showTissueImages = tissueImageUrl!=null;
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID_ATTR_NAME);
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
-String drugType = xssUtil.getCleanInput(request, "drug_type");
+String drugType = xssUtil.getCleanerInput(request, "drug_type");
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
 boolean showMutations = mutationProfile!=null;

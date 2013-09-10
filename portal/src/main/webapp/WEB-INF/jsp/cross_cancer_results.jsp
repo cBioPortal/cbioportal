@@ -62,7 +62,7 @@
     cancerStudies.addAll(primaryStudies);
     cancerStudies.addAll(secondaryStudies);
 
-    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    String geneList = servletXssUtil.getCleanerInput(request, QueryBuilder.GENE_LIST);
 
     // Infer whether there is multiple genes or not (for histogram switching)
     int geneCount = 0;

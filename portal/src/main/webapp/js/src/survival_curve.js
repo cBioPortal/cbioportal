@@ -184,11 +184,15 @@ var survivalCurves = (function() {
                 svgDFS: "",
                 xScale : "",
                 yScale : "",
-                xAxis : "",
-                yAxis : "",
+                xAxisOS : "",
+                yAxisOS : "",
+                xAxisDFS : "",
+                yAxisDFS : "",
                 line: "",
                 osAlterDots: "",
-                osUnalterDots: ""
+                osUnalterDots: "",
+                dfsAlterDots: "",
+                dfsUnalterDots: ""
             },
             settings = {
                 canvas_width: 600,
@@ -212,6 +216,8 @@ var survivalCurves = (function() {
                 .attr("height", settings.canvas_height);
             elem.osAlterDots = elem.svgOS.append("g");
             elem.osUnalterDots = elem.svgOS.append("g");
+            elem.dfsAlterDots = elem.svgDFS.append("g");
+            elem.dfsUnalterDots = elem.svgDFS.append("g");
         }
 
         function initAxis() {
@@ -221,15 +227,21 @@ var survivalCurves = (function() {
             _dataset.push(d3.max(data.getDFSAlteredData(), function(d) { return d.time; }));
             _dataset.push(d3.max(data.getDFSUnalteredData(), function(d) { return d.time; }));
             elem.xScale = d3.scale.linear()
-                .domain([0, d3.max(_dataset)])
+                .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
                 .range([100, 600]);
             elem.yScale = d3.scale.linear()
-                .domain([0,1]) //fixed to be 0-1
+                .domain([-0.03, 1.05]) //fixed to be 0-1
                 .range([550, 50]);
-            elem.xAxis = d3.svg.axis()
+            elem.xAxisOS = d3.svg.axis()
                 .scale(elem.xScale)
                 .orient("bottom");
-            elem.yAxis = d3.svg.axis()
+            elem.yAxisOS = d3.svg.axis()
+                .scale(elem.yScale)
+                .orient("left");
+            elem.xAxisDFS = d3.svg.axis()
+                .scale(elem.xScale)
+                .orient("bottom");
+            elem.yAxisDFS = d3.svg.axis()
                 .scale(elem.yScale)
                 .orient("left");
         }
@@ -314,6 +326,44 @@ var survivalCurves = (function() {
             );
         }
 
+        function appendAxis(svg, elemAxisX, elemAxisY) {
+            svg.append("g")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(0, 550)")
+                .call(elemAxisX);
+            svg.append("g")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(0, 50)")
+                .call(elemAxisX.orient("bottom").ticks(0));
+            svg.append("g")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(100, 0)")
+                .call(elemAxisY);
+            svg.append("g")
+                .style("stroke-width", 2)
+                .style("fill", "none")
+                .style("stroke", "grey")
+                .style("shape-rendering", "crispEdges")
+                .attr("transform", "translate(600, 0)")
+                .call(elemAxisY.orient("left").ticks(0));
+            svg.selectAll("text")
+                .style("font-family", "sans-serif")
+                .style("font-size", "11px")
+                .style("stroke-width", 0.5)
+                .style("stroke", "black")
+                .style("fill", "black");
+
+        }
+
         return {
             init: function() {
                 initCanvas();
@@ -325,9 +375,16 @@ var survivalCurves = (function() {
                 //overlay invisible dots for mouseover purpose
                 drawInvisiableDots(elem.osAlterDots, settings.altered_mouseover_color, data.getOSAlteredData());
                 drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
+                drawInvisiableDots(elem.dfsAlterDots, settings.altered_mouseover_color, data.getDFSAlteredData());
+                drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
                 //Add mouseover
                 addQtips(elem.osAlterDots);
                 addQtips(elem.osUnalterDots);
+                addQtips(elem.dfsAlterDots);
+                addQtips(elem.dfsUnalterDots);
+                //Append axis
+                appendAxis(elem.svgDFS, elem.xAxisOS, elem.yAxisOS);
+                appendAxis(elem.svgOS, elem.xAxisDFS, elem.yAxisDFS);
             }
 
         }

@@ -142,6 +142,13 @@
 			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
 		</td>
 		<td>
+			<a class='igv-link' alt='{{igvLink}}'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;IGV&nbsp;
+				</span>
+			</a>
+		</td>
+		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
 		</td>
 	</tr>
@@ -174,6 +181,7 @@
 	<th alt='Variant Alt Count' class='mutation-table-header'>Var Alt</th>
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
+	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
@@ -766,6 +774,23 @@
 
 			// remove invalid links
 			self.$el.find('a[href=""]').remove();
+			self.$el.find('a[alt=""]').remove();
+
+			// add click listener for each igv link to get the actual parameters
+			// from another servlet
+			_.each(self.$el.find('.igv-link'), function(element, index) {
+				// TODO use mutation id, instead of binding url to attr alt
+				var url = $(element).attr("alt");
+
+				$(element).click(function(evt) {
+					// get parameters from the server and call related igv function
+					$.getJSON(url, function(data) {
+						//console.log(data);
+						// TODO this call displays warning message (resend)
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+					});
+				});
+			});
 
 			var tableSelector = self.$el.find('.mutation_details_table');
 
@@ -1003,6 +1028,7 @@
 			vars.xVarLink = mutation.xVarLink;
 			vars.msaLink = mutation.msaLink;
 			vars.pdbLink = mutation.pdbLink;
+			vars.igvLink = mutation.igvLink;
 
 			var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 			vars.mutationStatusTip = mutationStatus.tip;

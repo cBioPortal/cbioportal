@@ -21,6 +21,7 @@ var MutationModel = Backbone.Model.extend({
 		this.msaLink = attributes.msaLink;
 		this.xVarLink = attributes.xVarLink;
 		this.pdbLink = attributes.pdbLink;
+		this.igvLink = attributes.igvLink;
 		this.mutationStatus = attributes.mutationStatus;
 		this.validationStatus = attributes.validationStatus;
 		this.sequencingCenter = attributes.sequencingCenter;
@@ -321,6 +322,34 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
+	/**
+	 * Checks if there is a link to IGV BAM file for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsIgvLink = function(gene)
+	{
+		var self = this;
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		if (self._mutationGeneMap[gene] != undefined)
+		{
+			var mutations = self._mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].igvLink)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
 
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);

@@ -102,3 +102,16 @@ darwin.db.host=
 darwin.db.name=
 darwin.db.user=
 darwin.db.password=
+
+# igv bam linking
+igv.bam.linking=false
+# colon delimited
+igv.bam.linking.studies=
+
+# openssl
+openssl.binary=/usr/bin/openssl
+signature.key=
+encryption.key=
+
+# broad BAM file url
+broad.bam.url=

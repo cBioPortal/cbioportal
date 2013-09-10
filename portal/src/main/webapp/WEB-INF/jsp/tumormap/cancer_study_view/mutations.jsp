@@ -155,7 +155,7 @@
                 
                 oTable.css("width","100%");
                 
-                $('.smg-table-name').html(n+" significantly mutated genes by <a href='http://www.broadinstitute.org/cancer/cga/mutsig'>MutSig</a>");
+                $('.smg-table-name').html(n+" significantly mutated genes");
                 $('.smg-table-name').addClass('data-table-name');
                 
                 $('#smg_wrapper_table').show();
@@ -173,9 +173,9 @@
                         <th><b>data</b></th>
                         <th><b>Gene</b></th>
                         <th><b>Cytoband</b></th>
-                        <th><b>Gene size (# of BPs)</b></th>
+                        <th><b>Gene size (Nucleotides)</b></th>
                         <th><b># Mutations</b></th>
-                        <th><b># Mutations / BP</b></th>
+                        <th><b># Mutations / Nucleotide</b></th>
                         <th><b>Mutsig Q-value</b></th>
                     </tr>
                 </thead>

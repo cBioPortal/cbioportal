@@ -47,19 +47,8 @@ import java.util.ArrayList;
  */
 
 public class DaoMutSig {
-    private static DaoMutSig daoMutSig;
 
     private DaoMutSig() {
-    }
-
-    //getInstance() is a static method which returns a new instance of daoMutSig. useful for calling non-static
-    //methods such as getMutSig
-
-    public static DaoMutSig getInstance() throws DaoException {
-        if (daoMutSig == null) {
-            daoMutSig = new DaoMutSig();
-        }
-        return daoMutSig;
     }
 
     /*
@@ -191,7 +180,7 @@ public class DaoMutSig {
         }
     }
 
-    public ArrayList<MutSig> getAllMutSig(int cancerStudy) throws DaoException {
+    public static ArrayList<MutSig> getAllMutSig(int cancerStudy) throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -220,7 +209,7 @@ public class DaoMutSig {
         }
     }
 
-    public int countMutSig(int cancerStudy) throws DaoException {
+    public static int countMutSig(int cancerStudy) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -245,7 +234,7 @@ public class DaoMutSig {
         }
     }
 
-    public ArrayList<MutSig> getAllMutSig(int cancerStudy, double qValueThreshold) throws DaoException {
+    public static ArrayList<MutSig> getAllMutSig(int cancerStudy, double qValueThreshold) throws DaoException {
         ArrayList<MutSig> mutSigList = new ArrayList<MutSig>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -271,7 +260,7 @@ public class DaoMutSig {
         }
     }
 
-    public void deleteAllRecords() throws DaoException {
+    public static void deleteAllRecords() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -305,7 +294,7 @@ public class DaoMutSig {
      * @return true or false
      *
      */
-    public boolean hasMutsig(CancerStudy cancerStudy) throws DaoException {
+    public static boolean hasMutsig(CancerStudy cancerStudy) throws DaoException {
         return countMutSig(cancerStudy.getInternalId()) == 0;
     }
 }

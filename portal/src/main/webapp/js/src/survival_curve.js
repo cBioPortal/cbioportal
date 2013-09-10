@@ -186,15 +186,17 @@ var survivalCurves = (function() {
                 yScale : "",
                 xAxis : "",
                 yAxis : "",
-                osAlterLine: "",
-                osUnalterLine: "",
-                dfsAlterLine: "",
-                dfsUnalterLine: "",
-                osAlterDots: ""
+                line: "",
+                osAlterDots: "",
+                osUnalterDots: ""
             },
             settings = {
                 canvas_width: 720,
-                canvas_height: 600
+                canvas_height: 600,
+                altered_line_color: "red",
+                unaltered_line_color: "blue",
+                altered_mouseover_color: "#F5BCA9",
+                unaltered_mouseover_color: "#81BEF7"
             };
 
         function initCanvas() {
@@ -209,6 +211,7 @@ var survivalCurves = (function() {
                 .attr("width", settings.canvas_width)
                 .attr("height", settings.canvas_height);
             elem.osAlterDots = elem.svgOS.append("g");
+            elem.osUnalterDots = elem.svgOS.append("g");
         }
 
         function initAxis() {
@@ -227,7 +230,7 @@ var survivalCurves = (function() {
         }
 
         function initLines() {
-            elem.osAlterLine = d3.svg.line()
+            elem.line = d3.svg.line()
                 .interpolate("step-after")
                 .x(function(d) { return elem.xScale(d.time); })
                 .y(function(d) { return elem.yScale(d.survival_rate); });
@@ -235,26 +238,26 @@ var survivalCurves = (function() {
 
         function drawLines() {
             elem.svgOS.append("path")
-                .attr("d", elem.osAlterLine(data.getOSAlteredData()))
+                .attr("d", elem.line(data.getOSAlteredData()))
                 .style("fill", "none")
-                .style("stroke", "red");
+                .style("stroke", settings.altered_line_color);
             elem.svgOS.append("path")
-                .attr("d", elem.osAlterLine(data.getOSUnalteredData()))
+                .attr("d", elem.line(data.getOSUnalteredData()))
                 .style("fill", "none")
-                .style("stroke", "blue");
+                .style("stroke", settings.unaltered_line_color);
             elem.svgDFS.append("path")
-                .attr("d", elem.osAlterLine(data.getDFSAlteredData()))
+                .attr("d", elem.line(data.getDFSAlteredData()))
                 .style("fill", "none")
-                .style("stroke", "red");
+                .style("stroke", settings.altered_line_color);
             elem.svgDFS.append("path")
-                .attr("d", elem.osAlterLine(data.getDFSUnalteredData()))
+                .attr("d", elem.line(data.getDFSUnalteredData()))
                 .style("fill", "none")
-                .style("stroke", "blue");
+                .style("stroke", settings.unaltered_line_color);
         }
 
-        function drawInvisiableDots() {
-            elem.osAlterDots.selectAll("path")
-                .data(data.getOSAlteredData())
+        function drawInvisiableDots(svg, color, data) {
+            svg.selectAll("path")
+                .data(data)
                 .enter()
                 .append("svg:path")
                 .attr("d", d3.svg.symbol()
@@ -263,16 +266,18 @@ var survivalCurves = (function() {
                 .attr("transform", function(d){
                     return "translate(" + elem.xScale(d.time) + ", " + elem.yScale(d.survival_rate) + ")";
                 })
-                .attr("fill", "grey")
+                .attr("fill", color)
                 .style("opacity", 0);
         }
 
-        function addQtips() {
-            elem.osAlterDots.selectAll('path').each(
+        function addQtips(svg) {
+            svg.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>" + "</font>";
+                        "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+                    content += "OBS Time: <strong>" + d.time + "</strong><br>";
+                    content += "KM Est: <strong>" + d.survival_rate.toFixed(3) + "</strong></font>";
 
                     $(this).qtip(
                         {
@@ -288,7 +293,7 @@ var survivalCurves = (function() {
                         var dot = d3.select(this);
                         dot.transition()
                             .duration(400)
-                            .style("opacity", .6);
+                            .style("opacity", .9);
                     };
 
                     var mouseOff = function() {
@@ -298,8 +303,8 @@ var survivalCurves = (function() {
                             .style("opacity", 0);
                     };
 
-                    elem.osAlterDots.selectAll("path").on("mouseover", mouseOn);
-                    elem.osAlterDots.selectAll("path").on("mouseout", mouseOff);
+                    svg.selectAll("path").on("mouseover", mouseOn);
+                    svg.selectAll("path").on("mouseout", mouseOff);
                 }
             );
         }
@@ -310,8 +315,10 @@ var survivalCurves = (function() {
                 initAxis();
                 initLines();
                 drawLines();
-                drawInvisiableDots();
-                addQtips();
+                drawInvisiableDots(elem.osAlterDots, "#F5BCA9", data.getOSAlteredData());
+                drawInvisiableDots(elem.osUnalterDots, "#81BEF7", data.getOSUnalteredData());
+                addQtips(elem.osAlterDots);
+                addQtips(elem.osUnalterDots);
             }
 
         }

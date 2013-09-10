@@ -1,3 +1,18 @@
+// makes a Histogram on the DOM el.
+// parameters:
+//      byKeywordData:                      [list of {cancer_study, cancer_type, hugo, keyword, count} ]
+//      byGeneData:                         [list of {cancer_study, cancer_type, hugo, count} ]
+//      cancer_study2num_sequence_samples:  {cancer_study -> number} e.g. "Acute Myeloid Leukemia (TCGA, Provisional)" -> 196
+//      el:                                 DOM element
+//      params:                             overrides default parameters: { margin: { top, bottom, right, left }, width, height, cancerStudyName (of this study) }
+//
+// returns:
+//      an object {el, qtip} where qtip is a function: svg ->
+//      undefined, creates qtips and their corresponding `rect .mouseOver`
+//      elements
+//
+// Gideon Dresdner <dresdnerg@cbio.mskcc.org>
+// September 2013
 function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_sequenced_samples, el, params) {
     params = $.extend({
         margin: {top: 20, right: 10, bottom: 20, left: 40},
@@ -6,42 +21,33 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         cancerStudyName: undefined
     }, params);
 
-    function deep_copy(list_of_objects) {
-        return list_of_objects.map(_.clone);
-    }
-
     var bykeyword_data = deep_copy(byKeywordData);
     var bygene_data = deep_copy(byGeneData);
+    var cancer_studies = _.keys(cancer_study2num_sequenced_samples);
 
     // --- data munging --- //
 
-    // make sure there is bykeyword data for every bygene data, i.e. for
-    // every cancer study.  Ones that are missing from bykeyword data are
-    // just given a count of zero.
-    var bygeneData_setminus_byKeywordData = (function() {
-        var bykeyword_keys = d3.set(bykeyword_data.map(keygen));
+    bykeyword_data = extend_by_zero_set(bykeyword_data);
+    bygene_data = extend_by_zero_set(bygene_data);
 
-        var setminus = bygene_data.filter(function(d) {
-            var key = keygen(d);
-            return !bykeyword_keys.has(key);
-        });
-
-        setminus.forEach(function(d) { d.count = 0; });  // count = 0 in those cancer studies
-
-        return setminus;
-    })();
-    bykeyword_data = bykeyword_data.concat(bygeneData_setminus_byKeywordData);
+    var cancer_study2datum = {
+        bykeyword: generate_cancer_study2datum(bykeyword_data),
+        bygene: generate_cancer_study2datum(bygene_data)
+    }
 
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");
     }
 
-    var getKeywordDataImpl = getKeywordData(bykeyword_data);
+    if (bygene_data.length !== cancer_studies.length) {
+        throw new Error("there must be a datum for every cancer study and visa versa");
+    }
 
-    // the counts in bygene_data include the counts in bykeyword_data, so
-    // we are going to subtract them off
+    // subtract off counts in bykeyword_data from bygene_data
+    // because the counts in bygene_data include the ones in bykeyword_data
+    // and we don't want to count the same thing twice.
     bygene_data.forEach(function(bygene_datum) {
-        var bykeyword_datum = getKeywordDataImpl(bygene_datum);
+        var bykeyword_datum = cancer_study2datum.bykeyword[bygene_datum.cancer_study];
         var new_count = bygene_datum.count - bykeyword_datum.count;
 
         if (new_count < 0) {
@@ -60,61 +66,65 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
 
     var all_data = bykeyword_data.concat(bygene_data);
     all_data = _.chain(all_data)
-        .map(function(d) {
-            // compute frequences
-            var num_sequenced_samples = cancer_study2num_sequenced_samples[d.cancer_study];
-            d.num_sequenced_samples = num_sequenced_samples;
-            d.frequency = d.count / num_sequenced_samples;
-            return d;
-        })
+        .map(compute_frequency)
         .groupBy(function(d) {
-            // group the data by cancer study, sort by total count (total height of
-            // bar), and then unzip to create two separate layers
             return d.cancer_study;
         })
         .map(_.identity)    // extract groups
-        .sortBy(function(grp) {
-            var total_frequency
-                = _.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
-            return -1 * total_frequency;
-        })
-        .unzip()        // turn into layers for d3.stack
+        .sortBy(total_frequency)
+        .unzip()            // turn into layers for d3.stack
         .value();
 
-    // *signature:* `{hugo, cancer_study} -> string`
-    // throws an Error
-    function keygen(d) {
-        var hugo = d.hugo;
-        var cancer_study = d.cancer_study;
-
-        if (hugo === undefined || cancer_study === undefined) {
-            throw new Error("cannot generate key with undefined field(s)");
-        }
-
-        return hugo + " " + cancer_study;
+    function deep_copy(list_of_objects) {
+        return list_of_objects.map(_.clone);
     }
 
-    // *signature:* `keyword_data -> ( {hugo, cancer_study} -> keyword datum )`
-    function getKeywordData(bykeyword_data) {
-        // key -> bykeyword datum
-        var map = bykeyword_data.reduce(function(acc, next) {
-            var key;
-            try { key = keygen(next); } catch (e) { throw new Error(e); }
-
-            if (_.has(acc, key)) { throw new Error("multiple bykeyword data with the same key"); }
-
-            acc[key] = next;
+    function generate_cancer_study2datum(data) {
+        return _.reduce(data, function(acc, next) {
+            acc[next.cancer_study] = next;
             return acc;
         }, {});
+    }
 
-        return (function(d) {
-            var key;
-            try { key = keygen(d); } catch(e) { throw new Error(e); }
+    function compute_frequency(d) {
+        var num_sequenced_samples = cancer_study2num_sequenced_samples[d.cancer_study];
+        d.num_sequenced_samples = num_sequenced_samples;
+        d.frequency = d.count / num_sequenced_samples;
+        return d;
+    }
 
-            var keyword_data = map[key];
+    function total_frequency(grp) {
+        var total_frequency = _.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
+        return -1 * total_frequency;
+    }
 
-            return keyword_data;
-        });
+    // add in missing cancer studies as data points with count = 0
+    function zero_set(data) {
+        var cancer_study2datum = generate_cancer_study2datum(data);
+        // TODO: this could be optimized by referring to the `cancer_study2datum` object
+
+        function zero_datum(cancer_study) {
+            return {
+                cancer_study: cancer_study,
+                count: 0
+            }
+        }
+
+        return _.chain(cancer_study2num_sequenced_samples)
+            .keys()
+            .reduce(function(acc, study) {
+                if (!_.has(cancer_study2datum, study)) {
+                    // do cancer_study2num_sequenced_samples *setminus* cancer_study2datum
+                    acc.push(study);
+                }
+                return acc;
+            }, [])
+            .map(zero_datum)
+            .value();
+    }
+
+    function extend_by_zero_set(data) {
+        return data.concat(zero_set(data));
     }
 
     // --- visualization --- //
@@ -178,7 +188,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .attr('stroke', '#000')
         .attr('shape-rendering', 'crispEdges');
 
-    // colors for each bar by cancer_type
     var googleblue = "#3366cc";
     var googlered = "#dc3912";
 
@@ -208,8 +217,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .style("font-size", "18px")
 
     function qtip(svg) {
-        // add in the mouseover bars first, i.e. on the bottom most layer
-        var cancer_studies = _.map(all_data[0], function(d) { return d.cancer_study; });
         var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
             .data(cancer_studies)
             .enter()

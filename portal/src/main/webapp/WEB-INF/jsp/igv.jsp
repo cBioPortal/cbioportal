@@ -83,4 +83,3 @@
     </table>
 </div>
 
-<script type="text/javascript" src="js/lib/igv_webstart.js"></script>

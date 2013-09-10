@@ -74,6 +74,10 @@ public class CanonicalGene extends Gene {
         this.type = type;
     }
 
+    /**
+     * 
+     * @return gene length; 0 if no available
+     */
     public int getLength() {
         return length;
     }

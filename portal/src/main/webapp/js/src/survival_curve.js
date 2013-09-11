@@ -242,6 +242,7 @@ var survivalCurves = (function() {
 
         function initAxis() {
             var _dataset = [];
+            var formatAsPercentage = d3.format(".1%");
             _dataset.push(d3.max(data.getOSAlteredData(), function(d) { return d.time; }));
             _dataset.push(d3.max(data.getOSUnalteredData(), function(d) { return d.time; }));
             _dataset.push(d3.max(data.getDFSAlteredData(), function(d) { return d.time; }));
@@ -257,12 +258,14 @@ var survivalCurves = (function() {
                 .orient("bottom");
             elem.yAxisOS = d3.svg.axis()
                 .scale(elem.yScale)
+                .tickFormat(formatAsPercentage)
                 .orient("left");
             elem.xAxisDFS = d3.svg.axis()
                 .scale(elem.xScale)
                 .orient("bottom");
             elem.yAxisDFS = d3.svg.axis()
                 .scale(elem.yScale)
+                .tickFormat(formatAsPercentage)
                 .orient("left");
         }
 
@@ -314,7 +317,7 @@ var survivalCurves = (function() {
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                     content += "OBS Time: <strong>" + d.time + "</strong><br>";
-                    content += "KM Est: <strong>" + d.survival_rate.toFixed(3) + "</strong><br>";
+                    content += "KM Est: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
                         content += "<strong> -- Censored -- </strong>";
                     }

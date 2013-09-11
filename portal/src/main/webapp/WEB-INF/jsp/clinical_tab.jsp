@@ -15,7 +15,7 @@
 <script type="text/javascript" src="js/src/survival_curve.js"></script>
 
 <div class="section" id="survival">
-    <h4>Overll Survival</h4>
+    <h4>Overall Survival</h4>
     <div id="os_survival_curve"></div>
     <h4>Disease Free Survival</h4>
     <div id="dfs_survival_curve"></div>

@@ -193,16 +193,30 @@ var survivalCurves = (function() {
                 osUnalterDots: "",
                 dfsAlterDots: "",
                 dfsUnalterDots: "",
-                osAlterCensoredDots: ""
+                osAlterCensoredDots: "",
+                osUnalterCensoredDots: "",
+                dfsAlterCensoredDots: "",
+                dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 600,
-                canvas_height: 600,
+                canvas_width: 1000,
+                canvas_height: 650,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
                 altered_mouseover_color: "#F5BCA9",
                 unaltered_mouseover_color: "#81BEF7"
-            };
+            },
+            text = {
+                glyph1: "Gene Set Not Altered",
+                glyph2: "Gene Set Altered",
+                xTitle_os: "Months Survival",
+                yTitle_os: "Surviving",
+                xTitle_dfs: "Months Disease Free",
+                yTitle_dfs: "Disease Free"
+            },
+            style = {
+                censored_sign_size: 5
+            }
 
         function initCanvas() {
             $('#os_survival_curve').empty();
@@ -220,6 +234,10 @@ var survivalCurves = (function() {
             elem.dfsAlterDots = elem.svgDFS.append("g");
             elem.dfsUnalterDots = elem.svgDFS.append("g");
             elem.osAlterCensoredDots = elem.svgOS.append("g");
+            elem.osUnalterCensoredDots = elem.svgOS.append("g");
+            elem.dfsAlterCensoredDots = elem.svgDFS.append("g");
+            elem.dfsUnalterCensoredDots = elem.svgDFS.append("g");
+
         }
 
         function initAxis() {
@@ -296,7 +314,11 @@ var survivalCurves = (function() {
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                     content += "OBS Time: <strong>" + d.time + "</strong><br>";
-                    content += "KM Est: <strong>" + d.survival_rate.toFixed(3) + "</strong></font>";
+                    content += "KM Est: <strong>" + d.survival_rate.toFixed(3) + "</strong><br>";
+                    if (d.status === "0") { // If censored, mark it
+                        content += "<strong> -- Censored -- </strong>";
+                    }
+                    content += "</font>";
 
                     $(this).qtip(
                         {
@@ -373,8 +395,8 @@ var survivalCurves = (function() {
                 .append("line")
                 .attr("x1", function(d) {return elem.xScale(d.time)})
                 .attr("x2", function(d) {return elem.xScale(d.time)})
-                .attr("y1", function(d) {return elem.yScale(d.survival_rate) + 5})
-                .attr("y2", function(d) {return elem.yScale(d.survival_rate) - 5})
+                .attr("y1", function(d) {return elem.yScale(d.survival_rate) + style.censored_sign_size})
+                .attr("y2", function(d) {return elem.yScale(d.survival_rate) - style.censored_sign_size})
                 .attr("stroke", color)
                 .style("opacity", function(d) {
                     if (d.status === "1") {
@@ -387,8 +409,8 @@ var survivalCurves = (function() {
                 .data(data)
                 .enter()
                 .append("line")
-                .attr("x1", function(d) {return elem.xScale(d.time) + 5})
-                .attr("x2", function(d) {return elem.xScale(d.time) - 5})
+                .attr("x1", function(d) {return elem.xScale(d.time) + style.censored_sign_size})
+                .attr("x2", function(d) {return elem.xScale(d.time) - style.censored_sign_size})
                 .attr("y1", function(d) {return elem.yScale(d.survival_rate)})
                 .attr("y2", function(d) {return elem.yScale(d.survival_rate)})
                 .attr("stroke", color)
@@ -399,6 +421,62 @@ var survivalCurves = (function() {
                         return 1;
                     }
                 });
+        }
+
+        function addLegends(svg) {
+            var _legends_text = [
+                {
+                    text: text.glyph1,                //altered
+                    color: settings.altered_line_color
+                },
+                {
+                    text: text.glyph2,
+                    color: settings.unaltered_line_color
+                }
+            ];
+
+            var legend = svg.selectAll(".legend")
+                .data(_legends_text)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(610, " + (80 + i * 15) + ")";
+                })
+
+            legend.append("path")
+                .attr("width", 18)
+                .attr("height", 18)
+                .attr("d", d3.svg.symbol()
+                    .size(60)
+                    .type(function(d) { return "square"; }))
+                .attr("fill", function (d) { return d.color; })
+                .attr("stroke", "black")
+                .attr("stroke-width",.9);
+
+            legend.append("text")
+                .attr("dx", ".75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "front")
+                .text(function(d) { return d.text });
+        }
+
+
+        function appendAxisTitles(svg, xTitle, yTitle) {
+            svg.append("text")
+                .attr("class", "label")
+                .attr("x", 350)
+                .attr("y", 600)
+                .style("text-anchor", "middle")
+                .style("font-weight","bold")
+                .text(xTitle);
+            svg.append("text")
+                .attr("class", "label")
+                .attr("transform", "rotate(-90)")
+                .attr("x", -270)
+                .attr("y", 45)
+                .style("text-anchor", "middle")
+                .style("font-weight","bold")
+                .text(yTitle);
         }
 
         return {
@@ -416,15 +494,25 @@ var survivalCurves = (function() {
                 drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
                 //overlay censored data (as a plus sign)
                 drawCensoredDots(elem.osAlterCensoredDots, data.getOSAlteredData(), settings.altered_line_color);
+                drawCensoredDots(elem.osUnalterCensoredDots, data.getOSUnalteredData(), settings.unaltered_line_color);
+                drawCensoredDots(elem.dfsAlterCensoredDots, data.getDFSAlteredData(), settings.altered_line_color);
+                drawCensoredDots(elem.dfsUnalterCensoredDots, data.getDFSUnalteredData(), settings.unaltered_line_color);
                 //Add mouseover
                 addQtips(elem.osAlterDots);
                 addQtips(elem.osUnalterDots);
                 addQtips(elem.dfsAlterDots);
                 addQtips(elem.dfsUnalterDots);
-                //Append axis
+                //Append Axis
                 appendAxis(elem.svgDFS, elem.xAxisOS, elem.yAxisOS);
                 appendAxis(elem.svgOS, elem.xAxisDFS, elem.yAxisDFS);
+                //append Axis titles
+                appendAxisTitles(elem.svgOS, text.xTitle_os, text.yTitle_os);
+                appendAxisTitles(elem.svgDFS, text.xTitle_dfs, text.yTitle_dfs);
+                //Append Glyphes
+                addLegends(elem.svgOS);
+                addLegends(elem.svgDFS);
             }
+
 
         }
 

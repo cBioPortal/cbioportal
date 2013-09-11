@@ -63,8 +63,6 @@
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
 
     String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    oql = oql.replaceAll("\\s+", " ");
-
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
@@ -77,7 +75,15 @@
     window.PortalGlobals = {
         getCases: function() { return '<%= cases %>'; },
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
-        getOqlString: function() { return '<%=oql%>'; },
+        getOqlString: (function() {
+            var oql = '<%=StringEscapeUtils.escapeJavaScript(oql)%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+
+            return function() { return oql; };
+        })(),
         getGeneListString: function() { return '<%=StringUtils.join(listOfGenes, " ")%>'},
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
         getZscoreThreshold: function() { return window.zscore_threshold; },

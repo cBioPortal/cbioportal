@@ -51,7 +51,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         type: "POST",
         data: {
             cancer_study_id: cancer_study_id_selected,
-            oql: window.PortalGlobals.getOqlString(),
+            oql: $('#gene_list').val(),
             case_list: cases,
             geneticProfileIds: window.PortalGlobals.getGeneticProfiles(),
             z_score_threshold: window.PortalGlobals.getZscoreThreshold(),

@@ -45,6 +45,7 @@ import java.util.*;
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
 public final class DaoClinicalData {
+    private DaoClinicalData() {}
 
     private static Log log = LogFactory.getLog(DaoClinicalData.class);
 

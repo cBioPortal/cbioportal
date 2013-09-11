@@ -76,7 +76,15 @@
     window.PortalGlobals = {
         getCases: function() { return '<%= cases %>'; },
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
-        getOqlString: function() { return '<%=oql%>'; },
+        getOqlString: (function() {
+            var oql = '<%=oql%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+
+            return function() { return oql; };
+        })(),
         getGeneListString: function() { return '<%=StringUtils.join(listOfGenes, " ")%>'},
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
         getZscoreThreshold: function() { return window.zscore_threshold; },

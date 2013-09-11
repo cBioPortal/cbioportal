@@ -9,6 +9,7 @@
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 
 <%
@@ -21,6 +22,7 @@ String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
+boolean viewBam = GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy.getCancerStudyStableId());
 String jsonClinicalData = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 
 String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
@@ -285,6 +287,9 @@ if (patientViewError!=null) {
         .datatable-show-more {
             float: left;
         }
+	.igv-link {
+		cursor: pointer;
+	}
 </style>
 
 <script type="text/javascript" src="js/src/patient-view/genomic-event-observer.js"></script>
@@ -305,6 +310,7 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
+var viewBam = <%=viewBam%>;
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}

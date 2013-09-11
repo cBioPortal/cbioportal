@@ -58,10 +58,11 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	 * @param headers           column header names
 	 * @param indexMap          map of <column name, column index>
 	 * @param containsGermline  whether the table contains a germline mutation
+	 * @param containsIgvLink   whether the table contains a valid link to IGV
 	 * @return {Array}          an array of column indices
 	 * @private
 	 */
-	function _getHiddenColumns(headers, indexMap, containsGermline)
+	function _getHiddenColumns(headers, indexMap, containsGermline, containsIgvLink)
 	{
 		// set hidden column indices
 		var hiddenCols = [];
@@ -80,7 +81,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		{
 			// do not hide allele frequency (T) and count columns
 			if (!(col == indexMap["allele freq (t)"] ||
-			      col == indexMap["#mut in sample"]))
+			      col == indexMap["#mut in sample"] ||
+			      col == indexMap["bam"]))
 			{
 				hiddenCols.push(col);
 			}
@@ -90,6 +92,12 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		if (!containsGermline)
 		{
 			hiddenCols.push(indexMap["ms"]);
+		}
+
+		// conditionally hide BAM file column if there is no valid link available
+		if (!containsIgvLink)
+		{
+			hiddenCols.push(indexMap["bam"]);
 		}
 
 		return hiddenCols;
@@ -185,7 +193,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	function _addMutationTableTooltips(tableSelector)
 	{
 	    var qTipOptions = {content: {attr: 'alt'},
-	        hide: { fixed: true, delay: 100 },
+		    show: {event: 'mouseover'},
+	        hide: {fixed: true, delay: 100, event: 'mouseout'},
 	        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
 	        position: {my:'top left', at:'bottom right'}};
 
@@ -210,7 +219,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		// add tooltip for COSMIC value
 		tableSelector.find('.mutation_table_cosmic').each(function() {
 			var label = this;
-			var cosmic = $(label).attr('alt');
+			var mutationId = $(label).attr('alt');
+			var mutation = mutationUtil.getMutationIdMap()[mutationId];
 
 			// copy default qTip options and modify "content" to customize for cosmic
 			var qTipOptsCosmic = {};
@@ -218,7 +228,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 
 			qTipOptsCosmic.content = {text: "NA"}; // content is overwritten on render
 			qTipOptsCosmic.events = {render: function(event, api) {
-				var model = {cosmic: cosmic,
+				var model = {cosmic: mutation.cosmic,
+					keyword: mutation.keyword,
 					geneSymbol: gene,
 					total: $(label).text()};
 
@@ -549,8 +560,10 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		var indexMap = _buildColumnIndexMap(headers);
 
 		// determine hidden columns
-		var hiddenCols = _getHiddenColumns(headers, indexMap,
-			mutationUtil.containsGermline(gene));
+		var hiddenCols = _getHiddenColumns(headers,
+			indexMap,
+			mutationUtil.containsGermline(gene),
+			mutationUtil.containsIgvLink(gene));
 
 		// add custom sort functions for specific columns
 		_addSortFunctions();

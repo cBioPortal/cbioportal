@@ -306,6 +306,7 @@ public class CnaJSON extends HttpServlet {
         map.put("caseIds", new ArrayList());
         map.put("entrez", new ArrayList());
         map.put("gene", new ArrayList());
+        map.put("cytoband", new ArrayList());
         map.put("alter", new ArrayList());
         map.put("mrna", new ArrayList());
         map.put("gistic", new ArrayList());
@@ -334,9 +335,10 @@ public class CnaJSON extends HttpServlet {
         data.get("caseIds").add(samples);
         
         data.get("id").add(cnaEvent.getEventId());
-        String symbol = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId())
-                    .getHugoGeneSymbolAllCaps();
+        CanonicalGene gene = daoGeneOptimized.getGene(cnaEvent.getEntrezGeneId());
+        String symbol = gene.getHugoGeneSymbolAllCaps();
         data.get("gene").add(symbol);
+        data.get("cytoband").add(gene.getCytoband());
         data.get("entrez").add(cnaEvent.getEntrezGeneId());
         data.get("alter").add(cnaEvent.getAlteration().getCode());
         data.get("mrna").add(mrna);

@@ -2,10 +2,12 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
 
+<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
+
 <script type="text/javascript">
     var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
                   tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
-                  norm_ref_reads:16,mrna:17,altrate:18,cosmic:19,ma:20,cons:21,'3d':22,drug:23};
+                  norm_ref_reads:16,bam:17,mrna:18,altrate:19,cosmic:20,ma:21,cons:22,'3d':23,drug:24};
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -435,6 +437,29 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// tumor read count frequency
+                        "aTargets": [ mutTableIndices["bam"] ],
+                        "bVisible": false,//viewBam,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else {
+                                var samples = mutations.getValue(source[0], "caseIds");
+                                var chr = mutations.getValue(source[0], "chr");
+                                var start = mutations.getValue(source[0], "start");
+                                var end = mutations.getValue(source[0], "end");
+                                var ret = [];
+                                for (var i=0, n=samples.length; i<n; i++) {
+                                    ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
+                                        +'=prad_su2c&amp;'+samples[i]+'&amp;locus=chr'+chr+'%3A'+start+'-'+end+'">'
+                                        +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>')
+                                }
+                                return ret.join("&nbsp;");
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
                         "bVisible": !mutations.colAllNull('mrna'),
@@ -482,6 +507,7 @@
                         "aTargets": [ mutTableIndices["cosmic"] ],
                         "sClass": "right-align-td",
                         "asSorting": ["desc", "asc"],
+                        "bSearchable": false,
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;
@@ -490,29 +516,28 @@
                                 if (!cosmic) return "";
                                 var arr = [];
                                 var n = 0;
-                                for(var aa in cosmic) {
-                                    var c = cosmic[aa];
-                                    arr.push("<td>"+aa+"</td><td>"+c+"</td>");
-                                    n += c;
-                                }
+                                cosmic.forEach(function(c) {
+                                    arr.push("<td>"+c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]+"</td>");
+                                    n += c[2];
+                                });
                                 if (n===0) return "";
-                                var tip = '<b>'+n+' occurrences in COSMIC</b><br/><table class="'+table_id
-                                    +'-cosmic-table"><thead><th>Mutation</th><th>Occurrence</th></thead><tbody><tr>'
+                                var tip = '<b>'+n+' occurrences of '+mutations.getValue(source[0], 'key')
+                                    +' mutations in COSMIC</b><br/><table class="'+table_id
+                                    +'-cosmic-table"><thead><th>COSMIC ID</th><th>Protein Change</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
                                 return  "<span class='"+table_id
                                                 +"-cosmic-tip' alt='"+tip+"'>"+n+"</span>";
                             } else if (type==='sort') {
                                 var cosmic = mutations.getValue(source[0], 'cosmic');
                                 var n = 0;
-                                if (cosmic)
-                                    for(var aa in cosmic)
-                                        n += cosmic[aa];
+                                if (cosmic) {
+                                    cosmic.forEach(function(c) {
+                                        n += c[2];
+                                    });
+                                }
                                 return n;
                             } else if (type==='type') {
                                 return 0;
-                            } else if (type==='filter') {
-                                var cosmic = mutations.getValue(source[0], 'cosmic');
-                                return !cosmic||cosmic.length===0?"":"cosmic";
                             } else {
                                 return mutations.getValue(source[0], 'cosmic');
                             }
@@ -521,6 +546,7 @@
                     {// drugs
                         "aTargets": [ mutTableIndices["drug"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "mDataProp": 
                             function(source,type,value) {
                             if (type==='set') {
@@ -536,9 +562,6 @@
                             } else if (type==='sort') {
                                 var drug = mutations.getValue(source[0], 'drug');
                                 return drug ? drug.length : 0;
-                            } else if (type==='filter') {
-                                var drug = mutations.getValue(source[0], 'drug');
-                                return drug&&drug.length ? 'drugs' : '';
                             } else if (type==='type') {
                                 return 0;
                             } else {
@@ -670,6 +693,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
+                    listenToBamIgvClick(".igv-link");
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
@@ -685,6 +709,22 @@
         oTable.css("width","100%");
         addNoteTooltip("#"+table_id+" th.mut-header");
         return oTable;
+    }
+    
+    function listenToBamIgvClick(elem) {
+        $(elem).each(function(){
+                // TODO use mutation id, instead of binding url to attr alt
+                var url = $(this).attr("alt");
+
+                $(this).click(function(evt) {
+                        // get parameters from the server and call related igv function
+                        $.getJSON(url, function(data) {
+                                //console.log(data);
+                                // TODO this call displays warning message (resend)
+                                prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+                        });
+                });
+        });
     }
 
     function plotMutRate(div,mutations) {
@@ -737,7 +777,8 @@
         function qtip(el, tip) {
             $(el).qtip({
                 content: {text: tip},
-                hide: { fixed: true, delay: 200 },
+	            show: {event: "mouseover"},
+                hide: {fixed: true, delay: 200, event: "mouseout"},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
                 position: {my:'top right',at:'bottom center'}
             });
@@ -752,21 +793,28 @@
             events: {
                 render: function(event, api) {
                     $("."+table_id+"-cosmic-table").dataTable( {
-                        "sDom": 't',
+                        "sDom": 'pt',
                         "bJQueryUI": true,
                         "bDestroy": true,
+                        "aoColumnDefs": [{
+                            "aTargets": [ 0 ],
+                            "mRender": function ( data, type, full ) {
+                                return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                            }
+                        }],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
                             "sLengthMenu": "Show _MENU_ per page"
                         },
-                        "aaSorting": [[1,'desc']],
-                        "iDisplayLength": -1
+                        "aaSorting": [[2,'desc']],
+                        "iDisplayLength": 10
                     } );
                 }
             },
-            hide: { fixed: true, delay: 100 },
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+	        show: {event: "mouseover"},
+            hide: {fixed: true, delay: 100, event: "mouseout"},
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
             position: {my:'top right',at:'bottom center'}
         });
     }

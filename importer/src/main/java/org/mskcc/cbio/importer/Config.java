@@ -29,16 +29,7 @@
 package org.mskcc.cbio.importer;
 
 // imports
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.CaseIDFilterMetadata;
-import org.mskcc.cbio.importer.model.TumorTypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
-
+import org.mskcc.cbio.importer.model.*;
 import java.util.Collection;
 
 /**
@@ -136,6 +127,27 @@ public interface Config {
 	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
 	 */
 	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+
+    /**
+     * Updates (or inserts) the given BcrClinicalAttributeEntry object.
+     *
+     * @param bcrClinicalAttributeEntry bcrClinicalAttributeEntry
+     */
+    void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcrClinicalAttributeEntry);
+
+    /**
+     * Updates (or inserts) the given collection of bcrs all as a batch.
+     *
+     * @param Collection<bcrClinicalAttributeEntry> bcrs
+     */
+    void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs);
+
+    /**
+     * Inserts the given ClinicalAttributesMetadata object without asking questions
+     *
+     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
+     */
+    void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

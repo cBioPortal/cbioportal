@@ -725,6 +725,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(metaFile, false));
 			writer.print("cancer_study_identifier: " + cancerStudyMetadata + "\n");
 			writer.print("genetic_alteration_type: " + datatypeMetadata.getMetaGeneticAlterationType() + "\n");
+			writer.print("datatype: " + datatypeMetadata.getMetaDatatypeType() + "\n");
 			String stableID = datatypeMetadata.getMetaStableID();
 			stableID = stableID.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
 			writer.print("stable_id: " + stableID + "\n");

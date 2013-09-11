@@ -110,7 +110,7 @@
 			</span>
 		</td>
 		<td>
-			<label class='{{cosmicClass}}' alt='{{cosmic}}'><b>{{cosmicCount}}</b></label>
+			<label class='{{cosmicClass}}' alt='{{mutationId}}'><b>{{cosmicCount}}</b></label>
 		</td>
 		<td>
 			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
@@ -132,7 +132,7 @@
 			</a>
 		</td>
 		<td>
-			<span alt='mutationStatusTip' class='simple-tip {{mutationStatusClass}}'>
+			<span alt='{{mutationStatusTip}}' class='simple-tip {{mutationStatusClass}}'>
 				<label>{{mutationStatusText}}</label>
 			</span>
 		</td>
@@ -156,20 +156,27 @@
 			       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
 		</td>
 		<td>
-			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
 		</td>
 		<td>
 			<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
 		</td>
 		<td>
-			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
-			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
+			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+		</td>
+		<td>
+			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
 		</td>
 		<td>
 			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
 		</td>
 		<td>
-			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+			<a class='igv-link' alt='{{igvLink}}'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;IGV&nbsp;
+				</span>
+			</a>
 		</td>
 		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
@@ -204,17 +211,21 @@
 	<th alt='Variant Alt Count' class='mutation-table-header'>Var Alt</th>
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
+	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
 
 <script type="text/template" id="mutation_details_cosmic_tip_template">
-	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences in COSMIC</b></div>
+	<div class='cosmic-details-tip-info'>
+		<b>{{cosmicTotal}} occurrences of {{mutationKeyword}} mutations in COSMIC</b>
+	</div>
 	<table class='cosmic-details-table display'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>
 			<tr>
-				<th>Mutation</th>
+				<th>COSMIC ID</th>
+				<th>Protein Change</th>
 				<th>Count</th>
 			</tr>
 		</thead>
@@ -437,6 +448,11 @@
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
 
+			if (self.model.mutations.length == 0)
+			{
+				// hide loader image, there is nothing to load
+				self.$el.find("#mutation_details_loader").hide();
+			}
 			// TODO find a proper way to move this into Mutation3dView...
 
 			// initially hide the 3d visualizer container
@@ -475,7 +491,7 @@
 			if (self.model.mutations.length == 0)
 			{
 				// display information if no data is available
-				content = _.template($("#default_mutation_details_info_template").html());
+				content = _.template($("#default_mutation_details_info_template").html(), {});
 			}
 			else
 			{
@@ -969,6 +985,23 @@
 
 			// remove invalid links
 			self.$el.find('a[href=""]').remove();
+			self.$el.find('a[alt=""]').remove();
+
+			// add click listener for each igv link to get the actual parameters
+			// from another servlet
+			_.each(self.$el.find('.igv-link'), function(element, index) {
+				// TODO use mutation id, instead of binding url to attr alt
+				var url = $(element).attr("alt");
+
+				$(element).click(function(evt) {
+					// get parameters from the server and call related igv function
+					$.getJSON(url, function(data) {
+						//console.log(data);
+						// TODO this call displays warning message (resend)
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+					});
+				});
+			});
 
 			var tableSelector = self.$el.find('.mutation_details_table');
 
@@ -1193,11 +1226,9 @@
 			vars.mutationTypeClass = mutationType.style;
 			vars.mutationTypeText = mutationType.text;
 
-			// TODO remove cosmicCount from model & calculate on the client side
-			var cosmic = self._getCosmic(mutation.cosmic, mutation.cosmicCount);
+			var cosmic = self._getCosmic(mutation.cosmicCount);
 			vars.cosmicClass = cosmic.style;
 			vars.cosmicCount = cosmic.count;
-			vars.cosmic = cosmic.value;
 
 			var fis = self._getFis(omaScoreMap, mutation.functionalImpactScore, mutation.fisValue);
 			vars.fisClass = fis.fisClass;
@@ -1208,6 +1239,7 @@
 			vars.xVarLink = mutation.xVarLink;
 			vars.msaLink = mutation.msaLink;
 			vars.pdbLink = mutation.pdbLink;
+			vars.igvLink = mutation.igvLink;
 
 			var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 			vars.mutationStatusTip = mutationStatus.tip;
@@ -1438,29 +1470,24 @@
 				tip: tip};
 		},
 		/**
-		 * Returns the css class, count, and string value
-		 * for the given cosmic value.
+		 * Returns the css class and text for the given cosmic count.
 		 *
-		 * @param value cosmic value
 		 * @param count number of occurrences
-		 * @return {{value: string, style: string, count: string}}
+		 * @return {{style: string, count: string}}
 		 * @private
 		 */
 		_getCosmic: function(value, count)
 		{
 			var style = "";
-			var cosmic = "";
 			var text = "";
 
 			if (count > 0)
 			{
 				style = "mutation_table_cosmic";
-				cosmic = value;
 				text = count;
 			}
 
-			return {value: cosmic,
-				style: style,
+			return {style: style,
 				count: text};
 	    },
 		/**
@@ -1510,6 +1537,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {cosmic: [raw cosmic text],
+	 *                   geneSymbol: [hugo gene symbol],
+	 *                   keyword: [mutation keyword],
 	 *                   total: [number of total cosmic occurrences]}
 	 *          }
 	 */
@@ -1527,43 +1556,30 @@
 		{
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
-				"aaSorting" : [ ], // do not sort by default
-				"sDom": 't', // show only the table
-				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
-				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
+				"aaSorting" : [[2, "desc"]], // sort by count at init
+				"sDom": 'pt', // show the table and the pagination buttons
+				"aoColumnDefs": [
+                                    { "mRender": function ( data, type, full ) {
+                                            return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                                       },
+                                       "aTargets": [0]},
+                                    { "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
+                                    { "sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 				"bDestroy": false,
-				"bPaginate": false,
+				"bPaginate": true,
 				"bJQueryUI": true,
 				"bFilter": false});
 		},
 		_parseCosmic: function(cosmic)
 		{
-			var parts = cosmic.split("|");
-			var dataRows = "";
-
+			var dataRows = [];
+			// TODO create a backbone template for the cosmic table row
 			// COSMIC data (as AA change & frequency pairs)
-			for (var i=0; i < parts.length; i++)
-			{
-				var values = parts[i].split(/\(|\)/, 2);
+			cosmic.forEach(function(c) {
+                            dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+                        });
 
-				if (values.length < 2)
-				{
-					// skip values with no count information
-					continue;
-				}
-
-				// skip data starting with p.? or ?
-				var unknownCosmic = values[0].indexOf("p.?") == 0 ||
-				                    values[0].indexOf("?") == 0;
-
-				if (!unknownCosmic)
-				{
-					dataRows += "<tr><td>" + values[0] + "</td><td>" + values[1] + "</td></tr>";
-					//$("#cosmic-details-table").dataTable().fnAddData(values);
-				}
-			}
-
-			return dataRows;
+			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},
 		compileTemplate: function()
 		{
@@ -1571,7 +1587,8 @@
 
 			// pass variables in using Underscore.js template
 			var variables = {cosmicDataRows: dataRows,
-				cosmicTotal: this.model.total};
+				cosmicTotal: this.model.total,
+				mutationKeyword: this.model.keyword};
 
 			// compile the template using underscore
 			return _.template(

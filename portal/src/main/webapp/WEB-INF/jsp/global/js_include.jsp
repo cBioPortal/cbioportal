@@ -22,6 +22,7 @@
 <script type="text/javascript" src="js/lib/underscore-min.js"></script>
 <script type="text/javascript" src="js/lib/backbone-min.js"></script>
 <script type="text/javascript" src="js/lib/d3.min.js"></script>
+<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
 <script type="text/javascript">
     // This is for the moustache-like templates
@@ -31,6 +32,7 @@
     };
 </script>
 
+<script type="text/javascript" src="js/src/Models.js"></script>
 <script type="text/javascript" src="js/src/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/src/dynamicQuery.js"></script>
 <script type="text/javascript" src="js/src/gene_set.js"></script>

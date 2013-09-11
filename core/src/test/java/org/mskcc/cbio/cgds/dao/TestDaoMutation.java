@@ -100,8 +100,6 @@ public class TestDaoMutation extends TestCase {
 		mutation.setTumorRefCount(16);
 		mutation.setNormalAltCount(8);
 		mutation.setNormalRefCount(18);
-		mutation.setOncotatorCosmicOverlapping(
-				"p.R505C(36)|p.R505L(6)|p.R505G(4)|p.R425C(2)|p.R425G(2)|p.R266G(2)|p.R505H(2)|p.R505S(1)|p.R505P(1)|p.R266C(1)");
 		mutation.setOncotatorDbSnpRs("rs149680468");
 		mutation.setOncotatorCodonChange("c.(133-135)TCT>TTT");
 		mutation.setOncotatorRefseqMrnaId("NM_001904");
@@ -174,8 +172,6 @@ public class TestDaoMutation extends TestCase {
 		assertEquals (16, mutation.getTumorRefCount());
 		assertEquals (8, mutation.getNormalAltCount());
 		assertEquals (18, mutation.getNormalRefCount());
-		assertEquals ("p.R505C(36)|p.R505L(6)|p.R505G(4)|p.R425C(2)|p.R425G(2)|p.R266G(2)|p.R505H(2)|p.R505S(1)|p.R505P(1)|p.R266C(1)",
-		              mutation.getOncotatorCosmicOverlapping());
 		assertEquals ("rs149680468", mutation.getOncotatorDbSnpRs());
 		assertEquals ("c.(133-135)TCT>TTT", mutation.getOncotatorCodonChange());
 		assertEquals("NM_001904", mutation.getOncotatorRefseqMrnaId());

@@ -95,8 +95,14 @@
       <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
+      <intercept-url pattern="/echofile*" access="isAuthenticated()"/>
       <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/getProteinArrayData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">

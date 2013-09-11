@@ -135,6 +135,12 @@
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
 	}
+	.cosmic-details-table {
+		font-size: 11px !important;
+	}
+	.igv-link {
+		cursor: pointer;
+	}
 	.left-align-td {
 		text-align: left;
 	}

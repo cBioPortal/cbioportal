@@ -1,13 +1,16 @@
 package org.mskcc.cbio.portal.servlet;
 
 
+import com.google.common.base.Joiner;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
+import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.*;
@@ -35,7 +38,6 @@ public class GeneDataJSON extends HttpServlet {
     public static final String PERCENT_ALTERED = "percent_altered";
     public static final String MUTATION = "mutation";
 
-
     private static Log log = LogFactory.getLog(GeneDataJSON.class);
 
     /**
@@ -54,68 +56,44 @@ public class GeneDataJSON extends HttpServlet {
 
     /**
      * Maps the matrix to a JSONArray of alterations
+     *
+     *
+     * todo: This is replacing the commented out code below.  Soon we the old version below?
      * @param geneticEvents matrix M[case][gene]
      * @return
      */
-    public JSONObject mapGeneticEventMatrix(GeneticEvent geneticEvents[][], ProfileDataSummary dataSummary)
-            throws ServletException {
+    public JSONArray mapGeneticEventMatrix(GeneticEvent geneticEvents[][]) {
+        JSONArray data = new JSONArray();
 
-        JSONArray genes = new JSONArray();
-        JSONObject hugo_to_index = new JSONObject();
-        JSONObject samples = new JSONObject();
-
-        // get all caseIds and put them in an array
-        for (int j = 0; j < geneticEvents[0].length; j++) {
-            String caseId = geneticEvents[0][j].caseCaseId();
-            samples.put(caseId, j);
-        }
-
-        // for each gene, get the data and put it into an array
         for (int i = 0; i < geneticEvents.length; i++) {
-            GeneticEvent rowEvent = geneticEvents[i][0];
-            String gene = rowEvent.getGene().toUpperCase();
-            String percent_altered =
-                    OncoPrintUtil.alterationValueToString(dataSummary.getPercentCasesWhereGeneIsAltered(rowEvent.getGene()));
-
-            JSONArray mutation = new JSONArray();
-            JSONArray cna = new JSONArray();
-            JSONArray mrna = new JSONArray();
-            JSONArray rppa = new JSONArray();
-
             for (int j = 0; j < geneticEvents[0].length; j++) {
+                JSONObject datum = new JSONObject();
+                datum.put("sample", geneticEvents[i][j].caseCaseId());
+                datum.put("gene", geneticEvents[i][j].getGene());
 
                 GeneticEvent event = geneticEvents[i][j];
+                String cna = event.getCnaValue().name().toUpperCase();
+                if (!cna.equals(GeneticEventImpl.CNA.NONE.toString())) {
+                    datum.put("cna", cna);
+                }
 
-//                System.out.println("GeneAlterations caseId: " + event.caseCaseId() + ", event: " + event);
+                String mrna = event.getMrnaValue().name().toUpperCase();
+                if (!mrna.equals(GeneticEventImpl.MRNA.NOTSHOWN.toString())) {
+                    datum.put("mrna", mrna);
+                }
 
-                String sample_cna = event.getCnaValue().name().toUpperCase();
-                String sample_mrna = event.getMrnaValue().name().toUpperCase();
-                String sample_rppa = event.getRPPAValue().name().toUpperCase();
-                String sample_mutation = event.getMutationType();
-                
-                mutation.add(event.isMutated() ? sample_mutation : null);
-                cna.add(sample_cna.equals("NONE") ? null : sample_cna);
-                mrna.add(sample_mrna.equals("NOTSHOWN") ? null : sample_mrna);
-                rppa.add(sample_rppa.equals("NOTSHOWN") ? null : sample_rppa);
+                String rppa = event.getRPPAValue().name().toUpperCase();
+                if (!rppa.equals(GeneticEventImpl.RPPA.NOTSHOWN.toString())) {
+                    datum.put("rppa", rppa);
+                }
+
+                if (event.isMutated()) {
+                    datum.put("mutation",  event.getMutationType());
+                }
+
+                data.add(datum);
             }
-
-            hugo_to_index.put(gene, i);
-
-            JSONObject gene_data = new JSONObject();
-            gene_data.put("hugo", gene);            // efficiency at the price of redundancy
-            gene_data.put("percent_altered", percent_altered);
-            gene_data.put("mutations", mutation);
-            gene_data.put("cna", cna);
-            gene_data.put("mrna", mrna);
-            gene_data.put("rppa", rppa);
-
-            genes.add(gene_data);
         }
-        
-        JSONObject data = new JSONObject();
-        data.put("samples", samples);
-        data.put("hugo_to_gene_index", hugo_to_index);
-        data.put("gene_data", genes);
 
         return data;
     }
@@ -131,19 +109,29 @@ public class GeneDataJSON extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String _geneList = request.getParameter("genes");
-        // list of genes separated by a space
+        // OncoQuery Language string
+        String oql = request.getParameter("oql");
+        oql = oql.replaceAll("\n", " \n ");
 
-        String sampleIds = request.getParameter("samples");
+        String sampleIds;
         // list of samples separated by a space.  This is so
-        // that you can query by an arbitrary set of samples
+        // that you can query an arbitrary set of samples
         // separated by a space
+
+        try {
+            List<String> caseIds = WebserviceParserUtils.getCaseList(request);
+            sampleIds = Joiner.on(" ").join(caseIds);
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        }
 
         String _geneticProfileIds = request.getParameter("geneticProfileIds");
         // list of geneticProfileIds separated by a space
         // e.g. gbm_mutations, gbm_cna_consensus
 
-        HashSet<String> geneticProfileIdSet = new HashSet<String>(Arrays.asList(_geneticProfileIds.split(" ")));
+        HashSet<String> geneticProfileIdSet = new HashSet<String>(Arrays.asList(_geneticProfileIds.trim().split(" ")));
 
         // map geneticProfileIds -> geneticProfiles
         Iterator<String> gpSetIterator =  geneticProfileIdSet.iterator();
@@ -164,16 +152,11 @@ public class GeneDataJSON extends HttpServlet {
         // For now, we cannot remove it from QueryBuilder because other parts use it...for now
         // ...this is a temporary solution
         ParserOutput theOncoPrintSpecParserOutput =
-                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(_geneList,
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(oql,
                         geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-
-        // remove duplicates
-        Set setOfGenes = new LinkedHashSet(listOfGenes);
-        listOfGenes.clear();
-        listOfGenes.addAll(setOfGenes);
 
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);
@@ -231,10 +214,8 @@ public class GeneDataJSON extends HttpServlet {
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 
-        JSONObject geneticEventsJSON = mapGeneticEventMatrix(geneticEvents, dataSummary);
-
-        // get outa here!
-        JSONObject.writeJSONString(geneticEventsJSON, out);
+        JSONArray jsonArray = mapGeneticEventMatrix(geneticEvents);
+        JSONArray.writeJSONString(jsonArray, out);
     }
 
     /**

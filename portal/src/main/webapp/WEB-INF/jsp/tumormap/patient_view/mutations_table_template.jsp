@@ -18,6 +18,7 @@
                         <th class="mut-header" alt="Variant allele frequency in the normal sample"><b>Allele Freq (N)</b></th>
                         <th class="mut-header" alt="Variant allele read count in the normal sample"><b>Variant Reads (N)</b></th>
                         <th class="mut-header" alt="Reference allele read count in the normal sample"><b>Ref Reads (N)</b></th>
+                        <th class="mut-header" alt="Load BAM for this mutation via IGV"><b>BAM</b></th>
                         <th class="mut-header" alt="Percentile of mRNA expression of the mutated gene in this tumor comparing to the cohort"><b>mRNA Expr.</b></th>
                         <th class="mut-header" alt="Mutation frequency in cohort"><b>% in Cohort</b></th>
                         <th class="mut-header" alt="COSMIC occurrences"><b>COSMIC</b></th>

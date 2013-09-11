@@ -402,6 +402,18 @@
 				self._initDefaultView(self.model.sampleArray,
 					self.model.diagramOpts);
 			}
+
+			// format after rendering
+			self.format();
+		},
+		format: function() {
+			var self = this;
+
+			if (self.model.mutations.length == 0)
+			{
+				// hide loader image, there is nothing to load
+				self.$el.find("#mutation_details_loader").hide();
+			}
 		},
 		/**
 		 * Generates the content structure by creating div elements for each
@@ -418,7 +430,7 @@
 			if (self.model.mutations.length == 0)
 			{
 				// display information if no data is available
-				content = _.template($("#default_mutation_details_info_template").html());
+				content = _.template($("#default_mutation_details_info_template").html(), {});
 			}
 			else
 			{

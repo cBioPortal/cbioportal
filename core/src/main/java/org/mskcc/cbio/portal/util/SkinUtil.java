@@ -263,6 +263,16 @@ public class SkinUtil {
         return "study.do?" + org.mskcc.cbio.portal.servlet.QueryBuilder.CANCER_STUDY_ID
                 + "=" + cancerStudyId;
     }
+
+    public static String getLinkToIGVForBAM(String cancerStudyId, String caseId, String locus) {
+        return ("igvlinking.json?" +
+				org.mskcc.cbio.portal.servlet.IGVLinkingJSON.CANCER_STUDY_ID +
+                "=" + cancerStudyId +
+				"&" + org.mskcc.cbio.portal.servlet.IGVLinkingJSON.CASE_ID +
+				"=" + caseId +
+				"&" + org.mskcc.cbio.portal.servlet.IGVLinkingJSON.LOCUS +
+				"=" + locus);
+    }
     
     public static String getDigitalSlideArchiveIframeUrl(String caseId) {
         Config config = Config.getInstance();

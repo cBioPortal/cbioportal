@@ -246,23 +246,23 @@ public class TestWebService extends TestCase {
               (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
 
       // test situation when a case_list is explicitly provided, as in getClinicalData, etc.
-      String c1 = "TCGA-12345";
-      DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
-      aNullHttpServletRequest = new NullHttpServletRequest();
-      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
-      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
-
-      String c2 = "TCGA-54321";
-      DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
-      aNullHttpServletRequest = new NullHttpServletRequest();
-      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
-      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
-      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
-      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
-              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+//      String c1 = "TCGA-12345";
+//      DaoCaseProfile.addCaseProfile( c1, publicGeneticProfile.getGeneticProfileId());
+//      aNullHttpServletRequest = new NullHttpServletRequest();
+//      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 ); 
+//      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
+//      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
+//              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+//
+//      String c2 = "TCGA-54321";
+//      DaoCaseProfile.addCaseProfile( c2, privateGeneticProfile.getGeneticProfileId() );
+//      aNullHttpServletRequest = new NullHttpServletRequest();
+//      aNullHttpServletRequest.setParameter( WebService.CASE_LIST, c1 + "," + c2 ); 
+//      studies = WebserviceParserUtils.getCancerStudyIDs(aNullHttpServletRequest);
+//      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
+//              (privateGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
+//      assertTrue( studies.contains(DaoCancerStudy.getCancerStudyByInternalId
+//              (publicGeneticProfile.getCancerStudyId()).getCancerStudyStableId()));
    }
    
    private void setUpDBMS() throws DaoException, IOException{

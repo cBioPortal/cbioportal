@@ -508,7 +508,7 @@ public final class DaoMutation {
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
-                    ("SELECT COUNT(DISTINCT `CASE_ID`, `MUTATION_EVENT_ID`) FROM mutation");
+                    ("SELECT COUNT(*) FROM mutation");
             rs = pstmt.executeQuery();
             if (rs.next()) {
                 return rs.getInt(1);
@@ -520,8 +520,42 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-    
-    
+
+    /**
+     * Get significantly mutated genes
+     * @param entrezGeneIds
+     * @return
+     * @throws DaoException 
+     */
+    public static Map<Long, Integer> getSMGs(int profileId, Collection<Long> entrezGeneIds,
+            int thresholdRecurrence, int thresholdNumGenes) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            String sql = "SELECT mutation.ENTREZ_GENE_ID, COUNT(*), COUNT(*)/`LENGTH` AS count_per_nt"
+                    + " FROM mutation, gene"
+                    + " WHERE mutation.ENTREZ_GENE_ID=gene.ENTREZ_GENE_ID"
+                    + " AND GENETIC_PROFILE_ID=" + profileId
+                    + (entrezGeneIds==null?"":(" AND mutation.ENTREZ_GENE_ID IN("+StringUtils.join(entrezGeneIds,",")+")"))
+                    + " GROUP BY mutation.ENTREZ_GENE_ID"
+                    + (thresholdRecurrence>0?(" HAVING COUNT(*)>="+thresholdRecurrence):"")
+                    + " ORDER BY count_per_nt DESC"
+                    + (thresholdNumGenes>0?(" LIMIT 0,"+thresholdNumGenes):"");
+            pstmt = con.prepareStatement(sql);
+            rs = pstmt.executeQuery();
+            Map<Long, Integer> map = new HashMap<Long, Integer>();
+            while (rs.next()) {
+                map.put(rs.getLong(1), rs.getInt(2));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
     
     /**
      * return the number of all mutations for a profile

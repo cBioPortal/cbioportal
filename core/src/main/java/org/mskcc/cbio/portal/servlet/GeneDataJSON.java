@@ -111,6 +111,7 @@ public class GeneDataJSON extends HttpServlet {
 
         // OncoQuery Language string
         String oql = request.getParameter("oql");
+        oql = oql.replaceAll("\n", " \n ");
 
         String sampleIds;
         // list of samples separated by a space.  This is so
@@ -156,11 +157,6 @@ public class GeneDataJSON extends HttpServlet {
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-
-        // remove duplicates
-        Set setOfGenes = new LinkedHashSet(listOfGenes);
-        listOfGenes.clear();
-        listOfGenes.addAll(setOfGenes);
 
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);

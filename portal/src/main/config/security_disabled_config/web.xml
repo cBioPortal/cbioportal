@@ -541,6 +541,16 @@
         <url-pattern>/getProteinArrayData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.IGVLinkingJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <url-pattern>/igvlinking.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
     
     <welcome-file-list>

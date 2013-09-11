@@ -554,6 +554,16 @@
         <url-pattern>/echofile</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.IGVLinkingJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <url-pattern>/igvlinking.json</url-pattern>
+    </servlet-mapping>
+     
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>
     </welcome-file-list>

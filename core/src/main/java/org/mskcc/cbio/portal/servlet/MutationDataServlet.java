@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
 import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 
@@ -274,6 +275,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("msaLink", this.getMsaLink(mutation));
 				mutationData.put("xVarLink", this.getXVarLink(mutation));
 				mutationData.put("pdbLink", this.getPdbLink(mutation));
+				mutationData.put("igvLink", this.getIGVForBAMViewingLink(cancerStudyStableId, mutation));
 				mutationData.put("mutationStatus", mutation.getMutationStatus());
 				mutationData.put("validationStatus", mutation.getValidationStatus());
 				mutationData.put("sequencingCenter", this.getSequencingCenter(mutation));
@@ -684,5 +686,28 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		return counts;
+	}
+
+	private String getIGVForBAMViewingLink(String cancerStudyStableId, ExtendedMutation mutation)
+	{
+		String link = null;
+
+		if (GlobalProperties.wantIGVBAMLinking()) {
+			String locus = (this.getChromosome(mutation) + ":" +
+							String.valueOf(mutation.getStartPosition()) + "-" +
+							String.valueOf(mutation.getEndPosition()));
+			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
+				try {
+					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
+													   mutation.getCaseId(),
+													   URLEncoder.encode(locus,"US-ASCII"));
+				}
+				catch (java.io.UnsupportedEncodingException e) {
+					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());
+				}
+			}
+		}
+
+		return link;
 	}
 }

@@ -12,9 +12,9 @@
     String case_set_id = (String)request.getParameter("case_set_id");
     String genetic_profile_id = (String)request.getParameter("genetic_profile_id");
     //Translate Onco Query Language
-    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";
-    for(String gene: listOfGenes) {
+    for(String gene: _listOfGenes) {
         tmpGeneStr += gene + " ";
     }
     tmpGeneStr = tmpGeneStr.trim();

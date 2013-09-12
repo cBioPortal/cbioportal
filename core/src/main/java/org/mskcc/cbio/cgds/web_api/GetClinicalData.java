@@ -189,12 +189,16 @@ public class GetClinicalData {
         JSONObject toReturn = new JSONObject();
         JSONArray data = new JSONArray();
 
+        Set<String> attrIds = new HashSet<String>();
         for (ClinicalData c : clinicals) {
 //            if (!c.getAttrVal().equalsIgnoreCase(NA)) { // filter out NAs
             data.add(reflectToMap(c));
-            ClinicalAttribute attr = DaoClinicalAttribute.getDatum(c.getAttrId());
-            attrs.add(reflectToMap(attr));
+            attrIds.add(c.getAttrId());
 //            }
+        }
+        
+        for (ClinicalAttribute attr : DaoClinicalAttribute.getDatum(attrIds)) {
+            attrs.add(reflectToMap(attr));
         }
 
         Iterator<JSONObject> attrsIt = attrs.iterator();

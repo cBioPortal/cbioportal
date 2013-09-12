@@ -34,8 +34,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,7 +46,6 @@ import java.util.Set;
  * @author Ethan Cerami.
  */
 final class DaoGene {
-    private static DaoGene daoGene;
 
     /**
      * Private Constructor to enforce Singleton Pattern.
@@ -168,7 +168,7 @@ final class DaoGene {
      * @return Canonical Gene Object.
      * @throws DaoException Database Error.
      */
-    public static CanonicalGene getGene(long entrezGeneId) throws DaoException {
+    private static CanonicalGene getGene(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -191,9 +191,8 @@ final class DaoGene {
     }
     
     /**
-     * Gets aliases for a gene.
-     * @param entrezGeneId Entrez Gene ID.
-     * @return a set of aliases.
+     * Gets aliases for all genes.
+     * @return map from entrez gene id to a set of aliases.
      * @throws DaoException Database Error.
      */
     private static Set<String> getAliases(long entrezGeneId) throws DaoException {
@@ -217,6 +216,33 @@ final class DaoGene {
             JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
         }
     }
+    
+    private static Map<Long,Set<String>> getAllAliases() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null, rs1 = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoGene.class);
+            pstmt = con.prepareStatement
+                    ("SELECT * FROM gene_alias");
+            rs = pstmt.executeQuery();
+            Map<Long,Set<String>> map = new HashMap<Long,Set<String>>();
+            while (rs.next()) {
+                Long entrez = rs.getLong("ENTREZ_GENE_ID");
+                Set<String> aliases = map.get(entrez);
+                if (aliases==null) {
+                    aliases = new HashSet<String>();
+                    map.put(entrez, aliases);
+                }
+                aliases.add(rs.getString("GENE_ALIAS"));
+            }
+            return map;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoGene.class, con, pstmt, rs);
+        }
+    }
 
     /**
      * Gets all Genes in the Database.
@@ -225,6 +251,7 @@ final class DaoGene {
      * @throws DaoException Database Error.
      */
     public static ArrayList<CanonicalGene> getAllGenes() throws DaoException {
+        Map<Long,Set<String>> mapAliases = getAllAliases();
         ArrayList<CanonicalGene> geneList = new ArrayList<CanonicalGene>();
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -235,7 +262,14 @@ final class DaoGene {
                     ("SELECT * FROM gene");
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                geneList.add(extractGene(rs));
+                long entrezGeneId = rs.getInt("ENTREZ_GENE_ID");
+                Set<String> aliases = mapAliases.get(entrezGeneId);
+                CanonicalGene gene = new CanonicalGene(entrezGeneId,
+                        rs.getString("HUGO_GENE_SYMBOL"), aliases);
+                gene.setCytoband(rs.getString("CYTOBAND"));
+                gene.setLength(rs.getInt("LENGTH"));
+                gene.setType(rs.getString("TYPE"));
+                geneList.add(gene);
             }
             return geneList;
         } catch (SQLException e) {
@@ -253,7 +287,7 @@ final class DaoGene {
      * @return Canonical Gene Object.
      * @throws DaoException Database Error.
      */
-    public static CanonicalGene getGene(String hugoGeneSymbol) throws DaoException {
+    private static CanonicalGene getGene(String hugoGeneSymbol) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

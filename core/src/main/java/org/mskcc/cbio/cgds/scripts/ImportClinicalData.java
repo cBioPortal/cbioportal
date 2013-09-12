@@ -95,7 +95,7 @@ public class ImportClinicalData {
             
             String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
-                if (i!=iCaseId) {
+                if (i!=iCaseId && !fields[i].isEmpty()) {
                     DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
                 }
             }
@@ -172,9 +172,7 @@ public class ImportClinicalData {
         for (int i = 0; i < colnames.length; i+=1) {
             ClinicalAttribute attr =
                     new ClinicalAttribute(colnames[i], displayNames[i], descriptions[i], datatypes[i]);
-            try {
-                DaoClinicalAttribute.getDatum(attr.getAttrId());
-            } catch (DaoException e) {
+            if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
                 DaoClinicalAttribute.addDatum(attr);
             }
             attrs.add(attr);

@@ -2,6 +2,19 @@
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
+	<div id='mutation_details_content'>
+		{{content}}
+	</div>
+</script>
+
+<script type="text/template" id="default_mutation_details_info_template">
+	<p>There are no mutation details available for the gene set entered.</p>
+	<br>
+	<br>
+</script>
+
+<script type="text/template" id="default_mutation_details_content_template">
+	<div id='mutation_details_{{geneSymbol}}'></div>
 </script>
 
 <script type="text/template" id="mutation_view_template">
@@ -30,6 +43,10 @@
 		<button class='diagram-to-svg'>SVG</button>
 	</div>
 	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+	<div class='mutation-details-filter-info'>
+		Current view shows filtered results.
+		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
+	</div>
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
@@ -45,7 +62,8 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_data_row_template">
-	<tr>
+	<tr id='{{mutationId}}'>
+		<td>{{mutationId}}</td>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
@@ -62,7 +80,7 @@
 			</span>
 		</td>
 		<td>
-			<label class='{{cosmicClass}}' alt='{{cosmic}}'><b>{{cosmicCount}}</b></label>
+			<label class='{{cosmicClass}}' alt='{{mutationId}}'><b>{{cosmicCount}}</b></label>
 		</td>
 		<td>
 			<span class='{{omaClass}} {{fisClass}}' alt='{{fisValue}}|{{xVarLink}}'>
@@ -108,20 +126,27 @@
 			       class='{{tumorFreqClass}} {{tumorFreqTipClass}}'>{{tumorFreq}}</label>
 		</td>
 		<td>
-			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
+			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
 		</td>
 		<td>
 			<label class='{{tumorRefCountClass}}'>{{tumorRefCount}}</label>
 		</td>
 		<td>
-			<label alt='<b>{{normalAltCount}}</b> variant reads out of <b>{{normalTotalCount}}</b> total'
-			       class='{{normalFreqClass}} {{normalFreqTipClass}}'>{{normalFreq}}</label>
+			<label class='{{tumorAltCountClass}}'>{{tumorAltCount}}</label>
+		</td>
+		<td>
+			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
 		</td>
 		<td>
 			<label class='{{normalAltCountClass}}'>{{normalAltCount}}</label>
 		</td>
 		<td>
-			<label class='{{normalRefCountClass}}'>{{normalRefCount}}</label>
+			<a class='igv-link' alt='{{igvLink}}'>
+				<span style="background-color:#88C;color:white">
+					&nbsp;IGV&nbsp;
+				</span>
+			</a>
 		</td>
 		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
@@ -130,6 +155,7 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_header_row_template">
+	<th alt='Mutation ID' class='mutation-table-header'>Mutation ID</th>
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
 	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
@@ -155,22 +181,49 @@
 	<th alt='Variant Alt Count' class='mutation-table-header'>Var Alt</th>
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
+	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>
 
 <script type="text/template" id="mutation_details_cosmic_tip_template">
-	<div class='cosmic-details-tip-info'><b>{{cosmicTotal}} occurrences in COSMIC</b></div>
+	<div class='cosmic-details-tip-info'>
+		<b>{{cosmicTotal}} occurrences of {{mutationKeyword}} mutations in COSMIC</b>
+	</div>
 	<table class='cosmic-details-table display'
 	       cellpadding='0' cellspacing='0' border='0'>
 		<thead>
 			<tr>
-				<th>Mutation</th>
+				<th>COSMIC ID</th>
+				<th>Protein Change</th>
 				<th>Count</th>
 			</tr>
 		</thead>
 		<tbody>{{cosmicDataRows}}</tbody>
 	</table>
+</script>
+
+<script type="text/template" id="mutation_details_lollipop_tip_template">
+	<span class='diagram-lollipop-tip'>
+		<b>{{count}} {{mutationStr}}</b>
+		<br/>AA Change: {{label}}
+	</span>
+</script>
+
+<script type="text/template" id="mutation_details_region_tip_template">
+	<span class="diagram-region-tip">
+		{{identifier}} {{type}}, {{description}} ({{start}} - {{end}})
+	</span>
+</script>
+
+<script type="text/template" id="mutation_details_fis_tip_template">
+	Predicted impact score: <b>{{impact}}</b>
+	<div class='mutation-assessor-link'>
+		<a href='{{linkOut}}' target='_blank'>
+			<img height=15 width=19 src='images/ma.png'>
+			Go to Mutation Assessor
+		</a>
+	</div>
 </script>
 
 <script type="text/javascript">
@@ -198,6 +251,120 @@
 
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
+
+			// format after rendering
+			this.format()
+		},
+		format: function() {
+			// hide the mutation diagram filter info text by default
+			this.hideFilterInfo();
+			// hide the toolbar by default
+			this.$el.find(".mutation-diagram-toolbar").hide();
+		},
+		/**
+		 * Initializes the toolbar over the mutation diagram.
+		 *
+		 * @param diagram       the mutation diagram instance
+		 * @param geneSymbol    gene symbol as a string
+		 */
+		initToolbar: function(diagram, geneSymbol) {
+			var self = this;
+
+			var toolbar = self.$el.find(".mutation-diagram-toolbar");
+			var pdfButton = self.$el.find(".diagram-to-pdf");
+			var svgButton = self.$el.find(".diagram-to-svg");
+
+			// helper function to trigger submit event for the svg and pdf button clicks
+			var submitForm = function(alterFn, diagram, formClass)
+			{
+				// alter diagram to have the desired output
+				alterFn(diagram, false);
+
+				// convert svg content to string
+				var xmlSerializer = new XMLSerializer();
+				var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
+
+				// restore previous settings after generating xml string
+				alterFn(diagram, true);
+
+				// set actual value of the form element (svgelement)
+				var form = self.$el.find("." + formClass);
+				form.find('input[name="svgelement"]').val(svgString);
+
+				// submit form
+				form.submit();
+			};
+
+			// helper function to adjust SVG for file output
+			var alterDiagramForSvg = function(diagram, rollback)
+			{
+				var topLabel = geneSymbol;
+
+				if (rollback)
+				{
+					topLabel = "";
+				}
+
+				// adding a top left label (to include a label in the file)
+				diagram.updateTopLabel(topLabel);
+			};
+
+			// helper function to adjust SVG for PDF output
+			var alterDiagramForPdf = function(diagram, rollback)
+			{
+				// we also need the same changes (top label) in pdf
+				alterDiagramForSvg(diagram, rollback);
+
+				cbio.util.alterAxesAttrForPDFConverter(
+						diagram.svg.select(".mut-dia-x-axis"), 8,
+						diagram.svg.select(".mut-dia-y-axis"), 3,
+						rollback);
+			};
+
+			//add listener to the svg button
+			svgButton.click(function (event) {
+				// submit svg form
+				submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
+			});
+
+			// add listener to the pdf button
+			pdfButton.click(function (event) {
+				// submit pdf form
+				submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+			});
+
+			toolbar.show();
+		},
+		/**
+		 * Initializes the filter reset link, which is a part of filter info
+		 * text on top of the diagram.
+		 *
+		 * @param diagram   mutation diagram instance
+		 * @param tableView [optional] mutation table view instance
+		 */
+		initResetFilterInfo: function(diagram, tableView) {
+			var self = this;
+			var resetLink = self.$el.find(".mutation-details-filter-reset");
+
+			// add listener to diagram reset link
+			resetLink.click(function (event) {
+				// reset the diagram contents
+				diagram.resetPlot();
+				// also reset the table filters (if provided)
+				if (tableView)
+				{
+					// reset all previous table filters
+					tableView.resetFilters();
+				}
+				// hide the filter info text
+				self.hideFilterInfo();
+			});
+		},
+		showFilterInfo: function() {
+			this.$el.find(".mutation-details-filter-info").show();
+		},
+		hideFilterInfo: function() {
+			this.$el.find(".mutation-details-filter-info").hide();
 		}
 	});
 
@@ -219,7 +386,8 @@
 					new MutationCollection(self.model.mutations));
 
 			// TODO make the image customizable?
-			var variables = {loaderImage: "images/ajax-loader.gif"};
+			var variables = {loaderImage: "images/ajax-loader.gif",
+				content: self._generateContent()};
 
 			// compile the template using underscore
 			var template = _.template(
@@ -229,9 +397,53 @@
 			// load the compiled HTML into the Backbone "el"
 			self.$el.html(template);
 
-			self._initDefaultView(self.$el,
-				self.model.sampleArray,
-				self.model.diagramOpts);
+			if (self.model.mutations.length > 0)
+			{
+				self._initDefaultView(self.model.sampleArray,
+					self.model.diagramOpts);
+			}
+
+			// format after rendering
+			self.format();
+		},
+		format: function() {
+			var self = this;
+
+			if (self.model.mutations.length == 0)
+			{
+				// hide loader image, there is nothing to load
+				self.$el.find("#mutation_details_loader").hide();
+			}
+		},
+		/**
+		 * Generates the content structure by creating div elements for each
+		 * gene.
+		 *
+		 * @return {String} content backbone with div elements for each gene
+		 */
+		_generateContent: function()
+		{
+			var self = this;
+			var content = "";
+
+			// check if there is mutation data
+			if (self.model.mutations.length == 0)
+			{
+				// display information if no data is available
+				content = _.template($("#default_mutation_details_info_template").html(), {});
+			}
+			else
+			{
+				// create a div for for each gene
+				for (var key in self.util.getMutationGeneMap())
+				{
+					content += _.template(
+						$("#default_mutation_details_content_template").html(),
+						{geneSymbol: key});
+				}
+			}
+
+			return content;
 		},
 		/**
 		 * Initializes the mutation view for the current mutation data.
@@ -241,32 +453,17 @@
 		 * If you want to have more customized components, it is better
 		 * to initialize all the component separately.
 		 *
-		 * @param container     target container selector for the main view
 		 * @param cases         array of case ids (samples)
 		 * @param diagramOpts   [optional] mutation diagram options
 		 */
-		_initDefaultView: function(container, cases, diagramOpts)
+		_initDefaultView: function(cases, diagramOpts)
 		{
 			var self = this;
 
-			// check if there is mutation data
-			if (self.model.mutations.length == 0)
+			// init main view for each gene
+			for (var key in self.util.getMutationGeneMap())
 			{
-				// display information if no data is available
-				// TODO also factor this out as a backbone template?
-				container.html(
-					"<p>There are no mutation details available for the gene set entered.</p>" +
-					"<br><br>");
-			}
-			else
-			{
-				// init main view for each gene
-				for (var key in self.util.getMutationGeneMap())
-				{
-					// TODO also factor this out to a backbone template?
-					container.append("<div id='mutation_details_" + key +"'></div>");
-					self._initView(key, cases, diagramOpts);
-				}
+				self._initView(key, cases, diagramOpts);
 			}
 		},
 	    /**
@@ -280,6 +477,150 @@
 		{
 			var self = this;
 			var mutationMap = self.util.getMutationGeneMap();
+			var mutationDiagram = null;
+			var mainMutationView = null;
+
+			/**
+			 * Updates the mutation diagram after each change in the mutation table.
+			 * This maintains synchronizing between the table and the diagram.
+			 *
+			 * @param tableSelector selector for the mutation table
+			 */
+			var updateMutationDiagram = function(tableSelector)
+			{
+				var mutationMap = self.util.getMutationIdMap();
+				var currentMutations = [];
+
+				// add current mutations into an array
+				var rows = tableSelector.find("tr");
+				_.each(rows, function(element, index) {
+					var mutationId = $(element).attr("id");
+
+					if (mutationId)
+					{
+						var mutation = mutationMap[mutationId];
+
+						if (mutation)
+						{
+							currentMutations.push(mutation);
+						}
+					}
+				});
+
+				// update mutation diagram with the current mutations
+				if (mutationDiagram !== null)
+				{
+					var mutationData = new MutationCollection(currentMutations);
+					mutationDiagram.updatePlot(mutationData);
+
+					if (mutationDiagram.isFiltered())
+					{
+						// display info text
+						mainMutationView.showFilterInfo();
+					}
+					else
+					{
+						// hide info text
+						mainMutationView.hideFilterInfo();
+					}
+				}
+			};
+
+			/**
+			 * Add listeners to the diagram plot elements.
+			 *
+			 * @param diagram   mutation diagram
+			 * @param tableView mutation table view
+			 */
+			var addPlotListeners = function(diagram, tableView)
+			{
+				diagram.addListener("circle", "mouseout", function() {
+					// remove all highlights
+					tableView.clearHighlights();
+				});
+
+				diagram.addListener("circle", "mouseover", function(datum, index) {
+					// highlight mutations for the provided mutations
+					tableView.highlight(datum.mutations);
+				});
+
+				diagram.addListener("circle", "click", function(datum, index) {
+					// just ignore the action if the diagram is already in a graphical transition.
+					// this is to prevent inconsistency due to fast clicks on the diagram.
+					if (diagram.isInTransition())
+					{
+						return;
+					}
+
+					// if already highlighted, remove highlight on a second click
+					if (diagram.isHighlighted(this))
+					{
+						// remove highlight for the target circle
+						diagram.removeHighlight(this);
+
+						// remove all table highlights
+						tableView.clearHighlights();
+
+						// roll back the table to its previous state
+						// (to the last state when a manual filtering applied)
+						tableView.rollBack();
+
+						// hide filter reset info
+						if (!diagram.isFiltered())
+						{
+							mainMutationView.hideFilterInfo();
+						}
+					}
+					else
+					{
+						// remove all table & diagram highlights
+						diagram.clearHighlights('circle');
+						tableView.clearHighlights();
+
+						// highlight the target circle on the diagram
+						diagram.highlight(this);
+
+						// filter table for the given mutations
+						tableView.filter(datum.mutations);
+
+						// show filter reset info
+						mainMutationView.showFilterInfo();
+					}
+				});
+
+				// add listener to the diagram background to remove highlights
+				diagram.addListener(".background", "click", function(datum, index) {
+					// just ignore the action if the diagram is already in a graphical transition.
+					// this is to prevent inconsistency due to fast clicks on the diagram.
+					if (diagram.isInTransition())
+					{
+						return;
+					}
+
+					// check if there is a highlighted circle
+					// no action required if no circle is highlighted
+					if (!diagram.isHighlighted())
+					{
+						return;
+					}
+
+					// remove all diagram highligts
+					diagram.clearHighlights('circle');
+
+					// remove all table highlights
+					tableView.clearHighlights();
+
+					// roll back the table to its previous state
+					// (to the last state when a manual filtering applied)
+					tableView.rollBack();
+
+					// hide filter reset info
+					if (!diagram.isFiltered())
+					{
+						mainMutationView.hideFilterInfo();
+					}
+				});
+			};
 
 			// callback function to init view after retrieving
 			// sequence information.
@@ -310,96 +651,46 @@
 
 				mainView.render();
 
+				// update the reference after rendering the view
+				mainMutationView = mainView;
+
 				// draw mutation diagram
 				var diagram = self._drawMutationDiagram(
 						gene, mutationMap[gene], sequence, diagramOpts);
 
-				var pdfButton = mainView.$el.find(".diagram-to-pdf");
-				var svgButton = mainView.$el.find(".diagram-to-svg");
-				var toolbar = mainView.$el.find(".mutation-diagram-toolbar");
-
 				// check if diagram is initialized successfully.
-				// if not, disable any diagram related functions
-				if (!diagram)
+				if (diagram)
+				{
+					// init diagram toolbar
+					mainView.initToolbar(diagram, gene);
+				}
+				else
 				{
 					console.log("Error initializing mutation diagram: %s", gene);
-					toolbar.hide();
 				}
-
-				// helper function to trigger submit event for the svg and pdf button clicks
-				var submitForm = function(alterFn, diagram, formClass)
-				{
-					// alter diagram to have the desired output
-					alterFn(diagram, false);
-
-					// convert svg content to string
-					var xmlSerializer = new XMLSerializer();
-					var svgString = xmlSerializer.serializeToString(diagram.svg[0][0]);
-
-					// restore previous settings after generating xml string
-					alterFn(diagram, true);
-
-					// set actual value of the form element (svgelement)
-					var form = mainView.$el.find("." + formClass);
-					form.find('input[name="svgelement"]').val(svgString);
-
-					// submit form
-					form.submit();
-				};
-
-				// TODO setting & rolling back diagram values (which may not be safe)
-
-				// helper function to adjust SVG for file output
-				var alterDiagramForSvg = function(diagram, rollback)
-				{
-					var topLabel = gene;
-
-					if (rollback)
-					{
-						topLabel = "";
-					}
-
-					// adding a top left label (to include a label in the file)
-					diagram.updateTopLabel(topLabel);
-				};
-
-				// helper function to adjust SVG for PDF output
-				var alterDiagramForPdf = function(diagram, rollback)
-				{
-					// we also need the same changes (top label) in pdf
-					alterDiagramForSvg(diagram, rollback);
-
-					cbio.util.alterAxesAttrForPDFConverter(
-							diagram.svg.select(".mut-dia-x-axis"), 8,
-							diagram.svg.select(".mut-dia-y-axis"), 3,
-							rollback);
-				};
-
-				//add listener to the svg button
-				svgButton.click(function (event) {
-					// submit svg form
-					submitForm(alterDiagramForSvg, diagram, "svg-to-file-form");
-				});
-
-				// add listener to the pdf button
-				pdfButton.click(function (event) {
-					// submit pdf form
-					submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
-				});
 
 				// draw mutation table after a short delay
 				setTimeout(function(){
 					var mutationTableView = new MutationDetailsTableView(
 							{el: "#mutation_table_" + gene,
 							model: {geneSymbol: gene,
-								mutations: mutationMap[gene]}});
+								mutations: mutationMap[gene],
+								syncFn: updateMutationDiagram}});
 
 					mutationTableView.render();
-				}, 2000);
 
+					// update reference after rendering the table
+					mutationDiagram = diagram;
+
+					// add default event listeners for the diagram
+					addPlotListeners(diagram, mutationTableView);
+
+					// init reset info text content for the diagram
+					mainView.initResetFilterInfo(diagram, mutationTableView);
+				}, 2000);
 			};
 
-			// TODO cache sequence for each gene (implement another class for this)?
+			// get sequence data for the current gene & init view
 			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
 		},
 		/**
@@ -445,7 +736,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {mutations: [mutation data as an array of JSON objects],
-	 *                   geneSymbol: [hugo gene symbol as a string]}
+	 *                   geneSymbol: [hugo gene symbol as a string],
+	 *                   syncFn: sync function for outside sources}
 	 *          }
 	 */
 	var MutationDetailsTableView = Backbone.View.extend({
@@ -484,6 +776,173 @@
 			self.$el.html(tableTemplate);
 
 			self.format();
+		},
+		/**
+		 * Formats the contents of the view after the initial rendering.
+		 */
+		format: function()
+		{
+			var self = this;
+
+			// remove invalid links
+			self.$el.find('a[href=""]').remove();
+			self.$el.find('a[alt=""]').remove();
+
+			// add click listener for each igv link to get the actual parameters
+			// from another servlet
+			_.each(self.$el.find('.igv-link'), function(element, index) {
+				// TODO use mutation id, instead of binding url to attr alt
+				var url = $(element).attr("alt");
+
+				$(element).click(function(evt) {
+					// get parameters from the server and call related igv function
+					$.getJSON(url, function(data) {
+						//console.log(data);
+						// TODO this call displays warning message (resend)
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+					});
+				});
+			});
+
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			var tableUtil = new MutationTableUtil(tableSelector,
+				self.model.geneSymbol,
+				self.model.mutations);
+
+			// add a callback function for sync purposes
+			tableUtil.registerCallback(self.model.syncFn);
+
+			// format the table (convert to a DataTable)
+			tableUtil.formatTable();
+
+			// save a reference to the util for future access
+			self.tableUtil = tableUtil;
+		},
+		/**
+		 * Highlights the given mutations in the table.
+		 *
+		 * @param mutations mutations to highlight
+		 */
+		highlight: function(mutations)
+		{
+			var self = this;
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			for (var i = 0; i < mutations.length; i++)
+			{
+				var row = tableSelector.find("#" + mutations[i].mutationId);
+				row.addClass("mutation-table-highlight");
+			}
+		},
+		/**
+		 * Clears all highlights from the mutation table.
+		 */
+		clearHighlights: function()
+		{
+			var self = this;
+			var tableSelector = self.$el.find('.mutation_details_table');
+
+			// TODO this depends on highlight function
+			tableSelector.find('tr').removeClass("mutation-table-highlight");
+		},
+		/**
+		 * Filters out all other mutations than the given mutations.
+		 *
+		 * @param mutations mutations to keep
+		 * @param updateBox [optional] show the filter text in the search box
+		 * @param limit     [optional] column to limit filtering to
+		 */
+		filter: function(mutations, updateBox, limit)
+		{
+			var self = this;
+			var oTable = self.tableUtil.getDataTable();
+
+			// construct regex
+			var ids = [];
+
+			for (var i = 0; i < mutations.length; i++)
+			{
+				ids.push(mutations[i].mutationId);
+			}
+
+			var regex = "(" + ids.join("|") + ")";
+			var asRegex = true;
+
+			// empty mutation list, just show everything
+			if (ids.length == 0)
+			{
+				regex = "";
+				asRegex = false;
+			}
+
+			// disable callbacks before filtering, otherwise it creates a chain reaction
+			self.tableUtil.setCallbackActive(false);
+
+			// apply filter
+			self._applyFilter(oTable, regex, asRegex, updateBox, limit);
+
+			// enable callbacks after filtering
+			self.tableUtil.setCallbackActive(true);
+		},
+		/**
+		 * Resets all table filters (rolls back to initial state)
+		 */
+		resetFilters: function()
+		{
+			var self = this;
+			// pass an empty array to show everything
+			self.filter([], true);
+			// also clean filter related variables
+			self.tableUtil.cleanFilters();
+		},
+		/**
+		 * Rolls back the table to the last state where a manual search
+		 * (manual filtering) performed. This function is required since
+		 * we also filter the table programmatically.
+		 */
+		rollBack: function()
+		{
+			var self = this;
+			var oTable = self.tableUtil.getDataTable();
+
+			// disable callbacks before filtering, otherwise it creates a chain reaction
+			self.tableUtil.setCallbackActive(false);
+
+			// re-apply last manual filter string
+			var searchStr = self.tableUtil.getManualSearch();
+			self._applyFilter(oTable, searchStr, false);
+
+			// enable callbacks after filtering
+			self.tableUtil.setCallbackActive(true);
+		},
+		/**
+		 * Filters the given data table with the provided filter string.
+		 *
+		 * @param oTable    target data table to be filtered
+		 * @param filterStr filter string to apply with the filter
+		 * @param asRegex   indicates if the given filterStr is a regex or not
+		 * @param updateBox [optional] show the filter text in the search box
+		 * @param limit     [optional] column to limit filtering to
+		 * @private
+		 */
+		_applyFilter: function(oTable, filterStr, asRegex, updateBox, limit)
+		{
+			if (limit == undefined)
+			{
+				limit = null;
+			}
+
+			// TODO not updating the filter text in the box may be confusing
+			if (updateBox == undefined)
+			{
+				updateBox = false;
+			}
+
+			var smartFilter = true;
+			var caseInsensitive = true;
+
+			oTable.fnFilter(filterStr, limit, asRegex, smartFilter, updateBox, caseInsensitive);
 		},
 		/**
 		 * Extract & generates data required to visualize a single row of the table.
@@ -555,6 +1014,7 @@
 
 			var vars = {};
 
+			vars.mutationId = mutation.mutationId;
 			vars.caseId = mutation.caseId;
 			vars.linkToPatientView = mutation.linkToPatientView;
 
@@ -567,11 +1027,9 @@
 			vars.mutationTypeClass = mutationType.style;
 			vars.mutationTypeText = mutationType.text;
 
-			// TODO remove cosmicCount from model & calculate on the client side
-			var cosmic = self._getCosmic(mutation.cosmic, mutation.cosmicCount);
+			var cosmic = self._getCosmic(mutation.cosmicCount);
 			vars.cosmicClass = cosmic.style;
 			vars.cosmicCount = cosmic.count;
-			vars.cosmic = cosmic.value;
 
 			var fis = self._getFis(omaScoreMap, mutation.functionalImpactScore, mutation.fisValue);
 			vars.fisClass = fis.fisClass;
@@ -582,6 +1040,7 @@
 			vars.xVarLink = mutation.xVarLink;
 			vars.msaLink = mutation.msaLink;
 			vars.pdbLink = mutation.pdbLink;
+			vars.igvLink = mutation.igvLink;
 
 			var mutationStatus = self._getMutationStatus(mutationStatusMap, mutation.mutationStatus);
 			vars.mutationStatusTip = mutationStatus.tip;
@@ -646,25 +1105,6 @@
 			vars.mutationCountClass = mutationCount.style;
 
 			return vars;
-		},
-		/**
-		 * Formats the contents of the view after the initial rendering.
-		 */
-		format: function()
-		{
-			var self = this;
-
-			// remove invalid links
-			self.$el.find('a[href=""]').remove();
-
-			var tableSelector = self.$el.find('.mutation_details_table');
-
-			var tableUtil = new MutationTableUtil(tableSelector,
-				self.model.geneSymbol,
-				self.model.mutations);
-
-			// format the table (convert to a DataTable)
-			tableUtil.formatTable();
 		},
         /**
          * Returns the text content and the css class for the given
@@ -831,29 +1271,24 @@
 				tip: tip};
 		},
 		/**
-		 * Returns the css class, count, and string value
-		 * for the given cosmic value.
+		 * Returns the css class and text for the given cosmic count.
 		 *
-		 * @param value cosmic value
 		 * @param count number of occurrences
-		 * @return {{value: string, style: string, count: string}}
+		 * @return {{style: string, count: string}}
 		 * @private
 		 */
-		_getCosmic: function(value, count)
+		_getCosmic: function(count)
 		{
 			var style = "";
-			var cosmic = "";
 			var text = "";
 
 			if (count > 0)
 			{
 				style = "mutation_table_cosmic";
-				cosmic = JSON.stringify(value);
 				text = count;
 			}
 
-			return {value: cosmic,
-				style: style,
+			return {style: style,
 				count: text};
 	    },
 		/**
@@ -898,6 +1333,16 @@
 	    }
 	});
 
+	/**
+	 * Tooltip view for the mutation table's cosmic column.
+	 *
+	 * options: {el: [target container],
+	 *           model: {cosmic: [raw cosmic text],
+	 *                   geneSymbol: [hugo gene symbol],
+	 *                   keyword: [mutation keyword],
+	 *                   total: [number of total cosmic occurrences]}
+	 *          }
+	 */
 	var CosmicTipView = Backbone.View.extend({
 		render: function()
 		{
@@ -910,29 +1355,30 @@
 		},
 		format: function()
 		{
-			// TODO correct style to have a better view
-
 			// initialize cosmic details table
 			this.$el.find(".cosmic-details-table").dataTable({
-				"aaSorting" : [ ], // do not sort by default
-				"sDom": 't', // show only the table
-				"aoColumnDefs": [{ "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [0]},
-				  { "sType": "numeric", "sClass": "left-align-td", "aTargets": [1]}],
-				//"bJQueryUI": true,
-				//"fnDrawCallback": function (oSettings) {console.log("cosmic datatable is ready?");},
+				"aaSorting" : [[2, "desc"]], // sort by count at init
+				"sDom": 'pt', // show the table and the pagination buttons
+				"aoColumnDefs": [
+                                    { "mRender": function ( data, type, full ) {
+                                            return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                                       },
+                                       "aTargets": [0]},
+                                    { "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
+                                    { "sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 				"bDestroy": false,
-				"bPaginate": false,
+				"bPaginate": true,
 				"bJQueryUI": true,
 				"bFilter": false});
 		},
 		_parseCosmic: function(cosmic)
 		{
 			var dataRows = [];
-
+			// TODO create a backbone template for the cosmic table row
 			// COSMIC data (as AA change & frequency pairs)
-                        for (var aa in cosmic) {
-                            dataRows.push( aa + "</td><td>" + cosmic[aa]);
-                        }
+			cosmic.forEach(function(c) {
+                            dataRows.push(c[0]+"</td><td>"+c[1]+"</td><td>"+c[2]);
+                        });
 
 			return "<tr><td>" + dataRows.join("</td></tr><tr><td>") + "</td></tr>";
 		},
@@ -942,7 +1388,8 @@
 
 			// pass variables in using Underscore.js template
 			var variables = {cosmicDataRows: dataRows,
-				cosmicTotal: this.model.total};
+				cosmicTotal: this.model.total,
+				mutationKeyword: this.model.keyword};
 
 			// compile the template using underscore
 			return _.template(
@@ -950,4 +1397,124 @@
 					variables);
 		}
 	});
+
+	/**
+	 * Tooltip view for the mutation diagram's lollipop circles.
+	 *
+	 * options: {el: [target container],
+	 *           model: {count: [number of mutations],
+	 *                   label: [info for that location]}
+	 *          }
+	 */
+	var LollipopTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			// implement if necessary...
+		},
+		compileTemplate: function()
+		{
+			var mutationStr = this.model.count > 1 ? "mutations" : "mutation";
+
+			// pass variables in using Underscore.js template
+			var variables = {count: this.model.count,
+				mutationStr: mutationStr,
+				label: this.model.label};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_lollipop_tip_template").html(),
+					variables);
+		}
+	});
+
+	/**
+	 * Tooltip view for the mutation diagram's region rectangles.
+	 *
+	 * options: {el: [target container],
+	 *           model: {identifier: [region identifier],
+	 *                   type: [region type],
+	 *                   description: [region description],
+	 *                   start: [start position],
+	 *                   end: [end position]}
+	 *          }
+	 */
+	var RegionTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			// implement if necessary...
+		},
+		compileTemplate: function()
+		{
+			// pass variables in using Underscore.js template
+			var variables = {identifier: this.model.identifier,
+				type: this.model.type.toLowerCase(),
+				description: this.model.description,
+				start: this.model.start,
+				end: this.model.end};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_region_tip_template").html(),
+					variables);
+		}
+	});
+
+	/**
+	 * Tooltip view for the mutation table's FIS column.
+	 *
+	 * options: {el: [target container],
+	 *           model: {xvia: [link to Mutation Assessor],
+	 *                   impact: [impact text or value]}
+	 *          }
+	 */
+	var PredictedImpactTipView = Backbone.View.extend({
+		render: function()
+		{
+			// compile the template
+			var template = this.compileTemplate();
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+			this.format();
+		},
+		format: function()
+		{
+			var xvia = this.model.xvia;
+
+			if (xvia == null || xvia == "NA")
+			{
+				this.$el.find(".mutation-assessor-link").hide();
+			}
+		},
+		compileTemplate: function()
+		{
+			// pass variables in using Underscore.js template
+			var variables = {linkOut: this.model.xvia,
+				impact: this.model.impact};
+
+			// compile the template using underscore
+			return _.template(
+					$("#mutation_details_fis_tip_template").html(),
+					variables);
+		}
+	});
+
 </script>

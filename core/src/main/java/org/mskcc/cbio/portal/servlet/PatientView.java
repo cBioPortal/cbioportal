@@ -40,7 +40,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
-    public static final String ERROR = "error";
+    public static final String ERROR = "user_error_message";
     public static final String CASE_ID = "case_id";
     public static final String PATIENT_ID = "patient_id";
     public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
@@ -101,9 +101,7 @@ public class PatientView extends HttpServlet {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
-        //  Get patient ID
         String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
-
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
@@ -112,9 +110,16 @@ public class PatientView extends HttpServlet {
                 setClinicalInfo(request);
                 setNumCases(request);
             }
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
-            dispatcher.forward(request, response);
+            
+            if (request.getAttribute(ERROR)!=null) {
+                String msg = (String)request.getAttribute(ERROR);
+                xdebug.logMsg(this, msg);
+                forwardToErrorPage(request, response, msg, xdebug);
+            } else {
+                RequestDispatcher dispatcher =
+                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
+                dispatcher.forward(request, response);
+            }
         
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());
@@ -134,23 +139,14 @@ public class PatientView extends HttpServlet {
      *
      * @author Gideon Dresdner
      */
-    public boolean hasAlleleFrequencyData(CancerStudy cancerStudy, String patientId, GeneticProfile mutationProfile) throws DaoException {
+    public boolean hasAlleleFrequencyData(String patientId, GeneticProfile mutationProfile) throws DaoException {
 
         if (mutationProfile == null) {
             // fail quietly
             return false;
         }
 
-        List<ExtendedMutation> mutations
-                = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(), patientId);
-
-        for (ExtendedMutation mutation : mutations) {
-            if (mutation.getTumorAltCount() != -1) {
-                return true;
-            }
-        }
-
-        return false;
+        return DaoMutation.hasAlleleFrequencyData(mutationProfile.getGeneticProfileId(), patientId);
     }
 
     private boolean validate(HttpServletRequest request) throws DaoException {
@@ -229,7 +225,7 @@ public class PatientView extends HttpServlet {
                 .segmentDataExistForCancerStudy(cancerStudy.getInternalId()));
         String firstSampleId = sampleIds.iterator().next();
         request.setAttribute(HAS_ALLELE_FREQUENCY_DATA, 
-                hasAlleleFrequencyData(cancerStudy, firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
+                hasAlleleFrequencyData(firstSampleId, cancerStudy.getMutationProfile(firstSampleId)));
         
         return true;
     }

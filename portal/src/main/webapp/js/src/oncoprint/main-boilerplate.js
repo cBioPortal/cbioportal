@@ -30,7 +30,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     clinicalAttributes.fetch({
         type: 'POST',
-        data: { case_list: cases },
+        data: { cancer_study_id: cancer_study_id_selected,
+            case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
             $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
@@ -39,17 +40,8 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
     var oncoprint;
 
-    var genes = window.gene_list;
-    try {
-        if (_.isArray(genes)) {
-            genes = genes.join(" ");
-        }
-        if (_.isElement(genes)) {
-            genes = GeneSet(window.gene_list.innerHTML).getAllGenes().join(" ");
-        }
-    } catch (err) {
-        throw new Error(err);
-    }
+    var cases = window.PortalGlobals.getCases();
+    var genes = window.PortalGlobals.getGeneListString().split(" ");
 
     var outer_loader_img = $('#oncoprint #outer_loader_img');
     var inner_loader_img = $('#oncoprint #inner_loader_img');
@@ -59,16 +51,16 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
         type: "POST",
         data: {
             cancer_study_id: cancer_study_id_selected,
-            genes: genes,
+            oql: $('#gene_list').val(),
             case_list: cases,
-            geneticProfileIds: genetic_profiles,
-            z_score_threshold: zscore_threshold,
-            rppa_score_threshold: rppa_score_threshold
+            geneticProfileIds: window.PortalGlobals.getGeneticProfiles(),
+            z_score_threshold: window.PortalGlobals.getZscoreThreshold(),
+            rppa_score_threshold: window.PortalGlobals.getRppaScoreThreshold()
         },
         success: function(data) {
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: data.toJSON(),
-                genes: genes.split(" "),
+                genes: genes,
                 legend: document.getElementById('oncoprint_legend')
             });
             outer_loader_img.hide();
@@ -116,7 +108,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
 
             oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                 geneData: geneDataColl.toJSON(),
-                genes: genes.split(" "),
+                genes: genes,
                 legend: document.getElementById('oncoprint_legend')
             });
 
@@ -140,7 +132,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
                     oncoprint = Oncoprint(document.getElementById('oncoprint_body'), {
                         geneData: geneDataColl.toJSON(),
                         clinicalData: response.toJSON(),
-                        genes: genes.split(" "),
+                        genes: genes,
                         clinical_attrs: response.attributes(),
                         legend: document.getElementById('oncoprint_legend')
                     });

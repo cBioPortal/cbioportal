@@ -59,7 +59,6 @@ public final class ExtendedMutation
         private String tumorSeqAllele;
         private String dbSnpRs;
         private String dbSnpValStatus;
-        private String oncotatorCosmicOverlapping;
         private String oncotatorDbSnpRs;
         private String oncotatorRefseqMrnaId;
         private String oncotatorUniprotName;
@@ -229,14 +228,6 @@ public final class ExtendedMutation
 
         public void setDbSnpValStatus(String dbSnpValStatus) {
             this.dbSnpValStatus = dbSnpValStatus;
-        }
-
-        public String getOncotatorCosmicOverlapping() {
-            return oncotatorCosmicOverlapping;
-        }
-
-        public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping) {
-            this.oncotatorCosmicOverlapping = oncotatorCosmicOverlapping;
         }
 
         public String getOncotatorDbSnpRs() {
@@ -802,14 +793,6 @@ public final class ExtendedMutation
 
     public void setNormalRefCount(int normalRefCount) {
         this.normalRefCount = normalRefCount;
-    }
-
-    public String getOncotatorCosmicOverlapping() {
-        return event.getOncotatorCosmicOverlapping();
-    }
-
-    public void setOncotatorCosmicOverlapping(String oncotatorCosmicOverlapping) {
-        event.setOncotatorCosmicOverlapping(oncotatorCosmicOverlapping);
     }
 
     public String getOncotatorDbSnpRs() {

@@ -33,6 +33,7 @@ import org.mskcc.cbio.cgds.model.ClinicalAttribute;
 
 import java.sql.*;
 import java.util.*;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Data Access Object for `clinical_attribute` table
@@ -74,24 +75,34 @@ public class DaoClinicalAttribute {
                 rs.getString("DESCRIPTION"),
                 rs.getString("DATATYPE"));
     }
-
+    
     public static ClinicalAttribute getDatum(String attrId) throws DaoException {
+        List<ClinicalAttribute> attrs = getDatum(Arrays.asList(attrId));
+        if (attrs.isEmpty()) {
+            return null;
+        }
+        
+        return attrs.get(0);
+    }
+
+    public static List<ClinicalAttribute> getDatum(Collection<String> attrIds) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute WHERE ATTR_ID=? ");
-            pstmt.setString(1, attrId);
+            pstmt = con.prepareStatement("SELECT * FROM clinical_attribute WHERE ATTR_ID IN ('"
+                    + StringUtils.join(attrIds,"','")+"') ");
 
             rs = pstmt.executeQuery();
 
-            if (rs.next()) {
-                return unpack(rs);
-            } else {
-                throw new DaoException(String.format("clinical attribute not found for (%s)", attrId));
+            List<ClinicalAttribute> list = new ArrayList<ClinicalAttribute>();
+            while (rs.next()) {
+                list.add(unpack(rs));
             }
+            
+            return list;
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -108,35 +119,27 @@ public class DaoClinicalAttribute {
      * @return
      * @throws DaoException
      */
-    public static List<ClinicalAttribute> getDataBySamples(Set<String> sampleIdSet) throws DaoException {
-
-        Iterator<String> sampleIdIterator = sampleIdSet.iterator();
-        List<String> sampleIds = new ArrayList<String>();
-
-        // convert to List
-        while (sampleIdIterator.hasNext()) {
-            sampleIds.add("\'" + sampleIdIterator.next());
-        }
-
-        String sampleIdsSql = Join.join("\',", sampleIds);      // add a quote to end of each
-        sampleIdsSql += "\'";                                   // add a quote to end of the very last one
+    public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException {
         List<ClinicalAttribute> toReturn = new ArrayList<ClinicalAttribute>();
 
         Connection con = null;
         ResultSet rs = null;
 		PreparedStatement pstmt = null;
 
-        String sql = "SELECT DISTINCT ATTR_ID FROM clinical WHERE `CASE_ID` IN ("
-                + sampleIdsSql + ")";
+        String sql = "SELECT DISTINCT ATTR_ID FROM clinical"
+                + " WHERE `CANCER_STUDY_ID`= "+cancerStudyId
+                + " AND `CASE_ID` IN ('"
+                + StringUtils.join(sampleIdSet, "','") + "')";
 
+        Set<String> attrIds = new HashSet<String>();
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalAttribute.class);
             pstmt = con.prepareStatement(sql);
             rs = pstmt.executeQuery();
 
+            
              while(rs.next()) {
-                String attrId = rs.getString("ATTR_ID");
-                toReturn.add(getDatum(attrId));
+                attrIds.add(rs.getString("ATTR_ID"));
             }
 
         } catch (SQLException e) {
@@ -145,7 +148,7 @@ public class DaoClinicalAttribute {
             JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
 
-        return toReturn;
+        return getDatum(attrIds);
     }
 
     public static Collection<ClinicalAttribute> getAll() throws DaoException {
@@ -165,6 +168,8 @@ public class DaoClinicalAttribute {
 
         } catch (SQLException e) {
             throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoClinicalAttribute.class, con, pstmt, rs);
         }
         return all;
     }

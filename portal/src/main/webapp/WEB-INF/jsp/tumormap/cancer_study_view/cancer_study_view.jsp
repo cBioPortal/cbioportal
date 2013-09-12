@@ -30,7 +30,7 @@ GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStud
 boolean hasMutation = mutationProfile!=null;
 
 boolean hasMutSig = cancerStudy.hasMutSigData();
-boolean showMutationsTab = hasMutSig;
+boolean showMutationsTab = hasMutation;
 
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
 boolean hasCNA = cnaProfile!=null;
@@ -169,6 +169,7 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
+var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 
@@ -204,7 +205,13 @@ function switchToTab(toTab) {
 function getRefererCaseId() {
     //var match = /case_id=([^&]+)/.exec(document.referrer);
     //return match ? match[1] : null;
-    return null;
+    var idStr = /^#?case_ids=(.+)/.exec(location.hash);
+    if (!idStr) return null;
+    var ids = {};
+    idStr[1].split(/[ ,]+/).forEach(function(id) {
+        ids[id] = true;
+    });
+    return ids;
 }
 
 function formatPatientLink(caseId,cancerStudyId,isPatient) {

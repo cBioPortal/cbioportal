@@ -61,15 +61,34 @@
 
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
-    String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    geneList = StringEscapeUtils.escapeJavaScript(geneList);
+
+    String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
+            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
+            (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
+            zScoreThreshold, rppaScoreThreshold );
+
+    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     %>
 
 <script type="text/javascript">
-    window.cases = '<%= cases %>';
-    window.case_ids_key = '<%= caseIdsKey %>';
-    window.gene_list = '<%=geneList%>';
-    window.genetic_profiles = '<%=geneticProfiles%>';
+    window.PortalGlobals = {
+        getCases: function() { return '<%= cases %>'; },
+        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
+        getOqlString: (function() {
+            var oql = '<%=StringEscapeUtils.escapeJavaScript(oql)%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+
+            return function() { return oql; };
+        })(),
+        getGeneListString: function() { return '<%=StringUtils.join(listOfGenes, " ")%>'},
+        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
+        getZscoreThreshold: function() { return window.zscore_threshold; },
+        getRppaScoreThreshold: function() { return window.rppa_score_threshold; }
+    };
 </script>
 
 <%
@@ -83,11 +102,6 @@
 			break;
 	    }
 	}	
-
-    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
-             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-             zScoreThreshold, rppaScoreThreshold );
 
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
@@ -145,12 +159,12 @@
 	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
 	{
 		// translate Onco Query Language
-		ArrayList<String> listOfGenes =
+		ArrayList<String> geneList =
 			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
 
 		String genes = "";
 
-		for(String gene: listOfGenes)
+		for(String gene: geneList)
 		{
 			genes += gene + " ";
 		}
@@ -332,12 +346,12 @@
                         + "Mutual Exclusivity</a></li>");
                     }
 			
-			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-	
-			}
+                    if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+                                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
 
-                         if (showMutTab){
+                    }
+
+                    if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");

@@ -27,9 +27,10 @@
 
 package org.mskcc.cbio.cgds.model;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Encapsulates any type of Clinical Parameter.
@@ -38,10 +39,10 @@ public class ClinicalParameterMap
 {
     public static final String NA = "NA";
     private String name;
-    private HashMap <String, String> valueMap;
-    private HashSet<String> uniqueCategories = new HashSet<String>();
+    private Map <String, String> valueMap;
+    private Set<String> uniqueCategories = new HashSet<String>();
 
-    public ClinicalParameterMap(String name, HashMap<String, String> valueMap)
+    public ClinicalParameterMap(String name, Map<String, String> valueMap)
     {
         this.name = name;
         this.valueMap = valueMap;
@@ -60,7 +61,7 @@ public class ClinicalParameterMap
         return name;
     }
 
-    public HashSet<String> getDistinctCategories() {
+    public Set<String> getDistinctCategories() {
         return this.uniqueCategories;
     }
 

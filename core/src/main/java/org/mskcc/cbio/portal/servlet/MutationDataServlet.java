@@ -47,7 +47,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
+import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -231,10 +233,13 @@ public class MutationDataServlet extends HttpServlet
 			// profile id does not exist, just return an empty array
 			return mutationArray;
 		}
-
+                
+                Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+
+		int id = 0;
 
 		for (ExtendedMutation mutation : mutationList)
 		{
@@ -242,7 +247,6 @@ public class MutationDataServlet extends HttpServlet
 
 			if (targetCaseList.contains(caseId))
 			{
-
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
@@ -254,6 +258,10 @@ public class MutationDataServlet extends HttpServlet
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
+				// mutationId is not a unique id wrt the whole DB,
+				// but it is unique wrt the returned data set
+				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -261,13 +269,13 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
-				mutationData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
-				mutationData.put("cosmicCount", this.getCosmicCount(mutation));
+				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
 				mutationData.put("fisValue", this.getFisValue(mutation));
 				mutationData.put("msaLink", this.getMsaLink(mutation));
 				mutationData.put("xVarLink", this.getXVarLink(mutation));
 				mutationData.put("pdbLink", this.getPdbLink(mutation));
+				mutationData.put("igvLink", this.getIGVForBAMViewingLink(cancerStudyStableId, mutation));
 				mutationData.put("mutationStatus", mutation.getMutationStatus());
 				mutationData.put("validationStatus", mutation.getValidationStatus());
 				mutationData.put("sequencingCenter", this.getSequencingCenter(mutation));
@@ -287,15 +295,35 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
 				mutationData.put("uniprotId", this.getUniprotId(mutation));
+				mutationData.put("proteinPosStart", mutation.getOncotatorProteinPosStart());
+				mutationData.put("proteinPosEnd", mutation.getOncotatorProteinPosEnd());
 				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
+
+				id++;
 			}
 		}
 
 		return mutationArray;
 	}
+        
+        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+        private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
+            if (cosmic==null) {
+                return null;
+            }
+            List<List> mat = new ArrayList(cosmic.size());
+            for (CosmicMutationFrequency cmf : cosmic) {
+                List l = new ArrayList(3);
+                l.add(cmf.getId());
+                l.add(cmf.getAminoAcidChange());
+                l.add(cmf.getFrequency());
+                mat.add(l);
+            }
+            return mat;
+        }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null
@@ -446,38 +474,6 @@ public class MutationDataServlet extends HttpServlet
 	protected String getSequencingCenter(ExtendedMutation mutation)
 	{
 		return SequenceCenterUtil.getSequencingCenterAbbrev(mutation.getSequencingCenter());
-	}
-
-	/**
-	 * TODO move this method to the client side
-	 * Creates an html "a" element for the cosmic overlapping value
-	 * of the given mutation. The text of the element will be the sum
-	 * of all cosmic values, and the id of the element will be the
-	 * (non-parsed) cosmic overlapping string.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          string representing an "a" element for the cosmic value
-	 */
-	protected int getCosmicCount(ExtendedMutation mutation)
-	{
-		if (mutation.getOncotatorCosmicOverlapping() == null ||
-		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
-		{
-			return 0;
-		}
-
-		// calculate total cosmic count
-		// TODO move this method to the client side
-		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
-
-		if (total > 0)
-		{
-			return total;
-		}
-		else
-		{
-			return 0;
-		}
 	}
 
 	/**
@@ -690,5 +686,28 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		return counts;
+	}
+
+	private String getIGVForBAMViewingLink(String cancerStudyStableId, ExtendedMutation mutation)
+	{
+		String link = null;
+
+		if (GlobalProperties.wantIGVBAMLinking()) {
+			String locus = (this.getChromosome(mutation) + ":" +
+							String.valueOf(mutation.getStartPosition()) + "-" +
+							String.valueOf(mutation.getEndPosition()));
+			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
+				try {
+					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
+													   mutation.getCaseId(),
+													   URLEncoder.encode(locus,"US-ASCII"));
+				}
+				catch (java.io.UnsupportedEncodingException e) {
+					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());
+				}
+			}
+		}
+
+		return link;
 	}
 }

@@ -27,51 +27,64 @@
 
 package org.mskcc.cbio.portal.util;
 
+import java.util.*;
+
 /**
  * Utility class for getting / setting global properties.
  */
 public class GlobalProperties {
-    private static final String PATHWAY_COMMONS_URL_PARAM = "pathway_commons.url";
-    private static final String UCSC_CANCER_GENOMICS_URL_PARAM = "ucsc_cancer_genomics.url";
-    private static final String SEGFILE_URL_PARAM = "segfile.url";
-    
-    private static final String PATHWAY_COMMANS_URL;
-    private static final String UCSC_CANCER_GENOMICS_URL;
-	private static final String SEGFILE_URL;
+    public static final String PATHWAY_COMMONS_URL = "pc_url";
+    public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_url";
+	public static final String SEGFILE_URL = "segfile_url";
+	public static final String OPENSSL_BINARY = "openssl_bin";
+	public static final String SIGNATURE_KEY = "sig_key";
+	public static final String ENCRYPTION_KEY = "encrypt_key";
+	public static final String BROAD_BAM_URL = "broad_bam_url";
+	public static final String IGV_BAM_LINKING = "igv_bam_linking";
+	public static final String IGV_BAM_LINKING_STUDIES = "igv_bam_linking_studies";
+
+	private static Map<String, String> properties;
     
     static {
         Config config = Config.getInstance();
-        PATHWAY_COMMANS_URL = config.getProperty(PATHWAY_COMMONS_URL_PARAM);
-        UCSC_CANCER_GENOMICS_URL = config.getProperty(UCSC_CANCER_GENOMICS_URL_PARAM);
-        SEGFILE_URL = config.getProperty(SEGFILE_URL_PARAM);
+		properties = new HashMap<String, String>();
+		properties.put(PATHWAY_COMMONS_URL, config.getProperty("pathway_commons.url"));
+		properties.put(UCSC_CANCER_GENOMICS_URL, config.getProperty("ucsc_cancer_genomics.url"));
+		properties.put(SEGFILE_URL, config.getProperty("segfile.url"));
+		properties.put(OPENSSL_BINARY, config.getProperty("openssl.binary"));
+		properties.put(SIGNATURE_KEY, config.getProperty("signature.key"));
+		properties.put(ENCRYPTION_KEY, config.getProperty("encryption.key"));
+		properties.put(BROAD_BAM_URL, config.getProperty("broad.bam.url"));
+		properties.put(IGV_BAM_LINKING, config.getProperty("igv.bam.linking"));
+		properties.put(IGV_BAM_LINKING_STUDIES, config.getProperty("igv.bam.linking.studies"));
     }
 
-    /**
-     * Gets the Global Pathway Commons URL.
-     *
-     * @return Pathway Commons URL.
-     */
-    public static String getPathwayCommonsUrl() {
-        return PATHWAY_COMMANS_URL;
+    public static String getPathwayCommonsUrl()
+	{
+		return properties.get(PATHWAY_COMMONS_URL);
     }
     
-
-    /**
-     * Gets the Global UCSC Cancer Genomics URL.
-     *
-     * @return Pathway Commons URL.
-     */
-    public static String getUcscCancerGenomicsUrl() {
-        return UCSC_CANCER_GENOMICS_URL;
+    public static String getUcscCancerGenomicsUrl()
+	{
+        return properties.get(UCSC_CANCER_GENOMICS_URL);
     }
 
-    /**
-     * Gets the Global IGV URL.
-     *
-     * @return IGV URL.
-     */
-    public static String getSegfileUrl() {
-        return SEGFILE_URL;
+    public static String getSegfileUrl()
+	{
+        return properties.get(SEGFILE_URL);
     }
-    
+
+	public static String getProperty(String property)
+	{
+		return (properties.containsKey(property)) ? properties.get(property) : "";
+	}
+
+	public static boolean wantIGVBAMLinking() {
+		return properties.get(IGV_BAM_LINKING).equals("true");
+	}
+
+	public static Collection<String> getIGVBAMLinkingStudies() {
+		String[] studies = properties.get(IGV_BAM_LINKING_STUDIES).split(":");
+		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
+	}
 }

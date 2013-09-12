@@ -1,4 +1,9 @@
-<div class='section' id='mutation_details'></div>
+<!-- TODO include these js files in the global js include? -->
+<script type="text/javascript" src="js/src/mutation_histogram.js"></script>
+
+<div class='section' id='mutation_details'>
+	<img src='images/ajax-loader.gif'/>
+</div>
 
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css";
@@ -47,6 +52,9 @@
 		vertical-align: bottom;
 		margin-left: 3px;
 	}
+	.diagram-lollipop-tip, .diagram-region-tip {
+		font-size: 12px;
+	}
 	.mutation-details-tooltip {
 		font-size: 11px !important;
 	}
@@ -82,17 +90,33 @@
 	.mutation-diagram-container {
 		margin-bottom: 10px;
 	}
+	.mutation-details-filter-info {
+		font-size: 14px;
+		font-family: verdana,arial,sans-serif;
+		color: red;
+		margin-bottom: 10px;
+	}
+	.mutation-details-filter-reset {
+		color: #1974B8 !important;
+		cursor: pointer;
+	}
+	.mutation-table-highlight {
+		background-color: #E9E900 !important;
+	}
 	.mutation-table-container {
 		margin-bottom: 40px;
 	}
 	.mutation-table-header {
 		font-weight: bold !important;
 	}
-	.tooltip-table-container {
-		padding: 10px;
-	}
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
+	}
+	.cosmic-details-table {
+		font-size: 11px !important;
+	}
+	.igv-link {
+		cursor: pointer;
 	}
 	.left-align-td {
 		text-align: left;

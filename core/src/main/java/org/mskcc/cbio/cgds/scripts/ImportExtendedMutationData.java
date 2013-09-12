@@ -353,7 +353,6 @@ public class ImportExtendedMutationData{
                     mutation.setTumorRefCount(ExtendedMutationUtil.getTumorRefCount(record));
 					mutation.setNormalAltCount(ExtendedMutationUtil.getNormalAltCount(record));
 					mutation.setNormalRefCount(ExtendedMutationUtil.getNormalRefCount(record));
-					mutation.setOncotatorCosmicOverlapping(record.getOncotatorCosmicOverlapping());
 					mutation.setOncotatorDbSnpRs(record.getOncotatorDbSnpRs());
 					mutation.setOncotatorCodonChange(codonChange);
 					mutation.setOncotatorRefseqMrnaId(refseqMrnaId);

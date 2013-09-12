@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -120,9 +121,9 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  jsonObject.put("clinicalCaseSet", caseIds);
                  
                  // get all distinct categories
-                 for (String param : paramSet) {
-                     ClinicalParameterMap paramMap = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), param);
-                     HashSet<String> distinctCategorySet = paramMap.getDistinctCategories();
+                 List<ClinicalParameterMap> paramMaps = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), paramSet);
+                 for (ClinicalParameterMap paramMap : paramMaps) {
+                     Set<String> distinctCategorySet = paramMap.getDistinctCategories();
                      JSONArray distinctCategories = new JSONArray();
                      
                      for (String category : distinctCategorySet)
@@ -133,7 +134,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                     	 }
                      }
                      
-                     categoryMap.put(CategoryLabelReader.safeCategoryName(param),
+                     categoryMap.put(CategoryLabelReader.safeCategoryName(paramMap.getName()),
                     		 distinctCategories);
                  }
                  

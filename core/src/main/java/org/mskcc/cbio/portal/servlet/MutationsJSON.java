@@ -24,6 +24,7 @@ public class MutationsJSON extends HttpServlet {
     public static final String GET_CONTEXT_CMD = "get_context";
     public static final String GET_DRUG_CMD = "get_drug";
     public static final String COUNT_MUTATIONS_CMD = "count_mutations";
+    public static final String GET_SMG_CMD = "get_smg";
     public static final String MUTATION_EVENT_ID = "mutation_id";
     public static final String GENE_CONTEXT = "gene_context";
     public static final String KEYWORD_CONTEXT = "keyword_context";
@@ -49,9 +50,85 @@ public class MutationsJSON extends HttpServlet {
                 processCountMutationsRequest(request, response);
                 return;
             }
+            
+            if (cmd.equalsIgnoreCase(GET_SMG_CMD)) {
+                processGetSmgRequest(request, response);
+                return;
+            }
         }
             
         processGetMutationsRequest(request, response);
+    }
+    
+    private static int DEFAULT_THERSHOLD_NUM_SMGS = 100;
+    private void processGetSmgRequest(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
+        String mutationProfileId = request.getParameter(PatientView.MUTATION_PROFILE);
+        GeneticProfile mutationProfile;
+        Map<Long, Double> mutsig = Collections.emptyMap();
+        Map<Long, Integer> smgs = Collections.emptyMap();
+        try {
+            mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
+            if (mutationProfile!=null) {
+                int profileId = mutationProfile.getGeneticProfileId();
+                
+                // get all recurrently mutation genes
+                smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS);
+                
+                mutsig = getMutSig(mutationProfile.getCancerStudyId());
+                if (!mutsig.isEmpty()) {
+                    Set<Long> mutsigGenes = new HashSet<Long>(mutsig.keySet());
+                    mutsigGenes.removeAll(smgs.keySet());
+                    if (!mutsigGenes.isEmpty()) {
+                        // append mutsig genes
+                        smgs.putAll(DaoMutation.getSMGs(profileId, mutsigGenes, -1, -1));
+                    }
+                }
+            }
+        } catch (DaoException ex) {
+            throw new ServletException(ex);
+        }
+        
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        List<Map<String,Object>> data = new ArrayList<Map<String,Object>>();
+        for (Map.Entry<Long, Integer> entry : smgs.entrySet()) {
+            Map<String,Object> map = new HashMap<String,Object>();
+            
+            Long entrez = entry.getKey();
+            CanonicalGene gene = daoGeneOptimized.getGene(entrez);
+            
+            String hugo = gene.getHugoGeneSymbolAllCaps();
+            map.put("gene_symbol", hugo);
+            
+            String cytoband = gene.getCytoband();
+            map.put("cytoband", cytoband);
+            
+            int length = gene.getLength();
+            if (length>0) {
+                map.put("length", length);
+            }
+            
+            Integer count = entry.getValue();
+            map.put("num_muts", count);
+            
+            Double qvalue = mutsig.get(entrez);
+            if (qvalue!=null) {
+                map.put("qval", qvalue);
+            }
+            
+            data.add(map);
+        }
+        
+        response.setContentType("application/json");
+        
+        PrintWriter out = response.getWriter();
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            out.write(mapper.writeValueAsString(data));
+        } finally {            
+            out.close();
+        }
     }
     
     private void processGetMutationsRequest(HttpServletRequest request,
@@ -71,7 +148,7 @@ public class MutationsJSON extends HttpServlet {
         GeneticProfile mutationProfile;
         List<ExtendedMutation> mutations = Collections.emptyList();
         CancerStudy cancerStudy = null;
-        Map<Long, Map<String,Integer>> cosmic = Collections.emptyMap();
+        Map<Long, Set<CosmicMutationFrequency>> cosmic = Collections.emptyMap();
         Map<Long, Set<String>> drugs = Collections.emptyMap();
         Map<String, Integer> geneContextMap = Collections.emptyMap();
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
@@ -83,7 +160,7 @@ public class MutationsJSON extends HttpServlet {
             if (mutationProfile!=null) {
                 cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(mutationProfile.getCancerStudyId());
                 mutations = DaoMutation.getMutations(mutationProfile.getGeneticProfileId(),patients);
-                cosmic = getCosmic(mutations);
+                cosmic = DaoCosmicData.getCosmicForMutationEvents(mutations);
                 String concatEventIds = getConcatEventIds(mutations);
                 int profileId = mutationProfile.getGeneticProfileId();
                 daoGeneOptimized = DaoGeneOptimized.getInstance();
@@ -363,7 +440,7 @@ public class MutationsJSON extends HttpServlet {
     
     private void exportMutation(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
             ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
-            int geneContext, int keywordContext, Map<String,Integer> cosmic, Map<String,Object> mrna,
+            int geneContext, int keywordContext, Set<CosmicMutationFrequency> cosmic, Map<String,Object> mrna,
             DaoGeneOptimized daoGeneOptimized) throws ServletException {
         Long eventId = mutation.getMutationEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
@@ -402,13 +479,13 @@ public class MutationsJSON extends HttpServlet {
         data.get("mrna").add(mrna);
         
         // cosmic
-        data.get("cosmic").add(cosmic);
+        data.get("cosmic").add(convertCosmicDataToMatrix(cosmic));
         
         // mut sig
         Double mutSigQvalue;
         try {
             mutSigQvalue = getMutSigQValue(cancerStudy.getInternalId(),
-                    mutation.getGeneSymbol());
+                    mutation.getEntrezGeneId());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }
@@ -442,52 +519,55 @@ public class MutationsJSON extends HttpServlet {
         data.get("ma").add(ma);
     }
     
-    private static final Map<Integer,Map<String,Double>> mutSigMap // map from cancer study id
-            = new HashMap<Integer,Map<String,Double>>();     // to map from gene to Q-value
+    private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
+        if (cosmic==null) {
+            return null;
+        }
+        List<List> mat = new ArrayList(cosmic.size());
+        for (CosmicMutationFrequency cmf : cosmic) {
+            List l = new ArrayList(3);
+            l.add(cmf.getId());
+            l.add(cmf.getAminoAcidChange());
+            l.add(cmf.getFrequency());
+            mat.add(l);
+        }
+        return mat;
+    }
     
-    private static Double getMutSigQValue(int cancerStudyId, String gene) throws DaoException {
-        Map<String,Double> mapGeneQvalue;
+    private static final Map<Integer,Map<Long,Double>> mutSigMap // map from cancer study id
+            = new HashMap<Integer,Map<Long,Double>>();     // to map from gene to Q-value
+    
+    private static Double getMutSigQValue(int cancerStudyId, long entrez) throws DaoException {
+        Map<Long,Double> mapGeneQvalue;
         synchronized(mutSigMap) {
             mapGeneQvalue = mutSigMap.get(cancerStudyId);
             if (mapGeneQvalue == null) {
-                mapGeneQvalue = new HashMap<String,Double>();
+                mapGeneQvalue = new HashMap<Long,Double>();
                 mutSigMap.put(cancerStudyId, mapGeneQvalue);
-                for (MutSig ms : DaoMutSig.getInstance().getAllMutSig(cancerStudyId)) {
+                for (MutSig ms : DaoMutSig.getAllMutSig(cancerStudyId)) {
                     double qvalue = ms.getqValue();
-                    mapGeneQvalue.put(ms.getCanonicalGene().getHugoGeneSymbolAllCaps(),
+                    mapGeneQvalue.put(ms.getCanonicalGene().getEntrezGeneId(), qvalue);
+                }
+            }
+        }
+        return mapGeneQvalue.get(entrez);
+    }
+    
+    private static Map<Long,Double> getMutSig(int cancerStudyId) throws DaoException {
+        Map<Long,Double> mapGeneQvalue;
+        synchronized(mutSigMap) {
+            mapGeneQvalue = mutSigMap.get(cancerStudyId);
+            if (mapGeneQvalue == null) {
+                mapGeneQvalue = new HashMap<Long,Double>();
+                mutSigMap.put(cancerStudyId, mapGeneQvalue);
+                for (MutSig ms : DaoMutSig.getAllMutSig(cancerStudyId)) {
+                    double qvalue = ms.getqValue();
+                    mapGeneQvalue.put(ms.getCanonicalGene().getEntrezGeneId(),
                             qvalue);
                 }
             }
         }
-        return mapGeneQvalue.get(gene);
-    }
-    
-    /**
-     * 
-     * @param mutations
-     * @return Map of event id to map of aa change to count
-     * @throws DaoException 
-     */
-    private Map<Long, Map<String,Integer>> getCosmic(
-            List<ExtendedMutation> mutations) throws DaoException {
-        Set<Long> mutIds = new HashSet<Long>(mutations.size());
-        for (ExtendedMutation mut : mutations) {
-            mutIds.add(mut.getMutationEventId());
-        }
-        
-        Map<Long, List<CosmicMutationFrequency>> map = 
-                DaoMutation.getCosmicMutationFrequency(mutIds);
-        Map<Long, Map<String,Integer>> ret
-                = new HashMap<Long, Map<String,Integer>>(map.size());
-        for (Map.Entry<Long, List<CosmicMutationFrequency>> entry : map.entrySet()) {
-            Long id = entry.getKey();
-            Map<String,Integer> mapSI = new HashMap<String,Integer>();
-            for (CosmicMutationFrequency cmf : entry.getValue()) {
-                mapSI.put(cmf.getAminoAcidChange(), cmf.getFrequency());
-            }
-            ret.put(id, mapSI);
-        }
-        return ret;
+        return mapGeneQvalue;
     }
     
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

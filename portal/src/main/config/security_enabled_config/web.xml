@@ -532,7 +532,37 @@
         <url-pattern>/getProfileData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetProteinArrayDataJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetProteinArrayDataJSON</servlet-name>
+        <url-pattern>/getProteinArrayData.json</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
+
+    <servlet>
+        <servlet-name>Echofile</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.EchoFile</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Echofile</servlet-name>
+        <url-pattern>/echofile</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.IGVLinkingJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <url-pattern>/igvlinking.json</url-pattern>
+    </servlet-mapping>
      
     <welcome-file-list>
         <welcome-file>index.do</welcome-file>

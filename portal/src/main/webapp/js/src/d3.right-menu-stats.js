@@ -138,7 +138,8 @@ var RightMenuStudyStatsUtil = (function($) {
                 show: 'mouseover',
                 hide: {
                     fixed:true,
-                    delay: 100
+                    delay: 100,
+	                event: 'mouseout'
                 },
                 style: {
                     classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'

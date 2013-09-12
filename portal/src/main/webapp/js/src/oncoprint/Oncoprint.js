@@ -99,7 +99,8 @@ define("Oncoprint",
                 // make labels and set up the table for proper scrolling, etc.
                 var table = d3.select(div)
                     .append('table')
-                    .append('tr');
+                    .append('tr')
+                    .attr('valign','top');
 
                 var remove_oncoprint = function() {
                     d3.select("#" + div.id + ' table').remove();

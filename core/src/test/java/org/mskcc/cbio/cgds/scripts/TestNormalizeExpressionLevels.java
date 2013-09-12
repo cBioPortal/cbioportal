@@ -34,8 +34,6 @@ import java.util.HashMap;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
-
 public class TestNormalizeExpressionLevels extends TestCase {
    
 	// TBD: change this to use getResourceAsStream()
@@ -46,7 +44,7 @@ public class TestNormalizeExpressionLevels extends TestCase {
       
       try {
          
-         NormalizeExpressionLevels.main(Args);
+         NormalizeExpressionLevels.driver(Args);
          // compare with correct
          String line;
          Process p = Runtime.getRuntime().exec("diff "+ "target/test-classes/correct_data_mRNA_ZbyNorm.txt " + Args[2] );

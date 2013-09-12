@@ -452,7 +452,7 @@
                                 var ret = [];
                                 for (var i=0, n=samples.length; i<n; i++) {
                                     ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
-                                        +'=prad_su2c&amp;'+samples[i]+'&amp;locus=chr'+chr+'%3A'+start+'-'+end+'">'
+                                        +'=prad_su2c&case_id='+samples[i]+'&locus=chr'+chr+'%3A'+start+'-'+end+'">'
                                         +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>')
                                 }
                                 return ret.join("&nbsp;");

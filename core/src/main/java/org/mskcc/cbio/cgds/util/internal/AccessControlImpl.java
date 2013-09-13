@@ -32,7 +32,7 @@ package org.mskcc.cbio.cgds.util.internal;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.portal.util.Config;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 
@@ -51,20 +51,8 @@ import java.util.Collections;
  */
 public class AccessControlImpl implements AccessControl {
 
-	// used to determine if authorization is set
-	private Config config;
-
 	// ref to log
 	private static Log log = LogFactory.getLog(AccessControlImpl.class);
-
-	/**
-	 * Constructor.
-	 *
-	 * @param config Config
-	 */
-	public AccessControlImpl(Config config) {
-		this.config = config;
-	}
 
     /**
      * Gets Cancer Studies. Used by QueryBuilder.
@@ -92,7 +80,7 @@ public class AccessControlImpl implements AccessControl {
 
             //  Then, insert "All" Cancer Types at beginning
             ArrayList<CancerStudy> finalCancerStudiesList = new ArrayList<CancerStudy>();
-			String allCancerStudyTitle = (config.usersMustBeAuthorized()) ?
+			String allCancerStudyTitle = (GlobalProperties.usersMustBeAuthorized()) ?
 				"All Authorized Cancer Studies" : "All Cancer Studies";
             CancerStudy cancerStudy = new CancerStudy(allCancerStudyTitle, allCancerStudyTitle,
                                                       "all", "all", true);

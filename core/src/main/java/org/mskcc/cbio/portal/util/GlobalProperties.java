@@ -24,67 +24,98 @@
 ** along with this library; if not, write to the Free Software Foundation,
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
-
 package org.mskcc.cbio.portal.util;
 
+import java.io.*;
 import java.util.*;
 
 /**
  * Utility class for getting / setting global properties.
  */
 public class GlobalProperties {
-    public static final String PATHWAY_COMMONS_URL = "pc_url";
-    public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_url";
-	public static final String SEGFILE_URL = "segfile_url";
-	public static final String OPENSSL_BINARY = "openssl_bin";
-	public static final String SIGNATURE_KEY = "sig_key";
-	public static final String ENCRYPTION_KEY = "encrypt_key";
-	public static final String BROAD_BAM_URL = "broad_bam_url";
-	public static final String IGV_BAM_LINKING = "igv_bam_linking";
-	public static final String IGV_BAM_LINKING_STUDIES = "igv_bam_linking_studies";
 
-	private static Map<String, String> properties;
+    public static final String HOME_DIR = "PORTAL_HOME";
+    public static final String propertiesFilename = "portal.properties";
+
+    public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";
+    public static final String UCSC_CANCER_GENOMICS_URL = "ucsc_cancer_genomics.url";
+	public static final String SEGFILE_URL = "segfile.url";
+	public static final String OPENSSL_BINARY = "openssl.binary";
+	public static final String SIGNATURE_KEY = "signature.key";
+	public static final String ENCRYPTION_KEY = "encryption.key";
+	public static final String BROAD_BAM_URL = "broad.bam.url";
+	public static final String IGV_BAM_LINKING = "igv.bam.linking";
+	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
+    public static final String AUTHENTICATE = "authenticate";
+    public static final String AUTHORIZATION = "authorization";
+
+    private static Properties properties = initializeProperties();
     
-    static {
-        Config config = Config.getInstance();
-		properties = new HashMap<String, String>();
-		properties.put(PATHWAY_COMMONS_URL, config.getProperty("pathway_commons.url"));
-		properties.put(UCSC_CANCER_GENOMICS_URL, config.getProperty("ucsc_cancer_genomics.url"));
-		properties.put(SEGFILE_URL, config.getProperty("segfile.url"));
-		properties.put(OPENSSL_BINARY, config.getProperty("openssl.binary"));
-		properties.put(SIGNATURE_KEY, config.getProperty("signature.key"));
-		properties.put(ENCRYPTION_KEY, config.getProperty("encryption.key"));
-		properties.put(BROAD_BAM_URL, config.getProperty("broad.bam.url"));
-		properties.put(IGV_BAM_LINKING, config.getProperty("igv.bam.linking"));
-		properties.put(IGV_BAM_LINKING_STUDIES, config.getProperty("igv.bam.linking.studies"));
+    private static Properties initializeProperties()
+    {
+        return loadProperties(getResource());
     }
 
+    private static String getResource()
+    {
+        String home = System.getenv(HOME_DIR);
+        return (home == null || home.isEmpty()) ?
+            GlobalProperties.propertiesFilename :
+            (home + File.separator + GlobalProperties.propertiesFilename);
+    }
+
+    private static Properties loadProperties(String resource)
+    {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(new FileReader(resource));
+        }
+        catch (IOException e) {
+            System.err.println("Error loading properties file'" +
+                               resource + "', aborting\n");
+            System.exit(1);
+        }
+
+        return properties;
+    }
+    
     public static String getPathwayCommonsUrl()
 	{
-		return properties.get(PATHWAY_COMMONS_URL);
+		return properties.getProperty(PATHWAY_COMMONS_URL);
     }
     
     public static String getUcscCancerGenomicsUrl()
 	{
-        return properties.get(UCSC_CANCER_GENOMICS_URL);
+        return properties.getProperty(UCSC_CANCER_GENOMICS_URL);
     }
 
     public static String getSegfileUrl()
 	{
-        return properties.get(SEGFILE_URL);
+        return properties.getProperty(SEGFILE_URL);
     }
 
 	public static String getProperty(String property)
 	{
-		return (properties.containsKey(property)) ? properties.get(property) : "";
+		return (properties.containsKey(property)) ? properties.getProperty(property) : "";
 	}
 
 	public static boolean wantIGVBAMLinking() {
-		return properties.get(IGV_BAM_LINKING).equals("true");
+		return properties.getProperty(IGV_BAM_LINKING).equals("true");
 	}
 
 	public static Collection<String> getIGVBAMLinkingStudies() {
-		String[] studies = properties.get(IGV_BAM_LINKING_STUDIES).split(":");
+		String[] studies = properties.getProperty(IGV_BAM_LINKING_STUDIES).split(":");
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
+	}
+
+    public static boolean usersMustAuthenticate()
+    {
+		return Boolean.valueOf(properties.getProperty(AUTHENTICATE));
+    }
+
+	public static boolean usersMustBeAuthorized()
+    {
+		return Boolean.valueOf(properties.getProperty(AUTHORIZATION));
 	}
 }

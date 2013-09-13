@@ -56,8 +56,7 @@ public class SkinUtil {
     private static final String PROPERTY_BITLY_API_KEY = "bitly.api_key";
     
     public static String getAppName() {
-        Config config = Config.getInstance();
-        String appName = config.getProperty("app.name");
+        String appName = GlobalProperties.getProperty("app.name");
         if (appName == null) {
             return "public_portal";
         } else {
@@ -70,8 +69,7 @@ public class SkinUtil {
      * @return site title.
      */
     public static String getTitle() {
-        Config config = Config.getInstance();
-        String skinTitle = config.getProperty("skin.title");
+        String skinTitle = GlobalProperties.getProperty("skin.title");
         if (skinTitle == null) {
             return DEFAULT_TITLE;
         } else {
@@ -84,8 +82,7 @@ public class SkinUtil {
      * @return site blurb.
      */
     public static String getBlurb() {
-        Config config = Config.getInstance();
-        return config.getProperty("skin.blurb");
+        return GlobalProperties.getProperty("skin.blurb");
     }
 
     /**
@@ -93,8 +90,7 @@ public class SkinUtil {
      * @return site tag line.
      */
     public static String getTagLineImage() {
-        Config config = Config.getInstance();
-        String tagLineImage = config.getProperty("skin.tag_line_image");
+        String tagLineImage = GlobalProperties.getProperty("skin.tag_line_image");
         if (tagLineImage == null) {
             tagLineImage = "images/tag_line.png";
         } else {
@@ -109,8 +105,7 @@ public class SkinUtil {
      * @return site email contact.
      */
     public static String getEmailContact() {
-        Config config = Config.getInstance();
-        String emailAddress = config.getProperty(PROPERTY_SKIN_EMAIL_CONTACT);
+        String emailAddress = GlobalProperties.getProperty(PROPERTY_SKIN_EMAIL_CONTACT);
 
         if (emailAddress == null) {
             emailAddress = DEFAULT_EMAIL_CONTACT;
@@ -125,8 +120,7 @@ public class SkinUtil {
      * @return bitly user name.
      */
     public static String getBitlyUser() {
-        Config config = Config.getInstance();
-        return config.getProperty(PROPERTY_BITLY_USER);
+        return GlobalProperties.getProperty(PROPERTY_BITLY_USER);
     }
 
     /**
@@ -134,8 +128,7 @@ public class SkinUtil {
      * @return bitly api key.
      */
     public static String getBitlyApiKey() {
-        Config config = Config.getInstance();
-        return config.getProperty(PROPERTY_BITLY_API_KEY);
+        return GlobalProperties.getProperty(PROPERTY_BITLY_API_KEY);
     }
 
     /**
@@ -143,8 +136,7 @@ public class SkinUtil {
      * @return true or false.
      */
     public static boolean usersMustAuthenticate() {
-        Config config = Config.getInstance();
-        String authFlag = config.getProperty(PROPERTY_AUTHENTICATION_REQUIRED);
+        String authFlag = GlobalProperties.getProperty(PROPERTY_AUTHENTICATION_REQUIRED);
         return authFlag != null && new Boolean(authFlag);
     }
     
@@ -153,8 +145,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean includeNetworks() {
-        Config config = Config.getInstance();
-        return Boolean.parseBoolean(config.getProperty("include_networks"));
+        return Boolean.parseBoolean(GlobalProperties.getProperty("include_networks"));
     }
     
     /**
@@ -162,13 +153,11 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showPlaceholderInPatientView() {
-        Config config = Config.getInstance();
-        return Boolean.parseBoolean(config.getProperty("patient_view_placeholder"));
+        return Boolean.parseBoolean(GlobalProperties.getProperty("patient_view_placeholder"));
     }
     
     public static double[] getPatientViewGenomicOverviewCnaCutoff() {
-        Config config = Config.getInstance();
-        String cutoff = config.getProperty("patient_view_genomic_overview_cna_cutoff");
+        String cutoff = GlobalProperties.getProperty("patient_view_genomic_overview_cna_cutoff");
         if (cutoff==null) {
             return DEFAULT_TUMORMAP_CNA_CUTOFF;
         }
@@ -181,8 +170,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showNewsTab() {
-        Config config = Config.getInstance();
-        String showFlag = config.getProperty(PROPERTY_SKIN_SHOW_NEWS_TAB);
+        String showFlag = GlobalProperties.getProperty(PROPERTY_SKIN_SHOW_NEWS_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -191,8 +179,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showDataTab() {
-        Config config = Config.getInstance();
-        String showFlag = config.getProperty(PROPERTY_SKIN_SHOW_DATA_TAB);
+        String showFlag = GlobalProperties.getProperty(PROPERTY_SKIN_SHOW_DATA_TAB);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -201,8 +188,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showRightNavDataSets() {
-        Config config = Config.getInstance();
-        String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_DATA_SETS);
+        String showFlag = GlobalProperties.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_DATA_SETS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -211,8 +197,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showRightNavExamples() {
-        Config config = Config.getInstance();
-        String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_EXAMPLES);
+        String showFlag = GlobalProperties.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_EXAMPLES);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -221,8 +206,7 @@ public class SkinUtil {
      * @return true or false
      */
     public static boolean showRightNavTestimonials() {
-        Config config = Config.getInstance();
-        String showFlag = config.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
+        String showFlag = GlobalProperties.getProperty(PROPERTY_SKIN_RIGHT_NAV_SHOW_TESTIMONIALS);
         return showFlag == null || Boolean.parseBoolean(showFlag);
     }
 
@@ -231,8 +215,7 @@ public class SkinUtil {
      * @return authorization message.
      */
     public static String getAuthorizationMessage() {
-        Config config = Config.getInstance();
-        String authMessage = config.getProperty(PROPERTY_SKIN_AUTHORIZATION_MESSAGE);
+        String authMessage = GlobalProperties.getProperty(PROPERTY_SKIN_AUTHORIZATION_MESSAGE);
         return authMessage == null ? DEFAULT_AUTHORIZATION_MESSAGE : authMessage;
     }
 
@@ -241,8 +224,7 @@ public class SkinUtil {
      * @return String
      */
     public static String getDataSetsHeader() {
-        Config config = Config.getInstance();
-        return config.getProperty("skin.data_sets_header");
+        return GlobalProperties.getProperty("skin.data_sets_header");
     }
 
     /**
@@ -250,8 +232,7 @@ public class SkinUtil {
      * @return String
      */
     public static String getDataSetsFooter() {
-        Config config = Config.getInstance();
-        return config.getProperty("skin.data_sets_footer");
+        return GlobalProperties.getProperty("skin.data_sets_footer");
     }
     
     public static String getLinkToPatientView(String caseId, String cancerStudyId) {
@@ -275,20 +256,17 @@ public class SkinUtil {
     }
     
     public static String getDigitalSlideArchiveIframeUrl(String caseId) {
-        Config config = Config.getInstance();
-        String url = config.getProperty("digitalslidearchive.iframe.url");
+        String url = GlobalProperties.getProperty("digitalslidearchive.iframe.url");
         return url+caseId;
     }
     
     public static String getDigitalSlideArchiveMetaUrl(String caseId) {
-        Config config = Config.getInstance();
-        String url = config.getProperty("digitalslidearchive.meta.url");
+        String url = GlobalProperties.getProperty("digitalslidearchive.meta.url");
         return url+caseId;
     }
     
     public static String getTCGAPathReportUrl(String typeOfCancer) {
-        Config config = Config.getInstance();
-        String url = config.getProperty("tcga_path_report.url");
+        String url = GlobalProperties.getProperty("tcga_path_report.url");
         if (url==null) {
             return null;
         }

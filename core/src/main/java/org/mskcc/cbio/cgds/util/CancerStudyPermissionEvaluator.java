@@ -45,7 +45,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 import org.mskcc.cbio.portal.util.SkinUtil;
-import org.mskcc.cbio.portal.util.Config;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a
@@ -57,20 +57,8 @@ import org.mskcc.cbio.portal.util.Config;
  */
 class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
-	// used to determine if authorization is set
-	private Config config;
-
 	// ref to log
 	private static Log log = LogFactory.getLog(CancerStudyPermissionEvaluator.class);
-
-	/**
-	 * Constructor.
-	 *
-	 * @param config Config
-	 */
-	public CancerStudyPermissionEvaluator(Config config) {
-		this.config = config;
-	}
 
     /**
 	 * Implementation of {@code PermissionEvaluator}.
@@ -86,7 +74,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	 */
 	public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 
-		if (config.usersMustBeAuthorized()) {
+		if (GlobalProperties.usersMustBeAuthorized()) {
 
 			if (log.isDebugEnabled()) {
 				log.debug("hasPermission(), authorization is true, checking permissions...");

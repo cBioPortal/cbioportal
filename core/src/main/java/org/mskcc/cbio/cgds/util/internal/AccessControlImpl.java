@@ -32,7 +32,7 @@ package org.mskcc.cbio.cgds.util.internal;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.util.Config;
+import org.mskcc.cbio.portal.util.Config;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 

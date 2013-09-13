@@ -27,6 +27,8 @@
 
 package org.mskcc.cbio.cgds.util;
 
+import org.mskcc.cbio.portal.util.Config;
+
 /**
  * Stores db props (name, id, pw, host) from portal.properties
  * and makes them accessible.

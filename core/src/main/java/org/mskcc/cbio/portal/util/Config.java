@@ -27,23 +27,32 @@
 
 package org.mskcc.cbio.portal.util;
 
-import java.io.IOException;
+import java.io.File;
 import java.io.InputStream;
+import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Reads portal.properties file and makes key/value pairs accessible.
+ */
 public class Config {
     private static Config config = null;
     private Properties properties;
 
-    private Config() {
+    private Config () {
         try {
-			String props = "portal.properties";
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
-            properties = new Properties();
-            if (in != null) {
-                properties.load(in);
-                in.close();
+           String props = "portal.properties";
+		   InputStream in = this.getClass().getClassLoader().getResourceAsStream(props);
+
+            if( null == in ){
+               System.err.println( "Properties file '" + props + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
+                     "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");
+
+               System.exit(1);
             }
+            properties = new Properties ();
+            properties.load(in);
+            in.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -59,4 +68,23 @@ public class Config {
         }
         return config;
     }
+
+    /**
+     * Determines if users must authenticate or not.
+	 *
+     * @return true or false.
+     */
+    public boolean usersMustAuthenticate() {
+		return new Boolean(properties.getProperty("authenticate"));
+    }
+
+	/**
+	 * Determines if users must be authorized to access a 
+	 * particular cancer study.
+	 *
+	 * @return true or false.
+	 */
+	public boolean usersMustBeAuthorized() {
+		return new Boolean(properties.getProperty("authorization"));
+	}
 }

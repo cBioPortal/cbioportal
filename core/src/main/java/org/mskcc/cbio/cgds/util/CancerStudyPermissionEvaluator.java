@@ -45,6 +45,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 
 import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.Config;
 
 /**
  * A custom PermissionEvaluator implementation that checks whether a

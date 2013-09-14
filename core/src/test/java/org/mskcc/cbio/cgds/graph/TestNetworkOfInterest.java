@@ -34,7 +34,7 @@ import org.mskcc.cbio.cgds.dao.DaoInteraction;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.graph.NetworkOfInterest;
+import org.mskcc.cbio.portal.graph.NetworkOfInterest;
 
 import java.util.ArrayList;
 

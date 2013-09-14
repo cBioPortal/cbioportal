@@ -8,7 +8,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.*;
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.*;

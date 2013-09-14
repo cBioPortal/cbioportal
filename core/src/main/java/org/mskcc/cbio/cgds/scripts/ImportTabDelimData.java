@@ -41,8 +41,8 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.CnaEvent;
 import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.CaseIdUtil;
 
 /**

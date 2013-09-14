@@ -35,7 +35,7 @@ import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 // import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Tests Get Clinical Data.

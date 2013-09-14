@@ -32,7 +32,7 @@ import org.json.simple.JSONArray;
 import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 

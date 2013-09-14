@@ -30,7 +30,7 @@ package org.mskcc.cbio.cgds.web_api;
 import org.mskcc.cbio.cgds.model.Gene;
 import org.mskcc.cbio.cgds.model.MicroRna;
 import org.mskcc.cbio.cgds.model.GeneticAlterationType;
-import org.mskcc.cbio.cgds.util.GeneComparator;
+import org.mskcc.cbio.portal.util.GeneComparator;
 import org.mskcc.cbio.cgds.dao.DaoMicroRna;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;

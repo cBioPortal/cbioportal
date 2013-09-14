@@ -36,8 +36,8 @@ import org.mskcc.cbio.cgds.dao.DaoCaseList;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.CaseListCategory;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Command Line tool to Import Case Lists.

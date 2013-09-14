@@ -44,7 +44,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.cgds.model.Case;
 import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
-import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
+import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 /**
  * Data access object for Mutation table

@@ -37,8 +37,7 @@ import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.MutSig;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.web_api.GetMutSig;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.dao.DaoException;
 
 import java.io.*;

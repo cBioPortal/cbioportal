@@ -25,20 +25,27 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.util;
+package org.mskcc.cbio.portal.util;
+
+// imports
+import java.util.Comparator;
+import org.mskcc.cbio.cgds.model.Gene;
 
 /**
- * Class which provides logging facility.
- * This comment added to satisfy checkstyle warning.
- * Now that I am looking at class, I wonder why it is needed
- * since we use log4j. -B
+ * Compares two genes for equivalency (ref and standard symbol).
  */
-public class Logger {
-    private static boolean log = false;
+public class GeneComparator implements Comparator {
 
-    public static void log (String msg) {
-        if (log) {
-            System.out.println (msg);
+    public int compare(Object object0, Object object1) {
+        if (object0 != null && object1 != null) {
+            Gene gene0 = (Gene) object0;
+            Gene gene1 = (Gene) object1;
+            String name0 = gene0.getStandardSymbol();
+            String name1 = gene1.getStandardSymbol();
+            if (name0 != null && name1 != null) {
+                return name0.compareTo(name1);
+            }
         }
+        return -1;
     }
 }

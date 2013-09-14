@@ -30,9 +30,9 @@ package org.mskcc.cbio.cgds.scripts;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoCosmicData;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.FileUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.FileUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
-import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
+import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 public class ImportCosmicData {
     private ProgressMonitor pMonitor;

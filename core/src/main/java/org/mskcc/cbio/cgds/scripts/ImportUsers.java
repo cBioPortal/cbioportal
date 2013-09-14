@@ -34,8 +34,8 @@ import org.mskcc.cbio.cgds.dao.DaoUser;
 import org.mskcc.cbio.cgds.model.UserAuthorities;
 import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
 
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.File;

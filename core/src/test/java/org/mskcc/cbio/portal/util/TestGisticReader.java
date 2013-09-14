@@ -25,7 +25,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.util;
+package org.mskcc.cbio.portal.util;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
@@ -34,8 +34,8 @@ import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
-import org.mskcc.cbio.cgds.util.GisticReader;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.GisticReader;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

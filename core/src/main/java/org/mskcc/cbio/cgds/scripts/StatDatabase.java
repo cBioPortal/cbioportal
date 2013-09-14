@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.util.DatabaseProperties;
+import org.mskcc.cbio.portal.util.DatabaseProperties;
 
 /**
  * Command Line Tool to Output Basic Database Stats, including Host Name, DB Name, and User Name / Password.

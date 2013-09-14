@@ -28,8 +28,8 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * Command Line Tool to Delete All Case Lists.

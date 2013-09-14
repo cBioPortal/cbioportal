@@ -35,7 +35,7 @@ import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.scripts.ImportTabDelimData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

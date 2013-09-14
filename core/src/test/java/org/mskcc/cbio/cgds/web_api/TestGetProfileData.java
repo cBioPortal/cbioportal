@@ -29,11 +29,10 @@ package org.mskcc.cbio.cgds.web_api;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.GeneticAlterationType;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.scripts.ImportTabDelimData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 

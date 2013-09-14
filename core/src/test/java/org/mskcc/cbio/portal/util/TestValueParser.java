@@ -32,7 +32,6 @@ import junit.framework.TestCase;
 
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ComparisonOp;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ConcreteDataTypeSpec;
-import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ContinuousDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSetSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.DiscreteDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneSet;
@@ -43,7 +42,6 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.TestOncoPrintSpecificationLibrary;
-import org.mskcc.cbio.portal.util.ValueParser;
 
 public class TestValueParser extends TestCase {
    // TODO: reorganize to test individual methods separately in different

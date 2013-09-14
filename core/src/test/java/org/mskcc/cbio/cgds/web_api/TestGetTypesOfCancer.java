@@ -32,9 +32,7 @@ import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.web_api.GetTypesOfCancer;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 
 import java.io.File;

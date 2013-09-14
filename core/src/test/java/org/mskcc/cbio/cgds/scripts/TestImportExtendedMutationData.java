@@ -35,7 +35,7 @@ import org.mskcc.cbio.cgds.dao.DaoMutation;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
 import java.io.IOException;

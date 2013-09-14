@@ -28,8 +28,7 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.scripts.CutInvalidCases;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;
 

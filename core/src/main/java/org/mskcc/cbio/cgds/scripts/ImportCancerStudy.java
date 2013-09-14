@@ -28,9 +28,9 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.util.CancerStudyReader;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.CancerStudyReader;
 
 import java.io.File;
 

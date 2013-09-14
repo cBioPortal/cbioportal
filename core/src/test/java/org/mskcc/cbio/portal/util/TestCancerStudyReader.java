@@ -25,19 +25,16 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.util;
+package org.mskcc.cbio.portal.util;
 
 import java.io.File;
 
 import junit.framework.TestCase;
 
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.CancerStudyReader;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * JUnit test for CancerStudyReader class.

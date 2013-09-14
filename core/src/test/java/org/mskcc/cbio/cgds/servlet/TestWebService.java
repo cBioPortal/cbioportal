@@ -37,8 +37,8 @@ import org.mskcc.cbio.cgds.model.*;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.util.NullHttpServletRequest;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 
 /**
  * JUnit test for WebService class.

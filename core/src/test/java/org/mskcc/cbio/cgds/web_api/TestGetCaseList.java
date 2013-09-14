@@ -34,8 +34,7 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportCaseList;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
  * JUnit test for GetCaseLists class.

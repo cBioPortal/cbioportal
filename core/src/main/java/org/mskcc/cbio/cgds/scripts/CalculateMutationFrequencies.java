@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.model.CanonicalGene;

@@ -26,7 +26,7 @@
 **/
 
 
-package org.mskcc.cbio.cgds.util;
+package org.mskcc.cbio.portal.util;
 
 
 import java.util.ArrayList;

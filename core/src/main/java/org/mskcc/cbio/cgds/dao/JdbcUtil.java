@@ -32,7 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
-import org.mskcc.cbio.cgds.util.DatabaseProperties;
+import org.mskcc.cbio.portal.util.DatabaseProperties;
 
 /**
  * Connection Utility for JDBC.

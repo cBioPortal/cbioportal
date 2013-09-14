@@ -33,8 +33,8 @@ import org.mskcc.cbio.cgds.dao.DaoGeneticProfileCases;
 import org.mskcc.cbio.cgds.dao.DaoGeneticAlteration;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.util.ConsoleUtil;
+import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.util.ConsoleUtil;
 
 import java.io.FileWriter;
 import java.io.IOException;

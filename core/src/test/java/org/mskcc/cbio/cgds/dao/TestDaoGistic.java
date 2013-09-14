@@ -35,7 +35,7 @@ import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.validate.validationException;
+import org.mskcc.cbio.portal.validate.validationException;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

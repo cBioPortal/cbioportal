@@ -39,7 +39,7 @@ import org.mskcc.cbio.cgds.util.GisticReader;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.dao.DaoGistic;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.validate.validationException;
+import org.mskcc.cbio.portal.validate.validationException;
 
 
 /**

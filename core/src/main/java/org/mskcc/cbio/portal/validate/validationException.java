@@ -25,32 +25,14 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.validate.gene;
+package org.mskcc.cbio.portal.validate;
 
-/**
- * Encapsulates a Gene Validation Exception.
- *
- * @author Ethan Cerami.
- */
-public class GeneValidationException extends Exception {
-    private String userMessage;
-
-    public GeneValidationException(String userMsg) {
-        this.userMessage = userMsg;
-    }
-
-    public GeneValidationException() {
-    }
-
-    public String getUserMessage() {
-        return userMessage;
-    }
-
-    public void setUserMessage(String userMsg) {
-        this.userMessage = userMsg;
-    }
-
-    public String getMessage() {
-        return userMessage;
+public class validationException extends Exception {
+    /**
+     * Throws a data validation exception.  Data can be, for example, a bean or a line from a data file.
+     * @param param
+     */
+    public validationException(Object param) {
+        super(param.toString());
     }
 }

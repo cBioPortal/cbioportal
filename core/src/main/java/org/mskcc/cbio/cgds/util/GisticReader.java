@@ -31,8 +31,8 @@ import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.model.Gistic;
-import org.mskcc.cbio.cgds.validate.ValidateGistic;
-import org.mskcc.cbio.cgds.validate.validationException;
+import org.mskcc.cbio.portal.validate.ValidateGistic;
+import org.mskcc.cbio.portal.validate.validationException;
 import org.springframework.ui.context.Theme;
 
 import java.io.*;

@@ -44,7 +44,6 @@ import java.util.Set;
 import java.io.Serializable;
 import java.util.HashSet;
 
-import org.mskcc.cbio.portal.util.SkinUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
@@ -200,7 +199,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	}
         
         private Set<String> getGrantedAuthorities(OpenIDUserDetails user) {
-            String appName = SkinUtil.getAppName().toUpperCase();
+            String appName = GlobalProperties.getAppName().toUpperCase();
             Set<String> allAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
             Set<String> grantedAuthorities = new HashSet<String>();
             for (String au : allAuthorities) {

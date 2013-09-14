@@ -26,7 +26,7 @@ import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -81,7 +81,7 @@ public class TumorMapServlet extends HttpServlet {
     
     private void processRequestDefault(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute(QueryBuilder.HTML_TITLE, SkinUtil.getTitle());
+        request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle());
         
         RequestDispatcher dispatcher =
                 getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/tumormap.jsp");
@@ -149,7 +149,7 @@ public class TumorMapServlet extends HttpServlet {
                     } else {
                         List<String> cases = DaoCaseProfile.getAllCaseIdsInProfile(cnaProfile.getGeneticProfileId());
                         Map<String,Double> fracs = DaoCopyNumberSegment.getCopyNumberActeredFraction(cases,
-                                cnaProfile.getCancerStudyId(),SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
+                                cnaProfile.getCancerStudyId(),GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
                         double aveFrac = 0;
                         for (double frac : fracs.values()) {
                             aveFrac += frac;

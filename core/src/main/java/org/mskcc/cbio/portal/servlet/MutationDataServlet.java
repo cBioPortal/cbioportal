@@ -252,7 +252,7 @@ public class MutationDataServlet extends HttpServlet
 				int cancerStudyId = geneticProfile.getCancerStudyId();
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
-				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
@@ -698,9 +698,9 @@ public class MutationDataServlet extends HttpServlet
 							String.valueOf(mutation.getEndPosition()));
 			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
 				try {
-					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
-													   mutation.getCaseId(),
-													   URLEncoder.encode(locus,"US-ASCII"));
+					link = GlobalProperties.getLinkToIGVForBAM(cancerStudyStableId,
+                                                               mutation.getCaseId(),
+                                                               URLEncoder.encode(locus,"US-ASCII"));
 				}
 				catch (java.io.UnsupportedEncodingException e) {
 					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());

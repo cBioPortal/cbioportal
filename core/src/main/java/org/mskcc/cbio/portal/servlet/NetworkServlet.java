@@ -48,7 +48,7 @@ import org.mskcc.cbio.portal.remote.GetCaseSets;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileUtil;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
 
 /**
@@ -97,7 +97,7 @@ public class NetworkServlet extends HttpServlet {
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to "
-                    + SkinUtil.getEmailContact()+ "!\n"+e.toString(), res);
+                    + GlobalProperties.getEmailContact()+ "!\n"+e.toString(), res);
             res.getWriter().write("");
         }
     }
@@ -339,7 +339,7 @@ public class NetworkServlet extends HttpServlet {
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to "
-                    + SkinUtil.getEmailContact()+ "!\n"+e.toString(), res);
+                    + GlobalProperties.getEmailContact()+ "!\n"+e.toString(), res);
             res.getWriter().write("<graphml></graphml>");
         }
     }

@@ -17,7 +17,7 @@ import org.mskcc.cbio.cgds.model.CnaEvent;
 import org.mskcc.cbio.cgds.model.CopyNumberSegment;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
 import org.mskcc.cbio.cgds.model.Gistic;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
  *
@@ -166,7 +166,7 @@ public class CnaJSON extends HttpServlet {
         try {
             int studyId = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId).getInternalId();
             fraction = DaoCopyNumberSegment.getCopyNumberActeredFraction(caseIds, studyId,
-                    SkinUtil.getPatientViewGenomicOverviewCnaCutoff()[0]);
+                    GlobalProperties.getPatientViewGenomicOverviewCnaCutoff()[0]);
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }

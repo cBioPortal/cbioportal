@@ -48,15 +48,14 @@ public class TestImportGeneData extends TestCase {
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/genes_test.txt");
-        ImportGeneData parser = new ImportGeneData(file, pMonitor);
-        parser.importData();
+        ImportGeneData.importData(pMonitor, file);
 
-        CanonicalGene gene = daoGene.getGene(35);
-        assertEquals("ACADS", gene.getHugoGeneSymbolAllCaps());
-        gene = daoGene.getGene(112);
-        assertEquals("ADCY6", gene.getHugoGeneSymbolAllCaps());
+        CanonicalGene gene = daoGene.getGene(10);
+        assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
+        gene = daoGene.getGene(15);
+        assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
 
-        gene = daoGene.getGene("ACYP1");
-        assertEquals(97, gene.getEntrezGeneId());
+        gene = daoGene.getGene("ABCA3");
+        assertEquals(21, gene.getEntrezGeneId());
     }
 }

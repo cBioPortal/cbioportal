@@ -161,11 +161,15 @@ public final class DaoCnaEvent {
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
-                CnaEvent event = new CnaEvent(rs.getString("CASE_ID"),
-                        rs.getInt("GENETIC_PROFILE_ID"),
-                        rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
-                event.setEventId(rs.getLong("CNA_EVENT_ID"));
-                events.add(event);
+                try {
+                    CnaEvent event = new CnaEvent(rs.getString("CASE_ID"),
+                            rs.getInt("GENETIC_PROFILE_ID"),
+                            rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
+                    event.setEventId(rs.getLong("CNA_EVENT_ID"));
+                    events.add(event);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
             }
             return events;
         } catch (SQLException e) {

@@ -6,6 +6,7 @@
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
+		this.mutationId = attributes.mutationId;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
@@ -14,6 +15,7 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
+		this.cosmicCount = this.calcCosmicCount(attributes.cosmic);
 		this.functionalImpactScore = attributes.functionalImpactScore;
 		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;
@@ -39,13 +41,28 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.proteinPosStart = attributes.proteinPosStart;
+		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
-		this.cosmicCount = attributes.cosmicCount; // TODO calculate this on the client side?
 		this.specialGeneData = attributes.specialGeneData;
+		this.keyword = attributes.keyword;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service
 		var urlStr = "webservice.do?cmd=...";
+	},
+	calcCosmicCount: function(cosmic)
+	{
+		var cosmicCount = 0;
+
+		if (cosmic)
+		{
+			cosmic.forEach(function(c) {
+				cosmicCount += c[2];
+			});
+		}
+
+		return cosmicCount;
 	}
 });
 
@@ -103,6 +120,11 @@ var MutationDetailsUtil = function(mutations)
 		return this._mutationCaseMap;
 	};
 
+	this.getMutationIdMap = function()
+	{
+		return this._mutationIdMap;
+	};
+
 	/**
 	 * Processes the collection of mutations, and creates a map of
 	 * <geneSymbol, mutation array> pairs.
@@ -154,6 +176,28 @@ var MutationDetailsUtil = function(mutations)
 			}
 
 			mutationMap[caseId].push(mutations.at(i));
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <mutation id, mutation> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on mutation id)
+	 * @private
+	 */
+	this._generateIdMap = function(mutations)
+	{
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var mutationId = mutations.at(i).mutationId;
+			mutationMap[mutationId] = mutations.at(i);
 		}
 
 		return mutationMap;
@@ -259,7 +303,7 @@ var MutationDetailsUtil = function(mutations)
 		var self = this;
 		var contains = false;
 
-		gene = gene.toLowerCase();
+		gene = gene.toUpperCase();
 
 		if (self._mutationGeneMap[gene] != undefined)
 		{
@@ -310,5 +354,139 @@ var MutationDetailsUtil = function(mutations)
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);
 	this._mutationCaseMap = this._generateCaseMap(mutations);
+	this._mutationIdMap = this._generateIdMap(mutations);
 	this._mutations = mutations;
 };
+
+/**
+ * Singleton utility class for pileup related tasks.
+ */
+var PileupUtil = (function()
+{
+	/**
+	 * Processes a Pileup instance, and creates a map of
+	 * <mutation type, mutation array> pairs.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {object} map of mutations (keyed on mutation type)
+	 * @private
+	 */
+	var generateTypeMap = function(pileup)
+	{
+		var mutations = pileup.mutations;
+		var mutationMap = {};
+
+		// process raw data to group mutations by types
+		for (var i=0; i < mutations.length; i++)
+		{
+			var type = mutations[i].mutationType.toLowerCase();
+
+			if (mutationMap[type] == undefined)
+			{
+				mutationMap[type] = [];
+			}
+
+			mutationMap[type].push(mutations[i]);
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes a Pileup instance, and creates an array of
+	 * <mutation type, count> pairs. The final array is sorted
+	 * by mutation count.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {Array}  array of mutation type and count pairs
+	 */
+	var generateTypeArray = function (pileup)
+	{
+		var map = generateTypeMap(pileup);
+		var typeArray = [];
+
+		// convert to array and sort by length (count)
+		for (var key in map)
+		{
+			typeArray.push({type: key, count: map[key].length});
+		}
+
+		typeArray.sort(function(a, b) {
+			// descending sort
+			return b.count - a.count;
+		});
+
+		return typeArray;
+	};
+
+	/**
+	 * Processes a Pileup instance, and creates an array of
+	 * <mutation type group, count> pairs. The final array
+	 * is sorted by mutation count.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {Array}  array of mutation type group and count pairs
+	 */
+	var generateTypeGroupArray = function (pileup)
+	{
+		// TODO a very similar mapping is also used in the mutation table view
+		// ...it might be better to merge these two mappings to avoid duplication
+		var typeToGroupMap = {
+			missense_mutation: "missense_mutation",
+			nonsense_mutation: "trunc_mutation",
+			nonstop_mutation: "trunc_mutation",
+			frame_shift_del: "trunc_mutation",
+			frame_shift_ins: "trunc_mutation",
+			in_frame_ins: "inframe_mutation",
+			in_frame_del: "inframe_mutation",
+			splice_site: "trunc_mutation",
+			other: "other_mutation"
+		};
+
+		var typeMap = generateTypeMap(pileup);
+		var groupArray = [];
+		var groupCountMap = {};
+
+		// group mutation types by using the type map
+		// and count number of mutations in a group
+
+		for (var type in typeMap)
+		{
+			var group = typeToGroupMap[type];
+
+			if (group == undefined)
+			{
+				group = typeToGroupMap.other;
+			}
+
+			if (groupCountMap[group] == undefined)
+			{
+				// init count
+				groupCountMap[group] = 0;
+			}
+
+			groupCountMap[group]++;
+		}
+
+		// convert to array and sort by length (count)
+
+		for (var group in groupCountMap)
+		{
+			groupArray.push({group: group, count: groupCountMap[group]});
+		}
+
+		groupArray.sort(function(a, b) {
+			// descending sort
+			return b.count - a.count;
+		});
+
+		return groupArray;
+	};
+
+	return {
+		getMutationTypeMap: generateTypeMap,
+		getMutationTypeArray: generateTypeArray,
+		getMutationTypeGroups: generateTypeGroupArray
+	};
+})();
+

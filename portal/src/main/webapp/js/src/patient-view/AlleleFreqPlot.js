@@ -7,7 +7,7 @@
 // kernel to try, and some helper functions for processing mutation allele data
 // from the patient view
 var AlleleFreqPlotUtils = (function() {
-    var NO_DATA = -1;       // this was set by the patient view
+    var NO_DATA = undefined;       // this was set by the patient view
 
     // params: alt_counts (array of numbers), ref_counts (array of numbers)
     // returns array of numbers
@@ -16,18 +16,18 @@ var AlleleFreqPlotUtils = (function() {
     // alt_count or ref_count equal NO_DATA, then returns 0 in that entry
     //
     // or, if there is no valid data, returns `undefined`
-    var process_data = function(alt_counts, ref_counts) {
+    var process_data = function(alt_counts, ref_counts, caseId) {
 
         // validate:
         // * that data exists
-        var validated = _.find(alt_counts, function(n) { return n !== NO_DATA; });
+        var validated = _.find(alt_counts, function(data) { return data[caseId]!==NO_DATA; });
 
         if (!validated) {
             return undefined;
         }
 
         return d3.zip(alt_counts, ref_counts).map(function(pair) {
-            return pair[0] === NO_DATA === pair[1] ? 0 : (pair[0] / (pair[0] + pair[1]));
+            return pair[0][caseId] === NO_DATA === pair[1][caseId] ? 0 : (pair[0][caseId] / (pair[0][caseId] + pair[1][caseId]));
         });
     };
 
@@ -35,11 +35,11 @@ var AlleleFreqPlotUtils = (function() {
     //
     // extracts the relevant data from the GenomicEventObserver and runs
     // process_data
-    var extract_and_process = function(genomicEventObs) {
+    var extract_and_process = function(genomicEventObs, caseId) {
         var alt_counts = genomicEventObs.mutations.data['alt-count'];
         var ref_counts = genomicEventObs.mutations.data['ref-count'];
 
-        return process_data(alt_counts, ref_counts);
+        return process_data(alt_counts, ref_counts, caseId);
     };
 
     // params: variance, basically a smoothing parameter for this situation

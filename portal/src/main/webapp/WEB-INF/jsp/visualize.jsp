@@ -17,7 +17,7 @@
 <%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ClinicalData" %>
+<%@ page import="org.mskcc.cbio.cgds.model.Patient" %>
 <%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
@@ -40,15 +40,58 @@
             request.getAttribute(QueryBuilder.CASE_SETS_INTERNAL);
     String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     String caseIds = xssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
     ArrayList<CancerStudy> cancerStudies = (ArrayList<CancerStudy>)
             request.getAttribute(QueryBuilder.CANCER_TYPES_INTERNAL);
     String cancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 
+    /**
+     * Put together global parameters for injection as javascript variables
+     *
+     */
+    // put geneticProfileIds into the proper form for the JSON request
+    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+    geneticProfiles = geneticProfiles.trim();
+
+    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+
+    // get cases
+    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    cases = StringEscapeUtils.escapeJavaScript(cases);
+
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
-    String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+
+    String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
+            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
+            (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
+            zScoreThreshold, rppaScoreThreshold );
+
+    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    %>
+
+<script type="text/javascript">
+    window.PortalGlobals = {
+        getCases: function() { return '<%= cases %>'; },
+        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
+        getOqlString: (function() {
+            var oql = '<%=StringEscapeUtils.escapeJavaScript(oql)%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+
+            return function() { return oql; };
+        })(),
+        getGeneListString: function() { return '<%=StringUtils.join(listOfGenes, " ")%>'},
+        getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
+        getZscoreThreshold: function() { return window.zscore_threshold; },
+        getRppaScoreThreshold: function() { return window.rppa_score_threshold; }
+    };
+</script>
+
+<%
 
     boolean showIGVtab = false;
 	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
@@ -59,11 +102,6 @@
 			break;
 	    }
 	}	
-
-    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
-             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-             zScoreThreshold, rppaScoreThreshold );
 
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
@@ -93,7 +131,7 @@
     Boolean mutationDetailLimitReached = (Boolean)
             request.getAttribute(QueryBuilder.MUTATION_DETAIL_LIMIT_REACHED);
 
-    ArrayList <ClinicalData> clinicalDataList = (ArrayList<ClinicalData>)
+    ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
     
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
@@ -117,6 +155,22 @@
         }
         return counter;
     }
+
+	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
+	{
+		// translate Onco Query Language
+		ArrayList<String> geneList =
+			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+
+		String genes = "";
+
+		for(String gene: geneList)
+		{
+			genes += gene + " ";
+		}
+
+		return genes.trim();
+	}
 %>
 
 
@@ -195,10 +249,6 @@
                  *
                  */
 
-                // put geneticProfileIds into the proper form for the JSON request
-                String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
-                geneticProfiles = geneticProfiles.trim();
-
                 // put gene string into a form that javascript can swallow
                 String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
                 genes = StringEscapeUtils.escapeJavaScript(genes);
@@ -209,12 +259,20 @@
                 samples = StringEscapeUtils.escapeJavaScript(samples);
             %>
 
-<script type="text/javascript" src="js/src/MemoSort.js"></script>
 <script type="text/javascript">
-    //  make global variables
-        var genes = "<%=genes%>",
-            samples = "<%=samples%>",
-            geneticProfiles = "<%=geneticProfiles%>";
+	//  make global variables -- TODO move these global variables into a better jsp file
+
+	// raw gene list (as it is entered by the user, it may contain onco query language)
+	var genes = "<%=genes%>";
+
+	// gene list after being processed by the onco query language parser
+	var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
+
+	// list of samples (case ids)
+	var samples = "<%=samples%>";
+
+	// genetic profile ids
+	var geneticProfiles = "<%=geneticProfiles%>";
 </script>
 
             <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
@@ -288,12 +346,12 @@
                         + "Mutual Exclusivity</a></li>");
                     }
 			
-			if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-	                	out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-	
-			}
+                    if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
+                                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
 
-                         if (showMutTab){
+                    }
+
+                    if (showMutTab){
                         out.println ("<li><a href='#mutation_details' class='result-tab' title='Mutation details, including mutation type, "
                          + "amino acid change, validation status and predicted functional consequence'>"
                          + "Mutations</a></li>");
@@ -362,7 +420,7 @@
 
             <div class="section" id="summary">
 			<% //contents of fingerprint.jsp now come from attribute on request object %>
-            <%@ include file="oncoprint.jsp" %>
+            <%@ include file="oncoprint/main.jsp" %>
             <%@ include file="gene_info.jsp" %>
             </div>
 		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>

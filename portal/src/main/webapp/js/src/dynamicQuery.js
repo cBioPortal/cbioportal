@@ -436,7 +436,9 @@ function updateCaseListSmart() {
                 position: {
                     my: 'left middle',
                     at: 'middle right'
-                }
+                },
+	            show: "mouseover",
+	            hide: "mouseout"
             });
         }
     );
@@ -609,8 +611,11 @@ function caseSetSelected() {
     //  Otherwise, make sure to hide it.
     if (caseSetId == "-1") {
         $("#custom_case_list_section").show();
+        // if custom case list was selected, post to avoid long url problem.
+        $("#main_form").attr("method","post");
     } else {
         $("#custom_case_list_section").hide();
+        $("#main_form").attr("method","get");
     }
 }
 
@@ -726,9 +731,9 @@ function addMetaDataToPage() {
 
     // Chosenize the select boxes
     var minSearchableItems = 10;
-    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems });
-    $("#select_gene_set").chosen({ width: '620px'});
-    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems });
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true });
+    $("#select_gene_set").chosen({ width: '620px', search_contains: true});
+    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 }
 
 // Adds the specified genomic profiles to the page.

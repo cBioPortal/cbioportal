@@ -32,6 +32,7 @@
     };
 </script>
 
+<script type="text/javascript" src="js/src/Models.js"></script>
 <script type="text/javascript" src="js/src/cgx_jquery.js"></script>
 <script type="text/javascript" src="js/src/dynamicQuery.js"></script>
 <script type="text/javascript" src="js/src/gene_set.js"></script>

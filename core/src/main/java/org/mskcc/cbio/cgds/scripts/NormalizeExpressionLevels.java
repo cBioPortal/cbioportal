@@ -86,7 +86,6 @@ public class NormalizeExpressionLevels{
    static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
    static int SAMPLES;
    static String zScoresFile;
-   static String SampleNamePrefix = "TCGA";
    static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
    static int MIN_NUM_DIPLOIDS = DEFAULT_MIN_NUM_DIPLOIDS;
    static final int MIN_NUM_ALLOWED_DIPLOIDS = 3;
@@ -153,7 +152,7 @@ public class NormalizeExpressionLevels{
          int firstSamplePosition = getFirstDataColumn( values );
          // catch error if no sample id contains SampleNamePrefix
          if( NO_POSITION == firstSamplePosition ){
-            fatalError( "no sample id contains " + SampleNamePrefix + " in <expression_file>, '" + file + "'.");
+            fatalError( "no sample id in <expression_file>, '" + file + "'.");
          }
 
          SAMPLES = values.length;// - firstSamplePosition;  
@@ -266,17 +265,19 @@ public class NormalizeExpressionLevels{
    
    static int NO_POSITION = -1;
    private static int getFirstDataColumn( String[] values){
+      // TODO: instead of guessing, we should normalizing
+         for(int i=0;i<values.length;i++) {
+             if (!values[i].equalsIgnoreCase("HUGO_SYMBOL")
+                     && !values[i].equalsIgnoreCase("ENTREZ_GENE_ID")
+                     && !values[i].equalsIgnoreCase("CYTOBAND")
+                     && !values[i].equalsIgnoreCase("LOCUS")
+                     && !values[i].equalsIgnoreCase("ID")) {
+                 return i;
+             }
+         }
+            
       
-      int tmp = NO_POSITION;
-      
-      search:
-         for(int i=0;i<values.length;i++)
-            if(values[i].indexOf(SampleNamePrefix) != -1){
-               tmp = i;
-               break search;
-            }
-      
-      return tmp;
+      return NO_POSITION;
       
    }
    
@@ -392,7 +393,7 @@ public class NormalizeExpressionLevels{
          int firstSamplePosition = getFirstDataColumn( values );
          // error if no sample id contains SampleNamePrefix
          if( NO_POSITION == firstSamplePosition ){
-            fatalError( "no sample id contains " + SampleNamePrefix + " in <CopyNumberFile>, '" + file + "'.");
+            fatalError( "no sample id contains in <CopyNumberFile>, '" + file + "'.");
          }
 
          SAMPLES = values.length; // - firstSamplePosition; 

@@ -29,67 +29,70 @@
 </head>
 
 <center>
-<div id="page_wrapper">
-<table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
-  <tr valign="top">
-    <td colspan="3">
-	 <div id="header_wrapper">
-    <div id="header">
+    <div id="page_wrapper">
+        <table id="page_wrapper_table" width=100% cellpadding="0px" cellspacing="5px" border="0px">
+            <tr valign="top">
+                <td colspan="3">
+                    <div id="header_wrapper">
+                        <div id="header">
 
-       <jsp:include page="header_bar.jsp" flush="true" />
-        
-       <table width="100%">
-        <tr>
-            <td class="navigation">
-               <ul>
-                    <li class="selected">
-                        <a href="index.do">Home</a>
-                    </li>
-                    <% if (SkinUtil.showDataTab()) { %>
-                        <li class="internal">
-                            <a href="data_sets.jsp">Data Sets</a>
-                        </li>
-                    <% } %>
-                    <%
-                        //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
-                        if (!SkinUtil.usersMustAuthenticate()) {
-                    %>
-                        <li class="internal">
-                            <a href="web_api.jsp">Web API</a>
-                        </li>
-                        <li class="internal">
-                            <a href="cgds_r.jsp">R/MATLAB</a>
-                        </li>
-                    <% } %>
-                    <li class="internal" id="results">
-                        <a href="#">Results</a>
-                    </li>
-                    <li class="internal">
-                        <a href="tutorial.jsp">Tutorials</a>
-                    </li>
-                    <li class="internal">
-                        <a href="faq.jsp">FAQ</a>
-                    </li>
-                    <% if (SkinUtil.showNewsTab()) { %>
-                        <li class="internal">
-                            <a href="news.jsp">News</a>
-                        </li>
-                    <% } %>
-                    <li class="internal">
-                        <a href="about_us.jsp">About</a>
-                    </li>
-               </ul> 
-            </td>
-        </tr>
-    </table>
-    <!-- End DIV id="header" -->
-    </div>
+                            <jsp:include page="header_bar.jsp" flush="true" />
 
-    <!-- End DIV id="header_wrapper" -->    
-    </div>
-	</td>
-  </tr>
+                            <table width="100%">
+                                <tr>
+                                    <td class="navigation">
+                                        <ul>
+                                            <li class="selected">
+                                                <a href="index.do">Home</a>
+                                            </li>
+                                            <% if (SkinUtil.showDataTab()) { %>
+                                            <li class="internal">
+                                                <a href="data_sets.jsp">Data Sets</a>
+                                            </li>
+                                            <% } %>
+                                            <%
+                                                //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
+                                                if (!SkinUtil.usersMustAuthenticate()) {
+                                            %>
+                                            <li class="internal">
+                                                <a href="web_api.jsp">Web API</a>
+                                            </li>
+                                            <li class="internal">
+                                                <a href="cgds_r.jsp">R/MATLAB</a>
+                                            </li>
+                                            <% } %>
+                                            <li class="internal" id="results">
+                                                <a href="#">Results</a>
+                                            </li>
+                                            <li class="internal">
+                                                <a href="tutorial.jsp">Tutorials</a>
+                                            </li>
+                                            <li class="internal">
+                                                <a href="faq.jsp">FAQ</a>
+                                            </li>
+                                            <% if (SkinUtil.showNewsTab()) { %>
+                                            <li class="internal">
+                                                <a href="news.jsp">News</a>
+                                            </li>
+                                            <% } %>
+                                            <!--li class="internal">
+                                                <a href="tools.jsp">Tools</a>
+                                            </li-->
+                                            <li class="internal">
+                                                <a href="about_us.jsp">About</a>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!-- End DIV id="header" -->
+                        </div>
 
-  <tr valign="top">
-    <td id="td-content">
-        <div id="content">
+                        <!-- End DIV id="header_wrapper" -->
+                    </div>
+                </td>
+            </tr>
+
+            <tr valign="top">
+                <td id="td-content">
+                    <div id="content">

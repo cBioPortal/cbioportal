@@ -29,7 +29,7 @@ package org.mskcc.cbio.cgds.model;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.util.EqualsUtil;
+import org.mskcc.cbio.portal.util.EqualsUtil;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
 import java.util.ArrayList;

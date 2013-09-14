@@ -26,14 +26,14 @@
 **/
 
 // package
-package org.mskcc.cbio.cgds.util.internal;
+package org.mskcc.cbio.portal.util.internal;
 
 // imports
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 
 import org.apache.commons.logging.Log;

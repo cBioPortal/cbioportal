@@ -19,7 +19,7 @@
 	 web_api beans
 -->
    <b:bean id="config" class="org.mskcc.cbio.portal.util.Config"/>
-   <b:bean id="accessControl" class="org.mskcc.cbio.cgds.util.internal.AccessControlImpl">
+   <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl">
      <b:constructor-arg ref="config"/>
    </b:bean>
 

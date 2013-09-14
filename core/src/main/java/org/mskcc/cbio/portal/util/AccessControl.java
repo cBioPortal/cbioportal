@@ -26,7 +26,7 @@
 **/
 
 // package
-package org.mskcc.cbio.cgds.util;
+package org.mskcc.cbio.portal.util;
 
 // imports
 import org.mskcc.cbio.cgds.model.CancerStudy;

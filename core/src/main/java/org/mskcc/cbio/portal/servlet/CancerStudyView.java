@@ -15,7 +15,7 @@ import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;

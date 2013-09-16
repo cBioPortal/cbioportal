@@ -2,9 +2,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CancerStudyView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
@@ -16,7 +16,7 @@ boolean showPlaceHoder;
 if (isDemoMode!=null) {
     showPlaceHoder = isDemoMode.equalsIgnoreCase("on");
 } else {
-    showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+    showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
 }
 
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANCER_STUDY);

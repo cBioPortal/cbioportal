@@ -5,9 +5,8 @@
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
-    String popeye = globalConfig.getProperty("popeye");
+    String siteTitle = GlobalProperties.getTitle();
+    String popeye = GlobalProperties.getProperty("popeye");
 
     if (popeye == null) {
         popeye = "preview.jsp";
@@ -59,7 +58,7 @@ $(document).ready(function(){
                 <tr>
                    <td valign=top>
 	              <div style="position: relative; z-index: 999;">
-                        <p><%= SkinUtil.getBlurb() %></p>
+                        <p><%= GlobalProperties.getBlurb() %></p>
                         <p>Please adhere to <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
                             the TCGA publication guidelines</a> when using any TCGA data in your publications.</p>
                         <p>The portal is developed and maintained by

@@ -137,7 +137,7 @@
   <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
   </b:bean>
-  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.cgds.util.CancerStudyPermissionEvaluator"/>
+  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
 
 <!--
     A custom UserDetailsService which will authenticate and establish authorities based on a backend database.

@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 

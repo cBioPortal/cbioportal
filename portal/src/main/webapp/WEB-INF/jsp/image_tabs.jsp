@@ -1,8 +1,8 @@
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 <%
       String imageDataTypes[] = { "PROTEIN_LEVEL:Protein Level", "PHOSPHORYLATION:Phosphorylation" }; 
       for( String imageDataTypeAndDesc : imageDataTypes ){

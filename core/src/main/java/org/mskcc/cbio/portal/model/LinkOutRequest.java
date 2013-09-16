@@ -28,7 +28,7 @@
 package org.mskcc.cbio.portal.model;
 
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.owasp.validator.html.PolicyException;

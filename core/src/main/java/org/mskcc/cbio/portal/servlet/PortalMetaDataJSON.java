@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.TypeOfCancer;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.GeneSet;
 import org.mskcc.cbio.portal.remote.GetCaseSets;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;

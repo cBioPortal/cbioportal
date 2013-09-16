@@ -31,7 +31,7 @@ package org.mskcc.cbio.portal.util;
 // imports
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.security.access.prepost.PostFilter;
 

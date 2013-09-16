@@ -25,7 +25,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.web_api;
+package org.mskcc.cbio.portal.web_api;
 
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoMutSig;

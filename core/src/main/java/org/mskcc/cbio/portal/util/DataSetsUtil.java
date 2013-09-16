@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudyStats;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

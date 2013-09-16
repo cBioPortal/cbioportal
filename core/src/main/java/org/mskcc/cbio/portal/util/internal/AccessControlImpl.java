@@ -34,7 +34,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

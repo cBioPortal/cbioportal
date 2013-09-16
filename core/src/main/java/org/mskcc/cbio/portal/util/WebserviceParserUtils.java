@@ -45,7 +45,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.servlet.WebService;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**

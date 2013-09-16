@@ -33,7 +33,7 @@ import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;

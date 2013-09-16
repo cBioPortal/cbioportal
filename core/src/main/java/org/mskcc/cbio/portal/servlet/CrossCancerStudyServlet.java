@@ -36,7 +36,7 @@ import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.util.XDebug;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;

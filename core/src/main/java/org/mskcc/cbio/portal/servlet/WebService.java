@@ -44,7 +44,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.util.DatabaseProperties;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
-import org.mskcc.cbio.cgds.web_api.*;
+import org.mskcc.cbio.portal.web_api.*;
 
 /**
  * Core Web Service.

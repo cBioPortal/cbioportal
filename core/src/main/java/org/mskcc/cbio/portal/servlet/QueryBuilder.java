@@ -55,8 +55,8 @@ import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.GetProfileData;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 

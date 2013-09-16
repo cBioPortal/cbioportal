@@ -33,7 +33,7 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
-// import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
+// import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 

@@ -64,7 +64,7 @@ public class ImportHprd {
     /**
      * Imports the Interaction Data.
      * @throws java.io.IOException IO Error.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
+     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error.
      */
     public void importData() throws IOException, DaoException {
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();

@@ -67,7 +67,7 @@ public class ImportClinicalData {
      * Method to import data.
      *
      * @throws java.io.IOException
-     * @throws org.mskcc.cbio.cgds.dao.DaoException
+     * @throws org.mskcc.cbio.portal.dao.DaoException
      */
     public void importData() throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOn();

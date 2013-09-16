@@ -35,7 +35,7 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * Tests @link org.mskcc.cbio.cgds.scripts.ImportClinicalTrialData.
+ * Tests @link org.mskcc.cbio.portal.scripts.ImportClinicalTrialData.
  *
  * @author Arman
  *

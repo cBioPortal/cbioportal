@@ -58,7 +58,7 @@ public class DaoMicroRnaAlteration {
      * Gets Instance of Dao Object. (Singleton pattern).
      *
      * @return DaoGeneticAlteration Object.
-     * @throws org.mskcc.cgds.dao.DaoException Dao Initialization Error.
+     * @throws org.mskcc.cbio.portal.dao.DaoException Dao Initialization Error.
      */
     public static DaoMicroRnaAlteration getInstance() throws DaoException {
         if (daoMicroRnaAlteration == null) {

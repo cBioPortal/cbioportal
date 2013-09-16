@@ -61,7 +61,7 @@ public class DaoInteraction {
      * Gets Global Singleton Instance.
      *
      * @return DaoInteraction Singleton.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
+     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error.
      */
     public static DaoInteraction getInstance() throws DaoException {
         if (daoInteraction == null) {
@@ -361,7 +361,7 @@ public class DaoInteraction {
      * Gets the Number of Interaction Records in the Database.
      *
      * @return number of gene records.
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
+     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error.
      */
     public int getCount() throws DaoException {
         Connection con = null;
@@ -386,7 +386,7 @@ public class DaoInteraction {
     /**
      * Deletes all Gene Records in the Database.
      *
-     * @throws org.mskcc.cgds.dao.DaoException Database Error.
+     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error.
      */
     public void deleteAllRecords() throws DaoException {
         Connection con = null;

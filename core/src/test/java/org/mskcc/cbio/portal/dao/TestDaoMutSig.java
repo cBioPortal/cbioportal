@@ -47,7 +47,7 @@ public class TestDaoMutSig extends TestCase {
     /**
      * Tests DaoGene and DaoGeneOptimized.
      *
-     * @throws org.mskcc.cgds.dao.DaoException
+     * @throws org.mskcc.cbio.portal.dao.DaoException
      *          Database Error.
      */
 

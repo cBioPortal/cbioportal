@@ -47,7 +47,7 @@ public class TestNetworkOfInterest extends TestCase {
     /**
      * Test the Network Of Interaction Class.
      *
-     * @throws org.mskcc.cgds.dao.DaoException Database Error
+     * @throws org.mskcc.cbio.portal.dao.DaoException Database Error
      */
     public void testDaoInteraction() throws DaoException {
         ResetDatabase.resetDatabase();

@@ -266,14 +266,13 @@ public class DaoCaseList {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
-			int rows = 0;
-			for (String caseId : caseList.getCaseList()) {
-                pstmt = con.prepareStatement("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES (?,?)");
-				pstmt.setInt(1, caseListId);
-				pstmt.setString(2, caseId);
-				rows += pstmt.executeUpdate();
-			}
-			return rows;
+            StringBuilder sql = new StringBuilder("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES ");
+            for (String caseId : caseList.getCaseList()) {
+                sql.append("('").append(caseListId).append("','").append(caseId).append("'),");
+            }
+            sql.deleteCharAt(sql.length()-1);
+            pstmt = con.prepareStatement(sql.toString());
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -29,7 +29,7 @@ package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoClinicalTrial;
-import org.mskcc.cbio.cgds.model.ClinicalTrial;
+import org.mskcc.cbio.portal.model.ClinicalTrial;
 
 import java.io.File;
 import java.net.URL;

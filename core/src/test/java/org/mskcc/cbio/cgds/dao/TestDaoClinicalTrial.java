@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.ClinicalTrial;
+import org.mskcc.cbio.portal.model.ClinicalTrial;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 import java.util.HashSet;

@@ -29,7 +29,7 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CancerStudy;
 
 import java.io.File;
 import java.io.FileInputStream;

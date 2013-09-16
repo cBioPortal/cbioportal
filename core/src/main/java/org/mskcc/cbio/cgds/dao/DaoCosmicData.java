@@ -40,8 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 /**
  *

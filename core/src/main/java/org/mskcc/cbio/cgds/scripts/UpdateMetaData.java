@@ -31,7 +31,7 @@ import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileReader;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 
 import java.io.File;
 

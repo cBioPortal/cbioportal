@@ -33,7 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.mskcc.cbio.cgds.model.User;
+import org.mskcc.cbio.portal.model.User;
 
 /**
  * A User. They must have an EMAIL & ENABLED.

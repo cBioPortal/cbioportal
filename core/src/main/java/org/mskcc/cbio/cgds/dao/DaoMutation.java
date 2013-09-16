@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -42,8 +42,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.Case;
-import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
+import org.mskcc.cbio.portal.model.Case;
+import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 /**

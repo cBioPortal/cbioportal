@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.ProteinArrayData;
+import org.mskcc.cbio.portal.model.ProteinArrayData;
 
 /**
  *

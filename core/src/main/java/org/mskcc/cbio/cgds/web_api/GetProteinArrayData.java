@@ -42,9 +42,9 @@ import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cbio.cgds.dao.DaoProteinArrayInfo;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.ProteinArrayData;
-import org.mskcc.cbio.cgds.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ProteinArrayData;
+import org.mskcc.cbio.portal.model.ProteinArrayInfo;
 
 /**
  *

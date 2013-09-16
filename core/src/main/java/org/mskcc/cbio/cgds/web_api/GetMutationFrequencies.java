@@ -30,7 +30,7 @@ package org.mskcc.cbio.cgds.web_api;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoMutationFrequency;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

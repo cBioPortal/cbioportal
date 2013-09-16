@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

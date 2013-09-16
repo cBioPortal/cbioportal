@@ -29,7 +29,7 @@ package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.cgds.scripts.ImportGeneData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.util.ProgressMonitor;

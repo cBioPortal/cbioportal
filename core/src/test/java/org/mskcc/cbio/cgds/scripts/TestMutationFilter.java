@@ -32,8 +32,8 @@ import junit.framework.TestCase;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.cgds.scripts.MutationFilter;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 

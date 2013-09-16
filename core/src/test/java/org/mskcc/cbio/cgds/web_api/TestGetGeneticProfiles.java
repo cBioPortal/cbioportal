@@ -32,10 +32,10 @@ import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.TypeOfCancer;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 /**

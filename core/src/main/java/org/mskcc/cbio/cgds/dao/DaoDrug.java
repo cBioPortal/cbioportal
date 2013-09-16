@@ -36,7 +36,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.portal.model.Drug;
 
 /**
  * Data access object for Drug table

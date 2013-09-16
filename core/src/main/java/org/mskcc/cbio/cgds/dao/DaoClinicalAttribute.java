@@ -28,8 +28,8 @@
 package org.mskcc.cbio.cgds.dao;
 
 import com.google.inject.internal.Join;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
 
 import java.sql.*;
 import java.util.*;

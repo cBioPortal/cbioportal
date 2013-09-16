@@ -30,11 +30,11 @@ package org.mskcc.cbio.cgds.dao;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.model.Patient;
-import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.ClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.model.ClinicalParameterMap;
 
 import java.sql.*;
 import java.util.*;

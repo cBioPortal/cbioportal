@@ -27,7 +27,7 @@
 package org.mskcc.cbio.portal.util;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalData;
 
 import java.io.BufferedReader;
 import java.io.File;

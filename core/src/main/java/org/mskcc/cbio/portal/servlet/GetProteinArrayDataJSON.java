@@ -33,9 +33,9 @@ import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoCaseList;
 import org.mskcc.cbio.cgds.dao.DaoProteinArrayData;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.ProteinArrayData;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.ProteinArrayData;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 import javax.servlet.ServletException;

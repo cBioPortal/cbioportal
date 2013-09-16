@@ -29,8 +29,8 @@ package org.mskcc.cbio.portal.validate;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Gistic;
 
 import java.util.ArrayList;
 

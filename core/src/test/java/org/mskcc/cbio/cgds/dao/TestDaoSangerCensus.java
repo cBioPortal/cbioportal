@@ -30,9 +30,9 @@ package org.mskcc.cbio.cgds.dao;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.SangerCancerGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.SangerCancerGene;
 
 import java.util.ArrayList;
 import java.util.Set;

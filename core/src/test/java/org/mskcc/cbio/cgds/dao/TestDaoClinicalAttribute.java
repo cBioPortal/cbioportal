@@ -29,7 +29,7 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoClinicalAttribute extends TestCase {

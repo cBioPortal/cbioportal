@@ -33,7 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
 
 /**
  * A TypeOfCancer is a clinical cancer type, such as Glioblastoma, Ovarian, etc.

@@ -31,14 +31,14 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoClinicalData;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.model.Patient;
-import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.model.ClinicalParameterMap;
 
 import java.util.*;
 import java.io.File;
 import java.io.IOException;
 
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CancerStudy;
 
 /**
  * Tests Import of Clinical Data.

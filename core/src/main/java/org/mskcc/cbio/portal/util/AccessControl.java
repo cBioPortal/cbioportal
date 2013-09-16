@@ -29,7 +29,7 @@
 package org.mskcc.cbio.portal.util;
 
 // imports
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 

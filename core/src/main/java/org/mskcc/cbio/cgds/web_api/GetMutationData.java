@@ -30,10 +30,10 @@ package org.mskcc.cbio.cgds.web_api;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.Gene;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.cgds.servlet.WebService;
 
 import java.util.ArrayList;

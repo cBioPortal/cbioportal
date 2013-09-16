@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
 
 import java.sql.*;
 import java.util.ArrayList;

@@ -32,9 +32,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import org.mskcc.cbio.cgds.model.Case;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.CaseListCategory;
+import org.mskcc.cbio.portal.model.Case;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.CaseListCategory;
 
 /**
  * Data access object for Case_List table

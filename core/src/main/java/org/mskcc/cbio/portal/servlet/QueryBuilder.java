@@ -42,11 +42,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.model.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.mskcc.cbio.cgds.model.Patient;
+import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.remote.*;

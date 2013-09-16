@@ -42,7 +42,7 @@ import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.DaoGeneticAlteration;
 import org.mskcc.cbio.cgds.dao.DaoInteraction;
 import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.network.*;
 import org.mskcc.cbio.portal.remote.GetCaseSets;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;

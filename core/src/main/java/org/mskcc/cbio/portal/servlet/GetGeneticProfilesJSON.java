@@ -38,10 +38,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.Gene;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**

@@ -42,8 +42,8 @@ import org.mskcc.cbio.cgds.dao.DaoDrug;
 import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
+import org.mskcc.cbio.portal.model.Drug;
+import org.mskcc.cbio.portal.model.DrugInteraction;
 
 /**
  *

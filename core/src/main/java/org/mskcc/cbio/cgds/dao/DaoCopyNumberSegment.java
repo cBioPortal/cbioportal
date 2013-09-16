@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.CopyNumberSegment;
+import org.mskcc.cbio.portal.model.CopyNumberSegment;
 
 /**
  *

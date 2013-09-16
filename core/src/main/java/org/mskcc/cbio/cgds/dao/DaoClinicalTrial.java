@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.mskcc.cbio.cgds.model.ClinicalTrial;
+import org.mskcc.cbio.portal.model.ClinicalTrial;
 
 /**
  * Data access object for ClinicalTrial table

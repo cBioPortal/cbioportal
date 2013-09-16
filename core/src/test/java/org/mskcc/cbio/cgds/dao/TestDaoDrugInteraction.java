@@ -31,9 +31,9 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Drug;
+import org.mskcc.cbio.portal.model.DrugInteraction;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoDrugInteraction extends TestCase {

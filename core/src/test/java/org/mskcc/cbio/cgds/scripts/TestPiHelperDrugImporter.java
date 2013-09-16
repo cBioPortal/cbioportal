@@ -31,8 +31,8 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.DaoDrug;
 import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.cgds.scripts.drug.DrugDataResource;
 import org.mskcc.cbio.cgds.scripts.drug.internal.PiHelperImporter;
 

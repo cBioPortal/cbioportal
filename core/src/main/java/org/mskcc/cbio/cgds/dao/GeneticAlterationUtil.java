@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.model.*;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -33,7 +33,7 @@ import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoDrug;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.io.File;
 import java.io.IOException;

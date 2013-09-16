@@ -29,7 +29,7 @@ package org.mskcc.cbio.portal.util;
 
 // imports
 import java.util.Comparator;
-import org.mskcc.cbio.cgds.model.Gene;
+import org.mskcc.cbio.portal.model.Gene;
 
 /**
  * Compares two genes for equivalency (ref and standard symbol).

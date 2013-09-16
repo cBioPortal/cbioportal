@@ -30,7 +30,7 @@ package org.mskcc.cbio.cgds.dao;
 import junit.framework.TestCase;
 import org.mskcc.cbio.cgds.dao.*;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import java.util.HashMap;
 import java.util.ArrayList;

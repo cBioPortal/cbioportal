@@ -31,7 +31,7 @@ package org.mskcc.cbio.importer.mapper.internal;
 // imports
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

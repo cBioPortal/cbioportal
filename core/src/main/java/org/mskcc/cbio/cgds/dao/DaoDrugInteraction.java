@@ -38,9 +38,9 @@ import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Drug;
+import org.mskcc.cbio.portal.model.DrugInteraction;
 
 public class DaoDrugInteraction {
     private static DaoDrugInteraction daoDrugInteraction;

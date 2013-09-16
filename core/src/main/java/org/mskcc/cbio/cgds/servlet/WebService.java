@@ -41,7 +41,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.util.DatabaseProperties;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
 import org.mskcc.cbio.cgds.web_api.*;

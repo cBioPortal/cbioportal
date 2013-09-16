@@ -34,8 +34,8 @@ import java.util.Collections;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.TypeOfCancer;
-import org.mskcc.cbio.cgds.model.CancerStudy;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.CancerStudy;
 
 /**
  * Get Types of Cancer and Cancer Studies.

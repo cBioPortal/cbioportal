@@ -42,8 +42,8 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 public class ImportCosmicData {

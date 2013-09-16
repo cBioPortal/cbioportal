@@ -31,7 +31,6 @@ import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
 import org.owasp.validator.html.PolicyException;
 import org.apache.log4j.Logger;
 

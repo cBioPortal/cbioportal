@@ -33,7 +33,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import org.mskcc.cbio.cgds.model.Case;
+import org.mskcc.cbio.portal.model.Case;
 
 /**
  * Data access object for Case table

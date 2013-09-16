@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cbio.cgds.model.Gene;
-import org.mskcc.cbio.cgds.model.MicroRna;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.MicroRna;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.util.GeneComparator;
 import org.mskcc.cbio.cgds.dao.DaoMicroRna;
 import org.mskcc.cbio.cgds.dao.DaoException;

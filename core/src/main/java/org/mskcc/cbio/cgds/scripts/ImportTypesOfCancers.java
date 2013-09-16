@@ -29,7 +29,7 @@ package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
-import org.mskcc.cbio.cgds.model.TypeOfCancer;
+import org.mskcc.cbio.portal.model.TypeOfCancer;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 

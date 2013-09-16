@@ -29,9 +29,9 @@ package org.mskcc.cbio.cgds.scripts;
 
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.CaseList;
 
 import java.util.ArrayList;
 import java.util.HashSet;

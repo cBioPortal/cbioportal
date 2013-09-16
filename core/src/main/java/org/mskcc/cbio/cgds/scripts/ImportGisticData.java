@@ -32,7 +32,7 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
-import org.mskcc.cbio.cgds.model.Gistic;
+import org.mskcc.cbio.portal.model.Gistic;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GisticReader;

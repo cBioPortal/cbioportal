@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.Drug;
+import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 
 public class TestDaoDrug extends TestCase {

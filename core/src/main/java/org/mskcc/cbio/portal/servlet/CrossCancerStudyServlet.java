@@ -28,9 +28,9 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;

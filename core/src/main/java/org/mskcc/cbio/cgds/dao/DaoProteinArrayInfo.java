@@ -28,7 +28,7 @@
 
 package org.mskcc.cbio.cgds.dao;
 
-import org.mskcc.cbio.cgds.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.model.ProteinArrayInfo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

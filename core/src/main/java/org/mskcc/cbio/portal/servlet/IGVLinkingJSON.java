@@ -80,6 +80,7 @@ public class IGVLinkingJSON extends HttpServlet {
 			igvArgs.put("bamFileUrl", args[0]);
 			igvArgs.put("encodedLocus", args[1]);
 			igvArgs.put("referenceGenome", args[2]);
+            igvArgs.put("trackName", args[3]);
 		}
 
         response.setContentType("application/json");

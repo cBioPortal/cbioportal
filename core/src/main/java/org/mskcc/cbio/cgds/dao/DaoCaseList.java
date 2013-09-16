@@ -257,10 +257,14 @@ public class DaoCaseList {
 	 */
     private int addCaseListList(CaseList caseList, Connection con) throws DaoException {
 		
-		// get case list id
-		int caseListId = getCaseListId(caseList);
-		if (caseListId == -1) {
+	// get case list id
+	int caseListId = getCaseListId(caseList);
+	if (caseListId == -1) {
             return -1;
+        }
+        
+        if (caseList.getCaseList().isEmpty()) {
+            return 0;
         }
 
         PreparedStatement pstmt = null;

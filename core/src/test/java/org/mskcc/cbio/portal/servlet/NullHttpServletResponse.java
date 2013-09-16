@@ -25,7 +25,7 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.cgds.servlet;
+package org.mskcc.cbio.portal.servlet;
 
 /*
  * from: http://www.java2s.com/Open-Source/Java-Document/Content-Management-System/

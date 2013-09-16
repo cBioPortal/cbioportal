@@ -34,7 +34,7 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.cgds.servlet.WebService;
+import org.mskcc.cbio.portal.servlet.WebService;
 
 import java.util.ArrayList;
 

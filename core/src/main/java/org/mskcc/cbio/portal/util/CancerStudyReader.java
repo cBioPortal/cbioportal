@@ -27,15 +27,15 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
-import org.mskcc.cbio.cgds.dao.DaoTypeOfCancer;
+import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 
 /**
  * Reads and loads a cancer study file. (Before July 2011, was called a cancer type file.)

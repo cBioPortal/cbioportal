@@ -28,8 +28,8 @@
 package org.mskcc.cbio.portal.validator;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.validate.gene.InvalidGeneSymbolException;

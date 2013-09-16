@@ -29,16 +29,16 @@ package org.mskcc.cbio.cgds.web_api;
 
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 
 import java.io.*;
 

@@ -40,7 +40,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.model.*;
 import org.springframework.context.ApplicationContext;
@@ -54,7 +54,7 @@ import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.cgds.web_api.GetProfileData;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.portal.util.AccessControl;

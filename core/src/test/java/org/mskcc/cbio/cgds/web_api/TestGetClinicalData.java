@@ -31,7 +31,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 // import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;

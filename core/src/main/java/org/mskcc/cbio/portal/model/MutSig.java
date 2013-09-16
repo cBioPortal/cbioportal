@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 
 /**
  * @author Lennart Bastian

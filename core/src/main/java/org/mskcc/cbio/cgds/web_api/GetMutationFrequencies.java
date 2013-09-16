@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.cgds.web_api;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoMutationFrequency;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoMutationFrequency;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 
 import javax.servlet.http.HttpServletRequest;

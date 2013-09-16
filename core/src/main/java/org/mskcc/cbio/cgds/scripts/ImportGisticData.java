@@ -37,8 +37,8 @@ import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.GisticReader;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.dao.DaoGistic;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGistic;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.validate.validationException;
 
 

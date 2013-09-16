@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
 import org.mskcc.cbio.portal.model.GeneticProfile;

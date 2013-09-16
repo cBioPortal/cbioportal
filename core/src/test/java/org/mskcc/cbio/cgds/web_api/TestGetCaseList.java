@@ -29,7 +29,7 @@ package org.mskcc.cbio.cgds.web_api;
 
 import java.io.File;
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.cgds.scripts.ImportCaseList;
 import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;

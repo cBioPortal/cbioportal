@@ -36,12 +36,12 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.dao.DaoCaseList;
+import org.mskcc.cbio.portal.dao.DaoCaseProfile;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
 import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.servlet.WebService;

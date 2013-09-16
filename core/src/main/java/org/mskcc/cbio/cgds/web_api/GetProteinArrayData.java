@@ -37,11 +37,11 @@ import java.util.Set;
 import java.util.HashSet;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoProteinArrayData;
-import org.mskcc.cbio.cgds.dao.DaoProteinArrayInfo;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoProteinArrayData;
+import org.mskcc.cbio.portal.dao.DaoProteinArrayInfo;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.ProteinArrayData;
 import org.mskcc.cbio.portal.model.ProteinArrayInfo;

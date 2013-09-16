@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoSangerCensus;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoSangerCensus;
 
 import java.util.Collections;
 import java.util.HashMap;

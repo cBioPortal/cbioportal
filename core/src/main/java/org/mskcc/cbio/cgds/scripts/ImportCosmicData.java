@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoCosmicData;
-import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoCosmicData;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
@@ -41,7 +41,7 @@ import java.io.IOException;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;

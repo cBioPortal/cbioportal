@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoPfamGraphics;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoPfamGraphics;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.BufferedReader;

@@ -31,9 +31,9 @@ import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.MicroRna;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.util.GeneComparator;
-import org.mskcc.cbio.cgds.dao.DaoMicroRna;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoMicroRna;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 
 import java.util.Date;
 import java.util.ArrayList;

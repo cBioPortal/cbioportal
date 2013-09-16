@@ -4,7 +4,7 @@ package org.mskcc.cbio.portal.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 
 /**
  *

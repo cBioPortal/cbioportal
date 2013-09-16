@@ -35,7 +35,7 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
 import org.mskcc.cbio.portal.model.AnnotatedCaseSets;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.apache.commons.collections15.iterators.IteratorEnumeration;
 

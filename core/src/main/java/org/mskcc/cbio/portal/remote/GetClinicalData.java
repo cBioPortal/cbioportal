@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.portal.remote;
 
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.Patient;
 
 import java.util.Collections;

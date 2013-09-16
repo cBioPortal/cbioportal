@@ -30,9 +30,9 @@ package org.mskcc.cbio.cgds.scripts;
 
 // imports
 import org.mskcc.cbio.portal.model.User;
-import org.mskcc.cbio.cgds.dao.DaoUser;
+import org.mskcc.cbio.portal.dao.DaoUser;
 import org.mskcc.cbio.portal.model.UserAuthorities;
-import org.mskcc.cbio.cgds.dao.DaoUserAuthorities;
+import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
 import org.mskcc.cbio.cgds.scripts.ResetDatabase;
 import org.mskcc.cbio.cgds.scripts.ImportUsers;
 

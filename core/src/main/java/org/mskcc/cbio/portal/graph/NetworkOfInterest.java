@@ -29,8 +29,8 @@ package org.mskcc.cbio.portal.graph;
 
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Interaction;
-import org.mskcc.cbio.cgds.dao.DaoInteraction;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoInteraction;
+import org.mskcc.cbio.portal.dao.DaoException;
 
 import java.util.ArrayList;
 import java.util.Collection;

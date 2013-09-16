@@ -28,8 +28,8 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.model.ClinicalParameterMap;

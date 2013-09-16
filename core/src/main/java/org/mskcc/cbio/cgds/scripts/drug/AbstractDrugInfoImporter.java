@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.cgds.scripts.drug;
 
-import org.mskcc.cbio.cgds.dao.DaoDrug;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoInteraction;
+import org.mskcc.cbio.portal.dao.DaoDrug;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoInteraction;
 
 abstract public class AbstractDrugInfoImporter {
     public static String DRUG_INTERACTION_TYPE = "DRUG_TARGET";

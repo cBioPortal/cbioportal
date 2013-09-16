@@ -26,10 +26,10 @@
  **/
 package org.mskcc.cbio.cgds.scripts;
 
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
@@ -38,7 +38,7 @@ import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.*;
 import java.util.*;
-import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 
 public class ImportClinicalData {
 

@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.scripts;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CopyNumberStatus;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;

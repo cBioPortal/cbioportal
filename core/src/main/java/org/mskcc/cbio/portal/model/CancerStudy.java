@@ -27,9 +27,9 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGistic;
-import org.mskcc.cbio.cgds.dao.DaoMutSig;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGistic;
+import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.util.EqualsUtil;
 import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
 
@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import org.mskcc.cbio.cgds.dao.DaoCaseProfile;
-import org.mskcc.cbio.cgds.dao.DaoCopyNumberSegment;
+import org.mskcc.cbio.portal.dao.DaoCaseProfile;
+import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
 
 /**
  * This represents a cancer study, with a set of cases and some data sets.

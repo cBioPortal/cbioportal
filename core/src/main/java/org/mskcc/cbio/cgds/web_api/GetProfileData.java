@@ -28,7 +28,7 @@
 package org.mskcc.cbio.cgds.web_api;
 
 import org.json.simple.JSONArray;
-import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.servlet.WebService;
 import org.mskcc.cbio.portal.model.ProfileData;

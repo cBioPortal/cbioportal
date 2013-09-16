@@ -30,7 +30,7 @@ package org.mskcc.cbio.cgds.scripts;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.portal.dao.*;
 
 import java.io.File;
 import java.io.IOException;

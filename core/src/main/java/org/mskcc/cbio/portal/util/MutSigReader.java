@@ -27,10 +27,10 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
@@ -42,7 +42,7 @@ import java.io.*;
 import java.util.List;
 import java.util.Properties;
 
-import static org.mskcc.cbio.cgds.dao.DaoMutSig.addMutSig;
+import static org.mskcc.cbio.portal.dao.DaoMutSig.addMutSig;
 
 /*
  * Reads and loads a MutSig file.

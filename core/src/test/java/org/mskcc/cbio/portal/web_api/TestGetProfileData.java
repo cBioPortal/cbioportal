@@ -33,8 +33,8 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.cgds.scripts.ImportTabDelimData;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ImportTabDelimData;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import java.io.File;
 import java.io.IOException;

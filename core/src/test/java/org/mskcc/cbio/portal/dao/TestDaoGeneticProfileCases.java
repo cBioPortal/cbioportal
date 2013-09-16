@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.dao;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfileCases;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import java.util.ArrayList;
 

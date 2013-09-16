@@ -28,7 +28,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 

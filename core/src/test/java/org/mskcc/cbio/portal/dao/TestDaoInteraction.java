@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.Interaction;
 

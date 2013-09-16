@@ -33,7 +33,7 @@ import junit.framework.TestCase;
 
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.dao.DaoUser;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
  * JUnit test for DaoUser class.

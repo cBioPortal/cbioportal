@@ -29,7 +29,7 @@ package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.Drug;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 public class TestDaoDrug extends TestCase {
     public void testDaoDrug() throws DaoException {

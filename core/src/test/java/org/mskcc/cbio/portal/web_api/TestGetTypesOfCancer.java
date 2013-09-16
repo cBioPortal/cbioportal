@@ -30,8 +30,8 @@ package org.mskcc.cbio.portal.web_api;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 import org.mskcc.cbio.portal.model.CancerStudy;
 

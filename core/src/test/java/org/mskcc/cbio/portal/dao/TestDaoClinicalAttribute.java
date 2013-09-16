@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 public class TestDaoClinicalAttribute extends TestCase {
     public void testDaoClinicalAttribute() throws DaoException {

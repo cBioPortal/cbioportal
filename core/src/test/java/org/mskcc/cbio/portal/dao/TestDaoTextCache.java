@@ -34,7 +34,7 @@ import junit.framework.TestCase;
 
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoTextCache;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 public class TestDaoTextCache extends TestCase
 {

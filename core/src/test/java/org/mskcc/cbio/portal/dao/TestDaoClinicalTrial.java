@@ -29,7 +29,7 @@ package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.ClinicalTrial;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import java.util.HashSet;
 

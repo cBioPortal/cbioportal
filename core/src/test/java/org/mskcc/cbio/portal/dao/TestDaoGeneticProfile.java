@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
  * JUnit tests for DaoGeneticProfile class.

@@ -34,8 +34,8 @@ import org.mskcc.cbio.portal.dao.DaoMutSig;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.model.MutSig;
-import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import java.io.File;
 

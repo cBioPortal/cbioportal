@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.CaseListCategory;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 /**
  * JUnit test for DaoCase List.

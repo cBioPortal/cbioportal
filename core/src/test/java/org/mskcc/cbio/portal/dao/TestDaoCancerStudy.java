@@ -29,8 +29,8 @@ package org.mskcc.cbio.portal.dao;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 import java.io.File;

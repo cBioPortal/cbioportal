@@ -32,7 +32,7 @@ package org.mskcc.cbio.importer.converter.internal;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;

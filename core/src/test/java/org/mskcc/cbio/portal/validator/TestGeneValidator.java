@@ -31,7 +31,7 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.CanonicalGene;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 import org.mskcc.cbio.portal.validate.gene.InvalidGeneSymbolException;
 import org.mskcc.cbio.portal.validate.gene.TooManyGenesException;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;

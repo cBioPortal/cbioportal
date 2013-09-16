@@ -32,7 +32,7 @@ package org.mskcc.cbio.portal.dao;
 import org.mskcc.cbio.portal.model.User;
 import org.mskcc.cbio.portal.model.UserAuthorities;
 import org.mskcc.cbio.portal.dao.DaoUserAuthorities;
-import org.mskcc.cbio.cgds.scripts.ResetDatabase;
+import org.mskcc.cbio.portal.scripts.ResetDatabase;
 
 import junit.framework.TestCase;
 import java.util.Arrays;

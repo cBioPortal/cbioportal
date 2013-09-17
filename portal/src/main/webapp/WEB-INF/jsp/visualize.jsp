@@ -119,10 +119,9 @@
     ArrayList <GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
     ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
-    String bitlyUser = SkinUtil.getBitlyUser();
-    String bitlyKey = SkinUtil.getBitlyApiKey();
+    String siteTitle = GlobalProperties.getTitle();
+    String bitlyUser = GlobalProperties.getBitlyUser();
+    String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     
@@ -141,7 +140,7 @@
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
 	
-    boolean includeNetworks = SkinUtil.includeNetworks();
+    boolean includeNetworks = GlobalProperties.includeNetworks();
 %>
 
 <%!

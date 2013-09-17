@@ -122,25 +122,25 @@ var PlotsCustomMenu = (function(){
         if($("#custom_plots_type_x").val() === "mrna"){
             content.geneX_genetic_profiles.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_x")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection("#custom_plots_type_x", "#custom_platform_x");
         } else if($("#custom_plots_type_x").val() === "copy_no"){
             content.geneX_genetic_profiles.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
                     $("#custom_platform_x")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                        .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if($("#custom_plots_type_x").val() === "methylation"){
             content.geneX_genetic_profiles.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#custom_platform_x")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         } else if($("#custom_plots_type_x").val() === "rppa"){
             content.geneX_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_x")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         }
     }
@@ -153,25 +153,25 @@ var PlotsCustomMenu = (function(){
         if($("#custom_plots_type_y").val() === "mrna"){
             content.geneY_genetic_profiles.genetic_profile_mrna.forEach (function (profile) {
                 $("#custom_platform_y")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection("#custom_plots_type_y", "#custom_platform_y");
         } else if($("#custom_plots_type_y").val() === "copy_no"){
             content.geneY_genetic_profiles.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {  //No listing of discretized data type (profile)
                     $("#custom_platform_y")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                        .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if($("#custom_plots_type_y").val() === "methylation"){
             content.geneY_genetic_profiles.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#custom_platform_y")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         } else if($("#custom_plots_type_y").val() === "rppa"){
             content.geneY_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_y")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         }
     }
@@ -457,8 +457,8 @@ var PlotsCustomView = (function() {
         menu.geneY = document.getElementById("custom_geneY").value;
         menu.plots_type_x = document.getElementById("custom_plots_type_x").value;
         menu.plots_type_y = document.getElementById("custom_plots_type_y").value;
-        menu.genetic_profile_id_x = document.getElementById("custom_platform_x").value;
-        menu.genetic_profile_id_y = document.getElementById("custom_platform_y").value;
+        menu.genetic_profile_id_x = document.getElementById("custom_platform_x").value.split("|")[0];
+        menu.genetic_profile_id_y = document.getElementById("custom_platform_y").value.split("|")[0];
     }
 
     function generatePlots() {
@@ -726,28 +726,39 @@ var PlotsCustomView = (function() {
     function drawAxisTitle() {
         var elt_x = document.getElementById("custom_platform_x");
         var titleText_x = elt_x.options[elt_x.selectedIndex].text;
+        var x_titleHelp = elt_x.options[elt_x.selectedIndex].value.split("|")[1];
         var elt_y = document.getElementById("custom_platform_y");
         var titleText_y = elt_y.options[elt_y.selectedIndex].text;
+        var y_titleHelp = elt_y.options[elt_y.selectedIndex].value.split("|")[1];
         var xTitle =
             menu.geneX + ", " + titleText_x;
         var yTitle =
             menu.geneY + ", " + titleText_y;
-        var axisTitleGroup = elem.svg.append("svg:g");
+        var axisTitleGroup = elem.svg.append("svg:g").attr("class", "axis");
         axisTitleGroup.append("text")
-            .attr("class", "label")
+            .attr("class", "custom-label-x")
             .attr("x", 350)
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(xTitle);
         axisTitleGroup.append("text")
-            .attr("class", "label")
+            .attr("class", "custom-label-y")
             .attr("transform", "rotate(-90)")
             .attr("x", -270)
             .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(yTitle);
+        Plots.addAxisHelp(
+            elem.svg,
+            axisTitleGroup,
+            xTitle,
+            yTitle,
+            "x-title-help",
+            "y-title-help",
+            x_titleHelp,
+            y_titleHelp);
     }
 
     function addQtips() {

@@ -439,7 +439,7 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["bam"] ],
-                        "bVisible": false,//viewBam,
+                        "bVisible": viewBam,
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {

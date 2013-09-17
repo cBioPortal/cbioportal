@@ -133,25 +133,25 @@ var PlotsTwoGenesMenu = (function(){
         if ($("#two_genes_plots_type").val() === "mrna") {
             content.genetic_profile_mrna.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection();
         } else if ($("#two_genes_plots_type").val() === "copy_no") {
             content.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {
                     $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                        .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if ($("#two_genes_plots_type").val() === "methylation") {
             content.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         } else if ($("#two_genes_plots_type").val() === "rppa") {
             content.genetic_profile_rppa.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         }
         $("#two_genes_platform_select_div").append("</select>");
@@ -227,7 +227,8 @@ var PlotsTwoGenesView = (function(){
             geneX : "",
             geneY : "",
             plots_type: "",
-            genetic_profile_id: ""
+            genetic_profile_id: "",
+            genetic_profile_description: ""
         },
     //Canvas Settings
         settings = {
@@ -284,7 +285,8 @@ var PlotsTwoGenesView = (function(){
         menu.geneX = document.getElementById("geneX").value;
         menu.geneY = document.getElementById("geneY").value;
         menu.plots_type = document.getElementById("two_genes_plots_type").value;
-        menu.genetic_profile_id = document.getElementById("two_genes_platform").value;
+        menu.genetic_profile_id = document.getElementById("two_genes_platform").value.split("|")[0];
+        menu.genetic_profile_description = document.getElementById("two_genes_platform").value.split("|")[1];
     }
 
     function pDataInit(result) {
@@ -707,25 +709,35 @@ var PlotsTwoGenesView = (function(){
             menu.geneX + ", " + titleText;
         var yTitle =
             menu.geneY + ", " + titleText;
-        var axisTitleGroup = elem.svg.append("svg:g");
+        var axisTitleGroup = elem.svg.append("svg:g").attr("class", "axis");
         axisTitleGroup.append("text")
-            .attr("class", "label")
+            .attr("class", "label-x")
             .attr("x", 350)
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(xTitle);
         axisTitleGroup.append("text")
-            .attr("class", "label")
+            .attr("class", "label-y")
             .attr("transform", "rotate(-90)")
             .attr("x", -270)
             .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(yTitle);
+        Plots.addAxisHelp(
+            elem.svg,
+            axisTitleGroup,
+            xTitle,
+            yTitle,
+            "x-title-help",
+            "y-title-help",
+            menu.genetic_profile_description,
+            menu.genetic_profile_description);
     }
 
     function addQtips() {
+        //For the dots
         elem.dotsGroup.selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";

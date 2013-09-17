@@ -143,7 +143,7 @@ var PlotsMenu = (function () {
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
                 var item_profile = singleDataTypeObj.genetic_profile[index];
                 $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
             }
         }
     }
@@ -160,7 +160,7 @@ var PlotsMenu = (function () {
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
                 var item_profile = singleDataTypeObj.genetic_profile[index];
                 $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
             }
         }
     }
@@ -408,7 +408,7 @@ var PlotsView = (function () {
             copy_no_type : "",
             mrna_type : "",
             dna_methylation_type : "",
-            rppa_type : "",
+            rppa_type : ""
         };   //current user selection from the side menu
 
     var discretizedDataTypeIndicator = "";
@@ -725,25 +725,33 @@ var PlotsView = (function () {
             var xAxis = "",
                 yAxis = "",
                 xTitle = "",
-                yTitle = "";
+                yTitle = "",
+                xTitleHelp = "",
+                yTitleHelp = "";
 
             function getAxisTitles() {
                 //TODO: Change hard-coded menu items value
                 if (Util.plotsTypeIsCopyNo()) {
                     var e = document.getElementById("data_type_copy_no");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_mrna");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsMethylation()) {
                     var e = document.getElementById("data_type_dna_methylation");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_mrna");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsRPPA()) {
                     var e = document.getElementById("data_type_mrna");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_rppa");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 }
             }
 
@@ -894,6 +902,7 @@ var PlotsView = (function () {
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
+                    .attr("class", "plots-x-axis-class")
                     .call(xAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
@@ -914,6 +923,7 @@ var PlotsView = (function () {
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(100, 0)")
+                    .attr("class", "plots-y-axis-class")
                     .call(yAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
@@ -931,7 +941,8 @@ var PlotsView = (function () {
             }
 
             function addAxisTitle() {
-                var axisTitleGroup = elem.svg.append("svg:g");
+                var axisTitleGroup = elem.svg.append("svg:g")
+                    .attr("class", "axis");
                 axisTitleGroup.append("text")
                     .attr("class", "x-axis-title")
                     .attr("x", 350)
@@ -947,6 +958,15 @@ var PlotsView = (function () {
                     .style("text-anchor", "middle")
                     .style("font-weight","bold")
                     .text(yTitle);
+                Plots.addAxisHelp(
+                    elem.svg,
+                    axisTitleGroup,
+                    xTitle,
+                    yTitle,
+                    "x-title-help",
+                    "y-title-help",
+                    xTitleHelp,
+                    yTitleHelp);
             }
 
             return {
@@ -960,6 +980,12 @@ var PlotsView = (function () {
                         drawContinuousAxis();
                     }
                     addAxisTitle();
+                },
+                getXHelp: function() {
+                    return xTitleHelp;
+                },
+                getYHelp: function() {
+                    return yTitleHelp;
                 }
             };
 
@@ -1098,7 +1124,7 @@ var PlotsView = (function () {
 
             function drawDiscretizedPlots() { //GISTIC, RAE view
                 elem.elemDotsGroup = elem.svg.append("svg:g");
-                var ramRatio = 20;  //Noise
+                var ramRatio = 30;  //Noise
                 //Divide Data Set by Gistic Type
                 var subDataSet = {
                     Homdel : [],
@@ -1570,10 +1596,10 @@ var PlotsView = (function () {
     function getUserSelection() {
         userSelection.gene = document.getElementById("gene").value;
         userSelection.plots_type = document.getElementById("plots_type").value;
-        userSelection.copy_no_type = document.getElementById("data_type_copy_no").value;
-        userSelection.mrna_type = document.getElementById("data_type_mrna").value;
-        userSelection.rppa_type = document.getElementById("data_type_rppa").value;
-        userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
+        userSelection.copy_no_type = document.getElementById("data_type_copy_no").value.split("|")[0];
+        userSelection.mrna_type = document.getElementById("data_type_mrna").value.split("|")[0];
+        userSelection.rppa_type = document.getElementById("data_type_rppa").value.split("|")[0];
+        userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value.split("|")[0];
     }
 
     function generatePlots() {
@@ -1585,7 +1611,7 @@ var PlotsView = (function () {
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
-            if (child.tagName == 'OPTION') vals.push(child.value);
+            if (child.tagName == 'OPTION') vals.push(child.value.split("|")[0]);
         }
         if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_gistic";

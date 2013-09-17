@@ -82,7 +82,7 @@ define("Oncoprint",
 
                     return {
                         width: data.length * (5.5 + 3),
-                    height: (23 + 5) * attributes.length,
+                    height: (rect_height + vert_padding) * attributes.length,
                     rect_height: rect_height,
                     rect_width: 5.5,
                     vert_padding: vert_padding,

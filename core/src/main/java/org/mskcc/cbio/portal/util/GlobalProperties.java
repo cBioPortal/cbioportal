@@ -128,7 +128,7 @@ public class GlobalProperties {
 
 	public static String getProperty(String property)
 	{
-		return (properties.containsKey(property)) ? properties.getProperty(property) : "";
+		return (properties.containsKey(property)) ? properties.getProperty(property) : null;
 	}
 
 	public static boolean wantIGVBAMLinking() {

@@ -44,8 +44,8 @@ import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.network.*;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 import org.mskcc.cbio.portal.util.GeneticProfileUtil;
 import org.mskcc.cbio.portal.util.GlobalProperties;
@@ -473,7 +473,7 @@ public class NetworkServlet extends HttpServlet {
         if (strCaseIds==null || strCaseIds.length()==0) {
             String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Case Sets for Selected Cancer Type
-                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerStudyId);
+                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudyId);
                 for (CaseList cs : caseSets) {
                     if (cs.getStableId().equals(caseSetId)) {
                         strCaseIds = cs.getCaseListAsString();

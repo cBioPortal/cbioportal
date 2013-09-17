@@ -46,6 +46,21 @@ public class GetClinicalData {
     private static final String TAB = "\t";
 
     /**
+     * Gets clinical data for specified cases.
+     *
+     * @param setOfCaseIds Case IDs.
+     * @return an ArrayList of Survival Objects
+     * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
+     */
+    public static List<Patient> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
+        if (setOfCaseIds != null && setOfCaseIds.size() > 0) {
+            return DaoClinicalData.getSurvivalData(cancerStudyId, setOfCaseIds);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /**
      * Gets Clinical Data for the Specific Cases.
      *
      * @param caseIdList Target Case IDs.

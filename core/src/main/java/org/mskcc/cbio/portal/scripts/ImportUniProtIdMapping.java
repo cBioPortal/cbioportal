@@ -47,7 +47,7 @@ import org.mskcc.cbio.portal.dao.DaoUniProtIdMapping;
 import org.mskcc.cbio.portal.util.ConsoleUtil;
 import org.mskcc.cbio.portal.util.FileUtil;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
-import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 
 /**
  * Import data into the uniprot_id_mapping table.

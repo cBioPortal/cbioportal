@@ -348,7 +348,7 @@ public class WebService extends HttpServlet {
         if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetGeneticProfiles.getGeneticProfiles(cancerStudyStableId);
+            String out = GetGeneticProfiles.getGeneticProfilesAsTable(cancerStudyStableId);
             writer.print(out);
         }
     }
@@ -360,7 +360,7 @@ public class WebService extends HttpServlet {
         if (cancerStudyStableId == null) {
             outputMissingParameterError(writer, CANCER_STUDY_ID);
         } else {
-            String out = GetCaseLists.getCaseLists(cancerStudyStableId);
+            String out = GetCaseLists.getCaseListsAsTable(cancerStudyStableId);
             writer.print(out);
         }
     }

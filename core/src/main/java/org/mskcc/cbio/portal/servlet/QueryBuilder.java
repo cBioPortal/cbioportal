@@ -47,16 +47,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.mskcc.cbio.portal.model.Patient;
-import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.remote.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.web_api.GetProfileData;
-import org.mskcc.cbio.portal.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.*;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 
@@ -206,7 +203,7 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get Case Sets for Selected Cancer Type
             xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
-            ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
+            ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerTypeId);
             xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
             CaseList caseSet = new CaseList();
             caseSet.setName("User-defined Case List");

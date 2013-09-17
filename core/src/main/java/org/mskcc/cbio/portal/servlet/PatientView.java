@@ -27,7 +27,7 @@ import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.AccessControl;
-import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;

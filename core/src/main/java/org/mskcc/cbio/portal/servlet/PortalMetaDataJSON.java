@@ -39,8 +39,8 @@ import org.mskcc.cbio.portal.model.TypeOfCancer;
 import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.GeneSet;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.GeneSetUtil;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.springframework.context.ApplicationContext;
@@ -113,7 +113,7 @@ public class PortalMetaDataJSON extends HttpServlet {
             //  Get all Genomic Profiles and Case Sets for each Cancer Study
             rootMap.put("cancer_studies", cancerStudyMap);
             for (CancerStudy cancerStudy : cancerStudiesList) {
-                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets
+                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists
                         (cancerStudy.getCancerStudyStableId());
 
                 ArrayList<GeneticProfile> geneticProfiles =

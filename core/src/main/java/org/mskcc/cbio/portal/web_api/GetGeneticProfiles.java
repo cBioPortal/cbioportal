@@ -43,13 +43,30 @@ import java.util.ArrayList;
 public class GetGeneticProfiles {
 
     /**
+     * Gets all Genetic Profiles associated with a specific cancer study.
+     *
+     * @param cancerStudyId Cancer Study ID.
+     * @return ArrayList of GeneticProfile Objects.
+     * @throws DaoException Remote / Network IO Error.
+     */
+    public static ArrayList<GeneticProfile> getGeneticProfiles(String cancerStudyId)
+            throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        if (cancerStudy != null) {
+            return DaoGeneticProfile.getAllGeneticProfiles(cancerStudy.getInternalId());
+        } else {
+            return new ArrayList<GeneticProfile>();
+        }
+    }
+
+    /**
      * Get the genetic profiles for a cancer study
      *
      * @param cancerStudyStableId   Stable Identifier for Cancer Study.
      * @return Genetic Profiles Table Output.
      * @throws DaoException Database Exception.
      */
-    public static String getGeneticProfiles(String cancerStudyStableId) throws DaoException {
+    public static String getGeneticProfilesAsTable(String cancerStudyStableId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {

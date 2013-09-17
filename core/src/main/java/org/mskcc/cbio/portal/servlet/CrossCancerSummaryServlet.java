@@ -28,8 +28,8 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.model.ProfileData;
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
@@ -115,7 +115,7 @@ public class CrossCancerSummaryServlet extends HttpServlet {
             ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
             //  Get all Case Lists Associated with this Cancer Study ID.
-            ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+            ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
 
             httpServletRequest.setAttribute(QueryBuilder.PROFILE_LIST_INTERNAL, geneticProfileList);
             httpServletRequest.setAttribute(QueryBuilder.CASE_SETS_INTERNAL, caseSetList);

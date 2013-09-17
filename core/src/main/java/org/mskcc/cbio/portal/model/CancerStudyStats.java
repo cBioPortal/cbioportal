@@ -30,7 +30,7 @@ package org.mskcc.cbio.portal.model;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.util.EqualsUtil;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 
 import java.util.ArrayList;
 

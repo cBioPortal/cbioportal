@@ -43,13 +43,33 @@ import java.util.ArrayList;
 public class GetCaseLists {
 
     /**
+     * Gets all Case Sets Associated with a specific Cancer Study.
+     *
+     * @param cancerStudyId Cancer Study ID.
+     * @return ArrayList of CaseSet Objects.
+     * @throws DaoException Database Error.
+     */
+    public static ArrayList<CaseList> getCaseLists(String cancerStudyId)
+            throws DaoException {
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
+        if (cancerStudy != null) {
+            DaoCaseList daoCaseList = new DaoCaseList();
+            ArrayList<CaseList> caseList = daoCaseList.getAllCaseLists(cancerStudy.getInternalId());
+            return caseList;
+        } else {
+            ArrayList<CaseList> caseList = new ArrayList<CaseList>();
+            return caseList;
+        }
+    }
+
+    /**
      * Get Case List for Specified Stable Cancer Study ID.
      *
      * @param cancerStudyStableId Stable Cancer Study ID.
      * @return Table output.
      * @throws DaoException Database Error.
      */
-    public static String getCaseLists(String cancerStudyStableId) throws DaoException {
+    public static String getCaseListsAsTable(String cancerStudyStableId) throws DaoException {
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
         StringBuilder buf = new StringBuilder();
         if (cancerStudy != null) {

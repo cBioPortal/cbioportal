@@ -45,7 +45,7 @@ import org.mskcc.cbio.portal.model.Drug;
 import org.mskcc.cbio.portal.model.DrugInteraction;
 import org.mskcc.cbio.portal.model.Interaction;
 import org.mskcc.cbio.portal.scripts.drug.AbstractDrugInfoImporter;
-import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**

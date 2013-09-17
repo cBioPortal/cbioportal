@@ -25,34 +25,27 @@
 ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
 **/
 
-package org.mskcc.cbio.portal.remote;
+package org.mskcc.cbio.portal.web_api;
 
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.Patient;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.HashSet;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 
 /**
- * Gets clinical data for specified cases.
+ * Singleton Instance of the Connection Manager.
  */
-public class GetClinicalData {
-    public static final String NA = "NA";
+public class ConnectionManager {
+    private static MultiThreadedHttpConnectionManager connectionManager = null;
 
     /**
-     * Gets clinical data for specified cases.
+     * Gets the Global Connection Manager.
      *
-     * @param setOfCaseIds Case IDs.
-     * @return an ArrayList of Survival Objects
-     * @throws DaoException, as of August 2011 GetClinicalData has direct access to DAO Objects.
+     * @return MultiThreadedHttpConnectionManager Object.
      */
-    public static List<Patient> getClinicalData(int cancerStudyId, HashSet<String> setOfCaseIds) throws DaoException {
-        if (setOfCaseIds != null && setOfCaseIds.size() > 0) {
-            return DaoClinicalData.getSurvivalData(cancerStudyId, setOfCaseIds);
-        } else {
-            return Collections.emptyList();
+    public static MultiThreadedHttpConnectionManager getConnectionManager() {
+        if (connectionManager == null) {
+            connectionManager = new MultiThreadedHttpConnectionManager();
+            connectionManager.getParams().setDefaultMaxConnectionsPerHost(10);
+            connectionManager.getParams().setConnectionTimeout(5000);
         }
+        return connectionManager;
     }
 }

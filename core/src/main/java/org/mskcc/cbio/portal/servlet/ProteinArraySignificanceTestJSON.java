@@ -56,7 +56,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ProteinArrayInfo;
-import org.mskcc.cbio.portal.remote.GetProteinArrayData;
+import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 
 /**
  *

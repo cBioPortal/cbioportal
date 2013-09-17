@@ -76,7 +76,7 @@ public class TestGetGeneticProfiles extends TestCase {
 
 
 
-        String output = GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
+        String output = GetGeneticProfiles.getGeneticProfilesAsTable(cancerStudy.getCancerStudyStableId());
         assertTrue(output.contains("gbm_rae\tBarry CNA Results\tBlah\t1\tCOPY_NUMBER_ALTERATION"));
         assertTrue(output.contains("gbm_gistic\tGistic CNA Results\tBlahBlah\t1\tCOPY_NUMBER_ALTERATION"));
     }

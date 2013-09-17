@@ -29,8 +29,8 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.model.LinkOutRequest;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.model.CaseList;
 import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
@@ -125,7 +125,7 @@ public class LinkOut extends HttpServlet {
     }
 
     private CaseList getDefaultCaseList(String cancerStudyId) throws DaoException {
-        ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+        ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
         AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
         CaseList defaultCaseList = annotatedCaseSets.getDefaultCaseList();
         if (defaultCaseList == null) {

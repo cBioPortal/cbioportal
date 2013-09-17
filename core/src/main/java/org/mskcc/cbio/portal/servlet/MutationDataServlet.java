@@ -37,7 +37,7 @@ import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.remote.GetMutationData;
+import org.mskcc.cbio.portal.web_api.GetMutationData;
 import org.mskcc.cbio.portal.util.*;
 
 import javax.servlet.ServletException;

@@ -141,7 +141,7 @@ define("Oncoprint",
                     });
                 label.append('tspan')       // percent_altered
                     .text(function(d) {
-                        return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
+                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : ""; })
                     .attr('x', '' + dims.label_width)
                     .attr('text-anchor', 'end')
                     // remove the tspan that would have contained the percent altered

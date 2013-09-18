@@ -7,8 +7,8 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneOptimized" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CanonicalGene" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
+<%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
 <%
       // construct gene list parameter to IGV
       // use geneWithScoreList so we don't get any OQL

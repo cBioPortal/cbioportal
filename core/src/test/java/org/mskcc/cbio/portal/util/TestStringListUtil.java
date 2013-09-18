@@ -31,8 +31,6 @@ import junit.framework.TestCase;
 
 import java.util.ArrayList;
 
-import org.mskcc.cbio.portal.util.StringListUtil;
-
 /**
  * Tests the String List Util Class.
  *

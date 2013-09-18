@@ -1,6 +1,6 @@
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.model.CaseList;
+import org.mskcc.cbio.portal.model.CaseList;
 
 import java.util.Formatter;
 import java.util.List;

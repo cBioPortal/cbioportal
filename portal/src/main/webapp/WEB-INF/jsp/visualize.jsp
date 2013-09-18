@@ -13,12 +13,12 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Patient" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.Patient" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
@@ -119,10 +119,9 @@
     ArrayList <GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
     ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
-    String bitlyUser = SkinUtil.getBitlyUser();
-    String bitlyKey = SkinUtil.getBitlyApiKey();
+    String siteTitle = GlobalProperties.getTitle();
+    String bitlyUser = GlobalProperties.getBitlyUser();
+    String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
     
@@ -141,7 +140,7 @@
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
 	
-    boolean includeNetworks = SkinUtil.includeNetworks();
+    boolean includeNetworks = GlobalProperties.includeNetworks();
 %>
 
 <%!

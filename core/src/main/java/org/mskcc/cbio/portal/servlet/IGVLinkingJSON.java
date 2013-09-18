@@ -29,7 +29,6 @@ package org.mskcc.cbio.portal.servlet;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.util.IGVLinking;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
 import java.io.IOException;

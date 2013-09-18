@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 
 import java.util.ArrayList;
 import java.util.HashSet;

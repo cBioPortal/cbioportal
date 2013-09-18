@@ -34,8 +34,8 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.util.ProfileMerger;
 import org.mskcc.cbio.io.WebFileConnect;
 import org.mskcc.cbio.portal.util.ZScoreUtil;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 
 import java.io.File;
 import java.io.IOException;

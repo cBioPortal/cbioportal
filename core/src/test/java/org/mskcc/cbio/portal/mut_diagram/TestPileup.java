@@ -37,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 
 import com.google.common.collect.ImmutableList;
 

@@ -1,9 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoCase" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Case" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoCase" %>
+<%@ page import="org.mskcc.cbio.portal.model.Case" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <style type="text/css" title="currentStyle">
 #genomic-overview-tip {
@@ -34,7 +34,7 @@ if (mutationProfile!=null && hasCnaSegmentData) {
     }
     jsonCaseIdsInStudy = jsonMapper.writeValueAsString(caseIdsInStudy);
 }
-String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
+String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>

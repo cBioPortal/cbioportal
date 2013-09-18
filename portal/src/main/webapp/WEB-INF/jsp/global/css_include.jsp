@@ -1,7 +1,6 @@
-<%@ page import="org.mskcc.cbio.portal.util.Config" %><%
-    Config globalConfig2 = Config.getInstance();
-    String global_style = globalConfig2.getProperty("global_css");
-    String special_style = globalConfig2.getProperty("special_css");
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %><%
+    String global_style = GlobalProperties.getProperty("global_css");
+    String special_style = GlobalProperties.getProperty("special_css");
     if (global_style == null) {
         global_style = "css/global_portal.css";
     } else {

@@ -1,7 +1,6 @@
 <%
-    Config globalConfig = Config.getInstance();
-    String aboutHtml = globalConfig.getProperty("about");
-    String siteTitle = SkinUtil.getTitle();
+    String aboutHtml = GlobalProperties.getProperty("about");
+    String siteTitle = GlobalProperties.getTitle();
 
     if (aboutHtml == null) {
         aboutHtml = "content/about_us.html";
@@ -12,8 +11,7 @@
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::About Us"); %>

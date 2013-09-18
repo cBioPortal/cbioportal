@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
@@ -439,7 +439,7 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["bam"] ],
-                        "bVisible": false,//viewBam,
+                        "bVisible": viewBam,
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -452,7 +452,7 @@
                                 var ret = [];
                                 for (var i=0, n=samples.length; i<n; i++) {
                                     ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
-                                        +'=prad_su2c&amp;'+samples[i]+'&amp;locus=chr'+chr+'%3A'+start+'-'+end+'">'
+                                        +'=prad_su2c&case_id='+samples[i]+'&locus=chr'+chr+'%3A'+start+'-'+end+'">'
                                         +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>')
                                 }
                                 return ret.join("&nbsp;");
@@ -721,7 +721,7 @@
                         $.getJSON(url, function(data) {
                                 //console.log(data);
                                 // TODO this call displays warning message (resend)
-                                prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+                                prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome, data.trackName);
                         });
                 });
         });

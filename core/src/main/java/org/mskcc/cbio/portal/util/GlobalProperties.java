@@ -132,12 +132,12 @@ public class GlobalProperties {
 	}
 
 	public static boolean wantIGVBAMLinking() {
-        String igvBamLinking = properties.get(IGV_BAM_LINKING);
+        String igvBamLinking = properties.getProperty(IGV_BAM_LINKING);
 		return igvBamLinking!=null && igvBamLinking.equals("true");
 	}
 
 	public static Collection<String> getIGVBAMLinkingStudies() {
-        String igvBamLinkingStudies = properties.get(IGV_BAM_LINKING_STUDIES);
+        String igvBamLinkingStudies = properties.getProperty(IGV_BAM_LINKING_STUDIES);
         if (igvBamLinkingStudies==null) {
             return Collections.emptyList();
         }

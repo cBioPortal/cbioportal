@@ -143,7 +143,7 @@ var PlotsMenu = (function () {
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
                 var item_profile = singleDataTypeObj.genetic_profile[index];
                 $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
             }
         }
     }
@@ -160,7 +160,7 @@ var PlotsMenu = (function () {
             for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
                 var item_profile = singleDataTypeObj.genetic_profile[index];
                 $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "'>" + item_profile[1] + "</option>");
+                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
             }
         }
     }
@@ -265,6 +265,8 @@ var PlotsMenu = (function () {
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
         status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
+        console.log(content);
+        console.log(status);
     }
 
     return {
@@ -408,7 +410,7 @@ var PlotsView = (function () {
             copy_no_type : "",
             mrna_type : "",
             dna_methylation_type : "",
-            rppa_type : "",
+            rppa_type : ""
         };   //current user selection from the side menu
 
     var discretizedDataTypeIndicator = "";
@@ -725,25 +727,33 @@ var PlotsView = (function () {
             var xAxis = "",
                 yAxis = "",
                 xTitle = "",
-                yTitle = "";
+                yTitle = "",
+                xTitleHelp = "",
+                yTitleHelp = "";
 
             function getAxisTitles() {
                 //TODO: Change hard-coded menu items value
                 if (Util.plotsTypeIsCopyNo()) {
                     var e = document.getElementById("data_type_copy_no");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_mrna");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsMethylation()) {
                     var e = document.getElementById("data_type_dna_methylation");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_mrna");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 } else if (Util.plotsTypeIsRPPA()) {
                     var e = document.getElementById("data_type_mrna");
                     xTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    xTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                     e = document.getElementById("data_type_rppa");
                     yTitle = userSelection.gene + ", " + e.options[e.selectedIndex].text;
+                    yTitleHelp = e.options[e.selectedIndex].value.split("|")[1];
                 }
             }
 
@@ -792,9 +802,13 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
+                    .tickSize(0)
+                    .tickPadding([8]);
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
-                    .orient("left");
+                    .orient("left")
+                    .tickSize(0)
+                    .tickPadding([8]);
             }
 
             function drawDiscretizedAxis() {
@@ -810,30 +824,30 @@ var PlotsView = (function () {
                     }
                 }
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
                     .attr("class", "plots-x-axis-class")
-                    .call(xAxis.ticks(textSet.length))
+                  .call(xAxis.ticks(textSet.length))
                     .selectAll("text")
                     .data(textSet)
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black")
                     .text(function(d){return d});
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 20)")
                     .call(xAxis.orient("bottom").ticks(0));
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -842,12 +856,12 @@ var PlotsView = (function () {
                     .call(yAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -881,48 +895,54 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
+                    .tickSize(0)
+                    .tickPadding([8]);
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
-                    .orient("left");
+                    .orient("left")
+                    .tickSize(0)
+                    .tickPadding([8]);
             }
 
             function drawContinuousAxis() {
                 var svg = elem.svg;
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
+                    .attr("class", "plots-x-axis-class")
                     .call(xAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 20)")
                     .call(xAxis.orient("bottom").ticks(0));
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(100, 0)")
+                    .attr("class", "plots-y-axis-class")
                     .call(yAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -931,7 +951,8 @@ var PlotsView = (function () {
             }
 
             function addAxisTitle() {
-                var axisTitleGroup = elem.svg.append("svg:g");
+                var axisTitleGroup = elem.svg.append("svg:g")
+                    .attr("class", "axis");
                 axisTitleGroup.append("text")
                     .attr("class", "x-axis-title")
                     .attr("x", 350)
@@ -947,6 +968,15 @@ var PlotsView = (function () {
                     .style("text-anchor", "middle")
                     .style("font-weight","bold")
                     .text(yTitle);
+                Plots.addAxisHelp(
+                    elem.svg,
+                    axisTitleGroup,
+                    xTitle,
+                    yTitle,
+                    "x-title-help",
+                    "y-title-help",
+                    xTitleHelp,
+                    yTitleHelp);
             }
 
             return {
@@ -960,6 +990,12 @@ var PlotsView = (function () {
                         drawContinuousAxis();
                     }
                     addAxisTitle();
+                },
+                getXHelp: function() {
+                    return xTitleHelp;
+                },
+                getYHelp: function() {
+                    return yTitleHelp;
                 }
             };
 
@@ -977,7 +1013,7 @@ var PlotsView = (function () {
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
                     content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";
@@ -1098,7 +1134,7 @@ var PlotsView = (function () {
 
             function drawDiscretizedPlots() { //GISTIC, RAE view
                 elem.elemDotsGroup = elem.svg.append("svg:g");
-                var ramRatio = 20;  //Noise
+                var ramRatio = 30;  //Noise
                 //Divide Data Set by Gistic Type
                 var subDataSet = {
                     Homdel : [],
@@ -1192,7 +1228,7 @@ var PlotsView = (function () {
                             .attr("x2", midLine+30)
                             .attr("y1", mean)
                             .attr("y2", mean)
-                            .attr("stroke-width", 1)
+                            .attr("stroke-width", 2)
                             .attr("stroke", "grey");
                         pos += 1;
                     } else {
@@ -1250,7 +1286,7 @@ var PlotsView = (function () {
                             .attr("x2", midLine+40)
                             .attr("y1", mean)
                             .attr("y2", mean)
-                            .attr("stroke-width", 1)
+                            .attr("stroke-width", 2)
                             .attr("stroke", "#BDBDBD");
                         boxPlotsElem.append("line")
                             .attr("x1", midLine-30)
@@ -1570,10 +1606,10 @@ var PlotsView = (function () {
     function getUserSelection() {
         userSelection.gene = document.getElementById("gene").value;
         userSelection.plots_type = document.getElementById("plots_type").value;
-        userSelection.copy_no_type = document.getElementById("data_type_copy_no").value;
-        userSelection.mrna_type = document.getElementById("data_type_mrna").value;
-        userSelection.rppa_type = document.getElementById("data_type_rppa").value;
-        userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value;
+        userSelection.copy_no_type = document.getElementById("data_type_copy_no").value.split("|")[0];
+        userSelection.mrna_type = document.getElementById("data_type_mrna").value.split("|")[0];
+        userSelection.rppa_type = document.getElementById("data_type_rppa").value.split("|")[0];
+        userSelection.dna_methylation_type = document.getElementById("data_type_dna_methylation").value.split("|")[0];
     }
 
     function generatePlots() {
@@ -1585,7 +1621,7 @@ var PlotsView = (function () {
         var vals = [];
         for (var i = 0; i < sel.children.length; ++i) {
             var child = sel.children[i];
-            if (child.tagName == 'OPTION') vals.push(child.value);
+            if (child.tagName == 'OPTION') vals.push(child.value.split("|")[0]);
         }
         if (vals.indexOf(cancer_study_id + "_gistic") !== -1) {
             discretizedDataTypeIndicator = cancer_study_id + "_gistic";

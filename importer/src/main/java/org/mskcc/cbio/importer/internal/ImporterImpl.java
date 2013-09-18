@@ -45,9 +45,9 @@ import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.MutationFileUtil;
 
-import org.mskcc.cbio.cgds.scripts.ImportCaseList;
-import org.mskcc.cbio.cgds.scripts.ImportCancerStudy;
-import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.ImportCaseList;
+import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
+import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -52,7 +52,7 @@ public class IGVLinking {
 	{
 		// routine defined in igv_webstart.js
 		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
-		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18 };
+		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18, cancerTypeId + SEG_FILE_SUFFIX };
 	}
 
 	// returns null if exception has been thrown during processing
@@ -62,6 +62,8 @@ public class IGVLinking {
 			!IGVLinking.encryptionBinLocated()) {
 			return null;
 		}
+        
+        String trackName = caseId;
 
 		String tumorBAMFileURL = getBAMFileURL(caseId);
 		if (tumorBAMFileURL == null) return null;
@@ -72,13 +74,14 @@ public class IGVLinking {
             String normalBAMFileURL = getBAMFileURL(normalCaseId);
             if (normalBAMFileURL != null) {
                 tumorBAMFileURL  += "," + normalBAMFileURL;
+                trackName += "," + normalCaseId;
             }
         }
         
 		String encodedLocus = getEncodedLocus(locus);
 		if (encodedLocus == null) return null;
 
-		return new String[] { tumorBAMFileURL, encodedLocus, REFERENCE_GENOME_19 };
+		return new String[] { tumorBAMFileURL, encodedLocus, REFERENCE_GENOME_19, trackName };
 	}
 
 	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)

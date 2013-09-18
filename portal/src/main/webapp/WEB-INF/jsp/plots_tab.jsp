@@ -4,8 +4,8 @@
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");

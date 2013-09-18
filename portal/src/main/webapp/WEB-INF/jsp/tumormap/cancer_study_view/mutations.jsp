@@ -1,6 +1,6 @@
 
 <%@ page import="org.mskcc.cbio.portal.servlet.MutSigJSON" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <script type="text/javascript">   
     $(document).ready(function(){

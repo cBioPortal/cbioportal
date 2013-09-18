@@ -36,8 +36,8 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintLangException;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 
 public class OncoPrintSpecificationDriver {
 

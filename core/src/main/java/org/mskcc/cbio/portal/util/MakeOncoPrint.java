@@ -33,9 +33,9 @@ import org.mskcc.cbio.portal.model.GeneticEventImpl.RPPA;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.*;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.model.ExtendedMutationMap;
 
 import org.apache.commons.lang.StringUtils;

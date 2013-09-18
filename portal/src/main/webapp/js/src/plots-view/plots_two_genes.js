@@ -742,7 +742,7 @@ var PlotsTwoGenesView = (function(){
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+                    "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 if (d.annotation !== "") {

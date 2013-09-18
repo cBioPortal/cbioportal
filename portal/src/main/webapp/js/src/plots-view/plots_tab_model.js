@@ -89,15 +89,15 @@ var Plots = (function(){
         axisGroupSvg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", xTitleClass)
-            .attr("x", 340 + xTitle.length / 2 * 8)
-            .attr("y", 570)
+            .attr("x", 350 + xTitle.length / 2 * 8)
+            .attr("y", 567)
             .attr("width", "16")
             .attr("height", "16");
         axisGroupSvg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", yTitleClass)
             .attr("x", 34)
-            .attr("y", 260 - yTitle.length / 2 * 8)
+            .attr("y", 255 - yTitle.length / 2 * 8)
             .attr("width", "16")
             .attr("height", "16");
         svg.select("." + xTitleClass).each(

@@ -1003,7 +1003,7 @@ var PlotsView = (function () {
                             "mRNA: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     }
                     content += "Case ID: <strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId +
+                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId +
                         "</a></strong><br>";
                     if (d.mutationType !== 'non') {
                         content = content + "Mutation: " + "<strong>" + d.mutationDetail.replace(/,/g, ", ") + "<br>";

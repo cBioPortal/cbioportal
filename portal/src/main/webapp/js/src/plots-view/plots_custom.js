@@ -766,7 +766,7 @@ var PlotsCustomView = (function() {
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+                    "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 if (menu.geneX === menu.geneY) {
                     content += "x-Val: <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                         "y-Val: <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";

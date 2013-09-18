@@ -132,11 +132,16 @@ public class GlobalProperties {
 	}
 
 	public static boolean wantIGVBAMLinking() {
-		return properties.getProperty(IGV_BAM_LINKING).equals("true");
+        String igvBamLinking = properties.get(IGV_BAM_LINKING);
+		return igvBamLinking!=null && igvBamLinking.equals("true");
 	}
 
 	public static Collection<String> getIGVBAMLinkingStudies() {
-		String[] studies = properties.getProperty(IGV_BAM_LINKING_STUDIES).split(":");
+        String igvBamLinkingStudies = properties.get(IGV_BAM_LINKING_STUDIES);
+        if (igvBamLinkingStudies==null) {
+            return Collections.emptyList();
+        }
+		String[] studies = igvBamLinkingStudies.split(":");
 		return (studies.length > 0) ? Arrays.asList(studies) : Collections.<String>emptyList();
 	}
 

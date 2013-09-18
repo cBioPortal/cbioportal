@@ -205,12 +205,11 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 }
 
-function prepIGVLaunch(dataURL, locusString, referenceGenome) {
+function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
 
     var port = 60151;
     var genomeID = referenceGenome;
     var mergeFlag = false;
-    var trackName = null;
 
     appRequest(port, dataURL, genomeID, mergeFlag, locusString, trackName);
 }

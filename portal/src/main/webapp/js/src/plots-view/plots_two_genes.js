@@ -454,15 +454,19 @@ var PlotsTwoGenesView = (function(){
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
+            .tickSize(0)
+            .tickPadding([8]);
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
-            .orient("left");
+            .orient("left")
+            .tickSize(0)
+            .tickPadding([8]);
     }
 
     function drawAxis() {
         var svg = elem.svg;
         svg.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
@@ -471,19 +475,19 @@ var PlotsTwoGenesView = (function(){
             .call(elem.xAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
         svg.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 20)")
             .call(elem.xAxis.orient("bottom").ticks(0));
         svg.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
@@ -492,12 +496,12 @@ var PlotsTwoGenesView = (function(){
             .call(elem.yAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
         svg.append("g")
-            .style("stroke-width", 2)
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")

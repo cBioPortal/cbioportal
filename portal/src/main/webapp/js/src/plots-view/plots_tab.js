@@ -265,6 +265,8 @@ var PlotsMenu = (function () {
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
         status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
+        console.log(content);
+        console.log(status);
     }
 
     return {
@@ -800,9 +802,13 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
+                    .tickSize(0)
+                    .tickPadding([8]);
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
-                    .orient("left");
+                    .orient("left")
+                    .tickSize(0)
+                    .tickPadding([8]);
             }
 
             function drawDiscretizedAxis() {
@@ -818,30 +824,30 @@ var PlotsView = (function () {
                     }
                 }
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
                     .attr("class", "plots-x-axis-class")
-                    .call(xAxis.ticks(textSet.length))
+                  .call(xAxis.ticks(textSet.length))
                     .selectAll("text")
                     .data(textSet)
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black")
                     .text(function(d){return d});
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 20)")
                     .call(xAxis.orient("bottom").ticks(0));
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -850,12 +856,12 @@ var PlotsView = (function () {
                     .call(yAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -889,15 +895,19 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
+                    .tickSize(0)
+                    .tickPadding([8]);
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
-                    .orient("left");
+                    .orient("left")
+                    .tickSize(0)
+                    .tickPadding([8]);
             }
 
             function drawContinuousAxis() {
                 var svg = elem.svg;
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -906,19 +916,19 @@ var PlotsView = (function () {
                     .call(xAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 20)")
                     .call(xAxis.orient("bottom").ticks(0));
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -927,12 +937,12 @@ var PlotsView = (function () {
                     .call(yAxis)
                     .selectAll("text")
                     .style("font-family", "sans-serif")
-                    .style("font-size", "11px")
+                    .style("font-size", "12px")
                     .style("stroke-width", 0.5)
                     .style("stroke", "black")
                     .style("fill", "black");
                 svg.append("g")
-                    .style("stroke-width", 2)
+                    .style("stroke-width", 1.5)
                     .style("fill", "none")
                     .style("stroke", "grey")
                     .style("shape-rendering", "crispEdges")
@@ -1218,7 +1228,7 @@ var PlotsView = (function () {
                             .attr("x2", midLine+30)
                             .attr("y1", mean)
                             .attr("y2", mean)
-                            .attr("stroke-width", 1)
+                            .attr("stroke-width", 2)
                             .attr("stroke", "grey");
                         pos += 1;
                     } else {
@@ -1276,7 +1286,7 @@ var PlotsView = (function () {
                             .attr("x2", midLine+40)
                             .attr("y1", mean)
                             .attr("y2", mean)
-                            .attr("stroke-width", 1)
+                            .attr("stroke-width", 2)
                             .attr("stroke", "#BDBDBD");
                         boxPlotsElem.append("line")
                             .attr("x1", midLine-30)

@@ -41,14 +41,14 @@
 <style>
     #plots .plots {
         height: 610px;
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
     }
     #plots .plots.plots-menus {
         width: 320px;
-        height: 685px;
+        height: 645px;
     }
     #plots .plots.plots-view {
-        border: 1px solid #aaaaaa;
-        border-radius: 4px;
         padding: 40px;
         width: 720px;
     }
@@ -72,6 +72,10 @@
     }
     #plots .ui-tabs .ui-state-disabled {
         display: none; /* disabled tabs don't show up */
+    }
+    #plots .search-box {
+        width: 323px;
+        height: 36px;
     }
 </style>
 
@@ -128,6 +132,15 @@
                         <br><label for="show_mutation_custom_view">Show Mutation Data</label>
                         <input type="checkbox" name="show_mutation_custom_view" id="show_mutation_custom_view"
                                value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
+                    </div>
+                </div>
+                <div id="inner-search-box" class="plots search-box">
+                    <div style="padding-left:20px; padding-top: 5px;">
+                        Search Case
+                        <input type="text" name="search_plots" id="search_plots" onkeyup="Plots.searchPlots();">
+                        <img src='images/help.png'
+                             class='profile_help' title='Type in whole/part of the ID of the case you are interested.
+                         The related case would be highlighted accordingly. To clear searching result, simply delete everything in the box.'>
                     </div>
                 </div>
             </td>

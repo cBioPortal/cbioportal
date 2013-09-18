@@ -1169,6 +1169,7 @@ var PlotsView = (function () {
                         .data(value)
                         .enter()
                         .append("svg:path")
+                        .attr("class", function(d){ return d.caseId;})
                         .attr("transform", function(d){
                             return "translate(" +
                                 (attr.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2)) +
@@ -1323,6 +1324,7 @@ var PlotsView = (function () {
             function drawLog2Plots() {
                 elem.elemDotsGroup = elem.svg.append("svg:g");
                 elem.elemDotsGroup.selectAll("path")
+                    .attr("class", "dots")
                     .data(PlotsData.getDotsGroup())
                     .enter()
                     .append("svg:path")
@@ -1341,7 +1343,8 @@ var PlotsView = (function () {
                     .attr("stroke", function(d){
                         return mutationStyle[d.mutationType].stroke;
                     })
-                    .attr("stroke-width", 1.2);
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId});
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
@@ -1376,7 +1379,8 @@ var PlotsView = (function () {
                             case "non" : return "1";
                             default : return "1.1";
                         }
-                    });
+                    })
+                    .attr("class", function(d) { return d.caseId; });
             }
 
             return {

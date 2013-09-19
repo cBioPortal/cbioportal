@@ -28,6 +28,9 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.*;
 import java.util.*;
 
@@ -81,31 +84,65 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
 
+
+	private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
     private static Properties initializeProperties()
     {
-        return loadProperties(getResource());
+        return loadProperties(getResourceStream());
     }
 
-    private static String getResource()
+    private static InputStream getResourceStream()
     {
-        String home = System.getenv(HOME_DIR);
-        return (home == null || home.isEmpty()) ?
-            GlobalProperties.propertiesFilename :
-            (home + File.separator + GlobalProperties.propertiesFilename);
+        String resourceFilename = null;
+        InputStream resourceFIS = null;
+
+        try {
+            String home = System.getenv(HOME_DIR);
+            if (home != null) {
+                 resourceFilename =
+                    home + File.separator + GlobalProperties.propertiesFilename;
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Attempting to read properties file: " + resourceFilename);
+                }
+                resourceFIS = new FileInputStream(resourceFilename);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Successfully read properties file");
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Failed to read properties file: " + resourceFilename);
+            }
+        }
+
+        if (resourceFIS == null) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Attempting to read properties file from classpath");
+            }
+            resourceFIS = GlobalProperties.class.getClassLoader().
+                getResourceAsStream(GlobalProperties.propertiesFilename);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Successfully read properties file");
+            }
+        }
+         
+        return resourceFIS;
     }
 
-    private static Properties loadProperties(String resource)
+    private static Properties loadProperties(InputStream resourceInputStream)
     {
         Properties properties = new Properties();
 
         try {
-            properties.load(new FileReader(resource));
+            properties.load(resourceInputStream);
+            resourceInputStream.close();
         }
         catch (IOException e) {
-            System.err.println("Error loading properties file'" +
-                               resource + "', aborting\n");
-            System.exit(1);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Error loading properties file: " + e.getMessage());
+            }
         }
 
         return properties;

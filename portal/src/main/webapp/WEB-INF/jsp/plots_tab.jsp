@@ -90,10 +90,13 @@
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
                         <select id='gene' onchange='PlotsMenu.updateMenu();PlotsView.init();'></select>
-                        <h5>Plot Type</h5>
-                        <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
-                        <h5>Data Type</h5>
-                        <div id='one_gene_platform_select_div'></div>
+                        <div id='menu_err_msg'></div>
+                        <div id='one_gene_type_specification'>
+                            <h5>Plot Type</h5>
+                            <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
+                            <h5>Data Type</h5>
+                            <div id='one_gene_platform_select_div'></div>
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>

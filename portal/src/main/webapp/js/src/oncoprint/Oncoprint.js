@@ -82,7 +82,7 @@ define("Oncoprint",
 
                     return {
                         width: data.length * (5.5 + 3),
-                    height: (23 + 5) * attributes.length,
+                    height: (rect_height + vert_padding) * attributes.length,
                     rect_height: rect_height,
                     rect_width: 5.5,
                     vert_padding: vert_padding,
@@ -141,7 +141,7 @@ define("Oncoprint",
                     });
                 label.append('tspan')       // percent_altered
                     .text(function(d) {
-                        return gene2percent[d] ? gene2percent[d].toString() + "%" : ""; })
+                        return (d in gene2percent) ? gene2percent[d].toString() + "%" : ""; })
                     .attr('x', '' + dims.label_width)
                     .attr('text-anchor', 'end')
                     // remove the tspan that would have contained the percent altered

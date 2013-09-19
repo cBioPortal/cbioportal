@@ -108,6 +108,7 @@ var PlotsMenu = (function () {
     }());
 
     function drawMenu() {
+        $("#one_gene_type_specification").show();
         $("#plots_type").empty();
         $("#one_gene_platform_select_div").empty();
         //Plots Type field
@@ -148,21 +149,9 @@ var PlotsMenu = (function () {
         }
     }
 
-    function updateMenu() {
-        $("#one_gene_platform_select_div").empty();
-        for (var key in content.data_type) {
-            var singleDataTypeObj = content.data_type[key];
-            $("#one_gene_platform_select_div").append(
-                "<div id='" + singleDataTypeObj.value + "_dropdown' style='padding:5px;'>" +
-                    "<label for='" + singleDataTypeObj.value + "'>" + singleDataTypeObj.label + "</label><br>" +
-                    "<select id='" + singleDataTypeObj.value + "' onchange='PlotsView.init()' class='plots-select'></select></div>"
-            );
-            for (var index in singleDataTypeObj.genetic_profile) { //genetic_profile is ARRAY!
-                var item_profile = singleDataTypeObj.genetic_profile[index];
-                $("#" + singleDataTypeObj.value).append(
-                    "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
-            }
-        }
+    function drawErrMsgs() {
+        $("#one_gene_type_specification").hide();
+        $("#menu_err_msg").append("<h5>Profile data missing for generating this view.</h5>");
     }
 
     function setDefaultCopyNoSelection() {
@@ -269,24 +258,37 @@ var PlotsMenu = (function () {
 
     return {
         init: function () {
+            $("#menu_err_msg").empty();
             fetchFrameContent(gene_list[0]);
             Util.generateList("gene", gene_list);
-            drawMenu();
-            setDefaultMrnaSelection();
-            setDefaultCopyNoSelection();
-            updateVisibility();
+            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa)) {
+                drawMenu();
+                setDefaultMrnaSelection();
+                setDefaultCopyNoSelection();
+                updateVisibility();
+            } else {
+                drawErrMsgs();
+            }
         },
         updateMenu: function() {
+            $("#menu_err_msg").empty();
             fetchFrameContent(document.getElementById("gene").value);
-            drawMenu();
-            setDefaultMrnaSelection();
-            setDefaultCopyNoSelection();
-            updateVisibility();
+            if(status.has_mrna && (status.has_copy_no || status.has_dna_methylation || status.has_rppa)) {
+                drawMenu();
+                setDefaultMrnaSelection();
+                setDefaultCopyNoSelection();
+                updateVisibility();
+            } else {
+                drawErrMsgs();
+            }
         },
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
             updateVisibility();
+        },
+        getStatus: function() {
+            return status;
         }
     };
 }()); //Closing PlotsMenu
@@ -1665,13 +1667,11 @@ var PlotsView = (function () {
                 case_ids_key,
                 getMutationTypeCallBack
             );
-
         } else {
             PlotsData.init(profileDataResult, "");
             $('#view_title').show();
             $('#plots_box').show();
             $('#loading-image').hide();
-
             View.init();
         }
 
@@ -1680,7 +1680,6 @@ var PlotsView = (function () {
             $('#view_title').show();
             $('#plots_box').show();
             $('#loading-image').hide();
-
             View.init();
         }
 
@@ -1695,8 +1694,13 @@ var PlotsView = (function () {
             $('#view_title').hide();
             $('#plots_box').hide();
 
-            getUserSelection();
-            generatePlots();
+            var _status = PlotsMenu.getStatus();
+            if (_status.has_mrna && (_status.has_copy_no || _status.has_dna_methylation || _status.has_rppa)) {
+                getUserSelection();
+                generatePlots();
+            } else {
+                $('#loading-image').hide();
+            }
         }
     };
 

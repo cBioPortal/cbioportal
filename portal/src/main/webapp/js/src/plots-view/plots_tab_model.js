@@ -45,7 +45,6 @@ var Plots = (function(){
         genetic_profiles = {};
 
     function getGeneticProfileCallback(result) {
-        console.log(result);
         for (var gene in result) {
             var _obj = result[gene];
             var _genetic_profile = jQuery.extend(true, {}, genetic_profile);

@@ -2,8 +2,8 @@ function geneticProfiles = getgeneticprofiles(cgdsURL, cancerTypeId, varargin)
 %GETGENETICPROFILES Get genetic profiles from the cBio CGDS portal.
 %    A = GETGENETICPROFILES(cgdsURL, cancerTypeId) loads a list of
 %    available genetic profiles into A. cdgsURL points to the CGDS web API,
-%    typically 'http://cbio.mskcc.org/cgds-public/'. cancerTypeId is the
-%    cancer type ID, as returned by the getcancertypes function.
+%    typically http://www.cbioportal.org/public-portal/. cancerTypeId is
+%    the cancer type ID, as returned by the getcancertypes function.
 %
 %    The function returns a struct array with the following fields:
 %    geneticProfileId, geneticProfileName, geneticProfileDescription,
@@ -21,6 +21,7 @@ function geneticProfiles = getgeneticprofiles(cgdsURL, cancerTypeId, varargin)
 %    getclinicaldata.
 
 verbose = isempty(varargin);
+if ~strcmp(cgdsURL(end), '/') cgdsURL(end + 1) = '/'; end
 
 cells  = urlgetcells([cgdsURL 'webservice.do?cmd=getGeneticProfiles&cancer_type_id=' cancerTypeId], verbose);
 

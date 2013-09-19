@@ -104,6 +104,7 @@ public class TestDaoGeneticProfile extends TestCase {
        profile1.setCancerStudyId(1);
        profile1.setStableId("gbm_rae");
        profile1.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+       profile1.setDatatype("DISCRETE");
        profile1.setProfileName("Barry CNA Results");
        profile1.setProfileDescription("Blah, Blah, Blah.");
        profile1.setShowProfileInAnalysisTab(true);
@@ -113,6 +114,7 @@ public class TestDaoGeneticProfile extends TestCase {
        profile2.setCancerStudyId(1);
        profile2.setStableId("gbm_gistic");
        profile2.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+       profile2.setDatatype("DISCRETE");
        profile2.setProfileName("Gistic CNA Results");
        profile2.setShowProfileInAnalysisTab(true);
        DaoGeneticProfile.addGeneticProfile(profile2);

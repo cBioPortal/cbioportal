@@ -39,48 +39,6 @@ public class ExtendedMutationUtil
 {
 	public static final String NOT_AVAILABLE = "NA";
 
-	public static Integer calculateCosmicCount(ExtendedMutation mutation)
-	{
-		String cosmicOverlap = mutation.getOncotatorCosmicOverlapping();
-
-		if (cosmicOverlap == null)
-		{
-			return -1;
-		}
-
-		String[] parts = cosmicOverlap.split("\\|");
-		Integer total = 0;
-
-		for (String cosmic : parts)
-		{
-			int beginIdx = cosmic.indexOf('(') + 1;
-			int endIdx = cosmic.indexOf(")");
-
-			String count;
-
-			if (beginIdx == 0 || endIdx < 0)
-			{
-				count = "0";
-			}
-			else
-			{
-				count = cosmic.substring(beginIdx, endIdx);
-			}
-
-			boolean unknownCosmic = cosmic.startsWith("p.?") || cosmic.startsWith("?");
-
-			// update the total count if the count is a valid integer value
-			// and the cosmic value does not start with "?"
-			if (count.matches("[0-9]+") &&
-				!unknownCosmic)
-			{
-				total += Integer.parseInt(count);
-			}
-		}
-
-		return total;
-	}
-
 	public static String getCaseId(String barCode)
 	{
 		// process bar code
@@ -294,13 +252,13 @@ public class ExtendedMutationUtil
 	{
 		Integer defaultInt = TabDelimitedFileUtil.NA_INT;
 		String defaultStr = TabDelimitedFileUtil.NA_STRING;
-		Long defaultLong = TabDelimitedFileUtil.NA_LONG;
+		//Long defaultLong = TabDelimitedFileUtil.NA_LONG;
+		Long defaultLong = -1L;
 		Float defaultFloat = TabDelimitedFileUtil.NA_FLOAT;
 		CanonicalGene defaultGene = new CanonicalGene("INVALID");
 
 		ExtendedMutation mutation = new ExtendedMutation();
 
-		mutation.setMutationEventId(-1L); // default dummy event id
 		mutation.setGeneticProfileId(defaultInt);
 		mutation.setCaseId(defaultStr);
 		mutation.setGene(defaultGene);
@@ -341,7 +299,6 @@ public class ExtendedMutationUtil
 		mutation.setTumorRefCount(defaultInt);
 		mutation.setNormalAltCount(defaultInt);
 		mutation.setNormalRefCount(defaultInt);
-		mutation.setOncotatorCosmicOverlapping(defaultStr);
 		mutation.setOncotatorDbSnpRs(defaultStr);
 		mutation.setOncotatorCodonChange(defaultStr);
 		mutation.setOncotatorRefseqMrnaId(defaultStr);

@@ -130,7 +130,12 @@ public class JdbcUtil {
                 con.close();
                 
                 if (requester!=null) {
-                    activeConnectionCount.put(requester, activeConnectionCount.get(requester)-1);
+                    int count = activeConnectionCount.get(requester)-1;
+                    if (count==0) {
+                        activeConnectionCount.remove(requester);
+                    } else {
+                        activeConnectionCount.put(requester, count);
+                    }
                 }
                 
                 if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
@@ -139,6 +144,8 @@ public class JdbcUtil {
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Problem Closed a MySQL connection from "+requester+".\nActive connections: "+ds.getNumActive()
+                        + "\n" + activeConnectionCount.toString());
             e.printStackTrace();
         }
     }
@@ -174,6 +181,25 @@ public class JdbcUtil {
      */
     public static void closeAll(String requester, Connection con, PreparedStatement ps,
             ResultSet rs) {
+        closeConnection(requester, con);
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * Why does closeAll need a PreparedStatement?
+     * This is a copy of closeAll without the PreparedStatement
+     * @param clazz
+     * @param con
+     * @param rs
+     */
+    public static void closeAll(Class clazz, Connection con, ResultSet rs) {
+        String requester = clazz.getName();
         closeConnection(requester, con);
         if (rs != null) {
             try {

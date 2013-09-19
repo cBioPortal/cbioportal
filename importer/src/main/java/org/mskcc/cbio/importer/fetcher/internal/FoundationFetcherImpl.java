@@ -74,7 +74,6 @@ class FoundationFetcherImpl implements Fetcher
 	public static final String CANCER_STUDY = "prad/mskcc/foundation";
 	public static final String MUTATION_METADATA = "mutation-foundation";
 	public static final String CNA_METADATA = "cna-foundation";
-	// TODO this metadata does not exist yet in the spreadsheet
 	public static final String FUSION_METADATA = "fusion";
 
 	// some default data values
@@ -223,7 +222,7 @@ class FoundationFetcherImpl implements Fetcher
 		// generate meta files
 		this.generateStudyMetaFile(numCases);
 		this.generateMutationMetaFile(numCases);
-		//this.generateFusionMetaFile(numCases); // TODO enable when ready
+		this.generateFusionMetaFile(numCases);
 		this.generateCNAMetaFile(numCases);
 	}
 
@@ -442,7 +441,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		fmiCaseID = caseNode.getAttribute("fmiCase");
-		caseID = caseNode.getAttribute("case");
+		caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -514,7 +513,7 @@ class FoundationFetcherImpl implements Fetcher
 			return; // no case to process
 		}
 
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -564,7 +563,7 @@ class FoundationFetcherImpl implements Fetcher
 		content.append(otherGene);
 		content.append(" fusion"); // Fusion
 		content.append("\t");
-		content.append("yes"); // TODO DNA support
+		content.append("yes"); // DNA support
 		content.append("\t");
 		content.append(UNKNOWN); // RNA support
 		content.append("\t");
@@ -600,7 +599,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		Element variantReport = this.extractVariantReport(caseNode);
 
@@ -968,7 +967,7 @@ class FoundationFetcherImpl implements Fetcher
 		}
 
 		//fmiCaseID = caseNode.getAttribute("fmiCase");
-		String caseID = caseNode.getAttribute("case").replaceAll("\\s", "_");
+		String caseID = this.extractCaseId(caseNode);
 
 		caseSet.add(caseID);
 
@@ -1119,5 +1118,17 @@ class FoundationFetcherImpl implements Fetcher
 	{
 		Collection<DatatypeMetadata> list = this.config.getDatatypeMetadata(datatype);
 		return list.iterator().next();
+	}
+
+	/**
+	 * Extracts case ID from the given node. Also replaces any whitespace
+	 * character with an underscore.
+	 *
+	 * @param caseNode  caseNode containing the case ID information
+	 * @return          case ID as a string
+	 */
+	private String extractCaseId(Element caseNode)
+	{
+		return caseNode.getAttribute("case").replaceAll("\\s", "_");
 	}
 }

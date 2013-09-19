@@ -58,8 +58,6 @@ faq=faq_su2c.html
 popeye=preview_su2c.jsp
 skin.right_nav.show_testimonials=true
 
-tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
-
 # Skin Data Sets
 skin.data_sets_header=The portal currently contains data from <NUM_CANCER_STUDIES> cancer genomics studies.  The table below lists the number of available samples per cancer study and data type.
 skin.data_sets_footer=
@@ -77,7 +75,8 @@ bitly.api_key=[put your bitly api key here]
 
 patient_view_placeholder=false
 patient_view_genomic_overview_cna_cutoff=0.2,1.5
-tumor_image.url=http://cbio.mskcc.org/cancergenomics/tcga-tumor-images/
+digitalslidearchive.iframe.url=http://cancer.digitalslidearchive.net/index_mskcc.php?slide_name=
+digitalslidearchive.meta.url=http://cancer.digitalslidearchive.net/local_php/get_slide_list_from_db_groupid_not_needed.php?slide_name_filter=
 tcga_path_report.url=https://tcga-data.nci.nih.gov/tcgafiles/ftp_auth/distro_ftpusers/anonymous/tumor/{cancer.type}/bcr/nationwidechildrens.org/pathology_reports/reports/
 
 # this is for grabbing NCI's Clinical Trial Information
@@ -103,3 +102,16 @@ darwin.db.host=
 darwin.db.name=
 darwin.db.user=
 darwin.db.password=
+
+# igv bam linking
+igv.bam.linking=false
+# colon delimited
+igv.bam.linking.studies=
+
+# openssl
+openssl.binary=/usr/bin/openssl
+signature.key=
+encryption.key=
+
+# broad BAM file url
+broad.bam.url=

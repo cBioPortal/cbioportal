@@ -3,7 +3,7 @@
 
 <script type="text/javascript">
     
-    var cnaTableIndices = {id:0,gene:1,alteration:2,mrna:3,altrate:4,drug:5};
+    var cnaTableIndices = cbio.util.arrayToAssociatedArrayIndices(["id","case_ids","gene","cytoband","alteration","mrna","altrate","drug"]);
     function buildCnaDataTable(cnas, cnaEventIds, table_id, sDom, iDisplayLength, sEmptyInfo) {
         var data = [];
         for (var i=0, nEvents=cnaEventIds.length; i<nEvents; i++) {
@@ -19,6 +19,46 @@
                         "aTargets": [ cnaTableIndices['id'] ],
                         "bVisible": false,
                         "mData" : 0
+                    },
+                    {// case_ids
+                        "aTargets": [ cnaTableIndices["case_ids"] ],
+                        "sClass": "center-align-td",
+                        "bVisible": caseIds.length>1,
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var samples = cnas.getValue(source[0], "caseIds");
+                                var ret = [];
+                                for (var i=0, n=caseIds.length; i<n; i++) {
+                                    var caseId = caseIds[i];
+                                    if ($.inArray(caseId,samples)>=0) {
+                                        ret.push("<svg width='12' height='12' class='"
+                                            +table_id+"-case-label' alt='"+caseId+"'></svg>");
+                                    } else {
+                                        ret.push("<span><svg width='12'></svg></span>");
+                                    }
+                                }
+                                
+                                return ret.join("&nbsp;");
+                            } else if (type==='sort') {
+                                var samples = cnas.getValue(source[0], "caseIds");
+                                var ix = [];
+                                samples.forEach(function(caseId){
+                                    ix.push(caseMetaData.index[caseId]);
+                                });
+                                ix.sort();
+                                var ret = 0;
+                                for (var i=0; i<ix.length; i++) {
+                                    ret += Math.pow(10,i)*ix[i];
+                                }
+                                return ret;
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return cnas.getValue(source[0], "caseIds");
+                            }
+                        }
                     },
                     {// gene
                         "aTargets": [ cnaTableIndices['gene'] ],
@@ -42,6 +82,16 @@
                                 return ret;
                             } else {
                                 return cnas.getValue(source[0], "gene");
+                            }
+                        }
+                    },
+                    {// cytoband
+                        "aTargets": [ cnaTableIndices['cytoband'] ],
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else {
+                                return cnas.getValue(source[0], "cytoband");
                             }
                         }
                     },
@@ -83,6 +133,7 @@
                     },
                     {// mrna
                         "aTargets": [ cnaTableIndices['mrna'] ],
+                        "bVisible": !cnas.colAllNull('mrna'),
                         "sClass": "center-align-td",
                         "bSearchable": false,
                         "mDataProp": 
@@ -91,7 +142,7 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = cnas.getValue(source[0], 'mrna');
-                                if (!mrna) return "<span style='color:gray;' class='"
+                                if (mrna===null) return "<span style='color:gray;' class='"
                                            +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
@@ -158,6 +209,9 @@
                     }
                 ],
                 "fnDrawCallback": function( oSettings ) {
+                    if (caseIds.length>1) {
+                        plotCaseLabel('.'+table_id+'-case-label',true);
+                    }
                     plotMrna("."+table_id+"-mrna",cnas);
                     plotCnaAltRate("."+table_id+"-cna-cohort",cnas);
                     addNoteTooltip("."+table_id+"-tip");
@@ -219,7 +273,7 @@
                             +"<br/><i>Number of genes in the peak</i>: "+gistic[1];
                 var circle = svg.append("g")
                     .attr("transform", "translate(80,6)");
-                d3CircledChar(circle,"G");
+                d3CircledChar(circle,"G","#55C","#66C");
                 qtip($(circle), tip);
             }
             
@@ -228,7 +282,8 @@
         function qtip(el, tip) {
             $(el).qtip({
                 content: {text: tip},
-                hide: { fixed: true, delay: 200 },
+	            show: {event: "mouseover"},
+                hide: {fixed: true, delay: 200, event: "mouseout"},
                 style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
                 position: {my:'top right',at:'bottom center'}
             });
@@ -268,7 +323,7 @@
     $(document).ready(function(){
         $('#cna_wrapper_table').hide();
         $('#cna_id_filter_msg').hide();
-        var params = {<%=PatientView.PATIENT_ID%>:'<%=patient%>',
+        var params = {<%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.CNA_PROFILE%>:cnaProfileId
         };
         
@@ -326,7 +381,7 @@
                 buildCnaDataTable(genomicEventObs.cnas, genomicEventObs.cnas.getEventIds(false),
                         'cna_table', '<"H"<"all-cna-table-name">fr>t<"F"<"datatable-paging"pil>>', 100, "No CNA events");
                 $('.all-cna-table-name').html(
-                    "This tumor has "+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
+                    ""+genomicEventObs.cnas.getNumEvents()+" copy number altered genes");
                 $('.all-cna-table-name').addClass("datatable-name");
                 $('#cna_wrapper_table').show();
                 $('#cna_wait').remove();

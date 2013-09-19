@@ -175,6 +175,12 @@ public class ImportProfileData{
                   germlineWhitelistFilename);
             System.out.println( importer.toString() );
             importer.importData();
+        }
+	    else if (geneticProfile.getGeneticAlterationType().equals(GeneticAlterationType.FUSION)) {
+	        ImportFusionData importer = new ImportFusionData(dataFile,
+				geneticProfile.getGeneticProfileId(),
+				pMonitor);
+	        importer.importData();
         } else {
             ImportTabDelimData importer = new ImportTabDelimData(dataFile, geneticProfile.getTargetLine(),
                     geneticProfile.getGeneticProfileId(), pMonitor);

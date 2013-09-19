@@ -30,23 +30,15 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.cgds.dao.*;
+import org.mskcc.cbio.cgds.model.CaseList;
 import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.Gene;
 import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.remote.GetMutationData;
-import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
-import org.mskcc.cbio.portal.util.OmaLinkUtil;
-import org.mskcc.cbio.portal.util.SequenceCenterUtil;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -55,7 +47,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
+import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -77,19 +71,20 @@ public class MutationDataServlet extends HttpServlet
 	{
 		// get request parameters
 		String geneticProfiles = request.getParameter("geneticProfiles");
-		String geneList = request.getParameter("geneList");
-		String caseList = request.getParameter("caseList");
+		String genes = request.getParameter("geneList");
 
 		// parse single strings to create list of strings
 		ArrayList<String> geneticProfileList = this.parseValues(geneticProfiles);
-		ArrayList<String> targetGeneList = this.parseValues(geneList);
-		ArrayList<String> targetCaseList = this.parseValues(caseList);
+		ArrayList<String> targetGeneList = this.parseValues(genes);
 
 		// final array to be sent
 		JSONArray data = new JSONArray();
 
 		try
 		{
+			// generate list by processing possible valid case list parameters
+			ArrayList<String> targetCaseList = this.getCaseList(request);
+
 			for (String profileId : geneticProfileList)
 			{
 				// add mutation data for each genetic profile
@@ -117,6 +112,67 @@ public class MutationDataServlet extends HttpServlet
 	}
 
 	/**
+	 * Generates a case list by processing related request parameters,
+	 * which are caseList, caseSetId and caseIdsKey. If none of these
+	 * parameters are valid, then this method will return an empty list.
+	 *
+	 * @param request   servlet request containing parameters
+	 * @return          a list of cases
+	 * @throws DaoException
+	 */
+	protected ArrayList<String> getCaseList(HttpServletRequest request) throws DaoException
+	{
+		DaoCaseList daoCaseList = new DaoCaseList();
+
+		String caseListStr = request.getParameter("caseList");
+		String caseSetId = request.getParameter("caseSetId");
+		String caseIdsKey = request.getParameter("caseIdsKey");
+
+		ArrayList<String> caseList;
+
+		// first check if caseSetId param provided
+		if (caseSetId != null &&
+		    caseSetId.length() != 0 &&
+		    !caseSetId.equals("-1"))
+		{
+			caseList = new ArrayList<String>();
+
+			// fetch a case list for each case set id
+			// (this allows providing more than one caseSetId)
+			for (String id : this.parseValues(caseSetId))
+			{
+				CaseList list = daoCaseList.getCaseListByStableId(id);
+
+				if (list != null)
+				{
+					caseList.addAll(list.getCaseList());
+				}
+			}
+		}
+		// if there is no caseSetId, then check for caseIdsKey param
+		else if(caseIdsKey != null &&
+		        caseIdsKey.length() != 0)
+		{
+			caseList = new ArrayList<String>();
+
+			// fetch a case list for each case ids key
+			// (this allows providing more than one caseIdsKey)
+			for (String key : this.parseValues(caseIdsKey))
+			{
+				caseList.addAll(this.parseValues(
+					CaseSetUtil.getCaseIds(key)));
+			}
+		}
+		else
+		{
+			// plain list of cases provided, just parse the values
+			caseList = this.parseValues(caseListStr);
+		}
+
+		return caseList;
+	}
+
+	/**
 	 * Parses string values separated by white spaces or commas.
 	 *
 	 * @param values    string to be parsed
@@ -124,6 +180,13 @@ public class MutationDataServlet extends HttpServlet
 	 */
 	protected ArrayList<String> parseValues(String values)
 	{
+		if (values == null)
+		{
+			// return an empty list for null values
+			return new ArrayList<String>(0);
+		}
+
+		// split by white space
 		String[] parts = values.split("[\\s,]+");
 
 		return new ArrayList<String>(Arrays.asList(parts));
@@ -150,17 +213,33 @@ public class MutationDataServlet extends HttpServlet
 		GeneticProfile geneticProfile =
 				DaoGeneticProfile.getGeneticProfileByStableId(geneticProfileId);
 
-		GetMutationData remoteCallMutation = new GetMutationData();
+		ArrayList<ExtendedMutation> mutationList;
 
 		//convert case list into a set (to be able to use with get mutation data)
 		HashSet<String> setOfCaseIds = new HashSet<String>(targetCaseList);
 
-		// TODO add a method into GetMutationData with 3 params (to avoid passing null)
-		ArrayList<ExtendedMutation> mutationList =
-				remoteCallMutation.getMutationData(geneticProfile, targetGeneList, setOfCaseIds, null);
+		if (geneticProfile != null)
+		{
+			GetMutationData remoteCallMutation = new GetMutationData();
+
+			// TODO add a method into GetMutationData with 3 params (to avoid passing null)
+			mutationList = remoteCallMutation.getMutationData(geneticProfile,
+                  targetGeneList,
+                  setOfCaseIds,
+                  null);
+		}
+		else
+		{
+			// profile id does not exist, just return an empty array
+			return mutationArray;
+		}
+                
+                Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+
+		int id = 0;
 
 		for (ExtendedMutation mutation : mutationList)
 		{
@@ -168,7 +247,6 @@ public class MutationDataServlet extends HttpServlet
 
 			if (targetCaseList.contains(caseId))
 			{
-
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
@@ -176,10 +254,14 @@ public class MutationDataServlet extends HttpServlet
 						.getCancerStudyStableId();
 				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO entrez gene id, symbol all caps
+				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
+				// mutationId is not a unique id wrt the whole DB,
+				// but it is unique wrt the returned data set
+				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -187,13 +269,13 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
-				mutationData.put("cosmic", mutation.getOncotatorCosmicOverlapping());
-				mutationData.put("cosmicCount", this.getCosmicCount(mutation));
+				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
 				mutationData.put("fisValue", this.getFisValue(mutation));
 				mutationData.put("msaLink", this.getMsaLink(mutation));
 				mutationData.put("xVarLink", this.getXVarLink(mutation));
 				mutationData.put("pdbLink", this.getPdbLink(mutation));
+				mutationData.put("igvLink", this.getIGVForBAMViewingLink(cancerStudyStableId, mutation));
 				mutationData.put("mutationStatus", mutation.getMutationStatus());
 				mutationData.put("validationStatus", mutation.getValidationStatus());
 				mutationData.put("sequencingCenter", this.getSequencingCenter(mutation));
@@ -213,15 +295,35 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("refseqMrnaId", mutation.getOncotatorRefseqMrnaId());
 				mutationData.put("codonChange", mutation.getOncotatorCodonChange());
 				mutationData.put("uniprotId", this.getUniprotId(mutation));
+				mutationData.put("proteinPosStart", mutation.getOncotatorProteinPosStart());
+				mutationData.put("proteinPosEnd", mutation.getOncotatorProteinPosEnd());
 				mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
+
+				id++;
 			}
 		}
 
 		return mutationArray;
 	}
+        
+        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+        private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
+            if (cosmic==null) {
+                return null;
+            }
+            List<List> mat = new ArrayList(cosmic.size());
+            for (CosmicMutationFrequency cmf : cosmic) {
+                List l = new ArrayList(3);
+                l.add(cmf.getId());
+                l.add(cmf.getAminoAcidChange());
+                l.add(cmf.getFrequency());
+                mat.add(l);
+            }
+            return mat;
+        }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null
@@ -375,38 +477,6 @@ public class MutationDataServlet extends HttpServlet
 	}
 
 	/**
-	 * TODO move this method to the client side
-	 * Creates an html "a" element for the cosmic overlapping value
-	 * of the given mutation. The text of the element will be the sum
-	 * of all cosmic values, and the id of the element will be the
-	 * (non-parsed) cosmic overlapping string.
-	 *
-	 * @param mutation  mutation instance
-	 * @return          string representing an "a" element for the cosmic value
-	 */
-	protected int getCosmicCount(ExtendedMutation mutation)
-	{
-		if (mutation.getOncotatorCosmicOverlapping() == null ||
-		    mutation.getOncotatorCosmicOverlapping().equals("NA"))
-		{
-			return 0;
-		}
-
-		// calculate total cosmic count
-		// TODO move this method to the client side, remove ExtendedMutationUtil class
-		Integer total = ExtendedMutationUtil.calculateCosmicCount(mutation);
-
-		if (total > 0)
-		{
-			return total;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	/**
 	 * Returns one of the tumor sequence alleles which is different from
 	 * the reference allele.
 	 *
@@ -415,17 +485,15 @@ public class MutationDataServlet extends HttpServlet
 	 */
 	protected String getVariantAllele(ExtendedMutation mutation)
 	{
-		// TODO use mutation.getTumorSeqAllele() instead?
+//		String varAllele = mutation.getTumorSeqAllele1();
+//
+//		if (mutation.getReferenceAllele() != null &&
+//		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
+//		{
+//			varAllele = mutation.getTumorSeqAllele2();
+//		}
 
-		String varAllele = mutation.getTumorSeqAllele1();
-
-		if (mutation.getReferenceAllele() != null &&
-		    mutation.getReferenceAllele().equals(mutation.getTumorSeqAllele1()))
-		{
-			varAllele = mutation.getTumorSeqAllele2();
-		}
-
-		return varAllele;
+		return mutation.getTumorSeqAllele();
 	}
 
 	/**
@@ -618,5 +686,28 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		return counts;
+	}
+
+	private String getIGVForBAMViewingLink(String cancerStudyStableId, ExtendedMutation mutation)
+	{
+		String link = null;
+
+		if (GlobalProperties.wantIGVBAMLinking()) {
+			String locus = (this.getChromosome(mutation) + ":" +
+							String.valueOf(mutation.getStartPosition()) + "-" +
+							String.valueOf(mutation.getEndPosition()));
+			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
+				try {
+					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
+													   mutation.getCaseId(),
+													   URLEncoder.encode(locus,"US-ASCII"));
+				}
+				catch (java.io.UnsupportedEncodingException e) {
+					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());
+				}
+			}
+		}
+
+		return link;
 	}
 }

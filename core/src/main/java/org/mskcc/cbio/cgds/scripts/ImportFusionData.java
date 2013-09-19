@@ -35,12 +35,15 @@ import org.mskcc.cbio.cgds.util.ProgressMonitor;
 import org.mskcc.cbio.maf.FusionFileUtil;
 import org.mskcc.cbio.maf.FusionRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.util.CaseIdUtil;
 import org.mskcc.cbio.portal.util.ExtendedMutationUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Imports a fusion file.
@@ -68,6 +71,16 @@ public class ImportFusionData
 
 	public void importData() throws IOException, DaoException
 	{
+		Map<ExtendedMutation.MutationEvent, ExtendedMutation.MutationEvent> existingEvents =
+				new HashMap<ExtendedMutation.MutationEvent, ExtendedMutation.MutationEvent>();
+
+		for (ExtendedMutation.MutationEvent event : DaoMutation.getAllMutationEvents())
+		{
+			existingEvents.put(event, event);
+		}
+
+		long mutationEventId = DaoMutation.getLargestMutationEventId();
+
 		FileReader reader = new FileReader(this.fusionFile);
 		BufferedReader buf = new BufferedReader(reader);
 		DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
@@ -78,7 +91,7 @@ public class ImportFusionData
 
 		FusionFileUtil fusionUtil = new FusionFileUtil(line);
 
-		boolean addEvent = true;
+		boolean addEvent;
 
 		while ((line = buf.readLine()) != null)
 		{
@@ -94,7 +107,7 @@ public class ImportFusionData
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = ExtendedMutationUtil.getCaseId(barCode);
+				String caseId = CaseIdUtil.getCaseId(barCode);
 
 				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
 				{
@@ -137,9 +150,22 @@ public class ImportFusionData
 					// instead of defining a constant
 					mutation.setMutationType(FUSION);
 
-					// add mutation (but add mutation event only once since it is a dummy event)
+					ExtendedMutation.MutationEvent event = existingEvents.get(mutation.getEvent());
+
+					if (event != null)
+					{
+						mutation.setEvent(event);
+						addEvent = false;
+					}
+					else
+					{
+						mutation.setMutationEventId(++mutationEventId);
+						existingEvents.put(mutation.getEvent(), mutation.getEvent());
+						addEvent = true;
+					}
+
+					// add fusion (as a mutation)
 					DaoMutation.addMutation(mutation, addEvent);
-					addEvent = false;
 				}
 			}
 		}

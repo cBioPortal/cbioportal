@@ -1,3 +1,24 @@
+# September 5, 2013:
+
+* [New standalone oncoprint tool](tools.jsp)
+* Updated COSMIC data (v66 Release)
+* Improved / interactive visualization on the "Protein changes" tab
+* Enhanced mutation diagrams: color-coding by mutation time and syncing with table filters
+* Addition of DNA cytoband information in the patient view of copy-number changes
+* OncoPrints now allow the display of an optional track with clinical annotation (Endometrial cancer example below)
+<center>![Oncoprint with clinical track](images/previews/oncoprint_clinical_track.png)</center>
+
+# July 23, 2013
+
+* Multi-gene correlation plots.
+* Variant allele frequency distribution plots for individual tumor samples.
+* Tissue images for TCGA samples in the patient view, via [Digital Slide Archive](http://cancer.digitalslidearchive.net/). [Example](case.do?cancer_study_id=ucec_tcga&case_id=TCGA-BK-A0CC#images).
+
+# July 16, 2013
+
+* All TCGA data updated to the May Firehose run (May 23, 2012).
+    * TCGA Pancreatic Cancer study (provisional) added.
+
 # July 4, 2013
 
 * Improved rendering of mutation diagrams, including ability to download in PDF format.

@@ -265,8 +265,6 @@ var PlotsMenu = (function () {
         status.has_copy_no = (content.data_type.copy_no.genetic_profile.length !== 0);
         status.has_dna_methylation = (content.data_type.dna_methylation.genetic_profile.length !== 0);
         status.has_rppa = (content.data_type.rppa.genetic_profile.length !== 0);
-        console.log(content);
-        console.log(status);
     }
 
     return {
@@ -1371,12 +1369,7 @@ var PlotsView = (function () {
                     .attr("stroke", function(d) {
                         return gisticStyle[d.gisticType].stroke;
                     })
-                    .attr("stroke-width", function(d) {
-                        switch (d.mutationType) {
-                            case "non" : return "1";
-                            default : return "1.1";
-                        }
-                    });
+                    .attr("stroke-width", 1.2);
             }
 
             return {
@@ -1477,7 +1470,7 @@ var PlotsView = (function () {
                         .type(function(d) { return d.symbol; }))
                     .attr("fill", function (d) { return d.fill; })
                     .attr("stroke", function (d) { return d.stroke; })
-                    .attr("stroke-width", 1.1);
+                    .attr("stroke-width", 1.2);
 
                 legend.append("text")
                     .attr("dx", ".75em")

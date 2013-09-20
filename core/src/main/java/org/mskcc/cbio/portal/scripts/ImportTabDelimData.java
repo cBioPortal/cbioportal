@@ -181,7 +181,10 @@ public class ImportTabDelimData {
                     hugo = null;
                 }
                 
-                String entrez = parts[entrezGeneIdIndex];
+                String entrez = null;
+                if (entrezGeneIdIndex!=-1) {
+                    entrez = parts[entrezGeneIdIndex];
+                }
                 if (entrez!=null && !entrez.matches("-?[0-9]+")) {
                     entrez = null;
                 }
@@ -318,7 +321,7 @@ public class ImportTabDelimData {
     private int getStartIndex(String[] headers) {
         int startIndex = targetLine==null ? 1 : 2;
         
-        for (int i=startIndex+1; i<headers.length; i++) {
+        for (int i=startIndex; i<headers.length; i++) {
             String h = headers[i];
             if (!h.equalsIgnoreCase("Hugo_Symbol") &&
                     !h.equalsIgnoreCase("Entrez_Gene_Id") &&

@@ -471,8 +471,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 						for (String potentialCaseID : thisRow) {
 							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
-								if (potentialCaseID.equals(Converter.GENE_ID_COLUMN_HEADER_NAME) ||
-									potentialCaseID.equals(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME)) {
+								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
 								caseSet.add(caseIDs.convertCaseID(potentialCaseID));

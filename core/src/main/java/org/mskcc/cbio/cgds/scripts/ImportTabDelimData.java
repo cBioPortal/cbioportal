@@ -322,8 +322,6 @@ public class ImportTabDelimData {
             String h = headers[i];
             if (!h.equalsIgnoreCase("Hugo_Symbol") &&
                     !h.equalsIgnoreCase("Entrez_Gene_Id") &&
-                    !h.equalsIgnoreCase("Locus") &&
-                    !h.equalsIgnoreCase("ID") &&
                     !h.equalsIgnoreCase("Locus ID") &&
                     !h.equalsIgnoreCase("Cytoband")) {
                 return i;

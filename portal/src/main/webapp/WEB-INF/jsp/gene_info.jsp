@@ -17,7 +17,7 @@ if (numCancerGenes > 0) {
 %>
 <p>
 <div class="map">
-    <table width="98%" style="font-size: 12px">
+<table width=98%>
     <tr>
         <th>Gene</th>
         <th>Tumor Types (Somatic)</th>

@@ -138,8 +138,6 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                                         gene,
                                         caseIdList,
                                         DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()));
-                                System.out.println(tmpProfileDataArr);
-                                System.out.println(isDataAvailable(tmpProfileDataArr));
                                 if (isDataAvailable(tmpProfileDataArr)) {
                                     JSONObject tmpProfileObj = new JSONObject();
                                     tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());

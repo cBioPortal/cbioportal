@@ -398,7 +398,7 @@ var rppaPlots = (function() {
                 function(d) {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId + "</a></strong><br>";
+                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
                     content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     if (d.hasOwnProperty("annotation")) {
                         content += "Altertions: <strong>" + d.annotation + "</strong>";

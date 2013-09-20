@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
@@ -119,15 +120,20 @@ public class ImportTabDelimData {
         BufferedReader buf = new BufferedReader(reader);
         String headerLine = buf.readLine();
         String parts[] = headerLine.split("\t");
+
+        int caseStartIndex = getStartIndex(parts);
+        int hugoSymbolIndex = getHugoSymbolIndex(parts);
+        int entrezGeneIdIndex = getEntrezGeneIdIndex(parts);
+        
         String caseIds[];
 
         //  Branch, depending on targetLine setting
         if (targetLine == null) {
-            caseIds = new String[parts.length - 1];
-            System.arraycopy(parts, 1, caseIds, 0, parts.length - 1);
+            caseIds = new String[parts.length - caseStartIndex];
+            System.arraycopy(parts, caseStartIndex, caseIds, 0, parts.length - caseStartIndex);
         } else {
-            caseIds = new String[parts.length - 2];
-            System.arraycopy(parts, 2, caseIds, 0, parts.length - 2);
+            caseIds = new String[parts.length - caseStartIndex];
+            System.arraycopy(parts, caseStartIndex, caseIds, 0, parts.length - caseStartIndex);
         }
 		convertBarcodes(caseIds);
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
@@ -168,53 +174,61 @@ public class ImportTabDelimData {
                     System.err.println("The following line has more fields (" + parts.length
                             + ") than the headers(" + lenParts + "): \n"+parts[0]);
                 }
+                String values[] = (String[]) ArrayUtils.subarray(parts, caseStartIndex, parts.length>lenParts?lenParts:parts.length);
 
-                int startIndex = getStartIndex();
-                String values[] = (String[]) ArrayUtils.subarray(parts, startIndex, parts.length>lenParts?lenParts:parts.length);
-
-                String method = null;
-                String geneId = null;
-                if (targetLine != null) {
-                    method = parts[0];
-                    geneId = parts[1];
-                } else {
-                    geneId = parts[0];
+                String hugo = parts[hugoSymbolIndex];
+                if (hugo!=null && hugo.isEmpty()) {
+                    hugo = null;
+                }
+                
+                String entrez = parts[entrezGeneIdIndex];
+                if (entrez!=null && !entrez.matches("-?[0-9]+")) {
+                    entrez = null;
                 }
 
-                if (geneId != null) {
-                    if (geneId.contains("///") || geneId.contains("---")) {
+                if (hugo != null || entrez != null) {
+                    if (hugo.contains("///") || hugo.contains("---")) {
                         //  Ignore gene IDs separated by ///.  This indicates that
                         //  the line contains information regarding multiple genes, and
                         //  we cannot currently handle this.
                         //  Also, ignore gene IDs that are specified as ---.  This indicates
                         //  the line contains information regarding an unknown gene, and
                         //  we cannot currently handle this.
-                        logger.debug("Ignoring gene ID:  " + geneId);
+                        logger.debug("Ignoring gene ID:  " + hugo);
                     } else {
-                        // deal with multiple symbols separate by |, use the first one
-                        int ix = geneId.indexOf("|");
-                        if (ix>0) {
-                            geneId = geneId.substring(0, ix);
+                        List<CanonicalGene> genes = null;
+                        if (entrez!=null) {
+                            CanonicalGene gene = daoGene.getGene(Long.parseLong(entrez));
+                            if (gene!=null) {
+                                genes = Arrays.asList(gene);
+                            }
+                        } 
+                        
+                        if (genes==null) {
+                            // deal with multiple symbols separate by |, use the first one
+                            int ix = hugo.indexOf("|");
+                            if (ix>0) {
+                                hugo = hugo.substring(0, ix);
+                            }
+
+                            genes = daoGene.guessGene(hugo);
                         }
 
-                        //  Assume we are dealing with Entrez Gene Ids or Symbols.
-                        List<CanonicalGene> genes = daoGene.guessGene(geneId);
-
                         //  If no target line is specified or we match the target, process.
-                        if (targetLine == null || method.equals(targetLine)) {
+                        if (targetLine == null || parts[0].equals(targetLine)) {
                             if (genes.isEmpty()) {
                                 //  if gene is null, we might be dealing with a micro RNA ID
-                                if (geneId.toLowerCase().contains("-mir-")) {
+                                if (hugo.toLowerCase().contains("-mir-")) {
 //                                    if (microRnaIdSet.contains(geneId)) {
 //                                        storeMicroRnaAlterations(values, daoMicroRnaAlteration, geneId);
 //                                        numRecordsStored++;
 //                                    } else {
-                                        pMonitor.logWarning("microRNA is not known to me:  [" + geneId
+                                        pMonitor.logWarning("microRNA is not known to me:  [" + hugo
                                             + "]. Ignoring it "
                                             + "and all tab-delimited data associated with it!");
 //                                    }
                                 } else {
-                                    pMonitor.logWarning("Gene not found:  [" + geneId
+                                    pMonitor.logWarning("Gene not found:  [" + hugo
                                         + "]. Ignoring it "
                                         + "and all tab-delimited data associated with it!");
                                 }
@@ -287,12 +301,35 @@ public class ImportTabDelimData {
             }
         }
     }
-
-    private int getStartIndex() {
-        int startIndex = 2;
-        if (targetLine == null) {
-        startIndex = 1;
+    
+    private int getHugoSymbolIndex(String[] headers) {
+        return targetLine==null ? 0 : 1;
     }
+    
+    private int getEntrezGeneIdIndex(String[] headers) {
+        for (int i = 0; i<headers.length; i++) {
+            if (headers[i].equalsIgnoreCase("Entrez_Gene_Id")) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getStartIndex(String[] headers) {
+        int startIndex = targetLine==null ? 1 : 2;
+        
+        for (int i=startIndex+1; i<headers.length; i++) {
+            String h = headers[i];
+            if (!h.equalsIgnoreCase("Hugo_Symbol") &&
+                    !h.equalsIgnoreCase("Entrez_Gene_Id") &&
+                    !h.equalsIgnoreCase("Locus") &&
+                    !h.equalsIgnoreCase("ID") &&
+                    !h.equalsIgnoreCase("Locus ID") &&
+                    !h.equalsIgnoreCase("Cytoband")) {
+                return i;
+            }
+        }
+        
         return startIndex;
     }
 

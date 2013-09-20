@@ -122,7 +122,7 @@
 		border-style: outset;
 		border-color: #BABDB6;
 		background-color: #FFFFFF;
-		padding: 5px 10px 30px;
+		padding: 5px 10px 10px;
 	}
 	.mutation-3d-close {
 		float: right;

@@ -42,7 +42,8 @@ var Mutation3dVis = function(name, options)
 		defaultColor: "xDDDDDD", // default color of ribbons
 		translucency: 5, // translucency (opacity) of the default color
 		chainColor: "x888888", // color of the selected chain
-		mutationColor: "xFF0000" // color of the selected mutations
+		mutationColor: "xFF0000", // color of the selected mutations
+		containerPadding: 25 // padding for the vis container (this is to prevent overlapping)
 	};
 
 	var _options = jQuery.extend(true, {}, defaultOpts, options);
@@ -71,8 +72,14 @@ var Mutation3dVis = function(name, options)
 		// update reference
 		_container = $(container);
 
+		var appContainer = _container.find("#mutation_3d_visualizer");
+
+		// set width
+		appContainer.css("width", _options.appOptions.width);
+		// set height (should be slightly bigger than the app height)
+		appContainer.css("height", _options.appOptions.height + _options.containerPadding);
 		// move visualizer into its new container
-		_container.append(_wrapper);
+		appContainer.append(_wrapper);
 	}
 
 	/**

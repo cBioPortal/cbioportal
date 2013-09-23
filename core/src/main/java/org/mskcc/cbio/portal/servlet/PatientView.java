@@ -50,7 +50,7 @@ public class PatientView extends HttpServlet {
     public static final String HAS_SEGMENT_DATA = "has_segment_data";
     public static final String HAS_ALLELE_FREQUENCY_DATA = "has_allele_frequency_data";
     public static final String MUTATION_PROFILE = "mutation_profile";
-    public static final String CANCER_STUDY_TO_NUM_CASES = "cancer_study_to_num_cases";
+    public static final String CANCER_STUDY_META_DATA_KEY_STRING = "cancer_study_meta_data";
     public static final String CNA_PROFILE = "cna_profile";
     public static final String MRNA_PROFILE = "mrna_profile";
     public static final String NUM_CASES_IN_SAME_STUDY = "num_cases";
@@ -73,10 +73,10 @@ public class PatientView extends HttpServlet {
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private static Map<String, Integer> CANCER_STUDY_TO_NUM_SEQUENCED_CASES;
+    private static List<Map<String, Object>> CANCER_STUDY_META_DATA;
     static {
         try {
-            CANCER_STUDY_TO_NUM_SEQUENCED_CASES = DaoMutation.countCasesInAllCancerStudies();
+            CANCER_STUDY_META_DATA = DaoCaseProfile.metaData();
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -120,7 +120,7 @@ public class PatientView extends HttpServlet {
                 setGeneticProfiles(request);
                 setClinicalInfo(request);
                 setNumCases(request);
-                setCancerStudy2NumSequencedCases(request);
+                setCancerStudyMetaData(request);
             }
             
             if (request.getAttribute(ERROR)!=null) {
@@ -270,8 +270,8 @@ public class PatientView extends HttpServlet {
         }
     }
 
-    private void setCancerStudy2NumSequencedCases(HttpServletRequest request) throws DaoException, ProtocolException {
-        request.setAttribute(CANCER_STUDY_TO_NUM_CASES, CANCER_STUDY_TO_NUM_SEQUENCED_CASES);
+    private void setCancerStudyMetaData(HttpServletRequest request) throws DaoException, ProtocolException {
+        request.setAttribute(CANCER_STUDY_META_DATA_KEY_STRING, CANCER_STUDY_META_DATA);
     }
     
     private void setNumCases(HttpServletRequest request) throws DaoException {

@@ -33,7 +33,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
     var cancer_study2datum = {
         bykeyword: generate_cancer_study2datum(bykeyword_data),
         bygene: generate_cancer_study2datum(bygene_data)
-    }
+    };
 
     if (bygene_data.length !== bykeyword_data.length) {
         throw new Error("must be same length");
@@ -65,15 +65,19 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
     });
 
     var all_data = bykeyword_data.concat(bygene_data);
-    all_data = _.chain(all_data)
-        .map(compute_frequency)
-        .groupBy(function(d) {
-            return d.cancer_study;
-        })
-        .map(_.identity)    // extract groups
-        .sortBy(total_frequency)
-        .unzip()            // turn into layers for d3.stack
-        .value();
+    try {
+        all_data = _.chain(all_data)
+            .map(compute_frequency)
+            .groupBy(function(d) {
+                return d.cancer_study;
+            })
+            .map(_.identity)    // extract groups
+            .sortBy(cancer_type)
+            .unzip()            // turn into layers for d3.stack
+            .value();
+    } catch(e) {
+        throw new Error(e);
+    }
 
     function deep_copy(list_of_objects) {
         return list_of_objects.map(_.clone);
@@ -93,9 +97,27 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         return d;
     }
 
-    function total_frequency(grp) {
-        var total_frequency = _.reduce(grp, function(acc, next) { return acc + next.frequency }, 0);
+    // takes a list of cancer studies (presumably one which contains all the
+    // cancer studies for a cancer type) and returns the total frequency in
+    // that list
+    //
+    // *signature:* `array -> number`
+    function total_frequency(group) {
+        var total_frequency = _.reduce(group, function(acc, next) { return acc + next.frequency }, 0);
         return -1 * total_frequency;
+    }
+
+    // returns the cancer type of a group
+    // *throws* error if not all elements in the list have the same cancer type
+    //
+    // *signature:* `array -> string`
+    function cancer_type(group) {
+        var cancerType = group[0].cancer_type;
+        if (!_.every(group, function(d) { return d.cancer_type === cancerType; })) {
+            throw new Error("not all data in a group have the same cancer type");
+        }
+
+        return cancerType;
     }
 
     // add in missing cancer studies as data points with count = 0

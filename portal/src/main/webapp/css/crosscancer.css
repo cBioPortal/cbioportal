@@ -32,6 +32,14 @@
     min-width: 1024px;
 }
 
+#cctitlecontainer {
+    text-align: center;
+}
+
+.cctitle {
+    font-size: 16px;
+}
+
 
 /* the rest is for the mutation details */
 #mutation_details .ColVis {

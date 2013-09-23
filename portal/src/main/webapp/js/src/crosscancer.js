@@ -34,7 +34,7 @@
         var height = 600;
         var paddingLeft = 70;
         var paddingRight = 50;
-        var paddingTop = 50;
+        var paddingTop = 10;
         var histBottom = 400;
         var fontFamily = "sans-serif";
         // Data N/A color
@@ -49,7 +49,8 @@
         var filterAndSortData = function(histDataOrg) {
             var histData = [];
             _.each(histDataOrg, function(study) {
-                histData.push(study);
+                if(!study.skipped)
+                    histData.push(study);
             });
 
             // Sort by total number of frequency
@@ -107,7 +108,7 @@
                                     })) + .1
                                 )
                             ])
-                                .range([histBottom-paddingTop, 0]);
+                            .range([histBottom-paddingTop, 0]);
 
                             // Empty the content
                             $("#cchistogram").html("");
@@ -268,6 +269,18 @@
                                 .each(function(d, i) {
                                     $(this).text( ($(this).text() * 100) + "%" );
                                 });
+
+                            var genes = _.last(histData).genes;
+                            var numOfGenes = genes.length;
+                            var numOfStudies = histData.length;
+
+                            (new CCTitleView({
+                               model: {
+                                   numOfStudies: numOfStudies,
+                                   numOfGenes: numOfGenes,
+                                   genes: genes.join()
+                               }
+                            })).render();
                         });
                     }
                 }); // Done with the histogram
@@ -312,11 +325,23 @@
             }
         });
 
+        var CCTitleView = Backbone.View.extend({
+            el: "#cctitlecontainer",
+            template: _.template($("#crosscancer-title-tmpl").html()),
+
+            render: function() {
+                this.$el.html(this.template(this.model));
+                return this;
+            }
+        });
+
         /* Models */
         var Study = Backbone.Model.extend({
             defaults: {
                 studyId: "",
                 caseSetId: "",
+                genes: "",
+                skipped: false,
                 alterations: {
                     mutation: 0,
                     cnaUp: 0,

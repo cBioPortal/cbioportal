@@ -28,6 +28,7 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.*;
@@ -163,34 +164,41 @@ public class CrossCancerJSON extends HttpServlet {
                 );
 
                 ArrayList<GeneWithScore> geneFrequencyList = genomicData.getGeneFrequencyList();
-                int numberOfGenes = geneFrequencyList.size();
+                ArrayList<String> genes = new ArrayList<String>();
+                for (GeneWithScore geneWithScore : geneFrequencyList)
+                    genes.add(geneWithScore.getGene());
                 int noOfMutated = 0,
                         noOfCnaUp = 0,
                         noOfCnaDown = 0,
                         noOfOther = 0,
                         noOfAll = 0;
 
-                if(numberOfGenes > 1) {
-                    noOfOther = noOfAll = genomicData.getNumCasesAffected();
-                } else if(numberOfGenes == 1) {
-                    String gene = geneFrequencyList.iterator().next().getGene();
-
-                    for (String caseId :defaultCaseSet.getCaseList()) {
+                boolean skipStudy = defaultGeneticProfileSet.isEmpty();
+                if(!skipStudy) {
+                    for (String caseId: defaultCaseSet.getCaseList()) {
                         if(!genomicData.isCaseAltered(caseId)) continue;
 
-                        boolean isMutated = genomicData.isGeneMutated(gene, caseId);
-                        GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, caseId);
-                        boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
-                        boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
-                        boolean isCnaChanged = isCnaUp || isCnaDown;
+                        boolean isAnyMutated = false,
+                                isAnyCnaUp = false,
+                                isAnyCnaDown = false;
 
-                        if(isMutated && !isCnaChanged)
+                        for (String gene : genes) {
+                            isAnyMutated |= genomicData.isGeneMutated(gene, caseId);
+                            GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, caseId);
+                            boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
+                            isAnyCnaUp |= isCnaUp;
+                            boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
+                            isAnyCnaDown |= isCnaDown;
+                        }
+
+                        boolean isAnyCnaChanged = isAnyCnaUp || isAnyCnaDown;
+                        if(isAnyMutated && !isAnyCnaChanged)
                             noOfMutated++;
-                        else if(isMutated && isCnaChanged)
+                        else if(isAnyMutated && isAnyCnaChanged)
                             noOfOther++;
-                        else if(isCnaUp)
+                        else if(isAnyCnaUp)
                             noOfCnaUp++;
-                        else if(isCnaDown)
+                        else if(isAnyCnaDown)
                             noOfCnaDown++;
 
                         noOfAll++;
@@ -204,6 +212,8 @@ public class CrossCancerJSON extends HttpServlet {
                 alterations.put("cnaUp", noOfCnaUp);
                 alterations.put("cnaDown", noOfCnaDown);
                 alterations.put("other", noOfOther);
+                cancerMap.put("genes", genes);
+                cancerMap.put("skipped", skipStudy);
             }
 
             JSONValue.writeJSONString(resultsList, writer);

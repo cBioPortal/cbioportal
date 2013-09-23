@@ -81,6 +81,7 @@
             </li>
         </ul>
         <div class="section" id="cc-overview">
+            <div id="cctitlecontainer"></div>
             <div id="cchistogram">
                 <img src="images/ajax-loader.gif"/>
             </div>
@@ -93,6 +94,30 @@
         </div>
 
     </div>
+</script>
+
+<script type="text/template" id="crosscancer-title-tmpl">
+    <b class="cctitle">
+        Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} genes)
+    </b>
+    <form style="display:inline-block"
+          action='svgtopdf.do'
+          method='post'
+          class='svg-to-pdf-form'>
+        <input type='hidden' name='svgelement'>
+        <input type='hidden' name='filetype' value='pdf'>
+        <input type='hidden' name='filename' value='crosscancerhistogram.pdf'>
+    </form>
+    <form style="display:inline-block"
+          action='svgtopdf.do'
+          method='post'
+          class='svg-to-file-form'>
+        <input type='hidden' name='svgelement'>
+        <input type='hidden' name='filetype' value='svg'>
+        <input type='hidden' name='filename' value='crosscancerhistogram.svg'>
+    </form>
+    <button class='diagram-to-pdf'>PDF</button>
+    <button class='diagram-to-svg'>SVG</button>
 </script>
 
 <!-- Mutation views -->

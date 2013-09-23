@@ -35,10 +35,10 @@
 
     d3.json('bykeyword.json', function(bykeyword_data) {
         d3.json('byhugo.json', function(byhugo_data) {
-            d3.json('cancer_study2num_sequenced_samples.json', function(cancer_study2num_sequenced_samples) {
+            d3.json('cancer_study_meta_data.json', function(cancer_study_meta_data) {
                 var barchart = PancanMutationHistogram(bykeyword_data,
                     byhugo_data,
-                    cancer_study2num_sequenced_samples,
+                    cancer_study_meta_data,
                     el);
 
                 barchart.qtip($(barchart.el).find("svg")[0]);

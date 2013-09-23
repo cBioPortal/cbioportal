@@ -757,7 +757,7 @@
                                 var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
                                 var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
                                 var invisible_container = document.getElementById("pancan_mutations_histogram_container");
-                                var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancerStudy2NumSequencedCases, invisible_container);
+                                var histogram = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container);
 
                                 var content = invisible_container.innerHTML;
                                 api.set('content.text', content);

@@ -1,8 +1,8 @@
-// makes a Histogram on the DOM el.
+// makes a Pancancer Mutation Histogram on the DOM el.
 // parameters:
 //      byKeywordData:                      [list of {cancer_study, cancer_type, hugo, keyword, count} ]
 //      byGeneData:                         [list of {cancer_study, cancer_type, hugo, count} ]
-//      cancer_study2num_sequence_samples:  {cancer_study -> number} e.g. "Acute Myeloid Leukemia (TCGA, Provisional)" -> 196
+//      cancer_study_meta_data:             [list of {cancer_study, cancer_type, num_sequenced_samples} ]
 //      el:                                 DOM element
 //      params:                             overrides default parameters: { margin: { top, bottom, right, left }, width, height, cancerStudyName (of this study) }
 //
@@ -13,7 +13,7 @@
 //
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 // September 2013
-function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_sequenced_samples, el, params) {
+function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
     params = $.extend({
         margin: {top: 20, right: 10, bottom: 20, left: 40},
         width: 840,
@@ -21,13 +21,19 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         cancerStudyName: undefined
     }, params);
 
-    var bykeyword_data = deep_copy(byKeywordData);
-    var bygene_data = deep_copy(byGeneData);
-    var cancer_studies = _.keys(cancer_study2num_sequenced_samples);
+    var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
+    var all_cancer_studies = _.keys(cancer_study2meta_data);
 
     // --- data munging --- //
 
-    bykeyword_data = extend_by_zero_set(bykeyword_data);
+    // copy
+    var bykeyword_data = deep_copy(byKeywordData);
+    var bygene_data = deep_copy(byGeneData);
+
+    // extend
+    var keyword = bykeyword_data[0];
+    bykeyword_data = extend_by_zero_set(bykeyword_data)
+        .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
     bygene_data = extend_by_zero_set(bygene_data);
 
     var cancer_study2datum = {
@@ -39,7 +45,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         throw new Error("must be same length");
     }
 
-    if (bygene_data.length !== cancer_studies.length) {
+    if (bygene_data.length !== all_cancer_studies.length) {
         throw new Error("there must be a datum for every cancer study and visa versa");
     }
 
@@ -91,7 +97,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
     }
 
     function compute_frequency(d) {
-        var num_sequenced_samples = cancer_study2num_sequenced_samples[d.cancer_study];
+        var num_sequenced_samples = cancer_study2meta_data[d.cancer_study].num_sequenced_samples;
         d.num_sequenced_samples = num_sequenced_samples;
         d.frequency = d.count / num_sequenced_samples;
         return d;
@@ -128,15 +134,16 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         function zero_datum(cancer_study) {
             return {
                 cancer_study: cancer_study,
-                count: 0
+                count: 0,
+                cancer_type: cancer_study2meta_data[cancer_study].cancer_type,
+                num_sequenced_samples: cancer_study2meta_data[cancer_study].num_sequenced_samples
             }
         }
 
-        return _.chain(cancer_study2num_sequenced_samples)
-            .keys()
+        return _.chain(all_cancer_studies)
             .reduce(function(acc, study) {
                 if (!_.has(cancer_study2datum, study)) {
-                    // do cancer_study2num_sequenced_samples *setminus* cancer_study2datum
+                    // do all_cancer_studies *setminus* cancer_study2datum
                     acc.push(study);
                 }
                 return acc;
@@ -229,18 +236,18 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
 
     // title
-    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
-    svg.append('text')
-        .text(title_string)
-        .attr('x', .35 * d3.max(x.range()))
-        .attr('y', .15 * d3.max(y.range()))
-        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-        .style("font-size", "18px")
+    //var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+    //var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
+    //svg.append('text')
+    //    .text(title_string)
+    //    .attr('x', .35 * d3.max(x.range()))
+    //    .attr('y', .15 * d3.max(y.range()))
+    //    .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+    //    .style("font-size", "18px")
 
     function qtip(svg) {
         var mouseOverBar = d3.select(svg).selectAll('.mouseOver')
-            .data(cancer_studies)
+            .data(all_cancer_studies)
             .enter()
             .append('rect')
             .attr('class', 'mouseOver')
@@ -256,7 +263,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study2num_seq
         function qtip_template(d) {
             var percent = percent_format(d.frequency || 0);
             var count = d.count || 0;
-            var total = cancer_study2num_sequenced_samples[d.cancer_study];
+            var metadata = cancer_study2meta_data[d.cancer_study];
+            var total = metadata.num_sequenced_samples;
 
             return (_.template("<span>{{percent}} ({{count}} / {{total}})</span>"))({percent: percent, count: count, total: total});
         }

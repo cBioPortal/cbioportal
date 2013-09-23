@@ -15,13 +15,14 @@
         dataPriority = 0;
     }
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
-    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
+<script type="text/javascript" src="js/src/mutation_model.js"></script>
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
@@ -58,7 +59,6 @@
                 </div>
 
                 <br/>
-                <hr align="left" class="crosscancer-hr"/>
 
                 <div id="crosscancer-container">
                 </div>
@@ -71,25 +71,33 @@
 
 <!-- Crosscancer templates -->
 <script type="text/template" id="cross-cancer-main-tmpl">
-    <h1>Hullo world!</h1>
-    <table>
-        <tr>
-            <th>Tab</th>
-            <td>{{tab}}</td>
-        </tr>
-        <tr>
-            <th>Priority</th>
-            <td>{{priority}}</td>
-        </tr>
-        <tr>
-            <th>Genes</th>
-            <td>{{genes}}</td>
-        </tr>
-    </table>
+    <div id="tabs">
+        <ul>
+            <li>
+                <a href="#cc-overview">Overview</a>
+            </li>
+            <li>
+                <a href="#cc-mutations">Mutations</a>
+            </li>
+        </ul>
+        <div class="section" id="cc-overview">
+            <div id="cchistogram">
+                <img src="images/ajax-loader.gif"/>
+            </div>
+        </div>
 
-    <div id="cchistogram">
+        <div class="section" id="cc-mutations">
+            <div id="ccmutationdetails">
+                <img src="images/ajax-loader.gif"/>
+            </div>
+        </div>
+
     </div>
 </script>
+
+<!-- Mutation views -->
+<jsp:include page="mutation_views.jsp" flush="true"/>
+<!-- mutation views end -->
 
 <script type="text/template" id="cross-cancer-main-empty-tmpl">
     <h1>Default cross-cancer view</h1>

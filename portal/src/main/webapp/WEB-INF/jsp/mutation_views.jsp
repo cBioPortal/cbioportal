@@ -622,7 +622,7 @@
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
-				var summary = self.util.generateSummary(mutationCount);
+				var summary = cases.length == 0 ? "" : self.util.generateSummary(mutationCount);
 
 				// prepare data for mutation view
 				var mutationInfo = {geneSymbol: gene,

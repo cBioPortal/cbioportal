@@ -68,6 +68,7 @@
 
             render: function() {
                 this.$el.html(this.template(this.model));
+                $("#tabs").tabs().show();
                 var genes = this.model.genes;
                 var priority = this.model.priority;
 
@@ -108,6 +109,10 @@
                             ])
                                 .range([histBottom-paddingTop, 0]);
 
+                            // Empty the content
+                            $("#cchistogram").html("");
+
+                            // and initialize the histogram
                             var histogram = d3.select("#cchistogram")
                                 .append("svg")
                                 .attr("width", width)
@@ -265,7 +270,34 @@
                                 });
                         });
                     }
-                });
+                }); // Done with the histogram
+
+
+                // Let's load the mutation details as well
+                $.post(
+                    "crosscancermutation.json",
+                    {
+                      gene_list: genes,
+                      data_priority: priority
+                    },
+                    function(data) {
+                        var model = {
+                            mutations: data,
+                            sampleArray: []
+                        };
+
+                        var el = "#ccmutationdetails";
+                        $(el).html("");
+                        var mutView = new MutationDetailsView({
+                            el: el,
+                            model: model
+                        });
+
+                        mutView.render();
+                    },
+                    "json"
+                );
+
                 return this;
             }
         });

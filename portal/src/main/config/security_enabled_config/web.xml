@@ -428,7 +428,17 @@
         <servlet-name>CrossCancerJSON</servlet-name>
         <url-pattern>/crosscancerquery.json</url-pattern>
     </servlet-mapping>
-    
+
+    <servlet>
+        <servlet-name>CrossCancerMutationJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.CrossCancerMutationDataServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CrossCancerMutationJSON</servlet-name>
+        <url-pattern>/crosscancermutation.json</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>MutationsJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.MutationsJSON</servlet-class>

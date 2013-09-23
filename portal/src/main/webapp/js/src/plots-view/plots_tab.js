@@ -1638,7 +1638,6 @@ var PlotsView = (function () {
             $('#view_title').show();
             $('#plots_box').show();
             $('#loading-image').hide();
-
             View.init();
         }
 
@@ -1647,7 +1646,6 @@ var PlotsView = (function () {
             $('#view_title').show();
             $('#plots_box').show();
             $('#loading-image').hide();
-
             View.init();
         }
 

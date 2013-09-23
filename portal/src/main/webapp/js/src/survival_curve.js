@@ -237,7 +237,6 @@ var survivalCurves = (function() {
             elem.osUnalterCensoredDots = elem.svgOS.append("g");
             elem.dfsAlterCensoredDots = elem.svgDFS.append("g");
             elem.dfsUnalterCensoredDots = elem.svgDFS.append("g");
-
         }
 
         function initAxis() {
@@ -463,6 +462,9 @@ var survivalCurves = (function() {
                 .text(function(d) { return d.text });
         }
 
+        function appendValues(inputGrp1, inputGrp2, svg) {
+            var pVal = logRankTest.calc(inputGrp1, inputGrp2);
+        }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
             svg.append("text")
@@ -514,13 +516,10 @@ var survivalCurves = (function() {
                 //Append Glyphes
                 addLegends(elem.svgOS);
                 addLegends(elem.svgDFS);
+                //AppendValues
+                appendValues(data.getOSAlteredData(), data.getOSUnalteredData(), elem.svgOS);
             }
-
-
         }
-
-
-
     }());
 
     var kmEstimator = (function() {
@@ -540,6 +539,109 @@ var survivalCurves = (function() {
                         //TODO: error handling
                     }
                 }
+            }
+        }
+    }());
+
+    //Calculate the p-value between two curves from log-rank test
+    var logRankTest = (function() {
+
+        var datum = {
+                time: "",    //num of months
+                num_of_failure_1: 0,
+                num_of_failure_2: 0,
+                num_at_risk_1: 0,
+                num_at_risk_2: 0,
+                expection_1: 0, //(n1j / (n1j + n2j)) * (m1j + m2j)
+                variance: 0
+            },
+            mergedArr = [];
+                                                  //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+        function mergeGrps(inputGrp1, inputGrp2) {
+            var _ptr_1 = 0; //index indicator/pointer for group1
+            var _ptr_2 = 0; //index indicator/pointer for group2
+
+            var _mergedArrLength = inputGrp1.length < inputGrp2.length ? inputGrp1.length : inputGrp2.length;
+            for (var i = 0; i < _mergedArrLength; i++) {
+                if (inputGrp1[_ptr_1].time < inputGrp2[_ptr_2].time) {
+                    var _datum = jQuery.extend(true, {}, datum);
+                    _datum.time = inputGrp1[_ptr_1].time;
+                    if (inputGrp1[_ptr_1].status === "1") {
+                        _datum.num_of_failure_1 = 1;
+                        _ptr_1 += 1;
+                    } else {
+                        _ptr_1 += 1;
+                        continue;
+                    }
+                } else if (inputGrp1[_ptr_1].time > inputGrp2[_ptr_2].time) {
+                    var _datum = jQuery.extend(true, {}, datum);
+                    _datum.time = inputGrp2[_ptr_2].time;
+                    if (inputGrp2[_ptr_2].status === "1") {
+                        _datum.num_of_failure_2 = 1;
+                        _ptr_2 += 1;
+                    } else {
+                        _ptr_2 += 1;
+                        continue;
+                    }
+                } else { //events occur at the same time point
+                    var _datum = jQuery.extend(true, {}, datum);
+                    _datum.time = inputGrp1[_ptr_1].time;
+                    if (inputGrp1[_ptr_1].status === "1" || inputGrp2[_ptr_2].status === "1") {
+                        if (inputGrp1[_ptr_1].status === "1") {
+                            _datum.num_of_failure_1 = 1;
+                        }
+                        if (inputGrp2[_ptr_2].status === "1") {
+                            _datum.num_of_failure_2 = 1;
+                        }
+                        _ptr_1 += 1;
+                        _ptr_2 += 1;
+                    } else {
+                        _ptr_1 += 1;
+                        _ptr_2 += 1;
+                        continue;
+                    }
+                }
+                _datum.num_at_risk_1 = inputGrp1[_ptr_1].num_at_risk;
+                _datum.num_at_risk_2 = inputGrp2[_ptr_2].num_at_risk;
+                mergedArr.push(_datum);
+            }
+        }
+
+        function calcExpection() {
+            for (var i in mergedArr) {
+                var _item = mergedArr[i];
+                _item.expection_1 = (_item.num_at_risk_1 / (_item.num_at_risk_1 + _item.num_at_risk_2)) * (_item.num_of_failure_1 + _item.num_of_failure_2);
+            }
+        }
+
+        function calcVariance() {
+            for (var i in mergedArr) {
+                var _item = mergedArr[i];
+                var _num_of_failures = _item.num_of_failure_1 + _item.num_of_failure_2;
+                var _num_at_risk = _item.num_at_risk_1 + _item.num_at_risk_2;
+                _item.variance = ( _num_of_failures * (_num_at_risk - _num_of_failures) * _item.num_at_risk_1 * _item.num_at_risk_2) / ((_num_at_risk * _num_at_risk) * (_num_at_risk - 1));
+            }
+        }
+
+        function calcPval() {
+            var O1 = 0, E1 = 0, V = 0;
+            for (var i in mergedArr) {
+                var _item = mergedArr[i];
+                O1 += _item.num_of_failure_1 + _item.num_of_failure_2;
+                E1 += _item.expection_1;
+                V += _item.variance;
+            }
+            var nullHypo = (O1 - E1) * (O1 - E1) / V;
+            console.log(nullHypo);
+        }
+
+        return {
+            calc: function(inputGrp1, inputGrp2) {
+                mergeGrps(inputGrp1, inputGrp2);
+                calcExpection();
+                calcVariance();
+                console.log(mergedArr);
+                calcPval();
             }
         }
     }());

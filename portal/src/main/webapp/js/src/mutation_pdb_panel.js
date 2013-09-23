@@ -15,13 +15,14 @@ function MutationPdbPanel(options, data, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
+		numChains: 5,       // max number of chains (rows) to be displayed initially
 		marginLeft: 40,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 0,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 2,    // padding between chain rectangles
-		// TODO duplicate google colors, taken from OncoprintUtils.js (default branch)
+		// TODO duplicate google colors, taken from OncoprintUtils.js
 		// ...use OncoprintUtils or move colors to a general util class after merging
 		colors: ["#3366cc","#dc3912","#ff9900","#109618",
 			"#990099","#0099c6","#dd4477","#66aa00",
@@ -62,6 +63,12 @@ function MutationPdbPanel(options, data, xScale)
 	// reference to the main svg element
 	var _svg = null;
 
+	// total number of chains (for the given PDB data)
+	var _chainCount = calcChainCount(data);
+
+	// collapse indicator (initially true)
+	var _collapsed = true;
+
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
 	 * for each chain
@@ -76,7 +83,7 @@ function MutationPdbPanel(options, data, xScale)
 		// we need to count chains to calculate y value
 		var count = 0;
 
-		// TODO rank chains by length, show a few ones by default, allow user to expand/shrink
+		// TODO define a rule to rank (sort) chains
 		data.each(function(pdb, idx) {
 			// create rectangle(s) for each chain
 			pdb.chains.each(function(ele, idx) {
@@ -119,7 +126,24 @@ function MutationPdbPanel(options, data, xScale)
 	}
 
 	/**
-	 * Calculates the height of the panel wrt to provided elHeight option.
+	 * Calculates total number of chains for the given PDB data.
+	 *
+	 * @param data      PDB data (collection of PdbModel instances)
+	 * @return {number} total number of chains
+	 */
+	function calcChainCount(data)
+	{
+		var chainCount = 0;
+
+		data.each(function(pdb, idx) {
+			chainCount += pdb.chains.length;
+		});
+
+		return chainCount;
+	}
+
+	/**
+	 * Calculates the full height of the panel wrt to provided elHeight option.
 	 *
 	 * @param elHeight  provided height value
 	 * @return {number}
@@ -135,14 +159,33 @@ function MutationPdbPanel(options, data, xScale)
 		}
 		else
 		{
-			var chainCount = 0;
-
-			data.each(function(pdb, idx) {
-				chainCount += pdb.chains.length;
-			});
-
 			height = _options.marginTop + _options.marginBottom +
-				chainCount * (_options.chainHeight + _options.chainPadding);
+				_chainCount * (_options.chainHeight + _options.chainPadding);
+		}
+
+		return height;
+	}
+
+	/**
+	 * Calculates the collapsed height of the panel wrt to provided
+	 * maxChain option.
+	 *
+	 * @param maxChain  maximum number of chains to be displayed
+	 * @return {number} calculated collapsed height
+	 */
+	function calcCollapsedHeight(maxChain)
+	{
+		var height = 0;
+
+		if (maxChain < _chainCount)
+		{
+			height = _options.marginTop +
+			         maxChain * (_options.chainHeight + _options.chainPadding);
+		}
+		// total number of chains is less than max, set to full height
+		else
+		{
+			height = calcHeight("auto");
 		}
 
 		return height;
@@ -177,7 +220,7 @@ function MutationPdbPanel(options, data, xScale)
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    calcHeight(_options.elHeight));
+		                    calcCollapsedHeight(_options.numChains));
 
 		_svg = svg;
 
@@ -213,7 +256,7 @@ function MutationPdbPanel(options, data, xScale)
 	/**
 	 * Shows the panel.
 	 */
-	function show()
+	function showPanel()
 	{
 		$(_options.el).show();
 	}
@@ -221,15 +264,53 @@ function MutationPdbPanel(options, data, xScale)
 	/**
 	 * Hides the panel.
 	 */
-	function hide()
+	function hidePanel()
 	{
 		$(_options.el).hide();
+	}
+
+	/**
+	 * Resizes the panel height to show only a limited number of chains.
+	 */
+	function collapsePanel()
+	{
+		// resize to collapsed height
+		var collapsedHeight = calcCollapsedHeight(_options.numChains);
+		_svg.transition().duration(1000).attr("height", collapsedHeight);
+		_collapsed = true;
+	}
+
+	/**
+	 * Resizes the panel to its full height (to show all chains).
+	 */
+	function expandPanel()
+	{
+		// resize to full size
+		var fullHeight = calcHeight(_options.elHeight);
+		_svg.transition().duration(1000).attr("height", fullHeight);
+		_collapsed = false;
+	}
+
+	/**
+	 * Expands/Collapses the panel.
+	 */
+	function toggleHeight()
+	{
+		if (_collapsed)
+		{
+			expandPanel();
+		}
+		else
+		{
+			collapsePanel();
+		}
 	}
 
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
-		show: show,
-		hide: hide};
+		show: showPanel,
+		hide: hidePanel,
+		toggleHeight: toggleHeight};
 }
 

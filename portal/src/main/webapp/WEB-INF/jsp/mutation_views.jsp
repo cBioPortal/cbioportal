@@ -111,12 +111,19 @@
 <script type="text/template" id="pdb_panel_view_template">
 	<table>
 		<tr>
-			<td>
+			<td valign="top">
 				<div id='mutation_pdb_panel_{{geneSymbol}}' class='mutation-pdb-panel-container'></div>
 			</td>
-			<td>
-				<div id='mutation_pdb_controls_{{geneSymbol}}' class='mutation-pdb-panel-controls'></div>
+			<td></td>
+		</tr>
+		<tr>
+			<td valign="top" align="center">
+				<div id='mutation_pdb_controls_{{geneSymbol}}' class='mutation-pdb-panel-controls'>
+					<button class='expand-collapse-pdb-panel'
+					        title='Expand/Collapse PDB Chains'></button>
+				</div>
 			</td>
+			<td></td>
 		</tr>
 	</table>
 </script>
@@ -969,6 +976,17 @@
 
 			// hide view initially
 			self.hideView();
+
+			// add listeners to panel controls
+
+			var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+
+			expandButton.button({icons: {primary: "ui-icon-triangle-2-n-s"}});
+			expandButton.css({width: "300px", height: "12px"});
+
+			expandButton.click(function() {
+				self.pdbPanel.toggleHeight();
+			});
 		},
 		hideView: function()
 		{

@@ -561,13 +561,14 @@ var survivalCurves = (function() {
             var _ptr_1 = 0; //index indicator/pointer for group1
             var _ptr_2 = 0; //index indicator/pointer for group2
 
-            var _mergedArrLength = inputGrp1.length < inputGrp2.length ? inputGrp1.length : inputGrp2.length;
-            for (var i = 0; i < _mergedArrLength; i++) {
+            while(_ptr_1 < inputGrp1.length && _ptr_2 < inputGrp2.length) { //Stop when either pointer reach the end of the array
                 if (inputGrp1[_ptr_1].time < inputGrp2[_ptr_2].time) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.time = inputGrp1[_ptr_1].time;
                     if (inputGrp1[_ptr_1].status === "1") {
                         _datum.num_of_failure_1 = 1;
+                        _datum.num_at_risk_1 = inputGrp1[_ptr_1].num_at_risk;
+                        _datum.num_at_risk_2 = inputGrp2[_ptr_2].num_at_risk;
                         _ptr_1 += 1;
                     } else {
                         _ptr_1 += 1;
@@ -578,6 +579,8 @@ var survivalCurves = (function() {
                     _datum.time = inputGrp2[_ptr_2].time;
                     if (inputGrp2[_ptr_2].status === "1") {
                         _datum.num_of_failure_2 = 1;
+                        _datum.num_at_risk_1 = inputGrp1[_ptr_1].num_at_risk;
+                        _datum.num_at_risk_2 = inputGrp2[_ptr_2].num_at_risk;
                         _ptr_2 += 1;
                     } else {
                         _ptr_2 += 1;
@@ -593,6 +596,8 @@ var survivalCurves = (function() {
                         if (inputGrp2[_ptr_2].status === "1") {
                             _datum.num_of_failure_2 = 1;
                         }
+                        _datum.num_at_risk_1 = inputGrp1[_ptr_1].num_at_risk;
+                        _datum.num_at_risk_2 = inputGrp2[_ptr_2].num_at_risk;
                         _ptr_1 += 1;
                         _ptr_2 += 1;
                     } else {
@@ -601,8 +606,6 @@ var survivalCurves = (function() {
                         continue;
                     }
                 }
-                _datum.num_at_risk_1 = inputGrp1[_ptr_1].num_at_risk;
-                _datum.num_at_risk_2 = inputGrp2[_ptr_2].num_at_risk;
                 mergedArr.push(_datum);
             }
         }
@@ -635,13 +638,46 @@ var survivalCurves = (function() {
             console.log(nullHypo);
         }
 
+        function test(inputGrp1, inputGrp2) {
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
+            console.log(" --- Group1: ");
+            var _str1 = "";
+            var _str2 = "";
+            var _str3 = "";
+            for (var i = 0; i < inputGrp1.length; i++) {
+                if (inputGrp1[i].status === "1") {
+                    _str1 += inputGrp1[i].time + "   ";
+                } else {
+                    _str1 += inputGrp1[i].time + "+" + "    ";
+                }
+            }
+            console.log(_str1);
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
+            console.log(" --- Group2: ");
+            for (var i = 0; i < inputGrp2.length; i++) {
+                if (inputGrp2[i].status === "1") {
+                    _str2 += inputGrp2[i].time + "    ";
+                } else {
+                    _str2 += inputGrp2[i].time + "+" + "    ";
+                }
+            }
+            console.log(_str2);
+            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
+            console.log(" --- Merged: ");
+            console.log("time    num_at_risk_1    num_at_risk_2    num_of_failure_1   num_of_failure_2");
+            for (var i = 0; i < mergedArr.length; i++) {
+                _str3 += mergedArr[i].time + "   " + mergedArr[i].num_at_risk_1 + "    " + mergedArr[i].num_at_risk_2 + "    " + mergedArr[i].num_of_failure_1 + "    " + mergedArr[i].num_of_failure_2 + "\n";
+            }
+            console.log(_str3);
+        }
+
         return {
             calc: function(inputGrp1, inputGrp2) {
                 mergeGrps(inputGrp1, inputGrp2);
                 calcExpection();
                 calcVariance();
-                console.log(mergedArr);
                 calcPval();
+                test(inputGrp1, inputGrp2);
             }
         }
     }());

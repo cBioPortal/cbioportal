@@ -37,6 +37,9 @@
 		font-size: 90%;
 		color: black;
 	}
+	#mutation_details .mutation_details_table td {
+		font-size: 100%;
+	}
 	/*
 	th.mutation-details-qtip-style {
 		/*font-size: 115%;

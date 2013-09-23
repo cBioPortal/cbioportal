@@ -81,10 +81,30 @@
 	<div class='mutation-3d-vis-header'><a class='mutation-3d-close'>X</a></div>
 	<div id='mutation_3d_visualizer'></div>
 	<div class='mutation-3d-vis-toolbar'>
-		<label>
-			<b>PDB id:</b> <span class='3d-vis-pdb-id'></span>
-			<b>Chain:</b> <span class='3d-vis-chain-id'></span>
-		</label>
+		<table>
+			<tr>
+				<td>
+					<label>
+						<b>PDB id:</b> <span class='3d-vis-pdb-id'></span>
+					</label>
+					<label>
+						<b>Chain:</b> <span class='3d-vis-chain-id'></span>
+					</label>
+				</td>
+			</tr>
+		    <tr>
+			    <td>
+				    <label>Select style: </label>
+				    <select class='3d-vis-style-select'>
+					    <option value='cartoon'
+					            title='Switch to Cartoon View'>Cartoon</option>
+					    <option value='ballAndStick'
+					            title='Switch to Ball and Stick View'>Ball & Stick</option>
+				    </select>
+				    <button class='3d-vis-spin' title='Toggle Spin'>Spin</button>
+			    </td>
+		    </tr>
+		</table>
 	</div>
 </script>
 
@@ -1054,16 +1074,36 @@
 			});
 
 			// TODO add listener to the toolbar elements
+
+			self.$el.find(".3d-vis-spin").button();
+			self.$el.find(".3d-vis-spin").click(function(){
+				if (mut3dVis != null)
+				{
+					mut3dVis.toggleSpin();
+				}
+			});
+
+			self.$el.find(".3d-vis-style-select").change(function(){
+				var selected = $(this).val();
+
+				if (mut3dVis != null)
+				{
+					mut3dVis.changeStyle(selected);
+				}
+
+			});
+
 		},
 		updateView: function(pdbId, chain)
 		{
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
 
+			// reload the selected pdb and chain data
 			mut3dVis.show();
 			mut3dVis.reload(pdbId, chain);
 
-			// TODO also update info bar (tool bar)
+			// update toolbar (infobar)
 			self.$el.find(".3d-vis-pdb-id").text(pdbId);
 			self.$el.find(".3d-vis-chain-id").text(chain.chainId);
 		}

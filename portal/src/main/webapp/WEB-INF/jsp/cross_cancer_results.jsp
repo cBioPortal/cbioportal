@@ -21,7 +21,8 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/crosscancer.js"></script>
+<script type="text/javascript" src="js/src/crosscancer.js"></script>
+<link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
     // Means that user landed on this page with the old way.
@@ -85,6 +86,9 @@
             <td>{{genes}}</td>
         </tr>
     </table>
+
+    <div id="cchistogram">
+    </div>
 </script>
 
 <script type="text/template" id="cross-cancer-main-empty-tmpl">

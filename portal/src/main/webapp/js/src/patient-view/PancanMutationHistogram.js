@@ -185,12 +185,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .domain([0, yStackMax])
         .range([height, 0]);
 
-    // axises
-
-    //var xAxis = d3.svg.axis()
-    //    .scale(x)
-    //    .tickFormat("")
-    //    .orient("bottom");
+    // --- axises --- //
 
     var percent_format = d3.format("%.0");
     var yAxis = d3.svg.axis()
@@ -199,6 +194,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .orient("left");
     yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
+    // colored cancer type x axis
 
     // list of element that represent the start and end of each cancer type in
     // the sorted list of cancer studies
@@ -236,6 +232,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     var cancer_type_color_scale = d3.scale.category20b()
         .domain(study_start_ends.map(function(d) { return d.cancer_type; }));
 
+    // add the cancer type axis
     svg.selectAll('line')
         .data(study_start_ends)
         .enter()
@@ -247,18 +244,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .style('stroke-width', 5)
         .style('stroke', function(d) { return cancer_type_color_scale(d.cancer_type); })
 
-    // append axises
-
-    //var xAxisEl = svg.append("g")
-    //    .attr("transform", "translate(0," + height + ")")
-    //    .attr('id', 'x-axis')
-    //    .call(xAxis);
-
-    //// apply css to xAxis
-
-    //xAxisEl.attr('fill', 'none')
-    //    .attr('stroke', '#000')
-    //    .attr('shape-rendering', 'crispEdges');
+    // append y axis
 
     var yAxisEl = svg.append("g")
         .call(yAxis)
@@ -268,7 +254,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     var googleblue = "#3366cc";
     var googlered = "#dc3912";
 
-    // bar chart
+    // --- bar chart ---
     var layer = svg.selectAll(".layer")
         .data(layers)
         .enter().append("g")
@@ -284,14 +270,14 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
 
     // title
-    //var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    //var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
-    //svg.append('text')
-    //    .text(title_string)
-    //    .attr('x', .35 * d3.max(x.range()))
-    //    .attr('y', .15 * d3.max(y.range()))
-    //    .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-    //    .style("font-size", "18px")
+    var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
+    var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
+    svg.append('text')
+        .text(title_string)
+        .attr('x', 10)
+        .attr('y', -5)
+        .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+        .style("font-size", "18px")
 
     function qtip(svg) {
         var mouseOverBar = d3.select(svg).selectAll('.mouseOver')

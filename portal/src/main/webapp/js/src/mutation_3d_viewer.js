@@ -49,7 +49,7 @@ var Mutation3dVis = function(name, options)
 		translucency: 5, // translucency (opacity) of the default color
 		chainColor: "x888888", // color of the selected chain
 		mutationColor: "xFF0000", // color of the selected mutations
-		containerPadding: 25 // padding for the vis container (this is to prevent overlapping)
+		containerPadding: 10 // padding for the vis container (this is to prevent overlapping)
 	};
 
 	// Predefined style scripts for Jmol

@@ -127,9 +127,22 @@
 		background-color: #FFFFFF;
 		padding: 5px 10px 10px;
 	}
+	.mutation-3d-vis-header {
+		padding-bottom: 5px;
+	}
+	.mutation-3d-info {
+		font-size: 14px;
+	}
 	.mutation-3d-close {
 		float: right;
 		cursor: pointer;
+	}
+	.mutation-3d-pdb-id, .mutation-3d-chain-id {
+		font-weight: bold;
+		font-style: italic;
+	}
+	.mutation-3d-spin {
+		margin-left: 20px;
 	}
 	.mutation-3d-vis img{
 		width: 24px;

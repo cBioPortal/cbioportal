@@ -1325,3 +1325,9 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
     max-height: 350px !important;
 }
 
+/* this is required because of
+	.section ul css settings*/
+.chzn-results li {
+	font-size: 12px !important;
+}
+

@@ -78,30 +78,33 @@
 </script>
 
 <script type="text/template" id="mutation_3d_vis_template">
-	<div class='mutation-3d-vis-header'><a class='mutation-3d-close'>X</a></div>
+	<div class='mutation-3d-vis-header'>
+		<a class='mutation-3d-close'>X</a>
+		<label class='mutation-3d-info'>
+			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
+			and the chain <span class='mutation-3d-chain-id'></span>
+		</label>
+	</div>
 	<div id='mutation_3d_visualizer'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<table>
-			<tr>
-				<td>
-					<label>
-						<b>PDB id:</b> <span class='3d-vis-pdb-id'></span>
-					</label>
-					<label>
-						<b>Chain:</b> <span class='3d-vis-chain-id'></span>
-					</label>
-				</td>
-			</tr>
 		    <tr>
 			    <td>
-				    <label>Select style: </label>
-				    <select class='3d-vis-style-select'>
-					    <option value='cartoon'
-					            title='Switch to Cartoon View'>Cartoon</option>
-					    <option value='ballAndStick'
-					            title='Switch to Ball and Stick View'>Ball & Stick</option>
-				    </select>
-				    <button class='3d-vis-spin' title='Toggle Spin'>Spin</button>
+					<label><b>Select style:</b></label>
+			    </td>
+			    <td>
+					<select class='mutation-3d-style-select'>
+						<option value='cartoon'
+						        title='Switch to Cartoon View'>cartoon</option>
+						<option value='ballAndStick'
+						        title='Switch to Ball and Stick View'>ball & stick</option>
+					</select>
+				</td>
+			    <td>
+					<input class='mutation-3d-spin' type='checkbox'>
+			    </td>
+			    <td>
+				    <label>Turn on Spin</label>
 			    </td>
 		    </tr>
 		</table>
@@ -977,11 +980,13 @@
 			// hide view initially
 			self.hideView();
 
-			// add listeners to panel controls
+			// format panel controls
 
 			var expandButton = self.$el.find(".expand-collapse-pdb-panel");
 
-			expandButton.button({icons: {primary: "ui-icon-triangle-2-n-s"}});
+			expandButton.button({
+				icons: {primary: "ui-icon-triangle-2-n-s"},
+				text: false});
 			expandButton.css({width: "300px", height: "12px"});
 
 			expandButton.click(function() {
@@ -1091,17 +1096,23 @@
 				self.options.parentEl.find(".mutation-pdb-panel-view").hide();
 			});
 
-			// TODO add listener to the toolbar elements
+			// format toolbar elements
 
-			self.$el.find(".3d-vis-spin").button();
-			self.$el.find(".3d-vis-spin").click(function(){
+			// spin toggle
+			var spinChecker = self.$el.find(".mutation-3d-spin");
+
+			spinChecker.change(function(){
 				if (mut3dVis != null)
 				{
 					mut3dVis.toggleSpin();
 				}
 			});
 
-			self.$el.find(".3d-vis-style-select").change(function(){
+			// style selection menu
+			var styleMenu = self.$el.find(".mutation-3d-style-select");
+
+			styleMenu.chosen({width: 120, disable_search: true});
+			styleMenu.change(function(){
 				var selected = $(this).val();
 
 				if (mut3dVis != null)
@@ -1121,9 +1132,10 @@
 			mut3dVis.show();
 			mut3dVis.reload(pdbId, chain);
 
-			// update toolbar (infobar)
-			self.$el.find(".3d-vis-pdb-id").text(pdbId);
-			self.$el.find(".3d-vis-chain-id").text(chain.chainId);
+			// update info
+			// TODO it might be better to do this with backbone's internal mvc listeners
+			self.$el.find(".mutation-3d-pdb-id").text(pdbId);
+			self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
 		}
 	});
 

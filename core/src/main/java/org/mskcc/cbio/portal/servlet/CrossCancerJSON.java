@@ -185,9 +185,9 @@ public class CrossCancerJSON extends HttpServlet {
                         for (String gene : genes) {
                             isAnyMutated |= genomicData.isGeneMutated(gene, caseId);
                             GeneticTypeLevel cnaLevel = genomicData.getCNALevel(gene, caseId);
-                            boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
+                            boolean isCnaUp = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
                             isAnyCnaUp |= isCnaUp;
-                            boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.Amplified);
+                            boolean isCnaDown = cnaLevel != null && cnaLevel.equals(GeneticTypeLevel.HomozygouslyDeleted);
                             isAnyCnaDown |= isCnaDown;
                         }
 

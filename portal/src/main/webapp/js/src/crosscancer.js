@@ -83,7 +83,26 @@
                         window.studies = studies;
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
-                            var histData = filterAndSortData(studies.toJSON());
+                            var histDataOrg = studies.toJSON();
+                            var histData = filterAndSortData(histDataOrg);
+
+                            var numOfStudiesHidden = histDataOrg.length - histData.length;
+                            if(numOfStudiesHidden > 0) {
+                                $("#cc-study-help")
+                                    .show()
+                                    .qtip({
+                                        content: numOfStudiesHidden + " studies were excluded from this view.",
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    })
+                                ;
+                            } else {
+                                $("#cc-study-help").hide();
+                            }
+
                             var studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
                             var studyWidth = studyLocIncrements * .75;
                             var verticalCirclePadding = 20;
@@ -124,12 +143,16 @@
                                 .scale(yScale)
                                 .orient("left");
 
-                            var barGroup = histogram.append("g");
-                            barGroup.selectAll("rect")
+                            // These bars represents the overall changes
+                            // The rest of the stacked bars should hide these bars
+                            // Good for debugging (w/ yellow color)
+                            /*
+                            var debugBarGroup = histogram.append("g");
+                            debugBarGroup.selectAll("rect")
                                 .data(histData, key)
                                 .enter()
                                 .append("rect")
-                                .attr("fill", "#aaaaaa")
+                                .attr("fill", "yellow")
                                 .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                 .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
                                 .attr("width", studyWidth)
@@ -146,6 +169,131 @@
                                         }
                                     });
                                 });
+                            */
+
+                            var otherBarGroup = histogram.append("g");
+                            otherBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "#aaaaaa")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "other")) + paddingTop; })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other"));
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .each(function(d, i) {
+                                    $(this).qtip({
+                                        content: "" + calculateFrequency(d, i, "other"),
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    });
+                                })
+                            ;
+
+                            var mutBarGroup = histogram.append("g");
+                            mutBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "green")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) {
+                                    return yScale(calculateFrequency(d, i, "mutation"))
+                                        - ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                        + paddingTop;
+                                })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation"));
+
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .each(function(d, i) {
+                                    $(this).qtip({
+                                        content: "" + calculateFrequency(d, i, "mutation"),
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    });
+                                })
+                            ;
+
+                            var cnadownBarGroup = histogram.append("g");
+                            cnadownBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "blue")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) {
+                                    return yScale(calculateFrequency(d, i, "cnaDown"))
+                                        - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                        )
+                                        + paddingTop;
+                                })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown"));
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .each(function(d, i) {
+                                    $(this).qtip({
+                                        content: "" + calculateFrequency(d, i, "cnaDown"),
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    });
+                                })
+                            ;
+
+                            var cnaupBarGroup = histogram.append("g");
+                            cnaupBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "red")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) {
+                                    return yScale(calculateFrequency(d, i, "cnaUp"))
+                                        - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
+                                        )
+                                        + paddingTop;
+                                })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp"));
+                                })
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
+                                .each(function(d, i) {
+                                    $(this).qtip({
+                                        content: "" + calculateFrequency(d, i, "cnaUp"),
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    });
+                                })
+                            ;
 
                             var annotations = histogram.append("g");
                             annotations.selectAll("text")
@@ -247,7 +395,7 @@
                                     ;
                                 })
                                 .attr("font-family", fontFamily)
-                                .attr("font-size", function() { return (studyWidth * .65) + "px"; })
+                                .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
                                 .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.75; })
                                 .attr("y", function() { return histBottom + verticalCirclePadding*4 })
                                 .attr("text-anchor", "end")
@@ -289,6 +437,37 @@
                                 .attr("x", labelCorX)
                                 .attr("y", labelCorY)
                                 .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
+                            ;
+
+                            // Now add the legends
+                            var legendData = [
+                                { label: "Mutation", color: "green", x: paddingLeft + 175},
+                                { label: "Deletion", color: "blue", x: paddingLeft + 275},
+                                { label: "Amplification", color: "red", x: paddingLeft + 375},
+                                { label: "Multiple alterations", color: "#aaaaaa", x: paddingLeft + 500}
+                            ];
+                            var legend = histogram.append("g");
+                            var legendX = paddingLeft + 100;
+                            legend.selectAll("rect")
+                                .data(legendData)
+                                .enter()
+                                .append("rect")
+                                .attr('x', function(d, i) { return d.x; })
+                                .attr('y', height-25)
+                                .attr('width', 19)
+                                .attr('height', 19)
+                                .style('fill', function(d) { return d.color; })
+                            ;
+                            legendX = paddingLeft + 100 + 25;
+                            legend.selectAll("text")
+                                .data(legendData)
+                                .enter()
+                                .append("text")
+                                .attr('x', function(d, i) { return d.x + 25; })
+                                .attr('y', height-(25-19)-4)
+                                .text(function(d, i) { return d.label; })
+                                .attr("font-family", fontFamily)
+                                .attr("font-size", "15px")
                             ;
 
                             // Give some style

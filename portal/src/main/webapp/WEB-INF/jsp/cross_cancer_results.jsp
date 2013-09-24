@@ -98,7 +98,7 @@
 
 <script type="text/template" id="crosscancer-title-tmpl">
     <b class="cctitle">
-        Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} genes)
+        Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies<sup id="cc-study-help">*</sup> / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
     <form style="display:inline-block"
           action='svgtopdf.do'

@@ -1,7 +1,11 @@
 <%@ page import="org.json.simple.JSONObject"%>
+<%@ page import="org.apache.commons.math3.distribution.ChiSquaredDistribution"%>
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
     String case_set_id = (String)request.getParameter("case_set_id");
+    ChiSquaredDistribution distribution;
+    distribution = new ChiSquaredDistribution(1);
+    out.println(1 - distribution.cumulativeProbability(5.5053069291228205));
 %>
 
 <script>

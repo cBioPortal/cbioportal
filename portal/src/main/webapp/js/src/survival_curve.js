@@ -463,7 +463,8 @@ var survivalCurves = (function() {
         }
 
         function appendValues(inputGrp1, inputGrp2, svg) {
-            var pVal = logRankTest.calc(inputGrp1, inputGrp2);
+            svg.append("text")
+                .text(logRankTest.calc(inputGrp1, inputGrp2));
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
@@ -518,6 +519,7 @@ var survivalCurves = (function() {
                 addLegends(elem.svgDFS);
                 //AppendValues
                 appendValues(data.getOSAlteredData(), data.getOSUnalteredData(), elem.svgOS);
+                appendValues(data.getDFSAlteredData(), data.getDFSUnalteredData(), elem.svgDFS);
             }
         }
     }());
@@ -552,7 +554,7 @@ var survivalCurves = (function() {
                 num_of_failure_2: 0,
                 num_at_risk_1: 0,
                 num_at_risk_2: 0,
-                expection_1: 0, //(n1j / (n1j + n2j)) * (m1j + m2j)
+                expectation: 0, //(n1j / (n1j + n2j)) * (m1j + m2j)
                 variance: 0
             },
             mergedArr = [];
@@ -613,7 +615,7 @@ var survivalCurves = (function() {
         function calcExpection() {
             for (var i in mergedArr) {
                 var _item = mergedArr[i];
-                _item.expection_1 = (_item.num_at_risk_1 / (_item.num_at_risk_1 + _item.num_at_risk_2)) * (_item.num_of_failure_1 + _item.num_of_failure_2);
+                _item.expectation = (_item.num_at_risk_1 / (_item.num_at_risk_1 + _item.num_at_risk_2)) * (_item.num_of_failure_1 + _item.num_of_failure_2);
             }
         }
 
@@ -630,11 +632,15 @@ var survivalCurves = (function() {
             var O1 = 0, E1 = 0, V = 0;
             for (var i in mergedArr) {
                 var _item = mergedArr[i];
-                O1 += _item.num_of_failure_1 + _item.num_of_failure_2;
-                E1 += _item.expection_1;
+                O1 += _item.num_of_failure_1;
+                E1 += _item.expectation;
                 V += _item.variance;
             }
             var nullHypo = (O1 - E1) * (O1 - E1) / V;
+            console.log("merged length:" + mergedArr.length);
+            console.log("O1: " + O1);
+            console.log("E1: " + E1);
+            console.log("V: " + V);
             console.log(nullHypo);
         }
 
@@ -666,13 +672,15 @@ var survivalCurves = (function() {
             console.log(" --- Merged: ");
             console.log("time    num_at_risk_1    num_at_risk_2    num_of_failure_1   num_of_failure_2");
             for (var i = 0; i < mergedArr.length; i++) {
-                _str3 += mergedArr[i].time + "   " + mergedArr[i].num_at_risk_1 + "    " + mergedArr[i].num_at_risk_2 + "    " + mergedArr[i].num_of_failure_1 + "    " + mergedArr[i].num_of_failure_2 + "\n";
+                _str3 += mergedArr[i].time + "   " + mergedArr[i].num_at_risk_1 + "    " + mergedArr[i].num_at_risk_2 + "    " + mergedArr[i].num_of_failure_1 + "    " +
+                    mergedArr[i].num_of_failure_2 + "    " + mergedArr[i].expectation + "    " + mergedArr[i].variance + "\n";
             }
             console.log(_str3);
         }
 
         return {
             calc: function(inputGrp1, inputGrp2) {
+                mergedArr.length = 0;
                 mergeGrps(inputGrp1, inputGrp2);
                 calcExpection();
                 calcVariance();

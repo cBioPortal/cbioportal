@@ -31,7 +31,7 @@
         // Some semi-global utilities
         // Here are some options that we will use in this view
         var width = 1000;
-        var height = 600;
+        var height = 650;
         var paddingLeft = 70;
         var paddingRight = 50;
         var paddingTop = 10;
@@ -192,7 +192,7 @@
                                     return metaData.cancer_studies[d.studyId].has_mutation_data ? dataAColor : dataNAColor
                                 })
                                 .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                .attr("cy", function(d, i) { return histBottom + verticalCirclePadding*2 })
+                                .attr("cy", function() { return histBottom + verticalCirclePadding*2 })
                                 .attr("r", circleDTR)
                                 .each(function(d, i) {
                                     $(this).qtip({
@@ -218,9 +218,9 @@
                                     return metaData.cancer_studies[d.studyId].has_cna_data ? dataAColor : dataNAColor
                                 })
                                 .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                .attr("cy", function(d, i) { return histBottom + verticalCirclePadding*3 })
+                                .attr("cy", function() { return histBottom + verticalCirclePadding*3 })
                                 .attr("r", circleDTR)
-                                .each(function(d, i) {
+                                .each(function(d) {
                                     $(this).qtip({
                                         content: metaData.cancer_studies[d.studyId].has_cna_data
                                             ? "CNA data available"
@@ -232,6 +232,41 @@
                                         }
                                     });
                                 });
+
+                            var abbrGroups = histogram.append("g");
+                            abbrGroups.selectAll("text")
+                                .data(histData, key)
+                                .enter()
+                                .append("text")
+                                .text(function(d, i) {
+                                    return d.studyId
+                                        .toLocaleUpperCase()
+                                        .replace("_", " (")
+                                        .concat(")")
+                                        .replace(/_/g, " ")
+                                    ;
+                                })
+                                .attr("font-family", fontFamily)
+                                .attr("font-size", function() { return (studyWidth * .65) + "px"; })
+                                .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.75; })
+                                .attr("y", function() { return histBottom + verticalCirclePadding*4 })
+                                .attr("text-anchor", "end")
+                                .attr("transform", function(d, i) {
+                                    var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
+                                    var yLoc = histBottom + verticalCirclePadding*4;
+                                    return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                })
+                                .each(function(d, i) {
+                                    $(this).qtip({
+                                        content: metaData.cancer_studies[d.studyId].name,
+                                        show: 'mouseover',
+                                        hide: {
+                                            fixed:true,
+                                            delay: 100
+                                        }
+                                    });
+                                })
+                            ;
 
                             var yAxisEl = histogram.append("g")
                                 .attr("class", "axis")
@@ -278,7 +313,7 @@
                                model: {
                                    numOfStudies: numOfStudies,
                                    numOfGenes: numOfGenes,
-                                   genes: genes.join()
+                                   genes: genes.join(', ')
                                }
                             })).render();
                         });

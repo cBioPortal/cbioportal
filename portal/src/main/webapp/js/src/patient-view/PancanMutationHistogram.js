@@ -4,7 +4,7 @@
 //      byGeneData:                         [list of {cancer_study, cancer_type, hugo, count} ]
 //      cancer_study_meta_data:             [list of {cancer_study, cancer_type, num_sequenced_samples} ]
 //      el:                                 DOM element
-//      params:                             overrides default parameters: { margin: { top, bottom, right, left }, width, height, cancerStudyName (of this study) }
+//      params:                             overrides default parameters: { margin: { top, bottom, right, left }, width, height, this_cancer_study }
 //
 // returns:
 //      an object {el, qtip} where qtip is a function: svg ->
@@ -13,12 +13,13 @@
 //
 // Gideon Dresdner <dresdnerg@cbio.mskcc.org>
 // September 2013
+//
 function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
-    params = $.extend({
+    params = _.extend({
         margin: {top: 20, right: 10, bottom: 20, left: 40},
         width: 840,
         height: 400,
-        cancerStudyName: undefined
+        this_cancer_study: undefined
     }, params);
 
     var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
@@ -255,6 +256,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     var googlered = "#dc3912";
 
     // --- bar chart ---
+
     var layer = svg.selectAll(".layer")
         .data(layers)
         .enter().append("g")
@@ -278,6 +280,43 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr('y', -5)
         .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
         .style("font-size", "18px")
+
+    // star the current cancer study if this_cancer_study is provided.
+    if (!_.isUndefined(params.this_cancer_study)) {
+        star_this_cancer_study();
+    }
+
+    function star_this_cancer_study() {
+        var this_cancer_study_data = _.find(all_data[0], function(d) {
+            return d.cancer_study === params.this_cancer_study;
+        });
+
+        var this_cancer_type;
+        try {
+            this_cancer_type = this_cancer_study_data.cancer_type;
+        } catch(e) {
+            throw new Error(e + ": could not find this the corresponding datum for this cancer study, [" + params.this_cancer_study + "]");
+        }
+
+        var find_this_cancer_studdy_datum = function(group) {
+            return _.find(group, function(d) {
+                return d.cancer_study === params.this_cancer_study;
+            });
+        };
+
+        var this_cancer_type_group = _.zip.apply(null, all_data);
+        this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
+
+        var total_frequency = total_frequency(this_cancer_type_group);
+
+        svg.append('text')
+            .text('*')
+            .attr('id', 'star')
+            .attr('x', x(params.this_cancer_study) + x.rangeBand() - 16)
+            .attr('y', y(-1 * total_frequency) + 10)
+            .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
+            .style("font-size", "42px");
+    }
 
     function qtip(svg) {
         var mouseOverBar = d3.select(svg).selectAll('.mouseOver')

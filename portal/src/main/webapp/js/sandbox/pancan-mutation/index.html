@@ -39,7 +39,9 @@
                 var barchart = PancanMutationHistogram(bykeyword_data,
                     byhugo_data,
                     cancer_study_meta_data,
-                    el);
+                    el,
+                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)" }
+                    );
 
                 barchart.qtip($(barchart.el).find("svg")[0]);
             });

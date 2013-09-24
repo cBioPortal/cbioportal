@@ -177,8 +177,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 //    console.log(layers);
 
     var x = d3.scale.ordinal()
-        .rangeRoundBands([0, width], .1)
-        .domain(all_data[0].map(function(d) { return d.cancer_study; }));
+        .domain(all_data[0].map(function(d) { return d.cancer_study; }))
+        .rangeBands([0, width], .1);
 
     yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
     var y = d3.scale.linear()
@@ -187,10 +187,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // axises
 
-    var xAxis = d3.svg.axis()
-        .scale(x)
-        .tickFormat("")
-        .orient("bottom");
+    //var xAxis = d3.svg.axis()
+    //    .scale(x)
+    //    .tickFormat("")
+    //    .orient("bottom");
 
     var percent_format = d3.format("%.0");
     var yAxis = d3.svg.axis()
@@ -199,18 +199,66 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .orient("left");
     yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
+
+    // list of element that represent the start and end of each cancer type in
+    // the sorted list of cancer studies
+    var study_start_ends = (function() {
+        var first = all_data[0][0];
+
+        function new_element_from_datum(d) {
+            return {
+                cancer_type: d.cancer_type,
+                start: d.cancer_study,
+                end: d.cancer_study
+            };
+        }
+
+        return _.chain(all_data[0])
+            .reduce(function(acc, next) {
+                var last = _.last(acc);
+
+                // beginning of a new cancer type, create a first cancer_study
+                if (last.cancer_type !== next.cancer_type) {
+                    return acc.concat(new_element_from_datum(next));
+                }
+
+                // within a cancer type, continue updating the last
+                // cancer_study
+                if (last.cancer_type === next.cancer_type) {
+                    last.end = next.cancer_study;
+                    return acc;
+                }
+
+            }, [ new_element_from_datum(first) ])
+            .value();
+    }());
+
+    var cancer_type_color_scale = d3.scale.category20b()
+        .domain(study_start_ends.map(function(d) { return d.cancer_type; }));
+
+    svg.selectAll('line')
+        .data(study_start_ends)
+        .enter()
+        .append('line')
+        .attr('x1', function(d) { return x(d.start); })
+        .attr('x2', function(d) { return x(d.end) + x.rangeBand(); })
+        .attr('y1', height + params.margin.bottom / 3)
+        .attr('y2', height + params.margin.bottom / 3)
+        .style('stroke-width', 5)
+        .style('stroke', function(d) { return cancer_type_color_scale(d.cancer_type); })
+
     // append axises
 
-    var xAxisEl = svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .attr('id', 'x-axis')
-        .call(xAxis);
+    //var xAxisEl = svg.append("g")
+    //    .attr("transform", "translate(0," + height + ")")
+    //    .attr('id', 'x-axis')
+    //    .call(xAxis);
 
-    // apply css to xAxis
+    //// apply css to xAxis
 
-    xAxisEl.attr('fill', 'none')
-        .attr('stroke', '#000')
-        .attr('shape-rendering', 'crispEdges');
+    //xAxisEl.attr('fill', 'none')
+    //    .attr('stroke', '#000')
+    //    .attr('shape-rendering', 'crispEdges');
 
     var yAxisEl = svg.append("g")
         .call(yAxis)
@@ -232,7 +280,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .enter().append("rect")
         .attr("x", function(d) { return x(d.cancer_study); })
         .attr("y", function(d) { return y(d.y0 + d.y); })
-        .attr("width", x.rangeBand())
+        .attr("width", function(d) { return x.rangeBand(); })
         .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
 
     // title

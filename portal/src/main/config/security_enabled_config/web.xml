@@ -552,6 +552,16 @@
         <url-pattern>/getSurvivalData.json</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>CalcChiDistribution</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.SurvivalChiSquareDistributionCalc</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>CalcChiDistribution</servlet-name>
+        <url-pattern>/calcPval.do</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
      
     <welcome-file-list>

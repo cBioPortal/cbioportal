@@ -462,9 +462,15 @@ var survivalCurves = (function() {
                 .text(function(d) { return d.text });
         }
 
-        function appendValues(inputGrp1, inputGrp2, svg) {
+        function appendPval(inputGrp1, inputGrp2, type) {
+            logRankTest.calc(inputGrp1, inputGrp2, type);
+        }
+
+        function appendpVal_callback(data, svg) {
             svg.append("text")
-                .text(logRankTest.calc(inputGrp1, inputGrp2));
+                .attr("x", 605)
+                .attr("y", 140)
+                .text("Logrank Test P-Value: " + data);
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
@@ -518,9 +524,10 @@ var survivalCurves = (function() {
                 addLegends(elem.svgOS);
                 addLegends(elem.svgDFS);
                 //AppendValues
-                appendValues(data.getOSAlteredData(), data.getOSUnalteredData(), elem.svgOS);
-                appendValues(data.getDFSAlteredData(), data.getDFSUnalteredData(), elem.svgDFS);
-            }
+                appendPval(data.getOSAlteredData(), data.getOSUnalteredData(), elem.svgOS);
+                appendPval(data.getDFSAlteredData(), data.getDFSUnalteredData(), elem.svgDFS);
+            },
+            appendpVal_callback: appendpVal_callback
         }
     }());
 
@@ -628,7 +635,7 @@ var survivalCurves = (function() {
             }
         }
 
-        function calcPval() {
+        function calcPval(svg) {
             var O1 = 0, E1 = 0, V = 0;
             for (var i in mergedArr) {
                 var _item = mergedArr[i];
@@ -636,56 +643,20 @@ var survivalCurves = (function() {
                 E1 += _item.expectation;
                 V += _item.variance;
             }
-            var nullHypo = (O1 - E1) * (O1 - E1) / V;
-            console.log("merged length:" + mergedArr.length);
-            console.log("O1: " + O1);
-            console.log("E1: " + E1);
-            console.log("V: " + V);
-            console.log(nullHypo);
-        }
-
-        function test(inputGrp1, inputGrp2) {
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
-            console.log(" --- Group1: ");
-            var _str1 = "";
-            var _str2 = "";
-            var _str3 = "";
-            for (var i = 0; i < inputGrp1.length; i++) {
-                if (inputGrp1[i].status === "1") {
-                    _str1 += inputGrp1[i].time + "   ";
-                } else {
-                    _str1 += inputGrp1[i].time + "+" + "    ";
-                }
-            }
-            console.log(_str1);
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
-            console.log(" --- Group2: ");
-            for (var i = 0; i < inputGrp2.length; i++) {
-                if (inputGrp2[i].status === "1") {
-                    _str2 += inputGrp2[i].time + "    ";
-                } else {
-                    _str2 += inputGrp2[i].time + "+" + "    ";
-                }
-            }
-            console.log(_str2);
-            console.log("<<<<<<<<<<<<<<<<<<<<<<<");
-            console.log(" --- Merged: ");
-            console.log("time    num_at_risk_1    num_at_risk_2    num_of_failure_1   num_of_failure_2");
-            for (var i = 0; i < mergedArr.length; i++) {
-                _str3 += mergedArr[i].time + "   " + mergedArr[i].num_at_risk_1 + "    " + mergedArr[i].num_at_risk_2 + "    " + mergedArr[i].num_of_failure_1 + "    " +
-                    mergedArr[i].num_of_failure_2 + "    " + mergedArr[i].expectation + "    " + mergedArr[i].variance + "\n";
-            }
-            console.log(_str3);
+            var chi_square_score = (O1 - E1) * (O1 - E1) / V;
+            $.post( "calcPval.do", { chi_square_score: chi_square_score })
+                .done(function( data ) {
+                    view.appendpVal_callback(data, svg);
+                });
         }
 
         return {
-            calc: function(inputGrp1, inputGrp2) {
+            calc: function(inputGrp1, inputGrp2, svg) {
                 mergedArr.length = 0;
                 mergeGrps(inputGrp1, inputGrp2);
                 calcExpection();
                 calcVariance();
-                calcPval();
-                test(inputGrp1, inputGrp2);
+                calcPval(svg);
             }
         }
     }());

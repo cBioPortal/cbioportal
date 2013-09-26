@@ -1,4 +1,5 @@
 <script type="text/template" id="default_mutation_details_template">
+	<div id='mutation_3d_container' class='mutation-3d-container'></div>
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
@@ -42,7 +43,20 @@
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
 	</div>
-	<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+	<div>
+		<table>
+			<tr>
+				<td>
+					<div id='mutation_diagram_{{geneSymbol}}' class='mutation-diagram-container'></div>
+				</td>
+				<td>
+					<div id='mutation_3d_{{geneSymbol}}' class="mutation-3d-initializer"></div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id='mutation_pdb_panel_view_{{geneSymbol}}' class="mutation-pdb-panel-view"></div>
+
 	<div class='mutation-details-filter-info'>
 		Current view shows filtered results.
 		Click <a class='mutation-details-filter-reset'>here</a> to reset all filters.
@@ -50,6 +64,71 @@
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
+</script>
+
+<script type="text/template" id="mutation_3d_view_template">
+	<button class='mutation-3d-vis'>
+		<table>
+			<tr>
+				<td><img alt="J" src='images/jmol.png'/></td>
+				<td><label>Visualize in Jmol</label></td>
+			</tr>
+		</table>
+	</button>
+</script>
+
+<script type="text/template" id="mutation_3d_vis_template">
+	<div class='mutation-3d-vis-header'>
+		<a class='mutation-3d-close'>X</a>
+		<label class='mutation-3d-info'>
+			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
+			and the chain <span class='mutation-3d-chain-id'></span>
+		</label>
+	</div>
+	<div id='mutation_3d_visualizer'></div>
+	<div class='mutation-3d-vis-toolbar'>
+		<table>
+		    <tr>
+			    <td>
+					<label><b>Select style:</b></label>
+			    </td>
+			    <td>
+					<select class='mutation-3d-style-select'>
+						<option value='cartoon'
+						        title='Switch to Cartoon View'>cartoon</option>
+						<option value='ballAndStick'
+						        title='Switch to Ball and Stick View'>ball & stick</option>
+					</select>
+				</td>
+			    <td>
+					<input class='mutation-3d-spin' type='checkbox'>
+			    </td>
+			    <td>
+				    <label>Turn on Spin</label>
+			    </td>
+		    </tr>
+		</table>
+	</div>
+</script>
+
+<script type="text/template" id="pdb_panel_view_template">
+	<table>
+		<tr>
+			<td valign="top">
+				<div id='mutation_pdb_panel_{{geneSymbol}}' class='mutation-pdb-panel-container'></div>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td valign="top" align="center">
+				<div id='mutation_pdb_controls_{{geneSymbol}}' class='mutation-pdb-panel-controls'>
+					<button class='expand-collapse-pdb-panel'
+					        title='Expand/Collapse PDB Chains'></button>
+				</div>
+			</td>
+			<td></td>
+		</tr>
+	</table>
 </script>
 
 <script type="text/template" id="mutation_details_table_template">
@@ -253,13 +332,15 @@
 			this.$el.html(template);
 
 			// format after rendering
-			this.format()
+			this.format();
 		},
 		format: function() {
+			var self = this;
+
 			// hide the mutation diagram filter info text by default
-			this.hideFilterInfo();
+			self.hideFilterInfo();
 			// hide the toolbar by default
-			this.$el.find(".mutation-diagram-toolbar").hide();
+			self.$el.find(".mutation-diagram-toolbar").hide();
 		},
 		/**
 		 * Initializes the toolbar over the mutation diagram.
@@ -376,6 +457,7 @@
 	 *           model: {mutations: [mutation data as an array of JSON objects],
 	 *                   sampleArray: [list of case ids as an array of strings],
 	 *                   diagramOpts: [mutation diagram options -- optional]}
+	 *           mut3dVis: [optional] reference to the 3d structure visualizer
 	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
@@ -403,16 +485,40 @@
 					self.model.diagramOpts);
 			}
 
-			// format after rendering
+			// format after render
 			self.format();
 		},
-		format: function() {
+		/**
+		 * Formats the contents of the view after the initial rendering.
+		 */
+		format: function()
+		{
 			var self = this;
+			var container3d = self.$el.find("#mutation_3d_container");
 
 			if (self.model.mutations.length == 0)
 			{
 				// hide loader image, there is nothing to load
 				self.$el.find("#mutation_details_loader").hide();
+			}
+
+			// init 3D view if the visualizer is available
+			if (self.options.mut3dVis)
+			{
+				var mutation3dVisView = new Mutation3dVisView(
+						{el: container3d,
+						parentEl: self.$el,
+						mut3dVis: self.options.mut3dVis});
+
+				mutation3dVisView.render();
+
+				// update reference to the 3d vis view
+				self.mut3dVisView = mutation3dVisView;
+			}
+			// if no visualizer, hide the 3D vis container
+			else
+			{
+			   $(container3d).hide();
 			}
 		},
 		/**
@@ -624,30 +730,28 @@
 
 			// callback function to init view after retrieving
 			// sequence information.
-			var init = function(response)
+			var init = function(sequenceData, pdbData)
 			{
-				// TODO response may be null for unknown genes...
-
+				// TODO sequenceData may be null for unknown genes...
 				// get the first sequence from the response
-				var sequence = response[0];
-
+				var sequence = sequenceData[0];
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
 				var summary = self.util.generateSummary(mutationCount);
 
 				// prepare data for mutation view
-				var mutationInfo = {geneSymbol: gene,
+				var model = {geneSymbol: gene,
 					mutationSummary: summary,
-					uniprotId : sequence.metadata.identifier};
+					uniprotId: sequence.metadata.identifier};
 
 				// reset the loader image
 				self.$el.find("#mutation_details_loader").empty();
 
-				// init the view
+				// init the main view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
-					model: mutationInfo});
+					model: model});
 
 				mainView.render();
 
@@ -663,6 +767,22 @@
 				{
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
+
+					if (self.mut3dVisView &&
+						pdbData)
+					{
+						// collection of pdb model instances
+						var pdbColl = self.util.processPdbData(gene, pdbData);
+
+						// init the 3d view
+						var view3d = new Mutation3dView({
+							el: "#mutation_3d_" + gene,
+							model: {pdbColl: pdbColl, geneSymbol: gene},
+							mut3dVisView: self.mut3dVisView,
+							diagram: diagram});
+
+						view3d.render();
+					}
 				}
 				else
 				{
@@ -690,8 +810,51 @@
 				}, 2000);
 			};
 
-			// get sequence data for the current gene & init view
-			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+			// Gets the pdb data from the server by using the uniprot identifier
+			// within the given sequence data, and then initializes the view
+			var getPdbData = function(sequenceData)
+			{
+				// TODO sequenceData may be null for unknown genes...
+				// get the first sequence from the response
+				var sequence = sequenceData[0];
+
+				// get protein positions for current mutations
+				var positions = self.util.getProteinPositions(gene);
+
+				var positionData = [];
+
+				_.each(positions, function(ele, i) {
+					if (ele.start > -1)
+					{
+						positionData.push(ele.start);
+					}
+
+					if (ele.end > ele.start)
+					{
+						positionData.push(ele.end);
+					}
+				});
+
+				// get pdb data for the current mutations
+				$.getJSON("get3dPdb.json",
+					{uniprotId: sequence.metadata.identifier,
+					positions: positionData.join(" ")},
+					function(pdbData) {
+						// init view with the sequence and pdb data
+						init(sequenceData, pdbData);
+				});
+			};
+
+			// get sequence data & pdb data for the current gene & init view
+			if (self.options.mut3dVis)
+			{
+				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
+			}
+			else
+			{
+				// if no 3D visualizer is available, just skip pdb data retrieval
+				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+			}
 		},
 		/**
 		 * Initializes the mutation diagram view.
@@ -728,6 +891,272 @@
 			mutationDiagram.initDiagram(sequenceData);
 
 			return mutationDiagram;
+		}
+	});
+
+	/**
+	 * 3D visualizer controls view.
+	 *
+	 * This view is designed to provide controls to initialize, show or hide
+	 * the actual 3D visualizer panel. PDB chain panel, which is supposed to
+	 * be displayed just below the mutation diagram, is initialized by this view.
+	 *
+	 * IMPORTANT NOTE: This view does not initialize the actual 3D visualizer.
+	 * 3D visualizer is a global instance bound to MainMutationView
+	 * and it is maintained by Mutation3dVisView.
+	 *
+	 * options: {el: [target container],
+	 *           model: {geneSymbol: hugo gene symbol,
+	 *                   pdbColl: collection of PdbModel instances},
+	 *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
+	 *           diagram: [optional] reference to the MutationDiagram instance
+	 *          }
+	 */
+	var Mutation3dView = Backbone.View.extend({
+		render: function()
+		{
+			var self = this;
+			var gene = self.model.geneSymbol;
+
+			// compile the template using underscore
+			var template = _.template(
+					$("#mutation_3d_view_template").html(), {});
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+
+			// init pdb panel view
+			var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+				model: self.model,
+				mut3dVisView: self.options.mut3dVisView,
+				diagram: self.options.diagram};
+
+			var pdbPanelView = new PdbPanelView(panelOpts);
+			pdbPanelView.render();
+			self.pdbPanelView = pdbPanelView;
+
+			// format after rendering
+			this.format();
+		},
+		format: function()
+		{
+			var self = this;
+
+			// add click listener for the 3d visualizer initializer
+			self.$el.find(".mutation-3d-vis").click(function() {
+				var vis = self.options.mut3dVisView;
+				var panel = self.pdbPanelView;
+				var pdbColl = self.model.pdbColl;
+
+				if (vis != null &&
+				    panel != null &&
+				    pdbColl.length > 0)
+				{
+					// reload the visualizer content with the default pdb and chain
+					var pdbId = pdbColl.at(0).pdbId;
+					var chain = pdbColl.at(0).chains.at(0);
+
+					panel.showView();
+					vis.updateView(pdbId, chain);
+				}
+			});
+		}
+	});
+
+	/**
+	 * PDB Panel View.
+	 *
+	 * This view is designed to function in parallel with the 3D visualizer.
+	 *
+	 * options: {el: [target container],
+	 *           model: {geneSymbol: hugo gene symbol,
+	 *                   pdbColl: collection of PdbModel instances},
+	 *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
+	 *           diagram: [optional] reference to the MutationDiagram instance
+	 *          }
+	 */
+	var PdbPanelView = Backbone.View.extend({
+		render: function()
+		{
+			var self = this;
+
+			// compile the template using underscore
+			var template = _.template(
+					$("#pdb_panel_view_template").html(),
+					{geneSymbol: self.model.geneSymbol});
+
+			// load the compiled HTML into the Backbone "el"
+			self.$el.html(template);
+
+			// init pdb panel
+			self.pdbPanel = self._initPdbPanel();
+
+			// format after rendering
+			self.format();
+		},
+		format: function()
+		{
+			var self = this;
+
+			// hide view initially
+			self.hideView();
+
+			// format panel controls
+
+			var expandButton = self.$el.find(".expand-collapse-pdb-panel");
+
+			expandButton.button({
+				icons: {primary: "ui-icon-triangle-2-n-s"},
+				text: false});
+			expandButton.css({width: "300px", height: "12px"});
+
+			expandButton.click(function() {
+				self.pdbPanel.toggleHeight();
+			});
+		},
+		hideView: function()
+		{
+			var self = this;
+			self.$el.hide();
+		},
+		showView: function()
+		{
+			var self = this;
+			self.$el.show();
+		},
+		/**
+		 * Initializes the PDB chain panel.
+		 *
+		 * @return {MutationPdbPanel}   panel instance
+		 */
+		_initPdbPanel: function()
+		{
+			var self = this;
+			var panel = null;
+
+			var gene = self.model.geneSymbol;
+			var pdbColl = self.model.pdbColl;
+			var mutationDiagram = self.options.diagram;
+			var vis = self.options.mut3dVisView;
+
+			if (mutationDiagram != null)
+			{
+				var xScale = mutationDiagram.xScale;
+
+				var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
+					marginLeft: mutationDiagram.options.marginLeft,
+					marginRight: mutationDiagram.options.marginRight};
+
+				// init panel
+				panel = new MutationPdbPanel(options, pdbColl, xScale);
+				panel.init();
+
+				// add event listeners for chain selection
+				if (vis != null)
+				{
+					panel.addListener("rect", "click", function(datum, index) {
+						vis.updateView(datum.pdbId, datum.chain);
+					});
+				}
+			}
+
+			return panel;
+		}
+	});
+
+	/**
+	 * Actual 3D Visualizer view. This view is designed to contain the 3D
+	 * structure visualizer app and its control buttons.
+	 *
+	 * options: {el: [target container],
+	 *           parentEl: [parent container],
+	 *           model: {geneSymbol: hugo gene symbol,
+	 *                   pdbColl: collection of PdbModel instances},
+	 *           mut3dVis: [optional] reference to the Mutation3dVis instance
+	 *          }
+	 */
+	var Mutation3dVisView = Backbone.View.extend({
+		render: function()
+		{
+			var self = this;
+
+			// compile the template using underscore
+			var template = _.template(
+					$("#mutation_3d_vis_template").html(), {});
+
+			// load the compiled HTML into the Backbone "el"
+			this.$el.html(template);
+
+			// format after rendering
+			this.format();
+		},
+		format: function()
+		{
+			var self = this;
+			var mut3dVis = self.options.mut3dVis;
+
+			// initially hide the 3d visualizer container
+			var container3d = self.$el;
+			container3d.hide();
+
+			// update the container of 3d visualizer
+			if (mut3dVis != null)
+			{
+				mut3dVis.updateContainer(container3d);
+			}
+
+			// add click listener to the close icon of the 3d vis container
+			self.$el.find(".mutation-3d-close").click(function() {
+				// hide the vis pane
+				if (mut3dVis != null)
+				{
+					mut3dVis.hide();
+				}
+
+				// also hide all pdb panel views
+				self.options.parentEl.find(".mutation-pdb-panel-view").hide();
+			});
+
+			// format toolbar elements
+
+			// spin toggle
+			var spinChecker = self.$el.find(".mutation-3d-spin");
+
+			spinChecker.change(function(){
+				if (mut3dVis != null)
+				{
+					mut3dVis.toggleSpin();
+				}
+			});
+
+			// style selection menu
+			var styleMenu = self.$el.find(".mutation-3d-style-select");
+
+			styleMenu.chosen({width: 120, disable_search: true});
+			styleMenu.change(function(){
+				var selected = $(this).val();
+
+				if (mut3dVis != null)
+				{
+					mut3dVis.changeStyle(selected);
+				}
+
+			});
+
+		},
+		updateView: function(pdbId, chain)
+		{
+			var self = this;
+			var mut3dVis = self.options.mut3dVis;
+
+			// reload the selected pdb and chain data
+			mut3dVis.show();
+			mut3dVis.reload(pdbId, chain);
+
+			// update info
+			// TODO it might be better to do this with backbone's internal mvc listeners
+			self.$el.find(".mutation-3d-pdb-id").text(pdbId);
+			self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
 		}
 	});
 
@@ -799,7 +1228,7 @@
 					$.getJSON(url, function(data) {
 						//console.log(data);
 						// TODO this call displays warning message (resend)
-						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome);
+						prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome, data.trackName);
 					});
 				});
 			});
@@ -1277,7 +1706,7 @@
 		 * @return {{style: string, count: string}}
 		 * @private
 		 */
-		_getCosmic: function(count)
+		_getCosmic: function(value, count)
 		{
 			var style = "";
 			var text = "";

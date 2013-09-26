@@ -1,12 +1,10 @@
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.DataSetsUtil" %> 
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudyStats" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudyStats" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 <%
-   Config globalConfig = Config.getInstance();
-   String examplesHtml = globalConfig.getProperty("examples_right_column");
+   String examplesHtml = GlobalProperties.getProperty("examples_right_column");
    if (examplesHtml == null) {
 	   examplesHtml = "../../../content/examples.html";
    } else {
@@ -15,7 +13,7 @@
 
    DataSetsUtil dataSetsUtil = null;
    List<CancerStudyStats> cancerStudyStats = null;
-   if (SkinUtil.showRightNavDataSets()) {
+   if (GlobalProperties.showRightNavDataSets()) {
 	   dataSetsUtil = new DataSetsUtil();
 	   try {
 		   cancerStudyStats = dataSetsUtil.getCancerStudyStats();
@@ -42,7 +40,7 @@
     
     &nbsp;&nbsp;&nbsp;&nbsp;<b>Or follow us <a href="http://www.twitter.com/cbioportal"><i>@cbioportal</i></a> on Twitter</b>
     <%
-if (SkinUtil.showRightNavDataSets()) {
+if (GlobalProperties.showRightNavDataSets()) {
 %>
     <h3>Data Sets</h3>
 <%
@@ -60,12 +58,12 @@ if (SkinUtil.showRightNavDataSets()) {
 <%
     } // if showRightNavDataSets
 %>
-<% if (SkinUtil.showRightNavExamples()) {%>
+<% if (GlobalProperties.showRightNavExamples()) {%>
     <h3>Example Queries</h3>
     <jsp:include page="<%= examplesHtml %>" flush="true" />
 <% } %>
 
-<% if (SkinUtil.showRightNavTestimonials()) {%>
+<% if (GlobalProperties.showRightNavTestimonials()) {%>
     <div id="rotating_testimonials">
         <h3>What People are Saying</h3>
         <jsp:include page="../testimonials.jsp" flush="true" />

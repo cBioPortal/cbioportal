@@ -82,6 +82,52 @@ var Pileup = Backbone.Model.extend({
 });
 
 /**
+ * PDB data model.
+ *
+ * Contains PDB id and a chain list (where each element in the list has
+ * a chain id and a mapping for pdb positions to uniprot positions).
+ */
+var PdbModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		// pdb id (e.g: 1d5r)
+		this.pdbId = attributes.pdbId;
+		// collection of PdbChainModel instances
+		this.chains = new PdbChainCollection(attributes.chains);
+	}
+});
+
+/**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbCollection = Backbone.Collection.extend({
+	model: PdbModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+var PdbChainModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		// chain id (A, B, C, X, etc.)
+		this.chainId = attributes.chainId;
+		//  map of (uniprot position, pdb position) pairs
+		this.positionMap = attributes.positionMap;
+		// array of start position and end position pairs
+		this.segments = attributes.segments;
+	}
+});
+
+/**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbChainCollection = Backbone.Collection.extend({
+	model: PdbChainModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+/**
  * Collection of mutations (MutationModel instances).
  */
 var MutationCollection = Backbone.Collection.extend({
@@ -123,6 +169,72 @@ var MutationDetailsUtil = function(mutations)
 	this.getMutationIdMap = function()
 	{
 		return this._mutationIdMap;
+	};
+
+	/**
+	 * Retrieves protein positions corresponding to the mutations
+	 * for the given gene symbol.
+	 *
+	 * @param gene      hugo gene symbol
+	 * @return {Array}  array of protein positions
+	 */
+	this.getProteinPositions = function(gene)
+	{
+		var mutations = this._mutationGeneMap[gene];
+
+		var positions = [];
+
+		for(var i=0; i < mutations.length; i++)
+		{
+			var position = {id: mutations[i].id,
+				start: mutations[i].proteinPosStart,
+				end: mutations[i].proteinPosEnd};
+
+			positions.push(position);
+		}
+
+		return positions;
+	};
+
+	/**
+	 * Processes the pdb data (recieved from the server) to map positions
+	 * to mutation ids.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param data  pdb data with a position map
+	 * @return {PdbCollection}   PdbModel instances representing the processed data
+	 */
+	this.processPdbData = function(gene, data)
+	{
+		var mutations = this._mutationGeneMap[gene];
+		var pdbModel = null;
+		var pdbList = [];
+
+		_.each(data, function(pdb, idx) {
+			_.each(pdb.chains, function(ele, idx) {
+				var positionMap = {};
+
+				if (ele.positionMap != null)
+				{
+					// re-map mutation ids with positions by using the raw position map
+					for(var i=0; i < mutations.length; i++)
+					{
+						positionMap[mutations[i].mutationId] = {
+							start: ele.positionMap[mutations[i].proteinPosStart],
+							end: ele.positionMap[mutations[i].proteinPosEnd]};
+					}
+				}
+
+				// update position map
+				ele.positionMap = positionMap;
+			});
+
+			pdbModel = new PdbModel(pdb);
+			pdbList.push(pdbModel);
+		});
+
+		// return new pdb model
+		return new PdbCollection(pdbList);
 	};
 
 	/**

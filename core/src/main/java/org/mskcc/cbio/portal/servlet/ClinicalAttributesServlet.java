@@ -29,11 +29,11 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
-import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -45,7 +45,7 @@ import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
     private ServletXssUtil servletXssUtil;

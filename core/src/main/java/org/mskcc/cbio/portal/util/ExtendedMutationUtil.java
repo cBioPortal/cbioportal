@@ -27,8 +27,8 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.maf.MafRecord;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 

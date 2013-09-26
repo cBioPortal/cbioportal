@@ -1,9 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
@@ -44,7 +44,7 @@ boolean showPlaceHoder;
 if (isDemoMode!=null) {
     showPlaceHoder = isDemoMode.equalsIgnoreCase("on");
 } else {
-    showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+    showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
 }
 
 boolean showPathways = showPlaceHoder & (showMutations | showCNA);
@@ -56,7 +56,7 @@ boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = true;
 boolean showDrugs = true;
 
-double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
+double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;

@@ -5,8 +5,8 @@
 <%@ page import="org.mskcc.cbio.portal.model.ProfileDataSummary" %>
 <%@ page import="org.mskcc.cbio.portal.util.MakeOncoPrint" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="java.text.DecimalFormat" %>
 
 <%

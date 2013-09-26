@@ -38,8 +38,8 @@ import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.ProfileData;
 import org.mskcc.cbio.portal.util.ProfileMerger;
 import org.mskcc.cbio.io.WebFileConnect;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 
 public class TestRenderImageDataType extends TestCase {
    

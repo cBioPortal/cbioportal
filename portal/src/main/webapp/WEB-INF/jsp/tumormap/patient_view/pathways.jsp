@@ -8,7 +8,7 @@ request.setAttribute("include_network_legend", Boolean.FALSE);
 <script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
 
-<script type="text/javascript" src="js/src/network/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/src/network/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/src/network/network-ui.js"></script>
 <script type="text/javascript" src="js/src/network/network-viz.js"></script>
 

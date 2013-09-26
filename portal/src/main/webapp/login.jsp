@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	  <title><%= SkinUtil.getTitle() %>::OpenID Login</title>
+	  <title><%= GlobalProperties.getTitle() %>::OpenID Login</title>
 
 	  <!-- Simple OpenID Selector -->
 	  <link type="text/css" rel="stylesheet" href="css/openid.css" />
@@ -19,13 +19,11 @@
 </head>
 
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
+    String siteTitle = GlobalProperties.getTitle();
 %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Login/Logout"); %>
 <jsp:include page="WEB-INF/jsp/global/login_header.jsp" flush="true" />
@@ -61,7 +59,7 @@
                  </legend>
                  <p>
                      <span style="font-size:145%">
-                     <%= SkinUtil.getAuthorizationMessage() %>
+                     <%= GlobalProperties.getAuthorizationMessage() %>
                      </span>
                  </p>
 	             <div id="openid_choice">

@@ -1,9 +1,9 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoPfamGraphics;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoPfamGraphics;
 import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
 import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
 

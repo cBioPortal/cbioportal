@@ -28,8 +28,8 @@
 package org.mskcc.cbio.portal.mut_diagram;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
 import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
 

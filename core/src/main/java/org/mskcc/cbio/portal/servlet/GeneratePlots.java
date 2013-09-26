@@ -28,10 +28,10 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.owasp.validator.html.PolicyException;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.dao.DaoException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -129,7 +129,7 @@ public class GeneratePlots extends HttpServlet {
                 //  Plot Image URLs look like this:
                 //  plot.do?cancer_type_id=ova&gene_list=MDM2&genetic_profile_ids=ova_rae,
                 //  ova_mrna_unified&data_types=disc,cont&case_set_id=ova_4way_complete
-                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
+                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerTypeId);
                 String caseSetName = "User-defined Case List";
                 if (caseSetId != null) {
                     for (CaseList caseSet:  caseSets) {

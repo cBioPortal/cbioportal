@@ -1217,10 +1217,6 @@ padding:4px;
   padding-left:5px;
 }
 
-#mutation_details td {
-  font-size:100%;
-}
-
 h2.cross_cancer_header {
     text-align: left;
     padding-left:  5px;
@@ -1248,15 +1244,6 @@ h2.cross_cancer_header {
 .exp_error_text {
     font-weight:bold;
     font-size: 90%;
-}
-
-.mutation_diagram_details {
-    font-size: 90%;
-    font-family:arial;
-    background-color:#eeeeee;
-    width:50%;
-    padding:10px;
-    margin-left:25px;
 }
 
 .crosscancer-info {
@@ -1336,5 +1323,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 .chzn-container .chzn-results {
     max-height: 350px !important;
+}
+
+/* this is required because of
+	.section ul css settings*/
+.chzn-results li {
+	font-size: 12px !important;
 }
 

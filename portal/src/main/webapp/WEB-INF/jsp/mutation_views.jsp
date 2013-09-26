@@ -313,8 +313,7 @@
 	 * options: {el: [target container],
 	 *           model: {geneSymbol: [hugo gene symbol],
 	 *                   mutationSummary: [single line summary text],
-	 *                   uniprotId: [gene identifier]},
-	 *          mut3dVis: [optional] reference to the 3d structure visualizer
+	 *                   uniprotId: [gene identifier]}
 	 *          }
 	 */
 	var MainMutationView = Backbone.View.extend({
@@ -495,6 +494,7 @@
 		format: function()
 		{
 			var self = this;
+			var container3d = self.$el.find("#mutation_3d_container");
 
 			if (self.model.mutations.length == 0)
 			{
@@ -502,15 +502,24 @@
 				self.$el.find("#mutation_details_loader").hide();
 			}
 
-			var mutation3dVisView = new Mutation3dVisView(
-					{el: self.$el.find("#mutation_3d_container"),
-					parentEl: self.$el,
-					mut3dVis: self.options.mut3dVis});
+			// init 3D view if the visualizer is available
+			if (self.options.mut3dVis)
+			{
+				var mutation3dVisView = new Mutation3dVisView(
+						{el: container3d,
+						parentEl: self.$el,
+						mut3dVis: self.options.mut3dVis});
 
-			mutation3dVisView.render();
+				mutation3dVisView.render();
 
-			// update reference to the 3d vis view
-			self.mut3dVisView = mutation3dVisView;
+				// update reference to the 3d vis view
+				self.mut3dVisView = mutation3dVisView;
+			}
+			// if no visualizer, hide the 3D vis container
+			else
+			{
+			   $(container3d).hide();
+			}
 		},
 		/**
 		 * Generates the content structure by creating div elements for each
@@ -741,8 +750,7 @@
 				// init the main view
 				var mainView = new MainMutationView({
 					el: "#mutation_details_" + gene,
-					model: model,
-					mut3dVis: self.options.mut3dVis});
+					model: model});
 
 				mainView.render();
 
@@ -759,21 +767,22 @@
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
 
-					// init the 3d view
-					var view3d = new Mutation3dView({
-						el: "#mutation_3d_" + gene,
-						model: {pdbColl: pdbColl, geneSymbol: gene},
-						mut3dVisView: self.mut3dVisView,
-						diagram: diagram});
+					if (self.mut3dVisView)
+					{
+						// init the 3d view
+						var view3d = new Mutation3dView({
+							el: "#mutation_3d_" + gene,
+							model: {pdbColl: pdbColl, geneSymbol: gene},
+							mut3dVisView: self.mut3dVisView,
+							diagram: diagram});
 
-					view3d.render();
+						view3d.render();
+					}
 				}
 				else
 				{
 					console.log("Error initializing mutation diagram: %s", gene);
 				}
-
-
 
 				// draw mutation table after a short delay
 				setTimeout(function(){

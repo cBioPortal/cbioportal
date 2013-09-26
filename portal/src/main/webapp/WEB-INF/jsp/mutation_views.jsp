@@ -730,10 +730,11 @@
 
 			// callback function to init view after retrieving
 			// sequence information.
-			var init = function(sequence, pdbData)
+			var init = function(sequenceData, pdbData)
 			{
-				// collection of pdb model instances
-				var pdbColl = self.util.processPdbData(gene, pdbData);
+				// TODO sequenceData may be null for unknown genes...
+				// get the first sequence from the response
+				var sequence = sequenceData[0];
 				// calculate somatic & germline mutation rates
 				var mutationCount = self.util.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
@@ -767,8 +768,12 @@
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
 
-					if (self.mut3dVisView)
+					if (self.mut3dVisView &&
+						pdbData)
 					{
+						// collection of pdb model instances
+						var pdbColl = self.util.processPdbData(gene, pdbData);
+
 						// init the 3d view
 						var view3d = new Mutation3dView({
 							el: "#mutation_3d_" + gene,
@@ -810,7 +815,6 @@
 			var getPdbData = function(sequenceData)
 			{
 				// TODO sequenceData may be null for unknown genes...
-
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
 
@@ -837,12 +841,20 @@
 					positions: positionData.join(" ")},
 					function(pdbData) {
 						// init view with the sequence and pdb data
-						init(sequence, pdbData);
+						init(sequenceData, pdbData);
 				});
 			};
 
 			// get sequence data & pdb data for the current gene & init view
-			$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
+			if (self.options.mut3dVis)
+			{
+				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
+			}
+			else
+			{
+				// if no 3D visualizer is available, just skip pdb data retrieval
+				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+			}
 		},
 		/**
 		 * Initializes the mutation diagram view.

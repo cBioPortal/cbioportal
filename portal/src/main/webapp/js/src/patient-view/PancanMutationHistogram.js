@@ -193,7 +193,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .rangeBands([0, width], .1);
 
     // sparkline y axis does not scale: will always be from 0 to 1
-    var sparkline_y_threshold = .5
+    var sparkline_y_threshold = .2
     var yStackMax = params.sparkline ? sparkline_y_threshold
         : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 

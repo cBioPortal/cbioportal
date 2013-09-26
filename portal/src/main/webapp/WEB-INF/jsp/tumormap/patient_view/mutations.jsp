@@ -486,6 +486,7 @@
                     {// pancan mutations
                         "aTargets": [ mutTableIndices["pancan_mutations"] ],
                         "sClass": "center-align-td",
+                        "bSearchable": false,
                         "mDataProp": function(source,type,value) {
                             if (type === 'display') {
                                 if (genomicEventObs.pancan_mutation_frequencies) {
@@ -504,6 +505,21 @@
                                 } else {
                                     return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
+                            }
+                            else if (type === "sort") {
+                                if (genomicEventObs.pancan_mutation_frequencies) {
+                                    var hugo = mutations.getValue(source[0], "gene");
+                                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[hugo];
+
+                                    var total_mutation_count = _.reduce(byHugoData, function(acc, next) {
+                                        return acc + next.count;
+                                    }, 0);
+
+                                    return total_mutation_count;
+                                }
+                            }
+                            else if (type === "type") {
+                                return 0.0;
                             }
 
                             return "foobar";

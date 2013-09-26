@@ -21,7 +21,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         params = _.extend({
             margin: {top: 0, right: 0, bottom: 0, left: 0},
             width: 30,
-            height: 18,
+            height: 16,
             this_cancer_study: undefined
         }, params);
     } else {
@@ -43,7 +43,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     var bygene_data = deep_copy(byGeneData);
 
     // extend
-    var keyword = bykeyword_data[0];
+    var keyword = bykeyword_data[0].keyword;
     bykeyword_data = extend_by_zero_set(bykeyword_data)
         .map(function(d) { d.keyword = keyword; return d; });     // make sure everything has a key.  TODO: remove this extra list traversal
     bygene_data = extend_by_zero_set(bygene_data);
@@ -361,14 +361,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             return (_.template("<span>{{percent}} ({{count}} / {{total}})</span>"))({percent: percent, count: count, total: total});
         }
 
-        function repeat_string(str, n) {
-            var repeated_str = "";
-            for (var i = 0; i < n; i++) {
-                repeated_str+=str;
-            }
-            return repeated_str;
-        }
-
         // add qtips for each bar
         mouseOverBar.each(function(d) {
             $(this).qtip({
@@ -383,9 +375,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                         var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-                            + "<p style='color: " + googleblue + "; margin-bottom:0;'>non truncating:" + repeat_string("&nbsp;", 1) + qtip_template(bygene) + "</p>"
-                            + "<p style='color: " + googlered + "; margin-top:0;'>truncating:" + repeat_string("&nbsp;", 7) + qtip_template(bykeyword) + "</p>"
-                        ;
+                            + "<p style='color: " + googleblue + "; margin-bottom:0;'>"
+                            + bygene.hugo  +  ": "  + qtip_template(bygene) + "</p>"
+                            + "<p style='color: " + googlered + "; margin-top:0;'>"
+                            + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>";
 
                         api.set('content.text', text);
                     }

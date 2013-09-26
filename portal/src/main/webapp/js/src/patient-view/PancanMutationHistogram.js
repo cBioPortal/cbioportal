@@ -221,7 +221,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // *** kill process, do nothing more ***
     if (params.sparkline) {
-        return;
+        return {
+            el: el,
+            qtip: function() { throw new Error("don't qtip a sparkline"); }
+        };
     }
 
     // --- axises --- //

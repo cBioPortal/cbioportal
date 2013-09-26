@@ -4,7 +4,10 @@
 		<img src='{{loaderImage}}'/>
 	</div>
 	<div id='mutation_details_content'>
-		{{content}}
+		<ul>
+			{{listContent}}
+		</ul>
+		{{mainContent}}
 	</div>
 </script>
 
@@ -14,8 +17,20 @@
 	<br>
 </script>
 
-<script type="text/template" id="default_mutation_details_content_template">
-	<div id='mutation_details_{{geneSymbol}}'></div>
+<script type="text/template" id="default_mutation_details_main_content_template">
+	<div id='mutation_details_{{geneSymbol}}'>
+		<img src='{{loaderImage}}'/>
+	</div>
+</script>
+
+<script type="text/template" id="default_mutation_details_list_content_template">
+	<li>
+		<a href="#mutation_details_{{geneSymbol}}"
+		   class="mutation-details-tabs-ref"
+		   title="{{geneSymbol}} mutations">
+			<span>{{geneSymbol}}</span>
+		</a>
+	</li>
 </script>
 
 <script type="text/template" id="mutation_view_template">
@@ -467,9 +482,12 @@
 			self.util = new MutationDetailsUtil(
 					new MutationCollection(self.model.mutations));
 
+			var content = self._generateContent();
+
 			// TODO make the image customizable?
 			var variables = {loaderImage: "images/ajax-loader.gif",
-				content: self._generateContent()};
+				listContent: content.listContent,
+				mainContent: content.mainContent};
 
 			// compile the template using underscore
 			var template = _.template(
@@ -496,10 +514,12 @@
 			var self = this;
 			var container3d = self.$el.find("#mutation_3d_container");
 
-			if (self.model.mutations.length == 0)
+			// hide loader image
+			self.$el.find("#mutation_details_loader").hide();
+
+			if (self.model.mutations.length > 0)
 			{
-				// hide loader image, there is nothing to load
-				self.$el.find("#mutation_details_loader").hide();
+				self.$el.find("#mutation_details_content").tabs();
 			}
 
 			// init 3D view if the visualizer is available
@@ -525,31 +545,38 @@
 		 * Generates the content structure by creating div elements for each
 		 * gene.
 		 *
-		 * @return {String} content backbone with div elements for each gene
+		 * @return {Object} content backbone with div elements for each gene
 		 */
 		_generateContent: function()
 		{
 			var self = this;
-			var content = "";
+			var mainContent = "";
+			var listContent = "";
 
 			// check if there is mutation data
 			if (self.model.mutations.length == 0)
 			{
 				// display information if no data is available
-				content = _.template($("#default_mutation_details_info_template").html(), {});
+				mainContent = _.template($("#default_mutation_details_info_template").html(), {});
 			}
 			else
 			{
 				// create a div for for each gene
 				for (var key in self.util.getMutationGeneMap())
 				{
-					content += _.template(
-						$("#default_mutation_details_content_template").html(),
+					mainContent += _.template(
+						$("#default_mutation_details_main_content_template").html(),
+							{loaderImage: "images/ajax-loader.gif",
+							geneSymbol: key});
+
+					listContent += _.template(
+						$("#default_mutation_details_list_content_template").html(),
 						{geneSymbol: key});
 				}
 			}
 
-			return content;
+			return {mainContent: mainContent,
+				listContent: listContent};
 		},
 		/**
 		 * Initializes the mutation view for the current mutation data.

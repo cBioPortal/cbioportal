@@ -107,6 +107,9 @@
 		color: #1974B8 !important;
 		cursor: pointer;
 	}
+	.mutation-details-tabs-ref {
+		font-size: 11px !important;
+	}
 	.mutation-table-highlight {
 		background-color: #E9E900 !important;
 	}

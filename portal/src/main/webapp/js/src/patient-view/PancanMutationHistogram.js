@@ -21,7 +21,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         params = _.extend({
             margin: {top: 0, right: 0, bottom: 0, left: 0},
             width: 30,
-            height: 16,
+            height: 12,
             this_cancer_study: undefined
         }, params);
     } else {
@@ -193,12 +193,15 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .rangeBands([0, width], .1);
 
     // sparkline y axis does not scale: will always be from 0 to 1
-    var yStackMax = params.sparkline ? 1
+    var sparkline_y_threshold = .5
+    var yStackMax = params.sparkline ? sparkline_y_threshold
         : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
 
     var y = d3.scale.linear()
         .domain([0, yStackMax])
-        .range([height, 0]);
+        .range([height, 0])
+        .clamp(true)
+        ;
 
     // --- bar chart ---
 
@@ -229,7 +232,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // --- axises --- //
 
-    var percent_format = d3.format("%.0");
+    var percent_format = d3.format(yStackMax > .1 ? ".0%" : ".1%");
     var yAxis = d3.svg.axis()
         .scale(y)
         .tickFormat(percent_format)

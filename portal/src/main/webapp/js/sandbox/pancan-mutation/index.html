@@ -22,6 +22,7 @@
 </head>
 <body>
     <div id="histogram"></div>
+    <div id="sparkline"></div>
 </body>
 
 <script>
@@ -40,10 +41,17 @@
                     byhugo_data,
                     cancer_study_meta_data,
                     el,
-                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)" }
+                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)"}
                     );
 
                 barchart.qtip($(barchart.el).find("svg")[0]);
+
+                var sparkline = PancanMutationHistogram(bykeyword_data,
+                    byhugo_data,
+                    cancer_study_meta_data,
+                    document.getElementById('sparkline'),
+                    {this_cancer_study: "Stomach Adenocarcinoma (TCGA, Provisional)", sparkline: true }
+                );
             });
         });
     });

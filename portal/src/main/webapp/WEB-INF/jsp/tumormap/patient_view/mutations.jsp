@@ -498,23 +498,9 @@
                                     _.templateSettings = {
                                         interpolate : /\{\{(.+?)\}\}/g
                                     };
-                                    var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'>{{value}}</div>");
+                                    var thumbnail_template = _.template("<div class='pancan_mutations_histogram_thumbnail' gene='{{gene}}' keyword='{{keyword}}'></div>");
 
-                                    return thumbnail_template({gene: hugo, keyword: keyword, value: "foobar"});
-
-//                                    var sum = function(a,b) { return a + b; };
-//
-//                                    var total_sequenced_patients = _.chain(window.cancerStudy2NumSequencedCases)
-//                                            .values()
-//                                            .reduce(sum)
-//                                            .value();
-//
-//                                    var format_percent = d3.format("%.00");
-//
-//                                    return format_percent(_.chain(data)
-//                                            .map(function(d) { return d.count; })
-//                                            .reduce(sum)
-//                                            .value() / total_sequenced_patients);
+                                    return thumbnail_template({gene: hugo, keyword: keyword});
                                 } else {
                                     return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
@@ -742,12 +728,28 @@
             // redraw based on the update
             oTable.fnDraw();
 
-            // batch bar chart generation
+            // batch bar chart and sparkline generation
             (function($thumbnails) {
                 $thumbnails.each(function(idx, thumbnail) {
 
                     // qtip on each pancan mutations histogram thumbnail
                     var $thumbnail = $(thumbnail);
+                    var gene = $thumbnail.attr('gene');
+                    var keyword = $thumbnail.attr('keyword');
+
+                    // i want to use this once and not use it again until qtip time,
+                    // that's why this is duplicated
+                    var byKeywordData = genomicEventObs.pancan_mutation_frequencies[keyword];
+                    var byHugoData = genomicEventObs.pancan_mutation_frequencies[gene];
+
+                    // -- sparkline --
+
+                    var invisible_container = document.getElementById("pancan_mutations_histogram_container");
+                    var sparkline = PancanMutationHistogram(byKeywordData, byHugoData, window.cancer_study_meta_data, invisible_container, {sparkline: true});
+                    var content = invisible_container.innerHTML;
+                    $thumbnail.html(content);
+                    $(invisible_container).empty();     // N.B.
+
                     $thumbnail.qtip({
                         content: {text: 'pancancer mutation bar chart is broken'},
                         events: {
@@ -762,6 +764,7 @@
                                 var content = invisible_container.innerHTML;
                                 api.set('content.text', content);
 
+                                // correct the qtip width
                                 var svg_width = $(invisible_container).find('svg').attr('width');
                                 $(this).css('max-width', parseInt(svg_width));
 

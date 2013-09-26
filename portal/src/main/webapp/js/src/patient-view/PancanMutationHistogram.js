@@ -15,12 +15,23 @@
 // September 2013
 //
 function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_data, el, params) {
-    params = _.extend({
-        margin: {top: 20, right: 10, bottom: 20, left: 40},
-        width: 840,
-        height: 400,
-        this_cancer_study: undefined
-    }, params);
+
+    params = params || {};
+    if (params.sparkline) {
+        params = _.extend({
+            margin: {top: 0, right: 0, bottom: 0, left: 0},
+            width: 30,
+            height: 18,
+            this_cancer_study: undefined
+        }, params);
+    } else {
+        params = _.extend({
+            margin: {top: 20, right: 10, bottom: 20, left: 40},
+            width: 840,
+            height: 400,
+            this_cancer_study: undefined
+        }, params);
+    }
 
     var cancer_study2meta_data = generate_cancer_study2datum(cancer_study_meta_data);
     var all_cancer_studies = _.keys(cancer_study2meta_data);
@@ -181,10 +192,37 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .domain(all_data[0].map(function(d) { return d.cancer_study; }))
         .rangeBands([0, width], .1);
 
-    yStackMax = d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+    // sparkline y axis does not scale: will always be from 0 to 1
+    var yStackMax = params.sparkline ? 1
+        : d3.max(layers, function(layer) { return d3.max(layer, function(d) { return d.y0 + d.y; }); });
+
     var y = d3.scale.linear()
         .domain([0, yStackMax])
         .range([height, 0]);
+
+    // --- bar chart ---
+
+    var googleblue = "#3366cc";
+    var googlered = "#dc3912";
+
+    var layer = svg.selectAll(".layer")
+        .data(layers)
+        .enter().append("g")
+        .attr("class", "layer")
+        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
+
+    var rect = layer.selectAll("rect")
+        .data(function(d) { return d; })
+        .enter().append("rect")
+        .attr("x", function(d) { return x(d.cancer_study); })
+        .attr("y", function(d) { return y(d.y0 + d.y); })
+        .attr("width", function(d) { return x.rangeBand(); })
+        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
+
+    // *** kill process, do nothing more ***
+    if (params.sparkline) {
+        return;
+    }
 
     // --- axises --- //
 
@@ -252,25 +290,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr('stroke', '#000')
         .attr('shape-rendering', 'crispEdges');
 
-    var googleblue = "#3366cc";
-    var googlered = "#dc3912";
-
-    // --- bar chart ---
-
-    var layer = svg.selectAll(".layer")
-        .data(layers)
-        .enter().append("g")
-        .attr("class", "layer")
-        .style("fill", function(d, i) { return [googlered, googleblue][i]; });
-
-    var rect = layer.selectAll("rect")
-        .data(function(d) { return d; })
-        .enter().append("rect")
-        .attr("x", function(d) { return x(d.cancer_study); })
-        .attr("y", function(d) { return y(d.y0 + d.y); })
-        .attr("width", function(d) { return x.rangeBand(); })
-        .attr("height", function(d) { return y(d.y0) - y(d.y0 + d.y); })
-
     // title
     var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
     var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
@@ -307,13 +326,13 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         var this_cancer_type_group = _.zip.apply(null, all_data);
         this_cancer_type_group = _.find(this_cancer_type_group, find_this_cancer_studdy_datum);
 
-        var total_frequency = total_frequency(this_cancer_type_group);
+        var total_freq = total_frequency(this_cancer_type_group);
 
         svg.append('text')
             .text('*')
             .attr('id', 'star')
             .attr('x', x(params.this_cancer_study) + x.rangeBand() - 16)
-            .attr('y', y(-1 * total_frequency) + 10)
+            .attr('y', y(-1 * total_freq) + 10)
             .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
             .style("font-size", "42px");
     }

@@ -1,6 +1,8 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
+
+<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
 <script type="text/javascript" src="js/src/patient-view/PancanMutationHistogram.js"></script>
 <script type="text/javascript">
@@ -440,6 +442,29 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// tumor read count frequency
+                        "aTargets": [ mutTableIndices["bam"] ],
+                        "bVisible": viewBam,
+                        "sClass": "right-align-td",
+                        "mDataProp": function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else {
+                                var samples = mutations.getValue(source[0], "caseIds");
+                                var chr = mutations.getValue(source[0], "chr");
+                                var start = mutations.getValue(source[0], "start");
+                                var end = mutations.getValue(source[0], "end");
+                                var ret = [];
+                                for (var i=0, n=samples.length; i<n; i++) {
+                                    ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
+                                        +'=prad_su2c&case_id='+samples[i]+'&locus=chr'+chr+'%3A'+start+'-'+end+'">'
+                                        +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>')
+                                }
+                                return ret.join("&nbsp;");
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
                         "bVisible": !mutations.colAllNull('mrna'),
@@ -716,6 +741,7 @@
                     addNoteTooltip("."+table_id+"-tip");
                     addDrugsTooltip("."+table_id+"-drug-tip", 'top right', 'bottom center');
                     addCosmicTooltip(table_id);
+                    listenToBamIgvClick(".igv-link");
                 },
                 "aaSorting": [[mutTableIndices["cosmic"],'desc'],[mutTableIndices["altrate"],'desc']],
                 "oLanguage": {
@@ -800,6 +826,22 @@
         });
 
         return oTable;
+    }
+    
+    function listenToBamIgvClick(elem) {
+        $(elem).each(function(){
+                // TODO use mutation id, instead of binding url to attr alt
+                var url = $(this).attr("alt");
+
+                $(this).click(function(evt) {
+                        // get parameters from the server and call related igv function
+                        $.getJSON(url, function(data) {
+                                //console.log(data);
+                                // TODO this call displays warning message (resend)
+                                prepIGVLaunch(data.bamFileUrl, data.encodedLocus, data.referenceGenome, data.trackName);
+                        });
+                });
+        });
     }
 
     function plotMutRate(div,mutations) {
@@ -1026,12 +1068,11 @@
             }
             
             var ncosmic = 0;
-            if (cosmic[i]) {
-                for(var aa in cosmic) {
-                    ncosmic += cosmic[aa];
-                    if (ncosmic>=patient_view_cosmic_threhold) {
-                        break;
-                    }
+            var cosmicI= cosmic[i];
+            if (cosmicI) {
+                var lenI = cosmicI.length;
+                for(var j=0; j<lenI && ncosmic<patient_view_cosmic_threhold; j++) {
+                    ncosmic += cosmicI[j][2];
                 }
                 if (ncosmic>=patient_view_cosmic_threhold) {
                     overview.push(true);

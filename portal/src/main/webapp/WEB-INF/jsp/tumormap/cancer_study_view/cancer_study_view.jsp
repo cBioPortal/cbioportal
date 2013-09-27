@@ -2,9 +2,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CancerStudyView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="java.util.List" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.json.simple.JSONValue" %>
@@ -16,7 +16,7 @@ boolean showPlaceHoder;
 if (isDemoMode!=null) {
     showPlaceHoder = isDemoMode.equalsIgnoreCase("on");
 } else {
-    showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+    showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
 }
 
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CancerStudyView.CANCER_STUDY);
@@ -30,7 +30,7 @@ GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(CancerStud
 boolean hasMutation = mutationProfile!=null;
 
 boolean hasMutSig = cancerStudy.hasMutSigData();
-boolean showMutationsTab = hasMutSig;
+boolean showMutationsTab = hasMutation;
 
 GeneticProfile cnaProfile = (GeneticProfile)request.getAttribute(CancerStudyView.CNA_PROFILE);
 boolean hasCNA = cnaProfile!=null;
@@ -169,6 +169,7 @@ var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var mutationProfileId = <%=mutationProfileStableId==null%>?null:'<%=mutationProfileStableId%>';
 var cnaProfileId = <%=cnaProfileStableId==null%>?null:'<%=cnaProfileStableId%>';
 var hasCnaSegmentData = <%=hasCnaSegmentData%>;
+var hasMutSig = <%=hasMutSig%>;
 var caseSetId = '<%=caseSetId%>';
 var caseIds = <%=jsonCaseIds%>;
 

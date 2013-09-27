@@ -11,38 +11,64 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
             interpolate : /\{\{(.+?)\}\}/g
         };
 
+        // don't want to setup the zoom slider multiple times
+        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+
         var oncoprint;
+        var cases;
         var oncoprint_el = document.getElementById("oncoprint");
         var $oncoprint_el = $(oncoprint_el);
         function exec(data) {
-//            data = EchoedDataUtils.join(data, 'sample', 'gene');
+
+            var data_thresholded = (function() {
+                var cna_threshold_mapping = {
+                    "AMPLIFIED": "AMPLIFIED",
+                    "GAINED": "DIPLOID",
+                    "DIPLOID": "DIPLOID",
+                    "HEMIZYGOUSLYDELETED": "DIPLOID",
+                    "HOMODELETED": "HOMODELETED"
+                };
+
+                // maps cna values of GAINED, HEMIZYGOUSLYDELETED to DIPLOID, using the above map,
+                // returning a new object with modified cna values
+                // *signature:* obj -> obj
+                function cna_threshold(d) {
+                    if (!d.cna) { return d; }
+                    var e = _.clone(d);
+                    e.cna = cna_threshold_mapping[e.cna];
+                    return e;
+                }
+
+                return _.map(data, cna_threshold);
+            }());
 
             // set up oncoprint params
-            var genes = _.chain(data).map(function(d){ return d.gene; }).uniq().value();
-            var params = { geneData: data, genes:genes };
+            var genes = _.chain(data_thresholded).map(function(d){ return d.gene; }).uniq().value();
+            var params = { geneData: data_thresholded, genes:genes };
             params.legend =  document.getElementById("oncoprint_legend");
 
-            $oncoprint_el.empty();    // clear out the div each time
+            function main(params) {
+                $oncoprint_el.empty();    // clear out the div each time
+                oncoprint = Oncoprint(oncoprint_el, params);
+                oncoprint.memoSort(genes);
+            }
 
-            // exec
-            oncoprint = Oncoprint(oncoprint_el, params);
-
-            oncoprint.memoSort(genes);
+            main(params);
 
             // remove text: "Copy number alterations are putative."
             $('#oncoprint_legend p').remove();
 
             // set up the controls
-            zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
+            var zoom = zoomSetup_once($('#oncoprint_controls #zoom'), oncoprint.zoom);
 
-            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
-            sortBy.chosen({width: "240px", disable_search: true });
+//            var sortBy = $('#oncoprint_controls #sort_by');     // NB hard coded
+//            sortBy.chosen({width: "240px", disable_search: true });
 
-            // *NB* to be the best of my knowledge,
-            // the user-defined case list is going to depend on the cna file
-            $('#oncoprint_controls #sort_by').change(function() {
-                oncoprint.sortBy(sortBy.val(), cases);
-            });
+//            // *NB* to be the best of my knowledge,
+//            // the user-defined case list is going to depend on the cna file
+//            $('#oncoprint_controls #sort_by').change(function() {
+//                oncoprint.sortBy(sortBy.val(), cases);
+//            });
 
             $('#toggle_unaltered_cases').click(function() {
                 oncoprint.toggleUnalteredCases();
@@ -72,16 +98,47 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 return;
             });
 
+            var $all_cna_levels_checkbox = $('#all_cna_levels');
+            function update_oncoprint_cna_levels() {
+                var bool = $all_cna_levels_checkbox.is(":checked");
+                if (bool) {
+                    params.geneData = data;
+                    main(params);
+                }
+                else {
+                    params.geneData = data_thresholded;
+                    main(params);
+                }
+            }
+
+            $all_cna_levels_checkbox.click(function() {
+                update_oncoprint_cna_levels();
+            });
+
+            // sync controls with oncoprint
+            update_oncoprint_cna_levels();
+            oncoprint.zoom(zoom.slider("value"));
+            oncoprint.showUnalteredCases(!$('#toggle_unaltered_cases').is(":checked"));
+            oncoprint.toggleWhiteSpace(!$('#toggle_whitespace').is(":checked"));
+//            oncoprint.sortBy(sortBy.val());
+            OncoprintUtils.make_mouseover(d3.selectAll('.sample rect'));        // hack =(
+
             return false;
         };
 
-        // don't want to setup the zoom slider multiple times
-        var zoomSetup_once = _.once(OncoprintUtils.zoomSetup);
+        // populate with template html
+        $('#oncoprint_controls').html($('#custom-controls-template').html()).hide(); // hide until there's data
 
-        var cases;
+        var $cnaForm = $('#cna-form');
+        var $mutationForm = $('#mutation-form');
+        var $mutation_file_example = $('#mutation-file-example');
+        var $cna_file_example = $('#cna-file-example');
+
+        // delete text when a file is selected
+        $cnaForm.find("#cna").change(function() { $cna_file_example.html(""); });
+        $mutationForm.find("#mutation").change(function() { $mutation_file_example.html(""); });
+
         $('#create_oncoprint').click(function() {
-            var cnaForm = $('#cna-form');
-            var mutationForm = $('#mutation-form');
 
             var postFile = function(url, formData, callback) {
                 $.ajax({
@@ -96,11 +153,11 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 });
             };
 
-            postFile('echofile', new FormData(cnaForm[0]), function(cnaResponse) {
-                postFile('echofile', new FormData(mutationForm[0]), function(mutationResponse) {
+            postFile('echofile', new FormData($cnaForm[0]), function(cnaResponse) {
+                postFile('echofile', new FormData($mutationForm[0]), function(mutationResponse) {
 
-                    var mutationTextAreaString = $('#mutation-file-example').val().trim(),
-                        cnaTextAreaString = $('#cna-file-example').val().trim();
+                    var mutationTextAreaString = $mutation_file_example.val().trim(),
+                        cnaTextAreaString = $cna_file_example.val().trim();
 
                     var rawMutationString = _.isEmpty(mutationResponse) ? mutationTextAreaString : mutationResponse.mutation;
                     mutation_data = EchoedDataUtils.munge_mutation(rawMutationString);
@@ -127,7 +184,4 @@ requirejs(  [   'Oncoprint',    'OncoprintUtils', 'EchoedDataUtils'],
                 });
             });
         });
-
-        $('#oncoprint_controls').html($('#custom-controls-template').html()) // populate with template html
-            .hide(); // hide until there's data
 });

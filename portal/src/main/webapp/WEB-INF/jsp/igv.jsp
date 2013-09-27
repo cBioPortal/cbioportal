@@ -6,13 +6,10 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
-<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneOptimized" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CanonicalGene" %>
+<%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoGeneOptimized" %>
+<%@ page import="org.mskcc.cbio.portal.model.CanonicalGene" %>
 <%
-	  // get URL to seg file used as parameter to IGV
-	  String segFileURL = GlobalProperties.getSegfileUrl();
-
       // construct gene list parameter to IGV
       // use geneWithScoreList so we don't get any OQL
       List<String> onlyGenesList = new ArrayList<String>();
@@ -59,7 +56,8 @@
                 </p>
 
                 <br>
-                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= cancerTypeId %>','<%= encodedGeneList %>')"><img src="images/webstart.jpg" alt=""/></a>
+                    <% String[] segViewingArgs = IGVLinking.getIGVArgsForSegViewing(cancerTypeId, encodedGeneList); %>
+                    <a id="igvLaunch" href="#" onclick="prepIGVLaunch('<%= segViewingArgs[0] %>','<%= segViewingArgs[1] %>','<%= segViewingArgs[2] %>','<%= segViewingArgs[3] %>')"><img src="images/webstart.jpg" alt=""/></a>
                 <br>
 
                 <p>
@@ -85,26 +83,3 @@
     </table>
 </div>
 
-<script type="text/javascript" src="js/lib/igv_webstart.js"></script>
-
-<script type="text/javascript">
-
-        function prepIGVLaunch(cancerTypeId, geneList) {
-
-            var genes = geneList;
-            genes = genes.replace(/\s+/gi, "%20");
-
-            var segFile = cancerTypeId + "_scna_hg18.seg";
-
-            var port = 60151;
-            var dataUrl = "<%= segFileURL %>" + segFile;
-            var genomeID = "hg18";
-            var mergeFlag = false;
-            var locusString = genes;
-            var trackName = null;
-
-            appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName);
-
-        }
-    
-</script>

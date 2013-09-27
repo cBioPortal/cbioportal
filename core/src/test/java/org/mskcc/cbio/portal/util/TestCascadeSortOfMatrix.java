@@ -41,7 +41,6 @@ import org.junit.Test;
 import org.mskcc.cbio.portal.model.GeneticEvent;
 import org.mskcc.cbio.portal.model.GeneticEventComparator;
 import org.mskcc.cbio.portal.model.GeneticEventImpl;
-import org.mskcc.cbio.portal.util.CascadeSortOfMatrix;
 
 public class TestCascadeSortOfMatrix extends TestCase{
    

@@ -13,12 +13,12 @@
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification" %>
 <%@ page import="org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Patient" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoGeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.Patient" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoGeneticProfile" %>
 <%@ page import="org.apache.commons.logging.LogFactory" %>
 <%@ page import="org.apache.commons.logging.Log" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
@@ -30,7 +30,7 @@
 <%
     ArrayList<GeneticProfile> profileList =
             (ArrayList<GeneticProfile>) request.getAttribute
-            (QueryBuilder.PROFILE_LIST_INTERNAL);
+                    (QueryBuilder.PROFILE_LIST_INTERNAL);
     HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
     ServletXssUtil xssUtil = ServletXssUtil.getInstance();
@@ -61,15 +61,30 @@
 
     ProfileData mergedProfile = (ProfileData)
             request.getAttribute(QueryBuilder.MERGED_PROFILE_DATA_INTERNAL);
-    String geneList = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
-    geneList = StringEscapeUtils.escapeJavaScript(geneList);
-    %>
+
+    String oql = xssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
+            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
+            (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
+            zScoreThreshold, rppaScoreThreshold );
+
+    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+%>
 
 <script type="text/javascript">
     window.PortalGlobals = {
         getCases: function() { return '<%= cases %>'; },
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
-        getGeneList: function() { return '<%=geneList%>'; },
+        getOqlString: (function() {
+            var oql = '<%=StringEscapeUtils.escapeJavaScript(oql)%>'
+                    .replace("&gt;", ">", "gm")
+                    .replace("&lt;", "<", "gm")
+                    .replace("&eq;", "=", "gm")
+                    .replace(/[\r\n]/g, "\\n");
+
+            return function() { return oql; };
+        })(),
+        getGeneListString: function() { return '<%=StringUtils.join(listOfGenes, " ")%>'},
         getGeneticProfiles: function() { return '<%=geneticProfiles%>'; },
         getZscoreThreshold: function() { return window.zscore_threshold; },
         getRppaScoreThreshold: function() { return window.rppa_score_threshold; }
@@ -79,19 +94,14 @@
 <%
 
     boolean showIGVtab = false;
-	String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
-	for (int lc = 0; lc < cnaTypes.length; lc++) {
-		String cnaProfileID = cancerTypeId + cnaTypes[lc];
-		if (DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileID) != null){
-			showIGVtab = true;
-			break;
-	    }
-	}	
-
-    ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( geneList,
-             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
-             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
-             zScoreThreshold, rppaScoreThreshold );
+    String[] cnaTypes = {"_gistic", "_cna", "_consensus", "_rae"};
+    for (int lc = 0; lc < cnaTypes.length; lc++) {
+        String cnaProfileID = cancerTypeId + cnaTypes[lc];
+        if (DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileID) != null){
+            showIGVtab = true;
+            break;
+        }
+    }
 
     OncoPrintSpecification theOncoPrintSpecification = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification();
     ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile, theOncoPrintSpecification, zScoreThreshold, rppaScoreThreshold );
@@ -109,13 +119,12 @@
     ArrayList <GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
     ArrayList<String> mergedCaseList = mergedProfile.getCaseIdList();
 
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
-    String bitlyUser = SkinUtil.getBitlyUser();
-    String bitlyKey = SkinUtil.getBitlyApiKey();
+    String siteTitle = GlobalProperties.getTitle();
+    String bitlyUser = GlobalProperties.getBitlyUser();
+    String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
-    
+
     boolean computeLogOddsRatio = true;
 
     Boolean mutationDetailLimitReached = (Boolean)
@@ -123,15 +132,15 @@
 
     ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)
             request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
-    
+
     boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
-    
+
     boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
-    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0; 
+    boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
     boolean has_copy_no = countProfiles(profileList, GeneticAlterationType.COPY_NUMBER_ALTERATION) > 0;
-	
-    boolean includeNetworks = SkinUtil.includeNetworks();
+
+    boolean includeNetworks = GlobalProperties.includeNetworks();
 %>
 
 <%!
@@ -146,138 +155,138 @@
         return counter;
     }
 
-	public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
-	{
-		// translate Onco Query Language
-		ArrayList<String> listOfGenes =
-			oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    public String getGeneList(ParserOutput oncoPrintSpecParserOutput)
+    {
+        // translate Onco Query Language
+        ArrayList<String> geneList =
+                oncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
 
-		String genes = "";
+        String genes = "";
 
-		for(String gene: listOfGenes)
-		{
-			genes += gene + " ";
-		}
+        for(String gene: geneList)
+        {
+            genes += gene + " ";
+        }
 
-		return genes.trim();
-	}
+        return genes.trim();
+    }
 %>
 
 
 <jsp:include page="global/header.jsp" flush="true" />
 
-             <%   String smry = "";
-                      
-                    out.println ("<p><div class='gene_set_summary'>Gene Set / Pathway is altered in "
-                        + percentFormat.format(dataSummary.getPercentCasesAffected())
-                        + " of all cases.");
-                 out.println ("<br></div></p>");
-                 out.println ("<p><small><strong>");
+<%   String smry = "";
 
-                 for (CancerStudy cancerStudy: cancerStudies){
-                    if (cancerTypeId.equals(cancerStudy.getCancerStudyStableId())){
-                        smry = smry + cancerStudy.getName();
-                    }
-                }
-                for (CaseList caseSet:  caseSets) {
-                    if (caseSetId.equals(caseSet.getStableId())) {
-                        smry = smry + "/" + caseSet.getName() + ":  "
-                                + " (" + mergedCaseList.size() + ")";
-                    }
-                }
-                for (GeneSet geneSet:  geneSetList) {
-                    if (geneSetChoice.equals(geneSet.getId())) {
-                        smry = smry + "/" + geneSet.getName();
-                    }
-                }
-                smry = smry + "/" + geneWithScoreList.size();
-                if (geneWithScoreList.size() == 1){
-                    smry = smry + " gene";
-                } else {
-                    smry = smry + " genes";
-                }
+    out.println ("<p><div class='gene_set_summary'>Gene Set / Pathway is altered in "
+            + percentFormat.format(dataSummary.getPercentCasesAffected())
+            + " of all cases.");
+    out.println ("<br></div></p>");
+    out.println ("<p><small><strong>");
 
-                out.println (smry);
-                out.println ("</strong></small></p>");
-                 %>
+    for (CancerStudy cancerStudy: cancerStudies){
+        if (cancerTypeId.equals(cancerStudy.getCancerStudyStableId())){
+            smry = smry + cancerStudy.getName();
+        }
+    }
+    for (CaseList caseSet:  caseSets) {
+        if (caseSetId.equals(caseSet.getStableId())) {
+            smry = smry + "/" + caseSet.getName() + ":  "
+                    + " (" + mergedCaseList.size() + ")";
+        }
+    }
+    for (GeneSet geneSet:  geneSetList) {
+        if (geneSetChoice.equals(geneSet.getId())) {
+            smry = smry + "/" + geneSet.getName();
+        }
+    }
+    smry = smry + "/" + geneWithScoreList.size();
+    if (geneWithScoreList.size() == 1){
+        smry = smry + " gene";
+    } else {
+        smry = smry + " genes";
+    }
 
-            <% if (warningUnion.size() > 0) {
-                out.println ("<div class='warning'>");
-                out.println ("<h4>Errors:</h4>");
-                out.println ("<ul>");
-                Iterator<String> warningIterator = warningUnion.iterator();
-                int counter = 0;
-                while (warningIterator.hasNext()) {
-                    String warning = warningIterator.next();
-                    if (counter++ < 10) {
-                        out.println ("<li>" +  warning + "</li>");
-                    }
-                }
-                if (warningUnion.size() > 10) {
-                    out.println ("<li>...</li>");
-                }
-                out.println ("</ul>");
-                out.println ("</div>");
-            }
-            if (geneWithScoreList.size() == 0) {
-                out.println ("<b>Please go back and try again.</b>");
-                out.println ("</div>");
-            } else { %>
+    out.println (smry);
+    out.println ("</strong></small></p>");
+%>
 
-             <script type="text/javascript">
-             $(document).ready(function(){
-
-                 // Init Tool Tips
-                 $("#toggle_query_form").tipTip();
-
-             });
-             </script>
-
-            <%
-                /**
-                 * Put together parameters for an AJAX call to GeneAlterations.json
-                 *
-                 */
-
-                // put gene string into a form that javascript can swallow
-                String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
-                genes = StringEscapeUtils.escapeJavaScript(genes);
-//                genes = genes.replace("\n", " ");
-
-                // get cases
-                String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-                samples = StringEscapeUtils.escapeJavaScript(samples);
-            %>
+<% if (warningUnion.size() > 0) {
+    out.println ("<div class='warning'>");
+    out.println ("<h4>Errors:</h4>");
+    out.println ("<ul>");
+    Iterator<String> warningIterator = warningUnion.iterator();
+    int counter = 0;
+    while (warningIterator.hasNext()) {
+        String warning = warningIterator.next();
+        if (counter++ < 10) {
+            out.println ("<li>" +  warning + "</li>");
+        }
+    }
+    if (warningUnion.size() > 10) {
+        out.println ("<li>...</li>");
+    }
+    out.println ("</ul>");
+    out.println ("</div>");
+}
+    if (geneWithScoreList.size() == 0) {
+        out.println ("<b>Please go back and try again.</b>");
+        out.println ("</div>");
+    } else { %>
 
 <script type="text/javascript">
-	//  make global variables -- TODO move these global variables into a better jsp file
+    $(document).ready(function(){
 
-	// raw gene list (as it is entered by the user, it may contain onco query language)
-	var genes = "<%=genes%>";
+        // Init Tool Tips
+        $("#toggle_query_form").tipTip();
 
-	// gene list after being processed by the onco query language parser
-	var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
-
-	// list of samples (case ids)
-	var samples = "<%=samples%>";
-
-	// genetic profile ids
-	var geneticProfiles = "<%=geneticProfiles%>";
+    });
 </script>
 
-            <p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
-            <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
-            <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
-            <p/>
+<%
+    /**
+     * Put together parameters for an AJAX call to GeneAlterations.json
+     *
+     */
 
-            <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
-            <%@ include file="query_form.jsp" %>
-            </div>
+    // put gene string into a form that javascript can swallow
+    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+    genes = StringEscapeUtils.escapeJavaScript(genes);
+//                genes = genes.replace("\n", " ");
 
-            <div id="tabs">
-                <ul>
-                <% Boolean showMutTab = false; %>
-                <%
+    // get cases
+    String samples = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+    samples = StringEscapeUtils.escapeJavaScript(samples);
+%>
+
+<script type="text/javascript">
+    //  make global variables -- TODO move these global variables into a better jsp file
+
+    // raw gene list (as it is entered by the user, it may contain onco query language)
+    var genes = "<%=genes%>";
+
+    // gene list after being processed by the onco query language parser
+    var geneList = "<%=getGeneList(theOncoPrintSpecParserOutput)%>";
+
+    // list of samples (case ids)
+    var samples = "<%=samples%>";
+
+    // genetic profile ids
+    var geneticProfiles = "<%=geneticProfiles%>";
+</script>
+
+<p><a href="" title="Modify your original query.  Recommended over hitting your browser's back button." id="toggle_query_form">
+    <span class='query-toggle ui-icon ui-icon-triangle-1-e' style='float:left;'></span>
+    <span class='query-toggle ui-icon ui-icon-triangle-1-s' style='float:left; display:none;'></span><b>Modify Query</b></a>
+<p/>
+
+<div style="margin-left:5px;display:none;" id="query_form_on_results_page">
+    <%@ include file="query_form.jsp" %>
+</div>
+
+<div id="tabs">
+    <ul>
+            <% Boolean showMutTab = false; %>
+            <%
                 if (geneWithScoreList.size() > 0) {
 
 
@@ -367,9 +376,9 @@
                     }
                     %>
 
-                    <%@ include file="image_tabs.jsp" %>
+        <%@ include file="image_tabs.jsp" %>
 
-                    <%
+            <%
                     out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
                     out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
                     out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
@@ -408,27 +417,27 @@
 
                 %>
 
-            <div class="section" id="summary">
-			<% //contents of fingerprint.jsp now come from attribute on request object %>
+        <div class="section" id="summary">
+            <% //contents of fingerprint.jsp now come from attribute on request object %>
             <%@ include file="oncoprint/main.jsp" %>
             <%@ include file="gene_info.jsp" %>
-            </div>
-		<%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
-            			
-				<%@ include file="plots_tab.jsp" %>
-		<%}%>
+        </div>
+            <%if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+
+        <%@ include file="plots_tab.jsp" %>
+            <%}%>
             <% if (showIGVtab) { %>
-              <%@ include file="igv.jsp" %>
+        <%@ include file="igv.jsp" %>
             <% } %>
-                    
+
             <%
                 if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
-                    <%@ include file="clinical_tab.jsp" %>
+        <%@ include file="clinical_tab.jsp" %>
             <%    }
             %>
 
             <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
-                <%@ include file="correlation.jsp" %>
+        <%@ include file="correlation.jsp" %>
             <% } %>
             <% if (mutationDetailLimitReached != null) {
                     out.println("<div class=\"section\" id=\"mutation_details\">");
@@ -436,49 +445,49 @@
                     + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
                     out.println("</div>");
                 } else if (showMutTab) { %>
-	                <%@ include file="mutation_views.jsp" %>
-	                <%@ include file="mutation_details.jsp" %>
+        <%@ include file="mutation_views.jsp" %>
+        <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
             <%
             if (rppaExists) { %>
-                <%@ include file="protein_exp.jsp" %>
+        <%@ include file="protein_exp.jsp" %>
             <% } %>
 
             <%
             if (includeNetworks) { %>
-                <%@ include file="networks.jsp" %>
+        <%@ include file="networks.jsp" %>
             <% } %>
 
-            <%@ include file="data_download.jsp" %>
-            
-            <%@ include file="image_tabs_data.jsp" %>
-            
-            </div> <!-- end tabs div -->
-            <% } %>
-    </div>
-    </td>
-  </tr>
-  <tr>
+        <%@ include file="data_download.jsp" %>
+
+        <%@ include file="image_tabs_data.jsp" %>
+
+</div> <!-- end tabs div -->
+<% } %>
+</div>
+</td>
+</tr>
+<tr>
     <td colspan="3">
-	<jsp:include page="global/footer.jsp" flush="true" />
+        <jsp:include page="global/footer.jsp" flush="true" />
     </td>
-  </tr>
+</tr>
 </table>
 </center>
 </div>
-<jsp:include page="global/xdebug.jsp" flush="true" />    
+<jsp:include page="global/xdebug.jsp" flush="true" />
 </form>
 
 <script type="text/javascript">
-	// to initially hide the network tab
-    
-	//index of network tab
-	var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
+    // to initially hide the network tab
 
-	if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
-		$("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-	}
+    //index of network tab
+    var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
+
+    if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
+        $("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
+    }
 
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){

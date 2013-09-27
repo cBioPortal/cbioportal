@@ -31,13 +31,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoTextCache;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoTextCache;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
 
 /**
  * Utility class for the user-defined case sets (case ID list).
@@ -60,16 +60,15 @@ public class CaseSetUtil
 			String caseIds) throws DaoException
 	{
 		ArrayList<String> invalidCases = new ArrayList<String>();
-		DaoClinicalData daoClinicalData = new DaoClinicalData();
 		
 		// get list of all case sets for the given cancer study
-		ArrayList<CaseList> caseLists = GetCaseSets.getCaseSets(studyId);
+		ArrayList<CaseList> caseLists = GetCaseLists.getCaseLists(studyId);
 		
 		// get cancer study for the given stable id
 		CancerStudy study = DaoCancerStudy.getCancerStudyByStableId(studyId);
 		
 		// get all cases in the clinical free form table for the given cancer study
-		Set<String> freeFormCases = daoClinicalData.getAllCases(study.getInternalId());
+		Set<String> freeFormCases = DaoClinicalData.getAllCases(study.getInternalId());
 		
 		if (!caseLists.isEmpty() &&
 			caseIds != null)

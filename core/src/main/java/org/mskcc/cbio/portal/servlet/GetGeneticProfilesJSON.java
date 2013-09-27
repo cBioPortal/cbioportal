@@ -37,11 +37,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.Gene;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.Gene;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 /**
@@ -138,8 +138,6 @@ public class GetGeneticProfilesJSON extends HttpServlet  {
                                         gene,
                                         caseIdList,
                                         DaoGeneticProfile.getGeneticProfileByStableId(geneticProfile.getStableId()));
-                                System.out.println(tmpProfileDataArr);
-                                System.out.println(isDataAvailable(tmpProfileDataArr));
                                 if (isDataAvailable(tmpProfileDataArr)) {
                                     JSONObject tmpProfileObj = new JSONObject();
                                     tmpProfileObj.put("STABLE_ID", geneticProfile.getStableId());

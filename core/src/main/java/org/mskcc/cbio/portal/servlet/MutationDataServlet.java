@@ -30,14 +30,14 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.remote.GetMutationData;
+import org.mskcc.cbio.portal.web_api.GetMutationData;
 import org.mskcc.cbio.portal.util.*;
 
 import javax.servlet.ServletException;
@@ -47,8 +47,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.util.*;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -251,7 +252,7 @@ public class MutationDataServlet extends HttpServlet
 				int cancerStudyId = geneticProfile.getCancerStudyId();
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
-				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
@@ -274,6 +275,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("msaLink", this.getMsaLink(mutation));
 				mutationData.put("xVarLink", this.getXVarLink(mutation));
 				mutationData.put("pdbLink", this.getPdbLink(mutation));
+				mutationData.put("igvLink", this.getIGVForBAMViewingLink(cancerStudyStableId, mutation));
 				mutationData.put("mutationStatus", mutation.getMutationStatus());
 				mutationData.put("validationStatus", mutation.getValidationStatus());
 				mutationData.put("sequencingCenter", this.getSequencingCenter(mutation));
@@ -684,5 +686,28 @@ public class MutationDataServlet extends HttpServlet
 		}
 
 		return counts;
+	}
+
+	private String getIGVForBAMViewingLink(String cancerStudyStableId, ExtendedMutation mutation)
+	{
+		String link = null;
+
+		if (GlobalProperties.wantIGVBAMLinking()) {
+			String locus = (this.getChromosome(mutation) + ":" +
+							String.valueOf(mutation.getStartPosition()) + "-" +
+							String.valueOf(mutation.getEndPosition()));
+			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
+				try {
+					link = GlobalProperties.getLinkToIGVForBAM(cancerStudyStableId,
+                                                               mutation.getCaseId(),
+                                                               URLEncoder.encode(locus,"US-ASCII"));
+				}
+				catch (java.io.UnsupportedEncodingException e) {
+					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());
+				}
+			}
+		}
+
+		return link;
 	}
 }

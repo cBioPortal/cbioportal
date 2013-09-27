@@ -97,10 +97,9 @@
 	  <scope>runtime</scope>
 	</dependency>
 	<dependency>
-	  <groupId>org.apache.directory.studio</groupId>
-	  <artifactId>org.apache.commons.io</artifactId>
-	  <version>2.1</version>
-	  <scope>runtime</scope>
+	  <groupId>commons-io</groupId>
+	  <artifactId>commons-io</artifactId>
+	  <version>2.4</version>
 	</dependency>
 	<dependency>
 	  <groupId>commons-httpclient</groupId>
@@ -262,7 +261,6 @@
 		  <configuration>
 			<forkMode>always</forkMode>
 			<filtering>true</filtering>
-                        <argLine>-Xmx1024m</argLine>
 			<testFailureIgnore>false</testFailureIgnore>
 			<systemProperties>
 			  <property>

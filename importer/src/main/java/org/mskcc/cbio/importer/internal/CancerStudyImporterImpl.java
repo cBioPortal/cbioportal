@@ -46,41 +46,42 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.*;
 import org.apache.commons.io.filefilter.*;
 
+import java.io.*;
 import java.util.*;
-import java.io.File;
 import java.lang.reflect.*;
 
 class CancerStudyImporterImpl implements Importer {
 
-    private static final String CASE_LIST_DIRECTORY = "case_lists";
+    private static final String DATA_FILE_PREFIX = "data_";
+    private static final String META_FILE_PREFIX = "meta_";
+    private static final String CASE_LIST_DIRECTORY_NAME = "case_lists";
     private static final String CANCER_STUDY_FILENAME = "meta_study.txt";
     private static final String CANCER_TYPE_FILENAME = "cancer_type.txt";
+    private static final String GENETIC_ALTERATION_TYPE_PROP = "genetic_alteration_type";
 	private static final Log LOG = LogFactory.getLog(CancerStudyImporterImpl.class);
-    private static final String IMPORT_SCRIPT_MAP_DELIMITER = ":";
 
-    private class ImporterClass
+    private class CancerStudyData
     {
-        private String className;
+        private CancerStudy cancerStudy;
+        private String importerClassName;
         private String stagingFilename;
-        private boolean requiresMetadata;
+        private boolean requiresMetadataFile;
         private String metadataFilename;
         
-        public ImporterClass(String className, String stagingFilename, String requiresMetadata, String metadataFilename)
+        public CancerStudyData(CancerStudy cancerStudy, String importerClassName, String requiresMetadataFile, String stagingFilename, String metadataFilename)
         {
-            this.className = className;
+            this.cancerStudy = cancerStudy;
+            this.importerClassName = importerClassName;
+            this.requiresMetadataFile = Boolean.parseBoolean(requiresMetadataFile);
             this.stagingFilename = stagingFilename;
-            this.requiresMetadata = Boolean.parseBoolean(requiresMetadata);
             this.metadataFilename = metadataFilename;
         }
 
-        public boolean requiresMetadata() { return requiresMetadata; }
-        public String getImporterClassName() { return className; }
-        public String getStagingFilename() { return stagingFilename; }
-        public String getMetadataFilename() { return metadataFilename; }
+        public String getImporterClassName() { return importerClassName; }
 
-        public String[] getImporterClassArgs(CancerStudy cancerStudy)
+        public String[] getImporterClassArgs()
         {
-            return ((requiresMetadata) ?
+            return ((requiresMetadataFile) ?
                     new String[] { "--returnFromMain", "--data", stagingFilename, "--meta", metadataFilename, "--loadMode", "bulkLoad" } :
                     new String[] { stagingFilename, cancerStudy.getCancerStudyStableId() });
         }
@@ -89,6 +90,10 @@ class CancerStudyImporterImpl implements Importer {
     @Autowired
     @Qualifier("importerClassMap")
     private HashMap<String,String> importerClassMap;
+
+    @Autowired
+    @Qualifier("importerClassArgsMap")
+    private HashMap<String,String> importerClassArgsMap;
    
     @Override
 	public void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception
@@ -105,8 +110,7 @@ class CancerStudyImporterImpl implements Importer {
     @Override
     public void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception
     {
-        File cancerStudyDirectory = new File(cancerStudyDirectoryName);
-        for (File metaStudyFile : listFiles(cancerStudyDirectory, CANCER_STUDY_FILENAME)) {
+        for (File metaStudyFile : listFiles(cancerStudyDirectoryName, FileFilterUtils.nameFileFilter(CANCER_STUDY_FILENAME))) {
             logMessage("importCancerStudy(), found study file: " + metaStudyFile.getCanonicalPath() + ", processing...");
             try {
                 processCancerStudy(metaStudyFile, echo, force);
@@ -123,10 +127,10 @@ class CancerStudyImporterImpl implements Importer {
     {
         CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false);
         if (continueIfStudyExists(cancerStudy, force)) {
-            String cancerStudyDirectory = metaStudyFile.getParent();
-            importCancerStudy(cancerStudyDirectory, cancerStudy, echo);  // meta file, cancer type
-            importCancerStudyData(cancerStudyDirectory, cancerStudy, echo);
-            importCancerStudyCaseLists(cancerStudyDirectory, echo);
+            String cancerStudyDirectoryName = metaStudyFile.getParent();
+            importCancerStudy(cancerStudy, cancerStudyDirectoryName, echo);  // meta file, cancer type
+            importCancerStudyData(cancerStudy, cancerStudyDirectoryName, echo);
+            importCancerStudyCaseLists(cancerStudyDirectoryName, echo);
         }
     }
 
@@ -148,31 +152,31 @@ class CancerStudyImporterImpl implements Importer {
         return (scanner.next().equals("y"));
     }
 
-    private void importCancerStudy(String cancerStudyDirectory, CancerStudy cancerStudy, boolean echo) throws Exception
+    private void importCancerStudy(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
     {
-        processCancerType(cancerStudyDirectory, cancerStudy, echo);
+        processCancerType(cancerStudy, cancerStudyDirectoryName, echo);
         if (modifyDb(echo)) {
             DaoCancerStudy.addCancerStudy(cancerStudy, true);
         }
     }
     
-    private void processCancerType(String cancerStudyDirectory, CancerStudy cancerStudy, boolean echo) throws Exception
+    private void processCancerType(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
     {
         String cancerType = cancerStudy.getTypeOfCancerId();
         logMessage("Checking for existing cancer type: " + cancerType);
         TypeOfCancer typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
         if (typeOfCancer == null) {
             logMessage("Cancer type does not exist in database, attempting to import cancer type: " + cancerType);
-            importCancerType(cancerStudyDirectory, echo);
+            importCancerType(cancerStudyDirectoryName, echo);
         }
         else if (LOG.isInfoEnabled()) {
             LOG.info("Cancer type already exists in database");
         }
     }
 
-    private void importCancerType(String cancerStudyDirectory, boolean echo) throws Exception
+    private void importCancerType(String cancerStudyDirectoryName, boolean echo) throws Exception
     {
-        File cancerTypeFile = FileUtils.getFile(cancerStudyDirectory, CANCER_TYPE_FILENAME);
+        File cancerTypeFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_TYPE_FILENAME);
         if (!cancerTypeFile.exists()) {
             throw new IllegalArgumentException("Cannot find cancer type file: " + cancerTypeFile.getCanonicalPath() + " aborting!");
         }
@@ -183,15 +187,13 @@ class CancerStudyImporterImpl implements Importer {
         }
     }
 
-    private void importCancerStudyData(String cancerStudyDirectory, CancerStudy cancerStudy, boolean echo) throws Exception
+    private void importCancerStudyData(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
     {
-        for (File dataFile : getFilesToProcess(cancerStudyDirectory)) {
+        for (CancerStudyData cancerStudyData : getCancerStudyData(cancerStudy, cancerStudyDirectoryName)) {
             try {
-                ImporterClass importerClass = getImporterClass(cancerStudyDirectory, dataFile);
-                checkForMetadataFile(importerClass);
-                Method mainMethod = ClassLoader.getMethod(importerClass.getImporterClassName(), "main");
+                Method mainMethod = ClassLoader.getMethod(cancerStudyData.getImporterClassName(), "main");
                 if (modifyDb(echo)) {
-                    mainMethod.invoke(null, (Object)importerClass.getImporterClassArgs(cancerStudy));
+                    mainMethod.invoke(null, (Object)cancerStudyData.getImporterClassArgs());
                 }
             }
             catch (Exception e) {
@@ -204,9 +206,93 @@ class CancerStudyImporterImpl implements Importer {
         }
     }
 
-    private void importCancerStudyCaseLists(String cancerStudyDirectory, boolean echo) throws Exception
+    private Collection<CancerStudyData> getCancerStudyData(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
-        File caseListDirectory = FileUtils.getFile(cancerStudyDirectory, CASE_LIST_DIRECTORY);
+        ArrayList<CancerStudyData> cancerStudyDataList = new ArrayList<CancerStudyData>();
+
+        for (File metadataFile : listFiles(cancerStudyDirectoryName, FileFilterUtils.prefixFileFilter(META_FILE_PREFIX))) {
+            File dataFile = getDataFile(metadataFile.getCanonicalPath());
+            if (dataFile == null) {
+                logMessage("Cannot find matching data file, skipping import: " + metadataFile.getCanonicalPath());                 
+            }
+            else {
+                CancerStudyData cancerStudyData = getCancerStudyData(cancerStudy, metadataFile, dataFile);
+                if (cancerStudyData != null) {
+                    cancerStudyDataList.add(cancerStudyData);
+                }
+            }
+        }
+
+        return cancerStudyDataList;
+    }
+
+    private File getDataFile(String metadataFilename)
+    {
+        File dataFile = FileUtils.getFile(metadataFilename.replace(META_FILE_PREFIX, DATA_FILE_PREFIX));
+        return (dataFile.exists()) ? dataFile : null;
+    }
+
+    private CancerStudyData getCancerStudyData(CancerStudy cancerStudy, File metadataFile, File dataFile)
+    {
+        CancerStudyData cancerStudyData = null;
+
+        try {
+            String geneticAlterationType = getGeneticAlterationType(metadataFile);
+            String importerClassName = getImporterClassName(geneticAlterationType);
+            String requiresMetadataFile = getRequiresMetadataFile(importerClassName);
+            cancerStudyData = new CancerStudyData(cancerStudy,
+                                                  importerClassName,
+                                                  requiresMetadataFile,
+                                                  metadataFile.getCanonicalPath(),
+                                                  dataFile.getCanonicalPath());
+        }
+        catch (Exception e) {
+            logMessage(e.getMessage());
+        }
+
+        return cancerStudyData;
+    }
+
+    private String getGeneticAlterationType(File metadataFile) throws Exception
+    {
+        Properties properties = new Properties();
+        FileInputStream fis = new FileInputStream(metadataFile);
+        properties.load(fis);
+        fis.close();
+        String property = properties.getProperty(GENETIC_ALTERATION_TYPE_PROP);
+        if (property == null) {
+            throw new IllegalArgumentException("Cannot find " + GENETIC_ALTERATION_TYPE_PROP + 
+                                               " in file, skipping import: " + metadataFile.getCanonicalPath());
+        }
+
+        return property;
+    }
+
+    private String getImporterClassName(String geneticAlterationType) throws Exception
+    {
+        if (importerClassMap.containsKey(geneticAlterationType)) {
+            return importerClassMap.get(geneticAlterationType);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown " + GENETIC_ALTERATION_TYPE_PROP +
+                                               ", skipping import: " + geneticAlterationType);
+        }
+    }
+
+    private String getRequiresMetadataFile(String importerClassName)
+    {
+        if (importerClassArgsMap.containsKey(importerClassName)) {
+            return importerClassArgsMap.get(importerClassName);
+        }
+        else {
+            throw new IllegalArgumentException("Unknown importer class name" +
+                                               ", skipping import: " + importerClassName);
+        }
+    }
+
+    private void importCancerStudyCaseLists(String cancerStudyDirectoryName, boolean echo) throws Exception
+    {
+        File caseListDirectory = FileUtils.getFile(cancerStudyDirectoryName, CASE_LIST_DIRECTORY_NAME);
         if (caseListDirectory.exists()) {
             logMessage("Importing case lists found in directory: " + caseListDirectory.getCanonicalPath());
             if (modifyDb(echo)) {
@@ -219,46 +305,15 @@ class CancerStudyImporterImpl implements Importer {
         }
     }
 
-    private Collection<File> getFilesToProcess(String cancerStudyDirectory) throws Exception
+    private Collection<File> listFiles(String directoryName, IOFileFilter filter) throws Exception
     {
-        ArrayList<File> filesToProcess = new ArrayList<File>();
-        for (String dataFilename : importerClassMap.keySet()) {
-            File dataFile = FileUtils.getFile(cancerStudyDirectory, dataFilename);
-            if (dataFile.exists()) {
-                filesToProcess.add(dataFile);
-            }
-        }
-        return filesToProcess;
-    }
-
-    private ImporterClass getImporterClass(String cancerStudyDirectory, File dataFile) throws Exception
-    {
-        // see importScriptMap definition within applicationContext-portalImporterTool.xml for explanation
-        String[] importerClassParts = importerClassMap.get(dataFile.getName()).split(IMPORT_SCRIPT_MAP_DELIMITER);
-        String metaFilename = (importerClassParts.length == 3) ?
-            FileUtils.getFile(cancerStudyDirectory, importerClassParts[2]).getCanonicalPath() : "";
-        return new ImporterClass(importerClassParts[0], dataFile.getCanonicalPath(),
-                                 importerClassParts[1], metaFilename);
-    }
-
-    private Collection<File> listFiles(File directory, String filter) throws Exception
-    {
-        return FileUtils.listFiles(directory, FileFilterUtils.nameFileFilter(filter), TrueFileFilter.INSTANCE);
+        File directory = new File(directoryName);
+        return FileUtils.listFiles(directory, filter, TrueFileFilter.INSTANCE);
     }
 
     private boolean modifyDb(boolean echo)
     {
         return (!echo);
-    }
-
-    private void checkForMetadataFile(ImporterClass importerClass) throws Exception
-    {
-        if (importerClass.requiresMetadata()) {
-            File metadataFile = FileUtils.getFile(importerClass.getMetadataFilename());
-            if (!metadataFile.exists()) {
-                throw new IllegalArgumentException("Cannot find required metadata file, skipping import: " + metadataFile.getCanonicalPath()); 
-            }
-        }
     }
 
     private void logMessage(String message)

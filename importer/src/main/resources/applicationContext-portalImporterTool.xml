@@ -26,21 +26,31 @@
   <b:bean name="importerClassMap" class="java.util.HashMap">
     <b:constructor-arg index="0" type="java.util.Map">
       <b:map key-type="java.lang.String" value-type="java.lang.String">
-        <!-- staging filename is key, import class ":" boolean indicating if import class requires metadata argument ":" meta filename, is value -->
-        <b:entry key="data_CNA.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_CNA.txt"/>
-        <b:entry key="data_log2CNA.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_log2CNA.txt"/>
-        <b:entry key="data_expression.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_expression.txt"/>
-        <b:entry key="data_scna_minus_germline_cnv_hg19.seg" value="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData:false"/>
-        <b:entry key="data_scna_hg18.seg" value="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData:false"/>
-        <b:entry key="data_gistic_genes_amp.txt" value="org.mskcc.cbio.portal.scripts.ImportGisticData:false"/>
-        <b:entry key="data_gistic_genes_del.txt" value="org.mskcc.cbio.portal.scripts.ImportGisticData:false"/>
-        <b:entry key="data_methylation_hm27.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_methylation_hm27.txt"/>
-        <b:entry key="data_methylation_hm450.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_methylation_hm450.txt"/>
-        <b:entry key="data_mutations_extended.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_mutations_extended.txt"/>
-        <b:entry key="data_mutsig.txt" value="org.mskcc.cbio.portal.scripts.ImportMutSigData:false"/>
-        <b:entry key="data_fusions.txt" value="org.mskcc.cbio.portal.scripts.ImportProfileData:true:meta_fusions.txt"/>
-        <b:entry key="data_rppa.txt" value="org.mskcc.cbio.portal.scripts.ImportProteinArrayData:false"/>
-        <b:entry key="data_clinical_sup.txt " value="org.mskcc.cbio.portal.scripts.ImportClinicalData:false"/>
+        <!-- genetic alteration type is key, import class is value -->
+        <b:entry key="CLINICAL" value="org.mskcc.cbio.portal.scripts.ImportClinicalData"/>
+        <b:entry key="COPY_NUMBER_ALTERATION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="FUSION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="GISTIC" value="org.mskcc.cbio.portal.scripts.ImportGisticData"/>
+        <b:entry key="METHYLATION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MRNA_EXPRESSION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MUTATION_EXTENDED" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
+        <b:entry key="MUTSIG" value="org.mskcc.cbio.portal.scripts.ImportMutSigData"/>
+        <b:entry key="RPPA" value="org.mskcc.cbio.portal.scripts.ImportProteinArrayData"/>
+        <b:entry key="SEGMENT" value="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData"/>
+      </b:map>
+    </b:constructor-arg>
+  </b:bean>
+
+  <b:bean name="importerClassArgsMap" class="java.util.HashMap">
+    <b:constructor-arg index="0" type="java.util.Map">
+      <b:map key-type="java.lang.String" value-type="java.lang.String">
+        <!-- import class is key, boolean indicating import needs metadata file is value -->
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportClinicalData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportProfileData" value="true"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportGisticData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportMutSigData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportProteinArrayData" value="false"/>
+        <b:entry key="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData" value="false"/>
       </b:map>
     </b:constructor-arg>
   </b:bean>

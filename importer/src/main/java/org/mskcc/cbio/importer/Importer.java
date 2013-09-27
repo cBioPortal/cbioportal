@@ -54,4 +54,15 @@ public interface Importer {
 	 * @throws Exception
 	 */
 	void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
+
+
+    /**
+     * Imports all cancer studies found within the given directory.  If echo is true
+     * executes command without performing database operations.
+     *
+     * @param cancerStudyDirectoryName
+     * @param echo
+     * @param force
+     */
+    void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception;
 }

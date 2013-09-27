@@ -198,8 +198,21 @@ class ImporterImpl implements Importer {
 			LOG.info("importReferenceData(), failure executing importer.");
 		}
 	}
+
+    /**
+     * Imports all cancer studies found within the given directory.
+     *
+     * @param cancerStudyDirectoryName
+     * @param echo
+     * @param force
+     */
+    @Override
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
         
-        private boolean importByImporter(ReferenceMetadata referenceMetadata) throws Exception {
+    private boolean importByImporter(ReferenceMetadata referenceMetadata) throws Exception {
 		// we may be dealing with a class that implements the importer interface
 		String importerName = referenceMetadata.getImporterName();
 		try {
@@ -208,7 +221,7 @@ class ImporterImpl implements Importer {
 				Object[] importerArgs = { config, fileUtils, databaseUtils };
 				Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
 				importer.importReferenceData(referenceMetadata);
-                                if (LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
 					LOG.info("importReferenceData(), successfully executed " + clazz + ".");
 				}
 				return true;

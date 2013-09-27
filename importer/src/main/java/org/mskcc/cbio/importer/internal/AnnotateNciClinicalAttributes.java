@@ -84,6 +84,19 @@ public class AnnotateNciClinicalAttributes implements Importer {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Imports all cancer studies found within the given directory.
+     *
+     * @param cancerStudyDirectoryName
+     * @param echo
+     * @param force
+     */
+    @Override
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
+
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);

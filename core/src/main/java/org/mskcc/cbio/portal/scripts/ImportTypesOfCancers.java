@@ -56,11 +56,15 @@ public class ImportTypesOfCancers {
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
-        load(pMonitor, file);
+        load(pMonitor, file, true);
     }
 
     public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
-        DaoTypeOfCancer.deleteAllRecords();
+        ImportTypesOfCancers.load(pMonitor, file, true);
+    }
+
+    public static void load(ProgressMonitor pMonitor, File file, boolean clobber) throws IOException, DaoException {
+        if (clobber) DaoTypeOfCancer.deleteAllRecords();
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
 

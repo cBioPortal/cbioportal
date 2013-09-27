@@ -522,6 +522,8 @@
 				var mainContent = self.$el.find("#mutation_details_content");
 				mainContent.tabs();
 				mainContent.tabs('paging', {tabsPerPage: 10, follow: true});
+				self.$el.find(".mutation-details-tabs-ref").tipTip(
+					{defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 			}
 
 			// init 3D view if the visualizer is available

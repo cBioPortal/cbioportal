@@ -16,6 +16,7 @@
 <script type="text/javascript" src="js/lib/jquery.dataTables.ColVis.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="js/lib/chosen.jquery.js"></script>
+<script type="text/javascript" src="js/lib/ui.tabs.paging.js"></script>
 
 <script type="text/javascript" src="js/lib/mailme.js"></script>
 <script type="text/javascript" src="js/lib/json2.js"></script>

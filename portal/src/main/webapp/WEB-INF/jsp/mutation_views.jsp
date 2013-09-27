@@ -3,7 +3,7 @@
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_details_content'>
+	<div id='mutation_details_content' class='mutation-details-content'>
 		<ul>
 			{{listContent}}
 		</ul>
@@ -519,7 +519,9 @@
 
 			if (self.model.mutations.length > 0)
 			{
-				self.$el.find("#mutation_details_content").tabs();
+				var mainContent = self.$el.find("#mutation_details_content");
+				mainContent.tabs();
+				mainContent.tabs('paging', {tabsPerPage: 10, follow: true});
 			}
 
 			// init 3D view if the visualizer is available

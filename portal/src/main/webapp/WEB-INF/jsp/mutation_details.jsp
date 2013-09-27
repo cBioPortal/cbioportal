@@ -163,6 +163,20 @@
 	.left-align-td {
 		text-align: left;
 	}
+	/* This is to fix ui.tabs.paging plugin style,
+	we may need to remove this after updating jQuery */
+	.ui-tabs-paging-prev, .ui-tabs-paging-next {
+		background: none !important;
+		border: none !important;
+		line-height: 95%;
+	}
+	.ui-tabs-paging-next {
+		padding-right: 0 !important;
+	}
+	/* This is also to fix ui.tabs.paging behavior */
+	.mutation-details-content {
+		min-width: 480px;
+	}
 
 </style>
 

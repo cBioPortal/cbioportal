@@ -254,10 +254,11 @@ public class MutationDataServlet extends HttpServlet
 						.getCancerStudyStableId();
 				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO a unique id for a mutation, entrez gene id, symbol all caps
+				// TODO entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
+				// TODO generate mutation id by a hash function instead of simple int count
 				// mutationId is not a unique id wrt the whole DB,
 				// but it is unique wrt the returned data set
 				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);

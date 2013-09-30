@@ -26,6 +26,7 @@
 <script type="text/template" id="default_mutation_details_list_content_template">
 	<li>
 		<a href="#mutation_details_{{geneSymbol}}"
+		   id="mutation_details_tab_{{geneSymbol}}"
 		   class="mutation-details-tabs-ref"
 		   title="{{geneSymbol}} mutations">
 			<span>{{geneSymbol}}</span>
@@ -468,6 +469,9 @@
 	 * Default mutation details view for the entire mutation details tab.
 	 * Creates a separate MainMutationView (another Backbone view) for each gene.
 	 *
+	 * TODO support passing only gene symbols (in that case mutation data will be retrieved
+	 * on demand -- upon clicking on the corresponding gene tab)
+	 *
 	 * options: {el: [target container],
 	 *           model: {mutations: [mutation data as an array of JSON objects],
 	 *                   sampleArray: [list of case ids as an array of strings],
@@ -479,8 +483,12 @@
 		render: function() {
 			var self = this;
 
+			// init mutation utility
 			self.util = new MutationDetailsUtil(
 					new MutationCollection(self.model.mutations));
+
+			// init tab view flags (for each gene)
+			self.geneTabView = {};
 
 			var content = self._generateContent();
 
@@ -597,11 +605,33 @@
 		{
 			var self = this;
 
-			// init main view for each gene
+			// TODO we need to use self.model.genes instead
+			// ...if we would like to retrieve mutation data upon tab click
+
+			var genes = [];
+
+			// collect gene symbols for the current mutations
 			for (var key in self.util.getMutationGeneMap())
 			{
-				self._initView(key, cases, diagramOpts);
+				genes.push(key);
 			}
+
+			// init view for the first gene only
+			self._initView(genes[0], cases, diagramOpts);
+			self.geneTabView[genes[0]] = true;
+
+			// init other views upon click on the corresponding tab
+			_.each(genes, function(gene, idx) {
+				// do not initialize the view until the tab is clicked
+				$("#mutation_details_tab_" + gene).click(function(evt) {
+					// init view for the selected tab (if not initialized before)
+					if (self.geneTabView[gene] == undefined)
+					{
+						self._initView(gene, cases, diagramOpts);
+						self.geneTabView[gene] = true;
+					}
+				});
+			});
 		},
 	    /**
 		 * Initializes mutation view for the given gene and cases.
@@ -820,25 +850,24 @@
 					console.log("Error initializing mutation diagram: %s", gene);
 				}
 
-				// draw mutation table after a short delay
-				setTimeout(function(){
-					var mutationTableView = new MutationDetailsTableView(
-							{el: "#mutation_table_" + gene,
-							model: {geneSymbol: gene,
-								mutations: mutationMap[gene],
-								syncFn: updateMutationDiagram}});
+				// draw mutation table
 
-					mutationTableView.render();
+				var mutationTableView = new MutationDetailsTableView(
+						{el: "#mutation_table_" + gene,
+						model: {geneSymbol: gene,
+							mutations: mutationMap[gene],
+							syncFn: updateMutationDiagram}});
 
-					// update reference after rendering the table
-					mutationDiagram = diagram;
+				mutationTableView.render();
 
-					// add default event listeners for the diagram
-					addPlotListeners(diagram, mutationTableView);
+				// update reference after rendering the table
+				mutationDiagram = diagram;
 
-					// init reset info text content for the diagram
-					mainView.initResetFilterInfo(diagram, mutationTableView);
-				}, 2000);
+				// add default event listeners for the diagram
+				addPlotListeners(diagram, mutationTableView);
+
+				// init reset info text content for the diagram
+				mainView.initResetFilterInfo(diagram, mutationTableView);
 			};
 
 			// Gets the pdb data from the server by using the uniprot identifier

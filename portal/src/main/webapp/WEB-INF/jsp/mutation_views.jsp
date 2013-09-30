@@ -3,8 +3,11 @@
 	<div id='mutation_details_loader'>
 		<img src='{{loaderImage}}'/>
 	</div>
-	<div id='mutation_details_content'>
-		{{content}}
+	<div id='mutation_details_content' class='mutation-details-content'>
+		<ul>
+			{{listContent}}
+		</ul>
+		{{mainContent}}
 	</div>
 </script>
 
@@ -14,8 +17,21 @@
 	<br>
 </script>
 
-<script type="text/template" id="default_mutation_details_content_template">
-	<div id='mutation_details_{{geneSymbol}}'></div>
+<script type="text/template" id="default_mutation_details_main_content_template">
+	<div id='mutation_details_{{geneSymbol}}'>
+		<img src='{{loaderImage}}'/>
+	</div>
+</script>
+
+<script type="text/template" id="default_mutation_details_list_content_template">
+	<li>
+		<a href="#mutation_details_{{geneSymbol}}"
+		   id="mutation_details_tab_{{geneSymbol}}"
+		   class="mutation-details-tabs-ref"
+		   title="{{geneSymbol}} mutations">
+			<span>{{geneSymbol}}</span>
+		</a>
+	</li>
 </script>
 
 <script type="text/template" id="mutation_view_template">
@@ -453,6 +469,9 @@
 	 * Default mutation details view for the entire mutation details tab.
 	 * Creates a separate MainMutationView (another Backbone view) for each gene.
 	 *
+	 * TODO support passing only gene symbols (in that case mutation data will be retrieved
+	 * on demand -- upon clicking on the corresponding gene tab)
+	 *
 	 * options: {el: [target container],
 	 *           model: {mutations: [mutation data as an array of JSON objects],
 	 *                   sampleArray: [list of case ids as an array of strings],
@@ -464,12 +483,19 @@
 		render: function() {
 			var self = this;
 
+			// init mutation utility
 			self.util = new MutationDetailsUtil(
 					new MutationCollection(self.model.mutations));
 
+			// init tab view flags (for each gene)
+			self.geneTabView = {};
+
+			var content = self._generateContent();
+
 			// TODO make the image customizable?
 			var variables = {loaderImage: "images/ajax-loader.gif",
-				content: self._generateContent()};
+				listContent: content.listContent,
+				mainContent: content.mainContent};
 
 			// compile the template using underscore
 			var template = _.template(
@@ -496,10 +522,17 @@
 			var self = this;
 			var container3d = self.$el.find("#mutation_3d_container");
 
-			if (self.model.mutations.length == 0)
+			// hide loader image
+			self.$el.find("#mutation_details_loader").hide();
+
+			if (self.model.mutations.length > 0)
 			{
-				// hide loader image, there is nothing to load
-				self.$el.find("#mutation_details_loader").hide();
+				var mainContent = self.$el.find("#mutation_details_content");
+				mainContent.tabs();
+				mainContent.tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+				mainContent.tabs('select', 0);
+				self.$el.find(".mutation-details-tabs-ref").tipTip(
+					{defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 			}
 
 			// init 3D view if the visualizer is available
@@ -525,31 +558,38 @@
 		 * Generates the content structure by creating div elements for each
 		 * gene.
 		 *
-		 * @return {String} content backbone with div elements for each gene
+		 * @return {Object} content backbone with div elements for each gene
 		 */
 		_generateContent: function()
 		{
 			var self = this;
-			var content = "";
+			var mainContent = "";
+			var listContent = "";
 
 			// check if there is mutation data
 			if (self.model.mutations.length == 0)
 			{
 				// display information if no data is available
-				content = _.template($("#default_mutation_details_info_template").html(), {});
+				mainContent = _.template($("#default_mutation_details_info_template").html(), {});
 			}
 			else
 			{
 				// create a div for for each gene
 				for (var key in self.util.getMutationGeneMap())
 				{
-					content += _.template(
-						$("#default_mutation_details_content_template").html(),
+					mainContent += _.template(
+						$("#default_mutation_details_main_content_template").html(),
+							{loaderImage: "images/ajax-loader.gif",
+							geneSymbol: key});
+
+					listContent += _.template(
+						$("#default_mutation_details_list_content_template").html(),
 						{geneSymbol: key});
 				}
 			}
 
-			return content;
+			return {mainContent: mainContent,
+				listContent: listContent};
 		},
 		/**
 		 * Initializes the mutation view for the current mutation data.
@@ -566,11 +606,32 @@
 		{
 			var self = this;
 
-			// init main view for each gene
+			// TODO we need to use self.model.genes instead
+			// ...if we would like to retrieve mutation data upon tab click
+
+			var genes = [];
+
+			// collect gene symbols for the current mutations
 			for (var key in self.util.getMutationGeneMap())
 			{
-				self._initView(key, cases, diagramOpts);
+				genes.push(key);
 			}
+
+			// init view for the first gene only
+			self._initView(genes[0], cases, diagramOpts);
+			self.geneTabView[genes[0]] = true;
+
+			// init other views upon selecting the corresponding tab
+			self.$el.find("#mutation_details_content").bind('tabsselect', function(event, ui) {
+				var gene = genes[ui.index];
+
+				// init view for the selected tab (if not initialized before)
+				if (self.geneTabView[gene] == undefined)
+				{
+					self._initView(gene, cases, diagramOpts);
+					self.geneTabView[gene] = true;
+				}
+			});
 		},
 	    /**
 		 * Initializes mutation view for the given gene and cases.
@@ -789,25 +850,24 @@
 					console.log("Error initializing mutation diagram: %s", gene);
 				}
 
-				// draw mutation table after a short delay
-				setTimeout(function(){
-					var mutationTableView = new MutationDetailsTableView(
-							{el: "#mutation_table_" + gene,
-							model: {geneSymbol: gene,
-								mutations: mutationMap[gene],
-								syncFn: updateMutationDiagram}});
+				// draw mutation table
 
-					mutationTableView.render();
+				var mutationTableView = new MutationDetailsTableView(
+						{el: "#mutation_table_" + gene,
+						model: {geneSymbol: gene,
+							mutations: mutationMap[gene],
+							syncFn: updateMutationDiagram}});
 
-					// update reference after rendering the table
-					mutationDiagram = diagram;
+				mutationTableView.render();
 
-					// add default event listeners for the diagram
-					addPlotListeners(diagram, mutationTableView);
+				// update reference after rendering the table
+				mutationDiagram = diagram;
 
-					// init reset info text content for the diagram
-					mainView.initResetFilterInfo(diagram, mutationTableView);
-				}, 2000);
+				// add default event listeners for the diagram
+				addPlotListeners(diagram, mutationTableView);
+
+				// init reset info text content for the diagram
+				mainView.initResetFilterInfo(diagram, mutationTableView);
 			};
 
 			// Gets the pdb data from the server by using the uniprot identifier

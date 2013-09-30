@@ -107,6 +107,9 @@
 		color: #1974B8 !important;
 		cursor: pointer;
 	}
+	.mutation-details-tabs-ref {
+		font-size: 11px !important;
+	}
 	.mutation-table-highlight {
 		background-color: #E9E900 !important;
 	}
@@ -159,6 +162,24 @@
 	}
 	.left-align-td {
 		text-align: left;
+	}
+	/* This is to fix ui.tabs.paging plugin style,
+	we may need to remove this after updating jQuery */
+	.ui-tabs-paging-prev, .ui-tabs-paging-next {
+		background: none !important;
+		border: none !important;
+		line-height: 95%;
+	}
+	.ui-tabs-paging-next {
+		padding-right: 0 !important;
+	}
+	.ui-tabs-paging-disabled {
+		/* do not show button if no cycle */
+		display: none;
+	}
+	/* This is also to fix ui.tabs.paging behavior */
+	.mutation-details-content {
+		min-width: 480px;
 	}
 
 </style>

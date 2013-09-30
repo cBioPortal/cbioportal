@@ -154,21 +154,43 @@ var MutationCollection = Backbone.Collection.extend({
  */
 var MutationDetailsUtil = function(mutations)
 {
-	this.GERMLINE = "germline"; // germline mutation constant
+	var GERMLINE = "germline"; // germline mutation constant
+
+	// init class variables
+	var _mutationGeneMap = {};
+	var _mutationCaseMap = {};
+	var _mutationIdMap = {};
+	//var _mutations;
 
 	this.getMutationGeneMap = function()
 	{
-		return this._mutationGeneMap;
+		return _mutationGeneMap;
 	};
 
 	this.getMutationCaseMap = function()
 	{
-		return this._mutationCaseMap;
+		return _mutationCaseMap;
 	};
 
 	this.getMutationIdMap = function()
 	{
-		return this._mutationIdMap;
+		return _mutationIdMap;
+	};
+
+	/**
+	 * Updates existing maps and collections by processing the given mutations.
+	 * This method appends given mutations to the existing ones, it does not
+	 * reset previous mutations.
+	 *
+	 * @param mutations MutationCollection (list of mutations)
+	 */
+	this.processMutationData = function(mutations)
+	{
+		// update collections, arrays, maps, etc.
+		_mutationGeneMap = this._updateGeneMap(mutations);
+		_mutationCaseMap = this._updateCaseMap(mutations);
+		_mutationIdMap = this._updateIdMap(mutations);
+		//_mutations = mutations;
 	};
 
 	/**
@@ -180,7 +202,7 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.getProteinPositions = function(gene)
 	{
-		var mutations = this._mutationGeneMap[gene];
+		var mutations = _mutationGeneMap[gene];
 
 		var positions = [];
 
@@ -197,7 +219,7 @@ var MutationDetailsUtil = function(mutations)
 	};
 
 	/**
-	 * Processes the pdb data (recieved from the server) to map positions
+	 * Processes the pdb data (received from the server) to map positions
 	 * to mutation ids.
 	 *
 	 * @param gene  hugo gene symbol
@@ -206,7 +228,7 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.processPdbData = function(gene, data)
 	{
-		var mutations = this._mutationGeneMap[gene];
+		var mutations = _mutationGeneMap[gene];
 		var pdbModel = null;
 		var pdbList = [];
 
@@ -245,9 +267,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on gene symbol)
 	 * @private
 	 */
-	this._generateGeneMap = function(mutations)
+	this._updateGeneMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationGeneMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -273,9 +295,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on case id)
 	 * @private
 	 */
-	this._generateCaseMap = function(mutations)
+	this._updateCaseMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationCaseMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -301,9 +323,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on mutation id)
 	 * @private
 	 */
-	this._generateIdMap = function(mutations)
+	this._updateIdMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationIdMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -363,7 +385,7 @@ var MutationDetailsUtil = function(mutations)
 		for (var i=0; i < cases.length; i++)
 		{
 			// get the mutations for the current case
-			var mutations = this._mutationCaseMap[cases[i].toLowerCase()];
+			var mutations = _mutationCaseMap[cases[i].toLowerCase()];
 
 			// check if case has a mutation
 			if (mutations != null)
@@ -417,13 +439,13 @@ var MutationDetailsUtil = function(mutations)
 
 		gene = gene.toUpperCase();
 
-		if (self._mutationGeneMap[gene] != undefined)
+		if (_mutationGeneMap[gene] != undefined)
 		{
-			var mutations = self._mutationGeneMap[gene];
+			var mutations = _mutationGeneMap[gene];
 
 			for (var i=0; i < mutations.length; i++)
 			{
-				if (mutations[i].mutationStatus.toLowerCase() == self.GERMLINE)
+				if (mutations[i].mutationStatus.toLowerCase() == GERMLINE)
 				{
 					contains = true;
 					break;
@@ -446,9 +468,9 @@ var MutationDetailsUtil = function(mutations)
 
 		gene = gene.toUpperCase();
 
-		if (self._mutationGeneMap[gene] != undefined)
+		if (_mutationGeneMap[gene] != undefined)
 		{
-			var mutations = self._mutationGeneMap[gene];
+			var mutations = _mutationGeneMap[gene];
 
 			for (var i=0; i < mutations.length; i++)
 			{
@@ -463,11 +485,8 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
-	// init class variables
-	this._mutationGeneMap = this._generateGeneMap(mutations);
-	this._mutationCaseMap = this._generateCaseMap(mutations);
-	this._mutationIdMap = this._generateIdMap(mutations);
-	this._mutations = mutations;
+	// init maps by processing the initial mutations
+	this.processMutationData(mutations);
 };
 
 /**

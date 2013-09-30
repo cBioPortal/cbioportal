@@ -200,7 +200,8 @@ var Mutation3dVis = function(name, options)
 		             "select :" + chain.chainId + ";" + // select the chain
 		             "color [" + _options.chainColor + "];" + // set chain color
 		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color red;"; // highlight selected area
+		             "color red;" + // highlight selected area
+		             "spin " + _spin; // set spin
 
 		Jmol.script(_applet, script);
 	}

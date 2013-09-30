@@ -84,12 +84,7 @@
 
 <script type="text/template" id="mutation_3d_view_template">
 	<button class='mutation-3d-vis'>
-		<table>
-			<tr>
-				<td><img alt="J" src='images/jmol.png'/></td>
-				<td><label>Visualize in Jmol</label></td>
-			</tr>
-		</table>
+		<label>Show in 3D &#187</label>
 	</button>
 </script>
 

@@ -529,7 +529,8 @@
 			{
 				var mainContent = self.$el.find("#mutation_details_content");
 				mainContent.tabs();
-				mainContent.tabs('paging', {tabsPerPage: 10, follow: true});
+				mainContent.tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+				mainContent.tabs('select', 0);
 				self.$el.find(".mutation-details-tabs-ref").tipTip(
 					{defaultPosition: "bottom", delay:"100", edgeOffset: 10, maxWidth: 200});
 			}
@@ -620,17 +621,16 @@
 			self._initView(genes[0], cases, diagramOpts);
 			self.geneTabView[genes[0]] = true;
 
-			// init other views upon click on the corresponding tab
-			_.each(genes, function(gene, idx) {
-				// do not initialize the view until the tab is clicked
-				$("#mutation_details_tab_" + gene).click(function(evt) {
-					// init view for the selected tab (if not initialized before)
-					if (self.geneTabView[gene] == undefined)
-					{
-						self._initView(gene, cases, diagramOpts);
-						self.geneTabView[gene] = true;
-					}
-				});
+			// init other views upon selecting the corresponding tab
+			self.$el.find("#mutation_details_content").bind('tabsselect', function(event, ui) {
+				var gene = genes[ui.index];
+
+				// init view for the selected tab (if not initialized before)
+				if (self.geneTabView[gene] == undefined)
+				{
+					self._initView(gene, cases, diagramOpts);
+					self.geneTabView[gene] = true;
+				}
 			});
 		},
 	    /**

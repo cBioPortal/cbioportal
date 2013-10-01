@@ -61,15 +61,18 @@ public class PortalImporterTool implements Runnable {
 		// create each option
 		Option help = new Option("help", "Print this message.");
 
-        Option importCancerStudy = (OptionBuilder.withArgName("cancer_study_directory:echo:force")
+        Option validateCancerStudy = (OptionBuilder.withArgName("validate")
+                                      .hasArg()
+                                      .withDescription("Validates cancer studies within the given cancer study directory")
+                                      .create("validate_cancer_study"));
+
+        Option importCancerStudy = (OptionBuilder.withArgName("cancer_study_directory:skip:force")
                                     .hasArgs(3)
                                     .withValueSeparator(':')
                                     .withDescription("Import cancer study data into the database.  " +
                                                      "This command will traverse all subdirectories of cancer_study_directory " +
-                                                     "looking for cancer studies to import.  If the cancer study already exists " +
-                                                     "in the database, it will be replaced.  If echo is 't', executes commands without " +
-                                                     "actually performing database operations.  This can be used for validating input files. " +
-                                                     "If force is 't' any matching cancer study existing within the database will be overridden without prompting.")
+                                                     "looking for cancer studies to import.  If the skip argument is 't', " +
+                                                     "cancer studies will not be replaced.  Set force to 't' to force a cancer study replacement.")
                                     .create("import_cancer_study"));
 
 		// create an options instance
@@ -77,6 +80,7 @@ public class PortalImporterTool implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
+        toReturn.addOption(validateCancerStudy);
 		toReturn.addOption(importCancerStudy);
 
 		// outta here
@@ -118,6 +122,9 @@ public class PortalImporterTool implements Runnable {
 			if (commandLine.hasOption("help")) {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
+            else if (commandLine.hasOption("validate_cancer_study")) {
+                validateCancerStudy(commandLine.getOptionValue("validate_cancer_study"));
+            }
 			else if (commandLine.hasOption("import_cancer_study")) {
                 String[] values = commandLine.getOptionValues("import_cancer_study");
 				importCancerStudy(values[0], (values.length >= 2) ? values[1] : "", (values.length == 3) ? values[2] : "");
@@ -174,20 +181,31 @@ public class PortalImporterTool implements Runnable {
         }
     }
 
+	private void validateCancerStudy(String cancerStudyDirectory) throws Exception
+    {
+		if (LOG.isInfoEnabled()) {
+			LOG.info("validateCancerStudy(), cancer study directory: " + cancerStudyDirectory);
+		}
 
+		Validator validator = (Validator)context.getBean("cancerStudyValidator");
+		validator.validateCancerStudy(cancerStudyDirectory);
 
-	private void importCancerStudy(String cancerStudyDirectory, String echo, String force) throws Exception
+		if (LOG.isInfoEnabled()) {
+			LOG.info("validateCancerStudy(), complete");
+		}
+    }
+
+	private void importCancerStudy(String cancerStudyDirectory, String skip, String force) throws Exception
     {
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importCancerStudy(), cancer study directory: " + cancerStudyDirectory);
 		}
 
-		// create an instance of Importer
-		Boolean echoBool = getBoolean(echo);
-        Boolean forceBool = getBoolean(force);
+        boolean skipBool = getBoolean(skip);
+        boolean forceBool = getBoolean(force);
 		Importer importer = (Importer)context.getBean("cancerStudyImporter");
-		importer.importCancerStudy(cancerStudyDirectory, echoBool, forceBool);
+		importer.importCancerStudy(cancerStudyDirectory, skipBool, forceBool);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("importCancerStudy(), complete");

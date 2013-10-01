@@ -201,13 +201,14 @@ class ImporterImpl implements Importer {
 
     /**
      * Imports all cancer studies found within the given directory.
+     * If force is set, user will not be prompted to override existing cancer study.
      *
      * @param cancerStudyDirectoryName
-     * @param echo
+     * @param skip
      * @param force
      */
     @Override
-    public void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
     {
 		throw new UnsupportedOperationException();
     }

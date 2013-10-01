@@ -28,6 +28,7 @@ package org.mskcc.cbio.importer.internal;
 
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.Importer;
+import org.mskcc.cbio.importer.Validator;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
 import org.mskcc.cbio.portal.dao.*;
@@ -50,15 +51,46 @@ import java.io.*;
 import java.util.*;
 import java.lang.reflect.*;
 
-class CancerStudyImporterImpl implements Importer {
+class CancerStudyImporterImpl implements Importer, Validator {
 
     private static final String DATA_FILE_PREFIX = "data_";
     private static final String META_FILE_PREFIX = "meta_";
     private static final String CASE_LIST_DIRECTORY_NAME = "case_lists";
+    private static final String CASE_LIST_PREFIX = "cases_";
     private static final String CANCER_STUDY_FILENAME = "meta_study.txt";
     private static final String CANCER_TYPE_FILENAME = "cancer_type.txt";
-    private static final String GENETIC_ALTERATION_TYPE_PROP = "genetic_alteration_type";
 	private static final Log LOG = LogFactory.getLog(CancerStudyImporterImpl.class);
+
+    private static enum MetadataProperties
+    {
+        CANCER_STUDY_IDENTIFIER("cancer_study_identifier"),
+        GENETIC_ALTERATION_TYPE("genetic_alteration_type"),
+        DATATYPE("datatype"),
+        STABLE_ID("stable_id"),
+        //SHOW_PROFILE_IN_ANALYSIS_TAB("show_profile_in_analysis_tab"),
+        PROFILE_DESCRIPTION("profile_description"),
+        PROFILE_NAME("profile_name");
+
+        private String propertyName;
+        
+        MetadataProperties(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+    }
+
+    private static enum CaseListProperties
+    {
+        CANCER_STUDY_IDENTIFIER("cancer_study_identifier"),
+        STABLE_ID("stable_id"),
+        CASE_LIST_NAME("case_list_name"),
+        CASE_LIST_DESCRIPTION("case_list_description"),
+        CASE_LIST_CATEGORY("case_list_category"),
+        CASE_LIST_IDS("case_list_ids");
+
+        private String propertyName;
+        
+        CaseListProperties(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+    }
 
     private class CancerStudyData
     {
@@ -68,16 +100,18 @@ class CancerStudyImporterImpl implements Importer {
         private boolean requiresMetadataFile;
         private String metadataFilename;
         
-        public CancerStudyData(CancerStudy cancerStudy, String importerClassName, String requiresMetadataFile, String stagingFilename, String metadataFilename)
+        public CancerStudyData(CancerStudy cancerStudy, String importerClassName, String requiresMetadataFile, String metadataFilename, String stagingFilename)
         {
             this.cancerStudy = cancerStudy;
             this.importerClassName = importerClassName;
             this.requiresMetadataFile = Boolean.parseBoolean(requiresMetadataFile);
-            this.stagingFilename = stagingFilename;
             this.metadataFilename = metadataFilename;
+            this.stagingFilename = stagingFilename;
         }
 
         public String getImporterClassName() { return importerClassName; }
+        public String getMetadataFilename() { return metadataFilename; }
+        public String getStagingFilename() { return stagingFilename; }
 
         public String[] getImporterClassArgs()
         {
@@ -108,12 +142,12 @@ class CancerStudyImporterImpl implements Importer {
     }
 
     @Override
-    public void importCancerStudy(String cancerStudyDirectoryName, boolean echo, boolean force) throws Exception
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
     {
         for (File metaStudyFile : listFiles(cancerStudyDirectoryName, FileFilterUtils.nameFileFilter(CANCER_STUDY_FILENAME))) {
             logMessage("importCancerStudy(), found study file: " + metaStudyFile.getCanonicalPath() + ", processing...");
             try {
-                processCancerStudy(metaStudyFile, echo, force);
+                processCancerStudy(metaStudyFile, skip, force);
             }
             catch (Exception e) {
                 if (e.getMessage() != null) {
@@ -123,22 +157,56 @@ class CancerStudyImporterImpl implements Importer {
         }
     }
 
-    private void processCancerStudy(File metaStudyFile, boolean echo, boolean force) throws Exception
+    @Override
+    public boolean validateCancerStudy(String cancerStudyDirectoryName) throws Exception
+    {
+        boolean status = true;
+
+        Collection<File> metaStudyFiles = validateCancerStudyMetadata(cancerStudyDirectoryName);
+        if (metaStudyFiles.size() > 0) {
+            for (File metaStudyFile : metaStudyFiles) {
+                logMessage("Validating cancer study found in: " + metaStudyFile.getParent());
+                try {
+                    CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false); // validates metaStudyFile content
+                    status = setStatus(status, validateCancerTypeMetadata(cancerStudy, cancerStudyDirectoryName));
+                    status = setStatus(status, validateCancerStudyData(cancerStudy, cancerStudyDirectoryName));
+                    status = setStatus(status, validateCaseListData(cancerStudy, cancerStudyDirectoryName));
+                }
+                catch (Exception e) {
+                    logMessage(e.getMessage());
+                    status = setStatus(status, false);
+                }
+            }
+        }
+        else {
+            logMessage("No cancer study found in: " + cancerStudyDirectoryName);
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+
+    private void processCancerStudy(File metaStudyFile, boolean skip, boolean force) throws Exception
     {
         CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false);
-        if (continueIfStudyExists(cancerStudy, force)) {
+        if (continueIfStudyExists(cancerStudy, skip, force)) {
             String cancerStudyDirectoryName = metaStudyFile.getParent();
-            importCancerStudy(cancerStudy, cancerStudyDirectoryName, echo);  // meta file, cancer type
-            importCancerStudyData(cancerStudy, cancerStudyDirectoryName, echo);
-            importCancerStudyCaseLists(cancerStudyDirectoryName, echo);
+            if (validateCancerStudy(cancerStudyDirectoryName)) {
+                importCancerStudy(cancerStudy, cancerStudyDirectoryName);  // meta file, cancer type
+                importCancerStudyData(cancerStudy, cancerStudyDirectoryName);
+                importCancerStudyCaseLists(cancerStudyDirectoryName);
+            }
+            else {
+                logMessage("Invalid cancer study found in directory, see log file for details: " + cancerStudyDirectoryName);
+            }
         }
     }
 
-    private boolean continueIfStudyExists(CancerStudy cancerStudy, boolean force) throws Exception
+    private boolean continueIfStudyExists(CancerStudy cancerStudy, boolean skip, boolean force) throws Exception
     {
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudy.getCancerStudyStableId())) {
-            // study exists, ok to force?
-            return (force || getForceFromUser(cancerStudy));
+            if (skip) return false; // don't even ask me
+            return (force || getForceFromUser(cancerStudy));  // don't ask or ask
         }
         return true;
     }
@@ -152,49 +220,43 @@ class CancerStudyImporterImpl implements Importer {
         return (scanner.next().equals("y"));
     }
 
-    private void importCancerStudy(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
+    private void importCancerStudy(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
-        processCancerType(cancerStudy, cancerStudyDirectoryName, echo);
-        if (modifyDb(echo)) {
-            DaoCancerStudy.addCancerStudy(cancerStudy, true);
-        }
+        processCancerType(cancerStudy, cancerStudyDirectoryName);
+        DaoCancerStudy.addCancerStudy(cancerStudy, true);
     }
     
-    private void processCancerType(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
+    private void processCancerType(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
         String cancerType = cancerStudy.getTypeOfCancerId();
         logMessage("Checking for existing cancer type: " + cancerType);
         TypeOfCancer typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
         if (typeOfCancer == null) {
             logMessage("Cancer type does not exist in database, attempting to import cancer type: " + cancerType);
-            importCancerType(cancerStudyDirectoryName, echo);
+            importCancerType(cancerStudyDirectoryName);
         }
         else if (LOG.isInfoEnabled()) {
             LOG.info("Cancer type already exists in database");
         }
     }
 
-    private void importCancerType(String cancerStudyDirectoryName, boolean echo) throws Exception
+    private void importCancerType(String cancerStudyDirectoryName) throws Exception
     {
         File cancerTypeFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_TYPE_FILENAME);
         if (!cancerTypeFile.exists()) {
             throw new IllegalArgumentException("Cannot find cancer type file: " + cancerTypeFile.getCanonicalPath() + " aborting!");
         }
-        if (modifyDb(echo)) {
-            ProgressMonitor pMonitor = new ProgressMonitor();
-            pMonitor.setConsoleMode(true);
-            ImportTypesOfCancers.load(pMonitor, cancerTypeFile, false);
-        }
+        ProgressMonitor pMonitor = new ProgressMonitor();
+        pMonitor.setConsoleMode(true);
+        ImportTypesOfCancers.load(pMonitor, cancerTypeFile, false);
     }
 
-    private void importCancerStudyData(CancerStudy cancerStudy, String cancerStudyDirectoryName, boolean echo) throws Exception
+    private void importCancerStudyData(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
         for (CancerStudyData cancerStudyData : getCancerStudyData(cancerStudy, cancerStudyDirectoryName)) {
             try {
                 Method mainMethod = ClassLoader.getMethod(cancerStudyData.getImporterClassName(), "main");
-                if (modifyDb(echo)) {
-                    mainMethod.invoke(null, (Object)cancerStudyData.getImporterClassArgs());
-                }
+                mainMethod.invoke(null, (Object)cancerStudyData.getImporterClassArgs());
             }
             catch (Exception e) {
                 String message = (e instanceof InvocationTargetException) ? 
@@ -255,13 +317,10 @@ class CancerStudyImporterImpl implements Importer {
 
     private String getGeneticAlterationType(File metadataFile) throws Exception
     {
-        Properties properties = new Properties();
-        FileInputStream fis = new FileInputStream(metadataFile);
-        properties.load(fis);
-        fis.close();
-        String property = properties.getProperty(GENETIC_ALTERATION_TYPE_PROP);
+        Properties properties = getProperties(metadataFile);
+        String property = properties.getProperty(MetadataProperties.GENETIC_ALTERATION_TYPE.toString());
         if (property == null) {
-            throw new IllegalArgumentException("Cannot find " + GENETIC_ALTERATION_TYPE_PROP + 
+            throw new IllegalArgumentException("Cannot find " + MetadataProperties.GENETIC_ALTERATION_TYPE + 
                                                " in file, skipping import: " + metadataFile.getCanonicalPath());
         }
 
@@ -274,7 +333,7 @@ class CancerStudyImporterImpl implements Importer {
             return importerClassMap.get(geneticAlterationType);
         }
         else {
-            throw new IllegalArgumentException("Unknown " + GENETIC_ALTERATION_TYPE_PROP +
+            throw new IllegalArgumentException("Unknown " + MetadataProperties.GENETIC_ALTERATION_TYPE +
                                                ", skipping import: " + geneticAlterationType);
         }
     }
@@ -290,19 +349,256 @@ class CancerStudyImporterImpl implements Importer {
         }
     }
 
-    private void importCancerStudyCaseLists(String cancerStudyDirectoryName, boolean echo) throws Exception
+    private void importCancerStudyCaseLists(String cancerStudyDirectoryName) throws Exception
     {
         File caseListDirectory = FileUtils.getFile(cancerStudyDirectoryName, CASE_LIST_DIRECTORY_NAME);
         if (caseListDirectory.exists()) {
             logMessage("Importing case lists found in directory: " + caseListDirectory.getCanonicalPath());
-            if (modifyDb(echo)) {
-                String[] args = new String[] { caseListDirectory.getCanonicalPath() };
-                ImportCaseList.main(args);
-            }
+            String[] args = new String[] { caseListDirectory.getCanonicalPath() };
+            ImportCaseList.main(args);
         }
         else {
             logMessage("Cannot find case list directory, skipping case list import: " + caseListDirectory.getCanonicalPath());
         }
+    }
+
+    private Collection<File> validateCancerStudyMetadata(String cancerStudyDirectoryName) throws Exception
+    {
+        Collection<File> metaStudyFiles = listFiles(cancerStudyDirectoryName, FileFilterUtils.nameFileFilter(CANCER_STUDY_FILENAME));
+        if (metaStudyFiles.size() == 0) {
+            logMessage("No cancers study files (" + CANCER_STUDY_FILENAME + ") found: " + cancerStudyDirectoryName);
+        }
+        return metaStudyFiles;
+    }
+
+    private boolean validateCancerTypeMetadata(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
+    {
+        boolean status = true;
+
+        File cancerTypeFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_TYPE_FILENAME);
+        if (cancerTypeFile.exists()) {
+            String[] cancerTypeRecord = getCancerTypeRecord(cancerTypeFile);
+            if (cancerTypeRecord == null || cancerTypeRecord.length != 3) {
+                logMessage("Missing or corrupt record in " + CANCER_TYPE_FILENAME + ": " +
+                           cancerTypeFile.getCanonicalPath());
+                status = setStatus(status, false);
+            }
+            else {
+                String typeOfCancerId = cancerTypeRecord[0].trim();
+                if (!typeOfCancerId.equals(cancerStudy.getTypeOfCancerId())) {
+                    File cancerStudyFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_STUDY_FILENAME);
+                    logCancerTypeMismatch(cancerStudy, typeOfCancerId,
+                                          cancerTypeFile.getCanonicalPath(), cancerStudyFile.getCanonicalPath());
+                    status = setStatus(status, false);
+                }
+            }
+        }
+        else {
+            logMessage("Cannot find cancer type file: " + cancerTypeFile.getCanonicalPath());
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+
+    private boolean validateCancerStudyData(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
+    {
+        boolean status = true;
+
+        HashMap<String, String> stableIds = new HashMap<String, String>();
+        Collection<CancerStudyData> cancerStudyDataCol = getCancerStudyData(cancerStudy, cancerStudyDirectoryName);
+        if (cancerStudyDataCol.size() > 0) {
+            for (CancerStudyData cancerStudyData : cancerStudyDataCol) {
+                try {
+                    File metadataFile = FileUtils.getFile(cancerStudyData.getMetadataFilename());
+                    logMessage("Validating cancer study metadata file: " + metadataFile.getCanonicalPath());
+                    Properties properties = getProperties(metadataFile);
+                    status = setStatus(status,
+                                       validateMetadataProperties(cancerStudy, cancerStudyDirectoryName, properties, metadataFile.getCanonicalPath(), stableIds));
+                    File stagingFile = FileUtils.getFile(cancerStudyData.getStagingFilename());
+                    if (!stagingFile.exists()) {
+                        logMessage("Cannot find data file: " + stagingFile.getCanonicalPath());
+                        status = setStatus(status, false);
+                    }
+                }
+                catch (Exception e) {
+                    logMessage(e.getMessage());
+                    status = setStatus(status, false);
+                }
+            }
+        }
+        else {
+            logMessage("No cancer study data found in : " + cancerStudyDirectoryName);
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+
+    private boolean validateCaseListData(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
+    {
+        boolean status = true;
+
+        File caseListDirectory = FileUtils.getFile(cancerStudyDirectoryName, CASE_LIST_DIRECTORY_NAME);
+        if (caseListDirectory.exists()) {
+            logMessage("Validating case list files found in: " + caseListDirectory.getCanonicalPath());
+            Collection<File> caseListFiles = listFiles(cancerStudyDirectoryName, FileFilterUtils.prefixFileFilter(CASE_LIST_PREFIX));
+            if (caseListFiles.isEmpty()) {
+                logMessage("Caselist directory is empty: " + caseListDirectory.getCanonicalPath());
+                status = setStatus(status, false);
+            }
+            else {
+                HashMap<String, String> stableIds = new HashMap<String, String>();
+                for (File caseListFile : caseListFiles) {
+                    try {
+                        logMessage("Validating case list file: " + caseListFile.getCanonicalPath());
+                        Properties properties = getProperties(caseListFile);
+                        status = setStatus(status,
+                                           validateCaseListProperties(cancerStudy, cancerStudyDirectoryName, properties, caseListFile.getCanonicalPath(), stableIds));
+                    }
+                    catch (Exception e) {
+                        logMessage(e.getMessage());
+                        status = setStatus(status, false);
+                    }
+                }
+            }
+        }
+        else {
+            logMessage("Case list directory is not found: " + caseListDirectory.getCanonicalPath());
+            status = setStatus(status, false);
+        }
+        
+        return status;
+    }
+
+    private boolean validateMetadataProperties(CancerStudy cancerStudy, String cancerStudyDirectoryName,
+                                               Properties properties, String metadataFilename,
+                                               Map<String, String> stableIds) throws Exception
+    {
+        boolean status = true;
+
+        for (MetadataProperties property : MetadataProperties.values()) {
+            String propertyValue = properties.getProperty(property.toString());
+            if (propertyValue == null || propertyValue.isEmpty()) {
+                logMessage("Missing or empty property (property name, file): " +
+                           property + ", " + metadataFilename);
+                status = setStatus(status, false);
+            }
+            else if (property.equals(MetadataProperties.CANCER_STUDY_IDENTIFIER)) {
+                status = setStatus(status,
+                                   validateCancerStudyStableId(cancerStudy, cancerStudyDirectoryName,
+                                                               propertyValue, metadataFilename));
+            }
+            else if (property.equals(MetadataProperties.GENETIC_ALTERATION_TYPE)) {
+                status = setStatus(status, validateGeneticAlterationType(propertyValue));
+            }
+            else if (property.equals(MetadataProperties.STABLE_ID)) {
+                status = setStatus(status, validateStableId(cancerStudy, propertyValue, stableIds));
+            }
+        }
+
+        return status;
+    }
+
+    private boolean validateCaseListProperties(CancerStudy cancerStudy, String cancerStudyDirectoryName,
+                                               Properties properties, String caseListFilename,
+                                               Map<String, String> stableIds) throws Exception
+    {
+        boolean status = true;
+
+        for (CaseListProperties property : CaseListProperties.values()) {
+            String propertyValue = properties.getProperty(property.toString());
+            if (propertyValue == null || propertyValue.isEmpty()) {
+                logMessage("Missing or empty property (property name, file): " +
+                           property + ", " + caseListFilename);
+                status = setStatus(status, false);
+            }
+            else if (property.equals(CaseListProperties.CANCER_STUDY_IDENTIFIER)) {
+                status = setStatus(status,
+                                   validateCancerStudyStableId(cancerStudy, cancerStudyDirectoryName,
+                                                               propertyValue, caseListFilename));
+            }
+            else if (property.equals(MetadataProperties.STABLE_ID)) {
+                status = setStatus(status,
+                                   validateStableId(cancerStudy, propertyValue, stableIds));
+            }
+        }
+
+        return status;
+    }
+
+    private boolean validateCancerStudyStableId(CancerStudy cancerStudy, String cancerStudyDirectoryName,
+                                             String cancerStudyStableIdFound, String metadataFilename) throws Exception
+    {
+        boolean status = true;
+
+        String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
+        if (!cancerStudyStableIdFound.equals(cancerStudyStableId)) {
+            File cancerStudyFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_STUDY_FILENAME);
+            logCancerStudyStableIdMismatch(cancerStudy, cancerStudyStableIdFound,
+                                           cancerStudyFile.getCanonicalPath(), metadataFilename);
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+
+    private boolean validateGeneticAlterationType(String geneticAlterationType)
+    {
+        boolean status = true;
+
+        if (!importerClassMap.containsKey(geneticAlterationType)) {
+            logMessage("Unknown genetic alteration type found: " + geneticAlterationType);
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+
+    private boolean validateStableId(CancerStudy cancerStudy, String stableIdFound, Map<String,String> stableIds)
+    {
+        boolean status = true;
+
+        if (stableIds.containsKey(stableIdFound)) {
+            logMessage("Duplicate stable id: " + stableIdFound);
+            status = setStatus(status, false);
+        }
+        else {
+            stableIds.put(stableIdFound, stableIdFound);
+        }
+        if (!stableIdFound.startsWith(cancerStudy.getCancerStudyStableId())) {
+            logMessage("Stable Id should start with cancer study identifier: " + stableIdFound);
+            status = setStatus(status, false);
+        }
+
+        return status;
+    }
+                                                
+    private Properties getProperties(File file) throws Exception
+    {
+        Properties properties = new Properties();
+        FileInputStream fis = new FileInputStream(file);
+        properties.load(fis);
+        fis.close();
+        return properties;
+    }
+
+    String[] getCancerTypeRecord(File cancerTypeFile) throws Exception
+    {
+        int lineCounter = 0;
+        String[] tokens = null;
+        Scanner scanner = new Scanner(cancerTypeFile);
+        while (scanner.hasNextLine()) {
+            if (++lineCounter == 1) {
+                tokens = scanner.nextLine().split("\t", -1);
+            }
+            else {
+                logMessage("Multiple records in " + cancerTypeFile.getCanonicalPath());
+                break;
+            }
+        }
+
+        return tokens;
     }
 
     private Collection<File> listFiles(String directoryName, IOFileFilter filter) throws Exception
@@ -311,11 +607,34 @@ class CancerStudyImporterImpl implements Importer {
         return FileUtils.listFiles(directory, filter, TrueFileFilter.INSTANCE);
     }
 
-    private boolean modifyDb(boolean echo)
+    private void logCancerTypeMismatch(CancerStudy cancerStudy, String cancerTypeFound,
+                                       String cancerStudyFilename, String cancerTypeFilename)
     {
-        return (!echo);
+        logMessage("Type of cancer id mismatch:\n" + 
+                   "\t'" + cancerStudy.getTypeOfCancerId() +
+                   "' found in: " + cancerStudyFilename + "\n" +
+                   "\t'" + cancerTypeFound +
+                   "' found in: " + cancerTypeFilename);
     }
 
+    private boolean setStatus (boolean currentStatus, boolean newStatus)
+    {
+        if (newStatus == false) {
+            currentStatus = newStatus;
+        }
+        return currentStatus;
+    }
+
+    private void logCancerStudyStableIdMismatch(CancerStudy cancerStudy, String cancerStudyStableIdFound,
+                                                String cancerStudyFilename, String metadataFilename)
+    {
+        logMessage("Cancer study stable id mismatch:\n" + 
+                   "\t'" + cancerStudy.getCancerStudyStableId() +
+                   "' found in: " + cancerStudyFilename + "\n" +
+                   "\t'" + cancerStudyStableIdFound +
+                   "' found in: " + metadataFilename);
+    }
+    
     private void logMessage(String message)
     {
         if (LOG.isInfoEnabled()) {

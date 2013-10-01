@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoMutSig" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoMutSig" %>
 
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
@@ -930,12 +930,11 @@
             }
             
             var ncosmic = 0;
-            if (cosmic[i]) {
-                for(var aa in cosmic) {
-                    ncosmic += cosmic[aa];
-                    if (ncosmic>=patient_view_cosmic_threhold) {
-                        break;
-                    }
+            var cosmicI= cosmic[i];
+            if (cosmicI) {
+                var lenI = cosmicI.length;
+                for(var j=0; j<lenI && ncosmic<patient_view_cosmic_threhold; j++) {
+                    ncosmic += cosmicI[j][2];
                 }
                 if (ncosmic>=patient_view_cosmic_threhold) {
                     overview.push(true);

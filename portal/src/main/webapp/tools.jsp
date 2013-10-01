@@ -1,9 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-<% request.setAttribute(QueryBuilder.HTML_TITLE, SkinUtil.getTitle() + "::Tools"); %>
+<% request.setAttribute(QueryBuilder.HTML_TITLE, GlobalProperties.getTitle() + "::Tools"); %>
 
 <jsp:include page="WEB-INF/jsp/global/header.jsp" flush="true"/>
 

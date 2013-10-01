@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.util;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
 import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.owasp.validator.html.PolicyException;

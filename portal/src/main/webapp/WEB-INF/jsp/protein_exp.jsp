@@ -1,6 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.remote.GetProteinArrayData" %>
+<%@ page import="org.mskcc.cbio.portal.web_api.GetProteinArrayData" %>
 <%@ page import="java.util.*" %>
 <%@ page import="org.json.simple.JSONObject"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>

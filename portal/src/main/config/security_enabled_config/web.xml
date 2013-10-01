@@ -87,7 +87,7 @@
 
     <servlet>
         <servlet-name>webservice</servlet-name>
-        <servlet-class>org.mskcc.cbio.cgds.servlet.WebService</servlet-class>
+        <servlet-class>org.mskcc.cbio.portal.servlet.WebService</servlet-class>
         <init-param>
             <param-name>db_host</param-name>
             <param-value>${db.host}</param-value>

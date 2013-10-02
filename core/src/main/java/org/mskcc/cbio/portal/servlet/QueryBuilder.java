@@ -40,24 +40,23 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
 
-import org.mskcc.cbio.cgds.model.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+
+import org.mskcc.cbio.portal.model.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import org.mskcc.cbio.cgds.model.Patient;
-import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.remote.*;
 import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
-import org.mskcc.cbio.cgds.validate.gene.GeneValidator;
-import org.mskcc.cbio.cgds.validate.gene.GeneValidationException;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
-import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.portal.validate.gene.GeneValidator;
+import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.web_api.*;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.owasp.validator.html.PolicyException;
 
 /**
@@ -206,7 +205,7 @@ public class QueryBuilder extends HttpServlet {
 
             //  Get Case Sets for Selected Cancer Type
             xdebug.logMsg(this, "Using Cancer Study ID:  " + cancerTypeId);
-            ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerTypeId);
+            ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerTypeId);
             xdebug.logMsg(this, "Total Number of Case Sets:  " + caseSets.size());
             CaseList caseSet = new CaseList();
             caseSet.setName("User-defined Case List");
@@ -547,7 +546,9 @@ public class QueryBuilder extends HttpServlet {
             if (action.equals(ACTION_SUBMIT)) {
 				// is user authorized for the study
 				String cancerStudyIdentifier = (String)httpServletRequest.getAttribute(CANCER_STUDY_ID);
-				if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
+	            cancerStudyIdentifier = StringEscapeUtils.escapeJavaScript(cancerStudyIdentifier);
+
+	            if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
 													"You are not authorized to view the cancer study with id: '" +
 													cancerStudyIdentifier + "'. ");

@@ -731,9 +731,9 @@ function addMetaDataToPage() {
 
     // Chosenize the select boxes
     var minSearchableItems = 10;
-    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems });
-    $("#select_gene_set").chosen({ width: '620px'});
-    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems });
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true });
+    $("#select_gene_set").chosen({ width: '620px', search_contains: true});
+    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 }
 
 // Adds the specified genomic profiles to the page.

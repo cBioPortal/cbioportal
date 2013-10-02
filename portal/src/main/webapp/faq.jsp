@@ -1,11 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    Config globalConfig = Config.getInstance();
-    String faqHtml = globalConfig.getProperty("faq");
-    String siteTitle = SkinUtil.getTitle();
+    String faqHtml = GlobalProperties.getProperty("faq");
+    String siteTitle = GlobalProperties.getTitle();
 
     if (faqHtml == null) {
         faqHtml = "content/faq.html";

@@ -45,12 +45,14 @@ public class IGVLinking {
 	private static final String REFERENCE_GENOME_19 = "hg19";
 	private static final String TOKEN_REGEX = "<TOKEN>";
 	private static final String SEG_FILE_SUFFIX = "_scna_hg18.seg";
+    private static final String TUMOR_BAM_SIGNATURE = "-Tumor";
+    private static final String NORMAL_BAM_SIGNATURE = "-Normal";
 
 	public static String[] getIGVArgsForSegViewing(String cancerTypeId, String encodedGeneList)
 	{
 		// routine defined in igv_webstart.js
 		String segFileURL = GlobalProperties.getSegfileUrl() + cancerTypeId + SEG_FILE_SUFFIX;
-		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18 };
+		return new String[] { segFileURL, encodedGeneList, REFERENCE_GENOME_18, cancerTypeId + SEG_FILE_SUFFIX };
 	}
 
 	// returns null if exception has been thrown during processing
@@ -60,14 +62,26 @@ public class IGVLinking {
 			!IGVLinking.encryptionBinLocated()) {
 			return null;
 		}
+        
+        String trackName = caseId;
 
-		String bamFileURL = getBAMFileURL(caseId);
-		if (bamFileURL == null) return null;
+		String tumorBAMFileURL = getBAMFileURL(caseId);
+		if (tumorBAMFileURL == null) return null;
 
+        // code added to view normal alongside tumor file
+        String normalCaseId = caseId.replace(TUMOR_BAM_SIGNATURE, NORMAL_BAM_SIGNATURE);
+        if (!normalCaseId.equals(caseId)) {
+            String normalBAMFileURL = getBAMFileURL(normalCaseId);
+            if (normalBAMFileURL != null) {
+                tumorBAMFileURL  += "," + normalBAMFileURL;
+                trackName += "," + normalCaseId;
+            }
+        }
+        
 		String encodedLocus = getEncodedLocus(locus);
 		if (encodedLocus == null) return null;
 
-		return new String[] { bamFileURL, encodedLocus, REFERENCE_GENOME_19 };
+		return new String[] { tumorBAMFileURL, encodedLocus, REFERENCE_GENOME_19, trackName };
 	}
 
 	public static boolean validBAMViewingArgs(String cancerStudy, String caseId, String locus)

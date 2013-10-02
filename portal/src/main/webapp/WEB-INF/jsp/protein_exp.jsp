@@ -1,13 +1,14 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.remote.GetProteinArrayData" %>
+<%@ page import="org.mskcc.cbio.portal.web_api.GetProteinArrayData" %>
 <%@ page import="java.util.*" %>
 <%@ page import="org.json.simple.JSONObject"%>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
-    String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String case_set_id = (String)request.getParameter("case_set_id");
+    String cancerStudyId_RPPA = xssUtil.getCleanerInput(
+		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
+    String case_set_id = xssUtil.getCleanerInput(request, "case_set_id");
 %>
 <script>
     var case_set_id = "<%out.print(case_set_id);%>";

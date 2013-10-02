@@ -27,8 +27,8 @@
 package org.mskcc.cbio.portal.servlet;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;

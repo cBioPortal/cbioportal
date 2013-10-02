@@ -34,7 +34,7 @@ requirejs(  [         'Oncoprint',    'OncoprintUtils'],
             case_list: window.PortalGlobals.getCases() },
         success: function(attrs) {
             utils.populate_clinical_attr_select(document.getElementById('select_clinical_attributes'), attrs.toJSON());
-            $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px"});
+            $(select_clinical_attributes_id).chosen({width: "240px", "font-size": "12px", search_contains: true});
         }
     });
 

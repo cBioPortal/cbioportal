@@ -1,16 +1,19 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CrossCancerSummaryServlet" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="org.mskcc.cbio.portal.model.ProfileDataSummary" %>
 <%@ page import="org.mskcc.cbio.portal.util.MakeOncoPrint" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CaseList" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.CaseList" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="java.text.DecimalFormat" %>
 
 <%
-    ArrayList<GeneticProfile> geneticProfileList =
+	ServletXssUtil xssUtil = ServletXssUtil.getInstance();
+
+	ArrayList<GeneticProfile> geneticProfileList =
             (ArrayList<GeneticProfile>)
                     request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL);
     HashMap<String, GeneticProfile> defaultGeneticProfileSet =
@@ -27,7 +30,7 @@
             (CrossCancerSummaryServlet.CANCER_STUDY_DETAILS_URL);
     String oncoPrintHtml = (String) request.getAttribute(QueryBuilder.ONCO_PRINT_HTML);
     ArrayList<GeneWithScore> geneWithScoreList = dataSummary.getGeneFrequencyList();
-    String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+    String cancerStudyId = xssUtil.getCleanInput(request, QueryBuilder.CANCER_STUDY_ID);
     int fingerPrintPanelHeight = 120 + (MakeOncoPrint.CELL_HEIGHT + 2) * geneWithScoreList.size();
     DecimalFormat percentFormat = new DecimalFormat("###,###.#%");
     String percentCasesAffected = percentFormat.format(dataSummary.getPercentCasesAffected());

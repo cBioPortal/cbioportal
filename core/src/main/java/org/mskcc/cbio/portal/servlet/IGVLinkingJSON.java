@@ -29,7 +29,6 @@ package org.mskcc.cbio.portal.servlet;
 import org.json.simple.JSONObject;
 import org.mskcc.cbio.portal.util.IGVLinking;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 
 import java.io.IOException;
@@ -80,6 +79,7 @@ public class IGVLinkingJSON extends HttpServlet {
 			igvArgs.put("bamFileUrl", args[0]);
 			igvArgs.put("encodedLocus", args[1]);
 			igvArgs.put("referenceGenome", args[2]);
+            igvArgs.put("trackName", args[3]);
 		}
 
         response.setContentType("application/json");

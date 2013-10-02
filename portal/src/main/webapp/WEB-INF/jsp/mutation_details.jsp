@@ -205,6 +205,7 @@ $(document).ready(function(){
 	 */
 	var initMutationView = function(data)
 	{
+		// TODO init with MutationDataProxy
 		var model = {mutations: data,
 			sampleArray: sampleArray};
 

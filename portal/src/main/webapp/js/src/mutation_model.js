@@ -147,9 +147,9 @@ var MutationCollection = Backbone.Collection.extend({
 });
 
 /**
- * Utility class for processing a collection of mutations.
+ * Utility class for processing collection of mutations.
  *
- * @param mutations     MutationCollection (list of mutations)
+ * @param mutations     [optional] a MutationCollection instance
  * @constructor
  */
 var MutationDetailsUtil = function(mutations)
@@ -182,7 +182,7 @@ var MutationDetailsUtil = function(mutations)
 	 * This method appends given mutations to the existing ones, it does not
 	 * reset previous mutations.
 	 *
-	 * @param mutations MutationCollection (list of mutations)
+	 * @param mutations a MutationCollection instance (list of mutations)
 	 */
 	this.processMutationData = function(mutations)
 	{
@@ -486,7 +486,10 @@ var MutationDetailsUtil = function(mutations)
 	};
 
 	// init maps by processing the initial mutations
-	this.processMutationData(mutations);
+	if (mutations != null)
+	{
+		this.processMutationData(mutations);
+	}
 };
 
 /**
@@ -621,3 +624,56 @@ var PileupUtil = (function()
 	};
 })();
 
+// TODO provide a way to set the actual mutation data (either a setter or a constructor param)
+// ...if mutation data is provided beforehand, then do a full init.
+// ...if not then do a lazy init, and update the actual data for each request.
+
+/**
+ * This class is designed to retrieve mutation data on demand, but it can be also
+ * initialized with the full mutation data already retrieved from the server.
+ *
+ * @param geneList  list of target genes (genes of interest)
+ */
+var MutationDataProxy = function(geneList)
+{
+	var _mutations; // an array of JSON objects
+	var _util; // MutationDetailsUtil instance
+	var _geneList; // list of target genes as an array of strings
+
+	var _servletName; // name of the mutation data servlet
+	var _servletParams; // parameters to be sent to the mutation data servlet
+
+	// TODO init without grabbing actual data
+	function lazyInit(servletName, servletParams)
+	{
+		_servletName = servletName;
+		_servletParams = servletParams;
+	}
+
+	// TODO init with full data
+	function fullInit(mutationData)
+	{
+		_mutations = mutationData;
+	}
+
+	// TODO return list of genes with mutation data
+	function getGeneList()
+	{
+		// TODO how to find out genes with mutation data ONLY?
+		return _geneList;
+	}
+
+	/**
+	 * Returns the mutation data for the given gene.
+	 *
+	 * @param geneList      list of hugo gene symbols
+	 * @param callback  callback function to be invoked after retrieval
+	 */
+	function getMutationData(geneList, callback)
+	{
+		// TODO add gene symbols to the servlet params
+		// ...only retrieve data once per gene (cache the data)
+
+		$.post(_servletName, _servletParams, callback, "json");
+	}
+};

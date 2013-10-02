@@ -28,43 +28,42 @@
 // package
 package org.mskcc.cbio.importer;
 
-// imports
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-
 /**
- * Interface used to import portal data.
+ * Interface used to validate cancer study import.
  */
-public interface Importer {
-
-	/**
-	 * Imports data for use in the given portal.
-	 *
-     * @param portal String
-	 * @param initPortalDatabase Boolean
-	 * @param initTumorTypes Boolean
-	 * @param importReferenceData Boolean
-	 * @throws Exception
-	 */
-	void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception;
-
-	/**
-	 * Imports the given reference data.
-	 *
-     * @param referenceMetadata ReferenceMetadata
-	 * @throws Exception
-	 */
-	void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
-
+public interface Validator {
 
     /**
-     * Imports all cancer studies found within the given directory.
-     * If force is set, user will not be prompted to override existing cancer study.
-     * If cancer study exists and skip is set, new study will not be imported.
+     * Validates all cancers studies fonud within the given directory.
+     *
+     * Validates:
+     *
+     * - meta_study.txt exists and is 'valid'
+     * -- type of cancer is set
+     * -- cancer study identifier is set
+     * -- name is set
+     * -- description is set
+     *
+     * - cancer_type.txt exists and is 'valid'
+     * -- validates types of cancer id found in meta_study.txt
+     *
+     * - validates cancer study data:
+     * -- for each metadata file found:
+     * --- validates all properties are set
+     * --- validates proper cancer study id
+     * --- validates proper genetic alteration type
+     * --- validates proper stable id (prefix matches cancer study id)
+     * --- validates no duplicate stable ids
+     * --- existence of staging file
+     *
+     * - validates case list directory exists and contains case lists
+     * -- for each case list:
+     * --- validates all properties are set
+     * --- validates proper cancer study id
+     * --- validates proper stable id (prefix matches cancer study id)
+     * --- validates no duplicate stable ids
      *
      * @param cancerStudyDirectoryName
-     * @param skip
-     * @param force
-
      */
-    void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception;
+    boolean validateCancerStudy(String cancerStudyDirectoryName) throws Exception;
 }

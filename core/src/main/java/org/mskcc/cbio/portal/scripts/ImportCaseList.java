@@ -132,6 +132,9 @@ public class ImportCaseList {
                ImportCaseList.importCaseList(file, pMonitor);
             }
          }
+         if (files.length == 0) {
+             pMonitor.setCurrentMessage("No case lists found in directory, skipping import: " + dataFile.getCanonicalPath());
+         }
       } else {
          ImportCaseList.importCaseList(dataFile, pMonitor);
       }

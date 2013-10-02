@@ -45,67 +45,71 @@ import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
  */
 public class CancerStudyReader {
 
-   public static CancerStudy loadCancerStudy(File file) throws IOException, DaoException {
-      Properties properties = new Properties();
-      properties.load(new FileInputStream(file));
+    public static CancerStudy loadCancerStudy(File file) throws IOException, DaoException {
+        return loadCancerStudy(file, true, true);
+    }
 
-      String cancerStudyIdentifier = properties.getProperty("cancer_study_identifier");
-      if (cancerStudyIdentifier == null) {
-         throw new IllegalArgumentException("cancer_study_identifier is not specified.");
-      }
+    public static CancerStudy loadCancerStudy(File file, boolean strict, boolean addStudyToDb) throws IOException, DaoException {
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(file));
 
-      String name = properties.getProperty("name");
-      if (name == null) {
-         throw new IllegalArgumentException("name is not specified.");
-      }
+        CancerStudy cancerStudy = getCancerStudy(properties);
 
-      String description = properties.getProperty("description");
-      if (description == null) {
-         throw new IllegalArgumentException("description is not specified.");
-      }
+        if (strict && null==DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId())) {
+            throw new IllegalArgumentException(cancerStudy.getTypeOfCancerId()+" is not a supported cancer type.");
+        }
 
-      String typeOfCancer = properties.getProperty("type_of_cancer").toLowerCase();
-      if ( typeOfCancer == null) {
-         throw new IllegalArgumentException("type of cancer is not specified.");
-      }
-      if (null==DaoTypeOfCancer.getTypeOfCancerById(typeOfCancer)) {
-         throw new IllegalArgumentException(typeOfCancer+" is not a supported cancer type.");
-      }
+        if (addStudyToDb) {
+            DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
+        }
 
-      String pmid = properties.getProperty("pmid");
-      String citation = properties.getProperty("citation");
-      String groups = properties.getProperty("groups");
-      
-      return addCancerStudy(cancerStudyIdentifier, name, description, 
-               typeOfCancer, publicStudy( properties ), pmid, citation, groups);
-   }
+        return cancerStudy;
+    }
 
-   private static CancerStudy addCancerStudy(String cancerStudyIdentifier, String name, String description, 
-            String typeOfCancer, boolean publicStudy, String pmid, String citation, String groups)
-            throws DaoException {
-      CancerStudy cancerStudy = new CancerStudy( name, description, 
-               cancerStudyIdentifier, typeOfCancer, publicStudy );
-      cancerStudy.setPmid(pmid);
-      cancerStudy.setCitation(citation);
-      cancerStudy.setGroups(groups);
-      DaoCancerStudy.addCancerStudy(cancerStudy, true); // overwrite if exist
-      return cancerStudy;
-   }
-   
-   private static boolean publicStudy( Properties properties ) {
-      String studyAccess = properties.getProperty("study_access");
-      if ( studyAccess != null) {
-         if( studyAccess.equals("public") ){
-            return true;
-         }
-         if( studyAccess.equals("private") ){
-            return false;
-         }
-         throw new IllegalArgumentException("study_access must be either 'public' or 'private', but is " + 
-                  studyAccess );
-      }
-      // studies are public by default
-      return true;
-   }
+    private static CancerStudy getCancerStudy(Properties properties)
+    {
+        String cancerStudyIdentifier = properties.getProperty("cancer_study_identifier");
+        if (cancerStudyIdentifier == null) {
+            throw new IllegalArgumentException("cancer_study_identifier is not specified.");
+        }
 
+        String name = properties.getProperty("name");
+        if (name == null) {
+            throw new IllegalArgumentException("name is not specified.");
+        }
+
+        String description = properties.getProperty("description");
+        if (description == null) {
+            throw new IllegalArgumentException("description is not specified.");
+        }
+
+        String typeOfCancer = properties.getProperty("type_of_cancer").toLowerCase();
+        if ( typeOfCancer == null) {
+            throw new IllegalArgumentException("type of cancer is not specified.");
+        }
+
+        CancerStudy cancerStudy = new CancerStudy(name, description, cancerStudyIdentifier,
+                                                  typeOfCancer, publicStudy(properties));
+        cancerStudy.setPmid(properties.getProperty("pmid"));
+        cancerStudy.setCitation(properties.getProperty("citation"));
+        cancerStudy.setGroups(properties.getProperty("groups"));
+
+        return cancerStudy;
+    }
+
+    private static boolean publicStudy( Properties properties ) {
+        String studyAccess = properties.getProperty("study_access");
+        if ( studyAccess != null) {
+            if( studyAccess.equals("public") ){
+                return true;
+            }
+            if( studyAccess.equals("private") ){
+                return false;
+            }
+            throw new IllegalArgumentException("study_access must be either 'public' or 'private', but is " + 
+                                               studyAccess );
+        }
+        // studies are public by default
+        return true;
+    }
 }

@@ -168,9 +168,9 @@ class CancerStudyImporterImpl implements Importer, Validator {
                 logMessage("Validating cancer study found in: " + metaStudyFile.getParent());
                 try {
                     CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false); // validates metaStudyFile content
-                    status = setStatus(status, validateCancerTypeMetadata(cancerStudy, cancerStudyDirectoryName));
-                    status = setStatus(status, validateCancerStudyData(cancerStudy, cancerStudyDirectoryName));
-                    status = setStatus(status, validateCaseListData(cancerStudy, cancerStudyDirectoryName));
+                    status = setStatus(status, validateCancerTypeMetadata(cancerStudy, metaStudyFile.getParent()));
+                    status = setStatus(status, validateCancerStudyData(cancerStudy, metaStudyFile.getParent()));
+                    status = setStatus(status, validateCaseListData(cancerStudy, metaStudyFile.getParent()));
                 }
                 catch (Exception e) {
                     logMessage(e.getMessage());

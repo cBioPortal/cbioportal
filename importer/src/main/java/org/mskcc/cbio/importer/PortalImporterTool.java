@@ -61,7 +61,7 @@ public class PortalImporterTool implements Runnable {
 		// create each option
 		Option help = new Option("help", "Print this message.");
 
-        Option validateCancerStudy = (OptionBuilder.withArgName("validate")
+        Option validateCancerStudy = (OptionBuilder.withArgName("cancer_study_directory")
                                       .hasArg()
                                       .withDescription("Validates cancer studies within the given cancer study directory")
                                       .create("validate_cancer_study"));

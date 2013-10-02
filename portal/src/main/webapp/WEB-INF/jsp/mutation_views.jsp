@@ -469,9 +469,6 @@
 	 * Default mutation details view for the entire mutation details tab.
 	 * Creates a separate MainMutationView (another Backbone view) for each gene.
 	 *
-	 * TODO support passing only gene symbols (in that case mutation data will be retrieved
-	 * on demand -- upon clicking on the corresponding gene tab)
-	 *
 	 * options: {el: [target container],
 	 *           model: {mutationProxy: [mutation data proxy],
 	 *                   sampleArray: [list of case ids as an array of strings],
@@ -482,11 +479,6 @@
 	var MutationDetailsView = Backbone.View.extend({
 		render: function() {
 			var self = this;
-
-			// TODO move this init into MutationDataProxy
-			// init mutation utility
-			self.util = new MutationDetailsUtil(
-					new MutationCollection(self.model.mutations));
 
 			// init tab view flags (for each gene)
 			self.geneTabView = {};
@@ -506,7 +498,7 @@
 			// load the compiled HTML into the Backbone "el"
 			self.$el.html(template);
 
-			if (self.model.mutations.length > 0)
+			if (self.model.mutationProxy.hasData())
 			{
 				self._initDefaultView(self.model.sampleArray,
 					self.model.diagramOpts);
@@ -526,7 +518,7 @@
 			// hide loader image
 			self.$el.find("#mutation_details_loader").hide();
 
-			if (self.model.mutations.length > 0)
+			if (self.model.mutationProxy.hasData())
 			{
 				var mainContent = self.$el.find("#mutation_details_content");
 				mainContent.tabs();
@@ -567,27 +559,26 @@
 			var mainContent = "";
 			var listContent = "";
 
-			// check if there is mutation data
-			if (self.model.mutations.length == 0)
+			// check if there is available mutation data
+			if (!self.model.mutationProxy.hasData())
 			{
 				// display information if no data is available
 				mainContent = _.template($("#default_mutation_details_info_template").html(), {});
 			}
 			else
 			{
-				//TODO replace with var genes = self.model.mutationProxy.getGeneList();
 				// create a div for for each gene
-				for (var key in self.util.getMutationGeneMap())
-				{
+				//for (var key in self.util.getMutationGeneMap())
+				_.each(self.model.mutationProxy.getGeneList(), function(gene, idx) {
 					mainContent += _.template(
 						$("#default_mutation_details_main_content_template").html(),
 							{loaderImage: "images/ajax-loader.gif",
-							geneSymbol: key});
+							geneSymbol: gene});
 
 					listContent += _.template(
 						$("#default_mutation_details_list_content_template").html(),
-						{geneSymbol: key});
-				}
+						{geneSymbol: gene});
+				});
 			}
 
 			return {mainContent: mainContent,
@@ -608,14 +599,7 @@
 		{
 			var self = this;
 
-			// TODO replace with var genes = self.model.mutationProxy.getGeneList();
-			var genes = [];
-
-			// collect gene symbols for the current mutations
-			for (var key in self.util.getMutationGeneMap())
-			{
-				genes.push(key);
-			}
+			var genes = self.model.mutationProxy.getGeneList();
 
 			// init view for the first gene only
 			self._initView(genes[0], cases, diagramOpts);
@@ -645,9 +629,8 @@
 			var self = this;
 			var mutationDiagram = null;
 			var mainMutationView = null;
-
-			// TODO replace with MutationDataProxy.getMutationData
-			var mutationData = self.util.getMutationGeneMap()[gene];
+			var mutationData = null;
+			var mutationUtil = self.model.mutationProxy.getMutationUtil();
 
 			/**
 			 * Updates the mutation diagram after each change in the mutation table.
@@ -657,7 +640,7 @@
 			 */
 			var updateMutationDiagram = function(tableSelector)
 			{
-				var mutationMap = self.util.getMutationIdMap();
+				var mutationMap = mutationUtil.getMutationIdMap();
 				var currentMutations = [];
 
 				// add current mutations into an array
@@ -799,9 +782,9 @@
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
 				// calculate somatic & germline mutation rates
-				var mutationCount = self.util.countMutations(gene, cases);
+				var mutationCount = mutationUtil.countMutations(gene, cases);
 				// generate summary string for the calculated mutation count values
-				var summary = self.util.generateSummary(mutationCount);
+				var summary = mutationUtil.generateSummary(mutationCount);
 
 				// prepare data for mutation view
 				var model = {geneSymbol: gene,
@@ -835,7 +818,7 @@
 						pdbData)
 					{
 						// collection of pdb model instances
-						var pdbColl = self.util.processPdbData(gene, pdbData);
+						var pdbColl = mutationUtil.processPdbData(gene, pdbData);
 
 						// init the 3d view
 						var view3d = new Mutation3dView({
@@ -907,17 +890,23 @@
 				});
 			};
 
-			// TODO get the mutation data from the proxy, and then get sequence data...
-			// get sequence data & pdb data for the current gene & init view
-			if (self.options.mut3dVis)
-			{
-				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
-			}
-			else
-			{
-				// if no 3D visualizer is available, just skip pdb data retrieval
-				$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
-			}
+			// get mutation data for the current gene
+			self.model.mutationProxy.getMutationData(gene, function(data) {
+				// update mutation data reference
+				mutationData = data;
+
+				// get sequence data & pdb data for the current gene & init view
+				if (self.options.mut3dVis)
+				{
+					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
+				}
+				else
+				{
+					// if no 3D visualizer is available, just skip pdb data retrieval
+					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
+				}
+			});
+
 		},
 		/**
 		 * Initializes the mutation diagram view.

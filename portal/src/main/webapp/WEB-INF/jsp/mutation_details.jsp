@@ -197,33 +197,24 @@ $(document).ready(function(){
 	// TODO accessing global "samples" variable...
 	var sampleArray = samples.trim().split(/\s+/);
 
-	/**
-	 * Processes the raw mutation data returned from the servlet, and
-	 * initializes the mutation view.
-	 *
-	 * @param data  raw mutation data returned from the servlet
-	 */
-	var initMutationView = function(data)
-	{
-		// TODO init with MutationDataProxy
-		var model = {mutations: data,
-			sampleArray: sampleArray};
-
-		var defaultView = new MutationDetailsView(
-			{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
-
-		defaultView.render();
-	};
-
-	// TODO getting these params from global variables defined in visualize.jsp
-	// we should refactor/redefine these global variables in a better way
-
-	var params = {geneList: geneList,
-		geneticProfiles: geneticProfiles,
+	var servletParams = {geneticProfiles: geneticProfiles,
 		caseList: samples};
 
-	// get mutation data & init view for the current gene and case lists
-	$.post("getMutationData.json", params, initMutationView, "json");
+	var servletName = "getMutationData.json"
+
+	// init mutation data proxy with the data servlet config
+	var proxy = new MutationDataProxy(geneList);
+	proxy.initWithoutData(servletName, servletParams);
+
+	// init default mutation details view
+
+	var model = {mutationProxy: proxy,
+		sampleArray: sampleArray};
+
+	var defaultView = new MutationDetailsView(
+		{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
+
+	defaultView.render();
 });
 
 </script>

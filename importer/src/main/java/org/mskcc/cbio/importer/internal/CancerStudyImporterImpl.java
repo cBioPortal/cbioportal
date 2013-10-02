@@ -228,11 +228,10 @@ class CancerStudyImporterImpl implements Importer, Validator {
     
     private void processCancerType(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
-        String cancerType = cancerStudy.getTypeOfCancerId();
-        logMessage("Checking for existing cancer type: " + cancerType);
-        TypeOfCancer typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
+        logMessage("Checking for existing cancer type: " + cancerStudy.getTypeOfCancerId());
+        TypeOfCancer typeOfCancer = getCancerTypeRecord(cancerStudy);
         if (typeOfCancer == null) {
-            logMessage("Cancer type does not exist in database, attempting to import cancer type: " + cancerType);
+            logMessage("Cancer type does not exist in database, attempting to import cancer type...");
             importCancerType(cancerStudyDirectoryName);
         }
         else if (LOG.isInfoEnabled()) {
@@ -374,6 +373,8 @@ class CancerStudyImporterImpl implements Importer, Validator {
     private boolean validateCancerTypeMetadata(CancerStudy cancerStudy, String cancerStudyDirectoryName) throws Exception
     {
         boolean status = true;
+
+        if (getCancerTypeRecord(cancerStudy) != null) return status;
 
         File cancerTypeFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_TYPE_FILENAME);
         if (cancerTypeFile.exists()) {
@@ -581,6 +582,11 @@ class CancerStudyImporterImpl implements Importer, Validator {
         properties.load(fis);
         fis.close();
         return properties;
+    }
+
+    TypeOfCancer getCancerTypeRecord(CancerStudy cancerStudy) throws Exception
+    {
+        return DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
     }
 
     String[] getCancerTypeRecord(File cancerTypeFile) throws Exception

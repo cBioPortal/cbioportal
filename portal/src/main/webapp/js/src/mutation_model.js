@@ -638,12 +638,18 @@ var PileupUtil = (function()
  */
 var MutationDataProxy = function(geneList)
 {
-	var _util = new MutationDetailsUtil(); // MutationDetailsUtil instance
-	var _geneList = geneList.trim().split(/\s+/); // list of target genes as an array of strings
-
-	var _servletName; // name of the mutation data servlet
-	var _servletParams; // parameters to be sent to the mutation data servlet
-	var _fullInit; // flag to indicate if the initialization is full or lazy
+	// MutationDetailsUtil instance
+	var _util = new MutationDetailsUtil();
+	// list of target genes as an array of strings (in the exact input order)
+	var _unsortedGeneList = geneList.trim().split(/\s+/);
+	// alphabetically sorted list of target genes as an array of strings
+	var _geneList = geneList.trim().split(/\s+/).sort();
+	// name of the mutation data servlet
+	var _servletName;
+	// parameters to be sent to the mutation data servlet
+	var _servletParams;
+	// flag to indicate if the initialization is full or lazy
+	var _fullInit;
 
 	/**
 	 * Initializes the proxy without actually grabbing anything from the server.
@@ -680,6 +686,11 @@ var MutationDataProxy = function(geneList)
 		// we cannot remove the genes without data from the list until
 		// the corresponding gene tab is clicked.
 		return _geneList;
+	}
+
+	function getUnsortedGeneList()
+	{
+		return _unsortedGeneList;
 	}
 
 	function getMutationUtil()
@@ -761,6 +772,7 @@ var MutationDataProxy = function(geneList)
 		initWithoutData: lazyInit,
 		getMutationData: getMutationData,
 		getGeneList: getGeneList,
+		getUnsortedGeneList: getUnsortedGeneList,
 		getMutationUtil: getMutationUtil,
 		hasData: hasData
 	};

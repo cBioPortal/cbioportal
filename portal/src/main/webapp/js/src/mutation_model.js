@@ -673,10 +673,12 @@ var MutationDataProxy = function(geneList)
 		_fullInit = true;
 	}
 
-	// TODO return list of genes with mutation data
 	function getGeneList()
 	{
-		// TODO how to find out genes with mutation data ONLY?
+		// TODO lazy init: to find out genes with mutation data ONLY,
+		// we need to query the server before hand. Otherwise,
+		// we cannot remove the genes without data from the list until
+		// the corresponding gene tab is clicked.
 		return _geneList;
 	}
 

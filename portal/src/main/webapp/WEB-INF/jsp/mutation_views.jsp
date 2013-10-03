@@ -17,6 +17,12 @@
 	<br>
 </script>
 
+<script type="text/template" id="default_gene_mutation_details_info_template">
+	<p>There are no mutation details available for this gene.</p>
+	<br>
+	<br>
+</script>
+
 <script type="text/template" id="default_mutation_details_main_content_template">
 	<div id='mutation_details_{{geneSymbol}}'>
 		<img src='{{loaderImage}}'/>
@@ -895,8 +901,16 @@
 				// update mutation data reference
 				mutationData = data;
 
+				// display a message if there is no mutation data available for
+				// this gene
+				if (mutationData == null ||
+				    mutationData.length == 0)
+				{
+					self.$el.find("#mutation_details_" + gene).html(
+						_.template($("#default_gene_mutation_details_info_template").html(), {}));
+				}
 				// get sequence data & pdb data for the current gene & init view
-				if (self.options.mut3dVis)
+				else if (self.options.mut3dVis)
 				{
 					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
 				}

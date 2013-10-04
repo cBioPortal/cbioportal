@@ -39,7 +39,7 @@ def export_row(row, f):
     identity = row[13]
     identp = row[14]
 
-    print >>f, ">%s\t%s\t%s\t%i\t%i\t%i\t%i\t%f\t%f\t%f" % (pdb_id, pdb_ch, uniprot_id, pdb_res_list[pdb_from], pdb_res_list[pdb_to], uniprot_from, uniprot_to, evalue, identity, identp)
+    print >>f, ">%s\t%s\t%s\t%i\t%i\t%i\t%i\t%f\t%f\t%f\t%s\t%s\t%s" % (pdb_id, pdb_ch, uniprot_id, pdb_res_list[pdb_from], pdb_res_list[pdb_to], uniprot_from, uniprot_to, evalue, identity, identp, uniprot_align, pdb_align, midline_align)
 
     length_align = uniprot_align.__len__()
     ix_uniprot = uniprot_from
@@ -89,7 +89,7 @@ def main():
                    "where pp.msaid=mb.id and pp.pdbid=pm.pdbid and pp.chcode=pm.chain and "+
                    "pp.pdbid=pmr.pdbid and pm.molid=pmr.molid and pm.type='protein' and mb.seqID like '%_HUMAN'; ");
                    #"and pp.identp>="+identpThreshold+";")
-    print >>f, "#>pdb_id\tchain\tuniprot_id\tpdb_from\tpdb_to\tuniprot_from\tuniprot_to\tevalue\tidentity\tidentp"
+    print >>f, "#>pdb_id\tchain\tuniprot_id\tpdb_from\tpdb_to\tuniprot_from\tuniprot_to\tevalue\tidentity\tidentp\tuniprot_seq\tpdb_seq\tmidline"
     print >>f, "#pdb_id\tchain\tpdb_res\tuniprot_id\tuniprot_res\tmidline"
     for row in cursor:
         export_row(row, f)

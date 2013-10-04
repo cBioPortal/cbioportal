@@ -20,14 +20,14 @@ function MutationDiagram(geneSymbol, options, data)
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.currentData = data; // current data set (updated after each filtering)
 
-	self.highlighted = {}; // map of highlighted circles (initially empty)
+	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.inTransition = false; // indicates if the diagram is in a graphical transition
 
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
 	self.bounds = null; // bounds of the plot area
 	self.data = null;   // processed data
-	self.gCircle = null; // svg group for lollipop circles
+	self.gData = null; // svg group for lollipop data points
 	self.gLine = null;   // svg group for lollipop lines
 	self.gLabel = null;  // svg group for lollipop labels
 	self.xScale = null;  // scale function for x-axis
@@ -39,6 +39,7 @@ function MutationDiagram(geneSymbol, options, data)
 }
 
 // TODO use percent values instead of pixel values for some components?
+// TODO allow "auto" or a function as an option where applicable
 
 /**
  * Default visual options.
@@ -69,6 +70,8 @@ MutationDiagram.prototype.defaultOpts = {
 	labelYFontWeight: "normal", // font weight of y-axis label
 	minLengthX: 0,              // min value of the largest x value to show
 	minLengthY: 5,              // min value of the largest y value to show
+	maxLengthX: Infinity,       // max value of the largest x value to show (infinity: no upper value)
+	maxLengthY: Infinity,       // max value of the largest y value to show (infinity: no upper value)
 	seqFillColor: "#BABDB6",    // color of the sequence rectangle
 	seqHeight: 14,              // height of the sequence rectangle
 	seqPadding: 5,              // padding between sequence and plot area
@@ -79,15 +82,15 @@ MutationDiagram.prototype.defaultOpts = {
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
-	lollipopLabelThreshold: 2,      // y-value threshold: circles below this value won't be labeled
+	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
 	lollipopFontColor: "#2E3436",   // font color of the lollipop label
 	lollipopFontSize: "10px",       // font size of the lollipop label
 	lollipopTextAnchor: "auto",     // text anchor (alignment) for the lollipop label
-	lollipopTextPadding: 5,         // padding between the label and the circle
+	lollipopTextPadding: 8,         // padding between the label and the data point
 	lollipopTextAngle: 0,           // rotation angle for the lollipop label
 //	lollipopFillColor: "#B40000",
-	lollipopFillColor: {            // color of the lollipop circle
+	lollipopFillColor: {            // color of the lollipop data point
 		missense_mutation: "#008000",
 		nonsense_mutation: "#FF0000",
 		nonstop_mutation: "#FF0000",
@@ -99,10 +102,10 @@ MutationDiagram.prototype.defaultOpts = {
 		other: "#808080",       // all other mutation types
 		default: "#800080"      // default is used when there is a tie
 	},
-	lollipopBorderColor: "#BABDB6",
-	lollipopBorderWidth: 0.5,
-	lollipopRadius: 3,              // radius of the lollipop circles
-	lollipopHighlightRadius: 6,     // radius of the highlighted lollipop circles
+	lollipopBorderColor: "#BABDB6", // border color of the lollipop data points
+	lollipopBorderWidth: 0.5,       // border width of the lollipop data points
+	lollipopSize: 30,               // size of the lollipop data points
+	lollipopHighlightSize: 100,     // size of the highlighted lollipop data points
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
 	xAxisPadding: 10,           // padding between x-axis and the sequence
@@ -130,7 +133,7 @@ MutationDiagram.prototype.defaultOpts = {
 	/**
 	 * Default lollipop tooltip function.
 	 *
-	 * @param element   target svg element (lollipop circle)
+	 * @param element   target svg element (lollipop data point)
 	 * @param pileup    a pileup model instance
 	 */
 	lollipopTipFn: function (element, pileup) {
@@ -375,8 +378,10 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var self = this;
 	var sequenceLength = parseInt(data.sequence["length"]);
 
-	var xMax = Math.max(sequenceLength, options.minLengthX);
-	var yMax = Math.max(self.calcMaxCount(data.pileups), options.minLengthY);
+	var xMax = Math.min(options.maxLengthX,
+			Math.max(sequenceLength, options.minLengthX));
+	var yMax = Math.min(options.maxLengthY,
+			Math.max(self.calcMaxCount(data.pileups), options.minLengthY));
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
 	var seqTooltip = data.sequence.metadata.identifier + ", " +
@@ -423,7 +428,7 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 		.attr('y', bounds.y - bounds.height)
 		.attr('width', bounds.width)
 		.attr('height', bounds.height)
-		.attr('class', 'background');
+		.attr('class', 'mut-dia-background');
 
 	// draw the plot area content
 	self.drawPlot(svg,
@@ -446,7 +451,7 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 };
 
 /**
- * Draw lollipop lines, circles and labels on the plot area
+ * Draw lollipop lines, data points and labels on the plot area
  * for the provided mutations (pileups).
  *
  * @param svg       svg container for the diagram
@@ -469,7 +474,7 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
 		self.gLabel = gText;
 	}
 
-	// group for lollipop lines (lines should be drawn before circles)
+	// group for lollipop lines (lines should be drawn before the data point)
 	var gLine = self.gLine;
 	if (gLine === null)
 	{
@@ -477,18 +482,18 @@ MutationDiagram.prototype.drawPlot = function(svg, pileups, options, bounds, xSc
 		self.gLine = gLine;
 	}
 
-	// group for lollipop circles (circles should be drawn later)
-	var gCircle = self.gCircle;
-	if (gCircle === null)
+	// group for lollipop data points (points should be drawn later)
+	var gData = self.gData;
+	if (gData === null)
 	{
-		gCircle = svg.append("g").attr("class", "mut-dia-lollipop-circles");
-		self.gCircle = gCircle;
+		gData = svg.append("g").attr("class", "mut-dia-lollipop-points");
+		self.gData = gData;
 	}
 
-	// draw lollipop lines and circles
+	// draw lollipop lines and data points
 	for (var i = 0; i < pileups.length; i++)
 	{
-		self.drawLollipop(gCircle,
+		self.drawLollipop(gData,
 				gLine,
 				pileups[i],
 				options,
@@ -816,10 +821,10 @@ MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, font
 };
 
 /**
- * Draws the lollipop circle and its line (from sequence to the lollipop circle)
+ * Draws the lollipop data point and its line (from sequence to the lollipop top)
  * on the plot area.
  *
- * @param circles   circle group (svg element) to append the lollipop circle
+ * @param points    group (svg element) to append the lollipop data point
  * @param lines     line group (svg element) to append the lollipop lines
  * @param pileup    list (array) of mutations (pileup) at a specific location
  * @param options   general options object
@@ -827,11 +832,14 @@ MutationDiagram.prototype.formatAxis = function(axisSelector, stroke, font, font
  *                  x, y is the actual position of the origin
  * @param xScale    scale function for the x-axis
  * @param yScale    scale function for the y-axis
- * @return {object} lollipop circle & line as svg elements
+ * @return {object} lollipop data point & line as svg elements
  */
-MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, options, bounds, xScale, yScale)
+MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, options, bounds, xScale, yScale)
 {
 	var self = this;
+
+	// default data point type is circle
+	var type = "circle";
 
 	var count = pileup.count;
 	var start = pileup.location;
@@ -839,19 +847,28 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 	var x = xScale(start);
 	var y = yScale(count);
 
-	var circle = circles.append('circle')
-		.attr('cx', x)
-		.attr('cy', y)
-		.attr('r', options.lollipopRadius)
+	// check if y-value (count) is out of the range
+	if (count > options.maxLengthY)
+	{
+		// set a different shape for out-of-the-range values
+		type = "triangle-up";
+		// set y to the max value
+		y = yScale(options.maxLengthY);
+	}
+
+	var dataPoint = points.append('path')
+		.attr('d', d3.svg.symbol().size(options.lollipopSize).type(type))
+		.attr("transform", "translate(" + x + "," + y + ")")
 		.attr('fill', self.getLollipopFillColor(options, pileup))
 		.attr('stroke', options.lollipopBorderColor)
-		.attr('stroke-width', options.lollipopBorderWidth);
+		.attr('stroke-width', options.lollipopBorderWidth)
+		.attr('class', 'mut-dia-data-point');
 
-	// bind pileup data with the lollipop circle
-	circle.datum(pileup);
+	// bind pileup data with the lollipop data point
+	dataPoint.datum(pileup);
 
 	var addTooltip = options.lollipopTipFn;
-	addTooltip(circle, pileup);
+	addTooltip(dataPoint, pileup);
 
 	var line = lines.append('line')
 		.attr('x1', x)
@@ -859,13 +876,41 @@ MutationDiagram.prototype.drawLollipop = function (circles, lines, pileup, optio
 		.attr('x2', x)
 		.attr('y2', self.calcSequenceBounds(bounds, options).y)
 		.attr('stroke', options.lollipopStrokeColor)
-		.attr('stroke-width', options.lollipopStrokeWidth);
+		.attr('stroke-width', options.lollipopStrokeWidth)
+		.attr('class', 'mut-dia-data-line');
 
-	return {"circle": circle, "line": line};
+	return {"dataPoint": dataPoint, "line": line};
 };
 
 /**
- * Returns the fill color of the lollipop circle for the given pileup
+ * Returns the shape (type) function to determine the shape of a
+ * data point in the diagram. This implementation is required in order
+ * to access "options" class member within the returned function.
+ *
+ * @return {Function}   shape function (for d3 symbol type)
+ */
+MutationDiagram.prototype.getLollipopShapeFn = function()
+{
+	var self = this;
+
+	// actual function to use with d3.symbol.type(...)
+	var shapeFunction = function(datum)
+	{
+		var type = "circle";
+
+		if (datum.count > self.options.maxLengthY)
+		{
+			type = "triangle-up";
+		}
+
+		return type;
+	};
+
+	return shapeFunction;
+};
+
+/**
+ * Returns the fill color of the lollipop data point for the given pileup
  * of mutations.
  *
  * @param options   general options object
@@ -927,7 +972,7 @@ MutationDiagram.prototype.getLollipopFillColor = function(options, pileup)
 };
 
 /**
- * Put labels over the lollipop circles. The number of labels to be displayed is defined
+ * Put labels over the lollipop data points. The number of labels to be displayed is defined
  * by options.lollipopLabelCount.
  *
  * @param labels        text group (svg element) for labels
@@ -1006,8 +1051,8 @@ MutationDiagram.prototype.drawLollipopLabels = function (labels, pileups, option
 		}
 
 		var x = xScale(pileups[i].location);
-		var y = yScale(pileups[i].count) -
-		        (options.lollipopTextPadding + options.lollipopRadius);
+		var y = yScale(Math.min(pileups[i].count, options.maxLengthY)) -
+		        (options.lollipopTextPadding);
 
 		// init text
 		var text = labels.append('text')
@@ -1160,7 +1205,8 @@ MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 		.attr('x', seqBounds.x)
 		.attr('y', seqBounds.y)
 		.attr('width', seqBounds.width)
-		.attr('height', seqBounds.height);
+		.attr('height', seqBounds.height)
+		.attr('class', 'mut-dia-sequence');
 };
 
 /**
@@ -1237,12 +1283,12 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// select all plot area elements
 	var labels = self.gLabel.selectAll("text");
 	var lines = self.gLine.selectAll("line");
-	var circles = self.gCircle.selectAll("circle");
+	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
 	// remove all plot elements (no animation)
 	labels.remove();
 	lines.remove();
-	circles.remove();
+	dataPoints.remove();
 
 	// alternative animated version:
 	// fade out and then remove all
@@ -1260,7 +1306,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 //			$(this).remove();
 //		});
 //
-//	circles.transition()
+//	points.transition()
 //		.style("opacity", 0)
 //		.duration(1000)
 //		.each("end", function() {
@@ -1338,8 +1384,6 @@ MutationDiagram.prototype.addListener = function(selector, event, handler)
 {
 	var self = this;
 
-	// TODO define string constants for selectors?
-
 	self.svg.selectAll(selector).on(event, handler);
 
 	// save the listener for future reference
@@ -1373,11 +1417,11 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 };
 
 /**
- * Checks whether a diagram circle is highlighted or not.
+ * Checks whether a diagram data point is highlighted or not.
  * If no selector provided, then checks if the there is
- * at least one highlighted circle.
+ * at least one highlighted data point.
  *
- * @param selector  [optional] selector for a specific circle element
+ * @param selector  [optional] selector for a specific data point element
  * @return {boolean} true if highlighted, false otherwise
  */
 MutationDiagram.prototype.isHighlighted = function(selector)
@@ -1391,85 +1435,90 @@ MutationDiagram.prototype.isHighlighted = function(selector)
 	}
 	else
 	{
-		var circle = d3.select(selector);
-		var location = circle.datum().location;
+		var element = d3.select(selector);
+		var location = element.datum().location;
 
 		if (self.highlighted[location] != undefined)
 		{
 			highlighted = true;
 		}
-
-		// alternative check with graphical attributes...
-		// assuming regular radius and highlight radius are not the same
-		// highlighted = (circle.attr("r") == self.options.lollipopHighlightRadius)
 	}
 
 	return highlighted;
 };
 
 /**
- * Resets all highlighted circles back to their original state.
+ * Resets all highlighted data points back to their original state.
  */
 MutationDiagram.prototype.clearHighlights = function()
 {
 	var self = this;
-	var circles = self.gCircle.selectAll("circle");
+	var dataPoints = self.gData.selectAll(".mut-dia-data-point");
 
-	circles.attr("r", self.options.lollipopRadius);
+	// TODO see if it is possible to update ONLY size, not the whole 'd' attr
+	dataPoints.attr("d", d3.svg.symbol()
+		.size(self.options.lollipopSize)
+		.type(self.getLollipopShapeFn()));
 	self.highlighted = {};
 };
 
 /**
- * Highlights a single circle. This function assumes that the provided
- * selector is a selector for one of the SVG circle elements on the
+ * Highlights a single data point. This function assumes that the provided
+ * selector is a selector for one of the SVG data point elements on the
  * diagram.
  *
- * @param selector  selector for a specific circle element
+ * @param selector  selector for a specific data point element
  */
 MutationDiagram.prototype.highlight = function(selector)
 {
 	var self = this;
-	var circle = d3.select(selector);
+	var element = d3.select(selector);
 
 	self.inTransition = true;
 
-	circle.transition()
+	element.transition()
 		.ease("elastic")
 		.duration(600)
-		.attr("r", self.options.lollipopHighlightRadius)
+		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
+		.attr("d", d3.svg.symbol()
+			.size(self.options.lollipopHighlightSize)
+			.type(self.getLollipopShapeFn()))
 		.each("end", function() {
 			self.inTransition = false;
 		});
 
-	// add circle to the map
-	var location = circle.datum().location;
-	self.highlighted[location] = circle;
+	// add data point to the map
+	var location = element.datum().location;
+	self.highlighted[location] = element;
 };
 
 /**
- * Removes highlight of a single circle. This function assumes that the provided
- * selector is a selector for one of the SVG circle elements on the
- * diagram.
+ * Removes highlight of a single data point. This function assumes that
+ * the provided selector is a selector for one of the SVG data point
+ * elements on the diagram.
  *
- * @param selector  selector for a specific circle element
+ * @param selector  selector for a specific data point element
  */
 MutationDiagram.prototype.removeHighlight = function(selector)
 {
 	var self = this;
-	var circle = d3.select(selector);
+	var element = d3.select(selector);
 
 	self.inTransition = true;
 
-	circle.transition()
+	element.transition()
 		.ease("elastic")
 		.duration(600)
-		.attr("r", self.options.lollipopRadius)
+		// TODO see if it is possible to update ONLY size, not the whole 'd' attr
+		.attr("d", d3.svg.symbol()
+			.size(self.options.lollipopSize)
+			.type(self.getLollipopShapeFn()))
 		.each("end", function() {
 			self.inTransition = false;
 		});
 
-	// remove circle from the map
-	var location = circle.datum().location;
+	// remove data point from the map
+	var location = element.datum().location;
 	delete self.highlighted[location];
 };
 

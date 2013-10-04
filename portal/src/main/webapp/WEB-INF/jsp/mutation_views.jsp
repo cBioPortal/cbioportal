@@ -692,17 +692,17 @@
 			 */
 			var addPlotListeners = function(diagram, tableView)
 			{
-				diagram.addListener("circle", "mouseout", function() {
+				diagram.addListener(".mut-dia-data-point", "mouseout", function() {
 					// remove all highlights
 					tableView.clearHighlights();
 				});
 
-				diagram.addListener("circle", "mouseover", function(datum, index) {
+				diagram.addListener(".mut-dia-data-point", "mouseover", function(datum, index) {
 					// highlight mutations for the provided mutations
 					tableView.highlight(datum.mutations);
 				});
 
-				diagram.addListener("circle", "click", function(datum, index) {
+				diagram.addListener(".mut-dia-data-point", "click", function(datum, index) {
 					// just ignore the action if the diagram is already in a graphical transition.
 					// this is to prevent inconsistency due to fast clicks on the diagram.
 					if (diagram.isInTransition())
@@ -732,7 +732,7 @@
 					else
 					{
 						// remove all table & diagram highlights
-						diagram.clearHighlights('circle');
+						diagram.clearHighlights();
 						tableView.clearHighlights();
 
 						// highlight the target circle on the diagram
@@ -747,7 +747,7 @@
 				});
 
 				// add listener to the diagram background to remove highlights
-				diagram.addListener(".background", "click", function(datum, index) {
+				diagram.addListener(".mut-dia-background", "click", function(datum, index) {
 					// just ignore the action if the diagram is already in a graphical transition.
 					// this is to prevent inconsistency due to fast clicks on the diagram.
 					if (diagram.isInTransition())

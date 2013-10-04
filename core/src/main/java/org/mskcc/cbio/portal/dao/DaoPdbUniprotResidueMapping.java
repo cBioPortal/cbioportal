@@ -40,37 +40,42 @@ import java.util.*;
 public final class DaoPdbUniprotResidueMapping {
     private DaoPdbUniprotResidueMapping() {}
     
-    public static int addPdbUniprotResidueMapping(String pdbId, String chain,
-            int pdbPos, String uniprotId, int uniprotPos) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        if (MySQLbulkLoader.isBulkLoad()) {
-            //  write to the temp file maintained by the MySQLbulkLoader
-            MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(pdbId, chain, Integer.toString(pdbPos),
-                    uniprotId, Integer.toString(uniprotPos));
-
-            // return 1 because normal insert will return 1 if no error occurs
-            return 1;
-        } else {
-            try {
-                con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
-                pstmt = con.prepareStatement("INSERT INTO pdb_uniprot_residue_mapping " +
-                        "( `PDB_ID`, `CHAIN`, `PDB_POSITION`, `UNIPROT_ID`, `UNIPROT_POSITION`)"
-                        + " VALUES (?,?,?,?,?)");
-                pstmt.setString(1, pdbId);
-                pstmt.setString(2, chain);
-                pstmt.setInt(3, pdbPos);
-                pstmt.setString(4, uniprotId);
-                pstmt.setInt(5, uniprotPos);
-                int rows = pstmt.executeUpdate();
-                return rows;
-            } catch (SQLException e) {
-                throw new DaoException(e);
-            } finally {
-                JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
-            }
+    public static int addPdbUniprotAlignment(int alignId, String pdbId, String chain,
+            String uniprotId, int pdbFrom, int pdbTo, int uniprotFrom, int uniprotTo,
+            double evalue, double identity, double identp) {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new IllegalStateException("only bulk load is supported");
         }
+        
+        MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_alignment").insertRecord(
+                Integer.toString(alignId),
+                pdbId,
+                chain,
+                uniprotId,
+                Integer.toString(pdbFrom),
+                Integer.toString(pdbTo),
+                Integer.toString(uniprotFrom),
+                Integer.toString(uniprotTo),
+                Double.toString(evalue),
+                Double.toString(identity),
+                Double.toString(identp));
+        return 1;
+    }
+    
+    public static int addPdbUniprotResidueMapping(int alignId, int pdbPos, int uniprotPos,
+            char match) throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new IllegalStateException("only bulk load is supported");
+        }
+        //  write to the temp file maintained by the MySQLbulkLoader
+        MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(
+                Integer.toString(alignId),
+                Integer.toString(pdbPos),
+                Integer.toString(uniprotPos),
+                Character.toString(match));
+
+        // return 1 because normal insert will return 1 if no error occurs
+        return 1;
     }
     
     /**

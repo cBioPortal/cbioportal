@@ -56,16 +56,35 @@ public final class ImportPdbUniprotResidueMapping {
         FileReader reader = new FileReader(mappingFile);
         BufferedReader buf = new BufferedReader(reader);
         String line = buf.readLine();
+        int alignId = 0;
         while (line != null) {
             if (pMonitor != null) {
                 pMonitor.incrementCurValue();
                 ConsoleUtil.showProgress(pMonitor);
             }
             if (!line.startsWith("#")) {
-                String parts[] = line.split("\t");
-
-                DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(parts[0], parts[1],
-                        Integer.parseInt(parts[2]), parts[3], Integer.parseInt(parts[4]));
+                String parts[] = line.split("\t",-1);
+                if (line.startsWith(">")) {
+                    // alignment line, eg. >1a37   A       1433B_HUMAN     1       32      3       34      0.000000        29.000000       90.625000       MDKSELVQKAKLAEQAERYDDMAAAMKAVTEQ        MDKNELVQKAKLAEQAERYDDMAACMKSVTEQ        MDK+ELVQKAKLAEQAERYDDMAA MK+VTEQ
+                    alignId++;
+                    String pdbId = parts[0].substring(0);
+                    String chain = parts[1];
+                    String uniprotId = parts[2];
+                    int pdbFrom = Integer.parseInt(parts[3]);
+                    int pdbTo = Integer.parseInt(parts[4]);
+                    int uniprotFrom = Integer.parseInt(parts[5]);
+                    int uniprotTo = Integer.parseInt(parts[6]);
+                    double evalue = Double.parseDouble(parts[7]);
+                    double identity = Double.parseDouble(parts[8]);
+                    double identp = Double.parseDouble(parts[9]);
+                    DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(alignId, pdbId, chain, uniprotId, pdbFrom, pdbTo, uniprotFrom, uniprotTo, evalue, identity, identp);
+                } else {
+                    // residue mapping line, e.g. 1a37    A       M1      1433B_HUMAN     M3      M
+                    int pdbPos = Integer.parseInt(parts[2].substring(1));
+                    int uniprotPos = Integer.parseInt(parts[4].substring(1));
+                    char match = parts[5].length()==0 ? ' ' : parts[5].charAt(0);
+                    DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(alignId, pdbPos, uniprotPos, match);
+                }
 
             }
             line = buf.readLine();

@@ -172,21 +172,6 @@
         return alterationResults;
     }
 
-    function loadSVG(divName) {
-        var shiftValueOnX = 8;
-        var shiftValueOnY = 3;
-        var mySVG = d3.select("#" + divName);
-        var xAxisGrp = mySVG.select(".rppa-plots-x-axis-class");
-        var yAxisGrp = mySVG.select(".rppa-plots-y-axis-class");
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-        var docSVG = document.getElementById(divName);
-        var svgDoc = docSVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-        return xmlString;
-    }
-
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
         var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',

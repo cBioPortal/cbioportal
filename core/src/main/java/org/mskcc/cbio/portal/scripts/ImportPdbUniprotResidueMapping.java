@@ -67,7 +67,7 @@ public final class ImportPdbUniprotResidueMapping {
                 if (line.startsWith(">")) {
                     // alignment line, eg. >1a37   A       1433B_HUMAN     1       32      3       34      0.000000        29.000000       90.625000       MDKSELVQKAKLAEQAERYDDMAAAMKAVTEQ        MDKNELVQKAKLAEQAERYDDMAACMKSVTEQ        MDK+ELVQKAKLAEQAERYDDMAA MK+VTEQ
                     alignId++;
-                    String pdbId = parts[0].substring(0);
+                    String pdbId = parts[0].substring(1);
                     String chain = parts[1];
                     String uniprotId = parts[2];
                     int pdbFrom = Integer.parseInt(parts[3]);

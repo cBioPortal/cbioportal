@@ -574,7 +574,6 @@
 			else
 			{
 				// create a div for for each gene
-				//for (var key in self.util.getMutationGeneMap())
 				_.each(self.model.mutationProxy.getGeneList(), function(gene, idx) {
 					mainContent += _.template(
 						$("#default_mutation_details_main_content_template").html(),
@@ -870,7 +869,7 @@
 				var sequence = sequenceData[0];
 
 				// get protein positions for current mutations
-				var positions = self.util.getProteinPositions(gene);
+				var positions = mutationUtil.getProteinPositions(gene);
 
 				var positionData = [];
 

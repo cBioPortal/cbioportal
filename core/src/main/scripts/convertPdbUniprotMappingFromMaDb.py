@@ -45,12 +45,12 @@ def export_row(row, f):
     ix_uniprot = uniprot_from
     ix_pdb = pdb_from
     for i in range(length_align):
+        if uniprot_align[i] != '-' && pdb_align[i] != '-':
+            print >>f, "%s\t%s\t%s%i\t%s\t%s%i\t%s" % (pdb_id, pdb_ch, pdb_align[i], pdb_res_list[ix_pdb], uniprot_id, uniprot_align[i], ix_uniprot, midline_align[i])
         if uniprot_align[i] != '-':
             ix_uniprot = ix_uniprot + 1
-        elif pdb_align[i] != '-':
+        if pdb_align[i] != '-':
             ix_pdb = ix_pdb + 1
-        else:
-            print >>f, "%s\t%s\t%s%i\t%s\t%s%i\t%s" % (pdb_id, pdb_ch, pdb_align[i], pdb_res_list[ix_pdb], uniprot_id, uniprot_align[i], ix_uniprot, midline_align[i])
         
 def main():
 

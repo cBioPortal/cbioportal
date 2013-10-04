@@ -27,25 +27,31 @@ def export_row(row, f):
     pdb_ch = row[1]
     uniprot_id = row[2]
     mbegin = row[3]
-    pdb_res_map = row[4]
+    pdb_res_list = range_to_list(row[4])
     uniprot_align = row[5]
     pdb_align = row[6]
-    uniprot_from = row[7]
-    pdb_from = row[8]
+    midline_align = row[7]
+    uniprot_from = row[8] + mbegin - 1
+    pdb_from = row[9] - 1
+    uniprot_to = row[10] + mbegin - 1
+    pdb_to = row[11] - 1
+    evalue = row[12]
+    identity = row[13]
+    identp = row[14]
+
+    print >>f, ">%s\t%s\t%s\t%i\t%i\t%i\t%i\t%f\t%f\t%f" % (pdb_id, pdb_ch, uniprot_id, pdb_res_list[pdb_from], pdb_res_list[pdb_to], uniprot_from, uniprot_to, evalue, identity, identp)
 
     length_align = uniprot_align.__len__()
-    ix_uniprot = mbegin + uniprot_from -1
+    ix_uniprot = uniprot_from
     ix_pdb = pdb_from
     for i in range(length_align):
-        if uniprot_align[i] == pdb_align[i]:
-            print >>f, "%s\t%s\t%i\t%s\t%i" % (pdb_id, pdb_ch, range_to_list(pdb_res_map)[ix_pdb-1], uniprot_id, ix_uniprot)
         if uniprot_align[i] != '-':
             ix_uniprot = ix_uniprot + 1
-        if pdb_align[i] != '-':
+        elif pdb_align[i] != '-':
             ix_pdb = ix_pdb + 1
-    
-    #print >>f, "%s\t%s\t%i\t%s\t%i" % (row[0], row[1], range_to_list(row[5])[row[2]-1], row[3], row[4])
-    
+        else:
+            print >>f, "%s\t%s\t%s%i\t%s\t%s%i\t%s" % (pdb_id, pdb_ch, pdb_align[i], pdb_res_list[ix_pdb], uniprot_id, uniprot_align[i], ix_uniprot, midline_align[i])
+        
 def main():
 
     # parse command line options
@@ -72,21 +78,24 @@ def main():
             db = a
         elif o == '--output':
             output = a
-    identpThreshold = '90'
+    #identpThreshold = '90'
         
-    f = open(output, 'w')
     db = MySQLdb.connect(host,user,passwd,db)
+
+    f = open(output, 'w')
     cursor = db.cursor()
-    cursor.execute("select distinct pp.pdbid, pp.chcode, mb.seqID, mb.mbegin, pmr.res, pp.query, pp.hit, pp.qfrom, pp.hfrom "+
+    cursor.execute("select distinct pp.pdbid, pp.chcode, mb.seqID, mb.mbegin, pmr.res, pp.query, pp.hit, pp.midline, pp.qfrom, pp.hfrom, pp.qto, pp.hto, pp.evalue, pp.identity, pp.identp "+
                    "from pdb_prot pp, msa_built mb, pdb_mol pm, pdb_molr pmr "+
                    "where pp.msaid=mb.id and pp.pdbid=pm.pdbid and pp.chcode=pm.chain and "+
-                   "pp.pdbid=pmr.pdbid and pm.molid=pmr.molid and pm.type='protein' and mb.seqID like '%_HUMAN' "+
-                   "and pp.identp>="+identpThreshold+";")
-    print >>f, "#pdb_id\tchain\tpdb_res\tuniprot_id\tuniprot_res"
+                   "pp.pdbid=pmr.pdbid and pm.molid=pmr.molid and pm.type='protein' and mb.seqID like '%_HUMAN'; ");
+                   #"and pp.identp>="+identpThreshold+";")
+    print >>f, "#>pdb_id\tchain\tuniprot_id\tpdb_from\tpdb_to\tuniprot_from\tuniprot_to\tevalue\tidentity\tidentp"
+    print >>f, "#pdb_id\tchain\tpdb_res\tuniprot_id\tuniprot_res\tmidline"
     for row in cursor:
         export_row(row, f)
-    db.close()
     f.close()
+
+    db.close()
 
 if __name__ == '__main__':
     main()

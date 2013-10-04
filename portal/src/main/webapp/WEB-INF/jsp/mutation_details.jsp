@@ -200,7 +200,7 @@ $(document).ready(function(){
 	var servletParams = {geneticProfiles: geneticProfiles,
 		caseList: samples};
 
-	var servletName = "getMutationData.json"
+	var servletName = "getMutationData.json";
 
 	// init mutation data proxy with the data servlet config
 	var proxy = new MutationDataProxy(geneList);

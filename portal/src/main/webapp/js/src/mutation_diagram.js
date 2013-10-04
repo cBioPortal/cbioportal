@@ -39,6 +39,7 @@ function MutationDiagram(geneSymbol, options, data)
 }
 
 // TODO use percent values instead of pixel values for some components?
+// TODO allow "auto" or a function as an option where applicable
 
 /**
  * Default visual options.
@@ -846,10 +847,12 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	var x = xScale(start);
 	var y = yScale(count);
 
-	// TODO if y-value (count) is out of range, set y to the max value and add a different shape
+	// check if y-value (count) is out of the range
 	if (count > options.maxLengthY)
 	{
+		// set a different shape for out-of-the-range values
 		type = "triangle-up";
+		// set y to the max value
 		y = yScale(options.maxLengthY);
 	}
 

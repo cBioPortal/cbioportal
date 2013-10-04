@@ -1569,14 +1569,14 @@ var PlotsView = (function () {
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='correlation_plots-" + userSelection.gene + ".pdf'>" +
+                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
             var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' name='filename' value='correlation_plots-" + userSelection.gene + ".pdf'>" +
+                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".svg'>" +
                 "<input type='submit' value='SVG'></form>";
             $('#view_title').append(svgConverterForm);
         }

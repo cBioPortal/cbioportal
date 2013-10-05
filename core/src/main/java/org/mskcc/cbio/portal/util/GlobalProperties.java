@@ -83,9 +83,10 @@ public class GlobalProperties {
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_IFRAME_URL = "digitalslidearchive.iframe.url";
     public static final String PATIENT_VIEW_DIGITAL_SLIDE_META_URL = "digitalslidearchive.meta.url";
     public static final String PATIENT_VIEW_TCGA_PATH_REPORT_URL = "tcga_path_report.url";
+    
+    public static final String TEMPORARY_DIR = "temporary_dir";
 
-
-	private static Log LOG = LogFactory.getLog(GlobalProperties.class);
+    private static Log LOG = LogFactory.getLog(GlobalProperties.class);
     private static Properties properties = initializeProperties();
     private static Properties initializeProperties()
     {
@@ -338,5 +339,10 @@ public class GlobalProperties {
     {
         String url = GlobalProperties.getProperty(PATIENT_VIEW_TCGA_PATH_REPORT_URL);
         return (url==null) ? null : url.replace("{cancer.type}", typeOfCancer);
+    }
+    
+    public static String getTemporaryDir() {
+        String tmp = GlobalProperties.getProperty(TEMPORARY_DIR);
+        return tmp == null ? "/tmp" : tmp;
     }
 }

@@ -863,7 +863,11 @@ public class MafUtil
 	 */
 	public static String generateKey(MafRecord record)
 	{
-		String chr = record.getChr();
+		// According to the MAF specification a chromosome number
+		// should not have "chr" prefix. But this is not the case in practice,
+		// so get rid of the starting "chr".
+		String chr = record.getChr().replaceAll("chr", "");
+
 		Long start = record.getStartPosition();
 		Long end = record.getEndPosition();
 		String refAllele = record.getReferenceAllele();

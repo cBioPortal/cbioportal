@@ -491,7 +491,7 @@ define("Oncoprint",
                         }
                     };
 
-                    // takes an oncoprint object and returns a seralized string
+                    // takes an oncoprint object and returns a serialized string
                     //
                     // *signature:* `undefined -> string`
                     var getPdfInput = function() {

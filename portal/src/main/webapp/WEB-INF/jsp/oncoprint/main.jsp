@@ -7,9 +7,9 @@
 
         <span>
             <form id="pdf-form" style="display:inline;" action="svgtopdf.do" method="post">
-
                 <input type="hidden" name="svgelement">
                 <input type="hidden" name="filetype" value="pdf">
+                <input type="hidden" name="filename" value="oncoprint.pdf">
                 <input type="submit" value="PDF">
             </form>
 

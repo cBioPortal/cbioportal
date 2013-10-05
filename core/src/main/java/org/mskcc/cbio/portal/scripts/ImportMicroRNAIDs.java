@@ -74,6 +74,7 @@ public class ImportMicroRNAIDs {
                 }
                 
                 CanonicalGene mirna = new CanonicalGene(geneSymbol,aliases);
+                mirna.setType(CanonicalGene.MIRNA_TYPE);
                 mirnas.add(mirna);
             }
         }

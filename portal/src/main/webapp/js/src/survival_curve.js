@@ -25,15 +25,18 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
-/******************************************************************************************
+/****************************************************************************************************
  * Creating overall survival and disease free curves for the survival tab
  * @author Yichao Sun
  * @date Sep 2013
  *
  * This code performs the following functions:
  * 1. Calculate the survival rates for each time point using kaplan-meier estimator
- * 2. Generate the curves using d3 line charts
- ******************************************************************************************/
+ * 2. Generate the curves using d3 line charts w/ mouse over for each time point
+ * 3. Display basic information of main query: gene set, nubmer of cases
+ * 4. Calculate interested values from the curve: p-value(log-rank test), median, 0.95lcl, 0.95ucl
+ *
+ ****************************************************************************************************/
 
 var survivalCurves = (function() {
 

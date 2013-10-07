@@ -17,12 +17,13 @@
 <div class="section" id="survival">
     <h4>Overall Survival</h4>
     <div id="os_survival_curve"></div>
+    <div class="markdown" id="os_stat_table"></div>
     <h4>Disease Free Survival</h4>
     <div id="dfs_survival_curve"></div>
+    <div class="markdown" id="dfs_stat_table"></div>
 </div>
 
 <script>
-
     function getSurvivalPlotsCaseList() {
         <%
             JSONObject result = new JSONObject();

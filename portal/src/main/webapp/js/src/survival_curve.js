@@ -72,7 +72,11 @@ var survivalCurves = (function() {
             os_altered_group = [],
             os_unaltered_group = [],
             dfs_altered_group = [],
-            dfs_unaltered_group = [];
+            dfs_unaltered_group = [],
+            stat_values = {
+                os_pVal : 0,
+                dfs_pVal : 0
+            };
 
         var totalAlter = 0,
             totalUnalter = 0;
@@ -157,6 +161,16 @@ var survivalCurves = (function() {
         }
 
         return {
+            pValCallBack: function(pVal, type) {
+                pVal = parseFloat(pVal).toFixed(6);
+                if (type === "os") {
+                    stat_values.os_pVal = pVal;
+                } else if (type === "dfs") {
+                    stat_values.dfs_pVal = pVal;
+                }
+                view.init();
+                view.generate();
+            },
             init: function(result, caseLists) {
                 cntAlter(caseLists);
                 setOSGroups(result, caseLists);
@@ -165,6 +179,12 @@ var survivalCurves = (function() {
                 kmEstimator.calc(os_unaltered_group);
                 kmEstimator.calc(dfs_altered_group);
                 kmEstimator.calc(dfs_unaltered_group);
+                confidenceIntervals.calc(os_unaltered_group);
+                confidenceIntervals.calc(os_altered_group);
+                confidenceIntervals.calc(dfs_unaltered_group);
+                confidenceIntervals.calc(dfs_altered_group);
+                logRankTest.calc(os_altered_group, os_unaltered_group, "os");
+                logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
             },
             getOSAlteredData: function() {
                 return os_altered_group;
@@ -177,6 +197,12 @@ var survivalCurves = (function() {
             },
             getDFSUnalteredData: function() {
                 return dfs_unaltered_group;
+            },
+            getOSPval: function() {
+                return stat_values.os_pVal;
+            },
+            getDFSPval: function() {
+                return stat_values.dfs_pVal;
             }
         }
     }());
@@ -202,7 +228,7 @@ var survivalCurves = (function() {
                 dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 1000,
+                canvas_width: 1200,
                 canvas_height: 650,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -251,7 +277,7 @@ var survivalCurves = (function() {
             _dataset.push(d3.max(data.getDFSUnalteredData(), function(d) { return d.time; }));
             elem.xScale = d3.scale.linear()
                 .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
-                .range([100, 600]);
+                .range([100, 1000]);
             elem.yScale = d3.scale.linear()
                 .domain([-0.03, 1.05]) //fixed to be 0-1
                 .range([550, 50]);
@@ -321,7 +347,7 @@ var survivalCurves = (function() {
                     content += "OBS Time: <strong>" + d.time + "</strong><br>";
                     content += "KM Est: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
-                        content += "<strong> -- Censored -- </strong>";
+                        content += "<strong> -- LAST TIME OBSERVATION -- </strong>";
                     }
                     content += "</font>";
 
@@ -382,7 +408,7 @@ var survivalCurves = (function() {
                 .style("fill", "none")
                 .style("stroke", "grey")
                 .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(600, 0)")
+                .attr("transform", "translate(1000, 0)")
                 .call(elemAxisY.orient("left").ticks(0));
             svg.selectAll("text")
                 .style("font-family", "sans-serif")
@@ -445,8 +471,14 @@ var survivalCurves = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(610, " + (80 + i * 15) + ")";
+                    return "translate(980, " + (70 + i * 15) + ")";
                 })
+
+            legend.append("text")
+                .attr("dx", "-0.75em")
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) { return d.text });
 
             legend.append("path")
                 .attr("width", 18)
@@ -457,29 +489,12 @@ var survivalCurves = (function() {
                 .attr("fill", function (d) { return d.color; })
                 .attr("stroke", "black")
                 .attr("stroke-width",.9);
-
-            legend.append("text")
-                .attr("dx", ".75em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "front")
-                .text(function(d) { return d.text });
-        }
-
-        function appendPval(inputGrp1, inputGrp2, type) {
-            logRankTest.calc(inputGrp1, inputGrp2, type);
-        }
-
-        function appendpVal_callback(data, svg) {
-            svg.append("text")
-                .attr("x", 605)
-                .attr("y", 140)
-                .text("Logrank Test P-Value: " + data);
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
             svg.append("text")
                 .attr("class", "label")
-                .attr("x", 350)
+                .attr("x", 550)
                 .attr("y", 600)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
@@ -494,6 +509,32 @@ var survivalCurves = (function() {
                 .text(yTitle);
         }
 
+        function appendVals() {
+            //P vales
+            appendPval(elem.svgOS, data.getOSPval());
+            appendPval(elem.svgDFS, data.getDFSPval());
+            function appendPval(svg, pVal) {
+                svg.append("text")
+                    .attr("x", 985)
+                    .attr("y", 110)
+                    .style("text-anchor", "end")
+                    .text("Logrank Test P-Value: " + pVal);
+            }
+        }
+
+        function appendInfo(divName, vals) {
+            $("#" + divName).empty();
+            $("#" + divName).append("<PRE><CODE>" +
+                                    "Gene Set: " + PortalGlobals.getGeneList() + "" +
+                                    "Num of Altered Cases:" + "" +
+                                    "Num of Unaltered Cases:" + "" +
+                                    "Num of Events in Altered Cases:" + "" +
+                                    "Num of Events in Unaltered Cases:" + "" +
+                                    "Median in Altered Cases:" + "" +
+                                    "Median in Unaltered Cases:" + "" +
+                                    "</CODE></PRE>");
+        }
+
         return {
             init: function() {
                 initCanvas();
@@ -501,7 +542,8 @@ var survivalCurves = (function() {
                 initLines();
             },
             generate: function() {
-                drawLines(); //draw all four curves together
+                //draw all four curves together
+                drawLines();
                 //overlay invisible dots for mouseover purpose
                 drawInvisiableDots(elem.osAlterDots, settings.altered_mouseover_color, data.getOSAlteredData());
                 drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
@@ -526,11 +568,12 @@ var survivalCurves = (function() {
                 //Append Glyphes
                 addLegends(elem.svgOS);
                 addLegends(elem.svgDFS);
-                //AppendValues
-                appendPval(data.getOSAlteredData(), data.getOSUnalteredData(), elem.svgOS);
-                appendPval(data.getDFSAlteredData(), data.getDFSUnalteredData(), elem.svgDFS);
-            },
-            appendpVal_callback: appendpVal_callback
+                //Append p-Values
+                appendVals();
+                //Append Info Table
+                appendInfo("os_stat_table");
+                appendInfo("dfs_stat_table");
+            }
         }
     }());
 
@@ -555,7 +598,6 @@ var survivalCurves = (function() {
         }
     }());
 
-    //Calculate the p-value between two curves from log-rank test
     var logRankTest = (function() {
 
         var datum = {
@@ -568,7 +610,7 @@ var survivalCurves = (function() {
                 variance: 0
             },
             mergedArr = [];
-                                                  //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+        //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
         function mergeGrps(inputGrp1, inputGrp2) {
             var _ptr_1 = 0; //index indicator/pointer for group1
             var _ptr_2 = 0; //index indicator/pointer for group2
@@ -601,7 +643,7 @@ var survivalCurves = (function() {
                 } else { //events occur at the same time point
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.time = inputGrp1[_ptr_1].time;
-                    if (inputGrp1[_ptr_1].status === "1" || inputGrp2[_ptr_2].status === "1") {
+                    if (inputGrp1[_ptr_1].status === "1"  inputGrp2[_ptr_2].status === "1") {
                         if (inputGrp1[_ptr_1].status === "1") {
                             _datum.num_of_failure_1 = 1;
                         }
@@ -638,7 +680,7 @@ var survivalCurves = (function() {
             }
         }
 
-        function calcPval(svg) {
+        function calcPval(type) {
             var O1 = 0, E1 = 0, V = 0;
             for (var i in mergedArr) {
                 var _item = mergedArr[i];
@@ -648,20 +690,80 @@ var survivalCurves = (function() {
             }
             var chi_square_score = (O1 - E1) * (O1 - E1) / V;
             $.post( "calcPval.do", { chi_square_score: chi_square_score })
-                .done(function( data ) {
-                    view.appendpVal_callback(data, svg);
+                .done( function(_data) {
+                    data.pValCallBack(_data, type);
                 });
         }
 
         return {
-            calc: function(inputGrp1, inputGrp2, svg) {
+            calc: function(inputGrp1, inputGrp2, type) {
                 mergedArr.length = 0;
                 mergeGrps(inputGrp1, inputGrp2);
                 calcExpection();
                 calcVariance();
-                calcPval(svg);
+                calcPval(type);
             }
         }
+    }());
+
+    var confidenceIntervals = (function() {
+
+        var arr = [],
+            n = 0,
+            mean = 0,
+            sd = 0,
+            se = 0,
+            lcl = 0,
+            ucl = 0;
+
+        function adaptor(inputArr) {
+            var _index = 0;
+            for(var i in inputArr) {
+                if (inputArr[i].status === "1")  {
+                    arr[_index] = inputArr[i].time;
+                    _index += 1;
+                }
+            }
+            n = arr.length;
+        }
+
+        function calcMean() {
+            var _sum = 0;
+            for(var i in arr) { _sum += arr[i]; }
+            mean = _sum / n;
+        }
+
+        function calcStandardDeviation() {
+            var _sum = 0;
+            for(var i in arr) { _sum += (arr[i] - mean) * (arr[i] - mean); }
+            sd = Math.sqrt(_sum / (n-1));
+        }
+
+        function calcStandardError() {
+            se = sd / Math.sqrt(n);
+        }
+
+        function calcControlLimits() {  //apply 0.95 percentage
+            lcl = mean - 1.962 * se;
+            ucl = mean + 1.962 * se;
+            return {
+                "lcl": lcl,
+                "ucl": ucl
+            };
+        }
+
+        return {
+            calc: function(inputArr) {
+                n = 0;
+                arr.length = 0;
+                adaptor(inputArr);
+                calcMean();
+                calcStandardDeviation();
+                calcStandardError();
+                calcControlLimits();
+            }
+        }
+
     }());
 
     return {
@@ -676,8 +778,6 @@ var survivalCurves = (function() {
             function getResultInit(caseLists) {
                 return function(result) {
                     data.init(result, caseLists);
-                    view.init();
-                    view.generate();
                 }
             }
         }

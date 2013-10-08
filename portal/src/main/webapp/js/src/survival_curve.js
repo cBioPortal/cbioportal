@@ -166,13 +166,9 @@ var survivalCurves = (function() {
             }
         }
 
-        function calc() {
+        function calcOS() {
             kmEstimator.calc(os_altered_group);
             kmEstimator.calc(os_unaltered_group);
-            kmEstimator.calc(dfs_altered_group);
-            kmEstimator.calc(dfs_unaltered_group);
-
-            //Values for OS group
             var _os_stat_datum = jQuery.extend(true, {}, stat_datum);
             _os_stat_datum.num_altered_cases = os_altered_group.length;
             _os_stat_datum.num_unaltered_cases = os_unaltered_group.length;
@@ -182,8 +178,11 @@ var survivalCurves = (function() {
             _os_stat_datum.unaltered_median = calcMedian(os_unaltered_group);
             logRankTest.calc(os_altered_group, os_unaltered_group, "os");
             stat_values["os"] = _os_stat_datum;
+        }
 
-            //Values for DFS group
+        function calcDFS() {
+            kmEstimator.calc(dfs_altered_group);
+            kmEstimator.calc(dfs_unaltered_group);
             var _dfs_stat_datum = jQuery.extend(true, {}, stat_datum);
             _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
             _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
@@ -193,36 +192,29 @@ var survivalCurves = (function() {
             _dfs_stat_datum.unaltered_median = calcMedian(dfs_unaltered_group);
             logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
             stat_values["dfs"] = _dfs_stat_datum;
+        }
 
-            //0.95 LCL, 0.95 UCL
-            //confidenceIntervals.calc(os_unaltered_group);
-            //confidenceIntervals.calc(os_altered_group);
-            //confidenceIntervals.calc(dfs_unaltered_group);
-            //confidenceIntervals.calc(dfs_altered_group);
-
-            //Local util functions
-            function countEvents(inputArr) {
-                var _cnt = 0;
-                for (var i in inputArr) {
-                    if (inputArr[i].status === "1") {
-                        _cnt += 1;
-                    }
+        function countEvents(inputArr) {
+            var _cnt = 0;
+            for (var i in inputArr) {
+                if (inputArr[i].status === "1") {
+                    _cnt += 1;
                 }
-                return _cnt;
             }
+            return _cnt;
+        }
 
-            function calcMedian(inputArr) {
-                var _mIndex = 0;
-                for (var i in inputArr) {
-                    if (inputArr[i].survival_rate <= 0.5) {
-                        _mIndex = i;
-                        break;
-                    } else {
-                        continue;
-                    }
+        function calcMedian(inputArr) {
+            var _mIndex = 0;
+            for (var i in inputArr) {
+                if (inputArr[i].survival_rate <= 0.5) {
+                    _mIndex = i;
+                    break;
+                } else {
+                    continue;
                 }
-                return inputArr[_mIndex].time;
             }
+            return inputArr[_mIndex].time;
         }
 
         return {
@@ -230,17 +222,28 @@ var survivalCurves = (function() {
                 pVal = parseFloat(pVal).toFixed(6);
                 if (type === "os") {
                     stat_values.os.pVal = pVal;
+                    view.initOS();
+                    view.generateOS();
                 } else if (type === "dfs") {
                     stat_values.dfs.pVal = pVal;
-                    view.init();
-                    view.generate();
+                    view.initDFS();
+                    view.generateDFS();
                 }
             },
             init: function(result, caseLists) {
                 cntAlter(caseLists);
                 setOSGroups(result, caseLists);
                 setDFSGroups(result, caseLists);
-                calc();
+                if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
+                    calcOS();
+                } else {
+                    view.errorMsg("os");
+                }
+                if (dfs_altered_group.length !== 0 || dfs_unaltered_group.length !== 0) {
+                    calcDFS();
+                } else {
+                    view.errorMsg("dfs");
+                }
             },
             getOSAlteredData: function() {
                 return os_altered_group;
@@ -284,7 +287,7 @@ var survivalCurves = (function() {
                 dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 1000,
+                canvas_width: 800,
                 canvas_height: 650,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -303,23 +306,26 @@ var survivalCurves = (function() {
                 censored_sign_size: 5
             }
 
-        function initCanvas() {
+        function initOSCanvas() {
             $('#os_survival_curve').empty();
-            $('#dfs_survival_curve').empty();
             elem.svgOS = d3.select("#os_survival_curve")
-                .append("svg")
-                .attr("width", settings.canvas_width)
-                .attr("height", settings.canvas_height);
-            elem.svgDFS = d3.select("#dfs_survival_curve")
                 .append("svg")
                 .attr("width", settings.canvas_width)
                 .attr("height", settings.canvas_height);
             elem.osAlterDots = elem.svgOS.append("g");
             elem.osUnalterDots = elem.svgOS.append("g");
-            elem.dfsAlterDots = elem.svgDFS.append("g");
-            elem.dfsUnalterDots = elem.svgDFS.append("g");
             elem.osAlterCensoredDots = elem.svgOS.append("g");
             elem.osUnalterCensoredDots = elem.svgOS.append("g");
+        }
+
+        function initDFSCanvas() {
+            $('#dfs_survival_curve').empty();
+            elem.svgDFS = d3.select("#dfs_survival_curve")
+                .append("svg")
+                .attr("width", settings.canvas_width)
+                .attr("height", settings.canvas_height);
+            elem.dfsAlterDots = elem.svgDFS.append("g");
+            elem.dfsUnalterDots = elem.svgDFS.append("g");
             elem.dfsAlterCensoredDots = elem.svgDFS.append("g");
             elem.dfsUnalterCensoredDots = elem.svgDFS.append("g");
         }
@@ -360,7 +366,7 @@ var survivalCurves = (function() {
                 .y(function(d) { return elem.yScale(d.survival_rate); });
         }
 
-        function drawLines() {
+        function drawOSLines() {
             elem.svgOS.append("path")
                 .attr("d", elem.line(data.getOSAlteredData()))
                 .style("fill", "none")
@@ -369,6 +375,9 @@ var survivalCurves = (function() {
                 .attr("d", elem.line(data.getOSUnalteredData()))
                 .style("fill", "none")
                 .style("stroke", settings.unaltered_line_color);
+        }
+
+        function drawDFSLines() {
             elem.svgDFS.append("path")
                 .attr("d", elem.line(data.getDFSAlteredData()))
                 .style("fill", "none")
@@ -403,7 +412,7 @@ var survivalCurves = (function() {
                     content += "OBS Time: <strong>" + d.time + "</strong><br>";
                     content += "KM Est: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
-                        content += "<strong> -- LAST TIME OBSERVATION -- </strong>";
+                        content += "<strong> -- LAST OBSERVATION -- </strong>";
                     }
                     content += "</font>";
 
@@ -582,14 +591,14 @@ var survivalCurves = (function() {
         function appendInfo(divName, vals) {
             $("#" + divName).empty();
             $("#" + divName).append("<table class='survival_stats'>" +
-                "<tr><td></td><td>n.RECORD</td><td>n.EVENTS</td><td>MEDIAN</td></tr>" +
+                "<tr><td></td><td>n.records</td><td>n.events</td><td>median</td></tr>" +
                 "<tr>" +
-                "<td style='width: 330px;'>Cases With Alteration in Query Genes</td>" +
+                "<td style='width: 330px;'>Cases with Alteration in Query Genes</td>" +
                 "<td><b>" + vals.num_altered_cases + "</b></td>" +
                 "<td><b>" + vals.num_of_events_altered_cases + "</b></td>" +
                 "<td><b>" + vals.altered_median + "</b></td>" +
                 "</tr><tr>" +
-                "<td>Cases Without Alteration in Query Genes</td>" +
+                "<td>Cases without Alteration in Query Genes</td>" +
                 "<td><b>" + vals.num_unaltered_cases + "</b></td>" +
                 "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" +
                 "<td><b>" + vals.unaltered_median + "</b></td>" +
@@ -614,46 +623,54 @@ var survivalCurves = (function() {
         }
 
         return {
-            init: function() {
-                initCanvas();
+            initOS: function() {
+                initOSCanvas();
                 initAxis();
                 initLines();
             },
-            generate: function() {
-                //draw all four curves together
-                drawLines();
-                //overlay invisible dots for mouseover purpose
+            initDFS: function() {
+                initDFSCanvas();
+                initAxis();
+                initLines();
+            },
+            generateOS: function() {
+                drawOSLines();
                 drawInvisiableDots(elem.osAlterDots, settings.altered_mouseover_color, data.getOSAlteredData());
                 drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
-                drawInvisiableDots(elem.dfsAlterDots, settings.altered_mouseover_color, data.getDFSAlteredData());
-                drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
-                //overlay censored data (as a plus sign)
                 drawCensoredDots(elem.osAlterCensoredDots, data.getOSAlteredData(), settings.altered_line_color);
                 drawCensoredDots(elem.osUnalterCensoredDots, data.getOSUnalteredData(), settings.unaltered_line_color);
-                drawCensoredDots(elem.dfsAlterCensoredDots, data.getDFSAlteredData(), settings.altered_line_color);
-                drawCensoredDots(elem.dfsUnalterCensoredDots, data.getDFSUnalteredData(), settings.unaltered_line_color);
-                //Add mouseover
                 addQtips(elem.osAlterDots);
                 addQtips(elem.osUnalterDots);
+                appendAxis(elem.svgOS, elem.xAxisOS, elem.yAxisOS);
+                appendAxisTitles(elem.svgOS, text.xTitle_os, text.yTitle_os);
+                addLegends(elem.svgOS);
+                addPvals(elem.svgOS, data.getOsStats().pVal);
+                appendInfo("os_stat_table", data.getOsStats());
+                appendImgConverter("os_pdf_svg", "os_survival_curve");
+            },
+            generateDFS: function() {
+                drawDFSLines();
+                drawInvisiableDots(elem.dfsAlterDots, settings.altered_mouseover_color, data.getDFSAlteredData());
+                drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
+                drawCensoredDots(elem.dfsAlterCensoredDots, data.getDFSAlteredData(), settings.altered_line_color);
+                drawCensoredDots(elem.dfsUnalterCensoredDots, data.getDFSUnalteredData(), settings.unaltered_line_color);
                 addQtips(elem.dfsAlterDots);
                 addQtips(elem.dfsUnalterDots);
-                //Append Axis
-                appendAxis(elem.svgDFS, elem.xAxisOS, elem.yAxisOS);
-                appendAxis(elem.svgOS, elem.xAxisDFS, elem.yAxisDFS);
-                //append Axis titles
-                appendAxisTitles(elem.svgOS, text.xTitle_os, text.yTitle_os);
+                appendAxis(elem.svgDFS, elem.xAxisDFS, elem.yAxisDFS);
                 appendAxisTitles(elem.svgDFS, text.xTitle_dfs, text.yTitle_dfs);
-                //Append Glyphes
-                addLegends(elem.svgOS);
                 addLegends(elem.svgDFS);
-                addPvals(elem.svgOS, data.getOsStats().pVal);
                 addPvals(elem.svgDFS, data.getDfsStats().pVal);
-                //Append basic info/values of the chart: p-value, # of altered/unaltered cases, # of events, etc.
-                appendInfo("os_stat_table", data.getOsStats());
                 appendInfo("dfs_stat_table", data.getDfsStats());
-                //Append PDF/SVG buttons
-                appendImgConverter("os_pdf_svg", "os_survival_curve");
                 appendImgConverter("dfs_pdf_svg", "dfs_survival_curve");
+            },
+            errorMsg: function(type) {
+                var errMsg = "<p><br><br>Data not available.</p>";
+                if (type === "os") {
+                    $("#os_stat_table").append(errMsg);
+                } else if (type === "dfs") {
+                    $("#dfs_stat_table").append(errMsg);
+                }
+
             }
         }
     }());

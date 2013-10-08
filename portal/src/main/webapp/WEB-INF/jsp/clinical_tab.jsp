@@ -10,14 +10,14 @@
         margin-bottom: 30px;
         margin-left: 95px;
         width: 620px;
-        background-color: #F8FAB1;
+        background-color: #FEFFC5;
         height: 70px;
         width: 620px;
     }
     #survival td{
         width: 90px;
         font-size: 13px;
-        font-family: "Courier New", Courier, monospace;
+        font-family: Arial, Helvetica, sans-serif;
         text-align: center;
         border: 1px solid #D8D8D8;
     }

@@ -40,7 +40,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  */
 public class PatientView extends HttpServlet {
     private static Logger logger = Logger.getLogger(PatientView.class);
-    public static final String ERROR = "error";
+    public static final String ERROR = "user_error_message";
     public static final String CASE_ID = "case_id";
     public static final String PATIENT_ID = "patient_id";
     public static final String PATIENT_ID_ATTR_NAME = "PATIENT_ID";
@@ -110,9 +110,16 @@ public class PatientView extends HttpServlet {
                 setClinicalInfo(request);
                 setNumCases(request);
             }
-            RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
-            dispatcher.forward(request, response);
+            
+            if (request.getAttribute(ERROR)!=null) {
+                String msg = (String)request.getAttribute(ERROR);
+                xdebug.logMsg(this, msg);
+                forwardToErrorPage(request, response, msg, xdebug);
+            } else {
+                RequestDispatcher dispatcher =
+                        getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/patient_view/patient_view.jsp");
+                dispatcher.forward(request, response);
+            }
         
         } catch (DaoException e) {
             xdebug.logMsg(this, "Got Database Exception:  " + e.getMessage());

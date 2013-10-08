@@ -12,9 +12,9 @@
     String case_set_id = (String)request.getParameter("case_set_id");
     String genetic_profile_id = (String)request.getParameter("genetic_profile_id");
     //Translate Onco Query Language
-    ArrayList<String> listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
+    ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";
-    for(String gene: listOfGenes) {
+    for(String gene: _listOfGenes) {
         tmpGeneStr += gene + " ";
     }
     tmpGeneStr = tmpGeneStr.trim();
@@ -90,10 +90,13 @@
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
                         <select id='gene' onchange='PlotsMenu.updateMenu();PlotsView.init();'></select>
-                        <h5>Plot Type</h5>
-                        <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
-                        <h5>Data Type</h5>
-                        <div id='one_gene_platform_select_div'></div>
+                        <div id='menu_err_msg'></div>
+                        <div id='one_gene_type_specification'>
+                            <h5>Plot Type</h5>
+                            <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
+                            <h5>Data Type</h5>
+                            <div id='one_gene_platform_select_div'></div>
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
@@ -153,24 +156,6 @@
         $("#plots-menus").tabs("disable", 1);
     }
     window.onload = Plots.init();
-
-    // Takes the content in the plots svg element
-    // and returns XML serialized *string*
-    function loadSVG() {
-        var shiftValueOnX = 8;
-        var shiftValueOnY = 3;
-        var mySVG = d3.select("#plots_box");
-        var xAxisGrp = mySVG.select(".plots-x-axis-class");
-        var yAxisGrp = mySVG.select(".plots-y-axis-class");
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-        var docSVG = document.getElementById("plots_box");
-        var svgDoc = docSVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-        return xmlString;
-    }
-
 </script>
 
 <script>

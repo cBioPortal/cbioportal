@@ -52,15 +52,15 @@ var Plots = (function(){
                 var obj = _obj[key];
                 var profile_type = obj.GENETIC_ALTERATION_TYPE;
                 if (profile_type === "MUTATION_EXTENDED") {
-                    _genetic_profile.genetic_profile_mutations.push([obj.STABLE_ID, obj.NAME]);
+                    _genetic_profile.genetic_profile_mutations.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
                 } else if(profile_type === "COPY_NUMBER_ALTERATION") {
-                    _genetic_profile.genetic_profile_copy_no.push([obj.STABLE_ID, obj.NAME]);
+                    _genetic_profile.genetic_profile_copy_no.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
                 } else if(profile_type === "MRNA_EXPRESSION") {
-                    _genetic_profile.genetic_profile_mrna.push([obj.STABLE_ID, obj.NAME]);
+                    _genetic_profile.genetic_profile_mrna.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
                 } else if(profile_type === "METHYLATION") {
-                    _genetic_profile.genetic_profile_dna_methylation.push([obj.STABLE_ID, obj.NAME]);
+                    _genetic_profile.genetic_profile_dna_methylation.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
                 } else if(profile_type === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
-                    _genetic_profile.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME]);
+                    _genetic_profile.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
                 }
             }
             genetic_profiles[gene] = _genetic_profile;
@@ -68,9 +68,7 @@ var Plots = (function(){
 
         PlotsMenu.init();
         PlotsTwoGenesMenu.init();
-//        PlotsTwoGenesMenu.update();
         PlotsCustomMenu.init();
-//        PlotsCustomMenu.update();
         PlotsView.init();
 
         $('#plots-menus').bind('tabsshow', function(event, ui) {
@@ -85,6 +83,49 @@ var Plots = (function(){
             }
         });
 
+    }
+
+    function addAxisHelp(svg, axisGroupSvg, xTitle, yTitle, xTitleClass, yTitleClass, xText, yText) {  //Append description for selected genetic profile
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", xTitleClass)
+            .attr("x", 350 + xTitle.length / 2 * 8)
+            .attr("y", 567)
+            .attr("width", "16")
+            .attr("height", "16");
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", yTitleClass)
+            .attr("x", 34)
+            .attr("y", 255 - yTitle.length / 2 * 8)
+            .attr("width", "16")
+            .attr("height", "16");
+        svg.select("." + xTitleClass).each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + xText + "</font>" },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
+            }
+        );
+        svg.select("." + yTitleClass).each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + yText + "</font>"},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'right bottom',at:'top left'}
+                    }
+                );
+            }
+        );
     }
 
     return {
@@ -117,11 +158,56 @@ var Plots = (function(){
                 caseIdsKey: case_ids_key
             };
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
-        }
+        },
+        addAxisHelp: addAxisHelp
     };
 
 }());    //Closing Plots
 
+// Takes the content in the plots svg element
+// and returns XML serialized *string*
+function loadPlotsSVG() {
+    var shiftValueOnX = 8;
+    var shiftValueOnY = 3;
+    var mySVG = d3.select("#plots_box");
+    //Remove Help Icon (cause exception)
+    var elemXHelpTxt = $(".x-title-help").qtip('api').options.content.text;
+    var elemYHelpTxt = $(".y-title-help").qtip('api').options.content.text;
+    var elemXHelp = $(".x-title-help").remove();
+    var elemYHelp = $(".y-title-help").remove();
+
+    var xAxisGrp = mySVG.select(".plots-x-axis-class");
+    var yAxisGrp = mySVG.select(".plots-y-axis-class");
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+    var docSVG = document.getElementById("plots_box");
+    var svgDoc = docSVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+
+    $(".axis").append(elemXHelp);
+    $(".axis").append(elemYHelp);
+    $(".x-title-help").qtip(
+        {
+            content: {text: elemXHelpTxt },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right'}
+        }
+    );
+    $(".y-title-help").qtip(
+        {
+            content: {text: elemYHelpTxt },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'right bottom',at:'top left'}
+        }
+    );
+
+    return xmlString;
+}
 
 
 

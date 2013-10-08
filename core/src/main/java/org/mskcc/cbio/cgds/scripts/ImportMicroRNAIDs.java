@@ -40,7 +40,6 @@ import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
@@ -75,6 +74,7 @@ public class ImportMicroRNAIDs {
                 }
                 
                 CanonicalGene mirna = new CanonicalGene(geneSymbol,aliases);
+                mirna.setType(CanonicalGene.MIRNA_TYPE);
                 mirnas.add(mirna);
             }
         }

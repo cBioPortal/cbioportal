@@ -109,8 +109,9 @@ public class GeneDataJSON extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String _geneList = request.getParameter("genes");
-        // list of genes separated by a space
+        // OncoQuery Language string
+        String oql = request.getParameter("oql");
+        oql = oql.replaceAll("\n", " \n ");
 
         String sampleIds;
         // list of samples separated by a space.  This is so
@@ -151,16 +152,11 @@ public class GeneDataJSON extends HttpServlet {
         // For now, we cannot remove it from QueryBuilder because other parts use it...for now
         // ...this is a temporary solution
         ParserOutput theOncoPrintSpecParserOutput =
-                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(_geneList,
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(oql,
                         geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-
-        // remove duplicates
-        Set setOfGenes = new LinkedHashSet(listOfGenes);
-        listOfGenes.clear();
-        listOfGenes.addAll(setOfGenes);
 
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);

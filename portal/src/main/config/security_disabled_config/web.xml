@@ -545,10 +545,18 @@
         <servlet-name>GetSurvivalDataJSON</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.GetSurvivalDataJSON</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>GetSurvivalDataJSON</servlet-name>
         <url-pattern>/getSurvivalData.json</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.IGVLinkingJSON</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>IGVLinkingJSON</servlet-name>
+        <url-pattern>/igvlinking.json</url-pattern>
     </servlet-mapping>
 
     <servlet>

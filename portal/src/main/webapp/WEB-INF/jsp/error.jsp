@@ -13,7 +13,7 @@
             <% } else {%>
                 Oops!  An Error Has occurred while processing your request.
               <% } %>
-            &nbsp;Please try again or send email to <%= SkinUtil.getEmailContact() %>.
+            &nbsp;Please try again or send email to <%= SkinUtil.getEmailContact() %> if this is any error in this portal.
             </div>
   </td>
   </tr>

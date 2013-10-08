@@ -144,6 +144,8 @@ public class JdbcUtil {
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Problem Closed a MySQL connection from "+requester+".\nActive connections: "+ds.getNumActive()
+                        + "\n" + activeConnectionCount.toString());
             e.printStackTrace();
         }
     }

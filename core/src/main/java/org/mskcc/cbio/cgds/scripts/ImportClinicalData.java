@@ -95,7 +95,7 @@ public class ImportClinicalData {
             
             String caseId = fields[iCaseId];
             for (int i = 0; i < fields.length; i++) {
-                if (i!=iCaseId) {
+                if (i!=iCaseId && !fields[i].isEmpty()) {
                     DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
                 }
             }
@@ -158,23 +158,32 @@ public class ImportClinicalData {
     private List<ClinicalAttribute> grabAttrs(BufferedReader buff) throws DaoException, IOException {
         List<ClinicalAttribute> attrs = new ArrayList<ClinicalAttribute>();
 
-        String[] displayNames = splitFields(buff);
-        String[] descriptions = splitFields(buff);
-        String[] datatypes = splitFields(buff);
-        String[] colnames = splitFields(buff);
+        String line = buff.readLine();
+        String[] displayNames = splitFields(line);
+        String[] descriptions, datatypes, colnames;
+        if (line.startsWith(METADATA_PREIX)) {
+            // contains meta data about the attributes
+            descriptions = splitFields(buff.readLine());
+            datatypes = splitFields(buff.readLine());
+            colnames = splitFields(buff.readLine());
 
-        if (displayNames.length != colnames.length
-                ||  descriptions.length != colnames.length
-                ||  datatypes.length != colnames.length) {
-            throw new DaoException("attribute and metadata mismatch in clinical staging file");
+            if (displayNames.length != colnames.length
+                    ||  descriptions.length != colnames.length
+                    ||  datatypes.length != colnames.length) {
+                throw new DaoException("attribute and metadata mismatch in clinical staging file");
+            }
+        } else {
+            // attribute ID header only
+            descriptions = displayNames;
+            colnames = displayNames;
+            datatypes = new String[displayNames.length] ;
+            Arrays.fill(datatypes, "STRING"); // STRING by default -- TODO: better to guess from data
         }
 
         for (int i = 0; i < colnames.length; i+=1) {
             ClinicalAttribute attr =
                     new ClinicalAttribute(colnames[i], displayNames[i], descriptions[i], datatypes[i]);
-            try {
-                DaoClinicalAttribute.getDatum(attr.getAttrId());
-            } catch (DaoException e) {
+            if (null==DaoClinicalAttribute.getDatum(attr.getAttrId())) {
                 DaoClinicalAttribute.addDatum(attr);
             }
             attrs.add(attr);
@@ -199,9 +208,8 @@ public class ImportClinicalData {
      * @param buff
      * @return
      */
-    private String[] splitFields(BufferedReader buff) throws IOException {
-        String line = buff.readLine();
-        line = line.replaceAll(METADATA_PREIX, "");
+    private String[] splitFields(String line) throws IOException {
+        line = line.replaceAll("^"+METADATA_PREIX+"+", "");
         String[] fields = line.split(DELIMITER);
 
         return fields;

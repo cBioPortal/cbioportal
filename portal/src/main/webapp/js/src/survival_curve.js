@@ -73,10 +73,16 @@ var survivalCurves = (function() {
             os_unaltered_group = [],
             dfs_altered_group = [],
             dfs_unaltered_group = [],
-            stat_values = {
-                os_pVal : 0,
-                dfs_pVal : 0
-            };
+            stat_datum = {
+                pVal: 0,
+                num_altered_cases: 0,
+                num_unaltered_cases: 0,
+                num_of_events_altered_cases: 0,
+                num_of_events_unaltered_cases: 0,
+                altered_median: 0,
+                unaltered_median: 0
+            },
+            stat_values = {};
 
         var totalAlter = 0,
             totalUnalter = 0;
@@ -160,31 +166,81 @@ var survivalCurves = (function() {
             }
         }
 
+        function calc() {
+            kmEstimator.calc(os_altered_group);
+            kmEstimator.calc(os_unaltered_group);
+            kmEstimator.calc(dfs_altered_group);
+            kmEstimator.calc(dfs_unaltered_group);
+
+            //Values for OS group
+            var _os_stat_datum = jQuery.extend(true, {}, stat_datum);
+            _os_stat_datum.num_altered_cases = os_altered_group.length;
+            _os_stat_datum.num_unaltered_cases = os_unaltered_group.length;
+            _os_stat_datum.num_of_events_altered_cases = countEvents(os_altered_group);
+            _os_stat_datum.num_of_events_unaltered_cases = countEvents(os_unaltered_group);
+            _os_stat_datum.altered_median = calcMedian(os_altered_group);
+            _os_stat_datum.unaltered_median = calcMedian(os_unaltered_group);
+            logRankTest.calc(os_altered_group, os_unaltered_group, "os");
+            stat_values["os"] = _os_stat_datum;
+
+            //Values for DFS group
+            var _dfs_stat_datum = jQuery.extend(true, {}, stat_datum);
+            _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
+            _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
+            _dfs_stat_datum.num_of_events_altered_cases = countEvents(dfs_altered_group);
+            _dfs_stat_datum.num_of_events_unaltered_cases = countEvents(dfs_unaltered_group);
+            _dfs_stat_datum.altered_median = calcMedian(dfs_altered_group);
+            _dfs_stat_datum.unaltered_median = calcMedian(dfs_unaltered_group);
+            logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
+            stat_values["dfs"] = _dfs_stat_datum;
+
+            //0.95 LCL, 0.95 UCL
+            //confidenceIntervals.calc(os_unaltered_group);
+            //confidenceIntervals.calc(os_altered_group);
+            //confidenceIntervals.calc(dfs_unaltered_group);
+            //confidenceIntervals.calc(dfs_altered_group);
+
+            //Local util functions
+            function countEvents(inputArr) {
+                var _cnt = 0;
+                for (var i in inputArr) {
+                    if (inputArr[i].status === "1") {
+                        _cnt += 1;
+                    }
+                }
+                return _cnt;
+            }
+
+            function calcMedian(inputArr) {
+                var _mIndex = 0;
+                for (var i in inputArr) {
+                    if (inputArr[i].survival_rate <= 0.5) {
+                        _mIndex = i;
+                        break;
+                    } else {
+                        continue;
+                    }
+                }
+                return inputArr[_mIndex].time;
+            }
+        }
+
         return {
             pValCallBack: function(pVal, type) {
                 pVal = parseFloat(pVal).toFixed(6);
                 if (type === "os") {
-                    stat_values.os_pVal = pVal;
+                    stat_values.os.pVal = pVal;
                 } else if (type === "dfs") {
-                    stat_values.dfs_pVal = pVal;
+                    stat_values.dfs.pVal = pVal;
+                    view.init();
+                    view.generate();
                 }
-                view.init();
-                view.generate();
             },
             init: function(result, caseLists) {
                 cntAlter(caseLists);
                 setOSGroups(result, caseLists);
                 setDFSGroups(result, caseLists);
-                kmEstimator.calc(os_altered_group);
-                kmEstimator.calc(os_unaltered_group);
-                kmEstimator.calc(dfs_altered_group);
-                kmEstimator.calc(dfs_unaltered_group);
-                confidenceIntervals.calc(os_unaltered_group);
-                confidenceIntervals.calc(os_altered_group);
-                confidenceIntervals.calc(dfs_unaltered_group);
-                confidenceIntervals.calc(dfs_altered_group);
-                logRankTest.calc(os_altered_group, os_unaltered_group, "os");
-                logRankTest.calc(dfs_altered_group, dfs_unaltered_group, "dfs");
+                calc();
             },
             getOSAlteredData: function() {
                 return os_altered_group;
@@ -198,11 +254,11 @@ var survivalCurves = (function() {
             getDFSUnalteredData: function() {
                 return dfs_unaltered_group;
             },
-            getOSPval: function() {
-                return stat_values.os_pVal;
+            getOsStats: function() {
+                return stat_values.os;
             },
-            getDFSPval: function() {
-                return stat_values.dfs_pVal;
+            getDfsStats: function() {
+                return stat_values.dfs;
             }
         }
     }());
@@ -386,6 +442,7 @@ var survivalCurves = (function() {
                 .style("stroke-width", 2)
                 .style("fill", "none")
                 .style("stroke", "grey")
+                .attr("class", "survival-curve-x-axis-class")
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(0, 550)")
                 .call(elemAxisX);
@@ -400,6 +457,7 @@ var survivalCurves = (function() {
                 .style("stroke-width", 2)
                 .style("fill", "none")
                 .style("stroke", "grey")
+                .attr("class", "survival-curve-y-axis-class")
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(100, 0)")
                 .call(elemAxisY);
@@ -509,30 +567,42 @@ var survivalCurves = (function() {
                 .text(yTitle);
         }
 
-        function appendVals() {
-            //P vales
-            appendPval(elem.svgOS, data.getOSPval());
-            appendPval(elem.svgDFS, data.getDFSPval());
-            function appendPval(svg, pVal) {
-                svg.append("text")
-                    .attr("x", 985)
-                    .attr("y", 110)
-                    .style("text-anchor", "end")
-                    .text("Logrank Test P-Value: " + pVal);
-            }
+        function addPvals(svg, pVal) {
+            svg.append("text")
+                .attr("x", 985)
+                .attr("y", 110)
+                .style("text-anchor", "end")
+                .text("Logrank Test P-Value: " + pVal);
         }
 
         function appendInfo(divName, vals) {
             $("#" + divName).empty();
-            $("#" + divName).append("<PRE><CODE>" +
-                "Gene Set: " + PortalGlobals.getGeneList() + "" +
-                "Num of Altered Cases:" + "" +
-                "Num of Unaltered Cases:" + "" +
-                "Num of Events in Altered Cases:" + "" +
-                "Num of Events in Unaltered Cases:" + "" +
-                "Median in Altered Cases:" + "" +
-                "Median in Unaltered Cases:" + "" +
-                "</CODE></PRE>");
+            $("#" + divName).append("<pre><code>" +
+                "Queried Gene Set:\t<b>" + PortalGlobals.getGeneList() +  "</b><br>" +
+                "Num of Altered Cases:\t<b>" + vals.num_altered_cases + "</b><br>" +
+                "Num of Unaltered Cases:\t<b>" + vals.num_unaltered_cases + "</b><br>" +
+                "Num of Events in Altered Cases:\t<b>" + vals.num_of_events_altered_cases + "</b><br>" +
+                "Num of Events in Unaltered Cases:\t<b>" + vals.num_of_events_unaltered_cases + "</b><br>" +
+                "Median in Altered Cases:\t<b>" + vals.altered_median + "</b><br>" +
+                "Median in Unaltered Cases:\t<b>" + vals.unaltered_median + "</b><br>" +
+                "</code></pre>");
+        }
+
+        function appendImgConverter(divId, svgId) {
+            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='pdf'>" +
+                "<input type='hidden' name='filename' value='survival_study.pdf'>" +
+                "<input type='submit' value='PDF'></form>";
+            $('#' + divId).append(pdfConverterForm);
+            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='svg'>" +
+                "<input type='hidden' name='filename' value='survival_study.svg'>" +
+                "<input type='submit' value='SVG'></form>";
+            $('#' + divId).append(svgConverterForm);
         }
 
         return {
@@ -568,11 +638,14 @@ var survivalCurves = (function() {
                 //Append Glyphes
                 addLegends(elem.svgOS);
                 addLegends(elem.svgDFS);
-                //Append p-Values
-                appendVals();
-                //Append Info Table
-                appendInfo("os_stat_table");
-                appendInfo("dfs_stat_table");
+                addPvals(elem.svgOS, data.getOsStats().pVal);
+                addPvals(elem.svgDFS, data.getDfsStats().pVal);
+                //Append basic info/values of the chart: p-value, # of altered/unaltered cases, # of events, etc.
+                appendInfo("os_stat_table", data.getOsStats());
+                appendInfo("dfs_stat_table", data.getDfsStats());
+                //Append PDF/SVG buttons
+                appendImgConverter("os_pdf_svg", "os_survival_curve");
+                appendImgConverter("dfs_pdf_svg", "dfs_survival_curve");
             }
         }
     }());
@@ -783,3 +856,20 @@ var survivalCurves = (function() {
         }
     }
 }());
+
+// Takes the content in the plots svg element
+// and returns XML serialized *string*
+function loadSurvivalCurveSVG(svgId) {
+    var shiftValueOnX = 8;
+    var shiftValueOnY = 3;
+    var mySVG = d3.select("#" + svgId);
+    var xAxisGrp = mySVG.select(".survival-curve-x-axis-class");
+    var yAxisGrp = mySVG.select(".survival-curve-y-axis-class");
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+    var docSVG = document.getElementById(svgId);
+    var svgDoc = docSVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+    return xmlString;
+}

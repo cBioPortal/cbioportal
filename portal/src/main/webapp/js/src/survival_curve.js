@@ -284,7 +284,7 @@ var survivalCurves = (function() {
                 dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 1200,
+                canvas_width: 1000,
                 canvas_height: 650,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -529,13 +529,13 @@ var survivalCurves = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(720, " + (70 + i * 15) + ")";
+                    return "translate(680, " + (70 + i * 15) + ")";
                 })
 
             legend.append("text")
-                .attr("dx", ".65em")
-                .attr("dy", ".35em")
-                .style("text-anchor", "start")
+                .attr("x", -10)
+                .attr("y", 4)
+                .style("text-anchor", "end")
                 .text(function(d) { return d.text });
 
             legend.append("path")
@@ -547,6 +547,10 @@ var survivalCurves = (function() {
                 .attr("fill", function (d) { return d.color; })
                 .attr("stroke", "black")
                 .attr("stroke-width",.9);
+
+
+
+
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
@@ -569,9 +573,9 @@ var survivalCurves = (function() {
 
         function addPvals(svg, pVal) {
             svg.append("text")
-                .attr("x", 715)
+                .attr("x", 680)
                 .attr("y", 110)
-                .style("text-anchor", "start")
+                .style("text-anchor", "end")
                 .text("Logrank Test P-Value: " + pVal);
         }
 

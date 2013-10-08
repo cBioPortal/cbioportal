@@ -10,23 +10,21 @@
         margin-bottom: 30px;
         margin-left: 95px;
         width: 620px;
-    }
-    #survival table{
         background-color: #F8FAB1;
-        height: 80px;
+        height: 70px;
         width: 620px;
     }
     #survival td{
         width: 90px;
         font-size: 13px;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: "Courier New", Courier, monospace;
         text-align: center;
         border: 1px solid #D8D8D8;
     }
     #survival h4{
         padding-left: 60px;
         padding-top: 20px;
-        margin-bottom: -50px;
+        margin-bottom: -20px;
     }
 </style>
 

@@ -173,6 +173,9 @@ var Mutation3dVis = function(name, options)
 
 		// TODO focus on the current segment instead of the chain?
 
+
+		// TODO use positionMap of the alignments (chain.alignments)
+
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)
 		{

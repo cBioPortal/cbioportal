@@ -92,10 +92,10 @@ public class PdbDataServlet extends HttpServlet
 				// get the pdb positions corresponding to the given uniprot positions
 				Map<Integer, PdbUniprotResidueMapping> positionMap =
 						DaoPdbUniprotResidueMapping.mapToPdbResidues(
-								uniprotId, alignmentId, positions);
+								alignmentId, positions);
 
-				// TODO create a json object for each PdbUniprotResidueMapping in the positionMap
-				alignmentJson.put("positionMap", positionMap);
+				// create a json object for each PdbUniprotResidueMapping in the positionMap
+				alignmentJson.put("positionMap", this.positionMap(positionMap));
 
 				jsonArray.add(alignmentJson);
 			}
@@ -105,51 +105,26 @@ public class PdbDataServlet extends HttpServlet
 			e.printStackTrace();
 		}
 
-
-		// TODO remove this try-catch block
-		try
-		{
-			Map<String, Set<String>> pdbChainMap =
-					DaoPdbUniprotResidueMapping.mapToPdbChains(uniprotId);
-
-			for (String pdbId : pdbChainMap.keySet())
-			{
-				JSONObject pdb = new JSONObject();
-				JSONArray chainArray = new JSONArray();
-
-				pdb.put("pdbId", pdbId);
-
-				for (String chainId : pdbChainMap.get(pdbId))
-				{
-					// get the pdb positions corresponding to the given uniprot positions
-					Map<Integer, Integer> positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
-							uniprotId, positions, pdbId, chainId);
-
-					// Positions are not continuous, so exclude gaps, create segments
-					// chain.segments -> [{start: x1, end:y1}, ...]
-					JSONArray segments = this.segmentArray(
-						DaoPdbUniprotResidueMapping.getAllPositions(
-							uniprotId, pdbId, chainId));
-
-					JSONObject chain = new JSONObject();
-
-					chain.put("chainId", chainId);
-					chain.put("segments", segments);
-					chain.put("positionMap", positionMap);
-
-					chainArray.add(chain);
-				}
-
-				pdb.put("chains", chainArray);
-				jsonArray.add(pdb);
-			}
-		}
-		catch (DaoException e)
-		{
-			e.printStackTrace();
-		}
-
 		this.writeOutput(response, jsonArray);
+	}
+
+	protected Map<Integer, JSONObject> positionMap(
+			Map<Integer, PdbUniprotResidueMapping> positionMap)
+	{
+		Map<Integer, JSONObject> map = new HashMap<Integer, JSONObject>();
+
+		for (Integer position : positionMap.keySet())
+		{
+			PdbUniprotResidueMapping mapping = positionMap.get(position);
+			JSONObject residueMappingJson = new JSONObject();
+
+			residueMappingJson.put("pdbPos", mapping.getPdbPos());
+			residueMappingJson.put("match", mapping.getMatch());
+
+			map.put(position, residueMappingJson);
+		}
+
+		return map;
 	}
 
 	/**

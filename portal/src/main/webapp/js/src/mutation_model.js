@@ -84,8 +84,7 @@ var Pileup = Backbone.Model.extend({
 /**
  * PDB data model.
  *
- * Contains PDB id and a chain list (where each element in the list has
- * a chain id and a mapping for pdb positions to uniprot positions).
+ * Contains PDB id and a chain list.
  */
 var PdbModel = Backbone.Model.extend({
 	initialize: function(attributes) {
@@ -111,9 +110,9 @@ var PdbChainModel = Backbone.Model.extend({
 		// chain id (A, B, C, X, etc.)
 		this.chainId = attributes.chainId;
 		//  map of (uniprot position, pdb position) pairs
-		this.positionMap = attributes.positionMap;
-		// array of start position and end position pairs
-		this.segments = attributes.segments;
+		//this.positionMap = attributes.positionMap;
+		// collection of PdbAlignmentModel instances
+		this.alignments = new PdbAlignmentCollection(attributes.alignments);
 	}
 });
 
@@ -122,6 +121,31 @@ var PdbChainModel = Backbone.Model.extend({
  */
 var PdbChainCollection = Backbone.Collection.extend({
 	model: PdbChainModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+var PdbAlignmentModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		this.alignmentId = attributes.alignmentId;
+		this.pdbId = attributes.pdbId;
+		this.chain = attributes.chain;
+		this.uniprotId = attributes.uniprotId;
+		this.pdbFrom = attributes.pdbFrom;
+		this.pdbTo = attributes.pdbTo;
+		this.uniprotFrom = attributes.uniprotFrom;
+		this.uniprotTo = attributes.uniprotTo;
+		//  map of (uniprot position, pdb position) pairs
+		this.positionMap = attributes.positionMap;
+	}
+});
+
+/**
+ * Collection of pdb alignment data (PdbAlignmentModel instances).
+ */
+var PdbAlignmentCollection = Backbone.Collection.extend({
+	model: PdbAlignmentModel,
 	initialize: function(options) {
 		// TODO add & set attributes if required
 	}
@@ -180,7 +204,7 @@ var MutationDetailsUtil = function(mutations)
 	this.getMutations = function()
 	{
 		return _mutations;
-	}
+	};
 
 	/**
 	 * Updates existing maps and collections by processing the given mutations.
@@ -228,37 +252,90 @@ var MutationDetailsUtil = function(mutations)
 	 * to mutation ids.
 	 *
 	 * @param gene  hugo gene symbol
-	 * @param data  pdb data with a position map
+	 * @param data  pdb alignment data with a position map
 	 * @return {PdbCollection}   PdbModel instances representing the processed data
 	 */
 	this.processPdbData = function(gene, data)
 	{
 		var mutations = _mutationGeneMap[gene];
-		var pdbModel = null;
+		var alignmentModel = null;
 		var pdbList = [];
+		var pdbMap = {};
 
-		_.each(data, function(pdb, idx) {
-			_.each(pdb.chains, function(ele, idx) {
-				var positionMap = {};
+		_.each(data, function(alignment, idx) {
+			alignmentModel = new PdbAlignmentModel(alignment);
 
-				if (ele.positionMap != null)
+			if (pdbMap[alignmentModel.pdbId] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId] = {};
+			}
+
+			if (pdbMap[alignmentModel.pdbId][alignmentModel.chain] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId][alignmentModel.chain] = [];
+			}
+
+			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
+
+			// TODO re-map mutation ids with positions by using the raw position map
+			var positionMap = {};
+
+			if (alignment.positionMap != null)
+			{
+				// re-map mutation ids with positions by using the raw position map
+				for(var i=0; i < mutations.length; i++)
 				{
-					// re-map mutation ids with positions by using the raw position map
-					for(var i=0; i < mutations.length; i++)
-					{
-						positionMap[mutations[i].mutationId] = {
-							start: ele.positionMap[mutations[i].proteinPosStart],
-							end: ele.positionMap[mutations[i].proteinPosEnd]};
-					}
+					positionMap[mutations[i].mutationId] = {
+						start: alignment.positionMap[mutations[i].proteinPosStart],
+						end: alignment.positionMap[mutations[i].proteinPosEnd]};
 				}
+			}
 
-				// update position map
-				ele.positionMap = positionMap;
-			});
-
-			pdbModel = new PdbModel(pdb);
-			pdbList.push(pdbModel);
+			// update position map
+			alignment.positionMap = positionMap;
 		});
+
+		for (var pdbId in pdbMap)
+		{
+			var chains = [];
+
+			for (var chain in pdbMap[pdbId])
+			{
+				var chainModel = new PdbChainModel({chainId: chain,
+					alignments: pdbMap[pdbId][chain]});
+
+				chains.push(chainModel);
+			}
+
+			var pdbModel = new PdbModel({pdbId: pdbId,
+				chains: chains});
+
+			pdbList.push(pdbModel);
+		}
+
+		// TODO remove when done
+//		_.each(data, function(pdb, idx) {
+//			_.each(pdb.chains, function(ele, idx) {
+//				var positionMap = {};
+//
+//				if (ele.positionMap != null)
+//				{
+//					// re-map mutation ids with positions by using the raw position map
+//					for(var i=0; i < mutations.length; i++)
+//					{
+//						positionMap[mutations[i].mutationId] = {
+//							start: ele.positionMap[mutations[i].proteinPosStart],
+//							end: ele.positionMap[mutations[i].proteinPosEnd]};
+//					}
+//				}
+//
+//				// update position map
+//				ele.positionMap = positionMap;
+//			});
+//
+//			pdbModel = new PdbModel(pdb);
+//			pdbList.push(pdbModel);
+//		});
 
 		// return new pdb model
 		return new PdbCollection(pdbList);

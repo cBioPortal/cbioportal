@@ -525,14 +525,14 @@ var survivalCurves = (function() {
         function appendInfo(divName, vals) {
             $("#" + divName).empty();
             $("#" + divName).append("<PRE><CODE>" +
-                                    "Gene Set: " + PortalGlobals.getGeneList() + "" +
-                                    "Num of Altered Cases:" + "" +
-                                    "Num of Unaltered Cases:" + "" +
-                                    "Num of Events in Altered Cases:" + "" +
-                                    "Num of Events in Unaltered Cases:" + "" +
-                                    "Median in Altered Cases:" + "" +
-                                    "Median in Unaltered Cases:" + "" +
-                                    "</CODE></PRE>");
+                "Gene Set: " + PortalGlobals.getGeneList() + "" +
+                "Num of Altered Cases:" + "" +
+                "Num of Unaltered Cases:" + "" +
+                "Num of Events in Altered Cases:" + "" +
+                "Num of Events in Unaltered Cases:" + "" +
+                "Median in Altered Cases:" + "" +
+                "Median in Unaltered Cases:" + "" +
+                "</CODE></PRE>");
         }
 
         return {
@@ -643,7 +643,7 @@ var survivalCurves = (function() {
                 } else { //events occur at the same time point
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.time = inputGrp1[_ptr_1].time;
-                    if (inputGrp1[_ptr_1].status === "1"  inputGrp2[_ptr_2].status === "1") {
+                    if (inputGrp1[_ptr_1].status === "1" || inputGrp2[_ptr_2].status === "1") {
                         if (inputGrp1[_ptr_1].status === "1") {
                             _datum.num_of_failure_1 = 1;
                         }

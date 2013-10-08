@@ -1,9 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    String siteTitle = SkinUtil.getTitle();
+    String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
 
     // Get priority settings

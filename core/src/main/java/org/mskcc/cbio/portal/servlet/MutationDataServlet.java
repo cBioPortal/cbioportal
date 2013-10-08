@@ -30,14 +30,14 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.remote.GetMutationData;
+import org.mskcc.cbio.portal.web_api.GetMutationData;
 import org.mskcc.cbio.portal.util.*;
 
 import javax.servlet.ServletException;
@@ -49,7 +49,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
-import org.mskcc.cbio.cgds.model.CosmicMutationFrequency;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -239,8 +239,6 @@ public class MutationDataServlet extends HttpServlet
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
 
-		int id = 0;
-
 		for (ExtendedMutation mutation : mutationList)
 		{
 			String caseId = mutation.getCaseId();
@@ -252,15 +250,14 @@ public class MutationDataServlet extends HttpServlet
 				int cancerStudyId = geneticProfile.getCancerStudyId();
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
-				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO a unique id for a mutation, entrez gene id, symbol all caps
+				// TODO entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
-				// mutationId is not a unique id wrt the whole DB,
-				// but it is unique wrt the returned data set
-				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+				//mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+				mutationData.put("mutationId", this.generateMutationId(mutation));
 				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
@@ -301,8 +298,6 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
-
-				id++;
 			}
 		}
 
@@ -323,7 +318,7 @@ public class MutationDataServlet extends HttpServlet
                 mat.add(l);
             }
             return mat;
-        }
+	}
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null
@@ -648,6 +643,12 @@ public class MutationDataServlet extends HttpServlet
 		return fisValue;
 	}
 
+	protected String generateMutationId(ExtendedMutation mutation)
+	{
+		// TODO use MD5 sum instead?
+		return "m" + Integer.toString(mutation.hashCode());
+	}
+
 	/**
 	 * Creates a map of mutation counts for the given list of mutations.
 	 *
@@ -698,9 +699,9 @@ public class MutationDataServlet extends HttpServlet
 							String.valueOf(mutation.getEndPosition()));
 			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
 				try {
-					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
-													   mutation.getCaseId(),
-													   URLEncoder.encode(locus,"US-ASCII"));
+					link = GlobalProperties.getLinkToIGVForBAM(cancerStudyStableId,
+                                                               mutation.getCaseId(),
+                                                               URLEncoder.encode(locus,"US-ASCII"));
 				}
 				catch (java.io.UnsupportedEncodingException e) {
 					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());

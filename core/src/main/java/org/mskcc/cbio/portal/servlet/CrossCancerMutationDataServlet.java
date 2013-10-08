@@ -30,17 +30,13 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.*;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
-import org.mskcc.cbio.portal.remote.GetMutationData;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.*;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -128,7 +124,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
                 //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
 
                 //  Get the default case set
                 AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
@@ -205,7 +201,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 	 * @param targetGeneList    list of target genes
 	 * @param targetCaseList    list of target cases
 	 * @return                  JSONArray of mutations
-	 * @throws org.mskcc.cbio.cgds.dao.DaoException
 	 */
 	protected JSONArray getMutationData(String geneticProfileId,
 			ArrayList<String> targetGeneList,
@@ -257,7 +252,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 				int cancerStudyId = geneticProfile.getCancerStudyId();
 				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
 						.getCancerStudyStableId();
-				String linkToPatientView = SkinUtil.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
+				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
@@ -703,7 +698,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 							String.valueOf(mutation.getEndPosition()));
 			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
 				try {
-					link = SkinUtil.getLinkToIGVForBAM(cancerStudyStableId,
+					link = GlobalProperties.getLinkToIGVForBAM(cancerStudyStableId,
 													   mutation.getCaseId(),
 													   URLEncoder.encode(locus,"US-ASCII"));
 				}

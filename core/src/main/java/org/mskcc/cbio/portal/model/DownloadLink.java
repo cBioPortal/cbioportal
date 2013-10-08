@@ -27,8 +27,6 @@
 
 package org.mskcc.cbio.portal.model;
 
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-
 import java.util.ArrayList;
 
 /**

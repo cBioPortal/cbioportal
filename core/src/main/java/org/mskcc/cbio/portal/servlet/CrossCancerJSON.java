@@ -28,21 +28,16 @@
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.*;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
-import org.mskcc.cbio.portal.model.GeneWithScore;
-import org.mskcc.cbio.portal.model.ProfileData;
-import org.mskcc.cbio.portal.model.ProfileDataSummary;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.GetProfileData;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -128,7 +123,7 @@ public class CrossCancerJSON extends HttpServlet {
                 ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
 
                 //  Get all Case Lists Associated with this Cancer Study ID.
-                ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
 
                 //  Get the default case set
                 AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);

@@ -1,18 +1,16 @@
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.DataSetsUtil" %> 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudyStats" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudyStats" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
 
 <%
-   Config globalConfig = Config.getInstance();
-   String dataSetsHtml = globalConfig.getProperty("data_sets");
-   String siteTitle = SkinUtil.getTitle();
-   String dataSetsHeader = SkinUtil.getDataSetsHeader();
-   String dataSetsFooter = SkinUtil.getDataSetsFooter();
-   String segFileURL = globalConfig.getProperty("segfile.url");
+   String dataSetsHtml = GlobalProperties.getProperty("data_sets");
+   String siteTitle = GlobalProperties.getTitle();
+   String dataSetsHeader = GlobalProperties.getDataSetsHeader();
+   String dataSetsFooter = GlobalProperties.getDataSetsFooter();
+   String segFileURL = GlobalProperties.getProperty("segfile.url");
    DataSetsUtil dataSetsUtil = new DataSetsUtil();
 
    // get list of cancer study stats to process
@@ -68,7 +66,7 @@
 					 String stableID = stats.getStableID();
 					 String studyName = stats.getStudyName();
                                          String htmlStudyName = "<a href='"
-                                                + SkinUtil.getLinkToCancerStudyView(stableID)
+                                                + GlobalProperties.getLinkToCancerStudyView(stableID)
                                                 + "'>" + studyName + "</a>";
                                          String reference = stats.getReference();
 					 out.println("<td style=\"text-align: left;\"><b>" + htmlStudyName + "</b></td>");

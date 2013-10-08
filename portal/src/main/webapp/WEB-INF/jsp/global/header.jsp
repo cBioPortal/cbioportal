@@ -2,7 +2,7 @@
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <!DOCTYPE HTML>
 <html>
@@ -45,14 +45,14 @@
                                             <li class="selected">
                                                 <a href="index.do">Home</a>
                                             </li>
-                                            <% if (SkinUtil.showDataTab()) { %>
+                                            <% if (GlobalProperties.showDataTab()) { %>
                                             <li class="internal">
                                                 <a href="data_sets.jsp">Data Sets</a>
                                             </li>
                                             <% } %>
                                             <%
                                                 //  Hide the Web API and R/MAT Tabs if the Portal Requires Authentication
-                                                if (!SkinUtil.usersMustAuthenticate()) {
+                                                if (!GlobalProperties.usersMustAuthenticate()) {
                                             %>
                                             <li class="internal">
                                                 <a href="web_api.jsp">Web API</a>
@@ -70,7 +70,7 @@
                                             <li class="internal">
                                                 <a href="faq.jsp">FAQ</a>
                                             </li>
-                                            <% if (SkinUtil.showNewsTab()) { %>
+                                            <% if (GlobalProperties.showNewsTab()) { %>
                                             <li class="internal">
                                                 <a href="news.jsp">News</a>
                                             </li>

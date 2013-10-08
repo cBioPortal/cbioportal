@@ -38,12 +38,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoDrug;
-import org.mskcc.cbio.cgds.dao.DaoDrugInteraction;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
+import org.mskcc.cbio.portal.dao.DaoDrug;
+import org.mskcc.cbio.portal.dao.DaoDrugInteraction;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.Drug;
+import org.mskcc.cbio.portal.model.DrugInteraction;
 
 /**
  *

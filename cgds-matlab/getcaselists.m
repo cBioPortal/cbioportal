@@ -2,8 +2,8 @@ function caseLists = getcaselists(cgdsURL, cancerTypeId, varargin)
 %GETCASELISTS Get case lists from the cBio CGDS portal.
 %    A = GETCASELISTS(cgdsURL, cancerTypeId) loads available case lists for
 %    a specific cancer type into A. cdgsURL points to the CGDS web API,
-%    typically 'http://cbio.mskcc.org/cgds-public/'. cancerTypeId is the
-%    cancer type ID, as returned by the getcancertypes function.
+%    typically http://www.cbioportal.org/public-portal/. cancerTypeId is
+%    the cancer type ID, as returned by the getcancertypes function.
 %
 %    Variable names follow column names returned by the web API.
 %
@@ -23,6 +23,7 @@ function caseLists = getcaselists(cgdsURL, cancerTypeId, varargin)
 %    getclinicaldata.
 
 verbose = isempty(varargin);
+if ~strcmp(cgdsURL(end), '/') cgdsURL(end + 1) = '/'; end
 
 cells  = urlgetcells([cgdsURL 'webservice.do?cmd=getCaseLists&cancer_type_id=' cancerTypeId], verbose);
 

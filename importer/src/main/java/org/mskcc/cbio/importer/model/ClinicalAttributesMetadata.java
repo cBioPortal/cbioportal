@@ -29,7 +29,7 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
+import org.mskcc.cbio.portal.model.ClinicalAttributeAbstract;
 
 import java.util.Map;
 import java.util.HashMap;

@@ -292,8 +292,8 @@ var survivalCurves = (function() {
                 unaltered_mouseover_color: "#81BEF7"
             },
             text = {
-                glyph1: "Gene Set Not Altered",
-                glyph2: "Gene Set Altered",
+                glyph1: "Cases with Alteration in Query Genes",
+                glyph2: "Cases without Alteration in Query Genes",
                 xTitle_os: "Months Survival",
                 yTitle_os: "Surviving",
                 xTitle_dfs: "Months Disease Free",
@@ -333,7 +333,7 @@ var survivalCurves = (function() {
             _dataset.push(d3.max(data.getDFSUnalteredData(), function(d) { return d.time; }));
             elem.xScale = d3.scale.linear()
                 .domain([0, d3.max(_dataset) + 0.1 * d3.max(_dataset)])
-                .range([100, 1000]);
+                .range([100, 700]);
             elem.yScale = d3.scale.linear()
                 .domain([-0.03, 1.05]) //fixed to be 0-1
                 .range([550, 50]);
@@ -466,7 +466,7 @@ var survivalCurves = (function() {
                 .style("fill", "none")
                 .style("stroke", "grey")
                 .style("shape-rendering", "crispEdges")
-                .attr("transform", "translate(1000, 0)")
+                .attr("transform", "translate(700, 0)")
                 .call(elemAxisY.orient("left").ticks(0));
             svg.selectAll("text")
                 .style("font-family", "sans-serif")
@@ -529,13 +529,13 @@ var survivalCurves = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(980, " + (70 + i * 15) + ")";
+                    return "translate(720, " + (70 + i * 15) + ")";
                 })
 
             legend.append("text")
-                .attr("dx", "-0.75em")
+                .attr("dx", ".65em")
                 .attr("dy", ".35em")
-                .style("text-anchor", "end")
+                .style("text-anchor", "start")
                 .text(function(d) { return d.text });
 
             legend.append("path")
@@ -552,7 +552,7 @@ var survivalCurves = (function() {
         function appendAxisTitles(svg, xTitle, yTitle) {
             svg.append("text")
                 .attr("class", "label")
-                .attr("x", 550)
+                .attr("x", 380)
                 .attr("y", 600)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
@@ -569,24 +569,28 @@ var survivalCurves = (function() {
 
         function addPvals(svg, pVal) {
             svg.append("text")
-                .attr("x", 985)
+                .attr("x", 715)
                 .attr("y", 110)
-                .style("text-anchor", "end")
+                .style("text-anchor", "start")
                 .text("Logrank Test P-Value: " + pVal);
         }
 
         function appendInfo(divName, vals) {
             $("#" + divName).empty();
-            $("#" + divName).append("<pre><code>" +
-                "Queried Gene Set:\t<b>" + PortalGlobals.getGeneList() +  "</b><br>" +
-                "Num of Altered Cases:\t<b>" + vals.num_altered_cases + "</b><br>" +
-                "Num of Unaltered Cases:\t<b>" + vals.num_unaltered_cases + "</b><br>" +
-                "Num of Events in Altered Cases:\t<b>" + vals.num_of_events_altered_cases + "</b><br>" +
-                "Num of Events in Unaltered Cases:\t<b>" + vals.num_of_events_unaltered_cases + "</b><br>" +
-                "Median in Altered Cases:\t<b>" + vals.altered_median + "</b><br>" +
-                "Median in Unaltered Cases:\t<b>" + vals.unaltered_median + "</b><br>" +
-                "</code></pre>");
-        }
+            $("#" + divName).append("<table class='survival_stats'>" +
+                "<tr><td></td><td>n.RECORD</td><td>n.EVENTS</td><td>MEDIAN</td></tr>" +
+                "<tr>" +
+                "<td style='width: 330px;'>Cases With Alteration in Query Genes</td>" +
+                "<td><b>" + vals.num_altered_cases + "</b></td>" +
+                "<td><b>" + vals.num_of_events_altered_cases + "</b></td>" +
+                "<td><b>" + vals.altered_median + "</b></td>" +
+                "</tr><tr>" +
+                "<td>Cases Without Alteration in Query Genes</td>" +
+                "<td><b>" + vals.num_unaltered_cases + "</b></td>" +
+                "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" +
+                "<td><b>" + vals.unaltered_median + "</b></td>" +
+                "</table>");
+       }
 
         function appendImgConverter(divId, svgId) {
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +

@@ -5,15 +5,28 @@
 %>
 
 <style>
-    #survival .stats_table {
-        width: 900px;
-        padding-left: 95px;
-        margin-top: -40px;
+    #survival .survival_stats_table {
+        margin-top: -20px;
         margin-bottom: 30px;
+        margin-left: 95px;
+        width: 620px;
+    }
+    #survival table{
+        background-color: #F8FAB1;
+        height: 80px;
+        width: 620px;
+    }
+    #survival td{
+        width: 90px;
+        font-size: 13px;
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        border: 1px solid #D8D8D8;
     }
     #survival h4{
+        padding-left: 60px;
         padding-top: 20px;
-        margin-bottom: -20px;
+        margin-bottom: -50px;
     }
 </style>
 
@@ -30,10 +43,10 @@
 <div class="section" id="survival">
     <h4>Overall Survival<div id='os_pdf_svg'></div></h4>
     <div id="os_survival_curve"></div>
-    <div class="markdown survival stats_table" id="os_stat_table"></div>
+    <div class="survival_stats_table" id="os_stat_table"></div>
     <h4>Disease Free Survival<div id='dfs_pdf_svg'></div></h4>
     <div id="dfs_survival_curve"></div>
-    <div class="markdown survival stats_table" id="dfs_stat_table"></div>
+    <div class="survival_stats_table" id="dfs_stat_table"></div>
 </div>
 
 <script>

@@ -321,8 +321,9 @@ MutationDiagram.prototype.processData = function (mutationData)
 		var proteinChange = mutation.proteinChange;
 
 		var location = proteinChange.match(/[0-9]+/);
+		var type = mutation.mutationType.trim().toLowerCase();
 
-		if (location != null)
+		if (location != null && type != "fusion")
 		{
 			if (mutations[location] == null)
 			{

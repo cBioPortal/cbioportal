@@ -32,7 +32,7 @@
         // Here are some options that we will use in this view
         var width = 1000;
         var height = 650;
-        var paddingLeft = 70;
+        var paddingLeft = 80;
         var paddingRight = 50;
         var paddingTop = 10;
         var histBottom = 400;
@@ -185,16 +185,7 @@
                                 })
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
-                                .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "other"),
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
-                                    });
-                                })
+                                .attr("class", function(d, i) { return d.studyId + " alt-other" })
                             ;
 
                             var mutBarGroup = histogram.append("g");
@@ -216,16 +207,8 @@
                                 })
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
-                                .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "mutation"),
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
-                                    });
-                                })
+                                .transition().duration(1000)
+                                .attr("class", function(d, i) { return d.studyId + " alt-mut" })
                             ;
 
                             var cnadownBarGroup = histogram.append("g");
@@ -249,16 +232,7 @@
                                 })
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
-                                .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "cnaDown"),
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
-                                    });
-                                })
+                                .attr("class", function(d, i) { return d.studyId + " alt-cnadown" })
                             ;
 
                             var cnaupBarGroup = histogram.append("g");
@@ -283,29 +257,48 @@
                                 })
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
+                                .attr("class", function(d, i) { return d.studyId + " alt-cnaup" })
+                            ;
+
+                            var infoBarGroup = histogram.append("g");
+                            infoBarGroup.selectAll("rect")
+                                .data(histData, key)
+                                .enter()
+                                .append("rect")
+                                .attr("fill", "white")
+                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
+                                .attr("width", studyWidth)
+                                .attr("height", function(d, i) {
+                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "all"));
+                                })
+                                .style("opacity",0)
+                                .attr("class", function(d, i) { return d.studyId + " alt-info" })
                                 .each(function(d, i) {
                                     $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "cnaUp"),
+                                        content: "" + calculateFrequency(d, i, "all"),
                                         show: 'mouseover',
                                         hide: {
                                             fixed:true,
                                             delay: 100
                                         }
                                     });
-                                })
-                            ;
+                                });
+
 
                             var annotations = histogram.append("g");
                             annotations.selectAll("text")
-                                .data(["Type", "Mutation", "CNA"])
+                                .data(["Cancer type", "Mutation data", "CNA data"])
                                 .enter()
                                 .append("text")
                                 .attr("y", function(d, i) { return histBottom + verticalCirclePadding*(i+1) + 3 })
-                                .attr("x", function(d, i) { return paddingLeft-(33 + d.length*2); })
+                                .attr("x", function(d, i) { return paddingLeft - 10; })
                                 .text(function(d, i) { return d; })
+                                .attr("text-anchor", "end")
                                 .attr("font-family", fontFamily)
                                 .attr("font-weight", "bold")
-                                .attr("font-size", "10px");
+                                .attr("font-size", "9px")
+                            ;
 
                             // This is for cancer type
                             var cancerTypes = histogram.append("g");
@@ -319,6 +312,7 @@
                                 .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
                                 .attr("cy", function(d, i) { return histBottom + verticalCirclePadding })
                                 .attr("r", circleTTR)
+                                .attr("class", function(d, i) { return d.studyId + " annotation-type" })
                                 .each(function(d, i) {
                                     $(this).qtip({
                                         content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer],
@@ -332,16 +326,19 @@
 
                             var mutGroups = histogram.append("g");
                             // This is for mutation data availability
-                            mutGroups.selectAll("circle")
+                            mutGroups.selectAll("text")
                                 .data(histData, key)
                                 .enter()
-                                .append("circle")
-                                .attr("fill", function(d, i) {
-                                    return metaData.cancer_studies[d.studyId].has_mutation_data ? dataAColor : dataNAColor
+                                .append("text")
+                                .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+                                .attr("y", function() { return histBottom + verticalCirclePadding*2 + circleDTR/2 })
+                                .text(function(d, i) {
+                                    return metaData.cancer_studies[d.studyId].has_mutation_data ? "+" : "-";
                                 })
-                                .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                .attr("cy", function() { return histBottom + verticalCirclePadding*2 })
-                                .attr("r", circleDTR)
+                                .attr("text-anchor", "middle")
+                                .attr("font-weight", "bold")
+                                .attr("font-size", "10px")
+                                .attr("class", function(d, i) { return d.studyId + " annotation-mut" })
                                 .each(function(d, i) {
                                     $(this).qtip({
                                         content: metaData.cancer_studies[d.studyId].has_mutation_data
@@ -361,13 +358,16 @@
                             cnaGroups.selectAll("circle")
                                 .data(histData, key)
                                 .enter()
-                                .append("circle")
-                                .attr("fill", function(d, i) {
-                                    return metaData.cancer_studies[d.studyId].has_cna_data ? dataAColor : dataNAColor
+                                .append("text")
+                                .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+                                .attr("y", function() { return histBottom + verticalCirclePadding*3 + circleDTR/2 })
+                                .text(function(d, i) {
+                                    return metaData.cancer_studies[d.studyId].has_cna_data ? "+" : "-";
                                 })
-                                .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                .attr("cy", function() { return histBottom + verticalCirclePadding*3 })
-                                .attr("r", circleDTR)
+                                .attr("text-anchor", "middle")
+                                .attr("font-weight", "bold")
+                                .attr("font-size", "10px")
+                                .attr("class", function(d, i) { return d.studyId + " annotation-cna" })
                                 .each(function(d) {
                                     $(this).qtip({
                                         content: metaData.cancer_studies[d.studyId].has_cna_data
@@ -404,6 +404,7 @@
                                     var yLoc = histBottom + verticalCirclePadding*4;
                                     return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
                                 })
+                                .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
                                 .each(function(d, i) {
                                     $(this).qtip({
                                         content: metaData.cancer_studies[d.studyId].name,

@@ -441,7 +441,7 @@ var survivalCurves = (function() {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-                    content += "Time: <strong>" + d.time + "</strong><br>";
+                    content += "Time: <strong>" + d.time.toFixed(2) + "</strong><br>";
                     content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
                         content += "<strong> -- LAST OBSERVATION -- </strong>";

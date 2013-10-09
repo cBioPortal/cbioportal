@@ -32,6 +32,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoPdbUniprotResidueMapping;
+import org.mskcc.cbio.portal.model.PdbUniprotAlignment;
+import org.mskcc.cbio.portal.model.PdbUniprotResidueMapping;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -70,39 +72,32 @@ public class PdbDataServlet extends HttpServlet
 
 		try
 		{
-			Map<String, Set<String>> pdbChainMap =
-					DaoPdbUniprotResidueMapping.mapToPdbChains(uniprotId);
+			List<PdbUniprotAlignment> alignments =
+					DaoPdbUniprotResidueMapping.getAlignments(uniprotId);
 
-			for (String pdbId : pdbChainMap.keySet())
+			for (PdbUniprotAlignment alignment : alignments)
 			{
-				JSONObject pdb = new JSONObject();
-				JSONArray chainArray = new JSONArray();
+				JSONObject alignmentJson = new JSONObject();
+				Integer alignmentId = alignment.getAlignmentId();
 
-				pdb.put("pdbId", pdbId);
+				alignmentJson.put("alignmentId", alignmentId);
+				alignmentJson.put("pdbId", alignment.getPdbId());
+				alignmentJson.put("chain", alignment.getChain());
+				alignmentJson.put("uniprotId", alignment.getUniprotId());
+				alignmentJson.put("pdbFrom", alignment.getPdbFrom());
+				alignmentJson.put("pdbTo", alignment.getPdbTo());
+				alignmentJson.put("uniprotFrom", alignment.getUniprotFrom());
+				alignmentJson.put("uniprotTo", alignment.getUniprotTo());
 
-				for (String chainId : pdbChainMap.get(pdbId))
-				{
-					// get the pdb positions corresponding to the given uniprot positions
-					Map<Integer, Integer> positionMap = DaoPdbUniprotResidueMapping.mapToPdbChains(
-							uniprotId, positions, pdbId, chainId);
+				// get the pdb positions corresponding to the given uniprot positions
+				Map<Integer, PdbUniprotResidueMapping> positionMap =
+						DaoPdbUniprotResidueMapping.mapToPdbResidues(
+								alignmentId, positions);
 
-					// Positions are not continuous, so exclude gaps, create segments
-					// chain.segments -> [{start: x1, end:y1}, ...]
-					JSONArray segments = this.segmentArray(
-						DaoPdbUniprotResidueMapping.getAllPositions(
-							uniprotId, pdbId, chainId));
+				// create a json object for each PdbUniprotResidueMapping in the positionMap
+				alignmentJson.put("positionMap", this.positionMap(positionMap));
 
-					JSONObject chain = new JSONObject();
-
-					chain.put("chainId", chainId);
-					chain.put("segments", segments);
-					chain.put("positionMap", positionMap);
-
-					chainArray.add(chain);
-				}
-
-				pdb.put("chains", chainArray);
-				jsonArray.add(pdb);
+				jsonArray.add(alignmentJson);
 			}
 		}
 		catch (DaoException e)
@@ -111,6 +106,25 @@ public class PdbDataServlet extends HttpServlet
 		}
 
 		this.writeOutput(response, jsonArray);
+	}
+
+	protected Map<Integer, JSONObject> positionMap(
+			Map<Integer, PdbUniprotResidueMapping> positionMap)
+	{
+		Map<Integer, JSONObject> map = new HashMap<Integer, JSONObject>();
+
+		for (Integer position : positionMap.keySet())
+		{
+			PdbUniprotResidueMapping mapping = positionMap.get(position);
+			JSONObject residueMappingJson = new JSONObject();
+
+			residueMappingJson.put("pdbPos", mapping.getPdbPos());
+			residueMappingJson.put("match", mapping.getMatch());
+
+			map.put(position, residueMappingJson);
+		}
+
+		return map;
 	}
 
 	/**

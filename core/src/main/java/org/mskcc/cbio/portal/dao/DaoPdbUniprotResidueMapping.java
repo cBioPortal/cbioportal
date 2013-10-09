@@ -117,7 +117,43 @@ public final class DaoPdbUniprotResidueMapping {
 		} finally {
 			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
 		}
+	}
 
+	/**
+	 * Retrieves all residue mappings (position mappings)
+	 * for the given alignment id.
+	 *
+	 * @param alignmentId   alignment id
+	 * @return  a list of PdbUniprotResidueMapping instances
+	 * @throws DaoException
+	 */
+	public static List<PdbUniprotResidueMapping> getResidueMappings(Integer alignmentId) throws DaoException
+	{
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+
+		try {
+			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+			pstmt = con.prepareStatement("SELECT * FROM pdb_uniprot_residue_mapping " +
+			                             "WHERE ALIGNMENT_ID=? " +
+			                             "ORDER BY UNIPROT_POSITION ASC");
+			pstmt.setInt(1, alignmentId);
+			rs = pstmt.executeQuery();
+
+			List<PdbUniprotResidueMapping> list = new ArrayList<PdbUniprotResidueMapping>();
+
+			while (rs.next())
+			{
+				list.add(extractResidueMapping(rs));
+			}
+
+			return list;
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+		}
 	}
 
 	/**
@@ -224,6 +260,9 @@ public final class DaoPdbUniprotResidueMapping {
 		Float eValue = rs.getFloat(9);
 		Float identity = rs.getFloat(10);
 		Float identityProtein = rs.getFloat(11);
+		String uniprotAlign = rs.getString(12);
+		String pdbAlign = rs.getString(13);
+		String midlineAlign = rs.getString(14);
 
 		alignment.setAlignmentId(alignmentId);
 		alignment.setPdbId(pdbId);
@@ -236,6 +275,9 @@ public final class DaoPdbUniprotResidueMapping {
 		alignment.setEValue(eValue);
 		alignment.setIdentity(identity);
 		alignment.setIdentityProtein(identityProtein);
+		alignment.setUniprotAlign(uniprotAlign);
+		alignment.setPdbAlign(pdbAlign);
+		alignment.setMidlineAlign(midlineAlign);
 
 		return alignment;
 	}

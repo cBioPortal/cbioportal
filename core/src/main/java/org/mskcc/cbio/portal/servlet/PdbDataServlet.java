@@ -94,8 +94,18 @@ public class PdbDataServlet extends HttpServlet
 						DaoPdbUniprotResidueMapping.mapToPdbResidues(
 								alignmentId, positions);
 
+				// TODO postpone position mapping until clicking on the pdb chain (except default chain)
 				// create a json object for each PdbUniprotResidueMapping in the positionMap
 				alignmentJson.put("positionMap", this.positionMap(positionMap));
+
+				// get all positions corresponding to the current alignment
+				//List<PdbUniprotResidueMapping> mappingList =
+				//		DaoPdbUniprotResidueMapping.getResidueMappings(alignmentId);
+
+				// create a json object for segments with special "match" values
+				//alignmentJson.put("segments", this.segmentArray(mappingList));
+
+				alignmentJson.put("alignmentString", this.alignmentString(alignment));
 
 				jsonArray.add(alignmentJson);
 			}
@@ -106,6 +116,76 @@ public class PdbDataServlet extends HttpServlet
 		}
 
 		this.writeOutput(response, jsonArray);
+	}
+
+	protected String alignmentString(PdbUniprotAlignment alignment)
+	{
+		// TODO process 3 alignment strings and create a visualization string
+		return alignment.getMidlineAlign();
+	}
+
+
+	// TODO remove unused methods when done...
+
+	protected JSONArray segmentArray(List<PdbUniprotResidueMapping> mappingList)
+	{
+		Stack<Integer> specialPositions = new Stack<Integer>();
+		String lastMatch = "NA";
+
+		JSONArray segments = new JSONArray();
+
+		// assuming the mapping list is sorted by asc uniprot position
+		for (PdbUniprotResidueMapping mapping : mappingList)
+		{
+			String match = mapping.getMatch();
+			Integer pos = mapping.getUniprotPos();
+
+			Integer lastPos = specialPositions.empty() ? -1 : specialPositions.peek();
+
+			// check for special characters (empty string & plus sign)
+			if (match.length() == 0 ||
+			    match.equals("+"))
+			{
+				boolean adjacent = match.equals(lastMatch) &&
+					(pos == lastPos + 1);
+
+				// check for adjacency (which is very unlikely)
+				if (!adjacent)
+				{
+					// create segment by using the stack
+					segments.add(this.createSegment(specialPositions, lastMatch));
+
+					// clear stack for the next segment
+					specialPositions.clear();
+				}
+
+				specialPositions.push(pos);
+				lastMatch = match;
+			}
+		}
+
+		// create the last segment
+		if (!specialPositions.empty())
+		{
+			segments.add(this.createSegment(specialPositions, lastMatch));
+		}
+
+		return segments;
+	}
+
+	protected JSONObject createSegment(Stack<Integer> positions, String match)
+	{
+		JSONObject segment = null;
+
+		if (!positions.empty())
+		{
+			segment = new JSONObject();
+			segment.put("end", positions.peek());
+			segment.put("start", positions.firstElement());
+			segment.put("match", match);
+		}
+
+		return segment;
 	}
 
 	protected Map<Integer, JSONObject> positionMap(
@@ -138,7 +218,7 @@ public class PdbDataServlet extends HttpServlet
 	 * @return  an array of segment objects
 	 * @throws DaoException
 	 */
-	protected JSONArray segmentArray(List<Integer> positions) throws DaoException
+	protected JSONArray getSegmentArray(List<Integer> positions) throws DaoException
 	{
 		JSONArray segments = new JSONArray();
 

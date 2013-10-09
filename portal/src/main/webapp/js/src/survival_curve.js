@@ -170,8 +170,16 @@ var survivalCurves = (function() {
             kmEstimator.calc(os_altered_group);
             kmEstimator.calc(os_unaltered_group);
             var _os_stat_datum = jQuery.extend(true, {}, stat_datum);
-            _os_stat_datum.num_altered_cases = os_altered_group.length;
-            _os_stat_datum.num_unaltered_cases = os_unaltered_group.length;
+            if (os_altered_group.length !== 0) {
+                _os_stat_datum.num_altered_cases = os_altered_group.length;
+            } else {
+                _os_stat_datum.num_altered_cases = "NA";
+            }
+            if (os_unaltered_group.length !== 0) {
+                _os_stat_datum.num_unaltered_cases = os_unaltered_group.length;
+            } else {
+                _os_stat_datum.num_unaltered_cases = "NA";
+            }
             _os_stat_datum.num_of_events_altered_cases = countEvents(os_altered_group);
             _os_stat_datum.num_of_events_unaltered_cases = countEvents(os_unaltered_group);
             _os_stat_datum.altered_median = calcMedian(os_altered_group);
@@ -184,8 +192,16 @@ var survivalCurves = (function() {
             kmEstimator.calc(dfs_altered_group);
             kmEstimator.calc(dfs_unaltered_group);
             var _dfs_stat_datum = jQuery.extend(true, {}, stat_datum);
-            _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
-            _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
+            if (dfs_altered_group.length !== 0) {
+                _dfs_stat_datum.num_altered_cases = dfs_altered_group.length;
+            } else {
+                _dfs_stat_datum.num_altered_cases = "NA";
+            }
+            if (dfs_unaltered_group.length !== 0) {
+                _dfs_stat_datum.num_unaltered_cases = dfs_unaltered_group.length;
+            } else {
+                _dfs_stat_datum.num_unaltered_cases = "NA";
+            }
             _dfs_stat_datum.num_of_events_altered_cases = countEvents(dfs_altered_group);
             _dfs_stat_datum.num_of_events_unaltered_cases = countEvents(dfs_unaltered_group);
             _dfs_stat_datum.altered_median = calcMedian(dfs_altered_group);
@@ -195,26 +211,32 @@ var survivalCurves = (function() {
         }
 
         function countEvents(inputArr) {
-            var _cnt = 0;
-            for (var i in inputArr) {
-                if (inputArr[i].status === "1") {
-                    _cnt += 1;
+            if (inputArr.length !== 0) {
+                var _cnt = 0;
+                for (var i in inputArr) {
+                    if (inputArr[i].status === "1") {
+                        _cnt += 1;
+                    }
                 }
+                return _cnt;
             }
-            return _cnt;
+            return "NA";
         }
 
         function calcMedian(inputArr) {
-            var _mIndex = 0;
-            for (var i in inputArr) {
-                if (inputArr[i].survival_rate <= 0.5) {
-                    _mIndex = i;
-                    break;
-                } else {
-                    continue;
+            if (inputArr.length !== 0) {
+                var _mIndex = 0;
+                for (var i in inputArr) {
+                    if (inputArr[i].survival_rate <= 0.5) {
+                        _mIndex = i;
+                        break;
+                    } else {
+                        continue;
+                    }
                 }
+                return parseFloat(inputArr[_mIndex].time).toFixed(2);
             }
-            return inputArr[_mIndex].time;
+            return "NA";
         }
 
         return {
@@ -288,22 +310,28 @@ var survivalCurves = (function() {
             },
             settings = {
                 canvas_width: 800,
-                canvas_height: 650,
+                canvas_height: 620,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
                 altered_mouseover_color: "#F5BCA9",
                 unaltered_mouseover_color: "#81BEF7"
             },
             text = {
-                glyph1: "Cases with Alteration in Query Genes",
-                glyph2: "Cases without Alteration in Query Genes",
+                glyph1: "Cases with Alteration(s) in Query Gene(s)",
+                glyph2: "Cases without Alteration(s) in Query Gene(s)",
                 xTitle_os: "Months Survival",
                 yTitle_os: "Surviving",
                 xTitle_dfs: "Months Disease Free",
                 yTitle_dfs: "Disease Free"
             },
             style = {
-                censored_sign_size: 5
+                censored_sign_size: 5,
+                axis_stroke_width: 1,
+                axisX_title_pos_x: 380,
+                axisX_title_pos_y: 600,
+                axisY_title_pos_x: -270,
+                axisY_title_pos_y: 45,
+                axis_color: "black"
             }
 
         function initOSCanvas() {
@@ -345,18 +373,22 @@ var survivalCurves = (function() {
                 .range([550, 50]);
             elem.xAxisOS = d3.svg.axis()
                 .scale(elem.xScale)
-                .orient("bottom");
+                .orient("bottom")
+                .tickSize(6, 0, 0);
             elem.yAxisOS = d3.svg.axis()
                 .scale(elem.yScale)
                 .tickFormat(formatAsPercentage)
-                .orient("left");
+                .orient("left")
+                .tickSize(6, 0, 0);
             elem.xAxisDFS = d3.svg.axis()
                 .scale(elem.xScale)
-                .orient("bottom");
+                .orient("bottom")
+                .tickSize(6, 0, 0);
             elem.yAxisDFS = d3.svg.axis()
                 .scale(elem.yScale)
                 .tickFormat(formatAsPercentage)
-                .orient("left");
+                .orient("left")
+                .tickSize(6, 0, 0);
         }
 
         function initLines() {
@@ -409,8 +441,8 @@ var survivalCurves = (function() {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-                    content += "OBS Time: <strong>" + d.time + "</strong><br>";
-                    content += "KM Est: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
+                    content += "Time: <strong>" + d.time + "</strong><br>";
+                    content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
                         content += "<strong> -- LAST OBSERVATION -- </strong>";
                     }
@@ -448,32 +480,32 @@ var survivalCurves = (function() {
 
         function appendAxis(svg, elemAxisX, elemAxisY) {
             svg.append("g")
-                .style("stroke-width", 2)
+                .style("stroke-width", style.axis_stroke_width)
                 .style("fill", "none")
-                .style("stroke", "grey")
+                .style("stroke", style.axis_color)
                 .attr("class", "survival-curve-x-axis-class")
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(0, 550)")
                 .call(elemAxisX);
             svg.append("g")
-                .style("stroke-width", 2)
+                .style("stroke-width", style.axis_stroke_width)
                 .style("fill", "none")
-                .style("stroke", "grey")
+                .style("stroke", style.axis_color)
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(0, 50)")
                 .call(elemAxisX.orient("bottom").ticks(0));
             svg.append("g")
-                .style("stroke-width", 2)
+                .style("stroke-width", style.axis_stroke_width)
                 .style("fill", "none")
-                .style("stroke", "grey")
+                .style("stroke", style.axis_color)
                 .attr("class", "survival-curve-y-axis-class")
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(100, 0)")
                 .call(elemAxisY);
             svg.append("g")
-                .style("stroke-width", 2)
+                .style("stroke-width", style.axis_stroke_width)
                 .style("fill", "none")
-                .style("stroke", "grey")
+                .style("stroke", style.axis_color)
                 .style("shape-rendering", "crispEdges")
                 .attr("transform", "translate(700, 0)")
                 .call(elemAxisY.orient("left").ticks(0));
@@ -556,25 +588,21 @@ var survivalCurves = (function() {
                 .attr("fill", function (d) { return d.color; })
                 .attr("stroke", "black")
                 .attr("stroke-width",.9);
-
-
-
-
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
             svg.append("text")
                 .attr("class", "label")
-                .attr("x", 380)
-                .attr("y", 600)
+                .attr("x", style.axisX_title_pos_x)
+                .attr("y", style.axisX_title_pos_y)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
                 .text(xTitle);
             svg.append("text")
                 .attr("class", "label")
                 .attr("transform", "rotate(-90)")
-                .attr("x", -270)
-                .attr("y", 45)
+                .attr("x", style.axisY_title_pos_x)
+                .attr("y", style.axisY_title_pos_y)
                 .style("text-anchor", "middle")
                 .style("font-weight","bold")
                 .text(yTitle);
@@ -593,12 +621,12 @@ var survivalCurves = (function() {
             $("#" + divName).append("<table class='survival_stats'>" +
                 "<tr><td></td><td>n.records</td><td>n.events</td><td>median</td></tr>" +
                 "<tr>" +
-                "<td style='width: 330px;'>Cases with Alteration in Query Genes</td>" +
+                "<td style='width: 300px; text-align:left;'>Cases with Alteration(s) in Query Gene(s)</td>" +
                 "<td><b>" + vals.num_altered_cases + "</b></td>" +
                 "<td><b>" + vals.num_of_events_altered_cases + "</b></td>" +
                 "<td><b>" + vals.altered_median + "</b></td>" +
                 "</tr><tr>" +
-                "<td>Cases without Alteration in Query Genes</td>" +
+                "<td style='text-align:left;'>Cases without Alteration(s) in Query Gene(s)</td>" +
                 "<td><b>" + vals.num_unaltered_cases + "</b></td>" +
                 "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" +
                 "<td><b>" + vals.unaltered_median + "</b></td>" +
@@ -606,14 +634,14 @@ var survivalCurves = (function() {
        }
 
         function appendImgConverter(divId, svgId) {
-            var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='survival_study.pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#' + divId).append(pdfConverterForm);
-            var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+            var svgConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
                 "onsubmit=\"this.elements['svgelement'].value=loadSurvivalCurveSVG('" + svgId + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
@@ -646,7 +674,7 @@ var survivalCurves = (function() {
                 addLegends(elem.svgOS);
                 addPvals(elem.svgOS, data.getOsStats().pVal);
                 appendInfo("os_stat_table", data.getOsStats());
-                appendImgConverter("os_pdf_svg", "os_survival_curve");
+                appendImgConverter("os_header", "os_survival_curve");
             },
             generateDFS: function() {
                 drawDFSLines();
@@ -661,10 +689,10 @@ var survivalCurves = (function() {
                 addLegends(elem.svgDFS);
                 addPvals(elem.svgDFS, data.getDfsStats().pVal);
                 appendInfo("dfs_stat_table", data.getDfsStats());
-                appendImgConverter("dfs_pdf_svg", "dfs_survival_curve");
+                appendImgConverter("dfs_header", "dfs_survival_curve");
             },
             errorMsg: function(type) {
-                var errMsg = "<p><br><br>Data not available.</p>";
+                var errMsg = "<p style='margin-left:100px;'><br><br>Data not available.</p>";
                 if (type === "os") {
                     $("#os_stat_table").append(errMsg);
                 } else if (type === "dfs") {

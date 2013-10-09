@@ -618,6 +618,9 @@ CREATE TABLE `pdb_uniprot_alignment` (
   `EVALUE` float,
   `IDENTITY` float,
   `IDENTP` float,
+  `UNIPROT_ALIGN` text,
+  `PDB_ALIGN` text,
+  `MIDLINE_ALIGN` text,
   PRIMARY KEY (`ALIGNMENT_ID`),
   KEY(`UNIPROT_ID`),
   KEY(`PDB_ID`, `CHAIN`)

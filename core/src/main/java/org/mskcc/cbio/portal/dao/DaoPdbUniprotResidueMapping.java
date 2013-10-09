@@ -42,7 +42,8 @@ public final class DaoPdbUniprotResidueMapping {
     
     public static int addPdbUniprotAlignment(int alignId, String pdbId, String chain,
             String uniprotId, int pdbFrom, int pdbTo, int uniprotFrom, int uniprotTo,
-            double evalue, double identity, double identp) {
+            double evalue, double identity, double identp, String uniprotAlign,
+            String pdbAlign, String midline) {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new IllegalStateException("only bulk load is supported");
         }
@@ -58,7 +59,10 @@ public final class DaoPdbUniprotResidueMapping {
                 Integer.toString(uniprotTo),
                 Double.toString(evalue),
                 Double.toString(identity),
-                Double.toString(identp));
+                Double.toString(identp),
+                uniprotAlign,
+                pdbAlign,
+                midline);
         return 1;
     }
     
@@ -294,4 +298,21 @@ public final class DaoPdbUniprotResidueMapping {
 			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
 		}
 	}
+
+    public static void deleteAllRecords() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+            pstmt = con.prepareStatement("TRUNCATE TABLE pdb_uniprot_alignment");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE pdb_uniprot_residue_mapping");
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+        }
+    }
 }

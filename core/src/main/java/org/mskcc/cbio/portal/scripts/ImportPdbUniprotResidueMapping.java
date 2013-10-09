@@ -77,7 +77,13 @@ public final class ImportPdbUniprotResidueMapping {
                     double evalue = Double.parseDouble(parts[7]);
                     double identity = Double.parseDouble(parts[8]);
                     double identp = Double.parseDouble(parts[9]);
-                    DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(alignId, pdbId, chain, uniprotId, pdbFrom, pdbTo, uniprotFrom, uniprotTo, evalue, identity, identp);
+                    String uniprotAlign = parts[10];
+                    String pdbAlign = parts[11];
+                    String midline = parts[12];
+                    DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(alignId,
+                            pdbId, chain, uniprotId, pdbFrom, pdbTo, uniprotFrom,
+                            uniprotTo, evalue, identity, identp, uniprotAlign,
+                            pdbAlign, midline);
                 } else {
                     // residue mapping line, e.g. 1a37    A       M1      1433B_HUMAN     M3      M
                     int pdbPos = Integer.parseInt(parts[2].substring(1));
@@ -101,10 +107,13 @@ public final class ImportPdbUniprotResidueMapping {
             System.out.println("command line usage:  importPdbUniprotResidueMapping.pl <pdb-uniprot-residue-mapping.txt>");
             System.exit(1);
         }
+        
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
         try {
+            DaoPdbUniprotResidueMapping.deleteAllRecords();
+            
             File file = new File(args[0]);
             System.out.println("Reading PDB-UniProt residue mapping from:  " + file.getAbsolutePath());
             int numLines = FileUtil.getNumLines(file);

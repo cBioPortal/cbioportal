@@ -45,6 +45,40 @@ public class PdbUniprotAlignment
 	private Float eValue;
 	private Float identity;
 
+	public String getMidlineAlign()
+	{
+		return midlineAlign;
+	}
+
+	public void setMidlineAlign(String midlineAlign)
+	{
+		this.midlineAlign = midlineAlign;
+	}
+
+	public String getUniprotAlign()
+	{
+		return uniprotAlign;
+	}
+
+	public void setUniprotAlign(String uniprotAlign)
+	{
+		this.uniprotAlign = uniprotAlign;
+	}
+
+	public String getPdbAlign()
+	{
+		return pdbAlign;
+	}
+
+	public void setPdbAlign(String pdbAlign)
+	{
+		this.pdbAlign = pdbAlign;
+	}
+
+	private String uniprotAlign;
+	private String pdbAlign;
+	private String midlineAlign;
+
 	public Float getEValue()
 	{
 		return eValue;

@@ -23,6 +23,8 @@
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
 <script type="text/javascript" src="js/src/mutation_model.js"></script>
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
+<link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
+<link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
@@ -88,7 +90,7 @@
         </div>
 
         <div class="section" id="cc-mutations">
-            <div id="ccmutationdetails">
+            <div id="mutation_details" class="mutation-details-content">
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>

@@ -62,7 +62,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	 * @return {Array}          an array of column indices
 	 * @private
 	 */
-	function _getHiddenColumns(headers, indexMap, containsGermline, containsIgvLink)
+	function _getHiddenColumns(headers, indexMap, containsGermline, containsIgvLink, containsSingleStudy)
 	{
 		// set hidden column indices
 		var hiddenCols = [];
@@ -99,6 +99,10 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		{
 			hiddenCols.push(indexMap["bam"]);
 		}
+
+        if(containsSingleStudy) {
+            hiddenCols.push(indexMap["cancer study"]);
+        }
 
 		return hiddenCols;
 	}
@@ -559,11 +563,12 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		// instead of integer constants for table columns
 		var indexMap = _buildColumnIndexMap(headers);
 
-		// determine hidden columns
-		var hiddenCols = _getHiddenColumns(headers,
+        var hiddenCols = _getHiddenColumns(headers,
 			indexMap,
 			mutationUtil.containsGermline(gene),
-			mutationUtil.containsIgvLink(gene));
+			mutationUtil.containsIgvLink(gene),
+            mutationUtil.cancerStudyAllTheSame(gene)
+        );
 
 		// add custom sort functions for specific columns
 		_addSortFunctions();

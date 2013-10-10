@@ -7,11 +7,15 @@
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
+        this.mutationSid = attributes.mutationSid;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
+        this.cancerType = attributes.cancerType;
+        this.cancerStudy = attributes.cancerStudy;
+        this.cancerStudyLink = attributes.cancerStudyLink;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
@@ -78,6 +82,7 @@ var Pileup = Backbone.Model.extend({
 		this.count = attributes.count; // number of mutations at this data point
 		this.location = attributes.location; // the location of the mutations
 		this.label = attributes.label; // text label for this data point
+        this.stats = attributes.stats;
 	}
 });
 
@@ -432,7 +437,36 @@ var MutationDetailsUtil = function(mutations)
 			numGermline: numGermline};
 	};
 
-	/**
+    /**
+     * Checks if there all mutations come from a single cancer study
+     *
+     * @param gene  hugo gene symbol
+     */
+    this.cancerStudyAllTheSame = function(gene)
+    {
+        var self = this;
+        gene = gene.toUpperCase();
+        if (_mutationGeneMap[gene] != undefined)
+        {
+            var mutations = _mutationGeneMap[gene];
+            var prevStudy = null;
+
+            for (var i=0; i < mutations.length; i++)
+            {
+                var cancerStudy = mutations[i].cancerStudy;
+                if(prevStudy == null) {
+                    prevStudy = cancerStudy;
+                } else if(prevStudy != cancerStudy) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+
+    /**
 	 * Checks if there is a germline mutation for the given gene.
 	 *
 	 * @param gene  hugo gene symbol

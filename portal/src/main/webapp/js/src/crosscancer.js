@@ -516,7 +516,7 @@
                     sampleArray: []
                 };
 
-                var el = "#ccmutationdetails";
+                var el = "#mutation_details";
                 $(el).html("");
 
                 var defaultView = new MutationDetailsView({

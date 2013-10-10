@@ -151,9 +151,11 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                     ArrayList<String> caseList = new ArrayList<String>();
                     caseList.addAll(defaultCaseSet.getCaseList());
 
+                    /*
                     // keep track of which case ids we got information for
                     caseList.removeAll(lookedUpCases);
                     lookedUpCases.addAll(caseList);
+                    */
 
                     // add mutation data for each genetic profile
                     JSONArray mutationData
@@ -239,8 +241,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
 
-		int id = 0;
-
 		for (ExtendedMutation mutation : mutationList)
 		{
 			String caseId = mutation.getCaseId();
@@ -250,8 +250,9 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
-				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
-						.getCancerStudyStableId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
+                String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
 				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
@@ -260,13 +261,17 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
 				// mutationId is not a unique id wrt the whole DB,
 				// but it is unique wrt the returned data set
-				mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
-				mutationData.put("keyword", mutation.getKeyword());
+				mutationData.put("mutationId", this.generateMutationId(mutation));
+                mutationData.put("mutationSid", this.generateMutationSid(mutation));
+                mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
 				mutationData.put("caseId", mutation.getCaseId());
 				mutationData.put("linkToPatientView", linkToPatientView);
+                mutationData.put("cancerType", typeOfCancer);
+                mutationData.put("cancerStudy", cancerStudy.getName());
+                mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
 				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
@@ -301,8 +306,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 				mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
 
 				mutationArray.add(mutationData);
-
-				id++;
 			}
 		}
 
@@ -365,8 +368,19 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 		return specialGeneData;
 	}
 
+    protected String generateMutationId(ExtendedMutation mutation)
+    {
+        // TODO use MD5 sum instead?
+        return "m" + Integer.toString(mutation.hashCode());
+    }
 
-	/**
+    protected String generateMutationSid(ExtendedMutation mutation)
+    {
+        return mutation.getGene() + mutation.getCaseId() + mutation.getEvent().getProteinChange();
+    }
+
+
+    /**
 	 * Returns the MSA (alignment) link for the given mutation.
 	 *
 	 * @param mutation  mutation instance

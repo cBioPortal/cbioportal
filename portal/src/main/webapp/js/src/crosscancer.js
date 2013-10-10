@@ -502,29 +502,30 @@
 
 
                 // Let's load the mutation details as well
-                $.post(
-                    "crosscancermutation.json",
-                    {
-                      gene_list: genes,
-                      data_priority: priority
-                    },
-                    function(data) {
-                        var model = {
-                            mutations: data,
-                            sampleArray: []
-                        };
+                var servletParams = {
+                    gene_list: genes,
+                    data_priority: priority
+                };
+                var servletName = "crosscancermutation.json";
+                // init mutation data proxy with the data servlet config
+                var proxy = new MutationDataProxy(genes);
+                proxy.initWithoutData(servletName, servletParams);
+                // init default mutation details view
+                var model = {
+                    mutationProxy: proxy,
+                    sampleArray: []
+                };
 
-                        var el = "#ccmutationdetails";
-                        $(el).html("");
-                        var mutView = new MutationDetailsView({
-                            el: el,
-                            model: model
-                        });
+                var el = "#ccmutationdetails";
+                $(el).html("");
 
-                        mutView.render();
-                    },
-                    "json"
-                );
+                var defaultView = new MutationDetailsView({
+                    el: el,
+                    model: model,
+                    mut3dVis: null // nope, not yet
+                });
+                defaultView.render();
+                // end of mutation details
 
                 return this;
             }

@@ -21,8 +21,8 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/crosscancer.js"></script>
 <script type="text/javascript" src="js/src/mutation_model.js"></script>
+<script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%

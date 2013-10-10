@@ -256,15 +256,30 @@ var survivalCurves = (function() {
                 cntAlter(caseLists);
                 setOSGroups(result, caseLists);
                 setDFSGroups(result, caseLists);
-                if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
-                    calcOS();
+                if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
+                    dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
+                    var _index = 0;
+                    var _survival_index = 0;
+                    $('#tabs .ui-tabs-nav a').each(function() {
+                        if ($(this).attr('href') === "#survival") {
+                            _survival_index = _index;
+                            return false;
+                        } else {
+                            _index += 1;
+                        }
+                    });
+                    $("#tabs").tabs("remove", _survival_index);
                 } else {
-                    view.errorMsg("os");
-                }
-                if (dfs_altered_group.length !== 0 || dfs_unaltered_group.length !== 0) {
-                    calcDFS();
-                } else {
-                    view.errorMsg("dfs");
+                    if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
+                        calcOS();
+                    } else {
+                        view.errorMsg("os");
+                    }
+                    if (dfs_altered_group.length !== 0 || dfs_unaltered_group.length !== 0) {
+                        calcDFS();
+                    } else {
+                        view.errorMsg("dfs");
+                    }
                 }
             },
             getOSAlteredData: function() {

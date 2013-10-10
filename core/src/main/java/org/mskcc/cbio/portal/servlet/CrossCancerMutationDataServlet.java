@@ -99,7 +99,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         JSONArray data = new JSONArray();
 
         // Get the gene list
-        String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+        String geneList = servletXssUtil.getCleanInput(request, "geneList");
 
         // Get the priority
         Integer dataTypePriority;

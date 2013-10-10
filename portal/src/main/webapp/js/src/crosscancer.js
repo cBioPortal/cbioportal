@@ -503,8 +503,9 @@
 
                 // Let's load the mutation details as well
                 var servletParams = {
-                    gene_list: genes,
+                    //gene_list: genes,
                     data_priority: priority
+                    //geneList: genes
                 };
                 var servletName = "crosscancermutation.json";
                 // init mutation data proxy with the data servlet config

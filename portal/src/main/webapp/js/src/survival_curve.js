@@ -450,16 +450,21 @@ var survivalCurves = (function() {
                 .style("opacity", 0);
         }
 
-        function addQtips(svg) {
+        function addQtips(svg, type) {
             svg.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-                    content += "Time: <strong>" + d.time.toFixed(2) + "</strong><br>";
-                    content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(3) + "%</strong><br>";
+                    content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
-                        content += "<strong> -- LAST OBSERVATION -- </strong>";
+                        content += "Time of Last Observation: <strong>" + d.time.toFixed(2) + "</strong><br>";
+                    } else {
+                        if (type === "os") {
+                            content += "Time of Death: <strong>" + d.time.toFixed(2) + "</strong><br>";
+                        } else if (type === "dfs") {
+                            content += "Time of Relapse: <strong>" + d.time.toFixed(2) + "</strong><br>";
+                        }
                     }
                     content += "</font>";
 
@@ -682,8 +687,8 @@ var survivalCurves = (function() {
                 drawInvisiableDots(elem.osUnalterDots, settings.unaltered_mouseover_color, data.getOSUnalteredData());
                 drawCensoredDots(elem.osAlterCensoredDots, data.getOSAlteredData(), settings.altered_line_color);
                 drawCensoredDots(elem.osUnalterCensoredDots, data.getOSUnalteredData(), settings.unaltered_line_color);
-                addQtips(elem.osAlterDots);
-                addQtips(elem.osUnalterDots);
+                addQtips(elem.osAlterDots, "os");
+                addQtips(elem.osUnalterDots, "os");
                 appendAxis(elem.svgOS, elem.xAxisOS, elem.yAxisOS);
                 appendAxisTitles(elem.svgOS, text.xTitle_os, text.yTitle_os);
                 addLegends(elem.svgOS);
@@ -697,8 +702,8 @@ var survivalCurves = (function() {
                 drawInvisiableDots(elem.dfsUnalterDots, settings.unaltered_mouseover_color, data.getDFSUnalteredData());
                 drawCensoredDots(elem.dfsAlterCensoredDots, data.getDFSAlteredData(), settings.altered_line_color);
                 drawCensoredDots(elem.dfsUnalterCensoredDots, data.getDFSUnalteredData(), settings.unaltered_line_color);
-                addQtips(elem.dfsAlterDots);
-                addQtips(elem.dfsUnalterDots);
+                addQtips(elem.dfsAlterDots, "dfs");
+                addQtips(elem.dfsUnalterDots, "dfs");
                 appendAxis(elem.svgDFS, elem.xAxisDFS, elem.yAxisDFS);
                 appendAxisTitles(elem.svgDFS, text.xTitle_dfs, text.yTitle_dfs);
                 addLegends(elem.svgDFS);

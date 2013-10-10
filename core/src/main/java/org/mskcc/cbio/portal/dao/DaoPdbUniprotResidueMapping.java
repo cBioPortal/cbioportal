@@ -100,7 +100,8 @@ public final class DaoPdbUniprotResidueMapping {
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT * FROM pdb_uniprot_alignment " +
-			                             "WHERE UNIPROT_ID=?");
+			                             "WHERE UNIPROT_ID=? " +
+			                             "ORDER BY UNIPROT_FROM ASC");
 			pstmt.setString(1, uniprotId);
 			rs = pstmt.executeQuery();
 

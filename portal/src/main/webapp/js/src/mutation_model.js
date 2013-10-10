@@ -113,6 +113,85 @@ var PdbChainModel = Backbone.Model.extend({
 		//this.positionMap = attributes.positionMap;
 		// collection of PdbAlignmentModel instances
 		this.alignments = new PdbAlignmentCollection(attributes.alignments);
+		// summary of all alignments (merged alignments)
+		this.alignmentSummary = this.mergeAlignments(attributes.alignments);
+	},
+	/**
+	 * Merge alignments in the given array, assuming that
+	 * they are sorted by uniprotFrom field.
+	 *
+	 * @param alignments    an array of PdbAlignmentModel instances
+	 */
+	mergeAlignments: function(alignments)
+	{
+        var merged = "";
+		var end = -1;
+
+		if (alignments.length > 0)
+		{
+			merged += alignments[0].alignmentString;
+			end = alignments[0].uniprotTo;
+		}
+		else
+		{
+			return merged;
+		}
+
+		_.each(alignments, function(alignment, i) {
+			var distance = alignment.uniprotFrom - end - 1;
+
+			var str = alignment.alignmentString;
+
+			// check for overlapping uniprot positions...
+
+			// no overlap, and the next alignment starts exactly after the current merge
+			if (distance == 0)
+			{
+				// just concatenate two strings
+				merged += str;
+			}
+			// no overlap, but there is a gap
+			else if (distance > 0)
+			{
+				// TODO put special chars for gaps
+				console.log("alignment gap!");
+
+				var gap = [];
+
+				for (var j=0; j<distance; j++)
+				{
+					gap.push("*");
+				}
+
+				merged += gap.join("");
+
+			}
+			// overlapping
+			else
+			{
+				var overlap = [];
+				var subLength = Math.min(-1 * distance, str.length);
+
+				overlap.push(merged.substr(merged.length + distance, subLength));
+				overlap.push(str.substr(0, subLength));
+
+				if (overlap[0] != overlap[1])
+				{
+					console.log("[warning] alignment mismatch: " +
+					            alignment.pdbId + "-" + alignment.chain);
+					console.log(overlap[0]);
+					console.log(overlap[1]);
+				}
+
+				// merge two strings
+				merged += str.substr(-1 * distance);
+			}
+
+			// update the end position
+			end = Math.max(end, alignment.uniprotTo);
+		});
+
+		return merged;
 	}
 });
 
@@ -136,6 +215,7 @@ var PdbAlignmentModel = Backbone.Model.extend({
 		this.pdbTo = attributes.pdbTo;
 		this.uniprotFrom = attributes.uniprotFrom;
 		this.uniprotTo = attributes.uniprotTo;
+		this.alignmentString = attributes.alignmentString;
 		//  map of (uniprot position, pdb position) pairs
 		this.positionMap = attributes.positionMap;
 	}
@@ -277,7 +357,7 @@ var MutationDetailsUtil = function(mutations)
 
 			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
 
-			// TODO re-map mutation ids with positions by using the raw position map
+			// TODO revisit this after switching to on demand data retrieval...
 			var positionMap = {};
 
 			if (alignment.positionMap != null)
@@ -295,6 +375,7 @@ var MutationDetailsUtil = function(mutations)
 			alignment.positionMap = positionMap;
 		});
 
+		// instantiate chain models
 		for (var pdbId in pdbMap)
 		{
 			var chains = [];

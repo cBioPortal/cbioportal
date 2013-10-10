@@ -3,7 +3,7 @@
 <%@ page import="java.io.InputStream" %>
 <%@ page import="java.io.InputStreamReader" %>
 <%@ page import="java.util.zip.GZIPInputStream" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ page import="org.mskcc.cbio.portal.util.FileUploadRequestWrapper" %>
 <%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%@ page import="org.apache.commons.fileupload.FileItem" %>
@@ -39,7 +39,7 @@
 			</span>
 		</td>
 		<td valign="middle" width="25%">
-			Powered by:<br/><a href="http://cbioportal.org/"><%= SkinUtil.getTitle() %></a>
+			Powered by:<br/><a href="http://cbioportal.org/"><%= GlobalProperties.getTitle() %></a>
 		</td>
 	</tr>
 </table>

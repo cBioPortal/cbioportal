@@ -24,11 +24,11 @@ import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.*;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.portal.remote.ConnectionManager;
-import org.mskcc.cbio.portal.util.SkinUtil;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
@@ -326,7 +326,7 @@ public class PatientView extends HttpServlet {
         }
         
         // test if images exist for the case
-        String metaUrl = SkinUtil.getDigitalSlideArchiveMetaUrl(caseId);
+        String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(caseId);
         MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();
         HttpClient client = new HttpClient(connectionManager);
@@ -342,7 +342,7 @@ public class PatientView extends HttpServlet {
                     Matcher m = p.matcher(line);
                     if (m.find()) {
                         int count = Integer.parseInt(m.group(1));
-                        return count>0 ? SkinUtil.getDigitalSlideArchiveIframeUrl(caseId) : null;
+                        return count>0 ? GlobalProperties.getDigitalSlideArchiveIframeUrl(caseId) : null;
                     }
                 }
                 
@@ -373,7 +373,7 @@ public class PatientView extends HttpServlet {
             map = new HashMap<String,String>();
             pathologyReports.put(typeOfCancer, map);
             
-            String pathReportUrl = SkinUtil.getTCGAPathReportUrl(typeOfCancer);
+            String pathReportUrl = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
             if (pathReportUrl!=null) {
                 List<String> pathReportDirs = extractLinksByPattern(pathReportUrl,tcgaPathReportDirLinePattern);
                 for (String dir : pathReportDirs) {

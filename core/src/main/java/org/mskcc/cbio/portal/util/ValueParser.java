@@ -39,7 +39,7 @@ import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintGeneDisplaySpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.OncoPrintSpecification;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParsedFullDataTypeSpec;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ResultDataTypeSpec;
-import org.mskcc.cbio.cgds.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.model.GeneticAlterationType;
 
 /**
  * Takes a String encoding of genetic data created by ProfileMerger, and some

@@ -1,4 +1,4 @@
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
@@ -9,16 +9,16 @@
 		<td valign="middle" width="50%">
 			<span id="header_site_name">
 				<center>
-                                    <%=SkinUtil.getTitle()%>
+                                    <%=GlobalProperties.getTitle()%>
 				</center>
 			</span>
 		</td>
 		<td valign="middle" width="25%">
-			<img src="<%= SkinUtil.getTagLineImage() %>" alt="Tag Line">
+			<img src="<%= GlobalProperties.getTagLineImage() %>" alt="Tag Line">
 		</td>
 	</tr>
     <%
-       if (SkinUtil.usersMustAuthenticate()) {
+       if (GlobalProperties.usersMustAuthenticate()) {
     %>
     <!-- Display Sign Out Button for Real (Non-Anonymous) User -->
     <sec:authorize access="!hasRole('ROLE_ANONYMOUS')">

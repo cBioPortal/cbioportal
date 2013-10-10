@@ -34,8 +34,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.mskcc.cbio.portal.util.CategoryLabelReader;
-
 public class TestCategoryLabelReader extends TestCase
 {
 	 /**

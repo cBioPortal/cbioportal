@@ -29,13 +29,13 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.Patient;
-import org.mskcc.cbio.portal.remote.GetClinicalData;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCaseList;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.web_api.GetClinicalData;
 import org.mskcc.cbio.portal.util.CaseSetUtil;
 
 import javax.servlet.ServletException;

@@ -128,6 +128,27 @@ var Plots = (function(){
         );
     }
 
+    function searchPlots() {
+        var searchToken = document.getElementById("search_plots").value;
+        d3.select("#plots_box").selectAll("path").each(
+            function() {
+                var _attr = $(this).attr("class");
+                if (typeof _attr !== 'undefined' && _attr !== false && _attr !== "domain") {
+                    if ( searchToken.length >= 1) {
+                        _d = $(this).attr("stroke-width");
+                        if ( $(this).attr("class").indexOf(searchToken) !== -1) {
+                            $(this).attr("stroke-width", 20);
+                        } else {
+                            $(this).attr("stroke-width", 1.1);
+                        }
+                    } else {
+                        $(this).attr("stroke-width", 1.1);
+                    }
+                }
+            }
+        );
+    }
+
     return {
         init: function() {
             var paramsGetProfiles = {
@@ -159,7 +180,8 @@ var Plots = (function(){
             };
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
         },
-        addAxisHelp: addAxisHelp
+        addAxisHelp: addAxisHelp,
+        searchPlots: searchPlots
     };
 
 }());    //Closing Plots

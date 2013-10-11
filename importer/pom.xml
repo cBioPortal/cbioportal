@@ -201,6 +201,7 @@
 			  <goal>shade</goal>
 			</goals>
 			<configuration>
+              <finalName>cbioportal-importer</finalName>
 			  <createDependencyReducedPom>false</createDependencyReducedPom>
 			  <artifactSet>
 				<excludes>

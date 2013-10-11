@@ -627,6 +627,9 @@ var PlotsTwoGenesView = (function(){
             })
             .attr("stroke-width", function(d) {
                 return "1.2";
+            })
+            .attr("class", function(d) {
+                return d.case_id;
             });
     }
 

@@ -100,6 +100,50 @@
     <li>{{name}}</li>
 </script>
 
+<script type="text/template" id="study-link-tmpl">
+    <a href="index.do?tab_index=tab_visualize&cancer_study_id={{studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{cnaProfile}}&Z_SCORE_THRESHOLD=2.0&case_set_id={{caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
+        view details &raquo;
+    </a>
+</script>
+
+<script type="text/template" id="study-tip-tmpl">
+    <div>
+        <div class="cc-study-tip">
+            <b class="cc-tip-header">{{name}}</b><br>
+            <p>
+                Gene set altered in {{allFrequency}}% of {{caseSetLength}} cases. <br>({{studyLink}})
+            </p>
+            <table class="cc-tip-table">
+                <thead>
+                    <tr>
+                        <th>Alteration</th>
+                        <th>Frequency</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Mutation</td>
+                        <td>{{mutationFrequency}}% ({{mutationCount}})</td>
+                    </tr>
+                    <tr>
+                        <td>Deletion</td>
+                        <td>{{deletionFrequency}}% ({{deletionCount}})</td>
+                    </tr>
+                    <tr>
+                        <td>Amplification</td>
+                        <td>{{amplificationFrequency}}% ({{amplificationCount}})</td>
+                    </tr>
+                    <tr>
+                        <td>Multiple alterations</td>
+                        <td>{{multipleFrequency}}% ({{multipleCount}})</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</script>
+
 <script type="text/template" id="studies-with-no-data-tmpl">
     <div class="ui-state-highlight ui-corner-all">
         <p>

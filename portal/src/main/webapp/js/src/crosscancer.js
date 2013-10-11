@@ -38,6 +38,27 @@
         var histBottom = 400;
         var fontFamily = "sans-serif";
 
+        var defaultQTipOptions = {
+            content: {
+                text: "Default qtip text"
+            },
+            hide: {
+                fixed: true,
+                delay: 100,
+                event: 'mouseout'
+            },
+            show: {
+                event: 'mouseover'
+            },
+            style: {
+                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip'
+            },
+            position: {
+                my:'bottom left', at:'top center'
+            }
+        };
+
+
         var calculateFrequency = function(d, i, type) {
             return d.alterations[type]/ d.caseSetLength;
         };
@@ -55,6 +76,11 @@
              });
 
             return histData;
+        };
+
+        var fixFloat = function(number, digit) {
+            var multiplier = Math.pow( 10, digit );
+            return Math.round( number * multiplier ) / multiplier;
         };
 
         /* Views */
@@ -116,8 +142,8 @@
                                 Math.min(
                                     1.0,
                                     parseFloat(d3.max(histData, function (d, i) {
-                                        return calculateFrequency(d, i, "all").toFixed(1);
-                                    })) + .1
+                                        return fixFloat(calculateFrequency(d, i, "all"), 1);
+                                    })) + .05
                                 )
                             ])
                             .range([histBottom-paddingTop, 0]);
@@ -268,14 +294,19 @@
                                 .style("opacity",0)
                                 .attr("class", function(d, i) { return d.studyId + " alt-info" })
                                 .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "all"),
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
+                                    var container = $("<div></div>");
+                                    (new StudyToolTipView({
+                                        el: container,
+                                        model: {
+                                            study: d,
+                                            metaData: metaData
                                         }
+                                    })).render();
+
+                                    var qOpts = _.extend(defaultQTipOptions, {
+                                        content: container.html()
                                     });
+                                    $(this).qtip(qOpts);
                                 });
 
 
@@ -307,14 +338,10 @@
                                 .attr("r", circleTTR)
                                 .attr("class", function(d, i) { return d.studyId + " annotation-type" })
                                 .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer],
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
+                                    var qOpts = _.extend(defaultQTipOptions, {
+                                        content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer]
                                     });
+                                    $(this).qtip(qOpts);
                                 });
 
                             var mutGroups = histogram.append("g");
@@ -333,16 +360,12 @@
                                 .attr("font-size", "10px")
                                 .attr("class", function(d, i) { return d.studyId + " annotation-mut" })
                                 .each(function(d, i) {
-                                    $(this).qtip({
+                                    var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_mutation_data
                                             ? "Mutation data available"
-                                            : "Mutation data not available",
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
+                                            : "Mutation data not available"
                                     });
+                                    $(this).qtip(qOpts);
                                 });
 
 
@@ -362,16 +385,12 @@
                                 .attr("font-size", "10px")
                                 .attr("class", function(d, i) { return d.studyId + " annotation-cna" })
                                 .each(function(d) {
-                                    $(this).qtip({
+                                    var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.cancer_studies[d.studyId].has_cna_data
                                             ? "CNA data available"
-                                            : "CNA data not available",
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
+                                            : "CNA data not available"
                                     });
+                                    $(this).qtip(qOpts);
                                 });
 
                             var abbrGroups = histogram.append("g");
@@ -399,14 +418,10 @@
                                 })
                                 .attr("class", function(d, i) { return d.studyId + " annotation-abbr" })
                                 .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: metaData.cancer_studies[d.studyId].name,
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
+                                    var qOpts = _.extend(defaultQTipOptions, {
+                                        content: metaData.cancer_studies[d.studyId].name
                                     });
+                                    $(this).qtip(qOpts);
                                 })
                             ;
 
@@ -475,7 +490,7 @@
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", "11px")
                                 .each(function(d, i) {
-                                    $(this).text( ($(this).text() * 100) + "%" );
+                                    $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
                                 });
 
                             var genes = _.last(histData).genes;
@@ -521,6 +536,43 @@
                         });
                     }
                 }); // Done with the histogram
+
+                return this;
+            }
+        });
+
+        var StudyToolTipView = Backbone.View.extend({
+            template: _.template($("#study-tip-tmpl").html()),
+            render: function() {
+                var study = this.model.study;
+                var metaData = this.model.metaData;
+
+                var summary = {
+                    name: metaData.cancer_studies[study.studyId].name,
+                    caseSetLength: study.caseSetLength,
+                    // frequencies
+                    allFrequency: fixFloat(calculateFrequency(study, 0, "all") * 100, 1),
+                    mutationFrequency: fixFloat(calculateFrequency(study, 0, "mutation")  * 100, 1),
+                    deletionFrequency: fixFloat(calculateFrequency(study, 0, "cnaDown") * 100, 1),
+                    amplificationFrequency: fixFloat(calculateFrequency(study, 0, "cnaUp") * 100, 1),
+                    multipleFrequency: fixFloat(calculateFrequency(study, 0, "other") * 100, 1),
+                    // raw counts
+                    allCount: study.alterations.all,
+                    mutationCount: study.alterations.mutation,
+                    deletionCount: study.alterations.cnaDown,
+                    amplificationCount: study.alterations.cnaUp,
+                    multipleCount: study.alterations.other,
+                    // and create the link
+                    studyLink: _.template($("#study-link-tmpl").html(), study)
+                };
+
+                this.$el.html(this.template(summary));
+                this.$el.find("table.cc-tip-table").dataTable({
+                    "sDom": 't',
+                    "bJQueryUI": true,
+                    "bDestroy": true,
+                    "aaSorting": [[ 1, "desc" ]]
+                });
 
                 return this;
             }

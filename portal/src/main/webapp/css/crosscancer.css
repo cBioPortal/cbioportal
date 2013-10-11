@@ -53,6 +53,11 @@
     font-size: 13px;
 }
 
+.cc-study-tip {
+    font-size: 13px;
+    text-align: center;
+}
+
 /* the rest is for the mutation details */
 #mutation_details .ColVis {
     float: left;

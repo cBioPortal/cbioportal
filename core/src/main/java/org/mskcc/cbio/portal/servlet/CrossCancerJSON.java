@@ -145,8 +145,22 @@ public class CrossCancerJSON extends HttpServlet {
                         defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
                 }
 
+                String mutationProfile = "", cnaProfile = "";
+                for (GeneticProfile geneticProfile : defaultGeneticProfileSet.values()) {
+                    GeneticAlterationType geneticAlterationType = geneticProfile.getGeneticAlterationType();
+                    if(geneticAlterationType.equals(GeneticAlterationType.COPY_NUMBER_ALTERATION)) {
+                        cnaProfile = geneticProfile.getStableId();
+                    } else if(geneticAlterationType.equals(GeneticAlterationType.MUTATION_EXTENDED)) {
+                        mutationProfile = geneticProfile.getStableId();
+                    }
+                }
+
+                cancerMap.put("mutationProfile", mutationProfile);
+                cancerMap.put("cnaProfile", cnaProfile);
+
                 cancerMap.put("caseSetId", defaultCaseSet.getStableId());
                 cancerMap.put("caseSetLength", defaultCaseSet.getCaseList().size());
+
 
                 ProfileDataSummary genomicData = getGenomicData(
                         cancerStudyId,

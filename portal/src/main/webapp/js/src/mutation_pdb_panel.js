@@ -36,16 +36,15 @@ function MutationPdbPanel(options, data, xScale)
 		 * Default chain tooltip function.
 		 *
 		 * @param element   target svg element (rectangle)
-		 * @param alignment   a single alignment for the chain
 		 */
-		chainTipFn: function (element, alignment) {
+		chainTipFn: function (element) {
 			// TODO define a backbone view: PdbChainTipView
 			var datum = element.datum();
 
 			var tip = "<span class='pdb-chain-tip'>" +
 			          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
 			          "<b>Chain:</b> " + datum.chain.chainId +
-			          " (" + alignment.uniprotFrom + " - " + alignment.uniprotTo + ")" +
+			          //" (" + alignment.uniprotFrom + " - " + alignment.uniprotTo + ")" +
 			          "</span>";
 
 			var options = {content: {text: tip},
@@ -85,8 +84,6 @@ function MutationPdbPanel(options, data, xScale)
 
 		// TODO define a rule to rank (sort) chains
 		data.each(function(pdb, idx) {
-			// TODO do not create a rect for each alignment
-			// ...merge alignments, and color code wrt match info
 
 			// create rectangle(s) for each chain
 			pdb.chains.each(function(ele, idx) {
@@ -96,10 +93,12 @@ function MutationPdbPanel(options, data, xScale)
 				// assign a different color to each chain
 				var color = options.colors[count % options.colors.length];
 
-				// add a rectangle for each alignment
-				ele.alignments.each(function(ele, idx) {
-					var start = ele.uniprotFrom;
-					var end = ele.uniprotTo;
+				// add rectangle(s) for the chain
+				// TODO color code special characters
+				if (ele.alignments.length > 0)
+				{
+					var start = ele.alignments.at(0).uniprotFrom;
+					var end = start + ele.alignmentSummary.length;
 
 					var width = Math.abs(xScale(start) - xScale(end));
 					var height = options.chainHeight;
@@ -119,8 +118,8 @@ function MutationPdbPanel(options, data, xScale)
 
 					// add tooltip
 					var addTooltip = options.chainTipFn;
-					addTooltip(rect, ele);
-				});
+					addTooltip(rect);
+				}
 
 				// increment counter
 				count++;

@@ -110,7 +110,7 @@ var PdbChainModel = Backbone.Model.extend({
 		// chain id (A, B, C, X, etc.)
 		this.chainId = attributes.chainId;
 		//  map of (uniprot position, pdb position) pairs
-		//this.positionMap = attributes.positionMap;
+		this.positionMap = attributes.positionMap;
 		// collection of PdbAlignmentModel instances
 		this.alignments = new PdbAlignmentCollection(attributes.alignments);
 		// summary of all alignments (merged alignments)
@@ -137,8 +137,14 @@ var PdbChainModel = Backbone.Model.extend({
 			return merged;
 		}
 
-		_.each(alignments, function(alignment, i) {
+		_.each(alignments, function(alignment, idx) {
 			var distance = alignment.uniprotFrom - end - 1;
+
+//			if (alignment.uniprotTo - alignment.uniprotFrom + 1 !=
+//			    alignment.alignmentString.length)
+//			{
+//				console.log("[warning] alignment size mismatch: " + alignment.alignmentId);
+//			}
 
 			var str = alignment.alignmentString;
 
@@ -153,15 +159,18 @@ var PdbChainModel = Backbone.Model.extend({
 			// no overlap, but there is a gap
 			else if (distance > 0)
 			{
-				// TODO put special chars for gaps
-				console.log("alignment gap!");
+				// TODO put special chars for gaps, or create segments?
 
 				var gap = [];
 
-				for (var j=0; j<distance; j++)
+				// add gap characters (character count = distance)
+				for (var i=0; i<distance; i++)
 				{
 					gap.push("*");
 				}
+
+				// also add the actual string
+				gap.push(str);
 
 				merged += gap.join("");
 
@@ -177,8 +186,7 @@ var PdbChainModel = Backbone.Model.extend({
 
 				if (overlap[0] != overlap[1])
 				{
-					console.log("[warning] alignment mismatch: " +
-					            alignment.pdbId + "-" + alignment.chain);
+					console.log("[warning] alignment mismatch: " + alignment.alignmentId);
 					console.log(overlap[0]);
 					console.log(overlap[1]);
 				}
@@ -216,8 +224,6 @@ var PdbAlignmentModel = Backbone.Model.extend({
 		this.uniprotFrom = attributes.uniprotFrom;
 		this.uniprotTo = attributes.uniprotTo;
 		this.alignmentString = attributes.alignmentString;
-		//  map of (uniprot position, pdb position) pairs
-		this.positionMap = attributes.positionMap;
 	}
 });
 
@@ -357,22 +363,22 @@ var MutationDetailsUtil = function(mutations)
 
 			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
 
-			// TODO revisit this after switching to on demand data retrieval...
-			var positionMap = {};
-
-			if (alignment.positionMap != null)
-			{
-				// re-map mutation ids with positions by using the raw position map
-				for(var i=0; i < mutations.length; i++)
-				{
-					positionMap[mutations[i].mutationId] = {
-						start: alignment.positionMap[mutations[i].proteinPosStart],
-						end: alignment.positionMap[mutations[i].proteinPosEnd]};
-				}
-			}
-
-			// update position map
-			alignment.positionMap = positionMap;
+			// TODO move this into PdbDataProxy
+//			var positionMap = {};
+//
+//			if (alignment.positionMap != null)
+//			{
+//				// re-map mutation ids with positions by using the raw position map
+//				for(var i=0; i < mutations.length; i++)
+//				{
+//					positionMap[mutations[i].mutationId] = {
+//						start: alignment.positionMap[mutations[i].proteinPosStart],
+//						end: alignment.positionMap[mutations[i].proteinPosEnd]};
+//				}
+//			}
+//
+//			// update position map
+//			alignment.positionMap = positionMap;
 		});
 
 		// instantiate chain models
@@ -393,30 +399,6 @@ var MutationDetailsUtil = function(mutations)
 
 			pdbList.push(pdbModel);
 		}
-
-		// TODO remove when done
-//		_.each(data, function(pdb, idx) {
-//			_.each(pdb.chains, function(ele, idx) {
-//				var positionMap = {};
-//
-//				if (ele.positionMap != null)
-//				{
-//					// re-map mutation ids with positions by using the raw position map
-//					for(var i=0; i < mutations.length; i++)
-//					{
-//						positionMap[mutations[i].mutationId] = {
-//							start: ele.positionMap[mutations[i].proteinPosStart],
-//							end: ele.positionMap[mutations[i].proteinPosEnd]};
-//					}
-//				}
-//
-//				// update position map
-//				ele.positionMap = positionMap;
-//			});
-//
-//			pdbModel = new PdbModel(pdb);
-//			pdbList.push(pdbModel);
-//		});
 
 		// return new pdb model
 		return new PdbCollection(pdbList);
@@ -787,6 +769,52 @@ var PileupUtil = (function()
 	};
 })();
 
+// TODO make this class a singleton?
+var PdbDataProxy = function(mutationUtil)
+{
+	// TODO get servlet name as a param?
+	var _servletName = "get3dPdb.json";
+
+	var _util = mutationUtil;
+
+	function getPositionMap(gene, alignments, callback)
+	{
+		// get protein positions for current mutations
+		var positions = _util.getProteinPositions(gene);
+
+		var positionData = [];
+
+		_.each(positions, function(ele, i) {
+			if (ele.start > -1)
+			{
+				positionData.push(ele.start);
+			}
+
+			if (ele.end > ele.start)
+			{
+				positionData.push(ele.end);
+			}
+		});
+
+		// TODO cache previous queries, also get pdb id & chain as parameters
+
+		var process = function(data) {
+
+			// TODO see MutationDetailsUtil.processPdbData --> map positions to mutation ids...
+
+			callback(data);
+		};
+
+		// get pdb data for the current mutations
+		$.getJSON(_servletName,
+		          {positions: positionData, alignments: alignments},
+		          process);
+	}
+
+	return {
+		getPositionMap: getPositionMap
+	};
+};
 
 /**
  * This class is designed to retrieve mutation data on demand, but it can be also

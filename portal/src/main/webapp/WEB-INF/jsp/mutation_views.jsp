@@ -863,27 +863,9 @@
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
 
-				// get protein positions for current mutations
-				var positions = mutationUtil.getProteinPositions(gene);
-
-				var positionData = [];
-
-				_.each(positions, function(ele, i) {
-					if (ele.start > -1)
-					{
-						positionData.push(ele.start);
-					}
-
-					if (ele.end > ele.start)
-					{
-						positionData.push(ele.end);
-					}
-				});
-
 				// get pdb data for the current mutations
 				$.getJSON("get3dPdb.json",
-					{uniprotId: sequence.metadata.identifier,
-					positions: positionData.join(" ")},
+					{uniprotId: sequence.metadata.identifier},
 					function(pdbData) {
 						// init view with the sequence and pdb data
 						init(sequenceData, pdbData);
@@ -1208,6 +1190,8 @@
 		{
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
+
+			// TODO update chain.positionMap for the chain by using PDBDataProxy
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();

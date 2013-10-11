@@ -118,8 +118,8 @@
         <input type='hidden' name='filetype' value='svg'>
         <input type='hidden' name='filename' value='crosscancerhistogram.svg'>
     </form>
-    <button class='diagram-to-pdf'>PDF</button>
-    <button class='diagram-to-svg'>SVG</button>
+    <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
+    <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
 </script>
 
 <!-- Mutation views -->

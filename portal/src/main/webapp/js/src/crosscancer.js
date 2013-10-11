@@ -37,10 +37,6 @@
         var paddingTop = 10;
         var histBottom = 400;
         var fontFamily = "sans-serif";
-        // Data N/A color
-        var dataNAColor = "#e0e0e0";
-        // Data Avail. color
-        var dataAColor = "#000000";
 
         var calculateFrequency = function(d, i, type) {
             return d.alterations[type]/ d.caseSetLength;
@@ -500,6 +496,7 @@
                     }
                 }); // Done with the histogram
 
+
                 // Let's load the mutation details as well
                 var servletParams = {
                     data_priority: priority
@@ -548,6 +545,20 @@
 
             render: function() {
                 this.$el.html(this.template(this.model));
+
+                // Let's bind button events
+                $("#histogram-download-pdf").click(function() {
+                    var formElement = $("form.svg-to-pdf-form");
+                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
+                    formElement.submit();
+                });
+
+                $("#histogram-download-svg").click(function() {
+                    var formElement = $("form.svg-to-file-form");
+                    formElement.find("input[name=svgelement]").val($("#cchistogram").html());
+                    formElement.submit();
+                });
+
                 return this;
             }
         });

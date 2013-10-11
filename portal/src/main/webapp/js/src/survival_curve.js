@@ -462,7 +462,7 @@ var survivalCurves = (function() {
                         content += "Disease free estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                     }
                     if (d.status === "0") { // If censored, mark it
-                        content += "Time of last observation: <br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
+                        content += "Time of last observation: <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
                     } else {
                         if (type === "os") {
                             content += "Time of death: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
@@ -476,7 +476,7 @@ var survivalCurves = (function() {
                         $(this).qtip(
                             {
                                 content: {text: content},
-                                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+                                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
                                 show: {event: "mouseover"},
                                 hide: {fixed:true, delay: 100, event: "mouseout"},
                                 position: {my:'left bottom',at:'top right'}

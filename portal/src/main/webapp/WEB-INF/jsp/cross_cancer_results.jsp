@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoCancerStudy" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -16,6 +17,8 @@
     }
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
+
+    DaoCancerStudy.
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>

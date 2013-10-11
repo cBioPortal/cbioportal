@@ -492,38 +492,38 @@
                                    genes: genes.join(', ')
                                }
                             })).render();
+
+                            // Let's load the mutation details as well
+                            var servletParams = {
+                                data_priority: priority
+                            };
+                            var servletName = "crosscancermutation.json";
+                            // init mutation data proxy with the data servlet config
+                            var proxy = new MutationDataProxy(genes.join(" "));
+                            proxy.initWithoutData(servletName, servletParams);
+                            // init default mutation details view
+                            var model = {
+                                mutationProxy: proxy,
+                                sampleArray: [],
+                                diagramOpts: {
+                                    showStats: true
+                                }
+                            };
+
+                            var el = "#mutation_details";
+                            $(el).html("");
+
+                            var defaultView = new MutationDetailsView({
+                                el: el,
+                                model: model,
+                                mut3dVis: null // nope, not yet
+                            });
+                            defaultView.render();
+                            // end of mutation details
+
                         });
                     }
                 }); // Done with the histogram
-
-
-                // Let's load the mutation details as well
-                var servletParams = {
-                    data_priority: priority
-                };
-                var servletName = "crosscancermutation.json";
-                // init mutation data proxy with the data servlet config
-                var proxy = new MutationDataProxy(genes);
-                proxy.initWithoutData(servletName, servletParams);
-                // init default mutation details view
-                var model = {
-                    mutationProxy: proxy,
-                    sampleArray: [],
-                    diagramOpts: {
-                        showStats: true
-                    }
-                };
-
-                var el = "#mutation_details";
-                $(el).html("");
-
-                var defaultView = new MutationDetailsView({
-                    el: el,
-                    model: model,
-                    mut3dVis: null // nope, not yet
-                });
-                defaultView.render();
-                // end of mutation details
 
                 return this;
             }

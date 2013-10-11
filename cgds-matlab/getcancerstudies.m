@@ -2,7 +2,7 @@ function cancerStudies = getcancerstudies(cgdsURL, varargin)
 %GETCANCERSTUDIES Get cancer studies from the cBio CGDS portal.
 %    A = GETCANCERSTUDIES(cgdsURL) loads a list of available cancer types
 %    into A. cdgsURL points to the CGDS web API, typically
-%    'http://cbio.mskcc.org/cgds-public/'.
+%    http://www.cbioportal.org/public-portal/.
 %
 %    The function returns a struct array with the following fields:
 %    cancerTypeId, name, description.
@@ -19,6 +19,7 @@ function cancerStudies = getcancerstudies(cgdsURL, varargin)
 %    getclinicaldata.
 
 verbose = isempty(varargin);
+if ~strcmp(cgdsURL(end), '/') cgdsURL(end + 1) = '/'; end
 
 cells  = urlgetcells([cgdsURL 'webservice.do?cmd=getCancerStudies'], verbose);
 

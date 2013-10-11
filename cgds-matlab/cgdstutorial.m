@@ -3,12 +3,12 @@
 % cBio Cancer Genomics Data Portal web API. Get started by adding the CGDS
 % toolbox directory to the path and setting the server URL.
 
-% modify path to make toolbox functions globally available in matlab
-% this will depend on install location, and is only necessary if you want
+% Modify path to make toolbox functions globally available in matlab.
+% This will depend on install location, and is only necessary if you want
 % to make the functions available from any directory
 addpath('/Users/Erik/Documents/MATLAB/cgds');
 
-% Set web API URL (including trailing '/' but excluding 'webservice.do')
+% Set web API URL (excluding 'webservice.do', trailing slash optional)
 cgdsURL = 'http://www.cbioportal.org/public-portal/';
 
 %% Show toolbox help
@@ -51,13 +51,16 @@ profileData = getprofiledata(cgdsURL, 'gbm_tcga_sequenced', ...
 clinicalData = getclinicaldata(cgdsURL, 'gbm_tcga_sequenced')
 
 %% Survival plots for patients with and without IDH1 mutations
-isMutated = ismember(clinicalData.caseId, profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
-isCensored = strcmp(clinicalData.overallSurvivalStatus, 'LIVING');
-ecdf(clinicalData.overallSurvivalMonths(isMutated), ...
-     'censoring',isCensored(isMutated),'function','survivor');
+% Simplified plot that disregards censoring.
+isMutated = ismember(clinicalData.caseId, ...
+                     profileData.caseId(~strcmp(profileData.data(2,:), 'NaN')));
+overallSurvivalStatus = clinicalData.data(:, ...
+                         strcmp(clinicalData.clinVariable, 'OS_STATUS'));
+overallSurvivalMonths = str2double(clinicalData.data(:, ...
+                         strcmp(clinicalData.clinVariable, 'OS_MONTHS')));
+ecdf(overallSurvivalMonths(isMutated), 'function','survivor');
 set(get(gca,'Children'), 'Color', [1 0 0]); hold on;
-ecdf(clinicalData.overallSurvivalMonths(~isMutated), ...
-     'censoring',isCensored(~isMutated),'function','survivor');
+ecdf(overallSurvivalMonths(~isMutated), 'function','survivor');
 xlabel('Overall survival (months)'); ylabel('Proportion surviving');
 legend({'IDH1 mutated' 'IDH1 wild type'});
 

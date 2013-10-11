@@ -25,9 +25,9 @@
   ~ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
   --%>
 
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoTypeOfCancer" %>
-<%@ page import="org.mskcc.cbio.cgds.model.TypeOfCancer" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoException" %><%
+<%@ page import="org.mskcc.cbio.portal.dao.DaoTypeOfCancer" %>
+<%@ page import="org.mskcc.cbio.portal.model.TypeOfCancer" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoException" %><%
     String cancerTypeId = cancerStudy.getTypeOfCancerId().trim();
     TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(cancerTypeId);
     String trialKeywords = typeOfCancerById.getClinicalTrialKeywords();

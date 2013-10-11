@@ -41,10 +41,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
-import org.mskcc.cbio.portal.remote.GetProteinArrayData;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 
 import org.owasp.validator.html.PolicyException;
 

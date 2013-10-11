@@ -57,7 +57,6 @@
             return histData;
         };
 
-
         /* Views */
         var MainView = Backbone.View.extend({
             el: "#crosscancer-container",
@@ -82,22 +81,20 @@
                             var histDataOrg = studies.toJSON();
                             var histData = filterAndSortData(histDataOrg);
 
-                            var numOfStudiesHidden = histDataOrg.length - histData.length;
-                            if(numOfStudiesHidden > 0) {
-                                $("#cc-study-help")
-                                    .show()
-                                    .qtip({
-                                        content: numOfStudiesHidden + " studies were excluded from this view.",
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
-                                    })
-                                ;
-                            } else {
-                                $("#cc-study-help").hide();
-                            }
+                            var hiddenStudies = _.reduce(histDataOrg, function(seed, study) {
+                                if(study.skipped) {
+                                    seed.push(study);
+                                }
+                                return seed;
+                            }, []);
+
+                            (new StudiesWithNoDataView({
+                                model: {
+                                    hiddenStudies: hiddenStudies,
+                                    metaData: metaData,
+                                    priority: priority
+                                }
+                            })).render();
 
                             var studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
                             var studyWidth = studyLocIncrements * .75;
@@ -525,6 +522,27 @@
                     }
                 }); // Done with the histogram
 
+                return this;
+            }
+        });
+
+        var StudiesWithNoDataView = Backbone.View.extend({
+            el: "#studies-with-no-data",
+            template:_.template($("#studies-with-no-data-tmpl").html()),
+
+            render: function() {
+                var thatModel = this.model;
+
+                if(thatModel.hiddenStudies.length > 0) {
+                    this.$el.html(this.template(thatModel));
+                    var ulEl = this.$el.find("#not-shown-studies");
+                    _.each(thatModel.hiddenStudies, function(hiddenStudy) {
+                        ulEl.append(
+                            _.template($("#studies-with-no-data-item-tmpl").html(),
+                            thatModel.metaData.cancer_studies[hiddenStudy.studyId])
+                        );
+                    });
+                }
                 return this;
             }
         });

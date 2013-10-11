@@ -1,7 +1,6 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
-<%@ page import="org.mskcc.cbio.portal.dao.DaoCancerStudy" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -17,8 +16,6 @@
     }
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
-
-    DaoCancerStudy.
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -48,7 +45,6 @@
         <td>
 
             <div id="results_container">
-
                 <p><a href=""
                       title="Modify your original query.  Recommended over hitting your browser's back button."
                       id="toggle_query_form">
@@ -62,8 +58,6 @@
                 <div style="margin-left:5px;display:none;" id="query_form_on_results_page">
                     <%@ include file="query_form.jsp" %>
                 </div>
-
-                <br/>
 
                 <div id="crosscancer-container">
                 </div>
@@ -98,12 +92,31 @@
             </div>
         </div>
 
+        <div id="studies-with-no-data"></div>
+    </div>
+</script>
+
+<script type="text/template" id="studies-with-no-data-item-tmpl">
+    <li>{{name}}</li>
+</script>
+
+<script type="text/template" id="studies-with-no-data-tmpl">
+    <div class="ui-state-highlight ui-corner-all">
+        <p>
+            <span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em; margin-left: .3em"></span>
+            Since the data priority was set to '{{ priority == 1 ? "Only Mutation" : "Only CNA" }}', the following
+            <b>{{hiddenStudies.length}} cancer studies</b>
+            that do not have {{ priority == 1 ? "mutation" : "CNA" }} data were excluded from this view: <br>
+        </p>
+        <ul id="not-shown-studies">
+        </ul>
+        <p></p>
     </div>
 </script>
 
 <script type="text/template" id="crosscancer-title-tmpl">
     <b class="cctitle">
-        Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies<sup id="cc-study-help">*</sup> / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
+        Cross-cancer alteration summary for {{genes}} ({{numOfStudies}} studies / {{numOfGenes}} gene{{numOfGenes > 1 ? "s" : ""}})
     </b>
     <form style="display:inline-block"
           action='svgtopdf.do'

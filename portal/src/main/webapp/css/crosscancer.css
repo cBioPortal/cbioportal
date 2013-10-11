@@ -40,6 +40,19 @@
     font-size: 16px;
 }
 
+#studies-with-no-data {
+    margin-top: 10px;
+    padding: 25px;
+}
+
+#studies-with-no-data div.ui-state-highlight {
+    padding: 10px;
+}
+
+#studies-with-no-data div.ui-state-highlight li {
+    font-size: 13px;
+}
+
 /* the rest is for the mutation details */
 #mutation_details .ColVis {
     float: left;

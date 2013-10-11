@@ -458,12 +458,12 @@ var survivalCurves = (function() {
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
                     content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
                     if (d.status === "0") { // If censored, mark it
-                        content += "Time of Last Observation: <strong>" + d.time.toFixed(2) + " Months</strong><br>";
+                        content += "Time of last observation: <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
                     } else {
                         if (type === "os") {
-                            content += "Time of Death: <strong>" + d.time.toFixed(2) + " Months</strong><br>";
+                            content += "Time of death: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
                         } else if (type === "dfs") {
-                            content += "Time of Relapse: <strong>" + d.time.toFixed(2) + " Months</strong><br>";
+                            content += "Time of relapse: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
                         }
                     }
                     content += "</font>";

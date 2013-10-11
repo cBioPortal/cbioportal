@@ -454,11 +454,15 @@ var survivalCurves = (function() {
             svg.selectAll('path').each(
                 function(d) {
                     var content = "<font size='2'>";
-                    content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                    content += "Case id: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
                         "&cancer_study_id=" + cancer_study_id + "' target='_blank'>" + d.case_id + "</a></strong><br>";
-                    content += "Survival Estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
+                    if (type === "os") {
+                        content += "Survival estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
+                    } else if (type === "dfs") {
+                        content += "Disease free estimate: <strong>" + (d.survival_rate * 100).toFixed(2) + "%</strong><br>";
+                    }
                     if (d.status === "0") { // If censored, mark it
-                        content += "Time of last observation: <strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
+                        content += "Time of last observation: <br>&nbsp;&nbsp;&nbsp;&nbsp;<strong>" + d.time.toFixed(2) + " </strong>months (censored)<br>";
                     } else {
                         if (type === "os") {
                             content += "Time of death: <strong>" + d.time.toFixed(2) + " </strong>months<br>";
@@ -468,15 +472,16 @@ var survivalCurves = (function() {
                     }
                     content += "</font>";
 
-                    $(this).qtip(
-                        {
-                            content: {text: content},
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                            show: {event: "mouseover"},
-                            hide: {fixed:true, delay: 100, event: "mouseout"},
-                            position: {my:'left bottom',at:'top right'}
-                        }
-                    );
+
+                        $(this).qtip(
+                            {
+                                content: {text: content},
+                                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+                                show: {event: "mouseover"},
+                                hide: {fixed:true, delay: 100, event: "mouseout"},
+                                position: {my:'left bottom',at:'top right'}
+                            }
+                        );
 
                     var mouseOn = function() {
                         var dot = d3.select(this);
@@ -636,10 +641,19 @@ var survivalCurves = (function() {
                 .text("Logrank Test P-Value: " + pVal);
         }
 
-        function appendInfo(divName, vals) {
+        function appendInfo(divName, vals, type) {
+            var _m_title = "";
+            var _events_title = "";
+            if (type === "os") {
+                _m_title = "median months survival";
+                _events_title = "#cases deceased";
+            } else if (type === "dfs") {
+                _m_title = "median months disease free";
+                _events_title = "#cases relapsed";
+            }
             $("#" + divName).empty();
             $("#" + divName).append("<table class='survival_stats'>" +
-                "<tr><td></td><td>n.records</td><td>n.events</td><td>median</td></tr>" +
+                "<tr><td></td><td>#total cases</td><td>" + _events_title + "</td><td>" + _m_title + "</td></tr>" +
                 "<tr>" +
                 "<td style='width: 300px; text-align:left;'>Cases with Alteration(s) in Query Gene(s)</td>" +
                 "<td><b>" + vals.num_altered_cases + "</b></td>" +
@@ -693,7 +707,7 @@ var survivalCurves = (function() {
                 appendAxisTitles(elem.svgOS, text.xTitle_os, text.yTitle_os);
                 addLegends(elem.svgOS);
                 addPvals(elem.svgOS, data.getOsStats().pVal);
-                appendInfo("os_stat_table", data.getOsStats());
+                appendInfo("os_stat_table", data.getOsStats(), "os");
                 appendImgConverter("os_header", "os_survival_curve");
             },
             generateDFS: function() {
@@ -708,7 +722,7 @@ var survivalCurves = (function() {
                 appendAxisTitles(elem.svgDFS, text.xTitle_dfs, text.yTitle_dfs);
                 addLegends(elem.svgDFS);
                 addPvals(elem.svgDFS, data.getDfsStats().pVal);
-                appendInfo("dfs_stat_table", data.getDfsStats());
+                appendInfo("dfs_stat_table", data.getDfsStats(), "dfs");
                 appendImgConverter("dfs_header", "dfs_survival_curve");
             },
             errorMsg: function(type) {

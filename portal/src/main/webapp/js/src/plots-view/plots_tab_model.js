@@ -136,8 +136,8 @@ var Plots = (function(){
                 if (typeof _attr !== 'undefined' && _attr !== false && _attr !== "domain") {
                     if ( searchToken.length >= 1) {
                         _d = $(this).attr("stroke-width");
-                        if ( $(this).attr("class").indexOf(searchToken) !== -1) {
-                            $(this).attr("stroke-width", 20);
+                        if ( $(this).attr("class").toUpperCase().indexOf(searchToken.toUpperCase()) !== -1) {
+                            $(this).attr("stroke-width", 15);
                         } else {
                             $(this).attr("stroke-width", 1.1);
                         }

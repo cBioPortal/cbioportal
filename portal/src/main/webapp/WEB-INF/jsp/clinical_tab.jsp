@@ -11,11 +11,11 @@
         margin-left: 95px;
         width: 620px;
         background-color: #FEFFC5;
-        height: 70px;
-        width: 620px;
+        height: 80px;
+        width: 720px;
     }
     #survival td{
-        width: 90px;
+        width: 140px;
         font-size: 13px;
         font-family: Arial, Helvetica, sans-serif;
         text-align: center;

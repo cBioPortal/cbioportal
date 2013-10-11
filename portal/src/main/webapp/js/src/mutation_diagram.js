@@ -135,9 +135,11 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (lollipop data point)
 	 * @param pileup    a pileup model instance
+     * @param showStats whether to show cancer type distribution in the tooltip
 	 */
-	lollipopTipFn: function (element, pileup) {
+	lollipopTipFn: function (element, pileup, showStats) {
 		var tooltipView = new LollipopTipView({model: pileup});
+        tooltipView.setShowStats(showStats);
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
@@ -887,7 +889,7 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	dataPoint.datum(pileup);
 
 	var addTooltip = options.lollipopTipFn;
-	addTooltip(dataPoint, pileup);
+	addTooltip(dataPoint, pileup, options.showStats);
 
 	var line = lines.append('line')
 		.attr('x1', x)

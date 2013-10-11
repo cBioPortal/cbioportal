@@ -500,12 +500,9 @@
                     }
                 }); // Done with the histogram
 
-
                 // Let's load the mutation details as well
                 var servletParams = {
-                    //gene_list: genes,
                     data_priority: priority
-                    //geneList: genes
                 };
                 var servletName = "crosscancermutation.json";
                 // init mutation data proxy with the data servlet config
@@ -514,7 +511,10 @@
                 // init default mutation details view
                 var model = {
                     mutationProxy: proxy,
-                    sampleArray: []
+                    sampleArray: [],
+                    diagramOpts: {
+                        showStats: true
+                    }
                 };
 
                 var el = "#mutation_details";

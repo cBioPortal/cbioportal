@@ -511,6 +511,10 @@
 	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
+        defaultOptions: {
+            showStats: false
+        },
+
 		render: function() {
 			var self = this;
 
@@ -534,8 +538,10 @@
 
 			if (self.model.mutationProxy.hasData())
 			{
-				self._initDefaultView(self.model.sampleArray,
-					self.model.diagramOpts);
+				self._initDefaultView(
+                        self.model.sampleArray,
+                        $.extend(this.defaultOptions, self.model.diagramOpts)
+                );
 			}
 
 			// format after render
@@ -1952,7 +1958,16 @@
 		{
 			// implement if necessary...
 		},
-		compileTemplate: function()
+
+        showStats: false,
+        setShowStats: function(showStats) {
+            this.showStats = showStats;
+        },
+        getShowStats: function(showStats) {
+            return this.showStats;
+        },
+
+        compileTemplate: function()
 		{
             var thatModel = this.model;
             var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
@@ -1967,7 +1982,7 @@
             var compiledEl = $(_.template( $("#mutation_details_lollipop_tip_template").html(), variables));
 
             var statsEl = compiledEl.find(".lollipop-stats");
-            if(thatModel.stats.length > 1)
+            if(this.showStats)
             {
                 (new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
                 statsEl.find("table").dataTable({

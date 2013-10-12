@@ -80,7 +80,7 @@
 	<profile>
 	  <id>external</id>
 	  <properties>
-		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/external_lab_properties/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>

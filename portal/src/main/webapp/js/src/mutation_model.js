@@ -343,7 +343,6 @@ var MutationDetailsUtil = function(mutations)
 	 */
 	this.processPdbData = function(gene, data)
 	{
-		var mutations = _mutationGeneMap[gene];
 		var alignmentModel = null;
 		var pdbList = [];
 		var pdbMap = {};
@@ -362,23 +361,6 @@ var MutationDetailsUtil = function(mutations)
 			}
 
 			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
-
-			// TODO move this into PdbDataProxy
-//			var positionMap = {};
-//
-//			if (alignment.positionMap != null)
-//			{
-//				// re-map mutation ids with positions by using the raw position map
-//				for(var i=0; i < mutations.length; i++)
-//				{
-//					positionMap[mutations[i].mutationId] = {
-//						start: alignment.positionMap[mutations[i].proteinPosStart],
-//						end: alignment.positionMap[mutations[i].proteinPosEnd]};
-//				}
-//			}
-//
-//			// update position map
-//			alignment.positionMap = positionMap;
 		});
 
 		// instantiate chain models
@@ -769,7 +751,12 @@ var PileupUtil = (function()
 	};
 })();
 
-// TODO make this class a singleton?
+/**
+ * TODO class/constructor/function comments
+ *
+ * @param mutationUtil
+ * @constructor
+ */
 var PdbDataProxy = function(mutationUtil)
 {
 	// TODO get servlet name as a param?
@@ -777,7 +764,7 @@ var PdbDataProxy = function(mutationUtil)
 
 	var _util = mutationUtil;
 
-	function getPositionMap(gene, alignments, callback)
+	function getPositionMap(gene, alignments, callbackFn)
 	{
 		// get protein positions for current mutations
 		var positions = _util.getProteinPositions(gene);
@@ -796,19 +783,45 @@ var PdbDataProxy = function(mutationUtil)
 			}
 		});
 
-		// TODO cache previous queries, also get pdb id & chain as parameters
+		var alignmentData = [];
 
-		var process = function(data) {
+		alignments.each(function(ele, i) {
+			alignmentData.push(ele.alignmentId);
+		});
 
-			// TODO see MutationDetailsUtil.processPdbData --> map positions to mutation ids...
+		// TODO cache previous queries?
+		// ...need to get pdb id & chain as parameters in order to cache
 
-			callback(data);
+		var processData = function(data) {
+			var positionMap = {};
+			var mutations = _util.getMutationGeneMap()[gene];
+
+			if (data.positionMap != null)
+			{
+				// re-map mutation ids with positions by using the raw position map
+				for(var i=0; i < mutations.length; i++)
+				{
+					var start = data.positionMap[mutations[i].proteinPosStart];
+					var end = data.positionMap[mutations[i].proteinPosEnd];
+
+					if (start != undefined &&
+					    end != undefined)
+					{
+						positionMap[mutations[i].mutationId] =
+							{start: start, end: end};
+					}
+				}
+			}
+
+			// call the callback function with the updated position map
+			callbackFn(positionMap);
 		};
 
 		// get pdb data for the current mutations
 		$.getJSON(_servletName,
-		          {positions: positionData, alignments: alignments},
-		          process);
+		          {positions: positionData.join(" "),
+			          alignments: alignmentData.join(" ")},
+		          processData);
 	}
 
 	return {

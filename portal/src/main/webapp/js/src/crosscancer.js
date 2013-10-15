@@ -176,34 +176,6 @@
                                 .scale(yScale)
                                 .orient("left");
 
-                            // These bars represents the overall changes
-                            // The rest of the stacked bars should hide these bars
-                            // Good for debugging (w/ yellow color)
-                            /*
-                            var debugBarGroup = histogram.append("g");
-                            debugBarGroup.selectAll("rect")
-                                .data(histData, key)
-                                .enter()
-                                .append("rect")
-                                .attr("fill", "yellow")
-                                .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
-                                .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
-                                .attr("width", studyWidth)
-                                .attr("height", function(d, i) {
-                                    return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "all"));
-                                })
-                                .each(function(d, i) {
-                                    $(this).qtip({
-                                        content: "" + calculateFrequency(d, i, "all"),
-                                        show: 'mouseover',
-                                        hide: {
-                                            fixed:true,
-                                            delay: 100
-                                        }
-                                    });
-                                });
-                            */
-
                             var otherBarGroup = histogram.append("g");
                             otherBarGroup.selectAll("rect")
                                 .data(histData, key)
@@ -463,20 +435,40 @@
                                 .attr("transform", "rotate(-90, " + labelCorX + ", " + labelCorY +")")
                             ;
 
+                            var mutLegend = { label: "Mutation", color: "green"};
+                            var delLegend = { label: "Deletion", color: "blue"};
+                            var ampLegend = { label: "Amplification", color: "red"};
+                            var multpLegend = { label: "Multiple alterations", color: "#aaaaaa" };
+
+                            var legendData = [];
+                            switch(priority * 1) {
+                                case 0:
+                                    legendData.push(mutLegend);
+                                    legendData.push(delLegend);
+                                    legendData.push(ampLegend);
+                                    legendData.push(multpLegend);
+                                    break;
+                                case 1:
+                                    legendData.push(mutLegend);
+                                    break;
+                                case 2:
+                                    legendData.push(delLegend);
+                                    legendData.push(ampLegend);
+                                    legendData.push(multpLegend);
+                                    break;
+                            }
+
+                            var legendWidth = 125;
+                            var numOfLegends = legendData.length;
+                            var legBegPoint = (width-paddingLeft-paddingRight-(numOfLegends*legendWidth))/2;
                             // Now add the legends
-                            var legendData = [
-                                { label: "Mutation", color: "green", x: paddingLeft + 175},
-                                { label: "Deletion", color: "blue", x: paddingLeft + 275},
-                                { label: "Amplification", color: "red", x: paddingLeft + 375},
-                                { label: "Multiple alterations", color: "#aaaaaa", x: paddingLeft + 500}
-                            ];
                             var legend = histogram.append("g");
                             legend.selectAll("rect")
                                 .data(legendData)
                                 .enter()
                                 .append("rect")
-                                .attr('x', function(d, i) { return d.x; })
-                                .attr('y', height-25)
+                                .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 10; })
+                                .attr('y', height-20)
                                 .attr('width', 19)
                                 .attr('height', 19)
                                 .style('fill', function(d) { return d.color; })
@@ -485,8 +477,8 @@
                                 .data(legendData)
                                 .enter()
                                 .append("text")
-                                .attr('x', function(d, i) { return d.x + 25; })
-                                .attr('y', height-(25-19)-4)
+                                .attr('x', function(d, i) { return legBegPoint + i*legendWidth + 35; })
+                                .attr('y', height-5)
                                 .text(function(d, i) { return d.label; })
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", "15px")
@@ -526,7 +518,7 @@
                                 // Data type radius
                                 circleDTR = studyWidth / 4;
                                 // Tumor type radius
-                                circleTTR = studyWidth / 2;
+                                circleTTR = Math.min(studyWidth, 20) / 2;
 
                                 var stacked = $("#histogram-show-colors").is(":checked");
                                 var outX = width + 1000;
@@ -743,7 +735,12 @@
                                         return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
                                     })
                                 ;
-                                console.log("redrawn!");
+
+                                legend
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .style("opacity", stacked ? 1 : 0)
+                                ;
                             }; // end of redraw
 
                             $("#histogram-show-colors, #histogram-sort-by, #cancerbycancer-controls input")

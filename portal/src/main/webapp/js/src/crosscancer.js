@@ -98,9 +98,17 @@
 
             render: function() {
                 this.$el.html(this.template(this.model));
-                $("#tabs").tabs().show();
-                var genes = this.model.genes;
+
+                $("#tabs").tabs({ active: this.model.tab == "mutation" ? 1 : 0 }).show();
+
                 var priority = this.model.priority;
+                if(priority == 2) {
+                    $("#cc-mutations-link").parent().hide();
+                } else {
+                    $("#cc-mutations-link").parent().show();
+                }
+
+                var genes = this.model.genes;
 
                 var studies = new Studies({
                     gene_list: genes,

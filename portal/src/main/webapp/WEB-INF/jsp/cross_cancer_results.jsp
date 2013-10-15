@@ -16,6 +16,9 @@
     }
     ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
     String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
+
+    String bitlyUser = GlobalProperties.getBitlyUser();
+    String bitlyKey = GlobalProperties.getBitlyApiKey();
 %>
 
 <jsp:include page="global/header.jsp" flush="true"/>
@@ -73,10 +76,15 @@
     <div id="tabs">
         <ul>
             <li>
-                <a href="#cc-overview">Overview</a>
+                <a href="#cc-overview" id="cc-overview-link" title="Compact visualization of genomic alterations">Overview</a>
             </li>
             <li>
-                <a href="#cc-mutations">Mutations</a>
+                <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
+            </li>
+            <li>
+                <a href='#cc-bookmark' class='result-tab' title="Bookmark or generate a URL for email">
+                    Bookmark
+                </a>
             </li>
         </ul>
         <div class="section" id="cc-overview">
@@ -140,6 +148,21 @@
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>
+
+        <div class="section" id="cc-bookmark">
+            <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>
+            <br/>
+            <a href="<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit">
+                <%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?...
+            </a>
+            <br/>
+            <br/>
+
+            If you would like to use a <b>shorter URL that will not break in email postings</b>, you can use the<br><a href='https://bitly.com/'>bitly.com</a> service below:<BR>
+            <BR><form><input type="button" onClick="bitlyURL('<%=request.getAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING)%>?tab_index=tab_visualize&cancer_study_id=all&gene_list={{genes}}&data_priority={{priority}}&Action=Submit', '<%=bitlyUser%>', '<%=bitlyKey%>')" value="Shorten URL"></form>
+            <div id='bitly'></div>
+        </div>
+
     </div>
 </script>
 

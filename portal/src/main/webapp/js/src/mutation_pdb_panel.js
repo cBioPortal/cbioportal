@@ -22,6 +22,13 @@ function MutationPdbPanel(options, data, xScale)
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 2,    // padding between chain rectangles
+		labelY: false,      // informative label of the y-axis (false means "do not draw")
+		labelYFont: "sans-serif",   // font type of the y-axis label
+		labelYFontColor: "#2E3436", // font color of the y-axis label
+		labelYFontSize: "12px",     // font size of y-axis label
+		labelYFontWeight: "normal", // font weight of y-axis label
+		labelYPaddingRight: 15, // padding between y-axis and its label
+		labelYPaddingTop: 20, // padding between y-axis and its label
 		// TODO duplicate google colors, taken from OncoprintUtils.js
 		// ...use OncoprintUtils or move colors to a general util class after merging
 		colors: ["#3366cc","#dc3912","#ff9900","#109618",
@@ -128,6 +135,41 @@ function MutationPdbPanel(options, data, xScale)
 	}
 
 	/**
+	 * Draws the label of the y-axis.
+	 *
+	 * @param svg       svg to append the label element
+	 * @param options   general options object
+	 * @return {object} text label (svg element)
+	 */
+	function drawYAxisLabel(svg, options)
+	{
+		// TODO this needs to be tuned to fit
+
+		// set x, y of the label to the top left
+
+		var x = options.marginLeft -
+		        options.labelYPaddingRight;
+
+		var y =  options.marginTop +
+		         options.labelYPaddingTop;
+
+		// append label
+		var label = svg.append("text")
+			.attr("fill", options.labelYFontColor)
+			.attr("text-anchor", "middle")
+			.attr("x", x)
+			.attr("y", y)
+			.attr("class", "mut-dia-y-axis-label")
+			.attr("transform", "rotate(270, " + x + "," + y +")")
+			.style("font-family", options.labelYFont)
+			.style("font-size", options.labelYFontSize)
+			.style("font-weight", options.labelYFontWeight)
+			.text(options.labelY);
+
+		return label;
+	}
+
+	/**
 	 * Calculates total number of chains for the given PDB data.
 	 *
 	 * @param data      PDB data (collection of PdbModel instances)
@@ -228,6 +270,12 @@ function MutationPdbPanel(options, data, xScale)
 
 		// draw the panel
 		drawPanel(svg, _options, data, xScale);
+
+		// draw the labels
+		if (_options.labelY != false)
+		{
+			drawYAxisLabel(svg, _options);
+		}
 	}
 
 	/**

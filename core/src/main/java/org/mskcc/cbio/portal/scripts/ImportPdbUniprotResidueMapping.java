@@ -70,10 +70,6 @@ public final class ImportPdbUniprotResidueMapping {
         Map<Integer, Integer> mappingUniPdbAlignment = Collections.emptyMap();
         
         while (line != null) {
-            if (pMonitor != null) {
-                pMonitor.incrementCurValue();
-                ConsoleUtil.showProgress(pMonitor);
-            }
             if (!line.startsWith("#")) {
                 String parts[] = line.split("\t",-1);
                 if (line.startsWith(">")) {
@@ -121,6 +117,8 @@ public final class ImportPdbUniprotResidueMapping {
                         pdbUniprotResidueMappings.clear();
                         while (line !=null && !line.startsWith(">")) {
                             line = buf.readLine();
+                            pMonitor.incrementCurValue();
+                            ConsoleUtil.showProgress(pMonitor);
                         }
                         continue;
                     }
@@ -133,7 +131,20 @@ public final class ImportPdbUniprotResidueMapping {
                 }
 
             }
+            
             line = buf.readLine();
+            
+            pMonitor.incrementCurValue();
+            ConsoleUtil.showProgress(pMonitor);
+        }
+        
+        // last one
+        if (!pdbUniprotResidueMappings.isEmpty()) {
+            DaoPdbUniprotResidueMapping.addPdbUniprotAlignment(pdbUniprotAlignment);
+            for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
+                DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
+            }
+            mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
         }
 
         //  Flush database

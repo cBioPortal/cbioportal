@@ -1282,6 +1282,10 @@ cc-ie-message {
     background-color: lightyellow;
 }
 
+.ui-tooltip-wide {
+    max-width: 600px;
+}
+
 /* Float on alright! */
 #ppy2 {
     z-index: 9999999;

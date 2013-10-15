@@ -532,14 +532,11 @@
 			// init 3D view if the visualizer is available
 			if (self.options.mut3dVis)
 			{
-				var pdbProxy = new PdbDataProxy(
-						self.model.mutationProxy.getMutationUtil());
-
 				var mutation3dVisView = new Mutation3dVisView(
 						{el: container3d,
 						parentEl: self.$el,
 						mut3dVis: self.options.mut3dVis,
-						pdbProxy: pdbProxy});
+						pdbProxy: self.pdbProxy});
 
 				mutation3dVisView.render();
 
@@ -604,6 +601,9 @@
 			var self = this;
 
 			var genes = self.model.mutationProxy.getGeneList();
+
+			self.pdbProxy = new PdbDataProxy(
+					self.model.mutationProxy.getMutationUtil());
 
 			// init view for the first gene only
 			self._initView(genes[0], cases, diagramOpts);
@@ -780,7 +780,7 @@
 
 			// callback function to init view after retrieving
 			// sequence information.
-			var init = function(sequenceData, pdbData)
+			var init = function(sequenceData)
 			{
 				// TODO sequenceData may be null for unknown genes...
 				// get the first sequence from the response
@@ -818,16 +818,14 @@
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
 
-					if (self.mut3dVisView &&
-						pdbData)
+					if (self.mut3dVisView)
 					{
-						// collection of pdb model instances
-						var pdbColl = mutationUtil.processPdbData(gene, pdbData);
-
 						// init the 3d view
 						var view3d = new Mutation3dView({
 							el: "#mutation_3d_" + gene,
-							model: {pdbColl: pdbColl, geneSymbol: gene},
+							model: {uniprotId: sequence.metadata.identifier,
+								geneSymbol: gene,
+								pdbProxy: self.pdbProxy},
 							mut3dVisView: self.mut3dVisView,
 							diagram: diagram});
 
@@ -859,46 +857,21 @@
 				mainView.initResetFilterInfo(diagram, mutationTableView);
 			};
 
-			// TODO postpone this data retrieval until 3d button clicked
-			// Gets the pdb data from the server by using the uniprot identifier
-			// within the given sequence data, and then initializes the view
-			var getPdbData = function(sequenceData)
-			{
-				// TODO sequenceData may be null for unknown genes...
-				// get the first sequence from the response
-				var sequence = sequenceData[0];
-
-				// get pdb data for the current mutations
-				$.getJSON("get3dPdb.json",
-					{uniprotId: sequence.metadata.identifier},
-					function(pdbData) {
-						// init view with the sequence and pdb data
-						init(sequenceData, pdbData);
-				});
-			};
-
 			// get mutation data for the current gene
 			self.model.mutationProxy.getMutationData(gene, function(data) {
 				// update mutation data reference
 				mutationData = data;
 
-				// display a message if there is no mutation data available for
-				// this gene
+				// display a message if there is no mutation data available for this gene
 				if (mutationData == null ||
 				    mutationData.length == 0)
 				{
 					self.$el.find("#mutation_details_" + gene).html(
 						_.template($("#default_gene_mutation_details_info_template").html(), {}));
 				}
-				// get sequence data & pdb data for the current gene & init view
-				else if (self.options.mut3dVis)
-				{
-					// TODO postpone this data retrieval until 3d button clicked
-					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
-				}
+				// get the sequence data for the current gene & init view
 				else
 				{
-					// if no 3D visualizer is available, just skip pdb data retrieval
 					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
 				}
 			});
@@ -955,7 +928,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {geneSymbol: hugo gene symbol,
-	 *                   pdbColl: collection of PdbModel instances},
+	 *                   uniprotId: uniprot identifier for this gene,
+	 *                   pdbProxy: pdb data proxy}
 	 *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
 	 *           diagram: [optional] reference to the MutationDiagram instance
 	 *          }
@@ -973,16 +947,6 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
-			// init pdb panel view
-			var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-				model: self.model,
-				mut3dVisView: self.options.mut3dVisView,
-				diagram: self.options.diagram};
-
-			var pdbPanelView = new PdbPanelView(panelOpts);
-			pdbPanelView.render();
-			self.pdbPanelView = pdbPanelView;
-
 			// format after rendering
 			this.format();
 		},
@@ -992,22 +956,43 @@
 
 			// add click listener for the 3d visualizer initializer
 			self.$el.find(".mutation-3d-vis").click(function() {
+				var gene = self.model.geneSymbol;
+				var uniprotId = self.model.uniprotId;
 				var vis = self.options.mut3dVisView;
 				var panel = self.pdbPanelView;
-				var pdbColl = self.model.pdbColl;
-				var gene = self.model.geneSymbol;
+				var pdbProxy = self.model.pdbProxy;
 
-				if (vis != null &&
-				    panel != null &&
-				    pdbColl.length > 0)
+				var initView = function(pdbColl)
 				{
-					// reload the visualizer content with the default pdb and chain
-					var pdbId = pdbColl.at(0).pdbId;
-					var chain = pdbColl.at(0).chains.at(0);
+					// init pdb panel view if not initialized yet
+					if (panel == undefined)
+					{
+						var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+							model: {geneSymbol: gene, pdbColl: pdbColl},
+							mut3dVisView: self.options.mut3dVisView,
+							diagram: self.options.diagram};
 
-					panel.showView();
-					vis.updateView(gene, pdbId, chain);
-				}
+						var pdbPanelView = new PdbPanelView(panelOpts);
+						panel = self.pdbPanelView = pdbPanelView;
+
+						pdbPanelView.render();
+					}
+
+					if (vis != null &&
+					    panel != null &&
+					    pdbColl.length > 0)
+					{
+						// reload the visualizer content with the default pdb and chain
+						var pdbId = pdbColl.at(0).pdbId;
+						var chain = pdbColl.at(0).chains.at(0);
+
+						panel.showView();
+						vis.updateView(gene, pdbId, chain);
+					}
+				};
+
+				// init view with the pdb data
+				pdbProxy.getPdbData(uniprotId, initView);
 			});
 		}
 	});
@@ -1211,13 +1196,14 @@
 				self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
 			};
 
-			// TODO instead of caching in PdbDataProxy class,
-			// ...we can check if chain.positionMap == undefined
-
 			// update positionMap for the chain
-			pdbProxy.getPositionMap(geneSymbol,
-				chain.alignments,
-				callback);
+			// (retrieve data only once)
+			if (chain.positionMap == undefined)
+			{
+				pdbProxy.getPositionMap(geneSymbol,
+					chain.alignments,
+					callback);
+			}
 		}
 	});
 

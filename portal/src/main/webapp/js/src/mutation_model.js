@@ -334,59 +334,6 @@ var MutationDetailsUtil = function(mutations)
 	};
 
 	/**
-	 * Processes the pdb data (received from the server) to map positions
-	 * to mutation ids.
-	 *
-	 * @param gene  hugo gene symbol
-	 * @param data  pdb alignment data with a position map
-	 * @return {PdbCollection}   PdbModel instances representing the processed data
-	 */
-	this.processPdbData = function(gene, data)
-	{
-		var alignmentModel = null;
-		var pdbList = [];
-		var pdbMap = {};
-
-		_.each(data, function(alignment, idx) {
-			alignmentModel = new PdbAlignmentModel(alignment);
-
-			if (pdbMap[alignmentModel.pdbId] == undefined)
-			{
-				pdbMap[alignmentModel.pdbId] = {};
-			}
-
-			if (pdbMap[alignmentModel.pdbId][alignmentModel.chain] == undefined)
-			{
-				pdbMap[alignmentModel.pdbId][alignmentModel.chain] = [];
-			}
-
-			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
-		});
-
-		// instantiate chain models
-		for (var pdbId in pdbMap)
-		{
-			var chains = [];
-
-			for (var chain in pdbMap[pdbId])
-			{
-				var chainModel = new PdbChainModel({chainId: chain,
-					alignments: pdbMap[pdbId][chain]});
-
-				chains.push(chainModel);
-			}
-
-			var pdbModel = new PdbModel({pdbId: pdbId,
-				chains: chains});
-
-			pdbList.push(pdbModel);
-		}
-
-		// return new pdb model
-		return new PdbCollection(pdbList);
-	};
-
-	/**
 	 * Processes the collection of mutations, and creates a map of
 	 * <geneSymbol, mutation array> pairs.
 	 *
@@ -620,6 +567,69 @@ var MutationDetailsUtil = function(mutations)
 };
 
 /**
+ * Singleton utility class for PDB data related tasks.
+ */
+var PdbDataUtil = (function()
+{
+	/**
+	 * Processes the pdb data (received from the server) to create
+	 * a collection of PdbModel instances.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param data  pdb alignment data with a position map
+	 * @return {PdbCollection}   PdbModel instances representing the processed data
+	 */
+	var processPdbData = function(gene, data)
+	{
+		var alignmentModel = null;
+		var pdbList = [];
+		var pdbMap = {};
+
+		_.each(data, function(alignment, idx) {
+			alignmentModel = new PdbAlignmentModel(alignment);
+
+			if (pdbMap[alignmentModel.pdbId] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId] = {};
+			}
+
+			if (pdbMap[alignmentModel.pdbId][alignmentModel.chain] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId][alignmentModel.chain] = [];
+			}
+
+			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
+		});
+
+		// instantiate chain models
+		for (var pdbId in pdbMap)
+		{
+			var chains = [];
+
+			for (var chain in pdbMap[pdbId])
+			{
+				var chainModel = new PdbChainModel({chainId: chain,
+					alignments: pdbMap[pdbId][chain]});
+
+				chains.push(chainModel);
+			}
+
+			var pdbModel = new PdbModel({pdbId: pdbId,
+				chains: chains});
+
+			pdbList.push(pdbModel);
+		}
+
+		// return new pdb model
+		return new PdbCollection(pdbList);
+	};
+
+	return {
+		processPdbData : processPdbData
+	};
+})();
+
+/**
  * Singleton utility class for pileup related tasks.
  */
 var PileupUtil = (function()
@@ -752,10 +762,9 @@ var PileupUtil = (function()
 })();
 
 /**
- * TODO class/constructor/function comments
+ * This class is designed to retrieve PDB data on demand.
  *
- * @param mutationUtil
- * @constructor
+ * @param mutationUtil  an instance of MutationDetailsUtil class
  */
 var PdbDataProxy = function(mutationUtil)
 {
@@ -764,11 +773,24 @@ var PdbDataProxy = function(mutationUtil)
 
 	var _util = mutationUtil;
 
+	// cache for PDB data:
+	// map of <uniprot id, PdbCollection> pairs
+	var _pdbDataCache = {};
+
+	/**
+	 * Retrieves the position map for the given gene and alignments.
+	 * Invokes the given callback function after retrieving the data.
+	 *
+	 * @param gene          hugo gene symbol
+	 * @param alignments    collection of alignments (PdbAlignmentCollection)
+	 * @param callbackFn    function to be invoked after data retrieval
+	 */
 	function getPositionMap(gene, alignments, callbackFn)
 	{
 		// get protein positions for current mutations
 		var positions = _util.getProteinPositions(gene);
 
+		// populate position data array
 		var positionData = [];
 
 		_.each(positions, function(ele, i) {
@@ -783,14 +805,14 @@ var PdbDataProxy = function(mutationUtil)
 			}
 		});
 
+		// populate alignment data array
 		var alignmentData = [];
 
 		alignments.each(function(ele, i) {
 			alignmentData.push(ele.alignmentId);
 		});
 
-		// TODO cache previous queries?
-		// ...need to get pdb id & chain as parameters in order to cache
+		// TODO cache previous queries
 
 		var processData = function(data) {
 			var positionMap = {};
@@ -824,7 +846,42 @@ var PdbDataProxy = function(mutationUtil)
 		          processData);
 	}
 
+	/**
+	 * Retrieves the PDB data for the provided uniprot id. Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callbackFn    callback function to be invoked
+	 */
+	function getPdbData(uniprotId, callbackFn)
+	{
+		// retrieve data from the server if not cached
+		if (_pdbDataCache[uniprotId] == undefined)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+				var pdbColl = PdbDataUtil.processPdbData(gene, data);
+				_pdbDataCache[uniprotId] = pdbColl;
+
+				// forward the processed data to the provided callback function
+				callbackFn(pdbColl);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+					{uniprotId: uniprotId},
+					processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callbackFn(_pdbDataCache[uniprotId]);
+		}
+	}
+
 	return {
+		getPdbData: getPdbData,
 		getPositionMap: getPositionMap
 	};
 };

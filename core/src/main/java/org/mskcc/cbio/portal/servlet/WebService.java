@@ -89,16 +89,7 @@ public class WebService extends HttpServlet {
         System.out.println("Starting up the Web Service API...");
         System.out.println("Reading in init parameters from web.xml");
         DatabaseProperties dbProperties = DatabaseProperties.getInstance();
-        ServletConfig config = this.getServletConfig();
-        String dbHost = config.getInitParameter("db_host");
-        String dbUser = config.getInitParameter("db_user");
-        String dbPassword = config.getInitParameter("db_password");
-        String dbName = config.getInitParameter("db_name");
         System.out.println("Starting CGDS Server");
-        dbProperties.setDbName(dbName);
-        dbProperties.setDbHost(dbHost);
-        dbProperties.setDbUser(dbUser);
-        dbProperties.setDbPassword(dbPassword);
         verifyDbConnection();
     }
 

@@ -778,15 +778,25 @@ var PdbDataProxy = function(mutationUtil)
 	var _pdbDataCache = {};
 
 	/**
-	 * Retrieves the position map for the given gene and alignments.
+	 * Retrieves the position map for the given gene and chain.
 	 * Invokes the given callback function after retrieving the data.
 	 *
 	 * @param gene          hugo gene symbol
-	 * @param alignments    collection of alignments (PdbAlignmentCollection)
+	 * @param chain         a PdbChainModel instance
 	 * @param callbackFn    function to be invoked after data retrieval
 	 */
-	function getPositionMap(gene, alignments, callbackFn)
+	function getPositionMap(gene, chain, callbackFn)
 	{
+		// collection of alignments (PdbAlignmentCollection)
+		var alignments = chain.alignments;
+
+		// TODO use a proper cache instead of checking/reflecting a chain attribute?
+		// do not retrieve data if it is already there
+		if (chain.positionMap != undefined)
+		{
+			callbackFn(chain.positionMap);
+		}
+
 		// get protein positions for current mutations
 		var positions = _util.getProteinPositions(gene);
 
@@ -811,8 +821,6 @@ var PdbDataProxy = function(mutationUtil)
 		alignments.each(function(ele, i) {
 			alignmentData.push(ele.alignmentId);
 		});
-
-		// TODO cache previous queries
 
 		var processData = function(data) {
 			var positionMap = {};

@@ -1198,12 +1198,7 @@
 
 			// update positionMap for the chain
 			// (retrieve data only once)
-			if (chain.positionMap == undefined)
-			{
-				pdbProxy.getPositionMap(geneSymbol,
-					chain.alignments,
-					callback);
-			}
+			pdbProxy.getPositionMap(geneSymbol, chain, callback);
 		}
 	});
 

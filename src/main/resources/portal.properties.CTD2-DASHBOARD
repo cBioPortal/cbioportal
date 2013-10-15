@@ -120,3 +120,6 @@ encryption.key=
 
 # broad BAM file url
 broad.bam.url=
+
+# temp dir
+temporary_dir=/tmp

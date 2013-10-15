@@ -26,7 +26,7 @@
  */
 package org.mskcc.cbio.importer.model;
 
-import org.mskcc.cbio.cgds.model.ClinicalAttributeAbstract;
+import org.mskcc.cbio.portal.model.ClinicalAttributeAbstract;
 import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 
 import java.util.HashMap;

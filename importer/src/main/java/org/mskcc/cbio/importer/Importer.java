@@ -54,4 +54,17 @@ public interface Importer {
 	 * @throws Exception
 	 */
 	void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception;
+
+
+    /**
+     * Imports all cancer studies found within the given directory.
+     * If force is set, user will not be prompted to override existing cancer study.
+     * If cancer study exists and skip is set, new study will not be imported.
+     *
+     * @param cancerStudyDirectoryName
+     * @param skip
+     * @param force
+
+     */
+    void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception;
 }

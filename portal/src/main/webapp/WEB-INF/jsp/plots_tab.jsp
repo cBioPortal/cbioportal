@@ -4,8 +4,8 @@
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
@@ -41,14 +41,14 @@
 <style>
     #plots .plots {
         height: 610px;
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
     }
     #plots .plots.plots-menus {
         width: 320px;
-        height: 685px;
+        height: 645px;
     }
     #plots .plots.plots-view {
-        border: 1px solid #aaaaaa;
-        border-radius: 4px;
         padding: 40px;
         width: 720px;
     }
@@ -73,6 +73,10 @@
     #plots .ui-tabs .ui-state-disabled {
         display: none; /* disabled tabs don't show up */
     }
+    #plots .search-box {
+        width: 323px;
+        height: 36px;
+    }
 </style>
 
 
@@ -90,10 +94,13 @@
                         <h4>Plot Parameters</h4>
                         <h5>Gene</h5>
                         <select id='gene' onchange='PlotsMenu.updateMenu();PlotsView.init();'></select>
-                        <h5>Plot Type</h5>
-                        <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
-                        <h5>Data Type</h5>
-                        <div id='one_gene_platform_select_div'></div>
+                        <div id='menu_err_msg'></div>
+                        <div id='one_gene_type_specification'>
+                            <h5>Plot Type</h5>
+                            <select id='plots_type' onchange="PlotsMenu.updateDataType();PlotsView.init();"></select>
+                            <h5>Data Type</h5>
+                            <div id='one_gene_platform_select_div'></div>
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
@@ -130,6 +137,15 @@
                                value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                     </div>
                 </div>
+                <div id="inner-search-box" class="plots search-box">
+                    <div style="padding-left:20px; padding-top: 5px;">
+                        Search Case
+                        <input type="text" name="search_plots" id="search_plots" onkeyup="Plots.searchPlots();">
+                        <img src='images/help.png'
+                             class='profile_help' title='Type in whole/part of the ID of the case you are interested.
+                         The related case would be highlighted accordingly. To clear searching result, simply delete everything in the box.'>
+                    </div>
+                </div>
             </td>
             <td>
                 <div id="plots-view" class="plots plots-view">
@@ -153,24 +169,6 @@
         $("#plots-menus").tabs("disable", 1);
     }
     window.onload = Plots.init();
-
-    // Takes the content in the plots svg element
-    // and returns XML serialized *string*
-    function loadSVG() {
-        var shiftValueOnX = 8;
-        var shiftValueOnY = 3;
-        var mySVG = d3.select("#plots_box");
-        var xAxisGrp = mySVG.select(".plots-x-axis-class");
-        var yAxisGrp = mySVG.select(".plots-y-axis-class");
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-        var docSVG = document.getElementById("plots_box");
-        var svgDoc = docSVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-        return xmlString;
-    }
-
 </script>
 
 <script>

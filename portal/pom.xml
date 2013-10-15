@@ -91,7 +91,7 @@
           <version>1.1</version>
           <configuration>
               <server>localhost</server>
-              <url>http://localhost:8080/manager</url>
+              <url>http://localhost:8080/manager/text</url>
           </configuration>
       </plugin>
 
@@ -110,7 +110,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${project.parent.basedir}/src/main/resources</directory>
+				  <directory>${property-file-dir}</directory>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>

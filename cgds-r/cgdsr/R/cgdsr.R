@@ -9,7 +9,7 @@ setConstructorS3("CGDS", function(url='',verbose=FALSE,ploterrormsg='') {
 
 setMethodS3("processURL","CGDS", private=TRUE, function(x, url, ...) {
   if (x$.verbose) cat(url,"\n")
-  df = read.table(url, skip=0, header=TRUE, as.is=TRUE, sep="\t") 
+  df = read.table(url, skip=0, header=TRUE, as.is=TRUE, sep="\t",quote='') 
 })
 
 setMethodS3("setPlotErrorMsg","CGDS", function(x, msg, ...) {
@@ -61,7 +61,7 @@ setMethodS3("getProfileData","CGDS", function(x, genes, geneticProfiles, caseLis
   } else { url = paste(url,"&case_set_id=", caseList,sep='') }
   
   df = processURL(x,url)
-
+  
   if (nrow(df) == 0) { return(df) }
   
   m = matrix()
@@ -85,9 +85,9 @@ setMethodS3("getClinicalData","CGDS", function(x, caseList='', cases=c(), caseId
   if (length(cases)>0) { url = paste(url,"&case_list=", paste(cases,collapse=","),sep='')
   } else if (caseIdsKey != '') { url = paste(url,"&case_ids_key=", caseIdsKey,sep='')
   } else { url = paste(url,"&case_set_id=", caseList,sep='') }
-  
+
   df = processURL(x,url)
-  rownames(df) = make.names(df$case_id)
+  rownames(df) = make.names(df[,1])
   return(df[,-1])
 })
 
@@ -408,41 +408,30 @@ setMethodS3("test","CGDS", function(x, ...) {
   # clinical data
   # check colnames
   cat('getClinicalData (1/1) ... ',
-      checkEq(colnames(getClinicalData(x,'gbm_tcga_all')),
-              c("overall_survival_months","overall_survival_status","disease_free_survival_months",
-                "disease_free_survival_status","age_at_diagnosis")))
-  # check value of overall_survival_months
-  #cat('getClinicalData (2/3) ... ',
-  #    checkGrt(getClinicalData(x,'gbm_tcga_all')['TCGA.02.0080','overall_survival_months'], 89))
-  # check cases parameter
-  #cat('getClinicalData (3/3) ... ',
-  #    checkGrt(getClinicalData(x,cases=c('TCGA-02-0080'))['TCGA.02.0080','overall_survival_months'], 89))
+      checkEq(colnames(getClinicalData(x,'gbm_tcga_all'))[1],
+              c("DFS_MONTHS")))
   
   # check one gene, one profile
-  cat('getProfileData (1/7) ... ',
+  cat('getProfileData (1/6) ... ',
       checkEq(colnames(getProfileData(x,'NF1','gbm_tcga_mrna','gbm_tcga_all')),
               "NF1"))
   # check many genes, one profile
-  cat('getProfileData (2/7) ... ',
+  cat('getProfileData (2/6) ... ',
       checkEq(colnames(getProfileData(x,c('MDM2','MDM4'),'gbm_tcga_mrna','gbm_tcga_all')),
               c("MDM2","MDM4")))
   # check one gene, many profile
-  cat('getProfileData (3/7) ... ',
+  cat('getProfileData (3/6) ... ',
       checkEq(colnames(getProfileData(x,'NF1',c('gbm_tcga_mrna','gbm_tcga_mutations'),'gbm_tcga_all')),
               c('gbm_tcga_mrna','gbm_tcga_mutations')))
   # check 3 cases returns matrix with 3 columns
-  cat('getProfileData (4/7) ... ',
+  cat('getProfileData (4/6) ... ',
       checkEq(rownames(getProfileData(x,'BRCA1','gbm_tcga_mrna',cases=c('TCGA-02-0001','TCGA-02-0003'))),
               make.names(c('TCGA-02-0001','TCGA-02-0003'))))
   # invalid gene names return empty data.frame
-  cat('getProfileData (5/7) ... ',
+  cat('getProfileData (5/6) ... ',
       checkEq(nrow(getProfileData(x,c('NF10','NF11'),'gbm_tcga_mrna','gbm_tcga_all')),as.integer(0)))
   # invalid case_list_id returns error
-  cat('getProfileData (6/7) ... ',
+  cat('getProfileData (6/6) ... ',
       checkEq(colnames(getProfileData(x,'NF1','gbm_tcga_mrna','xxx')),
-              'Error..Problem.when.identifying.a.cancer.study.for.the.request.'))
-  # invalid genetic_profile_id returns error
-  cat('getProfileData (7/7) ... ',
-    checkEq(colnames(getProfileData(x,'NF1','xxx','gbm_tcga_all')),
-            'No.genetic.profile.available.for.genetic_profile_id...xxx.'))  
+              'Error..Invalid.case_set_id...xxx.'))
 })

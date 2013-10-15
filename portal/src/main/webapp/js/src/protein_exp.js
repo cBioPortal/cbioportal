@@ -266,7 +266,7 @@ var rppaPlots = (function() {
             $("#" + divName).empty();
             $("#" + divName).append(title);
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG('" + divName + "');\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadRPPASVG('" + divName + "');\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
                 "<input type='hidden' name='filename' value='rppa-plots.pdf'>" +
@@ -398,7 +398,7 @@ var rppaPlots = (function() {
                 function(d) {
                     var content = "<font size='2'>";
                     content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.caseId +
-                        "&cancer_study_id=" + cancer_study_id + "'>" + d.caseId + "</a></strong><br>";
+                        "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.caseId + "</a></strong><br>";
                     content += "RPPA score: <strong>" + parseFloat(d.yVal).toFixed(3) + "</strong><br>";
                     if (d.hasOwnProperty("annotation")) {
                         content += "Altertions: <strong>" + d.annotation + "</strong>";
@@ -535,3 +535,18 @@ var rppaPlots = (function() {
     }
 
 }());
+
+function loadRPPASVG(divName) {
+    var shiftValueOnX = 8;
+    var shiftValueOnY = 3;
+    var mySVG = d3.select("#" + divName);
+    var xAxisGrp = mySVG.select(".rppa-plots-x-axis-class");
+    var yAxisGrp = mySVG.select(".rppa-plots-y-axis-class");
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+    var docSVG = document.getElementById(divName);
+    var svgDoc = docSVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+    return xmlString;
+}

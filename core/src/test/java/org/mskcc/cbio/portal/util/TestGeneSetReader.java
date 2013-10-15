@@ -29,7 +29,6 @@ package org.mskcc.cbio.portal.util;
 
 import junit.framework.TestCase;
 import org.mskcc.cbio.portal.model.GeneSet;
-import org.mskcc.cbio.portal.util.GeneSetReader;
 
 import java.io.File;
 import java.io.IOException;

@@ -38,7 +38,7 @@ import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
 import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.cgds.scripts.NormalizeExpressionLevels;
+import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;
 import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.mskcc.cbio.importer.model.DataSourcesMetadata;
 import org.mskcc.cbio.importer.util.MetadataUtils;
@@ -471,8 +471,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 						for (String potentialCaseID : thisRow) {
 							if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
 								// check to filter out column headers other than sample ids
-								if (potentialCaseID.equals(Converter.GENE_ID_COLUMN_HEADER_NAME) ||
-									potentialCaseID.equals(Converter.GENE_SYMBOL_COLUMN_HEADER_NAME)) {
+								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
 								caseSet.add(caseIDs.convertCaseID(potentialCaseID));

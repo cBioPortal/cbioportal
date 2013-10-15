@@ -28,7 +28,7 @@
 package org.mskcc.cbio.portal.r_bridge;
 
 import org.mskcc.cbio.portal.model.ProfileDataSummary;
-import org.mskcc.cbio.cgds.model.Patient;
+import org.mskcc.cbio.portal.model.Patient;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;

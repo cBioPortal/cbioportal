@@ -2,11 +2,11 @@ function profileData = getprofiledata(cgdsURL, caseListId, geneticProfileId, gen
 %GETPROFILEDATA Get genomic profile data from the cBio CGDS portal.
 %    A = GETPROFILEDATA(cgdsURL, caseListId, geneticProfileId, geneList, toNumeric)
 %    loads genomic profile data into A. cdgsURL points to the CGDS web API,
-%    typically 'http://cbio.mskcc.org/cgds-public/'. caseListId is a case
-%    list ID, as returned by the getcaselists function. geneticProfileId is
-%    a cell array of genetic profile IDs, as returned by
-%    getgeneticprofiles. geneList is a cell array of HUGO gene symbols or
-%    Entrez Gene IDs. If toNumeric is true, data will be returned as a
+%    typically http://www.cbioportal.org/public-portal/. caseListId is a
+%    case list ID, as returned by the getcaselists function.
+%    geneticProfileId is a cell array of genetic profile IDs, as returned
+%    by getgeneticprofiles. geneList is a cell array of HUGO gene symbols
+%    or Entrez Gene IDs. If toNumeric is true, data will be returned as a
 %    numeric matrix (convenient e.g. for mRNA expression data).
 %
 %    This function can be called in two different ways:
@@ -34,6 +34,7 @@ function profileData = getprofiledata(cgdsURL, caseListId, geneticProfileId, gen
 %    getclinicaldata.
 
 verbose = isempty(varargin);
+if ~strcmp(cgdsURL(end), '/') cgdsURL(end + 1) = '/'; end
 
 cells  = urlgetcells([cgdsURL 'webservice.do?cmd=getProfileData&case_set_id=' caseListId ...
                       '&genetic_profile_id=' cellarraytostr(geneticProfileId) ...

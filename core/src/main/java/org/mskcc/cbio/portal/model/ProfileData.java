@@ -28,7 +28,6 @@
 package org.mskcc.cbio.portal.model;
 
 import org.mskcc.cbio.portal.util.ValueParser;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

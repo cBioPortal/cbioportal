@@ -99,17 +99,17 @@ public class PdbUniprotAlignment
 		this.identity = identity;
 	}
 
-	public Float getIdentityProtein()
+	public Float getIdentityPerc()
 	{
-		return identityProtein;
+		return identityPerc;
 	}
 
-	public void setIdentityProtein(Float identityProtein)
+	public void setIdentityPerc(Float identityPerc)
 	{
-		this.identityProtein = identityProtein;
+		this.identityPerc = identityPerc;
 	}
 
-	private Float identityProtein;
+	private Float identityPerc;
 
 	public Integer getAlignmentId()
 	{

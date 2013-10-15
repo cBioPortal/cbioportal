@@ -43,43 +43,39 @@ import java.util.*;
 public final class DaoPdbUniprotResidueMapping {
     private DaoPdbUniprotResidueMapping() {}
     
-    public static int addPdbUniprotAlignment(int alignId, String pdbId, String chain,
-            String uniprotId, int pdbFrom, int pdbTo, int uniprotFrom, int uniprotTo,
-            double evalue, double identity, double identp, String uniprotAlign,
-            String pdbAlign, String midline) {
+    public static int addPdbUniprotAlignment(PdbUniprotAlignment alignment) {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new IllegalStateException("only bulk load is supported");
         }
         
         MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_alignment").insertRecord(
-                Integer.toString(alignId),
-                pdbId,
-                chain,
-                uniprotId,
-                Integer.toString(pdbFrom),
-                Integer.toString(pdbTo),
-                Integer.toString(uniprotFrom),
-                Integer.toString(uniprotTo),
-                Double.toString(evalue),
-                Double.toString(identity),
-                Double.toString(identp),
-                uniprotAlign,
-                pdbAlign,
-                midline);
+                Integer.toString(alignment.getAlignmentId()),
+                alignment.getPdbId(),
+                alignment.getChain(),
+                alignment.getUniprotId(),
+                Integer.toString(alignment.getPdbFrom()),
+                Integer.toString(alignment.getPdbTo()),
+                Integer.toString(alignment.getUniprotFrom()),
+                Integer.toString(alignment.getUniprotTo()),
+                Double.toString(alignment.getEValue()),
+                Double.toString(alignment.getIdentity()),
+                Double.toString(alignment.getIdentityPerc()),
+                alignment.getUniprotAlign(),
+                alignment.getPdbAlign(),
+                alignment.getMidlineAlign());
         return 1;
     }
     
-    public static int addPdbUniprotResidueMapping(int alignId, int pdbPos, int uniprotPos,
-            char match) throws DaoException {
+    public static int addPdbUniprotResidueMapping(PdbUniprotResidueMapping mapping) throws DaoException {
         if (!MySQLbulkLoader.isBulkLoad()) {
             throw new IllegalStateException("only bulk load is supported");
         }
         //  write to the temp file maintained by the MySQLbulkLoader
         MySQLbulkLoader.getMySQLbulkLoader("pdb_uniprot_residue_mapping").insertRecord(
-                Integer.toString(alignId),
-                Integer.toString(pdbPos),
-                Integer.toString(uniprotPos),
-                Character.toString(match));
+                Integer.toString(mapping.getAlignmentId()),
+                Integer.toString(mapping.getPdbPos()),
+                Integer.toString(mapping.getUniprotPos()),
+                mapping.getMatch());
 
         // return 1 because normal insert will return 1 if no error occurs
         return 1;
@@ -276,7 +272,7 @@ public final class DaoPdbUniprotResidueMapping {
 		alignment.setPdbTo(pdbTo);
 		alignment.setEValue(eValue);
 		alignment.setIdentity(identity);
-		alignment.setIdentityProtein(identityProtein);
+		alignment.setIdentityPerc(identityProtein);
 		alignment.setUniprotAlign(uniprotAlign);
 		alignment.setPdbAlign(pdbAlign);
 		alignment.setMidlineAlign(midlineAlign);

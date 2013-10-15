@@ -173,6 +173,7 @@ public final class DaoPdbUniprotResidueMapping {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 
+		// TODO do not sort by uniprot position
 		try {
 			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
 			pstmt = con.prepareStatement("SELECT * FROM pdb_uniprot_residue_mapping " +

@@ -104,6 +104,7 @@ function MutationPdbPanel(options, data, xScale)
 				// TODO color code special characters
 				if (ele.alignments.length > 0)
 				{
+					// TODO this assumes alignments to be sorted by uniprot pos
 					var start = ele.alignments.at(0).uniprotFrom;
 					var end = start + ele.alignmentSummary.length;
 

@@ -117,12 +117,22 @@ var PdbChainModel = Backbone.Model.extend({
 		this.alignmentSummary = this.mergeAlignments(attributes.alignments);
 	},
 	/**
+	 * Merge alignments in the given array.
+	 *
+	 * @param alignments    an array of PdbAlignmentModel instances
+	 */
+	mergeAlignments: function(alignments)
+	{
+		// TODO merge witohut assuming it is sorted (write a new algorithm)
+		return this.mergeSortedAlignments(alignments);
+	},
+	/**
 	 * Merge alignments in the given array, assuming that
 	 * they are sorted by uniprotFrom field.
 	 *
 	 * @param alignments    an array of PdbAlignmentModel instances
 	 */
-	mergeAlignments: function(alignments)
+	mergeSortedAlignments: function(alignments)
 	{
         var merged = "";
 		var end = -1;
@@ -139,12 +149,6 @@ var PdbChainModel = Backbone.Model.extend({
 
 		_.each(alignments, function(alignment, idx) {
 			var distance = alignment.uniprotFrom - end - 1;
-
-//			if (alignment.uniprotTo - alignment.uniprotFrom + 1 !=
-//			    alignment.alignmentString.length)
-//			{
-//				console.log("[warning] alignment size mismatch: " + alignment.alignmentId);
-//			}
 
 			var str = alignment.alignmentString;
 
@@ -795,6 +799,7 @@ var PdbDataProxy = function(mutationUtil)
 		if (chain.positionMap != undefined)
 		{
 			callbackFn(chain.positionMap);
+			return;
 		}
 
 		// get protein positions for current mutations

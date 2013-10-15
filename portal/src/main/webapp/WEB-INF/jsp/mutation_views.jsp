@@ -99,7 +99,8 @@
 		<a class='mutation-3d-close'>X</a>
 		<label class='mutation-3d-info'>
 			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
-			and the chain <span class='mutation-3d-chain-id'></span>
+			and the chain <span class='mutation-3d-chain-id'></span><br>
+			Residues with red color indicate mutation.
 		</label>
 	</div>
 	<div id='mutation_3d_visualizer'></div>

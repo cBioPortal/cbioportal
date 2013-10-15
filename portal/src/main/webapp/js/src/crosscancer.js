@@ -30,13 +30,14 @@
     $(function(){
         // Some semi-global utilities
         // Here are some options that we will use in this view
-        var width = 1000;
+        var width = 1100;
         var height = 650;
         var paddingLeft = 80;
         var paddingRight = 50;
         var paddingTop = 10;
         var histBottom = 400;
         var fontFamily = "sans-serif";
+        var animationDuration = 1000;
 
         var defaultQTipOptions = {
             content: {
@@ -66,14 +67,21 @@
         var filterAndSortData = function(histDataOrg) {
             var histData = [];
             _.each(histDataOrg, function(study) {
-                if(!study.skipped)
+                var showStudy = $("#histogram-remove-study-" + study.studyId).is(":checked");
+                if(!study.skipped && showStudy)
                     histData.push(study);
             });
 
-            // Sort by total number of frequency
-             histData.sort(function(a, b) {
-                 return calculateFrequency(b, 0, "all") - calculateFrequency(a, 1, "all");
-             });
+            switch($("#histogram-sort-by").val()) {
+                case "alteration":
+                    // Sort by total number of frequency
+                    histData.sort(function(a, b) {
+                         return calculateFrequency(b, 0, "all") - calculateFrequency(a, 1, "all");
+                    });
+                    break;
+                case "name":
+                    break; // keep the order
+            }
 
             return histData;
         };
@@ -105,6 +113,12 @@
 
                         $.getJSON("portal_meta_data.json", function(metaData) {
                             var histDataOrg = studies.toJSON();
+                            (new HideStudyControlView({
+                                model: {
+                                    metaData: metaData,
+                                    studies: histDataOrg
+                                }
+                            })).render();
                             var histData = filterAndSortData(histDataOrg);
 
                             var hiddenStudies = _.reduce(histDataOrg, function(seed, study) {
@@ -128,7 +142,7 @@
                             // Data type radius
                             var circleDTR = studyWidth / 4;
                             // Tumor type radius
-                            var circleTTR = studyWidth / 2;
+                            var circleTTR = Math.min(studyWidth, 20) / 2;
 
                             var color = d3.scale.category20c();
 
@@ -226,7 +240,6 @@
                                 })
                                 .style("stroke", "white")
                                 .style("stroke-width", "1")
-                                .transition().duration(1000)
                                 .attr("class", function(d, i) { return d.studyId + " alt-mut" })
                             ;
 
@@ -284,7 +297,7 @@
                                 .data(histData, key)
                                 .enter()
                                 .append("rect")
-                                .attr("fill", "white")
+                                .attr("fill", "#aaaaaa")
                                 .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
                                 .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
                                 .attr("width", studyWidth)
@@ -292,6 +305,8 @@
                                     return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "all"));
                                 })
                                 .style("opacity",0)
+                                .style("stroke", "white")
+                                .style("stroke-width", "1")
                                 .attr("class", function(d, i) { return d.studyId + " alt-info" })
                                 .each(function(d, i) {
                                     var container = $("<div></div>");
@@ -321,7 +336,7 @@
                                 .attr("text-anchor", "end")
                                 .attr("font-family", fontFamily)
                                 .attr("font-weight", "bold")
-                                .attr("font-size", "9px")
+                                .attr("font-size", "10px")
                             ;
 
                             // This is for cancer type
@@ -371,7 +386,7 @@
 
                             // This is for CNA data availability
                             var cnaGroups = histogram.append("g");
-                            cnaGroups.selectAll("circle")
+                            cnaGroups.selectAll("text")
                                 .data(histData, key)
                                 .enter()
                                 .append("text")
@@ -456,7 +471,6 @@
                                 { label: "Multiple alterations", color: "#aaaaaa", x: paddingLeft + 500}
                             ];
                             var legend = histogram.append("g");
-                            var legendX = paddingLeft + 100;
                             legend.selectAll("rect")
                                 .data(legendData)
                                 .enter()
@@ -467,7 +481,6 @@
                                 .attr('height', 19)
                                 .style('fill', function(d) { return d.color; })
                             ;
-                            legendX = paddingLeft + 100 + 25;
                             legend.selectAll("text")
                                 .data(legendData)
                                 .enter()
@@ -505,6 +518,256 @@
                                }
                             })).render();
 
+                            var redrawHistogram = function() {
+                                histData = filterAndSortData(histDataOrg);
+
+                                studyLocIncrements = (width - (paddingLeft + paddingRight)) / histData.length;
+                                studyWidth = studyLocIncrements * .75;
+                                // Data type radius
+                                circleDTR = studyWidth / 4;
+                                // Tumor type radius
+                                circleTTR = studyWidth / 2;
+
+                                var stacked = $("#histogram-show-colors").is(":checked");
+                                var outX = width + 1000;
+
+                                yScale
+                                    .domain([
+                                    0,
+                                    Math.min(
+                                        1.0,
+                                        parseFloat(d3.max(histData, function (d, i) {
+                                            return fixFloat(calculateFrequency(d, i, "all"), 1);
+                                        })) + .05
+                                    )
+                                ])
+                                .range([histBottom-paddingTop, 0]);
+
+                                yAxisEl
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .call(yAxis);
+                                // Give some style
+                                yAxisEl.selectAll("path, line")
+                                    .attr("fill", "none")
+                                    .attr("stroke", "black")
+                                    .attr("shape-rendering", "crispEdges");
+                                yAxisEl.selectAll("text")
+                                    .attr("font-family", fontFamily)
+                                    .attr("font-size", "11px")
+                                    .each(function(d, i) {
+                                        $(this).text(fixFloat($(this).text() * 100, 1) + "%" );
+                                    });
+
+                                var obg = otherBarGroup.selectAll("rect").data(histData, key);
+                                obg.exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                obg.transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "other")) + paddingTop; })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other"));
+                                    })
+                                ;
+
+                                var mbg = mutBarGroup.selectAll("rect").data(histData, key);
+                                mbg.exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                mbg.transition()
+                                    .duration(animationDuration)
+                                    .attr("fill", "green")
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) {
+                                        return yScale(calculateFrequency(d, i, "mutation"))
+                                            - ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            + paddingTop;
+                                    })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation"));
+
+                                    })
+                                ;
+
+                                var cdbg = cnadownBarGroup.selectAll("rect").data(histData, key);
+                                cdbg
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                cdbg
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("fill", "blue")
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) {
+                                        return yScale(calculateFrequency(d, i, "cnaDown"))
+                                            - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                            )
+                                            + paddingTop;
+                                    })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown"));
+                                    })
+                                ;
+
+                                var cubp = cnaupBarGroup.selectAll("rect").data(histData, key);
+                                cubp
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                cubp
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) {
+                                        return yScale(calculateFrequency(d, i, "cnaUp"))
+                                            - (
+                                            ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "mutation")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "other")))
+                                                + ((histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaDown")))
+                                            )
+                                            + paddingTop;
+                                    })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "cnaUp"));
+                                    })
+                                ;
+
+                                var ibg = infoBarGroup.selectAll("rect").data(histData, key);
+                                ibg
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                ibg
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i * studyLocIncrements; } )
+                                    .attr("y", function(d, i) { return yScale(calculateFrequency(d, i, "all")) + paddingTop; })
+                                    .attr("width", studyWidth)
+                                    .attr("height", function(d, i) {
+                                        return (histBottom-paddingTop) - yScale(calculateFrequency(d, i, "all"));
+                                    })
+                                    .style("opacity", stacked ? 0 : 1)
+                                ;
+
+                                var ct = cancerTypes.selectAll("circle").data(histData, key);
+                                ct
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("cx", outX)
+                                ;
+                                ct
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+                                    .attr("cy", function(d, i) { return histBottom + verticalCirclePadding })
+                                    .attr("r", circleTTR)
+                                ;
+
+                                var mg = mutGroups.selectAll("text").data(histData, key);
+                                mg
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                mg
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+                                    .attr("y", function() { return histBottom + verticalCirclePadding*2 + circleDTR/2 })
+                                ;
+
+                                var cg = cnaGroups.selectAll("text").data(histData, key);
+                                cg
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                ;
+                                cg
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
+                                    .attr("y", function() { return histBottom + verticalCirclePadding*3 + circleDTR/2 })
+                                ;
+
+                                var ag = abbrGroups.selectAll("text").data(histData, key);
+                                ag
+                                    .exit()
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .attr("x", outX)
+                                    .attr("transform", function(d, i) {
+                                        var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
+                                        var yLoc = histBottom + verticalCirclePadding*4;
+                                        return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                    })
+                                ;
+                                ag
+                                    .transition()
+                                    .duration(animationDuration)
+                                    .text(function(d, i) {
+                                        return d.studyId
+                                            .toLocaleUpperCase()
+                                            .replace("_", " (")
+                                            .concat(")")
+                                            .replace(/_/g, " ")
+                                            ;
+                                    })
+                                    .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
+                                    .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.75; })
+                                    .attr("y", function() { return histBottom + verticalCirclePadding*4 })
+                                    .attr("transform", function(d, i) {
+                                        var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
+                                        var yLoc = histBottom + verticalCirclePadding*4;
+                                        return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
+                                    })
+                                ;
+                                console.log("redrawn!");
+                            }; // end of redraw
+
+                            $("#histogram-show-colors, #histogram-sort-by, #cancerbycancer-controls input")
+                                .change(function() {
+                                    redrawHistogram();
+                                    return true;
+                               })
+                            ;
+
+                            $("#histogram-remove-notaltered").change(function() {
+                                var checked = $(this).is(":checked");
+                                $("#cancerbycancer-controls input").each(function(idx, el) {
+                                    var altered = $(el).data("altered");
+
+                                    if(checked && !altered) {
+                                        $(el).prop("checked", false);
+                                    } else if(!checked && !altered) {
+                                        $(el).prop("checked", true);
+                                    }
+                                });
+
+                                redrawHistogram();
+                            });
+
                             // Let's load the mutation details as well
                             var servletParams = {
                                 data_priority: priority
@@ -536,6 +799,42 @@
                         });
                     }
                 }); // Done with the histogram
+
+                $("#customize-controls .close-customize a").click(function(e) {
+                    e.preventDefault();
+                    $("#customize-controls").slideToggle();
+                });
+
+                return this;
+            }
+        });
+
+        var HideStudyControlView = Backbone.View.extend({
+            el: "#cancerbycancer-controls",
+            template: _.template($("#cc-remove-study-tmpl").html()),
+            render: function() {
+                var thatModel = this.model;
+                var thatTmpl = this.template;
+                var thatEl = this.$el;
+                thatEl.empty();
+
+                _.each(thatModel.studies, function(aStudy) {
+                    if(aStudy.skipped) { return; }
+
+                    thatEl.append(
+                        thatTmpl({
+                            studyId: aStudy.studyId,
+                            name: thatModel.metaData.cancer_studies[aStudy.studyId].name,
+                            checked: true,
+                            altered: aStudy.alterations.all > 0
+                        })
+                    );
+                });
+
+                $("#show-hide-studies-toggle").click(function() {
+                    $("#show-hide-studies .triangle").toggle();
+                    $("#cancerbycancer-controls").slideToggle();
+                });
 
                 return this;
             }
@@ -627,6 +926,10 @@
                     var formElement = $("form.svg-to-file-form");
                     formElement.find("input[name=svgelement]").val($("#cchistogram").html());
                     formElement.submit();
+                });
+
+                $("#histogram-customize").click(function() {
+                    $("#customize-controls").slideToggle();
                 });
 
                 return this;

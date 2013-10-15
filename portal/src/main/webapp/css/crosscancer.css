@@ -58,6 +58,60 @@
     text-align: center;
 }
 
+.cc-remove-single-study {
+    width: 350px;
+    float: left;
+    overflow-x: hidden;
+}
+
+.cc-remove-single-study label {
+    width: 350px;
+}
+
+.cc-hide {
+    display: none;
+}
+
+.cc-triangle {
+    float: left;
+}
+
+#customize-controls {
+    padding: 5px;
+    background-color: #eeeeee;
+    border: 1px solid #d3d3d3;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#customize-controls table {
+    width: 100%;
+}
+
+#customize-controls table tr td {
+    padding: 5px;
+}
+
+#show-hide-studies-toggle {
+    color: #2153AA;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#show-hide-studies-toggle:hover {
+    text-decoration: underline;
+}
+
+#cancerbycancer-controls {
+    clear: both;
+    padding: 10px;
+}
+
+.close-customize {
+    float: right;
+    padding: 5px;
+}
+
 /* the rest is for the mutation details */
 #mutation_details .ColVis {
     float: left;

@@ -81,8 +81,57 @@
         </ul>
         <div class="section" id="cc-overview">
             <div id="cctitlecontainer"></div>
+
+            <div id="customize-controls" class="ui-widget cc-hide">
+                <div class="close-customize">
+                    <a href="#">&times;</a>
+                </div>
+                <h3>Customize histogram</h3>
+                <table>
+                    <tr>
+                        <td>
+                            <span id="no-alterations-control">
+                                <input type="checkbox" id="histogram-remove-notaltered">
+                                <label for="histogram-remove-notaltered">Hide studies with no alteration</label>
+                            </span>
+                        </td>
+                        <td>
+                            <span id="no-colors-control">
+                                <input type="checkbox" id="histogram-show-colors" checked>
+                                <label for="histogram-show-colors">Stack alteration types</label>
+                            </span>
+                        </td>
+                        <td>
+                            <span id="sort-by-control">
+                                Sort by:
+                                <select id="histogram-sort-by">
+                                    <option value="alteration">Alteration frequency</option>
+                                    <option value="name">Cancer study name</option>
+                                </select>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            <div id="show-hide-studies">
+                                <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
+                                <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
+                                <b id="show-hide-studies-toggle">Show/hide studies</b>
+                                <br/>
+                            </div>
+                            <div id="cancerbycancer-controls" class="cc-hide">
+
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
             <div id="cchistogram">
                 <img src="images/ajax-loader.gif"/>
+            </div>
+
+            <div id="studies-with-no-data">
             </div>
         </div>
 
@@ -91,8 +140,15 @@
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>
+    </div>
+</script>
 
-        <div id="studies-with-no-data"></div>
+<script type="text/template" id="cc-remove-study-tmpl">
+    <div class="cc-remove-single-study">
+        <label>
+            <input type="checkbox" data-studyID="{{studyId}}" data-altered="{{altered}}" id="histogram-remove-study-{{studyId}}" {{checked ? "checked" : ""}}>
+            {{name}}
+        </label>
     </div>
 </script>
 
@@ -180,6 +236,7 @@
     </form>
     <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
     <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
+    <button id="histogram-customize">Customize</button>
 </script>
 
 <!-- Mutation views -->

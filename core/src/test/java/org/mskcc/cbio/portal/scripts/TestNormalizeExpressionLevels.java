@@ -63,17 +63,6 @@ public class TestNormalizeExpressionLevels extends TestCase {
       assertFalse( NormalizeExpressionLevels.isNormal("TCGA-A7-A0CG-01A-11D-A011-01") );
    }
    
-   public void testReadCopyNumberFile(){
-      
-      HashMap<String,ArrayList<String[]>> map = 
-            NormalizeExpressionLevels.readCopyNumberFile(Args[0]);
-      String SampleAndValue[] = map.get("A2M").get(0);
-      assertTrue( SampleAndValue[1].equals("1") );
-      SampleAndValue = map.get("ELMO2").get(0);
-      assertTrue( SampleAndValue[1].equals("-1") );
-
-   }
-   
    public void testJoin(){
       ArrayList<String> l = new ArrayList<String>();
       l.add("out");

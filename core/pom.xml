@@ -117,10 +117,15 @@
 	  <version>2.4</version>
 	</dependency>
 	<dependency>
-	  <groupId>org.apache.commons</groupId>
-	  <artifactId>commons-math</artifactId>
-	  <version>2.2</version>
-	</dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.2</version>
+    </dependency>
 
 	<!-- guava -->
 	<dependency>
@@ -234,6 +239,8 @@
       <artifactId>xercesImpl</artifactId>
       <version>2.11.0</version>
     </dependency>
+
+
 
   </dependencies>
 

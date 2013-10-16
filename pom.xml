@@ -19,6 +19,8 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>gdac-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -27,14 +29,21 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>su2c-portal</final-war-name>
 	  </properties>
 	</profile>
 	<profile>
 	  <id>public</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -43,6 +52,8 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -51,6 +62,8 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_enabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>target-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -59,7 +72,19 @@
 	  <properties>
 		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/security_disabled_config/web.xml</web-xml-file>
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
 		<final-war-name>ctd2-dashboard-portal</final-war-name>
+	  </properties>
+	</profile>
+	<profile>
+	  <id>external</id>
+	  <properties>
+		<web-xml-file>${PORTAL_HOME}/portal/src/main/config/external_lab_properties/web.xml</web-xml-file>
+		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
+        <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
+        <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
+		<final-war-name>cbioportal</final-war-name>
 	  </properties>
 	</profile>
   </profiles>

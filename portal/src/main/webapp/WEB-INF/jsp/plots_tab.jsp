@@ -41,14 +41,14 @@
 <style>
     #plots .plots {
         height: 610px;
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
     }
     #plots .plots.plots-menus {
         width: 320px;
-        height: 685px;
+        height: 645px;
     }
     #plots .plots.plots-view {
-        border: 1px solid #aaaaaa;
-        border-radius: 4px;
         padding: 40px;
         width: 720px;
     }
@@ -72,6 +72,10 @@
     }
     #plots .ui-tabs .ui-state-disabled {
         display: none; /* disabled tabs don't show up */
+    }
+    #plots .search-box {
+        width: 323px;
+        height: 36px;
     }
 </style>
 
@@ -133,6 +137,15 @@
                                value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                     </div>
                 </div>
+                <div id="inner-search-box" class="plots search-box">
+                    <div style="padding-left:20px; padding-top: 5px;">
+                        Search Case
+                        <input type="text" name="search_plots" id="search_plots" onkeyup="Plots.searchPlots();">
+                        <img src='images/help.png'
+                             class='profile_help' title='Type in whole/part of the ID of the case you are interested.
+                         The related case would be highlighted accordingly. To clear searching result, simply delete everything in the box.'>
+                    </div>
+                </div>
             </td>
             <td>
                 <div id="plots-view" class="plots plots-view">
@@ -156,52 +169,6 @@
         $("#plots-menus").tabs("disable", 1);
     }
     window.onload = Plots.init();
-
-    // Takes the content in the plots svg element
-    // and returns XML serialized *string*
-    function loadSVG() {
-        var shiftValueOnX = 8;
-        var shiftValueOnY = 3;
-        var mySVG = d3.select("#plots_box");
-        //Remove Help Icon (cause exception)
-        var elemXHelpTxt = $(".x-title-help").qtip('api').options.content.text;
-        var elemYHelpTxt = $(".y-title-help").qtip('api').options.content.text;
-        var elemXHelp = $(".x-title-help").remove();
-        var elemYHelp = $(".y-title-help").remove();
-
-        var xAxisGrp = mySVG.select(".plots-x-axis-class");
-        var yAxisGrp = mySVG.select(".plots-y-axis-class");
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-        var docSVG = document.getElementById("plots_box");
-        var svgDoc = docSVG.getElementsByTagName("svg");
-        var xmlSerializer = new XMLSerializer();
-        var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-        cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-
-        $(".axis").append(elemXHelp);
-        $(".axis").append(elemYHelp);
-        $(".x-title-help").qtip(
-            {
-                content: {text: elemXHelpTxt },
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                show: {event: "mouseover"},
-                hide: {fixed:true, delay: 100, event: "mouseout"},
-                position: {my:'left bottom',at:'top right'}
-            }
-        );
-        $(".y-title-help").qtip(
-                {
-                    content: {text: elemYHelpTxt },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                    show: {event: "mouseover"},
-                    hide: {fixed:true, delay: 100, event: "mouseout"},
-                    position: {my:'right bottom',at:'top left'}
-                }
-        );
-
-        return xmlString;
-    }
-
 </script>
 
 <script>

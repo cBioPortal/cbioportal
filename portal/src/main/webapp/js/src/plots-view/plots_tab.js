@@ -1169,6 +1169,7 @@ var PlotsView = (function () {
                         .data(value)
                         .enter()
                         .append("svg:path")
+                        .attr("class", function(d){ return d.caseId;})
                         .attr("transform", function(d){
                             return "translate(" +
                                 (attr.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2)) +
@@ -1323,6 +1324,7 @@ var PlotsView = (function () {
             function drawLog2Plots() {
                 elem.elemDotsGroup = elem.svg.append("svg:g");
                 elem.elemDotsGroup.selectAll("path")
+                    .attr("class", "dots")
                     .data(PlotsData.getDotsGroup())
                     .enter()
                     .append("svg:path")
@@ -1341,7 +1343,8 @@ var PlotsView = (function () {
                     .attr("stroke", function(d){
                         return mutationStyle[d.mutationType].stroke;
                     })
-                    .attr("stroke-width", 1.2);
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId});
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
@@ -1371,7 +1374,8 @@ var PlotsView = (function () {
                     .attr("stroke", function(d) {
                         return gisticStyle[d.gisticType].stroke;
                     })
-                    .attr("stroke-width", 1.2);
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId; });
             }
 
             return {
@@ -1566,17 +1570,17 @@ var PlotsView = (function () {
                 $('#view_title').append(userSelection.gene + ": RPPA protein level v. mRNA Expression ");
             }
             var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='pdf'>" +
-                "<input type='hidden' name='filename' value='plots.pdf'>" +
+                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".pdf'>" +
                 "<input type='submit' value='PDF'></form>";
             $('#view_title').append(pdfConverterForm);
             var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-                "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+                "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
                 "<input type='hidden' name='svgelement'>" +
                 "<input type='hidden' name='filetype' value='svg'>" +
-                "<input type='hidden' name='filename' value='plots.svg'>" +
+                "<input type='hidden' name='filename' value='correlation_plot-" + userSelection.gene + ".svg'>" +
                 "<input type='submit' value='SVG'></form>";
             $('#view_title').append(svgConverterForm);
         }

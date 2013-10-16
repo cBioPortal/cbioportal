@@ -602,4 +602,13 @@
             org.apache.commons.fileupload.servlet.FileCleanerCleanup
         </listener-class>
     </listener>
+
+    <!-- custom location for log4j config -->
+    <listener>
+      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>file://${PORTAL_HOME}/log4j.properties</param-value>
+    </context-param>
 </web-app>

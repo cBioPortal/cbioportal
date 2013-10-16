@@ -197,7 +197,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
                 importCancerStudyCaseLists(cancerStudyDirectoryName);
             }
             else {
-                logMessage("Invalid cancer study found in directory, see log file for details: " + cancerStudyDirectoryName);
+                logMessage("Invalid cancer study found in directory: " + cancerStudyDirectoryName);
             }
         }
     }
@@ -205,8 +205,15 @@ class CancerStudyImporterImpl implements Importer, Validator {
     private boolean continueIfStudyExists(CancerStudy cancerStudy, boolean skip, boolean force) throws Exception
     {
         if (DaoCancerStudy.doesCancerStudyExistByStableId(cancerStudy.getCancerStudyStableId())) {
-            if (skip) return false; // don't even ask me
-            return (force || getForceFromUser(cancerStudy));  // don't ask or ask
+            if (skip) {
+                logMessage("Cancer study exists, skip is set, skipping...");
+                return false; // don't even ask me, just skip
+            }
+            if (force) { // don't ask
+                logMessage("Cancer study exists, force is set, replacing study...");
+                return true;
+            }
+            return (getForceFromUser(cancerStudy));  // ask
         }
         return true;
     }
@@ -272,6 +279,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         ArrayList<CancerStudyData> cancerStudyDataList = new ArrayList<CancerStudyData>();
 
         for (File metadataFile : listFiles(cancerStudyDirectoryName, FileFilterUtils.prefixFileFilter(META_FILE_PREFIX))) {
+            if (metadataFile.getName().equals(CANCER_STUDY_FILENAME)) continue;
             File dataFile = getDataFile(metadataFile.getCanonicalPath());
             if (dataFile == null) {
                 logMessage("Cannot find matching data file, skipping import: " + metadataFile.getCanonicalPath());                 
@@ -317,35 +325,19 @@ class CancerStudyImporterImpl implements Importer, Validator {
     private String getGeneticAlterationType(File metadataFile) throws Exception
     {
         Properties properties = getProperties(metadataFile);
-        String property = properties.getProperty(MetadataProperties.GENETIC_ALTERATION_TYPE.toString());
-        if (property == null) {
-            throw new IllegalArgumentException("Cannot find " + MetadataProperties.GENETIC_ALTERATION_TYPE + 
-                                               " in file, skipping import: " + metadataFile.getCanonicalPath());
-        }
-
-        return property;
+        return properties.getProperty(MetadataProperties.GENETIC_ALTERATION_TYPE.toString());
     }
 
-    private String getImporterClassName(String geneticAlterationType) throws Exception
+    private String getImporterClassName(String geneticAlterationType)
     {
-        if (importerClassMap.containsKey(geneticAlterationType)) {
-            return importerClassMap.get(geneticAlterationType);
-        }
-        else {
-            throw new IllegalArgumentException("Unknown " + MetadataProperties.GENETIC_ALTERATION_TYPE +
-                                               ", skipping import: " + geneticAlterationType);
-        }
+        return (importerClassMap.containsKey(geneticAlterationType)) ?
+            importerClassMap.get(geneticAlterationType) : null;
     }
 
     private String getRequiresMetadataFile(String importerClassName)
     {
-        if (importerClassArgsMap.containsKey(importerClassName)) {
-            return importerClassArgsMap.get(importerClassName);
-        }
-        else {
-            throw new IllegalArgumentException("Unknown importer class name" +
-                                               ", skipping import: " + importerClassName);
-        }
+        return (importerClassArgsMap.containsKey(importerClassName)) ?
+            importerClassArgsMap.get(importerClassName) : null;
     }
 
     private void importCancerStudyCaseLists(String cancerStudyDirectoryName) throws Exception
@@ -395,7 +387,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
             }
         }
         else {
-            logMessage("Cannot find cancer type file: " + cancerTypeFile.getCanonicalPath());
+            logMessage("Unknown cancer type and a cancer type file cannot be found: " + cancerTypeFile.getCanonicalPath());
             status = setStatus(status, false);
         }
 
@@ -640,7 +632,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
                    "\t'" + cancerStudyStableIdFound +
                    "' found in: " + metadataFilename);
     }
-    
+
     private void logMessage(String message)
     {
         if (LOG.isInfoEnabled()) {

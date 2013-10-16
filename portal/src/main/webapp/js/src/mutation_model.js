@@ -136,11 +136,13 @@ var PdbChainModel = Backbone.Model.extend({
 	{
         var merged = "";
 		var end = -1;
+		var prev;
 
 		if (alignments.length > 0)
 		{
 			merged += alignments[0].alignmentString;
 			end = alignments[0].uniprotTo;
+			prev = alignments[0];
 		}
 		else
 		{
@@ -190,7 +192,8 @@ var PdbChainModel = Backbone.Model.extend({
 
 				if (overlap[0] != overlap[1])
 				{
-					console.log("[warning] alignment mismatch: " + alignment.alignmentId);
+					console.log("[warning] alignment mismatch: " +
+					            prev.alignmentId + " & " + alignment.alignmentId);
 					console.log(overlap[0]);
 					console.log(overlap[1]);
 				}
@@ -201,6 +204,12 @@ var PdbChainModel = Backbone.Model.extend({
 
 			// update the end position
 			end = Math.max(end, alignment.uniprotTo);
+
+			if (end == alignment.uniprotTo)
+			{
+				// keep reference to the previous alignment
+				prev = alignment;
+			}
 		});
 
 		return merged;
@@ -579,11 +588,10 @@ var PdbDataUtil = (function()
 	 * Processes the pdb data (received from the server) to create
 	 * a collection of PdbModel instances.
 	 *
-	 * @param gene  hugo gene symbol
 	 * @param data  pdb alignment data with a position map
 	 * @return {PdbCollection}   PdbModel instances representing the processed data
 	 */
-	var processPdbData = function(gene, data)
+	var processPdbData = function(data)
 	{
 		var alignmentModel = null;
 		var pdbList = [];
@@ -874,7 +882,7 @@ var PdbDataProxy = function(mutationUtil)
 		{
 			// process & cache the raw data
 			var processData = function(data) {
-				var pdbColl = PdbDataUtil.processPdbData(gene, data);
+				var pdbColl = PdbDataUtil.processPdbData(data);
 				_pdbDataCache[uniprotId] = pdbColl;
 
 				// forward the processed data to the provided callback function

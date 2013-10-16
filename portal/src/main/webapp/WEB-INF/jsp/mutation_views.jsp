@@ -608,7 +608,6 @@
 
 			// init view for the first gene only
 			self._initView(genes[0], cases, diagramOpts);
-			self.geneTabView[genes[0]] = true;
 
 			// init other views upon selecting the corresponding tab
 			self.$el.find("#mutation_details_content").bind('tabsselect', function(event, ui) {
@@ -617,8 +616,18 @@
 				// init view for the selected tab (if not initialized before)
 				if (self.geneTabView[gene] == undefined)
 				{
+					// init view (self.geneTabView mapping is updated within this function)
 					self._initView(gene, cases, diagramOpts);
-					self.geneTabView[gene] = true;
+				}
+				// check if 3D panel is visible
+				else if (self.mut3dVisView &&
+					self.mut3dVisView.isVisible())
+				{
+					// reset the 3d vis content for the current tab
+					if (self.geneTabView[gene].mut3dView)
+					{
+						self.geneTabView[gene].mut3dView.resetView();
+					}
 				}
 			});
 		},
@@ -806,8 +815,9 @@
 
 				mainView.render();
 
-				// update the reference after rendering the view
+				// update the references after rendering the view
 				mainMutationView = mainView;
+				self.geneTabView[gene].mainMutationView = mainView;
 
 				// draw mutation diagram
 				var diagram = self._drawMutationDiagram(
@@ -831,6 +841,15 @@
 							diagram: diagram});
 
 						view3d.render();
+
+						// update reference for future use
+						self.geneTabView[gene].mut3dView = view3d;
+
+						// also reset (init) the 3D view if the 3D panel is already active
+						if (self.mut3dVisView.isVisible())
+						{
+							view3d.resetView();
+						}
 					}
 				}
 				else
@@ -860,6 +879,9 @@
 
 			// get mutation data for the current gene
 			self.model.mutationProxy.getMutationData(gene, function(data) {
+				// init reference mapping
+				self.geneTabView[gene] = {};
+
 				// update mutation data reference
 				mutationData = data;
 
@@ -956,7 +978,21 @@
 			var self = this;
 
 			// add click listener for the 3d visualizer initializer
-			self.$el.find(".mutation-3d-vis").click(function() {
+			self.$el.find(".mutation-3d-vis").click(self._getClickHandlerFn());
+		},
+		resetView: function()
+		{
+			var self = this;
+
+			// call the click handler function to reset the 3D view
+			var fn = self._getClickHandlerFn();
+			fn();
+		},
+		_getClickHandlerFn: function()
+		{
+			var self = this;
+
+			var handler = function() {
 				var gene = self.model.geneSymbol;
 				var uniprotId = self.model.uniprotId;
 				var vis = self.options.mut3dVisView;
@@ -994,7 +1030,9 @@
 
 				// init view with the pdb data
 				pdbProxy.getPdbData(uniprotId, initView);
-			});
+			};
+
+			return handler;
 		}
 	});
 
@@ -1139,7 +1177,7 @@
 			}
 
 			// add click listener to the close icon of the 3d vis container
-			self.$el.find(".mutation-3d-close").click(function() {
+			var closeHandler = function() {
 				// hide the vis pane
 				if (mut3dVis != null)
 				{
@@ -1148,7 +1186,9 @@
 
 				// also hide all pdb panel views
 				self.options.parentEl.find(".mutation-pdb-panel-view").hide();
-			});
+			};
+
+			self.$el.find(".mutation-3d-close").click(closeHandler);
 
 			// format toolbar elements
 
@@ -1176,6 +1216,15 @@
 
 			});
 
+			// TODO this is an access to a global div out of this view's template...
+			$("#tabs").bind("tabsselect", function(event, ui){
+				// close the vis panel only if the selected tab is one of the main tabs
+				// (i.e.: do not close panel if a gene tab selected)
+				if (ui.tab.className != "mutation-details-tabs-ref")
+				{
+					closeHandler();
+				}
+			});
 		},
 		updateView: function(geneSymbol, pdbId, chain)
 		{
@@ -1200,6 +1249,13 @@
 			// update positionMap for the chain
 			// (retrieve data only once)
 			pdbProxy.getPositionMap(geneSymbol, chain, callback);
+		},
+		isVisible: function()
+		{
+			var self = this;
+			var mut3dVis = self.options.mut3dVis;
+
+			return mut3dVis.isVisible();
 		}
 	});
 

@@ -155,6 +155,11 @@ var Mutation3dVis = function(name, options)
 		}
 	}
 
+	function isVisible()
+	{
+		return !(_container.is(":hidden"));
+	}
+
 	/**
 	 * Reloads the protein view for the given PDB id
 	 * and the chain.
@@ -216,6 +221,7 @@ var Mutation3dVis = function(name, options)
 	return {init: init,
 		show: show,
 		hide: hide,
+		isVisible: isVisible,
 		reload: reload,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,

@@ -68,6 +68,8 @@ public final class ImportPdbUniprotResidueMapping {
         List<PdbUniprotResidueMapping> pdbUniprotResidueMappings = Collections.emptyList();
         Map<Integer, Integer> mappingUniPdbProtein = Collections.emptyMap();
         Map<Integer, Integer> mappingUniPdbAlignment = Collections.emptyMap();
+        Map<Integer, Integer> mappingPdbUniProtein = Collections.emptyMap();
+        Map<Integer, Integer> mappingPdbUniAlignment = Collections.emptyMap();
         
         while (line != null) {
             if (!line.startsWith("#")) {
@@ -81,6 +83,7 @@ public final class ImportPdbUniprotResidueMapping {
                             DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
                         }
                         mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
+                        mappingPdbUniProtein.putAll(mappingPdbUniAlignment);
                     }
                     
                     String pdbId = parts[0].substring(1);
@@ -88,6 +91,7 @@ public final class ImportPdbUniprotResidueMapping {
                             || !parts[1].equals(pdbUniprotAlignment.getChain())
                             || !parts[2].equals(pdbUniprotAlignment.getUniprotId())) {
                         mappingUniPdbProtein = new HashMap<Integer, Integer>();
+                        mappingPdbUniProtein = new HashMap<Integer, Integer>();
                     }
                     
                     pdbUniprotAlignment.setAlignmentId(++alignId);
@@ -109,13 +113,15 @@ public final class ImportPdbUniprotResidueMapping {
                     
                     pdbUniprotResidueMappings = new ArrayList<PdbUniprotResidueMapping>();
                     mappingUniPdbAlignment = new HashMap<Integer, Integer>();
+                    mappingPdbUniAlignment = new HashMap<Integer, Integer>();
                     
                 } else {
                     // residue mapping line, e.g. 1a37    A       M1      1433B_HUMAN     M3      M
                     int pdbPos = Integer.parseInt(parts[2].substring(1));
                     int uniprotPos = Integer.parseInt(parts[4].substring(1));
-                    Integer pre = mappingUniPdbProtein.get(uniprotPos);
-                    if (pre!=null && pre!=pdbPos) {
+                    Integer prePdb = mappingUniPdbProtein.get(uniprotPos);
+                    Integer preUni = mappingPdbUniProtein.get(pdbPos);
+                    if ((prePdb!=null && prePdb!=pdbPos) || (preUni!=null && preUni!=uniprotPos)) {
                         // mismatch
                         pdbUniprotResidueMappings.clear();
                         while (line !=null && !line.startsWith(">")) {
@@ -127,6 +133,7 @@ public final class ImportPdbUniprotResidueMapping {
                     }
                     
                     mappingUniPdbAlignment.put(uniprotPos, pdbPos);
+                    mappingPdbUniAlignment.put(pdbPos, uniprotPos);
                     
                     String match = parts[5].length()==0 ? " " : parts[5];
                     PdbUniprotResidueMapping pdbUniprotResidueMapping = new PdbUniprotResidueMapping(alignId, pdbPos, uniprotPos, match);
@@ -147,7 +154,6 @@ public final class ImportPdbUniprotResidueMapping {
             for (PdbUniprotResidueMapping mapping : pdbUniprotResidueMappings) {
                 DaoPdbUniprotResidueMapping.addPdbUniprotResidueMapping(mapping);
             }
-            mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
         }
 
         //  Flush database

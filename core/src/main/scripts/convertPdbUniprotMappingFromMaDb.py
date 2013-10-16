@@ -87,7 +87,7 @@ def main():
     cursor.execute("select distinct pp.pdbid, pp.chcode, mb.seqID, mb.mbegin, pmr.res, pp.query, pp.hit, pp.midline, pp.qfrom, pp.hfrom, pp.qto, pp.hto, pp.evalue, pp.identity, pp.identp "+
                    "from pdb_prot pp, msa_built mb, pdb_mol pm, pdb_molr pmr "+
                    "where pp.msaid=mb.id and pp.pdbid=pm.pdbid and pp.chcode=pm.chain and "+
-                   "pp.pdbid=pmr.pdbid and pm.molid=pmr.molid and pm.type='protein' and mb.seqID like '%_HUMAN' ORDER BY mb.seqID ASC, pp.pdbid ASC, pp.chcode ASC, pp.evalue DESC; ");
+                   "pp.pdbid=pmr.pdbid and pm.molid=pmr.molid and pm.type='protein' and mb.seqID like '%_HUMAN' ORDER BY mb.seqID ASC, pp.pdbid ASC, pp.chcode ASC, pp.evalue DESC, pp.identp DESC, pp.identity DESC; ");
                    #"and pp.identp>="+identpThreshold+";")
     print >>f, "#>pdb_id\tchain\tuniprot_id\tpdb_from\tpdb_to\tuniprot_from\tuniprot_to\tevalue\tidentity\tidentp\tuniprot_seq\tpdb_seq\tmidline"
     print >>f, "#pdb_id\tchain\tpdb_res\tuniprot_id\tuniprot_res\tmidline"

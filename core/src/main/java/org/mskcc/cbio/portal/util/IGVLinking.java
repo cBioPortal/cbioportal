@@ -96,9 +96,13 @@ public class IGVLinking {
 		return (caseId != null && caseId.length() > 0 &&
 				locus != null && locus.length() > 0 &&
 				cancerStudy != null && cancerStudy.length() > 0 &&
-				GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy) &&
-                knownCaseId(caseId));
+				bamExists(cancerStudy, caseId));
 	}
+
+    public static boolean bamExists(String cancerStudy, String caseId)
+    {
+        return GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy)  && knownCaseId(caseId);
+    }
 
 	private static boolean encryptionBinLocated()
 	{

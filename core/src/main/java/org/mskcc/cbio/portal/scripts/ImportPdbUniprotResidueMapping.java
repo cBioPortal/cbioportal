@@ -83,13 +83,16 @@ public final class ImportPdbUniprotResidueMapping {
                         mappingUniPdbProtein.putAll(mappingUniPdbAlignment);
                     }
                     
-                    if (!parts[2].equals(pdbUniprotAlignment.getUniprotId())) {
+                    String pdbId = parts[0].substring(1);
+                    if (!pdbId.equals(pdbUniprotAlignment.getPdbId())
+                            || !parts[1].equals(pdbUniprotAlignment.getChain())
+                            || !parts[2].equals(pdbUniprotAlignment.getUniprotId())) {
                         mappingUniPdbProtein = new HashMap<Integer, Integer>();
                     }
                     
                     pdbUniprotAlignment.setAlignmentId(++alignId);
                     
-                    pdbUniprotAlignment.setPdbId(parts[0].substring(1));
+                    pdbUniprotAlignment.setPdbId(pdbId);
                     pdbUniprotAlignment.setChain(parts[1]);
                     pdbUniprotAlignment.setUniprotId(parts[2]);
                     

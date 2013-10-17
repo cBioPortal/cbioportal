@@ -70,13 +70,14 @@ public class ImportTypesOfCancers {
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 4;
+            assert tokens.length == 5;
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
             aTypeOfCancer.setName(tokens[1].trim());
             aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
             aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+            aTypeOfCancer.setShortName(tokens[4].trim());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
         pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");

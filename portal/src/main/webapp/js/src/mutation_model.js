@@ -15,6 +15,7 @@ var MutationModel = Backbone.Model.extend({
 		this.linkToPatientView = attributes.linkToPatientView;
         this.cancerType = attributes.cancerType;
         this.cancerStudy = attributes.cancerStudy;
+        this.cancerStudyShort = attributes.cancerStudyShort;
         this.cancerStudyLink = attributes.cancerStudyLink;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;

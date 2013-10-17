@@ -265,6 +265,7 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
                 mutationData.put("cancerType", typeOfCancer);
                 mutationData.put("cancerStudy", cancerStudy.getName());
+                mutationData.put("cancerStudyShort", getShortName(cancerStudy));
                 mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
                 mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
@@ -321,6 +322,16 @@ public class MutationDataServlet extends HttpServlet
             }
             return mat;
 	}
+
+    private String getShortName(CancerStudy cancerStudy) throws DaoException {
+        String sName = cancerStudy.getCancerStudyStableId();
+        String tumorType = cancerStudy.getTypeOfCancerId();
+        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
+        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
+        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
+
+        return sName;
+    }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null

@@ -1,22 +1,22 @@
-BLCA	Bladder Urothelial Carcinoma	Bladder	orange
-BRCA	Breast invasive carcinoma	Breast	red
-CESC	Cervical Squamous Cell Carcinoma	Cervical	white
-COAD	Colon adenocarcinoma	Colon	green
-GBM	Glioblastoma multiforme	Glioblastoma	blue
-HNSC	Head and Neck squamous cell carcinoma	Head,Neck	pink
-KIRC	Kidney renal clear cell carcinoma	Kidney,Renal,Clear cell	black
-KIRP	Kidney renal papillary cell carcinoma	Kidney,Renal,Papillary	gray
-LAML	Acute Myeloid Leukemia	Leukemia	yellow
-LGG	Brain Lower Grade Glioma	Brain Lower Grade	darkblue
-LIHC	Liver hepatocellular carcinoma	Liver,Hepatocellular	orange
-LUAD	Lung adenocarcinoma	Lung,Adenocarcinoma	orange
-LUSC	Lung squamous cell carcinoma	Lung,Squamous	orange
-OV	Ovarian serous cystadenocarcinoma	Ovarian,Cystadenocarcinoma	orange
-PAAD	Pancreatic adenocarcinoma	Pancreatic	orange
-PRAD	Prostate adenocarcinoma	Prostate	orange
-READ	Rectum adenocarcinoma	Rectum	orange
-SARC	Sarcoma	Sarcoma	orange
-STAD	Stomach adenocarcinoma	Stomach	orange
-THCA	Thyroid carcinoma	Thyroid	orange
-UCEC	Uterine Corpus Endometrioid Carcinoma	Endometrioid	orange
-COADREAD	Colon and Rectum adenocarcinoma	Colon,Rectum,Colorectal	orange
+BLCA	Bladder Urothelial Carcinoma	Bladder	orange	Bladder
+BRCA	Breast invasive carcinoma	Breast	red	Breast
+CESC	Cervical Squamous Cell Carcinoma	Cervical	white	Cervical
+COAD	Colon adenocarcinoma	Colon	green	Colorectal
+GBM	Glioblastoma multiforme	Glioblastoma	blue	GBM
+HNSC	Head and Neck squamous cell carcinoma	Head,Neck	pink	Head And Neck
+KIRC	Kidney renal clear cell carcinoma	Kidney,Renal,Clear cell	black	Kidney
+KIRP	Kidney renal papillary cell carcinoma	Kidney,Renal,Papillary	gray	Kidney
+LAML	Acute Myeloid Leukemia	Leukemia	yellow	LAML
+LGG	Brain Lower Grade Glioma	Brain Lower Grade	darkblue	LGG
+LIHC	Liver hepatocellular carcinoma	Liver,Hepatocellular	orange	Liver
+LUAD	Lung adenocarcinoma	Lung,Adenocarcinoma	orange	Lung
+LUSC	Lung squamous cell carcinoma	Lung,Squamous	orange	Lung
+OV	Ovarian serous cystadenocarcinoma	Ovarian,Cystadenocarcinoma	orange	SHORTNAME
+PAAD	Pancreatic adenocarcinoma	Pancreatic	orange	SHORTNAME
+PRAD	Prostate adenocarcinoma	Prostate	orange	SHORTNAME
+READ	Rectum adenocarcinoma	Rectum	orange	SHORTNAME
+SARC	Sarcoma	Sarcoma	orange	SHORTNAME
+STAD	Stomach adenocarcinoma	Stomach	orange	SHORTNAME
+THCA	Thyroid carcinoma	Thyroid	orange	SHORTNAME
+UCEC	Uterine Corpus Endometrioid Carcinoma	Endometrioid	orange	SHORTNAME
+COADREAD	Colon and Rectum adenocarcinoma	Colon,Rectum,Colorectal	orange	SHORTNAME

@@ -48,6 +48,7 @@ public class TumorTypeMetadata {
     private String tissue;
     private String category;
     private String dedicatedColor;
+    private String shortName;
     private Boolean download; // download?
 
     /**
@@ -68,6 +69,7 @@ public class TumorTypeMetadata {
         this.tissue = properties[4].trim();
         this.category = properties[5].trim();
         this.dedicatedColor = properties[6].trim();
+        this.shortName = properties[7].trim();
 	}
 
 	public String getType() { return tumorType; }
@@ -75,8 +77,7 @@ public class TumorTypeMetadata {
 	public Boolean getDownload() { return download; }
     public String getClinicalTrialKeywords() { return clinicalTrialKeywords; }
     public String getDedicatedColor() { return dedicatedColor; }
-
     public String getTissue() { return tissue; }
-
     public String getCategory() { return category; }
+    public String getShortName() { return shortName; }
 }

@@ -70,7 +70,7 @@ public class ImportTypesOfCancers {
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 3;
+            assert tokens.length == 4;
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);

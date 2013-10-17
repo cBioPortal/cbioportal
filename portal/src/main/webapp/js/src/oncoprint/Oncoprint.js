@@ -234,26 +234,24 @@ define("Oncoprint",
                         return d.mutation === undefined || /fusion$/i.test(d.mutation.toLowerCase());
                     }).remove();
 
-                    var fusion = enter.append('rect')
-                        .attr('fill', 'black')
-                        .attr('height', dims.mut_height)
-                        .attr('width', dims.rect_width)
-                        .attr('y', function(d) {
-                            return dims.mut_height + vertical_pos(utils.get_attr(d)); });
+                    var sym = d3.svg.symbol().size(dims.rect_width * 3);
+
+                    var fusion = enter.append('path')
+                        .attr('d', sym.type("triangle-up"))
+                        .attr('transform',function(d) {return 'translate('+dims.rect_width/3+','+(dims.rect_height/2+vertical_pos(utils.get_attr(d)))+'),rotate(-30,-'+dims.rect_width/2+',0)';});
                     fusion.filter(function(d) {
                         return d.mutation === undefined || !/fusion$/i.test(d.mutation.toLowerCase());
                     }).remove();
-
-                    var sym = d3.svg.symbol().size(dims.rect_width * 2);
+                    
                     var rppa = enter.append('path')
                         .attr('d', sym.type(function(d) {
-                            return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
+                            return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down"; }))
                         .attr('transform', function(d) {
                             // put the triangle in the right spot: at the top if
                             // UNREGULATED, at the bottom otherwise
                             var dy = dims.rect_height;
-                            dy = d.rppa === "UPREGULATED" ? dy / 0.1 : dy * 1.1;
-                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); })
+                            dy = d.rppa === "UPREGULATED" ? dy * 0.1 : dy / 1.1;
+                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); });
                         rppa.filter(function(d) {
                             return d.rppa === undefined;
                         }).remove();

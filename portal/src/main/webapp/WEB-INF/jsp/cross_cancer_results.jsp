@@ -91,6 +91,7 @@
             </li>
         </ul>
         <div class="section" id="cc-overview">
+
             <div id="cctitlecontainer"></div>
 
             <div id="customize-controls" class="ui-widget cc-hide">
@@ -109,7 +110,7 @@
                         <td>
                             <span id="no-colors-control">
                                 <input type="checkbox" id="histogram-show-colors" checked>
-                                <label for="histogram-show-colors">Stack alteration types</label>
+                                <label for="histogram-show-colors">Show alteration types</label>
                             </span>
                         </td>
                         <td>
@@ -127,7 +128,7 @@
                             <div id="show-hide-studies">
                                 <span class="triangle ui-icon ui-icon-triangle-1-e cc-triangle"></span>
                                 <span class="triangle ui-icon ui-icon-triangle-1-s cc-triangle cc-hide"></span>
-                                <b id="show-hide-studies-toggle">Show/hide studies</b>
+                                <b id="show-hide-studies-toggle">Select studies</b>
                                 <br/>
                             </div>
                             <div id="cancerbycancer-controls" class="cc-hide">
@@ -196,7 +197,7 @@
 
 <script type="text/template" id="study-link-tmpl">
     <a href="index.do?tab_index=tab_visualize&cancer_study_id={{study.studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{study.mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{study.cnaProfile}}&Z_SCORE_THRESHOLD=2.0&case_set_id={{study.caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
-        view details &raquo;
+        click to view details &raquo;
     </a>
 </script>
 
@@ -205,7 +206,7 @@
         <div class="cc-study-tip">
             <b class="cc-tip-header">{{name}}</b><br>
             <p>
-                Gene set altered in {{allFrequency}}% of {{caseSetLength}} cases.
+                Gene set altered in <b>{{allFrequency}}%</b> of {{caseSetLength}} cases.
                 <br>
                 ({{studyLink}})
             </p>
@@ -218,19 +219,19 @@
                 </thead>
                 <tbody>
                     <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
-                        <td>Mutation</td>
+                        <td class="cc-alt-type">Mutation</td>
                         <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                     </tr>
                     <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
-                        <td>Deletion</td>
+                        <td class="cc-alt-type">Deletion</td>
                         <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
                     </tr>
                     <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
-                        <td>Amplification</td>
+                        <td class="cc-alt-type">Amplification</td>
                         <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
                     </tr>
                     <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
-                        <td>Multiple alterations</td>
+                        <td class="cc-alt-type">Multiple alterations</td>
                         <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
                     </tr>
                 </tbody>
@@ -276,7 +277,7 @@
     </form>
     <button id="histogram-download-pdf" class='diagram-to-pdf'>PDF</button>
     <button id="histogram-download-svg" class='diagram-to-svg'>SVG</button>
-    <button id="histogram-customize">Customize</button>
+    <button id="histogram-customize">Customize histogram</button>
 </script>
 
 <!-- Mutation views -->

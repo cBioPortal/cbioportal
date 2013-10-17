@@ -304,6 +304,7 @@
                                 })
                                 .style("opacity",0)
                                 .style("stroke", "white")
+                                .style("cursor", "pointer")
                                 .style("stroke-width", "1")
                                 .attr("class", function(d, i) { return d.studyId + " alt-info" })
                                 .each(function(d, i) {
@@ -321,6 +322,17 @@
                                         content: container.html()
                                     });
                                     $(this).qtip(qOpts);
+
+                                    $(this).click(function(e) {
+                                        e.preventDefault();
+
+                                        var sLink = _.template($("#study-link-tmpl").html(), {
+                                            study: d,
+                                            genes: orgQuery
+                                        });
+
+                                        window.open($(sLink).attr("href"), "_blank");
+                                    });
                                 });
 
 
@@ -931,7 +943,7 @@
                     "bJQueryUI": true,
                     "bDestroy": true,
                     "aaSorting": [[ 1, "desc" ]],
-                    "aaColumns": [
+                    "aoColumns": [
                         { "bSortable": false },
                         { "bSortable": false }
                     ]

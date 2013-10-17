@@ -1990,7 +1990,7 @@
                     "bJQueryUI": true,
                     "bDestroy": true,
                     "aaSorting": [[ 1, "desc" ]],
-                    "aaColumns": [
+                    "aoColumns": [
                         { "bSortable": false },
                         { "bSortable": false }
                     ]

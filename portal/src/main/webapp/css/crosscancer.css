@@ -113,6 +113,26 @@
     padding: 5px;
 }
 
+.cc-alt-type {
+    font-weight: bold;
+}
+
+.cc-del .cc-alt-type {
+    color: blue;
+}
+
+.cc-amp .cc-alt-type {
+    color: red;
+}
+
+.cc-mutation .cc-alt-type {
+    color: green;
+}
+
+.cc-mtpl .cc-alt-type {
+    color: gray;
+}
+
 /* the rest is for the mutation details */
 #mutation_details .ColVis {
     float: left;

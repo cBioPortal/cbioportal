@@ -105,8 +105,6 @@
             template: _.template($("#cross-cancer-main-tmpl").html()),
 
             render: function() {
-                if(priority == 0) { return this };
-
                 this.$el.html(this.template(this.model));
 
                 $("#tabs").tabs({ active: this.model.tab == "mutation" ? 1 : 0 }).show();
@@ -170,7 +168,9 @@
                             // Tumor type radius
                             var circleTTR = Math.min(studyWidth, 20) / 2;
 
-                            var color = d3.scale.category20c();
+                            var color = function(cType) {
+                                return metaData.cancer_colors[cType];
+                            };
 
                             var key = function(d) {
                                 return d.studyId;
@@ -345,7 +345,7 @@
                                 .enter()
                                 .append("circle")
                                 .attr("fill", function(d, i) {
-                                    return color(metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer]);
+                                    return color(metaData.cancer_studies[d.studyId].type_of_cancer);
                                 })
                                 .attr("cx", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
                                 .attr("cy", function(d, i) { return histBottom + verticalCirclePadding })
@@ -869,6 +869,7 @@
             el: "#cancerbycancer-controls",
             template: _.template($("#cc-remove-study-tmpl").html()),
             render: function() {
+
                 var thatModel = this.model;
                 var thatTmpl = this.template;
                 var thatEl = this.$el;
@@ -943,6 +944,8 @@
             template:_.template($("#studies-with-no-data-tmpl").html()),
 
             render: function() {
+                if(this.model.priority == 0) { return; } // no need
+
                 var thatModel = this.model;
 
                 if(thatModel.hiddenStudies.length > 0) {

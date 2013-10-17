@@ -76,6 +76,7 @@ public class ImportTypesOfCancers {
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
             aTypeOfCancer.setName(tokens[1].trim());
             aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
+            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
         pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");

@@ -45,6 +45,9 @@ public class TumorTypeMetadata {
 	private String tumorType;
 	private String tumorTypeName;
     private String clinicalTrialKeywords;
+    private String tissue;
+    private String category;
+    private String dedicatedColor;
     private Boolean download; // download?
 
     /**
@@ -54,18 +57,26 @@ public class TumorTypeMetadata {
 	 * @param properties String[]
      */
     public TumorTypeMetadata(String[] properties) {
-		if (properties.length < 4) {
+		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
-		this.download = new Boolean(properties[0].trim());
+		this.download = Boolean.parseBoolean(properties[0].trim());
 		this.tumorType = properties[1].trim();
 		this.tumorTypeName = properties[2].trim();
         this.clinicalTrialKeywords = properties[3].trim();
+        this.tissue = properties[4].trim();
+        this.category = properties[5].trim();
+        this.dedicatedColor = properties[6].trim();
 	}
 
 	public String getType() { return tumorType; }
 	public String getName() { return tumorTypeName; }
 	public Boolean getDownload() { return download; }
     public String getClinicalTrialKeywords() { return clinicalTrialKeywords; }
+    public String getDedicatedColor() { return dedicatedColor; }
+
+    public String getTissue() { return tissue; }
+
+    public String getCategory() { return category; }
 }

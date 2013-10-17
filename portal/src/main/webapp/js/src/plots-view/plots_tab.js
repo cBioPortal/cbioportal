@@ -888,40 +888,6 @@ var PlotsView = (function () {
                     .call(yAxis.orient("left").ticks(0));
             }
 
-            function initContinuousAxis() {
-                var _dataAttr = PlotsData.getDataAttr();
-                var min_x = _dataAttr.min_x;
-                var max_x = _dataAttr.max_x;
-                var min_y = _dataAttr.min_y;
-                var max_y = _dataAttr.max_y;
-                var edge_x = (max_x - min_x) * 0.2;
-                var edge_y = (max_y - min_y) * 0.1;
-                if (Util.plotsTypeIsMethylation()){
-                    //Range for DNA Methylation Data Type
-                    //Need to be fixed as from 0 to 1.
-                    attr.xScale = d3. scale.linear()
-                        .domain([-0.02, 1.02])
-                        .range([100,600]);
-                } else {
-                    attr.xScale = d3.scale.linear()
-                        .domain([min_x - edge_x, max_x + edge_x])
-                        .range([100, 600]);
-                }
-                attr.yScale = d3.scale.linear()
-                    .domain([min_y - edge_y, max_y + edge_y])
-                    .range([520, 20]);
-                xAxis = d3.svg.axis()
-                    .scale(attr.xScale)
-                    .orient("bottom")
-                    .tickSize(0)
-                    .tickPadding([8]);
-                yAxis = d3.svg.axis()
-                    .scale(attr.yScale)
-                    .orient("left")
-                    .tickSize(0)
-                    .tickPadding([8]);
-            }
-
             function initContinuousAxisX() {
                 var _dataAttr = PlotsData.getDataAttr();
                 var min_x = _dataAttr.min_x;
@@ -1014,9 +980,7 @@ var PlotsView = (function () {
                     .call(yAxis.orient("left").ticks(0));
             }
 
-            function addAxisTitle() {
-                var axisTitleGroup = elem.svg.append("svg:g")
-                    .attr("class", "axis");
+            function addXaxisTitle(axisTitleGroup, xTitle) {
                 axisTitleGroup.append("text")
                     .attr("class", "x-axis-title")
                     .attr("x", 350)
@@ -1024,6 +988,10 @@ var PlotsView = (function () {
                     .style("text-anchor", "middle")
                     .style("font-weight","bold")
                     .text(xTitle);
+
+            }
+
+            function addYaxisTitle(axisTitleGroup, yTitle) {
                 axisTitleGroup.append("text")
                     .attr("class", "y-axis-title")
                     .attr("transform", "rotate(-90)")
@@ -1032,15 +1000,28 @@ var PlotsView = (function () {
                     .style("text-anchor", "middle")
                     .style("font-weight","bold")
                     .text(yTitle);
-                Plots.addAxisHelp(
+
+            }
+
+            function addxAxisHelp(axisTitleGroup, _xTitle) {
+                Plots.addxAxisHelp(
                     elem.svg,
                     axisTitleGroup,
-                    xTitle,
-                    yTitle,
+                    _xTitle,
                     "x-title-help",
+                    xTitleHelp
+                );
+            }
+
+            function addyAxisHelp(axisTitleGroup, _yTitle) {
+                Plots.addyAxisHelp(
+                    elem.svg,
+                    axisTitleGroup,
+                    _yTitle,
                     "y-title-help",
-                    xTitleHelp,
-                    yTitleHelp);
+                    yTitleHelp
+                );
+
             }
 
             return {
@@ -1057,7 +1038,12 @@ var PlotsView = (function () {
                         drawContinuousAxisMainY();
                         drawContinuousAxisEdgeY();
                     }
-                    addAxisTitle();
+                    var axisTitleGroup = elem.svg.append("svg:g")
+                        .attr("class", "axis");
+                    addXaxisTitle(axisTitleGroup, xTitle);
+                    addYaxisTitle(axisTitleGroup, yTitle);
+                    addxAxisHelp(axisTitleGroup, xTitle);
+                    addyAxisHelp(axisTitleGroup, yTitle);
                 },
                 getXHelp: function() {
                     return xTitleHelp;
@@ -1067,6 +1053,8 @@ var PlotsView = (function () {
                 },
                 updateLogScaleX: function(applyLogScale) {
                     d3.select("#plots_box").select(".plots-x-axis-class").remove();
+                    d3.select("#plots_box").select(".x-axis-title").remove();
+                    d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
                         var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
@@ -1080,13 +1068,24 @@ var PlotsView = (function () {
                             .orient("bottom")
                             .tickSize(0)
                             .tickPadding([8]);
+                        var axisTitleGroup = elem.svg.append("svg:g")
+                            .attr("class", "axis");
+                        addXaxisTitle(axisTitleGroup, xTitle + "(log2)");
+                        addxAxisHelp(axisTitleGroup, xTitle + "(log2)");
                     } else {
                         initContinuousAxisX();
+                        var axisTitleGroup = elem.svg.append("svg:g")
+                            .attr("class", "axis");
+                        addXaxisTitle(axisTitleGroup, xTitle);
+                        addxAxisHelp(axisTitleGroup, xTitle);
+
                     }
                     drawContinuousAxisMainX();
                 },
                 updateLogScaleY: function(applyLogScale) {
                     d3.select("#plots_box").select(".plots-y-axis-class").remove();
+                    d3.select("#plots_box").select(".y-axis-title").remove();
+                    d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
                         var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
@@ -1100,8 +1099,16 @@ var PlotsView = (function () {
                             .orient("left")
                             .tickSize(0)
                             .tickPadding([8]);
+                        var axisTitleGroup = elem.svg.append("svg:g")
+                            .attr("class", "axis");
+                        addYaxisTitle(axisTitleGroup, yTitle + "(log2)");
+                        addyAxisHelp(axisTitleGroup, yTitle + "(log2)");
                     } else {
                         initContinuousAxisY();
+                        var axisTitleGroup = elem.svg.append("svg:g")
+                            .attr("class", "axis");
+                        addYaxisTitle(axisTitleGroup, yTitle);
+                        addyAxisHelp(axisTitleGroup, yTitle);
                     }
                     drawContinuousAxisMainY();
                 }

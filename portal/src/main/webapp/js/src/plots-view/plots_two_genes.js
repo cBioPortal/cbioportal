@@ -729,15 +729,20 @@ var PlotsTwoGenesView = (function(){
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(yTitle);
-        Plots.addAxisHelp(
+        Plots.addxAxisHelp(
             elem.svg,
             axisTitleGroup,
             xTitle,
-            yTitle,
             "x-title-help",
+            menu.genetic_profile_description
+        );
+        Plots.addyAxisHelp(
+            elem.svg,
+            axisTitleGroup,
+            yTitle,
             "y-title-help",
-            menu.genetic_profile_description,
-            menu.genetic_profile_description);
+            menu.genetic_profile_description
+        );
     }
 
     function addQtips() {

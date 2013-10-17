@@ -754,15 +754,20 @@ var PlotsCustomView = (function() {
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(yTitle);
-        Plots.addAxisHelp(
+        Plots.addxAxisHelp(
             elem.svg,
             axisTitleGroup,
             xTitle,
-            yTitle,
             "x-title-help",
+            x_titleHelp
+        );
+        Plots.addyAxisHelp(
+            elem.svg,
+            axisTitleGroup,
+            yTitle,
             "y-title-help",
-            x_titleHelp,
-            y_titleHelp);
+            y_titleHelp
+        );
     }
 
     function addQtips() {

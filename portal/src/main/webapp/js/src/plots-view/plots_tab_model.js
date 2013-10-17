@@ -85,19 +85,12 @@ var Plots = (function(){
 
     }
 
-    function addAxisHelp(svg, axisGroupSvg, xTitle, yTitle, xTitleClass, yTitleClass, xText, yText) {  //Append description for selected genetic profile
+    function addxAxisHelp(svg, axisGroupSvg, xTitle, xTitleClass, xText) {
         axisGroupSvg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", xTitleClass)
             .attr("x", 350 + xTitle.length / 2 * 8)
             .attr("y", 567)
-            .attr("width", "16")
-            .attr("height", "16");
-        axisGroupSvg.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", yTitleClass)
-            .attr("x", 34)
-            .attr("y", 255 - yTitle.length / 2 * 8)
             .attr("width", "16")
             .attr("height", "16");
         svg.select("." + xTitleClass).each(
@@ -113,6 +106,16 @@ var Plots = (function(){
                 );
             }
         );
+    }
+
+    function addyAxisHelp(svg, axisGroupSvg, yTitle, yTitleClass, yText) {
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", yTitleClass)
+            .attr("x", 34)
+            .attr("y", 255 - yTitle.length / 2 * 8)
+            .attr("width", "16")
+            .attr("height", "16");
         svg.select("." + yTitleClass).each(
             function() {
                 $(this).qtip(
@@ -159,7 +162,8 @@ var Plots = (function(){
             };
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
         },
-        addAxisHelp: addAxisHelp
+        addxAxisHelp: addxAxisHelp,
+        addyAxisHelp: addyAxisHelp
     };
 
 }());    //Closing Plots

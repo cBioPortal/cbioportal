@@ -82,6 +82,9 @@
                 <a href="#cc-mutations" id="cc-mutations-link" title="Mutation details, including mutation type,amino acid change, validation status and predicted functional consequence">Mutations</a>
             </li>
             <li>
+                <a href="#cc-download" id="cc-download-link" title="Download all alterations or copy and paste into Excel">Download</a>
+            </li>
+            <li>
                 <a href='#cc-bookmark' class='result-tab' title="Bookmark or generate a URL for email">
                     Bookmark
                 </a>
@@ -150,6 +153,15 @@
                 <img src="images/ajax-loader.gif"/>
             </div>
         </div>
+
+        <div class="section" id="cc-download">
+            <div class='copy_tables'>
+                <br>
+                <h4>Contents can be copied and pasted into Excel.</h4>
+                <p>Frequency of Alteration Across Studies:<p/>
+                <textarea rows="30" cols="40" id="cc-download-text">
+                </textarea>
+            </div>
 
         <div class="section" id="cc-bookmark">
             <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>

@@ -59,6 +59,14 @@
             }
         };
 
+        var getStudyAbbr = function (study) {
+            return study.studyId
+                .toLocaleUpperCase()
+                .replace("_", " (")
+                .concat(")")
+                .replace(/_/g, " ")
+                ;
+        };
 
         var calculateFrequency = function(d, i, type) {
             return d.alterations[type]/ d.caseSetLength;
@@ -131,6 +139,13 @@
                                 }
                             })).render();
                             var histData = filterAndSortData(histDataOrg);
+
+                            (new DownloadSummaryView({
+                                model: {
+                                    metaData: metaData,
+                                    studies: histData
+                                }
+                            })).render();
 
                             var hiddenStudies = _.reduce(histDataOrg, function(seed, study) {
                                 if(study.skipped) {
@@ -392,18 +407,14 @@
                                     $(this).qtip(qOpts);
                                 });
 
+
                             var abbrGroups = histogram.append("g");
                             abbrGroups.selectAll("text")
                                 .data(histData, key)
                                 .enter()
                                 .append("text")
                                 .text(function(d, i) {
-                                    return d.studyId
-                                        .toLocaleUpperCase()
-                                        .replace("_", " (")
-                                        .concat(")")
-                                        .replace(/_/g, " ")
-                                    ;
+                                    return getStudyAbbr(d);
                                 })
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
@@ -829,6 +840,26 @@
                     e.preventDefault();
                     $("#customize-controls").slideToggle();
                 });
+
+                return this;
+            }
+        });
+
+        var DownloadSummaryView = Backbone.View.extend({
+            el: "#cc-download-text",
+
+            render: function() {
+                var studies = this.model.studies;
+                var metaData = this.model.metaData;
+
+                var dtxt = "STUDY_ABBREVIATION\tSTUDY_NAME\tNUM_OF_CASES_ALTERED\tPERCENT_CASES_ALTERED\n";
+                _.each(studies, function(aStudy) {
+                    dtxt += getStudyAbbr(aStudy)
+                        + "\t" + metaData.cancer_studies[aStudy.studyId].name
+                        + "\t" + aStudy.alterations.all
+                        + "\t" + fixFloat(calculateFrequency(aStudy, 0, "all")*100, 1) + "%\n";
+                });
+                this.$el.text(dtxt);
 
                 return this;
             }

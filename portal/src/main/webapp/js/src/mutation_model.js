@@ -114,7 +114,7 @@ var PdbChainModel = Backbone.Model.extend({
 		// collection of PdbAlignmentModel instances
 		this.alignments = new PdbAlignmentCollection(attributes.alignments);
 		// summary of all alignments (merged alignments)
-		this.alignmentSummary = this.mergeAlignments(attributes.alignments);
+		this.mergedAlignment = this.mergeAlignments(attributes.alignments);
 	},
 	/**
 	 * Merge alignments in the given array.
@@ -134,19 +134,20 @@ var PdbChainModel = Backbone.Model.extend({
 	 */
 	mergeSortedAlignments: function(alignments)
 	{
-        var merged = "";
+        var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1};
+		var mergedStr = "";
 		var end = -1;
 		var prev;
 
 		if (alignments.length > 0)
 		{
-			merged += alignments[0].alignmentString;
+			mergedStr += alignments[0].alignmentString;
 			end = alignments[0].uniprotTo;
 			prev = alignments[0];
 		}
 		else
 		{
-			return merged;
+			return mergedAlignment;
 		}
 
 		_.each(alignments, function(alignment, idx) {
@@ -160,7 +161,7 @@ var PdbChainModel = Backbone.Model.extend({
 			if (distance == 0)
 			{
 				// just concatenate two strings
-				merged += str;
+				mergedStr += str;
 			}
 			// no overlap, but there is a gap
 			else if (distance > 0)
@@ -178,7 +179,7 @@ var PdbChainModel = Backbone.Model.extend({
 				// also add the actual string
 				gap.push(str);
 
-				merged += gap.join("");
+				mergedStr += gap.join("");
 
 			}
 			// overlapping
@@ -187,7 +188,7 @@ var PdbChainModel = Backbone.Model.extend({
 				var overlap = [];
 				var subLength = Math.min(-1 * distance, str.length);
 
-				overlap.push(merged.substr(merged.length + distance, subLength));
+				overlap.push(mergedStr.substr(mergedStr.length + distance, subLength));
 				overlap.push(str.substr(0, subLength));
 
 				if (overlap[0] != overlap[1])
@@ -199,7 +200,7 @@ var PdbChainModel = Backbone.Model.extend({
 				}
 
 				// merge two strings
-				merged += str.substr(-1 * distance);
+				mergedStr += str.substr(-1 * distance);
 			}
 
 			// update the end position
@@ -212,7 +213,11 @@ var PdbChainModel = Backbone.Model.extend({
 			}
 		});
 
-		return merged;
+		mergedAlignment.uniprotFrom = alignments[0].uniprotFrom;
+		mergedAlignment.uniprotTo = mergedAlignment.uniprotFrom + mergedStr.length;
+		mergedAlignment.mergedString = mergedStr;
+
+		return mergedAlignment;
 	}
 });
 
@@ -591,7 +596,7 @@ var PdbDataUtil = (function()
 	 * @param data  pdb alignment data with a position map
 	 * @return {PdbCollection}   PdbModel instances representing the processed data
 	 */
-	var processPdbData = function(data)
+	function processPdbData(data)
 	{
 		var alignmentModel = null;
 		var pdbList = [];
@@ -634,10 +639,41 @@ var PdbDataUtil = (function()
 
 		// return new pdb model
 		return new PdbCollection(pdbList);
-	};
+	}
+
+
+	/**
+	 * Creates an array of chain datum (a {pdbId, PdbChainModel} pair) which
+	 * is sorted ascending by the chain length (by the length of
+	 * the alignment summary string).
+	 *
+	 * @param pdbColl   a PdbCollection instance
+	 * @return {Array}  an array of sorted chain data
+	 */
+	function sortChainsDesc(pdbColl)
+	{
+		var chains = [];
+
+		// put all chains in a single array
+		pdbColl.each(function(pdb, idx) {
+			// create rectangle(s) for each chain
+			pdb.chains.each(function(chain, idx) {
+				var datum = {pdbId: pdb.pdbId, chain: chain};
+				chains.push(datum);
+			});
+		});
+
+		chains.sort(function(a, b) {
+			return (b.chain.mergedAlignment.mergedString.length -
+			        a.chain.mergedAlignment.mergedString.length);
+		});
+
+		return chains;
+	}
 
 	return {
-		processPdbData : processPdbData
+		processPdbData: processPdbData,
+		getSortedChainData: sortChainsDesc
 	};
 })();
 

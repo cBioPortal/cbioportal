@@ -51,7 +51,8 @@ function MutationPdbPanel(options, data, xScale)
 			var tip = "<span class='pdb-chain-tip'>" +
 			          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
 			          "<b>Chain:</b> " + datum.chain.chainId +
-			          //" (" + alignment.uniprotFrom + " - " + alignment.uniprotTo + ")" +
+			          " (" + datum.chain.mergedAlignment.uniprotFrom +
+			          " - " + datum.chain.mergedAlignment.uniprotTo + ")" +
 			          "</span>";
 
 			var options = {content: {text: tip},
@@ -69,8 +70,8 @@ function MutationPdbPanel(options, data, xScale)
 	// reference to the main svg element
 	var _svg = null;
 
-	// total number of chains (for the given PDB data)
-	var _chainCount = calcChainCount(data);
+	// row data (allocation of chains wrt rows)
+	var _rowData = null;
 
 	// collapse indicator (initially true)
 	var _collapsed = true;
@@ -81,37 +82,32 @@ function MutationPdbPanel(options, data, xScale)
 	 *
 	 * @param svg       svg element (D3)
 	 * @param options   visual options object
-	 * @param data      PDB data (collection of PdbModel instances)
+	 * @param data      row data
 	 * @param xScale    scale function for the x-axis
 	 */
 	function drawPanel(svg, options, data, xScale)
 	{
-		// we need to count chains to calculate y value
+		// chain counter
 		var count = 0;
 
-		// TODO define a rule to rank (sort) chains
-		data.each(function(pdb, idx) {
-
-			// create rectangle(s) for each chain
-			pdb.chains.each(function(ele, idx) {
-				// chain datum
-				var datum = {pdbId: pdb.pdbId, chain: ele};
+		_.each(data, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				var chain = datum.chain;
 
 				// assign a different color to each chain
 				var color = options.colors[count % options.colors.length];
 
 				// add rectangle(s) for the chain
 				// TODO color code special characters
-				if (ele.alignments.length > 0)
+				if (chain.alignments.length > 0)
 				{
-					// TODO this assumes alignments to be sorted by uniprot pos
-					var start = ele.alignments.at(0).uniprotFrom;
-					var end = start + ele.alignmentSummary.length;
+					var start = chain.mergedAlignment.uniprotFrom;
+					var end = chain.mergedAlignment.uniprotTo;
 
 					var width = Math.abs(xScale(start) - xScale(end));
 					var height = options.chainHeight;
 					var y = options.marginTop +
-					        count * (options.chainHeight + options.chainPadding);
+					        rowIdx * (options.chainHeight + options.chainPadding);
 					var x = xScale(start);
 
 					var rect = svg.append('rect')
@@ -121,7 +117,7 @@ function MutationPdbPanel(options, data, xScale)
 						.attr('width', width)
 						.attr('height', height);
 
-					// bind chain data to the rectangle
+					// bind chain datum to the rectangle
 					rect.datum(datum);
 
 					// add tooltip
@@ -129,7 +125,7 @@ function MutationPdbPanel(options, data, xScale)
 					addTooltip(rect);
 				}
 
-				// increment counter
+				// increment chain counter
 				count++;
 			});
 		});
@@ -170,6 +166,73 @@ function MutationPdbPanel(options, data, xScale)
 		return label;
 	}
 
+	function allocateRows(chainData)
+	{
+		var rows = [];
+
+		_.each(chainData, function(datum, idx) {
+			var chain = datum.chain;
+
+			if (chain.alignments.length > 0)
+			{
+				var inserted = false;
+
+				// find the first available row for this chain
+				for (var i=0; i < rows.length; i++)
+				{
+					var row = rows[i];
+					var conflict = false;
+
+					// check for conflict for this row
+					for (var j=0; j < row.length; j++)
+					{
+						if (conflictsWith(chain, row[j].chain))
+						{
+							// set the flag, and break the loop
+							conflict = true;
+							break;
+						}
+					}
+
+					// if there is space available in this row,
+					// insert the chain into the current row
+					if (!conflict)
+					{
+						// insert the chain, set the flag, and break the loop
+						row.push(datum);
+						inserted = true;
+						break;
+					}
+				}
+
+				// if no there is no available space in any row,
+				// then insert the chain to the next row
+				if (!inserted)
+				{
+					var newAllocation = [];
+					newAllocation.push(datum);
+					rows.push(newAllocation);
+				}
+			}
+		});
+
+		return rows;
+	}
+
+	function conflictsWith(chain1, chain2)
+	{
+		var conflict = true;
+
+		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
+		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
+		{
+			// no conflict
+			conflict = false;
+		}
+
+		return conflict;
+	}
+
 	/**
 	 * Calculates total number of chains for the given PDB data.
 	 *
@@ -196,6 +259,7 @@ function MutationPdbPanel(options, data, xScale)
 	function calcHeight(elHeight)
 	{
 		var height = 0;
+		var rowCount = _rowData.length;
 
 		// if not auto, then just copy the value
 		if (elHeight != "auto")
@@ -205,7 +269,7 @@ function MutationPdbPanel(options, data, xScale)
 		else
 		{
 			height = _options.marginTop + _options.marginBottom +
-				_chainCount * (_options.chainHeight + _options.chainPadding);
+				rowCount * (_options.chainHeight + _options.chainPadding);
 		}
 
 		return height;
@@ -221,8 +285,9 @@ function MutationPdbPanel(options, data, xScale)
 	function calcCollapsedHeight(maxChain)
 	{
 		var height = 0;
+		var rowCount = _rowData.length;
 
-		if (maxChain < _chainCount)
+		if (maxChain < rowCount)
 		{
 			height = _options.marginTop +
 			         maxChain * (_options.chainHeight + _options.chainPadding);
@@ -259,6 +324,9 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function init()
 	{
+		// generate row data (one row may contain more than one chain)
+		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
+
 		// init svg container
 		var container = d3.select(_options.el);
 
@@ -270,7 +338,7 @@ function MutationPdbPanel(options, data, xScale)
 		_svg = svg;
 
 		// draw the panel
-		drawPanel(svg, _options, data, xScale);
+		drawPanel(svg, _options, _rowData, xScale);
 
 		// draw the labels
 		if (_options.labelY != false)

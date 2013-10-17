@@ -97,19 +97,44 @@
                             <h5>Data Type</h5>
                             <div id='one_gene_platform_select_div'></div>
                         </div>
+                        <div id='one_genes_view_options'>
+                            <h5>Options</h5>
+                            <div id='one_gene_apply_log_scale_div_x'>
+                                <input type='checkbox' id='log_scale_option_x' unchecked onchange='PlotsView.applyLogScaleX();'/>
+                                apply log scale - x axis
+                            </div>
+                            <div id='one_gene_apply_log_scale_div_y'>
+                                <input type='checkbox' id='log_scale_option_y' unchecked onchange='PlotsView.applyLogScaleY();'/>
+                                apply log scale - y axis
+                            </div>
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
                         <h5>Genes</h5>
-                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select><br>
+                        x Axis<select id='geneX' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select>
+                        <br>
                         y Axis<select id='geneY' onchange="PlotsTwoGenesMenu.updateMenu();PlotsTwoGenesView.init();"></select>
                         <h5>Plot Type</h5>
                         <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.updateDataType();PlotsTwoGenesView.init();"></select>
                         <h5>Platform</h5>
                         <div id='two_genes_platform_select_div'></div>
-                        <br><label for="show_mutation">Show Mutation Data</label>
-                        <input type="checkbox" name="show_mutation" id="show_mutation"
-                               value="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
+                        <br>
+                        <div id='two_genes_view_options'>
+                            <h5>Options</h5>
+                            <div id='two_genes_apply_log_scale_div_x'>
+                                <input type='checkbox' id='two_genes_log_scale_option_x' unchecked onchange=''/>
+                                apply log scale - x axis
+                            </div>
+                            <div id='two_genes_apply_log_scale_div_y'>
+                                <input type='checkbox' id='two_genes_log_scale_option_y' unchecked onchange=''/>
+                                apply log scale - y axis
+                            </div>
+                            <div id='two_genes_show_mutation_div'>
+                                <input type="checkbox" name="show_mutation" id="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
+                                show mutation data
+                            </div>
+                        </div>
                     </div>
                     <div id="plots_custom">
                         <h4>Plot Parameters</h4>
@@ -128,7 +153,7 @@
                         <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
                         Platform<br>
                         <div id='custom_platform_select_div_y'></div>
-                        <br><label for="show_mutation_custom_view">Show Mutation Data</label>
+                        <br><label for="show_mutation_custom_view">show mutation data</label>
                         <input type="checkbox" name="show_mutation_custom_view" id="show_mutation_custom_view"
                                value="show_mutation" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                     </div>

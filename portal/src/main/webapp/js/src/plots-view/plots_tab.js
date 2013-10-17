@@ -249,35 +249,36 @@ var PlotsMenu = (function () {
     }
 
     function updateLogScaleOption() {
-        $('div').each(function(){
-            if($(this).attr('id') == 'apply_log_scale_checkbox'){
-                $(this).remove();
-            }
-        });
+        $("#log_scale_option_x").attr("disabled", true);
+        $("#one_gene_apply_log_scale_div_x").attr("style", "color: #D8D8D8");
+        $("#log_scale_option_y").attr("disabled", true);
+        $("#one_gene_apply_log_scale_div_y").attr("style", "color: #D8D8D8");
         //Dynamically show only the plots type related drop div
         var currentPlotsType = $('#plots_type').val();
         //Append Log Scale Checkbox for certain profile
-        var _str_log_scale_x = "<div id='apply_log_scale_checkbox'><label for='log_scale_option_x' style='padding-left: 140px;'>apply log scale </label>" +
-            "<input type='checkbox' id='log_scale_option_x'" +
-            "unchecked onchange='PlotsView.applyLogScaleX();'/></div>";
-        var _str_log_scale_y = "<div id='apply_log_scale_checkbox'><label for='log_scale_option_y' style='padding-left: 140px;'>apply log scale </label>" +
-            "<input type='checkbox' id='log_scale_option_y'" +
-            "unchecked onchange='PlotsView.applyLogScaleY();'/></div>";
         if (currentPlotsType.indexOf("copy_no") !== -1) {
             if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
                 $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $('#data_type_mrna_dropdown').append(_str_log_scale_y);
+                $("#log_scale_option_x").attr("disabled", true);
+                $("#one_gene_apply_log_scale_div_x").attr("style", "color: #D8D8D8");
+                $("#log_scale_option_y").attr("disabled", false);
+                $("#one_gene_apply_log_scale_div_y").attr("style", "color: black");
             }
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-            $('#data_type_dna_methylation_dropdown').append(_str_log_scale_x);
             if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
                 $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $('#data_type_mrna_dropdown').append(_str_log_scale_y);
+                $("#log_scale_option_x").attr("disabled", false);
+                $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
+                $("#log_scale_option_y").attr("disabled", false);
+                $("#one_gene_apply_log_scale_div_y").attr("style", "color: black");
             }
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
             if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
                 $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $('#data_type_mrna_dropdown').append(_str_log_scale_x);
+                $("#log_scale_option_x").attr("disabled", false);
+                $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
+                $("#log_scale_option_y").attr("disabled", true);
+                $("#one_gene_apply_log_scale_div_y").attr("style", "color: #D8D8D8");
             }
         }
     }
@@ -1546,47 +1547,34 @@ var PlotsView = (function () {
                     }
                 },
                 updateLogScaleX: function(applyLogScale) {
-                    if (applyLogScale) {
-                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
-                                .attr("transform", function() {
-                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
-                                    var _pre_y = d3.select(this).attr("y_pos");
-                                    d3.select(this).attr("x_pos", _post_x);
-                                    return "translate(" + _post_x + ", " + _pre_y + ")";
-                                });
-                    } else {
-                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
-                            .attr("transform", function() {
+                    elem.elemDotsGroup.selectAll("path")
+                        .transition().duration(500)
+                        .attr("transform", function() {
+                            if (applyLogScale) {
+                                var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                            } else {
                                 var _post_x = attr.xScale(d3.select(this).attr("xVal"));
-                                var _pre_y = d3.select(this).attr("y_pos");
-                                d3.select(this).attr("x_pos", _post_x);
-                                return "translate(" + _post_x + ", " + _pre_y + ")";
-                            });
-                    }
+                            }
+                            var _pre_y = d3.select(this).attr("y_pos");
+                            d3.select(this).attr("x_pos", _post_x);
+                            return "translate(" + _post_x + ", " + _pre_y + ")";
+                        });
                 },
                 updateLogScaleY: function(applyLogScale) {
-                    if (applyLogScale) {
-                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
-                            .attr("transform", function() {
-                                var _pre_x = d3.select(this).attr("x_pos");
+                    elem.elemDotsGroup.selectAll("path")
+                        .transition().duration(500)
+                        .attr("transform", function() {
+                            var _pre_x = d3.select(this).attr("x_pos");
+                            if (applyLogScale) {
                                 var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
-                                d3.select(this).attr("y_pos", _post_y);
-                                return "translate(" + _pre_x + ", " + _post_y + ")";
-                            });
-                        if (Util.plotsIsDiscretized()) {
-                            drawBoxPlots(true);
-                        }
-                    } else {
-                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
-                            .attr("transform", function() {
-                                var _pre_x = d3.select(this).attr("x_pos");
+                            } else {
                                 var _post_y = attr.yScale(d3.select(this).attr("yVal"));
-                                d3.select(this).attr("y_pos", _post_y);
-                                return "translate(" + _pre_x + ", " + _post_y + ")";
-                            });
-                        if (Util.plotsIsDiscretized()) {
-                            drawBoxPlots(false);
-                        }
+                            }
+                            d3.select(this).attr("y_pos", _post_y);
+                            return "translate(" + _pre_x + ", " + _post_y + ")";
+                        });
+                    if (Util.plotsIsDiscretized()) {
+                        drawBoxPlots(applyLogScale);
                     }
                 }
             }

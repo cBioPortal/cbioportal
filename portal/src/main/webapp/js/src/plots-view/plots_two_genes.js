@@ -128,7 +128,7 @@ var PlotsTwoGenesMenu = (function(){
     function drawPlatFormList() {
         $("#two_genes_platform_select_div").empty();
         $("#two_genes_platform_select_div").append(
-            "<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();' class='plots-select'>");
+            "<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();PlotsTwoGenesMenu.updateLogScaleCheckBox();' class='plots-select'>");
 
         if ($("#two_genes_plots_type").val() === "mrna") {
             content.genetic_profile_mrna.forEach (function (profile) {
@@ -155,6 +155,22 @@ var PlotsTwoGenesMenu = (function(){
             });
         }
         $("#two_genes_platform_select_div").append("</select>");
+    }
+
+    function updateLogScaleCheckBox() {
+        $("#two_genes_log_scale_option_x").attr("disabled", true);
+        $("#two_genes_apply_log_scale_div_x").attr("style", "color: #D8D8D8;");
+        $("#two_genes_log_scale_option_y").attr("disabled", true);
+        $("#two_genes_apply_log_scale_div_y").attr("style", "color: #D8D8D8;");
+        if (($("#two_genes_plots_type").val() === "mrna" &&
+             $("#two_genes_platform option:selected").text().indexOf("RNA Seq") !== -1 &&
+             $("#two_genes_platform option:selected").text().indexOf("z-Scores") === -1) ||
+             $("#two_genes_plots_type").val() === "methylation") {
+            $("#two_genes_log_scale_option_x").attr("disabled", false);
+            $("#two_genes_apply_log_scale_div_x").attr("style", "color: black;");
+            $("#two_genes_log_scale_option_y").attr("disabled", false);
+            $("#two_genes_apply_log_scale_div_y").attr("style", "color: black;");
+        }
     }
 
     function generatePlotsTypeList() {
@@ -196,16 +212,20 @@ var PlotsTwoGenesMenu = (function(){
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
             drawPlatFormList();
+            updateLogScaleCheckBox();
         },
         updateMenu: function() {
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
             drawPlatFormList();
+            updateLogScaleCheckBox();
         },
         updateDataType: function() {
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             drawPlatFormList();
-        }
+            updateLogScaleCheckBox();
+        },
+        updateLogScaleCheckBox: updateLogScaleCheckBox
     };
 }());      //Closing PlotsTwoGenesMenu
 
@@ -861,6 +881,9 @@ var PlotsTwoGenesView = (function(){
         update : function() {
             //TODO: use cache
         },
-        updateMutationDisplay : updateMutationDisplay
+        updateMutationDisplay : updateMutationDisplay,
+        updateLogScale: function() {
+
+        }
     };
 }());     //Closing PlotsTwoGeneView

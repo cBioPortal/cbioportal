@@ -166,6 +166,14 @@ function MutationPdbPanel(options, data, xScale)
 		return label;
 	}
 
+	/**
+	 * Create row data by allocate position for each chain.
+	 * A row may have multiple chains if there is no overlap
+	 * between chains.
+	 *
+	 * @param chainData an array of <pdb id, PdbChainModel> pairs
+	 * @return {Array}  a 2D array of chain allocation
+	 */
 	function allocateRows(chainData)
 	{
 		var rows = [];
@@ -186,7 +194,7 @@ function MutationPdbPanel(options, data, xScale)
 					// check for conflict for this row
 					for (var j=0; j < row.length; j++)
 					{
-						if (conflictsWith(chain, row[j].chain))
+						if (overlaps(chain, row[j].chain))
 						{
 							// set the flag, and break the loop
 							conflict = true;
@@ -219,18 +227,46 @@ function MutationPdbPanel(options, data, xScale)
 		return rows;
 	}
 
-	function conflictsWith(chain1, chain2)
+	/**
+	 * Returns the chain datum (<pdb id, PdbChainModel> pair)
+	 * for the default chain.
+	 *
+	 * @return chain datum for the default chain.
+	 */
+	function getDefaultChainDatum()
 	{
-		var conflict = true;
+		var datum = null;
+
+		if (_rowData)
+		{
+			// TODO return the left most chain instead?
+			// ...i.e: min uniprotFrom in _rowData[0]
+			datum = _rowData[0][0];
+		}
+
+		return datum;
+	}
+
+	/**
+	 * Checks if the given two chain alignments (positions) overlaps
+	 * with each other.
+	 *
+	 * @param chain1    first chain
+	 * @param chain2    second chain
+	 * @return {boolean}    true if intersects, false if distinct
+	 */
+	function overlaps(chain1, chain2)
+	{
+		var overlap = true;
 
 		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
 		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
 		{
 			// no conflict
-			conflict = false;
+			overlap = false;
 		}
 
-		return conflict;
+		return overlap;
 	}
 
 	/**
@@ -426,6 +462,7 @@ function MutationPdbPanel(options, data, xScale)
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
+		getDefaultChainDatum: getDefaultChainDatum,
 		show: showPanel,
 		hide: hidePanel,
 		toggleHeight: toggleHeight};

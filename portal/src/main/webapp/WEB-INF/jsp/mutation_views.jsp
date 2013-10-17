@@ -1020,8 +1020,9 @@
 					    pdbColl.length > 0)
 					{
 						// reload the visualizer content with the default pdb and chain
-						var pdbId = pdbColl.at(0).pdbId;
-						var chain = pdbColl.at(0).chains.at(0);
+						var defaultDatum = panel.getDefaultDatum();
+						var pdbId = defaultDatum.pdbId;
+						var chain = defaultDatum.chain;
 
 						panel.showView();
 						vis.updateView(gene, pdbId, chain);
@@ -1096,6 +1097,18 @@
 		{
 			var self = this;
 			self.$el.show();
+		},
+		getDefaultDatum: function()
+		{
+			var self = this;
+			var datum = null;
+
+			if (self.pdbPanel)
+			{
+				datum = self.pdbPanel.getDefaultChainDatum();
+			}
+
+			return datum;
 		},
 		/**
 		 * Initializes the PDB chain panel.
@@ -1226,6 +1239,14 @@
 				}
 			});
 		},
+		/**
+		 * Updates the 3D visualizer content for the given gene,
+		 * pdb id, and chain.
+		 *
+		 * @param geneSymbol    hugo gene symbol
+		 * @param pdbId         pdb id
+		 * @param chain         PdbChainModel instance
+		 */
 		updateView: function(geneSymbol, pdbId, chain)
 		{
 			var self = this;
@@ -1236,14 +1257,14 @@
 				// update position map of the chain
 				chain.positionMap = positionMap;
 
-				// reload the selected pdb and chain data
-				mut3dVis.show();
-				mut3dVis.reload(pdbId, chain);
-
 				// update info
 				// TODO it might be better to do this with backbone's internal mvc listeners
 				self.$el.find(".mutation-3d-pdb-id").text(pdbId);
 				self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
+
+				// reload the selected pdb and chain data
+				mut3dVis.show();
+				mut3dVis.reload(pdbId, chain);
 			};
 
 			// update positionMap for the chain

@@ -231,7 +231,12 @@ define("Oncoprint",
                         .attr('y', function(d) {
                             return dims.mut_height + vertical_pos(utils.get_attr(d)); });
                     mut.filter(function(d) {
-                        return d.mutation === undefined || /fusion$/i.test(d.mutation.toLowerCase());
+                        if (d.mutation === undefined) return true;
+                        var aas = d.mutation.split(","); // e.g. A32G,fusion
+                        for (var i=0, n=aas.length; i<n; i++) {
+                            if (!/fusion$/i.test(aas[i])) return false;
+                        }
+                        return true;
                     }).remove();
 
                     var sym = d3.svg.symbol().size(dims.rect_width * 3);
@@ -240,7 +245,7 @@ define("Oncoprint",
                         .attr('d', sym.type("triangle-up"))
                         .attr('transform',function(d) {return 'translate('+dims.rect_width/3+','+(dims.rect_height/2+vertical_pos(utils.get_attr(d)))+'),rotate(-30,-'+dims.rect_width/2+',0)';});
                     fusion.filter(function(d) {
-                        return d.mutation === undefined || !/fusion$/i.test(d.mutation.toLowerCase());
+                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
                     }).remove();
                     
                     var rppa = enter.append('path')

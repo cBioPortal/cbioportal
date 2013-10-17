@@ -147,21 +147,27 @@ define("OncoprintUtils", (function() {
     //
     // if there is no data, then the range is undefined
     var gene_data_type2range = function(raw_gene_data) {
-        var extract_unique = function(raw_data, datatype, regex) {
+        var extract_unique = function(raw_data, datatype, filter) {
             return _.chain(raw_gene_data)
                 .map(function(d) {
                     return d[datatype];
                 })
                 .unique()
                 .filter( function(d) {
-                    return d !== undefined && (!regex || regex.test(d));
+                    return d !== undefined && (!filter || filter(d));
                 })
                 .value();
         };
 
         var cnas = extract_unique(raw_gene_data, 'cna');
-        var mutations = extract_unique(raw_gene_data, 'mutation', /^(?!.*fusion$)[/\w\.-]+$/i);
-        var fusions = extract_unique(raw_gene_data, 'mutation', /fusion$/i);
+        var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
+            var aas = d.split(",");// e.g. A32G,fusion
+            for (var i=0, n=aas.length; i<n; i++) {
+                if (!/fusion$/i.test(aas[i])) return true;
+            }
+            return false;
+        });
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 

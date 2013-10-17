@@ -351,6 +351,8 @@
                                 .attr("cy", function(d, i) { return histBottom + verticalCirclePadding })
                                 .attr("r", circleTTR)
                                 .attr("class", function(d, i) { return d.studyId + " annotation-type" })
+                                .style("stroke", "lightgray")
+                                .style("stroke-width", "1")
                                 .each(function(d, i) {
                                     var qOpts = _.extend(defaultQTipOptions, {
                                         content: metaData.type_of_cancers[metaData.cancer_studies[d.studyId].type_of_cancer]

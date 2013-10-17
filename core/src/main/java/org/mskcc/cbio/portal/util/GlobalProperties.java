@@ -49,6 +49,7 @@ public class GlobalProperties {
 	public static final String SIGNATURE_KEY = "signature.key";
 	public static final String ENCRYPTION_KEY = "encryption.key";
 	public static final String BROAD_BAM_URL = "broad.bam.url";
+	public static final String BROAD_BAM_CHECKING_URL = "broad.bam.checking.url";
 	public static final String IGV_BAM_LINKING = "igv.bam.linking";
 	public static final String IGV_BAM_LINKING_STUDIES = "igv.bam.linking.studies";
     public static final String AUTHENTICATE = "authenticate";

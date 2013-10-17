@@ -3,6 +3,7 @@
         <rect fill="{{bg_color}}" width="5.5" height="23"></rect>
 
         <rect display="{{display_mutation}}" fill="#008000" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
+        <rect display="{{display_fusion}}" fill="black" y="7.666666666666667" width="5.5" height="7.666666666666667"></rect>
 
         <path display="{{display_down_rppa}}" d="M0,2.182461848650375L2.5200898716287647,-2.182461848650375 -2.5200898716287647,-2.182461848650375Z" transform="translate(2.75,2.3000000000000003)"></path>
         <path display="{{display_up_rppa}}" d="M0,-2.182461848650375L2.5200898716287647,2.182461848650375 -2.5200898716287647,2.182461848650375Z" transform="translate(2.75,20.909090909090907)" aria-describedby="ui-tooltip-838"></path>

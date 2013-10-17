@@ -231,7 +231,17 @@ define("Oncoprint",
                         .attr('y', function(d) {
                             return dims.mut_height + vertical_pos(utils.get_attr(d)); });
                     mut.filter(function(d) {
-                        return d.mutation === undefined;
+                        return d.mutation === undefined || /fusion$/i.test(d.mutation.toLowerCase());
+                    }).remove();
+
+                    var fusion = enter.append('rect')
+                        .attr('fill', 'black')
+                        .attr('height', dims.mut_height)
+                        .attr('width', dims.rect_width)
+                        .attr('y', function(d) {
+                            return dims.mut_height + vertical_pos(utils.get_attr(d)); });
+                    fusion.filter(function(d) {
+                        return d.mutation === undefined || !/fusion$/i.test(d.mutation.toLowerCase());
                     }).remove();
 
                     var sym = d3.svg.symbol().size(dims.rect_width * 2);
@@ -242,7 +252,7 @@ define("Oncoprint",
                             // put the triangle in the right spot: at the top if
                             // UNREGULATED, at the bottom otherwise
                             var dy = dims.rect_height;
-                            dy = d.rppa === "UPREGULATED" ? dy / 1.1 : dy * .1;
+                            dy = d.rppa === "UPREGULATED" ? dy / 0.1 : dy * 1.1;
                             return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); })
                         rppa.filter(function(d) {
                             return d.rppa === undefined;

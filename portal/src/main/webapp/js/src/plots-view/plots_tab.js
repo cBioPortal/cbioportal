@@ -749,7 +749,8 @@ var PlotsView = (function () {
 
         var elem = {
                 svg : "",
-                elemDotsGroup : ""
+                elemDotsGroup : "",
+                boxPlots: ""
             },   //DOM elements
             settings = {
                 canvas_width: 700,
@@ -1268,7 +1269,6 @@ var PlotsView = (function () {
         var ScatterPlots = (function() {
 
             function drawDiscretizedPlots() { //GISTIC, RAE view
-                elem.elemDotsGroup = elem.svg.append("svg:g");
                 var ramRatio = 30;  //Noise
                 //Divide Data Set by Gistic Type
                 var subDataSet = {
@@ -1328,15 +1328,23 @@ var PlotsView = (function () {
                 });
             }
 
-            function drawBoxPlots(){
-                var boxPlotsElem = elem.svg.append("svg:g");
+            function drawBoxPlots(applyLogScale){
+                d3.select("#plots_box").select(".box_plots").remove();
+                var boxPlotsElem = elem.boxPlots.append("svg:g").attr("class", "box_plots");
+                var _dotsGroup = [];
+                _dotsGroup.length = 0;
+                _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
+                if (applyLogScale) {
+                    $.each(_dotsGroup, function(index, value) {
+                        value.yVal = Math.log(value.yVal) / Math.log(2);
+                    });
+                }
 
                 var min_x = PlotsData.getDataAttr().min_x;
                 var max_x = PlotsData.getDataAttr().max_x;
 
                 //Not using real x value for positioning discretized data
                 var pos = 0;   //position Indicator
-                var _dotsGroup = PlotsData.getDotsGroup();
                 for (var i = min_x ; i < max_x + 1; i++) {
                     var top;
                     var bottom;
@@ -1457,7 +1465,6 @@ var PlotsView = (function () {
             }
 
             function drawLog2Plots() {
-                elem.elemDotsGroup = elem.svg.append("svg:g");
                 elem.elemDotsGroup.selectAll("path")
                     .data(PlotsData.getDotsGroup())
                     .enter()
@@ -1485,7 +1492,6 @@ var PlotsView = (function () {
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
-                elem.elemDotsGroup = elem.svg.append("svg:g");
                 elem.elemDotsGroup.selectAll("path")
                     .data(PlotsData.getDotsGroup())
                     .enter()
@@ -1520,9 +1526,11 @@ var PlotsView = (function () {
 
             return {
                 init: function() {
+                    elem.boxPlots = elem.svg.append("svg:g");
+                    elem.elemDotsGroup = elem.svg.append("svg:g");
                     if (Util.plotsTypeIsCopyNo()) {
                         if (Util.plotsIsDiscretized()) {    //Gistic, RAE...
-                            drawBoxPlots();
+                            drawBoxPlots(false);
                             drawDiscretizedPlots();
                         } else {   //Log2
                             drawLog2Plots();
@@ -1562,6 +1570,9 @@ var PlotsView = (function () {
                                 $(this).attr("y_pos", _pre_y);
                             }
                         );
+                        if (Util.plotsIsDiscretized()) {
+                            drawBoxPlots(true);
+                        }
                     } else {
                         elem.elemDotsGroup.selectAll("path").each(
                             function(d) {
@@ -1571,6 +1582,9 @@ var PlotsView = (function () {
                                 $(this).attr("y_pos", _pre_y);
                             }
                         );
+                        if (Util.plotsIsDiscretized()) {
+                            drawBoxPlots(false);
+                        }
                     }
                 }
             }

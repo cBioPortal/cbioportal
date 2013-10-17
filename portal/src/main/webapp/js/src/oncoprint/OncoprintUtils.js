@@ -604,9 +604,11 @@ define("OncoprintUtils", (function() {
 
         return {
             mutation: function(d) {
-                return d.mutation ?
-                    "Mutation: <b>" + d.mutation + "</b><br/>"
-                    : "";
+                if (d.mutation) {
+                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    else return "Mutation: <b>" + d.mutation + "</b><br/>";
+                }
+                return "";
             },
 
             cna: function(d) {

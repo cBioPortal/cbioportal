@@ -224,6 +224,13 @@ define("Oncoprint",
                         //     return vertical_pos(utils.get_attr(d));
                         });
 
+                    var fusion = enter.append('path')
+                        .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
+                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                    fusion.filter(function(d) {
+                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
+                    }).remove();
+
                     var mut = enter.append('rect')
                         .attr('fill', 'green')
                         .attr('height', dims.mut_height)
@@ -238,16 +245,8 @@ define("Oncoprint",
                         }
                         return true;
                     }).remove();
-
-                    var sym = d3.svg.symbol().size(dims.rect_width * 3);
-
-                    var fusion = enter.append('path')
-                        .attr('d', sym.type("triangle-up"))
-                        .attr('transform',function(d) {return 'translate('+dims.rect_width/3+','+(dims.rect_height/2+vertical_pos(utils.get_attr(d)))+'),rotate(-30,-'+dims.rect_width/2+',0)';});
-                    fusion.filter(function(d) {
-                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
-                    }).remove();
                     
+                    var sym = d3.svg.symbol().size(dims.rect_width * 3);
                     var rppa = enter.append('path')
                         .attr('d', sym.type(function(d) {
                             return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down"; }))

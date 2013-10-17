@@ -1309,6 +1309,8 @@ var PlotsView = (function () {
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
+                            $(this).attr("xVal", d.xVal);
+                            $(this).attr("yVal", d.yVal);
                             return "translate(" + _x + "," + _y + ")";
                         })
                         .attr("d", d3.svg.symbol()
@@ -1474,6 +1476,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
+                        $(this).attr("xVal", d.xVal);
+                        $(this).attr("yVal", d.yVal);
                         return "translate(" + _x + ", " + _y + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1501,6 +1505,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
+                        $(this).attr("xVal", d.xVal);
+                        $(this).attr("yVal", d.yVal);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1541,47 +1547,43 @@ var PlotsView = (function () {
                 },
                 updateLogScaleX: function(applyLogScale) {
                     if (applyLogScale) {
-                        elem.elemDotsGroup.selectAll("path").each(
-                            function(d) {
-                                var _pre_x = attr.xScale(Math.log(d.xVal) / Math.log(2));
-                                var _pre_y = $(this).attr("y_pos");
-                                $(this).attr("transform", "translate(" + _pre_x + ", " + _pre_y + ")");
-                                $(this).attr("x_pos", _pre_x);
-                            }
-                        );
+                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
+                                .attr("transform", function() {
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                    var _pre_y = d3.select(this).attr("y_pos");
+                                    d3.select(this).attr("x_pos", _post_x);
+                                    return "translate(" + _post_x + ", " + _pre_y + ")";
+                                });
                     } else {
-                        elem.elemDotsGroup.selectAll("path").each(
-                            function(d) {
-                                var _pre_x = attr.xScale(d.xVal);
-                                var _pre_y = $(this).attr("y_pos");
-                                $(this).attr("transform", "translate(" + _pre_x + ", " + _pre_y + ")");
-                                $(this).attr("x_pos", _pre_x);
-                            }
-                        );
+                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
+                            .attr("transform", function() {
+                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _pre_y = d3.select(this).attr("y_pos");
+                                d3.select(this).attr("x_pos", _post_x);
+                                return "translate(" + _post_x + ", " + _pre_y + ")";
+                            });
                     }
                 },
                 updateLogScaleY: function(applyLogScale) {
                     if (applyLogScale) {
-                        elem.elemDotsGroup.selectAll("path").each(
-                            function(d) {
-                                var _pre_x = $(this).attr("x_pos");
-                                var _pre_y = attr.yScale(Math.log(d.yVal) / Math.log(2));
-                                $(this).attr("transform", "translate(" + _pre_x + ", " + _pre_y + ")");
-                                $(this).attr("y_pos", _pre_y);
-                            }
-                        );
+                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
+                            .attr("transform", function() {
+                                var _pre_x = d3.select(this).attr("x_pos");
+                                var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                d3.select(this).attr("y_pos", _post_y);
+                                return "translate(" + _pre_x + ", " + _post_y + ")";
+                            });
                         if (Util.plotsIsDiscretized()) {
                             drawBoxPlots(true);
                         }
                     } else {
-                        elem.elemDotsGroup.selectAll("path").each(
-                            function(d) {
-                                var _pre_x = $(this).attr("x_pos");
-                                var _pre_y = attr.yScale(d.yVal);
-                                $(this).attr("transform", "translate(" + _pre_x + ", " + _pre_y + ")");
-                                $(this).attr("y_pos", _pre_y);
-                            }
-                        );
+                        elem.elemDotsGroup.selectAll("path").transition().duration(500)
+                            .attr("transform", function() {
+                                var _pre_x = d3.select(this).attr("x_pos");
+                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                d3.select(this).attr("y_pos", _post_y);
+                                return "translate(" + _pre_x + ", " + _post_y + ")";
+                            });
                         if (Util.plotsIsDiscretized()) {
                             drawBoxPlots(false);
                         }

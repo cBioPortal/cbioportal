@@ -162,6 +162,7 @@
                 <textarea rows="30" cols="40" id="cc-download-text">
                 </textarea>
             </div>
+        </div>
 
         <div class="section" id="cc-bookmark">
             <h4>Right click</b> on the link below to bookmark your results or send by email:</h4>

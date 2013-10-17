@@ -1989,7 +1989,11 @@
                     "sDom": 't',
                     "bJQueryUI": true,
                     "bDestroy": true,
-                    "aaSorting": [[ 1, "desc" ]]
+                    "aaSorting": [[ 1, "desc" ]],
+                    "aaColumns": [
+                        { "bSortable": false },
+                        { "bSortable": false }
+                    ]
                 });
             } else {
                 statsEl.hide();

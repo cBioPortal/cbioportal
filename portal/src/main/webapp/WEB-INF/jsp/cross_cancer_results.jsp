@@ -128,7 +128,9 @@
                                 <br/>
                             </div>
                             <div id="cancerbycancer-controls" class="cc-hide">
-
+                                (Select <a href="#" id="cc-select-all">all</a> / <a href="#" id="cc-select-none">none</a>)
+                                <br>
+                                <br>
                             </div>
                         </td>
                     </tr>
@@ -180,7 +182,7 @@
 </script>
 
 <script type="text/template" id="study-link-tmpl">
-    <a href="index.do?tab_index=tab_visualize&cancer_study_id={{studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{cnaProfile}}&Z_SCORE_THRESHOLD=2.0&case_set_id={{caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
+    <a href="index.do?tab_index=tab_visualize&cancer_study_id={{study.studyId}}&genetic_profile_ids_PROFILE_MUTATION_EXTENDED={{study.mutationProfile}}&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION={{study.cnaProfile}}&Z_SCORE_THRESHOLD=2.0&case_set_id={{study.caseSetId}}&case_ids=&gene_list={{genes}}&gene_set_choice=user-defined-list&Action=Submit" target="_blank">
         view details &raquo;
     </a>
 </script>
@@ -190,7 +192,9 @@
         <div class="cc-study-tip">
             <b class="cc-tip-header">{{name}}</b><br>
             <p>
-                Gene set altered in {{allFrequency}}% of {{caseSetLength}} cases. <br>({{studyLink}})
+                Gene set altered in {{allFrequency}}% of {{caseSetLength}} cases.
+                <br>
+                ({{studyLink}})
             </p>
             <table class="cc-tip-table">
                 <thead>
@@ -200,21 +204,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
                         <td>Mutation</td>
-                        <td>{{mutationFrequency}}% ({{mutationCount}})</td>
+                        <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
                     </tr>
-                    <tr>
+                    <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
                         <td>Deletion</td>
-                        <td>{{deletionFrequency}}% ({{deletionCount}})</td>
+                        <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
                     </tr>
-                    <tr>
+                    <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
                         <td>Amplification</td>
-                        <td>{{amplificationFrequency}}% ({{amplificationCount}})</td>
+                        <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
                     </tr>
-                    <tr>
+                    <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
                         <td>Multiple alterations</td>
-                        <td>{{multipleFrequency}}% ({{multipleCount}})</td>
+                        <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
                     </tr>
                 </tbody>
             </table>

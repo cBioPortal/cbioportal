@@ -34,6 +34,7 @@
 
 #cctitlecontainer {
     text-align: center;
+    margin-right: 25px;
 }
 
 .cctitle {
@@ -138,6 +139,15 @@
 #mutation_details .mutation_details_table td {
     font-size: 100%;
 }
+
+.cc-ui-tooltip {
+    max-width: 400px;
+}
+
+#histogram-customize {
+    margin-left: 25px;
+}
+
 /*
     th.mutation-details-qtip-style {
         /*font-size: 115%;

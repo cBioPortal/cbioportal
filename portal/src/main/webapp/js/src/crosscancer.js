@@ -45,14 +45,14 @@
             },
             hide: {
                 fixed: true,
-                delay: 100,
+                delay: 250,
                 event: 'mouseout'
             },
             show: {
                 event: 'mouseover'
             },
             style: {
-                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip'
+                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip cc-ui-tooltip'
             },
             position: {
                 my:'bottom left', at:'top center'
@@ -97,6 +97,8 @@
             template: _.template($("#cross-cancer-main-tmpl").html()),
 
             render: function() {
+                if(priority == 0) { return this };
+
                 this.$el.html(this.template(this.model));
 
                 $("#tabs").tabs({ active: this.model.tab == "mutation" ? 1 : 0 }).show();
@@ -109,6 +111,7 @@
                 }
 
                 var genes = this.model.genes;
+                var orgQuery = this.model.genes;
 
                 var studies = new Studies({
                     gene_list: genes,
@@ -294,7 +297,8 @@
                                         el: container,
                                         model: {
                                             study: d,
-                                            metaData: metaData
+                                            metaData: metaData,
+                                            genes: orgQuery
                                         }
                                     })).render();
 
@@ -403,11 +407,11 @@
                                 })
                                 .attr("font-family", fontFamily)
                                 .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
-                                .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.75; })
+                                .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
                                 .attr("y", function() { return histBottom + verticalCirclePadding*4 })
                                 .attr("text-anchor", "end")
                                 .attr("transform", function(d, i) {
-                                    var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
+                                    var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
                                     var yLoc = histBottom + verticalCirclePadding*4;
                                     return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
                                 })
@@ -694,7 +698,6 @@
                                     .transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                    .attr("y", function() { return histBottom + verticalCirclePadding*2 + circleDTR/2 })
                                 ;
 
                                 var cg = cnaGroups.selectAll("text").data(histData, key);
@@ -708,7 +711,6 @@
                                     .transition()
                                     .duration(animationDuration)
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth/2; } )
-                                    .attr("y", function() { return histBottom + verticalCirclePadding*3 + circleDTR/2 })
                                 ;
 
                                 var ag = abbrGroups.selectAll("text").data(histData, key);
@@ -735,10 +737,9 @@
                                             ;
                                     })
                                     .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
-                                    .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.75; })
-                                    .attr("y", function() { return histBottom + verticalCirclePadding*4 })
+                                    .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })
                                     .attr("transform", function(d, i) {
-                                        var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.75;
+                                        var xLoc = paddingLeft + i*studyLocIncrements + studyWidth*.5;
                                         var yLoc = histBottom + verticalCirclePadding*4;
                                         return "rotate(-60, " + xLoc + ", " + yLoc +  ")";
                                     })
@@ -757,6 +758,25 @@
                                     return true;
                                })
                             ;
+
+                            $("#cc-select-all").click(function(e) {
+                                $("#histogram-remove-notaltered").prop("checked", false);
+                                e.preventDefault();
+                                $("#cancerbycancer-controls input").each(function(idx, el) {
+                                    $(el).prop("checked", true);
+                                });
+                                redrawHistogram();
+                            });
+
+                            $("#cc-select-none").click(function(e) {
+                                $("#histogram-remove-notaltered").prop("checked", false);
+                                e.preventDefault();
+                                $("#cancerbycancer-controls input").each(function(idx, el) {
+                                    $(el).prop("checked", false);
+                                });
+                                redrawHistogram();
+                            });
+
 
                             $("#histogram-remove-notaltered").change(function() {
                                 var checked = $(this).is(":checked");
@@ -821,7 +841,6 @@
                 var thatModel = this.model;
                 var thatTmpl = this.template;
                 var thatEl = this.$el;
-                thatEl.empty();
 
                 _.each(thatModel.studies, function(aStudy) {
                     if(aStudy.skipped) { return; }
@@ -850,6 +869,7 @@
             render: function() {
                 var study = this.model.study;
                 var metaData = this.model.metaData;
+                var genes = this.model.genes;
 
                 var summary = {
                     name: metaData.cancer_studies[study.studyId].name,
@@ -867,15 +887,20 @@
                     amplificationCount: study.alterations.cnaUp,
                     multipleCount: study.alterations.other,
                     // and create the link
-                    studyLink: _.template($("#study-link-tmpl").html(), study)
+                    studyLink: _.template($("#study-link-tmpl").html(), { study: study, genes: genes } )
                 };
 
                 this.$el.html(this.template(summary));
+                this.$el.find("table.cc-tip-table tr.cc-hide").remove();
                 this.$el.find("table.cc-tip-table").dataTable({
                     "sDom": 't',
                     "bJQueryUI": true,
                     "bDestroy": true,
-                    "aaSorting": [[ 1, "desc" ]]
+                    "aaSorting": [[ 1, "desc" ]],
+                    "aaColumns": [
+                        { "bSortable": false },
+                        { "bSortable": false }
+                    ]
                 });
 
                 return this;

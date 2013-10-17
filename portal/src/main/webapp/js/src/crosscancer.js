@@ -753,12 +753,7 @@
                                     .transition()
                                     .duration(animationDuration)
                                     .text(function(d, i) {
-                                        return d.studyId
-                                            .toLocaleUpperCase()
-                                            .replace("_", " (")
-                                            .concat(")")
-                                            .replace(/_/g, " ")
-                                            ;
+                                        return getStudyAbbr(d, metaData);
                                     })
                                     .attr("font-size", function() { return Math.min((studyWidth * .65), 12) + "px"; })
                                     .attr("x", function(d, i) { return paddingLeft + i*studyLocIncrements + studyWidth*.5; })

@@ -33,6 +33,7 @@ package org.mskcc.cbio.portal.model;
  * be loaded from a file with a static table of types.
  * 
  * @author Arthur Goldberg goldberg@cbio.mskcc.org
+ * @author Arman Aksoy
  */
 public class TypeOfCancer {
 
@@ -40,6 +41,7 @@ public class TypeOfCancer {
    private String typeOfCancerId;
    // Separated by commas
    private String clinicalTrialKeywords = "";
+   private String dedicatedColor = "black";
 
    public String getName() {
       return name;
@@ -61,4 +63,12 @@ public class TypeOfCancer {
    public void setClinicalTrialKeywords(String clinicalTrialKeywords) {
       this.clinicalTrialKeywords = clinicalTrialKeywords;
    }
+
+    public String getDedicatedColor() {
+        return dedicatedColor;
+    }
+
+    public void setDedicatedColor(String dedicatedColor) {
+        this.dedicatedColor = dedicatedColor;
+    }
 }

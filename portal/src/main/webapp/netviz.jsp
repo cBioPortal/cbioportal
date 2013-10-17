@@ -18,9 +18,9 @@
 
 <script type="text/javascript" src="js/lib/jquery.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
-<script type="text/javascript" src="js/lib/jquery.address-1.4.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery-ui-1.8.14.custom.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.popeye-2.0.4.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.address.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.popeye-2.1.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>

@@ -57,6 +57,7 @@
 	  <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getPfamSequence.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/get3dPdb.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
@@ -94,6 +95,8 @@
       <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/crosscancerquery.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/crosscancermutation.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>

@@ -188,7 +188,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
 
     private void processCancerStudy(File metaStudyFile, boolean skip, boolean force) throws Exception
     {
-        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false);
+        CancerStudy cancerStudy = CancerStudyReader.loadCancerStudy(metaStudyFile, false, false); // validates metaStudyFile content
         if (continueIfStudyExists(cancerStudy, skip, force)) {
             String cancerStudyDirectoryName = metaStudyFile.getParent();
             if (validateCancerStudy(cancerStudyDirectoryName)) {

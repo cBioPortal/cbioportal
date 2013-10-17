@@ -104,8 +104,15 @@ public class PortalMetaDataJSON extends HttpServlet {
             });
             Map<String, String> typeOfCancerMap = new HashMap<String, String>();
             Map<String, String> visibleTypeOfCancerMap = new HashMap<String, String>();
-            for (TypeOfCancer typeOfCancer : allTypesOfCancer)
+            Map<String, String> cancerColors = new HashMap<String, String>();
+            Map<String, String> visibleCancerColors = new HashMap<String, String>();
+            Map<String, String> shortNames = new HashMap<String, String>();
+            Map<String, String> visibleShortNames = new HashMap<String, String>();
+            for (TypeOfCancer typeOfCancer : allTypesOfCancer) {
                 typeOfCancerMap.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getName());
+                cancerColors.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getDedicatedColor());
+                shortNames.put(typeOfCancer.getTypeOfCancerId(), typeOfCancer.getShortName());
+            }
 
             //  Cancer All Cancer Studies
             List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
@@ -113,12 +120,11 @@ public class PortalMetaDataJSON extends HttpServlet {
             //  Get all Genomic Profiles and Case Sets for each Cancer Study
             rootMap.put("cancer_studies", cancerStudyMap);
             for (CancerStudy cancerStudy : cancerStudiesList) {
-                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists
-                        (cancerStudy.getCancerStudyStableId());
+                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudy.getCancerStudyStableId());
 
                 ArrayList<GeneticProfile> geneticProfiles =
-                        GetGeneticProfiles.getGeneticProfiles
-                                (cancerStudy.getCancerStudyStableId());
+                        GetGeneticProfiles.getGeneticProfiles(cancerStudy.getCancerStudyStableId());
+
                 JSONArray jsonGenomicProfileList = new JSONArray();
                 for (GeneticProfile geneticProfile : geneticProfiles) {
                     Map map = new LinkedHashMap();
@@ -148,6 +154,7 @@ public class PortalMetaDataJSON extends HttpServlet {
                 jsonCancerStudySubMap.put("genomic_profiles", jsonGenomicProfileList);
                 jsonCancerStudySubMap.put("case_sets", jsonCaseList);
                 jsonCancerStudySubMap.put("has_mutation_data", cancerStudy.hasMutationData(geneticProfiles));
+                jsonCancerStudySubMap.put("has_cna_data", cancerStudy.hasCnaData());
                 jsonCancerStudySubMap.put("has_mutsig_data", cancerStudy.hasMutSigData());
                 jsonCancerStudySubMap.put("has_gistic_data", cancerStudy.hasGisticData());
                 cancerStudyMap.put(cancerStudy.getCancerStudyStableId(), jsonCancerStudySubMap);
@@ -155,10 +162,14 @@ public class PortalMetaDataJSON extends HttpServlet {
                 String typeOfCancerId = cancerStudy.getTypeOfCancerId();
                 jsonCancerStudySubMap.put("type_of_cancer", typeOfCancerId);
                 visibleTypeOfCancerMap.put(typeOfCancerId, typeOfCancerMap.get(typeOfCancerId));
+                visibleCancerColors.put(typeOfCancerId, cancerColors.get(typeOfCancerId));
+                visibleShortNames.put(typeOfCancerId, shortNames.get(typeOfCancerId));
             }
 
             // Only put visible ones
             rootMap.put("type_of_cancers", visibleTypeOfCancerMap);
+            rootMap.put("cancer_colors", visibleCancerColors);
+            rootMap.put("short_names", visibleShortNames);
 
             //  Get all Gene Sets
             GeneSetUtil geneSetUtil = GeneSetUtil.getInstance();

@@ -73,7 +73,7 @@ public class ImportCaseList {
        
       String caseListCategoryStr = properties.getProperty("case_list_category");
       if (caseListCategoryStr  == null || caseListCategoryStr.length() == 0) {
-          throw new IllegalArgumentException("case_list_category is not specified");
+          caseListCategoryStr = "other";
       }
       CaseListCategory caseListCategory = CaseListCategory.get(caseListCategoryStr); 
        

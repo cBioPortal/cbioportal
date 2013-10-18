@@ -218,7 +218,8 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 
 		tableSelector.find('.simple-tip').qtip(qTipOptions);
 		tableSelector.find('.best_effect_transcript').qtip(qTipOptions);
-		tableSelector.find('.simple-tip-left').qtip(qTipOptionsLeft);
+        tableSelector.find('.cc-short-study-name').qtip(qTipOptions);
+        tableSelector.find('.simple-tip-left').qtip(qTipOptionsLeft);
 
 		// add tooltip for COSMIC value
 		tableSelector.find('.mutation_table_cosmic').each(function() {

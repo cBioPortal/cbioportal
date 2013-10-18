@@ -39,9 +39,9 @@ public class TypeOfCancer {
 
    private String name;
    private String typeOfCancerId;
-   // Separated by commas
-   private String clinicalTrialKeywords = "";
-   private String dedicatedColor = "black";
+   private String clinicalTrialKeywords = ""; // Separated by commas
+   private String dedicatedColor = "white";
+   private String shortName = "";
 
    public String getName() {
       return name;
@@ -70,5 +70,13 @@ public class TypeOfCancer {
 
     public void setDedicatedColor(String dedicatedColor) {
         this.dedicatedColor = dedicatedColor;
+    }
+
+    public String getShortName() {
+        return shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
     }
 }

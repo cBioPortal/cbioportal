@@ -173,7 +173,7 @@
 		</td>
         <td>
             <a href='{{cancerStudyLink}}' target='_blank'>
-                <b>{{cancerStudy}}</b>
+                <b title="{{cancerStudy}}" alt="{{cancerStudy}}" class="cc-short-study-name">{{cancerStudyShort}}</b>
             </a>
         </td>
 		<td>
@@ -1554,6 +1554,7 @@
 			vars.linkToPatientView = mutation.linkToPatientView;
             vars.cancerType = mutation.cancerType;
             vars.cancerStudy = mutation.cancerStudy;
+            vars.cancerStudyShort = mutation.cancerStudyShort;
             vars.cancerStudyLink = mutation.cancerStudyLink;
 
             var proteinChange = self._getProteinChange(mutation);

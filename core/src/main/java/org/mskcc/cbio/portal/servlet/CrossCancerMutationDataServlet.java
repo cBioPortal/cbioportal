@@ -271,6 +271,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
                 mutationData.put("cancerType", typeOfCancer);
                 mutationData.put("cancerStudy", cancerStudy.getName());
+                mutationData.put("cancerStudyShort", getShortName(cancerStudy));
                 mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
@@ -311,8 +312,18 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 
 		return mutationArray;
 	}
-        
-        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+
+    private String getShortName(CancerStudy cancerStudy) throws DaoException {
+        String sName = cancerStudy.getCancerStudyStableId();
+        String tumorType = cancerStudy.getTypeOfCancerId();
+        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
+        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
+        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
+
+        return sName;
+    }
+
+    // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
         private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
             if (cosmic==null) {
                 return null;

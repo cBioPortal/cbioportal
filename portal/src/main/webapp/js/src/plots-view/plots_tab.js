@@ -267,11 +267,11 @@ var PlotsMenu = (function () {
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
             if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
                 $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $("#log_scale_option_x").attr("disabled", false);
-                $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
                 $("#log_scale_option_y").attr("disabled", false);
                 $("#one_gene_apply_log_scale_div_y").attr("style", "color: black");
             }
+            $("#log_scale_option_x").attr("disabled", false);
+            $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
             if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
                 $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {

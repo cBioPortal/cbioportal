@@ -1,8 +1,8 @@
 # October 18, 2013
  
 * Improved interface for survival plots, including information on individual samples via mouse-over
-* Fusion glyph in OncoPrint
-* Improved result page for cross cancer query including frequency histogram (example below - query gene: CDKN2A) and mutation diagram
+* New fusion glyph in OncoPrints
+* Improved cross-cancer query: new alteration frequency histogram (example below - query gene: CDKN2A) and mutation diagram
 <center>![Cross Cancer Query](images/previews/cross_cancer.png)</center>
 
 # September 5, 2013:

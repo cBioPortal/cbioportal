@@ -992,7 +992,6 @@ var PlotsCustomView = (function() {
         drawPlots();
         drawLegends();
         addQtips();
-        drawImgConverter();
         var applyLogScale_x = document.getElementById("custom_genes_log_scale_option_x").checked;
         var applyLogScale_y = document.getElementById("custom_genes_log_scale_option_y").checked;
         updatePlotsLogScale("x", applyLogScale_x);

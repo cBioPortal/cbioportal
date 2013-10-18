@@ -224,6 +224,13 @@ define("Oncoprint",
                         //     return vertical_pos(utils.get_attr(d));
                         });
 
+                    var fusion = enter.append('path')
+                        .attr('d', "M0,0L0,"+dims.rect_height+" "+dims.rect_width+","+dims.rect_height/2+"Z")
+                        .attr('transform',function(d) {return 'translate(0,'+(vertical_pos(utils.get_attr(d)))+')';});
+                    fusion.filter(function(d) {
+                        return d.mutation === undefined || !/fusion($|,)/i.test(d.mutation.toLowerCase());
+                    }).remove();
+
                     var mut = enter.append('rect')
                         .attr('fill', 'green')
                         .attr('height', dims.mut_height)
@@ -231,19 +238,24 @@ define("Oncoprint",
                         .attr('y', function(d) {
                             return dims.mut_height + vertical_pos(utils.get_attr(d)); });
                     mut.filter(function(d) {
-                        return d.mutation === undefined;
+                        if (d.mutation === undefined) return true;
+                        var aas = d.mutation.split(","); // e.g. A32G,fusion
+                        for (var i=0, n=aas.length; i<n; i++) {
+                            if (!/fusion$/i.test(aas[i])) return false;
+                        }
+                        return true;
                     }).remove();
-
-                    var sym = d3.svg.symbol().size(dims.rect_width * 2);
+                    
+                    var sym = d3.svg.symbol().size(dims.rect_width * 3);
                     var rppa = enter.append('path')
                         .attr('d', sym.type(function(d) {
-                            return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down" }))
+                            return d.rppa === "UPREGULATED" ? "triangle-up" : "triangle-down"; }))
                         .attr('transform', function(d) {
                             // put the triangle in the right spot: at the top if
                             // UNREGULATED, at the bottom otherwise
                             var dy = dims.rect_height;
-                            dy = d.rppa === "UPREGULATED" ? dy / 1.1 : dy * .1;
-                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); })
+                            dy = d.rppa === "UPREGULATED" ? dy * 0.1 : dy / 1.1;
+                            return translate(dims.rect_width / 2, dy + vertical_pos(utils.get_attr(d))); });
                         rppa.filter(function(d) {
                             return d.rppa === undefined;
                         }).remove();

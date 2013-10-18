@@ -451,9 +451,11 @@
                                 var end = mutations.getValue(source[0], "end");
                                 var ret = [];
                                 for (var i=0, n=samples.length; i<n; i++) {
-                                    ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
-                                        +'=prad_su2c&case_id='+samples[i]+'&locus=chr'+chr+'%3A'+start+'-'+end+'">'
-                                        +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>')
+                                    if (mapCaseBam[samples[i]]) {
+                                        ret.push('<a class="igv-link" alt="igvlinking.json?cancer_study_id'
+                                                +'=prad_su2c&case_id='+samples[i]+'&locus=chr'+chr+'%3A'+start+'-'+end+'">'
+                                                +'<span style="background-color:#88C;color:white">&nbsp;IGV&nbsp;</span></a>');
+                                    }
                                 }
                                 return ret.join("&nbsp;");
                             }

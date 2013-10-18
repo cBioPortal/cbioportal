@@ -180,7 +180,7 @@ public class MutationsJSON extends HttpServlet {
         for (ExtendedMutation mutation : mutations) {
             exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,
                     drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
-                    keywordContextMap.get(mutation.getKeyword()),
+                    mutation.getKeyword()==null?1:keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
                     mrnaContext.get(mutation.getEntrezGeneId()),
                     daoGeneOptimized);

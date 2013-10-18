@@ -1079,14 +1079,22 @@
 
 			var expandButton = self.$el.find(".expand-collapse-pdb-panel");
 
-			expandButton.button({
-				icons: {primary: "ui-icon-triangle-2-n-s"},
-				text: false});
-			expandButton.css({width: "300px", height: "12px"});
+			// hide expand button if there is no more chain to show
+			if (!self.pdbPanel.hasMoreChains())
+			{
+				expandButton.hide();
+			}
+			else
+			{
+				expandButton.button({
+					icons: {primary: "ui-icon-triangle-2-n-s"},
+					text: false});
+				expandButton.css({width: "300px", height: "12px"});
 
-			expandButton.click(function() {
-				self.pdbPanel.toggleHeight();
-			});
+				expandButton.click(function() {
+					self.pdbPanel.toggleHeight();
+				});
+			}
 		},
 		hideView: function()
 		{
@@ -1140,7 +1148,7 @@
 				// add event listeners for chain selection
 				if (vis != null)
 				{
-					panel.addListener("rect", "click", function(datum, index) {
+					panel.addListener(".pdb-chain-group", "click", function(datum, index) {
 						vis.updateView(gene, datum.pdbId, datum.chain);
 					});
 				}

@@ -844,12 +844,12 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
-                    .tickSize(0)
+                    .tickSize(6, 0, 0)
                     .tickPadding([8]);
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
                     .orient("left")
-                    .tickSize(0)
+                    .tickSize(6, 0, 0)
                     .tickPadding([8]);
             }
 
@@ -930,7 +930,7 @@ var PlotsView = (function () {
                 xAxis = d3.svg.axis()
                     .scale(attr.xScale)
                     .orient("bottom")
-                    .tickSize(0)
+                    .tickSize(6, 0, 0)
                     .tickPadding([8]);
             }
 
@@ -945,7 +945,7 @@ var PlotsView = (function () {
                 yAxis = d3.svg.axis()
                     .scale(attr.yScale)
                     .orient("left")
-                    .tickSize(0)
+                    .tickSize(6, 0, 0)
                     .tickPadding([8]);
             }
 
@@ -1089,7 +1089,7 @@ var PlotsView = (function () {
                         xAxis = d3.svg.axis()
                             .scale(attr.xScale)
                             .orient("bottom")
-                            .tickSize(0)
+                            .tickSize(6, 0, 0)
                             .tickPadding([8]);
                         var axisTitleGroup = elem.svg.append("svg:g")
                             .attr("class", "axis");
@@ -1119,7 +1119,7 @@ var PlotsView = (function () {
                         yAxis = d3.svg.axis()
                             .scale(attr.yScale)
                             .orient("left")
-                            .tickSize(0)
+                            .tickSize(6, 0, 0)
                             .tickPadding([8]);
                         var axisTitleGroup = elem.svg.append("svg:g")
                             .attr("class", "axis");

@@ -472,7 +472,7 @@ var PlotsTwoGenesView = (function(){
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
-            .tickSize(0)
+            .tickSize(6, 0, 0)
             .tickPadding([8]);
     }
 
@@ -500,7 +500,7 @@ var PlotsTwoGenesView = (function(){
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
             .orient("left")
-            .tickSize(0)
+            .tickSize(6, 0, 0)
             .tickPadding([8]);
     }
 

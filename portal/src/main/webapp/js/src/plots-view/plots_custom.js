@@ -260,10 +260,12 @@ var PlotsCustomMenu = (function(){
         updateX: function(){
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             updateXselection();
+            updateLogScaleCheckBoxX();
         },
         updateY: function(){
             fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             updateYselection();
+            updateLogScaleCheckBoxY();
         },
         updateLogScaleCheckBoxX: updateLogScaleCheckBoxX,
         updateLogScaleCheckBoxY: updateLogScaleCheckBoxY
@@ -344,6 +346,7 @@ var PlotsCustomView = (function() {
         }
         return true;
     }
+
     function pDataInit(result) {
         var tmp_singleDot = {
             case_id : "",
@@ -555,7 +558,7 @@ var PlotsCustomView = (function() {
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
-            .tickSize(0)
+            .tickSize(6, 0, 0)
             .tickPadding([8]);
     }
 
@@ -583,7 +586,7 @@ var PlotsCustomView = (function() {
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
             .orient("left")
-            .tickSize(0)
+            .tickSize(6, 0, 0)
             .tickPadding([8]);
     }
 

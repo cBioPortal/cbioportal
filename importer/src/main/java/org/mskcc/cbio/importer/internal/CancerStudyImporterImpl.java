@@ -59,6 +59,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
     private static final String CASE_LIST_PREFIX = "cases_";
     private static final String CANCER_STUDY_FILENAME = "meta_study.txt";
     private static final String CANCER_TYPE_FILENAME = "cancer_type.txt";
+    private static final int NUM_FIELDS_CANCER_TYPE_RECORD = 5;
 	private static final Log LOG = LogFactory.getLog(CancerStudyImporterImpl.class);
 
     private static enum MetadataProperties
@@ -371,7 +372,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         File cancerTypeFile = FileUtils.getFile(cancerStudyDirectoryName, CANCER_TYPE_FILENAME);
         if (cancerTypeFile.exists()) {
             String[] cancerTypeRecord = getCancerTypeRecord(cancerTypeFile);
-            if (cancerTypeRecord == null || cancerTypeRecord.length != 3) {
+            if (cancerTypeRecord == null || cancerTypeRecord.length != NUM_FIELDS_CANCER_TYPE_RECORD) {
                 logMessage("Missing or corrupt record in " + CANCER_TYPE_FILENAME + ": " +
                            cancerTypeFile.getCanonicalPath());
                 status = setStatus(status, false);

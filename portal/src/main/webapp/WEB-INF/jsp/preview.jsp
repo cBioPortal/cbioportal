@@ -1,6 +1,15 @@
 <div class="ppy" id="ppy2">
     <ul class="ppy-imglist">
         <li>
+            <a href="images/previews/cross_cancer.png">
+                <img src="images/previews/thumb_cross_cancer.png" alt="" />
+            </a>
+            <span class="ppy-extcaption">
+                <strong>Cross cancer query of CDKN2A.</strong>
+                <br /><br />Frequencies of alterations (including mutations and copy number alterations) of CDKN2A across cancer studies are plotted in an interactive histogram.
+            </span>
+        </li>
+        <li>
             <a href="images/previews/patient_view.png">
                 <img src="images/previews/thumb_patient_view.png" alt="" />
             </a>
@@ -78,7 +87,7 @@
         </li>
     </ul>
     <div class="ppy-outer">
-        <div class="ppy-stage">
+        <div class="ppy-stage" style="background-color: white">
             <div class="ppy-counter">
                 <strong class="ppy-current"></strong> / <strong class="ppy-total"></strong>
             </div>

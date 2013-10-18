@@ -1,3 +1,10 @@
+# October 18, 2013
+ 
+* Improved interface for survival plots, including information on individual samples via mouse-over
+* Fusion glyphs in OncoPrints [Example](index.do?cancer_study_id=blca_tcga&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=blca_tcga_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=blca_tcga_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=blca_tcga_sequenced&case_ids=&gene_set_choice=user-defined-list&gene_list=ERBB2%0D%0A%0D%0A%0D%0A&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit)
+* Improved result page for cross cancer query including frequency histogram (example below - query gene: CDKN2A) and mutation diagram
+<center>![Cross Cancer Query](images/previews/cross_cancer.png)</center>
+
 # September 5, 2013:
 
 * [New standalone oncoprint tool](tools.jsp)

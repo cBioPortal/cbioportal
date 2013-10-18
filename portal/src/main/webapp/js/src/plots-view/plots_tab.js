@@ -250,8 +250,10 @@ var PlotsMenu = (function () {
 
     function updateLogScaleOption() {
         $("#log_scale_option_x").attr("disabled", true);
+        $("#log_scale_option_x").attr("checked", false);
         $("#one_gene_apply_log_scale_div_x").attr("style", "color: #D8D8D8");
         $("#log_scale_option_y").attr("disabled", true);
+        $("#log_scale_option_y").attr("checked", false);
         $("#one_gene_apply_log_scale_div_y").attr("style", "color: #D8D8D8");
         //Dynamically show only the plots type related drop div
         var currentPlotsType = $('#plots_type').val();
@@ -1099,7 +1101,6 @@ var PlotsView = (function () {
                             .attr("class", "axis");
                         addXaxisTitle(axisTitleGroup, xTitle);
                         addxAxisHelp(axisTitleGroup, xTitle);
-
                     }
                     drawContinuousAxisMainX();
                 },

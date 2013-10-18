@@ -814,7 +814,7 @@ var PlotsTwoGenesView = (function(){
                     d3.select(this).attr("y_pos", _post_y);
                     return "translate(" + _post_x + ", " + _post_y + ")";
                 }
-            })
+            });
     }
 
     function drawLegends() {

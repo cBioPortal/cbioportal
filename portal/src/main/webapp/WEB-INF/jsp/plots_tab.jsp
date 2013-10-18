@@ -157,11 +157,11 @@
                         <div id='custom_genes_view_options'>
                             <h5>Options</h5>
                             <div id='custom_genes_apply_log_scale_div_x'>
-                                <input type='checkbox' id='custom_genes_log_scale_option_x' unchecked onchange='' />
+                                <input type='checkbox' id='custom_genes_log_scale_option_x' unchecked onchange='PlotsCustomView.updateLogScaleX();' />
                                 apply log scale - x axis
                             </div>
                             <div id='custom_genes_apply_log_scale_div_y'>
-                                <input type='checkbox' id='custom_genes_log_scale_option_y' unchecked onchange='' />
+                                <input type='checkbox' id='custom_genes_log_scale_option_y' unchecked onchange='PlotsCustomView.updateLogScaleY();' />
                                 apply log scale - y axis
                             </div>
                             <div id='custom_genes_show_mutation_div'>

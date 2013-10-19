@@ -1314,18 +1314,22 @@ var PlotsView = (function () {
                             $(this).attr("y_pos", _y);
                             $(this).attr("xVal", d.xVal);
                             $(this).attr("yVal", d.yVal);
+                            $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
                         .attr("d", d3.svg.symbol()
                             .size(20)
                             .type(function(d){
+                                $(this).attr("symbol", mutationStyle[d.mutationType].symbol);
                                 return mutationStyle[d.mutationType].symbol;
                             })
                         )
                         .attr("fill", function(d){
+                            $(this).attr("fill", mutationStyle[d.mutationType].fill);
                             return mutationStyle[d.mutationType].fill;
                         })
                         .attr("stroke", function(d){
+                            $(this).attr("stroke", mutationStyle[d.mutationType].stroke);
                             return mutationStyle[d.mutationType].stroke;
                         })
                         .attr("stroke-width", 1.2);
@@ -1482,6 +1486,8 @@ var PlotsView = (function () {
                         $(this).attr("y_pos", _y);
                         $(this).attr("xVal", d.xVal);
                         $(this).attr("yVal", d.yVal);
+                        $(this).attr("symbol", "circle");
+                        $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1491,9 +1497,11 @@ var PlotsView = (function () {
                         })
                     )
                     .attr("fill", function(d){
+                        $(this).attr("fill", mutationStyle[d.mutationType].fill);
                         return mutationStyle[d.mutationType].fill;
                     })
                     .attr("stroke", function(d){
+                        $(this).attr("stroke", mutationStyle[d.mutationType].stroke);
                         return mutationStyle[d.mutationType].stroke;
                     })
                     .attr("stroke-width", 1.2)
@@ -1512,6 +1520,8 @@ var PlotsView = (function () {
                         $(this).attr("y_pos", _y);
                         $(this).attr("xVal", d.xVal);
                         $(this).attr("yVal", d.yVal);
+                        $(this).attr("symbol", "circle");
+                        $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1519,8 +1529,8 @@ var PlotsView = (function () {
                         .type("circle"))
                     .attr("fill", function(d) {
                         switch (d.mutationType) {
-                            case "non" : return "white";
-                            default: return "orange";
+                            case "non" : {$(this).attr("fill", "white");return "white";}
+                            default: {$(this).attr("fill", "orange");return "orange";}
                         }
                     })
                     .attr("fill-opacity", function(d) {

@@ -46,7 +46,7 @@
     }
     #plots .plots.plots-menus {
         width: 320px;
-        height: 645px;
+        height: 685px;
     }
     #plots .plots.plots-view {
         padding: 40px;
@@ -72,10 +72,6 @@
     }
     #plots .ui-tabs .ui-state-disabled {
         display: none; /* disabled tabs don't show up */
-    }
-    #plots .search-box {
-        width: 323px;
-        height: 36px;
     }
 </style>
 
@@ -112,6 +108,10 @@
                                 apply log scale - y axis
                             </div>
                         </div>
+                        <div id="inner-search-box-one-gene">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_one_gene" placeholder="Case ID..." onkeyup="Plots.searchPlots('one_gene');">
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
@@ -138,6 +138,10 @@
                                 <input type="checkbox" id="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
                                 show mutation data
                             </div>
+                        </div>
+                        <div id="inner-search-box-two-genes">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_two_genes" placeholder="Case ID..." onkeyup="Plots.searchPlots('two_genes');">
                         </div>
                     </div>
                     <div id="plots_custom">
@@ -173,15 +177,10 @@
                                 show mutation data
                             </div>
                         </div>
-                    </div>
-                </div>
-                <div id="inner-search-box" class="plots search-box">
-                    <div style="padding-left:20px; padding-top: 5px;">
-                        Search Case
-                        <input type="text" name="search_plots" id="search_plots" onkeyup="Plots.searchPlots();">
-                        <img src='images/help.png'
-                             class='profile_help' title='Type in whole/part of the ID of the case you are interested.
-                         The related case would be highlighted accordingly. To clear searching result, simply delete everything in the box.'>
+                        <div id="inner-search-box-custom">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_custom" placeholder="Case ID..." onkeyup="Plots.searchPlots('custom');">
+                        </div>
                     </div>
                 </div>
             </td>

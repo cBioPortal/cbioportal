@@ -85,19 +85,12 @@ var Plots = (function(){
 
     }
 
-    function addAxisHelp(svg, axisGroupSvg, xTitle, yTitle, xTitleClass, yTitleClass, xText, yText) {  //Append description for selected genetic profile
+    function addxAxisHelp(svg, axisGroupSvg, xTitle, xTitleClass, xText) {
         axisGroupSvg.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", xTitleClass)
             .attr("x", 350 + xTitle.length / 2 * 8)
             .attr("y", 567)
-            .attr("width", "16")
-            .attr("height", "16");
-        axisGroupSvg.append("svg:image")
-            .attr("xlink:href", "images/help.png")
-            .attr("class", yTitleClass)
-            .attr("x", 34)
-            .attr("y", 255 - yTitle.length / 2 * 8)
             .attr("width", "16")
             .attr("height", "16");
         svg.select("." + xTitleClass).each(
@@ -113,6 +106,16 @@ var Plots = (function(){
                 );
             }
         );
+    }
+
+    function addyAxisHelp(svg, axisGroupSvg, yTitle, yTitleClass, yText) {
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", yTitleClass)
+            .attr("x", 34)
+            .attr("y", 255 - yTitle.length / 2 * 8)
+            .attr("width", "16")
+            .attr("height", "16");
         svg.select("." + yTitleClass).each(
             function() {
                 $(this).qtip(
@@ -124,27 +127,6 @@ var Plots = (function(){
                         position: {my:'right bottom',at:'top left'}
                     }
                 );
-            }
-        );
-    }
-
-    function searchPlots() {
-        var searchToken = document.getElementById("search_plots").value;
-        d3.select("#plots_box").selectAll("path").each(
-            function() {
-                var _attr = $(this).attr("class");
-                if (typeof _attr !== 'undefined' && _attr !== false && _attr !== "domain") {
-                    if ( searchToken.length >= 1) {
-                        _d = $(this).attr("stroke-width");
-                        if ( $(this).attr("class").toUpperCase().indexOf(searchToken.toUpperCase()) !== -1) {
-                            $(this).attr("stroke-width", 15);
-                        } else {
-                            $(this).attr("stroke-width", 1.1);
-                        }
-                    } else {
-                        $(this).attr("stroke-width", 1.1);
-                    }
-                }
             }
         );
     }
@@ -180,8 +162,8 @@ var Plots = (function(){
             };
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
         },
-        addAxisHelp: addAxisHelp,
-        searchPlots: searchPlots
+        addxAxisHelp: addxAxisHelp,
+        addyAxisHelp: addyAxisHelp
     };
 
 }());    //Closing Plots
@@ -230,7 +212,6 @@ function loadPlotsSVG() {
 
     return xmlString;
 }
-
 
 
 

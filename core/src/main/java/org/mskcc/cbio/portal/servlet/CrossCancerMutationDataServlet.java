@@ -151,6 +151,9 @@ public class CrossCancerMutationDataServlet extends HttpServlet
                     ArrayList<String> caseList = new ArrayList<String>();
                     caseList.addAll(defaultCaseSet.getCaseList());
 
+                    if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
+                            continue;
+
                     /*
                     // keep track of which case ids we got information for
                     caseList.removeAll(lookedUpCases);
@@ -235,8 +238,14 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 			// profile id does not exist, just return an empty array
 			return mutationArray;
 		}
-                
-                Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
+
+        int cancerStudyId = geneticProfile.getCancerStudyId();
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
+        String typeOfCancer = typeOfCancerById.getName();
+        String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
+
+        Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
@@ -249,10 +258,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 			{
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
-				int cancerStudyId = geneticProfile.getCancerStudyId();
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-                String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
-                String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
 				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO a unique id for a mutation, entrez gene id, symbol all caps
@@ -271,7 +276,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
                 mutationData.put("cancerType", typeOfCancer);
                 mutationData.put("cancerStudy", cancerStudy.getName());
-                mutationData.put("cancerStudyShort", getShortName(cancerStudy));
+                mutationData.put("cancerStudyShort", getShortName(cancerStudy, typeOfCancerById));
                 mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
 				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
@@ -313,11 +318,10 @@ public class CrossCancerMutationDataServlet extends HttpServlet
 		return mutationArray;
 	}
 
-    private String getShortName(CancerStudy cancerStudy) throws DaoException {
+    private String getShortName(CancerStudy cancerStudy, TypeOfCancer typeOfCancerById) throws DaoException {
         String sName = cancerStudy.getCancerStudyStableId();
         String tumorType = cancerStudy.getTypeOfCancerId();
         sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
-        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
         sName = typeOfCancerById.getShortName() + " (" + sName + ")";
 
         return sName;

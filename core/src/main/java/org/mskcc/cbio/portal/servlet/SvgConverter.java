@@ -114,7 +114,7 @@ public class SvgConverter extends HttpServlet {
         } else if (format.equals("svg")) {
             String xmlHeader = "<?xml version='1.0'?>" +
                     "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'";
-            xml.replace("<svg ", xmlHeader);
+            xml = xml.replace("<svg", xmlHeader);
             convertToSVG(httpServletResponse, xml, filename);
         }
     }

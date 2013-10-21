@@ -121,7 +121,7 @@ public class CutInvalidCases {
         if (args.length < 2) {
             System.out.println("command line usage:  cutInvalidCases.pl " +
                     "<cases_excluded.txt> <data_file.txt>");
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

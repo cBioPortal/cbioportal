@@ -49,7 +49,7 @@ public class ImportTypesOfCancers {
     public static void main(String[] args) throws IOException, DaoException {
         if (args.length != 1) {
             System.out.println("command line usage: importTypesOfCancer.pl <types_of_cancer.txt>");
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

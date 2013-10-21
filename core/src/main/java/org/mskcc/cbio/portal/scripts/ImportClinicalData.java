@@ -119,7 +119,7 @@ public class ImportClinicalData {
 
         if (args.length != 2) {
             System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id>");
-            System.exit(1);
+            return;
         }
 
 		try {

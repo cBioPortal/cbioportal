@@ -1056,9 +1056,10 @@
 						var defaultDatum = panel.getDefaultDatum();
 						var pdbId = defaultDatum.pdbId;
 						var chain = defaultDatum.chain;
+						var color = defaultDatum.color;
 
 						panel.showView();
-						vis.updateView(gene, pdbId, chain);
+						vis.updateView(gene, pdbId, chain, color);
 					}
 				};
 
@@ -1182,7 +1183,7 @@
 				if (vis != null)
 				{
 					panel.addListener(".pdb-chain-group", "click", function(datum, index) {
-						vis.updateView(gene, datum.pdbId, datum.chain);
+						vis.updateView(gene, datum.pdbId, datum.chain, datum.color);
 					});
 				}
 			}
@@ -1287,8 +1288,9 @@
 		 * @param geneSymbol    hugo gene symbol
 		 * @param pdbId         pdb id
 		 * @param chain         PdbChainModel instance
+		 * @param color         color of the pdb id and chain text
 		 */
-		updateView: function(geneSymbol, pdbId, chain)
+		updateView: function(geneSymbol, pdbId, chain, color)
 		{
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
@@ -1300,8 +1302,8 @@
 
 				// update info
 				// TODO it might be better to do this with backbone's internal mvc listeners
-				self.$el.find(".mutation-3d-pdb-id").text(pdbId);
-				self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
+				self.$el.find(".mutation-3d-pdb-id").text(pdbId).css('color', color);
+				self.$el.find(".mutation-3d-chain-id").text(chain.chainId).css('color', color);
 
 				// reload the selected pdb and chain data
 				mut3dVis.show();

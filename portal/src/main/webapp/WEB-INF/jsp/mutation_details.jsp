@@ -12,6 +12,7 @@
 	<img src='images/ajax-loader.gif'/>
 </div>
 
+<!-- TODO this style is duplicated in crosscancer.css, we may want to remote this one -->
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css";
 	@import "css/data_table_ColVis.css";

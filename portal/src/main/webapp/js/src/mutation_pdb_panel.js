@@ -103,12 +103,13 @@ function MutationPdbPanel(options, data, xScale)
 			_.each(allocation, function(datum, idx) {
 				var chain = datum.chain;
 
-				// assign a different color to each chain
-				var color = options.colors[count % options.colors.length];
-
 				// create the rectangle group
 				if (chain.alignments.length > 0)
 				{
+					// assign a different color to each chain
+					var color = options.colors[count % options.colors.length];
+					datum.color = color;
+
 					var y = options.marginTop +
 					        rowIdx * (options.chainHeight + options.chainPadding);
 
@@ -119,11 +120,11 @@ function MutationPdbPanel(options, data, xScale)
 					var addTooltip = options.chainTipFn;
 					addTooltip(gChain);
 
+					// increment chain counter
+					count++;
+
 					// TODO also add tooltip for specific rectangles in the group?
 				}
-
-				// increment chain counter
-				count++;
 			});
 		});
 	}

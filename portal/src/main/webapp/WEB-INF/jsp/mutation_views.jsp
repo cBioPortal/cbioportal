@@ -507,10 +507,6 @@
 	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
-        defaultOptions: {
-            showStats: false
-        },
-
 		render: function() {
 			var self = this;
 
@@ -534,10 +530,8 @@
 
 			if (self.model.mutationProxy.hasData())
 			{
-				self._initDefaultView(
-                        self.model.sampleArray,
-                        $.extend(this.defaultOptions, self.model.diagramOpts)
-                );
+				self._initDefaultView(self.model.sampleArray,
+                        self.model.diagramOpts);
 			}
 
 			// format after render

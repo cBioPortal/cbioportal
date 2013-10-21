@@ -82,6 +82,7 @@ public class ImportGeneData {
                 }
                 
                 if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
+                    line = buf.readLine();
                     continue; // ignore miRNA; process seperately
                 }
                 

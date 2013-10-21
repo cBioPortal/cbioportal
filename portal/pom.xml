@@ -110,7 +110,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${project.parent.basedir}/src/main/resources</directory>
+				  <directory>${property-file-dir}</directory>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>

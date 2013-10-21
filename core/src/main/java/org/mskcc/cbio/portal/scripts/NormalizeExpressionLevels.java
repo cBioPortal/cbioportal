@@ -472,6 +472,10 @@ public class NormalizeExpressionLevels{
    * Return the truncated version of a TCGA sample name
    */
    private static String truncatedSampleName(String name){
+       if (!name.startsWith("TCGA-")) {
+           return name;
+       }
+       
       String truncatedName = "";
       int dash = 0;
       for(int i=0;i<name.length();i++){

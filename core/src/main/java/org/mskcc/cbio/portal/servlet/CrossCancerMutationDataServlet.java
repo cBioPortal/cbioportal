@@ -1,42 +1,45 @@
-/** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
- **
- ** This library is free software; you can redistribute it and/or modify it
- ** under the terms of the GNU Lesser General Public License as published
- ** by the Free Software Foundation; either version 2.1 of the License, or
- ** any later version.
- **
- ** This library is distributed in the hope that it will be useful, but
- ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
- ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
- ** documentation provided hereunder is on an "as is" basis, and
- ** Memorial Sloan-Kettering Cancer Center
- ** has no obligations to provide maintenance, support,
- ** updates, enhancements or modifications.  In no event shall
- ** Memorial Sloan-Kettering Cancer Center
- ** be liable to any party for direct, indirect, special,
- ** incidental or consequential damages, including lost profits, arising
- ** out of the use of this software and its documentation, even if
- ** Memorial Sloan-Kettering Cancer Center
- ** has been advised of the possibility of such damage.  See
- ** the GNU Lesser General Public License for more details.
- **
- ** You should have received a copy of the GNU Lesser General Public License
- ** along with this library; if not, write to the Free Software Foundation,
- ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
- **/
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
 
 package org.mskcc.cbio.portal.servlet;
 
 import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
-import org.mskcc.cbio.portal.web_api.GetMutationData;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.*;
+import org.owasp.validator.html.PolicyException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -51,11 +54,34 @@ import java.util.*;
 /**
  * A servlet designed to return a JSON array of mutation objects.
  *
+ * @author Arman
  * @author Selcuk Onur Sumer
  */
-public class MutationDataServlet extends HttpServlet
+public class CrossCancerMutationDataServlet extends HttpServlet
 {
-	private static final Logger logger = Logger.getLogger(MutationDataServlet.class);
+	private static final Logger logger = Logger.getLogger(CrossCancerMutationDataServlet.class);
+    // class which process access control to cancer studies
+    private AccessControl accessControl;
+
+    private ServletXssUtil servletXssUtil;
+
+    /**
+     * Initializes the servlet.
+     *
+     * @throws ServletException Serlvet Init Error.
+     */
+    public void init() throws ServletException {
+        super.init();
+        ApplicationContext context =
+                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+        accessControl = (AccessControl)context.getBean("accessControl");
+
+        try {
+            servletXssUtil = ServletXssUtil.getInstance();
+        } catch (PolicyException e) {
+            throw new ServletException(e);
+        }
+    }
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
@@ -66,108 +92,91 @@ public class MutationDataServlet extends HttpServlet
 	protected void doPost(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException
 	{
-		// get request parameters
-		String geneticProfiles = request.getParameter("geneticProfiles");
-		String genes = request.getParameter("geneList");
+        response.setContentType("application/json");
+        PrintWriter writer = response.getWriter();
 
-		// parse single strings to create list of strings
-		ArrayList<String> geneticProfileList = this.parseValues(geneticProfiles);
-		ArrayList<String> targetGeneList = this.parseValues(genes);
+        // final array to be sent
+        JSONArray data = new JSONArray();
 
-		// final array to be sent
-		JSONArray data = new JSONArray();
+        // Get the gene list
+        String geneList = servletXssUtil.getCleanInput(request, "geneList");
 
-		try
-		{
-			// generate list by processing possible valid case list parameters
-			ArrayList<String> targetCaseList = this.getCaseList(request);
+        // Get the priority
+        Integer dataTypePriority;
+        try {
+            dataTypePriority
+                    = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+        } catch (NumberFormatException e) {
+            dataTypePriority = 0;
+        }
 
-			for (String profileId : geneticProfileList)
-			{
-				// add mutation data for each genetic profile
-				data.addAll(this.getMutationData(profileId,
-					targetGeneList,
-					targetCaseList));
-			}
-		}
-		catch (DaoException e)
-		{
-			e.printStackTrace();
-		}
+        try {
+            HashSet<String> lookedUpCases = new HashSet<String>();
 
-		response.setContentType("application/json");
-		PrintWriter out = response.getWriter();
+            //  Cancer All Cancer Studies
+            List<CancerStudy> cancerStudiesList = accessControl.getCancerStudies();
+            for (CancerStudy cancerStudy : cancerStudiesList) {
+                String cancerStudyId = cancerStudy.getCancerStudyStableId();
+                if(cancerStudyId.equalsIgnoreCase("all"))
+                    continue;
 
-		try
-		{
-			JSONValue.writeJSONString(data, out);
-		}
-		finally
-		{
-			out.close();
-		}
+                //  Get all Genetic Profiles Associated with this Cancer Study ID.
+                ArrayList<GeneticProfile> geneticProfileList = GetGeneticProfiles.getGeneticProfiles(cancerStudyId);
+
+                //  Get all Case Lists Associated with this Cancer Study ID.
+                ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
+
+                //  Get the default case set
+                AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList, dataTypePriority);
+                CaseList defaultCaseSet = annotatedCaseSets.getDefaultCaseList();
+
+                //  Get the default genomic profiles
+                CategorizedGeneticProfileSet categorizedGeneticProfileSet =
+                        new CategorizedGeneticProfileSet(geneticProfileList);
+                HashMap<String, GeneticProfile> defaultGeneticProfileSet = null;
+                switch (dataTypePriority) {
+                    case 2:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultCopyNumberMap();
+                        break;
+                    case 1:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationMap();
+                        break;
+                    case 0:
+                    default:
+                        defaultGeneticProfileSet = categorizedGeneticProfileSet.getDefaultMutationAndCopyNumberMap();
+                }
+
+                for (GeneticProfile profile : defaultGeneticProfileSet.values()) {
+                    ArrayList<String> targetGeneList = this.parseValues(geneList);
+                    ArrayList<String> caseList = new ArrayList<String>();
+                    caseList.addAll(defaultCaseSet.getCaseList());
+
+                    if(!profile.getGeneticAlterationType().equals(GeneticAlterationType.MUTATION_EXTENDED))
+                            continue;
+
+                    /*
+                    // keep track of which case ids we got information for
+                    caseList.removeAll(lookedUpCases);
+                    lookedUpCases.addAll(caseList);
+                    */
+
+                    // add mutation data for each genetic profile
+                    JSONArray mutationData
+                            = this.getMutationData(profile.getStableId(), targetGeneList, caseList);
+                    data.addAll(mutationData);
+                }
+            }
+
+            JSONValue.writeJSONString(data, writer);
+        } catch (DaoException e) {
+            throw new ServletException(e);
+        } catch (ProtocolException e) {
+            throw new ServletException(e);
+        } finally {
+            writer.close();
+        }
 	}
 
-	/**
-	 * Generates a case list by processing related request parameters,
-	 * which are caseList, caseSetId and caseIdsKey. If none of these
-	 * parameters are valid, then this method will return an empty list.
-	 *
-	 * @param request   servlet request containing parameters
-	 * @return          a list of cases
-	 * @throws DaoException
-	 */
-	protected ArrayList<String> getCaseList(HttpServletRequest request) throws DaoException
-	{
-		DaoCaseList daoCaseList = new DaoCaseList();
-
-		String caseListStr = request.getParameter("caseList");
-		String caseSetId = request.getParameter("caseSetId");
-		String caseIdsKey = request.getParameter("caseIdsKey");
-
-		ArrayList<String> caseList;
-
-		// first check if caseSetId param provided
-		if (caseSetId != null &&
-		    caseSetId.length() != 0 &&
-		    !caseSetId.equals("-1"))
-		{
-			caseList = new ArrayList<String>();
-
-			// fetch a case list for each case set id
-			// (this allows providing more than one caseSetId)
-			for (String id : this.parseValues(caseSetId))
-			{
-				CaseList list = daoCaseList.getCaseListByStableId(id);
-
-				if (list != null)
-				{
-					caseList.addAll(list.getCaseList());
-				}
-			}
-		}
-		// if there is no caseSetId, then check for caseIdsKey param
-		else if(caseIdsKey != null &&
-		        caseIdsKey.length() != 0)
-		{
-			caseList = new ArrayList<String>();
-
-			// fetch a case list for each case ids key
-			// (this allows providing more than one caseIdsKey)
-			for (String key : this.parseValues(caseIdsKey))
-			{
-				caseList.addAll(this.parseValues(
-					CaseSetUtil.getCaseIds(key)));
-			}
-		}
-		else
-		{
-			// plain list of cases provided, just parse the values
-			caseList = this.parseValues(caseListStr);
-		}
-
-		return caseList;
-	}
 
 	/**
 	 * Parses string values separated by white spaces or commas.
@@ -197,7 +206,6 @@ public class MutationDataServlet extends HttpServlet
 	 * @param targetGeneList    list of target genes
 	 * @param targetCaseList    list of target cases
 	 * @return                  JSONArray of mutations
-	 * @throws DaoException
 	 */
 	protected JSONArray getMutationData(String geneticProfileId,
 			ArrayList<String> targetGeneList,
@@ -230,8 +238,14 @@ public class MutationDataServlet extends HttpServlet
 			// profile id does not exist, just return an empty array
 			return mutationArray;
 		}
-                
-                Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
+
+        int cancerStudyId = geneticProfile.getCancerStudyId();
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId());
+        String typeOfCancer = typeOfCancerById.getName();
+        String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
+
+        Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
 		// TODO is it ok to pass all mutations (with different genes)?
 		Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
@@ -244,20 +258,17 @@ public class MutationDataServlet extends HttpServlet
 			{
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
-				int cancerStudyId = geneticProfile.getCancerStudyId();
-                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
-                String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
-                String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
 				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
-				// TODO entrez gene id, symbol all caps
+				// TODO a unique id for a mutation, entrez gene id, symbol all caps
 				//buf.append(canonicalGene.getEntrezGeneId()).append(TAB);
 				//buf.append(canonicalGene.getHugoGeneSymbolAllCaps()).append(TAB);
 
-				//mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
+				// mutationId is not a unique id wrt the whole DB,
+				// but it is unique wrt the returned data set
 				mutationData.put("mutationId", this.generateMutationId(mutation));
                 mutationData.put("mutationSid", this.generateMutationSid(mutation));
-				mutationData.put("keyword", mutation.getKeyword());
+                mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
@@ -265,9 +276,9 @@ public class MutationDataServlet extends HttpServlet
 				mutationData.put("linkToPatientView", linkToPatientView);
                 mutationData.put("cancerType", typeOfCancer);
                 mutationData.put("cancerStudy", cancerStudy.getName());
-                mutationData.put("cancerStudyShort", getShortName(cancerStudy));
+                mutationData.put("cancerStudyShort", getShortName(cancerStudy, typeOfCancerById));
                 mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
-                mutationData.put("proteinChange", mutation.getProteinChange());
+				mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
 				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
@@ -306,8 +317,17 @@ public class MutationDataServlet extends HttpServlet
 
 		return mutationArray;
 	}
-        
-        // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
+
+    private String getShortName(CancerStudy cancerStudy, TypeOfCancer typeOfCancerById) throws DaoException {
+        String sName = cancerStudy.getCancerStudyStableId();
+        String tumorType = cancerStudy.getTypeOfCancerId();
+        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
+        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
+
+        return sName;
+    }
+
+    // TODO this is a copy from MutationsJSON. We should combine this two servlet and frontend code.
         private List<List> convertCosmicDataToMatrix(Set<CosmicMutationFrequency> cosmic) {
             if (cosmic==null) {
                 return null;
@@ -321,17 +341,7 @@ public class MutationDataServlet extends HttpServlet
                 mat.add(l);
             }
             return mat;
-	}
-
-    private String getShortName(CancerStudy cancerStudy) throws DaoException {
-        String sName = cancerStudy.getCancerStudyStableId();
-        String tumorType = cancerStudy.getTypeOfCancerId();
-        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
-        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
-        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
-
-        return sName;
-    }
+        }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null
@@ -373,8 +383,19 @@ public class MutationDataServlet extends HttpServlet
 		return specialGeneData;
 	}
 
+    protected String generateMutationId(ExtendedMutation mutation)
+    {
+        // TODO use MD5 sum instead?
+        return "m" + Integer.toString(mutation.hashCode());
+    }
 
-	/**
+    protected String generateMutationSid(ExtendedMutation mutation)
+    {
+        return mutation.getGene() + mutation.getCaseId() + mutation.getEvent().getProteinChange();
+    }
+
+
+    /**
 	 * Returns the MSA (alignment) link for the given mutation.
 	 *
 	 * @param mutation  mutation instance
@@ -656,19 +677,7 @@ public class MutationDataServlet extends HttpServlet
 		return fisValue;
 	}
 
-	protected String generateMutationId(ExtendedMutation mutation)
-	{
-		// TODO use MD5 sum instead?
-		return "m" + Integer.toString(mutation.hashCode());
-	}
-
-    protected String generateMutationSid(ExtendedMutation mutation)
-    {
-        return mutation.getGene() + mutation.getCaseId() + mutation.getEvent().getProteinChange();
-    }
-
-
-    /**
+	/**
 	 * Creates a map of mutation counts for the given list of mutations.
 	 *
 	 * @param mutations     list of mutations
@@ -719,8 +728,8 @@ public class MutationDataServlet extends HttpServlet
 			if (IGVLinking.validBAMViewingArgs(cancerStudyStableId, mutation.getCaseId(), locus)) {
 				try {
 					link = GlobalProperties.getLinkToIGVForBAM(cancerStudyStableId,
-                                                               mutation.getCaseId(),
-                                                               URLEncoder.encode(locus,"US-ASCII"));
+													   mutation.getCaseId(),
+													   URLEncoder.encode(locus,"US-ASCII"));
 				}
 				catch (java.io.UnsupportedEncodingException e) {
 					logger.error("Could not encode IGVForBAMViewing link:  " + e.getMessage());

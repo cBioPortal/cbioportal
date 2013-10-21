@@ -1,3 +1,4 @@
+<%@ taglib prefix="sql_rt" uri="http://java.sun.com/jstl/sql_rt" %>
 <script type="text/template" id="default_mutation_details_template">
 	<div id='mutation_3d_container' class='mutation-3d-container'></div>
 	<div id='mutation_details_loader'>
@@ -159,13 +160,18 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_data_row_template">
-	<tr id='{{mutationId}}'>
-		<td>{{mutationId}}</td>
+	<tr id='{{mutationId}}' class="{{mutationSid}}">
+		<td>{{mutationId}}-{{mutationSid}}</td>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
 			</a>
 		</td>
+        <td>
+            <a href='{{cancerStudyLink}}' target='_blank'>
+                <b title="{{cancerStudy}}" alt="{{cancerStudy}}" class="cc-short-study-name">{{cancerStudyShort}}</b>
+            </a>
+        </td>
 		<td>
 			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
 				{{proteinChange}}
@@ -254,7 +260,8 @@
 <script type="text/template" id="mutation_details_table_header_row_template">
 	<th alt='Mutation ID' class='mutation-table-header'>Mutation ID</th>
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
-	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
+    <th alt='Cancer Study' class='mutation-table-header'>Cancer Study</th>
+    <th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
 	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
@@ -301,10 +308,31 @@
 </script>
 
 <script type="text/template" id="mutation_details_lollipop_tip_template">
-	<span class='diagram-lollipop-tip'>
-		<b>{{count}} {{mutationStr}}</b>
-		<br/>AA Change: {{label}}
-	</span>
+    <div>
+        <div class='diagram-lollipop-tip'>
+            <b>{{count}} {{mutationStr}}</b>
+            <br/>AA Change: {{label}}
+            <div class="lollipop-stats">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cancer Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="mutation_details_lollipop_tip_stats_template">
+    <tr>
+        <td>{{cancerType}}</td>
+        <td>{{count}}</td>
+    </tr>
 </script>
 
 <script type="text/template" id="mutation_details_region_tip_template">
@@ -479,6 +507,10 @@
 	 *          }
 	 */
 	var MutationDetailsView = Backbone.View.extend({
+        defaultOptions: {
+            showStats: false
+        },
+
 		render: function() {
 			var self = this;
 
@@ -502,8 +534,10 @@
 
 			if (self.model.mutationProxy.hasData())
 			{
-				self._initDefaultView(self.model.sampleArray,
-					self.model.diagramOpts);
+				self._initDefaultView(
+                        self.model.sampleArray,
+                        $.extend(this.defaultOptions, self.model.diagramOpts)
+                );
 			}
 
 			// format after render
@@ -795,10 +829,15 @@
 				// TODO sequenceData may be null for unknown genes...
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
-				// calculate somatic & germline mutation rates
-				var mutationCount = mutationUtil.countMutations(gene, cases);
-				// generate summary string for the calculated mutation count values
-				var summary = mutationUtil.generateSummary(mutationCount);
+
+                var summary = "";
+
+                if(cases.length > 0) {
+                    // calculate somatic & germline mutation rates
+                    var mutationCount = mutationUtil.countMutations(gene, cases);
+                    // generate summary string for the calculated mutation count values
+                    summary = mutationUtil.generateSummary(mutationCount);
+                }
 
 				// prepare data for mutation view
 				var model = {geneSymbol: gene,
@@ -1388,8 +1427,9 @@
 
 			for (var i = 0; i < mutations.length; i++)
 			{
-				var row = tableSelector.find("#" + mutations[i].mutationId);
-				row.addClass("mutation-table-highlight");
+				//var row = tableSelector.find("#" + mutations[i].mutationId);
+                var row = tableSelector.find("tr." + mutations[i].mutationSid);
+                row.addClass("mutation-table-highlight");
 			}
 		},
 		/**
@@ -1420,7 +1460,7 @@
 
 			for (var i = 0; i < mutations.length; i++)
 			{
-				ids.push(mutations[i].mutationId);
+				ids.push(mutations[i].mutationSid);
 			}
 
 			var regex = "(" + ids.join("|") + ")";
@@ -1572,10 +1612,15 @@
 			var vars = {};
 
 			vars.mutationId = mutation.mutationId;
-			vars.caseId = mutation.caseId;
+            vars.mutationSid = mutation.mutationSid;
+            vars.caseId = mutation.caseId;
 			vars.linkToPatientView = mutation.linkToPatientView;
+            vars.cancerType = mutation.cancerType;
+            vars.cancerStudy = mutation.cancerStudy;
+            vars.cancerStudyShort = mutation.cancerStudyShort;
+            vars.cancerStudyLink = mutation.cancerStudyLink;
 
-			var proteinChange = self._getProteinChange(mutation);
+            var proteinChange = self._getProteinChange(mutation);
 			vars.proteinChange = proteinChange.text;
 			vars.proteinChangeClass = proteinChange.style;
 			vars.proteinChangeTip = proteinChange.tip;
@@ -1977,21 +2022,67 @@
 		{
 			// implement if necessary...
 		},
-		compileTemplate: function()
+
+        showStats: false,
+        setShowStats: function(showStats) {
+            this.showStats = showStats;
+        },
+        getShowStats: function(showStats) {
+            return this.showStats;
+        },
+
+        compileTemplate: function()
 		{
-			var mutationStr = this.model.count > 1 ? "mutations" : "mutation";
+            var thatModel = this.model;
+            var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
 
 			// pass variables in using Underscore.js template
-			var variables = {count: this.model.count,
+			var variables = {count: thatModel.count,
 				mutationStr: mutationStr,
-				label: this.model.label};
+				label: thatModel.label
+            };
 
 			// compile the template using underscore
-			return _.template(
-					$("#mutation_details_lollipop_tip_template").html(),
-					variables);
+            var compiledEl = $(_.template( $("#mutation_details_lollipop_tip_template").html(), variables));
+
+            var statsEl = compiledEl.find(".lollipop-stats");
+            if(this.showStats)
+            {
+                (new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
+                statsEl.find("table").dataTable({
+                    "sDom": 't',
+                    "bJQueryUI": true,
+                    "bDestroy": true,
+                    "aaSorting": [[ 1, "desc" ]],
+                    "aoColumns": [
+                        { "bSortable": false },
+                        { "bSortable": false }
+                    ]
+                });
+            } else {
+                statsEl.hide();
+            }
+
+            return compiledEl.html();
 		}
 	});
+
+    /**
+    * This view will add new columns to the mutation stats table
+    * model: { cancerType: "", count: 0 }
+    */
+    var LollipopTipStatsView = Backbone.View.extend({
+        template: _.template($("#mutation_details_lollipop_tip_stats_template").html()),
+        render: function()
+        {
+            var template = this.template;
+            var thatEl = this.$el.find("table tbody");
+            _.each(this.model, function(statItem) {
+                thatEl.append(template(statItem));
+            });
+            return this;
+        }
+    });
 
 	/**
 	 * Tooltip view for the mutation diagram's region rectangles.

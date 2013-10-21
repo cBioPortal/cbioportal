@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**
  * To speed up CGDS data loading, bulk load from files using MySQL "LOAD DATA INFILE" functionality.
@@ -110,8 +111,8 @@ public class MySQLbulkLoader {
    private void openTempFile(String tableName) throws IOException {
 
       // TODO: create special directory for temp dbms load files; perhaps make OS portable
-      File tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File("/tmp" ) );
-      this.tempFileHandle = tempFileHandle;
+      String tmp = GlobalProperties.getTemporaryDir();
+      tempFileHandle = File.createTempFile( tableName, tempTableSuffix, new File(tmp) );
 
       // delete file when JVM exits
       tempFileHandle.deleteOnExit();

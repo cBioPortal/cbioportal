@@ -155,6 +155,11 @@ var Mutation3dVis = function(name, options)
 		}
 	}
 
+	function isVisible()
+	{
+		return !(_container.is(":hidden"));
+	}
+
 	/**
 	 * Reloads the protein view for the given PDB id
 	 * and the chain.
@@ -176,12 +181,12 @@ var Mutation3dVis = function(name, options)
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)
 		{
-			var pdbPos = chain.positionMap[mutationId];
-			var posStr = pdbPos.start;
+			var position = chain.positionMap[mutationId];
+			var posStr = position.start.pdbPos;
 
-			if (pdbPos.end > pdbPos.start)
+			if (position.end.pdbPos > position.start.pdbPos)
 			{
-				posStr += "-" + pdbPos.end;
+				posStr += "-" + position.end.pdbPos;
 			}
 
 			selection.push(posStr + ":" + chain.chainId);
@@ -191,8 +196,13 @@ var Mutation3dVis = function(name, options)
 		_selection = selection;
 		_chain = chain;
 
-		// select residues on the 3D viewer & highlight them
+		// if no positions to select, then select "none"
+		if (selection.length == 0)
+		{
+			selection.push("none");
+		}
 
+		// construct Jmol script string
 		var script = "select all;" + // select everything
 		             styleScripts[_style] + // show selected style view
 		             "color [" + _options.defaultColor + "] " + // set default color
@@ -200,8 +210,10 @@ var Mutation3dVis = function(name, options)
 		             "select :" + chain.chainId + ";" + // select the chain
 		             "color [" + _options.chainColor + "];" + // set chain color
 		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color red;"; // highlight selected area
+		             "color red;" + // highlight selected area
+		             "spin " + _spin; // set spin
 
+		// run script
 		Jmol.script(_applet, script);
 	}
 
@@ -209,6 +221,7 @@ var Mutation3dVis = function(name, options)
 	return {init: init,
 		show: show,
 		hide: hide,
+		isVisible: isVisible,
 		reload: reload,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,

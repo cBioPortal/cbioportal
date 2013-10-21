@@ -81,6 +81,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionFontSize: "12px",     // font size of the region text
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
+	showStats: false,           // show/hide mutation stats in the lollipop tooltip
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -135,20 +136,17 @@ MutationDiagram.prototype.defaultOpts = {
 	 *
 	 * @param element   target svg element (lollipop data point)
 	 * @param pileup    a pileup model instance
+     * @param showStats whether to show cancer type distribution in the tooltip
 	 */
-	lollipopTipFn: function (element, pileup) {
-		var mutationStr = pileup.count > 1 ? "mutations" : "mutation";
-
-		var model = {count: pileup.count,
-			label: pileup.label};
-
-		var tooltipView = new LollipopTipView({model: model});
+	lollipopTipFn: function (element, pileup, showStats) {
+		var tooltipView = new LollipopTipView({model: pileup});
+        tooltipView.setShowStats(showStats);
 		var content = tooltipView.compileTemplate();
 
 		var options = {content: {text: content},
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
-			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+			style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-ui-tooltip'},
 			position: {my:'bottom left', at:'top center'}};
 
 		$(element).qtip(options);
@@ -257,7 +255,22 @@ MutationDiagram.prototype.processData = function (mutationData)
 {
 	var self = this;
 
-	// helper function to generate a label by joining all unique
+    // remove redundant mutations by sid
+    var redMap = {};
+    var removeItems = [];
+    for (var i=0; i < mutationData.length; i++)
+    {
+        var aMutation = mutationData.at(i);
+        var exists = redMap[aMutation.mutationSid];
+        if(exists == null) {
+            redMap[aMutation.mutationSid] = true;
+        } else {
+            removeItems.push(aMutation);
+        }
+    }
+    mutationData.remove(removeItems);
+
+    // helper function to generate a label by joining all unique
 	// protein change information in the given array of mutations
 	var generateLabel = function(mutations)
 	{
@@ -321,8 +334,9 @@ MutationDiagram.prototype.processData = function (mutationData)
 		var proteinChange = mutation.proteinChange;
 
 		var location = proteinChange.match(/[0-9]+/);
+		var type = mutation.mutationType.trim().toLowerCase();
 
-		if (location != null)
+		if (location != null && type != "fusion")
 		{
 			if (mutations[location] == null)
 			{
@@ -344,6 +358,14 @@ MutationDiagram.prototype.processData = function (mutationData)
 		pileup.count = mutations[key].length;
 		pileup.location = parseInt(key);
 		pileup.label = generateLabel(mutations[key]);
+        // The following calculates dist of mutations by tumor type
+        pileup.stats = _.chain(mutations[key])
+            .groupBy(function(mut) { return mut.cancerType; })
+            .sortBy(function(stat) { return -stat.length; })
+            .reduce(function(seed, o) {
+                seed.push({ cancerType: o[0].cancerType, count: o.length });
+                return seed;
+            }, []).value();
 
 		pileupList.push(new Pileup(pileup));
 	}
@@ -868,7 +890,7 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	dataPoint.datum(pileup);
 
 	var addTooltip = options.lollipopTipFn;
-	addTooltip(dataPoint, pileup);
+	addTooltip(dataPoint, pileup, options.showStats);
 
 	var line = lines.append('line')
 		.attr('x1', x)

@@ -81,6 +81,11 @@ public class ImportGeneData {
                     aliases.addAll(Arrays.asList(strAliases.split("\\|")));
                 }
                 
+                if (geneSymbol.startsWith("MIR") && type.equalsIgnoreCase("miscRNA")) {
+                    line = buf.readLine();
+                    continue; // ignore miRNA; process seperately
+                }
+                
                 CanonicalGene gene = new CanonicalGene(entrezGeneId, geneSymbol,
                         aliases);
                 if (!cytoband.equals("-")) {

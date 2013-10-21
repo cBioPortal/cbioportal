@@ -15,13 +15,20 @@ function MutationPdbPanel(options, data, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
-		numChains: 5,       // max number of chains (rows) to be displayed initially
+		numRows: 5,         // max number of rows to be displayed initially
 		marginLeft: 40,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 0,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 2,    // padding between chain rectangles
+		labelY: false,      // informative label of the y-axis (false means "do not draw")
+		labelYFont: "sans-serif",   // font type of the y-axis label
+		labelYFontColor: "#2E3436", // font color of the y-axis label
+		labelYFontSize: "12px",     // font size of y-axis label
+		labelYFontWeight: "normal", // font weight of y-axis label
+		labelYPaddingRight: 15, // padding between y-axis and its label
+		labelYPaddingTop: 20, // padding between y-axis and its label
 		// TODO duplicate google colors, taken from OncoprintUtils.js
 		// ...use OncoprintUtils or move colors to a general util class after merging
 		colors: ["#3366cc","#dc3912","#ff9900","#109618",
@@ -32,20 +39,28 @@ function MutationPdbPanel(options, data, xScale)
 			"#b77322","#16d620","#b91383","#f4359e",
 			"#9c5935","#a9c413","#2a778d","#668d1c",
 			"#bea413","#0c5922","#743411"],
+		// opacity wrt segment type
+		opacity: {
+			"regular": 1.0,
+			"*": 0.4, // Gap
+			" ": 0.6,
+			"+": 0.8,
+			"-": 0.5
+		},
 		/**
 		 * Default chain tooltip function.
 		 *
 		 * @param element   target svg element (rectangle)
-		 * @param segment   a single segment on the chain
 		 */
-		chainTipFn: function (element, segment) {
+		chainTipFn: function (element) {
 			// TODO define a backbone view: PdbChainTipView
 			var datum = element.datum();
 
 			var tip = "<span class='pdb-chain-tip'>" +
 			          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
 			          "<b>Chain:</b> " + datum.chain.chainId +
-			          " (" + segment.start + " - " + segment.end + ")" +
+			          " (" + datum.chain.mergedAlignment.uniprotFrom +
+			          " - " + datum.chain.mergedAlignment.uniprotTo + ")" +
 			          "</span>";
 
 			var options = {content: {text: tip},
@@ -63,8 +78,8 @@ function MutationPdbPanel(options, data, xScale)
 	// reference to the main svg element
 	var _svg = null;
 
-	// total number of chains (for the given PDB data)
-	var _chainCount = calcChainCount(data);
+	// row data (allocation of chains wrt rows)
+	var _rowData = null;
 
 	// collapse indicator (initially true)
 	var _collapsed = true;
@@ -75,54 +90,217 @@ function MutationPdbPanel(options, data, xScale)
 	 *
 	 * @param svg       svg element (D3)
 	 * @param options   visual options object
-	 * @param data      PDB data (collection of PdbModel instances)
+	 * @param data      row data
 	 * @param xScale    scale function for the x-axis
 	 */
 	function drawPanel(svg, options, data, xScale)
 	{
-		// we need to count chains to calculate y value
+		// chain counter
 		var count = 0;
 
-		// TODO define a rule to rank (sort) chains
-		data.each(function(pdb, idx) {
-			// create rectangle(s) for each chain
-			pdb.chains.each(function(ele, idx) {
-				// chain datum
-				var datum = {pdbId: pdb.pdbId, chain: ele};
+		// add a rectangle group for each chain
+		_.each(data, function(allocation, rowIdx) {
+			_.each(allocation, function(datum, idx) {
+				var chain = datum.chain;
 
 				// assign a different color to each chain
 				var color = options.colors[count % options.colors.length];
 
-				// add a rectangle for each segment
-				_.each(ele.segments, function(ele, idx) {
-					var start = ele.start;
-					var end = ele.end;
-
-					var width = Math.abs(xScale(start) - xScale(end));
-					var height = options.chainHeight;
+				// create the rectangle group
+				if (chain.alignments.length > 0)
+				{
 					var y = options.marginTop +
-					        count * (options.chainHeight + options.chainPadding);
-					var x = xScale(start);
+					        rowIdx * (options.chainHeight + options.chainPadding);
 
-					var rect = svg.append('rect')
-						.attr('fill', color)
-						.attr('x', x)
-						.attr('y', y)
-						.attr('width', width)
-						.attr('height', height);
-
-					// bind chain data to the rectangle
-					rect.datum(datum);
+					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
+					gChain.datum(datum);
 
 					// add tooltip
 					var addTooltip = options.chainTipFn;
-					addTooltip(rect, ele);
-				});
+					addTooltip(gChain);
 
-				// increment counter
+					// TODO also add tooltip for specific rectangles in the group?
+				}
+
+				// increment chain counter
 				count++;
 			});
 		});
+	}
+
+	/**
+	 * Draws a group of rectangles for a specific chain.
+	 *
+	 * @param svg       svg element (D3)
+	 * @param chain     a PdbChainModel instance
+	 * @param color     rectangle color
+	 * @param options   visual options object
+	 * @param xScale    scale function for the x-axis
+	 * @param y         y coordinate of the rectangle group
+	 * @return {object} group for the chain (svg element)
+	 */
+	function drawChainRectangles(svg, chain, color, options, xScale, y)
+	{
+		var gChain = svg.append("g").attr("class", "pdb-chain-group");
+		var height = options.chainHeight;
+		var segmentor = new MergedAlignmentSegmentor(chain.mergedAlignment);
+
+		while (segmentor.hasNextSegment())
+		{
+			var segment = segmentor.getNextSegment();
+
+			var width = Math.abs(xScale(segment.start) - xScale(segment.end));
+
+			var x = xScale(segment.start);
+
+			var rect = gChain.append('rect')
+				.attr('fill', color)
+				.attr('opacity', options.opacity[segment.type])
+				.attr('x', x)
+				.attr('y', y)
+				.attr('width', width)
+				.attr('height', height);
+		}
+
+		return gChain;
+	}
+
+	/**
+	 * Draws the label of the y-axis.
+	 *
+	 * @param svg       svg to append the label element
+	 * @param options   general options object
+	 * @return {object} text label (svg element)
+	 */
+	function drawYAxisLabel(svg, options)
+	{
+		// TODO this needs to be tuned to fit
+
+		// set x, y of the label to the top left
+
+		var x = options.marginLeft -
+		        options.labelYPaddingRight;
+
+		var y =  options.marginTop +
+		         options.labelYPaddingTop;
+
+		// append label
+		var label = svg.append("text")
+			.attr("fill", options.labelYFontColor)
+			.attr("text-anchor", "middle")
+			.attr("x", x)
+			.attr("y", y)
+			.attr("class", "pdb-panel-y-axis-label")
+			.attr("transform", "rotate(270, " + x + "," + y +")")
+			.style("font-family", options.labelYFont)
+			.style("font-size", options.labelYFontSize)
+			.style("font-weight", options.labelYFontWeight)
+			.text(options.labelY);
+
+		return label;
+	}
+
+	/**
+	 * Create row data by allocating position for each chain.
+	 * A row may have multiple chains if there is no overlap
+	 * between chains.
+	 *
+	 * @param chainData an array of <pdb id, PdbChainModel> pairs
+	 * @return {Array}  a 2D array of chain allocation
+	 */
+	function allocateRows(chainData)
+	{
+		var rows = [];
+
+		_.each(chainData, function(datum, idx) {
+			var chain = datum.chain;
+
+			if (chain.alignments.length > 0)
+			{
+				var inserted = false;
+
+				// find the first available row for this chain
+				for (var i=0; i < rows.length; i++)
+				{
+					var row = rows[i];
+					var conflict = false;
+
+					// check for conflict for this row
+					for (var j=0; j < row.length; j++)
+					{
+						if (overlaps(chain, row[j].chain))
+						{
+							// set the flag, and break the loop
+							conflict = true;
+							break;
+						}
+					}
+
+					// if there is space available in this row,
+					// insert the chain into the current row
+					if (!conflict)
+					{
+						// insert the chain, set the flag, and break the loop
+						row.push(datum);
+						inserted = true;
+						break;
+					}
+				}
+
+				// if no there is no available space in any row,
+				// then insert the chain to the next row
+				if (!inserted)
+				{
+					var newAllocation = [];
+					newAllocation.push(datum);
+					rows.push(newAllocation);
+				}
+			}
+		});
+
+		return rows;
+	}
+
+	/**
+	 * Returns the chain datum (<pdb id, PdbChainModel> pair)
+	 * for the default chain.
+	 *
+	 * @return chain datum for the default chain.
+	 */
+	function getDefaultChainDatum()
+	{
+		var datum = null;
+
+		if (_rowData)
+		{
+			// TODO return the left most chain instead?
+			// ...i.e: min uniprotFrom in _rowData[0]
+			datum = _rowData[0][0];
+		}
+
+		return datum;
+	}
+
+	/**
+	 * Checks if the given two chain alignments (positions) overlaps
+	 * with each other.
+	 *
+	 * @param chain1    first chain
+	 * @param chain2    second chain
+	 * @return {boolean}    true if intersects, false if distinct
+	 */
+	function overlaps(chain1, chain2)
+	{
+		var overlap = true;
+
+		if (chain1.mergedAlignment.uniprotFrom >= chain2.mergedAlignment.uniprotTo ||
+		    chain2.mergedAlignment.uniprotFrom >= chain1.mergedAlignment.uniprotTo)
+		{
+			// no conflict
+			overlap = false;
+		}
+
+		return overlap;
 	}
 
 	/**
@@ -151,6 +329,7 @@ function MutationPdbPanel(options, data, xScale)
 	function calcHeight(elHeight)
 	{
 		var height = 0;
+		var rowCount = _rowData.length;
 
 		// if not auto, then just copy the value
 		if (elHeight != "auto")
@@ -160,7 +339,7 @@ function MutationPdbPanel(options, data, xScale)
 		else
 		{
 			height = _options.marginTop + _options.marginBottom +
-				_chainCount * (_options.chainHeight + _options.chainPadding);
+				rowCount * (_options.chainHeight + _options.chainPadding);
 		}
 
 		return height;
@@ -176,8 +355,9 @@ function MutationPdbPanel(options, data, xScale)
 	function calcCollapsedHeight(maxChain)
 	{
 		var height = 0;
+		var rowCount = _rowData.length;
 
-		if (maxChain < _chainCount)
+		if (maxChain < rowCount)
 		{
 			height = _options.marginTop +
 			         maxChain * (_options.chainHeight + _options.chainPadding);
@@ -214,18 +394,27 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function init()
 	{
+		// generate row data (one row may contain more than one chain)
+		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
+
 		// init svg container
 		var container = d3.select(_options.el);
 
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    calcCollapsedHeight(_options.numChains));
+		                    calcCollapsedHeight(_options.numRows));
 
 		_svg = svg;
 
 		// draw the panel
-		drawPanel(svg, _options, data, xScale);
+		drawPanel(svg, _options, _rowData, xScale);
+
+		// draw the labels
+		if (_options.labelY != false)
+		{
+			drawYAxisLabel(svg, _options);
+		}
 	}
 
 	/**
@@ -237,8 +426,6 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function addListener(selector, event, handler)
 	{
-		// TODO define string constants for selectors?
-
 		_svg.selectAll(selector).on(event, handler);
 	}
 
@@ -275,7 +462,7 @@ function MutationPdbPanel(options, data, xScale)
 	function collapsePanel()
 	{
 		// resize to collapsed height
-		var collapsedHeight = calcCollapsedHeight(_options.numChains);
+		var collapsedHeight = calcCollapsedHeight(_options.numRows);
 		_svg.transition().duration(1000).attr("height", collapsedHeight);
 		_collapsed = true;
 	}
@@ -306,11 +493,25 @@ function MutationPdbPanel(options, data, xScale)
 		}
 	}
 
+	/**
+	 * Checks if there are more chains (more rows) to show. This function
+	 * returns true if the number of total rows exceeds the initial number
+	 * of rows to be displayed (which is determined by numRows option).
+	 *
+	 * @return {boolean} true if there are more rows to show, false otherwise
+	 */
+	function hasMoreChains()
+	{
+		return (_rowData.length > _options.numRows);
+	}
+
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
+		getDefaultChainDatum: getDefaultChainDatum,
 		show: showPanel,
 		hide: hidePanel,
-		toggleHeight: toggleHeight};
+		toggleHeight: toggleHeight,
+		hasMoreChains: hasMoreChains};
 }
 

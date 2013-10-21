@@ -7,11 +7,16 @@
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
+        this.mutationSid = attributes.mutationSid;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
+        this.cancerType = attributes.cancerType;
+        this.cancerStudy = attributes.cancerStudy;
+        this.cancerStudyShort = attributes.cancerStudyShort;
+        this.cancerStudyLink = attributes.cancerStudyLink;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
@@ -78,14 +83,14 @@ var Pileup = Backbone.Model.extend({
 		this.count = attributes.count; // number of mutations at this data point
 		this.location = attributes.location; // the location of the mutations
 		this.label = attributes.label; // text label for this data point
+        this.stats = attributes.stats;
 	}
 });
 
 /**
  * PDB data model.
  *
- * Contains PDB id and a chain list (where each element in the list has
- * a chain id and a mapping for pdb positions to uniprot positions).
+ * Contains PDB id and a chain list.
  */
 var PdbModel = Backbone.Model.extend({
 	initialize: function(attributes) {
@@ -112,8 +117,114 @@ var PdbChainModel = Backbone.Model.extend({
 		this.chainId = attributes.chainId;
 		//  map of (uniprot position, pdb position) pairs
 		this.positionMap = attributes.positionMap;
-		// array of start position and end position pairs
-		this.segments = attributes.segments;
+		// collection of PdbAlignmentModel instances
+		this.alignments = new PdbAlignmentCollection(attributes.alignments);
+		// summary of all alignments (merged alignments)
+		// TODO define a model for merged alignments (PdbMergedAlignment) ?
+		this.mergedAlignment = this.mergeAlignments(attributes.alignments);
+	},
+	/**
+	 * Merge alignments in the given array.
+	 *
+	 * @param alignments    an array of PdbAlignmentModel instances
+	 */
+	mergeAlignments: function(alignments)
+	{
+		// TODO merge witohut assuming it is sorted (write a new algorithm)
+		return this.mergeSortedAlignments(alignments);
+	},
+	/**
+	 * Merge alignments in the given array, assuming that
+	 * they are sorted by uniprotFrom field.
+	 *
+	 * @param alignments    an array of PdbAlignmentModel instances
+	 */
+	mergeSortedAlignments: function(alignments)
+	{
+        var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1};
+		var mergedStr = "";
+		var end = -1;
+		var prev;
+
+		if (alignments.length > 0)
+		{
+			mergedStr += alignments[0].alignmentString;
+			end = alignments[0].uniprotTo;
+			prev = alignments[0];
+		}
+		else
+		{
+			return mergedAlignment;
+		}
+
+		_.each(alignments, function(alignment, idx) {
+			var distance = alignment.uniprotFrom - end - 1;
+
+			var str = alignment.alignmentString;
+
+			// check for overlapping uniprot positions...
+
+			// no overlap, and the next alignment starts exactly after the current merge
+			if (distance == 0)
+			{
+				// just concatenate two strings
+				mergedStr += str;
+			}
+			// no overlap, but there is a gap
+			else if (distance > 0)
+			{
+				// TODO put special chars for gaps, or create segments?
+
+				var gap = [];
+
+				// add gap characters (character count = distance)
+				for (var i=0; i<distance; i++)
+				{
+					gap.push(PdbDataUtil.ALIGNMENT_GAP);
+				}
+
+				// also add the actual string
+				gap.push(str);
+
+				mergedStr += gap.join("");
+
+			}
+			// overlapping
+			else
+			{
+				var overlap = [];
+				var subLength = Math.min(-1 * distance, str.length);
+
+				overlap.push(mergedStr.substr(mergedStr.length + distance, subLength));
+				overlap.push(str.substr(0, subLength));
+
+				if (overlap[0] != overlap[1])
+				{
+					console.log("[warning] alignment mismatch: " +
+					            prev.alignmentId + " & " + alignment.alignmentId);
+					console.log(overlap[0]);
+					console.log(overlap[1]);
+				}
+
+				// merge two strings
+				mergedStr += str.substr(-1 * distance);
+			}
+
+			// update the end position
+			end = Math.max(end, alignment.uniprotTo);
+
+			if (end == alignment.uniprotTo)
+			{
+				// keep reference to the previous alignment
+				prev = alignment;
+			}
+		});
+
+		mergedAlignment.uniprotFrom = alignments[0].uniprotFrom;
+		mergedAlignment.uniprotTo = mergedAlignment.uniprotFrom + mergedStr.length;
+		mergedAlignment.mergedString = mergedStr;
+
+		return mergedAlignment;
 	}
 });
 
@@ -122,6 +233,30 @@ var PdbChainModel = Backbone.Model.extend({
  */
 var PdbChainCollection = Backbone.Collection.extend({
 	model: PdbChainModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+var PdbAlignmentModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		this.alignmentId = attributes.alignmentId;
+		this.pdbId = attributes.pdbId;
+		this.chain = attributes.chain;
+		this.uniprotId = attributes.uniprotId;
+		this.pdbFrom = attributes.pdbFrom;
+		this.pdbTo = attributes.pdbTo;
+		this.uniprotFrom = attributes.uniprotFrom;
+		this.uniprotTo = attributes.uniprotTo;
+		this.alignmentString = attributes.alignmentString;
+	}
+});
+
+/**
+ * Collection of pdb alignment data (PdbAlignmentModel instances).
+ */
+var PdbAlignmentCollection = Backbone.Collection.extend({
+	model: PdbAlignmentModel,
 	initialize: function(options) {
 		// TODO add & set attributes if required
 	}
@@ -180,7 +315,7 @@ var MutationDetailsUtil = function(mutations)
 	this.getMutations = function()
 	{
 		return _mutations;
-	}
+	};
 
 	/**
 	 * Updates existing maps and collections by processing the given mutations.
@@ -221,47 +356,6 @@ var MutationDetailsUtil = function(mutations)
 		}
 
 		return positions;
-	};
-
-	/**
-	 * Processes the pdb data (received from the server) to map positions
-	 * to mutation ids.
-	 *
-	 * @param gene  hugo gene symbol
-	 * @param data  pdb data with a position map
-	 * @return {PdbCollection}   PdbModel instances representing the processed data
-	 */
-	this.processPdbData = function(gene, data)
-	{
-		var mutations = _mutationGeneMap[gene];
-		var pdbModel = null;
-		var pdbList = [];
-
-		_.each(data, function(pdb, idx) {
-			_.each(pdb.chains, function(ele, idx) {
-				var positionMap = {};
-
-				if (ele.positionMap != null)
-				{
-					// re-map mutation ids with positions by using the raw position map
-					for(var i=0; i < mutations.length; i++)
-					{
-						positionMap[mutations[i].mutationId] = {
-							start: ele.positionMap[mutations[i].proteinPosStart],
-							end: ele.positionMap[mutations[i].proteinPosEnd]};
-					}
-				}
-
-				// update position map
-				ele.positionMap = positionMap;
-			});
-
-			pdbModel = new PdbModel(pdb);
-			pdbList.push(pdbModel);
-		});
-
-		// return new pdb model
-		return new PdbCollection(pdbList);
 	};
 
 	/**
@@ -432,7 +526,36 @@ var MutationDetailsUtil = function(mutations)
 			numGermline: numGermline};
 	};
 
-	/**
+    /**
+     * Checks if there all mutations come from a single cancer study
+     *
+     * @param gene  hugo gene symbol
+     */
+    this.cancerStudyAllTheSame = function(gene)
+    {
+        var self = this;
+        gene = gene.toUpperCase();
+        if (_mutationGeneMap[gene] != undefined)
+        {
+            var mutations = _mutationGeneMap[gene];
+            var prevStudy = null;
+
+            for (var i=0; i < mutations.length; i++)
+            {
+                var cancerStudy = mutations[i].cancerStudy;
+                if(prevStudy == null) {
+                    prevStudy = cancerStudy;
+                } else if(prevStudy != cancerStudy) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+
+    /**
 	 * Checks if there is a germline mutation for the given gene.
 	 *
 	 * @param gene  hugo gene symbol
@@ -496,6 +619,192 @@ var MutationDetailsUtil = function(mutations)
 		this.processMutationData(mutations);
 	}
 };
+
+/**
+ * Utility class to create segments from a merged alignment.
+ * (See PdbChainModel.mergeAlignments function for details of merged alignments)
+ *
+ * @param mergedAlignment   merged alignment object (see PdbChainModel.mergedAlignment field)
+ * @constructor
+ */
+var MergedAlignmentSegmentor = function(mergedAlignment)
+{
+	var _mergedAlignment = mergedAlignment;
+
+	// start position (initially zero)
+	var _start = 0;
+
+	/**
+	 * Checks if there are more segments in this merged alignment.
+	 *
+	 * @return {boolean}
+	 */
+	function hasNextSegment()
+	{
+		return (_start < _mergedAlignment.mergedString.length);
+	}
+
+	/**
+	 * Extracts the next segment from the merged alignment string. Returns
+	 * the segment as an object with the actual segment string,
+	 * start (uniprot) position, and end (uniprot) position.
+	 *
+	 * @return {object} segment with string, start, and end info
+	 */
+	function getNextSegment()
+	{
+		var str = _mergedAlignment.mergedString;
+
+		var segment = {};
+		segment.start = _start + _mergedAlignment.uniprotFrom;
+		var symbol = str[_start];
+		var end = _start;
+
+		// for each special symbol block, a new segment is created
+		if (isSpecialSymbol(symbol))
+		{
+			segment.type = symbol;
+
+			while (str[end] == symbol &&
+			       end <= str.length)
+			{
+				end++;
+			}
+		}
+		else
+		{
+			segment.type = "regular";
+
+			while (!isSpecialSymbol(str[end]) &&
+			       end <= str.length)
+			{
+				end++;
+			}
+		}
+
+		segment.end = end + _mergedAlignment.uniprotFrom;
+		segment.str = str.substring(_start, end);
+
+		// update start for the next segment
+		_start = end;
+
+		return segment;
+	}
+
+	function isSpecialSymbol(symbol)
+	{
+		// TODO considering symbol other than GAP as special generates too many segments
+		return (symbol == PdbDataUtil.ALIGNMENT_GAP);
+//		return (symbol == PdbDataUtil.ALIGNMENT_GAP) ||
+//		       (symbol == PdbDataUtil.ALIGNMENT_MINUS) ||
+//		       (symbol == PdbDataUtil.ALIGNMENT_PLUS) ||
+//		       (symbol == PdbDataUtil.ALIGNMENT_SPACE);
+	}
+
+	return {
+		hasNextSegment: hasNextSegment,
+		getNextSegment: getNextSegment
+	};
+};
+
+/**
+ * Singleton utility class for PDB data related tasks.
+ */
+var PdbDataUtil = (function()
+{
+	/**
+	 * Processes the pdb data (received from the server) to create
+	 * a collection of PdbModel instances.
+	 *
+	 * @param data  pdb alignment data with a position map
+	 * @return {PdbCollection}   PdbModel instances representing the processed data
+	 */
+	function processPdbData(data)
+	{
+		var alignmentModel = null;
+		var pdbList = [];
+		var pdbMap = {};
+
+		_.each(data, function(alignment, idx) {
+			alignmentModel = new PdbAlignmentModel(alignment);
+
+			if (pdbMap[alignmentModel.pdbId] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId] = {};
+			}
+
+			if (pdbMap[alignmentModel.pdbId][alignmentModel.chain] == undefined)
+			{
+				pdbMap[alignmentModel.pdbId][alignmentModel.chain] = [];
+			}
+
+			pdbMap[alignmentModel.pdbId][alignmentModel.chain].push(alignmentModel);
+		});
+
+		// instantiate chain models
+		for (var pdbId in pdbMap)
+		{
+			var chains = [];
+
+			for (var chain in pdbMap[pdbId])
+			{
+				var chainModel = new PdbChainModel({chainId: chain,
+					alignments: pdbMap[pdbId][chain]});
+
+				chains.push(chainModel);
+			}
+
+			var pdbModel = new PdbModel({pdbId: pdbId,
+				chains: chains});
+
+			pdbList.push(pdbModel);
+		}
+
+		// return new pdb model
+		return new PdbCollection(pdbList);
+	}
+
+
+	/**
+	 * Creates an array of chain datum (a {pdbId, PdbChainModel} pair) which
+	 * is sorted ascending by the chain length (by the length of
+	 * the alignment summary string).
+	 *
+	 * @param pdbColl   a PdbCollection instance
+	 * @return {Array}  an array of sorted chain data
+	 */
+	function sortChainsDesc(pdbColl)
+	{
+		var chains = [];
+
+		// put all chains in a single array
+		pdbColl.each(function(pdb, idx) {
+			// create rectangle(s) for each chain
+			pdb.chains.each(function(chain, idx) {
+				var datum = {pdbId: pdb.pdbId, chain: chain};
+				chains.push(datum);
+			});
+		});
+
+		chains.sort(function(a, b) {
+			return (b.chain.mergedAlignment.mergedString.length -
+			        a.chain.mergedAlignment.mergedString.length);
+		});
+
+		return chains;
+	}
+
+	return {
+		// public constants
+		ALIGNMENT_GAP: "*",
+		ALIGNMENT_PLUS: "+",
+		ALIGNMENT_MINUS: "-",
+		ALIGNMENT_SPACE: " ",
+		// public functions
+		processPdbData: processPdbData,
+		getSortedChainData: sortChainsDesc
+	};
+})();
 
 /**
  * Singleton utility class for pileup related tasks.
@@ -629,6 +938,139 @@ var PileupUtil = (function()
 	};
 })();
 
+/**
+ * This class is designed to retrieve PDB data on demand.
+ *
+ * @param mutationUtil  an instance of MutationDetailsUtil class
+ */
+var PdbDataProxy = function(mutationUtil)
+{
+	// TODO get servlet name as a param?
+	var _servletName = "get3dPdb.json";
+
+	var _util = mutationUtil;
+
+	// cache for PDB data:
+	// map of <uniprot id, PdbCollection> pairs
+	var _pdbDataCache = {};
+
+	/**
+	 * Retrieves the position map for the given gene and chain.
+	 * Invokes the given callback function after retrieving the data.
+	 *
+	 * @param gene          hugo gene symbol
+	 * @param chain         a PdbChainModel instance
+	 * @param callbackFn    function to be invoked after data retrieval
+	 */
+	function getPositionMap(gene, chain, callbackFn)
+	{
+		// collection of alignments (PdbAlignmentCollection)
+		var alignments = chain.alignments;
+
+		// TODO use a proper cache instead of checking/reflecting a chain attribute?
+		// do not retrieve data if it is already there
+		if (chain.positionMap != undefined)
+		{
+			callbackFn(chain.positionMap);
+			return;
+		}
+
+		// get protein positions for current mutations
+		var positions = _util.getProteinPositions(gene);
+
+		// populate position data array
+		var positionData = [];
+
+		_.each(positions, function(ele, i) {
+			if (ele.start > -1)
+			{
+				positionData.push(ele.start);
+			}
+
+			if (ele.end > ele.start)
+			{
+				positionData.push(ele.end);
+			}
+		});
+
+		// populate alignment data array
+		var alignmentData = [];
+
+		alignments.each(function(ele, i) {
+			alignmentData.push(ele.alignmentId);
+		});
+
+		var processData = function(data) {
+			var positionMap = {};
+			var mutations = _util.getMutationGeneMap()[gene];
+
+			if (data.positionMap != null)
+			{
+				// re-map mutation ids with positions by using the raw position map
+				for(var i=0; i < mutations.length; i++)
+				{
+					var start = data.positionMap[mutations[i].proteinPosStart];
+					var end = data.positionMap[mutations[i].proteinPosEnd];
+
+					if (start != undefined &&
+					    end != undefined)
+					{
+						positionMap[mutations[i].mutationId] =
+							{start: start, end: end};
+					}
+				}
+			}
+
+			// call the callback function with the updated position map
+			callbackFn(positionMap);
+		};
+
+		// get pdb data for the current mutations
+		$.getJSON(_servletName,
+		          {positions: positionData.join(" "),
+			          alignments: alignmentData.join(" ")},
+		          processData);
+	}
+
+	/**
+	 * Retrieves the PDB data for the provided uniprot id. Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callbackFn    callback function to be invoked
+	 */
+	function getPdbData(uniprotId, callbackFn)
+	{
+		// retrieve data from the server if not cached
+		if (_pdbDataCache[uniprotId] == undefined)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+				var pdbColl = PdbDataUtil.processPdbData(data);
+				_pdbDataCache[uniprotId] = pdbColl;
+
+				// forward the processed data to the provided callback function
+				callbackFn(pdbColl);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+					{uniprotId: uniprotId},
+					processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callbackFn(_pdbDataCache[uniprotId]);
+		}
+	}
+
+	return {
+		getPdbData: getPdbData,
+		getPositionMap: getPositionMap
+	};
+};
 
 /**
  * This class is designed to retrieve mutation data on demand, but it can be also

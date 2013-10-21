@@ -1,3 +1,4 @@
+<%@ taglib prefix="sql_rt" uri="http://java.sun.com/jstl/sql_rt" %>
 <script type="text/template" id="default_mutation_details_template">
 	<div id='mutation_3d_container' class='mutation-3d-container'></div>
 	<div id='mutation_details_loader'>
@@ -90,12 +91,7 @@
 
 <script type="text/template" id="mutation_3d_view_template">
 	<button class='mutation-3d-vis'>
-		<table>
-			<tr>
-				<td><img alt="J" src='images/jmol.png'/></td>
-				<td><label>Visualize in Jmol</label></td>
-			</tr>
-		</table>
+		<label>Show in 3D &#187</label>
 	</button>
 </script>
 
@@ -104,7 +100,8 @@
 		<a class='mutation-3d-close'>X</a>
 		<label class='mutation-3d-info'>
 			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
-			and the chain <span class='mutation-3d-chain-id'></span>
+			and the chain <span class='mutation-3d-chain-id'></span><br>
+			Residues with red color indicate mutation.
 		</label>
 	</div>
 	<div id='mutation_3d_visualizer'></div>
@@ -163,13 +160,18 @@
 </script>
 
 <script type="text/template" id="mutation_details_table_data_row_template">
-	<tr id='{{mutationId}}'>
-		<td>{{mutationId}}</td>
+	<tr id='{{mutationId}}' class="{{mutationSid}}">
+		<td>{{mutationId}}-{{mutationSid}}</td>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
 				<b>{{caseId}}</b>
 			</a>
 		</td>
+        <td>
+            <a href='{{cancerStudyLink}}' target='_blank'>
+                <b title="{{cancerStudy}}" alt="{{cancerStudy}}" class="cc-short-study-name">{{cancerStudyShort}}</b>
+            </a>
+        </td>
 		<td>
 			<span class='{{proteinChangeClass}}' alt='{{proteinChangeTip}}'>
 				{{proteinChange}}
@@ -258,7 +260,8 @@
 <script type="text/template" id="mutation_details_table_header_row_template">
 	<th alt='Mutation ID' class='mutation-table-header'>Mutation ID</th>
 	<th alt='Case ID' class='mutation-table-header'>Case ID</th>
-	<th alt='Protein Change' class='mutation-table-header'>AA Change</th>
+    <th alt='Cancer Study' class='mutation-table-header'>Cancer Study</th>
+    <th alt='Protein Change' class='mutation-table-header'>AA Change</th>
 	<th alt='Mutation Type' class='mutation-table-header'>Type</th>
 	<th alt='Overlapping mutations in COSMIC' class='mutation-table-header'>COSMIC</th>
 	<th alt='Predicted Functional Impact Score (via Mutation Assessor) for missense mutations'
@@ -305,10 +308,31 @@
 </script>
 
 <script type="text/template" id="mutation_details_lollipop_tip_template">
-	<span class='diagram-lollipop-tip'>
-		<b>{{count}} {{mutationStr}}</b>
-		<br/>AA Change: {{label}}
-	</span>
+    <div>
+        <div class='diagram-lollipop-tip'>
+            <b>{{count}} {{mutationStr}}</b>
+            <br/>AA Change: {{label}}
+            <div class="lollipop-stats">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cancer Type</th>
+                            <th>Count</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/template" id="mutation_details_lollipop_tip_stats_template">
+    <tr>
+        <td>{{cancerType}}</td>
+        <td>{{count}}</td>
+    </tr>
 </script>
 
 <script type="text/template" id="mutation_details_region_tip_template">
@@ -507,7 +531,7 @@
 			if (self.model.mutationProxy.hasData())
 			{
 				self._initDefaultView(self.model.sampleArray,
-					self.model.diagramOpts);
+                        self.model.diagramOpts);
 			}
 
 			// format after render
@@ -540,7 +564,8 @@
 				var mutation3dVisView = new Mutation3dVisView(
 						{el: container3d,
 						parentEl: self.$el,
-						mut3dVis: self.options.mut3dVis});
+						mut3dVis: self.options.mut3dVis,
+						pdbProxy: self.pdbProxy});
 
 				mutation3dVisView.render();
 
@@ -606,9 +631,11 @@
 
 			var genes = self.model.mutationProxy.getGeneList();
 
+			self.pdbProxy = new PdbDataProxy(
+					self.model.mutationProxy.getMutationUtil());
+
 			// init view for the first gene only
 			self._initView(genes[0], cases, diagramOpts);
-			self.geneTabView[genes[0]] = true;
 
 			// init other views upon selecting the corresponding tab
 			self.$el.find("#mutation_details_content").bind('tabsselect', function(event, ui) {
@@ -617,8 +644,18 @@
 				// init view for the selected tab (if not initialized before)
 				if (self.geneTabView[gene] == undefined)
 				{
+					// init view (self.geneTabView mapping is updated within this function)
 					self._initView(gene, cases, diagramOpts);
-					self.geneTabView[gene] = true;
+				}
+				// check if 3D panel is visible
+				else if (self.mut3dVisView &&
+					self.mut3dVisView.isVisible())
+				{
+					// reset the 3d vis content for the current tab
+					if (self.geneTabView[gene].mut3dView)
+					{
+						self.geneTabView[gene].mut3dView.resetView();
+					}
 				}
 			});
 		},
@@ -781,15 +818,20 @@
 
 			// callback function to init view after retrieving
 			// sequence information.
-			var init = function(sequenceData, pdbData)
+			var init = function(sequenceData)
 			{
 				// TODO sequenceData may be null for unknown genes...
 				// get the first sequence from the response
 				var sequence = sequenceData[0];
-				// calculate somatic & germline mutation rates
-				var mutationCount = mutationUtil.countMutations(gene, cases);
-				// generate summary string for the calculated mutation count values
-				var summary = mutationUtil.generateSummary(mutationCount);
+
+                var summary = "";
+
+                if(cases.length > 0) {
+                    // calculate somatic & germline mutation rates
+                    var mutationCount = mutationUtil.countMutations(gene, cases);
+                    // generate summary string for the calculated mutation count values
+                    summary = mutationUtil.generateSummary(mutationCount);
+                }
 
 				// prepare data for mutation view
 				var model = {geneSymbol: gene,
@@ -806,8 +848,9 @@
 
 				mainView.render();
 
-				// update the reference after rendering the view
+				// update the references after rendering the view
 				mainMutationView = mainView;
+				self.geneTabView[gene].mainMutationView = mainView;
 
 				// draw mutation diagram
 				var diagram = self._drawMutationDiagram(
@@ -819,20 +862,27 @@
 					// init diagram toolbar
 					mainView.initToolbar(diagram, gene);
 
-					if (self.mut3dVisView &&
-						pdbData)
+					if (self.mut3dVisView)
 					{
-						// collection of pdb model instances
-						var pdbColl = mutationUtil.processPdbData(gene, pdbData);
-
 						// init the 3d view
 						var view3d = new Mutation3dView({
 							el: "#mutation_3d_" + gene,
-							model: {pdbColl: pdbColl, geneSymbol: gene},
+							model: {uniprotId: sequence.metadata.identifier,
+								geneSymbol: gene,
+								pdbProxy: self.pdbProxy},
 							mut3dVisView: self.mut3dVisView,
 							diagram: diagram});
 
 						view3d.render();
+
+						// update reference for future use
+						self.geneTabView[gene].mut3dView = view3d;
+
+						// also reset (init) the 3D view if the 3D panel is already active
+						if (self.mut3dVisView.isVisible())
+						{
+							view3d.resetView();
+						}
 					}
 				}
 				else
@@ -860,62 +910,24 @@
 				mainView.initResetFilterInfo(diagram, mutationTableView);
 			};
 
-			// Gets the pdb data from the server by using the uniprot identifier
-			// within the given sequence data, and then initializes the view
-			var getPdbData = function(sequenceData)
-			{
-				// TODO sequenceData may be null for unknown genes...
-				// get the first sequence from the response
-				var sequence = sequenceData[0];
-
-				// get protein positions for current mutations
-				var positions = mutationUtil.getProteinPositions(gene);
-
-				var positionData = [];
-
-				_.each(positions, function(ele, i) {
-					if (ele.start > -1)
-					{
-						positionData.push(ele.start);
-					}
-
-					if (ele.end > ele.start)
-					{
-						positionData.push(ele.end);
-					}
-				});
-
-				// get pdb data for the current mutations
-				$.getJSON("get3dPdb.json",
-					{uniprotId: sequence.metadata.identifier,
-					positions: positionData.join(" ")},
-					function(pdbData) {
-						// init view with the sequence and pdb data
-						init(sequenceData, pdbData);
-				});
-			};
-
 			// get mutation data for the current gene
 			self.model.mutationProxy.getMutationData(gene, function(data) {
+				// init reference mapping
+				self.geneTabView[gene] = {};
+
 				// update mutation data reference
 				mutationData = data;
 
-				// display a message if there is no mutation data available for
-				// this gene
+				// display a message if there is no mutation data available for this gene
 				if (mutationData == null ||
 				    mutationData.length == 0)
 				{
 					self.$el.find("#mutation_details_" + gene).html(
 						_.template($("#default_gene_mutation_details_info_template").html(), {}));
 				}
-				// get sequence data & pdb data for the current gene & init view
-				else if (self.options.mut3dVis)
-				{
-					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, getPdbData);
-				}
+				// get the sequence data for the current gene & init view
 				else
 				{
-					// if no 3D visualizer is available, just skip pdb data retrieval
 					$.getJSON("getPfamSequence.json", {geneSymbol: gene}, init);
 				}
 			});
@@ -972,7 +984,8 @@
 	 *
 	 * options: {el: [target container],
 	 *           model: {geneSymbol: hugo gene symbol,
-	 *                   pdbColl: collection of PdbModel instances},
+	 *                   uniprotId: uniprot identifier for this gene,
+	 *                   pdbProxy: pdb data proxy}
 	 *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
 	 *           diagram: [optional] reference to the MutationDiagram instance
 	 *          }
@@ -990,16 +1003,6 @@
 			// load the compiled HTML into the Backbone "el"
 			this.$el.html(template);
 
-			// init pdb panel view
-			var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-				model: self.model,
-				mut3dVisView: self.options.mut3dVisView,
-				diagram: self.options.diagram};
-
-			var pdbPanelView = new PdbPanelView(panelOpts);
-			pdbPanelView.render();
-			self.pdbPanelView = pdbPanelView;
-
 			// format after rendering
 			this.format();
 		},
@@ -1008,23 +1011,62 @@
 			var self = this;
 
 			// add click listener for the 3d visualizer initializer
-			self.$el.find(".mutation-3d-vis").click(function() {
+			self.$el.find(".mutation-3d-vis").click(self._getClickHandlerFn());
+		},
+		resetView: function()
+		{
+			var self = this;
+
+			// call the click handler function to reset the 3D view
+			var fn = self._getClickHandlerFn();
+			fn();
+		},
+		_getClickHandlerFn: function()
+		{
+			var self = this;
+
+			var handler = function() {
+				var gene = self.model.geneSymbol;
+				var uniprotId = self.model.uniprotId;
 				var vis = self.options.mut3dVisView;
 				var panel = self.pdbPanelView;
-				var pdbColl = self.model.pdbColl;
+				var pdbProxy = self.model.pdbProxy;
 
-				if (vis != null &&
-				    panel != null &&
-				    pdbColl.length > 0)
+				var initView = function(pdbColl)
 				{
-					// reload the visualizer content with the default pdb and chain
-					var pdbId = pdbColl.at(0).pdbId;
-					var chain = pdbColl.at(0).chains.at(0);
+					// init pdb panel view if not initialized yet
+					if (panel == undefined)
+					{
+						var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+							model: {geneSymbol: gene, pdbColl: pdbColl},
+							mut3dVisView: self.options.mut3dVisView,
+							diagram: self.options.diagram};
 
-					panel.showView();
-					vis.updateView(pdbId, chain);
-				}
-			});
+						var pdbPanelView = new PdbPanelView(panelOpts);
+						panel = self.pdbPanelView = pdbPanelView;
+
+						pdbPanelView.render();
+					}
+
+					if (vis != null &&
+					    panel != null &&
+					    pdbColl.length > 0)
+					{
+						// reload the visualizer content with the default pdb and chain
+						var defaultDatum = panel.getDefaultDatum();
+						var pdbId = defaultDatum.pdbId;
+						var chain = defaultDatum.chain;
+
+						panel.showView();
+						vis.updateView(gene, pdbId, chain);
+					}
+				};
+
+				// init view with the pdb data
+				pdbProxy.getPdbData(uniprotId, initView);
+			};
+
+			return handler;
 		}
 	});
 
@@ -1070,14 +1112,22 @@
 
 			var expandButton = self.$el.find(".expand-collapse-pdb-panel");
 
-			expandButton.button({
-				icons: {primary: "ui-icon-triangle-2-n-s"},
-				text: false});
-			expandButton.css({width: "300px", height: "12px"});
+			// hide expand button if there is no more chain to show
+			if (!self.pdbPanel.hasMoreChains())
+			{
+				expandButton.hide();
+			}
+			else
+			{
+				expandButton.button({
+					icons: {primary: "ui-icon-triangle-2-n-s"},
+					text: false});
+				expandButton.css({width: "300px", height: "12px"});
 
-			expandButton.click(function() {
-				self.pdbPanel.toggleHeight();
-			});
+				expandButton.click(function() {
+					self.pdbPanel.toggleHeight();
+				});
+			}
 		},
 		hideView: function()
 		{
@@ -1088,6 +1138,18 @@
 		{
 			var self = this;
 			self.$el.show();
+		},
+		getDefaultDatum: function()
+		{
+			var self = this;
+			var datum = null;
+
+			if (self.pdbPanel)
+			{
+				datum = self.pdbPanel.getDefaultChainDatum();
+			}
+
+			return datum;
 		},
 		/**
 		 * Initializes the PDB chain panel.
@@ -1119,8 +1181,8 @@
 				// add event listeners for chain selection
 				if (vis != null)
 				{
-					panel.addListener("rect", "click", function(datum, index) {
-						vis.updateView(datum.pdbId, datum.chain);
+					panel.addListener(".pdb-chain-group", "click", function(datum, index) {
+						vis.updateView(gene, datum.pdbId, datum.chain);
 					});
 				}
 			}
@@ -1135,8 +1197,6 @@
 	 *
 	 * options: {el: [target container],
 	 *           parentEl: [parent container],
-	 *           model: {geneSymbol: hugo gene symbol,
-	 *                   pdbColl: collection of PdbModel instances},
 	 *           mut3dVis: [optional] reference to the Mutation3dVis instance
 	 *          }
 	 */
@@ -1171,7 +1231,7 @@
 			}
 
 			// add click listener to the close icon of the 3d vis container
-			self.$el.find(".mutation-3d-close").click(function() {
+			var closeHandler = function() {
 				// hide the vis pane
 				if (mut3dVis != null)
 				{
@@ -1180,7 +1240,9 @@
 
 				// also hide all pdb panel views
 				self.options.parentEl.find(".mutation-pdb-panel-view").hide();
-			});
+			};
+
+			self.$el.find(".mutation-3d-close").click(closeHandler);
 
 			// format toolbar elements
 
@@ -1208,20 +1270,54 @@
 
 			});
 
+			// TODO this is an access to a global div out of this view's template...
+			$("#tabs").bind("tabsselect", function(event, ui){
+				// close the vis panel only if the selected tab is one of the main tabs
+				// (i.e.: do not close panel if a gene tab selected)
+				if (ui.tab.className != "mutation-details-tabs-ref")
+				{
+					closeHandler();
+				}
+			});
 		},
-		updateView: function(pdbId, chain)
+		/**
+		 * Updates the 3D visualizer content for the given gene,
+		 * pdb id, and chain.
+		 *
+		 * @param geneSymbol    hugo gene symbol
+		 * @param pdbId         pdb id
+		 * @param chain         PdbChainModel instance
+		 */
+		updateView: function(geneSymbol, pdbId, chain)
+		{
+			var self = this;
+			var mut3dVis = self.options.mut3dVis;
+			var pdbProxy = self.options.pdbProxy;
+
+			var callback = function(positionMap) {
+				// update position map of the chain
+				chain.positionMap = positionMap;
+
+				// update info
+				// TODO it might be better to do this with backbone's internal mvc listeners
+				self.$el.find(".mutation-3d-pdb-id").text(pdbId);
+				self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
+
+				// reload the selected pdb and chain data
+				mut3dVis.show();
+				mut3dVis.reload(pdbId, chain);
+			};
+
+			// update positionMap for the chain
+			// (retrieve data only once)
+			pdbProxy.getPositionMap(geneSymbol, chain, callback);
+		},
+		isVisible: function()
 		{
 			var self = this;
 			var mut3dVis = self.options.mut3dVis;
 
-			// reload the selected pdb and chain data
-			mut3dVis.show();
-			mut3dVis.reload(pdbId, chain);
-
-			// update info
-			// TODO it might be better to do this with backbone's internal mvc listeners
-			self.$el.find(".mutation-3d-pdb-id").text(pdbId);
-			self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
+			return mut3dVis.isVisible();
 		}
 	});
 
@@ -1325,8 +1421,9 @@
 
 			for (var i = 0; i < mutations.length; i++)
 			{
-				var row = tableSelector.find("#" + mutations[i].mutationId);
-				row.addClass("mutation-table-highlight");
+				//var row = tableSelector.find("#" + mutations[i].mutationId);
+                var row = tableSelector.find("tr." + mutations[i].mutationSid);
+                row.addClass("mutation-table-highlight");
 			}
 		},
 		/**
@@ -1357,7 +1454,7 @@
 
 			for (var i = 0; i < mutations.length; i++)
 			{
-				ids.push(mutations[i].mutationId);
+				ids.push(mutations[i].mutationSid);
 			}
 
 			var regex = "(" + ids.join("|") + ")";
@@ -1509,10 +1606,15 @@
 			var vars = {};
 
 			vars.mutationId = mutation.mutationId;
-			vars.caseId = mutation.caseId;
+            vars.mutationSid = mutation.mutationSid;
+            vars.caseId = mutation.caseId;
 			vars.linkToPatientView = mutation.linkToPatientView;
+            vars.cancerType = mutation.cancerType;
+            vars.cancerStudy = mutation.cancerStudy;
+            vars.cancerStudyShort = mutation.cancerStudyShort;
+            vars.cancerStudyLink = mutation.cancerStudyLink;
 
-			var proteinChange = self._getProteinChange(mutation);
+            var proteinChange = self._getProteinChange(mutation);
 			vars.proteinChange = proteinChange.text;
 			vars.proteinChangeClass = proteinChange.style;
 			vars.proteinChangeTip = proteinChange.tip;
@@ -1914,21 +2016,67 @@
 		{
 			// implement if necessary...
 		},
-		compileTemplate: function()
+
+        showStats: false,
+        setShowStats: function(showStats) {
+            this.showStats = showStats;
+        },
+        getShowStats: function(showStats) {
+            return this.showStats;
+        },
+
+        compileTemplate: function()
 		{
-			var mutationStr = this.model.count > 1 ? "mutations" : "mutation";
+            var thatModel = this.model;
+            var mutationStr = thatModel.count > 1 ? "mutations" : "mutation";
 
 			// pass variables in using Underscore.js template
-			var variables = {count: this.model.count,
+			var variables = {count: thatModel.count,
 				mutationStr: mutationStr,
-				label: this.model.label};
+				label: thatModel.label
+            };
 
 			// compile the template using underscore
-			return _.template(
-					$("#mutation_details_lollipop_tip_template").html(),
-					variables);
+            var compiledEl = $(_.template( $("#mutation_details_lollipop_tip_template").html(), variables));
+
+            var statsEl = compiledEl.find(".lollipop-stats");
+            if(this.showStats)
+            {
+                (new LollipopTipStatsView({ el: statsEl, model: thatModel.stats })).render();
+                statsEl.find("table").dataTable({
+                    "sDom": 't',
+                    "bJQueryUI": true,
+                    "bDestroy": true,
+                    "aaSorting": [[ 1, "desc" ]],
+                    "aoColumns": [
+                        { "bSortable": false },
+                        { "bSortable": false }
+                    ]
+                });
+            } else {
+                statsEl.hide();
+            }
+
+            return compiledEl.html();
 		}
 	});
+
+    /**
+    * This view will add new columns to the mutation stats table
+    * model: { cancerType: "", count: 0 }
+    */
+    var LollipopTipStatsView = Backbone.View.extend({
+        template: _.template($("#mutation_details_lollipop_tip_stats_template").html()),
+        render: function()
+        {
+            var template = this.template;
+            var thatEl = this.$el.find("table tbody");
+            _.each(this.model, function(statItem) {
+                thatEl.append(template(statItem));
+            });
+            return this;
+        }
+    });
 
 	/**
 	 * Tooltip view for the mutation diagram's region rectangles.

@@ -31,9 +31,7 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
-import org.mskcc.cbio.portal.model.CaseList;
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.maf.TabDelimitedFileUtil;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
@@ -49,7 +47,6 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.util.*;
-import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 
 /**
  * A servlet designed to return a JSON array of mutation objects.
@@ -248,8 +245,9 @@ public class MutationDataServlet extends HttpServlet
 				HashMap<String, Object> mutationData = new HashMap<String, Object>();
 
 				int cancerStudyId = geneticProfile.getCancerStudyId();
-				String cancerStudyStableId = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId)
-						.getCancerStudyStableId();
+                CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
+                String typeOfCancer = DaoTypeOfCancer.getTypeOfCancerById(cancerStudy.getTypeOfCancerId()).getName();
+                String cancerStudyStableId = cancerStudy.getCancerStudyStableId();
 				String linkToPatientView = GlobalProperties.getLinkToPatientView(mutation.getCaseId(), cancerStudyStableId);
 
 				// TODO entrez gene id, symbol all caps
@@ -258,13 +256,18 @@ public class MutationDataServlet extends HttpServlet
 
 				//mutationData.put("mutationId", mutation.getMutationEventId() + "_" + id);
 				mutationData.put("mutationId", this.generateMutationId(mutation));
+                mutationData.put("mutationSid", this.generateMutationSid(mutation));
 				mutationData.put("keyword", mutation.getKeyword());
 				mutationData.put("geneticProfileId", geneticProfile.getStableId());
 				mutationData.put("mutationEventId", mutation.getMutationEventId());
 				mutationData.put("geneSymbol", mutation.getGeneSymbol());
 				mutationData.put("caseId", mutation.getCaseId());
 				mutationData.put("linkToPatientView", linkToPatientView);
-				mutationData.put("proteinChange", mutation.getProteinChange());
+                mutationData.put("cancerType", typeOfCancer);
+                mutationData.put("cancerStudy", cancerStudy.getName());
+                mutationData.put("cancerStudyShort", getShortName(cancerStudy));
+                mutationData.put("cancerStudyLink", GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
+                mutationData.put("proteinChange", mutation.getProteinChange());
 				mutationData.put("mutationType", mutation.getMutationType());
 				mutationData.put("cosmic", convertCosmicDataToMatrix(cosmic.get(mutation.getMutationEventId())));
 				mutationData.put("functionalImpactScore", mutation.getFunctionalImpactScore());
@@ -319,6 +322,16 @@ public class MutationDataServlet extends HttpServlet
             }
             return mat;
 	}
+
+    private String getShortName(CancerStudy cancerStudy) throws DaoException {
+        String sName = cancerStudy.getCancerStudyStableId();
+        String tumorType = cancerStudy.getTypeOfCancerId();
+        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
+        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
+        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
+
+        return sName;
+    }
 
 	/**
 	 * Returns special gene data (if exists) for the given mutation. Returns null
@@ -649,7 +662,13 @@ public class MutationDataServlet extends HttpServlet
 		return "m" + Integer.toString(mutation.hashCode());
 	}
 
-	/**
+    protected String generateMutationSid(ExtendedMutation mutation)
+    {
+        return mutation.getGene() + mutation.getCaseId() + mutation.getEvent().getProteinChange();
+    }
+
+
+    /**
 	 * Creates a map of mutation counts for the given list of mutations.
 	 *
 	 * @param mutations     list of mutations

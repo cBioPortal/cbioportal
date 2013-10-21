@@ -40,6 +40,8 @@ import java.util.Set;
  * Class to wrap Entrez Gene ID, HUGO Gene Symbols,etc.
  */
 public class CanonicalGene extends Gene {
+    public static final String MIRNA_TYPE = "miRNA";
+    public static final String PHOSPHOPROTEIN_TYPE = "phosphoprotein";
     private long entrezGeneId;
     private String hugoGeneSymbol;
     private Set<String> aliases;
@@ -136,13 +138,11 @@ public class CanonicalGene extends Gene {
     }
     
     public boolean isMicroRNA() {
-        String hugo = getHugoGeneSymbolAllCaps();
-        return hugo.startsWith("MIR-") || hugo.startsWith("LET-");
+        return MIRNA_TYPE.equals(type);
     }
     
     public boolean isPhosphoProtein() {
-        String hugo = this.getHugoGeneSymbolAllCaps();
-        return hugo.matches(".+_P[STY][0-9]+");
+        return PHOSPHOPROTEIN_TYPE.equals(type);
     }
 
     @Override

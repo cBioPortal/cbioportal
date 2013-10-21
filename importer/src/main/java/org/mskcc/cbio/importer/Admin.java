@@ -575,7 +575,8 @@ public class Admin implements Runnable {
 		else {
 			Importer importer = (Importer)getBean("importer");
 			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
-				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+				if ((referenceType.equals(Config.ALL) && referenceMetadata.getImport()) ||
+                    referenceMetadata.getReferenceType().equals(referenceType)) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("importReferenceData(), calling import for: " + referenceMetadata.getReferenceType());
 					}

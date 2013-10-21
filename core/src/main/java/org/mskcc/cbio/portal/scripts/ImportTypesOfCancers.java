@@ -56,22 +56,28 @@ public class ImportTypesOfCancers {
         pMonitor.setConsoleMode(true);
 
         File file = new File(args[0]);
-        load(pMonitor, file);
+        load(pMonitor, file, true);
     }
 
     public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException {
-        DaoTypeOfCancer.deleteAllRecords();
+        ImportTypesOfCancers.load(pMonitor, file, true);
+    }
+
+    public static void load(ProgressMonitor pMonitor, File file, boolean clobber) throws IOException, DaoException {
+        if (clobber) DaoTypeOfCancer.deleteAllRecords();
         TypeOfCancer aTypeOfCancer = new TypeOfCancer();
         Scanner scanner = new Scanner(file);
 
         while(scanner.hasNextLine()) {
             String[] tokens = scanner.nextLine().split("\t", -1);
-            assert tokens.length == 3;
+            assert tokens.length == 5;
 
             String typeOfCancerId = tokens[0].trim();
             aTypeOfCancer.setTypeOfCancerId(typeOfCancerId);
             aTypeOfCancer.setName(tokens[1].trim());
             aTypeOfCancer.setClinicalTrialKeywords(tokens[2].trim().toLowerCase());
+            aTypeOfCancer.setDedicatedColor(tokens[3].trim());
+            aTypeOfCancer.setShortName(tokens[4].trim());
             DaoTypeOfCancer.addTypeOfCancer(aTypeOfCancer);
         }
         pMonitor.setCurrentMessage("Loaded " + DaoTypeOfCancer.getCount() + " TypesOfCancers.");

@@ -73,7 +73,7 @@ public class ImportCaseList {
        
       String caseListCategoryStr = properties.getProperty("case_list_category");
       if (caseListCategoryStr  == null || caseListCategoryStr.length() == 0) {
-          throw new IllegalArgumentException("case_list_category is not specified");
+          caseListCategoryStr = "other";
       }
       CaseListCategory caseListCategory = CaseListCategory.get(caseListCategoryStr); 
        
@@ -131,6 +131,9 @@ public class ImportCaseList {
             if (file.getName().endsWith("txt")) {
                ImportCaseList.importCaseList(file, pMonitor);
             }
+         }
+         if (files.length == 0) {
+             pMonitor.setCurrentMessage("No case lists found in directory, skipping import: " + dataFile.getCanonicalPath());
          }
       } else {
          ImportCaseList.importCaseList(dataFile, pMonitor);

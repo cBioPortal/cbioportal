@@ -1,11 +1,21 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.ProteinArraySignificanceTestJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.remote.GetProteinArrayData" %>
-<%@ page import="java.util.Set" %>
+<%@ page import="java.util.*" %>
+<%@ page import="org.json.simple.JSONObject"%>
+<%@ page import="org.apache.commons.lang.StringUtils" %>
 <%
     Set<String> antibodyTypes = GetProteinArrayData.getProteinArrayTypes();
     String cancerStudyId_RPPA = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String case_set_id = (String)request.getParameter("case_set_id");
 %>
+<script>
+    var case_set_id = "<%out.print(case_set_id);%>";
+    case_ids_key = "";
+    if (case_set_id === "-1") {
+        case_ids_key = "<%out.print(caseIdsKey);%>";
+    }
+</script>
 
 <style type="text/css" title="currentStyle"> 
         @import "css/data_table_jui.css";
@@ -33,6 +43,8 @@
                 background-color : white;
         }
 </style>
+
+<script type="text/javascript" src="js/src/protein_exp.js"></script>
 
 <script type="text/javascript">
     function parsePValue(str) {
@@ -82,7 +94,84 @@
             }
             return r+'</select>';
     }
-    
+
+    /**
+     * Get altered and unaltered case lists for the rppa plots
+     *
+     * @global: dataSummary
+     * @global: mergedCaseLists
+     * @return: unalteredCaseList
+     * @return: alteredCaseList
+     *
+     * @author: Yichao S
+     * @date: Jul 2013
+     */
+    function getRppaPlotsCaseList() {
+    <%
+        JSONObject result = new JSONObject();
+        for (String caseId : mergedCaseList) {
+            //Is altered or not (x value)
+            if (dataSummary.isCaseAltered(caseId)) {
+                result.put(caseId, "altered");
+            } else {
+                result.put(caseId, "unaltered");
+            }
+        }
+    %>
+        var obj = jQuery.parseJSON('<%=result%>');
+        return obj;
+    }
+
+    function getAlterations() {
+    <%
+        JSONObject alterationResults = new JSONObject();
+        for (String caseId : mergedCaseList) {
+            JSONObject _alterationResult = new JSONObject();
+            for (GeneWithScore geneWithScore : geneWithScoreList) {
+                String singleGeneResult = "";
+                String value = mergedProfile.getValue(geneWithScore.getGene(), caseId);
+                ValueParser parser = ValueParser.generateValueParser( geneWithScore.getGene(), value,
+                        zScoreThreshold, rppaScoreThreshold, theOncoPrintSpecification );
+                if( null == parser){
+                    System.err.println( "null valueParser: cannot find: " + geneWithScore.getGene() );
+                    break;
+                }
+                if (parser.isCnaAmplified()) {
+                    singleGeneResult += "AMP;";
+                }
+                if (parser.isCnaHomozygouslyDeleted()) {
+                    singleGeneResult += "HOMDEL;";
+                }
+                if (parser.isCnaGained()) {
+                    singleGeneResult += "GAIN;";
+                }
+                if (parser.isCnaHemizygouslyDeleted()) {
+                    singleGeneResult += "HETLOSS;";
+                }
+                if (parser.isMutated()) {
+                    singleGeneResult += "MUT;";
+                }
+                if (parser.isMRNAWayUp()) {
+                    singleGeneResult += "UP;";
+                }
+                if (parser.isMRNAWayDown()) {
+                    singleGeneResult += "DOWN;";
+                }
+                if (parser.isRPPAWayUp()) {
+                    singleGeneResult += "RPPA-UP;";
+                }
+                if (parser.isRPPAWayDown()) {
+                    singleGeneResult += "RPPA-DOWN;";
+                }
+                _alterationResult.put(geneWithScore.getGene(), singleGeneResult);
+            }
+            alterationResults.put(caseId, _alterationResult);
+        }
+    %>
+        var alterationResults = jQuery.parseJSON('<%=alterationResults%>');;
+        return alterationResults;
+    }
+
     $(document).ready(function(){
         $('table#protein_expr_wrapper').hide();
         var params = {<%=ProteinArraySignificanceTestJSON.CANCER_STUDY_ID%>:'<%=cancerStudyId_RPPA%>',
@@ -294,7 +383,7 @@
                             antibody += ' ['+aData[5]+']';
                         var xlabel = "Query: ";
                         if (aData[1] == "Any")
-                            xlabel += '<%=geneList.replaceAll("\r?\n"," ")%>';
+                            xlabel += '<%=StringUtils.join(listOfGenes, " ")%>';
                         else
                             xlabel += aData[1];
                         var pvalue = parsePValue(aData[9]);
@@ -302,11 +391,24 @@
                             xlabel += " (p-value: "+pvalue+")";
                         }
                         var ylabel = "RPPA score ("+antibody+")";
-                        var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
-                        var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
-                        html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>' 
-                                + '<img src="boxplot.do?'+param+'">';
-                        oTable.fnOpen( nTr, html, 'rppa-details' );
+
+
+                        /**
+                         * Replace the R plots by D3 plots for rppa value
+                         * clustered by altered and unaltered cases
+                         *
+                         * @author YichaoS
+                         * @date Jul 2013
+                        */
+                        //var param = 'xlabel='+xlabel+'&ylabel='+ylabel+'&width=500&height=400&data='+data;
+                        //var html = 'Boxplots of RPPA data ('+antibody+') for altered and unaltered cases ';
+                        //html += ' [<a href="boxplot.pdf?'+'format=pdf&'+param+'" target="_blank">PDF</a>]<br/>'
+                        //        + '<img src="boxplot.do?'+param+'">';
+                        var title = "Boxplots of RPPA data (" + antibody + ") for altered and unaltered cases ";
+                        var _divName = "rppa-plots-" + aData[4].replace(/<[^>]*>/g,"") + aData[5];
+                        _divName = _divName.replace(/\//g, "");
+                        oTable.fnOpen( nTr, "<div id='" + _divName + "'><img style='padding:200px;' src='images/ajax-loader.gif'></div>", 'rppa-details' );
+                        rppaPlots.init(xlabel, ylabel, title, _divName, getRppaPlotsCaseList(), aData[0], getAlterations()); //aData[0]-->protein array id
                     }
                 } );
                 

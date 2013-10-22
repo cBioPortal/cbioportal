@@ -40,22 +40,14 @@ import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
 import org.mskcc.cbio.cgds.dao.MySQLbulkLoader;
 import org.mskcc.cbio.cgds.model.CanonicalGene;
 import org.mskcc.cbio.cgds.util.ConsoleUtil;
-import org.mskcc.cbio.cgds.util.FileUtil;
 import org.mskcc.cbio.cgds.util.ProgressMonitor;
 
 /**
  * Command Line Tool to Import Background Gene Data.
  */
 public class ImportMicroRNAIDs {
-    private ProgressMonitor pMonitor;
-    private File geneFile;
 
-    public ImportMicroRNAIDs(File geneFile, ProgressMonitor pMonitor) {
-        this.geneFile = geneFile;
-        this.pMonitor = pMonitor;
-    }
-
-    public void importData() throws IOException, DaoException {
+    public static void importData(ProgressMonitor pMonitor, File geneFile) throws IOException, DaoException {
         MySQLbulkLoader.bulkLoadOff();
         FileReader reader = new FileReader(geneFile);
         BufferedReader buf = new BufferedReader(reader);
@@ -82,6 +74,7 @@ public class ImportMicroRNAIDs {
                 }
                 
                 CanonicalGene mirna = new CanonicalGene(geneSymbol,aliases);
+                mirna.setType(CanonicalGene.MIRNA_TYPE);
                 mirnas.add(mirna);
             }
         }
@@ -93,7 +86,7 @@ public class ImportMicroRNAIDs {
         }       
     }
     
-    private void setAliases(String hsa, Set<String> aliases) {
+    private static void setAliases(String hsa, Set<String> aliases) {
         aliases.add(hsa);
         if (hsa.startsWith("hsa-")) {
             String mir = hsa.substring(4).toUpperCase();
@@ -102,7 +95,7 @@ public class ImportMicroRNAIDs {
         }
     }
     
-    private String getHUGOInNCBIFile(String mir) {
+    private static  String getHUGOInNCBIFile(String mir) {
         StringBuilder sb = new StringBuilder();
         sb.append("MIR");
         if (mir.startsWith("LET")) {
@@ -120,7 +113,7 @@ public class ImportMicroRNAIDs {
      * @param id
      * @param mirnas 
      */
-    private void removePreviousMicroRNARecord(DaoGeneOptimized daoGene, List<CanonicalGene> mirnas) {
+    private static void removePreviousMicroRNARecord(DaoGeneOptimized daoGene, List<CanonicalGene> mirnas) {
         for (CanonicalGene mirna : mirnas) {
             Set<String> aliases = new HashSet<String>();
             aliases.addAll(mirna.getAliases());
@@ -149,22 +142,21 @@ public class ImportMicroRNAIDs {
     }
 
     public static void main(String[] args) throws Exception {
-  
-        if (args.length == 0) {
-            System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
-            System.exit(1);
-        }
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
-
-        File geneFile = new File(args[0]);
-        System.out.println("Reading data from:  " + geneFile.getAbsolutePath());
-        int numLines = FileUtil.getNumLines(geneFile);
-        System.out.println(" --> total number of lines:  " + numLines);
-        pMonitor.setMaxValue(numLines);
-        ImportMicroRNAIDs parser = new ImportMicroRNAIDs(geneFile, pMonitor);
-        parser.importData();
-        ConsoleUtil.showWarnings(pMonitor);
-        System.err.println("Done.");
+        System.err.println("This script will be called from ImportGeneData");
+//        if (args.length == 0) {
+//            System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
+//            System.exit(1);
+//        }
+//        ProgressMonitor pMonitor = new ProgressMonitor();
+//        pMonitor.setConsoleMode(true);
+//
+//        File geneFile = new File(args[0]);
+//        System.out.println("Reading data from:  " + geneFile.getAbsolutePath());
+//        int numLines = FileUtil.getNumLines(geneFile);
+//        System.out.println(" --> total number of lines:  " + numLines);
+//        pMonitor.setMaxValue(numLines);
+//        ImportMicroRNAIDs.importData(pMonitor, geneFile);
+//        ConsoleUtil.showWarnings(pMonitor);
+//        System.err.println("Done.");
     }
 }

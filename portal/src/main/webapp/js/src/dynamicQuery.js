@@ -1,3 +1,30 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 /******************************************************************************************
 * Dynamic Query Javascript, built with JQuery
 * @author Ethan Cerami, Caitlin Byrne. 
@@ -409,7 +436,9 @@ function updateCaseListSmart() {
                 position: {
                     my: 'left middle',
                     at: 'middle right'
-                }
+                },
+	            show: "mouseover",
+	            hide: "mouseout"
             });
         }
     );
@@ -582,8 +611,11 @@ function caseSetSelected() {
     //  Otherwise, make sure to hide it.
     if (caseSetId == "-1") {
         $("#custom_case_list_section").show();
+        // if custom case list was selected, post to avoid long url problem.
+        $("#main_form").attr("method","post");
     } else {
         $("#custom_case_list_section").hide();
+        $("#main_form").attr("method","get");
     }
 }
 
@@ -699,9 +731,9 @@ function addMetaDataToPage() {
 
     // Chosenize the select boxes
     var minSearchableItems = 10;
-    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems });
-    $("#select_gene_set").chosen({ width: '620px'});
-    $("#select_case_set").chosen({ width: '100%', disable_search_threshold: minSearchableItems });
+    $("#select_cancer_type").chosen({ width: '550px', disable_search_threshold: minSearchableItems, search_contains: true });
+    $("#select_gene_set").chosen({ width: '620px', search_contains: true});
+    $("#select_case_set").chosen({ width: '420px', disable_search_threshold: minSearchableItems, search_contains: true });
 }
 
 // Adds the specified genomic profiles to the page.

@@ -1,3 +1,8 @@
+<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
+<%@ page import="java.util.HashSet" %>
+<%@ page import="java.io.IOException" %>
+<%@ page import="org.apache.commons.lang.*" %>
+
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
     String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
@@ -29,11 +34,34 @@
     }
 %>
 
-<%@ page import="org.mskcc.cbio.portal.servlet.*" %>
-<%@ page import="java.util.HashSet" %>
-<%@ page import="java.io.IOException" %>
-<script type="text/javascript">
+<%
+    /**
+     * Put together global parameters
+     *
+     */
+//    HashSet<String> geneticProfileIdSet =
+//            (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS);
 
+    // put geneticProfileIds into the proper form for the JSON request
+//    HashSet<String> geneticProfileIdSet = (HashSet<String>) request.getAttribute
+//            (QueryBuilder.GENETIC_PROFILE_IDS);
+//    String geneticProfiles = StringUtils.join(geneticProfileIdSet.iterator(), " ");
+//    geneticProfiles = geneticProfiles.trim();
+//
+//    // put gene string into a form that javascript can swallow
+//    String genes = (String) request.getAttribute(QueryBuilder.RAW_GENE_STR);
+//    genes = StringEscapeUtils.escapeJavaScript(genes);
+//
+//    // get cases
+//    String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
+//    cases = StringEscapeUtils.escapeJavaScript(cases);
+//
+//    String caseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+//    String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
+%>
+
+
+<script type="text/javascript">
     // Store the currently selected options as global variables;
     window.cancer_study_id_selected = '<%= localCancerTypeId%>';
     window.case_set_id_selected = '<%= localCaseSetId %>';
@@ -55,15 +83,15 @@
 <div class="main_query_panel">
     <div id="main_query_form">
         <form id="main_form" action="index.do" method="post">
-        <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
-           value="<%= localTabIndex %>">
-        <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
-        	value='<%= request.getParameter("clinical_param_selection") %>'>
         <%@ include file="step1_json.jsp" %>
         <%@ include file="step2_json.jsp" %>
         <%@ include file="step3_json.jsp" %>
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
+        <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
+        	value='<%= request.getParameter("clinical_param_selection") %>'>
+        <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
+           value="<%= localTabIndex %>">
         <p/>
         <% conditionallyOutputTransposeMatrixOption (localTabIndex, clientTranspose, out); %>
         &nbsp;<br/>

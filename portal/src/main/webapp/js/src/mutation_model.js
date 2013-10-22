@@ -6,6 +6,7 @@
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
+		this.mutationId = attributes.mutationId;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
@@ -14,11 +15,13 @@ var MutationModel = Backbone.Model.extend({
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
+		this.cosmicCount = this.calcCosmicCount(attributes.cosmic);
 		this.functionalImpactScore = attributes.functionalImpactScore;
 		this.fisValue = attributes.fisValue;
 		this.msaLink = attributes.msaLink;
 		this.xVarLink = attributes.xVarLink;
 		this.pdbLink = attributes.pdbLink;
+		this.igvLink = attributes.igvLink;
 		this.mutationStatus = attributes.mutationStatus;
 		this.validationStatus = attributes.validationStatus;
 		this.sequencingCenter = attributes.sequencingCenter;
@@ -38,13 +41,43 @@ var MutationModel = Backbone.Model.extend({
 		this.refseqMrnaId = attributes.refseqMrnaId;
 		this.codonChange = attributes.codonChange;
 		this.uniprotId = attributes.uniprotId;
+		this.proteinPosStart = attributes.proteinPosStart;
+		this.proteinPosEnd = attributes.proteinPosEnd;
 		this.mutationCount = attributes.mutationCount;
-		this.cosmicCount = attributes.cosmicCount; // TODO calculate this on the client side?
 		this.specialGeneData = attributes.specialGeneData;
+		this.keyword = attributes.keyword;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service
 		var urlStr = "webservice.do?cmd=...";
+	},
+	calcCosmicCount: function(cosmic)
+	{
+		var cosmicCount = 0;
+
+		if (cosmic)
+		{
+			cosmic.forEach(function(c) {
+				cosmicCount += c[2];
+			});
+		}
+
+		return cosmicCount;
+	}
+});
+
+/**
+ * Pileup Model.
+ *
+ * This model is designed to represent multiple mutations at the same
+ * position. This is intended to be used for mutation diagram.
+ */
+var Pileup = Backbone.Model.extend({
+	initialize: function(attributes) {
+		this.mutations = attributes.mutations; // array of mutations at this data point
+		this.count = attributes.count; // number of mutations at this data point
+		this.location = attributes.location; // the location of the mutations
+		this.label = attributes.label; // text label for this data point
 	}
 });
 
@@ -73,7 +106,7 @@ var MutationCollection = Backbone.Collection.extend({
  * @param mutations     MutationCollection (list of mutations)
  * @constructor
  */
-var MutationDetailsUtil = function (mutations)
+var MutationDetailsUtil = function(mutations)
 {
 	this.GERMLINE = "germline"; // germline mutation constant
 
@@ -85,6 +118,11 @@ var MutationDetailsUtil = function (mutations)
 	this.getMutationCaseMap = function()
 	{
 		return this._mutationCaseMap;
+	};
+
+	this.getMutationIdMap = function()
+	{
+		return this._mutationIdMap;
 	};
 
 	/**
@@ -138,6 +176,28 @@ var MutationDetailsUtil = function (mutations)
 			}
 
 			mutationMap[caseId].push(mutations.at(i));
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes the collection of mutations, and creates a map of
+	 * <mutation id, mutation> pairs.
+	 *
+	 * @param mutations collection of mutations
+	 * @return {object} map of mutations (keyed on mutation id)
+	 * @private
+	 */
+	this._generateIdMap = function(mutations)
+	{
+		var mutationMap = {};
+
+		// process raw data to group mutations by genes
+		for (var i=0; i < mutations.length; i++)
+		{
+			var mutationId = mutations.at(i).mutationId;
+			mutationMap[mutationId] = mutations.at(i);
 		}
 
 		return mutationMap;
@@ -233,8 +293,200 @@ var MutationDetailsUtil = function (mutations)
 			numGermline: numGermline};
 	};
 
+	/**
+	 * Checks if there is a germline mutation for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsGermline = function(gene)
+	{
+		var self = this;
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		if (self._mutationGeneMap[gene] != undefined)
+		{
+			var mutations = self._mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].mutationStatus.toLowerCase() == self.GERMLINE)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
+	/**
+	 * Checks if there is a link to IGV BAM file for the given gene.
+	 *
+	 * @param gene  hugo gene symbol
+	 */
+	this.containsIgvLink = function(gene)
+	{
+		var self = this;
+		var contains = false;
+
+		gene = gene.toUpperCase();
+
+		if (self._mutationGeneMap[gene] != undefined)
+		{
+			var mutations = self._mutationGeneMap[gene];
+
+			for (var i=0; i < mutations.length; i++)
+			{
+				if (mutations[i].igvLink)
+				{
+					contains = true;
+					break;
+				}
+			}
+		}
+
+		return contains;
+	};
+
 	// init class variables
 	this._mutationGeneMap = this._generateGeneMap(mutations);
 	this._mutationCaseMap = this._generateCaseMap(mutations);
+	this._mutationIdMap = this._generateIdMap(mutations);
 	this._mutations = mutations;
 };
+
+/**
+ * Singleton utility class for pileup related tasks.
+ */
+var PileupUtil = (function()
+{
+	/**
+	 * Processes a Pileup instance, and creates a map of
+	 * <mutation type, mutation array> pairs.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {object} map of mutations (keyed on mutation type)
+	 * @private
+	 */
+	var generateTypeMap = function(pileup)
+	{
+		var mutations = pileup.mutations;
+		var mutationMap = {};
+
+		// process raw data to group mutations by types
+		for (var i=0; i < mutations.length; i++)
+		{
+			var type = mutations[i].mutationType.toLowerCase();
+
+			if (mutationMap[type] == undefined)
+			{
+				mutationMap[type] = [];
+			}
+
+			mutationMap[type].push(mutations[i]);
+		}
+
+		return mutationMap;
+	};
+
+	/**
+	 * Processes a Pileup instance, and creates an array of
+	 * <mutation type, count> pairs. The final array is sorted
+	 * by mutation count.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {Array}  array of mutation type and count pairs
+	 */
+	var generateTypeArray = function (pileup)
+	{
+		var map = generateTypeMap(pileup);
+		var typeArray = [];
+
+		// convert to array and sort by length (count)
+		for (var key in map)
+		{
+			typeArray.push({type: key, count: map[key].length});
+		}
+
+		typeArray.sort(function(a, b) {
+			// descending sort
+			return b.count - a.count;
+		});
+
+		return typeArray;
+	};
+
+	/**
+	 * Processes a Pileup instance, and creates an array of
+	 * <mutation type group, count> pairs. The final array
+	 * is sorted by mutation count.
+	 *
+	 * @param pileup    a pileup instance
+	 * @return {Array}  array of mutation type group and count pairs
+	 */
+	var generateTypeGroupArray = function (pileup)
+	{
+		// TODO a very similar mapping is also used in the mutation table view
+		// ...it might be better to merge these two mappings to avoid duplication
+		var typeToGroupMap = {
+			missense_mutation: "missense_mutation",
+			nonsense_mutation: "trunc_mutation",
+			nonstop_mutation: "trunc_mutation",
+			frame_shift_del: "trunc_mutation",
+			frame_shift_ins: "trunc_mutation",
+			in_frame_ins: "inframe_mutation",
+			in_frame_del: "inframe_mutation",
+			splice_site: "trunc_mutation",
+			other: "other_mutation"
+		};
+
+		var typeMap = generateTypeMap(pileup);
+		var groupArray = [];
+		var groupCountMap = {};
+
+		// group mutation types by using the type map
+		// and count number of mutations in a group
+
+		for (var type in typeMap)
+		{
+			var group = typeToGroupMap[type];
+
+			if (group == undefined)
+			{
+				group = typeToGroupMap.other;
+			}
+
+			if (groupCountMap[group] == undefined)
+			{
+				// init count
+				groupCountMap[group] = 0;
+			}
+
+			groupCountMap[group]++;
+		}
+
+		// convert to array and sort by length (count)
+
+		for (var group in groupCountMap)
+		{
+			groupArray.push({group: group, count: groupCountMap[group]});
+		}
+
+		groupArray.sort(function(a, b) {
+			// descending sort
+			return b.count - a.count;
+		});
+
+		return groupArray;
+	};
+
+	return {
+		getMutationTypeMap: generateTypeMap,
+		getMutationTypeArray: generateTypeArray,
+		getMutationTypeGroups: generateTypeGroupArray
+	};
+})();
+

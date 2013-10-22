@@ -10,29 +10,29 @@ cbio.util = (function() {
         if (0.000001 <= number && number < threshold) {
             return number.toExponential(precision);
         }
-        
+
         var ret = number.toPrecision(precision);
         if (ret.indexOf(".")!==-1)
             ret = ret.replace(/\.?0+$/,'');
-        
+
         return ret;
     };
-    
+
     var getObjectLength = function(object) {
         var length = 0;
 
         for (var i in object) {
-          if (Object.prototype.hasOwnProperty.call(object, i)){
-            length++;
-          }
+            if (Object.prototype.hasOwnProperty.call(object, i)){
+                length++;
+            }
         }
         return length;
     };
-    
+
     var checkNullOrUndefined = function(o) {
         return o === null || typeof o === "undefined";
     };
-    
+
     var arrayToAssociatedArrayIndices = function(arr, offset) {
         if (checkNullOrUndefined(offset)) offset=0;
         var aa = {};
@@ -42,8 +42,22 @@ cbio.util = (function() {
         return aa;
     };
 
-    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback)
-    {
+    var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
+
+        // To alter attributes of the input D3 SVG object (axis)
+        // in order to prevent the text of the axes from moving up
+        // when converting the SVG to PDF
+        // (TODO: This is a temporary solution, need to debug batik library)
+        //
+        // @param xAxisGrp: the x axis D3 object
+        // @param shiftValueOnX: increased/decreased value of the x axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param yAxisGrp: the y axis D3 object
+        // @param shiftValueOnY: increased/decreased value of the y axis' text vertical position of the text of x axis
+        //                       before/after conversion
+        // @param rollback: the switch to control moving up/down the axes' text (true -> move up; false -> move down)
+        //
+
         if (rollback)
         {
             shiftValueOnX = -1 * shiftValueOnX;
@@ -68,12 +82,40 @@ cbio.util = (function() {
         yLabels.attr("y", yy + shiftValueOnY);
     };
 
+    /**
+     * Determines the longest common starting substring
+     * for the given two strings
+     *
+     * @param str1  first string
+     * @param str2  second string
+     * @return {String} longest common starting substring
+     */
+    var lcss = function (str1, str2)
+    {
+        var i = 0;
+
+        while (i < str1.length && i < str2.length)
+        {
+            if (str1[i] === str2[i])
+            {
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        return str1.substring(0, i);
+    };
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
         checkNullOrUndefined: checkNullOrUndefined,
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
-        alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter
+        alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
+        lcss: lcss
     };
 
 })();

@@ -197,6 +197,7 @@ public class ImportProteinArrayData {
         }
 
         CanonicalGene phosphoGene = new CanonicalGene(phosphoSymbol, aliases);
+        phosphoGene.setType(CanonicalGene.PHOSPHOPROTEIN_TYPE);
         daoGene.addGene(phosphoGene);
     }
     
@@ -235,8 +236,10 @@ public class ImportProteinArrayData {
         String idProfProt = cancerStudyStableId+"_RPPA_protein_level";
         if (DaoGeneticProfile.getGeneticProfileByStableId(idProfProt)==null) {
             GeneticProfile gpPro = new GeneticProfile(idProfProt, cancerStudyId,
-                    GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "RPPA protein/phosphoprotein level",
-                    "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)", true);
+													  GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL, "Z-SCORE",
+													  "protein/phosphoprotein level (RPPA)",
+													  "Protein or phosphoprotein level (Z-scores) measured by reverse phase protein array (RPPA)",
+													  true);
             DaoGeneticProfile.addGeneticProfile(gpPro);
             daoGeneticProfileCases.addGeneticProfileCases(
                     DaoGeneticProfile.getGeneticProfileByStableId(idProfProt).getGeneticProfileId(), cases);

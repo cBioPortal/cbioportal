@@ -35,38 +35,40 @@
 
 var Plots = (function(){
 
-    var genetic_profiles = {
+    var genetic_profile = {
             genetic_profile_mutations : [],
             genetic_profile_mrna : [],
             genetic_profile_copy_no : [],
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
-        };
+        },
+        genetic_profiles = {};
 
     function getGeneticProfileCallback(result) {
-
-        for (var key in result) {
-            var obj = result[key];
-            var profile_type = obj.GENETIC_ALTERATION_TYPE;
-            if (profile_type === "MUTATION_EXTENDED") {
-                genetic_profiles.genetic_profile_mutations.push([obj.STABLE_ID, obj.NAME]);
-            } else if(profile_type === "COPY_NUMBER_ALTERATION") {
-                genetic_profiles.genetic_profile_copy_no.push([obj.STABLE_ID, obj.NAME]);
-            } else if(profile_type === "MRNA_EXPRESSION") {
-                genetic_profiles.genetic_profile_mrna.push([obj.STABLE_ID, obj.NAME]);
-            } else if(profile_type === "METHYLATION") {
-                genetic_profiles.genetic_profile_dna_methylation.push([obj.STABLE_ID, obj.NAME]);
-            } else if(profile_type === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
-                genetic_profiles.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME]);
+        for (var gene in result) {
+            var _obj = result[gene];
+            var _genetic_profile = jQuery.extend(true, {}, genetic_profile);
+            for (var key in _obj) {
+                var obj = _obj[key];
+                var profile_type = obj.GENETIC_ALTERATION_TYPE;
+                if (profile_type === "MUTATION_EXTENDED") {
+                    _genetic_profile.genetic_profile_mutations.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "COPY_NUMBER_ALTERATION") {
+                    _genetic_profile.genetic_profile_copy_no.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "MRNA_EXPRESSION") {
+                    _genetic_profile.genetic_profile_mrna.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "METHYLATION") {
+                    _genetic_profile.genetic_profile_dna_methylation.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                } else if(profile_type === "PROTEIN_ARRAY_PROTEIN_LEVEL") {
+                    _genetic_profile.genetic_profile_rppa.push([obj.STABLE_ID, obj.NAME, obj.DESCRIPTION]);
+                }
             }
+            genetic_profiles[gene] = _genetic_profile;
         }
 
         PlotsMenu.init();
-        PlotsMenu.update();
         PlotsTwoGenesMenu.init();
-        PlotsTwoGenesMenu.update();
         PlotsCustomMenu.init();
-        PlotsCustomMenu.update();
         PlotsView.init();
 
         $('#plots-menus').bind('tabsshow', function(event, ui) {
@@ -83,15 +85,64 @@ var Plots = (function(){
 
     }
 
+    function addxAxisHelp(svg, axisGroupSvg, xTitle, xTitleClass, xText) {
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", xTitleClass)
+            .attr("x", 350 + xTitle.length / 2 * 8)
+            .attr("y", 567)
+            .attr("width", "16")
+            .attr("height", "16");
+        svg.select("." + xTitleClass).each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + xText + "</font>" },
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
+            }
+        );
+    }
+
+    function addyAxisHelp(svg, axisGroupSvg, yTitle, yTitleClass, yText) {
+        axisGroupSvg.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", yTitleClass)
+            .attr("x", 34)
+            .attr("y", 255 - yTitle.length / 2 * 8)
+            .attr("width", "16")
+            .attr("height", "16");
+        svg.select("." + yTitleClass).each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=2>" + yText + "</font>"},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'right bottom',at:'top left'}
+                    }
+                );
+            }
+        );
+    }
+
     return {
         init: function() {
             var paramsGetProfiles = {
-                cancer_study_id: cancer_study_id
+                cancer_study_id: cancer_study_id,
+                case_set_id: case_set_id,
+                case_ids_key: case_ids_key,
+                gene_list: gene_list_str
             };
             $.post("getGeneticProfile.json", paramsGetProfiles, getGeneticProfileCallback, "json");
         },
-        getGeneticProfiles: function() {
-            return genetic_profiles;
+        getGeneticProfiles: function(selectedGene) {
+            return genetic_profiles[selectedGene];
         },
         getProfileData: function(gene, genetic_profile_id, case_set_id, case_ids_key, callback_func) {
             var paramsGetProfileData = {
@@ -110,12 +161,57 @@ var Plots = (function(){
                 caseIdsKey: case_ids_key
             };
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
-        }
+        },
+        addxAxisHelp: addxAxisHelp,
+        addyAxisHelp: addyAxisHelp
     };
 
 }());    //Closing Plots
 
+// Takes the content in the plots svg element
+// and returns XML serialized *string*
+function loadPlotsSVG() {
+    var shiftValueOnX = 8;
+    var shiftValueOnY = 3;
+    var mySVG = d3.select("#plots_box");
+    //Remove Help Icon (cause exception)
+    var elemXHelpTxt = $(".x-title-help").qtip('api').options.content.text;
+    var elemYHelpTxt = $(".y-title-help").qtip('api').options.content.text;
+    var elemXHelp = $(".x-title-help").remove();
+    var elemYHelp = $(".y-title-help").remove();
 
+    var xAxisGrp = mySVG.select(".plots-x-axis-class");
+    var yAxisGrp = mySVG.select(".plots-y-axis-class");
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
+    var docSVG = document.getElementById("plots_box");
+    var svgDoc = docSVG.getElementsByTagName("svg");
+    var xmlSerializer = new XMLSerializer();
+    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
+    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
+
+    $(".axis").append(elemXHelp);
+    $(".axis").append(elemYHelp);
+    $(".x-title-help").qtip(
+        {
+            content: {text: elemXHelpTxt },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'left bottom',at:'top right'}
+        }
+    );
+    $(".y-title-help").qtip(
+        {
+            content: {text: elemYHelpTxt },
+            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+            show: {event: "mouseover"},
+            hide: {fixed:true, delay: 100, event: "mouseout"},
+            position: {my:'right bottom',at:'top left'}
+        }
+    );
+
+    return xmlString;
+}
 
 
 

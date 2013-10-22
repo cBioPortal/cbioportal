@@ -61,6 +61,7 @@ public class TestGetGeneticProfiles extends TestCase {
         profile1.setCancerStudyId(cancerStudy.getInternalId());
         profile1.setStableId("gbm_rae");
         profile1.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+        profile1.setDatatype("DISCRETE");
         profile1.setProfileName("Barry CNA Results");
         profile1.setProfileDescription("Blah");
         DaoGeneticProfile.addGeneticProfile(profile1);
@@ -69,6 +70,7 @@ public class TestGetGeneticProfiles extends TestCase {
         profile2.setCancerStudyId(cancerStudy.getInternalId());
         profile2.setStableId("gbm_gistic");
         profile2.setGeneticAlterationType(GeneticAlterationType.COPY_NUMBER_ALTERATION);
+        profile2.setDatatype("DISCRETE");
         profile2.setProfileName("Gistic CNA Results");
         profile2.setProfileDescription("BlahBlah");
         DaoGeneticProfile.addGeneticProfile(profile2);

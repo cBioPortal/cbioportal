@@ -29,6 +29,8 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import java.util.Arrays;
+import java.util.HashSet;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.model.PortalMetadata;
 import org.mskcc.cbio.importer.model.DatatypeMetadata;
@@ -45,6 +47,8 @@ public interface Converter {
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";
 	public static final String MUTATION_CASE_ID_COLUMN_HEADER = "Tumor_Sample_Barcode";
+        public static final Set<String> NON_CASE_IDS = new HashSet<String>(
+                Arrays.asList("ENTREZ_GENE_ID","HUGO_SYMBOL","LOCUS ID","CYTOBAND"));
 
 	/**
 	 * Converts data for the given portal.

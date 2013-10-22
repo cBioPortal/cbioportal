@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,10 +44,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoClinicalFreeForm;
+import org.mskcc.cbio.cgds.dao.DaoClinicalData;
+import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
 import org.mskcc.cbio.cgds.dao.DaoException;
 import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.ClinicalFreeForm;
+import org.mskcc.cbio.cgds.model.ClinicalData;
 import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
 import org.mskcc.cbio.portal.util.CategoryLabelReader;
 import org.owasp.validator.html.PolicyException;
@@ -95,16 +97,14 @@ public class ClinicalFreeFormJSON extends HttpServlet
         	 }
         	 else
         	 {
-        		 DaoClinicalFreeForm daoClinicalFreeForm = new DaoClinicalFreeForm();
-                 
                  HashSet<String> clinicalCaseSet = 
-                		 daoClinicalFreeForm.getAllCases(cancerStudy.getInternalId());
+                		 DaoClinicalData.getAllCases(cancerStudy.getInternalId());
                  
                  HashSet<String> paramSet = 
-                		 daoClinicalFreeForm.getDistinctParameters(cancerStudy.getInternalId());
+                		 DaoClinicalData.getDistinctParameters(cancerStudy.getInternalId());
                  
-                 List<ClinicalFreeForm> freeFormData = 
-                		 daoClinicalFreeForm.getCasesByCancerStudy(cancerStudy.getInternalId());
+                 List<ClinicalData> freeFormData = 
+                		 DaoClinicalData.getCasesByCancerStudy(cancerStudy.getInternalId());
 
                  // map of <param, distinctCategorySet> pairs
                  Map<String, Object> categoryMap = new HashMap<String, Object>();
@@ -121,9 +121,9 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  jsonObject.put("clinicalCaseSet", caseIds);
                  
                  // get all distinct categories
-                 for (String param : paramSet) {
-                     ClinicalParameterMap paramMap = daoClinicalFreeForm.getDataSlice(cancerStudy.getInternalId(), param);
-                     HashSet<String> distinctCategorySet = paramMap.getDistinctCategories();
+                 List<ClinicalParameterMap> paramMaps = DaoClinicalData.getDataSlice(cancerStudy.getInternalId(), paramSet);
+                 for (ClinicalParameterMap paramMap : paramMaps) {
+                     Set<String> distinctCategorySet = paramMap.getDistinctCategories();
                      JSONArray distinctCategories = new JSONArray();
                      
                      for (String category : distinctCategorySet)
@@ -134,7 +134,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                     	 }
                      }
                      
-                     categoryMap.put(CategoryLabelReader.safeCategoryName(param),
+                     categoryMap.put(CategoryLabelReader.safeCategoryName(paramMap.getName()),
                     		 distinctCategories);
                  }
                  
@@ -145,14 +145,14 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  JSONArray freeFormArray = new JSONArray();
                  
                  // get all clinical free form data for the specified cancer study
-                 for (ClinicalFreeForm data : freeFormData)
+                 for (ClinicalData data : freeFormData)
                  {
                 	 JSONObject freeFormObject = new JSONObject();
                 	 
                 	 //freeFormObject.put("cancerStudyId", data.getCancerStudyId());
                 	 freeFormObject.put("caseId", data.getCaseId());
-                	 freeFormObject.put("paramName", CategoryLabelReader.safeCategoryName(data.getParamName()));
-                	 freeFormObject.put("paramValue", data.getParamValue());
+                	 freeFormObject.put("paramName", CategoryLabelReader.safeCategoryName(data.getAttrId()));
+                	 freeFormObject.put("paramValue", data.getAttrVal());
                 	 
                 	 freeFormArray.add(freeFormObject);
                  }
@@ -161,7 +161,7 @@ public class ClinicalFreeFormJSON extends HttpServlet
                  jsonObject.put("freeFormData", freeFormArray);
                  
                  // add the map for human readable category names
-                 jsonObject.put("categoryLabelMap", CategoryLabelReader.getInstace().getCategoryLabelMap());
+                 jsonObject.put("categoryLabelMap", DaoClinicalAttribute.getAllMap());
         	 }
             
              httpServletResponse.setContentType("application/json");

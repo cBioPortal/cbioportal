@@ -28,18 +28,18 @@
 var PlotsTwoGenesMenu = (function(){
 
     var content = {
-            plots_type_list : {
-                "mrna" : { value : "mrna", name :  "mRNA Expression" },
-                "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
-                "methylation" : { value : "methylation", name :  "DNA Methylation" },
-                "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
-            },
-            genetic_profile_mutations : [],
-            genetic_profile_mrna : [],
-            genetic_profile_copy_no : [],
-            genetic_profile_rppa : [],
-            genetic_profile_dna_methylation : []
-        };
+        plots_type_list : {
+            "mrna" : { value : "mrna", name :  "mRNA Expression" },
+            "copy_no" : { value : "copy_no", name :  "Copy Number Alteration" },
+            "methylation" : { value : "methylation", name :  "DNA Methylation" },
+            "rppa" : { value : "rppa", name :  "RPPA Protein Level" }
+        },
+        genetic_profile_mutations : [],
+        genetic_profile_mrna : [],
+        genetic_profile_copy_no : [],
+        genetic_profile_rppa : [],
+        genetic_profile_dna_methylation : []
+    };
 
     function generateList(selectId, options) {
         var select = document.getElementById(selectId);
@@ -51,12 +51,38 @@ var PlotsTwoGenesMenu = (function(){
         });
     }
 
-    function fetchFrameData() {
-        content.genetic_profile_mutations = Plots.getGeneticProfiles().genetic_profile_mutations;
-        content.genetic_profile_mrna = Plots.getGeneticProfiles().genetic_profile_mrna;
-        content.genetic_profile_copy_no = Plots.getGeneticProfiles().genetic_profile_copy_no;
-        content.genetic_profile_dna_methylation = Plots.getGeneticProfiles().genetic_profile_dna_methylation;
-        content.genetic_profile_rppa = Plots.getGeneticProfiles().genetic_profile_rppa;
+    function mergeList(arrX, arrY) {
+        var result = [];
+        var _arrY = [];
+        $.each(arrY, function(index, val) {
+            _arrY.push(val[0]);
+        });
+        $.each(arrX, function(index, val) {
+            if (_arrY.indexOf(val[0]) !== -1) {
+                result.push(arrX[index]);
+            }
+        });
+        return result;
+    }
+
+    function fetchFrameData(geneX, geneY) {
+        content.genetic_profile_mutations = Plots.getGeneticProfiles(geneX).genetic_profile_mutations;
+        content.genetic_profile_mrna = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_mrna,
+            Plots.getGeneticProfiles(geneY).genetic_profile_mrna
+        );
+        content.genetic_profile_copy_no = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_copy_no,
+            Plots.getGeneticProfiles(geneY).genetic_profile_copy_no
+        );
+        content.genetic_profile_dna_methylation = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_dna_methylation,
+            Plots.getGeneticProfiles(geneY).genetic_profile_dna_methylation
+        );
+        content.genetic_profile_rppa = mergeList(
+            Plots.getGeneticProfiles(geneX).genetic_profile_rppa,
+            Plots.getGeneticProfiles(geneY).genetic_profile_rppa
+        );
     }
 
     function appendDropDown(divId, value, text) {
@@ -102,36 +128,55 @@ var PlotsTwoGenesMenu = (function(){
     function drawPlatFormList() {
         $("#two_genes_platform_select_div").empty();
         $("#two_genes_platform_select_div").append(
-            "<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();' class='plots-select'>");
+            "<select id='two_genes_platform' onchange='PlotsTwoGenesView.init();PlotsTwoGenesMenu.updateLogScaleCheckBox();' class='plots-select'>");
 
         if ($("#two_genes_plots_type").val() === "mrna") {
             content.genetic_profile_mrna.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
             setPlatFormDefaultSelection();
         } else if ($("#two_genes_plots_type").val() === "copy_no") {
             content.genetic_profile_copy_no.forEach (function (profile) {
                 if (!dataIsDiscretized(profile[1])) {
                     $("#two_genes_platform")
-                        .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                        .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
                 }
             });
         } else if ($("#two_genes_plots_type").val() === "methylation") {
             content.genetic_profile_dna_methylation.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         } else if ($("#two_genes_plots_type").val() === "rppa") {
             content.genetic_profile_rppa.forEach (function (profile) {
                 $("#two_genes_platform")
-                    .append("<option value='" + profile[0] + "'>" + profile[1] + "</option>");
+                    .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
         }
         $("#two_genes_platform_select_div").append("</select>");
     }
 
+    function updateLogScaleCheckBox() {
+        $("#two_genes_log_scale_option_x").attr("disabled", true);
+        $("#two_genes_log_scale_option_x").attr("checked", false);
+        $("#two_genes_apply_log_scale_div_x").attr("style", "color: #D8D8D8;");
+        $("#two_genes_log_scale_option_y").attr("disabled", true);
+        $("#two_genes_log_scale_option_y").attr("checked", false);
+        $("#two_genes_apply_log_scale_div_y").attr("style", "color: #D8D8D8;");
+        if (($("#two_genes_plots_type").val() === "mrna" &&
+             $("#two_genes_platform option:selected").text().indexOf("RNA Seq") !== -1 &&
+             $("#two_genes_platform option:selected").text().indexOf("z-Scores") === -1) ||
+             $("#two_genes_plots_type").val() === "methylation") {
+            $("#two_genes_log_scale_option_x").attr("disabled", false);
+            $("#two_genes_apply_log_scale_div_x").attr("style", "color: black;");
+            $("#two_genes_log_scale_option_y").attr("disabled", false);
+            $("#two_genes_apply_log_scale_div_y").attr("style", "color: black;");
+        }
+    }
+
     function generatePlotsTypeList() {
+        $("#two_genes_plots_type").empty();
         appendDropDown("#two_genes_plots_type", content.plots_type_list.mrna.value, content.plots_type_list.mrna.name);
         if (content.genetic_profile_copy_no.length !== 0) {
             var _flag = false;
@@ -165,13 +210,24 @@ var PlotsTwoGenesMenu = (function(){
 
     return {
         init: function() {
-            fetchFrameData();
             generateGeneList();
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
             generatePlotsTypeList();
-        },
-        update: function() {
             drawPlatFormList();
-        }
+            updateLogScaleCheckBox();
+        },
+        updateMenu: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
+            generatePlotsTypeList();
+            drawPlatFormList();
+            updateLogScaleCheckBox();
+        },
+        updateDataType: function() {
+            fetchFrameData(document.getElementById("geneX").value, document.getElementById("geneY").value);
+            drawPlatFormList();
+            updateLogScaleCheckBox();
+        },
+        updateLogScaleCheckBox: updateLogScaleCheckBox
     };
 }());      //Closing PlotsTwoGenesMenu
 
@@ -193,7 +249,8 @@ var PlotsTwoGenesView = (function(){
             geneX : "",
             geneY : "",
             plots_type: "",
-            genetic_profile_id: ""
+            genetic_profile_id: "",
+            genetic_profile_description: ""
         },
     //Canvas Settings
         settings = {
@@ -207,7 +264,8 @@ var PlotsTwoGenesView = (function(){
             yScale : "",
             xAxis : "",
             yAxis : "",
-            dotsGroup : ""   //Group of single Dots
+            dotsGroup : "",   //Group of single Dots
+            axisTitleGroup: ""
         },
     //The template for creating dot unit
         singleDot = {
@@ -235,8 +293,11 @@ var PlotsTwoGenesView = (function(){
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "None Mutated"
+                text : "Neither Mutated"
             }
+        },
+        text = {
+            titleText: ""
         };
 
     function isEmpty(inputVal) {
@@ -250,7 +311,8 @@ var PlotsTwoGenesView = (function(){
         menu.geneX = document.getElementById("geneX").value;
         menu.geneY = document.getElementById("geneY").value;
         menu.plots_type = document.getElementById("two_genes_plots_type").value;
-        menu.genetic_profile_id = document.getElementById("two_genes_platform").value;
+        menu.genetic_profile_id = document.getElementById("two_genes_platform").value.split("|")[0];
+        menu.genetic_profile_description = document.getElementById("two_genes_platform").value.split("|")[1];
     }
 
     function pDataInit(result) {
@@ -319,7 +381,6 @@ var PlotsTwoGenesView = (function(){
         //merge tmp_pDataX, tmp_pDataY, and filter empty data
         for (var i = 0; i < tmp_pDataY.length; i++) {
             if (!isEmpty(tmp_pDataX[i].value) && !isEmpty(tmp_pDataY[i].value)) {
-
                 pData.case_set_length += 1;
 
                 var new_singleDot = jQuery.extend(true, {}, singleDot);
@@ -383,50 +444,70 @@ var PlotsTwoGenesView = (function(){
             .attr("width", settings.canvas_width)
             .attr("height", settings.canvas_height);
         elem.dotsGroup = elem.svg.append("svg:g");
+        elem.axisTitleGroup = elem.svg.append("svg:g").attr("class", "axis");
+
     }
 
-    function initAxis() {
+    function initXAxis(applyLogScale) {
         var analyseResult = analyseData();
-        var min_x = analyseResult.min_x;
-        var max_x = analyseResult.max_x;
-        var edge_x = analyseResult.edge_x;
-        var min_y = analyseResult.min_y;
-        var max_y = analyseResult.max_y;
-        var edge_y = analyseResult.edge_y;
-
-        ///TODO: Hide html value "methylation"
-        ///funciton() datatypeIsMethylation
-        if (menu.plots_type === "methylation") { //Fix the range for methylation data
-            var rangeXmin = -0.02;
-            var rangeXmax = 1.02;
-            var rangeYmin = -0.02;
-            var rangeYmax = 1.02;
+        if (applyLogScale) {
+            var min_x = Math.log(analyseResult.min_x) / Math.log(2);
+            var max_x = Math.log(analyseResult.max_x) / Math.log(2);
         } else {
-            var rangeXmin = min_x - edge_x;
-            var rangeXmax = max_x + edge_x;
-            var rangeYmin = min_y - edge_y;
-            var rangeYmax = max_y + edge_y;
+            var min_x = analyseResult.min_x;
+            var max_x = analyseResult.max_x;
         }
-
+        var edge_x = (max_x - min_x) * 0.2;
+        var rangeXmin = min_x - edge_x;
+        var rangeXmax = max_x + edge_x;
+        if (!applyLogScale) {
+            if (menu.plots_type_x === "methylation") { //Fix the range for methylation data
+                rangeXmin = -0.02;
+                rangeXmax = 1.02;
+            }
+        }
         elem.xScale = d3.scale.linear()
             .domain([rangeXmin, rangeXmax])
             .range([100, 600]);
-        elem.yScale = d3.scale.linear()
-            .domain([rangeYmin, rangeYmax])
-            .range([520, 20]);
-
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
-        elem.yAxis = d3.svg.axis()
-            .scale(elem.yScale)
-            .orient("left");
+            .tickSize(6, 0, 0)
+            .tickPadding([8]);
     }
 
-    function drawAxis() {
-        var svg = elem.svg;
-        svg.append("g")
-            .style("stroke-width", 2)
+    function initYAxis(applyLogScale) {
+        var analyseResult = analyseData();
+        if (applyLogScale) {
+            var min_y = Math.log(analyseResult.min_y) / Math.log(2);
+            var max_y = Math.log(analyseResult.max_y) / Math.log(2);
+        } else {
+            var min_y = analyseResult.min_y;
+            var max_y = analyseResult.max_y;
+        }
+        var edge_y = (max_y - min_y) * 0.1;
+        var rangeYmin = min_y - edge_y;
+        var rangeYmax = max_y + edge_y;
+        if (!applyLogScale) {
+            if (menu.plots_type_y === "methylation") {
+                rangeYmin = -0.02;
+                rangeYmax = 1.02;
+            }
+        }
+        elem.yScale = d3.scale.linear()
+            .domain([rangeYmin, rangeYmax])
+            .range([520, 20]);
+        elem.yAxis = d3.svg.axis()
+            .scale(elem.yScale)
+            .orient("left")
+            .tickSize(6, 0, 0)
+            .tickPadding([8]);
+    }
+
+    function drawAxisX() {
+        d3.select("#plots_box").select(".plots-x-axis-class").remove();
+        elem.svg.append("g")
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
@@ -435,19 +516,23 @@ var PlotsTwoGenesView = (function(){
             .call(elem.xAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
-        svg.append("g")
-            .style("stroke-width", 2)
+        elem.svg.append("g")
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, 20)")
             .call(elem.xAxis.orient("bottom").ticks(0));
-        svg.append("g")
-            .style("stroke-width", 2)
+    }
+
+    function drawAxisY() {
+        d3.select("#plots_box").select(".plots-y-axis-class").remove();
+        elem.svg.append("g")
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
@@ -456,12 +541,12 @@ var PlotsTwoGenesView = (function(){
             .call(elem.yAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "11px")
+            .style("font-size", "12px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
-        svg.append("g")
-            .style("stroke-width", 2)
+        elem.svg.append("g")
+            .style("stroke-width", 1.5)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
@@ -540,6 +625,10 @@ var PlotsTwoGenesView = (function(){
             .enter()
             .append("svg:path")
             .attr("transform", function(d){
+                $(this).attr("x_pos", elem.xScale(d.x_value));
+                $(this).attr("y_pos", elem.yScale(d.y_value));
+                $(this).attr("x_val", d.x_value);
+                $(this).attr("y_val", d.y_value);
                 return "translate(" + elem.xScale(d.x_value) + ", " + elem.yScale(d.y_value) + ")";
             })
             .attr("d", d3.svg.symbol()
@@ -587,6 +676,36 @@ var PlotsTwoGenesView = (function(){
             })
             .attr("stroke-width", function(d) {
                 return "1.2";
+            });
+    }
+
+    function dotsLogScaleUpdate(axis, applyLogScale) {
+        elem.dotsGroup.selectAll("path")
+            .transition().duration(500)
+            .attr("transform", function() {
+                if (applyLogScale) {
+                    if (axis === "x") {
+                        var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                        var _post_y = d3.select(this).attr("y_pos");
+                    } else if (axis === "y") {
+                        var _post_x = d3.select(this).attr("x_pos");
+                        var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                    }
+                    d3.select(this).attr("x_pos", _post_x);
+                    d3.select(this).attr("y_pos", _post_y);
+                    return "translate(" + _post_x + ", " + _post_y + ")";
+                } else {
+                    if (axis === "x") {
+                        var _post_x = elem.xScale(d3.select(this).attr("x_val"));
+                        var _post_y = d3.select(this).attr("y_pos");
+                    } else if (axis === "y") {
+                        var _post_x = d3.select(this).attr("x_pos");
+                        var _post_y = elem.yScale(d3.select(this).attr("y_val"));
+                    }
+                    d3.select(this).attr("x_pos", _post_x);
+                    d3.select(this).attr("y_pos", _post_y);
+                    return "translate(" + _post_x + ", " + _post_y + ")";
+                }
             });
     }
 
@@ -650,60 +769,82 @@ var PlotsTwoGenesView = (function(){
         $('#view_title').append(titleText + ": " + menu.geneX + " vs. " + menu.geneY);
 
         var pdfConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='pdf'>" +
-            "<input type='hidden' name='filename' value='plots.pdf'>" +
+            "<input type='hidden' name='filename' value='correlation_plots-" + menu.geneX + "_" + menu.geneY + ".pdf'>" +
             "<input type='submit' value='PDF'></form>";
         $('#view_title').append(pdfConverterForm);
 
         var svgConverterForm = "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
-            "onsubmit=\"this.elements['svgelement'].value=loadSVG();\">" +
+            "onsubmit=\"this.elements['svgelement'].value=loadPlotsSVG();\">" +
             "<input type='hidden' name='svgelement'>" +
             "<input type='hidden' name='filetype' value='svg'>" +
-            "<input type='hidden' name='filename' value='plots.svg'>" +
+            "<input type='hidden' name='filename' value='correlation_plots-" + menu.geneX + "_" + menu.geneY + ".svg'>" +
             "<input type='submit' value='SVG'></form>";
         $('#view_title').append(svgConverterForm);
     }
 
-    function drawAxisTitle() {
+    function addXaxisTitle(applyLogScale) {
+        d3.select("#plots_box").select(".label-x").remove();
+        d3.select("#plots_box").select(".x-title-help").remove();
         var elt = document.getElementById("two_genes_platform");
         var titleText = elt.options[elt.selectedIndex].text;
-        var xTitle =
-            menu.geneX + ", " + titleText;
-        var yTitle =
-            menu.geneY + ", " + titleText;
-        var axisTitleGroup = elem.svg.append("svg:g");
-        axisTitleGroup.append("text")
-            .attr("class", "label")
+        var xTitle = applyLogScale? menu.geneX + ", " + titleText + "(log2)":  menu.geneX + ", " + titleText;
+        elem.axisTitleGroup.append("text")
+            .attr("class", "label-x")
             .attr("x", 350)
             .attr("y", 580)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(xTitle);
-        axisTitleGroup.append("text")
-            .attr("class", "label")
+        Plots.addxAxisHelp(
+            elem.svg,
+            elem.axisTitleGroup,
+            xTitle,
+            "x-title-help",
+            menu.genetic_profile_description
+        );
+    }
+
+    function addYaxisTitle(applyLogScale) {
+        d3.select("#plots_box").select(".label-y").remove();
+        d3.select("#plots_box").select(".y-title-help").remove();
+        var elt = document.getElementById("two_genes_platform");
+        var titleText = elt.options[elt.selectedIndex].text;
+        var yTitle = applyLogScale? menu.geneY + ", " + titleText + "(log2)":  menu.geneY + ", " + titleText;
+        elem.axisTitleGroup.append("text")
+            .attr("class", "label-y")
             .attr("transform", "rotate(-90)")
             .attr("x", -270)
             .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-weight","bold")
             .text(yTitle);
+        Plots.addyAxisHelp(
+            elem.svg,
+            elem.axisTitleGroup,
+            yTitle,
+            "y-title-help",
+            menu.genetic_profile_description
+        );
     }
 
     function addQtips() {
+        //For the dots
         elem.dotsGroup.selectAll('path').each(
             function(d) {
                 var content = "<font size='2'>";
                 content += "Case ID: " + "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                    "&cancer_study_id=" + cancer_study_id + "'>" + d.case_id + "</a></strong><br>";
+                    "&cancer_study_id=" + cancer_study_id + "' target = '_blank'>" + d.case_id + "</a></strong><br>";
                 content += menu.geneX + ": <strong>" + parseFloat(d.x_value).toFixed(3) + "</strong><br>" +
                     menu.geneY + ": <strong>" + parseFloat(d.y_value).toFixed(3) + "</strong><br>";
                 if (d.annotation !== "") {
                     if (menu.geneX === menu.geneY) {
-                        var tmp_anno_str = d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length);
+                        var tmp_anno_str =
+                            d.annotation.substring(d.annotation.indexOf(":") + 1, d.annotation.length).replace(/,/g, ", ");
                     } else {
-                        var tmp_anno_str = d.annotation;
+                        var tmp_anno_str = d.annotation.replace(/,/g, ", ");
                     }
                     content += "Mutation: <strong>" + tmp_anno_str + "</strong>";
                 }
@@ -713,7 +854,8 @@ var PlotsTwoGenesView = (function(){
                     {
                         content: {text: content},
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-                        hide: { fixed:true, delay: 100},
+	                    show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
                     }
                 );
@@ -745,6 +887,10 @@ var PlotsTwoGenesView = (function(){
         drawPlots();
         drawLegends();
         addQtips();
+        var applyLogScale_x = document.getElementById("two_genes_log_scale_option_x").checked;
+        var applyLogScale_y = document.getElementById("two_genes_log_scale_option_y").checked;
+        dotsLogScaleUpdate("x", applyLogScale_x);
+        dotsLogScaleUpdate("y", applyLogScale_y);
     }
 
     function generatePlots() {
@@ -764,15 +910,29 @@ var PlotsTwoGenesView = (function(){
     function getProfileDataCallBack(result) {
         pDataInit(result);
         initCanvas();
+
         if (pData.dotsData.length !== 0) {
-            initAxis();
-            drawAxis();
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+            $("#show_mutation").attr("disabled", false);
+            var _applyLogScale = false; //Default setting for log scale is false
+            initXAxis(_applyLogScale);
+            initYAxis(_applyLogScale);
+            drawAxisX();
+            drawAxisY();
             drawPlots();
             drawLegends();
-            drawAxisTitle();
+            addXaxisTitle(_applyLogScale);
+            addYaxisTitle(_applyLogScale);
             addQtips();
             drawImgConverter();
         } else {
+            $('#view_title').show();
+            $('#plots_box').show();
+            $('#loading-image').hide();
+
+            $("#show_mutation").attr("disabled", true);
             drawErrorMsg();
         }
     }
@@ -789,19 +949,24 @@ var PlotsTwoGenesView = (function(){
             //Contains a series of chained function
             //Including data fetching and drawing
             generatePlots();
-
-            setTimeout(
-                function() {
-                    $('#view_title').show();
-                    $('#plots_box').show();
-                    $('#loading-image').hide();
-                },
-                500
-            );
         },
         update : function() {
             //TODO: use cache
         },
-        updateMutationDisplay : updateMutationDisplay
+        updateMutationDisplay : updateMutationDisplay,
+        updateLogScaleX: function() {  //axis --> indicate x or y
+            var applyLogScale = document.getElementById("two_genes_log_scale_option_x").checked;
+            initXAxis(applyLogScale);
+            drawAxisX();
+            addXaxisTitle(applyLogScale);
+            dotsLogScaleUpdate("x", applyLogScale);
+        },
+        updateLogScaleY: function() {
+            var applyLogScale = document.getElementById("two_genes_log_scale_option_y").checked;
+            initYAxis(applyLogScale);
+            drawAxisY();
+            addYaxisTitle(applyLogScale);
+            dotsLogScaleUpdate("y", applyLogScale);
+        }
     };
 }());     //Closing PlotsTwoGeneView

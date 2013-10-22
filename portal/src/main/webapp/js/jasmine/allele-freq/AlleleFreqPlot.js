@@ -1,1 +1,1 @@
-../../patient-view/AlleleFreqPlot.js
+../../src/patient-view/AlleleFreqPlot.js

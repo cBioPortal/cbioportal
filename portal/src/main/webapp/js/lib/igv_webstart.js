@@ -72,14 +72,10 @@ function webstartVersionCheck(versionString) {
  */
 function timeoutHandler() {
 
-    // construct webstart url
-//    var hostname = window.location.hostname;
-//    var port = window.location.port;
-//    if (port) {
-//        hostname += (":" + port);
-//    }
-    // note: context_path is set in stylesAndScripts.jsp
     var webstart_url = "http://www.broadinstitute.org/igv/projects/current/igv.php";
+	if (sessionURL.indexOf("dataformat=.bam") != -1) {
+		webstart_url = "http://www.broadinstitute.org/igv/projects/dev/igv_su2c.php";
+	}
 
     if (sessionURL) {
         webstart_url += "?sessionURL=" + sessionURL;
@@ -209,3 +205,11 @@ function appRequest(port, dataUrl, genomeID, mergeFlag, locusString, trackName) 
 
 }
 
+function prepIGVLaunch(dataURL, locusString, referenceGenome, trackName) {
+
+    var port = 60151;
+    var genomeID = referenceGenome;
+    var mergeFlag = false;
+
+    appRequest(port, dataURL, genomeID, mergeFlag, locusString, trackName);
+}

@@ -1,74 +1,127 @@
-<%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
-<%@ page import="org.mskcc.cbio.cgds.model.ExtendedMutation" %>
-<%@ page import="org.mskcc.cbio.portal.model.ExtendedMutationMap" %>
-<%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.MutationCounter" %>
-<%@ page import="org.mskcc.cbio.portal.mut_diagram.MutationTableProcessor" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.io.IOException" %>
-<%@ page import="java.io.StringWriter" %>
-
 <!-- TODO include these js files in the global js include? -->
-<script type="text/javascript" src="js/src/mutation_model.js"></script>
-<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/src/mutation_table.js"></script>
+<script type="text/javascript" src="js/src/mutation_histogram.js"></script>
 
-<%
-    // TODO completely remove this block after refactoring
-	ArrayList<ExtendedMutation> extendedMutationList = (ArrayList<ExtendedMutation>)
-            request.getAttribute(QueryBuilder.INTERNAL_EXTENDED_MUTATION_LIST);
-    ExtendedMutationMap mutationMap = new ExtendedMutationMap(extendedMutationList,
-            mergedProfile.getCaseIdList());
-
-    MutationTableProcessor mutationTableProcessor = new MutationTableProcessor();
-%>
-<div class='section' id='mutation_details'></div>
+<div class='section' id='mutation_details'>
+	<img src='images/ajax-loader.gif'/>
+</div>
 
 <style type="text/css" title="currentStyle">
-        @import "css/data_table_jui.css";
-        @import "css/data_table_ColVis.css";
-        #mutation_details .ColVis {
-                float: left;
-                padding-right:25%;
-                margin-bottom: 0;
-        }
-        .mutation_datatables_filter {
-                float: right;
-                padding-top:3px;
-        }
-        .mutation_datatables_info {
-                float: left;
-                padding-top:5px;
-                font-size:90%;
-        }
-        .missense_mutation {
-                color: green;
-	            font-weight: bold;
-        }
-        .trunc_mutation {
-                color: red;
-	            font-weight: bold;
-        }
-        .inframe_mutation {
-                color: black;
-	            font-weight: bold;
-        }
-        .other_mutation {
-                color: gray;
-	            font-weight: bold;
-        }
-		.diagram_toolbar {
-                padding-top: 10px;
-                padding-left: 10px;
-		}
-		.mutation-diagram-container {
-			margin-bottom: 10px;
-		}
-        .mutation-table-container {
-	        margin-bottom: 40px;
-        }
+	@import "css/data_table_jui.css";
+	@import "css/data_table_ColVis.css";
+	#mutation_details .ColVis {
+		float: left;
+		padding-right:25%;
+		margin-bottom: 0;
+	}
+	#mutation_details .unknown {
+		background: #E0E0E0;
+		color:black;
+		padding-left:5px;
+		padding-right:5px;
+	}
+	#mutation_details .protein_change {
+		font-weight: bold;
+		font-style: italic;
+	}
+	#mutation_details .best_effect_transcript {
+		color: red;
+	}
+	#mutation_details .mutation_details_table {
+		font-size: 90%;
+		color: black;
+	}
+	/*
+	th.mutation-details-qtip-style {
+		/*font-size: 115%;
+	}
+	*/
+	#mutation_details .mutation_table_cosmic {
+		/*cursor: pointer;*/
+		color: #1974B8;
+	}
+	#mutation_details .dataTables_filter {
+		width: 200px;
+	}
+	#mutation_details .dataTables_filter input {
+		width: 120px;
+	}
+	#mutation_details .dataTables_info {
+		width: 300px;
+	}
+	#mutation_details .msa-img, #mutation_details .pdb-img {
+		vertical-align: bottom;
+		margin-left: 3px;
+	}
+	.diagram-lollipop-tip, .diagram-region-tip {
+		font-size: 12px;
+	}
+	.mutation-details-tooltip {
+		font-size: 11px !important;
+	}
+	.mutation_datatables_filter {
+		float: right;
+		padding-top:3px;
+	}
+	.mutation_datatables_info {
+		float: left;
+		padding-top:5px;
+		font-size:90%;
+	}
+	.missense_mutation {
+		color: green;
+		font-weight: bold;
+	}
+	.trunc_mutation {
+		color: red;
+		font-weight: bold;
+	}
+	.inframe_mutation {
+		color: black;
+		font-weight: bold;
+	}
+	.other_mutation {
+		color: gray;
+		font-weight: bold;
+	}
+	.diagram_toolbar {
+		padding-top: 10px;
+		padding-left: 10px;
+	}
+	.mutation-diagram-container {
+		margin-bottom: 10px;
+	}
+	.mutation-details-filter-info {
+		font-size: 14px;
+		font-family: verdana,arial,sans-serif;
+		color: red;
+		margin-bottom: 10px;
+	}
+	.mutation-details-filter-reset {
+		color: #1974B8 !important;
+		cursor: pointer;
+	}
+	.mutation-table-highlight {
+		background-color: #E9E900 !important;
+	}
+	.mutation-table-container {
+		margin-bottom: 40px;
+	}
+	.mutation-table-header {
+		font-weight: bold !important;
+	}
+	.cosmic-details-tip-info {
+		padding-bottom: 5px;
+	}
+	.cosmic-details-table {
+		font-size: 11px !important;
+	}
+	.igv-link {
+		cursor: pointer;
+	}
+	.left-align-td {
+		text-align: left;
+	}
+
 </style>
 
 <script type="text/javascript">
@@ -93,28 +146,12 @@ $(document).ready(function(){
 			{el: "#mutation_details", model: model});
 
 		defaultView.render();
-
-		// TODO completely remove this part after refactoring the mutation table
-		var tableMutations;
-		<%
-		for (GeneWithScore geneWithScore : geneWithScoreList) {
-			String geneStr = geneWithScore.getGene();
-			if (mutationMap.getNumExtendedMutations(geneStr) > 0) {
-				String mutationTableStr =
-					mutationTableProcessor.processMutationTable(geneStr,
-					converMutations(geneWithScore, mutationMap, mergedCaseList));
-		%>
-				tableMutations = <%= mutationTableStr %>;
-				delayedMutationTable(tableMutations);
-		<%
-			}
-		}
-		%>
 	};
 
 	// TODO getting these params from global variables defined in visualize.jsp
 	// we should refactor/redefine these global variables in a better way
-	var params = {geneList: genes,
+
+	var params = {geneList: geneList,
 		geneticProfiles: geneticProfiles,
 		caseList: samples};
 
@@ -122,49 +159,4 @@ $(document).ready(function(){
 	$.post("getMutationData.json", params, initMutationView, "json");
 });
 
-/**
- * Toggles the diagram between lollipop view and histogram view.
- *
- * @param geneId    id of the target diagram
- */
-function _toggleMutationDiagram(geneId)
-{
-    var option = $("#mutation_diagram_select_" + geneId).val();
-
-    if (option == "diagram")
-    {
-	    $("#mutation_diagram_" + geneId).show();
-	    $("#mutation_histogram_" + geneId).hide();
-    }
-    else if (option == "histogram")
-    {
-	    $("#mutation_diagram_" + geneId).hide();
-	    $("#mutation_histogram_" + geneId).show();
-    }
-}
-
 </script>
-
-
-<%!
-	// TODO remove all methods after refactoring
-    private List<ExtendedMutation> converMutations(GeneWithScore geneWithScore,
-                                                       ExtendedMutationMap mutationMap,
-                                                       ArrayList<String> mergedCaseList)
-    {
-        List<ExtendedMutation> mutations = new ArrayList<ExtendedMutation>();
-
-        for (String caseId : mergedCaseList)
-        {
-            List<ExtendedMutation> list = mutationMap.getExtendedMutations(
-                    geneWithScore.getGene(), caseId);
-
-            if (list != null)
-            {
-                mutations.addAll(list);
-            }
-        }
-
-        return mutations;
-    }
-%>

@@ -258,17 +258,7 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    var _index = 0;
-                    var _survival_index = 0;
-                    $('#tabs .ui-tabs-nav a').each(function() {
-                        if ($(this).attr('href') === "#survival") {
-                            _survival_index = _index;
-                            return false;
-                        } else {
-                            _index += 1;
-                        }
-                    });
-                    $("#tabs").tabs("remove", _survival_index);
+                    setTimeout(removeTag, 200);
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();
@@ -473,15 +463,15 @@ var survivalCurves = (function() {
                     content += "</font>";
 
 
-                        $(this).qtip(
-                            {
-                                content: {text: content},
-                                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
-                                show: {event: "mouseover"},
-                                hide: {fixed:true, delay: 100, event: "mouseout"},
-                                position: {my:'left bottom',at:'top right'}
-                            }
-                        );
+                    $(this).qtip(
+                        {
+                            content: {text: content},
+                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
+                            show: {event: "mouseover"},
+                            hide: {fixed:true, delay: 100, event: "mouseout"},
+                            position: {my:'left bottom',at:'top right'}
+                        }
+                    );
 
                     var mouseOn = function() {
                         var dot = d3.select(this);
@@ -665,7 +655,7 @@ var survivalCurves = (function() {
                 "<td><b>" + vals.num_of_events_unaltered_cases + "</b></td>" +
                 "<td><b>" + vals.unaltered_median + "</b></td>" +
                 "</table>");
-       }
+        }
 
         function appendImgConverter(divId, svgId) {
             var pdfConverterForm = "<form class='img_buttons' action='svgtopdf.do' method='post' " +
@@ -959,4 +949,17 @@ function loadSurvivalCurveSVG(svgId) {
     var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
     cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
     return xmlString;
+}
+function removeTag() {
+    var _index = 0;
+    var _survival_index = 0;
+    $('#tabs .ui-tabs-nav a').each(function() {
+        if ($(this).attr('href') === "#survival") {
+            _survival_index = _index;
+            return false;
+        } else {
+            _index += 1;
+        }
+    });
+    $("#tabs").tabs("remove", _survival_index);
 }

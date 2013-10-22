@@ -39,13 +39,13 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
-import org.mskcc.cbio.cgds.model.Drug;
-import org.mskcc.cbio.cgds.model.DrugInteraction;
-import org.mskcc.cbio.cgds.model.Interaction;
-import org.mskcc.cbio.cgds.scripts.drug.AbstractDrugInfoImporter;
-import org.mskcc.cbio.portal.remote.ConnectionManager;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.Drug;
+import org.mskcc.cbio.portal.model.DrugInteraction;
+import org.mskcc.cbio.portal.model.Interaction;
+import org.mskcc.cbio.portal.scripts.drug.AbstractDrugInfoImporter;
+import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 
 /**

@@ -674,6 +674,7 @@ var PlotsCustomView = (function() {
                 $(this).attr("y_pos", elem.yScale(d.y_value));
                 $(this).attr("x_val", d.x_value);
                 $(this).attr("y_val", d.y_value);
+                $(this).attr("size", 20);
                 return "translate(" + elem.xScale(d.x_value) + ", " + elem.yScale(d.y_value) + ")";
             })
             .attr("d", d3.svg.symbol()
@@ -721,7 +722,8 @@ var PlotsCustomView = (function() {
             })
             .attr("stroke-width", function(d) {
                 return "1.2";
-            });
+            })
+            .attr("class", function(d) { return d.case_id; });
     }
 
     function updatePlotsLogScale(axis, applyLogScale) {

@@ -136,7 +136,7 @@
                 wrapper.setDataMatrixAndFixTypes(matrix);
                 clincialDataTable = wrapper.dataTable;
                 waitAndDrawTable();
-            })
+            });
     }
     
     var mutCnaDataTable = null;
@@ -186,6 +186,7 @@
     function waitAndDrawTable() {
         var dt = mergeDataTables();
         if (dt) {
+            printNumberOfPatients(dt);
             $('#clinical-data-loading-wait').hide();
             $('#summary-plot-table').show();
             resetSmallPlots(dt);
@@ -195,6 +196,28 @@
             $('#clinical_table_filter').css('text-align','left');
             $('#clinical-data-table-div').show();
         }
+    }
+    
+    function printNumberOfPatients(dt) {
+        var noOfSamples = dt.getNumberOfRows();
+        var noOfPatients = noOfSamples;
+        var cols = dt.getNumberOfColumns();
+        var c=0;
+        for (; c<cols; c++) {
+            if (dt.getColumnLabel(c).toUpperCase() === 'PATIENT_ID') {
+                var patientIDs = {};
+                for (var r=0; r<noOfSamples; r++) {
+                    var patientId = dt.getValue(r,c);
+                    if (patientId!==null) {
+                        if (patientId in patientIDs) noOfPatients--;
+                        else patientIDs[patientId] = true;
+                    }
+                }
+                break;
+            }
+        }
+        
+        $("#study-desc").append("&nbsp;&nbsp;<b>"+noOfSamples+" samples from "+noOfPatients+" cases</b>.");
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

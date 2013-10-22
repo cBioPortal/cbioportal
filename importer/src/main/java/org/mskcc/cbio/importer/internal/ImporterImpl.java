@@ -45,9 +45,9 @@ import org.mskcc.cbio.importer.util.Shell;
 import org.mskcc.cbio.importer.util.MetadataUtils;
 import org.mskcc.cbio.importer.util.MutationFileUtil;
 
-import org.mskcc.cbio.cgds.scripts.ImportCaseList;
-import org.mskcc.cbio.cgds.scripts.ImportCancerStudy;
-import org.mskcc.cbio.cgds.scripts.ImportTypesOfCancers;
+import org.mskcc.cbio.portal.scripts.ImportCaseList;
+import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
+import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -198,8 +198,22 @@ class ImporterImpl implements Importer {
 			LOG.info("importReferenceData(), failure executing importer.");
 		}
 	}
+
+    /**
+     * Imports all cancer studies found within the given directory.
+     * If force is set, user will not be prompted to override existing cancer study.
+     *
+     * @param cancerStudyDirectoryName
+     * @param skip
+     * @param force
+     */
+    @Override
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
         
-        private boolean importByImporter(ReferenceMetadata referenceMetadata) throws Exception {
+    private boolean importByImporter(ReferenceMetadata referenceMetadata) throws Exception {
 		// we may be dealing with a class that implements the importer interface
 		String importerName = referenceMetadata.getImporterName();
 		try {
@@ -208,7 +222,7 @@ class ImporterImpl implements Importer {
 				Object[] importerArgs = { config, fileUtils, databaseUtils };
 				Importer importer = (Importer)ClassLoader.getInstance(importerName, importerArgs);
 				importer.importReferenceData(referenceMetadata);
-                                if (LOG.isInfoEnabled()) {
+                if (LOG.isInfoEnabled()) {
 					LOG.info("importReferenceData(), successfully executed " + clazz + ".");
 				}
 				return true;
@@ -232,6 +246,10 @@ class ImporterImpl implements Importer {
 			cancerFileContents.append(tumorType.getName());
             cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
             cancerFileContents.append(tumorType.getClinicalTrialKeywords());
+            cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
+            cancerFileContents.append(tumorType.getDedicatedColor());
+            cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
+            cancerFileContents.append(tumorType.getShortName());
             cancerFileContents.append("\n");
 		}
 		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_META_FILE_NAME,

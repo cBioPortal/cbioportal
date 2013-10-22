@@ -52,11 +52,11 @@ import org.apache.log4j.Logger;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ProteinArrayInfo;
-import org.mskcc.cbio.portal.remote.GetProteinArrayData;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 
 /**
  *

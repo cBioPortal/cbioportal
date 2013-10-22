@@ -12,6 +12,11 @@ Type 'helpwin cgds' to get an overview of available functions.
 
 
 Change log:
+1.06    19/09/13 Adapted to changes in web API: extended clinical data
+                 format (note that previous version no longer works
+                 correctly). Removed requirement for trailing '/' in URL
+                 string. Updated URL in help pages. Updated tutorial to
+                 comply with new output format for clinical data.
 1.05    27/06/12 Bugfixes to cgdstutorial.m (new CGDS URL, survival plot
                  fix)
 1.04    22/12/11 Updated cgdstutorial.m to comply with changed naming

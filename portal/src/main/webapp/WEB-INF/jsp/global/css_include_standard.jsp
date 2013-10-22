@@ -1,7 +1,6 @@
-<%@ page import="org.mskcc.cbio.portal.util.Config" %><%
-    Config globalConfig2 = Config.getInstance();
-    String global_style = globalConfig2.getProperty("global_css");
-    String special_style = globalConfig2.getProperty("special_css");
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %><%
+    String global_style = GlobalProperties.getProperty("global_css");
+    String special_style = GlobalProperties.getProperty("special_css");
     if (global_style == null) {
         global_style = "css/global_portal.css";
     } else {
@@ -21,6 +20,7 @@
 <% if (special_style != null) { %>
     <link href="<%= special_style %>" type="text/css" rel="stylesheet" />
 <% } %>
+<!--link href="css/smoothness/jquery-ui-1.10.3.custom.css" type="text/css" rel="stylesheet" /-->
 <link href="css/redmond/jquery-ui-1.8.14.custom.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table.css" type="text/css" rel="stylesheet" />
 <link href="css/ui.dropdownchecklist.themeroller.css" type="text/css" rel="stylesheet"/>

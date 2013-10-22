@@ -170,8 +170,7 @@ public class DaoGeneticAlteration {
         ResultSet rs = null;
         HashMap<Long,HashMap<String, String>> map = new HashMap<Long,HashMap<String, String>>();
 
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        ArrayList<String> orderedCaseList = daoGeneticProfileCases.getOrderedCaseList
+        ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList
                 (geneticProfileId);
         if (orderedCaseList == null || orderedCaseList.size() ==0) {
             throw new IllegalArgumentException ("Could not find any cases for genetic" +

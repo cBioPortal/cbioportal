@@ -29,10 +29,14 @@ package org.mskcc.cbio.portal.scripts;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.dao.DaoCoexpression;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
 import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfileCases;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.Coexpression;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
@@ -74,20 +78,29 @@ public class CalculateCoexpression {
      
     private static void calculate(GeneticProfile profile, ProgressMonitor pMonitor) throws DaoException {
         MySQLbulkLoader.bulkLoadOn();
-        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-
-        HashMap<Long,HashMap<String, String>> map = daoGeneticAlteration.getGeneticAlterationMap(profile.getGeneticProfileId(), null);
+        
+        PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
+        SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
+        
+        Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
+        
         int n = map.size();
-        pMonitor.setMaxValue(map.size());
+        pMonitor.setMaxValue(n*(n-1)/2);
         
         List<Long> genes = new ArrayList<Long>(map.keySet());
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
-                long gene1 = genes.get(i);
-                long gene2 = genes.get(j);
+                pMonitor.incrementCurValue();
                 
-                double pearson = 0;// calculate person
-                double spearman = 0; // calculate spearman
+                long gene1 = genes.get(i);
+                double[] exp1 = map.get(gene1);
+                
+                long gene2 = genes.get(j);
+                double[] exp2 = map.get(gene2);
+                
+                
+                double pearson = pearsonsCorrelation.correlation(exp1, exp2);
+                double spearman = spearmansCorrelation.correlation(exp1, exp2);
                 
                 Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
                 DaoCoexpression.addCoexpression(coexpression);
@@ -95,5 +108,34 @@ public class CalculateCoexpression {
         }
         
         MySQLbulkLoader.flushAll();
+    }
+    
+    private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {
+        ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(profileId);
+        int nCases = orderedCaseList.size();
+        
+        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
+        Map<Long,HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
+        Map<Long,double[]> map = new HashMap<Long,double[]>(mapStr.size());
+        for (Map.Entry<Long,HashMap<String, String>> entry : mapStr.entrySet()) {
+            Long gene = entry.getKey();
+            Map<String, String> mapCaseValueStr = entry.getValue();
+            double[] values = new double[nCases];
+            map.put(gene, values);
+            for (int i=0; i<nCases; i++) {
+                String caseId = orderedCaseList.get(i);
+                String value = mapCaseValueStr.get(caseId);
+                Double d;
+                try {
+                    d = Double.valueOf(value);
+                } catch (Exception e) {
+                    d = Double.NaN;
+                }
+                if (d!=null && !d.isNaN()) {
+                    values[i]=d;
+                }
+            }
+        }
+        return map;
     }
 }

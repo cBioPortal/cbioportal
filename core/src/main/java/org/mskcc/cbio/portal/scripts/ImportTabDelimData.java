@@ -147,8 +147,7 @@ public class ImportTabDelimData {
             }
             orderedCaseList.add(caseIds[i]);
         }
-        DaoGeneticProfileCases daoGeneticProfileCases = new DaoGeneticProfileCases();
-        daoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
+        DaoGeneticProfileCases.addGeneticProfileCases(geneticProfileId, orderedCaseList);
 
         String line = buf.readLine();
         int numRecordsStored = 0;

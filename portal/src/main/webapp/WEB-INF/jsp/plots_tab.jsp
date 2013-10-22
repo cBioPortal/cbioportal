@@ -97,17 +97,6 @@
                             <h5>Data Type</h5>
                             <div id='one_gene_platform_select_div'></div>
                         </div>
-                        <div id='one_genes_view_options'>
-                            <h5>Options</h5>
-                            <div id='one_gene_apply_log_scale_div_x'>
-                                <input type='checkbox' id='log_scale_option_x' unchecked onchange='PlotsView.applyLogScaleX();'/>
-                                apply log scale - x axis
-                            </div>
-                            <div id='one_gene_apply_log_scale_div_y'>
-                                <input type='checkbox' id='log_scale_option_y' unchecked onchange='PlotsView.applyLogScaleY();'/>
-                                apply log scale - y axis
-                            </div>
-                        </div>
                         <div id="inner-search-box-one-gene">
                             <h5>Search case(s)</h5>
                             <input type="text" id="search_plots_one_gene" placeholder="Case ID..." onkeyup="Plots.searchPlots('one_gene');">

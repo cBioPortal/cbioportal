@@ -96,7 +96,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
         try {
-            String geneList = servletXssUtil.getCleanInput(httpServletRequest,
+            String geneList = servletXssUtil.getCleanerInput(httpServletRequest,
                     QueryBuilder.GENE_LIST);
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 
@@ -110,7 +110,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-            String action = servletXssUtil.getCleanInput(httpServletRequest,
+            String action = servletXssUtil.getCleanerInput(httpServletRequest,
                     QueryBuilder.ACTION_NAME);
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
                 GeneValidator geneValidator = new GeneValidator(geneList);

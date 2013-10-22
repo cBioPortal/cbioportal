@@ -35,7 +35,7 @@
         <b:entry key="METHYLATION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
         <b:entry key="MRNA_EXPRESSION" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
         <b:entry key="MUTATION_EXTENDED" value="org.mskcc.cbio.portal.scripts.ImportProfileData"/>
-        <b:entry key="MUTSIG" value="org.mskcc.cbio.portal.scripts.ImportMutSigData"/>
+        <b:entry key="MUTATION_SIGNIFICANCE" value="org.mskcc.cbio.portal.scripts.ImportMutSigData"/>
         <b:entry key="RPPA" value="org.mskcc.cbio.portal.scripts.ImportProteinArrayData"/>
         <b:entry key="SEGMENT" value="org.mskcc.cbio.portal.scripts.ImportCopyNumberSegmentData"/>
       </b:map>

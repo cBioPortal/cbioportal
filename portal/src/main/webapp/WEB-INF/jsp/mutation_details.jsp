@@ -1,5 +1,12 @@
 <!-- TODO include these js files in the global js include? -->
 <script type="text/javascript" src="js/src/mutation_histogram.js"></script>
+<!--script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js"></script-->
+<script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
+<script type="text/javascript" src="js/src/mutation_3d_viewer.js"></script>
+<script type="text/javascript" src="js/src/mutation_pdb_panel.js"></script>
 
 <div class='section' id='mutation_details'>
 	<img src='images/ajax-loader.gif'/>
@@ -30,6 +37,9 @@
 		font-size: 90%;
 		color: black;
 	}
+	#mutation_details .mutation_details_table td {
+		font-size: 100%;
+	}
 	/*
 	th.mutation-details-qtip-style {
 		/*font-size: 115%;
@@ -52,7 +62,7 @@
 		vertical-align: bottom;
 		margin-left: 3px;
 	}
-	.diagram-lollipop-tip, .diagram-region-tip {
+	.diagram-lollipop-tip, .diagram-region-tip, .pdb-chain-tip {
 		font-size: 12px;
 	}
 	.mutation-details-tooltip {
@@ -87,9 +97,6 @@
 		padding-top: 10px;
 		padding-left: 10px;
 	}
-	.mutation-diagram-container {
-		margin-bottom: 10px;
-	}
 	.mutation-details-filter-info {
 		font-size: 14px;
 		font-family: verdana,arial,sans-serif;
@@ -100,6 +107,9 @@
 		color: #1974B8 !important;
 		cursor: pointer;
 	}
+	.mutation-details-tabs-ref {
+		font-size: 11px !important;
+	}
 	.mutation-table-highlight {
 		background-color: #E9E900 !important;
 	}
@@ -108,6 +118,38 @@
 	}
 	.mutation-table-header {
 		font-weight: bold !important;
+	}
+	.mutation-3d-container {
+		position: fixed;
+		float: right;
+		right: 0;
+		top: 0;
+		z-index: 100;
+		border-style: outset;
+		border-color: #BABDB6;
+		background-color: #FFFFFF;
+		padding: 5px 10px 10px;
+	}
+	.mutation-3d-vis-header {
+		padding-bottom: 5px;
+	}
+	.mutation-3d-info {
+		font-size: 14px;
+	}
+	.mutation-3d-close {
+		float: right;
+		cursor: pointer;
+	}
+	.mutation-3d-pdb-id, .mutation-3d-chain-id {
+		font-weight: bold;
+		font-style: italic;
+	}
+	.mutation-3d-spin {
+		margin-left: 20px;
+	}
+	.mutation-3d-vis img{
+		width: 24px;
+		height: 24px
 	}
 	.cosmic-details-tip-info {
 		padding-bottom: 5px;
@@ -121,42 +163,58 @@
 	.left-align-td {
 		text-align: left;
 	}
+	/* This is to fix ui.tabs.paging plugin style,
+	we may need to remove this after updating jQuery */
+	.ui-tabs-paging-prev, .ui-tabs-paging-next {
+		background: none !important;
+		border: none !important;
+		line-height: 95%;
+	}
+	.ui-tabs-paging-next {
+		padding-right: 0 !important;
+	}
+	.ui-tabs-paging-disabled {
+		/* do not show button if no cycle */
+		display: none;
+	}
+	/* This is also to fix ui.tabs.paging behavior */
+	.mutation-details-content {
+		min-width: 480px;
+	}
 
 </style>
 
 <script type="text/javascript">
-    
+
+// TODO 3d Visualizer should be initialized before document get ready
+// ...due to incompatible Jmol initialization behavior
+var _mut3dVis = null;
+//_mut3dVis = new Mutation3dVis("default3dView", {});
+//_mut3dVis.init();
+
 // Set up Mutation View
 $(document).ready(function(){
 	// TODO accessing global "samples" variable...
 	var sampleArray = samples.trim().split(/\s+/);
 
-	/**
-	 * Processes the raw mutation data returned from the servlet, and
-	 * initializes the mutation view.
-	 *
-	 * @param data  raw mutation data returned from the servlet
-	 */
-	var initMutationView = function(data)
-	{
-		var model = {mutations: data,
-			sampleArray: sampleArray};
-
-		var defaultView = new MutationDetailsView(
-			{el: "#mutation_details", model: model});
-
-		defaultView.render();
-	};
-
-	// TODO getting these params from global variables defined in visualize.jsp
-	// we should refactor/redefine these global variables in a better way
-
-	var params = {geneList: geneList,
-		geneticProfiles: geneticProfiles,
+	var servletParams = {geneticProfiles: geneticProfiles,
 		caseList: samples};
 
-	// get mutation data & init view for the current gene and case lists
-	$.post("getMutationData.json", params, initMutationView, "json");
+	var servletName = "getMutationData.json";
+
+	// init mutation data proxy with the data servlet config
+	var proxy = new MutationDataProxy(geneList);
+	proxy.initWithoutData(servletName, servletParams);
+
+	// init default mutation details view
+
+	var model = {mutationProxy: proxy,
+		sampleArray: sampleArray};
+
+	var defaultView = new MutationDetailsView(
+		{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
+
+	defaultView.render();
 });
 
 </script>

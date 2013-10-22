@@ -73,7 +73,7 @@ public class ImportCaseList {
        
       String caseListCategoryStr = properties.getProperty("case_list_category");
       if (caseListCategoryStr  == null || caseListCategoryStr.length() == 0) {
-          throw new IllegalArgumentException("case_list_category is not specified");
+          caseListCategoryStr = "other";
       }
       CaseListCategory caseListCategory = CaseListCategory.get(caseListCategoryStr); 
        
@@ -120,7 +120,7 @@ public class ImportCaseList {
       // check args
       if (args.length < 1) {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-         System.exit(1);
+            return;
       }
       ProgressMonitor pMonitor = new ProgressMonitor();
       pMonitor.setConsoleMode(true);

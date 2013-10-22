@@ -94,7 +94,6 @@ public enum ComparisonOp {
         }
         // keep compiler happy
         (new UnreachableCodeException( "")).printStackTrace();
-        System.exit(1);
         return null;
     }
 

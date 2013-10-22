@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.apache.commons.lang.*" %>
 
 <%

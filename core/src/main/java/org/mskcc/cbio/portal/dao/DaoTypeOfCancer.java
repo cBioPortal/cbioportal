@@ -51,10 +51,12 @@ public class DaoTypeOfCancer {
       ResultSet rs = null;
       try {
          con = JdbcUtil.getDbConnection(DaoTypeOfCancer.class);
-         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, `NAME`, `CLINICAL_TRIAL_KEYWORDS` ) VALUES (?,?,?)");
+         pstmt = con.prepareStatement("INSERT INTO type_of_cancer ( `TYPE_OF_CANCER_ID`, `NAME`, `CLINICAL_TRIAL_KEYWORDS`, `DEDICATED_COLOR`, `SHORT_NAME` ) VALUES (?,?,?,?,?)");
          pstmt.setString(1, typeOfCancer.getTypeOfCancerId());
          pstmt.setString(2, typeOfCancer.getName());
          pstmt.setString(3, typeOfCancer.getClinicalTrialKeywords());
+         pstmt.setString(4, typeOfCancer.getDedicatedColor());
+         pstmt.setString(5, typeOfCancer.getShortName());
          int rows = pstmt.executeUpdate();
          return rows;
       } catch (SQLException e) {
@@ -162,6 +164,9 @@ public class DaoTypeOfCancer {
       typeOfCancer.setTypeOfCancerId(rs.getString("TYPE_OF_CANCER_ID"));
       typeOfCancer.setName(rs.getString("NAME"));
       typeOfCancer.setClinicalTrialKeywords(rs.getString("CLINICAL_TRIAL_KEYWORDS"));
+      typeOfCancer.setDedicatedColor(rs.getString("DEDICATED_COLOR"));
+      typeOfCancer.setShortName(rs.getString("SHORT_NAME"));
+
       return typeOfCancer;
    }
 }

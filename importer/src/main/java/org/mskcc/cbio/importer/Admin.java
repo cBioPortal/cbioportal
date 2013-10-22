@@ -225,7 +225,6 @@ public class Admin implements Runnable {
 		}
 		catch (Exception e) {
 			Admin.usage(new PrintWriter(System.out, true));
-			System.exit(-1);
 		}
 	}
 
@@ -300,7 +299,6 @@ public class Admin implements Runnable {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 
@@ -575,7 +573,8 @@ public class Admin implements Runnable {
 		else {
 			Importer importer = (Importer)getBean("importer");
 			for (ReferenceMetadata referenceMetadata : referenceMetadatas) {
-				if (referenceType.equals(Config.ALL) || referenceMetadata.getReferenceType().equals(referenceType)) {
+				if ((referenceType.equals(Config.ALL) && referenceMetadata.getImport()) ||
+                    referenceMetadata.getReferenceType().equals(referenceType)) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("importReferenceData(), calling import for: " + referenceMetadata.getReferenceType());
 					}
@@ -720,7 +719,7 @@ public class Admin implements Runnable {
 		if (args.length == 0) {
 			System.err.println("Missing args to Admin.");
 			Admin.usage(new PrintWriter(System.err, true));
-			System.exit(-1);
+                        return;
 		}
 
 		// configure logging
@@ -736,7 +735,6 @@ public class Admin implements Runnable {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 }

@@ -50,7 +50,7 @@ public class ImportMutSigData {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importMutSig.pl <Mutsig_file.txt> <cancer-study-identifier>");
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

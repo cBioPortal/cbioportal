@@ -5,11 +5,13 @@
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 
 
 <%
@@ -22,7 +24,19 @@ String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
-boolean viewBam = GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy.getCancerStudyStableId());
+
+// check if any Bam files exist
+boolean viewBam = false;
+Map<String,Boolean> mapCaseBam = new HashMap<String,Boolean>(caseIds.size());
+for (String caseId : caseIds) {
+    boolean exist = IGVLinking.bamExists(cancerStudy.getCancerStudyStableId(), caseId);
+    mapCaseBam.put(caseId, exist);
+    if (exist) {
+        viewBam = true;
+    }
+}
+String jsonMapCaseBam = jsonMapper.writeValueAsString(mapCaseBam);
+
 String jsonClinicalData = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 
 String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
@@ -311,6 +325,7 @@ var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>,
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
+var mapCaseBam = <%=jsonMapCaseBam%>;
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}

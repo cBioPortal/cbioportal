@@ -24,6 +24,8 @@ CREATE TABLE `type_of_cancer` (
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   `NAME` varchar(255) NOT NULL,
   `CLINICAL_TRIAL_KEYWORDS` varchar(1024) NOT NULL,
+  `DEDICATED_COLOR` char(31) NOT NULL,
+  `SHORT_NAME` varchar(127) NOT NULL,
   PRIMARY KEY  (`TYPE_OF_CANCER_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -595,3 +597,14 @@ CREATE TABLE `clinical_trial_keywords` (
   FOREIGN KEY (`PROTOCOLID`) REFERENCES `clinical_trials` (`PROTOCOLID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+drop table IF EXISTS pdb_uniprot_residue_mapping;
+CREATE TABLE `pdb_uniprot_residue_mapping` (
+  `PDB_ID` char(4) NOT NULL,
+  `CHAIN` char(1) NOT NULL,
+  `PDB_POSITION` int NOT NULL,
+  `UNIPROT_ID` varchar(50) NOT NULL,
+  `UNIPROT_POSITION` int NOT NULL,
+  KEY(`UNIPROT_ID`),
+  KEY(`UNIPROT_ID`, `UNIPROT_POSITION`),
+  KEY(`UNIPROT_ID`, `UNIPROT_POSITION`, `PDB_ID`, `CHAIN`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;

@@ -258,7 +258,7 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    setTimeout(removeTag, 200);
+                    removeTag();
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();
@@ -951,15 +951,17 @@ function loadSurvivalCurveSVG(svgId) {
     return xmlString;
 }
 function removeTag() {
-    var _index = 0;
-    var _survival_index = 0;
-    $('#tabs .ui-tabs-nav a').each(function() {
-        if ($(this).attr('href') === "#survival") {
-            _survival_index = _index;
-            return false;
-        } else {
-            _index += 1;
-        }
+    $("#tabs").load(function(){
+        var _index = 0;
+        var _survival_index = 0;
+        $('#tabs .ui-tabs-nav a').each(function() {
+            if ($(this).attr('href') === "#survival") {
+                _survival_index = _index;
+                return false;
+            } else {
+                _index += 1;
+            }
+        });
+        $("#tabs").tabs("remove", _survival_index);
     });
-    $("#tabs").tabs("remove", _survival_index);
 }

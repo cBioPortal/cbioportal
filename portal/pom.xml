@@ -50,7 +50,7 @@
 	<!-- plugins -->
 	<plugins>
 
-	  <!-- java 1.6 support -->
+	  <!-- java 1.7 support -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-compiler-plugin</artifactId>

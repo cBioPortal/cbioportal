@@ -112,17 +112,11 @@
                         <select id='two_genes_plots_type' onchange="PlotsTwoGenesMenu.updateDataType();PlotsTwoGenesView.init();"></select>
                         <h5>Platform</h5>
                         <div id='two_genes_platform_select_div'></div>
+                        <div id='two_genes_apply_log_scale_div_x'></div>
+                        <div id='two_genes_apply_log_scale_div_y'></div>
                         <br>
                         <div id='two_genes_view_options'>
                             <h5>Options</h5>
-                            <div id='two_genes_apply_log_scale_div_x'>
-                                <input type='checkbox' id='two_genes_log_scale_option_x' unchecked onchange='PlotsTwoGenesView.updateLogScaleX();'/>
-                                apply log scale - x axis
-                            </div>
-                            <div id='two_genes_apply_log_scale_div_y'>
-                                <input type='checkbox' id='two_genes_log_scale_option_y' unchecked onchange='PlotsTwoGenesView.updateLogScaleY();'/>
-                                apply log scale - y axis
-                            </div>
                             <div id='two_genes_show_mutation_div'>
                                 <input type="checkbox" id="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
                                 show mutation data

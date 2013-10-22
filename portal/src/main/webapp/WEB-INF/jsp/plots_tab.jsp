@@ -136,6 +136,7 @@
                         <select id='custom_plots_type_x' onchange='PlotsCustomMenu.updateX();PlotsCustomView.init();'></select><br>
                         Platform<br>
                         <div id='custom_platform_select_div_x'></div>
+                        <div id='custom_genes_apply_log_scale_div_x'></div>
                         <br>
                         <h5>y Axis</h5>
                         Gene<br>
@@ -144,17 +145,10 @@
                         <select id='custom_plots_type_y' onchange='PlotsCustomMenu.updateY();PlotsCustomView.init();'></select><br>
                         Platform<br>
                         <div id='custom_platform_select_div_y'></div>
+                        <div id='custom_genes_apply_log_scale_div_y'></div>
                         <br>
                         <div id='custom_genes_view_options'>
                             <h5>Options</h5>
-                            <div id='custom_genes_apply_log_scale_div_x'>
-                                <input type='checkbox' id='custom_genes_log_scale_option_x' unchecked onchange='PlotsCustomView.updateLogScaleX();' />
-                                apply log scale - x axis
-                            </div>
-                            <div id='custom_genes_apply_log_scale_div_y'>
-                                <input type='checkbox' id='custom_genes_log_scale_option_y' unchecked onchange='PlotsCustomView.updateLogScaleY();' />
-                                apply log scale - y axis
-                            </div>
                             <div id='custom_genes_show_mutation_div'>
                                 <input type="checkbox" id="show_mutation_custom_view" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                                 show mutation data

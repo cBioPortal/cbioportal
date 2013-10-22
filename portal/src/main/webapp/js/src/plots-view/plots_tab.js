@@ -402,6 +402,13 @@ var PlotsView = (function () {
                 stroke : "#B40404",
                 legendText : "Missense"
             },
+            other: {
+                typeName: "other",
+                symbol: "square",
+                fill : "#1C1C1C",
+                stroke : "#B40404",
+                legendText : "Other"
+            },
             non : {
                 typeName : "non",
                 symbol : "circle",
@@ -656,8 +663,8 @@ var PlotsView = (function () {
                             _mutationTypes.push(mutationStyle.nonstop.typeName);
                         } else if (val.mutationType === "Translation_Start_Site") {
                             _mutationTypes.push(mutationStyle.nonstart.typeName);
-                        } else {
-                            _mutationTypes.push(mutationStyle.non.typeName);
+                        } else { //Fusion etc. new mutation types
+                            _mutationTypes.push(mutationStyle.other.typeName);
                         }
                     });
                     //Re-order mutations in one case based on priority list

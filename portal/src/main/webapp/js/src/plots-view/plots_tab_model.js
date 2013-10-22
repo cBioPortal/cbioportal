@@ -131,6 +131,40 @@ var Plots = (function(){
         );
     }
 
+    function searchPlots(viewIdentifier) {
+        var searchToken = "";
+        if (viewIdentifier === "one_gene") {
+            searchToken = document.getElementById("search_plots_one_gene").value;
+        } else if (viewIdentifier === "two_genes") {
+            searchToken = document.getElementById("search_plots_two_genes").value;
+        } else if (viewIdentifier === "custom") {
+            searchToken = document.getElementById("search_plots_custom").value;
+        }
+        d3.select("#plots_box").selectAll("path").each(
+            function() {
+                var _attr = $(this).attr("class");
+                if (typeof _attr !== 'undefined' && _attr !== false && _attr !== "domain") {
+                    if ( searchToken.length >= 4 ) {
+                        if ( $(this).attr("class").toUpperCase().indexOf(searchToken.toUpperCase()) !== -1 &&
+                        (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size") + 5)
+                                .type(d3.select(this).attr("symbol")));
+                        } else {
+                            $(this).attr("d", d3.svg.symbol()
+                                .size(d3.select(this).attr("size"))
+                                .type(d3.select(this).attr("symbol")));
+                        }
+                    } else {
+                        $(this).attr("d", d3.svg.symbol()
+                            .size(d3.select(this).attr("size"))
+                            .type(d3.select(this).attr("symbol")));
+                    }
+                }
+            }
+        );
+    }
+
     return {
         init: function() {
             var paramsGetProfiles = {
@@ -163,7 +197,8 @@ var Plots = (function(){
             $.post("getMutationData.json", paramsGetMutationType, callback_func, "json");
         },
         addxAxisHelp: addxAxisHelp,
-        addyAxisHelp: addyAxisHelp
+        addyAxisHelp: addyAxisHelp,
+        searchPlots: searchPlots
     };
 
 }());    //Closing Plots
@@ -212,7 +247,6 @@ function loadPlotsSVG() {
 
     return xmlString;
 }
-
 
 
 

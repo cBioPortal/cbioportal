@@ -1,8 +1,8 @@
 <%@ page import="org.mskcc.cbio.portal.model.GeneWithScore" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.ArrayList" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoSangerCensus" %>
-<%@ page import="org.mskcc.cbio.cgds.model.SangerCancerGene" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoSangerCensus" %>
+<%@ page import="org.mskcc.cbio.portal.model.SangerCancerGene" %>
 <%@ page import="java.io.IOException" %>
 <div id="gene_info">
 <p><h4>Sanger Cancer Gene Census Information:</h4>

@@ -147,22 +147,32 @@ define("OncoprintUtils", (function() {
     //
     // if there is no data, then the range is undefined
     var gene_data_type2range = function(raw_gene_data) {
-        var extract_unique = function(raw_data, datatype) {
+        var extract_unique = function(raw_data, datatype, filter) {
             return _.chain(raw_gene_data)
                 .map(function(d) {
                     return d[datatype];
                 })
-            .unique()
+                .unique()
+                .filter( function(d) {
+                    return d !== undefined && (!filter || filter(d));
+                })
                 .value();
         };
 
         var cnas = extract_unique(raw_gene_data, 'cna');
-        var mutations = extract_unique(raw_gene_data, 'mutation');
+        var mutations = extract_unique(raw_gene_data, 'mutation', function(d){
+            var aas = d.split(",");// e.g. A32G,fusion
+            for (var i=0, n=aas.length; i<n; i++) {
+                if (!/fusion$/i.test(aas[i])) return true;
+            }
+            return false;
+        });
+        var fusions = extract_unique(raw_gene_data, 'mutation', function(d){return /fusion($|,)/i.test(d);});
         var mrnas = extract_unique(raw_gene_data, 'mrna');
         var rppas = extract_unique(raw_gene_data, 'rppa');
 
         var there_is_data = function(list) {
-            return !(list.length === 1) || !(list[0] === undefined);
+            return list.length > 0;
         };
 
         var to_return = {};
@@ -186,6 +196,10 @@ define("OncoprintUtils", (function() {
 
         if (there_is_data(mutations)) {
             to_return.mutation = mutations;
+        }
+        
+        if (there_is_data(fusions)) {
+            to_return.fusion = fusions;
         }
 
         if (there_is_data(mrnas)) {
@@ -462,6 +476,7 @@ define("OncoprintUtils", (function() {
             // set defaults
             options.bg_color = options.bg_color || colors.grey;
             options.display_mutation = options.display_mutation || "none";
+            options.display_fusion = options.display_fusion || "none";
             options.display_down_rppa = options.display_down_rppa || "none";
             options.display_up_rppa = options.display_up_rppa || "none";
             options.display_down_mrna = options.display_down_mrna || "none";
@@ -487,7 +502,8 @@ define("OncoprintUtils", (function() {
                       UPREGULATED: "RPPA Upregulation",
                       DOWNREGULATED: "RPPA Downregulation"
                   },
-            mutation: "Mutation"
+            mutation: "Mutation",
+            fusion: "Fusion"
         };
 
         var val2template = {
@@ -521,6 +537,12 @@ define("OncoprintUtils", (function() {
         if (datatype2range.mutation !== undefined) {
             templates = templates.concat(
                     item_templater({ display_mutation: "inherit", text: captions.mutation})
+                    );
+        }
+
+        if (datatype2range.fusion !== undefined) {
+            templates = templates.concat(
+                    item_templater({ display_fusion: "inherit", text: captions.fusion})
                     );
         }
 
@@ -582,9 +604,11 @@ define("OncoprintUtils", (function() {
 
         return {
             mutation: function(d) {
-                return d.mutation ?
-                    "Mutation: <b>" + d.mutation + "</b><br/>"
-                    : "";
+                if (d.mutation) {
+                    if (/fusion($|,)/i.test(d.mutation)) return "<b>" + d.mutation + "</b><br/>";
+                    else return "Mutation: <b>" + d.mutation + "</b><br/>";
+                }
+                return "";
             },
 
             cna: function(d) {

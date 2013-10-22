@@ -4,8 +4,8 @@
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticAlterationType" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 
 <%
     String cancer_study_id = (String)request.getParameter("cancer_study_id");
@@ -41,14 +41,14 @@
 <style>
     #plots .plots {
         height: 610px;
+        border: 1px solid #aaaaaa;
+        border-radius: 4px;
     }
     #plots .plots.plots-menus {
         width: 320px;
         height: 685px;
     }
     #plots .plots.plots-view {
-        border: 1px solid #aaaaaa;
-        border-radius: 4px;
         padding: 40px;
         width: 720px;
     }
@@ -108,6 +108,10 @@
                                 apply log scale - y axis
                             </div>
                         </div>
+                        <div id="inner-search-box-one-gene">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_one_gene" placeholder="Case ID..." onkeyup="Plots.searchPlots('one_gene');">
+                        </div>
                     </div>
                     <div id="plots_two_genes">
                         <h4>Plot Parameters</h4>
@@ -134,6 +138,10 @@
                                 <input type="checkbox" id="show_mutation" checked onchange='PlotsTwoGenesView.updateMutationDisplay();'/>
                                 show mutation data
                             </div>
+                        </div>
+                        <div id="inner-search-box-two-genes">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_two_genes" placeholder="Case ID..." onkeyup="Plots.searchPlots('two_genes');">
                         </div>
                     </div>
                     <div id="plots_custom">
@@ -168,6 +176,10 @@
                                 <input type="checkbox" id="show_mutation_custom_view" checked onchange='PlotsCustomView.updateMutationDisplay();'/>
                                 show mutation data
                             </div>
+                        </div>
+                        <div id="inner-search-box-custom">
+                            <h5>Search case(s)</h5>
+                            <input type="text" id="search_plots_custom" placeholder="Case ID..." onkeyup="Plots.searchPlots('custom');">
                         </div>
                     </div>
                 </div>

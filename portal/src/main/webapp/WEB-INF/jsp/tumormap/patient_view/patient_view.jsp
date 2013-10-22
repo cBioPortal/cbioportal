@@ -1,14 +1,16 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.model.CancerStudy" %>
-<%@ page import="org.mskcc.cbio.cgds.model.GeneticProfile" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
+<%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="java.util.HashMap" %>
 <%@ page import="java.util.Map" %>
 <%@ page import="java.util.Set" %>
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 <%@ page import="org.codehaus.jackson.map.ObjectMapper" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.IGVLinking" %>
 
 
 <%
@@ -20,7 +22,19 @@ String jsonCaseIds = jsonMapper.writeValueAsString(caseIds);
 String caseIdStr = StringUtils.join(caseIds," ");
 String patientViewError = (String)request.getAttribute(PatientView.ERROR);
 CancerStudy cancerStudy = (CancerStudy)request.getAttribute(PatientView.CANCER_STUDY);
-boolean viewBam = GlobalProperties.getIGVBAMLinkingStudies().contains(cancerStudy.getCancerStudyStableId());
+
+// check if any Bam files exist
+boolean viewBam = false;
+Map<String,Boolean> mapCaseBam = new HashMap<String,Boolean>(caseIds.size());
+for (String caseId : caseIds) {
+    boolean exist = IGVLinking.bamExists(cancerStudy.getCancerStudyStableId(), caseId);
+    mapCaseBam.put(caseId, exist);
+    if (exist) {
+        viewBam = true;
+    }
+}
+String jsonMapCaseBam = jsonMapper.writeValueAsString(mapCaseBam);
+
 String jsonClinicalData = jsonMapper.writeValueAsString((Map<String,String>)request.getAttribute(PatientView.CLINICAL_DATA));
 
 String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
@@ -44,7 +58,7 @@ boolean showPlaceHoder;
 if (isDemoMode!=null) {
     showPlaceHoder = isDemoMode.equalsIgnoreCase("on");
 } else {
-    showPlaceHoder = SkinUtil.showPlaceholderInPatientView();
+    showPlaceHoder = GlobalProperties.showPlaceholderInPatientView();
 }
 
 boolean showPathways = showPlaceHoder & (showMutations | showCNA);
@@ -56,7 +70,7 @@ boolean showGenomicOverview = showMutations | hasCnaSegmentData;
 boolean showClinicalTrials = true;
 boolean showDrugs = true;
 
-double[] genomicOverviewCopyNumberCnaCutoff = SkinUtil.getPatientViewGenomicOverviewCnaCutoff();
+double[] genomicOverviewCopyNumberCnaCutoff = GlobalProperties.getPatientViewGenomicOverviewCnaCutoff();
 
 int numPatientInSameStudy = 0;
 int numPatientInSameMutationProfile = 0;
@@ -309,6 +323,7 @@ var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>,
 var drugType = drugType?'<%=drugType%>':null;
 var clinicalDataMap = <%=jsonClinicalData%>;
 var viewBam = <%=viewBam%>;
+var mapCaseBam = <%=jsonMapCaseBam%>;
 
 var caseMetaData = {
     color : {}, label : {}, index : {}, tooltip : {}

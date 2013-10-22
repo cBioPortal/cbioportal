@@ -57,6 +57,7 @@
 	  <intercept-url pattern="/mutation_table_data.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getMutationData.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/getPfamSequence.json*" access="isAuthenticated()"/>
+	  <intercept-url pattern="/get3dPdb.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
@@ -94,6 +95,8 @@
       <intercept-url pattern="/clinicaltrials.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/similar_patients.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/GeneData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/crosscancerquery.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/crosscancermutation.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinical.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/clinicalAttributes.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/tools.jsp*" access="isAuthenticated()"/>
@@ -101,7 +104,10 @@
       <intercept-url pattern="/getGeneticProfile.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/getProfileData.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/getProteinArrayData.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/getSurvivalData.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
+      <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
+
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>
 	  <openid-login login-page="/login.jsp" default-target-url="/index.do" user-service-ref="customUserService" authentication-failure-url="/login.jsp?login_error=true">
@@ -137,9 +143,7 @@
   <b:bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
         <b:property name="permissionEvaluator" ref="customPermissionEvaluator"/>
   </b:bean>
-  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.cgds.util.CancerStudyPermissionEvaluator">
-     <b:constructor-arg ref="config"/>
-   </b:bean>
+  <b:bean id="customPermissionEvaluator" class="org.mskcc.cbio.portal.util.CancerStudyPermissionEvaluator"/>
 
 <!--
     A custom UserDetailsService which will authenticate and establish authorities based on a backend database.
@@ -161,10 +165,7 @@
 <!-- 
      some beans to help with access control
 -->
-   <b:bean id="config" class="org.mskcc.cbio.cgds.util.Config"/>
-   <b:bean id="accessControl" class="org.mskcc.cbio.cgds.util.internal.AccessControlImpl">
-     <b:constructor-arg ref="config"/>
-   </b:bean>
+   <b:bean id="accessControl" class="org.mskcc.cbio.portal.util.internal.AccessControlImpl"/>
    <b:bean id="portalUserDAO" class="org.mskcc.cbio.portal.dao.internal.PortalUserJDBCDAO">
      <b:constructor-arg ref="dataSource"/>
    </b:bean>

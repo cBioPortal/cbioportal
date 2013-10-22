@@ -2,14 +2,16 @@ function clinicalData = getclinicaldata(cgdsURL, caseListId, varargin)
 %GETCLINICALDATA Get clinical data from the cBio CGDS portal.
 %    A = getclinicaldata(cgdsURL, caseListId) loads clinical data into A.
 %    cdgsURL points to the CGDS web API, typically
-%    'http://cbio.mskcc.org/cgds-public/'. caseListId is a case list ID, as
-%    returned by the getcaselists function.
+%    http://www.cbioportal.org/public-portal/. caseListId is a case list
+%    ID, as returned by the getcaselists function.
 %
-%    Returns a struct array with the following fields: caseId,
-%    overallSurvivalMonths, overallSurvivalStatus,
-%    diseaseFreeSurvivalMonths, diseaseFreeSurvivalStatus, ageAtDiagnosis.
+%    Returns a struct array with the following fields: data (data matrix),
+%    caseId (row labels for data matrix), clinVariable (column labels for
+%    data matrix).
 %
-%    Field names follow column names as returned by the web API.
+%    Since data returned by this function can be of mixed types, everything
+%    is given as strings. Use str2double() to convert to numeric format
+%    when appropriate.
 %
 %    A = getclinicaldata(cgdsURL, caseListId, 'silent')
 %    runs the function in non-verbose mode, supressing status and warning
@@ -21,12 +23,10 @@ function clinicalData = getclinicaldata(cgdsURL, caseListId, varargin)
 %    getprofiledata.
 
 verbose = isempty(varargin);
+if ~strcmp(cgdsURL(end), '/') cgdsURL(end + 1) = '/'; end
 
 cells  = urlgetcells([cgdsURL 'webservice.do?cmd=getClinicalData&case_set_id=' caseListId], verbose);
 
 clinicalData.caseId = cells(2:end, 1);
-clinicalData.overallSurvivalMonths = str2double(cells(2:end, 2));
-clinicalData.overallSurvivalStatus = cells(2:end, 3);
-clinicalData.diseaseFreeSurvivalMonths = str2double(cells(2:end, 4));
-clinicalData.diseaseFreeSurvivalStatus = cells(2:end, 5);
-clinicalData.ageAtDiagnosis = str2double(cells(2:end, 6));
+clinicalData.clinVariable = cells(1, 2:end)';
+clinicalData.data = cells(2:end, 2:end);

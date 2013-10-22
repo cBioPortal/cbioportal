@@ -43,9 +43,9 @@ function MutationPdbPanel(options, data, xScale)
 		opacity: {
 			"regular": 1.0,
 			"*": 0.4, // Gap
-			" ": 0.6,
-			"+": 0.8,
-			"-": 0.5
+			" ": 0.6, // Mismatch
+			"+": 0.8, // Similar
+			"-": 0.6
 		},
 		/**
 		 * Default chain tooltip function.
@@ -149,6 +149,12 @@ function MutationPdbPanel(options, data, xScale)
 		while (segmentor.hasNextSegment())
 		{
 			var segment = segmentor.getNextSegment();
+
+			// do not draw gaps at all
+			if (segment.type == PdbDataUtil.ALIGNMENT_GAP)
+			{
+				continue;
+			}
 
 			var width = Math.abs(xScale(segment.start) - xScale(segment.end));
 

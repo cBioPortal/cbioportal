@@ -249,6 +249,8 @@ var PdbAlignmentModel = Backbone.Model.extend({
 		this.uniprotFrom = attributes.uniprotFrom;
 		this.uniprotTo = attributes.uniprotTo;
 		this.alignmentString = attributes.alignmentString;
+		this.eValue = attributes.eValue;
+		this.identityPerc = attributes.identityPerc;
 	}
 });
 
@@ -693,12 +695,11 @@ var MergedAlignmentSegmentor = function(mergedAlignment)
 
 	function isSpecialSymbol(symbol)
 	{
-		// TODO considering symbol other than GAP as special generates too many segments
-		return (symbol == PdbDataUtil.ALIGNMENT_GAP);
-//		return (symbol == PdbDataUtil.ALIGNMENT_GAP) ||
-//		       (symbol == PdbDataUtil.ALIGNMENT_MINUS) ||
-//		       (symbol == PdbDataUtil.ALIGNMENT_PLUS) ||
-//		       (symbol == PdbDataUtil.ALIGNMENT_SPACE);
+		// warning: this may generate too many segments
+		return (symbol == PdbDataUtil.ALIGNMENT_GAP) ||
+		       (symbol == PdbDataUtil.ALIGNMENT_MINUS) ||
+		       (symbol == PdbDataUtil.ALIGNMENT_PLUS) ||
+		       (symbol == PdbDataUtil.ALIGNMENT_SPACE);
 	}
 
 	return {
@@ -766,9 +767,9 @@ var PdbDataUtil = (function()
 
 
 	/**
-	 * Creates an array of chain datum (a {pdbId, PdbChainModel} pair) which
-	 * is sorted ascending by the chain length (by the length of
-	 * the alignment summary string).
+	 * Creates a sorted array of chain datum (a {pdbId, PdbChainModel} pair).
+	 * The highest ranked chain will be the first element of the returned
+	 * data array.
 	 *
 	 * @param pdbColl   a PdbCollection instance
 	 * @return {Array}  an array of sorted chain data
@@ -786,12 +787,86 @@ var PdbDataUtil = (function()
 			});
 		});
 
-		chains.sort(function(a, b) {
-			return (b.chain.mergedAlignment.mergedString.length -
-			        a.chain.mergedAlignment.mergedString.length);
-		});
+		chains.sort(compareChains);
 
 		return chains;
+	}
+
+	/**
+	 * Comparison function for chains.
+	 */
+	function compareChains(a, b)
+	{
+		var result = 0;
+
+		// first try to sort by e value (lowest value comes first)
+		if (result == 0)
+		{
+			result = compareEValue(a, b);
+		}
+
+		// second try to sort by identp (highest value comes first)
+		if (result == 0)
+		{
+			result = compareIdentP(a, b);
+		}
+
+		// third try to sort by alignment length (longest string comes first)
+		if (result == 0)
+		{
+			result = compareMergedLength(a, b);
+		}
+
+		return result;
+	}
+
+	function compareMergedLength(a, b)
+	{
+		// longer string should comes first in the sorted array
+		return (b.chain.mergedAlignment.mergedString.length -
+		        a.chain.mergedAlignment.mergedString.length);
+	}
+
+	function compareEValue(a, b)
+	{
+		// lower e value should comes first in the sorted array
+		return (getMinValue(a.chain.alignments, "eValue") -
+		        getMinValue(b.chain.alignments, "eValue"));
+	}
+
+	function compareIdentP(a, b)
+	{
+		// higher percentage should comes first in the sorted array
+		return (getMinValue(b.chain.alignments, "identityPerc") -
+		        getMinValue(a.chain.alignments, "identityPerc"));
+	}
+
+	function getMinValue(alignments, field)
+	{
+		var min = Infinity;
+
+		alignments.each(function(ele, idx) {
+			if (ele[field] < min)
+			{
+				min = ele[field];
+			}
+		});
+
+		return min;
+	}
+
+	function getMaxValue(alignments, field)
+	{
+		var max = -Infinity;
+
+		alignments.each(function(ele, idx) {
+			if (ele[field] > max)
+			{
+				max = ele[field];
+			}
+		});
+
+		return max;
 	}
 
 	return {

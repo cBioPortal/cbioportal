@@ -269,7 +269,6 @@ var PlotsMenu = (function () {
                 $("#one_gene_log_scale_y_div").append(_str_y);
             }
         } else if ($("#plots_type").val() === content.plots_type.mrna_methylation.value) {
-            $("#one_gene_log_scale_x_div").append(_str_x);
             if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
                 $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
                 $("#one_gene_log_scale_y_div").append(_str_y);

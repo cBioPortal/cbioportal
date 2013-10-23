@@ -1056,6 +1056,7 @@ var PdbDataProxy = function(mutationUtil)
 		// populate position data array
 		var positionData = [];
 
+		// TODO remove duplicates from position data
 		_.each(positions, function(ele, i) {
 			if (ele.start > -1)
 			{

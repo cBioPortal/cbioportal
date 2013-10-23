@@ -725,8 +725,9 @@
 			 *
 			 * @param diagram   mutation diagram
 			 * @param tableView mutation table view
+			 * @param view3d    3D mutation visualizer view
 			 */
-			var addPlotListeners = function(diagram, tableView)
+			var addPlotListeners = function(diagram, tableView, view3d)
 			{
 				diagram.addListener(".mut-dia-data-point", "mouseout", function() {
 					// remove all highlights
@@ -779,6 +780,12 @@
 
 						// show filter reset info
 						mainMutationView.showFilterInfo();
+
+						// focus on the corresponding residue in 3D view
+						if (view3d)
+						{
+							view3d.focusView(datum);
+						}
 					}
 				});
 
@@ -904,7 +911,7 @@
 				mutationDiagram = diagram;
 
 				// add default event listeners for the diagram
-				addPlotListeners(diagram, mutationTableView);
+				addPlotListeners(diagram, mutationTableView, self.mut3dVisView);
 
 				// init reset info text content for the diagram
 				mainView.initResetFilterInfo(diagram, mutationTableView);
@@ -1320,6 +1327,13 @@
 			var mut3dVis = self.options.mut3dVis;
 
 			return mut3dVis.isVisible();
+		},
+		focusView: function(pileup)
+		{
+			var self = this;
+			var mut3dVis = self.options.mut3dVis;
+
+			mut3dVis.focusOn(pileup);
 		}
 	});
 

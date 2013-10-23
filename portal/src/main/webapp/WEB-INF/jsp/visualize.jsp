@@ -1,6 +1,6 @@
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
-d
+
 <%
     String smry = cancerStudyName +
             "/" + caseSetName + ": (" +
@@ -11,7 +11,7 @@ d
 
 <p>
     <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <div id='percent_cases_affect'></div> of all cases. <br>
+        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
     </div>
 </p>
 <p>
@@ -137,7 +137,7 @@ d
                  + "Mutations</a></li>");
             }
 
-            if (rppaExists) {
+            if (has_rppa) {
                 out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
                 + "Protein Changes</a></li>");
             }
@@ -216,7 +216,7 @@ d
         <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
-            <% if (rppaExists) { %>
+            <% if (has_rppa) { %>
         <%@ include file="protein_exp.jsp" %>
             <% } %>
 

@@ -115,7 +115,6 @@
             break;
         }
     }
-    boolean rppaExists = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     boolean has_rppa = countProfiles(profileList, GeneticAlterationType.PROTEIN_ARRAY_PROTEIN_LEVEL) > 0;
     boolean has_mrna = countProfiles(profileList, GeneticAlterationType.MRNA_EXPRESSION) > 0;
     boolean has_methylation = countProfiles(profileList, GeneticAlterationType.METHYLATION) > 0;
@@ -223,7 +222,7 @@
     var gene_list_str = "<%out.print(tmpGeneStr);%>";
     var gene_list = gene_list_str.split(/\s+/);
 
-    //////////from protain_exp.jsp
+    //////////from protein_exp.jsp
     //var case_set_id = "<%out.print(case_set_id);%>";
     //case_ids_key = "";
     //if (case_set_id === "-1") {

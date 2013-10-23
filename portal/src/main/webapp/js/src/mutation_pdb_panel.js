@@ -15,7 +15,7 @@ function MutationPdbPanel(options, data, xScale)
 		el: "#mutation_pdb_panel_d3", // id of the container
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
-		numRows: 5,         // max number of rows to be displayed initially
+		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
 		marginLeft: 40,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 0,       // top margin
@@ -81,8 +81,20 @@ function MutationPdbPanel(options, data, xScale)
 	// row data (allocation of chains wrt rows)
 	var _rowData = null;
 
-	// collapse indicator (initially true)
-	var _collapsed = true;
+	// expansion level indicator (initially 0)
+	var _expansion = 0;
+
+	// max expansion level:
+	// assume numRows = [0, 100, 500], and number of total rows = 20
+	// in this case max level should be 2 (although numRows has 3 elements)
+	var _maxExpansionLevel = null;
+
+	// number of total rectangles drawn (initially 0)
+	// this number is being updated after each panel expand
+	var _rectCount = 0;
+
+	// indicator for an expansion level whether the rectangles drawn
+	var _levelDrawn = [];
 
 	/**
 	 * Draws the actual content of the panel, by drawing a rectangle
@@ -92,11 +104,12 @@ function MutationPdbPanel(options, data, xScale)
 	 * @param options   visual options object
 	 * @param data      row data
 	 * @param xScale    scale function for the x-axis
+	 * @param rowStart  starting index for the first row
 	 */
-	function drawPanel(svg, options, data, xScale)
+	function drawPanel(svg, options, data, xScale, rowStart)
 	{
 		// chain counter
-		var count = 0;
+		var count = _rectCount;
 
 		// add a rectangle group for each chain
 		_.each(data, function(allocation, rowIdx) {
@@ -111,7 +124,7 @@ function MutationPdbPanel(options, data, xScale)
 					datum.color = color;
 
 					var y = options.marginTop +
-					        rowIdx * (options.chainHeight + options.chainPadding);
+					        (rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
@@ -127,6 +140,9 @@ function MutationPdbPanel(options, data, xScale)
 				}
 			});
 		});
+
+		// update global rectangle counter in the end
+		_rectCount = count;
 	}
 
 	/**
@@ -328,6 +344,27 @@ function MutationPdbPanel(options, data, xScale)
 	}
 
 	/**
+	 * Calculates the max expansion level for the given data.
+	 *
+	 * @param totalNumRows      total number of rows
+	 * @param expansionLevels   expansion level array
+	 *                          (number of rows to be displayed for each level)
+	 * @return {number}     max level for the current data
+	 */
+	function calcMaxExpansionLevel(totalNumRows, expansionLevels)
+	{
+		var max = 0;
+
+		while (expansionLevels.length > max &&
+		       totalNumRows > expansionLevels[max])
+		{
+			max++;
+		}
+
+		return max;
+	}
+
+	/**
 	 * Calculates the full height of the panel wrt to provided elHeight option.
 	 *
 	 * @param elHeight  provided height value
@@ -403,19 +440,24 @@ function MutationPdbPanel(options, data, xScale)
 	{
 		// generate row data (one row may contain more than one chain)
 		_rowData = allocateRows(PdbDataUtil.getSortedChainData(data));
+		_maxExpansionLevel = calcMaxExpansionLevel(_rowData.length, _options.numRows);
 
 		// init svg container
 		var container = d3.select(_options.el);
 
+		// number of rows to be shown initially
+		var numRows = _options.numRows[0];
+
 		// create svg element & update its reference
 		var svg = createSvg(container,
 		                    _options.elWidth,
-		                    calcCollapsedHeight(_options.numRows));
+		                    calcCollapsedHeight(numRows));
 
 		_svg = svg;
 
-		// draw the panel
-		drawPanel(svg, _options, _rowData, xScale);
+		// (partially) draw the panel
+		drawPanel(svg, _options, _rowData.slice(0, numRows), xScale, 0);
+		_levelDrawn[0] = true;
 
 		// draw the labels
 		if (_options.labelY != false)
@@ -466,12 +508,11 @@ function MutationPdbPanel(options, data, xScale)
 	/**
 	 * Resizes the panel height to show only a limited number of chains.
 	 */
-	function collapsePanel()
+	function resizePanel(index)
 	{
 		// resize to collapsed height
-		var collapsedHeight = calcCollapsedHeight(_options.numRows);
+		var collapsedHeight = calcCollapsedHeight(_options.numRows[index]);
 		_svg.transition().duration(1000).attr("height", collapsedHeight);
-		_collapsed = true;
 	}
 
 	/**
@@ -482,7 +523,6 @@ function MutationPdbPanel(options, data, xScale)
 		// resize to full size
 		var fullHeight = calcHeight(_options.elHeight);
 		_svg.transition().duration(1000).attr("height", fullHeight);
-		_collapsed = false;
 	}
 
 	/**
@@ -490,14 +530,29 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function toggleHeight()
 	{
-		if (_collapsed)
+		// do not try to draw any further levels than max level
+		// (no rectangle to draw beyond max level)
+		var nextLevel = (_expansion + 1) % _maxExpansionLevel;
+
+		// draw the rectangles if not drawn yet
+		if (!_levelDrawn[nextLevel])
 		{
-			expandPanel();
+			// draw rectangles for the next level
+			drawPanel(_svg,
+			          _options,
+			          _rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
+			          xScale,
+			          _options.numRows[_expansion]);
+
+			// mark the indicator for the next level
+			_levelDrawn[nextLevel] = true;
 		}
-		else
-		{
-			collapsePanel();
-		}
+
+		// update expansion level
+		_expansion = nextLevel;
+
+		// resize panel
+		resizePanel(nextLevel);
 	}
 
 	/**
@@ -509,7 +564,7 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function hasMoreChains()
 	{
-		return (_rowData.length > _options.numRows);
+		return (_rowData.length > _options.numRows[0]);
 	}
 
 	return {init: init,

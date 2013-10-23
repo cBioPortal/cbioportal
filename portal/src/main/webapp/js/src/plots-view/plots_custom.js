@@ -180,8 +180,8 @@ var PlotsCustomMenu = (function(){
         var _str_x = "<input type='checkbox' id='custom_genes_log_scale_option_x' checked onchange='PlotsCustomView.updateLogScaleX();' /> log scale";
         $("#custom_genes_apply_log_scale_div_x").empty();
         if (($("#custom_plots_type_x").val() === "mrna" &&
-            $("#custom_platform_x option:selected").text().indexOf("RNA Seq") !== -1 &&
-            $("#custom_platform_x option:selected").text().indexOf("z-Scores") === -1) ||
+            $("#custom_platform_x option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+            $("#custom_platform_x option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) ||
             $("#custom_plots_type_x").val() === "methylation") {
             $("#custom_genes_apply_log_scale_div_x").append(_str_x);
         }
@@ -191,8 +191,8 @@ var PlotsCustomMenu = (function(){
         var _str_y = "<input type='checkbox' id='custom_genes_log_scale_option_y' checked onchange='PlotsCustomView.updateLogScaleY();' /> log scale";
         $("#custom_genes_apply_log_scale_div_y").empty();
         if (($("#custom_plots_type_y").val() === "mrna" &&
-            $("#custom_platform_y option:selected").text().indexOf("RNA Seq") !== -1 &&
-            $("#custom_platform_y option:selected").text().indexOf("z-Scores") === -1) ||
+            $("#custom_platform_y option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+            $("#custom_platform_y option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) ||
             $("#custom_plots_type_y").val() === "methylation") {
             $("#custom_genes_apply_log_scale_div_y").append(_str_y);
         }
@@ -726,7 +726,7 @@ var PlotsCustomView = (function() {
 
     function updatePlotsLogScale(axis, applyLogScale) {
         elem.dotsGroup.selectAll("path")
-            .transition().duration(500)
+            .transition().duration(300)
             .attr("transform", function() {
                 if (applyLogScale) {
                     if (axis === "x") {
@@ -995,8 +995,14 @@ var PlotsCustomView = (function() {
         drawPlots();
         drawLegends();
         addQtips();
-        var applyLogScale_x = document.getElementById("custom_genes_log_scale_option_x").checked;
-        var applyLogScale_y = document.getElementById("custom_genes_log_scale_option_y").checked;
+        var applyLogScale_x = false;
+        var applyLogScale_y = false;
+        if (document.getElementById("custom_genes_log_scale_option_x") !== null) {
+            applyLogScale_x = document.getElementById("custom_genes_log_scale_option_x").checked;
+        }
+        if (document.getElementById("custom_genes_log_scale_option_y") !== null) {
+            applyLogScale_y = document.getElementById("custom_genes_log_scale_option_y").checked;
+        }
         updatePlotsLogScale("x", applyLogScale_x);
         updatePlotsLogScale("y", applyLogScale_y);
     }

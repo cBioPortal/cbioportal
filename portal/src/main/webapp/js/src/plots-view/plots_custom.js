@@ -181,10 +181,9 @@ var PlotsCustomMenu = (function(){
         $("#custom_genes_apply_log_scale_div_x").empty();
         if (($("#custom_plots_type_x").val() === "mrna" &&
             $("#custom_platform_x option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
-            $("#custom_platform_x option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) ||
-            $("#custom_plots_type_x").val() === "methylation") {
-            $("#custom_genes_apply_log_scale_div_x").append(_str_x);
-        }
+            $("#custom_platform_x option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1)) {
+               $("#custom_genes_apply_log_scale_div_x").append(_str_x);
+            }
     }
 
     function updateLogScaleCheckBoxY() {
@@ -192,8 +191,7 @@ var PlotsCustomMenu = (function(){
         $("#custom_genes_apply_log_scale_div_y").empty();
         if (($("#custom_plots_type_y").val() === "mrna" &&
             $("#custom_platform_y option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
-            $("#custom_platform_y option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) ||
-            $("#custom_plots_type_y").val() === "methylation") {
+            $("#custom_platform_y option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1)) {
             $("#custom_genes_apply_log_scale_div_y").append(_str_y);
         }
     }

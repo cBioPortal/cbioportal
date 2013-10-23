@@ -80,7 +80,7 @@ public final class ImportPdbUniprotResidueMapping {
     public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println("command line usage:  importPdbUniprotResidueMapping.pl <pdb-uniprot-residue-mapping.txt>");
-            System.exit(1);
+            return;
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);

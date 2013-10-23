@@ -63,14 +63,14 @@ public class ImportClinicalTrialData {
                             + ImportClinicalTrialData.class.getSimpleName()
                             + " path/to/CTGovProtocol/"
             );
-            System.exit(-1);
+            return;
         }
 
         String path = args[0].trim();
         File folder = new File(path);
         if(!folder.isDirectory()) {
             System.err.println("Error: could not read " + path);
-            System.exit(-1);
+            return;
         }
 
         importFilesFromFolder(folder);

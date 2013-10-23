@@ -57,7 +57,7 @@ public class ImportProfileData{
     private static String usageLine;
     private static OptionParser parser;
 
-    private static void quit(String msg, boolean exitJVM)
+    private static void quit(String msg)
     {
         if( null != msg ){
             System.err.println( msg );
@@ -67,9 +67,6 @@ public class ImportProfileData{
             parser.printHelpOn(System.err);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        if (exitJVM) {
-            System.exit(1);      
         }
     }
 
@@ -101,32 +98,30 @@ public class ImportProfileData{
        OptionSpec<String> germlineWhiteList = parser.accepts( "germlineWhiteList",
                "list of genes whose non-missense germline mutations should be loaded into the dbms; optional" )
           .withRequiredArg().describedAs( "filename" ).ofType( String.class );
-       OptionSpec<Void> returnFromMain = parser.accepts( "returnFromMain", "when set, does not exit JVM" );
        OptionSet options = null;
-       boolean exitJVM = true;
       try {
          options = parser.parse( args );
-         exitJVM = !options.has(returnFromMain);
+         //exitJVM = !options.has(returnFromMain);
       } catch (OptionException e) {
-          quit( e.getMessage(), exitJVM );
+          quit( e.getMessage() );
       }
       
       if( options.has( help ) ){
-          quit( "", exitJVM );
+          quit( "" );
       }
        
        File dataFile = null;
        if( options.has( data ) ){
           dataFile = new File( options.valueOf( data ) );
        }else{
-           quit( "'data' argument required.", exitJVM);
+           quit( "'data' argument required.");
        }
 
        File descriptorFile = null;
        if( options.has( meta ) ){
           descriptorFile = new File( options.valueOf( meta ) );
        }else{
-           quit( "'meta' argument required.", exitJVM);
+           quit( "'meta' argument required.");
        }
 
        int updateAction = ACTION_CLOBBER;
@@ -135,7 +130,7 @@ public class ImportProfileData{
           if (actionArg.equalsIgnoreCase("clobber")) {
              updateAction = ACTION_CLOBBER;
          } else {
-              quit( "Unknown dbmsAction action:  " + actionArg, exitJVM );
+              quit( "Unknown dbmsAction action:  " + actionArg );
          }
           System.err.println(" --> updateAction:  " + actionArg);
        }
@@ -148,7 +143,7 @@ public class ImportProfileData{
           } else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
              MySQLbulkLoader.bulkLoadOn();
           } else {
-              quit( "Unknown loadMode action:  " + actionArg, exitJVM );
+              quit( "Unknown loadMode action:  " + actionArg );
           }
        }
 
@@ -159,7 +154,7 @@ public class ImportProfileData{
          try {
             geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
          } catch (java.io.FileNotFoundException e) {
-             quit( "Descriptor file '" + descriptorFile + "' not found.", exitJVM );
+             quit( "Descriptor file '" + descriptorFile + "' not found." );
          }
 
         int numLines = FileUtil.getNumLines(dataFile);

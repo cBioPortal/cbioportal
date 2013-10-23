@@ -47,7 +47,7 @@ public class ConvertGeneSymbols {
     public static void main(String[] args) throws DaoException, IOException {
         if (args.length < 1) {
             System.out.println("command line usage:  updateGeneSymbols.pl " + "<file_name.txt>");
-            System.exit(1);
+            return;
         }
         String fileName = args[0];
         FileReader reader = new FileReader(fileName);

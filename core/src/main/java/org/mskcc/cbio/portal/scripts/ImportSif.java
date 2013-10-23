@@ -159,7 +159,7 @@ public class ImportSif {
     public static void main(String[] args) {
         if (args.length < 2) {
             System.out.println("command line usage:  importSif.pl <sif.txt> <data_source>");
-            System.exit(1);
+            return;
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);

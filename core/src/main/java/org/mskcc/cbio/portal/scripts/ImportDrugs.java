@@ -83,7 +83,7 @@ public class ImportDrugs {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("command line usage:  importDrugs.pl <XXXX.txt>");
-            System.exit(1);
+            return;
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);

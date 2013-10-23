@@ -1,3 +1,5 @@
+<!-- Collection of all global variables for the result pages of single cancer study query-->
+
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.HashSet" %>
@@ -216,6 +218,15 @@
     //    case_ids_key = "<%out.print(caseIdsKey);%>";
     //}
 
+    ////from cross cancer results.jsp
+    // Get priority settings
+    Integer dataPriority;
+    try {
+        dataPriority
+                = Integer.parseInt(servletXssUtil.getCleanInput(request, QueryBuilder.DATA_PRIORITY).trim());
+    } catch (Exception e) {
+        dataPriority = 0;
+    }
 
 
 </script>

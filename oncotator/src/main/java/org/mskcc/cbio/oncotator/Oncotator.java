@@ -270,7 +270,6 @@ public class Oncotator
 	{
 		throw new RuntimeException("Too many records with wrong build #.  Aborting...");
 		//System.out.println("Too many records with wrong build #.  Aborting...");
-		//System.exit(1);
 	}
 
 	protected void outputBuildNumErrorMessage(String ncbiBuild) {

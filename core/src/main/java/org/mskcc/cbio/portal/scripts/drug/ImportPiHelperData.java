@@ -41,7 +41,7 @@ public class ImportPiHelperData {
                             + ImportPiHelperData.class.getSimpleName()
                             + " drugs.tsv drugtargets.tsv"
             );
-            System.exit(-1);
+            return;
         }
 
         Calendar cal = Calendar.getInstance();

@@ -246,6 +246,10 @@ class ImporterImpl implements Importer {
 			cancerFileContents.append(tumorType.getName());
             cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
             cancerFileContents.append(tumorType.getClinicalTrialKeywords());
+            cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
+            cancerFileContents.append(tumorType.getDedicatedColor());
+            cancerFileContents.append(TumorTypeMetadata.TUMOR_TYPE_META_FILE_DELIMITER);
+            cancerFileContents.append(tumorType.getShortName());
             cancerFileContents.append("\n");
 		}
 		File cancerFile = fileUtils.createTmpFileWithContents(TumorTypeMetadata.TUMOR_TYPE_META_FILE_NAME,

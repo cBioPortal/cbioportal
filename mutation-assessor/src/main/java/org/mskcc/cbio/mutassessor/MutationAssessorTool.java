@@ -78,14 +78,14 @@ public class MutationAssessorTool
 			{
 				// TODO no input file or directory
 				System.out.println("Error: Invalid number of arguments");
-				System.exit(1);
+                        return;
 			}
 		}
 		else if (args.length - i < 2)
 		{
 			// TODO output file not specified
 			System.out.println("Error: Invalid number of arguments");
-			System.exit(1);
+                        return;
 		}
 
 		input = args[i];

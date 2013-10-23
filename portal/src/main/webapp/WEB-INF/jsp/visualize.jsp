@@ -1,13 +1,14 @@
+<!-- Visualization of the main single cancer study query result page -->
+
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
 
+
 <%
+    //Printing out summary of the main query
+    $("#percent_case_affected").append(percentFormat.format(dataSummary.getPercentCasesAffected()));
+
     String smry = "";
-    out.println ("<p><div class='gene_set_summary'>Gene Set / Pathway is altered in "
-            + percentFormat.format(dataSummary.getPercentCasesAffected())
-            + " of all cases.");
-    out.println ("<br></div></p>");
-    out.println ("<p><small><strong>");
     for (CancerStudy cancerStudy: cancerStudies){
         if (cancerTypeId.equals(cancerStudy.getCancerStudyStableId())){
             smry = smry + cancerStudy.getName();
@@ -57,6 +58,15 @@
         out.println ("</div>");
     } else {
 %>
+
+<p>
+    <div class='gene_set_summary'>
+        Gene Set / Pathway is altered in <div id='percent_case_affected'></div> of all cases. <br>
+    </div>
+</p>
+
+
+
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -158,7 +168,7 @@
             }
 
             if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
+                out.println ("<li id='tab-survival'><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
             }
 

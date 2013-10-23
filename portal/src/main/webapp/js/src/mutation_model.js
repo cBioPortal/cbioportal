@@ -7,11 +7,16 @@
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.mutationId = attributes.mutationId;
+        this.mutationSid = attributes.mutationSid;
 		this.geneticProfileId = attributes.geneticProfileId;
 		this.mutationEventId = attributes.mutationEventId;
 		this.caseId = attributes.caseId;
 		this.geneSymbol = attributes.geneSymbol;
 		this.linkToPatientView = attributes.linkToPatientView;
+        this.cancerType = attributes.cancerType;
+        this.cancerStudy = attributes.cancerStudy;
+        this.cancerStudyShort = attributes.cancerStudyShort;
+        this.cancerStudyLink = attributes.cancerStudyLink;
 		this.proteinChange = attributes.proteinChange;
 		this.mutationType = attributes.mutationType;
 		this.cosmic = attributes.cosmic;
@@ -78,6 +83,53 @@ var Pileup = Backbone.Model.extend({
 		this.count = attributes.count; // number of mutations at this data point
 		this.location = attributes.location; // the location of the mutations
 		this.label = attributes.label; // text label for this data point
+        this.stats = attributes.stats;
+	}
+});
+
+/**
+ * PDB data model.
+ *
+ * Contains PDB id and a chain list (where each element in the list has
+ * a chain id and a mapping for pdb positions to uniprot positions).
+ */
+var PdbModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		// pdb id (e.g: 1d5r)
+		this.pdbId = attributes.pdbId;
+		// collection of PdbChainModel instances
+		this.chains = new PdbChainCollection(attributes.chains);
+	}
+});
+
+/**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbCollection = Backbone.Collection.extend({
+	model: PdbModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
+	}
+});
+
+var PdbChainModel = Backbone.Model.extend({
+	initialize: function(attributes) {
+		// chain id (A, B, C, X, etc.)
+		this.chainId = attributes.chainId;
+		//  map of (uniprot position, pdb position) pairs
+		this.positionMap = attributes.positionMap;
+		// array of start position and end position pairs
+		this.segments = attributes.segments;
+	}
+});
+
+/**
+ * Collection of pdb data (PdbModel instances).
+ */
+var PdbChainCollection = Backbone.Collection.extend({
+	model: PdbChainModel,
+	initialize: function(options) {
+		// TODO add & set attributes if required
 	}
 });
 
@@ -101,28 +153,121 @@ var MutationCollection = Backbone.Collection.extend({
 });
 
 /**
- * Utility class for processing a collection of mutations.
+ * Utility class for processing collection of mutations.
  *
- * @param mutations     MutationCollection (list of mutations)
+ * @param mutations     [optional] a MutationCollection instance
  * @constructor
  */
 var MutationDetailsUtil = function(mutations)
 {
-	this.GERMLINE = "germline"; // germline mutation constant
+	var GERMLINE = "germline"; // germline mutation constant
+
+	// init class variables
+	var _mutationGeneMap = {};
+	var _mutationCaseMap = {};
+	var _mutationIdMap = {};
+	var _mutations = [];
 
 	this.getMutationGeneMap = function()
 	{
-		return this._mutationGeneMap;
+		return _mutationGeneMap;
 	};
 
 	this.getMutationCaseMap = function()
 	{
-		return this._mutationCaseMap;
+		return _mutationCaseMap;
 	};
 
 	this.getMutationIdMap = function()
 	{
-		return this._mutationIdMap;
+		return _mutationIdMap;
+	};
+
+	this.getMutations = function()
+	{
+		return _mutations;
+	}
+
+	/**
+	 * Updates existing maps and collections by processing the given mutations.
+	 * This method appends given mutations to the existing ones, it does not
+	 * reset previous mutations.
+	 *
+	 * @param mutations a MutationCollection instance (list of mutations)
+	 */
+	this.processMutationData = function(mutations)
+	{
+		// update collections, arrays, maps, etc.
+		_mutationGeneMap = this._updateGeneMap(mutations);
+		_mutationCaseMap = this._updateCaseMap(mutations);
+		_mutationIdMap = this._updateIdMap(mutations);
+		_mutations = _mutations.concat(mutations);
+	};
+
+	/**
+	 * Retrieves protein positions corresponding to the mutations
+	 * for the given gene symbol.
+	 *
+	 * @param gene      hugo gene symbol
+	 * @return {Array}  array of protein positions
+	 */
+	this.getProteinPositions = function(gene)
+	{
+		var mutations = _mutationGeneMap[gene];
+
+		var positions = [];
+
+		for(var i=0; i < mutations.length; i++)
+		{
+			var position = {id: mutations[i].id,
+				start: mutations[i].proteinPosStart,
+				end: mutations[i].proteinPosEnd};
+
+			positions.push(position);
+		}
+
+		return positions;
+	};
+
+	/**
+	 * Processes the pdb data (received from the server) to map positions
+	 * to mutation ids.
+	 *
+	 * @param gene  hugo gene symbol
+	 * @param data  pdb data with a position map
+	 * @return {PdbCollection}   PdbModel instances representing the processed data
+	 */
+	this.processPdbData = function(gene, data)
+	{
+		var mutations = _mutationGeneMap[gene];
+		var pdbModel = null;
+		var pdbList = [];
+
+		_.each(data, function(pdb, idx) {
+			_.each(pdb.chains, function(ele, idx) {
+				var positionMap = {};
+
+				if (ele.positionMap != null)
+				{
+					// re-map mutation ids with positions by using the raw position map
+					for(var i=0; i < mutations.length; i++)
+					{
+						positionMap[mutations[i].mutationId] = {
+							start: ele.positionMap[mutations[i].proteinPosStart],
+							end: ele.positionMap[mutations[i].proteinPosEnd]};
+					}
+				}
+
+				// update position map
+				ele.positionMap = positionMap;
+			});
+
+			pdbModel = new PdbModel(pdb);
+			pdbList.push(pdbModel);
+		});
+
+		// return new pdb model
+		return new PdbCollection(pdbList);
 	};
 
 	/**
@@ -133,9 +278,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on gene symbol)
 	 * @private
 	 */
-	this._generateGeneMap = function(mutations)
+	this._updateGeneMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationGeneMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -161,9 +306,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on case id)
 	 * @private
 	 */
-	this._generateCaseMap = function(mutations)
+	this._updateCaseMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationCaseMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -189,9 +334,9 @@ var MutationDetailsUtil = function(mutations)
 	 * @return {object} map of mutations (keyed on mutation id)
 	 * @private
 	 */
-	this._generateIdMap = function(mutations)
+	this._updateIdMap = function(mutations)
 	{
-		var mutationMap = {};
+		var mutationMap = _mutationIdMap;
 
 		// process raw data to group mutations by genes
 		for (var i=0; i < mutations.length; i++)
@@ -251,7 +396,7 @@ var MutationDetailsUtil = function(mutations)
 		for (var i=0; i < cases.length; i++)
 		{
 			// get the mutations for the current case
-			var mutations = this._mutationCaseMap[cases[i].toLowerCase()];
+			var mutations = _mutationCaseMap[cases[i].toLowerCase()];
 
 			// check if case has a mutation
 			if (mutations != null)
@@ -293,7 +438,36 @@ var MutationDetailsUtil = function(mutations)
 			numGermline: numGermline};
 	};
 
-	/**
+    /**
+     * Checks if there all mutations come from a single cancer study
+     *
+     * @param gene  hugo gene symbol
+     */
+    this.cancerStudyAllTheSame = function(gene)
+    {
+        var self = this;
+        gene = gene.toUpperCase();
+        if (_mutationGeneMap[gene] != undefined)
+        {
+            var mutations = _mutationGeneMap[gene];
+            var prevStudy = null;
+
+            for (var i=0; i < mutations.length; i++)
+            {
+                var cancerStudy = mutations[i].cancerStudy;
+                if(prevStudy == null) {
+                    prevStudy = cancerStudy;
+                } else if(prevStudy != cancerStudy) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    };
+
+
+    /**
 	 * Checks if there is a germline mutation for the given gene.
 	 *
 	 * @param gene  hugo gene symbol
@@ -305,13 +479,13 @@ var MutationDetailsUtil = function(mutations)
 
 		gene = gene.toUpperCase();
 
-		if (self._mutationGeneMap[gene] != undefined)
+		if (_mutationGeneMap[gene] != undefined)
 		{
-			var mutations = self._mutationGeneMap[gene];
+			var mutations = _mutationGeneMap[gene];
 
 			for (var i=0; i < mutations.length; i++)
 			{
-				if (mutations[i].mutationStatus.toLowerCase() == self.GERMLINE)
+				if (mutations[i].mutationStatus.toLowerCase() == GERMLINE)
 				{
 					contains = true;
 					break;
@@ -334,9 +508,9 @@ var MutationDetailsUtil = function(mutations)
 
 		gene = gene.toUpperCase();
 
-		if (self._mutationGeneMap[gene] != undefined)
+		if (_mutationGeneMap[gene] != undefined)
 		{
-			var mutations = self._mutationGeneMap[gene];
+			var mutations = _mutationGeneMap[gene];
 
 			for (var i=0; i < mutations.length; i++)
 			{
@@ -351,11 +525,11 @@ var MutationDetailsUtil = function(mutations)
 		return contains;
 	};
 
-	// init class variables
-	this._mutationGeneMap = this._generateGeneMap(mutations);
-	this._mutationCaseMap = this._generateCaseMap(mutations);
-	this._mutationIdMap = this._generateIdMap(mutations);
-	this._mutations = mutations;
+	// init maps by processing the initial mutations
+	if (mutations != null)
+	{
+		this.processMutationData(mutations);
+	}
 };
 
 /**
@@ -490,3 +664,151 @@ var PileupUtil = (function()
 	};
 })();
 
+
+/**
+ * This class is designed to retrieve mutation data on demand, but it can be also
+ * initialized with the full mutation data already retrieved from the server.
+ *
+ * @param geneList  list of target genes (genes of interest) as a string
+ */
+var MutationDataProxy = function(geneList)
+{
+	// MutationDetailsUtil instance
+	var _util = new MutationDetailsUtil();
+	// list of target genes as an array of strings (in the exact input order)
+	var _unsortedGeneList = geneList.trim().split(/\s+/);
+	// alphabetically sorted list of target genes as an array of strings
+	var _geneList = geneList.trim().split(/\s+/).sort();
+	// name of the mutation data servlet
+	var _servletName;
+	// parameters to be sent to the mutation data servlet
+	var _servletParams;
+	// flag to indicate if the initialization is full or lazy
+	var _fullInit;
+
+	/**
+	 * Initializes the proxy without actually grabbing anything from the server.
+	 * Provided servlet name and servlet parameters will be used for later invocation
+	 * of getMutationData function.
+	 *
+	 * @param servletName   name of the mutation data servlet (used for AJAX query)
+	 * @param servletParams servlet (query) parameters
+	 */
+	function lazyInit(servletName, servletParams)
+	{
+		_servletName = servletName;
+		_servletParams = servletParams;
+		_fullInit = false;
+	}
+
+	/**
+	 * Initializes with full mutation data. Once initialized with full data,
+	 * this proxy class assumes that there will be no additional mutation data.
+	 *
+	 * @param mutationData  full mutation data
+	 */
+	function fullInit(mutationData)
+	{
+		var mutations = new MutationCollection(mutationData);
+		_util.processMutationData(mutations);
+		_fullInit = true;
+	}
+
+	function getGeneList()
+	{
+		// TODO lazy init: to find out genes with mutation data ONLY,
+		// we need to query the server before hand. Otherwise,
+		// we cannot remove the genes without data from the list until
+		// the corresponding gene tab is clicked.
+		return _geneList;
+	}
+
+	function getUnsortedGeneList()
+	{
+		return _unsortedGeneList;
+	}
+
+	function getMutationUtil()
+	{
+		return _util;
+	}
+
+	/**
+	 * Returns the mutation data for the given gene(s).
+	 *
+	 * @param geneList  list of hugo gene symbols as a whitespace delimited string
+	 * @param callback  callback function to be invoked after retrieval
+	 */
+	function getMutationData(geneList, callback)
+	{
+		var genes = geneList.trim().split(/\s+/);
+		var genesToQuery = [];
+
+		// get previously grabbed data (if any)
+		var mutationData = [];
+		var mutationMap = _util.getMutationGeneMap();
+
+		_.each(genes, function(gene, idx) {
+			var data = mutationMap[gene];
+
+			if (data == undefined ||
+			    data.length == 0)
+			{
+				// mutation data does not exist for this gene, add it to the list
+				genesToQuery.push(gene);
+			}
+			else
+			{
+				// update the data
+				mutationData = mutationData.concat(data);
+			}
+		});
+
+		// all data is already retrieved (full init)
+		if (_fullInit)
+		{
+			// just forward the call the callback function
+			callback(mutationData);
+		}
+		// we need to retrieve missing data (lazy init)
+		else
+		{
+			var process = function(data) {
+				var mutations = new MutationCollection(data);
+				_util.processMutationData(mutations);
+				callback(data);
+			};
+
+			// add genesToQuery to the servlet params
+			_servletParams.geneList = genesToQuery.join(" ");
+
+			// retrieve data from the server
+			$.post(_servletName, _servletParams, process, "json");
+		}
+	}
+
+	/**
+	 * Checks if there is mutation data for the current query
+	 * (For the current gene list, case list, and cancer study).
+	 *
+	 * @return {boolean} true if there is mutation data, false otherwise.
+	 */
+	function hasData()
+	{
+		// TODO returning true in any case for now
+		// we need to query server side for lazy init
+		// since initially there is definitely no data
+		//return (_util.getMutations().length > 0);
+		return true;
+	}
+
+	return {
+		initWithData : fullInit,
+		initWithoutData: lazyInit,
+		getMutationData: getMutationData,
+		getGeneList: getGeneList,
+		getUnsortedGeneList: getUnsortedGeneList,
+		getMutationUtil: getMutationUtil,
+		hasData: hasData
+	};
+};

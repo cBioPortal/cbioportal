@@ -163,8 +163,8 @@ var PlotsTwoGenesMenu = (function(){
         var _str_x = "<input type='checkbox' id='two_genes_log_scale_option_x' checked onchange='PlotsTwoGenesView.updateLogScaleX();'/> log scale - x axis";
         var _str_y = "<input type='checkbox' id='two_genes_log_scale_option_y' checked onchange='PlotsTwoGenesView.updateLogScaleY();'/> log scale - y axis";
         if (($("#two_genes_plots_type").val() === "mrna" &&
-             $("#two_genes_platform option:selected").text().toUpperCase().indexOf(("RNA Seq").toUpperCase()) !== -1 &&
-             $("#two_genes_platform option:selected").text().toUpperCase().indexOf(("z-Scores").toUpperCase()) === -1) ||
+             $("#two_genes_platform option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+             $("#two_genes_platform option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) ||
              $("#two_genes_plots_type").val() === "methylation") {
             $("#two_genes_apply_log_scale_div_x").append(_str_x);
             $("#two_genes_apply_log_scale_div_y").append(_str_y);
@@ -681,7 +681,7 @@ var PlotsTwoGenesView = (function(){
 
     function dotsLogScaleUpdate(axis, applyLogScale) {
         elem.dotsGroup.selectAll("path")
-            .transition().duration(500)
+            .transition().duration(300)
             .attr("transform", function() {
                 if (applyLogScale) {
                     if (axis === "x") {
@@ -887,8 +887,14 @@ var PlotsTwoGenesView = (function(){
         drawPlots();
         drawLegends();
         addQtips();
-        var applyLogScale_x = document.getElementById("two_genes_log_scale_option_x").checked;
-        var applyLogScale_y = document.getElementById("two_genes_log_scale_option_y").checked;
+        var applyLogScale_x = false;
+        var applyLogScale_y = false;
+        if (document.getElementById("two_genes_log_scale_option_x") !== null) {
+            applyLogScale_x = document.getElementById("two_genes_log_scale_option_x").checked;
+        }
+        if (document.getElementById("two_genes_log_scale_option_y") !== null) {
+            applyLogScale_y = document.getElementById("two_genes_log_scale_option_y").checked;
+        }
         dotsLogScaleUpdate("x", applyLogScale_x);
         dotsLogScaleUpdate("y", applyLogScale_y);
     }

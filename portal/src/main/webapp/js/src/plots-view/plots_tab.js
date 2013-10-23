@@ -264,19 +264,19 @@ var PlotsMenu = (function () {
         var _str_x = "<input type='checkbox' id='log_scale_option_x' checked onchange='PlotsView.applyLogScaleX();'/> log scale";
         var _str_y = "<input type='checkbox' id='log_scale_option_y' checked onchange='PlotsView.applyLogScaleY();'/> log scale";
         if ($("#plots_type").val() === content.plots_type.mrna_copyNo.value) {
-            if ($("#data_type_mrna option:selected").text().toUpperCase().indexOf(("rna seq").toUpperCase()) !== -1 &&
-                $("#data_type_mrna option:selected").text().toUpperCase().indexOf(("z-scores").toUpperCase()) === -1) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
                 $("#one_gene_log_scale_y_div").append(_str_y);
             }
         } else if ($("#plots_type").val() === content.plots_type.mrna_methylation.value) {
             $("#one_gene_log_scale_x_div").append(_str_x);
-            if ($("#data_type_mrna option:selected").text().toUpperCase().indexOf(("rna seq").toUpperCase()) !== -1 &&
-                $("#data_type_mrna option:selected").text().toUpperCase().indexOf(("z-scores").toUpperCase()) === -1) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
                 $("#one_gene_log_scale_y_div").append(_str_y);
             }
         } else if ($("#plots_type").val() === content.plots_type.rppa_mrna.value) {
-            if ($("#data_type_mrna option:selected").text().toUpperCase().indexOf(("rna seq").toUpperCase()) !== -1 &&
-                $("#data_type_mrna option:selected").text().toUpperCase().indexOf(("z-scores").toUpperCase()) === -1) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
                 $("#one_gene_log_scale_x_div").append(_str_x);
             }
         }
@@ -676,7 +676,8 @@ var PlotsView = (function () {
                     mutationPriorityList[mutationStyle.splice.typeName] = "4";
                     mutationPriorityList[mutationStyle.nonstop.typeName] = "5";
                     mutationPriorityList[mutationStyle.nonstart.typeName] = "6";
-                    mutationPriorityList[mutationStyle.non.typeName] = "7";
+                    mutationPriorityList[mutationStyle.other.typeName] = "7"
+                    mutationPriorityList[mutationStyle.non.typeName] = "8";
                     var _primaryMutation = _mutationTypes[0];
                     $.each(_mutationTypes, function(index, val) {
                         if (mutationPriorityList[_primaryMutation] > mutationPriorityList[val]) {
@@ -1567,7 +1568,7 @@ var PlotsView = (function () {
                 },
                 updateLogScaleX: function(applyLogScale) {
                     elem.elemDotsGroup.selectAll("path")
-                        .transition().duration(500)
+                        .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
                                 var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
@@ -1581,7 +1582,7 @@ var PlotsView = (function () {
                 },
                 updateLogScaleY: function(applyLogScale) {
                     elem.elemDotsGroup.selectAll("path")
-                        .transition().duration(500)
+                        .transition().duration(300)
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {

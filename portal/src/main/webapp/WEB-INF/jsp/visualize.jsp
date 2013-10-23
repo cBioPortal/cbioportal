@@ -1,39 +1,24 @@
-<!-- Visualization of the main single cancer study query result page -->
-
 <%@ include file="global/global_variables.jsp" %>
 <jsp:include page="global/header.jsp" flush="true" />
+d
+<%
+    String smry = cancerStudyName +
+            "/" + caseSetName + ": (" +
+            mergedCaseListSize + ")" + "/" +
+            geneSetName + "/" + geneWithScoreList.size() +
+            (geneWithScoreList.size() == 1?"gene":"genes");
+%>
 
+<p>
+    <div class='gene_set_summary'>
+        Gene Set / Pathway is altered in <div id='percent_cases_affect'></div> of all cases. <br>
+    </div>
+</p>
+<p>
+    <small><strong><%=smry%></strong></small>
+</p>
 
 <%
-    //Printing out summary of the main query
-    $("#percent_case_affected").append(percentFormat.format(dataSummary.getPercentCasesAffected()));
-
-    String smry = "";
-    for (CancerStudy cancerStudy: cancerStudies){
-        if (cancerTypeId.equals(cancerStudy.getCancerStudyStableId())){
-            smry = smry + cancerStudy.getName();
-        }
-    }
-    for (CaseList caseSet:  caseSets) {
-        if (caseSetId.equals(caseSet.getStableId())) {
-            smry = smry + "/" + caseSet.getName() + ":  "
-                    + " (" + mergedCaseList.size() + ")";
-        }
-    }
-    for (GeneSet geneSet:  geneSetList) {
-        if (geneSetChoice.equals(geneSet.getId())) {
-            smry = smry + "/" + geneSet.getName();
-        }
-    }
-    smry = smry + "/" + geneWithScoreList.size();
-    if (geneWithScoreList.size() == 1){
-        smry = smry + " gene";
-    } else {
-        smry = smry + " genes";
-    }
-    out.println (smry);
-    out.println ("</strong></small></p>");
-
     if (warningUnion.size() > 0) {
         out.println ("<div class='warning'>");
         out.println ("<h4>Errors:</h4>");
@@ -58,15 +43,6 @@
         out.println ("</div>");
     } else {
 %>
-
-<p>
-    <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <div id='percent_case_affected'></div> of all cases. <br>
-    </div>
-</p>
-
-
-
 
 <script type="text/javascript">
     $(document).ready(function(){
@@ -152,8 +128,7 @@
             }
 
             if ( has_mrna && (has_rppa || has_methylation || has_copy_no) ) {
-                        out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
-
+                out.println ("<li><a href='#plots' class='result-tab' title='Multiple plots, including CNA v. mRNA expression'>" + "Plots</a></li>");
             }
 
             if (showMutTab){
@@ -168,7 +143,7 @@
             }
 
             if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                out.println ("<li id='tab-survival'><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
+                out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
             }
 
@@ -183,9 +158,7 @@
             out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
             out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
-
             out.println ("</ul>");
-
 
             out.println ("<div class=\"section\" id=\"bookmark_email\">");
 
@@ -211,29 +184,29 @@
         }
     %>
 
-    <div class="section" id="summary">
-        <% //contents of fingerprint.jsp now come from attribute on request object %>
-        <%@ include file="oncoprint/main.jsp" %>
-        <%@ include file="gene_info.jsp" %>
-    </div>
+        <div class="section" id="summary">
+            <% //contents of fingerprint.jsp now come from attribute on request object %>
+            <%@ include file="oncoprint/main.jsp" %>
+            <%@ include file="gene_info.jsp" %>
+        </div>
 
-    <% if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
+            <% if ( has_mrna && (has_copy_no || has_methylation || has_copy_no) ) { %>
         <%@ include file="plots_tab.jsp" %>
-    <% } %>
+            <% } %>
 
-    <% if (showIGVtab) { %>
+            <% if (showIGVtab) { %>
         <%@ include file="igv.jsp" %>
-    <% } %>
+            <% } %>
 
-    <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
+            <% if (clinicalDataList != null && clinicalDataList.size() > 0) { %>
         <%@ include file="clinical_tab.jsp" %>
-    <% } %>
+            <% } %>
 
-    <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
+            <% if (computeLogOddsRatio && geneWithScoreList.size() > 1) { %>
         <%@ include file="correlation.jsp" %>
-    <% } %>
+            <% } %>
 
-    <% if (mutationDetailLimitReached != null) {
+            <% if (mutationDetailLimitReached != null) {
         out.println("<div class=\"section\" id=\"mutation_details\">");
         out.println("<P>To retrieve mutation details, please specify "
         + QueryBuilder.MUTATION_DETAIL_LIMIT + " or fewer genes.<BR>");
@@ -241,18 +214,18 @@
     } else if (showMutTab) { %>
         <%@ include file="mutation_views.jsp" %>
         <%@ include file="mutation_details.jsp" %>
-    <%  } %>
+            <%  } %>
 
-    <% if (rppaExists) { %>
+            <% if (rppaExists) { %>
         <%@ include file="protein_exp.jsp" %>
-    <% } %>
+            <% } %>
 
-    <% if (includeNetworks) { %>
+            <% if (includeNetworks) { %>
         <%@ include file="networks.jsp" %>
-    <% } %>
+            <% } %>
 
-    <%@ include file="data_download.jsp" %>
-    <%@ include file="image_tabs_data.jsp" %>
+        <%@ include file="data_download.jsp" %>
+        <%@ include file="image_tabs_data.jsp" %>
 </div> <!-- end tabs div -->
 <% } %>
 

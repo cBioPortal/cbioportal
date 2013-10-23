@@ -69,5 +69,7 @@
         return obj;
     }
 
-    window.onload = survivalCurves.init(getSurvivalPlotsCaseList());
+    $(document).ready(function() {
+        survivalCurves.init(getSurvivalPlotsCaseList());
+    });
 </script>

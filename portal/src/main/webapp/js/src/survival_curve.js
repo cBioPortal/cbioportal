@@ -258,7 +258,7 @@ var survivalCurves = (function() {
                 setDFSGroups(result, caseLists);
                 if (os_altered_group.length === 0 && os_unaltered_group.length === 0 &&
                     dfs_altered_group.length === 0 && dfs_unaltered_group.length === 0) {
-                    setTimeout(removeTag, 200);
+                    removeTag();
                 } else {
                     if (os_altered_group.length !== 0 || os_unaltered_group.length !== 0) {
                         calcOS();

@@ -182,7 +182,10 @@
         $("#plots-menus").tabs();
         $("#plots-menus").tabs("disable", 1);
     }
-    window.onload = Plots.init();
+    
+    $(document).ready(function() {
+        Plots.init();
+    });
 </script>
 
 <script>

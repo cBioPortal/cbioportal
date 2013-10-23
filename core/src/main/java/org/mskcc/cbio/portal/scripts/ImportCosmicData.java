@@ -127,7 +127,7 @@ public class ImportCosmicData {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
-            System.exit(1);
+            return;
         }
         DaoCosmicData.deleteAllRecords();
         ProgressMonitor pMonitor = new ProgressMonitor();

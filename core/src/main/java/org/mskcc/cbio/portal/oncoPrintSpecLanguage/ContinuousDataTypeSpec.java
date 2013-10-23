@@ -116,7 +116,6 @@ public class ContinuousDataTypeSpec extends DataTypeSpecInequality{
         }
         // keep compiler happy
         (new UnreachableCodeException( "")).printStackTrace();
-        System.exit(1);
         return false; 
     }
     

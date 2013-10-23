@@ -60,7 +60,7 @@ public class ImportUsers {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("command line usage: java org.mskcc.cbio.portal.scripts.ImportUsers <users_file.txt>");
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

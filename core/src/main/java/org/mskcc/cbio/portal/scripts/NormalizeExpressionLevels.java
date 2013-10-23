@@ -98,7 +98,6 @@ public class NormalizeExpressionLevels{
 		}
 		catch (RuntimeException e) {
 			System.err.println(e.getMessage());
-			System.exit(1);
 		}
 	}
 

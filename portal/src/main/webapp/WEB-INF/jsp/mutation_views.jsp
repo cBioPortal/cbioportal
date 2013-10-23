@@ -1875,7 +1875,7 @@
 		 * @return {{style: string, count: string}}
 		 * @private
 		 */
-		_getCosmic: function(value, count)
+		_getCosmic: function(count)
 		{
 			var style = "";
 			var text = "";

@@ -82,7 +82,7 @@
                 }
             }
             
-            window.onload = function() {
+            var showNetwork = function() {
                 var networkParams = {<%=QueryBuilder.GENE_LIST%>:'<%=genes4Network%>',
                      <%=QueryBuilder.GENETIC_PROFILE_IDS%>:'<%=geneticProfileIds4Network%>',
                      <%=QueryBuilder.CANCER_STUDY_ID%>:'<%=cancerTypeId4Network%>',
@@ -113,6 +113,10 @@
                     }
                 );
             }
+            
+            $(document).ready(function() {
+                showNetwork();
+            });
         </script>
 
 <jsp:include page="network_views.jsp"/>

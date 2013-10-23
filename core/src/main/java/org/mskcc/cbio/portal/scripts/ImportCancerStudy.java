@@ -42,7 +42,7 @@ public class ImportCancerStudy {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("command line usage: importCancerStudy.pl <cancer_study.txt>");
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

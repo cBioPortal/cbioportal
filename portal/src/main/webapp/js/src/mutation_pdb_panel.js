@@ -72,6 +72,9 @@ function MutationPdbPanel(options, data, xScale)
 		}
 	};
 
+	// event listeners
+	var _listeners = {};
+
 	// merge options with default options to use defaults for missing values
 	var _options = jQuery.extend(true, {}, _defaultOpts, options);
 
@@ -178,7 +181,7 @@ function MutationPdbPanel(options, data, xScale)
 
 			var rect = gChain.append('rect')
 				.attr('fill', color)
-				.attr('opacity', options.opacity[segment.type])
+				.attr('opacity', chain.mergedAlignment.score)
 				.attr('x', x)
 				.attr('y', y)
 				.attr('width', width)
@@ -361,7 +364,8 @@ function MutationPdbPanel(options, data, xScale)
 			max++;
 		}
 
-		return max;
+		// base level should be 1
+		return max + 1;
 	}
 
 	/**
@@ -476,6 +480,14 @@ function MutationPdbPanel(options, data, xScale)
 	function addListener(selector, event, handler)
 	{
 		_svg.selectAll(selector).on(event, handler);
+
+		// save the listener for future reference
+		if (_listeners[selector] == null)
+		{
+			_listeners[selector] = {};
+		}
+
+		_listeners[selector][event] = handler;
 	}
 
 	/**
@@ -487,6 +499,30 @@ function MutationPdbPanel(options, data, xScale)
 	function removeListener(selector, event)
 	{
 		_svg.selectAll(selector).on(event, null);
+
+		// remove listener from the map
+		if (_listeners[selector] &&
+		    _listeners[selector][event])
+		{
+			delete _listeners[selector][event];
+		}
+	}
+
+	/**
+	 * Reapplies current listeners to the diagram. This function should be
+	 * called while adding new diagram elements after initialization.
+	 */
+	function reapplyListeners()
+	{
+		for (var selector in _listeners)
+		{
+			var target = _svg.selectAll(selector);
+
+			for (var event in _listeners[selector])
+			{
+				target.on(event, _listeners[selector][event]);
+			}
+		}
 	}
 
 	/**
@@ -543,6 +579,9 @@ function MutationPdbPanel(options, data, xScale)
 			          _rowData.slice(_options.numRows[_expansion], _options.numRows[nextLevel]),
 			          xScale,
 			          _options.numRows[_expansion]);
+
+			// also reapply the listeners for the new elements
+			reapplyListeners();
 
 			// mark the indicator for the next level
 			_levelDrawn[nextLevel] = true;

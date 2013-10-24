@@ -805,7 +805,7 @@ var PdbDataUtil = (function()
 			}
 		}
 
-		return mismatch / (count - gap);
+		return 1.0 - (mismatch / (count - gap));
 	}
 
 	/**
@@ -841,25 +841,26 @@ var PdbDataUtil = (function()
 	{
 		var result = 0;
 
-		// first try to sort by e value (lowest value comes first)
+		// first, try to sort by alignment score
 		if (result == 0)
 		{
-			result = compareEValue(a, b);
+			result = compareScore(a, b);
 		}
 
-		// second try to sort by identp (highest value comes first)
-		if (result == 0)
-		{
-			result = compareIdentP(a, b);
-		}
-
-		// third try to sort by alignment length (longest string comes first)
+		// second, try to sort by alignment length (longest string comes first)
 		if (result == 0)
 		{
 			result = compareMergedLength(a, b);
 		}
 
 		return result;
+	}
+
+	function compareScore(a, b)
+	{
+		// higher score should comes first
+		return (b.chain.mergedAlignment.score -
+		        a.chain.mergedAlignment.score);
 	}
 
 	function compareMergedLength(a, b)

@@ -31,6 +31,12 @@ public class CaseIdUtil
 {
 	public static String getCaseId(String barCode)
 	{
+		// do not process non-TCGA bar codes...
+		if (!barCode.startsWith("TCGA"))
+		{
+			return barCode;
+		}
+
 		// process bar code
 		// an example bar code looks like this:  TCGA-13-1479-01A-01W
 
@@ -45,11 +51,12 @@ public class CaseIdUtil
 			// the following condition was prompted by case ids coming from
 			// private cancer studies (like SKCM_BROAD) with case id's of
 			// the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
-			if (!barCode.startsWith("TCGA") &&
-			    barCodeParts.length == 4)
-			{
-				caseId += "-" + barCodeParts[3];
-			}
+			// TODO this causes problems for some cases, so disabling it
+//			if (!barCode.startsWith("TCGA") &&
+//			    barCodeParts.length == 4)
+//			{
+//				caseId += "-" + barCodeParts[3];
+//			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			caseId = barCode;
 		}

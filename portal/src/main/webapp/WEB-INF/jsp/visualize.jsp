@@ -362,7 +362,7 @@
                     }
 
                     if (clinicalDataList != null && clinicalDataList.size() > 0) {
-                        out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
+                        out.println ("<li id='tab-survival'><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                         + "Survival</a></li>");
                     }
 

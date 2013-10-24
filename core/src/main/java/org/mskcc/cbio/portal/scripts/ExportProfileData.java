@@ -56,14 +56,14 @@ public class ExportProfileData {
         // check args
         if (args.length < 1) {
             System.out.println("command line usage:  exportProfileData.pl " + "<stable_genetic_profile_id>");
-            System.exit(1);
+            return;
         }
         String stableGeneticProfileId = args[0];
         System.out.println("Using genetic profile ID:  " + stableGeneticProfileId);
         GeneticProfile geneticProfile = DaoGeneticProfile.getGeneticProfileByStableId(stableGeneticProfileId);
         if (geneticProfile == null) {
             System.out.println("Genetic Profile not recognized:  " + stableGeneticProfileId);
-            System.exit(1);
+            return;
         } else {
             System.out.println(geneticProfile.getProfileName());
             export(geneticProfile);

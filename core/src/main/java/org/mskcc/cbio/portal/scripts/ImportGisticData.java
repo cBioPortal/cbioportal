@@ -72,7 +72,7 @@ public class ImportGisticData {
             System.out.printf("command line usage:  importGistic.pl <gistic-data-file.txt> <cancer-study-id>\n" +
                     "\t <gistic-data-file.txt> Note that gistic-data-file.txt must be a massaged file, it does not come straight from the Broad\n" +
                     "\t <cancer-study-id> e.g. 'tcga_gbm'");
-            System.exit(1);
+            return;
         }
 
         GisticReader gisticReader = new GisticReader();
@@ -96,7 +96,7 @@ public class ImportGisticData {
 
         if (gistics == null) {
             System.out.println("Error: didn't get any data");
-            System.exit(1);
+            return;
         }
 
         // add to CGDS database

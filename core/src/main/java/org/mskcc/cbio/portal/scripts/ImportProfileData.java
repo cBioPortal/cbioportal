@@ -57,18 +57,18 @@ public class ImportProfileData{
     private static String usageLine;
     private static OptionParser parser;
 
-   private static void quit(String msg){
-      if( null != msg ){
-         System.err.println( msg );
-      }
-      System.err.println( usageLine );
-      try {
-         parser.printHelpOn(System.err);
-      } catch (IOException e) {
-         e.printStackTrace();
-      }
-      System.exit(1);      
-   }
+    private static void quit(String msg)
+    {
+        if( null != msg ){
+            System.err.println( msg );
+        }
+        System.err.println( usageLine );
+        try {
+            parser.printHelpOn(System.err);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
    public static void main(String[] args) throws Exception {
        Date start = new Date();
@@ -101,26 +101,27 @@ public class ImportProfileData{
        OptionSet options = null;
       try {
          options = parser.parse( args );
+         //exitJVM = !options.has(returnFromMain);
       } catch (OptionException e) {
-         quit( e.getMessage() );
+          quit( e.getMessage() );
       }
       
       if( options.has( help ) ){
-         quit( "" );
+          quit( "" );
       }
        
        File dataFile = null;
        if( options.has( data ) ){
           dataFile = new File( options.valueOf( data ) );
        }else{
-          quit( "'data' argument required.");
+           quit( "'data' argument required.");
        }
 
        File descriptorFile = null;
        if( options.has( meta ) ){
           descriptorFile = new File( options.valueOf( meta ) );
        }else{
-          quit( "'meta' argument required.");
+           quit( "'meta' argument required.");
        }
 
        int updateAction = ACTION_CLOBBER;
@@ -129,7 +130,7 @@ public class ImportProfileData{
           if (actionArg.equalsIgnoreCase("clobber")) {
              updateAction = ACTION_CLOBBER;
          } else {
-            quit( "Unknown dbmsAction action:  " + actionArg );
+              quit( "Unknown dbmsAction action:  " + actionArg );
          }
           System.err.println(" --> updateAction:  " + actionArg);
        }
@@ -142,7 +143,7 @@ public class ImportProfileData{
           } else if (actionArg.equalsIgnoreCase( "bulkLoad" )) {
              MySQLbulkLoader.bulkLoadOn();
           } else {
-             quit( "Unknown loadMode action:  " + actionArg );
+              quit( "Unknown loadMode action:  " + actionArg );
           }
        }
 
@@ -153,7 +154,7 @@ public class ImportProfileData{
          try {
             geneticProfile = GeneticProfileReader.loadGeneticProfile( descriptorFile );
          } catch (java.io.FileNotFoundException e) {
-            quit( "Descriptor file '" + descriptorFile + "' not found." );
+             quit( "Descriptor file '" + descriptorFile + "' not found." );
          }
 
         int numLines = FileUtil.getNumLines(dataFile);

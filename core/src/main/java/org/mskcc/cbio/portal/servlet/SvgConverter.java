@@ -99,7 +99,10 @@ public class SvgConverter extends HttpServlet {
             
             // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
-	        
+            String xmlHeader = "<?xml version='1.0'?>" +
+                    "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'";
+            xml = xml.replace("<svg", xmlHeader);
+
             filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
@@ -160,7 +163,7 @@ public class SvgConverter extends HttpServlet {
             TranscoderOutput output = new TranscoderOutput(out);
             Transcoder transcoder = new PDFTranscoder();
             transcoder.addTranscodingHint(PDFTranscoder.KEY_XML_PARSER_CLASSNAME, "org.apache.xerces.parsers.SAXParser");
-            response.setContentType("application/pdf");
+            response.setContentType("application/force-download");
             response.setHeader("content-disposition", "inline; filename=" + filename);
             transcoder.transcode(input, output);
         } catch (Exception e) {

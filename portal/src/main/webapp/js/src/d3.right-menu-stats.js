@@ -57,6 +57,7 @@ var RightMenuStudyStatsUtil = (function($) {
 
             $.each(portalData.type_of_cancers, function(key, typeStr) {
                 treeData.children.push({
+                    typeId: key,
                     name: typeStr,
                     children: cancerTypes[key]
                 });
@@ -96,7 +97,9 @@ var RightMenuStudyStatsUtil = (function($) {
             h = 300 - 15,
             x = d3.scale.linear().range([0, w]),
             y = d3.scale.linear().range([0, h]),
-            color = d3.scale.category20c(),
+            color = function(cType) {
+                return portalData.cancer_colors[cType];
+            },
             root,
             node;
 
@@ -154,7 +157,8 @@ var RightMenuStudyStatsUtil = (function($) {
         cell.append("svg:rect")
             .attr("width", function(d) { return d.dx - 1; })
             .attr("height", function(d) { return d.dy - 1; })
-            .style("fill", function(d) { return color(d.parent.name); })
+            .style("fill", function(d) { return color(d.parent.typeId); })
+            .style("opacity", .6)
             .style("cursor", "pointer")
             .each(addTooltip);
 

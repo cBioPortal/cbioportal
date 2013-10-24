@@ -66,8 +66,7 @@ public class ExportDataForDownload {
          parser.printHelpOn(System.err);
       } catch (IOException e) {
          e.printStackTrace();
-      }
-      System.exit(1);      
+      }    
    }
 
    public static void main(String[] args) {

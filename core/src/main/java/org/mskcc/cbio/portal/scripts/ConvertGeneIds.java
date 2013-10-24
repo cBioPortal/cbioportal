@@ -59,7 +59,7 @@ public class ConvertGeneIds {
     public static void main(String[] args) throws Exception {
         if (args.length< 2) {
             System.out.println ("command line usage:  convertGeneIds.pl file_name attribute_name");
-            System.exit(1);
+            return;
         }
         String file = args[0];
         String attribute = args[1];

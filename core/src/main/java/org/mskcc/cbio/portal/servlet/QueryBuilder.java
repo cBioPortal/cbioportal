@@ -40,6 +40,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.model.*;
@@ -544,7 +546,9 @@ public class QueryBuilder extends HttpServlet {
             if (action.equals(ACTION_SUBMIT)) {
 				// is user authorized for the study
 				String cancerStudyIdentifier = (String)httpServletRequest.getAttribute(CANCER_STUDY_ID);
-				if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
+	            cancerStudyIdentifier = StringEscapeUtils.escapeJavaScript(cancerStudyIdentifier);
+
+	            if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
 													"You are not authorized to view the cancer study with id: '" +
 													cancerStudyIdentifier + "'. ");

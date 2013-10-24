@@ -27,8 +27,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.ExtendedMutation;
-import org.mskcc.cbio.portal.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.*;
 
 import java.sql.*;
 import java.util.*;
@@ -36,13 +35,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.Case;
-import org.mskcc.cbio.cgds.model.ExtendedMutation.MutationEvent;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.mskcc.cbio.cgds.util.MutationKeywordUtils;
 
 /**
  * Data access object for Mutation table
@@ -94,7 +89,7 @@ public final class DaoMutation {
             }
     }
         
-        public static int addMutationEvent(MutationEvent event) throws DaoException {
+        public static int addMutationEvent(ExtendedMutation.MutationEvent event) throws DaoException {
             // use this code if bulk loading
             // write to the temp file maintained by the MySQLbulkLoader
             String keyword = MutationKeywordUtils.guessOncotatorMutationKeyword(event.getProteinChange(), event.getMutationType());
@@ -394,18 +389,18 @@ public final class DaoMutation {
         return mutationList;
     }
     
-    public static Set<MutationEvent> getAllMutationEvents() throws DaoException {
+    public static Set<ExtendedMutation.MutationEvent> getAllMutationEvents() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        Set<MutationEvent> events = new HashSet<MutationEvent>();
+        Set<ExtendedMutation.MutationEvent> events = new HashSet<ExtendedMutation.MutationEvent>();
         try {
             con = JdbcUtil.getDbConnection(DaoMutation.class);
             pstmt = con.prepareStatement
                     ("SELECT * FROM mutation_event");
             rs = pstmt.executeQuery();
             while  (rs.next()) {
-                MutationEvent event = extractMutationEvent(rs);
+                ExtendedMutation.MutationEvent event = extractMutationEvent(rs);
                 events.add(event);
             }
         } catch (SQLException e) {
@@ -463,8 +458,8 @@ public final class DaoMutation {
         return mutation;
     }
     
-    private static MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
-        MutationEvent event = new MutationEvent();
+    private static ExtendedMutation.MutationEvent extractMutationEvent(ResultSet rs) throws SQLException, DaoException {
+        ExtendedMutation.MutationEvent event = new ExtendedMutation.MutationEvent();
         event.setMutationEventId(rs.getLong("MUTATION_EVENT_ID"));
         long entrezId = rs.getLong("mutation_event.ENTREZ_GENE_ID");
         DaoGeneOptimized aDaoGene = DaoGeneOptimized.getInstance();

@@ -1,10 +1,10 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -167,7 +167,7 @@ public final class DaoCaseProfile {
      * containing the cancer study (full string name), the cancer type (e.g. `brca_tcga`), and the count
      *
      * @return  [ list of maps { cancer_study, cancer_type, num_sequenced_samples } ]
-     * @throws org.mskcc.cbio.cgds.dao.DaoException
+     * @throws DaoException
      * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
      *
      */

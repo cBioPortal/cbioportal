@@ -212,28 +212,28 @@
             </p>
             <table class="cc-tip-table">
                 <thead>
-                    <tr>
-                        <th>Alteration</th>
-                        <th>Frequency</th>
-                    </tr>
+                <tr>
+                    <th>Alteration</th>
+                    <th>Frequency</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Mutation</td>
-                        <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Deletion</td>
-                        <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Amplification</td>
-                        <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Multiple alterations</td>
-                        <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
-                    </tr>
+                <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Mutation</td>
+                    <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
+                </tr>
+                <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Deletion</td>
+                    <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Amplification</td>
+                    <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
+                </tr>
+                <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Multiple alterations</td>
+                    <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
+                </tr>
                 </tbody>
             </table>
 

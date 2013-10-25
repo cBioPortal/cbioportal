@@ -46,6 +46,6 @@
 <script type="text/javascript" src="js/src/global-tabs.js"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js"></script>
-<script type="text/javascript" src="js/src/mutation_model.js"></script>
-<script type="text/javascript" src="js/src/mutation_diagram.js"></script>
-<script type="text/javascript" src="js/src/mutation_table.js"></script>
+<script type="text/javascript" src="js/src/mutation/mutation_model.js"></script>
+<script type="text/javascript" src="js/src/mutation/mutation_diagram.js"></script>
+<script type="text/javascript" src="js/src/mutation/mutation_table.js"></script>

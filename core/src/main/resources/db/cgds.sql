@@ -294,6 +294,15 @@ CREATE TABLE `mutation` (
   FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Mutation Data Details';
 
+drop table if EXISTS mutation_count;
+CREATE TABLE `mutation_count` (
+  `GENETIC_PROFILE_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(255) NOT NULL,
+  `MUTATION_COUNT` int NOT NULL,
+  KEY (`GENETIC_PROFILE_ID`,`CASE_ID`),
+  FOREIGN KEY (`GENETIC_PROFILE_ID`) REFERENCES `genetic_profile` (`GENETIC_PROFILE_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
 -- --------------------------------------------------------
 
 --

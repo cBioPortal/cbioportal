@@ -4,27 +4,19 @@
 <%@ page import="org.apache.commons.lang.StringUtils" %>
 
 <%
-    String genes4Network = StringUtils.join((List)request.getAttribute(QueryBuilder.GENE_LIST)," ");
-    String geneticProfileIds4Network = StringUtils.join(geneticProfileIdSet," ");
-    String cancerTypeId4Network = (String)request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-// 	String caseIds4Network = ((String)request.getAttribute(QueryBuilder.CASE_IDS)).
-// 			replaceAll("\\s", " ").trim(); // convert white spaces to space (to prevent network tab to crash)
-	String caseIdsKey4Network = (String)request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-    String caseSetId4Network = (String)request.getAttribute(QueryBuilder.CASE_SET_ID);
-    String zScoreThesholdStr4Network = request.getAttribute(QueryBuilder.Z_SCORE_THRESHOLD).toString();
-    String useXDebug = request.getParameter("xdebug");
+    String useXDebug = xssUtil.getCleanInput(request, "xdebug");
     if (useXDebug==null)
         useXDebug = "0";
-    String netSrc = request.getParameter("netsrc");
+    String netSrc = xssUtil.getCleanerInput(request, "netsrc");
     if (netSrc==null)
         netSrc = "cgds";
-    String netSize = request.getParameter("netsize");
+    String netSize = xssUtil.getCleanerInput(request, "netsize");
     if (netSize==null)
         netSize = "large";
-    String nLinker = request.getParameter("linkers");
+    String nLinker = xssUtil.getCleanerInput(request, "linkers");
     if (nLinker==null)
         nLinker = "50";
-    String diffusion = request.getParameter("diffusion");
+    String diffusion = xssUtil.getCleanerInput(request, "diffusion");
     if (diffusion==null)
         diffusion = "0";
 %>

@@ -58,6 +58,8 @@ public class DatabaseUtil
 	 */
 	public static void initDataSource()
 	{
+        // this should  come from command line - perhaps 
+        // file is not needed and db host, userid, pw, etc are passed via command line
 		DatabaseProperties dbProperties = new DatabaseProperties("db.properties");
 
 		String host = dbProperties.getDbHost();

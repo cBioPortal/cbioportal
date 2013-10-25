@@ -64,9 +64,16 @@ public class PortalImporterTool implements Runnable {
 		// create each option
 		Option help = new Option("h", "Print this message.");
 
+        Option annotateMAF = (OptionBuilder.withArgName("maf:output")
+                              .hasArgs(2)
+                              .withValueSeparator(':')
+                              .withDescription("Annotates the MAF file with additional information from mutationassessor.org and Oncotator." +
+                                               "If output filename is not given, input filename will be used with a '.annotated' extension.")
+                              .create("a"));
+
         Option validateCancerStudy = (OptionBuilder.withArgName("dir")
                                       .hasArg()
-                                      .withDescription("Validates cancer studies within the given cancer study directory")
+                                      .withDescription("Validates cancer studies within the given cancer study directory.")
                                       .create("v"));
 
         Option importCancerStudy = (OptionBuilder.withArgName("dir:skip:force")
@@ -83,6 +90,7 @@ public class PortalImporterTool implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
+		toReturn.addOption(annotateMAF);
         toReturn.addOption(validateCancerStudy);
 		toReturn.addOption(importCancerStudy);
 
@@ -131,6 +139,10 @@ public class PortalImporterTool implements Runnable {
                 String[] values = commandLine.getOptionValues("i");
 				importCancerStudy(values[0], (values.length >= 2) ? values[1] : "", (values.length == 3) ? values[2] : "");
 			}
+            else if (commandLine.hasOption("a")) {
+                String[] values = commandLine.getOptionValues("a");
+                annotateMAF(values[0], (values.length == 2) ? values[1] : values[0] + ".annotated");
+            }
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
@@ -200,6 +212,31 @@ public class PortalImporterTool implements Runnable {
 		importer.importCancerStudy(cancerStudyDirectory, skipBool, forceBool);
 
         logMessage("importCancerStudy(), complete");
+	}
+
+	private void annotateMAF(String inputFilename, String outputFilename) throws Exception {
+
+        logMessage("annotateMAF(), mafFile: " + inputFilename);
+
+		// sanity check
+		File mafFile = new File(inputFilename);
+		if (!mafFile.exists()) {
+			throw new IllegalArgumentException("cannot find the give MAF: " + inputFilename);
+		}
+
+		// create fileUtils object
+		FileUtils fileUtils = (FileUtils)context.getBean("fileUtils");
+
+		// create output file
+		File outputMAF = 
+			org.apache.commons.io.FileUtils.getFile(outputFilename);
+
+		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath(),
+                              FileUtils.FILE_URL_PREFIX + outputMAF.getCanonicalPath());
+
+		if (LOG.isInfoEnabled()) {
+			LOG.info("annotateMAF(), complete");
+		}
 	}
 
 	private boolean getBoolean(String parameterValue)

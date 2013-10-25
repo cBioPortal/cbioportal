@@ -81,6 +81,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionFontSize: "12px",     // font size of the region text
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
+	showStats: false,           // show/hide mutation stats in the lollipop tooltip
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -252,6 +253,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
  */
 MutationDiagram.prototype.processData = function (mutationData)
 {
+	// TODO move some of the functionality to PileupUtil class?
 	var self = this;
 
     // remove redundant mutations by sid

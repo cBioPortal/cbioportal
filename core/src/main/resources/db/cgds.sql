@@ -599,12 +599,31 @@ CREATE TABLE `clinical_trial_keywords` (
 
 drop table IF EXISTS pdb_uniprot_residue_mapping;
 CREATE TABLE `pdb_uniprot_residue_mapping` (
+  `ALIGNMENT_ID` int NOT NULL,
+  `PDB_POSITION` int NOT NULL,
+  `UNIPROT_POSITION` int NOT NULL,
+  `MATCH` char(1),
+  KEY(`ALIGNMENT_ID`, `UNIPROT_POSITION`),
+  FOREIGN KEY(`ALIGNMENT_ID`) REFERENCES `pdb_uniprot_alignment` (`ALIGNMENT_ID`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+drop table IF EXISTS pdb_uniprot_alignment;
+CREATE TABLE `pdb_uniprot_alignment` (
+  `ALIGNMENT_ID` int NOT NULL,
   `PDB_ID` char(4) NOT NULL,
   `CHAIN` char(1) NOT NULL,
-  `PDB_POSITION` int NOT NULL,
   `UNIPROT_ID` varchar(50) NOT NULL,
-  `UNIPROT_POSITION` int NOT NULL,
+  `PDB_FROM` int NOT NULL,
+  `PDB_TO` int NOT NULL,
+  `UNIPROT_FROM` int NOT NULL,
+  `UNIPROT_TO` int NOT NULL,
+  `EVALUE` float,
+  `IDENTITY` float,
+  `IDENTP` float,
+  `UNIPROT_ALIGN` text,
+  `PDB_ALIGN` text,
+  `MIDLINE_ALIGN` text,
+  PRIMARY KEY (`ALIGNMENT_ID`),
   KEY(`UNIPROT_ID`),
-  KEY(`UNIPROT_ID`, `UNIPROT_POSITION`),
-  KEY(`UNIPROT_ID`, `UNIPROT_POSITION`, `PDB_ID`, `CHAIN`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  KEY(`PDB_ID`, `CHAIN`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;

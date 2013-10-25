@@ -356,16 +356,28 @@ function MutationPdbPanel(options, data, xScale)
 	 */
 	function calcMaxExpansionLevel(totalNumRows, expansionLevels)
 	{
-		var max = 0;
+		var max = -1;
 
-		while (expansionLevels.length > max &&
-		       totalNumRows > expansionLevels[max])
+		// try to find the first value within the level array
+		// which is bigger than the total number of rows
+		for (var i=0; i < expansionLevels.length; i++)
 		{
-			max++;
+
+			if (expansionLevels[i] > totalNumRows)
+			{
+				max = i;
+				break;
+			}
 		}
 
-		// base level should be 1
-		return max + 1;
+		// if the total number of rows is bigger than all values
+		// than max should be the highest available level
+		if (max == -1)
+		{
+			max = expansionLevels.length - 1;
+		}
+
+		return max;
 	}
 
 	/**
@@ -568,7 +580,7 @@ function MutationPdbPanel(options, data, xScale)
 	{
 		// do not try to draw any further levels than max level
 		// (no rectangle to draw beyond max level)
-		var nextLevel = (_expansion + 1) % _maxExpansionLevel;
+		var nextLevel = (_expansion + 1) % (_maxExpansionLevel + 1);
 
 		// draw the rectangles if not drawn yet
 		if (!_levelDrawn[nextLevel])

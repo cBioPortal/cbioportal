@@ -102,7 +102,6 @@ public class PortalImporterTool implements Runnable {
 		}
 		catch (Exception e) {
 			Admin.usage(new PrintWriter(System.out, true));
-			System.exit(-1);
 		}
 	}
 
@@ -138,7 +137,6 @@ public class PortalImporterTool implements Runnable {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 
@@ -147,7 +145,7 @@ public class PortalImporterTool implements Runnable {
 		if (args.length == 0) {
 			System.err.println("Missing args to PortalImporterTool.");
 			PortalImporterTool.usage(new PrintWriter(System.err, true));
-			System.exit(-1);
+                        return;
 		}
 
 		// process
@@ -158,7 +156,6 @@ public class PortalImporterTool implements Runnable {
 		}
 		catch (Exception e) {
 			e.printStackTrace();
-			System.exit(-1);
 		}
 	}
 

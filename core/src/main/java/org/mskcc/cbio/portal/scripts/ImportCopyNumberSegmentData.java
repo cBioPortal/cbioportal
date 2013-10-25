@@ -70,7 +70,7 @@ public class ImportCopyNumberSegmentData {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importCopyNumberSegmentData.pl <copy_number_segment_file.seg> cancer_study_id");
-            System.exit(1);
+            return;
         }
         
         int cancerStudyId = DaoCancerStudy.getCancerStudyByStableId(args[1]).getInternalId();

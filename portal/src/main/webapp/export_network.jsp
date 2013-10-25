@@ -2,6 +2,7 @@
 <%@page import="java.io.InputStream"%>
 <%@page import="java.io.BufferedReader"%>
 <%@page import="java.io.OutputStream"%>
+<%@page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 
 <%
 	/*
@@ -13,10 +14,11 @@
 	 
 	InputStream requestStream = request.getInputStream();
 	OutputStream outStream = response.getOutputStream();
-	
+
+	ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 	// identify file type to download
 	
-	String type = request.getParameter("type");
+	String type = xssUtil.getCleanInput(request, "type");
 	
 	if (type.equals("png"))
 	{

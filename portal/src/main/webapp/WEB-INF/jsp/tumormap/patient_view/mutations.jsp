@@ -439,7 +439,7 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["bam"] ],
-                        "bVisible": viewBam,
+                        "bVisible": false,//viewBam,
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -525,7 +525,7 @@
                                 if (n===0) return "";
                                 var tip = '<b>'+n+' occurrences of '+mutations.getValue(source[0], 'key')
                                     +' mutations in COSMIC</b><br/><table class="'+table_id
-                                    +'-cosmic-table"><thead><th>COSMIC ID</th><th>Protein Change</th><th>Occurrence</th></thead><tbody><tr>'
+                                    +'-cosmic-table uninitialized"><thead><th>COSMIC ID</th><th>Protein Change</th><th>Occurrence</th></thead><tbody><tr>'
                                     +arr.join('</tr><tr>')+'</tr></tbody></table>';
                                 return  "<span class='"+table_id
                                                 +"-cosmic-tip' alt='"+tip+"'>"+n+"</span>";
@@ -794,16 +794,38 @@
             },
             events: {
                 render: function(event, api) {
-                    $("."+table_id+"-cosmic-table").dataTable( {
+                    $("."+table_id+"-cosmic-table.uninitialized").dataTable( {
                         "sDom": 'pt',
                         "bJQueryUI": true,
                         "bDestroy": true,
-                        "aoColumnDefs": [{
-                            "aTargets": [ 0 ],
-                            "mRender": function ( data, type, full ) {
-                                return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                        "aoColumnDefs": [
+                            {
+                                "aTargets": [ 0 ],
+                                "mDataProp": function(source,type,value) {
+                                    if (type==='set') {
+                                        source[0]=value;
+                                    } else if (type==='display') {
+                                        return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+source[0]+'">'+source[0]+'</a>';
+                                    } else {
+                                        return source[0];
+                                    }
+                                }
+                            },
+                            {
+                                "aTargets": [ 1 ],
+                                "mDataProp": function(source,type,value) {
+                                    if (type==='set') {
+                                        source[1]=value;
+                                    } else if (type==='sort') {
+                                        return parseInt(source[1].replace( /^\D+/g, ''));
+                                    } else if (type==='type') {
+                                        return 0;
+                                    } else {
+                                        return source[1];
+                                    }
+                                }
                             }
-                        }],
+                        ],
                         "oLanguage": {
                             "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
                             "sInfoFiltered": "",
@@ -811,7 +833,7 @@
                         },
                         "aaSorting": [[2,'desc']],
                         "iDisplayLength": 10
-                    } );
+                    } ).removeClass('uninitialized');
                 }
             },
 	        show: {event: "mouseover"},

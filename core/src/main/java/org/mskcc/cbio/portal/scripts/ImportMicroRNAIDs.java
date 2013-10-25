@@ -145,7 +145,7 @@ public class ImportMicroRNAIDs {
         System.err.println("This script will be called from ImportGeneData");
 //        if (args.length == 0) {
 //            System.out.println("command line usage:  importMicroRNAIDs.pl <microrna.txt>");
-//            System.exit(1);
+//            return;
 //        }
 //        ProgressMonitor pMonitor = new ProgressMonitor();
 //        pMonitor.setConsoleMode(true);

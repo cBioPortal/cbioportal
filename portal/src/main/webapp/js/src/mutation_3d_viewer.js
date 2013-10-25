@@ -182,14 +182,9 @@ var Mutation3dVis = function(name, options)
 		for (var mutationId in chain.positionMap)
 		{
 			var position = chain.positionMap[mutationId];
-			var posStr = position.start.pdbPos;
 
-			if (position.end.pdbPos > position.start.pdbPos)
-			{
-				posStr += "-" + position.end.pdbPos;
-			}
-
-			selection.push(posStr + ":" + chain.chainId);
+			// TODO remove duplicates from the array (use another data structure such as a map)
+			selection.push(generateScriptPos(position) + ":" + chain.chainId);
 		}
 
 		// save current chain & selection for a possible future restore
@@ -217,12 +212,54 @@ var Mutation3dVis = function(name, options)
 		Jmol.script(_applet, script);
 	}
 
+	function focus(pileup)
+	{
+		// no chain selected yet, terminate
+		if (!_chain)
+		{
+			return;
+		}
+
+		// assuming all other mutations in the same pileup have
+		// the same (or very close) mutation position.
+		var id = pileup.mutations[0].mutationId;
+
+		var position = _chain.positionMap[id];
+
+		if (position)
+		{
+			// TODO center and zoom to the selection
+			var script = "select " + generateScriptPos(position) + ":" + _chain.chainId + ";";
+
+			//Jmol.script(_applet, script);
+		}
+	}
+
+	/**
+	 * Generates a position string for Jmol scripting.
+	 *
+	 * @position object containing PDB position info
+	 * @return {string} position string for Jmol
+	 */
+	function generateScriptPos(position)
+	{
+		var posStr =position.start.pdbPos;
+
+		if (position.end.pdbPos > position.start.pdbPos)
+		{
+			posStr += "-" + position.end.pdbPos;
+		}
+
+		return posStr;
+	}
+
 	// return public functions
 	return {init: init,
 		show: show,
 		hide: hide,
 		isVisible: isVisible,
 		reload: reload,
+		focusOn: focus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
 		changeStyle : changeStyle};

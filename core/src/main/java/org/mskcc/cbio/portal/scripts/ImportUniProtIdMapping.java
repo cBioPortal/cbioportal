@@ -199,7 +199,7 @@ public final class ImportUniProtIdMapping {
     public static void main(final String[] args) {
         if (args.length < 1) {
             System.out.println("command line usage: importUniProtIdMapping.pl <uniprot_id_mapping.txt>");
-            System.exit(1);
+            return;
         }
         ProgressMonitor progressMonitor = new ProgressMonitor();
         progressMonitor.setConsoleMode(true);

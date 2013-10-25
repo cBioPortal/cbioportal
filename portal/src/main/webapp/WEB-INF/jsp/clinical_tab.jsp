@@ -1,8 +1,4 @@
 <%@ page import="org.json.simple.JSONObject"%>
-<%
-    String cancer_study_id = (String)request.getParameter("cancer_study_id");
-    String case_set_id = (String)request.getParameter("case_set_id");
-%>
 
 <style>
     #survival .survival_stats_table {
@@ -69,5 +65,7 @@
         return obj;
     }
 
-    window.onload = survivalCurves.init(getSurvivalPlotsCaseList());
+    $(document).ready(function() {
+        survivalCurves.init(getSurvivalPlotsCaseList());
+    });
 </script>

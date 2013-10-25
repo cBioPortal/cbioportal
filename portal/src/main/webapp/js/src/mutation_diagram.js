@@ -253,6 +253,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
  */
 MutationDiagram.prototype.processData = function (mutationData)
 {
+	// TODO move some of the functionality to PileupUtil class?
 	var self = this;
 
     // remove redundant mutations by sid

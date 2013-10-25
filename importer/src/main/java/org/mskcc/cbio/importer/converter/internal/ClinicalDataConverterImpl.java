@@ -93,7 +93,6 @@ public class ClinicalDataConverterImpl implements Converter {
 
         if (args.length != 0) {
             System.out.println("command line usage:  no arguments!");
-            System.exit(1);
         }
     }
 

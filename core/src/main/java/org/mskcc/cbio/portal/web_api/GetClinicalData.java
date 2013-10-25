@@ -249,6 +249,23 @@ public class GetClinicalData {
         return generateJson(clinicals);
     }
 
+    
+    
+
+    private static final Map<String, Integer> clinicalAttributeRank = new HashMap<String, Integer>();
+    static {
+        clinicalAttributeRank.put(null, -1);
+        clinicalAttributeRank.put("CASE_ID", -1); // EXCLUDE
+        clinicalAttributeRank.put("PATIENT_ID", 1);
+    }
+    private static int getClinicalAttributeRank(String attrId) {
+        Integer r = clinicalAttributeRank.get(attrId);
+        if (r==null) {
+            return 1000;
+        }
+        return r;
+    }
+    
     /**
      * Takes a list of clinicals and turns them into a tab-delimited, new-line ended string.
      *
@@ -260,10 +277,25 @@ public class GetClinicalData {
      */
     public static String getTxt(String cancerStudyId, List<String> caseIds) throws DaoException {
         List<ClinicalData> allClinicals = DaoClinicalData.getData(cancerStudyId, caseIds);
-
-        TreeSet<String> headers = new TreeSet<String>();
+        
+        TreeSet<String> headers = new TreeSet<String>(new Comparator<String>() {
+                @Override
+                public int compare(String str1, String str2) {
+                    Integer r1 = getClinicalAttributeRank(str1);
+                    Integer r2 = getClinicalAttributeRank(str2);
+                    if (r1.equals(r2)) {
+                        return str1.compareTo(str2);
+                    }
+                    
+                    return r1.compareTo(r2);
+                }
+        });
         Map<String, Map<String,ClinicalData>> caseId2Clinical = new HashMap<String, Map<String,ClinicalData>>();
         for (ClinicalData c : allClinicals) {
+            if (getClinicalAttributeRank(c.getAttrId())<0) {
+                continue;
+            }
+            
             Map<String,ClinicalData> got = caseId2Clinical.get(c.getCaseId());
 
             if (got == null) {

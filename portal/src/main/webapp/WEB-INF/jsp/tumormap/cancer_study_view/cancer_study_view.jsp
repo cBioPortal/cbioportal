@@ -67,7 +67,7 @@ if (cancerStudyViewError!=null) {
         </td>
     </tr>
     <tr>
-        <td><%=cancerStudy.getDescription()%>
+        <td id="study-desc"><%=cancerStudy.getDescription()%>
             <%if (null!=cancerStudy.getPmid()) {%>
             &nbsp;<a href="http://www.ncbi.nlm.nih.gov/pubmed/<%=cancerStudy.getPmid()%>">PubMed</a>
             <%}%>

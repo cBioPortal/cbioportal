@@ -109,7 +109,7 @@ public class ImportPfamGraphicsData
 		if (args.length < 1)
 		{
 			System.out.println("error: no input file specified");
-			System.exit(1);
+            return;
 		}
 
 		ProgressMonitor pMonitor = new ProgressMonitor(); // TODO pMonitor is not used at all

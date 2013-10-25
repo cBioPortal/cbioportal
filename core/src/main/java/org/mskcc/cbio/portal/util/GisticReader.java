@@ -119,38 +119,31 @@ public class GisticReader {
         }
 
         if (chromosomeField == -1) {
-            System.out.println("The field: chromosome, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: chromosome, is missing");
         }
 
         if (peakStartField == -1) {
-            System.out.println("The field: peak start, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: peak start, is missing");
         }
 
         if (peakEndField == -1) {
-            System.out.println("The field: peak end, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: peak end, is missing");
         }
 
         if (genesField == -1) {
-            System.out.println("The field: genes, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: genes, is missing");
         }
 
         if (qvalField == -1) {
-            System.out.println("The field: q_value, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: q_value, is missing");
         }
 
         if (cytobandField == -1) {
-            System.out.println("The field: cytoband, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: cytoband, is missing");
         }
 
         if (ampField == -1) {
-            System.out.println("The field: amp, is missing");
-            System.exit(1);
+            throw new IllegalStateException("The field: amp, is missing");
         }
 
         line = buf.readLine();

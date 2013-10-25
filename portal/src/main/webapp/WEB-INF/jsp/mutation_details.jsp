@@ -1,18 +1,18 @@
 <!-- TODO include these js files in the global js include? -->
-<script type="text/javascript" src="js/src/mutation_histogram.js"></script>
+<!--script type="text/javascript" src="js/src/mutation_histogram.js"></script-->
 <!--script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js"></script-->
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
-<script type="text/javascript" src="js/src/mutation_3d_viewer.js"></script>
-<script type="text/javascript" src="js/src/mutation_pdb_panel.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js"></script>
 
 <div class='section' id='mutation_details'>
 	<img src='images/ajax-loader.gif'/>
 </div>
 
-<!-- TODO this style is duplicated in crosscancer.css, we may want to remote this one -->
+<!-- TODO this style is duplicated in crosscancer.css, we may want to remove this one -->
 <style type="text/css" title="currentStyle">
 	@import "css/data_table_jui.css";
 	@import "css/data_table_ColVis.css";

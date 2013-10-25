@@ -214,6 +214,12 @@ var Mutation3dVis = function(name, options)
 
 	function focus(pileup)
 	{
+		// no chain selected yet, terminate
+		if (!_chain)
+		{
+			return;
+		}
+
 		// assuming all other mutations in the same pileup have
 		// the same (or very close) mutation position.
 		var id = pileup.mutations[0].mutationId;

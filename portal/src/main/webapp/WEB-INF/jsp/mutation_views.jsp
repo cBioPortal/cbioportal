@@ -352,14 +352,14 @@
 	</div>
 </script>
 
-<script type="text/javascript" src="js/src/mutation/CosmicTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/LollipopTipStatsView.js"></script>
-<script type="text/javascript" src="js/src/mutation/LollipopTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/MainMutationView.js"></script>
-<script type="text/javascript" src="js/src/mutation/Mutation3dView.js"></script>
-<script type="text/javascript" src="js/src/mutation/Mutation3dVisView.js"></script>
-<script type="text/javascript" src="js/src/mutation/MutationDetailsTableView.js"></script>
-<script type="text/javascript" src="js/src/mutation/MutationDetailsView.js"></script>
-<script type="text/javascript" src="js/src/mutation/PdbPanelView.js"></script>
-<script type="text/javascript" src="js/src/mutation/PredictedImpactTipView.js"></script>
-<script type="text/javascript" src="js/src/mutation/RegionTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/CosmicTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/LollipopTipStatsView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/LollipopTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MainMutationView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/RegionTipView.js"></script>

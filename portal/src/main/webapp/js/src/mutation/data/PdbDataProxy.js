@@ -39,20 +39,34 @@ var PdbDataProxy = function(mutationUtil)
 		var positions = _util.getProteinPositions(gene);
 
 		// populate position data array
-		var positionData = [];
+		// first create as an object (map),
+		// then convert to an array to avoid duplicate positions
+		var positionObj = {};
 
-		// TODO remove duplicates from position data
+		// only add positions which fall between chain start & end positions
 		_.each(positions, function(ele, i) {
-			if (ele.start > -1)
+			if (ele.start > -1 &&
+			    ele.start >= chain.mergedAlignment.uniprotFrom &&
+			    ele.start <= chain.mergedAlignment.uniprotTo)
 			{
-				positionData.push(ele.start);
+				positionObj[ele.start] = ele.start;
 			}
 
-			if (ele.end > ele.start)
+			if (ele.end > ele.start &&
+			    ele.end >= chain.mergedAlignment.uniprotFrom &&
+			    ele.end <= chain.mergedAlignment.uniprotTo)
 			{
-				positionData.push(ele.end);
+				positionObj[ele.end] = ele.end;
 			}
 		});
+
+		// convert object to array
+		var positionData = [];
+
+		for (var key in positionObj)
+		{
+			positionData.push(positionObj[key]);
+		}
 
 		// populate alignment data array
 		var alignmentData = [];
@@ -61,6 +75,7 @@ var PdbDataProxy = function(mutationUtil)
 			alignmentData.push(ele.alignmentId);
 		});
 
+		// callback function for the AJAX call
 		var processData = function(data) {
 			var positionMap = {};
 			var mutations = _util.getMutationGeneMap()[gene];
@@ -73,6 +88,8 @@ var PdbDataProxy = function(mutationUtil)
 					var start = data.positionMap[mutations[i].proteinPosStart];
 					var end = data.positionMap[mutations[i].proteinPosEnd];
 
+					// if no start and end position found for this mutation,
+					// then it means this mutation position is not in this chain
 					if (start != undefined &&
 					    end != undefined)
 					{
@@ -86,11 +103,21 @@ var PdbDataProxy = function(mutationUtil)
 			callbackFn(positionMap);
 		};
 
-		// get pdb data for the current mutations
-		$.getJSON(_servletName,
+		// check if there are positions to map
+		if (positionData.length > 0)
+		{
+			// get pdb data for the current mutations
+			$.getJSON(_servletName,
 		          {positions: positionData.join(" "),
 			          alignments: alignmentData.join(" ")},
 		          processData);
+		}
+		// no position data: no need to query the server
+		else
+		{
+			// just forward to callback with empty data
+			callbackFn({});
+		}
 	}
 
 	/**

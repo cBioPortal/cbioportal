@@ -79,11 +79,15 @@ var Mutation3dView = Backbone.View.extend({
 				    panel != null &&
 				    pdbColl.length > 0)
 				{
+					// TODO just simulate click function on the default chain, instead of this block content?
+
 					// reload the visualizer content with the default pdb and chain
 					var defaultDatum = panel.getDefaultDatum();
 					var pdbId = defaultDatum.pdbId;
 					var chain = defaultDatum.chain;
 					var color = defaultDatum.color;
+
+					// TODO also highlight the default chain
 
 					panel.showView();
 					vis.updateView(gene, pdbId, chain, color);

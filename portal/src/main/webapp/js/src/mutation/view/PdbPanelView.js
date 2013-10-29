@@ -111,6 +111,7 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
 					vis.updateView(gene, datum.pdbId, datum.chain, datum.color);
+					panel.highlight(this);
 				});
 			}
 		}

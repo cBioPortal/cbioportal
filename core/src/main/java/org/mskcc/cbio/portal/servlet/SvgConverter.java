@@ -75,29 +75,9 @@ public class SvgConverter extends HttpServlet {
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-        String xml = "";
-        String format = "";
-	String filename = "";
-
-        if (httpServletRequest instanceof FileUploadRequestWrapper) {
-
-            // get instance of our request wrapper
-            FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper)httpServletRequest;
-
-            // get format parameter
-            format = wrapper.getParameter("filetype");
-
-            // get xml parameter
-            xml = wrapper.getParameter("svgelement");
-
-	    // get filename parameter
-	    filename = wrapper.getParameter("filename");
-        }
-        else {
-            format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
-            xml = httpServletRequest.getParameter("svgelement");
-            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
-        }
+        String format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
+        String xml = httpServletRequest.getParameter("svgelement");
+        String filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
 
         String xmlHeader = "<?xml version='1.0'?>";
         xml = xmlHeader + xml;

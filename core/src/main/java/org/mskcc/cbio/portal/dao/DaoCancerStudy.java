@@ -303,7 +303,7 @@ public final class DaoCancerStudy {
                 rs.getBoolean("PUBLIC"));
         cancerStudy.setPmid(rs.getString("PMID"));
         cancerStudy.setCitation(rs.getString("CITATION"));
-        //cancerStudy.setGroups(rs.getString("GROUPS"));
+        cancerStudy.setGroups(rs.getString("GROUPS"));
 
         cancerStudy.setInternalId(rs.getInt("CANCER_STUDY_ID"));
         return cancerStudy;

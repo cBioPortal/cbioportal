@@ -178,18 +178,18 @@ public class DaoGeneticAlteration {
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticAlteration.class);
-            pstmt = con.prepareStatement
-                    ("SELECT * FROM genetic_alteration WHERE"
-                    + " GENETIC_PROFILE_ID = "+geneticProfileId
-                    + entrezGeneIds==null?"":" AND ENTREZ_GENE_ID IN ("+StringUtils.join(entrezGeneIds, ",")+")");
-
-
+            if (entrezGeneIds == null) {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId);
+            } else {
+                pstmt = con.prepareStatement("SELECT * FROM genetic_alteration WHERE"
+                        + " GENETIC_PROFILE_ID = " + geneticProfileId
+                        + " AND ENTREZ_GENE_ID IN ("+StringUtils.join(entrezGeneIds, ",")+")");
+            }
             rs = pstmt.executeQuery();
-            if  (rs.next()) {
-                long entrez = rs.getLong("ENTREZ_GENE_ID");
+            while (rs.next()) {
                 HashMap<String, String> mapCaseValue = new HashMap<String, String>();
-                map.put(entrez, mapCaseValue);
-                
+                long entrez = rs.getLong("ENTREZ_GENE_ID");
                 String values = rs.getString("VALUES");
                 String valueParts[] = values.split(DELIM);
                 for (int i=0; i<valueParts.length; i++) {
@@ -197,6 +197,7 @@ public class DaoGeneticAlteration {
                     String caseId = orderedCaseList.get(i);
                     mapCaseValue.put(caseId, value);
                 }
+                map.put(entrez, mapCaseValue);
             }
             return map;
         } catch (SQLException e) {

@@ -40,7 +40,6 @@ public class DaoCoexpression {
             if (!MySQLbulkLoader.isBulkLoad()) {
                 throw new DaoException("You have to turn on MySQLbulkLoader in order to insert Coexpression data");
             } else {
-
                     // use this code if bulk loading
                     // write to the temp file maintained by the MySQLbulkLoader
                     MySQLbulkLoader.getMySQLbulkLoader("coexpression").insertRecord(
@@ -49,7 +48,6 @@ public class DaoCoexpression {
                             Integer.toString(coexpression.getProfileId()),
                             Double.toString(coexpression.getPearson()),
                             Double.toString(coexpression.getSpearman()));
-
                     return 1;
             }
     }

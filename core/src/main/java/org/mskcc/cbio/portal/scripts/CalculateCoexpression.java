@@ -60,15 +60,14 @@ public class CalculateCoexpression {
 
         String profileId = args[0];
         GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-        if (profile==null) {
-            System.out.println (profileId+" is not a valid profile id.");
+        if ( profile == null ) {
+            System.out.println (profileId + " is not a valid profile id.");
             return;
         }
 
-
         // TODO: support miRNA later
-        if (profile.getGeneticAlterationType()!=GeneticAlterationType.MRNA_EXPRESSION) {
-            System.out.println (profileId+" is not a mrna profile id.");
+        if (profile.getGeneticAlterationType() != GeneticAlterationType.MRNA_EXPRESSION) {
+            System.out.println (profileId + " is not a mrna profile id.");
             return;
         }
         
@@ -81,15 +80,15 @@ public class CalculateCoexpression {
         
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
-        
+
         Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
         
         int n = map.size();
         pMonitor.setMaxValue(n*(n-1)/2);
         
         List<Long> genes = new ArrayList<Long>(map.keySet());
-        for (int i=0; i<n; i++) {
-            for (int j=i+1; j<n; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
                 pMonitor.incrementCurValue();
                 
                 long gene1 = genes.get(i);
@@ -97,32 +96,28 @@ public class CalculateCoexpression {
                 
                 long gene2 = genes.get(j);
                 double[] exp2 = map.get(gene2);
-                
-                
+
                 double pearson = pearsonsCorrelation.correlation(exp1, exp2);
                 double spearman = spearmansCorrelation.correlation(exp1, exp2);
-                
+
                 Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
                 DaoCoexpression.addCoexpression(coexpression);
             }
         }
-        
         MySQLbulkLoader.flushAll();
     }
     
     private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {
         ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(profileId);
         int nCases = orderedCaseList.size();
-        
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        Map<Long,HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
-        Map<Long,double[]> map = new HashMap<Long,double[]>(mapStr.size());
-        for (Map.Entry<Long,HashMap<String, String>> entry : mapStr.entrySet()) {
+        Map<Long, HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
+        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
+        for (Map.Entry<Long, HashMap<String, String>> entry : mapStr.entrySet()) {
             Long gene = entry.getKey();
             Map<String, String> mapCaseValueStr = entry.getValue();
             double[] values = new double[nCases];
-            map.put(gene, values);
-            for (int i=0; i<nCases; i++) {
+            for (int i = 0; i < nCases; i++) {
                 String caseId = orderedCaseList.get(i);
                 String value = mapCaseValueStr.get(caseId);
                 Double d;
@@ -135,6 +130,7 @@ public class CalculateCoexpression {
                     values[i]=d;
                 }
             }
+            map.put(gene, values);
         }
         return map;
     }

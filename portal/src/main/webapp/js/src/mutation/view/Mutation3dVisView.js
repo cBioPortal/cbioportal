@@ -101,23 +101,39 @@ var Mutation3dVisView = Backbone.View.extend({
 		var mut3dVis = self.options.mut3dVis;
 		var pdbProxy = self.options.pdbProxy;
 
-		var callback = function(positionMap) {
+		var mapCallback = function(positionMap) {
 			// update position map of the chain
 			chain.positionMap = positionMap;
 
-			// update info
-			// TODO it might be better to do this with backbone's internal mvc listeners
-			self.$el.find(".mutation-3d-pdb-id").text(pdbId);
-			self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
+
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
 			mut3dVis.reload(pdbId, chain);
 		};
 
-		// update positionMap for the chain
-		// (retrieve data only once)
-		pdbProxy.getPositionMap(geneSymbol, chain, callback);
+		var infoCallback = function(pdbInfo) {
+			var infoVars = {pdbId: pdbId,
+				chainId: chain.chainId,
+				pdbInfo: ""};
+
+			if (pdbInfo)
+			{
+				infoVars.pdbInfo = pdbInfo;
+			}
+
+			// TODO define another backbone view for this template
+			var infoTemplate = _.template(
+				$("#mutation_3d_vis_info_template").html(), infoVars);
+
+			self.$el.find(".mutation-3d-info").html(infoTemplate);
+
+			// update positionMap for the chain
+			// (retrieve data only once)
+			pdbProxy.getPositionMap(geneSymbol, chain, mapCallback);
+		};
+
+		pdbProxy.getPdbInfo(pdbId, infoCallback);
 	},
 	isVisible: function()
 	{

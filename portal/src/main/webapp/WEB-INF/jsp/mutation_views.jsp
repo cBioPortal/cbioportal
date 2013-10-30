@@ -96,14 +96,21 @@
 	</button>
 </script>
 
+<script type="text/template" id="mutation_3d_vis_info_template">
+	<div class='mutation-3d-info-title'>
+		3D Protein Structure (red indicates mapped mutations)
+	</div>
+	<div>
+		Structure for the PDB id <span class='mutation-3d-pdb-id'>{{pdbId}}</span>
+		<span class='mutation-3d-pdb-info'>({{pdbInfo}})</span>
+		and the chain <span class='mutation-3d-chain-id'>{{chainId}}</span>
+	</div>
+</script>
+
 <script type="text/template" id="mutation_3d_vis_template">
 	<div class='mutation-3d-vis-header'>
 		<a class='mutation-3d-close'>X</a>
-		<label class='mutation-3d-info'>
-			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
-			and the chain <span class='mutation-3d-chain-id'></span><br>
-			Residues with red color indicate mutation.
-		</label>
+		<div class='mutation-3d-info'></div>
 	</div>
 	<div id='mutation_3d_visualizer'></div>
 	<div class='mutation-3d-vis-toolbar'>

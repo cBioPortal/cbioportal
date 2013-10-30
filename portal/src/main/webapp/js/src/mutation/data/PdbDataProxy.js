@@ -11,8 +11,12 @@ var PdbDataProxy = function(mutationUtil)
 	var _util = mutationUtil;
 
 	// cache for PDB data:
+
 	// map of <uniprot id, PdbCollection> pairs
 	var _pdbDataCache = {};
+
+	// map of <pdb id, pdb info> pairs
+	var _pdbInfoCache = {};
 
 	/**
 	 * Retrieves the position map for the given gene and chain.
@@ -126,9 +130,9 @@ var PdbDataProxy = function(mutationUtil)
 	 * assuming that the callback function accepts a single parameter.
 	 *
 	 * @param uniprotId     uniprot id
-	 * @param callbackFn    callback function to be invoked
+	 * @param callback      callback function to be invoked
 	 */
-	function getPdbData(uniprotId, callbackFn)
+	function getPdbData(uniprotId, callback)
 	{
 		// retrieve data from the server if not cached
 		if (_pdbDataCache[uniprotId] == undefined)
@@ -139,7 +143,7 @@ var PdbDataProxy = function(mutationUtil)
 				_pdbDataCache[uniprotId] = pdbColl;
 
 				// forward the processed data to the provided callback function
-				callbackFn(pdbColl);
+				callback(pdbColl);
 			};
 
 			// retrieve data from the servlet
@@ -150,12 +154,52 @@ var PdbDataProxy = function(mutationUtil)
 		else
 		{
 			// data is already cached, just forward it
-			callbackFn(_pdbDataCache[uniprotId]);
+			callback(_pdbDataCache[uniprotId]);
+		}
+	}
+
+	// TODO allow more than one pdb id
+	// ...see MutationDataProxy.getMutationData for a sample implementation
+	/**
+	 * Retrieves the PDB information for the provided PDB id. Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param pdbId     PDB id
+	 * @param callback  callback function to be invoked
+	 */
+	function getPdbInfo(pdbId, callback)
+	{
+		// retrieve data from the server if not cached
+		if (_pdbInfoCache[pdbId] == undefined)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+
+				if (data[pdbId] != null)
+				{
+					_pdbInfoCache[pdbId] = data[pdbId];
+				}
+
+				// forward the data to the provided callback function
+				callback(data[pdbId]);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+			          {pdbIds: pdbId},
+			          processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_pdbInfoCache[pdbId]);
 		}
 	}
 
 	return {
 		getPdbData: getPdbData,
+		getPdbInfo: getPdbInfo,
 		getPositionMap: getPositionMap
 	};
 };

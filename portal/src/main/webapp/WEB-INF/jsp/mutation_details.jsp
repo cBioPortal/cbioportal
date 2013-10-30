@@ -135,7 +135,12 @@
 		padding-bottom: 5px;
 	}
 	.mutation-3d-info {
-		font-size: 14px;
+		font-size: 13px;
+		width: 400px;
+	}
+	.mutation-3d-info-title {
+		border-bottom: 1px solid #888888;
+		margin-bottom: 5px;
 	}
 	.mutation-3d-close {
 		float: right;

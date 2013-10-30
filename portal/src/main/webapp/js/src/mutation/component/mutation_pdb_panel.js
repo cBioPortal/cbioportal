@@ -71,6 +71,9 @@ function MutationPdbPanel(options, data, xScale)
 	// row data (allocation of chains wrt rows)
 	var _rowData = null;
 
+	// default chain group svg element
+	var _defaultChainGroup = null;
+
 	// expansion level indicator (initially 0)
 	var _expansion = 0;
 
@@ -111,13 +114,19 @@ function MutationPdbPanel(options, data, xScale)
 				{
 					// assign a different color to each chain
 					var color = options.colors[idx % options.colors.length];
-					datum.color = color;
+					//datum.color = color;
 
 					var y = options.marginTop +
 					        (rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
 
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
+
+					// set the first drawn chain as the default chain
+					if (_defaultChainGroup == null)
+					{
+						_defaultChainGroup = gChain;
+					}
 
 					// add tooltip
 					var addTooltip = options.chainTipFn;
@@ -283,23 +292,13 @@ function MutationPdbPanel(options, data, xScale)
 	}
 
 	/**
-	 * Returns the chain datum (<pdb id, PdbChainModel> pair)
-	 * for the default chain.
+	 * Returns the group svg element for the default chain.
 	 *
 	 * @return chain datum for the default chain.
 	 */
-	function getDefaultChainDatum()
+	function getDefaultChainGroup()
 	{
-		var datum = null;
-
-		if (_rowData)
-		{
-			// TODO return the left most chain instead?
-			// ...i.e: min uniprotFrom in _rowData[0]
-			datum = _rowData[0][0];
-		}
-
-		return datum;
+		return _defaultChainGroup;
 	}
 
 	/**
@@ -622,7 +621,7 @@ function MutationPdbPanel(options, data, xScale)
 	function highlight(chainGroup)
 	{
 		// calculate the bounding box
-		var bbox = boundingBox(d3.select(chainGroup));
+		var bbox = boundingBox(chainGroup);
 
 		// remove the previous selection rectangle(s)
 		_svg.selectAll(".pdb-selection-rectangle").remove();
@@ -678,7 +677,7 @@ function MutationPdbPanel(options, data, xScale)
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
-		getDefaultChainDatum: getDefaultChainDatum,
+		getDefaultChainGroup: getDefaultChainGroup,
 		show: showPanel,
 		hide: hidePanel,
 		toggleHeight: toggleHeight,

@@ -94,9 +94,8 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
-	 * @param color         color of the pdb id and chain text
 	 */
-	updateView: function(geneSymbol, pdbId, chain, color)
+	updateView: function(geneSymbol, pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -108,8 +107,8 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// update info
 			// TODO it might be better to do this with backbone's internal mvc listeners
-			self.$el.find(".mutation-3d-pdb-id").text(pdbId).css('color', color);
-			self.$el.find(".mutation-3d-chain-id").text(chain.chainId).css('color', color);
+			self.$el.find(".mutation-3d-pdb-id").text(pdbId);
+			self.$el.find(".mutation-3d-chain-id").text(chain.chainId);
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();

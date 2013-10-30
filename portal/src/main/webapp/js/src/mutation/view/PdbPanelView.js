@@ -67,17 +67,21 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		self.$el.show();
 	},
-	getDefaultDatum: function()
+	loadDefaultChain: function()
 	{
 		var self = this;
-		var datum = null;
 
-		if (self.pdbPanel)
-		{
-			datum = self.pdbPanel.getDefaultChainDatum();
-		}
+		var panel = self.pdbPanel;
+		var gene = self.model.geneSymbol;
+		var vis = self.options.mut3dVisView;
 
-		return datum;
+		var gChain = panel.getDefaultChainGroup();
+		var defaultDatum = gChain.datum();
+
+		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
+
+		// also highlight the default chain
+		panel.highlight(gChain);
 	},
 	/**
 	 * Initializes the PDB chain panel.
@@ -110,8 +114,8 @@ var PdbPanelView = Backbone.View.extend({
 			if (vis != null)
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
-					vis.updateView(gene, datum.pdbId, datum.chain, datum.color);
-					panel.highlight(this);
+					vis.updateView(gene, datum.pdbId, datum.chain);
+					panel.highlight(d3.select(this));
 				});
 			}
 		}

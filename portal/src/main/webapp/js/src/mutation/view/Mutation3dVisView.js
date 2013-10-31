@@ -4,7 +4,8 @@
  *
  * options: {el: [target container],
  *           parentEl: [parent container],
- *           mut3dVis: [optional] reference to the Mutation3dVis instance
+ *           mut3dVis: [optional] reference to the Mutation3dVis instance,
+ *           pdbProxy: [optional] PDB data proxy
  *          }
  */
 var Mutation3dVisView = Backbone.View.extend({
@@ -113,20 +114,19 @@ var Mutation3dVisView = Backbone.View.extend({
 		};
 
 		var infoCallback = function(pdbInfo) {
-			var infoVars = {pdbId: pdbId,
+			var model = {pdbId: pdbId,
 				chainId: chain.chainId,
 				pdbInfo: ""};
 
 			if (pdbInfo)
 			{
-				infoVars.pdbInfo = pdbInfo;
+				model.pdbInfo = pdbInfo;
 			}
 
-			// TODO define another backbone view for this template
-			var infoTemplate = _.template(
-				$("#mutation_3d_vis_info_template").html(), infoVars);
-
-			self.$el.find(".mutation-3d-info").html(infoTemplate);
+			// init info view
+			var infoView = new Mutation3dVisInfoView(
+				{el: self.$el.find(".mutation-3d-info"), model: model});
+			infoView.render();
 
 			// update positionMap for the chain
 			// (retrieve data only once)

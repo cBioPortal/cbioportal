@@ -365,6 +365,7 @@
 <script type="text/javascript" src="js/src/mutation/view/MainMutationView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>

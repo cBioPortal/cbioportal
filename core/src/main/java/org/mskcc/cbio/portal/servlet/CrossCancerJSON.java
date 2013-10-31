@@ -30,6 +30,7 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
@@ -117,6 +118,7 @@ public class CrossCancerJSON extends HttpServlet {
 
                 Map cancerMap = new LinkedHashMap();
                 cancerMap.put("studyId", cancerStudyId);
+                cancerMap.put("typeOfCancer", cancerStudy.getTypeOfCancerId());
                 resultsList.add(cancerMap);
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.

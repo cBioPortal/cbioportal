@@ -120,7 +120,7 @@ public class ImportCaseList {
       // check args
       if (args.length < 1) {
          System.out.println("command line usage:  importCaseListData.pl " + "<data_file.txt or directory>");
-         System.exit(1);
+            return;
       }
       ProgressMonitor pMonitor = new ProgressMonitor();
       pMonitor.setConsoleMode(true);

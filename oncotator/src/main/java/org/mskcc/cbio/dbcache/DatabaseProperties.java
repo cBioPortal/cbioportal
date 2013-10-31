@@ -52,7 +52,6 @@ public class DatabaseProperties
             if (in == null) {
 //                System.err.println( "Properties file '" + configFilename + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
 //                                    "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");
-//                System.exit(1);
 	            throw new RuntimeException("Properties file '" + configFilename + "' could not be found by getResourceAsStream(). Check the CLASSPATH or class loader.\n" +
                                     "See http://download.oracle.com/javase/1.5.0/docs/api/java/lang/Class.html#getResourceAsStream%28java.lang.String%29 re proper location of properties file.");
             }

@@ -105,7 +105,7 @@ public class ConvertCosmicVcfToMaf {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf> <CosmicCodingMuts.maf>");
-            System.exit(1);
+            return;
         }
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);

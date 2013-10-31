@@ -94,27 +94,24 @@ public class SvgConverter extends HttpServlet {
 	    filename = wrapper.getParameter("filename");
         }
         else {
-            
             format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
-            
-            // TODO - update antisamy.xml to support svg-xml
             xml = httpServletRequest.getParameter("svgelement");
-	        
             filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
         }
 
-	    if (filename == null ||
-	        filename.length() == 0)
-	    {
+        String xmlHeader = "<?xml version='1.0'?>";
+        xml = xmlHeader + xml;
+        if(!xml.contains("svg xmlns")) {
+            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+        }
+
+        if (filename == null || filename.length() == 0) {
 		    filename = DEFAULT_FILENAME;
 	    }
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);
         } else if (format.equals("svg")) {
-            String xmlHeader = "<?xml version='1.0'?>" +
-                    "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'";
-            xml = xml.replace("<svg", xmlHeader);
             convertToSVG(httpServletResponse, xml, filename);
         }
     }

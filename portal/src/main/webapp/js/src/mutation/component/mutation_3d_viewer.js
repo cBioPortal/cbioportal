@@ -228,11 +228,29 @@ var Mutation3dVis = function(name, options)
 
 		if (position)
 		{
-			// TODO center and zoom to the selection
-			var script = "select " + generateScriptPos(position) + ":" + _chain.chainId + ";";
+			var scriptPos = generateScriptPos(position);
 
-			//Jmol.script(_applet, script);
+			// TODO color selection with a yellowish one to highlight
+			// ...or turn on selection halos for the selected position?
+
+			// center and zoom to the selection
+			var script = "zoom 250;" +
+				"center " + scriptPos + ":" + _chain.chainId + ";";
+//				"select " + scriptPos + ":" + _chain.chainId + ";" +
+//				"halos ON;";
+
+			Jmol.script(_applet, script);
 		}
+	}
+
+	function resetFocus()
+	{
+		var script = "zoom 100;" +
+			"center;";
+//			"select all;" +
+//			"halos OFF;";
+
+		Jmol.script(_applet, script);
 	}
 
 	/**
@@ -260,6 +278,7 @@ var Mutation3dVis = function(name, options)
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,
+		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
 		changeStyle : changeStyle};

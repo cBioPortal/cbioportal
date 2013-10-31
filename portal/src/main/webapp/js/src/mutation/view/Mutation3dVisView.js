@@ -147,6 +147,14 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.focusOn(pileup);
+		if (pileup)
+		{
+			mut3dVis.focusOn(pileup);
+		}
+		else
+		{
+			mut3dVis.resetFocus();
+		}
+
 	}
 });

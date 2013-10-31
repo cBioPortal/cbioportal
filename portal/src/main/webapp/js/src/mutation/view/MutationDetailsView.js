@@ -318,6 +318,12 @@ var MutationDetailsView = Backbone.View.extend({
 				// (to the last state when a manual filtering applied)
 				tableView.rollBack();
 
+				// reset focus of the 3D view
+				if (view3d)
+				{
+					view3d.focusView(false);
+				}
+
 				// hide filter reset info
 				if (!diagram.isFiltered())
 				{

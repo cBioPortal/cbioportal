@@ -408,7 +408,11 @@ public class ImportExtendedMutationData{
 		if( MySQLbulkLoader.isBulkLoad()) {
 			MySQLbulkLoader.flushAll();
 		}
-		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+                
+                // calculate mutation count for every sample
+                DaoMutation.calculateMutationCount(geneticProfileId);
+		
+                pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 
 	}
 

@@ -124,6 +124,28 @@ public final class DaoMutation {
                     keyword==null ? "\\N":(event.getGene().getHugoGeneSymbolAllCaps()+" "+keyword));
             return 1;
     }
+        
+    public static int calculateMutationCount (int profileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoMutation.class);
+            pstmt = con.prepareStatement
+                    ("INSERT INTO mutation_count " +
+                    "SELECT genetic_profile.`GENETIC_PROFILE_ID` , `CASE_ID` , COUNT( * )  AS MUTATION_COUNT " +
+                    "FROM `mutation` , `genetic_profile` " +
+                    "WHERE mutation.`GENETIC_PROFILE_ID` = genetic_profile.`GENETIC_PROFILE_ID` " +
+                    "AND genetic_profile.`GENETIC_PROFILE_ID`=? " +
+                    "GROUP BY genetic_profile.`GENETIC_PROFILE_ID` , `CASE_ID`;");
+            pstmt.setInt(1, profileId);
+            return pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+        }
+    }
 
     public static ArrayList<ExtendedMutation> getMutations (int geneticProfileId, Collection<String> targetCaseList,
             long entrezGeneId) throws DaoException {

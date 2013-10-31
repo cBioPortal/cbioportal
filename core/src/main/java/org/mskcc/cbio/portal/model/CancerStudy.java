@@ -35,6 +35,7 @@ import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.mskcc.cbio.portal.dao.DaoCaseProfile;
@@ -338,6 +339,9 @@ public class CancerStudy {
     }
 
     public Set<String> getGroups() {
+        if (groups==null) {
+            return Collections.emptySet();
+        }
         return groups;
     }
 

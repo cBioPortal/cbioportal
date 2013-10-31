@@ -231,6 +231,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	// if no sequence data is provided, try to get it from the servlet
 	if (!sequenceData)
 	{
+		// TODO implement PfamDataProxy class
 		$.getJSON("getPfamSequence.json",
 			{geneSymbol: self.geneSymbol},
 			function(data) {

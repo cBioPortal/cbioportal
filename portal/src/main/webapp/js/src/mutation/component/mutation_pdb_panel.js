@@ -21,7 +21,7 @@ function MutationPdbPanel(options, data, xScale)
 		marginTop: 2,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
-		chainPadding: 2,    // padding between chain rectangles
+		chainPadding: 3,    // padding between chain rectangles
 		labelY: false,      // informative label of the y-axis (false means "do not draw")
 		labelYFont: "sans-serif",   // font type of the y-axis label
 		labelYFontColor: "#2E3436", // font color of the y-axis label
@@ -29,8 +29,8 @@ function MutationPdbPanel(options, data, xScale)
 		labelYFontWeight: "normal", // font weight of y-axis label
 		labelYPaddingRight: 15, // padding between y-axis and its label
 		labelYPaddingTop: 20,   // padding between y-axis and its label
-		chainBorderColor: "#BABDB6", // border color of the chain rectangles
-		chainBorderWidth: 0.7,       // border width of the chain rectangles
+		chainBorderColor: "#666666", // border color of the chain rectangles
+		chainBorderWidth: 0.5,       // border width of the chain rectangles
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
 		highlightBorderWidth: 2.0,       // width of the highlight rect border
 		colors: ["#3366cc"],  // rectangle colors
@@ -163,25 +163,33 @@ function MutationPdbPanel(options, data, xScale)
 		{
 			var segment = segmentor.getNextSegment();
 
-			// do not draw gaps at all
-			if (segment.type == PdbDataUtil.ALIGNMENT_GAP)
-			{
-				continue;
-			}
-
 			var width = Math.abs(xScale(segment.start) - xScale(segment.end));
-
 			var x = xScale(segment.start);
 
-			var rect = gChain.append('rect')
-				.attr('fill', color)
-				.attr('opacity', chain.mergedAlignment.score)
-				.attr('stroke', _options.chainBorderColor)
-				.attr('stroke-width', _options.chainBorderWidth)
-				.attr('x', x)
-				.attr('y', y)
-				.attr('width', width)
-				.attr('height', height);
+			// draw a line (instead of a rectangle) for an alignment gap
+			if (segment.type == PdbDataUtil.ALIGNMENT_GAP)
+			{
+				var line = gChain.append('line')
+					.attr('stroke', options.chainBorderColor)
+					.attr('stroke-width', options.chainBorderWidth)
+					.attr('x1', x)
+					.attr('y1', y + height/2)
+					.attr('x2', x + width)
+					.attr('y2', y + height/2);
+			}
+			// draw a rectangle for any other segment type
+			else
+			{
+				var rect = gChain.append('rect')
+					.attr('fill', color)
+					.attr('opacity', chain.mergedAlignment.score)
+					.attr('stroke', options.chainBorderColor)
+					.attr('stroke-width', options.chainBorderWidth)
+					.attr('x', x)
+					.attr('y', y)
+					.attr('width', width)
+					.attr('height', height);
+			}
 		}
 
 		return gChain;
@@ -393,7 +401,8 @@ function MutationPdbPanel(options, data, xScale)
 		else
 		{
 			height = _options.marginTop + _options.marginBottom +
-				rowCount * (_options.chainHeight + _options.chainPadding);
+				rowCount * (_options.chainHeight + _options.chainPadding) -
+				(_options.chainPadding / 2); // no need for the full padding for the last row
 		}
 
 		return height;
@@ -414,7 +423,8 @@ function MutationPdbPanel(options, data, xScale)
 		if (maxChain < rowCount)
 		{
 			height = _options.marginTop +
-			         maxChain * (_options.chainHeight + _options.chainPadding);
+				maxChain * (_options.chainHeight + _options.chainPadding) -
+				(_options.chainPadding / 2); // no need for full padding for the last row
 		}
 		// total number of chains is less than max, set to full height
 		else

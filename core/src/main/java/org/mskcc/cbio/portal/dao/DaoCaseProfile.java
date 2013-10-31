@@ -220,6 +220,7 @@ public final class DaoCaseProfile {
 
                 datum.put("cancer_study", cancerStudyName);
                 datum.put("cancer_type", cancerType);
+                datum.put("color", DaoTypeOfCancer.getTypeOfCancerById(cancerType).getDedicatedColor());
                 datum.put("num_sequenced_samples", numSequencedSamples);
 
                 data.add(datum);

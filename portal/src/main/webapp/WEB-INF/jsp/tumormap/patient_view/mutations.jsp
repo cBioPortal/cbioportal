@@ -8,7 +8,7 @@
 <script type="text/javascript">
     var mutTableIndices = ["id", "case_ids", "gene", "aa", "chr", "start", "end", "ref", "_var",
             "validation", "type", "tumor_freq", "tumor_var_reads", "tumor_ref_reads",
-            "norm_freq", "norm_var_reads", "norm_ref_reads", "mrna", "altrate", "pancan_mutations", "cosmic",
+            "norm_freq", "norm_var_reads", "norm_ref_reads", "bam", "mrna", "altrate", "pancan_mutations", "cosmic",
             "ma", "cons", "3d", "drug"];
 
     mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(mutTableIndices);
@@ -530,7 +530,7 @@
 
                                     return thumbnail_template({gene: hugo, keyword: keyword});
                                 } else {
-                                    return "<img width='20' height='20' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
+                                    return "<img width='15' height='15' id='pancan_mutations_histogram' src='images/ajax-loader.gif'/>";
                                 }
                             }
                             else if (type === "sort") {

@@ -193,6 +193,8 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
         <td><div id="genomics-overview"></div></td>
         <td valign="top">
             <span style="float: left;" id="allele-freq-plot-thumbnail"></span>
+        </td>
+        <td valign="top">
             <span style="float: right;" id="mut-cna-scatter"><img src="images/ajax-loader.gif"/></span>
         </td>
     </tr>

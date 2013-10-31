@@ -1,3 +1,30 @@
+/*
+ * Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
+ * This library is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 2.1 of the License, or
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ * documentation provided hereunder is on an "as is" basis, and
+ * Memorial Sloan-Kettering Cancer Center
+ * has no obligations to provide maintenance, support,
+ * updates, enhancements or modifications.  In no event shall
+ * Memorial Sloan-Kettering Cancer Center
+ * be liable to any party for direct, indirect, special,
+ * incidental or consequential damages, including lost profits, arising
+ * out of the use of this software and its documentation, even if
+ * Memorial Sloan-Kettering Cancer Center
+ * has been advised of the possibility of such damage.  See
+ * the GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation,
+ * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ */
+
 // makes a Pancancer Mutation Histogram on the DOM el.
 // parameters:
 //      byKeywordData:                      [list of {cancer_study, cancer_type, hugo, keyword, count} ]
@@ -27,8 +54,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
     } else {
         params = _.extend({
             margin: {top: 20, right: 10, bottom: 20, left: 40},
-            width: 840,
-            height: 400,
+            width: 600,
+            height: 300,
             this_cancer_study: undefined
         }, params);
     }
@@ -205,8 +232,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // --- bar chart ---
 
-    var googleblue = "#3366cc";
-    var googlered = "#dc3912";
+    var googleblue = "LimeGreen";
+    var googlered = "Green";
 
     var layer = svg.selectAll(".layer")
         .data(layers)
@@ -239,8 +266,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .orient("left");
     yAxis.tickSize(yAxis.tickSize(), 0, 0);
 
-    // colored cancer type x axis
-
     // list of element that represent the start and end of each cancer type in
     // the sorted list of cancer studies
     var study_start_ends = (function() {
@@ -250,7 +275,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             return {
                 cancer_type: d.cancer_type,
                 start: d.cancer_study,
-                end: d.cancer_study
+                end: d.cancer_study,
+                color: cancer_study2meta_data[d.cancer_study].color
             };
         }
 
@@ -274,9 +300,6 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             .value();
     }());
 
-    var cancer_type_color_scale = d3.scale.category20b()
-        .domain(study_start_ends.map(function(d) { return d.cancer_type; }));
-
     // add the cancer type axis
     svg.selectAll('line')
         .data(study_start_ends)
@@ -287,7 +310,8 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         .attr('y1', height + params.margin.bottom / 3)
         .attr('y2', height + params.margin.bottom / 3)
         .style('stroke-width', 5)
-        .style('stroke', function(d) { return cancer_type_color_scale(d.cancer_type); })
+        .style('stroke', function(d) { return d.color; })
+    ;
 
     // append y axis
 
@@ -298,7 +322,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
 
     // title
     var hugo_gene_name = _.find(layers[0], function(d) { return d.hugo !== undefined; }).hugo;
-    var title_string = hugo_gene_name + " mutations across all cancer studies in the cBioPortal";
+    var title_string = hugo_gene_name + " mutations across all cancer studies";
     svg.append('text')
         .text(title_string)
         .attr('x', 10)
@@ -337,10 +361,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
         svg.append('text')
             .text('*')
             .attr('id', 'star')
-            .attr('x', x(params.this_cancer_study) + x.rangeBand() - 16)
+            .attr('x', x(params.this_cancer_study))
             .attr('y', y(-1 * total_freq) + 10)
             .style("font-family", "Helvetica Neue, Helvetica, Arial, sans-serif")
-            .style("font-size", "42px");
+            .style("font-size", (x.rangeBand()*3) + "px");
     }
 
     function qtip(svg) {
@@ -349,11 +373,12 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             .enter()
             .append('rect')
             .attr('class', 'mouseOver')
+            .attr('y', params.margin.top)
             .attr('x', function(d) {
                 return x(d) + params.margin.left;
             })
             .attr('opacity', '0')
-            .attr('height', height + params.margin.top + 5)
+            .attr('height', height + 5)
             .attr('width', x.rangeBand())
             .on('mouseover', function() { d3.select(this).attr('opacity', '0.25'); })
             .on('mouseout', function() { d3.select(this).attr('opacity', '0'); });
@@ -382,7 +407,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
                             + "<p style='color: " + googleblue + "; margin-bottom:0;'>"
-                            + bygene.hugo  +  ": "  + qtip_template(bygene) + "</p>"
+                            + bykeyword.keyword  +  ": "  + qtip_template(bygene) + "</p>"
                             + "<p style='color: " + googlered + "; margin-top:0;'>"
                             + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>";
 

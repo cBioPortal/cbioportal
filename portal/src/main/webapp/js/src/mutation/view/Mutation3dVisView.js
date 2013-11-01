@@ -155,6 +155,5 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.resetFocus();
 		}
-
 	}
 });

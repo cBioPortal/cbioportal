@@ -423,7 +423,7 @@ var MutationDetailsView = Backbone.View.extend({
 			addPlotListeners(diagram, mutationTableView, self.mut3dVisView);
 
 			// init reset info text content for the diagram
-			mainView.initResetFilterInfo(diagram, mutationTableView);
+			mainView.initResetFilterInfo(diagram, mutationTableView, self.mut3dVisView);
 		};
 
 		// get mutation data for the current gene

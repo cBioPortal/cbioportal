@@ -48,7 +48,10 @@ var Mutation3dVis = function(name, options)
 		defaultColor: "xDDDDDD", // default color of ribbons
 		translucency: 5, // translucency (opacity) of the default color
 		chainColor: "x888888", // color of the selected chain
-		mutationColor: "xFF0000", // color of the selected mutations
+		mutationColor: "xFF0000", // color of the mapped mutations
+		highlightColor: "xFFDD00", // color of the user-selected mutations
+		defaultZoom: 100, // default (unfocused) zoom level
+		focusZoom: 250, // focused zoom level
 		containerPadding: 10 // padding for the vis container (this is to prevent overlapping)
 	};
 
@@ -205,7 +208,7 @@ var Mutation3dVis = function(name, options)
 		             "select :" + chain.chainId + ";" + // select the chain
 		             "color [" + _options.chainColor + "];" + // set chain color
 		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color red;" + // highlight selected area
+		             "color [" + _options.mutationColor + "];" + // color with default mutation color
 		             "spin " + _spin; // set spin
 
 		// run script
@@ -226,31 +229,49 @@ var Mutation3dVis = function(name, options)
 
 		var position = _chain.positionMap[id];
 
+		// check if the mutation maps on this chain
 		if (position)
 		{
 			var scriptPos = generateScriptPos(position);
 
-			// TODO color selection with a yellowish one to highlight
-			// ...or turn on selection halos for the selected position?
+			// TODO turn on selection halos for the highlighted position?
 
-			// center and zoom to the selection
-			var script = "zoom 250;" +
-				"center " + scriptPos + ":" + _chain.chainId + ";";
-//				"select " + scriptPos + ":" + _chain.chainId + ";" +
-//				"halos ON;";
+			var script =
+				// center and zoom to the selection
+				"zoom " + _options.focusZoom +";" +
+				"center " + scriptPos + ":" + _chain.chainId + ";" +
+				// reset previous highlights
+				"select " + _selection.join(", ") + ";" +
+				"color [" + _options.mutationColor + "];" +
+				// highlight the focused position
+			    "select " + scriptPos + ":" + _chain.chainId + ";" +
+				"color [" + _options.highlightColor + "];";
 
 			Jmol.script(_applet, script);
+		}
+		// no mapping position for this mutation on this chain
+		else
+		{
+			// just reset focus
+			resetFocus();
 		}
 	}
 
 	function resetFocus()
 	{
-		var script = "zoom 100;" +
-			"center;";
-//			"select all;" +
-//			"halos OFF;";
+		// zoom out to default zoom level, center to default position,
+		// and remove all selection highlights
+		var script = "zoom " + _options.defaultZoom + ";" + // zoom to default zoom level
+			"center;" + // center to default position
+			"select " + _selection.join(", ") + ";" + // select positions (mutations)
+			"color [" + _options.mutationColor + "];"; // color with default mutation color
 
 		Jmol.script(_applet, script);
+	}
+
+	function resetHighlight()
+	{
+		var script = "select"
 	}
 
 	/**
@@ -261,7 +282,7 @@ var Mutation3dVis = function(name, options)
 	 */
 	function generateScriptPos(position)
 	{
-		var posStr =position.start.pdbPos;
+		var posStr = position.start.pdbPos;
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{

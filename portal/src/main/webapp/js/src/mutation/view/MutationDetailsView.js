@@ -158,6 +158,10 @@ var MutationDetailsView = Backbone.View.extend({
 				if (self.geneTabView[gene].mut3dView)
 				{
 					self.geneTabView[gene].mut3dView.resetView();
+					// TODO also focus on selection?
+					// ...to focus we need the selected pileup datum
+					// (need to get it from the diagram)
+					// self.geneTabView[gene].mut3dView.focusView(datum);
 				}
 			}
 		});
@@ -268,6 +272,12 @@ var MutationDetailsView = Backbone.View.extend({
 					{
 						mainMutationView.hideFilterInfo();
 					}
+
+					// reset focus of the 3D view
+					if (view3d)
+					{
+						view3d.focusView(false);
+					}
 				}
 				else
 				{
@@ -318,16 +328,16 @@ var MutationDetailsView = Backbone.View.extend({
 				// (to the last state when a manual filtering applied)
 				tableView.rollBack();
 
-				// reset focus of the 3D view
-				if (view3d)
-				{
-					view3d.focusView(false);
-				}
-
 				// hide filter reset info
 				if (!diagram.isFiltered())
 				{
 					mainMutationView.hideFilterInfo();
+				}
+
+				// reset focus of the 3D view
+				if (view3d)
+				{
+					view3d.focusView(false);
 				}
 			});
 		};

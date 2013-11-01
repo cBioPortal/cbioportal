@@ -78,10 +78,11 @@ var PdbPanelView = Backbone.View.extend({
 		var gChain = panel.getDefaultChainGroup();
 		var defaultDatum = gChain.datum();
 
-		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
-
-		// also highlight the default chain
+		// highlight the default chain
 		panel.highlight(gChain);
+
+		// update the view with default chain
+		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
 	},
 	/**
 	 * Initializes the PDB chain panel.

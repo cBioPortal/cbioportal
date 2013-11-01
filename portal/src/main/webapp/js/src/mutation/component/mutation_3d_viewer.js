@@ -174,9 +174,6 @@ var Mutation3dVis = function(name, options)
 	{
 		// TODO pdbId and/or chainId may be null
 
-		// load the corresponding pdb
-		Jmol.script(_applet, "load=" + pdbId);
-
 		var selection = [];
 
 		// TODO focus on the current segment instead of the chain?
@@ -201,7 +198,8 @@ var Mutation3dVis = function(name, options)
 		}
 
 		// construct Jmol script string
-		var script = "select all;" + // select everything
+		var script = "load=" + pdbId + ";" + // load the corresponding pdb
+		             "select all;" + // select everything
 		             styleScripts[_style] + // show selected style view
 		             "color [" + _options.defaultColor + "] " + // set default color
 		             "translucent [" + _options.translucency + "];" + // set default opacity
@@ -267,11 +265,6 @@ var Mutation3dVis = function(name, options)
 			"color [" + _options.mutationColor + "];"; // color with default mutation color
 
 		Jmol.script(_applet, script);
-	}
-
-	function resetHighlight()
-	{
-		var script = "select"
 	}
 
 	/**

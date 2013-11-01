@@ -106,11 +106,26 @@ var Mutation3dVisView = Backbone.View.extend({
 			// update position map of the chain
 			chain.positionMap = positionMap;
 
-
-
 			// reload the selected pdb and chain data
-			mut3dVis.show();
-			mut3dVis.reload(pdbId, chain);
+			if (self.isVisible())
+			{
+				mut3dVis.reload(pdbId, chain);
+			}
+			// visualizer is hidden
+			else
+			{
+				// show the visualizer
+				mut3dVis.show();
+
+				// TODO this is a workaround to prevent a browser bug
+				// (Error: Bad NPObject as private data!)
+				// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
+				// (the problem is that we hide/show the 3D visualizer container)
+				// we need to delay the invocation of mut3dVis.reload to let Jmol become ready
+				setTimeout(function(){
+					mut3dVis.reload(pdbId, chain);
+				}, 1000);
+			}
 		};
 
 		var infoCallback = function(pdbInfo) {

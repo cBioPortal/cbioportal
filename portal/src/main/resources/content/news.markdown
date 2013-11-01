@@ -1,3 +1,8 @@
+# November 1, 2013
+
+* All TCGA data updated to the May Firehose run (September 23, 2013).
+* Updated to the latest COSMIC data (v67).
+
 # October 21, 2013
  
 * Improved interface for survival plots, including information on individual samples via mouse-over
@@ -22,7 +27,7 @@
 
 # July 16, 2013
 
-* All TCGA data updated to the May Firehose run (May 23, 2012).
+* All TCGA data updated to the May Firehose run (May 23, 2013).
     * TCGA Pancreatic Cancer study (provisional) added.
 
 # July 4, 2013

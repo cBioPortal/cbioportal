@@ -20,7 +20,6 @@
 
 <script type="text/javascript" src="js/lib/mailme.js"></script>
 <script type="text/javascript" src="js/lib/json2.js"></script>
-<script type="text/javascript" src="js/lib/jslab-stdlib.js"></script>
 <script type="text/javascript" src="js/lib/ui.dropdownchecklist-1.4-min.js"></script>
 <script type="text/javascript" src="js/lib/underscore-min.js"></script>
 <script type="text/javascript" src="js/lib/backbone-min.js"></script>

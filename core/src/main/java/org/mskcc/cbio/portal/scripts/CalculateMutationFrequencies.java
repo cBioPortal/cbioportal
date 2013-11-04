@@ -52,7 +52,7 @@ public class CalculateMutationFrequencies {
 
         if (args.length == 0) {
             System.out.println ("You must specify a stable case set id.");
-            System.exit(-1);
+            return;
         }
 
         String caseSetName = args[0];
@@ -63,7 +63,7 @@ public class CalculateMutationFrequencies {
 
         if (caseSet == null) {
             System.out.println ("Case set id:  " + caseSetName + " does not exist in database.");
-            System.exit(-1);
+            return;
         }
         pMonitor.setCurrentMessage("Using case set:  " + caseSet.getName());
         pMonitor.setCurrentMessage("Number of cases:  " + caseSet.getCaseList().size());

@@ -84,12 +84,12 @@ public class ImportCosmicData {
                 Matcher m = p.matcher(parts[7]);
                 if (m.find()) {
                     String gene = m.group(1);
-                    if (gene.contains("_ENST")) {
-                        gene = gene.substring(0,gene.indexOf("_ENST"));
-                    }
-                    if (gene.contains("_HUMAN")) {
-                        gene = gene.substring(0,gene.indexOf("_HUMAN"));
-                    }
+//                    if (gene.contains("_ENST")) {
+//                        gene = gene.substring(0,gene.indexOf("_ENST"));
+//                    }
+//                    if (gene.contains("_HUMAN")) {
+//                        gene = gene.substring(0,gene.indexOf("_HUMAN"));
+//                    }
                     CanonicalGene canonicalGene = daoGeneOptimized.getNonAmbiguousGene(gene);
                     if (canonicalGene==null) {
                         System.err.println("Gene symbol in COSMIC not recognized: "+gene);
@@ -127,7 +127,7 @@ public class ImportCosmicData {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             System.out.println("command line usage:  importCosmicData.pl <CosmicCodingMuts.vcf>");
-            System.exit(1);
+            return;
         }
         DaoCosmicData.deleteAllRecords();
         ProgressMonitor pMonitor = new ProgressMonitor();

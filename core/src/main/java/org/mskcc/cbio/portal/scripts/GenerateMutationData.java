@@ -263,7 +263,7 @@ public class GenerateMutationData {
         if (args.length < 4) {
             System.out.println("command line usage:  generateMutationData.pl " +
                     "<case-list> <sequenced-gene-list> <sequenced-cases> <known-mutation-file>");
-            System.exit(1);
+            return;
         }
 
 		// setup some vars

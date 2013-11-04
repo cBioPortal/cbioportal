@@ -40,6 +40,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.model.*;
@@ -103,7 +105,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final int MUTATION_DETAIL_LIMIT = 20;
+    public static final int MUTATION_DETAIL_LIMIT = 100;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
@@ -544,7 +546,9 @@ public class QueryBuilder extends HttpServlet {
             if (action.equals(ACTION_SUBMIT)) {
 				// is user authorized for the study
 				String cancerStudyIdentifier = (String)httpServletRequest.getAttribute(CANCER_STUDY_ID);
-				if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
+	            cancerStudyIdentifier = StringEscapeUtils.escapeJavaScript(cancerStudyIdentifier);
+
+	            if (accessControl.isAccessibleCancerStudy(cancerStudyIdentifier).size() != 1) {
                     httpServletRequest.setAttribute(STEP1_ERROR_MSG,
 													"You are not authorized to view the cancer study with id: '" +
 													cancerStudyIdentifier + "'. ");

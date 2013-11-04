@@ -29,6 +29,8 @@ package org.mskcc.cbio.portal.scripts;
 
 import java.io.*;
 import java.util.*;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 
 /**
  * 
@@ -83,7 +85,7 @@ import java.util.*;
  */
 public class NormalizeExpressionLevels{
 
-   static HashMap<String, ArrayList<String[]>> geneCopyNumberStatus;
+   static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus;
    static int SAMPLES;
    static String zScoresFile;
    static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
@@ -96,7 +98,6 @@ public class NormalizeExpressionLevels{
 		}
 		catch (RuntimeException e) {
 			System.err.println(e.getMessage());
-			System.exit(1);
 		}
 	}
 
@@ -191,15 +192,26 @@ public class NormalizeExpressionLevels{
          int genesFound=0;
          int rowsWithSomeDiploidCases = 0;
          
+         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+         
          // process expression file
          while((line = in.readLine())!=null){
             
             values = line.split("\t");
-            String id = values[0];  // gene identifier in 1st column
-			String entrezGeneID = values[1];
+                    
+            CanonicalGene gene;
+            if (values[1].matches("[0-9]+")) {
+                gene = daoGeneOptimized.getGene(Long.parseLong(values[1]));
+            } else {
+                gene = daoGeneOptimized.getNonAmbiguousGene(values[0]);
+            }
+
+            if (gene==null) {
+                continue;
+            }
             
             // ignore gene's data if its copy number status is unknown
-            if(geneCopyNumberStatus.containsKey(id)){
+            if(geneCopyNumberStatus.containsKey(gene.getEntrezGeneId())){
                genesFound++;
 
                ArrayList<String[]> tumorSampleExpressions = new ArrayList<String[]>();
@@ -212,15 +224,15 @@ public class NormalizeExpressionLevels{
                   }
                }
                
-               ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(id);
-               double[] zscores = getZscore( id, tumorSampleExpressions, cnStatus );
+               ArrayList<String[]> cnStatus = geneCopyNumberStatus.get(gene.getEntrezGeneId());
+               double[] zscores = getZscore( gene.getEntrezGeneId(), tumorSampleExpressions, cnStatus );
                
                if(zscores != null){
                   rowsWithSomeDiploidCases++;
                   
                   outputLine.clear();
-                  outputLine.add(id);
-                  outputLine.add(entrezGeneID);
+                  outputLine.add(gene.getHugoGeneSymbolAllCaps());
+                  outputLine.add(Long.toString(gene.getEntrezGeneId()));
 
                   for(int k =0;k<zscores.length;k++)
 
@@ -235,8 +247,8 @@ public class NormalizeExpressionLevels{
                   genesWithValidScores++;
                }else{
                   outputLine.clear();
-                  outputLine.add(id);
-                  outputLine.add(entrezGeneID);
+                  outputLine.add(gene.getHugoGeneSymbolAllCaps());
+                  outputLine.add(Long.toString(gene.getEntrezGeneId()));
                   for(int k =0;k<SAMPLES;k++)
                      outputLine.add( NOT_AVAILABLE );
                   out.println( join( outputLine, "\t") );
@@ -244,8 +256,8 @@ public class NormalizeExpressionLevels{
                genes++;
             }else{
                outputLine.clear();
-               outputLine.add(id);
-			   outputLine.add(entrezGeneID);
+               outputLine.add(gene.getHugoGeneSymbolAllCaps());
+               outputLine.add(Long.toString(gene.getEntrezGeneId()));
                for(int k =0;k<SAMPLES;k++)
                   outputLine.add( NOT_AVAILABLE );
                out.println( join( outputLine, "\t") );
@@ -289,7 +301,7 @@ public class NormalizeExpressionLevels{
     * @param cn  ArrayList< [sampleID, copyNumber] >
     * @return array of z-Scores for the expression data; null if there were no diploid values
     */
-   private static double[] getZscore(String id, ArrayList<String[]> xp, ArrayList<String[]> cn){
+   private static double[] getZscore(long id, ArrayList<String[]> xp, ArrayList<String[]> cn){
       double[] z = null;
       double[] diploid = new double[SAMPLES];
       HashSet<String> diploidSamples = new HashSet<String>();
@@ -342,7 +354,7 @@ public class NormalizeExpressionLevels{
       return z;
    }
    
-   public static double[] getZ(String id, ArrayList<String[]> xp, double avg, double std){
+   public static double[] getZ(long id, ArrayList<String[]> xp, double avg, double std){
       double[]z = new double[xp.size()];
       
       if( 0.0d == std){
@@ -371,12 +383,12 @@ public class NormalizeExpressionLevels{
    
    /**
    * Read the copy number file and generate copy number status table
-   * returns: HashMap<String,ArrayList<String[]>> that
+   * returns: HashMap<Long,ArrayList<String[]>> that
    * maps geneName -> ArrayList< [ sampleName, value ] >  
    */
-   public static HashMap<String,ArrayList<String[]>> readCopyNumberFile(String file){
+   public static HashMap<Long,ArrayList<String[]>> readCopyNumberFile(String file){
    
-      HashMap<String,ArrayList<String[]>> map = new HashMap<String,ArrayList<String[]>>();
+      HashMap<Long,ArrayList<String[]>> map = new HashMap<Long,ArrayList<String[]>>();
       BufferedReader in = null;
       try {
          in = new BufferedReader(new FileReader(file));
@@ -409,12 +421,24 @@ public class NormalizeExpressionLevels{
          }
          System.out.println(file+")\t"+(SAMPLES-firstSamplePosition)+" SAMPLES");
          
+         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
          String line;
          while((line=in.readLine())!=null){
             values = line.split("\t");
-            String id = values[0];
+            CanonicalGene gene;
+            if (values[1].matches("[0-9]+")) {
+                gene = daoGeneOptimized.getGene(Long.parseLong(values[1]));
+            } else {
+                gene = daoGeneOptimized.getNonAmbiguousGene(values[0]);
+            }
 
-            if(!map.containsKey(id)){
+            if (gene==null) {
+                continue;
+            }
+            
+            Long entrez = gene.getEntrezGeneId();
+            
+            if(!map.containsKey(entrez)){
 
                ArrayList<String[]> tmp = new ArrayList<String[]>(); 
                for(int i = firstSamplePosition;i<values.length;i++){
@@ -423,18 +447,18 @@ public class NormalizeExpressionLevels{
                   p[1] = values[i];
                   tmp.add(p);
                }
-               map.put(id,tmp);  
+               map.put(entrez,tmp);  
             }else{
                // remove duplicate ids, and report a warning
                // TODO: this is a subtle bug; if a gene appears an even number of times in the input, then it doesn't appear in the output;
                // if it appears an odd number, then the last one appears in the output; fix by creating a list of dupes
-               map.remove(id);
-               warning( "duplicate entry for gene " + id + " in <CopyNumberFile>, '" + file + "'.");
+               map.remove(entrez);
+               warning( "duplicate entry for gene " + entrez + " in <CopyNumberFile>, '" + file + "'.");
             }
          }
 
          System.out.println(file+")\t"+ map.size() +" GENES");
-         if( map.size() == 0 ){
+         if( map.isEmpty() ){
             fatalError( "no gene IDs in copy number file '" + file + "'.");
          }
       } catch (IOException e) {
@@ -447,6 +471,10 @@ public class NormalizeExpressionLevels{
    * Return the truncated version of a TCGA sample name
    */
    private static String truncatedSampleName(String name){
+       if (!name.startsWith("TCGA-")) {
+           return name;
+       }
+       
       String truncatedName = "";
       int dash = 0;
       for(int i=0;i<name.length();i++){

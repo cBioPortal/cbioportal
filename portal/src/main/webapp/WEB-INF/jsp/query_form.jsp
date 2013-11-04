@@ -1,23 +1,26 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.apache.commons.lang.*" %>
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
-    String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String localCaseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String localCancerTypeId = localXssUtil.getCleanerInput(
+		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
+    String localCaseSetId = localXssUtil.getCleanerInput(
+		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID));
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
-    String localCaseIds = localXssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    String localCaseIds = localXssUtil.getCleanerInput(request, QueryBuilder.CASE_IDS);
+    String localGeneList = localXssUtil.getCleanerInput(request, QueryBuilder.GENE_LIST);
     
-    String localTabIndex = localXssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
-    String localzScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.Z_SCORE_THRESHOLD);
+    String localTabIndex = localXssUtil.getCleanerInput(request, QueryBuilder.TAB_INDEX);
+    String localzScoreThreshold = localXssUtil.getCleanerInput(request, QueryBuilder.Z_SCORE_THRESHOLD);
     if (localzScoreThreshold == null) {
         localzScoreThreshold = "2.0";
     }
-    String localRppaScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
+    String localRppaScoreThreshold = localXssUtil.getCleanerInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
     if (localRppaScoreThreshold == null) {
         localRppaScoreThreshold = "2.0";
     }
@@ -27,8 +30,8 @@
         localTabIndex = URLEncoder.encode(localTabIndex);
     }
 
-    String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
-    String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+    String localGeneSetChoice = localXssUtil.getCleanerInput(request, QueryBuilder.GENE_SET_CHOICE);
+    String clientTranspose = localXssUtil.getCleanInput(request, QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
     if (localGeneSetChoice == null) {
         localGeneSetChoice = "user-defined-list";
     }
@@ -75,6 +78,7 @@
     <%
         if (localGeneticProfileIdSet != null) {
             for (String geneticProfileId:  localGeneticProfileIdSet) {
+                geneticProfileId = localXssUtil.getCleanerInput(geneticProfileId);
                 out.println ("window.genomic_profile_id_selected['" + geneticProfileId + "']=1;");
             }
         }
@@ -89,7 +93,7 @@
         <%@ include file="step4_json.jsp" %>
         <%@ include file="step5_json.jsp" %>
         <input type="hidden" id="clinical_param_selection" name="clinical_param_selection"
-        	value='<%= request.getParameter("clinical_param_selection") %>'>
+        	value='<%= localXssUtil.getCleanerInput(request, "clinical_param_selection") %>'>
         <input type="hidden" id="<%= QueryBuilder.TAB_INDEX %>" name="<%= QueryBuilder.TAB_INDEX %>"
            value="<%= localTabIndex %>">
         <p/>

@@ -60,7 +60,7 @@ public class Hg18ToHg19
 			System.out.println("command line usage: " +
 			                   "hg18to19.sh <input_maf_file> <output_maf_file> " +
 			                   "[liftover_binary_file] [chain_file]");
-			System.exit(1);
+                        return;
 		}
 
 		String input = args[0];

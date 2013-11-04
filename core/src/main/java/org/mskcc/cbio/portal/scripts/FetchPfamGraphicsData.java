@@ -202,7 +202,7 @@ public class FetchPfamGraphicsData
 		{
 			System.out.println("command line usage:  fetchPfamGraphicsData.sh " +
 			                   "<uniprot_id_mapping_file> <output_pfam_mapping_file>");
-			System.exit(1);
+            return;
 		}
 
 		String input = args[i];
@@ -235,7 +235,6 @@ public class FetchPfamGraphicsData
 		catch (IOException e)
 		{
 			System.out.println("error processing IO files.");
-			System.exit(1);
 		}
 	}
 }

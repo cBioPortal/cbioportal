@@ -44,7 +44,7 @@ public class UpdateMetaData {
        String usageLine = "command line usage:  updateMetaData.pl <meta_data_file.txt>";
         if (args.length < 1) {
             System.err.println(usageLine);
-            System.exit(1);
+            return;
         }
 
         ProgressMonitor pMonitor = new ProgressMonitor();

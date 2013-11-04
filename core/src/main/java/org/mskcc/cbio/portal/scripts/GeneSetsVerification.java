@@ -112,7 +112,7 @@ public class GeneSetsVerification {
         if (args.length == 0) {
             System.out.println("command line usage:  verifyGeneSets.pl"
                     + " <ncbi_genes.txt>");
-            System.exit(1);
+            return;
         }
         
         String ncbiGeneFile = args[0];
@@ -123,7 +123,6 @@ public class GeneSetsVerification {
                     + " gene sets. \nPress enter to continue...");
             Scanner keyboard = new Scanner(System.in);
             keyboard.nextLine();
-            System.exit(1);
         }
     }
 }

@@ -76,9 +76,12 @@ public class IGVLinkingJSON extends HttpServlet {
 			String[] args = IGVLinking.getIGVArgsForBAMViewing(parameters[CANCER_STUDY_ID_INDEX],
 															   parameters[CASE_ID_INDEX],
 															   parameters[LOCUS_INDEX]);
-			igvArgs.put("bamFileUrl", args[0]);
-			igvArgs.put("encodedLocus", args[1]);
-			igvArgs.put("referenceGenome", args[2]);
+            if (args != null && args.length == 4) {
+                igvArgs.put("bamFileUrl", args[0]);
+                igvArgs.put("encodedLocus", args[1]);
+                igvArgs.put("referenceGenome", args[2]);
+                igvArgs.put("trackName", args[3]);
+            }
 		}
 
         response.setContentType("application/json");

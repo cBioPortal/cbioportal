@@ -44,13 +44,37 @@ var GeneSymbolValidator = (function($) {
 
         var genes = [];
         var genesStr = $("#gene_list").val();
-        $.get(
+        $.post(
             'CheckGeneSymbol.json',
             { 'genes': genesStr },
             function(symbolResults) {
                 $("#genestatus").html("");
                 var stateList = $("<ul>").addClass("ui-widget icon-collection validation-list");
                 var allValid = true;
+
+                // If the number of genes is more than 100, show an error
+                if(symbolResults.length > 100) {
+                    var invalidState = $("<li>").addClass("ui-state-default ui-corner-all");
+                    var invalidSpan = $("<span>")
+                        .addClass("ui-icon ui-icon-notice");
+                    var invalidText = $("<span>").addClass("text");
+                    invalidText.html("<b>You have entered more than 100 genes.</b>");
+
+                    invalidState.attr("title", "Please enter fewer genes for better performance.").tipTip();
+
+                    invalidSpan.appendTo(invalidState);
+                    invalidText.insertAfter(invalidSpan);
+                    invalidState.addClass("ui-state-active");
+                    invalidState.prependTo(stateList);
+
+                    $("<br>").appendTo(stateList);
+                    $("<br>").appendTo(stateList);
+
+                    stateList.appendTo("#genestatus");
+
+                    return;
+                }
+
 
                 for(var j=0; j < symbolResults.length; j++) {
                     var aResult = symbolResults[j];

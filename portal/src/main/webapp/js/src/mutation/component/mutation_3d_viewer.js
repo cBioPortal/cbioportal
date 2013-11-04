@@ -139,6 +139,9 @@ var Mutation3dVis = function(name, options)
 		if (_container != null)
 		{
 			_container.show();
+
+			// this is a workaround. see the hide() function below for details
+			_container.css('top', 0);
 		}
 	}
 
@@ -147,20 +150,31 @@ var Mutation3dVis = function(name, options)
 	 */
 	function hide()
 	{
+		// TODO jQuery.hide function is problematic after Jmol init
+		// Reloading the PDB data throws an error message (Error: Bad NPObject as private data!)
+		// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
+
+		// So, the current workaround is to reposition instead of hiding
+
 		if (_wrapper != null)
 		{
-			_wrapper.hide();
+			//_wrapper.hide();
 		}
 
 		if (_container != null)
 		{
-			_container.hide();
+			//_container.hide();
+			_container.css('top', -9999);
 		}
 	}
 
 	function isVisible()
 	{
-		return !(_container.is(":hidden"));
+		var top = _container.css("top").replace("px", "");
+
+		var hidden = (top < 0) || _container.is(":hidden");
+
+		return !hidden;
 	}
 
 	/**

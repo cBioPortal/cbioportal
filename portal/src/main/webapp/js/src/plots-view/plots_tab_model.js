@@ -146,7 +146,7 @@ var Plots = (function(){
                 if (typeof _attr !== 'undefined' && _attr !== false && _attr !== "domain") {
                     if ( searchToken.length >= 4 ) {
                         if ( $(this).attr("class").toUpperCase().indexOf(searchToken.toUpperCase()) !== -1 &&
-                        (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
+                            (searchToken.toUpperCase()) !== "TCGA" && (searchToken.toUpperCase()) !== "TCGA-") {
                             $(this).attr("d", d3.svg.symbol()
                                 .size(d3.select(this).attr("size") + 5)
                                 .type(d3.select(this).attr("symbol")));
@@ -233,7 +233,6 @@ function loadPlotsSVG() {
 
     return result;
 }
-
 
 
 

@@ -28,7 +28,7 @@ public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
     private ServletXssUtil servletXssUtil;
-	private static String DEFAULT_FILENAME = "result";
+    private static String DEFAULT_FILENAME = "result";
 
     /**
      * Initializes the servlet.
@@ -86,8 +86,8 @@ public class SvgConverter extends HttpServlet {
         }
 
         if (filename == null || filename.length() == 0) {
-		    filename = DEFAULT_FILENAME;
-	    }
+            filename = DEFAULT_FILENAME;
+        }
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);
@@ -105,7 +105,7 @@ public class SvgConverter extends HttpServlet {
      * @throws IOException
      */
     private void convertToSVG(HttpServletResponse response, String xml, String filename)
-		    throws ServletException, IOException {
+            throws ServletException, IOException {
         try {
             response.setContentType("application/svg+xml");
             response.setHeader("content-disposition", "inline; filename=" + filename);
@@ -132,7 +132,7 @@ public class SvgConverter extends HttpServlet {
      * @throws IOException
      */
     private void convertToPDF(HttpServletResponse response, String xml, String filename)
-		    throws ServletException, IOException {
+            throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
             InputStream is = new ByteArrayInputStream(xml.getBytes());

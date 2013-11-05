@@ -32,65 +32,86 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
-import org.mskcc.cbio.portal.dao.DaoCoexpression;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
-import org.mskcc.cbio.portal.dao.DaoGeneticProfileCases;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.Coexpression;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
 import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.util.ProgressMonitor;
 
 /**
+ * Calculate the co-expression score (Spearmans and Pearson)
+ * between all possible gene pairs within a cancer study
+ * filter -- only keep gene pairs with score > 0.3 or < -0.3
+ * genetic profile used -- mrna profile, priority: rna_seq (no zscores), and then the rest
  *
- * @author jgao
+ * @param:  cancer study stable id
+ *
+ * @author jgao, yichao
+ * @time nov 2013
  */
 public class CalculateCoexpression {
-    public static void main(String[] args) throws Exception {
 
+    public static void main(String[] args) throws Exception {
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
         if (args.length == 0) {
-            System.out.println ("You must specify a profile id.");
+            System.out.println ("You must specify a cancer study stable id.");
+            return;
+        }
+        String cancerStudyStableId = args[0];
+        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyStableId);
+        if ( cs == null ) {
+            System.out.println (cancerStudyStableId + " is not a valid cancer study stable id.");
             return;
         }
 
-        String profileId = args[0];
-        GeneticProfile profile = DaoGeneticProfile.getGeneticProfileByStableId(profileId);
-        if ( profile == null ) {
-            System.out.println (profileId + " is not a valid profile id.");
-            return;
+        ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
+        GeneticProfile final_gp = null;
+        for (GeneticProfile gp : gps) {
+            // TODO: support miRNA later
+            if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
+                //rna seq profile (no z-scores applied) holds the highest priority)
+                if (gp.getStableId().toLowerCase().contains("rna_seq") &&
+                        !gp.getStableId().toLowerCase().contains("zscores")) {
+                    final_gp = gp;
+                    break;
+                } else if (!gp.getStableId().toLowerCase().contains("zscores")) {
+                    final_gp = gp;
+                }
+            }
         }
-
-        // TODO: support miRNA later
-        if (profile.getGeneticAlterationType() != GeneticAlterationType.MRNA_EXPRESSION) {
-            System.out.println (profileId + " is not a mrna profile id.");
-            return;
+        if (final_gp == null) {
+            System.out.println("No qualified genetic profile in this cancer study.");
+        } else {
+            System.out.println("------------------ Calculating Co-expression Score ------------------ ");
+            System.out.println("Cancer Study Stable Id: " + cs.getCancerStudyStableId());
+            System.out.println("Genetic Profile Chosen: " + final_gp.getStableId());
+            calculate(final_gp, pMonitor);
         }
-        
-        calculate(profile, pMonitor);
-
     }
-     
+
     private static void calculate(GeneticProfile profile, ProgressMonitor pMonitor) throws DaoException {
         MySQLbulkLoader.bulkLoadOn();
-        
+
+        int counter = 0;
+
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
 
+        System.out.println("Loading genetic alteration data.....");
         Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
         
         int n = map.size();
-        pMonitor.setMaxValue(n*(n-1)/2);
-        
+        pMonitor.setMaxValue(n * (n - 1) / 2);
+
+        System.out.println("Calculating scores of all possible gene pairs......");
         List<Long> genes = new ArrayList<Long>(map.keySet());
         for (int i = 0; i < n; i++) {
             for (int j = i + 1; j < n; j++) {
                 pMonitor.incrementCurValue();
-                
+
                 long gene1 = genes.get(i);
                 double[] exp1 = map.get(gene1);
                 
@@ -100,11 +121,16 @@ public class CalculateCoexpression {
                 double pearson = pearsonsCorrelation.correlation(exp1, exp2);
                 double spearman = spearmansCorrelation.correlation(exp1, exp2);
 
-                Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
-                DaoCoexpression.addCoexpression(coexpression);
+                if (pearson > 0.3 || pearson < -0.3 || spearman > 0.3 || spearman < -0.3) {
+                    Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
+                    DaoCoexpression.addCoexpression(coexpression);
+                    counter += 1;
+                }
             }
         }
         MySQLbulkLoader.flushAll();
+        System.out.println("Done. ");
+        System.out.println(counter + " gene pairs loaded.");
     }
     
     private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {

@@ -1,4 +1,4 @@
-# November 1, 2013
+# November 5, 2013
 
 * All TCGA data updated to the May Firehose run (September 23, 2013).
 * Updated to the latest COSMIC data (v67).

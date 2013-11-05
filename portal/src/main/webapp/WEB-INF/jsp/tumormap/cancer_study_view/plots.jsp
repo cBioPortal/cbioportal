@@ -217,7 +217,7 @@
             }
         }
         
-        $("#study-desc").append("&nbsp;&nbsp;<b>"+noOfSamples+" samples from "+noOfPatients+" cases</b>.");
+        $("#study-desc").append("&nbsp;&nbsp;<b>"+(noOfSamples===noOfPatients?"":(noOfSamples+" samples from "))+noOfPatients+" cases</b>.");
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

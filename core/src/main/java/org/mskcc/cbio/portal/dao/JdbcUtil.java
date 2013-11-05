@@ -27,12 +27,18 @@
 
 package org.mskcc.cbio.portal.dao;
 
+import org.mskcc.cbio.portal.util.DatabaseProperties;
+
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbcp.DelegatingPreparedStatement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbcp.DelegatingPreparedStatement;
-import org.mskcc.cbio.portal.util.DatabaseProperties;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 
 /**
  * Connection Utility for JDBC.
@@ -40,9 +46,10 @@ import org.mskcc.cbio.portal.util.DatabaseProperties;
  * @author Ethan Cerami
  */
 public class JdbcUtil {
-    private static BasicDataSource ds;
+    private static DataSource ds;
     private static int MAX_JDBC_CONNECTIONS = 100;
     private static Map<String,Integer> activeConnectionCount; // keep track of the number of active connection per class/requester
+    private static final Log LOG = LogFactory.getLog(JdbcUtil.class);
 
     /**
      * Gets Connection to the Database.
@@ -63,38 +70,74 @@ public class JdbcUtil {
      * @throws java.sql.SQLException Error Connecting to Database.
      */
     public static Connection getDbConnection(String requester) throws SQLException {
+
         if (ds == null) {
-            initDataSource();
-        } else if (ds.getNumActive()>=MAX_JDBC_CONNECTIONS) {
-            ds.close();
-            initDataSource();
-            System.err.println("Reach the maximum number of database connections: "+MAX_JDBC_CONNECTIONS
-                    + "\n" + activeConnectionCount.toString());
+            ds = initDataSource();
         }
-        
-        Connection con = ds.getConnection();
-        
+
+        Connection con = null;
+        try {
+            con = ds.getConnection();
+        }
+        catch (Exception e) {
+            logMessage("Cannot create database connection!");
+            throw new SQLException("Cannot create database connection!");
+        }
+
         if (requester!=null) {
             Integer count = activeConnectionCount.get(requester);
             activeConnectionCount.put(requester, count==null ? 1 : (count+1));
         }
         
-        if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
-            System.err.println("Opened a MySQL connection. Active connections: "+ds.getNumActive()
-                        + "\n" + activeConnectionCount.toString());
-        }
         return con;
+    }
+
+    private static DataSource initDataSource() {
+
+        DataSource ds = initDataSourceTomcat();
+
+        if (ds == null) {
+            ds = initDataSourceDirect();
+        }
+
+        activeConnectionCount = new HashMap<String,Integer>();
+
+        return ds;
+    }
+
+    private static DataSource initDataSourceTomcat() {
+
+        DataSource ds = null;
+        activeConnectionCount = new HashMap<String,Integer>();
+       
+        try {
+            InitialContext cxt = new InitialContext();
+            if (cxt == null) {
+                throw new Exception("Context for creating data source not found!");
+            }
+            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/cbioportal" );
+            if (ds == null) {
+                throw new Exception("Data source not found!");
+            }
+        }
+        catch (Exception e) {
+            logMessage(e.getMessage());
+        }
+
+        return ds;
     }
 
     /**
      * Initializes Data Source.
      */
-    private static void initDataSource() {
+    private static DataSource initDataSourceDirect() {
+
         DatabaseProperties dbProperties = DatabaseProperties.getInstance();
         String host = dbProperties.getDbHost();
         String userName = dbProperties.getDbUser();
         String password = dbProperties.getDbPassword();
         String database = dbProperties.getDbName();
+        String driverClassname = dbProperties.getDbDriverClassName();
 
         String url =
                 new String("jdbc:mysql://" + host + "/" + database
@@ -102,8 +145,8 @@ public class JdbcUtil {
                         + "&zeroDateTimeBehavior=convertToNull");
         
         //  Set up poolable data source
-        ds = new BasicDataSource();
-        ds.setDriverClassName("com.mysql.jdbc.Driver");
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName(driverClassname);
         ds.setUsername(userName);
         ds.setPassword(password);
         ds.setUrl(url);
@@ -111,8 +154,8 @@ public class JdbcUtil {
         //  By pooling/reusing PreparedStatements, we get a major performance gain
         ds.setPoolPreparedStatements(true);
         ds.setMaxActive(MAX_JDBC_CONNECTIONS);
-        
-        activeConnectionCount = new HashMap<String,Integer>();
+
+        return ds;
     }
 
     /**
@@ -137,15 +180,9 @@ public class JdbcUtil {
                         activeConnectionCount.put(requester, count);
                     }
                 }
-                
-                if (ds.getNumActive() >= MAX_JDBC_CONNECTIONS/2) {
-                    System.err.println("Closed a MySQL connection. Active connections: "+ds.getNumActive()
-                        + "\n" + activeConnectionCount.toString());
-                }
             }
         } catch (SQLException e) {
-            System.err.println("Problem Closed a MySQL connection from "+requester+".\nActive connections: "+ds.getNumActive()
-                        + "\n" + activeConnectionCount.toString());
+            logMessage("Problem Closed a MySQL connection from " + requester + ": " + activeConnectionCount.toString());
             e.printStackTrace();
         }
     }
@@ -233,5 +270,12 @@ public class JdbcUtil {
         } else {
             return pstmt.toString();
         }
+    }
+
+    private static void logMessage(String message) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(message);
+        }
+        System.err.println(message);
     }
 }

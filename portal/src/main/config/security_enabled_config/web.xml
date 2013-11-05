@@ -6,6 +6,13 @@
 
     <display-name>Cancer Genomics Portal</display-name>
 
+    <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/cbioportal</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
 	<!-- SPRING SECURITY SETTINGS START -->
 
     <!--

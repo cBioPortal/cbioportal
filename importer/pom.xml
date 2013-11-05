@@ -203,6 +203,14 @@
 			<configuration>
               <finalName>cbioportal-importer</finalName>
 			  <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>${gpl-files-to-exclude}</exclude>
+                  </excludes>
+                </filter>
+              </filters>
 			  <artifactSet>
 				<excludes>
 				  <exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>

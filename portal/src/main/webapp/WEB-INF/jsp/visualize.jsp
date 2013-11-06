@@ -374,6 +374,11 @@
                     if (showIGVtab){
                         out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
                     }
+
+                    if (true) {
+                        out.println("<li><a href='#co_exp' class='result-tab' title='Top co-expressed gene list'>Co-Expression</a></li>");
+                    }
+
                     %>
 
         <%@ include file="image_tabs.jsp" %>
@@ -462,6 +467,8 @@
         <%@ include file="data_download.jsp" %>
 
         <%@ include file="image_tabs_data.jsp" %>
+
+        <%@ include file="co_expression.jsp" %>
 
 </div> <!-- end tabs div -->
 <% } %>

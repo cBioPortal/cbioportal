@@ -108,8 +108,8 @@ public class CalculateCoexpression {
 
         System.out.println("Calculating scores of all possible gene pairs......");
         List<Long> genes = new ArrayList<Long>(map.keySet());
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
+        for (int i = 0; i < 20; i++) {
+            for (int j = i + 1; j < 20; j++) {
                 pMonitor.incrementCurValue();
 
                 long gene1 = genes.get(i);

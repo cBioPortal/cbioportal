@@ -69,10 +69,17 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         }
     }
 
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException, IOException
+    {
+        this.doPost(request, response);
+    }
+
+
     /**
      * Handles HTTP GET Request.
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
+    protected void doPost(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
         new HashMap();

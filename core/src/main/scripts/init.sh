@@ -23,12 +23,13 @@
 # Drug
 ./importPiHelperData.pl
 
-# PDB Uniprot Mapping
-./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt
-
 # Pfam Graphic Data
 ./importPfamGraphicsData.pl $PORTAL_DATA_HOME/reference-data/pfam-graphics.txt
 
 # Cosmic
 # ./prepareCosmicData.sh
 ./importCosmicData.pl $PORTAL_DATA_HOME/reference-data/CosmicCodingMuts.vcf
+
+# PDB Uniprot Mapping
+## ./convertPdbUniprotMappingFromMaDb.py --host [host] --user [user] --passwd [passwd] --db [db] --output $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt
+./importPdbUniprotResidueMapping.pl $PORTAL_DATA_HOME/reference-data/pdb-uniprot-residue-mapping.txt

@@ -1,7 +1,22 @@
+# November 5, 2013
+
+* All TCGA data updated to the May Firehose run (September 23, 2013).
+* Updated to the latest COSMIC data (v67).
+* Added mutation data from 9 cancer studies.
+    * Esophageal Adenocarcinoma (Broad, Nature Genetics 2013)
+    * Head and Neck Squamous Cell Carcinoma (Broad, Science 2011)
+    * Head and Neck Squamous Cell Carcinoma (Johns Hopkins, Science 2011)
+    * Kidney Renal Clear Cell Carcinoma (BGI, Nature Genetics 2012)
+    * Skin Cutaneous Melanoma (Yale, Nature Genetics 2012)
+    * Skin Cutaneous Melanoma (Broad, Cell 2012)
+    * Prostate Adenocarcinoma, Metastatic (Michigan, Nature 2012)
+    * Prostate Adenocarcinoma (Broad/Cornell, Cell 2013)
+    * Prostate Adenocarcinoma (Broad/Cornell, Nature Genetics 2012)
+
 # October 21, 2013
  
 * Improved interface for survival plots, including information on individual samples via mouse-over
-* New fusion glyph in OncoPrints &nbsp;&nbsp;&nbsp;[![FGFR3 fusions in head and neck carcinoma](images/previews/fusion-in-oncoprint.png)](http://miso-dev.cbio.mskcc.org:38080/public-portal/index.do?cancer_study_id=hnsc_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=hnsc_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=hnsc_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=hnsc_tcga_pub_sequenced&case_ids=&gene_set_choice=user-defined-list&gene_list=FGFR3%3A+AMP+MUT%3B%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit)
+* New fusion glyph in OncoPrints &nbsp;&nbsp;&nbsp;[![FGFR3 fusions in head and neck carcinoma](images/previews/fusion-in-oncoprint.png)](index.do?cancer_study_id=hnsc_tcga_pub&genetic_profile_ids_PROFILE_MUTATION_EXTENDED=hnsc_tcga_pub_mutations&genetic_profile_ids_PROFILE_COPY_NUMBER_ALTERATION=hnsc_tcga_pub_gistic&Z_SCORE_THRESHOLD=2.0&RPPA_SCORE_THRESHOLD=2.0&data_priority=0&case_set_id=hnsc_tcga_pub_sequenced&case_ids=&gene_set_choice=user-defined-list&gene_list=FGFR3%3A+AMP+MUT%3B%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A%0D%0A&clinical_param_selection=null&tab_index=tab_visualize&Action=Submit)
 * Improved cross-cancer query: new alteration frequency histogram (example below - query gene: CDKN2A) and mutation diagram
 <center>![Cross Cancer Query](images/previews/cross_cancer.png)</center>
 
@@ -22,7 +37,7 @@
 
 # July 16, 2013
 
-* All TCGA data updated to the May Firehose run (May 23, 2012).
+* All TCGA data updated to the May Firehose run (May 23, 2013).
     * TCGA Pancreatic Cancer study (provisional) added.
 
 # July 4, 2013

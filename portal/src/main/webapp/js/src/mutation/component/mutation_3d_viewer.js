@@ -155,6 +155,11 @@ var Mutation3dVis = function(name, options)
 		}
 	}
 
+	function isVisible()
+	{
+		return !(_container.is(":hidden"));
+	}
+
 	/**
 	 * Reloads the protein view for the given PDB id
 	 * and the chain.
@@ -176,23 +181,23 @@ var Mutation3dVis = function(name, options)
 		// highlight the positions (residues)
 		for (var mutationId in chain.positionMap)
 		{
-			var pdbPos = chain.positionMap[mutationId];
-			var posStr = pdbPos.start;
+			var position = chain.positionMap[mutationId];
 
-			if (pdbPos.end > pdbPos.start)
-			{
-				posStr += "-" + pdbPos.end;
-			}
-
-			selection.push(posStr + ":" + chain.chainId);
+			// TODO remove duplicates from the array (use another data structure such as a map)
+			selection.push(generateScriptPos(position) + ":" + chain.chainId);
 		}
 
 		// save current chain & selection for a possible future restore
 		_selection = selection;
 		_chain = chain;
 
-		// select residues on the 3D viewer & highlight them
+		// if no positions to select, then select "none"
+		if (selection.length == 0)
+		{
+			selection.push("none");
+		}
 
+		// construct Jmol script string
 		var script = "select all;" + // select everything
 		             styleScripts[_style] + // show selected style view
 		             "color [" + _options.defaultColor + "] " + // set default color
@@ -200,16 +205,61 @@ var Mutation3dVis = function(name, options)
 		             "select :" + chain.chainId + ";" + // select the chain
 		             "color [" + _options.chainColor + "];" + // set chain color
 		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color red;"; // highlight selected area
+		             "color red;" + // highlight selected area
+		             "spin " + _spin; // set spin
 
+		// run script
 		Jmol.script(_applet, script);
+	}
+
+	function focus(pileup)
+	{
+		// no chain selected yet, terminate
+		if (!_chain)
+		{
+			return;
+		}
+
+		// assuming all other mutations in the same pileup have
+		// the same (or very close) mutation position.
+		var id = pileup.mutations[0].mutationId;
+
+		var position = _chain.positionMap[id];
+
+		if (position)
+		{
+			// TODO center and zoom to the selection
+			var script = "select " + generateScriptPos(position) + ":" + _chain.chainId + ";";
+
+			//Jmol.script(_applet, script);
+		}
+	}
+
+	/**
+	 * Generates a position string for Jmol scripting.
+	 *
+	 * @position object containing PDB position info
+	 * @return {string} position string for Jmol
+	 */
+	function generateScriptPos(position)
+	{
+		var posStr =position.start.pdbPos;
+
+		if (position.end.pdbPos > position.start.pdbPos)
+		{
+			posStr += "-" + position.end.pdbPos;
+		}
+
+		return posStr;
 	}
 
 	// return public functions
 	return {init: init,
 		show: show,
 		hide: hide,
+		isVisible: isVisible,
 		reload: reload,
+		focusOn: focus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
 		changeStyle : changeStyle};

@@ -6,7 +6,7 @@ $(document).ready(function(){
     
 });
 
-                                                                        s
+
 /*
  * Set up results tabs
  */

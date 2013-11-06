@@ -182,12 +182,13 @@ var MutationDetailsView = Backbone.View.extend({
 		var mutationUtil = self.model.mutationProxy.getMutationUtil();
 
 		/**
-		 * Updates the mutation diagram after each change in the mutation table.
-		 * This maintains synchronizing between the table and the diagram.
+		 * Updates the other components of the mutation view after each change
+		 * in the mutation table. This maintains synchronizing between the table
+		 * and other view components (diagram and 3d visualizer).
 		 *
 		 * @param tableSelector selector for the mutation table
 		 */
-		var updateMutationDiagram = function(tableSelector)
+		var syncWithMutationTable = function(tableSelector)
 		{
 			var mutationMap = mutationUtil.getMutationIdMap();
 			var currentMutations = [];
@@ -224,6 +225,14 @@ var MutationDetailsView = Backbone.View.extend({
 					// hide info text
 					mainMutationView.hideFilterInfo();
 				}
+			}
+
+			var view3d = self.mut3dVisView;
+			// TODO also filter positions in 3d view
+			// for now just reset focus
+			if (view3d)
+			{
+				view3d.focusView(false);
 			}
 		};
 
@@ -422,7 +431,7 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: "#mutation_table_" + gene,
 					model: {geneSymbol: gene,
 						mutations: mutationData,
-						syncFn: updateMutationDiagram}});
+						syncFn: syncWithMutationTable}});
 
 			mutationTableView.render();
 

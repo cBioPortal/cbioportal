@@ -6,7 +6,7 @@
 <script type="text/javascript" src="js/lib/jquery.address-1.4.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery-ui-1.8.14.custom.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.cookie.js"></script>
-<script type="text/javascript" src="js/lib/jquery.popeye-2.1.min.js"></script>
+<script type="text/javascript" src="js/lib/responsiveslides.min.js"></script>
 <script type="text/javascript" src="js/lib/mailme.js"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>

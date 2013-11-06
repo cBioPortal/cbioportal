@@ -10,9 +10,9 @@
 %>
 
 <p>
-    <div class='gene_set_summary'>
-        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
-    </div>
+<div class='gene_set_summary'>
+    Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+</div>
 </p>
 <p>
     <small><strong><%=smry%></strong></small>
@@ -63,7 +63,7 @@
 
 <div id="tabs">
     <ul>
-    <%
+            <%
         Boolean showMutTab = false;
         if (geneWithScoreList.size() > 0) {
 
@@ -142,13 +142,6 @@
                 + "Protein Changes</a></li>");
             }
 
-
-            if (true) {
-                out.println("<li><a href='#co_exp' class='result-tab' title='Top co-expressed gene list'>Co-Expression</a></li>");
-            }
-
-            %>
-
             if (clinicalDataList != null && clinicalDataList.size() > 0) {
                 out.println ("<li><a href='#survival' class='result-tab' title='Survival analysis and Kaplan-Meier curves'>"
                 + "Survival</a></li>");
@@ -162,6 +155,8 @@
             if (showIGVtab){
                 out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
             }
+
+            out.println ("<li><a href='#co_exp' class='result-tab' title='List of top co-expressed gene'>Co-Expression</a></li>");
             out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
             out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
@@ -233,7 +228,6 @@
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-
         <%@ include file="co_expression.jsp" %>
 
 </div> <!-- end tabs div -->

@@ -1,48 +1,201 @@
-<style type="text/css" title="currentStyle">
+<style type="text/css" title="coexpTableStyle">
     @import "css/data_table_jui.css";
-    @import "css/data_table_ColVis.css";
+    .co_exp_table_paging {
+        width: 70%;
+        float: right;
+    }
+    .co_exp_table_info {
+        float: left;
+    }
 </style>
-
 <div class="section" id="co_exp" class="plots">
     <div id="user_selection"></div>
     <div id="co_exp_gene_list">
         <table id="co_exp_data_table" cellpadding="0" cellspacing="0" border="0" class="display">
-            <thead>
-            <tr style="font-size:80%">
-                <th>Queried Gene</th>
-                <th>Compared Gene</th>
-                <th>Pearson Score</th>
-                <th>Spearman Score</th>
+            <thead style="font-size:80%">
+            <tr>
+                <th>Column 1</th>
+                <th>Column 2</th>
+                <th>etc</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td>Gene1</td>
-                <td>TP53</td>
-                <td>0.35555</td>
-                <td>-0.19</td>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
             </tr>
             <tr>
-                <td>Gene2</td>
-                <td>EGFR</td>
-                <td>0.15</td>
-                <td>-0.45</td>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
+            </tr>            <tr>
+                <td>Row 1 Data 1</td>
+                <td>Row 1 Data 2</td>
+                <td>etc</td>
+            </tr>
+            <tr>
+                <td>Row 2 Data 1</td>
+                <td>Row 2 Data 2</td>
+                <td>etc</td>
             </tr>
             </tbody>
-            <tfoot>
-            <tr style="font-size:80%">
-                <th>Queried Gene</th>
-                <th>Compared Gene</th>
-                <th>Pearson Score</th>
-                <th>Spearman Score</th>
-            </tr>
-            </tfoot>
         </table>
     </div>
+
 </div>
 
 <script>
     $(document).ready(function() {
-        $('#co_exp_data_table').dataTable();
-    } );
+        $('#co_exp_data_table').dataTable({
+            "sDom": '<"H"<"co_exp_table_paging"i><"co_exp_table_paging"lfp>>t',
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true
+        });
+    });
 </script>

@@ -1299,6 +1299,13 @@ cc-ie-message {
 	margin-left: 15px;
 }
 
+/* This is a fix to remove the tiny bullet
+ * appearing on the preview image slider
+ */
+#previewContainer li {
+	list-style-type: none;
+}
+
 /* right menu d3 map */
 #rightmenu-stats-box {
     padding-left: 15px;

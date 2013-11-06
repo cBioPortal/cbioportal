@@ -80,8 +80,8 @@ public class JdbcUtil {
             con = ds.getConnection();
         }
         catch (Exception e) {
-            logMessage("Cannot create database connection!");
-            throw new SQLException("Cannot create database connection!");
+            logMessage(e.getMessage());
+            throw new SQLException(e);
         }
 
         if (requester!=null) {

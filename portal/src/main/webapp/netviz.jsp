@@ -20,7 +20,7 @@
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/lib/jquery.address.js"></script>
 <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.popeye-2.1.min.js"></script>
+<script type="text/javascript" src="js/lib/responsiveslides.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>

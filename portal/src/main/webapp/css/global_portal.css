@@ -1287,8 +1287,23 @@ cc-ie-message {
 }
 
 /* Float on alright! */
-#ppy2 {
-    z-index: 9999999;
+#previewContainer {
+    /*z-index: 9999999;*/
+	width: 170px;
+	height: 145px;
+	float: right;
+	border: 2px solid #FFFFFF;
+	border-radius: 3px;
+	box-shadow: 0 0 7px #999999;
+	overflow-y: hidden;
+	margin-left: 15px;
+}
+
+/* This is a fix to remove the tiny bullet
+ * appearing on the preview image slider
+ */
+#previewContainer li {
+	list-style-type: none;
 }
 
 /* right menu d3 map */

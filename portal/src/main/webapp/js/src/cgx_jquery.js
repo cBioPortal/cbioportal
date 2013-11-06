@@ -1,6 +1,6 @@
 $(document).ready(function(){
        
-    setUpPopEye();
+    //setUpPopEye();
     setUpTabs();
     setUpTestimonials();
     
@@ -62,6 +62,7 @@ function displayRandomTestimonial() {
 
 /*
  * Set up preview images on home page
+ * TODO not used anymore (we removed popeye lib)
  */
 
 function setUpPopEye(){

@@ -487,14 +487,14 @@ function _intersectAllCaseSets(caseSetFilter)
 			}
 			// if the current intersection contains all the cases,
 			// just set intersection as the current case set without
-			// calling the "expensive" intersectNArrays function
+			// calling the "expensive" intersect function
 			else if (intersection.length == _clinicalCaseSet.length)
 			{
 				intersection = caseSetFilter[key];
 			}
 			else
 			{
-				intersection = intersectNArrays(intersection,
+				intersection = _.intersection(intersection,
 						caseSetFilter[key]);
 			}
 			

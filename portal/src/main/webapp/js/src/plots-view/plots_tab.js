@@ -876,7 +876,7 @@ var PlotsView = (function () {
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
                     .attr("class", "plots-x-axis-class")
-                  .call(xAxis.ticks(textSet.length))
+                    .call(xAxis.ticks(textSet.length))
                     .selectAll("text")
                     .data(textSet)
                     .style("font-family", "sans-serif")
@@ -1084,8 +1084,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
-                        var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        if (_dataAttr.min_x <= 1) {
+                            var min_x = Math.log(1) / Math.log(2);
+                        } else {
+                            var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
+                        }
+                        if (_dataAttr.max_x <= 1) {
+                            var max_x = Math.log(1) / Math.log(2);
+                        } else {
+                            var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        }
                         var edge_x = (max_x - min_x) * 0.2;
                         attr.xScale = d3.scale.linear()
                             .domain([min_x - edge_x, max_x + edge_x])
@@ -1114,8 +1122,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
-                        var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        if (_dataAttr.min_y <= 1) {
+                            var min_y = Math.log(1) / Math.log(2);
+                        } else {
+                            var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
+                        }
+                        if (_dataAttr.max_y <= 1) {
+                            var max_y = Math.log(1) / Math.log(2);
+                        } else {
+                            var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        }
                         var edge_y = (max_y - min_y) * 0.1;
                         attr.yScale = d3.scale.linear()
                             .domain([min_y - edge_y, max_y + edge_y])
@@ -1199,7 +1215,7 @@ var PlotsView = (function () {
                                     content: {text: content},
                                     style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                                     show: {event: "mouseover"},
-	                                hide: {fixed:true, delay: 100, event: "mouseout"},
+                                    hide: {fixed:true, delay: 100, event: "mouseout"},
                                     position: {my:'left bottom',at:'top right'}
                                 }
                             );
@@ -1349,7 +1365,11 @@ var PlotsView = (function () {
                 _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
                 if (applyLogScale) {
                     $.each(_dotsGroup, function(index, value) {
-                        value.yVal = Math.log(value.yVal) / Math.log(2);
+                        if (value.yVal <= 1) {
+                            value.yVal = Math.log(1) / Math.log(2);
+                        } else {
+                            value.yVal = Math.log(value.yVal) / Math.log(2);
+                        }
                     });
                 }
 
@@ -1570,7 +1590,11 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                if(d3.select(this).attr("xVal") <= 1) {
+                                    var _post_x = attr.xScale(Math.log(1) / Math.log(2));
+                                } else {
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                }
                             } else {
                                 var _post_x = attr.xScale(d3.select(this).attr("xVal"));
                             }
@@ -1585,7 +1609,11 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                if (parseFloat(d3.select(this).attr("yVal")) <= 1) {
+                                    var _post_y = attr.yScale(Math.log(1) / Math.log(2));
+                                } else {
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                }
                             } else {
                                 var _post_y = attr.yScale(d3.select(this).attr("yVal"));
                             }

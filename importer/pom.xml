@@ -208,6 +208,7 @@
                   <artifact>*:*</artifact>
                   <excludes>
                     <exclude>${gpl-files-to-exclude}</exclude>
+                    <exclude>org/gjt/**</exclude>
                   </excludes>
                 </filter>
               </filters>

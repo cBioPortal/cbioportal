@@ -109,7 +109,9 @@
 
 <script type="text/template" id="mutation_3d_vis_template">
 	<div class='mutation-3d-vis-header'>
-		<a class='mutation-3d-close'>X</a>
+		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
+		<span class='mutation-3d-maximize ui-icon ui-icon-circle-plus' title='maximize'></span>
+		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
 		<div class='mutation-3d-info'></div>
 	</div>
 	<div id='mutation_3d_visualizer'></div>

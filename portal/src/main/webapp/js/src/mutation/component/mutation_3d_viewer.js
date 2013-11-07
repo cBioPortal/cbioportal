@@ -52,7 +52,8 @@ var Mutation3dVis = function(name, options)
 		highlightColor: "xFFDD00", // color of the user-selected mutations
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
-		containerPadding: 10 // padding for the vis container (this is to prevent overlapping)
+		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
+		minimizedHeight: 10 // minimized height of the container (assuming this will hide everything but the title)
 	};
 
 	// Predefined style scripts for Jmol
@@ -165,6 +166,29 @@ var Mutation3dVis = function(name, options)
 		{
 			//_container.hide();
 			_container.css('top', -9999);
+		}
+	}
+
+	/**
+	 * Minimizes the container (only title will be shown)
+	 */
+	function minimize()
+	{
+		// minimize container
+		if (_container != null)
+		{
+			_container.css("height", _options.minimizedHeight);
+		}
+	}
+
+	/**
+	 * Maximizes the container to its full height
+	 */
+	function maximize()
+	{
+		if (_container != null)
+		{
+			_container.css("height", "auto");
 		}
 	}
 
@@ -303,6 +327,8 @@ var Mutation3dVis = function(name, options)
 	return {init: init,
 		show: show,
 		hide: hide,
+		minimize: minimize,
+		maximize: maximize,
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,

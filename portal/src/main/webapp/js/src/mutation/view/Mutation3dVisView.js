@@ -50,7 +50,23 @@ var Mutation3dVisView = Backbone.View.extend({
 			self.options.parentEl.find(".mutation-pdb-panel-view").hide();
 		};
 
+		// add listeners to panel (header) buttons
+
 		self.$el.find(".mutation-3d-close").click(closeHandler);
+
+		self.$el.find(".mutation-3d-minimize").click(function(){
+			if (mut3dVis != null)
+			{
+				mut3dVis.minimize();
+			}
+		});
+
+		self.$el.find(".mutation-3d-maximize").click(function(){
+			if (mut3dVis != null)
+			{
+				mut3dVis.maximize();
+			}
+		});
 
 		// format toolbar elements
 

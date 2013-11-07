@@ -130,6 +130,7 @@
 		border-color: #BABDB6;
 		background-color: #FFFFFF;
 		padding: 5px 10px 10px;
+		overflow: hidden;
 	}
 	.mutation-3d-vis-header {
 		padding-bottom: 5px;
@@ -142,9 +143,12 @@
 		border-bottom: 1px solid #888888;
 		margin-bottom: 5px;
 	}
+	.mutation-3d-minimize,
+	.mutation-3d-maximize,
 	.mutation-3d-close {
 		float: right;
 		cursor: pointer;
+		opacity: 0.6;
 	}
 	.mutation-3d-pdb-id, .mutation-3d-chain-id {
 		font-weight: bold;

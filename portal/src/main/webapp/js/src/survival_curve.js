@@ -934,19 +934,6 @@ var survivalCurves = (function() {
     }
 }());
 
-// Takes the content in the plots svg element
-// and returns XML serialized *string*
 function loadSurvivalCurveSVG(svgId) {
-    var shiftValueOnX = 8;
-    var shiftValueOnY = 3;
-    var mySVG = d3.select("#" + svgId);
-    var xAxisGrp = mySVG.select(".survival-curve-x-axis-class");
-    var yAxisGrp = mySVG.select(".survival-curve-y-axis-class");
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-    var docSVG = document.getElementById(svgId);
-    var svgDoc = docSVG.getElementsByTagName("svg");
-    var xmlSerializer = new XMLSerializer();
-    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-    return xmlString;
+    return $("#" + svgId).html();
 }

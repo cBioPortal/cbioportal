@@ -188,7 +188,7 @@
 	</dependency>
 
 	<!-- rserve -->
-	<dependency>
+	<!--dependency>
 	  <groupId>org.nuiton.thirdparty</groupId>
 	  <artifactId>REngine</artifactId>
 	  <version>0.6-1</version>
@@ -197,7 +197,7 @@
 	  <groupId>org.nuiton.thirdparty</groupId>
 	  <artifactId>Rserve</artifactId>
 	  <version>0.6-1</version>
-	</dependency>
+	</dependency-->
 
     <!-- Mockito -->
     <dependency>

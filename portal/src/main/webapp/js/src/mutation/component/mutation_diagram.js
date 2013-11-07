@@ -234,7 +234,10 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 		$.getJSON("getPfamSequence.json",
 			{geneSymbol: self.geneSymbol},
 			function(data) {
-				init(data);
+				if (data)
+				{
+					init(data[0]);
+				}
 			});
 	}
 	// if data is already there just init the diagram
@@ -407,8 +410,19 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 			Math.max(self.calcMaxCount(data.pileups), options.minLengthY));
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
-	var seqTooltip = data.sequence.metadata.identifier + ", " +
-	               data.sequence.metadata.description + " (" + sequenceLength + "aa)";
+	var seqTooltip = "";
+
+	if (data.sequence.metadata.identifier)
+	{
+		seqTooltip += data.sequence.metadata.identifier;
+
+		if (data.sequence.metadata.description)
+		{
+			seqTooltip += ", " + data.sequence.metadata.description;
+		}
+	}
+
+	seqTooltip += " (" + sequenceLength + "aa)";
 
 	var xScale = d3.scale.linear()
 		.domain([0, xMax])

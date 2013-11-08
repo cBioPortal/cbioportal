@@ -100,6 +100,16 @@ var survivalCurves = (function() {
         function setOSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
+            //Set a data point for time zero (otherwise the line chart would not start from zero)
+            var _zero_time_point_datum = jQuery.extend(true, {}, datum);
+            _zero_time_point_datum.case_id = "NA";
+            _zero_time_point_datum.time = 0;
+            _zero_time_point_datum.status = "NA";
+            _zero_time_point_datum.survival_rate = 1;
+            os_altered_group.push(_zero_time_point_datum);
+            os_unaltered_group.push(_zero_time_point_datum);
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
@@ -135,6 +145,16 @@ var survivalCurves = (function() {
         function setDFSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
+            //Set a data point for time zero (otherwise the line chart would not start from zero)
+            var _zero_time_point_datum = jQuery.extend(true, {}, datum);
+            _zero_time_point_datum.case_id = "NA";
+            _zero_time_point_datum.time = 0;
+            _zero_time_point_datum.status = "NA";
+            _zero_time_point_datum.survival_rate = 1;
+            dfs_altered_group.push(_zero_time_point_datum);
+            dfs_unaltered_group.push(_zero_time_point_datum);
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);

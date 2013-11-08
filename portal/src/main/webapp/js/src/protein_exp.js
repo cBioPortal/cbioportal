@@ -136,7 +136,7 @@ var rppaPlots = (function() {
                         var butLast = str.substring(0, last).replace(/;/g, ", ");
                         var res = butLast + str.substring(last).replace(";", "");
                         _altStr += "<tr style='border: 1px solid darkgrey'><td style='border: 1px solid darkgrey'>" +
-                                    key + "</td><td>" + res + "</td></tr>";
+                            key + "</td><td>" + res + "</td></tr>";
                     }
                 }
                 _altStr += "</table>";
@@ -409,7 +409,7 @@ var rppaPlots = (function() {
                         {
                             content: {text: content},
                             style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
-	                        show: {event: "mouseover"},
+                            show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
                             position: {my:'left bottom',at:'top right'}
                         }
@@ -537,16 +537,9 @@ var rppaPlots = (function() {
 }());
 
 function loadRPPASVG(divName) {
-    var shiftValueOnX = 8;
-    var shiftValueOnY = 3;
-    var mySVG = d3.select("#" + divName);
-    var xAxisGrp = mySVG.select(".rppa-plots-x-axis-class");
-    var yAxisGrp = mySVG.select(".rppa-plots-y-axis-class");
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
     var docSVG = document.getElementById(divName);
     var svgDoc = docSVG.getElementsByTagName("svg");
     var xmlSerializer = new XMLSerializer();
     var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
     return xmlString;
 }

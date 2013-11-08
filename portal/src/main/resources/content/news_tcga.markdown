@@ -1,3 +1,8 @@
+# November 5, 2013
+
+* All TCGA data updated to the May Firehose run (September 23, 2013).
+* Updated to the latest COSMIC data (v67).
+
 # October 18, 2013
  
 * Improved interface for survival plots, including information on individual samples via mouse-over

@@ -51,7 +51,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.mskcc.cbio.portal.model.Patient;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.*;
-import org.mskcc.cbio.portal.r_bridge.SurvivalPlot;
 import org.mskcc.cbio.portal.validate.gene.GeneValidator;
 import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.dao.DaoException;
@@ -105,7 +104,7 @@ public class QueryBuilder extends HttpServlet {
     public static final String RPPA_SCORE_THRESHOLD = "RPPA_SCORE_THRESHOLD";
     public static final String MRNA_PROFILES_SELECTED = "MRNA_PROFILES_SELECTED";
     public static final String COMPUTE_LOG_ODDS_RATIO = "COMPUTE_LOG_ODDS_RATIO";
-    public static final int MUTATION_DETAIL_LIMIT = 20;
+    public static final int MUTATION_DETAIL_LIMIT = 100;
     public static final String MUTATION_DETAIL_LIMIT_REACHED = "MUTATION_DETAIL_LIMIT_REACHED";
     public static final String XDEBUG_OBJECT = "xdebug_object";
     public static final String ONCO_PRINT_HTML = "oncoprint_html";
@@ -479,13 +478,6 @@ public class QueryBuilder extends HttpServlet {
 				if (output.equals("text")) {
                     outputPlainText(response, mergedProfile, theOncoPrintSpecParserOutput,
                             zScoreThreshold, rppaScoreThreshold);
-                } else if (output.equals(OS_SURVIVAL_PLOT)) {
-                    outputOsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
-                } else if (output.equals(DFS_SURVIVAL_PLOT)) {
-                    outputDfsSurvivalPlot(mergedProfile, theOncoPrintSpecParserOutput,
-                            zScoreThreshold, rppaScoreThreshold, clinicalDataList, format, response);
-				// (via LinkOut servlet - report=oncoprint_html arg)
                 }
             } else {
 
@@ -499,26 +491,6 @@ public class QueryBuilder extends HttpServlet {
             ShowData.showDataAtSpecifiedIndex(servletContext, request,
                     response, 0, xdebug);
         }
-    }
-
-    private void outputDfsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            List<Patient> clinicalDataList, String format,
-            HttpServletResponse response) throws IOException {
-        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
-        SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.DFS,
-                clinicalDataList, dataSummary, format, response);
-    }
-
-    private void outputOsSurvivalPlot(ProfileData mergedProfile,
-            ParserOutput theOncoPrintSpecParserOutput, double zScoreThreshold, double rppaScoreThreshold,
-            List<Patient> clinicalDataList, String format,
-            HttpServletResponse response) throws IOException {
-        ProfileDataSummary dataSummary = new ProfileDataSummary( mergedProfile,
-                theOncoPrintSpecParserOutput.getTheOncoPrintSpecification(), zScoreThreshold, rppaScoreThreshold );
-        SurvivalPlot survivalPlot = new SurvivalPlot(SurvivalPlot.SurvivalPlotType.OS,
-                clinicalDataList, dataSummary, format, response);
     }
 
     private void outputPlainText(HttpServletResponse response, ProfileData mergedProfile,

@@ -68,19 +68,23 @@ public class ImportExtendedMutationData{
 	private File mutationFile;
 	private int geneticProfileId;
 	private MutationFilter myMutationFilter;
-	private static final List<String> validChrValues;
-	static {
-		validChrValues = new ArrayList<String>();
-		for (int lc = 1; lc<24; lc++) {
-			validChrValues.add(Integer.toString(lc));
-			validChrValues.add("CHR" + Integer.toString(lc));
+	private static Map<String,String> validChrValues = null;
+	private static String normalizeChr(String strChr) {
+	    if (validChrValues==null) {
+		validChrValues = new HashMap<String,String>();
+		for (int lc = 1; lc<=24; lc++) {
+			validChrValues.put(Integer.toString(lc),Integer.toString(lc));
+			validChrValues.put("CHR" + Integer.toString(lc),Integer.toString(lc));
 		}
-		validChrValues.add("X");
-		validChrValues.add("CHRX");
-		validChrValues.add("Y");
-		validChrValues.add("CHRY");
-		validChrValues.add("NA");
-		validChrValues.add("MT"); // mitochondria
+		validChrValues.put("X","23");
+		validChrValues.put("CHRX","23");
+		validChrValues.put("Y","24");
+		validChrValues.put("CHRY","24");
+		validChrValues.put("NA","NA");
+		validChrValues.put("MT","MT"); // mitochondria
+	    }
+	    
+	    return validChrValues.get(strChr);
 	}
 
 	/**
@@ -182,11 +186,13 @@ public class ImportExtendedMutationData{
 					continue;
 				}
 
-				if (!validChrValues.contains(record.getChr().toUpperCase())) {
+				String chr = normalizeChr(record.getChr().toUpperCase());
+				if (chr==null) {
 					pMonitor.logWarning("Skipping entry with chromosome value: " + record.getChr());
 					line = buf.readLine();
 					continue;
 				}
+				record.setChr(record.getChr());
 
 				if (record.getStartPosition() < 0)
 					record.setStartPosition(0);
@@ -408,7 +414,11 @@ public class ImportExtendedMutationData{
 		if( MySQLbulkLoader.isBulkLoad()) {
 			MySQLbulkLoader.flushAll();
 		}
-		pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
+                
+                // calculate mutation count for every sample
+                DaoMutation.calculateMutationCount(geneticProfileId);
+		
+                pMonitor.setCurrentMessage(myMutationFilter.getStatistics() );
 
 	}
 

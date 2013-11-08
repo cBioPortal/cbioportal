@@ -3,7 +3,6 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
 

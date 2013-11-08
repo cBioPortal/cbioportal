@@ -106,7 +106,7 @@ var survivalCurves = (function() {
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].os_months;
                     _datum.status = result[caseId].os_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             os_altered_group.push(_datum);
                             _totalAlter += 1;
@@ -141,7 +141,7 @@ var survivalCurves = (function() {
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].dfs_months;
                     _datum.status = result[caseId].dfs_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             dfs_altered_group.push(_datum);
                             _totalAlter += 1;

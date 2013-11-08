@@ -2,7 +2,7 @@
 
 * All TCGA data updated to the Firehose run of September 23, 2013.
 * Updated to the latest COSMIC data (v67).
-* Added mutation data for 792 samples from 9 published cancer studies:
+* Added mutation data of 792 samples from 9 published cancer studies:
     * Esophageal Adenocarcinoma (Broad, Nature Genetics 2013)
     * Head and Neck Squamous Cell Carcinoma (Broad, Science 2011)
     * Head and Neck Squamous Cell Carcinoma (Johns Hopkins, Science 2011)

@@ -83,7 +83,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		// style selection menu
 		var styleMenu = self.$el.find(".mutation-3d-style-select");
 
+		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
 		styleMenu.chosen({width: 120, disable_search: true});
+
 		styleMenu.change(function(){
 			var selected = $(this).val();
 

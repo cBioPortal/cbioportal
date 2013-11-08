@@ -53,6 +53,7 @@ var Mutation3dVis = function(name, options)
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
+		// TODO minimized length is actually depends on padding values, it might be better to calculate it
 		minimizedHeight: 10 // minimized height of the container (assuming this will hide everything but the title)
 	};
 
@@ -177,6 +178,7 @@ var Mutation3dVis = function(name, options)
 		// minimize container
 		if (_container != null)
 		{
+			_container.css("overflow", "hidden");
 			_container.css("height", _options.minimizedHeight);
 		}
 	}
@@ -188,7 +190,8 @@ var Mutation3dVis = function(name, options)
 	{
 		if (_container != null)
 		{
-			_container.css("height", "auto");
+			_container.css("overflow", "");
+			_container.css("height", "");
 		}
 	}
 

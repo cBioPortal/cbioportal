@@ -130,7 +130,6 @@
 		border-color: #BABDB6;
 		background-color: #FFFFFF;
 		padding: 5px 10px 10px;
-		overflow: hidden;
 	}
 	.mutation-3d-vis-header {
 		padding-bottom: 5px;

@@ -96,7 +96,7 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
         try {
-            String geneList = servletXssUtil.getCleanerInput(httpServletRequest,
+            String geneList = servletXssUtil.getCleanInput(httpServletRequest,
                     QueryBuilder.GENE_LIST);
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
 

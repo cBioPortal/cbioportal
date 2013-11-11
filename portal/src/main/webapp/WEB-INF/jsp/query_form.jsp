@@ -13,7 +13,7 @@
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
     String localCaseIds = localXssUtil.getCleanerInput(request, QueryBuilder.CASE_IDS);
-    String localGeneList = localXssUtil.getCleanerInput(request, QueryBuilder.GENE_LIST);
+    String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
     
     String localTabIndex = localXssUtil.getCleanerInput(request, QueryBuilder.TAB_INDEX);
     String localzScoreThreshold = localXssUtil.getCleanerInput(request, QueryBuilder.Z_SCORE_THRESHOLD);

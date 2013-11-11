@@ -42,7 +42,8 @@ var Plots = (function(){
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
         },
-        genetic_profiles = {};
+        genetic_profiles = {}
+        log_scale_threshold = 1/1024;
 
     function getGeneticProfileCallback(result) {
         for (var gene in result) {
@@ -198,7 +199,10 @@ var Plots = (function(){
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,
-        searchPlots: searchPlots
+        searchPlots: searchPlots,
+        getLogScaleThreshold: function() {
+            return log_scale_threshold;
+        }
     };
 
 }());    //Closing Plots

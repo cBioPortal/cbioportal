@@ -67,6 +67,10 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		self.$el.show();
 	},
+	/**
+	 * Loads the 3D visualizer for the default pdb and chain.
+	 * Default chain is one of the chains in the first row.
+	 */
 	loadDefaultChain: function()
 	{
 		var self = this;
@@ -90,6 +94,8 @@ var PdbPanelView = Backbone.View.extend({
 
 			if (color)
 			{
+				// this is for Jmol compatibility
+				// (colors should start with an "x" instead of "#")
 				color = color.replace("#", "x");
 			}
 
@@ -120,6 +126,7 @@ var PdbPanelView = Backbone.View.extend({
 		{
 			var xScale = mutationDiagram.xScale;
 
+			// set margin same as the diagram margin for correct alignment with x-axis
 			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
 				marginLeft: mutationDiagram.options.marginLeft,
 				marginRight: mutationDiagram.options.marginRight};
@@ -132,7 +139,9 @@ var PdbPanelView = Backbone.View.extend({
 			if (vis != null)
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
+					// update view with the selected chain data
 					vis.updateView(gene, datum.pdbId, datum.chain);
+					// also highlight the selected chain on the pdb panel
 					panel.highlight(d3.select(this));
 				});
 			}

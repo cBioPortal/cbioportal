@@ -929,6 +929,11 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
  * Updates the mutation color map by adding a new entry for each mutation
  * in the given pile up.
  *
+ * Mapped color of a mutation is NOT determined by its type, instead it is
+ * determined by the color of the pileup. This is why we create a mapping
+ * based on the pileup, otherwise a simple mapping (based on mutation type)
+ * could be used.
+ *
  * @param pileup    pileup of mutations
  * @param color     color of the given pileup
  */
@@ -939,6 +944,7 @@ MutationDiagram.prototype.updateColorMap = function(pileup, color)
 	// iterate all mutations in this pileup
 	for (var i=0; i < pileup.mutations.length; i++)
 	{
+		// assign the same color to all mutations in this pileup
 		self.mutationColorMap[pileup.mutations[i].mutationId] = color;
 	}
 };

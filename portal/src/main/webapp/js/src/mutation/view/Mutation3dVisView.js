@@ -174,6 +174,15 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		return mut3dVis.isVisible();
 	},
+	/**
+	 * Focuses the 3D visualizer on the residue
+	 * corresponding to the given pileup of mutations.
+	 *
+	 * If this function is invoked without a parameter,
+	 * then resets the focus to the default state.
+	 *
+	 * @param pileup    Pileup instance
+	 */
 	focusView: function(pileup)
 	{
 		var self = this;

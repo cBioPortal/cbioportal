@@ -157,8 +157,11 @@ function MutationPdbPanel(options, data, xScale)
 	{
 		var gChain = svg.append("g").attr("class", "pdb-chain-group");
 		var height = options.chainHeight;
+
+		// init the segmentor for the merged alignment object
 		var segmentor = new MergedAlignmentSegmentor(chain.mergedAlignment);
 
+		// iterate all segments for this merged alignment
 		while (segmentor.hasNextSegment())
 		{
 			var segment = segmentor.getNextSegment();

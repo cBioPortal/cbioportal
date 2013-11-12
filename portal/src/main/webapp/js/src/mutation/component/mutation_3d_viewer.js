@@ -16,7 +16,8 @@ var Mutation3dVis = function(name, options)
 	// Jmol applet reference
 	var _applet = null;
 
-	// current selection (mutation positions on the protein)
+	// current selection (mutation positions as Jmol script compatible strings)
+	// this is a map of <color, position array> pairs
 	var _selection = null;
 
 	// current chain (PdbChainModel instance)
@@ -220,10 +221,8 @@ var Mutation3dVis = function(name, options)
 			return;
 		}
 
-		var selection = [];
+		var selection = {};
 		var color = _options.mutationColor;
-
-		// TODO focus on the current segment instead of the chain?
 
 		// color code the mutated positions (residues)
 		for (var mutationId in chain.positionMap)
@@ -239,7 +238,8 @@ var Mutation3dVis = function(name, options)
 			{
 				//color = defaultOpts.mutationColor;
 
-				// do not color at all, this results in hiding user-filtered mutations...
+				// do not color at all, this automatically hides user-filtered mutations
+				// TODO but this also hides unmapped mutations (if any)
 				continue;
 			}
 
@@ -266,6 +266,7 @@ var Mutation3dVis = function(name, options)
 		script.push("select :" + chain.chainId + ";"); // select the chain
 		script.push("color [" + _options.chainColor + "];"); // set chain color
 
+		// color each residue with a mapped color (this is to sync with diagram colors)
 		for (color in selection)
 		{
 			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
@@ -274,6 +275,7 @@ var Mutation3dVis = function(name, options)
 
 		script.push("spin " + _spin + ";"); // set spin
 
+		// convert array into a string (to pass to Jmol)
 		script = script.join(" ");
 
 		// run script
@@ -332,6 +334,9 @@ var Mutation3dVis = function(name, options)
 		}
 	}
 
+	/**
+	 * Resets the current focus to the default position and zoom level.
+	 */
 	function resetFocus()
 	{
 		// zoom out to default zoom level, center to default position,

@@ -48,10 +48,16 @@ var Mutation3dView = Backbone.View.extend({
 		var fn = self._getClickHandlerFn();
 		fn();
 	},
+	/**
+	 * Returns the handler function for the click action on the initializer.
+	 *
+	 * @return {Function}   handler function to init the view
+	 */
 	_getClickHandlerFn: function()
 	{
 		var self = this;
 
+		// actual event handler (listener) function
 		var handler = function() {
 			var gene = self.model.geneSymbol;
 			var uniprotId = self.model.uniprotId;
@@ -83,14 +89,6 @@ var Mutation3dView = Backbone.View.extend({
 
 					// reload the visualizer content with the default pdb and chain
 					panel.loadDefaultChain();
-
-					// alternative way to update view:
-					// simulate click function on the default chain element
-					// (rest will be handled by the click listener)
-//					var chainElement = panel.getDefaultChainElement();
-//					var handler = chainElement.on("click");
-//					handler(chainElement.datum());
-
 				}
 			};
 

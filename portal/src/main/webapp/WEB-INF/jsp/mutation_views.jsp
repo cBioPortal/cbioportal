@@ -98,7 +98,7 @@
 
 <script type="text/template" id="mutation_3d_vis_info_template">
 	<div class='mutation-3d-info-title'>
-		3D Protein Structure (mutations are shown in red)
+		3D Protein Structure
 	</div>
 	<div>
 		Structure for the PDB id <span class='mutation-3d-pdb-id'>{{pdbId}}</span>

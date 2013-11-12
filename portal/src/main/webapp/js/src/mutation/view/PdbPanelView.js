@@ -84,7 +84,7 @@ var PdbPanelView = Backbone.View.extend({
 		// update the color mapper for the 3D visualizer
 		// TODO this is not an ideal solution, but...
 		// ...while we have multiple diagrams, the 3d visualizer is a singleton
-		var colorMapper = function(mutationId) {
+		var colorMapper = function(mutationId, pdbId, chain) {
 			var mutationDiagram = self.options.diagram;
 			var color = mutationDiagram.mutationColorMap[mutationId];
 

@@ -127,6 +127,10 @@ var Mutation3dVisView = Backbone.View.extend({
 			// reload the selected pdb and chain data
 			mut3dVis.show();
 			mut3dVis.reload(pdbId, chain);
+
+			// store pdb id and chain for future reference
+			self.pdbId = pdbId;
+			self.chain = chain;
 		};
 
 		var infoCallback = function(pdbInfo) {
@@ -150,6 +154,18 @@ var Mutation3dVisView = Backbone.View.extend({
 		};
 
 		pdbProxy.getPdbInfo(pdbId, infoCallback);
+	},
+	/**
+	 * Refreshes (reloads) the 3D visualizer for the last pdb id
+	 * and chain.
+	 */
+	refreshView: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		// just reload with the last known pdb id and chain
+		mut3dVis.reload(self.pdbId, self.chain);
 	},
 	isVisible: function()
 	{

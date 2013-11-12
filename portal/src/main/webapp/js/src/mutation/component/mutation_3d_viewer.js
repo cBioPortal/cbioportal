@@ -213,7 +213,12 @@ var Mutation3dVis = function(name, options)
 	 */
 	function reload(pdbId, chain)
 	{
-		// TODO pdbId and/or chainId may be null
+		// pdbId and/or chainId may be null
+		if (!pdbId || !chain)
+		{
+			// nothing to load
+			return;
+		}
 
 		var selection = [];
 		var color = _options.mutationColor;
@@ -227,7 +232,7 @@ var Mutation3dVis = function(name, options)
 
 			if (_.isFunction(_options.mutationColor))
 			{
-				color = _options.mutationColor(mutationId);
+				color = _options.mutationColor(mutationId, pdbId, chain);
 			}
 
 			if (color == null)

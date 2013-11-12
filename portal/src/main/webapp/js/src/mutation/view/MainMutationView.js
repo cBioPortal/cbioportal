@@ -129,11 +129,11 @@ var MainMutationView = Backbone.View.extend({
 				// reset all previous table filters
 				tableView.resetFilters();
 			}
-			// also reset the 3d vis focus (if provided)
+			// also reset the 3d vis (if provided)
 			if (mut3dVisView)
 			{
-				// reset all previous table filters
-				mut3dVisView.focusView(false);
+				// reset all previous visualizer filters
+				mut3dVisView.refreshView();
 			}
 			// hide the filter info text
 			self.hideFilterInfo();

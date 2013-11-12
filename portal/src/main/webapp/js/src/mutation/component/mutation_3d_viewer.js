@@ -48,7 +48,7 @@ var Mutation3dVis = function(name, options)
 		defaultColor: "xDDDDDD", // default color of ribbons
 		translucency: 5, // translucency (opacity) of the default color
 		chainColor: "x888888", // color of the selected chain
-		mutationColor: "xFF0000", // color of the mapped mutations
+		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
 		highlightColor: "xFFDD00", // color of the user-selected mutations
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
@@ -216,44 +216,70 @@ var Mutation3dVis = function(name, options)
 		// TODO pdbId and/or chainId may be null
 
 		var selection = [];
+		var color = _options.mutationColor;
 
 		// TODO focus on the current segment instead of the chain?
 
-		// highlight the positions (residues)
+		// color code the mutated positions (residues)
 		for (var mutationId in chain.positionMap)
 		{
 			var position = chain.positionMap[mutationId];
 
+			if (_.isFunction(_options.mutationColor))
+			{
+				color = _options.mutationColor(mutationId);
+			}
+
+			if (color == null)
+			{
+				//color = defaultOpts.mutationColor;
+
+				// do not color at all, this results in hiding user-filtered mutations...
+				continue;
+			}
+
+			if (selection[color] == null)
+			{
+				selection[color] = [];
+			}
+
 			// TODO remove duplicates from the array (use another data structure such as a map)
-			selection.push(generateScriptPos(position) + ":" + chain.chainId);
+			selection[color].push(generateScriptPos(position) + ":" + chain.chainId);
 		}
 
 		// save current chain & selection for a possible future restore
 		_selection = selection;
 		_chain = chain;
 
-		// if no positions to select, then select "none"
-		if (selection.length == 0)
+		// construct Jmol script string
+		var script = [];
+		script.push("load=" + pdbId + ";"); // load the corresponding pdb
+		script.push("select all;"); // select everything
+		script.push(styleScripts[_style]); // show selected style view
+		script.push("color [" + _options.defaultColor + "] "); // set default color
+		script.push("translucent [" + _options.translucency + "];"); // set default opacity
+		script.push("select :" + chain.chainId + ";"); // select the chain
+		script.push("color [" + _options.chainColor + "];"); // set chain color
+
+		for (color in selection)
 		{
-			selection.push("none");
+			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("color [" + color + "];"); // color with corresponding mutation color
 		}
 
-		// construct Jmol script string
-		var script = "load=" + pdbId + ";" + // load the corresponding pdb
-		             "select all;" + // select everything
-		             styleScripts[_style] + // show selected style view
-		             "color [" + _options.defaultColor + "] " + // set default color
-		             "translucent [" + _options.translucency + "];" + // set default opacity
-		             "select :" + chain.chainId + ";" + // select the chain
-		             "color [" + _options.chainColor + "];" + // set chain color
-		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color [" + _options.mutationColor + "];" + // color with default mutation color
-		             "spin " + _spin; // set spin
+		script.push("spin " + _spin + ";"); // set spin
+
+		script = script.join(" ");
 
 		// run script
 		Jmol.script(_applet, script);
 	}
 
+	/**
+	 * Focuses on the residue corresponding to the given pileup
+	 *
+	 * @param pileup    Pileup instance
+	 */
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
@@ -275,16 +301,21 @@ var Mutation3dVis = function(name, options)
 
 			// TODO turn on selection halos for the highlighted position?
 
-			var script =
-				// center and zoom to the selection
-				"zoom " + _options.focusZoom +";" +
-				"center " + scriptPos + ":" + _chain.chainId + ";" +
-				// reset previous highlights
-				"select " + _selection.join(", ") + ";" +
-				"color [" + _options.mutationColor + "];" +
-				// highlight the focused position
-			    "select " + scriptPos + ":" + _chain.chainId + ";" +
-				"color [" + _options.highlightColor + "];";
+			var script = [];
+			// center and zoom to the selection
+			script.push("zoom " + _options.focusZoom +";");
+			script.push("center " + scriptPos + ":" + _chain.chainId + ";");
+			// reset previous highlights
+			for (var color in _selection)
+			{
+				script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+				script.push("color [" + color + "];"); // color with corresponding mutation color
+			}
+			// highlight the focused position
+		    script.push("select " + scriptPos + ":" + _chain.chainId + ";");
+			script.push("color [" + _options.highlightColor + "];");
+
+			script = script.join(" ");
 
 			Jmol.script(_applet, script);
 		}
@@ -300,10 +331,17 @@ var Mutation3dVis = function(name, options)
 	{
 		// zoom out to default zoom level, center to default position,
 		// and remove all selection highlights
-		var script = "zoom " + _options.defaultZoom + ";" + // zoom to default zoom level
-			"center;" + // center to default position
-			"select " + _selection.join(", ") + ";" + // select positions (mutations)
-			"color [" + _options.mutationColor + "];"; // color with default mutation color
+		var script = [];
+		script.push("zoom " + _options.defaultZoom + ";"); // zoom to default zoom level
+		script.push("center;"); // center to default position
+
+		for (var color in _selection)
+		{
+			script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("color [" + color + "];"); // color with corresponding mutation color
+		}
+
+		script = script.join(" ");
 
 		Jmol.script(_applet, script);
 	}
@@ -326,6 +364,16 @@ var Mutation3dVis = function(name, options)
 		return posStr;
 	}
 
+	/**
+	 * Updates the options of the 3D visualizer.
+	 *
+	 * @param options   new options object
+	 */
+	function updateOptions(options)
+	{
+		_options = jQuery.extend(true, {}, _options, options);
+	}
+
 	// return public functions
 	return {init: init,
 		show: show,
@@ -338,5 +386,6 @@ var Mutation3dVis = function(name, options)
 		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
-		changeStyle : changeStyle};
+		changeStyle : changeStyle,
+		updateOptions: updateOptions};
 };

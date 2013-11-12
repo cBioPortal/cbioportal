@@ -81,6 +81,23 @@ var PdbPanelView = Backbone.View.extend({
 		// highlight the default chain
 		panel.highlight(gChain);
 
+		// update the color mapper for the 3D visualizer
+		// TODO this is not an ideal solution, but...
+		// ...while we have multiple diagrams, the 3d visualizer is a singleton
+		var colorMapper = function(mutationId) {
+			var mutationDiagram = self.options.diagram;
+			var color = mutationDiagram.mutationColorMap[mutationId];
+
+			if (color)
+			{
+				color = color.replace("#", "x");
+			}
+
+			return color;
+		};
+
+		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
+
 		// update the view with default chain
 		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
 	},

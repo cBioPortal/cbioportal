@@ -277,7 +277,7 @@ function MutationPdbPanel(options, data, xScale)
 					}
 				}
 
-				// if no there is no available space in any row,
+				// if there is no available space in any row,
 				// then insert the chain to the next row
 				if (!inserted)
 				{

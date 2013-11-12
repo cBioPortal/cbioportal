@@ -228,7 +228,7 @@ var MutationDetailsView = Backbone.View.extend({
 			}
 
 			var view3d = self.mut3dVisView;
-			// TODO also filter positions in 3d view
+			// TODO also reload 3d view with filtered positions
 			// for now just reset focus
 			if (view3d)
 			{

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Date;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.dao.*;
@@ -93,23 +94,31 @@ public class CalculateCoexpression {
     }
 
     private static void calculate(GeneticProfile profile, ProgressMonitor pMonitor) throws DaoException {
-        MySQLbulkLoader.bulkLoadOn();
 
-        int counter = 0;
+        int genePairCounter = 0;
+        double coExpScoreThreshold = 0.3;
+        double[] scoreStatsPearson = new double[100];  //Score distribution
+        double[] scoreStatsSpearman = new double[100];  //Score distribution
+
+        MySQLbulkLoader.bulkLoadOn();
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
 
+        Date timeStart = new Date();
+        System.out.println("Start Time>>> " + timeStart.getTime());
+
         System.out.println("Loading genetic alteration data.....");
         Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
         
-        int n = map.size();
+        //int n = map.size();
+        int n = 300;
         pMonitor.setMaxValue(n * (n - 1) / 2);
 
         System.out.println("Calculating scores of all possible gene pairs......");
         List<Long> genes = new ArrayList<Long>(map.keySet());
-        for (int i = 0; i < 20; i++) {
-            for (int j = i + 1; j < 20; j++) {
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
                 pMonitor.incrementCurValue();
 
                 long gene1 = genes.get(i);
@@ -121,16 +130,26 @@ public class CalculateCoexpression {
                 double pearson = pearsonsCorrelation.correlation(exp1, exp2);
                 double spearman = spearmansCorrelation.correlation(exp1, exp2);
 
-                if (pearson > 0.3 || pearson < -0.3 || spearman > 0.3 || spearman < -0.3) {
+                if (pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ||
+                    spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) {
+
                     Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
                     DaoCoexpression.addCoexpression(coexpression);
-                    counter += 1;
+
+                    genePairCounter += 1;
+
+                    scoreStatsPearson[Math.abs((int)Math.round(pearson * 100) - 1)] += 1;
+                    scoreStatsSpearman[Math.abs((int)Math.round(spearman * 100) - 1)] += 1;
                 }
             }
         }
         MySQLbulkLoader.flushAll();
         System.out.println("Done. ");
-        System.out.println(counter + " gene pairs loaded.");
+        Date timeEnd = new Date();
+        System.out.println("Time End >>>" + timeEnd.getTime());
+        System.out.println(genePairCounter + " gene pairs loaded.");
+        System.out.println(scoreStatsPearson);
+        System.out.println(scoreStatsSpearman);
     }
     
     private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {

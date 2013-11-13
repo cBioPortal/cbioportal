@@ -5,17 +5,18 @@
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
+	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
     try {
         dataPriority
-                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
+                = Integer.parseInt(servletXssUtil.getCleanInput(request, QueryBuilder.DATA_PRIORITY).trim());
     } catch (Exception e) {
         dataPriority = 0;
     }
-    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
-    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
+	String geneList = servletXssUtil.getCleanerInput(
+			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", ""));
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();

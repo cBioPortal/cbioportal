@@ -72,12 +72,13 @@ var Plots = (function(){
         PlotsCustomMenu.init();
         PlotsView.init();
 
-        $('#plots-menus').bind('tabsshow', function(event, ui) {
-            if (ui.index === 0) {
+        $('#plots-menus').bind('tabsactivate', function(event, ui) {
+	        // note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
+	        if (ui.newTab.index() === 0) {
                 PlotsView.init();
-            } else if (ui.index === 1) {
+            } else if (ui.newTab.index() === 1) {
                 PlotsTwoGenesView.init();
-            } else if (ui.index === 2) {
+            } else if (ui.newTab.index() === 2) {
                 PlotsCustomView.init();
             } else {
                 //TODO: error handle

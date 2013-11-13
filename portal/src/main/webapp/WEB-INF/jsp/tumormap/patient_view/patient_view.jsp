@@ -378,7 +378,9 @@ function fixCytoscapeWebRedraw() {
 function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();
-    $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+    $('#patient-tabs').tabs("option",
+		"active",
+		$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
     if (toTab==='images') {
         loadImages();
     }

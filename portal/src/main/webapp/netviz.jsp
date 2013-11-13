@@ -17,6 +17,7 @@
 
 
 <script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-migrate.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
 <script type="text/javascript" src="js/lib/jquery.address.js"></script>
 <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>

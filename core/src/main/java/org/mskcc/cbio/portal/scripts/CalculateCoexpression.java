@@ -1,29 +1,29 @@
 /** Copyright (c) 2012 Memorial Sloan-Kettering Cancer Center.
-**
-** This library is free software; you can redistribute it and/or modify it
-** under the terms of the GNU Lesser General Public License as published
-** by the Free Software Foundation; either version 2.1 of the License, or
-** any later version.
-**
-** This library is distributed in the hope that it will be useful, but
-** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
-** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
-** documentation provided hereunder is on an "as is" basis, and
-** Memorial Sloan-Kettering Cancer Center 
-** has no obligations to provide maintenance, support,
-** updates, enhancements or modifications.  In no event shall
-** Memorial Sloan-Kettering Cancer Center
-** be liable to any party for direct, indirect, special,
-** incidental or consequential damages, including lost profits, arising
-** out of the use of this software and its documentation, even if
-** Memorial Sloan-Kettering Cancer Center 
-** has been advised of the possibility of such damage.  See
-** the GNU Lesser General Public License for more details.
-**
-** You should have received a copy of the GNU Lesser General Public License
-** along with this library; if not, write to the Free Software Foundation,
-** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
-**/
+ **
+ ** This library is free software; you can redistribute it and/or modify it
+ ** under the terms of the GNU Lesser General Public License as published
+ ** by the Free Software Foundation; either version 2.1 of the License, or
+ ** any later version.
+ **
+ ** This library is distributed in the hope that it will be useful, but
+ ** WITHOUT ANY WARRANTY, WITHOUT EVEN THE IMPLIED WARRANTY OF
+ ** MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.  The software and
+ ** documentation provided hereunder is on an "as is" basis, and
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has no obligations to provide maintenance, support,
+ ** updates, enhancements or modifications.  In no event shall
+ ** Memorial Sloan-Kettering Cancer Center
+ ** be liable to any party for direct, indirect, special,
+ ** incidental or consequential damages, including lost profits, arising
+ ** out of the use of this software and its documentation, even if
+ ** Memorial Sloan-Kettering Cancer Center
+ ** has been advised of the possibility of such damage.  See
+ ** the GNU Lesser General Public License for more details.
+ **
+ ** You should have received a copy of the GNU Lesser General Public License
+ ** along with this library; if not, write to the Free Software Foundation,
+ ** Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
+ **/
 package org.mskcc.cbio.portal.scripts;
 
 import java.util.ArrayList;
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Date;
+import java.sql.Timestamp;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.dao.*;
@@ -84,6 +85,8 @@ public class CalculateCoexpression {
             }
         }
         if (final_gp == null) {
+            System.out.println("------------------ Calculating Co-expression Score ------------------ ");
+            System.out.println("Cancer Study Stable Id: " + cs.getCancerStudyStableId());
             System.out.println("No qualified genetic profile in this cancer study.");
         } else {
             System.out.println("------------------ Calculating Co-expression Score ------------------ ");
@@ -96,9 +99,9 @@ public class CalculateCoexpression {
     private static void calculate(GeneticProfile profile, ProgressMonitor pMonitor) throws DaoException {
 
         int genePairCounter = 0;
-        double coExpScoreThreshold = 0.3;
-        double[] scoreStatsPearson = new double[100];  //Score distribution
-        double[] scoreStatsSpearman = new double[100];  //Score distribution
+        double coExpScoreThreshold = 0;
+        int[] scoreStatsPearson = new int[100];  //Score distribution
+        //int[] scoreStatsSpearman = new int[100];  //Score distribution
 
         MySQLbulkLoader.bulkLoadOn();
 
@@ -106,13 +109,12 @@ public class CalculateCoexpression {
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
 
         Date timeStart = new Date();
-        System.out.println("Start Time>>> " + timeStart.getTime());
+        System.out.println(new Timestamp(timeStart.getTime()));
 
         System.out.println("Loading genetic alteration data.....");
         Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
-        
-        //int n = map.size();
-        int n = 300;
+
+        int n = map.size();
         pMonitor.setMaxValue(n * (n - 1) / 2);
 
         System.out.println("Calculating scores of all possible gene pairs......");
@@ -123,35 +125,44 @@ public class CalculateCoexpression {
 
                 long gene1 = genes.get(i);
                 double[] exp1 = map.get(gene1);
-                
+
                 long gene2 = genes.get(j);
                 double[] exp2 = map.get(gene2);
 
                 double pearson = pearsonsCorrelation.correlation(exp1, exp2);
-                double spearman = spearmansCorrelation.correlation(exp1, exp2);
+                //double spearman = spearmansCorrelation.correlation(exp1, exp2);
 
-                if (pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ||
-                    spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) {
+                if (pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold){
+                        //spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) {
 
-                    Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
-                    DaoCoexpression.addCoexpression(coexpression);
+                    //Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
+                    //DaoCoexpression.addCoexpression(coexpression);
 
                     genePairCounter += 1;
 
                     scoreStatsPearson[Math.abs((int)Math.round(pearson * 100) - 1)] += 1;
-                    scoreStatsSpearman[Math.abs((int)Math.round(spearman * 100) - 1)] += 1;
+                    //scoreStatsSpearman[Math.abs((int)Math.round(spearman * 100) - 1)] += 1;
                 }
+                MySQLbulkLoader.flushAll();
             }
         }
-        MySQLbulkLoader.flushAll();
+
         System.out.println("Done. ");
         Date timeEnd = new Date();
-        System.out.println("Time End >>>" + timeEnd.getTime());
+        System.out.println(new Timestamp(timeEnd.getTime()));
         System.out.println(genePairCounter + " gene pairs loaded.");
-        System.out.println(scoreStatsPearson);
-        System.out.println(scoreStatsSpearman);
+        System.out.println("Pearson Score Distribution ...............");
+        for (int p_index = 0; p_index < 100; p_index++) {
+            System.out.print(scoreStatsPearson[p_index] + ", ");
+        }
+        System.out.print("\n");
+        //System.out.println("Spearman Score Distribution ...............");
+        //for (int s_index = 0; s_index < 100; s_index++) {
+        //    System.out.print(scoreStatsSpearman[s_index] + ", ");
+        //}
+        //System.out.print("\n");
     }
-    
+
     private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {
         ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(profileId);
         int nCases = orderedCaseList.size();

@@ -486,7 +486,7 @@ var survivalCurves = (function() {
                     $(this).qtip(
                         {
                             content: {text: content},
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
                             position: {my:'left bottom',at:'top right'}

@@ -52,7 +52,7 @@
                 event: 'mouseover'
             },
             style: {
-                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip cc-ui-tooltip'
+                classes: 'qtip-light qtip-rounded qtip-shadow cc-study-tip cc-ui-tooltip'
             },
             position: {
                 my:'bottom left', at:'top center'

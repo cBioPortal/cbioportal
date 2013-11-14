@@ -1278,11 +1278,11 @@ cc-ie-message {
     white-space: nowrap;
 }
 
-.ui-tooltip-lightyellow {
+.qtip-lightyellow {
     background-color: lightyellow;
 }
 
-.ui-tooltip-wide {
+.qtip-wide {
     max-width: 600px;
 }
 

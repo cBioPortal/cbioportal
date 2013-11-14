@@ -104,7 +104,7 @@
                     solo: true // ...and hide all other tooltips...
             },
             hide: false,
-            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+            style: 'qtip-light qtip-rounded qtip-wide'
         });
         
         $("#case-select-custom-submit-btn").click(function() {

@@ -505,6 +505,16 @@
         <url-pattern>/calcPval.do</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>GetCoExpJson</servlet-name>
+        <servlet-class>org.mskcc.cbio.portal.servlet.GetCoExpressionJSON</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>GetCoExpJson</servlet-name>
+        <url-pattern>/getCoExp.do</url-pattern>
+    </servlet-mapping>
+
     <!-- end tumor map -->
 
     <servlet>

@@ -26,10 +26,15 @@
 **/
 package org.mskcc.cbio.portal.dao;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
+
+import org.apache.commons.lang.StringUtils;
 import org.mskcc.cbio.portal.model.Coexpression;
+import org.mskcc.cbio.portal.model.CosmicMutationFrequency;
 
 /**
  *
@@ -52,7 +57,32 @@ public class DaoCoexpression {
             }
     }
     
-    public static Map<Long, List<Coexpression>> getCoexpression(Collection<Long> queryGenes) throws DaoException {
-        return null;
+    public static ArrayList<Coexpression> getCoexpression(Collection<Long> queryGenes, int geneticProfileId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoCosmicData.class);
+            ArrayList<Coexpression> result = new ArrayList<Coexpression>();
+            pstmt = con.prepareStatement("SELECT * FROM coexpression WHERE " +
+                    "GENETIC_PROFILE_ID='" + geneticProfileId + "' AND " +
+                    "(GENE_1 in ('" + StringUtils.join(queryGenes, "','") + "')" + " OR " +
+                    " GENE_2 in ('" + StringUtils.join(queryGenes, "','") + "'));");
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                int gene1Id = Integer.parseInt(rs.getString("GENE_1"));
+                int gene2Id = Integer.parseInt(rs.getString("GENE_2"));
+                //int geneticProfileId = Integer.parseInt(rs.getString("GENETIC_PROFILE_ID"));
+                float pearson = Float.parseFloat(rs.getString("PEARSON"));
+                float spearman = Float.parseFloat(rs.getString("SPEARMAN"));
+                result.add(new Coexpression(gene1Id, gene2Id, geneticProfileId, pearson, spearman));
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoCosmicData.class, con, pstmt, rs);
+        }
     }
+
 }

@@ -76,7 +76,7 @@ public class CalculateCoexpression {
             if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
                 //rna seq profile (no z-scores applied) holds the highest priority)
                 if (gp.getStableId().toLowerCase().contains("rna_seq") &&
-                        !gp.getStableId().toLowerCase().contains("zscores")) {
+                   !gp.getStableId().toLowerCase().contains("zscores")) {
                     final_gp = gp;
                     break;
                 } else if (!gp.getStableId().toLowerCase().contains("zscores")) {
@@ -100,7 +100,7 @@ public class CalculateCoexpression {
 
         int genePairCounter = 0;
         double coExpScoreThreshold = 0;
-        int[] scoreStatsPearson = new int[100];  //Score distribution
+        int[] scoreStatsPearson = new int[201];  //Score distribution
         //int[] scoreStatsSpearman = new int[100];  //Score distribution
 
         MySQLbulkLoader.bulkLoadOn();
@@ -140,7 +140,13 @@ public class CalculateCoexpression {
 
                     genePairCounter += 1;
 
-                    scoreStatsPearson[Math.abs((int)Math.round(pearson * 100) - 1)] += 1;
+                    System.out.println("score:" + pearson);
+                    if ((int)Math.round(pearson * 100) < 0) {
+                        System.out.println("Index:" + (100 - Math.abs((int)Math.round(pearson * 100))));
+                    } else {
+                        System.out.println("Index:" + ((int)Math.round(pearson * 100) + 100));
+                    }
+                    scoreStatsPearson[100 - (int)Math.round(pearson * 100)] += 1;
                     //scoreStatsSpearman[Math.abs((int)Math.round(spearman * 100) - 1)] += 1;
                 }
                 MySQLbulkLoader.flushAll();
@@ -152,7 +158,7 @@ public class CalculateCoexpression {
         System.out.println(new Timestamp(timeEnd.getTime()));
         System.out.println(genePairCounter + " gene pairs loaded.");
         System.out.println("Pearson Score Distribution ...............");
-        for (int p_index = 0; p_index < 100; p_index++) {
+        for (int p_index = 0; p_index < 201; p_index++) {
             System.out.print(scoreStatsPearson[p_index] + ", ");
         }
         System.out.print("\n");

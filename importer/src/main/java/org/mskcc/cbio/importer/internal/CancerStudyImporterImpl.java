@@ -117,7 +117,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         public String[] getImporterClassArgs()
         {
             return ((requiresMetadataFile) ?
-                    new String[] { "--returnFromMain", "--data", stagingFilename, "--meta", metadataFilename, "--loadMode", "bulkLoad" } :
+                    new String[] { "--data", stagingFilename, "--meta", metadataFilename, "--loadMode", "bulkLoad" } :
                     new String[] { stagingFilename, cancerStudy.getCancerStudyStableId() });
         }
     }

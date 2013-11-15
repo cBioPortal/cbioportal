@@ -1,3 +1,5 @@
+nb-configuration.xml
+oncotator/src/main/resources/db.properties
 portal/Portal-Google-Code.ipr
 portal/Portal-Google-Code.iws
 portal/Portal.iml

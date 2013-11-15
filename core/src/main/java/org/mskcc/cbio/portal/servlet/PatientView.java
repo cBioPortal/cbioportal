@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
@@ -101,7 +102,8 @@ public class PatientView extends HttpServlet {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
-        String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+        //String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
+	    String cancerStudyId = servletXssUtil.getCleanerInput(request, QueryBuilder.CANCER_STUDY_ID);
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
@@ -112,7 +114,8 @@ public class PatientView extends HttpServlet {
             }
             
             if (request.getAttribute(ERROR)!=null) {
-                String msg = (String)request.getAttribute(ERROR);
+                //String msg = (String)request.getAttribute(ERROR);
+	            String msg = servletXssUtil.getCleanerInput((String)request.getAttribute(ERROR));
                 xdebug.logMsg(this, msg);
                 forwardToErrorPage(request, response, msg, xdebug);
             } else {
@@ -171,6 +174,7 @@ public class PatientView extends HttpServlet {
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
+	        cancerStudyId = StringEscapeUtils.escapeJavaScript(cancerStudyId);
             request.setAttribute(ERROR, "We have no information about cancer study "+cancerStudyId);
             return false;
         }

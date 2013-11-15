@@ -27,6 +27,7 @@
 package org.mskcc.cbio.portal.model;
 
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * Encapsulates Patient Data.
@@ -37,6 +38,7 @@ public class Patient {
 
     private String caseId;
 	Map<String, ClinicalData> clinicalDataMap;
+    private static final Logger logger = Logger.getLogger(Patient.class);
 
     /**
      * Constructor.
@@ -69,9 +71,17 @@ public class Patient {
 
 	private Double getDoubleValue(String attribute) {
 		ClinicalData data = clinicalDataMap.get(attribute);
-		return (data == null || data.getAttrVal().length() == 0 ||
-				data.getAttrVal().equals(ClinicalAttribute.NA) ||
-				data.getAttrVal().equals(ClinicalAttribute.MISSING)) ? null : Double.valueOf(data.getAttrVal());
+        if (data == null || data.getAttrVal().length() == 0 ||
+                data.getAttrVal().equals(ClinicalAttribute.NA) ||
+                data.getAttrVal().equals(ClinicalAttribute.MISSING)) {
+            return null;
+        }
+        try {
+            return Double.valueOf(data.getAttrVal());
+        } catch (NumberFormatException e) {
+            logger.warn("Can't handle clinical attribute of case: " + caseId);
+            return null;
+        }
 	}
 
 	private String getStringValue(String attribute) {

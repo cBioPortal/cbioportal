@@ -81,6 +81,7 @@ MutationDiagram.prototype.defaultOpts = {
 	regionFontSize: "12px",     // font size of the region text
 	regionTextAnchor: "middle", // text anchor (alignment) for the region label
 	showRegionText: true,       // show/hide region text
+	showStats: false,           // show/hide mutation stats in the lollipop tooltip
 	lollipopLabelCount: 1,          // max number of lollipop labels to display
 	lollipopLabelThreshold: 2,      // y-value threshold: points below this value won't be labeled
 	lollipopFont: "sans-serif",     // font of the lollipop label
@@ -233,7 +234,10 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 		$.getJSON("getPfamSequence.json",
 			{geneSymbol: self.geneSymbol},
 			function(data) {
-				init(data);
+				if (data)
+				{
+					init(data[0]);
+				}
 			});
 	}
 	// if data is already there just init the diagram
@@ -252,6 +256,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
  */
 MutationDiagram.prototype.processData = function (mutationData)
 {
+	// TODO move some of the functionality to PileupUtil class?
 	var self = this;
 
     // remove redundant mutations by sid
@@ -405,8 +410,19 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 			Math.max(self.calcMaxCount(data.pileups), options.minLengthY));
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
-	var seqTooltip = data.sequence.metadata.identifier + ", " +
-	               data.sequence.metadata.description + " (" + sequenceLength + "aa)";
+	var seqTooltip = "";
+
+	if (data.sequence.metadata.identifier)
+	{
+		seqTooltip += data.sequence.metadata.identifier;
+
+		if (data.sequence.metadata.description)
+		{
+			seqTooltip += ", " + data.sequence.metadata.description;
+		}
+	}
+
+	seqTooltip += " (" + sequenceLength + "aa)";
 
 	var xScale = d3.scale.linear()
 		.domain([0, xMax])

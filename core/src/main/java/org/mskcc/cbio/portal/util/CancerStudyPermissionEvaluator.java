@@ -43,6 +43,7 @@ import org.apache.commons.logging.LogFactory;
 
 import java.util.Set;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
 
 import org.mskcc.cbio.portal.util.GlobalProperties;
@@ -80,13 +81,13 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				log.debug("hasPermission(), authorization is true, checking permissions...");
 			}
 
-			String stableStudyID = null;
+			CancerStudy cancerStudy = null;
 			if (targetDomainObject instanceof CancerStudy) {
-				stableStudyID = ((CancerStudy)targetDomainObject).getCancerStudyStableId();
+				cancerStudy = ((CancerStudy)targetDomainObject);
 			}
 
 			if (log.isDebugEnabled()) {
-				if (stableStudyID == null) {
+				if (cancerStudy == null) {
 					log.debug("hasPermission(), stable cancer study ID is null.");
 				} 
 				if (authentication == null) {
@@ -94,15 +95,15 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 				}
 			}
 
-			// nothing to do if stable cancer study ID is null or authentication is null
+			// nothing to do if stable cancer study is null or authentication is null
 			// return false as spring-security document specifies
-			if (stableStudyID == null || authentication == null) {
+			if (cancerStudy == null || authentication == null) {
 				return false;
 			}
 
 			UserDetails userDetails = (UserDetails)authentication.getPrincipal();
 			if (userDetails != null && userDetails instanceof OpenIDUserDetails) {
-				return hasPermission(stableStudyID, (OpenIDUserDetails)userDetails);
+				return hasPermission(cancerStudy, (OpenIDUserDetails)userDetails);
 			}
 			else {
 				return false;
@@ -124,7 +125,7 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 	 * @param user OpenIDUserDetails
 	 * @return boolean
 	 */
-	private boolean hasPermission(String stableStudyID, OpenIDUserDetails user) {
+	private boolean hasPermission(CancerStudy cancerStudy, OpenIDUserDetails user) {
 
 		/*
 		  boolean publicStudy = cancerStudy.isPublicStudy();
@@ -145,6 +146,8 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 
 		//Set<String> grantedAuthorities = AuthorityUtils.authorityListToSet(user.getAuthorities());
                 Set<String> grantedAuthorities = getGrantedAuthorities(user);
+                
+                String stableStudyID = cancerStudy.getCancerStudyStableId();
 
 		if (log.isDebugEnabled()) {
 			log.debug("hasPermission(), cancer study stable id: " + stableStudyID);
@@ -183,6 +186,15 @@ class CancerStudyPermissionEvaluator implements PermissionEvaluator {
 			}
 			return true;
 		}
+                
+                // for groups
+                Set<String> groups = cancerStudy.getGroups();
+                if (!Collections.disjoint(groups, grantedAuthorities)) {
+			if (log.isDebugEnabled()) {
+				log.debug("hasPermission(), user has access by groups return true");
+			}
+			return true;
+                }
 
 		boolean toReturn = grantedAuthorities.contains(stableStudyID.toUpperCase());
 

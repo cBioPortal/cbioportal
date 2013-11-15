@@ -325,7 +325,3 @@ Once you have a cancer\_study\_id, it is very easy to create stable links from y
 For example, the following links to the TCGA GBM data for EGFR and NF1:
 
 [link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1)
-
-This link displays the same data as an Oncoprint only:
-
-[link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1&report=oncoprint_html](link.do?cancer_study_id=gbm_tcga&gene_list=EGFR+NF1&report=oncoprint_html)

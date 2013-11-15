@@ -192,7 +192,7 @@ public class ImportExtendedMutationData{
 					line = buf.readLine();
 					continue;
 				}
-				record.setChr(record.getChr());
+				record.setChr(chr);
 
 				if (record.getStartPosition() < 0)
 					record.setStartPosition(0);

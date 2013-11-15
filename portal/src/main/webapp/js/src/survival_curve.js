@@ -101,15 +101,6 @@ var survivalCurves = (function() {
             var _totalAlter = 0,
                 _totalUnalter = 0;
 
-            //Set a data point for time zero (otherwise the line chart would not start from zero)
-            var _zero_time_point_datum = jQuery.extend(true, {}, datum);
-            _zero_time_point_datum.case_id = "NA";
-            _zero_time_point_datum.time = 0;
-            _zero_time_point_datum.status = "NA";
-            _zero_time_point_datum.survival_rate = 1;
-            os_altered_group.push(_zero_time_point_datum);
-            os_unaltered_group.push(_zero_time_point_datum);
-
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
@@ -145,15 +136,6 @@ var survivalCurves = (function() {
         function setDFSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
-
-            //Set a data point for time zero (otherwise the line chart would not start from zero)
-            var _zero_time_point_datum = jQuery.extend(true, {}, datum);
-            _zero_time_point_datum.case_id = "NA";
-            _zero_time_point_datum.time = 0;
-            _zero_time_point_datum.status = "NA";
-            _zero_time_point_datum.survival_rate = 1;
-            dfs_altered_group.push(_zero_time_point_datum);
-            dfs_unaltered_group.push(_zero_time_point_datum);
 
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
@@ -357,7 +339,8 @@ var survivalCurves = (function() {
                 axisY_title_pos_x: -270,
                 axisY_title_pos_y: 45,
                 axis_color: "black"
-            }
+            };
+
 
         function initOSCanvas() {
             $('#os_survival_curve').empty();
@@ -423,24 +406,58 @@ var survivalCurves = (function() {
                 .y(function(d) { return elem.yScale(d.survival_rate); });
         }
 
+        //Append a virtual point for time zero if needed (no actual data point at time zero, therefore cause the graph not starting from 0)
+        function appendZeroPoint(_num_at_risk) {
+            var datum = {
+                case_id: "",
+                time: "",    //num of months
+                status: "", //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+                num_at_risk: -1,
+                survival_rate: 0
+            };
+            var _datum = jQuery.extend(true, {}, datum);
+            _datum.case_id = "NA";
+            _datum.time = 0;
+            _datum.status = "NA";
+            _datum.num_at_risk = _num_at_risk;
+            _datum.survival_rate = 1;
+            return _datum;
+        }
+
         function drawOSLines() {
+            var _os_altered_data = data.getOSAlteredData();
+            if (_os_altered_data[0].time !== 0) {
+                _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
+            }
+            var _os_unaltered_data = data.getOSUnalteredData();
+            if (_os_unaltered_data[0].time !== 0) {
+                _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+            }
             elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSAlteredData()))
+                .attr("d", elem.line(_os_altered_data))
                 .style("fill", "none")
                 .style("stroke", settings.altered_line_color);
             elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSUnalteredData()))
+                .attr("d", elem.line(_os_unaltered_data))
                 .style("fill", "none")
                 .style("stroke", settings.unaltered_line_color);
         }
 
         function drawDFSLines() {
+            var _dfs_altered_data = data.getDFSAlteredData();
+            if (_dfs_altered_data[0].time !== 0) {
+                _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
+            }
+            var _dfs_unaltered_data = data.getDFSUnalteredData();
+            if (_dfs_unaltered_data[0].time !== 0) {
+                _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+            }
             elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSAlteredData()))
+                .attr("d", elem.line(_dfs_altered_data))
                 .style("fill", "none")
                 .style("stroke", settings.altered_line_color);
             elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSUnalteredData()))
+                .attr("d", elem.line(_dfs_unaltered_data))
                 .style("fill", "none")
                 .style("stroke", settings.unaltered_line_color);
         }

@@ -27,6 +27,7 @@
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%

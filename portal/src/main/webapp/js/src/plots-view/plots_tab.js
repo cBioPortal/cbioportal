@@ -446,7 +446,7 @@ var PlotsView = (function () {
                 fill : "none",
                 symbol : "circle",
                 legendText : "Homdel"
-            },
+            }
         },
         userSelection = {
             gene: "",
@@ -1084,13 +1084,13 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        if (_dataAttr.min_x <= 1) {
-                            var min_x = Math.log(1) / Math.log(2);
+                        if (_dataAttr.min_x <= (Plots.getLogScaleThreshold())) {
+                            var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
                         } else {
                             var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
                         }
-                        if (_dataAttr.max_x <= 1) {
-                            var max_x = Math.log(1) / Math.log(2);
+                        if (_dataAttr.max_x <= (Plots.getLogScaleThreshold())) {
+                            var max_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
                         } else {
                             var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
                         }
@@ -1122,13 +1122,13 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        if (_dataAttr.min_y <= 1) {
-                            var min_y = Math.log(1) / Math.log(2);
+                        if (_dataAttr.min_y <= (Plots.getLogScaleThreshold())) {
+                            var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
                         } else {
                             var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
                         }
-                        if (_dataAttr.max_y <= 1) {
-                            var max_y = Math.log(1) / Math.log(2);
+                        if (_dataAttr.max_y <= (Plots.getLogScaleThreshold())) {
+                            var max_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
                         } else {
                             var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
                         }
@@ -1365,8 +1365,8 @@ var PlotsView = (function () {
                 _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
                 if (applyLogScale) {
                     $.each(_dotsGroup, function(index, value) {
-                        if (value.yVal <= 1) {
-                            value.yVal = Math.log(1) / Math.log(2);
+                        if (value.yVal <= (Plots.getLogScaleThreshold())) {
+                            value.yVal = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
                         } else {
                             value.yVal = Math.log(value.yVal) / Math.log(2);
                         }
@@ -1590,8 +1590,8 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                if(d3.select(this).attr("xVal") <= 1) {
-                                    var _post_x = attr.xScale(Math.log(1) / Math.log(2));
+                                if(d3.select(this).attr("xVal") <= (Plots.getLogScaleThreshold())) {
+                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
                                     var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
                                 }
@@ -1609,8 +1609,8 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                if (parseFloat(d3.select(this).attr("yVal")) <= 1) {
-                                    var _post_y = attr.yScale(Math.log(1) / Math.log(2));
+                                if (parseFloat(d3.select(this).attr("yVal")) <= (Plots.getLogScaleThreshold())) {
+                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
                                     var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
                                 }
@@ -1689,7 +1689,7 @@ var PlotsView = (function () {
                     stroke : "none",
                     symbol : "circle",
                     fill : "orange",
-                    legendText : "Mutated",
+                    legendText : "Mutated"
                 }
                 gisticStyleArr.push(mutatedStyle);
 

@@ -533,8 +533,8 @@ var PlotsCustomView = (function() {
     function initXAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_x <= 1) {
-                var min_x = Math.log(1) / Math.log(2);
+            if (analyseResult.min_x <= (Plots.getLogScaleThreshold())) {
+                var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
             } else {
                 var min_x = Math.log(analyseResult.min_x) / Math.log(2);
             }
@@ -565,8 +565,8 @@ var PlotsCustomView = (function() {
     function initYAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_y <= 1) {
-                var min_y = Math.log(1) / Math.log(2);
+            if (analyseResult.min_y <= (Plots.getLogScaleThreshold())) {
+                var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
             } else {
                 var min_y = Math.log(analyseResult.min_y) / Math.log(2);
             }
@@ -736,16 +736,16 @@ var PlotsCustomView = (function() {
             .attr("transform", function() {
                 if (applyLogScale) {
                     if (axis === "x") {
-                        if (parseFloat(d3.select(this).attr("x_val")) <= 1) {
-                            var _post_x = elem.xScale(Math.log(1) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("x_val")) <= (Plots.getLogScaleThreshold())) {
+                            var _post_x = elem.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                         } else {
                             var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
                     } else if (axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
-                        if (parseFloat(d3.select(this).attr("y_val")) <= 1) {
-                            var _post_y = elem.yScale(Math.log(1) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThreshold())) {
+                            var _post_y = elem.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                         } else {
                             var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                         }

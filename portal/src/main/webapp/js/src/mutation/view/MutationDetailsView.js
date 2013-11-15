@@ -137,13 +137,25 @@ var MutationDetailsView = Backbone.View.extend({
 		self.pdbProxy = new PdbDataProxy(
 				self.model.mutationProxy.getMutationUtil());
 
+		var contentSelector = self.$el.find("#mutation_details_content");
+
+		// reset all previous tabs related listeners (if any)
+		contentSelector.bind('tabscreate', false);
+		contentSelector.bind('tabsactivate', false);
+
 		// init view for the first gene only
-		self._initView(genes[0], cases, diagramOpts);
+		contentSelector.bind('tabscreate', function(event, ui) {
+			self._initView(genes[0], cases, diagramOpts);
+		});
 
 		// init other views upon selecting the corresponding tab
-		self.$el.find("#mutation_details_content").bind('tabsactivate', function(event, ui) {
+		contentSelector.bind('tabsactivate', function(event, ui) {
+			// TODO using index() causes problems with ui.tabs.paging plugin
 			// note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
-			var gene = genes[ui.newTab.index()];
+			//var gene = genes[ui.newTab.index()];
+
+			// get the gene name directly from the html content
+			var gene = ui.newTab.text().trim();
 
 			// init view for the selected tab (if not initialized before)
 			if (self.geneTabView[gene] == undefined)

@@ -212,10 +212,32 @@ $(document).ready(function(){
 	var model = {mutationProxy: proxy,
 		sampleArray: sampleArray};
 
-	var defaultView = new MutationDetailsView(
-		{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
+	var defaultView = null;
 
-	defaultView.render();
+	var initDefaultView = function() {
+		defaultView = new MutationDetailsView(
+				{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
+
+		defaultView.render();
+	};
+
+	// init view without a delay if the mutation details tab is already visible
+	if ($("#mutation_details").is(":visible"))
+	{
+		initDefaultView();
+	}
+	// delay initialization until click on the mutations tab
+	else
+	{
+		$("#tabs").bind("tabsactivate", function(event, ui){
+			// init when clicked on the mutations tab, and init only once
+			if (ui.newTab.text().trim().toLowerCase() == "mutations" &&
+			    defaultView == null)
+			{
+				initDefaultView();
+			}
+		});
+	}
 });
 
 </script>

@@ -82,6 +82,16 @@ var MutationDetailsView = Backbone.View.extend({
 		}
 	},
 	/**
+	 * Refreshes the genes tab.
+	 * (Intended to fix a resize problem with ui.tabs.paging plugin)
+	 */
+	refreshGenesTab: function()
+	{
+		var self = this;
+		var mainContent = self.$el.find("#mutation_details_content");
+		mainContent.tabs("refresh");
+	},
+	/**
 	 * Generates the content structure by creating div elements for each
 	 * gene.
 	 *

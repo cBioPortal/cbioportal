@@ -226,18 +226,25 @@ $(document).ready(function(){
 	{
 		initDefaultView();
 	}
+
 	// delay initialization until click on the mutations tab
-	else
-	{
-		$("#tabs").bind("tabsactivate", function(event, ui){
-			// init when clicked on the mutations tab, and init only once
-			if (ui.newTab.text().trim().toLowerCase() == "mutations" &&
-			    defaultView == null)
+	$("#tabs").bind("tabsactivate", function(event, ui){
+		// init when clicked on the mutations tab, and init only once
+		if (ui.newTab.text().trim().toLowerCase() == "mutations")
+		{
+			// init if this is the first click
+			if (defaultView == null)
 			{
 				initDefaultView();
 			}
-		});
-	}
+			// if already init, then refresh gene tabs
+			// (a fix for ui.tabs.plugin resize problem)
+			else
+			{
+				defaultView.refreshGenesTab();
+			}
+		}
+	});
 });
 
 </script>

@@ -101,7 +101,7 @@ public class CalculateCoexpression {
         int genePairCounter = 0;
         double coExpScoreThreshold = 0;
         int[] scoreStatsPearson = new int[201];  //Score distribution
-        //int[] scoreStatsSpearman = new int[100];  //Score distribution
+        int[] scoreStatsSpearman = new int[201];  //Score distribution
 
         MySQLbulkLoader.bulkLoadOn();
 
@@ -115,6 +115,7 @@ public class CalculateCoexpression {
         Map<Long,double[]> map = getExpressionMap(profile.getGeneticProfileId());
 
         int n = map.size();
+        //int n = 30;
         pMonitor.setMaxValue(n * (n - 1) / 2);
 
         System.out.println("Calculating scores of all possible gene pairs......");
@@ -130,24 +131,26 @@ public class CalculateCoexpression {
                 double[] exp2 = map.get(gene2);
 
                 double pearson = pearsonsCorrelation.correlation(exp1, exp2);
-                //double spearman = spearmansCorrelation.correlation(exp1, exp2);
+                double spearman = spearmansCorrelation.correlation(exp1, exp2);
 
-                if (pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold){
-                        //spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) {
+                if (pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ||
+                        spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) {
 
                     //Coexpression coexpression = new Coexpression(gene1, gene2, profile.getGeneticProfileId(), pearson, spearman);
                     //DaoCoexpression.addCoexpression(coexpression);
 
                     genePairCounter += 1;
 
-                    System.out.println("score:" + pearson);
                     if ((int)Math.round(pearson * 100) < 0) {
-                        System.out.println("Index:" + (100 - Math.abs((int)Math.round(pearson * 100))));
+                        scoreStatsPearson[100 - Math.abs((int)Math.round(pearson * 100))] += 1;
                     } else {
-                        System.out.println("Index:" + ((int)Math.round(pearson * 100) + 100));
+                        scoreStatsPearson[(int)Math.round(pearson * 100) + 100] += 1;
                     }
-                    scoreStatsPearson[100 - (int)Math.round(pearson * 100)] += 1;
-                    //scoreStatsSpearman[Math.abs((int)Math.round(spearman * 100) - 1)] += 1;
+                    if ((int)Math.round(spearman * 100) < 0) {
+                        scoreStatsSpearman[100 - Math.abs((int)Math.round(spearman * 100))] += 1;
+                    } else {
+                        scoreStatsSpearman[(int)Math.round(spearman * 100) + 100] += 1;
+                    }
                 }
                 MySQLbulkLoader.flushAll();
             }
@@ -162,11 +165,11 @@ public class CalculateCoexpression {
             System.out.print(scoreStatsPearson[p_index] + ", ");
         }
         System.out.print("\n");
-        //System.out.println("Spearman Score Distribution ...............");
-        //for (int s_index = 0; s_index < 100; s_index++) {
-        //    System.out.print(scoreStatsSpearman[s_index] + ", ");
-        //}
-        //System.out.print("\n");
+        System.out.println("Spearman Score Distribution ...............");
+        for (int s_index = 0; s_index < 100; s_index++) {
+            System.out.print(scoreStatsSpearman[s_index] + ", ");
+        }
+        System.out.print("\n");
     }
 
     private static Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {

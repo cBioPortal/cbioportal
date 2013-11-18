@@ -195,16 +195,16 @@ var _mut3dVis = null;
 
 // Set up Mutation View
 $(document).ready(function(){
-	// TODO accessing global "samples" variable...
-	var sampleArray = samples.trim().split(/\s+/);
+	var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
 
 	var servletParams = {geneticProfiles: geneticProfiles,
-		caseList: samples};
+		caseList: PortalGlobals.getCases()};
 
 	var servletName = "getMutationData.json";
 
+	// TODO make proxy instance global (it should be shared with all other tabs)
 	// init mutation data proxy with the data servlet config
-	var proxy = new MutationDataProxy(geneList);
+	var proxy = new MutationDataProxy(PortalGlobals.getGeneListString());
 	proxy.initWithoutData(servletName, servletParams);
 
 	// init default mutation details view
@@ -227,17 +227,17 @@ $(document).ready(function(){
 		initDefaultView();
 	}
 
-	// delay initialization until click on the mutations tab
+	// add a click listener for the "mutations" tab
 	$("#tabs").bind("tabsactivate", function(event, ui){
 		// init when clicked on the mutations tab, and init only once
 		if (ui.newTab.text().trim().toLowerCase() == "mutations")
 		{
-			// init if this is the first click
+			// init only if it is not initialized yet
 			if (defaultView == null)
 			{
 				initDefaultView();
 			}
-			// if already init, then refresh gene tabs
+			// if already init, then refresh genes tab
 			// (a fix for ui.tabs.plugin resize problem)
 			else
 			{

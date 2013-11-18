@@ -166,7 +166,7 @@ public class CalculateCoexpression {
         }
         System.out.print("\n");
         System.out.println("Spearman Score Distribution ...............");
-        for (int s_index = 0; s_index < 100; s_index++) {
+        for (int s_index = 0; s_index < 201; s_index++) {
             System.out.print(scoreStatsSpearman[s_index] + ", ");
         }
         System.out.print("\n");

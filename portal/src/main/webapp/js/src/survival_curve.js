@@ -100,13 +100,14 @@ var survivalCurves = (function() {
         function setOSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].os_months;
                     _datum.status = result[caseId].os_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             os_altered_group.push(_datum);
                             _totalAlter += 1;
@@ -135,13 +136,14 @@ var survivalCurves = (function() {
         function setDFSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].dfs_months;
                     _datum.status = result[caseId].dfs_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             dfs_altered_group.push(_datum);
                             _totalAlter += 1;
@@ -337,7 +339,8 @@ var survivalCurves = (function() {
                 axisY_title_pos_x: -270,
                 axisY_title_pos_y: 45,
                 axis_color: "black"
-            }
+            };
+
 
         function initOSCanvas() {
             $('#os_survival_curve').empty();
@@ -403,24 +406,58 @@ var survivalCurves = (function() {
                 .y(function(d) { return elem.yScale(d.survival_rate); });
         }
 
+        //Append a virtual point for time zero if needed (no actual data point at time zero, therefore cause the graph not starting from 0)
+        function appendZeroPoint(_num_at_risk) {
+            var datum = {
+                case_id: "",
+                time: "",    //num of months
+                status: "", //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+                num_at_risk: -1,
+                survival_rate: 0
+            };
+            var _datum = jQuery.extend(true, {}, datum);
+            _datum.case_id = "NA";
+            _datum.time = 0;
+            _datum.status = "NA";
+            _datum.num_at_risk = _num_at_risk;
+            _datum.survival_rate = 1;
+            return _datum;
+        }
+
         function drawOSLines() {
+            var _os_altered_data = data.getOSAlteredData();
+            if (_os_altered_data[0].time !== 0) {
+                _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
+            }
+            var _os_unaltered_data = data.getOSUnalteredData();
+            if (_os_unaltered_data[0].time !== 0) {
+                _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+            }
             elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSAlteredData()))
+                .attr("d", elem.line(_os_altered_data))
                 .style("fill", "none")
                 .style("stroke", settings.altered_line_color);
             elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSUnalteredData()))
+                .attr("d", elem.line(_os_unaltered_data))
                 .style("fill", "none")
                 .style("stroke", settings.unaltered_line_color);
         }
 
         function drawDFSLines() {
+            var _dfs_altered_data = data.getDFSAlteredData();
+            if (_dfs_altered_data[0].time !== 0) {
+                _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
+            }
+            var _dfs_unaltered_data = data.getDFSUnalteredData();
+            if (_dfs_unaltered_data[0].time !== 0) {
+                _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+            }
             elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSAlteredData()))
+                .attr("d", elem.line(_dfs_altered_data))
                 .style("fill", "none")
                 .style("stroke", settings.altered_line_color);
             elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSUnalteredData()))
+                .attr("d", elem.line(_dfs_unaltered_data))
                 .style("fill", "none")
                 .style("stroke", settings.unaltered_line_color);
         }
@@ -934,19 +971,6 @@ var survivalCurves = (function() {
     }
 }());
 
-// Takes the content in the plots svg element
-// and returns XML serialized *string*
 function loadSurvivalCurveSVG(svgId) {
-    var shiftValueOnX = 8;
-    var shiftValueOnY = 3;
-    var mySVG = d3.select("#" + svgId);
-    var xAxisGrp = mySVG.select(".survival-curve-x-axis-class");
-    var yAxisGrp = mySVG.select(".survival-curve-y-axis-class");
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, false);
-    var docSVG = document.getElementById(svgId);
-    var svgDoc = docSVG.getElementsByTagName("svg");
-    var xmlSerializer = new XMLSerializer();
-    var xmlString = xmlSerializer.serializeToString(svgDoc[0]);
-    cbio.util.alterAxesAttrForPDFConverter(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, true);
-    return xmlString;
+    return $("#" + svgId).html();
 }

@@ -67,17 +67,45 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 		self.$el.show();
 	},
-	getDefaultDatum: function()
+	/**
+	 * Loads the 3D visualizer for the default pdb and chain.
+	 * Default chain is one of the chains in the first row.
+	 */
+	loadDefaultChain: function()
 	{
 		var self = this;
-		var datum = null;
 
-		if (self.pdbPanel)
-		{
-			datum = self.pdbPanel.getDefaultChainDatum();
-		}
+		var panel = self.pdbPanel;
+		var gene = self.model.geneSymbol;
+		var vis = self.options.mut3dVisView;
 
-		return datum;
+		var gChain = panel.getDefaultChainGroup();
+		var defaultDatum = gChain.datum();
+
+		// highlight the default chain
+		panel.highlight(gChain);
+
+		// update the color mapper for the 3D visualizer
+		// TODO this is not an ideal solution, but...
+		// ...while we have multiple diagrams, the 3d visualizer is a singleton
+		var colorMapper = function(mutationId, pdbId, chain) {
+			var mutationDiagram = self.options.diagram;
+			var color = mutationDiagram.mutationColorMap[mutationId];
+
+			if (color)
+			{
+				// this is for Jmol compatibility
+				// (colors should start with an "x" instead of "#")
+				color = color.replace("#", "x");
+			}
+
+			return color;
+		};
+
+		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
+
+		// update the view with default chain
+		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
 	},
 	/**
 	 * Initializes the PDB chain panel.
@@ -98,6 +126,7 @@ var PdbPanelView = Backbone.View.extend({
 		{
 			var xScale = mutationDiagram.xScale;
 
+			// set margin same as the diagram margin for correct alignment with x-axis
 			var options = {el: "#mutation_pdb_panel_" + gene.toUpperCase(),
 				marginLeft: mutationDiagram.options.marginLeft,
 				marginRight: mutationDiagram.options.marginRight};
@@ -110,7 +139,10 @@ var PdbPanelView = Backbone.View.extend({
 			if (vis != null)
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
-					vis.updateView(gene, datum.pdbId, datum.chain, datum.color);
+					// update view with the selected chain data
+					vis.updateView(gene, datum.pdbId, datum.chain);
+					// also highlight the selected chain on the pdb panel
+					panel.highlight(d3.select(this));
 				});
 			}
 		}

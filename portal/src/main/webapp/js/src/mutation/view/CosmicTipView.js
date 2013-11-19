@@ -25,12 +25,12 @@ var CosmicTipView = Backbone.View.extend({
 			"aaSorting" : [[2, "desc"]], // sort by count at init
 			"sDom": 'pt', // show the table and the pagination buttons
 			"aoColumnDefs": [
-                                { "mRender": function ( data, type, full ) {
-                                        return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
-                                   },
-                                   "aTargets": [0]},
-                                { "sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
-                                { "sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
+				{"mRender": function ( data, type, full ) {
+						// TODO move this link into the template
+                        return '<a href="http://cancer.sanger.ac.uk/cosmic/mutation/overview?id='+data+'">'+data+'</a>';
+                    }, "aTargets": [0]},
+				{"sType": "aa-change-col", "sClass": "left-align-td", "aTargets": [1]},
+				{"sType": "numeric", "sClass": "left-align-td", "aTargets": [2]}],
 			"bDestroy": false,
 			"bPaginate": true,
 			"bJQueryUI": true,

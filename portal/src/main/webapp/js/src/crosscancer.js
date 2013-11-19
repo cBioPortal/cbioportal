@@ -26,7 +26,14 @@
  */
 
 (function($, _, Backbone, d3) {
-    // Prepare eveything only if the page is ready to load
+
+	// TODO 3d Visualizer should be initialized before document get ready
+	// ...due to incompatible Jmol initialization behavior
+	var _mut3dVis = null;
+	//_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	//_mut3dVis.init();
+
+	// Prepare eveything only if the page is ready to load
     $(function(){
         // Some semi-global utilities
         // Here are some options that we will use in this view
@@ -835,7 +842,7 @@
                             var defaultView = new MutationDetailsView({
                                 el: el,
                                 model: model,
-                                mut3dVis: null // nope, not yet
+                                mut3dVis: _mut3dVis
                             });
                             defaultView.render();
                             // end of mutation details

@@ -18,35 +18,22 @@ function MutationPdbPanel(options, data, xScale)
 		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
 		marginLeft: 40,     // left margin
 		marginRight: 30,    // right margin
-		marginTop: 0,       // top margin
+		marginTop: 2,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
-		chainPadding: 2,    // padding between chain rectangles
+		chainPadding: 3,    // padding between chain rectangles
 		labelY: false,      // informative label of the y-axis (false means "do not draw")
 		labelYFont: "sans-serif",   // font type of the y-axis label
 		labelYFontColor: "#2E3436", // font color of the y-axis label
 		labelYFontSize: "12px",     // font size of y-axis label
 		labelYFontWeight: "normal", // font weight of y-axis label
 		labelYPaddingRight: 15, // padding between y-axis and its label
-		labelYPaddingTop: 20, // padding between y-axis and its label
-		// TODO duplicate google colors, taken from OncoprintUtils.js
-		// ...use OncoprintUtils or move colors to a general util class after merging
-		colors: ["#3366cc","#dc3912","#ff9900","#109618",
-			"#990099","#0099c6","#dd4477","#66aa00",
-			"#b82e2e","#316395","#994499","#22aa99",
-			"#aaaa11","#6633cc","#e67300","#8b0707",
-			"#651067","#329262","#5574a6","#3b3eac",
-			"#b77322","#16d620","#b91383","#f4359e",
-			"#9c5935","#a9c413","#2a778d","#668d1c",
-			"#bea413","#0c5922","#743411"],
-		// opacity wrt segment type
-		opacity: {
-			"regular": 1.0,
-			"*": 0.4, // Gap
-			" ": 0.6, // Mismatch
-			"+": 0.8, // Similar
-			"-": 0.6
-		},
+		labelYPaddingTop: 20,   // padding between y-axis and its label
+		chainBorderColor: "#666666", // border color of the chain rectangles
+		chainBorderWidth: 0.5,       // border width of the chain rectangles
+		highlightBorderColor: "#FF9900", // color of the highlight rect border
+		highlightBorderWidth: 2.0,       // width of the highlight rect border
+		colors: ["#3366cc"],  // rectangle colors
 		/**
 		 * Default chain tooltip function.
 		 *
@@ -83,6 +70,9 @@ function MutationPdbPanel(options, data, xScale)
 
 	// row data (allocation of chains wrt rows)
 	var _rowData = null;
+
+	// default chain group svg element
+	var _defaultChainGroup = null;
 
 	// expansion level indicator (initially 0)
 	var _expansion = 0;
@@ -123,8 +113,8 @@ function MutationPdbPanel(options, data, xScale)
 				if (chain.alignments.length > 0)
 				{
 					// assign a different color to each chain
-					var color = options.colors[count % options.colors.length];
-					datum.color = color;
+					var color = options.colors[idx % options.colors.length];
+					//datum.color = color;
 
 					var y = options.marginTop +
 					        (rowStart + rowIdx) * (options.chainHeight + options.chainPadding);
@@ -132,14 +122,18 @@ function MutationPdbPanel(options, data, xScale)
 					var gChain = drawChainRectangles(svg, chain, color, options, xScale, y);
 					gChain.datum(datum);
 
+					// set the first drawn chain as the default chain
+					if (_defaultChainGroup == null)
+					{
+						_defaultChainGroup = gChain;
+					}
+
 					// add tooltip
 					var addTooltip = options.chainTipFn;
 					addTooltip(gChain);
 
 					// increment chain counter
 					count++;
-
-					// TODO also add tooltip for specific rectangles in the group?
 				}
 			});
 		});
@@ -163,29 +157,42 @@ function MutationPdbPanel(options, data, xScale)
 	{
 		var gChain = svg.append("g").attr("class", "pdb-chain-group");
 		var height = options.chainHeight;
+
+		// init the segmentor for the merged alignment object
 		var segmentor = new MergedAlignmentSegmentor(chain.mergedAlignment);
 
+		// iterate all segments for this merged alignment
 		while (segmentor.hasNextSegment())
 		{
 			var segment = segmentor.getNextSegment();
 
-			// do not draw gaps at all
-			if (segment.type == PdbDataUtil.ALIGNMENT_GAP)
-			{
-				continue;
-			}
-
 			var width = Math.abs(xScale(segment.start) - xScale(segment.end));
-
 			var x = xScale(segment.start);
 
-			var rect = gChain.append('rect')
-				.attr('fill', color)
-				.attr('opacity', chain.mergedAlignment.score)
-				.attr('x', x)
-				.attr('y', y)
-				.attr('width', width)
-				.attr('height', height);
+			// draw a line (instead of a rectangle) for an alignment gap
+			if (segment.type == PdbDataUtil.ALIGNMENT_GAP)
+			{
+				var line = gChain.append('line')
+					.attr('stroke', options.chainBorderColor)
+					.attr('stroke-width', options.chainBorderWidth)
+					.attr('x1', x)
+					.attr('y1', y + height/2)
+					.attr('x2', x + width)
+					.attr('y2', y + height/2);
+			}
+			// draw a rectangle for any other segment type
+			else
+			{
+				var rect = gChain.append('rect')
+					.attr('fill', color)
+					.attr('opacity', chain.mergedAlignment.score)
+					.attr('stroke', options.chainBorderColor)
+					.attr('stroke-width', options.chainBorderWidth)
+					.attr('x', x)
+					.attr('y', y)
+					.attr('width', width)
+					.attr('height', height);
+			}
 		}
 
 		return gChain;
@@ -273,7 +280,7 @@ function MutationPdbPanel(options, data, xScale)
 					}
 				}
 
-				// if no there is no available space in any row,
+				// if there is no available space in any row,
 				// then insert the chain to the next row
 				if (!inserted)
 				{
@@ -284,27 +291,25 @@ function MutationPdbPanel(options, data, xScale)
 			}
 		});
 
+		// sort alignments in each row by start position (lowest comes first)
+//		_.each(rows, function(allocation, idx) {
+//			allocation.sort(function(a, b){
+//				return (a.chain.mergedAlignment.uniprotFrom -
+//				        b.chain.mergedAlignment.uniprotFrom);
+//			});
+//		});
+
 		return rows;
 	}
 
 	/**
-	 * Returns the chain datum (<pdb id, PdbChainModel> pair)
-	 * for the default chain.
+	 * Returns the group svg element for the default chain.
 	 *
 	 * @return chain datum for the default chain.
 	 */
-	function getDefaultChainDatum()
+	function getDefaultChainGroup()
 	{
-		var datum = null;
-
-		if (_rowData)
-		{
-			// TODO return the left most chain instead?
-			// ...i.e: min uniprotFrom in _rowData[0]
-			datum = _rowData[0][0];
-		}
-
-		return datum;
+		return _defaultChainGroup;
 	}
 
 	/**
@@ -399,7 +404,8 @@ function MutationPdbPanel(options, data, xScale)
 		else
 		{
 			height = _options.marginTop + _options.marginBottom +
-				rowCount * (_options.chainHeight + _options.chainPadding);
+				rowCount * (_options.chainHeight + _options.chainPadding) -
+				(_options.chainPadding / 2); // no need for the full padding for the last row
 		}
 
 		return height;
@@ -420,7 +426,8 @@ function MutationPdbPanel(options, data, xScale)
 		if (maxChain < rowCount)
 		{
 			height = _options.marginTop +
-			         maxChain * (_options.chainHeight + _options.chainPadding);
+				maxChain * (_options.chainHeight + _options.chainPadding) -
+				(_options.chainPadding / 2); // no need for full padding for the last row
 		}
 		// total number of chains is less than max, set to full height
 		else
@@ -618,13 +625,76 @@ function MutationPdbPanel(options, data, xScale)
 		return (_rowData.length > _options.numRows[0]);
 	}
 
+	/**
+	 * Highlights a group of chain rectangles by drawing an outline
+	 * border around the bounding box of all group elements.
+	 *
+	 * @param chainGroup    a group of rectangles representing the pdb chain
+	 */
+	function highlight(chainGroup)
+	{
+		// calculate the bounding box
+		var bbox = boundingBox(chainGroup);
+
+		// remove the previous selection rectangle(s)
+		_svg.selectAll(".pdb-selection-rectangle").remove();
+
+		// add the selection rectangle
+		var rect = _svg.append('rect')
+			.attr('class', "pdb-selection-rectangle")
+			.attr('fill', "none")
+			.attr('stroke', _options.highlightBorderColor)
+			.attr('stroke-width', _options.highlightBorderWidth)
+			.attr('x', bbox.x)
+			.attr('y', bbox.y)
+			.attr('width', bbox.width)
+			.attr('height', bbox.height);
+
+		// ...alternatively we can just use a yellowish color
+		// to highlight the whole background
+	}
+
+	function boundingBox(rectGroup)
+	{
+		var left = Infinity;
+		var right = -1;
+		var y = -1;
+		var height = -1;
+
+		rectGroup.selectAll("rect").each(function(datum, idx) {
+			var rect = d3.select(this);
+			// assuming height and y are the same for all rects
+			y = parseFloat(rect.attr("y"));
+			height = parseFloat(rect.attr("height"));
+
+			var x = parseFloat(rect.attr("x"));
+			var width = parseFloat(rect.attr("width"));
+
+			if (x < left)
+			{
+				left = x;
+			}
+
+			if (x + width > right)
+			{
+				right = x + width;
+			}
+		});
+
+		return {x: left,
+			y: y,
+			width: right - left,
+			height: height};
+	}
+
 	return {init: init,
 		addListener: addListener,
 		removeListener: removeListener,
-		getDefaultChainDatum: getDefaultChainDatum,
+		getDefaultChainGroup: getDefaultChainGroup,
 		show: showPanel,
 		hide: hidePanel,
 		toggleHeight: toggleHeight,
-		hasMoreChains: hasMoreChains};
+		hasMoreChains: hasMoreChains,
+		highlight: highlight};
 }
 

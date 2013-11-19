@@ -112,8 +112,6 @@ var PdbDataUtil = (function()
 			// no overlap, but there is a gap
 			else if (distance > 0)
 			{
-				// TODO put special chars for gaps, or create segments?
-
 				var gap = [];
 
 				// add gap characters (character count = distance)

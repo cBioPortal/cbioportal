@@ -181,6 +181,10 @@ var MutationDetailsView = Backbone.View.extend({
 				if (self.geneTabView[gene].mut3dView)
 				{
 					self.geneTabView[gene].mut3dView.resetView();
+					// TODO also focus on selection?
+					// ...to focus we need the selected pileup datum
+					// (need to get it from the diagram)
+					// self.geneTabView[gene].mut3dView.focusView(datum);
 				}
 			}
 		});
@@ -201,12 +205,13 @@ var MutationDetailsView = Backbone.View.extend({
 		var mutationUtil = self.model.mutationProxy.getMutationUtil();
 
 		/**
-		 * Updates the mutation diagram after each change in the mutation table.
-		 * This maintains synchronizing between the table and the diagram.
+		 * Updates the other components of the mutation view after each change
+		 * in the mutation table. This maintains synchronizing between the table
+		 * and other view components (diagram and 3d visualizer).
 		 *
 		 * @param tableSelector selector for the mutation table
 		 */
-		var updateMutationDiagram = function(tableSelector)
+		var syncWithMutationTable = function(tableSelector)
 		{
 			var mutationMap = mutationUtil.getMutationIdMap();
 			var currentMutations = [];
@@ -243,6 +248,14 @@ var MutationDetailsView = Backbone.View.extend({
 					// hide info text
 					mainMutationView.hideFilterInfo();
 				}
+			}
+
+			var view3d = self.mut3dVisView;
+
+			// refresh 3d view with filtered positions
+			if (view3d)
+			{
+				view3d.refreshView();
 			}
 		};
 
@@ -290,6 +303,12 @@ var MutationDetailsView = Backbone.View.extend({
 					if (!diagram.isFiltered())
 					{
 						mainMutationView.hideFilterInfo();
+					}
+
+					// reset focus of the 3D view
+					if (view3d)
+					{
+						view3d.focusView(false);
 					}
 				}
 				else
@@ -345,6 +364,12 @@ var MutationDetailsView = Backbone.View.extend({
 				if (!diagram.isFiltered())
 				{
 					mainMutationView.hideFilterInfo();
+				}
+
+				// reset focus of the 3D view
+				if (view3d)
+				{
+					view3d.focusView(false);
 				}
 			});
 		};
@@ -429,7 +454,7 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: "#mutation_table_" + gene,
 					model: {geneSymbol: gene,
 						mutations: mutationData,
-						syncFn: updateMutationDiagram}});
+						syncFn: syncWithMutationTable}});
 
 			mutationTableView.render();
 
@@ -440,7 +465,7 @@ var MutationDetailsView = Backbone.View.extend({
 			addPlotListeners(diagram, mutationTableView, self.mut3dVisView);
 
 			// init reset info text content for the diagram
-			mainView.initResetFilterInfo(diagram, mutationTableView);
+			mainView.initResetFilterInfo(diagram, mutationTableView, self.mut3dVisView);
 		};
 
 		// get mutation data for the current gene

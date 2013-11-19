@@ -25,6 +25,12 @@
 <script type="text/javascript" src="js/lib/d3.min.js"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
+<!--script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js"></script-->
+<script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
+<script type="text/javascript" src="js/lib/jmol/JmolApi.js"></script>
+
 <script type="text/javascript">
     // This is for the moustache-like templates
     // prevents collisions with JSP tags
@@ -47,6 +53,8 @@
 
 <script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_3d_viewer.js"></script>
+<script type="text/javascript" src="js/src/mutation/component/mutation_pdb_panel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/MutationModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbAlignmentModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/PdbChainModel.js"></script>

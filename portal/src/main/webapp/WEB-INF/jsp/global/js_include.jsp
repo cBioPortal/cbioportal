@@ -61,6 +61,7 @@
 <script type="text/javascript" src="js/src/mutation/model/PdbModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/Pileup.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MutationDetailsUtil.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/MutationViewsUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>

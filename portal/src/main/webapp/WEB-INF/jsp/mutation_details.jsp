@@ -35,39 +35,14 @@ $(document).ready(function(){
 	var model = {mutationProxy: proxy,
 		sampleArray: sampleArray};
 
-	var defaultView = null;
+	var options = {el: "#mutation_details",
+		model: model,
+		mut3dVis: _mut3dVis};
 
-	var initDefaultView = function() {
-		defaultView = new MutationDetailsView(
-				{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
-
-		defaultView.render();
-	};
-
-	// init view without a delay if the mutation details tab is already visible
-	if ($("#mutation_details").is(":visible"))
-	{
-		initDefaultView();
-	}
-
-	// add a click listener for the "mutations" tab
-	$("#tabs").bind("tabsactivate", function(event, ui){
-		// init when clicked on the mutations tab, and init only once
-		if (ui.newTab.text().trim().toLowerCase() == "mutations")
-		{
-			// init only if it is not initialized yet
-			if (defaultView == null)
-			{
-				initDefaultView();
-			}
-			// if already init, then refresh genes tab
-			// (a fix for ui.tabs.plugin resize problem)
-			else
-			{
-				defaultView.refreshGenesTab();
-			}
-		}
-	});
+	var defaultView = MutationViewsUtil.initMutationDetailsView("#mutation_details",
+		options,
+		"#tabs",
+		"Mutations");
 });
 
 </script>

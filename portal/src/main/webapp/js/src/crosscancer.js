@@ -839,12 +839,11 @@
                             var el = "#mutation_details";
                             $(el).html("");
 
-                            var defaultView = new MutationDetailsView({
-                                el: el,
-                                model: model,
-                                mut3dVis: _mut3dVis
-                            });
-                            defaultView.render();
+                            var defaultView = MutationViewsUtil.initMutationDetailsView(
+	                            el, // target div
+	                            {el: el, model: model, mut3dVis: _mut3dVis}, // view options
+	                            "#tabs", // main tabs (containing the mutations tab)
+	                            "Mutations"); // name of the mutations tab
                             // end of mutation details
 
                         });

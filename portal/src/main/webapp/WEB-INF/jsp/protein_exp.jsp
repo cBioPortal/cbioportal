@@ -170,7 +170,7 @@
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
-        if ($.browser.msie) //TODO: this is a temporary fix for bug #74
+        if (cbio.util.browser.msie) //TODO: this is a temporary fix for bug #74
             params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
                         
         $.post("ProteinArraySignificanceTest.json", 

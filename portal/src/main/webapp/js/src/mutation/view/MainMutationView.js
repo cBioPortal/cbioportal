@@ -86,11 +86,6 @@ var MainMutationView = Backbone.View.extend({
 		{
 			// we also need the same changes (top label) in pdf
 			alterDiagramForSvg(diagram, rollback);
-
-			cbio.util.alterAxesAttrForPDFConverter(
-					diagram.svg.select(".mut-dia-x-axis"), 8,
-					diagram.svg.select(".mut-dia-y-axis"), 3,
-					rollback);
 		};
 
 		//add listener to the svg button

@@ -1,5 +1,5 @@
 /**
- * Utility class for formatting a table of mutations.
+ * Class for formatting a table of mutations.
  * This class is specifically designed to convert a regular
  * html table into a DataTable.
  *
@@ -10,7 +10,7 @@
  * @param mutations     mutations as an array of raw JSON objects
  * @constructor
  */
-var MutationTableUtil = function(tableSelector, gene, mutations)
+var MutationTable = function(tableSelector, gene, mutations)
 {
 	var mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));

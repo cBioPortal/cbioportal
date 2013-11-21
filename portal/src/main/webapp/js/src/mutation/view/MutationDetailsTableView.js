@@ -73,7 +73,7 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		var tableSelector = self.$el.find('.mutation_details_table');
 
-		var tableUtil = new MutationTableUtil(tableSelector,
+		var tableUtil = new MutationTable(tableSelector,
 			self.model.geneSymbol,
 			self.model.mutations);
 

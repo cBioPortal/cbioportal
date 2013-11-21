@@ -87,9 +87,16 @@ var MutationDetailsView = Backbone.View.extend({
 	 */
 	refreshGenesTab: function()
 	{
-		var self = this;
-		var mainContent = self.$el.find("#mutation_details_content");
-		mainContent.tabs("refresh");
+		// tabs("refresh") is problematic...
+//		var self = this;
+//		var mainContent = self.$el.find("#mutation_details_content");
+//		mainContent.tabs("refresh");
+
+        // just trigger the window resize event,
+        // rest is handled by the resize handler in ui.tabs.paging plugin.
+		// it would be better to directly call the resize handler of the plugin,
+		// but the function doesn't have public access...
+		$(window).trigger('resize');
 	},
 	/**
 	 * Generates the content structure by creating div elements for each

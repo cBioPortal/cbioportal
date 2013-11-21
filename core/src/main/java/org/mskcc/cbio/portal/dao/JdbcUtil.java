@@ -96,6 +96,13 @@ public class JdbcUtil {
 
         DataSource ds = initDataSourceTomcat();
 
+        try {
+            Connection con = ds.getConnection();
+        }
+        catch (Exception e) {
+            ds = null;
+        }
+
         if (ds == null) {
             ds = initDataSourceDirect();
         }

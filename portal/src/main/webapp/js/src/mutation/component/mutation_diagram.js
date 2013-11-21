@@ -36,6 +36,8 @@ function MutationDiagram(geneSymbol, options, data)
 	self.xAxisLabel = null; // label for x-axis
 	self.yAxisLabel = null; // label for y-axis
 
+	// color mapping for mutations: <mutation id, (pileup) color> pairs
+	self.mutationColorMap = {};
 }
 
 // TODO use percent values instead of pixel values for some components?
@@ -231,6 +233,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 	// if no sequence data is provided, try to get it from the servlet
 	if (!sequenceData)
 	{
+		// TODO implement PfamDataProxy class
 		$.getJSON("getPfamSequence.json",
 			{geneSymbol: self.geneSymbol},
 			function(data) {
@@ -893,10 +896,13 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		y = yScale(options.maxLengthY);
 	}
 
+	var lollipopFillColor = self.getLollipopFillColor(options, pileup);
+	self.updateColorMap(pileup, lollipopFillColor);
+
 	var dataPoint = points.append('path')
 		.attr('d', d3.svg.symbol().size(options.lollipopSize).type(type))
 		.attr("transform", "translate(" + x + "," + y + ")")
-		.attr('fill', self.getLollipopFillColor(options, pileup))
+		.attr('fill', lollipopFillColor)
 		.attr('stroke', options.lollipopBorderColor)
 		.attr('stroke-width', options.lollipopBorderWidth)
 		.attr('class', 'mut-dia-data-point');
@@ -917,6 +923,30 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 		.attr('class', 'mut-dia-data-line');
 
 	return {"dataPoint": dataPoint, "line": line};
+};
+
+/**
+ * Updates the mutation color map by adding a new entry for each mutation
+ * in the given pile up.
+ *
+ * Mapped color of a mutation is NOT determined by its type, instead it is
+ * determined by the color of the pileup. This is why we create a mapping
+ * based on the pileup, otherwise a simple mapping (based on mutation type)
+ * could be used.
+ *
+ * @param pileup    pileup of mutations
+ * @param color     color of the given pileup
+ */
+MutationDiagram.prototype.updateColorMap = function(pileup, color)
+{
+	var self = this;
+
+	// iterate all mutations in this pileup
+	for (var i=0; i < pileup.mutations.length; i++)
+	{
+		// assign the same color to all mutations in this pileup
+		self.mutationColorMap[pileup.mutations[i].mutationId] = color;
+	}
 };
 
 /**
@@ -1326,6 +1356,9 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	labels.remove();
 	lines.remove();
 	dataPoints.remove();
+
+	// reset color mapping (for the new data we may have different pileup colors)
+	self.mutationColorMap = {};
 
 	// alternative animated version:
 	// fade out and then remove all

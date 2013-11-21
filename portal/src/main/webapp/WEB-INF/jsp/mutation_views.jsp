@@ -96,14 +96,23 @@
 	</button>
 </script>
 
+<script type="text/template" id="mutation_3d_vis_info_template">
+	<div class='mutation-3d-info-title'>
+		3D Protein Structure
+	</div>
+	<div>
+		Structure for the PDB id <span class='mutation-3d-pdb-id'>{{pdbId}}</span>
+		<span class='mutation-3d-pdb-info'>({{pdbInfo}})</span>
+		and the chain <span class='mutation-3d-chain-id'>{{chainId}}</span>
+	</div>
+</script>
+
 <script type="text/template" id="mutation_3d_vis_template">
 	<div class='mutation-3d-vis-header'>
-		<a class='mutation-3d-close'>X</a>
-		<label class='mutation-3d-info'>
-			3D structure for the PDB id <span class='mutation-3d-pdb-id'></span>
-			and the chain <span class='mutation-3d-chain-id'></span><br>
-			Residues with red color indicate mutation.
-		</label>
+		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
+		<span class='mutation-3d-maximize ui-icon ui-icon-circle-plus' title='maximize'></span>
+		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
+		<div class='mutation-3d-info'></div>
 	</div>
 	<div id='mutation_3d_visualizer'></div>
 	<div class='mutation-3d-vis-toolbar'>
@@ -358,6 +367,7 @@
 <script type="text/javascript" src="js/src/mutation/view/MainMutationView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>

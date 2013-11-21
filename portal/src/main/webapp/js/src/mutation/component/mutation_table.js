@@ -3,6 +3,8 @@
  * This class is specifically designed to convert a regular
  * html table into a DataTable.
  *
+ * TODO allow customization of some table options...
+ *
  * @param tableSelector jQuery selector for the target table
  * @param gene          hugo gene symbol
  * @param mutations     mutations as an array of raw JSON objects

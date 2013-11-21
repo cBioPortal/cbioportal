@@ -321,11 +321,19 @@ class ImporterImpl implements Importer {
 				String stagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename());
 
 				// datatype might not exists for cancer study
+                boolean createdZScoreFile = false;
 				if (!(new File(stagingFilename)).exists()) {
-					if (LOG.isInfoEnabled()) {
-						LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
-					}
-					continue;
+                    if (isZScoreFile(stagingFilename, datatypeMetadata) &&
+                        canCreateZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata)) {
+                        createZScoreFile(rootDirectory, cancerStudyMetadata, datatypeMetadata);
+                        createdZScoreFile = true;
+                    }
+                    else {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("loadStagingFile(), cannot find staging file: " + stagingFilename + ", skipping...");
+                        }
+                        continue;
+                    }
 				}
 				// if MAF, oncotate
 				if (stagingFilename.endsWith(DatatypeMetadata.MUTATIONS_STAGING_FILENAME)) {
@@ -349,6 +357,10 @@ class ImporterImpl implements Importer {
 				if (!stagingFilename.equals(getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename()))) {
 					fileUtils.deleteFile(new File(stagingFilename));
 				}
+                if (createdZScoreFile) {
+					fileUtils.deleteFile(new File(stagingFilename));
+                    fileUtils.deleteFile(new File(stagingFilename.replace("data_", "meta_")));
+                }
 			}
 
 			// create missing case lists
@@ -450,5 +462,37 @@ class ImporterImpl implements Importer {
         }
         return false;
     }
-               
+
+    private boolean isZScoreFile(String stagingFilename, DatatypeMetadata datatypeMetadata)
+    {
+        return (stagingFilename.endsWith(datatypeMetadata.ZSCORE_STAGING_FILENAME_SUFFIX));
+    }
+    
+    private boolean canCreateZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+    {
+        boolean canCreateZScoreFile = true;
+        for (String dependency : datatypeMetadata.getDependencies()) {
+            if (dependency.isEmpty()) {
+                canCreateZScoreFile = false;
+                break;
+            }
+            DatatypeMetadata dependencyDatatypeMetadata = config.getDatatypeMetadata(dependency).iterator().next();
+            String dependencyStagingFilename = getImportFilename(rootDirectory, cancerStudyMetadata, dependencyDatatypeMetadata.getStagingFilename());
+            if (!(new File(dependencyStagingFilename)).exists()) {
+                canCreateZScoreFile = false;
+                break;
+            }   
+        }
+        return canCreateZScoreFile;
+    }
+
+    private void createZScoreFile(String rootDirectory, CancerStudyMetadata cancerStudyMetadata, DatatypeMetadata datatypeMetadata) throws Exception
+    {
+        ArrayList<DatatypeMetadata> dependencies = new ArrayList<DatatypeMetadata>();
+        for (String dependency : datatypeMetadata.getDependencies()) {
+            dependencies.add(config.getDatatypeMetadata(dependency).iterator().next());
+        }
+        fileUtils.writeZScoresStagingFile(rootDirectory, cancerStudyMetadata, datatypeMetadata,
+                                          dependencies.toArray(new DatatypeMetadata[dependencies.size()]));
+    }
 }

@@ -108,7 +108,7 @@ cbio.util = (function() {
 
         return str1.substring(0, i);
     };
-
+    
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,

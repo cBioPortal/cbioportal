@@ -39,6 +39,7 @@ public class DatabaseProperties {
     private String dbPassword;
     private String dbName;
     private String dbEncryptedKey;
+    private String dbDriverClassName;
 
     // No production keys stored in filesystem or code: digest the key; put it in properties; load it into dbms on startup
     private static DatabaseProperties dbProperties;
@@ -52,6 +53,7 @@ public class DatabaseProperties {
             dbProperties.setDbUser(GlobalProperties.getProperty("db.user"));
             dbProperties.setDbPassword(GlobalProperties.getProperty("db.password"));
             dbProperties.setDbEncryptedKey(GlobalProperties.getProperty("db.encryptedKey"));
+            dbProperties.setDbDriverClassName(GlobalProperties.getProperty("db.driver"));
         }
         return dbProperties;
     }
@@ -97,5 +99,13 @@ public class DatabaseProperties {
 
     public void setDbName(String dbName) {
         this.dbName = dbName;
+    }
+
+    public String getDbDriverClassName() {
+        return dbDriverClassName;
+    }
+
+    public void setDbDriverClassName(String dbDriverClassName) {
+        this.dbDriverClassName = dbDriverClassName;
     }
 }

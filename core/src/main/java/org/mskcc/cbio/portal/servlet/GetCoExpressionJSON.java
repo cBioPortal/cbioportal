@@ -111,12 +111,15 @@ public class GetCoExpressionJSON extends HttpServlet  {
                 Map<Long,double[]> map = getExpressionMap(final_gp.getGeneticProfileId());
                 int mapSize = map.size();
 
+                //Set the threshold
+                double coExpScoreThreshold = 0.3;
+
                 //Get the gene list (all genes)
                 List<Long> genes = new ArrayList<Long>(map.keySet());
 
                 //Init spearman and pearson
                 PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
-                SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
+                //SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
 
                 //Init result container
                 JSONObject result = new JSONObject();
@@ -128,24 +131,30 @@ public class GetCoExpressionJSON extends HttpServlet  {
                         long compared_gene_id = genes.get(i);
                         double[] compared_gene_exp = map.get(compared_gene_id);
 
-                        double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                        double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                        if (compared_gene_exp != null && query_gene_exp != null) {
+                            double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                            // double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
 
-                        JSONObject _scores = new JSONObject();
-                        _scores.put("pearson", pearson);
-                        _scores.put("spearman", spearman);
-                        _obj.put(compared_gene_id, _scores);
+                            if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
+                                //(spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) &&
+                               (compared_gene_id != i_queryGene)){
+                                JSONObject _scores = new JSONObject();
+                                _scores.put("pearson", pearson);
+                                //_scores.put("spearman", spearman);
+                                _obj.put(compared_gene_id, _scores);
+                            }
+                        }
                     }
                     result.put(i_queryGene, _obj);
-                    httpServletResponse.setContentType("application/json");
-                    PrintWriter out = httpServletResponse.getWriter();
-                    JSONValue.writeJSONString(result, out);
                 }
+                httpServletResponse.setContentType("application/json");
+                PrintWriter out = httpServletResponse.getWriter();
+                JSONValue.writeJSONString(result, out);
             } catch (DaoException e) {
                 System.out.println(e.getMessage());
             }
         } else {
-            httpServletResponse.setContentType("application/text");
+            httpServletResponse.setContentType("text/html");
             PrintWriter out = httpServletResponse.getWriter();
             out.print("Error:  No genetic profiles available for: " + cancerStudyIdentifier);
             out.flush();

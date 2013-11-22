@@ -102,8 +102,7 @@ public class PatientView extends HttpServlet {
         XDebug xdebug = new XDebug( request );
         request.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
         
-        //String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
-	    String cancerStudyId = servletXssUtil.getCleanerInput(request, QueryBuilder.CANCER_STUDY_ID);
+        String cancerStudyId = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         request.setAttribute(QueryBuilder.CANCER_STUDY_ID, cancerStudyId);
         
         try {
@@ -114,8 +113,7 @@ public class PatientView extends HttpServlet {
             }
             
             if (request.getAttribute(ERROR)!=null) {
-                //String msg = (String)request.getAttribute(ERROR);
-	            String msg = servletXssUtil.getCleanerInput((String)request.getAttribute(ERROR));
+                String msg = (String)request.getAttribute(ERROR);
                 xdebug.logMsg(this, msg);
                 forwardToErrorPage(request, response, msg, xdebug);
             } else {

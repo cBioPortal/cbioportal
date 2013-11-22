@@ -110,8 +110,8 @@ public class CrossCancerStudyServlet extends HttpServlet {
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-            String action = servletXssUtil.getCleanerInput(httpServletRequest,
-                    QueryBuilder.ACTION_NAME);
+            String action = httpServletRequest.getParameter(QueryBuilder.ACTION_NAME);
+
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
                 GeneValidator geneValidator = new GeneValidator(geneList);
                 dispatchToResultsJSP(httpServletRequest, httpServletResponse);

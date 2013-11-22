@@ -15,8 +15,8 @@
     } catch (Exception e) {
         dataPriority = 0;
     }
-	String geneList = servletXssUtil.getCleanerInput(
-			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", ""));
+	String geneList =
+			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", "");
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();

@@ -205,17 +205,17 @@
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     $(".drug-targets").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     $(".annotated-target").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     populateClinicalTrialsTable(keywords, 'both');
@@ -228,7 +228,7 @@
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                 }
@@ -323,7 +323,7 @@
                     $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                 }

@@ -245,7 +245,7 @@ function addToolTip(node,tip,showDelay,position) {
         content: {text:tip},
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event:"mouseout"},
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+        style: { classes: 'qtip-light qtip-rounded' }
     };
     if (showDelay)
         param['show'] = { delay: showDelay };

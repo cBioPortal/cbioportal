@@ -289,7 +289,7 @@ if (patientViewError!=null) {
                 display: block;
                 float: right;
         }
-        .ui-tooltip-wide {
+        .qtip-wide {
             max-width: 600px;
         }
         .datatable-name {
@@ -378,7 +378,9 @@ function fixCytoscapeWebRedraw() {
 function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();
-    $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+    $('#patient-tabs').tabs("option",
+		"active",
+		$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
     if (toTab==='images') {
         loadImages();
     }
@@ -406,7 +408,7 @@ function addNoteTooltip(elem, content, position) {
         content: (typeof content === 'undefined' ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+        style: { classes: 'qtip-light qtip-rounded' },
         position: (typeof position === 'undefined' ? {my:'top left',at:'bottom center'} : position)
     });
 }
@@ -455,7 +457,7 @@ function addMoreClinicalTooltip(elemId, caseId) {
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: {my:'top right',at:'bottom right'}
         });
     }
@@ -520,7 +522,7 @@ function addDrugsTooltip(elem, my, at) {
             },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: { my: my, at: at }
         });
     });
@@ -611,7 +613,7 @@ function plotMrna(div,alts) {
                         +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            style: { classes: 'qtip-light qtip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });
     });
@@ -685,7 +687,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            style: { classes: 'qtip-light qtip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });
     });

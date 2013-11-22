@@ -199,7 +199,9 @@ function initTabs() {
 function switchToTab(toTab) {
     $('.study-section').hide();
     $('.study-section#'+toTab).show();
-    $('#study-tabs').tabs('select',$('#study-tabs ul a[href="#'+toTab+'"]').parent().index());
+    $('#study-tabs').tabs("option",
+		"active",
+		$('#study-tabs ul a[href="#'+toTab+'"]').parent().index());
 }
 
 function getRefererCaseId() {

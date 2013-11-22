@@ -104,12 +104,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	public void setLiftOverChain(String property) { this.liftoverChain = property; }
 	public String getLiftOverChain() { return MetadataUtils.getCanonicalPath(liftoverChain); }
 
-	/**
-	 * Constructor.
-     *
-     * @param config Config
-	 * @param caseIDs CaseIDs;
-	 */
 	public FileUtilsImpl(Config config, CaseIDs caseIDs) {
 
 		// set members
@@ -117,14 +111,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		this.caseIDs = caseIDs;
 	}
 
-	/**
-	 * Computes the MD5 digest for the given file.
-	 * Returns the 32 digit hexadecimal.
-	 *
-	 * @param filename String
-	 * @return String
-	 * @throws Exception
-	 */
 	@Override
 	public String getMD5Digest(File file) throws Exception {
 
@@ -145,14 +131,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         return toReturn;
 	}
 
-	/**
-	 * Reads the precomputed md5 digest out of a .md5 file (firehose).
-     * Assume the file only contains one line wit checksum.
-	 *
-	 * @param file File
-	 * @return String
-	 * @throws Exception 
-	 */
 	@Override
 	public String getPrecomputedMD5Digest(File file) throws Exception {
 
@@ -178,77 +156,34 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return toReturn;
     }
 
-    /**
-     * Makes a directory, including parent directories if necessary.
-     *
-     * @param directory File
-	 * @throws Exception
-     */
     @Override
     public void makeDirectory(File directory) throws Exception {
         
         org.apache.commons.io.FileUtils.forceMkdir(directory);
     }
 
-	/**
-	 * Checks if directory is empty
-	 */
 	@Override
 	public boolean directoryIsEmpty(File directory) throws Exception {
 		return (listFiles(directory, null, true).isEmpty());
 	}
 
-    /**
-     * Deletes a directory recursively.
-     *
-     * @param directory File
-	 * @throws Exception
-     */
     @Override
     public void deleteDirectory(File directory) throws Exception {
 
         org.apache.commons.io.FileUtils.deleteDirectory(directory);
     }
 
-    /**
-     * Deletes a file.
-     *
-     * @param file File
-	 * @throws Exception
-     */
     @Override
     public void deleteFile(File file) throws Exception {
 		if (file.exists()) org.apache.commons.io.FileUtils.forceDelete(file);
 	}
 
-    /**
-     * Lists all files in a given directory and its subdirectories.
-     *
-     * @param directory File
-     * @param extensions String[]
-     * @param recursize boolean
-     * @return Collection<File>
-	 * @throws Exception
-     */
     @Override
     public Collection<File> listFiles(File directory, String[] extensions, boolean recursive) throws Exception {
 
         return org.apache.commons.io.FileUtils.listFiles(directory, extensions, recursive);
     }
 
-	/**
-	 * Returns the contents of the datafile as specified by ImportDataRecord
-     * in an DataMatrix.  May return null if there is a problem reading the file.
-	 *
-	 * methylationCorrelation matrix is set when we are processing a methlation file.
-	 * These files can be extremely large, so the correlation file is used to skip
-	 * all rows in the methylation file that do not have a corresponding row in the correlate file.
-	 *
-	 * @param importDataRecord ImportDataRecord
-	 * @param methylationCorrelation DataMatrix
-	 * @return DataMatrix
-	 * @throws Exception
-	 */
     @Override
 	public DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception {
 
@@ -281,14 +216,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         return getDataMatrix(fileContents, methylationCorrelation);
     }
 
-	/**
-	 * Returns a list of missing caselists.  Applicable to
-	 * manually curated  studies checked into a 'studies' directory
-	 *
-	 * @param stagingDirectory String
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @return List<String>
-	 */
 	@Override
 	public List<String> getMissingCaseListFilenames(String rootDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
 
@@ -302,16 +229,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return toReturn;
 	}
 
-	/**
-	 * Generates caselists for the given cancer study.  If strict is false, a check of isTumorCaseID is skipped.
-	 * If overwrite is set, any existing caselist file will be clobbered.
-	 *
-	 * @param overwrite boolean
-	 * @param strict boolean
-	 * @param stagingDirectory String
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @throws Exception
-	 */
 	@Override
 	public void generateCaseLists(boolean overwrite, boolean strict, String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception {
 
@@ -412,17 +329,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 	}
 
-	/**
-	 * Get the case list from the staging file.  If strict is false, a check of isTumorCaseID is skipped.
-	 *
-	 * @parma strict boolean
-	 * @param caseIDs CaseIDs;
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param stagingDirectory String
-	 * @param stagingFilename String
-	 * @return List<String>
-	 * @throws Exception
-	 */
 	@Override
 	public List<String> getCaseListFromStagingFile(boolean strict, CaseIDs caseIDs, CancerStudyMetadata cancerStudyMetadata, String stagingDirectory, String stagingFilename) throws Exception {
 
@@ -499,14 +405,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return new ArrayList<String>(caseSet);
 	}
 
-	/**
-	 * Creates a temporary file with the given contents.
-	 *
-	 * @param filename String
-	 * @param fileContent String
-	 * @return File
-	 * @throws Exception
-	 */
 	@Override
 	public File createTmpFileWithContents(String filename, String fileContent) throws Exception {
 
@@ -516,15 +414,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return tmpFile;
 	}
 
-	/**
-	 * Creates (or overwrites) the given file with the given contents. Filename
-	 * is canonical path/filename.
-	 *
-	 * @param filename String
-	 * @param fileContent String
-	 * @return File
-	 * @throws Exception
-	 */
 	@Override
 	public File createFileWithContents(String filename, String fileContent) throws Exception {
 
@@ -535,13 +424,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return file;
 	}
 
-	/**
-	 * Downloads the given file specified via url to the given canonicalDestination.
-	 *
-	 * @param urlSource String
-	 * @param urlDestination String
-	 * @throws Exception
-	 */
 	@Override
 	public void downloadFile(String urlSource, String urlDestination) throws Exception {
 
@@ -593,26 +475,11 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 	}
 
-	/**
-	 * Returns a line iterator over the given file.
-	 *
-	 * @param urlFile String
-	 * @throws Exception
-	 */
 	@Override
 	public LineIterator getFileContents(String urlFile) throws Exception {
 		return org.apache.commons.io.FileUtils.lineIterator(new File(new URL(urlFile).getFile()));
 	}
 
-	/**
-	 * Method which writes the cancer study metadata file.
-	 *
-     * @param stagingDirectory String
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param numCases int
-	 * @throws Exception
-	 *
-	 */
 	@Override
 	public void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception {
 
@@ -633,7 +500,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			String description = cancerStudyMetadata.getDescription();
 			description = description.replaceAll(CancerStudyMetadata.NUM_CASES_TAG, Integer.toString(numCases));
 			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_TAG,
-												 cancerStudyMetadata.getTumorTypeMetadata().getType());
+												 cancerStudyMetadata.getTumorTypeMetadata().getType().toUpperCase());
 			description = description.replaceAll(CancerStudyMetadata.TUMOR_TYPE_NAME_TAG,
 												 cancerStudyMetadata.getTumorTypeMetadata().getName());
 			writer.print("description: " + description + "\n");
@@ -651,15 +518,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.close();
 	}
 
-	/**
-	 * Method which writes a metadata file for
-	 * the given Datatype metadata instance.
-	 *
-	 * @param stagingDirectory  String
-	 * @param datatypeMetadata  DatatypeMetadata
-	 * @param numCases          int
-	 * @throws Exception
-	 */
 	public void writeMetadataFile(String stagingDirectory,
 			CancerStudyMetadata cancerStudyMetadata,
 			DatatypeMetadata datatypeMetadata,
@@ -700,22 +558,11 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		writer.close();
 	}
 
-	/**
-	 * Method which writes a metadata file for the
-	 * given DatatypeMetadata.  DataMatrix may be null.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataMatrix DataMatrix
-	 * @throws Exception
-	 *
-	 */
 	@Override
-	public void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	public void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
-			File metaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+			File metaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	cancerStudyMetadata.getStudyPath(),
 																	datatypeMetadata.getMetaFilename());
 			if (LOG.isInfoEnabled()) {
@@ -741,23 +588,14 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.close();
 	}
 
-	/**
-	 * Creates a staging file with contents from the given DataMatrix.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataMatrix DataMatrix
-	 * @throws Exception
-	 */
 	@Override
-	public void writeStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	public void writeStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 		// staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
 
@@ -774,22 +612,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writingStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
-			writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 	}
 
-	/**
-	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
-	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudy CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dataMatrix DataMatrix
-	 * @throws Exception
-	 */
 	@Override
-	public void writeMutationStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	public void writeMutationStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 										 DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception {
 
 		// we only have data matrix at this point, we need to create a temp with its contents
@@ -803,7 +631,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		// output should be the path/name of staging file
 		String stagingFilename = datatypeMetadata.getStagingFilename();
 		stagingFilename = stagingFilename.replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-		File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   stagingFilename);
 
@@ -821,23 +649,12 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writingMutationStagingFile(), creating metadata file for staging file: " + stagingFile);
 			}
-			writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 	}
 
-	/**
-	 * Creates a z-score staging file from the given dependencies.  It assumes that the
-	 * dependency - staging files have already been created.  This code also assumes
-	 * that the dependencies are ordered by cna, then expression.
-	 *
-     * @param portalMetadata PortalMetadata
-	 * @param cancerStudy CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param dependencies DatatypeMetadata[]
-	 * @throws Exception
-	 */
 	@Override
-	public void writeZScoresStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	public void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 										DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception {
 
 		// sanity check
@@ -849,7 +666,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writeZScoresStagingFile(), checking for existence of dependencies: " + Arrays.asList(dependencies));
 		}
-		File cnaFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File cnaFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 															   cancerStudyMetadata.getStudyPath(),
 															   dependencies[0].getStagingFilename());
 		if (!cnaFile.exists()) {
@@ -859,7 +676,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			return;
 		}
 
-		File expressionFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File expressionFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	  cancerStudyMetadata.getStudyPath(),
 																	  dependencies[1].getStagingFilename());
 		if (!expressionFile.exists()) { 
@@ -870,7 +687,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 
 		// we need a zscore file
-		File zScoresFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+		File zScoresFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																   cancerStudyMetadata.getStudyPath(),
 																   datatypeMetadata.getStagingFilename());
 		
@@ -899,22 +716,10 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("writingZScoresStagingFile(), creating metadata file for staging file: " + zScoresFile.getCanonicalPath());
 			}
-			writeMetadataFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, null);
+			writeMetadataFile(stagingDirectory, cancerStudyMetadata, datatypeMetadata, null);
 		}
 	}
 
-	/**
-	 * Returns an override file (if it exists) for the given portal & cancer study.  The override in this case
-	 * is the override file that a DataMatrix is created from.
-	 *
-	 * Null is returned if an override file is not found.
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param filename String
-	 * @return File
-	 * @throws Exception
-	 */
 	@Override
 	public File getOverrideFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata, String filename) throws Exception {
 
@@ -924,26 +729,16 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		return (overrideFile.exists()) ? overrideFile : null;
 	}
 
-	/**
-	 * If it exists, moves an override file into the proper
-	 * location in the given portals staging area
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param overrideFilename String
-	 * @param stagingFilename String
-	 * @throws Exception
-	 */
 	@Override
-	public void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	public void applyOverride(String overrideDirectory, String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 							  String overrideFilename, String stagingFilename) throws Exception {
 
 		// check for override file
-		File overrideFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getOverrideDirectory(),
+		File overrideFile = org.apache.commons.io.FileUtils.getFile(overrideDirectory,
 																	cancerStudyMetadata.getStudyPath(),
 																	overrideFilename);
 		if (overrideFile.exists()) {
-			File stagingFile = org.apache.commons.io.FileUtils.getFile(portalMetadata.getStagingDirectory(),
+			File stagingFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
 																	   cancerStudyMetadata.getStudyPath(),
 																	   stagingFilename);
 
@@ -962,15 +757,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 	}
 
-	/**
-	 * Create a case list file from the given case list metadata file.
-	 *
-     * @param stagingDirectory String
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param caseListMetadata CaseListMetadata
-	 * @param caseList String[]
-	 * @throws Exception
-	 */
 	@Override
 	public void writeCaseListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, CaseListMetadata caseListMetadata, String[] caseList) throws Exception {
 
@@ -1027,13 +813,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 		}
 	}
 
-	/**
-	 * Runs a MAF file through the Oncotator and OMA tools.
-	 *
-	 * @param inputMAFURL String
-	 * @param outputMAFURL String
-	 * @throws Exception 
-	 */
 	@Override
 	public void oncotateMAF(String inputMAFURL, String outputMAFURL) throws Exception {
 

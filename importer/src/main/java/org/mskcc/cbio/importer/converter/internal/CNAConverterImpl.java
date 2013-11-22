@@ -186,7 +186,7 @@ public class CNAConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+		fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

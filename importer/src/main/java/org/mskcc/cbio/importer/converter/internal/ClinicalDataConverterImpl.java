@@ -536,7 +536,7 @@ public class ClinicalDataConverterImpl implements Converter {
         outMatrix = processMatrix(outMatrix);
 
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
-        fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
+        fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, outMatrix);
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), complete."); }
 
         // insert the new clinical attributes into google doc

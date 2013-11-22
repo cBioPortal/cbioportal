@@ -833,7 +833,13 @@
                                 sampleArray: [],
                                 diagramOpts: {
                                     showStats: true
-                                }
+                                },
+	                            tableOpts: {
+		                            columnVisibility: {
+			                            // TODO "excludeIfHidden" instead?
+			                            "cancer study": "visible"
+		                            }
+	                            }
                             };
 
                             var el = "#mutation_details";

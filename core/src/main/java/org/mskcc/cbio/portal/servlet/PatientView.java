@@ -174,7 +174,6 @@ public class PatientView extends HttpServlet {
         
         CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
         if (cancerStudy==null) {
-	        cancerStudyId = StringEscapeUtils.escapeJavaScript(cancerStudyId);
             request.setAttribute(ERROR, "We have no information about cancer study "+cancerStudyId);
             return false;
         }

@@ -35,7 +35,6 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 /**
  * 
  * Given expression and CNV data for a set of samples (patients), generate normalized expression values. 
- * Currently the input must be TCGA data, with samples identified by TCGA barcode identifiers.
  * 
  * Each gene is normalized separately. First, the expression distribution for unaltered copies of the 
  * gene is estimated by calculating the mean and variance of the expression values for samples in which 

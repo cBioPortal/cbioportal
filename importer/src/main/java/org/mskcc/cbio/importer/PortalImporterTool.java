@@ -78,8 +78,8 @@ public class PortalImporterTool implements Runnable {
                                       .withDescription("Validates cancer studies within the given cancer study directory.")
                                       .create("v"));
 
-        Option normalizeDataFile = (OptionBuilder.withArgName("cna-file:expression-file:output-file")
-                                    .hasArgs(3)
+        Option normalizeDataFile = (OptionBuilder.withArgName("cna-file:expression-file:output-file:normal-sample-suffix")
+                                    .hasArgs(4)
                                     .withValueSeparator(':')
                                     .withDescription("Given CNV & expression data for a set of samples, generate normalized expression values.")
                                     .create("n"));
@@ -109,7 +109,6 @@ public class PortalImporterTool implements Runnable {
 
 	public void setCommandParameters(String[] args)
     {
-
 		// create our parser
 		CommandLineParser parser = new PosixParser();
 
@@ -146,7 +145,7 @@ public class PortalImporterTool implements Runnable {
             }
             else if (commandLine.hasOption("n")) {
                 String[] values = commandLine.getOptionValues("n");
-				normalizeExpressionLevels(values[0], values[1], values[2]);
+				normalizeExpressionLevels(values[0], values[1], values[2], values[3]);
             }
 			else if (commandLine.hasOption("i")) {
                 String[] values = commandLine.getOptionValues("i");
@@ -250,14 +249,15 @@ public class PortalImporterTool implements Runnable {
         logMessage("annotateMAF(), complete");
 	}
 
-    private void normalizeExpressionLevels(String cnaFile, String expressionFile, String normalizedFile) throws Exception
+    private void normalizeExpressionLevels(String cnaFile, String expressionFile, String normalizedFile, String normalSampleSuffix) throws Exception
     {
         logMessage("normalizeExpressionLevels()");
         logMessage("cnaFile: " + cnaFile);
         logMessage("expressionFile: " + expressionFile);
         logMessage("outputFile: " + normalizedFile);
+        logMessage("normalSampleSuffix: " + normalSampleSuffix);
 
-		String[] args = { cnaFile, expressionFile, normalizedFile };
+		String[] args = { cnaFile, expressionFile, normalizedFile, normalSampleSuffix };
         NormalizeExpressionLevels.driver(args);
 
         logMessage("normalizeExpressionLevels(), complete");

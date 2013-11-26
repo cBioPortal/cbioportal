@@ -5,7 +5,8 @@
  * options: {el: [target container],
  *           model: {mutationProxy: [mutation data proxy],
  *                   sampleArray: [list of case ids as an array of strings],
- *                   diagramOpts: [mutation diagram options -- optional]}
+ *                   diagramOpts: [mutation diagram options -- optional],
+ *                   tableOpts: [mutation table options -- optional]}
  *           mut3dVis: [optional] reference to the 3d structure visualizer
  *          }
  */
@@ -34,7 +35,8 @@ var MutationDetailsView = Backbone.View.extend({
 		if (self.model.mutationProxy.hasData())
 		{
 			self._initDefaultView(self.model.sampleArray,
-                    self.model.diagramOpts);
+                    self.model.diagramOpts,
+					self.model.tableOpts);
 		}
 
 		// format after render
@@ -127,8 +129,9 @@ var MutationDetailsView = Backbone.View.extend({
 	 *
 	 * @param cases         array of case ids (samples)
 	 * @param diagramOpts   [optional] mutation diagram options
+	 * @param tableOpts     [optional] mutation table options
 	 */
-	_initDefaultView: function(cases, diagramOpts)
+	_initDefaultView: function(cases, diagramOpts, tableOpts)
 	{
 		var self = this;
 
@@ -138,7 +141,7 @@ var MutationDetailsView = Backbone.View.extend({
 				self.model.mutationProxy.getMutationUtil());
 
 		// init view for the first gene only
-		self._initView(genes[0], cases, diagramOpts);
+		self._initView(genes[0], cases, diagramOpts, tableOpts);
 
 		// init other views upon selecting the corresponding tab
 		self.$el.find("#mutation_details_content").bind('tabsselect', function(event, ui) {
@@ -148,7 +151,7 @@ var MutationDetailsView = Backbone.View.extend({
 			if (self.geneTabView[gene] == undefined)
 			{
 				// init view (self.geneTabView mapping is updated within this function)
-				self._initView(gene, cases, diagramOpts);
+				self._initView(gene, cases, diagramOpts, tableOpts);
 			}
 			// check if 3D panel is visible
 			else if (self.mut3dVisView &&
@@ -172,8 +175,9 @@ var MutationDetailsView = Backbone.View.extend({
 	 * @param gene          hugo gene symbol
      * @param cases         array of case ids (samples)
      * @param diagramOpts   [optional] mutation diagram options
+     * @param tableOpts     [optional] mutation table options
 	 */
-	_initView: function(gene, cases, diagramOpts)
+	_initView: function(gene, cases, diagramOpts, tableOpts)
 	{
 		var self = this;
 		var mutationDiagram = null;
@@ -431,7 +435,8 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: "#mutation_table_" + gene,
 					model: {geneSymbol: gene,
 						mutations: mutationData,
-						syncFn: syncWithMutationTable}});
+						syncFn: syncWithMutationTable,
+						tableOpts: tableOpts}});
 
 			mutationTableView.render();
 

@@ -206,7 +206,7 @@
                             } else if (type==='display'||type==='filter') {
                                 var mutType = mutations.getValue(source[0], "type");
                                 var abbr, color;
-                                if (mutType==='Missense_Mutation') {
+                                if (mutType==='Missense_Mutation'||mutType==='missense') {
                                     abbr = 'Missense';
                                     color = 'green';
                                 } else if (mutType==='Nonsense_Mutation') {

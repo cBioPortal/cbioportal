@@ -179,7 +179,15 @@ public class QueryBuilder extends HttpServlet {
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
         //  Get User Defined Gene List
-        String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
+	    // we need the raw gene list...
+	    String geneList = httpServletRequest.getParameter(GENE_LIST);
+
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
+	    }
+
+        geneList = servletXssUtil.getCleanInput(geneList);
 
         // save the raw gene string as it was entered for other things to work on
         httpServletRequest.setAttribute(RAW_GENE_STR, geneList);

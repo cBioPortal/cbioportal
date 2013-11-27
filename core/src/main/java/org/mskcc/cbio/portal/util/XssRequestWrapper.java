@@ -73,5 +73,5 @@ public class XssRequestWrapper extends HttpServletRequestWrapper
 		return super.getParameter(name);
 	}
 
-	// TODO also overwrite getParameterValues method?
+	// TODO also overwrite getParameterValues & getAttribute method?
 }

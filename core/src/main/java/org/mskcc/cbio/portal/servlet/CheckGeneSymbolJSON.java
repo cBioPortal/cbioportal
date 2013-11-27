@@ -34,6 +34,7 @@ import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -85,6 +86,13 @@ public class CheckGeneSymbolJSON extends HttpServlet {
         new HashMap();
         JSONArray geneArray = new JSONArray();
         String genes = httpServletRequest.getParameter(GENES);
+
+	    // we need the raw gene list
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    genes = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENES);
+	    }
+
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         //  Use the OQL Parser to Extract the Gene Symbols

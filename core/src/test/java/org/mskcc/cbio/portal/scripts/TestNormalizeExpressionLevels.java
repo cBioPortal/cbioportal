@@ -39,7 +39,8 @@ public class TestNormalizeExpressionLevels extends TestCase {
 	// TBD: change this to use getResourceAsStream()
 	String Args[] = { "target/test-classes/test_all_thresholded.by_genes.txt",
 					  "target/test-classes/test_PR_GDAC_CANCER.medianexp.txt",
-					  "target/test-classes/data_mRNA_ZbyNorm.txt", "4" };
+					  "target/test-classes/data_mRNA_ZbyNorm.txt",
+                      NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX, "4" };
    public void testNormalizeExpressionLevels(){
       
       try {

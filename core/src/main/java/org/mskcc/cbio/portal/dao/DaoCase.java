@@ -60,8 +60,7 @@ public final class DaoCase {
                             + "VALUES (?,?)");
             pstmt.setString(1, _case.getCaseId());
             pstmt.setInt(2, _case.getCancerStudyId());
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -36,8 +36,7 @@ public final class DaoCnaEvent {
             pstmt.setString(2, cnaEvent.getCaseId());
             pstmt.setInt(3, cnaEvent.getCnaProfileId());
             
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -53,7 +52,7 @@ public final class DaoCnaEvent {
      * @throws DaoException 
      */
     private static long addCnaEvent(CnaEvent cnaEvent, Connection con) throws DaoException {
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
@@ -76,13 +75,13 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
     }
     
     private static boolean eventExists(long eventId, String caseId, int cnaProfileId, Connection con)
             throws DaoException {
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
@@ -91,14 +90,11 @@ public final class DaoCnaEvent {
             pstmt.setString(2, caseId);
             pstmt.setInt(3, cnaProfileId);
             rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt(1)>0;
-            }
-            return false;
-        } catch (SQLException e) {
+            return rs.next() && rs.getInt(1) > 0;
+            } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
     }
     
@@ -259,7 +255,7 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static Set<Long> getAlteredGenes(String concatEventIds, int profileId)
+    public static Set<Long> getAlteredGenes(String concatEventIds)
             throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptySet();

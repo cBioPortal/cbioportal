@@ -60,9 +60,7 @@ public class DaoPfamGraphics
 			pstmt.setString(1, uniprotId);
 			pstmt.setString(2, jsonData);
 
-			int rows = pstmt.executeUpdate();
-
-			return rows;
+			return pstmt.executeUpdate();
 		}
 		catch (SQLException e)
 		{

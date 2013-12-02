@@ -47,14 +47,14 @@ import javax.sql.DataSource;
  */
 public class JdbcUtil {
     private static DataSource ds;
-    private static int MAX_JDBC_CONNECTIONS = 100;
+    private static final int MAX_JDBC_CONNECTIONS = 100;
     private static Map<String,Integer> activeConnectionCount; // keep track of the number of active connection per class/requester
     private static final Log LOG = LogFactory.getLog(JdbcUtil.class);
 
     /**
      * Gets Connection to the Database.
      * 
-     * @param requester class
+     * @param clazz class
      * @return Live Connection to Database.
      * @throws java.sql.SQLException Error Connecting to Database.
      */
@@ -69,13 +69,13 @@ public class JdbcUtil {
      * @return Live Connection to Database.
      * @throws java.sql.SQLException Error Connecting to Database.
      */
-    public static Connection getDbConnection(String requester) throws SQLException {
+    private static Connection getDbConnection(String requester) throws SQLException {
 
         if (ds == null) {
             ds = initDataSource();
         }
 
-        Connection con = null;
+        Connection con;
         try {
             con = ds.getConnection();
         }
@@ -97,7 +97,7 @@ public class JdbcUtil {
         DataSource ds = initDataSourceTomcat();
 
         try {
-            Connection con = ds.getConnection();
+            ds.getConnection();
         }
         catch (Exception e) {
             ds = null;
@@ -147,9 +147,9 @@ public class JdbcUtil {
         String driverClassname = dbProperties.getDbDriverClassName();
 
         String url =
-                new String("jdbc:mysql://" + host + "/" + database
+                "jdbc:mysql://" + host + "/" + database
                         + "?user=" + userName + "&password=" + password
-                        + "&zeroDateTimeBehavior=convertToNull");
+                        + "&zeroDateTimeBehavior=convertToNull";
         
         //  Set up poolable data source
         BasicDataSource ds = new BasicDataSource();
@@ -174,7 +174,7 @@ public class JdbcUtil {
         closeConnection(clazz.getName(), con);
     }
     
-    public static void closeConnection(String requester, Connection con) {
+    private static void closeConnection(String requester, Connection con) {
         try {
             if (con != null && !con.isClosed()) {
                 con.close();
@@ -197,11 +197,10 @@ public class JdbcUtil {
     /**
      * Frees PreparedStatement and ResultSet.
      *
-     * @param ps  Prepared Statement Object.
      * @param rs  ResultSet Object.
      */
-    public static void closeAll(PreparedStatement ps, ResultSet rs) {
-                JdbcUtil.closeAll((String)null, null, ps, rs);
+    public static void closeAll(ResultSet rs) {
+                JdbcUtil.closeAll((String)null, null, rs);
         }
 
     /**
@@ -213,18 +212,17 @@ public class JdbcUtil {
      */
     public static void closeAll(Class clazz, Connection con, PreparedStatement ps,
             ResultSet rs) {
-        closeAll(clazz.getName(), con, ps, rs);
+        closeAll(clazz.getName(), con, rs);
     }
 
     /**
      * Frees Database Connection.
      *
      * @param con Connection Object.
-     * @param ps  Prepared Statement Object.
      * @param rs  ResultSet Object.
      */
-    public static void closeAll(String requester, Connection con, PreparedStatement ps,
-            ResultSet rs) {
+    private static void closeAll(String requester, Connection con,
+                                 ResultSet rs) {
         closeConnection(requester, con);
         if (rs != null) {
             try {

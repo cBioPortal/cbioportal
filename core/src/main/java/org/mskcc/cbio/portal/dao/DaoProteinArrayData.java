@@ -92,8 +92,7 @@ public class DaoProteinArrayData {
             pstmt.setInt(2, pad.getCancerStudyId());
             pstmt.setString(3, pad.getCaseId());
             pstmt.setDouble(4, pad.getAbundance());
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

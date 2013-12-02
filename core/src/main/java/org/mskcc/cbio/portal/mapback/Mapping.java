@@ -34,10 +34,10 @@ package org.mskcc.cbio.portal.mapback;
  * @author Ethan Cerami.
  */
 public class Mapping {
-    private long qStart;
-    private long tStart;
-    private long tStop;
-    private int blockSize;
+    private final long qStart;
+    private final long tStart;
+    private final long tStop;
+    private final int blockSize;
 
     /**
      * Constructor.

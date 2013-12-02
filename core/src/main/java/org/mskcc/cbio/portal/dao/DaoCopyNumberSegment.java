@@ -89,7 +89,7 @@ public final class DaoCopyNumberSegment {
             int cancerStudyId, double cutoff) throws DaoException {
         Double d = getCopyNumberActeredFraction(Collections.singleton(caseId), cancerStudyId, cutoff)
                 .get(caseId);
-        return d==null ? Double.NaN : d.doubleValue();
+        return d==null ? Double.NaN : d;
     }
     
     public static Map<String,Double> getCopyNumberActeredFraction(Collection<String> caseIds,
@@ -104,7 +104,7 @@ public final class DaoCopyNumberSegment {
             }
             Long al = alteredLength.get(caseId);
             if (al==null) {
-                al = new Long(0);
+                al = (long) 0;
             }
             fraction.put(caseId, 1.0*al/ml);
         }
@@ -117,7 +117,7 @@ public final class DaoCopyNumberSegment {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        String sql = null;
+        String sql;
         try {
             con = JdbcUtil.getDbConnection(DaoCopyNumberSegment.class);
             if (cutoff>0) {

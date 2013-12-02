@@ -96,7 +96,7 @@ public final class NetworkIO {
                 ConnectionManager.getConnectionManager();
         HttpClient client = new HttpClient(connectionManager);
 
-        GetMethod method = new GetMethod(cPath2Url.toString());
+        GetMethod method = new GetMethod(cPath2Url);
         try {
             int statusCode = client.executeMethod(method);
             if (statusCode == HttpStatus.SC_OK) {

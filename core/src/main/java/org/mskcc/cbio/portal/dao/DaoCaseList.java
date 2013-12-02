@@ -267,7 +267,7 @@ public class DaoCaseList {
             return 0;
         }
 
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet rs = null;
         try {
             StringBuilder sql = new StringBuilder("INSERT INTO case_list_list (`LIST_ID`, `CASE_ID`) VALUES ");
@@ -280,7 +280,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
     }
 
@@ -289,7 +289,7 @@ public class DaoCaseList {
 	 */
 	private ArrayList<String> getCaseListList(CaseList caseList, Connection con) throws DaoException {
 
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
@@ -304,7 +304,7 @@ public class DaoCaseList {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
 	}
 

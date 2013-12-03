@@ -47,8 +47,6 @@ import java.util.*;
 public final class DaoClinicalData {
     private DaoClinicalData() {}
 
-    private static Log log = LogFactory.getLog(DaoClinicalData.class);
-
     /**
      * add a new clinical datum
      *
@@ -89,8 +87,7 @@ public final class DaoClinicalData {
             pstmt.setString(3, attrId);
             pstmt.setString(4, attrVal);
 
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -328,8 +325,7 @@ public final class DaoClinicalData {
      * @return
      */
     private static String generateCaseIdsSql(Collection<String> caseIds) {
-        String caseIdsSql = "'" + StringUtils.join(caseIds, "','") + "'";
-        return caseIdsSql;
+        return "'" + StringUtils.join(caseIds, "','") + "'";
     }
 
     /**

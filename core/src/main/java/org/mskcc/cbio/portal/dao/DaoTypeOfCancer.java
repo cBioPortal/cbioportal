@@ -57,8 +57,7 @@ public class DaoTypeOfCancer {
          pstmt.setString(3, typeOfCancer.getClinicalTrialKeywords());
          pstmt.setString(4, typeOfCancer.getDedicatedColor());
          pstmt.setString(5, typeOfCancer.getShortName());
-         int rows = pstmt.executeUpdate();
-         return rows;
+         return pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
@@ -76,8 +75,7 @@ public class DaoTypeOfCancer {
          pstmt.setString(1, typeOfCancerId);
          rs = pstmt.executeQuery();
          if (rs.next()) {
-            TypeOfCancer typeOfCancer = extractTypeOfCancer(rs);
-            return typeOfCancer;
+            return extractTypeOfCancer(rs);
          }
          return null;
       } catch (SQLException e) {

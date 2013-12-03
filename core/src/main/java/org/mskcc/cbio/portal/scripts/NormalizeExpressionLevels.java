@@ -35,7 +35,6 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 /**
  * 
  * Given expression and CNV data for a set of samples (patients), generate normalized expression values. 
- * Currently the input must be TCGA data, with samples identified by TCGA barcode identifiers.
  * 
  * Each gene is normalized separately. First, the expression distribution for unaltered copies of the 
  * gene is estimated by calculating the mean and variance of the expression values for samples in which 
@@ -51,14 +50,13 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  * 
  * The syntax is simple:
  * 
- * java NormalizeExpressionLevels <copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]
+ * java NormalizeExpressionLevels <copy_number_file> <expression_file> <output_file> <normal_sample_suffix> [<min_number_of_diploids>]
  * 
  * The output is written onto a file named "output_file"
  * 
  * Any number of columns may precede the data. However, the following must be satisfied: 
  * 
  * - the first column provides gene identifiers
- * - sample names start with the "TCGA" prefix
  * 
  * Algorithm
  * Input copy number (CNA) and expression (exp) files
@@ -85,9 +83,12 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
  */
 public class NormalizeExpressionLevels{
 
+   public static final String TCGA_NORMAL_SUFFIX = "-11";
+
    static HashMap<Long, ArrayList<String[]>> geneCopyNumberStatus;
    static int SAMPLES;
    static String zScoresFile;
+   static String normalSampleSuffix;
    static final int DEFAULT_MIN_NUM_DIPLOIDS = 10;
    static int MIN_NUM_DIPLOIDS = DEFAULT_MIN_NUM_DIPLOIDS;
    static final int MIN_NUM_ALLOWED_DIPLOIDS = 3;
@@ -108,20 +109,21 @@ public class NormalizeExpressionLevels{
 	public static void driver(String[] args) throws RuntimeException {
 
 		// TODO, perhaps: use command line parser
-		if( args.length != 3 && args.length != 4){
-			fatalError( "incorrect number of arguments. Arguments should be '<copy_number_file> <expression_file> <output_file> [<min_number_of_diploids>]'." );
+		if( args.length != 4 && args.length != 5){
+			fatalError( "incorrect number of arguments. Arguments should be '<copy_number_file> <expression_file> <output_file> <normal_sample_suffix> [<min_number_of_diploids>]'." );
 		}
 		String copyNumberFile = args[0];
 		String expressionFile = args[1];
 		zScoresFile = args[2];
-		if( args.length == 4){
+        normalSampleSuffix = args[3];
+		if( args.length == 5){
 			try {
-				MIN_NUM_DIPLOIDS = Integer.parseInt(args[3] );
+				MIN_NUM_DIPLOIDS = Integer.parseInt(args[4] );
 			} catch (NumberFormatException e) {
-				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be an integer." );
+				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[4] + " but must be an integer." );
 			}
 			if( MIN_NUM_DIPLOIDS < MIN_NUM_ALLOWED_DIPLOIDS ){
-				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[3] + " but must be at least " + MIN_NUM_ALLOWED_DIPLOIDS + "." );
+				fatalError( "incorrect arguments. 'min_number_of_diploids', was entered as " + args[4] + " but must be at least " + MIN_NUM_ALLOWED_DIPLOIDS + "." );
 			}
 		}
       
@@ -129,7 +131,7 @@ public class NormalizeExpressionLevels{
 		computeZScoreXP(expressionFile); 
 	}
    
-   private static void computeZScoreXP(String file){
+    private static void computeZScoreXP(String file){
       
       BufferedReader in = null;
       PrintWriter out = null;
@@ -487,6 +489,15 @@ public class NormalizeExpressionLevels{
       }
       return truncatedName;
    }
+
+    public static boolean isNormal(String name) {
+        if (normalSampleSuffix.equals(TCGA_NORMAL_SUFFIX)) {
+            return isTCGANormal(name);
+        }
+        else {
+            return (name.endsWith(normalSampleSuffix));
+        }
+    }
    
    /**
    * Check if a sample name corresponds to normal samples
@@ -501,7 +512,7 @@ public class NormalizeExpressionLevels{
     #  ...
     # 11  normal tissue (not always matched to a cancer patient, used for mRNA, microRNA, methylation) 
    */
-   public static boolean isNormal(String name){
+   public static boolean isTCGANormal(String name){
       String suffix = "";
       int dash = 0;
       search:
@@ -513,7 +524,7 @@ public class NormalizeExpressionLevels{
             break search;
          }
       }
-      if(suffix.indexOf("-11") == 0 )
+      if(suffix.indexOf(TCGA_NORMAL_SUFFIX) == 0 )
          return true;
       return false;
    }

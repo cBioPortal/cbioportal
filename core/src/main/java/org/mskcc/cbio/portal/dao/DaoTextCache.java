@@ -71,15 +71,8 @@ public class DaoTextCache
 			        		+ "VALUES (?,?,NOW())");
 			pstmt.setString(1, key);
 			pstmt.setString(2, text);
-
-			// TODO use java date instenad of db's native NOW() function?
-//			Date date = new Date();
-//			Object dateTime = new Timestamp(date.getTime());
-//			pstmt.setObject(3, dateTime); 
 			
-			int rows = pstmt.executeUpdate();
-			
-			return rows;
+			return pstmt.executeUpdate();
         }
         catch (SQLException e)
         {

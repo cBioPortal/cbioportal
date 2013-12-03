@@ -39,7 +39,7 @@ import java.util.*;
  */
 public class GlobalProperties {
 
-    private static final String HOME_DIR = "PORTAL_HOME";
+    public static final String HOME_DIR = "PORTAL_HOME";
     private static final String propertiesFilename = "portal.properties";
 
     public static final String PATHWAY_COMMONS_URL = "pathway_commons.url";

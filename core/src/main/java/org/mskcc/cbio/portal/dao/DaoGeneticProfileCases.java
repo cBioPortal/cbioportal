@@ -31,7 +31,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.ArrayList;import java.util.Arrays;
 
 /**
  * Data Access Objects for the Genetic Profile Cases Table.
@@ -61,7 +61,7 @@ public class DaoGeneticProfileCases {
                 throw new IllegalArgumentException("Case ID cannot contain:  " + DELIM
                     + " --> " + caseId);
             }
-            orderedCaseListBuf.append(caseId + DELIM);
+            orderedCaseListBuf.append(caseId).append(DELIM);
         }
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
@@ -124,9 +124,7 @@ public class DaoGeneticProfileCases {
                 //  Split, based on DELIM token
                 String parts[] = orderedCaseList.split(DELIM);
                 ArrayList <String> caseList = new ArrayList <String>();
-                for (String part:  parts) {
-                    caseList.add(part);
-                }
+                caseList.addAll(Arrays.asList(parts));
                 return caseList;
             } else {
                 return new ArrayList<String>();

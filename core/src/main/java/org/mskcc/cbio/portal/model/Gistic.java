@@ -102,15 +102,6 @@ public class Gistic {
     
     @Override public String toString() {
         
-        String ampdel;
-
-        if (this.amp == Gistic.AMPLIFIED) {
-            ampdel = "amp";
-            
-        } else {
-            ampdel = "del";
-        }
-
         return String.format("cancerStudyId=%d, " +
                 "chromosome: %d, " +
                 "cytoband: %s, " +

@@ -27,6 +27,7 @@
 package org.mskcc.cbio.portal.model;
 
 import java.util.Map;
+import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 /**
@@ -36,40 +37,64 @@ import org.apache.log4j.Logger;
  */
 public class Patient {
 
-    private String caseId;
-	Map<String, ClinicalData> clinicalDataMap;
+    private int internalId;
+    private String stableId;
+
+    private String sampleId;
+	private Map<String, ClinicalData> clinicalDataMap;
     private static final Logger logger = Logger.getLogger(Patient.class);
 
-    /**
-     * Constructor.
-     *
-     * @param caseId database id of the case/patient.
-	 * @param clinicalData List of clinical data objects.
-     */
-    public Patient(String caseId, Map<String, ClinicalData> clinicalDataMap) {
-        this.caseId = caseId;
+    public Patient(int internalId, String stableId)
+    {
+        this(stableId, stableId, new HashMap<String, ClinicalData>());
+        this.internalId = internalId;
+    }
+
+    public Patient(String stableId, String sampleId, Map<String, ClinicalData> clinicalDataMap)
+    {
+        this.stableId = stableId;
+        this.sampleId = sampleId;
 		this.clinicalDataMap = clinicalDataMap;
     }
 
-    public String getCaseId() { return caseId; }
+    public int getInternalId()
+    {
+        return internalId;
+    }
 
-    public Double getOverallSurvivalMonths() { 
+    public String getStableId()
+    {
+        return stableId;
+    }
+
+    public String getSampleId()
+    {
+        return sampleId;
+    }
+
+    public Double getOverallSurvivalMonths()
+    { 
 		return getDoubleValue(ClinicalAttribute.OS_MONTHS);
 	}
-    public String getOverallSurvivalStatus() {
+    public String getOverallSurvivalStatus()
+    {
 		return getStringValue(ClinicalAttribute.OS_STATUS);
 	}
-    public Double getDiseaseFreeSurvivalMonths() {
+    public Double getDiseaseFreeSurvivalMonths()
+    {
 		return getDoubleValue(ClinicalAttribute.DFS_MONTHS);
 	}
-    public String getDiseaseFreeSurvivalStatus() {
+    public String getDiseaseFreeSurvivalStatus()
+    {
 		return getStringValue(ClinicalAttribute.DFS_STATUS);
 	}
-    public Double getAgeAtDiagnosis() {
+    public Double getAgeAtDiagnosis()
+    {
 		return getDoubleValue(ClinicalAttribute.AGE_AT_DIAGNOSIS);
 	}
 
-	private Double getDoubleValue(String attribute) {
+	private Double getDoubleValue(String attribute)
+    {
 		ClinicalData data = clinicalDataMap.get(attribute);
         if (data == null || data.getAttrVal().length() == 0 ||
                 data.getAttrVal().equals(ClinicalAttribute.NA) ||
@@ -79,12 +104,13 @@ public class Patient {
         try {
             return Double.valueOf(data.getAttrVal());
         } catch (NumberFormatException e) {
-            logger.warn("Can't handle clinical attribute of case: " + caseId);
+            logger.warn("Can't handle clinical attribute of case: " + sampleId);
             return null;
         }
 	}
 
-	private String getStringValue(String attribute) {
+	private String getStringValue(String attribute)
+    {
 		ClinicalData data = clinicalDataMap.get(attribute);
 		return (data == null || data.getAttrVal().length() == 0 ||
 				data.getAttrVal().equals(ClinicalAttribute.NA) ||

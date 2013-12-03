@@ -387,7 +387,7 @@ public final class DaoClinicalData {
 
             ArrayList<Patient> toReturn = new ArrayList<Patient>();
             for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
-                toReturn.add(new Patient(entry.getKey(), entry.getValue()));
+                toReturn.add(new Patient(entry.getKey(), entry.getKey(), entry.getValue()));
             }
             return toReturn;
 	}

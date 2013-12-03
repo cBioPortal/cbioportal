@@ -108,15 +108,50 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	}
 
 	/**
+	 * Creates an array of indices for the columns to be excluded
+	 * from search.
+	 *
+	 * @param indexMap  map of <column name, column index>
+	 * @return {Array}  an array of column indices
+	 */
+	function _getNonSearchableCols(indexMap)
+	{
+		var count = 0;
+		var cols = [];
+
+		for (var key in indexMap)
+		{
+			count++;
+		}
+
+		// except these 4, exclude any other column from search
+		for (var col=0; col<count; col++)
+		{
+			var searchable = col == indexMap["case id"] ||
+					col == indexMap["cancer study"] ||
+					col == indexMap["aa change"] ||
+					col == indexMap["type"];
+
+			if (!searchable)
+			{
+				cols.push(col);
+			}
+		}
+
+		return cols;
+	}
+
+	/**
 	 * Initializes the data tables plug-in for the given table selector.
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
+	 * @param nonSearchableCols    indices of the columns excluded from search
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function _initDataTable(tableSelector, indexMap, hiddenCols)
+	function _initDataTable(tableSelector, indexMap, hiddenCols, nonSearchableCols)
 	{
 		// format the table with the dataTable plugin
 	    var oTable = tableSelector.dataTable({
@@ -152,7 +187,9 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 	                    indexMap["3d"],
 	                    indexMap["#mut in sample"]]},
 	            {"bVisible": false,
-	                "aTargets": hiddenCols}
+	                "aTargets": hiddenCols},
+		        {"bSearchable": false,
+			        "aTargets": nonSearchableCols}
 	        ],
 			"oColVis": {"aiExclude": [indexMap["mutation id"]]}, // always hide id column
 	        "fnDrawCallback": function(oSettings) {
@@ -571,11 +608,16 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
             mutationUtil.cancerStudyAllTheSame(gene)
         );
 
+		var nonSearchableCols = _getNonSearchableCols(indexMap);
+
 		// add custom sort functions for specific columns
 		_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols);
+		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols, nonSearchableCols);
+
+		// add a delay to the filter
+		dataTable.fnSetFilteringDelay(600);
 	};
 
 	/**

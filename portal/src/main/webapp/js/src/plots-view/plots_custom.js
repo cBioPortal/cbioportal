@@ -113,6 +113,16 @@ var PlotsCustomMenu = (function(){
                 }
             });
         }
+
+        //----dna methylation priority list: hm450, hm27
+        if ($(plotsTypeId).val() === "methylation") {
+            $(platformId + " > option").each(function() {
+                if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
     }
 
     function updateXselection() {
@@ -137,6 +147,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_x")
                     .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_x", "#custom_platform_x");
         } else if($("#custom_plots_type_x").val() === "rppa"){
             content.geneX_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_x")
@@ -168,6 +179,7 @@ var PlotsCustomMenu = (function(){
                 $("#custom_platform_y")
                     .append("<option value='" + profile[0] + "|" + profile[2] + "'>" + profile[1] + "</option>");
             });
+            setPlatFormDefaultSelection("#custom_plots_type_y", "#custom_platform_y");
         } else if($("#custom_plots_type_y").val() === "rppa"){
             content.geneY_genetic_profiles.genetic_profile_rppa.forEach (function (profile) {
                 $("#custom_platform_y")
@@ -300,7 +312,7 @@ var PlotsCustomView = (function() {
         },
     //Canvas Settings
         settings = {
-            canvas_width: 720,
+            canvas_width: 722,
             canvas_height: 600
         },
     //DOMs

@@ -123,6 +123,16 @@ var PlotsTwoGenesMenu = (function(){
                 }
             });
         }
+
+        //----DNA methylation priority list: hm450, hm27
+        if ($("#two_genes_plots_type").val() === "methylation") {
+            $('#two_genes_platform > option').each(function() {
+                if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
     }
 
     function drawPlatFormList() {

@@ -216,16 +216,51 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	}
 
 	/**
+	 * Creates an array of indices for the columns to be excluded
+	 * from search.
+	 *
+	 * @param indexMap  map of <column name, column index>
+	 * @return {Array}  an array of column indices
+	 */
+	function _getNonSearchableCols(indexMap)
+	{
+		var count = 0;
+		var cols = [];
+
+		for (var key in indexMap)
+		{
+			count++;
+		}
+
+		// except these 4, exclude any other column from search
+		for (var col=0; col<count; col++)
+		{
+			var searchable = col == indexMap["case id"] ||
+					col == indexMap["cancer study"] ||
+					col == indexMap["aa change"] ||
+					col == indexMap["type"];
+
+			if (!searchable)
+			{
+				cols.push(col);
+			}
+		}
+
+		return cols;
+	}
+
+	/**
 	 * Initializes the data tables plug-in for the given table selector.
 	 *
 	 * @param tableSelector jQuery selector for the target table
 	 * @param indexMap      map of <column name, column index>
 	 * @param hiddenCols    indices of the hidden columns
 	 * @param excludedCols  indices of the excluded columns
+	 * @param nonSearchableCols    indices of the columns excluded from search
 	 * @return {object}     DataTable instance
 	 * @private
 	 */
-	function _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols)
+	function _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols, nonSearchableCols)
 	{
 		// format the table with the dataTable plugin
 	    var oTable = tableSelector.dataTable({
@@ -261,7 +296,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	                    indexMap["3d"],
 	                    indexMap["#mut in sample"]]},
 	            {"bVisible": false,
-	                "aTargets": hiddenCols}
+	                "aTargets": hiddenCols},
+		        {"bSearchable": false,
+			        "aTargets": nonSearchableCols}
 	        ],
 			"oColVis": {"aiExclude": excludedCols}, // columns to always hide
 	        "fnDrawCallback": function(oSettings) {
@@ -676,12 +713,16 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// determine hidden and excluded columns
         var hiddenCols = _getHiddenColumns(headers, indexMap);
 		var excludedCols = _getExcludedColumns(headers, indexMap, hiddenCols);
+		var nonSearchableCols = _getNonSearchableCols(indexMap);
 
 		// add custom sort functions for specific columns
 		_addSortFunctions();
 
 		// actual initialization of the DataTables plug-in
-		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols);
+		dataTable = _initDataTable(tableSelector, indexMap, hiddenCols, excludedCols, nonSearchableCols);
+
+		// add a delay to the filter
+		dataTable.fnSetFilteringDelay(600);
 	};
 
 	/**

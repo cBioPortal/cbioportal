@@ -66,8 +66,8 @@ public class DaoGeneticProfileCases {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO genetic_profile_cases (`GENETIC_PROFILE_ID`, " +
-                    "`ORDERED_CASE_LIST`) "+ "VALUES (?,?)");
+                    ("INSERT INTO genetic_profile_samples (`GENETIC_PROFILE_ID`, " +
+                    "`ORDERED_SAMPLE_LIST`) "+ "VALUES (?,?)");
             pstmt.setInt(1, geneticProfileId);
             pstmt.setString(2, orderedCaseListBuf.toString());
             return pstmt.executeUpdate();
@@ -91,7 +91,7 @@ public class DaoGeneticProfileCases {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
             pstmt = con.prepareStatement("DELETE from " +
-                    "genetic_profile_cases WHERE GENETIC_PROFILE_ID=?");
+                    "genetic_profile_samples WHERE GENETIC_PROFILE_ID=?");
             pstmt.setLong(1, geneticProfileId);
             pstmt.executeUpdate();
         } catch (SQLException e) {
@@ -115,11 +115,11 @@ public class DaoGeneticProfileCases {
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM genetic_profile_cases WHERE GENETIC_PROFILE_ID = ?");
+                    ("SELECT * FROM genetic_profile_samples WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             if  (rs.next()) {
-                String orderedCaseList = rs.getString("ORDERED_CASE_LIST");
+                String orderedCaseList = rs.getString("ORDERED_SAMPLE_LIST");
 
                 //  Split, based on DELIM token
                 String parts[] = orderedCaseList.split(DELIM);
@@ -146,7 +146,7 @@ public class DaoGeneticProfileCases {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGeneticProfileCases.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile_cases");
+            pstmt = con.prepareStatement("TRUNCATE TABLE genetic_profile_samples");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

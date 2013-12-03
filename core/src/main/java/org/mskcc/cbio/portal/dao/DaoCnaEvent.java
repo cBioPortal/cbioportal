@@ -30,7 +30,7 @@ public final class DaoCnaEvent {
             }
             
             pstmt = con.prepareStatement
-		("INSERT INTO case_cna_event (`CNA_EVENT_ID`, `CASE_ID`,"
+		("INSERT INTO sample_cna_event (`CNA_EVENT_ID`, `SAMPLE_ID`,"
                     + " `GENETIC_PROFILE_ID`) VALUES(?,?,?)");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, cnaEvent.getCaseId());
@@ -85,7 +85,7 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
+		("SELECT count(*) FROM sample_cna_event WHERE `CNA_EVENT_ID`=? AND `SAMPLE_ID`=? AND `GENETIC_PROFILE_ID`=?");
             pstmt.setLong(1, eventId);
             pstmt.setString(2, caseId);
             pstmt.setInt(3, cnaProfileId);
@@ -113,7 +113,7 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT * FROM case_cna_event"
+            String sql = "SELECT * FROM sample_cna_event"
                     + " WHERE `CNA_EVENT_ID` IN ("
                     + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
@@ -121,7 +121,7 @@ public final class DaoCnaEvent {
             Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
-                String caseId = rs.getString("CASE_ID");
+                String caseId = rs.getString("SAMPLE_ID");
                 int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
                         rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
                 Case _case = new Case(caseId, cancerStudyId);
@@ -148,17 +148,17 @@ public final class DaoCnaEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
-		("SELECT case_cna_event.CNA_EVENT_ID, CASE_ID, GENETIC_PROFILE_ID,"
-                    + " ENTREZ_GENE_ID, ALTERATION FROM case_cna_event, cna_event"
+		("SELECT sample_cna_event.CNA_EVENT_ID, SAMPLE_ID, GENETIC_PROFILE_ID,"
+                    + " ENTREZ_GENE_ID, ALTERATION FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
-                    + " AND case_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
-                    + " AND CASE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
+                    + " AND sample_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
+                    + " AND SAMPLE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();
             List<CnaEvent> events = new ArrayList<CnaEvent>();
             while (rs.next()) {
                 try {
-                    CnaEvent event = new CnaEvent(rs.getString("CASE_ID"),
+                    CnaEvent event = new CnaEvent(rs.getString("SAMPLE_ID"),
                             rs.getInt("GENETIC_PROFILE_ID"),
                             rs.getLong("ENTREZ_GENE_ID"), rs.getShort("ALTERATION"));
                     event.setEventId(rs.getLong("CNA_EVENT_ID"));
@@ -191,9 +191,9 @@ public final class DaoCnaEvent {
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             String sql = "SELECT `ENTREZ_GENE_ID`, `ALTERATION`, count(*)"
-                    + " FROM case_cna_event, cna_event"
+                    + " FROM sample_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
-                    + " and case_cna_event.`CNA_EVENT_ID`=cna_event.`CNA_EVENT_ID`"
+                    + " and sample_cna_event.`CNA_EVENT_ID`=cna_event.`CNA_EVENT_ID`"
                     + " and `ENTREZ_GENE_ID` IN ("
                     + concatEntrezGeneIds
                     + ") GROUP BY `ENTREZ_GENE_ID`, `ALTERATION`";
@@ -235,7 +235,7 @@ public final class DaoCnaEvent {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            String sql = "SELECT `CNA_EVENT_ID`, count(*) FROM case_cna_event"
+            String sql = "SELECT `CNA_EVENT_ID`, count(*) FROM sample_cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=" + profileId
                     + " and `CNA_EVENT_ID` IN ("
                     + concatEventIds

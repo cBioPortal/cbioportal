@@ -78,7 +78,7 @@ public final class DaoClinicalData {
             pstmt = con.prepareStatement
                     ("INSERT INTO clinical(" +
                             "`CANCER_STUDY_ID`," +
-                            "`CASE_ID`," +
+                            "`SAMPLE_ID`," +
                             "`ATTR_ID`," +
                             "`ATTR_VALUE`)" +
                             " VALUES(?,?,?,?)");
@@ -113,7 +113,7 @@ public final class DaoClinicalData {
 
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
                     "CANCER_STUDY_ID=? " +
-                    "AND CASE_ID=? " +
+                    "AND SAMPLE_ID=? " +
                     "AND ATTR_ID=?");
 
             pstmt.setInt(1, cancerStudyId);
@@ -150,7 +150,7 @@ public final class DaoClinicalData {
 
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
 										 "CANCER_STUDY_ID=? " +
-										 "AND CASE_ID=? ");
+										 "AND SAMPLE_ID=? ");
 
             pstmt.setInt(1, cancerStudyId);
             pstmt.setString(2, caseId);
@@ -237,7 +237,7 @@ public final class DaoClinicalData {
         String caseIdsSql = generateCaseIdsSql(caseIds);
 
         String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID`=" + cancerStudyId
-                + " " + "AND `CASE_ID` IN (" + caseIdsSql + ")";
+                + " " + "AND `SAMPLE_ID` IN (" + caseIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -270,7 +270,7 @@ public final class DaoClinicalData {
         String sql = "SELECT * FROM clinical WHERE"
                 + " `CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
                 + " AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
-                + " AND `CASE_ID` IN (" + caseIdsSql + ")";
+                + " AND `SAMPLE_ID` IN (" + caseIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -339,7 +339,7 @@ public final class DaoClinicalData {
      */
     private static ClinicalData extract(ResultSet rs) throws SQLException {
 		return new ClinicalData(rs.getInt("CANCER_STUDY_ID"),
-								rs.getString("CASE_ID"),
+								rs.getString("SAMPLE_ID"),
 								rs.getString("ATTR_ID"),
 								rs.getString("ATTR_VALUE"));
     }
@@ -490,7 +490,7 @@ public final class DaoClinicalData {
 
             try{
                 con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-                pstmt = con.prepareStatement ("SELECT CASE_ID FROM `clinical`"
+                pstmt = con.prepareStatement ("SELECT SAMPLE_ID FROM `clinical`"
                         + "WHERE CANCER_STUDY_ID=? AND ATTR_ID=? AND ATTR_VALUE=?");
                 pstmt.setInt(1, cancerStudyId);
                 pstmt.setString(2, paramName);
@@ -501,7 +501,7 @@ public final class DaoClinicalData {
 
                 while (rs.next())
                 {
-                    cases.add(rs.getString("CASE_ID"));
+                    cases.add(rs.getString("SAMPLE_ID"));
                 }
 
                 return cases;

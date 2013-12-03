@@ -56,7 +56,7 @@ public final class DaoCase {
             
             con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
-                    ("INSERT INTO _case (`CASE_ID`, `CANCER_STUDY_ID`) "
+                    ("INSERT INTO _sample (`SAMPLE_ID`, `CANCER_STUDY_ID`) "
                             + "VALUES (?,?)");
             pstmt.setString(1, _case.getCaseId());
             pstmt.setInt(2, _case.getCancerStudyId());
@@ -74,7 +74,7 @@ public final class DaoCase {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
-            pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ? AND CANCER_STUDY_ID=?");
+            pstmt = con.prepareStatement("SELECT * FROM _sample WHERE SAMPLE_ID = ? AND CANCER_STUDY_ID=?");
             pstmt.setString(1, caseId );
             pstmt.setInt(2, cancerStudyId);
             rs = pstmt.executeQuery();
@@ -98,7 +98,7 @@ public final class DaoCase {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
-            pstmt = con.prepareStatement("SELECT * FROM _case WHERE CASE_ID = ?");
+            pstmt = con.prepareStatement("SELECT * FROM _sample WHERE SAMPLE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
             return retriveCasesFromRS(rs);
@@ -117,7 +117,7 @@ public final class DaoCase {
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM _case WHERE CANCER_STUDY_ID = ?");
+                    ("SELECT * FROM _sample WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             return retriveCasesFromRS(rs);
@@ -135,7 +135,7 @@ public final class DaoCase {
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM _case");
+                    ("SELECT * FROM _sample");
             rs = pstmt.executeQuery();
             return retriveCasesFromRS(rs);
         } catch (SQLException e) {
@@ -152,7 +152,7 @@ public final class DaoCase {
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
             pstmt = con.prepareStatement
-                    ("SELECT count(*) FROM _case WHERE CANCER_STUDY_ID = ?");
+                    ("SELECT count(*) FROM _sample WHERE CANCER_STUDY_ID = ?");
             pstmt.setInt(1, cancerStudyId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -173,7 +173,7 @@ public final class DaoCase {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCase.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE _case");
+            pstmt = con.prepareStatement("TRUNCATE TABLE _sample");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -185,7 +185,7 @@ public final class DaoCase {
     private static List<Case> retriveCasesFromRS(ResultSet rs) throws SQLException {
         List<Case> cases = new ArrayList<Case>();
         while (rs.next()) {
-            Case _case = new Case(rs.getString("CASE_ID"), rs.getInt("CANCER_STUDY_ID"));
+            Case _case = new Case(rs.getString("SAMPLE_ID"), rs.getInt("CANCER_STUDY_ID"));
             cases.add(_case);
         }
         return cases;

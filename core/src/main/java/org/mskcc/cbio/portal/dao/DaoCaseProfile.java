@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 /**
- * Data access object for case_profile table
+ * Data access object for sample_profile table
  */
 public final class DaoCaseProfile {
     private DaoCaseProfile() {}
@@ -25,7 +25,7 @@ public final class DaoCaseProfile {
             if (!caseExistsInGeneticProfile(caseId, geneticProfileId)) {
                 con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
                 pstmt = con.prepareStatement
-                        ("INSERT INTO case_profile (`CASE_ID`, `GENETIC_PROFILE_ID`) "
+                        ("INSERT INTO sample_profile (`SAMPLE_ID`, `GENETIC_PROFILE_ID`) "
                                 + "VALUES (?,?)");
                 pstmt.setString(1, caseId);
                 pstmt.setInt(2, geneticProfileId);
@@ -48,7 +48,7 @@ public final class DaoCaseProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM case_profile WHERE CASE_ID = ? AND GENETIC_PROFILE_ID = ?");
+                    ("SELECT * FROM sample_profile WHERE SAMPLE_ID = ? AND GENETIC_PROFILE_ID = ?");
             pstmt.setString(1, caseId);
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
@@ -67,7 +67,7 @@ public final class DaoCaseProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
-                    ("SELECT count(*) FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
+                    ("SELECT count(*) FROM sample_profile WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             if (rs.next()) {
@@ -87,7 +87,7 @@ public final class DaoCaseProfile {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
-            pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM case_profile WHERE CASE_ID = ?");
+            pstmt = con.prepareStatement("SELECT GENETIC_PROFILE_ID FROM sample_profile WHERE SAMPLE_ID = ?");
             pstmt.setString(1, caseId );
             rs = pstmt.executeQuery();
             if( rs.next() ) {
@@ -110,12 +110,12 @@ public final class DaoCaseProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM case_profile WHERE GENETIC_PROFILE_ID = ?");
+                    ("SELECT * FROM sample_profile WHERE GENETIC_PROFILE_ID = ?");
             pstmt.setInt(1, geneticProfileId);
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
             while (rs.next()) {
-                caseIds.add(rs.getString("CASE_ID"));
+                caseIds.add(rs.getString("SAMPLE_ID"));
             }
             return caseIds;
         } catch (SQLException e) {
@@ -132,11 +132,11 @@ public final class DaoCaseProfile {
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
             pstmt = con.prepareStatement
-                    ("SELECT * FROM case_profile");
+                    ("SELECT * FROM sample_profile");
             rs = pstmt.executeQuery();
             ArrayList<String> caseIds = new ArrayList<String>();
             while (rs.next()) {
-                caseIds.add(rs.getString("CASE_ID"));
+                caseIds.add(rs.getString("SAMPLE_ID"));
             }
             return caseIds;
         } catch (SQLException e) {
@@ -152,7 +152,7 @@ public final class DaoCaseProfile {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoCaseProfile.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE case_profile");
+            pstmt = con.prepareStatement("TRUNCATE TABLE sample_profile");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);

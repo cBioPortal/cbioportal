@@ -19,6 +19,7 @@ function MutationDiagram(geneSymbol, options, data)
 	self.rawData = data; // data returned by server
 	self.geneSymbol = geneSymbol; // hugo gene symbol
 	self.currentData = data; // current data set (updated after each filtering)
+	self.pileups = null; // current pileups (updated after each filtering)
 
 	self.highlighted = {}; // map of highlighted data points (initially empty)
 	self.inTransition = false; // indicates if the diagram is in a graphical transition
@@ -26,7 +27,7 @@ function MutationDiagram(geneSymbol, options, data)
 	// init other class members as null, will be assigned later
 	self.svg = null;    // svg element (d3)
 	self.bounds = null; // bounds of the plot area
-	self.data = null;   // processed data
+	self.data = null;   // processed initial (unfiltered) data
 	self.gData = null; // svg group for lollipop data points
 	self.gLine = null;   // svg group for lollipop lines
 	self.gLabel = null;  // svg group for lollipop labels
@@ -180,6 +181,49 @@ MutationDiagram.prototype.defaultOpts = {
 };
 
 /**
+ * Updates the diagram options object with the given one.
+ * This function does not update (re-render) the actual view
+ * with the new options. only updates some class fields.
+ *
+ * @param options   diagram options object
+ */
+MutationDiagram.prototype.updateOptions = function(options)
+{
+	var self = this;
+
+	// merge options with current options to use existing ones for missing values
+	self.options = jQuery.extend(true, {}, self.options, options);
+
+	// recalculate global values
+	var xMax = self.calcXMax(self.options, self.data);
+	// TODO use current.pileup instead?
+	var yMax = self.calcYMax(self.options, self.data.pileups);
+
+	self.bounds = this.calcBounds(self.options);
+	self.xScale = this.xScaleFn(self.bounds, xMax);
+	self.yScale = this.yScaleFn(self.bounds, yMax);
+};
+
+/**
+ * Rescales the y-axis by using the updated options and
+ * latest (filtered) data.
+ */
+MutationDiagram.prototype.rescaleYAxis = function()
+{
+	var self = this;
+
+	// TODO use current.pileup instead?
+	var yMax = self.calcYMax(self.options, self.data.pileups);
+
+	// remove & draw y-axis
+	self.svg.select(".mut-dia-y-axis").remove();
+	self.drawYAxis(self.svg, self.yScale, yMax, self.options, self.bounds);
+
+	// re-draw the plot with new scale
+	self.updatePlot();
+};
+
+/**
  * Initializes the diagram with the given sequence data.
  * If no sequence data is provided, then tries to retrieve
  * the data from the default servlet.
@@ -192,17 +236,8 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 
 	var container = d3.select(self.options.el);
 
-	// calculate bounds of the actual plot area (excluding axis, sequence, labels, etc.)
-	var bounds = {};
-	bounds.width = self.options.elWidth -
-			(self.options.marginLeft + self.options.marginRight);
-	bounds.height = self.options.elHeight -
-			(self.options.marginBottom + self.options.marginTop);
-	bounds.x = self.options.marginLeft;
-	bounds.y = self.options.elHeight - self.options.marginBottom;
-
-	// save a reference for future access
-	self.bounds = bounds;
+	// calculate bounds & save a reference for future access
+	var bounds = self.bounds = this.calcBounds(self.options);
 
 	// helper function for actual initialization
 	var init = function(sequenceData) {
@@ -214,6 +249,7 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 
 		// save a reference for future access
 		self.data = data;
+		self.pileups = data.pileups;
 
 		// init svg container
 		var svg = self.createSvg(container,
@@ -251,15 +287,37 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 };
 
 /**
+ * Calculates the bounds of the actual plot area excluding
+ * axes, sequence, labels, etc. So, this is the bounds for
+ * the data points (lollipops) only.
+ *
+ * @param options   options object
+ * @return {object} bounds as an object
+ */
+MutationDiagram.prototype.calcBounds = function(options)
+{
+	var bounds = {};
+
+	bounds.width = options.elWidth -
+	               (options.marginLeft + options.marginRight);
+	bounds.height = options.elHeight -
+	                (options.marginBottom + options.marginTop);
+	bounds.x = options.marginLeft;
+	bounds.y = options.elHeight - options.marginBottom;
+
+	return bounds;
+};
+
+/**
  * Converts the mutation data returned from the server into
  * a list of Pileup instances.
  *
  * @param mutationData  list (MutationCollection) of mutations
  * @return {Array}      a list of pileup mutations
  */
-MutationDiagram.prototype.processData = function (mutationData)
+MutationDiagram.prototype.processData = function(mutationData)
 {
-	// TODO move some of the functionality to PileupUtil class?
+	// TODO move this function into the PileupUtil class?
 	var self = this;
 
     // remove redundant mutations by sid
@@ -407,37 +465,14 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var self = this;
 	var sequenceLength = parseInt(data.sequence["length"]);
 
-	var xMax = Math.min(options.maxLengthX,
-			Math.max(sequenceLength, options.minLengthX));
-	var yMax = Math.min(options.maxLengthY,
-			Math.max(self.calcMaxCount(data.pileups), options.minLengthY));
+	var xMax = self.calcXMax(options, data);
+	var yMax = self.calcYMax(options, data.pileups);
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
-	var seqTooltip = "";
+	var seqTooltip = self.generateSequenceTooltip(data);
 
-	if (data.sequence.metadata.identifier)
-	{
-		seqTooltip += data.sequence.metadata.identifier;
-
-		if (data.sequence.metadata.description)
-		{
-			seqTooltip += ", " + data.sequence.metadata.description;
-		}
-	}
-
-	seqTooltip += " (" + sequenceLength + "aa)";
-
-	var xScale = d3.scale.linear()
-		.domain([0, xMax])
-		.range([bounds.x, bounds.x + bounds.width]);
-
-	self.xScale = xScale;
-
-	var yScale = d3.scale.linear()
-		.domain([0, yMax])
-		.range([bounds.y, bounds.y - bounds.height]);
-
-	self.yScale = yScale;
+	var xScale = self.xScale = self.xScaleFn(bounds, xMax);
+	var yScale = self.yScale = self.yScaleFn(bounds, yMax);
 
 	// draw x-axis
 	self.drawXAxis(svg, xScale, xMax, options, bounds);
@@ -488,6 +523,94 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	{
 		self.drawRegion(svg, regions[i], options, bounds, xScale);
 	}
+};
+
+/**
+ * Generates an x-scale function for the current bounds
+ * and the max value of the x-axis.
+ *
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param max       maximum value for the x-axis
+ * @return {function} scale function for the x-axis
+ */
+MutationDiagram.prototype.xScaleFn = function(bounds, max)
+{
+	return d3.scale.linear()
+		.domain([0, max])
+		.range([bounds.x, bounds.x + bounds.width]);
+};
+
+/**
+ * Generates a y-scale function for the current bounds
+ * and the max value of the y-axis.
+ *
+ * @param bounds    bounds of the plot area {width, height, x, y}
+ *                  x, y is the actual position of the origin
+ * @param max       maximum value for the y-axis
+ * @return {function} scale function for the y-axis
+ */
+MutationDiagram.prototype.yScaleFn = function(bounds, max)
+{
+	return d3.scale.linear()
+		.domain([0, max])
+		.range([bounds.y, bounds.y - bounds.height]);
+};
+
+/**
+ * Finds out the maximum value for the x-axis.
+ *
+ * @param options   options object
+ * @param data      data to visualize
+ * @return {Number} maximum value for the x-axis
+ */
+MutationDiagram.prototype.calcXMax = function(options, data)
+{
+	var sequenceLength = parseInt(data.sequence["length"]);
+
+	return Math.min(options.maxLengthX,
+		Math.max(sequenceLength, options.minLengthX));
+};
+
+/**
+ * Finds out the maximum value for the y-axis.
+ *
+ * @param options   options object
+ * @param pileups   list of Pileup instances
+ * @return {Number} maximum value for the y-axis
+ */
+MutationDiagram.prototype.calcYMax = function(options, pileups)
+{
+	var self = this;
+
+	return Math.min(options.maxLengthY,
+		Math.max(self.calcMaxCount(pileups), options.minLengthY));
+};
+
+/**
+ * Generates the tooltip content for the sequence rectangle.
+ *
+ * @param data      data to visualize
+ * @return {string} tooltip content
+ */
+MutationDiagram.prototype.generateSequenceTooltip = function(data)
+{
+	var seqTooltip = "";
+	var sequenceLength = parseInt(data.sequence["length"]);
+
+	if (data.sequence.metadata.identifier)
+	{
+		seqTooltip += data.sequence.metadata.identifier;
+
+		if (data.sequence.metadata.description)
+		{
+			seqTooltip += ", " + data.sequence.metadata.description;
+		}
+	}
+
+	seqTooltip += " (" + sequenceLength + "aa)";
+
+	return seqTooltip;
 };
 
 /**
@@ -1344,8 +1467,55 @@ MutationDiagram.prototype.calcSequenceBounds = function (bounds, options)
 MutationDiagram.prototype.updatePlot = function(mutationData)
 {
 	var self = this;
+	var pileups = self.pileups;
+
 	// TODO for a safer update, verify the provided data
-	var pileups = this.processData(mutationData);
+
+	// update current data & pileups
+	if (mutationData)
+	{
+		self.pileups = pileups = self.processData(mutationData);
+		self.currentData = mutationData;
+	}
+
+	// remove all elements in the plot area
+	self.cleanPlotArea();
+
+	// reset color mapping (for the new data we may have different pileup colors)
+	self.mutationColorMap = {};
+
+	// re-draw plot area contents for new data
+	self.drawPlot(self.svg,
+	              pileups,
+	              self.options,
+	              self.bounds,
+	              self.xScale,
+	              self.yScale);
+
+	// also re-add listeners
+	for (var selector in self.listeners)
+	{
+		var target = self.svg.selectAll(selector);
+
+		for (var event in self.listeners[selector])
+		{
+			target.on(event,
+				self.listeners[selector][event]);
+		}
+	}
+
+	// reset highlight map
+	self.highlighted = {};
+
+	return self.isFiltered();
+};
+
+/**
+ * Removes all elements of the plot area.
+ */
+MutationDiagram.prototype.cleanPlotArea = function()
+{
+	var self = this;
 
 	// select all plot area elements
 	var labels = self.gLabel.selectAll("text");
@@ -1356,9 +1526,6 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	labels.remove();
 	lines.remove();
 	dataPoints.remove();
-
-	// reset color mapping (for the new data we may have different pileup colors)
-	self.mutationColorMap = {};
 
 	// alternative animated version:
 	// fade out and then remove all
@@ -1384,35 +1551,7 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 //		});
 
 	// for the alternative animated version
-	// this call should also be delayed to have a nicer effect
-
-	// re-draw plot area contents for new data
-	self.drawPlot(self.svg,
-	              pileups,
-	              self.options,
-	              self.bounds,
-	              self.xScale,
-	              self.yScale);
-
-	// also re-add listeners
-	for (var selector in self.listeners)
-	{
-		var target = self.svg.selectAll(selector);
-
-		for (var event in self.listeners[selector])
-		{
-			target.on(event,
-				self.listeners[selector][event]);
-		}
-	}
-
-	// update current data
-	self.currentData = mutationData;
-
-	// reset highlight map
-	self.highlighted = {};
-
-	return self.isFiltered();
+	// plot re-drawing should also be delayed to have a nicer effect
 };
 
 /**

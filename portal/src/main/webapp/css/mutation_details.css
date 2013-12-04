@@ -107,6 +107,24 @@ th.mutation-details-qtip-style {
 	padding-top: 10px;
 	padding-left: 10px;
 }
+.mutation-diagram-customize {
+	margin-top: 5px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-diagram-customize table {
+	width: 100%;
+}
+.diagram-customize-close {
+	float: right;
+}
+.diagram-customize {
+	margin-left: 25px;
+}
+.diagram-upper-limit-input {
+	width: 4em;
+}
 .mutation-details-filter-info {
 	font-size: 14px;
 	font-family: verdana,arial,sans-serif;

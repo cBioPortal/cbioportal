@@ -30,8 +30,9 @@ var MainMutationView = Backbone.View.extend({
 
 		// hide the mutation diagram filter info text by default
 		self.hideFilterInfo();
-		// hide the toolbar by default
+		// hide the toolbar & customization panel by default
 		self.$el.find(".mutation-diagram-toolbar").hide();
+		self.$el.find(".mutation-diagram-customize").hide();
 	},
 	/**
 	 * Initializes the toolbar over the mutation diagram.
@@ -100,6 +101,41 @@ var MainMutationView = Backbone.View.extend({
 			submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 		});
 
+
+		var customizeButton = self.$el.find(".diagram-customize");
+		var customizeClose = self.$el.find(".diagram-customize-close");
+		var updateButton = self.$el.find(".diagram-customize-update");
+
+		// add listeners to customize buttons
+
+		customizeButton.click(function(event) {
+			self.toggleControls();
+		});
+
+		customizeClose.click(function(event) {
+			event.preventDefault();
+			self.toggleControls();
+		});
+
+		updateButton.click(function(event) {
+			var inputField = self.$el.find(".diagram-upper-limit-input");
+			var input = inputField.val();
+
+			// remove the limit for empty/invalid values
+			if (isNaN(input) || input < 1)
+			{
+				diagram.updateOptions({maxLengthY: Infinity});
+				diagram.rescaleYAxis();
+				inputField.val("");
+			}
+			// update for valid values
+			else
+			{
+				diagram.updateOptions({maxLengthY: input});
+				diagram.rescaleYAxis();
+			}
+		});
+
 		toolbar.show();
 	},
 	/**
@@ -139,5 +175,8 @@ var MainMutationView = Backbone.View.extend({
 	},
 	hideFilterInfo: function() {
 		this.$el.find(".mutation-details-filter-info").hide();
+	},
+	toggleControls: function() {
+		this.$el.find(".mutation-diagram-customize").slideToggle();
 	}
 });

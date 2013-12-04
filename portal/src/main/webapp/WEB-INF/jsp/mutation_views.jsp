@@ -66,6 +66,24 @@
 		</form>
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
+		<button class="diagram-customize">Customize</button>
+	</div>
+	<div class="mutation-diagram-customize ui-widget">
+		<div class="diagram-customize-close">
+			<a href="#">&times;</a>
+		</div>
+		<h4>Customize</h4>
+		<table>
+			<tr>
+				<td>
+					<span class="diagram-upper-limit">
+						<label>Max y-axis value: </label>
+						<input type="text" class="diagram-upper-limit-input"/>
+						<button class="diagram-customize-update">Update</button>
+					</span>
+				</td>
+			</tr>
+		</table>
 	</div>
 	<div>
 		<table>

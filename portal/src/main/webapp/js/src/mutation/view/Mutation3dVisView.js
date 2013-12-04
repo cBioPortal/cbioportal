@@ -47,7 +47,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 
 			// also hide all pdb panel views
-			self.options.parentEl.find(".mutation-pdb-panel-view").hide();
+			self.options.parentEl.find(".mutation-pdb-panel-view").slideUp();
 		};
 
 		// add listeners to panel (header) buttons

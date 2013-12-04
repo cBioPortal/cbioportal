@@ -34,7 +34,7 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 
 		// hide view initially
-		self.hideView();
+		self.$el.hide();
 
 		// format panel controls
 
@@ -60,12 +60,12 @@ var PdbPanelView = Backbone.View.extend({
 	hideView: function()
 	{
 		var self = this;
-		self.$el.hide();
+		self.$el.slideUp();
 	},
 	showView: function()
 	{
 		var self = this;
-		self.$el.show();
+		self.$el.slideDown();
 	},
 	/**
 	 * Loads the 3D visualizer for the default pdb and chain.

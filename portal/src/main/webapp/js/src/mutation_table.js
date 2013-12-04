@@ -128,6 +128,7 @@ var MutationTableUtil = function(tableSelector, gene, mutations)
 		for (var col=0; col<count; col++)
 		{
 			var searchable = col == indexMap["case id"] ||
+					col == indexMap["mutation id"] ||
 					col == indexMap["cancer study"] ||
 					col == indexMap["aa change"] ||
 					col == indexMap["type"];

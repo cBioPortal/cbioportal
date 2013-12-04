@@ -29,7 +29,7 @@ var MainMutationView = Backbone.View.extend({
 		var self = this;
 
 		// hide the mutation diagram filter info text by default
-		self.hideFilterInfo();
+		self.$el.find(".mutation-details-filter-info").hide();
 		// hide the toolbar & customization panel by default
 		self.$el.find(".mutation-diagram-toolbar").hide();
 		self.$el.find(".mutation-diagram-customize").hide();
@@ -171,10 +171,10 @@ var MainMutationView = Backbone.View.extend({
 		});
 	},
 	showFilterInfo: function() {
-		this.$el.find(".mutation-details-filter-info").show();
+		this.$el.find(".mutation-details-filter-info").slideDown();
 	},
 	hideFilterInfo: function() {
-		this.$el.find(".mutation-details-filter-info").hide();
+		this.$el.find(".mutation-details-filter-info").slideUp();
 	},
 	toggleControls: function() {
 		this.$el.find(".mutation-diagram-customize").slideToggle();

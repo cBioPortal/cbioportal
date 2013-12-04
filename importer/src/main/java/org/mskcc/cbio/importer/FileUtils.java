@@ -233,52 +233,52 @@ public interface FileUtils {
 	 * Method which writes a metadata file for the
 	 * given DatatypeMetadata.  DataMatrix may be null.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 *
 	 */
-	void writeMetadataFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	void writeMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 						   DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a staging file (and meta file) with contents from the given DataMatrix.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
-	void writeStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	void writeStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 						  DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a staging file for mutation data (and meta file) with contents from the given DataMatrix.
 	 * This is called when the mutation file needs to be run through the Oncotator and Mutation Assessor Tools.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudy CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dataMatrix DataMatrix
 	 * @throws Exception
 	 */
-	void writeMutationStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	void writeMutationStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								  DatatypeMetadata datatypeMetadata, DataMatrix dataMatrix) throws Exception;
 
 	/**
 	 * Creates a z-score staging file from the given dependencies.  It assumes that the
 	 * dependency - staging files have already been created.
 	 *
-     * @param portalMetadata PortalMetadata
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param datatypeMetadata DatatypeMetadata
 	 * @param dependencies DatatypeMetadata[]
 	 * @throws Exception
 	 */
-	void writeZScoresStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	void writeZScoresStagingFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 								 DatatypeMetadata datatypeMetadata, DatatypeMetadata[] dependencies) throws Exception;
 
 	/**
@@ -301,13 +301,14 @@ public interface FileUtils {
 	 *
 	 * Note, filename can be the name of a file or directory (like case_lists)
 	 *
-	 * @param portalMetadata PortalMetadata
+	 * @param overrideDirectory String
+     * @param stagingDirectory String
 	 * @param cancerStudyMetadata CancerStudyMetadata
 	 * @param overrideFilename String
 	 * @param stagingFilename String
 	 * @throws Exception
 	 */
-	void applyOverride(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
+	void applyOverride(String overrideDirectory, String stagingDirectory, CancerStudyMetadata cancerStudyMetadata,
 					   String overrideFilename, String stagingFilename) throws Exception;
 
 	/**

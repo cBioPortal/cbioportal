@@ -29,9 +29,10 @@ var MainMutationView = Backbone.View.extend({
 		var self = this;
 
 		// hide the mutation diagram filter info text by default
-		self.hideFilterInfo();
-		// hide the toolbar by default
+		self.$el.find(".mutation-details-filter-info").hide();
+		// hide the toolbar & customization panel by default
 		self.$el.find(".mutation-diagram-toolbar").hide();
+		self.$el.find(".mutation-diagram-customize").hide();
 	},
 	/**
 	 * Initializes the toolbar over the mutation diagram.
@@ -86,11 +87,6 @@ var MainMutationView = Backbone.View.extend({
 		{
 			// we also need the same changes (top label) in pdf
 			alterDiagramForSvg(diagram, rollback);
-
-			cbio.util.alterAxesAttrForPDFConverter(
-					diagram.svg.select(".mut-dia-x-axis"), 8,
-					diagram.svg.select(".mut-dia-y-axis"), 3,
-					rollback);
 		};
 
 		//add listener to the svg button
@@ -103,6 +99,41 @@ var MainMutationView = Backbone.View.extend({
 		pdfButton.click(function (event) {
 			// submit pdf form
 			submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
+		});
+
+
+		var customizeButton = self.$el.find(".diagram-customize");
+		var customizeClose = self.$el.find(".diagram-customize-close");
+		var updateButton = self.$el.find(".diagram-customize-update");
+
+		// add listeners to customize buttons
+
+		customizeButton.click(function(event) {
+			self.toggleControls();
+		});
+
+		customizeClose.click(function(event) {
+			event.preventDefault();
+			self.toggleControls();
+		});
+
+		updateButton.click(function(event) {
+			var inputField = self.$el.find(".diagram-upper-limit-input");
+			var input = inputField.val();
+
+			// remove the limit for empty/invalid values
+			if (isNaN(input) || input < 1)
+			{
+				diagram.updateOptions({maxLengthY: Infinity});
+				diagram.rescaleYAxis();
+				inputField.val("");
+			}
+			// update for valid values
+			else
+			{
+				diagram.updateOptions({maxLengthY: input});
+				diagram.rescaleYAxis();
+			}
 		});
 
 		toolbar.show();
@@ -140,9 +171,12 @@ var MainMutationView = Backbone.View.extend({
 		});
 	},
 	showFilterInfo: function() {
-		this.$el.find(".mutation-details-filter-info").show();
+		this.$el.find(".mutation-details-filter-info").slideDown();
 	},
 	hideFilterInfo: function() {
-		this.$el.find(".mutation-details-filter-info").hide();
+		this.$el.find(".mutation-details-filter-info").slideUp();
+	},
+	toggleControls: function() {
+		this.$el.find(".mutation-diagram-customize").slideToggle();
 	}
 });

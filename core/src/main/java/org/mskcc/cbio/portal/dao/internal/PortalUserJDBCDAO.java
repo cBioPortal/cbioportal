@@ -55,10 +55,10 @@ import java.util.Collection;
 public class PortalUserJDBCDAO implements PortalUserDAO {
 
 	// logger
-	private static Log log = LogFactory.getLog(PortalUserJDBCDAO.class);
+	private static final Log log = LogFactory.getLog(PortalUserJDBCDAO.class);
 
 	// ref to jdbc template
-	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+	private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
 	/**
 	 * Constructor.
@@ -88,10 +88,9 @@ public class PortalUserJDBCDAO implements PortalUserDAO {
 		ParameterizedRowMapper<User> mapper = new ParameterizedRowMapper<User>() {
 			// mapRow override
 			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-				User user = new User(username,
-                                     rs.getString("name"),
-                                     rs.getBoolean("enabled"));
-				return user;
+				return new User(username,
+                                rs.getString("name"),
+                                rs.getBoolean("enabled"));
 			}
 		};
 

@@ -82,9 +82,9 @@
                                                 <a href="about_us.jsp">About</a>
                                             </li>
 					    
-                                            <!--li class="internal">
-					    <a href="submit-datasets.jsp" float="right">Submit Datasets</a>
-					    </li-->
+                                            <li class="internal" style="float:right">
+					    <a href="visualize_your_data.jsp" float="right"><b><i>VISUALIZE YOUR DATA</i></b></a>
+					    </li>
                                         </ul>
                                     </td>
                                 </tr>

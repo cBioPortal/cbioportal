@@ -103,7 +103,7 @@ public class DaoCosmicData {
     
     /**
      * 
-     * @param keyword
+     * @param keywordS
      * @return Map<keyword, List<cosmic>>
      * @throws DaoException 
      */

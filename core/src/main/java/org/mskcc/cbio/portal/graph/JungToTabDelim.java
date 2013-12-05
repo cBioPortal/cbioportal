@@ -54,13 +54,11 @@ public final class JungToTabDelim {
      */
     public static String convertToSif(Graph<String, String> g) {
         StringBuffer buf = new StringBuffer();
-        Iterator edgeIterator = g.getEdges().iterator();
-        while (edgeIterator.hasNext()) {
-            String edge = (String) edgeIterator.next();
+        for (String edge : g.getEdges()) {
             Pair pair = g.getEndpoints(edge);
             String geneA = (String) pair.getFirst();
             String geneB = (String) pair.getSecond();
-            buf.append(geneA + TAB + edge + TAB + geneB + "\n");
+            buf.append(geneA).append(TAB).append(edge).append(TAB).append(geneB).append("\n");
         }
         return buf.toString();
     }

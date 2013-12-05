@@ -692,7 +692,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   datatypeMetadata.getStagingFilename());
 		
 		// call NormalizeExpressionLevels
-		String[] args = { cnaFile.getCanonicalPath(), expressionFile.getCanonicalPath(), zScoresFile.getCanonicalPath() };
+		String[] args = { cnaFile.getCanonicalPath(), expressionFile.getCanonicalPath(),
+                          zScoresFile.getCanonicalPath(), NormalizeExpressionLevels.TCGA_NORMAL_SUFFIX };
 		if (LOG.isInfoEnabled()) {
 			LOG.info("writingZScoresStagingFlie(), calling NormalizeExpressionLevels: " + Arrays.toString(args));
 		}

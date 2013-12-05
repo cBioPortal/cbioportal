@@ -35,7 +35,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Set;
@@ -94,8 +93,7 @@ public class DaoProteinArrayInfo {
             pstmt.setString(2, pai.getType());
             pstmt.setString(3, pai.getGene());
             pstmt.setString(4, pai.getResidue());
-            int rows = pstmt.executeUpdate() + addProteinArrayCancerStudy(pai.getId(), pai.getCancerStudies());
-            return rows;
+            return pstmt.executeUpdate() + addProteinArrayCancerStudy(pai.getId(), pai.getCancerStudies());
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -112,8 +110,7 @@ public class DaoProteinArrayInfo {
             pstmt = con.prepareStatement
                     ("DELETE FROM protein_array_info WHERE `PROTEIN_ARRAY_ID`=? ");
             pstmt.setString(1, arrayId);
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -340,7 +337,7 @@ public class DaoProteinArrayInfo {
     }
     
     private Set<Integer> getCancerTypesOfArray(String arrayId, Connection con) throws DaoException {
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
         ResultSet rs = null;
         try {
             pstmt = con.prepareStatement
@@ -357,7 +354,7 @@ public class DaoProteinArrayInfo {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
     }
     

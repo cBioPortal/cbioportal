@@ -59,9 +59,7 @@ public class DaoClinicalAttribute {
             pstmt.setString(2, attr.getDisplayName());
             pstmt.setString(3, attr.getDescription());
             pstmt.setString(4, attr.getDatatype());
-
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -69,7 +67,7 @@ public class DaoClinicalAttribute {
         }
     }
 
-    public static ClinicalAttribute unpack(ResultSet rs) throws SQLException {
+    private static ClinicalAttribute unpack(ResultSet rs) throws SQLException {
         return new ClinicalAttribute(rs.getString("ATTR_ID"),
                 rs.getString("DISPLAY_NAME"),
                 rs.getString("DESCRIPTION"),
@@ -120,8 +118,7 @@ public class DaoClinicalAttribute {
      * @throws DaoException
      */
     public static List<ClinicalAttribute> getDataBySamples(int cancerStudyId, Set<String> sampleIdSet) throws DaoException {
-        List<ClinicalAttribute> toReturn = new ArrayList<ClinicalAttribute>();
-
+        
         Connection con = null;
         ResultSet rs = null;
 		PreparedStatement pstmt = null;
@@ -151,7 +148,7 @@ public class DaoClinicalAttribute {
         return getDatum(attrIds);
     }
 
-    public static Collection<ClinicalAttribute> getAll() throws DaoException {
+    private static Collection<ClinicalAttribute> getAll() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

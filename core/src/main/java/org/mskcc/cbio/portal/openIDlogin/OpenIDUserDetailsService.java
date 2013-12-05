@@ -58,10 +58,10 @@ public class OpenIDUserDetailsService
 	implements UserDetailsService, AuthenticationUserDetailsService<OpenIDAuthenticationToken> {
 
 	// logger
-	private static Log log = LogFactory.getLog(OpenIDUserDetailsService.class);
+	private static final Log log = LogFactory.getLog(OpenIDUserDetailsService.class);
 
 	// ref to our user dao
-    private PortalUserDAO portalUserDAO;
+    private final PortalUserDAO portalUserDAO;
 
     /**
      * Constructor.
@@ -152,7 +152,7 @@ public class OpenIDUserDetailsService
                 UserAuthorities authorities = portalUserDAO.getPortalUserAuthorities(email);
                 if (authorities != null) {
                     List<GrantedAuthority> grantedAuthorities =
-                        AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[0]));
+                        AuthorityUtils.createAuthorityList(authorities.getAuthorities().toArray(new String[authorities.getAuthorities().size()]));
                     toReturn = new OpenIDUserDetails(id, grantedAuthorities);
                     toReturn.setEmail(email);
                     toReturn.setName(fullName);

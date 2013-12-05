@@ -88,9 +88,7 @@ public class NetworkOfInterest {
         ArrayList<String> deleteList = new ArrayList<String>();
         for (String gene:  vertexList) {
             int seedDegree = 0;
-            Iterator<String> neighborIterator = graph.getNeighbors(gene).iterator();
-            while (neighborIterator.hasNext()) {
-                String neighbor = neighborIterator.next();
+            for (String neighbor : graph.getNeighbors(gene)) {
                 if (seedSet.contains(neighbor)) {
                     seedDegree++;
                 }

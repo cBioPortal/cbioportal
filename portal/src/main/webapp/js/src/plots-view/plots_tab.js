@@ -235,6 +235,16 @@ var PlotsMenu = (function () {
         });
     }
 
+    function setDefaultMethylationSelection() {
+        $('#data_type_dna_methylation > option').each(function() {
+            if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+    }
+
     function updateVisibility() {
         $("#one_gene_log_scale_x_div").remove();
         $("#one_gene_log_scale_y_div").remove();
@@ -301,6 +311,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -313,6 +324,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -321,6 +333,7 @@ var PlotsMenu = (function () {
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
+            setDefaultMethylationSelection();
             updateVisibility();
         },
         updateLogScaleOption: updateLogScaleOption,
@@ -1213,7 +1226,7 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                                     show: {event: "mouseover"},
                                     hide: {fixed:true, delay: 100, event: "mouseout"},
                                     position: {my:'left bottom',at:'top right'}

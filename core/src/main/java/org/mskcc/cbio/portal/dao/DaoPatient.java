@@ -27,13 +27,11 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import org.mskcc.cbio.portal.model.Patient;
+
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO to `patient`.
@@ -42,73 +40,23 @@ import org.mskcc.cbio.portal.model.Patient;
  */
 public class DaoPatient {
 
-    public static int addPatient(Patient patient) throws DaoException
-    {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_PATIENT_ID`) VALUES (?)");
-            pstmt.setString(1, patient.getStableId());
-            return pstmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
-        }
+    private static final Map<String, Patient> byStableId = new ConcurrentHashMap<String, Patient>();
+    private static final Map<Integer, Patient> byInternalId = new ConcurrentHashMap<Integer, Patient>();
+
+    static {
+        cache();
     }
 
-    public static Patient getPatientByInternalId(int internalId) throws DaoException
+    private static void clearCache()
     {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("SELECT * FROM patient WHERE INTERNAL_ID=?");
-            pstmt.setInt(1, internalId);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return extractPatient(rs);
-            }
-            return null;
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
-        }
+        byStableId.clear();
+        byInternalId.clear();
     }
 
-    public static Patient getPatientByStableId(String stableId) throws DaoException
+    private static void cache()
     {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("SELECT * FROM patient WHERE STABLE_ID=?");
-            pstmt.setString(1, stableId);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return extractPatient(rs);
-            }
-            return null;
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
-        }
-    }
+        clearCache();
 
-    public static ArrayList<Patient> getAllPatients() throws DaoException
-    {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -118,16 +66,60 @@ public class DaoPatient {
             rs = pstmt.executeQuery();
             ArrayList<Patient> list = new ArrayList<Patient>();
             while (rs.next()) {
-                list.add(extractPatient(rs));
+                cachePatient(extractPatient(rs));
             }
-            return list;
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        finally {
+            JdbcUtil.closeAll(Patient.class, con, pstmt, rs);
+        }
+    }
+
+    private static void cachePatient(Patient patient)
+    {
+        byStableId.put(patient.getStableId(), patient);
+        byInternalId.put(patient.getInternalId(), patient);
+    }
+
+    public static void addPatient(Patient patient) throws DaoException
+    {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoPatient.class);
+            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_PATIENT_ID`) VALUES (?)",
+                                         Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, patient.getStableId());
+            pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                cachePatient(new Patient(rs.getInt(1), patient.getStableId()));
+            }
         }
         catch (SQLException e) {
             throw new DaoException(e);
         }
         finally {
-            JdbcUtil.closeAll(Patient.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
         }
+    }
+
+    public static Patient getPatientByInternalId(int internalId)
+    {
+        return byInternalId.get(internalId);
+    }
+
+    public static Patient getPatientByStableId(String stableId)
+    {
+        return byStableId.get(stableId);
+    }
+
+    public static List<Patient> getAllPatients()
+    {
+        return new ArrayList<Patient>(byStableId.values());
     }
 
     public static void deleteAllRecords() throws DaoException
@@ -146,6 +138,8 @@ public class DaoPatient {
         finally {
             JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
         }
+
+        clearCache();
     }
 
     private static Patient extractPatient(ResultSet rs) throws SQLException

@@ -27,13 +27,11 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import org.mskcc.cbio.portal.model.Sample;
+
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * DAO to `sample`.
@@ -42,77 +40,27 @@ import org.mskcc.cbio.portal.model.Sample;
  */
 public class DaoSample {
 
-    public static int addSample(Sample sample) throws DaoException
-    {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoSample.class);
-            pstmt = con.prepareStatement("INSERT INTO sample " +
-                                         "( `STABLE_ID`, `PATIENT_ID`, `TYPE_OF_CANCER_ID` ) " +
-                                         "VALUES (?,?,?)");
-            pstmt.setString(1, sample.getStableId());
-            pstmt.setInt(2, sample.getInternalPatientId());
-            pstmt.setString(3, sample.getCancerTypeId());
-            return pstmt.executeUpdate();
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
-        }
+    private static final Map<String, Sample> byStableId = new ConcurrentHashMap<String, Sample>();
+    private static final Map<Integer, Sample> byInternalId = new ConcurrentHashMap<Integer, Sample>();
+    private static final Map<Integer, HashSet<Sample>> byInternalPatientId = new ConcurrentHashMap<Integer, HashSet<Sample>>();
+    private static final Map<String, HashSet<Sample>> byCancerTypeId = new ConcurrentHashMap<String, HashSet<Sample>>();
+
+    static {
+        cache();
     }
 
-    public static Sample getSampleByInternalId(int internalId) throws DaoException
+    private static void clearCache()
     {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoSample.class);
-            pstmt = con.prepareStatement("SELECT * FROM sample WHERE INTERNAL_ID=?");
-            pstmt.setInt(1, internalId);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return extractSample(rs);
-            }
-            return null;
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
-        }
+        byStableId.clear();
+        byInternalId.clear();
+        byInternalPatientId.clear();
+        byCancerTypeId.clear();
     }
 
-    public static Sample getSampleByStableId(String stableId) throws DaoException
+    private static void cache()
     {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoSample.class);
-            pstmt = con.prepareStatement("SELECT * FROM sample WHERE STABLE_ID=?");
-            pstmt.setString(1, stableId);
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return extractSample(rs);
-            }
-            return null;
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
-        }
-    }
+        clearCache();
 
-    public static ArrayList<Sample> getAllSamples() throws DaoException
-    {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -122,64 +70,85 @@ public class DaoSample {
             rs = pstmt.executeQuery();
             ArrayList<Sample> list = new ArrayList<Sample>();
             while (rs.next()) {
-                list.add(extractSample(rs));
+                cacheSample(extractSample(rs));
             }
-            return list;
         }
         catch (SQLException e) {
-            throw new DaoException(e);
+            e.printStackTrace();
         }
         finally {
             JdbcUtil.closeAll(Sample.class, con, pstmt, rs);
         }
     }
 
-    public static ArrayList<Sample> getSamplesByInternalPatientId(int internalPatientId) throws DaoException
+    private static void cacheSample(Sample sample)
+    {
+        byStableId.put(sample.getStableId(), sample);
+        byInternalId.put(sample.getInternalId(), sample);
+
+        if (!byInternalPatientId.containsKey(sample.getInternalPatientId())) {
+            byInternalPatientId.put(sample.getInternalPatientId(), new HashSet<Sample>());
+        }
+        byInternalPatientId.get(sample.getInternalPatientId()).add(sample);
+
+        if (!byCancerTypeId.containsKey(sample.getCancerTypeId())) {
+            byCancerTypeId.put(sample.getCancerTypeId(), new HashSet<Sample>());
+        }
+        byCancerTypeId.get(sample.getCancerTypeId()).add(sample);
+    }
+
+    public static void addSample(Sample sample) throws DaoException
     {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoSample.class);
-            pstmt = con.prepareStatement("SELECT * FROM sample WHERE PATIENT_ID=?");
-            pstmt.setInt(1, internalPatientId);
-            rs = pstmt.executeQuery();
-            ArrayList<Sample> list = new ArrayList<Sample>();
-            while (rs.next()) {
-                list.add(extractSample(rs));
+            pstmt = con.prepareStatement("INSERT INTO sample " +
+                                         "( `STABLE_ID`, `PATIENT_ID`, `TYPE_OF_CANCER_ID` ) " +
+                                         "VALUES (?,?,?)",
+                                         Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, sample.getStableId());
+            pstmt.setInt(2, sample.getInternalPatientId());
+            pstmt.setString(3, sample.getCancerTypeId());
+            pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            if (rs.next()) {
+                cacheSample(new Sample(rs.getInt(1), sample.getStableId(),
+                                       sample.getInternalPatientId(), sample.getCancerTypeId()));
             }
-            return list;
         }
         catch (SQLException e) {
             throw new DaoException(e);
         }
         finally {
-            JdbcUtil.closeAll(Sample.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
         }
     }
 
-    public static ArrayList<Sample> getSamplesByCancerTypeId(String cancerTypeId) throws DaoException
+    public static Sample getSampleByInternalId(int internalId)
     {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoSample.class);
-            pstmt = con.prepareStatement("SELECT * FROM sample WHERE TYPE_OF_CANCER_ID=?");
-            pstmt.setString(1, cancerTypeId);
-            rs = pstmt.executeQuery();
-            ArrayList<Sample> list = new ArrayList<Sample>();
-            while (rs.next()) {
-                list.add(extractSample(rs));
-            }
-            return list;
-        }
-        catch (SQLException e) {
-            throw new DaoException(e);
-        }
-        finally {
-            JdbcUtil.closeAll(Sample.class, con, pstmt, rs);
-        }
+        return byInternalId.get(internalId);
+    }
+
+    public static Sample getSampleByStableId(String stableId)
+    {
+        return byStableId.get(stableId);
+    }
+
+    public static List<Sample> getAllSamples()
+    {
+        return new ArrayList<Sample>(byStableId.values());
+    }
+
+    public static List<Sample> getSamplesByInternalPatientId(int internalPatientId)
+    {
+        return new ArrayList<Sample>(byInternalPatientId.get(internalPatientId));
+    }
+
+    public static List<Sample> getSamplesByCancerTypeId(String cancerTypeId)
+    {
+        return new ArrayList<Sample>(byCancerTypeId.get(cancerTypeId));
     }
 
     public static void deleteAllRecords() throws DaoException
@@ -198,6 +167,8 @@ public class DaoSample {
         finally {
             JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
         }
+
+        clearCache();
     }
 
     private static Sample extractSample(ResultSet rs) throws SQLException

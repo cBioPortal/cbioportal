@@ -515,6 +515,21 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.close();
 	}
 
+    @Override
+    public Set<String> getPatientList(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception
+    {
+        CaseListMetadata caseListMetadata = config.getCaseListMetadata(CaseListMetadata.ALL_CASES_FILENAME).iterator().next();
+        String[] stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+        LinkedHashSet<String> patients = new LinkedHashSet<String>();
+        for (String stagingFilename : stagingFilenames) {
+            List<String> thisPatientList = getCaseListFromStagingFile(true, caseIDs, cancerStudyMetadata, stagingDirectory, stagingFilename);
+            if (!thisPatientList.isEmpty()) {
+                patients.addAll(thisPatientList);
+            }
+        }
+        return patients;
+    }
+
 	@Override
 	public void writePatientListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Set<String> patients) throws Exception
     {
@@ -525,12 +540,17 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
             LOG.info("writePatientListFile(), patient file: " + patientFile);
         }
 
-        PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(patientFile, false));
-        for (String patient : patients) {
-            writer.println(patient);
+        if (!patients.isEmpty()) {
+            PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(patientFile, false));
+            for (String patient : patients) {
+                writer.println(patient);
+            }
+            writer.flush();
+            writer.close();
         }
-        writer.flush();
-        writer.close();
+        else if (LOG.isInfoEnabled()) {
+            LOG.info("writePatientListFile(), patient file is empty!");
+        }
     }
 
 	public void writeMetadataFile(String stagingDirectory,

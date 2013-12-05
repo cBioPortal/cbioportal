@@ -47,6 +47,7 @@ import org.mskcc.cbio.importer.util.MutationFileUtil;
 
 import org.mskcc.cbio.portal.scripts.ImportCaseList;
 import org.mskcc.cbio.portal.scripts.ImportCancerStudy;
+import org.mskcc.cbio.portal.scripts.ImportPatientList;
 import org.mskcc.cbio.portal.scripts.ImportTypesOfCancers;
 
 import org.apache.commons.logging.Log;
@@ -314,6 +315,22 @@ class ImporterImpl implements Importer {
 			}
 			ImportCancerStudy.main(args);
 
+            // Import patient list
+            boolean createdPatientListFile = false;
+			String patientListFile = (rootDirectory + File.separator +
+                                      cancerStudyMetadata.getStudyPath() + File.separator +
+                                      cancerStudyMetadata.getCancerStudyPatientListFilename());
+			if (!(new File(patientListFile)).exists()) {
+				if (LOG.isInfoEnabled()) {
+					LOG.info("loadStagingFile(), cannot find patient list file: " + patientListFile + ", creating...");
+				}
+                fileUtils.writePatientListFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
+                                               fileUtils.getPatientList(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
+				createdPatientListFile = true;
+			}
+            args = new String[] { patientListFile };
+            ImportPatientList.main(args);
+
 			// iterate over all datatypes
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
@@ -354,6 +371,9 @@ class ImporterImpl implements Importer {
 				mainMethod.invoke(null, (Object)args);
 
 				// clean up
+				if (createdPatientListFile) {
+                    fileUtils.deleteFile(new File(patientListFile));
+                }
 				if (!stagingFilename.equals(getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getStagingFilename()))) {
 					fileUtils.deleteFile(new File(stagingFilename));
 				}
@@ -392,8 +412,8 @@ class ImporterImpl implements Importer {
 				}
 				File caseListDir = new File(caseListDirectory);
 				if (fileUtils.directoryIsEmpty(caseListDir)) fileUtils.deleteDirectory(caseListDir);
-				if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 			}
+            if (createdCancerStudyMetadataFile) fileUtils.deleteFile(new File(cancerStudyMetadataFile));
 		}
 	}
 

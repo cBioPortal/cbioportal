@@ -172,6 +172,8 @@ class ConverterImpl implements Converter {
 				// create cancer study metadata file
 				// note - we call this again after we compute the number of cases
 				fileUtils.writeCancerStudyMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, -1);
+                fileUtils.writePatientListFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
+                                               getPatientList(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
 			}
 		}
 	}
@@ -365,6 +367,20 @@ class ConverterImpl implements Converter {
 		// outta here
 		return toReturn.toArray(new DataMatrix[0]);
 	}
+
+    private Set<String> getPatientList(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception
+    {
+        CaseListMetadata caseListMetadata = config.getCaseListMetadata(CaseListMetadata.ALL_CASES_FILENAME).iterator().next();
+        String[] stagingFilenames = caseListMetadata.getStagingFilenames().split("\\" + CaseListMetadata.CASE_LIST_UNION_DELIMITER);
+        LinkedHashSet<String> patients = new LinkedHashSet<String>();
+        for (String stagingFilename : stagingFilenames) {
+            List<String> thisPatientList = fileUtils.getCaseListFromStagingFile(true, caseIDs, cancerStudyMetadata, stagingDirectory, stagingFilename);
+            if (!thisPatientList.isEmpty()) {
+                patients.addAll(thisPatientList);
+            }
+        }
+        return patients;
+    }
 }
 
 class ImportDataRecordComparator implements Comparator {

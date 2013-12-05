@@ -38,13 +38,21 @@ import java.util.Collection;
  */
 public interface CaseIDs {
 
+    /**
+     * Returns barcode which includes patient & sample type.
+     *
+     * @param caseID String
+     * @param String 
+     */
+    String getSampleId(String caseID);
+
 	/**
 	 * Converts the given case id to mskcc format.
 	 *
 	 * @param caseID String
 	 * @return String
 	 */
-	String convertCaseID(String caseID);
+	String getPatientId(String caseID);
 
 	/**
 	 * Determines if given case id is a tumor case id.

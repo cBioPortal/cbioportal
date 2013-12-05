@@ -47,7 +47,10 @@ import java.util.regex.Pattern;
  */
 public class CaseIDsImpl implements CaseIDs {
 
+    private static final String PATIENT_SAMPLE_REGEX = "tcga-patient-sample-pattern";
+
 	// ref to our matchers
+    private Pattern patientSamplePattern;
 	private Collection<Pattern> patterns;
 
 	/**
@@ -68,9 +71,21 @@ public class CaseIDsImpl implements CaseIDs {
 		// setup our matchers
 		patterns = new ArrayList<Pattern>();
 		for (CaseIDFilterMetadata caseIDFilter : caseIDFilters) {
-			patterns.add(Pattern.compile(caseIDFilter.getRegex()));
+            if (caseIDFilter.getFilterName().equals(PATIENT_SAMPLE_REGEX)) {
+                patientSamplePattern = Pattern.compile(caseIDFilter.getRegex());
+            }
+            else {
+                patterns.add(Pattern.compile(caseIDFilter.getRegex()));
+            }
 		}
 	}
+
+    @Override
+    public String getSampleId(String caseID)
+    {
+        Matcher matcher = patientSamplePattern.matcher(caseID);
+        return (matcher.find()) ? matcher.group(1) : caseID;
+    }
 
 	/**
 	 * Converts the given case id to mskcc format.
@@ -79,7 +94,7 @@ public class CaseIDsImpl implements CaseIDs {
 	 * @return String
 	 */
 	@Override
-	public String convertCaseID(String caseID) {
+	public String getPatientId(String caseID) {
 
 		for (Pattern pattern : patterns) {
 			Matcher matcher = pattern.matcher(caseID);

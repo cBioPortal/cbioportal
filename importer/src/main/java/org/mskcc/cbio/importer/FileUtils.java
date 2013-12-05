@@ -41,6 +41,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.util.Set;
 import java.util.List;
 import java.util.Collection;
 
@@ -217,6 +218,8 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
+
+    void writePatientListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Set<String> caseSet) throws Exception;
 
 	/**
 	 * Method which writes a metadata file for

@@ -46,6 +46,8 @@ public class CancerStudyMetadata {
 	private static final String CANCER_STUDY_METADATA_FILE_EXT = ".txt";
 	private static final String CANCER_STUDY_METADATA_FILE = "meta_study" + CANCER_STUDY_METADATA_FILE_EXT;
 
+    private static final String CANCER_STUDY_PATIENT_LIST_FILE = "patient_list.txt";
+
 	// cancer study identifier delimiter (used in metadata files)
 	private static final String CANCER_STUDY_IDENTIFIER_DELIMITER = "_";
 
@@ -124,8 +126,11 @@ public class CancerStudyMetadata {
 	public String getGroups() { return groups; }
 
 	public String getCancerStudyMetadataFilename() {
-		//return getStudyPath() + File.separator + toString() + CANCER_STUDY_METADATA_FILE_EXT;
 		return CANCER_STUDY_METADATA_FILE;
+	}
+
+	public String getCancerStudyPatientListFilename() {
+        return CANCER_STUDY_PATIENT_LIST_FILE;
 	}
 
 	public String toString() {

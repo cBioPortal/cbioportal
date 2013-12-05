@@ -29,12 +29,8 @@
 package org.mskcc.cbio.importer.model;
 
 // imports
-import com.google.common.base.Charsets;
 import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Iterators;
 import com.google.common.collect.Table;
-import com.google.common.io.Files;
-import org.apache.commons.codec.CharEncoding;
 import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.Converter;
@@ -233,7 +229,7 @@ public class DataMatrix {
 				continue;
 			}
 			// made it here, convert the id
-			columnHeader.label = caseIDsFilter.convertCaseID(columnHeader.label);
+			columnHeader.label = caseIDsFilter.getSampleId(columnHeader.label);
 			caseIDs.add(columnHeader.label);
 		}
 	}
@@ -254,7 +250,7 @@ public class DataMatrix {
 		for (int lc = 0; lc < caseIDColumnData.size(); lc++) {
 			String caseID = caseIDColumnData.get(lc);
 			if (caseIDsFilter.isTumorCaseID(caseID)) {
-				caseIDColumnData.set(lc, caseIDsFilter.convertCaseID(caseID));
+				caseIDColumnData.set(lc, caseIDsFilter.getSampleId(caseID));
 				caseIDs.add(caseID);
 			}
 		}

@@ -67,9 +67,6 @@ import java.io.PrintWriter;
 import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.ByteArrayInputStream;
-
-import java.lang.reflect.Constructor;
 
 import java.net.URL;
 import java.util.*;
@@ -319,7 +316,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			else if (LOG.isInfoEnabled()) {
 				LOG.info("generateCaseLists(), caseSet.size() <= 0, skipping call to writeCaseListFile()...");
 			}
-			// if union, write out the cancer study metadata file
+			// if union, write out the cancer study metadata file & patient list
 			if (overwrite && caseSet.size() > 0 && caseListMetadata.getCaseListFilename().equals(CaseListMetadata.ALL_CASES_FILENAME)) {
 				if (LOG.isInfoEnabled()) {
 					LOG.info("generateCaseLists(), processed all cases list, we can now update cancerStudyMetadata file()...");
@@ -380,7 +377,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 								if (Converter.NON_CASE_IDS.contains(potentialCaseID.toUpperCase())) {
 									continue;
 								}
-								caseSet.add(caseIDs.convertCaseID(potentialCaseID));
+								caseSet.add(caseIDs.getPatientId(potentialCaseID));
 							}
 						}
 						break;
@@ -394,7 +391,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 				// we want to add the value at mafCaseIDColumnIndex into return set - this is a case ID
 				String potentialCaseID = thisRow.get(mafCaseIDColumnIndex);
 				if (!strict || caseIDs.isTumorCaseID(potentialCaseID)) {
-					caseSet.add(caseIDs.convertCaseID(potentialCaseID));
+					caseSet.add(caseIDs.getPatientId(potentialCaseID));
 				}
 			}
 		} finally {
@@ -517,6 +514,24 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 			writer.flush();
 			writer.close();
 	}
+
+	@Override
+	public void writePatientListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Set<String> patients) throws Exception
+    {
+        File patientFile = org.apache.commons.io.FileUtils.getFile(stagingDirectory,
+                                                                   cancerStudyMetadata.getStudyPath(),
+                                                                   cancerStudyMetadata.getCancerStudyPatientListFilename());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("writePatientListFile(), patient file: " + patientFile);
+        }
+
+        PrintWriter writer = new PrintWriter(org.apache.commons.io.FileUtils.openOutputStream(patientFile, false));
+        for (String patient : patients) {
+            writer.println(patient);
+        }
+        writer.flush();
+        writer.close();
+    }
 
 	public void writeMetadataFile(String stagingDirectory,
 			CancerStudyMetadata cancerStudyMetadata,

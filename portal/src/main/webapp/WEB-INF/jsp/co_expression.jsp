@@ -16,6 +16,7 @@
 <div class="section" id="co_exp">
     <div id="user_selection"></div>
     <div id="co_exp_data_table_div">
+
         <table id="co_exp_data_table" cellpadding="0" cellspacing="0" border="0" class="display">
             <thead style="font-size:70%;" >
             <tr>
@@ -26,17 +27,12 @@
             </thead>
             <tbody></tbody>
         </table>
+
     </div>
 </div>
 
 <script>
     $(document).ready(function() {
-        $('#co_exp_data_table').dataTable({
-            "sDom": '<"H"if>t<"F"lp>',
-            "sPaginationType": "full_numbers",
-            "bJQueryUI": true,
-            "bAutoWidth": false
-        });
         CoExpTable.init();
     });
 </script>

@@ -34,6 +34,10 @@
 
 var CoExpTable = (function() {
 
+    function generateTable() {
+        getCoExpData();
+    }
+
     function getCoExpData() {
         var paramsGetCoExpData = {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
@@ -44,6 +48,14 @@ var CoExpTable = (function() {
     }
 
     function getCoExpDataCallBack(result) {
+        //Init table frame
+        $('#co_exp_data_table').dataTable({
+            "sDom": '<"H"if>t<"F"lp>',
+            "sPaginationType": "full_numbers",
+            "bJQueryUI": true,
+            "bAutoWidth": false
+        });
+
         attachDataToTable(result);
     }
 
@@ -55,7 +67,7 @@ var CoExpTable = (function() {
 
     return {
         init: function() {
-            getCoExpData();
+            generateTable();
         }
     };
 

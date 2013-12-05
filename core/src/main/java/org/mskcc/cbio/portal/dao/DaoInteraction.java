@@ -34,7 +34,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -252,7 +251,7 @@ public class DaoInteraction {
         if (entrezGeneIds.isEmpty()) {
             return interactionList;
         }
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
         ResultSet rs = null;
         try {
             String idStr = "("+StringUtils.join(entrezGeneIds, ",")+")";
@@ -293,7 +292,7 @@ public class DaoInteraction {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, rs);
+            JdbcUtil.closeAll(rs);
         }
     }
 

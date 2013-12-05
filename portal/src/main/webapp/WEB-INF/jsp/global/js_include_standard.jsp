@@ -10,8 +10,8 @@
 <script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.ColVis.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.dataTables.fnSetFilteringDelay.js"></script>
 <script type="text/javascript" src="js/lib/ui.dropdownchecklist-1.4-min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.dataTables.ColVis.min.js"></script> 
 <script type="text/javascript" src="js/lib/raphael/raphael.js"></script>
 <script type="text/javascript" src="js/lib/jquery.qtip.min.js"></script>
 <script type="text/javascript" src="js/lib/json2.js"></script>

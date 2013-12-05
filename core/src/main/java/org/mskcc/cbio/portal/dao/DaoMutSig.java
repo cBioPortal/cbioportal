@@ -102,8 +102,7 @@ public class DaoMutSig {
                     pstmt.setFloat(7, mutSig.getqValue());
 
 
-                    int rows = pstmt.executeUpdate();
-                    return rows;
+                    return pstmt.executeUpdate();
                 }
 
                 else {
@@ -115,9 +114,7 @@ public class DaoMutSig {
             throw new DaoException(e);
         } finally {
             JdbcUtil.closeAll(DaoMutSig.class, con, pstmt, rs);
-            return 0;
         }
-
     }
 
     public static MutSig getMutSig(String hugoGeneSymbol, int cancerStudy) throws DaoException {
@@ -140,8 +137,7 @@ public class DaoMutSig {
                 pstmt.setInt(2, cancerStudy);
                 rs = pstmt.executeQuery();
                 if (rs.next()) {
-                    MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
-                    return mutSig;
+                    return DaoMutSig.assignMutSig(gene, rs);
                 } else {
                     return null;
                 }
@@ -168,8 +164,7 @@ public class DaoMutSig {
             if (rs.next()) {
                 //first go into gene database, and make a Canonical Gene Object with
                 CanonicalGene gene = daoGene.getGene(rs.getLong("ENTREZ_GENE_ID"));
-                MutSig mutSig = DaoMutSig.assignMutSig(gene, rs);
-                return mutSig;
+                return DaoMutSig.assignMutSig(gene, rs);
             } else {
                 return null;
             }
@@ -278,14 +273,13 @@ public class DaoMutSig {
     private static MutSig assignMutSig(CanonicalGene gene, ResultSet rs)
             throws SQLException, DaoException {
 
-        MutSig mutSig = new MutSig(rs.getInt("CANCER_STUDY_ID"),
+        return new MutSig(rs.getInt("CANCER_STUDY_ID"),
                 gene,
                 rs.getInt("RANK"),
                 rs.getInt("NumBasesCovered"),
                 rs.getInt("numMutations"),
                 rs.getFloat("P_Value"),
                 rs.getFloat("Q_Value"));
-        return mutSig;
     }
 
     /**

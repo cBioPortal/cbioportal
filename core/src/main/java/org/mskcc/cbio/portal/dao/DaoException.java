@@ -33,7 +33,7 @@ package org.mskcc.cbio.portal.dao;
  * @author Ethan Cerami
  */
 public class DaoException extends Exception {
-    private String msg;
+    private final String msg;
 
     /**
      * Constructor.

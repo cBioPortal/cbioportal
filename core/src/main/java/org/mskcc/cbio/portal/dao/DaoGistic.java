@@ -56,7 +56,7 @@ public class DaoGistic {
      * @throws DaoException
      */
 
-    private static Log log = LogFactory.getLog(DaoGistic.class);
+    private static final Log log = LogFactory.getLog(DaoGistic.class);
 
     public static void addGistic(Gistic gistic) throws DaoException, validationException {
         if (gistic == null) {
@@ -113,9 +113,9 @@ public class DaoGistic {
      * @throws SQLException
      * @throws DaoException
      */
-    private static void addGisticGenes(Gistic gistic, Connection con) throws SQLException, DaoException {
+    private static void addGisticGenes(Gistic gistic, Connection con) throws DaoException {
         ArrayList<CanonicalGene> genes = gistic.getGenes_in_ROI();
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt;
 
         try {
             if (!genes.isEmpty()) {
@@ -165,7 +165,7 @@ public class DaoGistic {
 
         // get the genes from the SQL gistic_to_gene table
         // associated with a particular GISTIC_ROI_ID
-        PreparedStatement pstmt = null;
+        PreparedStatement pstmt  ;
         ResultSet _rs = null;
         Gistic gistic;
         ArrayList<CanonicalGene> genes = new ArrayList<CanonicalGene>();
@@ -198,7 +198,7 @@ public class DaoGistic {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(pstmt, _rs);
+            JdbcUtil.closeAll(_rs);
         }
 
         return gistic;

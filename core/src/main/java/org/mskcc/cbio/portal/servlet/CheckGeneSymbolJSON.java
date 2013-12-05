@@ -55,7 +55,6 @@ import java.util.Map;
  *
  */
 public class CheckGeneSymbolJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String GENES = "genes";
 
     /**
@@ -63,11 +62,6 @@ public class CheckGeneSymbolJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     protected void doGet(HttpServletRequest request,

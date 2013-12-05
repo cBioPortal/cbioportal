@@ -1,10 +1,8 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 
 <%
-    org.mskcc.cbio.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
     String siteTitle = GlobalProperties.getTitle();
     String popeye = GlobalProperties.getProperty("popeye");
 
@@ -14,7 +12,7 @@
     if (siteTitle == null) {
         siteTitle = "cBioPortal for Cancer Genomics";
     }
-    String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
+    String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
     if (tabIndex == null) {
         tabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {

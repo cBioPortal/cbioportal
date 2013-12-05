@@ -53,6 +53,11 @@ import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
  */
 public class GetCoExpressionJSON extends HttpServlet  {
 
+    private double coExpScoreThreshold = 0.3;
+    private Collection<Long> queryGenes = new ArrayList<Long>();  //queried genes' Id
+
+
+
     /**
      * Handles HTTP GET Request.
      *
@@ -78,16 +83,73 @@ public class GetCoExpressionJSON extends HttpServlet  {
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String geneListStr = httpServletRequest.getParameter("gene_list");
 
-        //Convert gene symbol (string) to gene ID (int)
+        PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
+        //SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+
+        //Convert gene symbol (string) to gene ID (int)
         String[] geneList = geneListStr.split("\\s+");
-        Collection<Long> queryGenes = new ArrayList<Long>();
         for (String gene_item : geneList) {
             CanonicalGene geneObj = daoGeneOptimized.getGene(gene_item);
             queryGenes.add(geneObj.getEntrezGeneId());
         }
 
-        //Find the qualified genetic profile under the queried cancer study
+        GeneticProfile final_gp = getPreferedGeneticProfile(cancerStudyIdentifier);
+        if (final_gp != null) {
+            try {
+                Map<Long,double[]> map = getExpressionMap(final_gp.getGeneticProfileId());
+                int mapSize = map.size();
+                List<Long> genes = new ArrayList<Long>(map.keySet());
+
+
+                for (Long i_queryGene : queryGenes) {
+                    CanonicalGene queryGene = daoGeneOptimized.getGene(i_queryGene);
+                    String queryGeneSymbol = queryGene.getHugoGeneSymbolAllCaps();
+                    for (int i = 0; i < mapSize; i++) {
+                        double[] query_gene_exp = map.get(i_queryGene);
+                        long compared_gene_id = genes.get(i);
+                        double[] compared_gene_exp = map.get(compared_gene_id);
+
+                        if (compared_gene_exp != null && query_gene_exp != null) {
+                            double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                            // double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
+
+                            if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
+                                //(spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) &&
+                               (compared_gene_id != i_queryGene)){
+
+                                //Configure result datum
+                                JSONObject _scores = new JSONObject();
+                                //translate gene id to gene symbol
+                                CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                                _scores.put("gene1", queryGeneSymbol);
+                                _scores.put("gene2", comparedGene.getHugoGeneSymbolAllCaps());
+                                _scores.put("pearson", pearson);
+                                //_scores.put("spearman", spearman);
+
+                                result.add(_scores);
+                            }
+                        }
+                    }
+                }
+
+                httpServletResponse.setContentType("application/json");
+                PrintWriter out = httpServletResponse.getWriter();
+                JSONValue.writeJSONString(result, out);
+            } catch (DaoException e) {
+                System.out.println(e.getMessage());
+            }
+        } else {
+            httpServletResponse.setContentType("text/html");
+            PrintWriter out = httpServletResponse.getWriter();
+            out.print("Error:  No genetic profiles available for: " + cancerStudyIdentifier);
+            out.flush();
+        }
+
+    }
+
+    private GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
         CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
         ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
         GeneticProfile final_gp = null;
@@ -104,62 +166,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
                 }
             }
         }
-
-        if (final_gp != null) {
-            try {
-                //Get the alteration value for all genes under input cancer study
-                Map<Long,double[]> map = getExpressionMap(final_gp.getGeneticProfileId());
-                int mapSize = map.size();
-
-                //Set the threshold
-                double coExpScoreThreshold = 0.3;
-
-                //Get the gene list (all genes)
-                List<Long> genes = new ArrayList<Long>(map.keySet());
-
-                //Init spearman and pearson
-                PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
-                //SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
-
-                //Init result container
-                JSONObject result = new JSONObject();
-
-                for (Long i_queryGene : queryGenes) {
-                    JSONObject _obj = new JSONObject();
-                    for (int i = 0; i < mapSize; i++) {
-                        double[] query_gene_exp = map.get(i_queryGene);
-                        long compared_gene_id = genes.get(i);
-                        double[] compared_gene_exp = map.get(compared_gene_id);
-
-                        if (compared_gene_exp != null && query_gene_exp != null) {
-                            double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            // double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-
-                            if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
-                                //(spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) &&
-                               (compared_gene_id != i_queryGene)){
-                                JSONObject _scores = new JSONObject();
-                                _scores.put("pearson", pearson);
-                                //_scores.put("spearman", spearman);
-                                _obj.put(compared_gene_id, _scores);
-                            }
-                        }
-                    }
-                    result.put(i_queryGene, _obj);
-                }
-                httpServletResponse.setContentType("application/json");
-                PrintWriter out = httpServletResponse.getWriter();
-                JSONValue.writeJSONString(result, out);
-            } catch (DaoException e) {
-                System.out.println(e.getMessage());
-            }
-        } else {
-            httpServletResponse.setContentType("text/html");
-            PrintWriter out = httpServletResponse.getWriter();
-            out.print("Error:  No genetic profiles available for: " + cancerStudyIdentifier);
-            out.flush();
-        }
-
+        return final_gp;
     }
 
     private Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {

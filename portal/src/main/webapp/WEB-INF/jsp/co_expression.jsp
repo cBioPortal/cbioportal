@@ -12,45 +12,19 @@
         float: right;
     }
 </style>
+<script type="text/javascript" src="js/src/coExpression.js"></script>
 <div class="section" id="co_exp">
     <div id="user_selection"></div>
-    <div id="co_exp_gene_list">
+    <div id="co_exp_data_table_div">
         <table id="co_exp_data_table" cellpadding="0" cellspacing="0" border="0" class="display">
             <thead style="font-size:70%;" >
             <tr>
                 <th>Queried Gene</th>
                 <th>Compared Gene</th>
                 <th>Pearson's Score</th>
-                <th>Spearman's Score</th>
             </tr>
             </thead>
-            <tbody>
-            <tr>
-                <td>TP53</td>
-                <td>EGFR</td>
-                <td>0.35135123</td>
-                <td>-0.144123</td>
-            </tr>
-            <tr>
-                <td>BRCA1</td>
-                <td>EGFR</td>
-                <td>-0.152735123</td>
-                <td>0.172323</td>
-            </tr>
-            <tr>
-                <td>CCNE1</td>
-                <td>EGFR</td>
-                <td>0.351235123</td>
-                <td>-0.1172323</td>
-            </tr>
-            <tr>
-                <td>ERBB2</td>
-                <td>EGFR</td>
-                <td>-0.3192</td>
-                <td>0.283723</td>
-            </tr>
-
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 </div>
@@ -63,5 +37,6 @@
             "bJQueryUI": true,
             "bAutoWidth": false
         });
+        CoExpTable.init();
     });
 </script>

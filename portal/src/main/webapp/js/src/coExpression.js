@@ -57,7 +57,6 @@ var CoExpTable = (function() {
         init: function() {
             getCoExpData();
         }
-
     };
 
 }());    //Closing CoExpTable

@@ -44,12 +44,13 @@ var CoExpTable = (function() {
     }
 
     function getCoExpDataCallBack(result) {
-        console.log(result);
-        attachDataToTable();
+        attachDataToTable(result);
     }
 
     function attachDataToTable() {
-        $('#co_exp_data_table').dataTable().fnAddData(["something", "asl;dk", "a;lsdkfj"]);
+        $.each(result, function(i, _obj) {
+            $('#co_exp_data_table').dataTable().fnAddData([obj.gene1, obj.gene2, obj.pearson]);
+        });
     }
 
     return {

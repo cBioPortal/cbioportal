@@ -43,19 +43,22 @@ var CoExpTable = (function() {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             gene_list: window.PortalGlobals.getGeneListString()
         };
-        console.log(paramsGetCoExpData);
         $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
     }
 
     function getCoExpDataCallBack(result) {
-        //Init table frame
+	//Init table frame
         $('#co_exp_data_table').dataTable({
             "sDom": '<"H"if>t<"F"lp>',
             "sPaginationType": "full_numbers",
             "bJQueryUI": true,
             "bAutoWidth": false
         });
-
+        $('#co_exp_data_table').append(
+            "<thead style='font-size:70%;' >" +
+            "<tr><th>Queried Gene</th><th>Compared Gene</th><th>Pearson's Score</th></tr>" +
+            "</thead><tbody></tbody>"
+        );
         attachDataToTable(result);
     }
 

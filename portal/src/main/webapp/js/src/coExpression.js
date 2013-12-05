@@ -40,7 +40,6 @@ var CoExpTable = (function() {
             gene_list: window.PortalGlobals.getGeneListString()
         };
         console.log(paramsGetCoExpData);
-        );
         $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
     }
 

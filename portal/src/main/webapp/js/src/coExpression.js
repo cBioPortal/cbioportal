@@ -35,10 +35,17 @@
 var CoExpTable = (function() {
 
     function getCoExpData() {
-        getCoExpDataCallBack();
+        var paramsGetCoExpData = {
+            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+            gene_list: window.PortalGlobals.getGeneListString()
+        };
+        console.log(paramsGetCoExpData);
+        );
+        $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
     }
 
-    function getCoExpDataCallBack() {
+    function getCoExpDataCallBack(result) {
+        console.log(result);
         attachDataToTable();
     }
 

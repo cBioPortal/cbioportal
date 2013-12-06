@@ -173,7 +173,7 @@ class ConverterImpl implements Converter {
 				// note - we call this again after we compute the number of cases
 				fileUtils.writeCancerStudyMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, -1);
                 fileUtils.writePatientListFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
-                                               fileUtils.getPatientList(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
+                                               fileUtils.getPatientListFromStagingData(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
 			}
 		}
 	}

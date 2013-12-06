@@ -219,7 +219,9 @@ public interface FileUtils {
 	 */
 	void writeCancerStudyMetadataFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, int numCases) throws Exception;
 
-    Set<String> getPatientList(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception;
+    Set<String> getPatientListFromAllCases(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception;
+    Set<String> getPatientListFromStagingData(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata) throws Exception;
+
     void writePatientListFile(String stagingDirectory, CancerStudyMetadata cancerStudyMetadata, Set<String> caseSet) throws Exception;
 
 	/**

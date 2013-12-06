@@ -325,7 +325,7 @@ class ImporterImpl implements Importer {
 					LOG.info("loadStagingFile(), cannot find patient list file: " + patientListFile + ", creating...");
 				}
                 fileUtils.writePatientListFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
-                                               fileUtils.getPatientList(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
+                                               fileUtils.getPatientListFromAllCases(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
 				createdPatientListFile = true;
 			}
             args = new String[] { patientListFile };

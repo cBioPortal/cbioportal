@@ -41,7 +41,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
-import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+import org.mskcc.cbio.portal.util.CoExpUtil;
 
 /**
  * Get the top co-expressed genes for queried genes
@@ -84,7 +84,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
         String geneListStr = httpServletRequest.getParameter("gene_list");
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
-        //SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         ArrayList<JSONObject> result = new ArrayList<JSONObject>();
 
@@ -126,7 +125,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
                                 _scores.put("gene1", queryGeneSymbol);
                                 _scores.put("gene2", comparedGene.getHugoGeneSymbolAllCaps());
                                 _scores.put("pearson", pearson);
-                                //_scores.put("spearman", spearman);
 
                                 result.add(_scores);
                             }
@@ -134,6 +132,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
                     }
                 }
 
+                result = CoExpUtil.sortJsonArr(result, "pearson");
                 httpServletResponse.setContentType("application/json");
                 PrintWriter out = httpServletResponse.getWriter();
                 JSONValue.writeJSONString(result, out);
@@ -148,6 +147,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
         }
 
     }
+
 
     private GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
         CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
@@ -198,3 +198,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
     }
 
 }
+
+
+

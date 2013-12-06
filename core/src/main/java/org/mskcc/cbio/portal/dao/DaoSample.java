@@ -77,7 +77,7 @@ public class DaoSample {
             e.printStackTrace();
         }
         finally {
-            JdbcUtil.closeAll(Sample.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoSample.class, con, pstmt, rs);
         }
     }
 

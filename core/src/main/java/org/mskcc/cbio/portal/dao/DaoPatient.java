@@ -73,7 +73,7 @@ public class DaoPatient {
             e.printStackTrace();
         }
         finally {
-            JdbcUtil.closeAll(Patient.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoPatient.class, con, pstmt, rs);
         }
     }
 
@@ -90,7 +90,7 @@ public class DaoPatient {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_PATIENT_ID`) VALUES (?)",
+            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_ID`) VALUES (?)",
                                          Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, patient.getStableId());
             pstmt.executeUpdate();

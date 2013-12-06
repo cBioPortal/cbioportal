@@ -44,12 +44,9 @@ import org.mskcc.cbio.portal.dao.DaoInteraction;
 import org.mskcc.cbio.portal.dao.DaoMutation;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.network.*;
+import org.mskcc.cbio.portal.util.*;
 import org.mskcc.cbio.portal.web_api.GetCaseLists;
 import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
-import org.mskcc.cbio.portal.util.GeneticProfileUtil;
-import org.mskcc.cbio.portal.util.GlobalProperties;
-import org.mskcc.cbio.portal.util.XDebug;
 
 /**
  * Retrieving 
@@ -516,13 +513,21 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req) {
+    private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req)
+    {
         String geneAlt = req.getParameter("query_alt");
+	    String heatMap = req.getParameter("heat_map");
+
+	    if (req instanceof XssRequestWrapper)
+	    {
+		    geneAlt = ((XssRequestWrapper)req).getRawParameter("query_alt");
+		    heatMap = ((XssRequestWrapper)req).getRawParameter("heatMap");
+	    }
+
         if (geneAlt!=null) {
             return decodeQueryAlteration(geneAlt);
         }
-        
-        String heatMap = req.getParameter("heat_map");
+
         if (heatMap!=null) {
             Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
                     = new HashMap<String,Map<String,Integer>>();

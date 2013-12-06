@@ -518,6 +518,8 @@ public class NetworkServlet extends HttpServlet {
         String geneAlt = req.getParameter("query_alt");
 	    String heatMap = req.getParameter("heat_map");
 
+	    // TODO filtered variables breaks the parsing, we need the raw ones
+	    // (alternatively, we can change the parsing method)
 	    if (req instanceof XssRequestWrapper)
 	    {
 		    geneAlt = ((XssRequestWrapper)req).getRawParameter("query_alt");

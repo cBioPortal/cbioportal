@@ -44,6 +44,11 @@ public class Patient {
 	private Map<String, ClinicalData> clinicalDataMap;
     private static final Logger logger = Logger.getLogger(Patient.class);
 
+    public Patient(String stableId)
+    {
+        this(stableId, stableId, new HashMap<String, ClinicalData>());
+    }
+
     public Patient(int internalId, String stableId)
     {
         this(stableId, stableId, new HashMap<String, ClinicalData>());

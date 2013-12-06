@@ -346,7 +346,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	    var qTipOptions = {content: {attr: 'alt'},
 		    show: {event: 'mouseover'},
 	        hide: {fixed: true, delay: 100, event: 'mouseout'},
-	        style: { classes: 'mutation-details-tooltip ui-tooltip-shadow ui-tooltip-light ui-tooltip-rounded' },
+	        style: {classes: 'mutation-details-tooltip qtip-shadow qtip-light qtip-rounded'},
 	        position: {my:'top left', at:'bottom right'}};
 
 	    var qTipOptionsHeader = {};
@@ -385,7 +385,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 					geneSymbol: gene,
 					total: $(label).text()};
 
-				var container = $(this).find('.ui-tooltip-content');
+				var container = $(this).find('.qtip-content');
 
 				// create & render cosmic tip view
 				var cosmicView = new CosmicTipView({el: container, model: model});
@@ -410,7 +410,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 				var model = {impact: parts[0],
 					xvia: parts[1]};
 
-				var container = $(this).find('.ui-tooltip-content');
+				var container = $(this).find('.qtip-content');
 
 				// create & render FIS tip view
 				var fisTipView = new PredictedImpactTipView({el:container, model: model});

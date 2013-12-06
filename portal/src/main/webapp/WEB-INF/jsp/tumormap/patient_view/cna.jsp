@@ -284,7 +284,7 @@
                 content: {text: tip},
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                style: { classes: 'qtip-light qtip-rounded' },
                 position: {my:'top right',at:'bottom center'}
             });
         }
@@ -370,7 +370,7 @@
                         <li>otherwise, altered in >5% of samples in the study with &ge; 50 samples.</li></ul></li></ul>'/>");
                 $('#cna-summary-help').qtip({
                     content: { attr: 'title' },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    style: { classes: 'qtip-light qtip-rounded' },
                     position: { my:'top center',at:'bottom center' }
                 });
                 $('.cna-summary-table-name').addClass("datatable-name");

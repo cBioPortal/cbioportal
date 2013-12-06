@@ -540,6 +540,22 @@
         <url-pattern>/oncoprint_converter.svg</url-pattern>
     </filter-mapping>
 
+	<filter>
+		<filter-name>XssFilter</filter-name>
+		<display-name>Xss Filter</display-name>
+		<description>
+			Applied to all requests to filter out malicious XSS attacks.
+			Wraps the request, allowing it to be used as a regular request,
+			'as if' it were parsed by the Servlet API.
+		</description>
+		<filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>XssFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
     <!-- Required by the Apache FileUpload tool. -->
     <listener>
         <listener-class>

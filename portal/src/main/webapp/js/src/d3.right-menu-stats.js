@@ -145,7 +145,7 @@ var RightMenuStudyStatsUtil = (function($) {
 	                event: 'mouseout'
                 },
                 style: {
-                    classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'
+                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
                 },
                 position: {
                     at: 'left bottom',

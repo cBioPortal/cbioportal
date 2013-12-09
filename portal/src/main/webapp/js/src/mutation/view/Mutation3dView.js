@@ -38,64 +38,58 @@ var Mutation3dView = Backbone.View.extend({
 		var self = this;
 
 		// add click listener for the 3d visualizer initializer
-		self.$el.find(".mutation-3d-vis").click(self._getClickHandlerFn());
+		self.$el.find(".mutation-3d-vis").click(function(){
+			self.resetView();
+			var vis = self.options.mut3dVisView;
+
+			if (vis != null)
+			{
+				vis.maximizeView();
+			}
+		});
 	},
+	/**
+	 * Resets the 3D view to its initial state. This function also initializes
+	 * the PDB panel view if it is not initialized yet.
+	 */
 	resetView: function()
 	{
 		var self = this;
 
-		// call the click handler function to reset the 3D view
-		var fn = self._getClickHandlerFn();
-		fn();
-	},
-	/**
-	 * Returns the handler function for the click action on the initializer.
-	 *
-	 * @return {Function}   handler function to init the view
-	 */
-	_getClickHandlerFn: function()
-	{
-		var self = this;
+		var gene = self.model.geneSymbol;
+		var uniprotId = self.model.uniprotId;
+		var vis = self.options.mut3dVisView;
+		var panel = self.pdbPanelView;
+		var pdbProxy = self.model.pdbProxy;
 
-		// actual event handler (listener) function
-		var handler = function() {
-			var gene = self.model.geneSymbol;
-			var uniprotId = self.model.uniprotId;
-			var vis = self.options.mut3dVisView;
-			var panel = self.pdbPanelView;
-			var pdbProxy = self.model.pdbProxy;
-
-			var initView = function(pdbColl)
+		var initView = function(pdbColl)
+		{
+			// init pdb panel view if not initialized yet
+			if (panel == undefined)
 			{
-				// init pdb panel view if not initialized yet
-				if (panel == undefined)
-				{
-					var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-						model: {geneSymbol: gene, pdbColl: pdbColl},
-						mut3dVisView: self.options.mut3dVisView,
-						diagram: self.options.diagram};
+				var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
+					model: {geneSymbol: gene, pdbColl: pdbColl},
+					mut3dVisView: self.options.mut3dVisView,
+					diagram: self.options.diagram};
 
-					var pdbPanelView = new PdbPanelView(panelOpts);
-					panel = self.pdbPanelView = pdbPanelView;
+				var pdbPanelView = new PdbPanelView(panelOpts);
+				panel = self.pdbPanelView = pdbPanelView;
 
-					pdbPanelView.render();
-				}
+				pdbPanelView.render();
+			}
 
-				if (vis != null &&
-				    panel != null &&
-				    pdbColl.length > 0)
-				{
-					panel.showView();
+			if (vis != null &&
+			    panel != null &&
+			    pdbColl.length > 0)
+			{
+				panel.showView();
 
-					// reload the visualizer content with the default pdb and chain
-					panel.loadDefaultChain();
-				}
-			};
-
-			// init view with the pdb data
-			pdbProxy.getPdbData(uniprotId, initView);
+				// reload the visualizer content with the default pdb and chain
+				panel.loadDefaultChain();
+			}
 		};
 
-		return handler;
+		// init view with the pdb data
+		pdbProxy.getPdbData(uniprotId, initView);
 	}
 });

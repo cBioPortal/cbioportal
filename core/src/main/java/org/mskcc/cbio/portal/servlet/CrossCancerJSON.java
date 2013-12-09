@@ -57,9 +57,6 @@ public class CrossCancerJSON extends HttpServlet {
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private ServletXssUtil servletXssUtil;
-
-
     /**
      * Initializes the servlet.
      *
@@ -70,12 +67,6 @@ public class CrossCancerJSON extends HttpServlet {
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
-
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -98,7 +89,7 @@ public class CrossCancerJSON extends HttpServlet {
             List resultsList = new LinkedList();
 
             // Get the gene list
-            String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+            String geneList = request.getParameter(QueryBuilder.GENE_LIST);
 
             // Get the priority
             Integer dataTypePriority;

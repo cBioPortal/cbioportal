@@ -1226,7 +1226,7 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
                                     hide: {fixed:true, delay: 100, event: "mouseout"},
                                     position: {my:'left bottom',at:'top right'}
@@ -1345,8 +1345,8 @@ var PlotsView = (function () {
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
-                            $(this).attr("xVal", d.xVal);
-                            $(this).attr("yVal", d.yVal);
+                            $(this).attr("x_val", d.xVal);
+                            $(this).attr("y_val", d.yVal);
                             $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
@@ -1521,8 +1521,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
@@ -1555,8 +1555,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
@@ -1603,13 +1603,13 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                if(d3.select(this).attr("xVal") <= (Plots.getLogScaleThreshold())) {
+                                if(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold())) {
                                     var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
-                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _post_x = attr.xScale(d3.select(this).attr("x_val"));
                             }
                             var _pre_y = d3.select(this).attr("y_pos");
                             d3.select(this).attr("x_pos", _post_x);
@@ -1622,13 +1622,13 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                if (parseFloat(d3.select(this).attr("yVal")) <= (Plots.getLogScaleThreshold())) {
+                                if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThreshold())) {
                                     var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                                 } else {
-                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                                 }
                             } else {
-                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                var _post_y = attr.yScale(d3.select(this).attr("y_val"));
                             }
                             d3.select(this).attr("y_pos", _post_y);
                             return "translate(" + _pre_x + ", " + _post_y + ")";

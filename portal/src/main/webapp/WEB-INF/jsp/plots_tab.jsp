@@ -166,7 +166,7 @@
     $(".plots-tabs-ref").tipTip(
             {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
     //Patch for fixing the font size in firefox
-    if ($.browser.mozilla) {
+    if (cbio.util.browser.mozilla) {
         var element = document.getElementById("plots-menus");
         element.className += " " + "plots-firefox";
     }

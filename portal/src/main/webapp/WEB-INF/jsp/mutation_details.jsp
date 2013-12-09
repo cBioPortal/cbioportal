@@ -18,16 +18,16 @@ _mut3dVis.init();
 
 // Set up Mutation View
 $(document).ready(function(){
-	// TODO accessing global "samples" variable...
-	var sampleArray = samples.trim().split(/\s+/);
+	var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
 
 	var servletParams = {geneticProfiles: geneticProfiles,
-		caseList: samples};
+		caseList: PortalGlobals.getCases()};
 
 	var servletName = "getMutationData.json";
 
+	// TODO make proxy instance global (it should be shared with all other tabs)
 	// init mutation data proxy with the data servlet config
-	var proxy = new MutationDataProxy(geneList);
+	var proxy = new MutationDataProxy(PortalGlobals.getGeneListString());
 	proxy.initWithoutData(servletName, servletParams);
 
 	// init default mutation details view
@@ -35,10 +35,14 @@ $(document).ready(function(){
 	var model = {mutationProxy: proxy,
 		sampleArray: sampleArray};
 
-	var defaultView = new MutationDetailsView(
-		{el: "#mutation_details", model: model, mut3dVis: _mut3dVis});
+	var options = {el: "#mutation_details",
+		model: model,
+		mut3dVis: _mut3dVis};
 
-	defaultView.render();
+	var defaultView = MutationViewsUtil.initMutationDetailsView("#mutation_details",
+		options,
+		"#tabs",
+		"Mutations");
 });
 
 </script>

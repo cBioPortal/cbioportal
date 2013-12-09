@@ -1,6 +1,6 @@
-# December 4, 2014
+# December 6, 2014
 * Data sets matching four recently submitted or published TCGA studies are now available
-    * GBM (Cell 2013)
+    * Glioblastoma (Cell 2013)
     * Bladder carcinoma (Nature, in press)
     * Head & neck squamous cell carcinoma (submitted)
     * Lung adenocarcinoma (submitted)

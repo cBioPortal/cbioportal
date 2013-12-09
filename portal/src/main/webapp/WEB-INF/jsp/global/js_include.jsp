@@ -1,14 +1,13 @@
 <!-- Include Global List of Javascript Files to Load -->
 
 <script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-migrate.js"></script>
 <script type='text/javascript' src='https://www.google.com/jsapi'></script>
 <script type="text/javascript" src="js/lib/jquery.cookie.js"></script>
-<!--script type="text/javascript" src="js/lib/jquery.address.min.js"></script-->
-<script type="text/javascript" src="js/lib/jquery.address-1.4.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery.address.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.expander.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
-<!--script type="text/javascript" src="js/lib/jquery-ui.min.js"></script-->
-<script type="text/javascript" src="js/lib/jquery-ui-1.8.14.custom.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/lib/responsiveslides.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.dataTables.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
@@ -62,6 +61,7 @@
 <script type="text/javascript" src="js/src/mutation/model/PdbModel.js"></script>
 <script type="text/javascript" src="js/src/mutation/model/Pileup.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MutationDetailsUtil.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/MutationViewsUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>

@@ -14,20 +14,12 @@
 </style>
 <script type="text/javascript" src="js/src/coExpression.js"></script>
 <div class="section" id="co_exp">
-    <div id="user_selection"></div>
+    <div id='co-exp-loading-image'>
+    	<img style='padding:200px;' src='images/ajax-loader.gif'>
+    </div>
     <div id="co_exp_data_table_div">
-
         <table id="co_exp_data_table" cellpadding="0" cellspacing="0" border="0" class="display">
-            <thead style="font-size:70%;" >
-            <tr>
-                <th>Queried Gene</th>
-                <th>Compared Gene</th>
-                <th>Pearson's Score</th>
-            </tr>
-            </thead>
-            <tbody></tbody>
         </table>
-
     </div>
 </div>
 

@@ -47,23 +47,29 @@ var CoExpTable = (function() {
     }
 
     function getCoExpDataCallBack(result) {
+<<<<<<< /home/yichao/cbio-portal/portal/src/main/webapp/js/src/coExpression.js
+	//Init table frame
+	$('#co-exp-loading-image').hide();
+        $('#co_exp_data_table').append(
+            "<thead style='font-size:70%;' >" +
+            "<tr><th>Queried Gene</th><th>Compared Gene</th><th>Pearson's Score</th></tr>" +
+            "</thead><tbody></tbody>"
+        );
+=======
 	    //Init table frame
+>>>>>>> /tmp/coExpression.js~other.5c73FA
         $('#co_exp_data_table').dataTable({
             "sDom": '<"H"if>t<"F"lp>',
             "sPaginationType": "full_numbers",
             "bJQueryUI": true,
             "bAutoWidth": false
         });
-        $('#co_exp_data_table').append(
-            "<thead style='font-size:70%;' >" +
-            "<tr><th>Queried Gene</th><th>Compared Gene</th><th>Pearson's Score</th></tr>" +
-            "</thead><tbody></tbody>"
-        );
         attachDataToTable(result);
     }
 
     function attachDataToTable(result) {
-        $.each(result, function(i, _obj) {
+        result = result.slice(0,100);
+	$.each(result, function(i, _obj) {
             $('#co_exp_data_table').dataTable().fnAddData([_obj.gene1, _obj.gene2, _obj.pearson]);
         });
     }

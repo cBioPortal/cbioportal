@@ -54,9 +54,8 @@ import org.mskcc.cbio.portal.util.CoExpUtil;
 public class GetCoExpressionJSON extends HttpServlet  {
 
     private double coExpScoreThreshold = 0.3;
+    private int resultLength = 150;
     private Collection<Long> queryGenes = new ArrayList<Long>();  //queried genes' Id
-
-
 
     /**
      * Handles HTTP GET Request.
@@ -82,10 +81,12 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String geneListStr = httpServletRequest.getParameter("gene_list");
+	    String caseSetId = httpServletRequest.getParameter("case_set_id");
+        String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+        ArrayList<JSONObject> fullResult = new ArrayList<JSONObject>();
 
         //Convert gene symbol (string) to gene ID (int)
         String[] geneList = geneListStr.split("\\s+");
@@ -94,13 +95,12 @@ public class GetCoExpressionJSON extends HttpServlet  {
             queryGenes.add(geneObj.getEntrezGeneId());
         }
 
-        GeneticProfile final_gp = getPreferedGeneticProfile(cancerStudyIdentifier);
-        if (final_gp != null) {
+    	GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+	    if (final_gp != null) {
             try {
-                Map<Long,double[]> map = getExpressionMap(final_gp.getGeneticProfileId());
+                Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
                 int mapSize = map.size();
                 List<Long> genes = new ArrayList<Long>(map.keySet());
-
 
                 for (Long i_queryGene : queryGenes) {
                     CanonicalGene queryGene = daoGeneOptimized.getGene(i_queryGene);
@@ -112,27 +112,23 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
                         if (compared_gene_exp != null && query_gene_exp != null) {
                             double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            // double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-
                             if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
-                                //(spearman > coExpScoreThreshold || spearman < (-1) * coExpScoreThreshold) &&
                                (compared_gene_id != i_queryGene)){
-
-                                //Configure result datum
                                 JSONObject _scores = new JSONObject();
-                                //translate gene id to gene symbol
                                 CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                                 _scores.put("gene1", queryGeneSymbol);
                                 _scores.put("gene2", comparedGene.getHugoGeneSymbolAllCaps());
                                 _scores.put("pearson", pearson);
-
-                                result.add(_scores);
+                                fullResult.add(_scores);
                             }
                         }
                     }
                 }
-
-                result = CoExpUtil.sortJsonArr(result, "pearson");
+                fullResult = CoExpUtil.sortJsonArr(fullResult, "pearson");
+                ArrayList<JSONObject> result = new ArrayList<JSONObject>();
+                for (int i = 0; i < resultLength; i++) {
+                    result.add(fullResult.get(i));
+                }
                 httpServletResponse.setContentType("application/json");
                 PrintWriter out = httpServletResponse.getWriter();
                 JSONValue.writeJSONString(result, out);
@@ -146,55 +142,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
             out.flush();
         }
 
-    }
-
-
-    private GeneticProfile getPreferedGeneticProfile(String cancerStudyIdentifier) {
-        CancerStudy cs = DaoCancerStudy.getCancerStudyByStableId(cancerStudyIdentifier);
-        ArrayList<GeneticProfile> gps = DaoGeneticProfile.getAllGeneticProfiles(cs.getInternalId());
-        GeneticProfile final_gp = null;
-        for (GeneticProfile gp : gps) {
-            // TODO: support miRNA later
-            if (gp.getGeneticAlterationType() == GeneticAlterationType.MRNA_EXPRESSION) {
-                //rna seq profile (no z-scores applied) holds the highest priority)
-                if (gp.getStableId().toLowerCase().contains("rna_seq") &&
-                        !gp.getStableId().toLowerCase().contains("zscores")) {
-                    final_gp = gp;
-                    break;
-                } else if (!gp.getStableId().toLowerCase().contains("zscores")) {
-                    final_gp = gp;
-                }
-            }
-        }
-        return final_gp;
-    }
-
-    private Map<Long,double[]> getExpressionMap(int profileId) throws DaoException {
-        ArrayList<String> orderedCaseList = DaoGeneticProfileCases.getOrderedCaseList(profileId);
-        int nCases = orderedCaseList.size();
-        DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
-        Map<Long, HashMap<String, String>> mapStr = daoGeneticAlteration.getGeneticAlterationMap(profileId, null);
-        Map<Long, double[]> map = new HashMap<Long, double[]>(mapStr.size());
-        for (Map.Entry<Long, HashMap<String, String>> entry : mapStr.entrySet()) {
-            Long gene = entry.getKey();
-            Map<String, String> mapCaseValueStr = entry.getValue();
-            double[] values = new double[nCases];
-            for (int i = 0; i < nCases; i++) {
-                String caseId = orderedCaseList.get(i);
-                String value = mapCaseValueStr.get(caseId);
-                Double d;
-                try {
-                    d = Double.valueOf(value);
-                } catch (Exception e) {
-                    d = Double.NaN;
-                }
-                if (d!=null && !d.isNaN()) {
-                    values[i]=d;
-                }
-            }
-            map.put(gene, values);
-        }
-        return map;
     }
 
 }

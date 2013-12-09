@@ -124,6 +124,7 @@ public class UrlUtil {
                     	}
                     }
 
+	                // TODO remove and test...
 	                if (xssUtil != null)
 	                {
 		                currentValue = xssUtil.getCleanerInput(currentValue);

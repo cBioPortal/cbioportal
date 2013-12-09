@@ -1,3 +1,10 @@
+# December 6, 2014
+* Data sets matching four recently submitted or published TCGA studies are now available
+    * Glioblastoma (Cell 2013)
+    * Bladder carcinoma (Nature, in press)
+    * Head & neck squamous cell carcinoma (submitted)
+    * Lung adenocarcinoma (submitted)
+
 # November 8, 2013
 
 * All TCGA data updated to the Firehose run of September 23, 2013.

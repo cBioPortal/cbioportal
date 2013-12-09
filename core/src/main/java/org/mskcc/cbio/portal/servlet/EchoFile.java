@@ -46,7 +46,6 @@ import java.util.*;
 
 public class EchoFile extends HttpServlet {
 
-    private ServletXssUtil servletXssUtil;
     public static final int MAX_NO_GENES = 30;
 
     /**
@@ -57,12 +56,6 @@ public class EchoFile extends HttpServlet {
     public void init() throws ServletException {
 
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        }
-        catch (PolicyException e) {
-            throw new ServletException (e);
-        }
     }
 
     /**

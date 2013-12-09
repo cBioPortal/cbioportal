@@ -52,7 +52,7 @@ function MutationPdbPanel(options, data, xScale)
 
 			var options = {content: {text: tip},
 				hide: {fixed: true, delay: 100},
-				style: {classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'},
+				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 				position: {my:'bottom left', at:'top center'}};
 
 			$(element).qtip(options);

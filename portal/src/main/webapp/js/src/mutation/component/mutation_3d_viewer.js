@@ -10,11 +10,10 @@ var Mutation3dVis = function(name, options)
 	// main container -- html element
 	var _container = null;
 
-	// wrapper, created by the Jmol lib -- html element
-	var _wrapper = null;
-
-	// Jmol applet reference
-	var _applet = null;
+	// TODO parametrize this var?
+	// actual 3D application wrapper
+	//var _3dApp = new JmolWrapper();
+	var _3dApp = new JSmolWrapper();
 
 	// current selection (mutation positions as Jmol script compatible strings)
 	// this is a map of <color, position array> pairs
@@ -36,15 +35,7 @@ var Mutation3dVis = function(name, options)
 			width: 400,
 			height: 300,
 			debug: false,
-			color: "white",
-			//use: "HTML5",
-			//j2sPath: "js/jsmol/j2s",
-			//script: "load ="+pdbid+";",
-			//defaultModel: "$dopamine",
-			jarPath: "js/lib/jmol/",
-			jarFile: "JmolAppletSigned.jar",
-			disableJ2SLoadMonitor: true,
-			disableInitialConsole: true
+			color: "white"
 		},
 		defaultColor: "xDDDDDD", // default color of ribbons
 		translucency: 5, // translucency (opacity) of the default color
@@ -73,12 +64,7 @@ var Mutation3dVis = function(name, options)
 	function init()
 	{
 		// init applet
-		_applet = Jmol.getApplet(name, _options.appOptions);
-
-		// update wrapper reference
-		// TODO the wrapper id depends on the JMol implementation
-		_wrapper = $("#" + name + "_appletinfotablediv");
-		_wrapper.hide();
+		_3dApp.init(name, _options.appOptions);
 	}
 
 	/**
@@ -97,8 +83,8 @@ var Mutation3dVis = function(name, options)
 		appContainer.css("width", _options.appOptions.width);
 		// set height (should be slightly bigger than the app height)
 		appContainer.css("height", _options.appOptions.height + _options.containerPadding);
-		// move visualizer into its new container
-		appContainer.append(_wrapper);
+		// update app container
+		_3dApp.updateContainer(appContainer);
 	}
 
 	/**
@@ -110,7 +96,7 @@ var Mutation3dVis = function(name, options)
 
 		var script = "spin " + _spin + ";";
 
-		Jmol.script(_applet, script);
+		_3dApp.script(script);
 	}
 
 	/**
@@ -126,7 +112,7 @@ var Mutation3dVis = function(name, options)
 		var script = "select all;" +
 		             styleScripts[style];
 
-		Jmol.script(_applet, script);
+		_3dApp.script(script);
 	}
 
 	/**
@@ -134,11 +120,6 @@ var Mutation3dVis = function(name, options)
 	 */
 	function show()
 	{
-		if (_wrapper != null)
-		{
-			_wrapper.show();
-		}
-
 		if (_container != null)
 		{
 			_container.show();
@@ -158,12 +139,6 @@ var Mutation3dVis = function(name, options)
 		// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
 
 		// So, the current workaround is to reposition instead of hiding
-
-		if (_wrapper != null)
-		{
-			//_wrapper.hide();
-		}
-
 		if (_container != null)
 		{
 			//_container.hide();
@@ -279,7 +254,7 @@ var Mutation3dVis = function(name, options)
 		script = script.join(" ");
 
 		// run script
-		Jmol.script(_applet, script);
+		_3dApp.script(script);
 	}
 
 	/**
@@ -324,7 +299,7 @@ var Mutation3dVis = function(name, options)
 
 			script = script.join(" ");
 
-			Jmol.script(_applet, script);
+			_3dApp.script(script);
 		}
 		// no mapping position for this mutation on this chain
 		else
@@ -353,7 +328,7 @@ var Mutation3dVis = function(name, options)
 
 		script = script.join(" ");
 
-		Jmol.script(_applet, script);
+		_3dApp.script(script);
 	}
 
 	/**

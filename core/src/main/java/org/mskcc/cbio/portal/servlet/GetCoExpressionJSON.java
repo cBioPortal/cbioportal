@@ -126,7 +126,8 @@ public class GetCoExpressionJSON extends HttpServlet  {
                 }
                 fullResult = CoExpUtil.sortJsonArr(fullResult, "pearson");
                 ArrayList<JSONObject> result = new ArrayList<JSONObject>();
-                for (int i = 0; i < resultLength; i++) {
+                int _len = (fullResult.size() > resultLength ? resultLength : fullResult.size());
+                for (int i = 0; i < _len; i++) {
                     result.add(fullResult.get(i));
                 }
                 httpServletResponse.setContentType("application/json");

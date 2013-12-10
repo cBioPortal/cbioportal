@@ -34,44 +34,122 @@
 
 var CoExpTable = (function() {
 
-    function generateTable() {
-        getCoExpData();
-    }
+    var Util = (function() {
 
-    function getCoExpData() {
-        var paramsGetCoExpData = {
-            cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-            gene_list: window.PortalGlobals.getGeneListString()
-        };
-        $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack, "json");
-    }
+    }());
 
-    function getCoExpDataCallBack(result) {
-	$('#co-exp-loading-image').hide();
-        $('#co_exp_data_table').append(
-            "<thead style='font-size:70%;' >" +
-            "<tr><th>Queried Gene</th><th>Compared Gene</th><th>Pearson's Score</th></tr>" +
-            "</thead><tbody></tbody>"
-        );
-        $('#co_exp_data_table').dataTable({
-            "sDom": '<"H"if>t<"F"lp>',
-            "sPaginationType": "full_numbers",
-            "bJQueryUI": true,
-            "bAutoWidth": false
-        });
-        attachDataToTable(result);
-    }
+    var Summary = (function() {
+        function generateSummary() {
 
-    function attachDataToTable(result) {
-        result = result.slice(0,100);
-	$.each(result, function(i, _obj) {
-            $('#co_exp_data_table').dataTable().fnAddData([_obj.gene1, _obj.gene2, _obj.pearson]);
-        });
-    }
+        }
+        return {
+            generateSummary: generateSummary
+        }
+    }());
+
+    var CoExpTable = (function() {
+
+        function getCoExpData(geneId) {
+            var paramsGetCoExpData = {
+                cancer_study_id: window.PortalGlobals.getCancerStudyId(),
+                gene_list: geneId,
+                case_set_id: window.PortalGlobals.getCaseSetId(),
+                case_ids_key: window.PortalGlobals.getCaseIdsKey()
+            };
+            $.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack(geneId), "json");
+        }
+
+        function getCoExpDataCallBack(geneId) {
+            return function(result) {
+                //figure out div id
+                var divId = "coexp_" + geneId;
+                var tableId = "coexp_table_" + geneId;
+                var loadingImgId = "coexp_loading_im_" + geneId;
+
+                //Render
+                $(loadingImgId).hide();
+                $(divId).append(
+                    "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>"
+                );
+                $(tableId).append(
+                    "<thead style='font-size:70%;' >" +
+                    "<tr><th>Compared Gene</th><th>Pearson's Score</th><th>Plots</th></tr>" +
+                    "</thead><tbody></tbody>"
+                );
+                $(tableId).dataTable({
+                    "sDom": '<"H"if>t<"F"lp>',
+                    "sPaginationType": "full_numbers",
+                    "bJQueryUI": true,
+                    "bAutoWidth": false
+                });
+                //attachDataToTable(result, tableId);
+            }
+
+        }
+
+        function attachDataToTable(result, tableId) {
+            $.each(result, function(i, _obj) {
+                $(tableId).dataTable().fnAddData([_obj.gene2, _obj.pearson, "(+)"]);
+            });
+        }
+
+        return {
+            init: function(geneId) {
+                getCoExpData(geneId);
+            }
+        }
+    }());
+
+    var Tabs = (function() {
+
+        function appendTabsContent() {
+            $("#coexp-tabs-list").append("<li><a href='#coexp_overview' class='coexp-tabs-ref'><span>Overview</span></a></li>");
+            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+                $("#coexp-tabs-list").append("<li><a href='#coexp_" + value + "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
+            });
+            $("#coexp-tabs-content").append("<div id='coexp_overview'>overview</div>");
+            $.each(window.PortalGlobals.getGeneList(), function(index, value) {
+                $("#coexp-tabs-content").append("<div id='coexp_" + value + "'>" +
+                    "<div id='coexp_loading_img_" + value + "'>" +
+                    "<img style='padding:200px;' src='images/ajax-loader.gif'>" +
+                    "</div></div>");
+            });
+        }
+
+        function generateTabs() {
+            $("#coexp-tabs").tabs();
+            $("#coexp-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
+            $("#coexp-tabs").tabs('select', 0);
+        }
+
+        function bindListenerToTabs() {
+            $("#coexp-tabs").bind('tabsselect', function(event, ui) {
+                var _genes = window.PortalGlobals.getGeneList();
+                if (ui.index === 0) {
+                    Summary.generateSummary();
+                } else {
+                    var _gene = _genes[ui.index - 1];
+                    CoExpTable.init(_gene);
+                }
+            });
+        }
+
+
+        return {
+            appendTabsContent: appendTabsContent,
+            generateTabs: generateTabs,
+            bindListenerToTabs: bindListenerToTabs
+        }
+    }());
 
     return {
-        init: function() {
-            generateTable();
+        initTabs: function() {
+            Tabs.appendTabsContent();
+            Tabs.generateTabs();
+            Tabs.bindListenerToTabs();
+        },
+        initSummary: function() {
+            Summary.generateSummary();
         }
     };
 

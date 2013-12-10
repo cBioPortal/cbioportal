@@ -156,7 +156,7 @@
                 out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
             }
 
-            out.println ("<li><a href='#co_exp' class='result-tab' title='List of top co-expressed gene'>Co-Expression</a></li>");
+            out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed gene'>Co-Expression</a></li>");
             out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
             out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");

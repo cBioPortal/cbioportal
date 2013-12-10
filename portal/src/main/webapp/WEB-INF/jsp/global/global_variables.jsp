@@ -139,6 +139,10 @@
         getGeneListString: function() {  // gene list without onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
         },
+        getGeneList: function() {
+            var _geneList = '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>';
+            return _geneList.split(/\s+/);    //Gene Id list without onco query language
+        },
         getCaseSetId: function() { return '<%= caseSetId %>';},
         getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
         getCases: function() { return '<%= cases %>'; }, // list of queried case ids

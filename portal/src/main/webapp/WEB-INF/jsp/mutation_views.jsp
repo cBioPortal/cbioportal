@@ -132,7 +132,7 @@
 		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
 		<div class='mutation-3d-info'></div>
 	</div>
-	<div id='mutation_3d_visualizer'></div>
+	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<table>
 		    <tr>

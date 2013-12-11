@@ -161,6 +161,10 @@ th.mutation-details-qtip-style {
 .mutation-3d-vis-header {
 	padding-bottom: 5px;
 }
+.mutation-3d-vis-container {
+	position: relative;
+	z-index: 2;
+}
 .mutation-3d-info {
 	font-size: 13px;
 	width: 400px;

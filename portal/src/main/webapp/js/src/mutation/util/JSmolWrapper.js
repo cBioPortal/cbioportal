@@ -35,12 +35,15 @@ var JSmolWrapper = function()
 		// init vars
 		_appName = name;
 		_options = jQuery.extend(true, {}, defaultOpts, options);
+
+		var w = _options.width;
+		var h = _options.height * 3; // x3 is for the menu to overflow
 		// TODO send custom opts via GET? (i.e: jsmol_frame.jsp?name=n&width=400&...)
 		_frameHtml = '<iframe id="jsmol_frame" ' +
 		             'src="jsmol_frame.jsp" ' +
 		             'seamless="seamless" ' +
-		             'width="400" ' +
-		             'height="300" ' +
+		             'width="' + w + '" ' +
+		             'height="' + h + '" ' +
 		             'frameBorder="0" ' +
 		             'scrolling="no"></iframe>';
 	}

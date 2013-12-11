@@ -90,7 +90,7 @@ var CoExpTable = (function() {
         return {
             init: function(geneId) {
                 var element =  document.getElementById(Names.tablePrefix + geneId);
-                if (typeof(element) != 'undefined' && element != null) {
+                if (typeof(element) !== 'undefined' && element !== null) {
                     getCoExpData(geneId);
                 }
             }
@@ -120,7 +120,7 @@ var CoExpTable = (function() {
         function bindListenerToTabs() {
             $("#coexp-tabs").bind('tabsselect', function(event, ui) {
                 var _genes = window.PortalGlobals.getGeneList();
-                var _gene = _genes[ui.index - 1];
+                var _gene = _genes[ui.index];
                 CoExpTable.init(_gene);
             });
         }

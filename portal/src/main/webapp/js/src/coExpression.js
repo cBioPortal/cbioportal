@@ -34,7 +34,13 @@
 
 var CoExpTable = (function() {
 
+    var Names = {
+        divPrefix: "coexp_",
+        tablePrefix: "coexp_table_",
+        loadingImgPrefix: "coexp_loading_img_"
+    };
     var Util = (function() {
+
 
     }());
 
@@ -62,34 +68,35 @@ var CoExpTable = (function() {
         function getCoExpDataCallBack(geneId) {
             return function(result) {
                 //figure out div id
-                var divId = "coexp_" + geneId;
-                var tableId = "coexp_table_" + geneId;
-                var loadingImgId = "coexp_loading_im_" + geneId;
+                var divId = Names.divPrefix + geneId;
+                var tableId = Names.tablePrefix + geneId;
+                var loadingImgId = Names.loadingImgPrefix + geneId;
 
                 //Render
-                $(loadingImgId).hide();
-                $(divId).append(
+                $("#" + loadingImgId).hide();
+
+                $("#" + divId).append(
                     "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>"
                 );
-                $(tableId).append(
+                $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
                     "<tr><th>Compared Gene</th><th>Pearson's Score</th><th>Plots</th></tr>" +
                     "</thead><tbody></tbody>"
                 );
-                $(tableId).dataTable({
+                $("#" + tableId).dataTable({
                     "sDom": '<"H"if>t<"F"lp>',
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
                     "bAutoWidth": false
                 });
-                //attachDataToTable(result, tableId);
+                attachDataToTable(result, tableId);
             }
 
         }
 
         function attachDataToTable(result, tableId) {
             $.each(result, function(i, _obj) {
-                $(tableId).dataTable().fnAddData([_obj.gene2, _obj.pearson, "(+)"]);
+                $("#" + tableId).dataTable().fnAddData([_obj.gene2, _obj.pearson, "(+)"]);
             });
         }
 
@@ -105,12 +112,12 @@ var CoExpTable = (function() {
         function appendTabsContent() {
             $("#coexp-tabs-list").append("<li><a href='#coexp_overview' class='coexp-tabs-ref'><span>Overview</span></a></li>");
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
-                $("#coexp-tabs-list").append("<li><a href='#coexp_" + value + "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
+                $("#coexp-tabs-list").append("<li><a href='#" + Names.divPrefix + value + "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
             $("#coexp-tabs-content").append("<div id='coexp_overview'>overview</div>");
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
-                $("#coexp-tabs-content").append("<div id='coexp_" + value + "'>" +
-                    "<div id='coexp_loading_img_" + value + "'>" +
+                $("#coexp-tabs-content").append("<div id='" + Names.divPrefix + value + "'>" +
+                    "<div id='" + Names.loadingImgPrefix + value + "'>" +
                     "<img style='padding:200px;' src='images/ajax-loader.gif'>" +
                     "</div></div>");
             });

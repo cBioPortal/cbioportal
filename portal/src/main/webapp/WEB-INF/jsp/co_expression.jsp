@@ -24,13 +24,6 @@
         <ul id='coexp-tabs-list'></ul>
         <div id='coexp-tabs-content'></div>
     </div>
-
-    <!--div id="co_exp_data_table_div">
-        <table id="co_exp_data_table" cellpadding="0" cellspacing="0" border="0" class="display">
-        </table>
-    </div-->
-
-
 </div>
 
 <script>

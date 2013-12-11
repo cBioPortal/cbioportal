@@ -29,5 +29,6 @@
 <script>
     $(document).ready( function() {
         CoExpTable.initTabs();
+        CoExpTable.initView();
     });
 </script>

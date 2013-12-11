@@ -142,7 +142,8 @@ var CoExpTable = (function() {
         },
         initView: function() {
             var _genes = window.PortalGlobals.getGeneList();
-            CoExpTable.init(_genes[0]);
+            //CoExpTable.init(_genes[0]);
+            console.log(_genes[0]);
         }
     };
 

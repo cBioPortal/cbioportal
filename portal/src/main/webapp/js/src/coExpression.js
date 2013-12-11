@@ -83,7 +83,7 @@ var CoExpTable = (function() {
 
         function attachDataToTable(result, tableId) {
             $.each(result, function(i, _obj) {
-                $("#" + tableId).dataTable().fnAddData([_obj.gene2 _obj.pearson, "(+)"]);
+                $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson, "(+)"]);
             });
         }
 

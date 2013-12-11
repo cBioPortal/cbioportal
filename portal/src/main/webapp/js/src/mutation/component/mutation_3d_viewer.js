@@ -30,7 +30,7 @@ var Mutation3dVis = function(name, options)
 
 	// default visualization options
 	var defaultOpts = {
-		// applet/application (Jmol) options
+		// applet/application (Jmol/JSmol) options
 		appOptions: {
 			width: 400,
 			height: 300,

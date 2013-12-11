@@ -164,6 +164,7 @@ th.mutation-details-qtip-style {
 .mutation-3d-vis-container {
 	position: relative;
 	z-index: 2;
+	overflow: hidden;
 }
 .mutation-3d-info {
 	font-size: 13px;

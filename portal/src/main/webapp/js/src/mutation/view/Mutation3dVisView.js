@@ -96,6 +96,17 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		});
 
+		// add mouse over/out listener to enable/disable overflow of the visualizer content
+		var visContainer = self.$el.find(".mutation-3d-vis-container");
+
+		visContainer.mouseenter(function(){
+			visContainer.css("overflow", "visible");
+		});
+
+		visContainer.mouseleave(function(){
+			visContainer.css("overflow", "hidden");
+		});
+
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
 			// close the vis panel only if the selected tab is one of the main tabs

@@ -13,7 +13,7 @@
         float: right;
     }
     #coexp .coexp-tabs{
-        height: 685px;
+        /*height: 685px; */
     }
     #coexp .coexp-tabs-ref{
         font-size: 11px !important;

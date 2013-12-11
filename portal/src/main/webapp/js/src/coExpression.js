@@ -74,7 +74,27 @@ var CoExpTable = (function() {
                     "sDom": '<"H"if>t<"F"lp>',
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
-                    "bAutoWidth": false
+                    "bAutoWidth": false,
+                    "aaSorting": [[1, 'desc']],
+                    "iDisplayLength": 50,
+                    "aoColumnDefs": [
+                        {
+                            "bSearchable": true,
+                            "aTargets": [ 0 ]
+                        },
+                        {
+                            "bSearchable": false,
+                            "aTargets": [ 1 ]
+                        },
+                        {
+                            "bSearchable": false,
+                            "aTargets": [ 2 ],
+                            "bSortable": false,
+                            "fnRender": function() {
+                                return "<img class=\"details_img\" src=\"images/details_open.png\">";
+                            }
+                        }
+                    ]
                 });
                 attachDataToTable(result, tableId);
             }
@@ -142,8 +162,7 @@ var CoExpTable = (function() {
         },
         initView: function() {
             var _genes = window.PortalGlobals.getGeneList();
-            //CoExpTable.init(_genes[0]);
-            console.log(_genes[0]);
+            CoExpTable.init(_genes[0]);
         }
     };
 

@@ -102,7 +102,10 @@ var CoExpTable = (function() {
 
         return {
             init: function(geneId) {
-                getCoExpData(geneId);
+                var element =  document.getElementById(Names.tablePrefix + geneId);
+                if (typeof(element) != 'undefined' && element != null) {
+                    getCoExpData(geneId);
+                }
             }
         }
     }());

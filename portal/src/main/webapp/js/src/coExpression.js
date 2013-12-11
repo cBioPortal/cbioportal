@@ -39,26 +39,13 @@ var CoExpTable = (function() {
         tablePrefix: "coexp_table_",
         loadingImgPrefix: "coexp_loading_img_"
     };
-    var Util = (function() {
-
-
-    }());
-
-    var Summary = (function() {
-        function generateSummary() {
-
-        }
-        return {
-            generateSummary: generateSummary
-        }
-    }());
 
     var CoExpTable = (function() {
 
         function getCoExpData(geneId) {
             var paramsGetCoExpData = {
                 cancer_study_id: window.PortalGlobals.getCancerStudyId(),
-                gene_list: geneId,
+                gene: geneId,
                 case_set_id: window.PortalGlobals.getCaseSetId(),
                 case_ids_key: window.PortalGlobals.getCaseIdsKey()
             };
@@ -96,7 +83,7 @@ var CoExpTable = (function() {
 
         function attachDataToTable(result, tableId) {
             $.each(result, function(i, _obj) {
-                $("#" + tableId).dataTable().fnAddData([_obj.gene2, _obj.pearson, "(+)"]);
+                $("#" + tableId).dataTable().fnAddData([_obj.gene2 _obj.pearson, "(+)"]);
             });
         }
 
@@ -135,12 +122,8 @@ var CoExpTable = (function() {
         function bindListenerToTabs() {
             $("#coexp-tabs").bind('tabsselect', function(event, ui) {
                 var _genes = window.PortalGlobals.getGeneList();
-                if (ui.index === 0) {
-                    Summary.generateSummary();
-                } else {
-                    var _gene = _genes[ui.index - 1];
-                    CoExpTable.init(_gene);
-                }
+                var _gene = _genes[ui.index - 1];
+                CoExpTable.init(_gene);
             });
         }
 
@@ -157,9 +140,6 @@ var CoExpTable = (function() {
             Tabs.appendTabsContent();
             Tabs.generateTabs();
             Tabs.bindListenerToTabs();
-        },
-        initSummary: function() {
-            Summary.generateSummary();
         }
     };
 

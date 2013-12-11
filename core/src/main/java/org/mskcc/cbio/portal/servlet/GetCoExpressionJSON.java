@@ -55,7 +55,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
     private double coExpScoreThreshold = 0.3;
     private int resultLength = 150;
-    private Collection<Long> queryGenes = new ArrayList<Long>();  //queried genes' Id
 
     /**
      * Handles HTTP GET Request.
@@ -80,7 +79,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
                           HttpServletResponse httpServletResponse) throws ServletException, IOException {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
-        String geneListStr = httpServletRequest.getParameter("gene_list");
+        String geneSymbol = httpServletRequest.getParameter("gene");
 	    String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
 
@@ -88,12 +87,9 @@ public class GetCoExpressionJSON extends HttpServlet  {
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         ArrayList<JSONObject> fullResult = new ArrayList<JSONObject>();
 
-        //Convert gene symbol (string) to gene ID (int)
-        String[] geneList = geneListStr.split("\\s+");
-        for (String gene_item : geneList) {
-            CanonicalGene geneObj = daoGeneOptimized.getGene(gene_item);
-            queryGenes.add(geneObj.getEntrezGeneId());
-        }
+
+        CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
+        Long queryGeneId = geneObj.getEntrezGeneId();
 
     	GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
 	    if (final_gp != null) {
@@ -102,25 +98,22 @@ public class GetCoExpressionJSON extends HttpServlet  {
                 int mapSize = map.size();
                 List<Long> genes = new ArrayList<Long>(map.keySet());
 
-                for (Long i_queryGene : queryGenes) {
-                    CanonicalGene queryGene = daoGeneOptimized.getGene(i_queryGene);
-                    String queryGeneSymbol = queryGene.getHugoGeneSymbolAllCaps();
-                    for (int i = 0; i < mapSize; i++) {
-                        double[] query_gene_exp = map.get(i_queryGene);
-                        long compared_gene_id = genes.get(i);
-                        double[] compared_gene_exp = map.get(compared_gene_id);
+                CanonicalGene queryGene = daoGeneOptimized.getGene(queryGeneId);
+                String queryGeneSymbol = queryGene.getHugoGeneSymbolAllCaps();
+                for (int i = 0; i < mapSize; i++) {
+                    double[] query_gene_exp = map.get(queryGeneId);
+                    long compared_gene_id = genes.get(i);
+                    double[] compared_gene_exp = map.get(compared_gene_id);
 
-                        if (compared_gene_exp != null && query_gene_exp != null) {
-                            double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
-                               (compared_gene_id != i_queryGene)){
-                                JSONObject _scores = new JSONObject();
-                                CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
-                                _scores.put("gene1", queryGeneSymbol);
-                                _scores.put("gene2", comparedGene.getHugoGeneSymbolAllCaps());
-                                _scores.put("pearson", pearson);
-                                fullResult.add(_scores);
-                            }
+                    if (compared_gene_exp != null && query_gene_exp != null) {
+                        double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                        if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
+                           (compared_gene_id != queryGeneId)){
+                            JSONObject _scores = new JSONObject();
+                            CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                            _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
+                            _scores.put("pearson", pearson);
+                            fullResult.add(_scores);
                         }
                     }
                 }

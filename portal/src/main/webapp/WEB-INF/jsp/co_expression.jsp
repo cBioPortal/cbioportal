@@ -29,6 +29,5 @@
 <script>
     $(document).ready( function() {
         CoExpTable.initTabs();
-        CoExpTable.initSummary();
     });
 </script>

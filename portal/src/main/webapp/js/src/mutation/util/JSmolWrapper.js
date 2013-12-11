@@ -13,7 +13,7 @@ var JSmolWrapper = function()
 	var _options = null;
 	var _frameHtml = null;
 	var _targetWindow = null;
-	var _origin = window.location.origin;
+	var _origin = cbio.util.getWindowOrigin();
 
 	// default options
 	var defaultOpts = {

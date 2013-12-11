@@ -1,14 +1,41 @@
+<!DOCTYPE HTML>
 <html>
-	<body>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+
 		<script type="text/javascript" src="js/lib/jsmol/JSmol.min.js"></script>
+		<script type="text/javascript" src="js/src/cbio-util.js"></script>
+
+		<script type="text/javascript">
+			var _processMessage = function(event)
+			{
+				// TODO check event.origin for security
+				// we have many different domains, use an external list of safe domains?
+
+				// only accept messages from the local origin
+				if (cbio.util.getWindowOrigin() != event.origin)
+				{
+					return;
+				}
+
+				if (event.data.type == "script")
+				{
+					Jmol.script(_applet, event.data.content);
+				}
+			};
+
+			window.addEventListener("message", _processMessage, false);
+		</script>
 
 		<style type="text/css">
 			#jsmol_container {
-				/* TODO this a workaround, and might not be safe */
+				/* TODO this a workaround, and might not be safe for all browsers */
 				margin: -6px;
 			}
 		</style>
+	</head>
 
+	<body>
 		<div id="jsmol_container">
 			<script type="text/javascript">
 
@@ -28,28 +55,5 @@
 				var _applet = Jmol.getApplet("jsmol_applet", _appOptions);
 			</script>
 		</div>
-
-		<script type="text/javascript">
-			var _processMessage = function(event)
-			{
-				// TODO check event.origin for security
-				// we have many different domains, use an external list of safe domains?
-
-				// only accept messages from the local origin
-				if (window.location.origin != event.origin)
-				{
-					return;
-				}
-
-
-				if (event.data.type == "script")
-				{
-					Jmol.script(_applet, event.data.content);
-				}
-			};
-
-			window.addEventListener("message", _processMessage, false);
-        </script>
-
 	</body>
 </html>

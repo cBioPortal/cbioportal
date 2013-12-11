@@ -90,7 +90,7 @@ var CoExpTable = (function() {
         return {
             init: function(geneId) {
                 var element =  document.getElementById(Names.tablePrefix + geneId);
-                if (typeof(element) !== 'undefined' && element !== null) {
+                if (typeof(element) === 'undefined' || element === null) {
                     getCoExpData(geneId);
                 }
             }
@@ -122,6 +122,7 @@ var CoExpTable = (function() {
                 var _genes = window.PortalGlobals.getGeneList();
                 var _gene = _genes[ui.index];
                 CoExpTable.init(_gene);
+
             });
         }
 
@@ -138,6 +139,10 @@ var CoExpTable = (function() {
             Tabs.appendTabsContent();
             Tabs.generateTabs();
             Tabs.bindListenerToTabs();
+        },
+        initView: function() {
+            var _genes = window.PortalGlobals.getGeneList();
+            CoExpTable.init(_genes[0]);
         }
     };
 

@@ -98,12 +98,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
-			// close the vis panel only if the selected tab is one of the main tabs
-			// (i.e.: do not close panel if a gene tab selected)
-			if (ui.tab.className != "mutation-details-tabs-ref")
-			{
-				closeHandler();
-			}
+			closeHandler();
 		});
 	},
 	/**

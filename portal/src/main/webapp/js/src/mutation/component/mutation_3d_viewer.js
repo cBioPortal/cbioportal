@@ -10,10 +10,8 @@ var Mutation3dVis = function(name, options)
 	// main container -- html element
 	var _container = null;
 
-	// TODO parametrize this var?
 	// actual 3D application wrapper
-	//var _3dApp = new JmolWrapper();
-	var _3dApp = new JSmolWrapper();
+	var _3dApp = null;
 
 	// current selection (mutation positions as Jmol script compatible strings)
 	// this is a map of <color, position array> pairs
@@ -63,7 +61,21 @@ var Mutation3dVis = function(name, options)
 	 */
 	function init()
 	{
-		// init applet
+		// TODO parametrize this initialization?
+
+		if (cbio.util.browser.msie)
+		{
+			// TODO workaround: using Jmol in IE for now
+			// JSmol cannot retrieve data from an external DB in IE
+			// (it needs a server side component to do this)
+			_3dApp = new JmolWrapper();
+		}
+		else
+		{
+			_3dApp = new JSmolWrapper();
+		}
+
+		// init app
 		_3dApp.init(name, _options.appOptions);
 	}
 

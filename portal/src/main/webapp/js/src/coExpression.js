@@ -100,11 +100,9 @@ var CoExpTable = (function() {
     var Tabs = (function() {
 
         function appendTabsContent() {
-            $("#coexp-tabs-list").append("<li><a href='#coexp_overview' class='coexp-tabs-ref'><span>Overview</span></a></li>");
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-list").append("<li><a href='#" + Names.divPrefix + value + "' class='coexp-tabs-ref'><span>" + value + "</span></a></li>");
             });
-            $("#coexp-tabs-content").append("<div id='coexp_overview'>overview</div>");
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Names.divPrefix + value + "'>" +
                     "<div id='" + Names.loadingImgPrefix + value + "'>" +

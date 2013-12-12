@@ -57,14 +57,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		self.$el.find(".mutation-3d-minimize").click(function(){
 			if (mut3dVis != null)
 			{
-				mut3dVis.minimize();
-			}
-		});
-
-		self.$el.find(".mutation-3d-maximize").click(function(){
-			if (mut3dVis != null)
-			{
-				mut3dVis.maximize();
+				mut3dVis.toggleSize();
 			}
 		});
 

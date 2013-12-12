@@ -16,6 +16,9 @@ var Mutation3dVis = function(name, options)
 	// Jmol applet reference
 	var _applet = null;
 
+	// flag to indicate panel size minimization
+	var _minimized = false;
+
 	// current selection (mutation positions as Jmol script compatible strings)
 	// this is a map of <color, position array> pairs
 	var _selection = null;
@@ -181,6 +184,7 @@ var Mutation3dVis = function(name, options)
 		{
 			_container.css("overflow", "hidden");
 			_container.css("height", _options.minimizedHeight);
+			_minimized = true;
 		}
 	}
 
@@ -193,6 +197,22 @@ var Mutation3dVis = function(name, options)
 		{
 			_container.css("overflow", "");
 			_container.css("height", "");
+			_minimized = false;
+		}
+	}
+
+	function toggleSize()
+	{
+		if (_container != null)
+		{
+			if(_minimized)
+			{
+				maximize();
+			}
+			else
+			{
+				minimize();
+			}
 		}
 	}
 
@@ -390,6 +410,7 @@ var Mutation3dVis = function(name, options)
 		hide: hide,
 		minimize: minimize,
 		maximize: maximize,
+		toggleSize: toggleSize,
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,

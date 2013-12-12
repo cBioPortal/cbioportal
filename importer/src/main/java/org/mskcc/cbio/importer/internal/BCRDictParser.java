@@ -26,30 +26,26 @@
  */
 package org.mskcc.cbio.importer.internal;
 
-import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
-import org.mskcc.cbio.importer.model.ClinicalAttributesMetadata;
+import org.mskcc.cbio.importer.model.BCRDictEntry;
+
 import org.xml.sax.*;
 import org.xml.sax.helpers.DefaultHandler;
+import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Handles SAX XML element events for parsing data from the Biospecimen Core Resource (BCR) Data Dictionary
  */
-public class BcrDictHandler extends DefaultHandler {
-    private List<BcrClinicalAttributeEntry> bcrs;
-    private BcrClinicalAttributeEntry currBcr;
+public class BCRDictParser extends DefaultHandler
+{
+    private List<BCRDictEntry> bcrs;
+    private BCRDictEntry currBcr;
     private boolean inAttr = false;
     private StringBuilder content;
-    private ArrayList<String> diseaseSpecificities = new ArrayList<String>();
 
-    /**
-     * Constructor
-     * @param bcrs    the list to add parsed clinical attributes to
-     */
-    public BcrDictHandler(List<BcrClinicalAttributeEntry> bcrs) {
+    public BCRDictParser(List<BCRDictEntry> bcrs)
+    {
         this.bcrs = bcrs;
         this.content = new StringBuilder();
     }
@@ -63,17 +59,16 @@ public class BcrDictHandler extends DefaultHandler {
      * @param attributes
      * @throws SAXException
      */
-    public void startElement(String uri, String localName, String qName,
-                             Attributes attributes) throws SAXException {
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException
+    {
         content.setLength(0);
         if ("dictEntry".equals(qName)) {
             inAttr = true;
-            currBcr = new BcrClinicalAttributeEntry();
-            currBcr.setDisplayName(attributes.getValue("name"));
+            currBcr = new BCRDictEntry();
+            currBcr.displayName = attributes.getValue("name");
         }
         else if ("XMLeltInfo".equals(qName)){
-            // the broad replaces all "_" with "" in their firehose runs
-            currBcr.setId(attributes.getValue("xml_elt_name"));
+            currBcr.id = attributes.getValue("xml_elt_name");
         }
     }
 
@@ -85,17 +80,15 @@ public class BcrDictHandler extends DefaultHandler {
      * @param qName
      * @throws SAXException
      */
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String uri, String localName, String qName) throws SAXException
+    {
         if (inAttr) {
-            if ("caDSRdefinition".equals(qName)) {
-                currBcr.setDescription(content.toString());
+            if ("caDSRdefinition".equals(qName) &&
+                currBcr.description.isEmpty()) {
+                currBcr.description = content.toString();
             }
-            else if ("study".equals(qName)) {
-                diseaseSpecificities.add( content.toString().trim() );
-            }
-            else if ("studies".equals(qName)) {
-                currBcr.setDiseaseSpecificity(StringUtils.join(diseaseSpecificities, " "));
-                diseaseSpecificities.clear();
+            else if ("caDSRalternateDefinition".equals(qName)) {
+                currBcr.description = content.toString();
             }
             else if ("dictEntry".equals(qName)) {
                 // this goes last
@@ -112,7 +105,8 @@ public class BcrDictHandler extends DefaultHandler {
      * @param start
      * @param end
      */
-    public void characters(char ch[], int start, int end) {
+    public void characters(char ch[], int start, int end)
+    {
         this.content.append(ch, start, end);
     }
 }

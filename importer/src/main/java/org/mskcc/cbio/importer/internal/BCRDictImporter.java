@@ -27,71 +27,45 @@
 
 package org.mskcc.cbio.importer.internal;
 
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.ReferenceMetadata;
+import org.mskcc.cbio.importer.model.BCRDictEntry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.Importer;
-import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
-import org.mskcc.cbio.importer.model.ReferenceMetadata;
-import org.xml.sax.SAXException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
-import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
-public class AnnotateNciClinicalAttributes implements Importer {
+public class BCRDictImporter extends ImporterBaseImpl implements Importer
+{
+    private static final Log LOG = LogFactory.getLog(BCRDictImporter.class);
 
-    // our logger
-    private static final Log LOG = LogFactory.getLog(AnnotateNciClinicalAttributes.class);
-
-    // ref to configuration
     private Config config;
-
-    // ref to file utils
     private FileUtils fileUtils;
-
-    // ref to database utils
     private DatabaseUtils databaseUtils;
 
-    public static final String DICT_ENTRY = "dictEntry";
-    public static final String NAME = "name";
-
-    /**
-     * Constructor.
-     *
-     * @param config Config
-     * @param fileUtils FileUtils
-     * @param databaseUtils DatabaseUtils
-     */
-    public AnnotateNciClinicalAttributes(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils) {
-
-        // set members
+    public BCRDictImporter(Config config, FileUtils fileUtils, DatabaseUtils databaseUtils)
+    {
         this.config = config;
         this.fileUtils = fileUtils;
         this.databaseUtils = databaseUtils;
     }
 
     @Override
-    public void importData(String portal, Boolean initPortalDatabase, Boolean initTumorTypes, Boolean importReferenceData) throws Exception {
+    public void importData(String portal, Boolean initPortalDatabase,
+                           Boolean initTumorTypes, Boolean importReferenceData) throws Exception
+    {
         throw new UnsupportedOperationException();
     }
 
-    /**
-     * Imports all cancer studies found within the given directory.
-     * If force is set, user will not be prompted to override existing cancer study.
-     *
-     * @param cancerStudyDirectoryName
-     * @param skip
-     * @param force
-     */
     @Override
     public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
     {
@@ -99,27 +73,27 @@ public class AnnotateNciClinicalAttributes implements Importer {
     }
 
     @Override
-    public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
+    public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception
+    {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);
-        importReferenceData(bcrXmlFilename);
+
+        if (!bcrXmlFilename.isEmpty()) {
+            logMessage(LOG, "importReferenceData, processing Biospecimen Core Resource dictionary: " +
+                       bcrXmlFilename);
+            config.importBCRClinicalAttributes(parseXML(bcrXmlFilename));
+        }
+        else {
+            logMessage(LOG, "importReferenceData, missing Biospecimen Core Resource dictionary filename.");
+        }
     }
 
-    public void importReferenceData(String bcrXmlFilename) throws IOException, SAXException, ParserConfigurationException {
-        System.out.println("Reading data from: " + bcrXmlFilename);
-        List<BcrClinicalAttributeEntry> bcrs = parseXML(bcrXmlFilename);
-
-        System.out.printf("\ndoing a batch update to clinical_attributes worksheet...");
-        config.batchUpdateClinicalAttributeMetadata(bcrs);
-        System.out.printf("done!\n");
-    }
-
-    public List<BcrClinicalAttributeEntry> parseXML(String xmlFilename)
-            throws ParserConfigurationException, SAXException, IOException {
-        List<BcrClinicalAttributeEntry> bcrs = new ArrayList<BcrClinicalAttributeEntry>();
-
+    private List<BCRDictEntry> parseXML(String xmlFilename) throws Exception
+    {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BcrDictHandler handler = new BcrDictHandler(bcrs);
+
+        List<BCRDictEntry> bcrs = new ArrayList<BCRDictEntry>();
+        BCRDictParser handler = new BCRDictParser(bcrs);
         saxParser.parse(xmlFilename, handler);
 
         return bcrs;

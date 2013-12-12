@@ -428,7 +428,7 @@ class GDataImpl implements Config {
 		}
 
 		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
-			if (clinicalAttributesMetadata.getColumnHeader().equals(clinicalAttributesColumnHeader)) {
+			if (clinicalAttributesMetadata.getExternalColumnHeader().equals(clinicalAttributesColumnHeader)) {
 				toReturn.add(clinicalAttributesMetadata);
 				break;
 			}
@@ -438,180 +438,26 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
-    public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata, boolean insertRow) {
+    public void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs) {
 
-        // vars used in call to updateWorksheet below
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_UPDATE_COLUMN_KEY;
-        String key = clinicalAttributesMetadata.getColumnHeader();
+        HashMap<String, ClinicalAttributesMetadata> clinicalAttributes = makeClinicalAttributesHashMap();
 
-        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                insertRow, keyColumn, key, clinicalAttributesMetadata.getPropertiesMap());
-
-        clinicalAttributesMatrix = null;
-    }
-
-    /**
-     * inserts without asking questions
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
-    @Override
-    public void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
-        insertClinicalAttributesMetadata(clinicalAttributesMetadata, true);
-    }
-
-	/**
-	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
-     * Comparison is done by COLUMN_HEADER (whether it be the empty string
-     * or otherwise)
-	 *
-	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-	 */
-	@Override
-	public void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata) {
-
-		// vars used in call to updateWorksheet below
-		boolean insertRow = true;
-
-		if (clinicalAttributesMatrix == null) {
-			clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-		}
-
-		Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas = 
-			(Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-																		  "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-		// iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
-		// object already exists - this would indicate an update is to take place, not an insert
-		for (ClinicalAttributesMetadata potentialClinicalAttributeMetadataMatch : clinicalAttributesMetadatas) {
-			if (potentialClinicalAttributeMetadataMatch.getColumnHeader().equals(clinicalAttributesMetadata.getColumnHeader())) {
-				insertRow = false;
-				break;
-			}
-		}
-        insertClinicalAttributesMetadata(clinicalAttributesMetadata, insertRow);
-    }
-
-    /**
-     * Special case of updating the clinical attributes worksheet with a Biospecimen Core Resource (BCR).
-     *
-     * In this case, a row in the worksheet should keep the columns specific to our system:
-     * COLUMN_HEADER, DATATYPE, ALIASES, ANNOTATION_STATUS.
-     *
-     * But should should update columns that should be synced with the "standard" BCR dictionary:
-     * DISPLAY_NAME, DESCRIPTION, DISEASE SPECIFICITY.
-     *
-     * A bcr matches iff. its id has a match in the list of aliases of the row in the worksheet
-     * If it doesn't match, it gets added.
-     *
-     * @param bcr BcrClinicalAttributeEntry
-     */
-    public void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcr) {
-
-        if (clinicalAttributesMatrix == null) {
-            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
-        }
-
-        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
-                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-        // you say tomaito, i say tomaato
-        String bcrAlias = bcr.getId().replaceAll("_", "");
-
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
-
-        // iterate over existing clinicalAttributesMatrix and determine if the given clinicalAttributesMetadata
-        // object already exists - this would indicate an update is to take place, not an insert
-        // exists means that the first alias matches
-        for (ClinicalAttributesMetadata attribute : clinicalAttributesMetadatas) {
-            String[] aliases = attribute.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-            for (String alias : aliases) {
-                if (alias.trim().matches(bcrAlias)) {
-                    // match!
-                    if (!attribute.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)) {
-                        // not OKed!
-                        attribute.setDescription(bcr.getDescription());
-                        attribute.setDisplayName(bcr.getDisplayName());
-                        attribute.setDiseaseSpecificity(bcr.getDiseaseSpecificity());
-                        attribute.setColumnHeader(bcr.getId().toUpperCase());
-
-                        boolean insertRow = false;
-                        String key = attribute.getAliases();
-                        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                                insertRow, keyColumn, key, attribute.getPropertiesMap());
-                    }
-                    // there was a match, but it has already been Oked so skip.  In other words,
-                    // OK stops things from being overridden
-                    return;
-                }
+        for (BCRDictEntry bcr : bcrs) {
+            if (!clinicalAttributes.containsKey(bcr.id)) {
+                updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
+                                true, null, null, ClinicalAttributesMetadata.getPropertiesMap(bcr));
             }
         }
-
-        // else: insert into worksheet
-        String key = null;
-        boolean insertRow = true;
-        updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                insertRow, keyColumn, key, bcr.getPropertiesMap());
-
-//        clinicalAttributesMatrix = null;
     }
 
-    public void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs) {
-        if (clinicalAttributesMatrix == null) {
-            clinicalAttributesMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesWorksheet);
+    HashMap<String, ClinicalAttributesMetadata> makeClinicalAttributesHashMap()
+    {
+        HashMap toReturn = new HashMap<String, ClinicalAttributesMetadata>();
+        for (ClinicalAttributesMetadata clinicalAttributeMetadata : getClinicalAttributesMetadata(Config.ALL)) {
+            toReturn.put(clinicalAttributeMetadata.getExternalColumnHeader(), clinicalAttributeMetadata);
         }
 
-        Collection<ClinicalAttributesMetadata> clinicalAttributesMetadatas =
-                (Collection<ClinicalAttributesMetadata>) getMetadataCollection(clinicalAttributesMatrix,
-                        "org.mskcc.cbio.importer.model.ClinicalAttributesMetadata");
-
-        // make a hashmap out of the worksheet
-        // alias -> ClinicalAttributeMetadata
-        HashMap<String, ClinicalAttributesMetadata> aliasToAttr = new HashMap<String, ClinicalAttributesMetadata>();
-        for (ClinicalAttributesMetadata attr : clinicalAttributesMetadatas) {
-            String[] aliases = attr.getAliases().split(ClinicalDataConverterImpl.ALIAS_DELIMITER);
-            for (String alias : aliases) {
-                aliasToAttr.put(alias.trim(), attr);
-            }
-        }
-
-        Collection<BcrClinicalAttributeEntry> toInsert = new ArrayList<BcrClinicalAttributeEntry>();
-        Collection<BcrClinicalAttributeEntry> toUpdate = new ArrayList<BcrClinicalAttributeEntry>();
-        for (BcrClinicalAttributeEntry bcr : bcrs) {
-            // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId().replaceAll("_", "");       // TODO: duplication
-
-            ClinicalAttributesMetadata attr = aliasToAttr.get(bcrAlias.trim());
-            if (attr != null) {
-                // match!
-                if (!attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.OK)
-                        && !attr.getAnnotationStatus().equals(ClinicalDataConverterImpl.IGNORE)) {
-                    // not Oked, nor ignored, update away!
-                    toUpdate.add(bcr);
-                }
-            } else {
-                // no match insert ho!
-                toInsert.add(bcr);
-            }
-        }
-
-        String keyColumn = ClinicalAttributesMetadata.WORKSHEET_ALIAS_KEY;     // N.B.
-        // iterate over toInsert, inserting each one
-        for (BcrClinicalAttributeEntry bcr : toInsert) {
-            String key = null;
-            boolean insertRow = true;
-            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                    insertRow, keyColumn, key, bcr.getPropertiesMap());
-        }
-
-        for (BcrClinicalAttributeEntry bcr : toUpdate) {
-            // you say tomaito, i say tomaato
-            String bcrAlias = bcr.getId().replaceAll("_", "");      // TODO: duplication
-            String key = bcrAlias;
-            boolean insertRow = false;
-            updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                    insertRow, keyColumn, key, bcr.getPropertiesMap());
-        }
+        return toReturn;
     }
 
 	/**
@@ -937,7 +783,7 @@ class GDataImpl implements Config {
 	 * Insert (or update) a worksheet row.  If insertRow is true,
 	 * a new row will be inserted into the database.  If insertRow is
 	 * false, the row will be updated.  Note, if update is to occur,
-	 * keyColumn (worksheet column header) and key (key to identify row)
+	 * keyColumn (worksheet column header) and keyValue (key to identify row)
 	 * must be set, otherwise they will be ignored (and can be null).
 	 *
 	 * @param spreadsheetName String
@@ -1001,4 +847,6 @@ class GDataImpl implements Config {
 			e.printStackTrace();
 		}
 	}
+
+
 }

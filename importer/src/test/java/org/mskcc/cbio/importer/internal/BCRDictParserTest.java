@@ -26,32 +26,33 @@
  */
 package org.mskcc.cbio.importer.internal;
 
+import org.mskcc.cbio.importer.model.BCRDictEntry;
+
+import org.xml.sax.SAXException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import static org.junit.Assert.assertTrue;
 
-import org.mskcc.cbio.importer.model.BcrClinicalAttributeEntry;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.util.List;
+import java.util.ArrayList;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import javax.xml.parsers.ParserConfigurationException;
 
 @RunWith(JUnit4.class)
-public class BcrDictHandlerTest {
+public class BCRDictParserTest {
 
     @Test
     public void parseTest() throws ParserConfigurationException, SAXException, IOException {
 
-        List<BcrClinicalAttributeEntry> bcrs = new ArrayList<BcrClinicalAttributeEntry>();
+        List<BCRDictEntry> bcrs = new ArrayList<BCRDictEntry>();
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser saxParser = factory.newSAXParser();
-        BcrDictHandler handler = new BcrDictHandler(bcrs);
+        BCRDictParser handler = new BCRDictParser(bcrs);
 
         String testXml = "<dictionary></dictionary>";
         InputStream stream = new ByteArrayInputStream(testXml.getBytes());
@@ -72,11 +73,10 @@ public class BcrDictHandlerTest {
 
         assertTrue(bcrs.size() == 1);
 
-        BcrClinicalAttributeEntry bcr = bcrs.get(0);
+        BCRDictEntry bcr = bcrs.get(0);
 
-        assertTrue(bcr.getId().equals("an_attribute_id"));
-        assertTrue(bcr.getDescription().equals("the great thing about standards is that there are so many of them"));
-        assertTrue(bcr.getDisplayName().equals("The OFFICIAL name"));
-        assertTrue(bcr.getDiseaseSpecificity().equals("TCGA1 TCGA2"));
+        assertTrue(bcr.id.equals("an_attribute_id"));
+        assertTrue(bcr.description.equals("the great thing about standards is that there are so many of them"));
+        assertTrue(bcr.displayName.equals("The OFFICIAL name"));
     }
 }

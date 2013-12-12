@@ -13,6 +13,7 @@ var JSmolWrapper = function()
 	var _options = null;
 	var _frameHtml = null;
 	var _targetWindow = null;
+	var _container = null;
 	var _origin = cbio.util.getWindowOrigin();
 
 	// default options
@@ -46,6 +47,46 @@ var JSmolWrapper = function()
 		             'height="' + h + '" ' +
 		             'frameBorder="0" ' +
 		             'scrolling="no"></iframe>';
+
+		// add listener to process messages coming from the iFrame
+
+		var _processMessage = function(event)
+		{
+			// only accept messages from the local origin
+			if (cbio.util.getWindowOrigin() != event.origin)
+			{
+				return;
+			}
+
+			if (event.data.type == "ready")
+			{
+				if (_targetWindow)
+				{
+					// TODO custom init doesn't work, send init opts as get params?
+					//var data = {type: "init", content: _options};
+					//_targetWindow.postMessage(data, _origin);
+				}
+			}
+			else if (event.data.type == "menu")
+			{
+				// show or hide the overlay wrt the menu event
+				if (_container)
+				{
+					if (event.data.content == "visible")
+					{
+						_container.css("overflow", "visible");
+					}
+					else if (event.data.content == "hidden")
+					{
+						_container.css("overflow", "hidden");
+					}
+
+					console.log("menu state: " + event.data.content);
+				}
+			}
+		};
+
+		window.addEventListener("message", _processMessage, false);
 	}
 
 	/**
@@ -60,18 +101,13 @@ var JSmolWrapper = function()
 		{
 			container.empty();
 			container.append(_frameHtml);
+			_container = container;
 		}
 
 		_targetWindow = getTargetWindow("jsmol_frame");
 		var targetDocument = getTargetDocument("jsmol_frame");
 
-		if (_targetWindow)
-		{
-			// TODO custom init doesn't work, send init opts as get params?
-			var data = {type: "init", content: _options};
-			//_targetWindow.postMessage(data, _domain);
-		}
-		else
+		if (!_targetWindow)
 		{
 			console.log("warning: JSmol frame cannot be initialized properly");
 		}

@@ -7,11 +7,11 @@
 		<script type="text/javascript" src="js/src/cbio-util.js"></script>
 
 		<script type="text/javascript">
-			var _processMessage = function(event)
-			{
-				// TODO check event.origin for security
-				// we have many different domains, use an external list of safe domains?
 
+			var _applet = null;
+
+			function _processMessage(event)
+			{
 				// only accept messages from the local origin
 				if (cbio.util.getWindowOrigin() != event.origin)
 				{
@@ -22,9 +22,34 @@
 				{
 					Jmol.script(_applet, event.data.content);
 				}
-			};
+				else if (event.data.type == "init")
+				{
+					// TODO this does not work...
+					//_applet = Jmol.getApplet("jsmol_applet", event.data.content);
+				}
+			}
+
+			function _menuCheck(event)
+			{
+				var state = "none";
+
+				if ($(".jmolPopupMenu").is(":visible"))
+				{
+					state = "visible";
+				}
+				else
+				{
+					state = "hidden";
+				}
+
+				window.parent.postMessage({type: "menu", content: state},
+				                          cbio.util.getWindowOrigin());
+			}
 
 			window.addEventListener("message", _processMessage, false);
+			window.parent.postMessage({type: "ready"}, cbio.util.getWindowOrigin());
+
+			// TODO add a click listener on the JSmol canvas to call function _menuCheck
 		</script>
 
 		<style type="text/css">
@@ -52,7 +77,7 @@
 				};
 
 				// TODO get applet name from parent?
-				var _applet = Jmol.getApplet("jsmol_applet", _appOptions);
+				_applet = Jmol.getApplet("jsmol_applet", _appOptions);
 			</script>
 		</div>
 	</body>

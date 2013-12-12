@@ -93,18 +93,6 @@ var Mutation3dVisView = Backbone.View.extend({
 			{
 				mut3dVis.changeStyle(selected);
 			}
-
-		});
-
-		// add mouse over/out listener to enable/disable overflow of the visualizer content
-		var visContainer = self.$el.find(".mutation-3d-vis-container");
-
-		visContainer.mouseenter(function(){
-			visContainer.css("overflow", "visible");
-		});
-
-		visContainer.mouseleave(function(){
-			visContainer.css("overflow", "hidden");
 		});
 
 		// TODO this is an access to a global div out of this view's template...

@@ -119,9 +119,14 @@
 		3D Protein Structure
 	</div>
 	<div>
-		Structure for the PDB id <span class='mutation-3d-pdb-id'>{{pdbId}}</span>
+		Chain <span class='mutation-3d-chain-id'>{{chainId}}</span> of PDB
+		<span class='mutation-3d-pdb-id'>
+			<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
+			   target="_blank">
+				{{pdbId}}
+			</a>
+		</span>
 		<span class='mutation-3d-pdb-info'>({{pdbInfo}})</span>
-		and the chain <span class='mutation-3d-chain-id'>{{chainId}}</span>
 	</div>
 </script>
 

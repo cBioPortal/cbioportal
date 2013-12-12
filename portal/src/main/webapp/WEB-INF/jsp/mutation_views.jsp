@@ -152,6 +152,15 @@
 			    <td>
 				    <label>Turn on Spin</label>
 			    </td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'></span>
+			    </td>
 		    </tr>
 		</table>
 	</div>

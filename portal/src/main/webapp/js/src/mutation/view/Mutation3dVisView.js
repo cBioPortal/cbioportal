@@ -89,6 +89,35 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		});
 
+		// zoom buttons
+
+		var zoomIn = self.$el.find(".mutation-3d-zoomin");
+		var zoomOut = self.$el.find(".mutation-3d-zoomout");
+		var zoomActual = self.$el.find(".mutation-3d-zoomactual");
+
+		// TODO add also tips
+		zoomIn.click(function() {
+			if (mut3dVis != null)
+			{
+				mut3dVis.zoomIn();
+			}
+		});
+
+		zoomOut.click(function() {
+			if (mut3dVis != null)
+			{
+				mut3dVis.zoomOut();
+			}
+		});
+
+		zoomActual.click(function() {
+			if (mut3dVis != null)
+			{
+				mut3dVis.zoomActual();
+			}
+		});
+
+
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
 			closeHandler();

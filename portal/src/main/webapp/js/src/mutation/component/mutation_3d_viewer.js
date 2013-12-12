@@ -376,6 +376,22 @@ var Mutation3dVis = function(name, options)
 		Jmol.script(_applet, script);
 	}
 
+	// TODO implement zoom functions
+	function zoomIn()
+	{
+
+	}
+
+	function zoomOut()
+	{
+
+	}
+
+	function zoomActual()
+	{
+
+	}
+
 	/**
 	 * Generates a position string for Jmol scripting.
 	 *
@@ -414,6 +430,9 @@ var Mutation3dVis = function(name, options)
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,
+		zoomIn: zoomIn,
+		zoomOut: zoomOut,
+		zoomActual: zoomActual,
 		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,

@@ -98,8 +98,6 @@ public class GetCoExpressionJSON extends HttpServlet  {
                 int mapSize = map.size();
                 List<Long> genes = new ArrayList<Long>(map.keySet());
 
-                CanonicalGene queryGene = daoGeneOptimized.getGene(queryGeneId);
-                String queryGeneSymbol = queryGene.getHugoGeneSymbolAllCaps();
                 for (int i = 0; i < mapSize; i++) {
                     double[] query_gene_exp = map.get(queryGeneId);
                     long compared_gene_id = genes.get(i);

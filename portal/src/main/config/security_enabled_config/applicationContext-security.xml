@@ -102,6 +102,7 @@
       <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
 
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

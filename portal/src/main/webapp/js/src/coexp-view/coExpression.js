@@ -37,7 +37,8 @@ var CoExpTable = (function() {
     var Names = {
         divPrefix: "coexp_",
         tablePrefix: "coexp_table_",
-        loadingImgPrefix: "coexp_loading_img_"
+        loadingImgPrefix: "coexp_loading_img_",
+        plotPrefix: "coexp_plot_"
     };
 
     var CoExpTable = (function() {
@@ -70,7 +71,7 @@ var CoExpTable = (function() {
                     "<tr><th>Compared Gene</th><th>Pearson's Score</th><th>Plots</th></tr>" +
                     "</thead><tbody></tbody>"
                 );
-                $("#" + tableId).dataTable({
+                var _coExpTable = $("#" + tableId).dataTable({
                     "sDom": '<"H"if>t<"F"lp>',
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
@@ -91,11 +92,33 @@ var CoExpTable = (function() {
                             "aTargets": [ 2 ],
                             "bSortable": false,
                             "fnRender": function() {
-                                return "<img class=\"details_img\" src=\"images/details_open.png\">";
+                                return "<img id='coexp_plot_icon' class='details_close' src='images/details_open.png'>";
                             }
                         }
                     ]
-                });
+                });  //close data table
+
+                $('#coexp_plot_icon').live('click', function () {
+                    var nTr = this.parentNode.parentNode;
+                    if ( this.src.match('details_close') ) {
+                        this.src = "images/details_open.png";
+                        _coExpTable.fnClose(nTr);
+                    } else {
+                        this.src = "images/details_close.png";
+                        var aData = _coExpTable.fnGetData( nTr );
+                        var _divName = Names.plotPrefix + geneId + "_" + aData[0];
+                        console.log(_divName);
+                        _coExpTable.fnOpen(
+                            nTr,
+                            "<div id='" + _divName + "'>" +
+                            "<img style='padding:100px; float: right;' id='" + _divName  + "_loading_img'" +
+                            "src='images/ajax-loader.gif'></div>",
+                            'coexp-details'
+                        );
+                        SimplePlot.init(_divName, geneId, aData[0]);
+                    }
+                } );
+
                 attachDataToTable(result, tableId);
             }
 
@@ -103,7 +126,7 @@ var CoExpTable = (function() {
 
         function attachDataToTable(result, tableId) {
             $.each(result, function(i, _obj) {
-                $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson, "(+)"]);
+                $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3), "(+)"]);
             });
         }
 

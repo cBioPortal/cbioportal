@@ -1,4 +1,5 @@
-<script type="text/javascript" src="js/src/coExpression.js"></script>
+<script type="text/javascript" src="js/src/coexp-view/coExpression.js"></script>
+<script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script>
 <style>
     #coexp .dataTables_length {
         float: left;

@@ -41,6 +41,7 @@ import org.mskcc.cbio.importer.model.CancerStudyMetadata;
 import org.apache.commons.io.LineIterator;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Set;
 import java.util.List;
 import java.util.Collection;
@@ -191,6 +192,7 @@ public interface FileUtils {
 	 * @throws Exception
 	 */
 	File createFileWithContents(String filename, String fileContent) throws Exception;
+	File createFileFromStream(String filename, InputStream fileContent) throws Exception;
 
 	/**
 	 * Downloads the given file specified via url to the given canonicalDestination.

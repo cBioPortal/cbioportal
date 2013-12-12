@@ -102,6 +102,12 @@
 	<b:constructor-arg ref="databaseUtils"/>
 	<b:constructor-arg ref="importDataRecordDAO"/>
   </b:bean>
+  <b:bean id="tcgaClinicalFetcher" class="org.mskcc.cbio.importer.fetcher.internal.BiotabFetcherImpl">
+	<b:constructor-arg ref="config"/>
+	<b:constructor-arg ref="fileUtils"/>
+	<b:constructor-arg ref="databaseUtils"/>
+	<b:constructor-arg ref="importDataRecordDAO"/>
+  </b:bean>
   <b:bean id="darwinFetcher" class="org.mskcc.cbio.importer.fetcher.internal.DarwinFetcherImpl">
     <b:constructor-arg ref="config"/>
     <b:constructor-arg ref="fileUtils"/>

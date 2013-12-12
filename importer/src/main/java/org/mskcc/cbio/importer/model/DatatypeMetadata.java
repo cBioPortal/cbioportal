@@ -46,6 +46,7 @@ public class DatatypeMetadata {
 	public static final String NUM_GENES_TAG = "<NUM_GENES>";
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
+    public static final String CLINICAL_PATIENT_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 

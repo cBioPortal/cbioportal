@@ -422,8 +422,18 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	}
 
 	@Override
-	public void downloadFile(String urlSource, String urlDestination) throws Exception {
+	public File createFileFromStream(String filename, InputStream is) throws Exception {
 
+		File file = org.apache.commons.io.FileUtils.getFile(filename);
+		org.apache.commons.io.FileUtils.copyInputStreamToFile(is, file);
+
+		// outta here
+		return file;
+	}
+
+	@Override
+	public void downloadFile(String urlSource, String urlDestination) throws Exception {
+        
 		// sanity check
 		if (urlSource == null || urlSource.length() == 0 ||
 			urlDestination == null || urlDestination.length() == 0) {

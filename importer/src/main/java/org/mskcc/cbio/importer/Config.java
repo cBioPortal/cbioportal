@@ -121,33 +121,12 @@ public interface Config {
 	 */
 	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
 
-	/**
-	 * Updates (or inserts) the given ClinicalAttributesMetadata object.
-	 *
-	 * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-	 */
-	void updateClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
-
     /**
-     * Updates (or inserts) the given BcrClinicalAttributeEntry object.
+     * Imports the given collection of bcrs if they are unknown.
      *
-     * @param bcrClinicalAttributeEntry bcrClinicalAttributeEntry
+     * @param Collection<BCRDictEntry> bcrs
      */
-    void updateClinicalAttributesMetadata(BcrClinicalAttributeEntry bcrClinicalAttributeEntry);
-
-    /**
-     * Updates (or inserts) the given collection of bcrs all as a batch.
-     *
-     * @param Collection<bcrClinicalAttributeEntry> bcrs
-     */
-    void batchUpdateClinicalAttributeMetadata(Collection<BcrClinicalAttributeEntry> bcrs);
-
-    /**
-     * Inserts the given ClinicalAttributesMetadata object without asking questions
-     *
-     * @param clinicalAttributesMetadata ClinicalAttributesMetadata
-     */
-    void insertClinicalAttributesMetadata(ClinicalAttributesMetadata clinicalAttributesMetadata);
+    void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

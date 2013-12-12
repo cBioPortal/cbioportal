@@ -10,6 +10,11 @@
 
 			var _applet = null;
 
+			function _sendMessage(data)
+			{
+				//window.parent.postMessage(data, cbio.util.getWindowOrigin());
+			}
+
 			function _processMessage(event)
 			{
 				// only accept messages from the local origin
@@ -42,14 +47,12 @@
 					state = "hidden";
 				}
 
-				window.parent.postMessage({type: "menu", content: state},
-				                          cbio.util.getWindowOrigin());
+				_sendMessage({type: "menu", content: state});
 			}
 
 			window.addEventListener("message", _processMessage, false);
-			window.parent.postMessage({type: "ready"}, cbio.util.getWindowOrigin());
+			//_sendMessage({type: "ready"});
 
-			// TODO add a click listener on the JSmol canvas to call function _menuCheck
 		</script>
 
 		<style type="text/css">
@@ -73,7 +76,11 @@
 					width: 400,
 					height: 300,
 					debug: false,
-					color: "white"
+					color: "white",
+					readyFunction: function() {
+						$("html").mouseup(_menuCheck);
+						$("canvas").mousedown(_menuCheck);
+					}
 				};
 
 				// TODO get applet name from parent?

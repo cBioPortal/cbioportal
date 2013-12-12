@@ -13,6 +13,7 @@ var JSmolWrapper = function()
 	var _options = null;
 	var _frameHtml = null;
 	var _targetWindow = null;
+	var _targetDocument = null;
 	var _container = null;
 	var _origin = cbio.util.getWindowOrigin();
 
@@ -62,6 +63,8 @@ var JSmolWrapper = function()
 			{
 				if (_targetWindow)
 				{
+					_targetDocument = getTargetDocument("jsmol_frame");
+
 					// TODO custom init doesn't work, send init opts as get params?
 					//var data = {type: "init", content: _options};
 					//_targetWindow.postMessage(data, _origin);
@@ -80,13 +83,11 @@ var JSmolWrapper = function()
 					{
 						_container.css("overflow", "hidden");
 					}
-
-					console.log("menu state: " + event.data.content);
 				}
 			}
 		};
 
-		window.addEventListener("message", _processMessage, false);
+		//window.addEventListener("message", _processMessage, false);
 	}
 
 	/**
@@ -105,7 +106,6 @@ var JSmolWrapper = function()
 		}
 
 		_targetWindow = getTargetWindow("jsmol_frame");
-		var targetDocument = getTargetDocument("jsmol_frame");
 
 		if (!_targetWindow)
 		{

@@ -153,13 +153,16 @@
 				    <label>Turn on Spin</label>
 			    </td>
 			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'></span>
+				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'
+						  title='zoom out'></span>
 				</td>
 			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'></span>
+				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'
+				          title='zoom to default'></span>
 				</td>
 			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'></span>
+				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'
+				          title='zoom in'></span>
 			    </td>
 		    </tr>
 		</table>

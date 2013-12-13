@@ -133,7 +133,6 @@
 <script type="text/template" id="mutation_3d_vis_template">
 	<div class='mutation-3d-vis-header'>
 		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
-		<span class='mutation-3d-maximize ui-icon ui-icon-circle-plus' title='maximize'></span>
 		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
 		<div class='mutation-3d-info'></div>
 	</div>
@@ -157,6 +156,18 @@
 			    </td>
 			    <td>
 				    <label>Turn on Spin</label>
+			    </td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'
+						  title='zoom out'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'
+				          title='zoom to default'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'
+				          title='zoom in'></span>
 			    </td>
 		    </tr>
 		</table>

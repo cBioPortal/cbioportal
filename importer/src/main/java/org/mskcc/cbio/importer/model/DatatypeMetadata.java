@@ -48,7 +48,8 @@ public class DatatypeMetadata {
 	public static final String TUMOR_TYPE_TAG = "<TUMOR_TYPE>";
 	public static final String CANCER_STUDY_TAG = "<CANCER_STUDY>";
     public static final String CLINICAL_PATIENT_FOLLOWUP_VERSION = "<FOLLOWUP_VERSION>";
-    public static final Pattern CLINICAL_PATIENT_FOLLOWUP_FILE = Pattern.compile("clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
+    public static final Pattern CLINICAL_PATIENT_FOLLOWUP_FILE_REGEX = Pattern.compile("clinical_follow_up_v(\\d\\.\\d+)_\\w+\\.txt");
+    public static final Pattern CLINICAL_PATIENT_FILE_REGEX = Pattern.compile("clinical_patient_(\\w+)\\.txt");
 	
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 

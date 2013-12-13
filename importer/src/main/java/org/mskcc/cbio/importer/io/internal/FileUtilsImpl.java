@@ -1025,7 +1025,6 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 
             InputStream unzippedContent = new GzipCompressorInputStream(is);
             // if tarball, untar
-            //if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
             if (GzipUtils.isCompressedFilename(importDataRecord.getCanonicalPathToData().toLowerCase())) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("getDataMatricesFromArchive(), gzip file is a tarball, untarring");
@@ -1039,7 +1038,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
                         dataFilename = dataFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorTypeLabel());
                     }
                     if (dataFilename.contains(DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_VERSION)) {
-                        Matcher clinicalPatientFollowupMatcher = DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_FILE.matcher(entryName);
+                        Matcher clinicalPatientFollowupMatcher = DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_FILE_REGEX.matcher(entryName);
                         if (clinicalPatientFollowupMatcher.find()) {
                             dataFilename = dataFilename.replace(DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_VERSION,
                                                                 clinicalPatientFollowupMatcher.group(1));

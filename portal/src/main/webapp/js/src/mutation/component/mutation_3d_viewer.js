@@ -366,17 +366,17 @@ var Mutation3dVis = function(name, options)
 	// TODO implement zoom functions
 	function zoomIn()
 	{
-		Jmol.script(_applet, "zoom in;");
+		_3dApp.script("zoom in;");
 	}
 
 	function zoomOut()
 	{
-		Jmol.script(_applet, "zoom out;");
+		_3dApp.script("zoom out;");
 	}
 
 	function zoomActual()
 	{
-		Jmol.script(_applet, "zoom " + _options.defaultZoom + ";");
+		_3dApp.script("zoom " + _options.defaultZoom + ";");
 	}
 
 	/**

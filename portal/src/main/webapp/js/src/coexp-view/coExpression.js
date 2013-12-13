@@ -140,7 +140,7 @@ var CoExpTable = (function() {
                     }
                 } );
 
-                $('.coexp-table-filter-custom').append(
+                $("#" + tableId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
                     "<option value='all'>Show all (Rank by absolute value)</option>" +
                     "<option value='negative'>Show only negative values(-1 to 0)</option>" +
@@ -202,7 +202,6 @@ var CoExpTable = (function() {
                 var _genes = window.PortalGlobals.getGeneList();
                 var _gene = _genes[ui.index];
                 CoExpTable.init(_gene);
-
             });
         }
 

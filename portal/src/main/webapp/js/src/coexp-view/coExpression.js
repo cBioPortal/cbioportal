@@ -140,7 +140,7 @@ var CoExpTable = (function() {
                     }
                 } );
 
-                $("#" + tableId).find('.coexp-table-filter-custom').append(
+                $("#" + divId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
                     "<option value='all'>Show all (Rank by absolute value)</option>" +
                     "<option value='negative'>Show only negative values(-1 to 0)</option>" +

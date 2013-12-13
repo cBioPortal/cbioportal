@@ -12,7 +12,7 @@
 
 			function _sendMessage(data)
 			{
-				//window.parent.postMessage(data, cbio.util.getWindowOrigin());
+				window.parent.postMessage(data, cbio.util.getWindowOrigin());
 			}
 
 			function _processMessage(event)
@@ -29,29 +29,33 @@
 				}
 				else if (event.data.type == "init")
 				{
-					// TODO this does not work...
+					// TODO init does not work after document ready (JSmol bug)...
 					//_applet = Jmol.getApplet("jsmol_applet", event.data.content);
 				}
 			}
 
 			function _menuCheck(event)
 			{
-				var state = "none";
+				// TODO this delay is a workaround to wait for the menu to close
+				// delay check for a small amount of time
+				setTimeout(function(){
+					var state = "none";
 
-				if ($(".jmolPopupMenu").is(":visible"))
-				{
-					state = "visible";
-				}
-				else
-				{
-					state = "hidden";
-				}
+					if ($(".jmolPopupMenu").is(":visible"))
+					{
+						state = "visible";
+					}
+					else
+					{
+						state = "hidden";
+					}
 
-				_sendMessage({type: "menu", content: state});
+					_sendMessage({type: "menu", content: state});
+				}, 10);
 			}
 
 			window.addEventListener("message", _processMessage, false);
-			//_sendMessage({type: "ready"});
+			_sendMessage({type: "ready"});
 
 		</script>
 
@@ -78,7 +82,7 @@
 					debug: false,
 					color: "white",
 					readyFunction: function() {
-						$("html").mouseup(_menuCheck);
+						$("html").click(_menuCheck);
 						$("canvas").mousedown(_menuCheck);
 					}
 				};

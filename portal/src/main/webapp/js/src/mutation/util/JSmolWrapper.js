@@ -39,7 +39,9 @@ var JSmolWrapper = function()
 		_options = jQuery.extend(true, {}, defaultOpts, options);
 
 		var w = _options.width;
-		var h = _options.height * 3; // x3 is for the menu to overflow
+		// TODO this (x4) is a workaround for the menu to overflow
+		var h = _options.height * 4;
+
 		// TODO send custom opts via GET? (i.e: jsmol_frame.jsp?name=n&width=400&...)
 		_frameHtml = '<iframe id="jsmol_frame" ' +
 		             'src="jsmol_frame.jsp" ' +
@@ -53,6 +55,8 @@ var JSmolWrapper = function()
 
 		var _processMessage = function(event)
 		{
+			console.log("event.data: %o", event.data);
+
 			// only accept messages from the local origin
 			if (cbio.util.getWindowOrigin() != event.origin)
 			{
@@ -65,7 +69,7 @@ var JSmolWrapper = function()
 				{
 					_targetDocument = getTargetDocument("jsmol_frame");
 
-					// TODO custom init doesn't work, send init opts as get params?
+					// TODO JSmol init doesn't work after document ready
 					//var data = {type: "init", content: _options};
 					//_targetWindow.postMessage(data, _origin);
 				}
@@ -87,7 +91,7 @@ var JSmolWrapper = function()
 			}
 		};
 
-		//window.addEventListener("message", _processMessage, false);
+		window.addEventListener("message", _processMessage, false);
 	}
 
 	/**
@@ -110,6 +114,12 @@ var JSmolWrapper = function()
 		if (!_targetWindow)
 		{
 			console.log("warning: JSmol frame cannot be initialized properly");
+		}
+		else
+		{
+			$('#jsmol_frame').bind('click', function(event) {
+				alert("test");
+			});
 		}
 	}
 

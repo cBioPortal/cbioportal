@@ -1,23 +1,33 @@
 <script type="text/javascript" src="js/src/coexp-view/coExpression.js"></script>
 <script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script>
 <style>
-    #coexp .dataTables_length {
-        float: left;
-    }
-    #coexp .dataTables_paginate {
-        float: right;
-    }
     #coexp .dataTables_info {
-        float: left;
+        display : inline;
+        width: 200px;
+        padding-left: 5px;
+        float:left;
     }
-    #coexp .dataTables_filter {
+    #coexp .div.datatable-paging {
+        width: auto;
         float: right;
+    }
+    #coexp .datatable-filter {
+        width: 200px;
+        float: right;
+    }
+    #coexp .datatable-length {
+        float: left;
     }
     #coexp .coexp-tabs{
         /*height: 685px; */
     }
     #coexp .coexp-tabs-ref{
         font-size: 11px !important;
+    }
+    #coexp .coexp-table-filter-custom {
+        width: 250px;
+        margin: 0px;
+        display: inline;
     }
 </style>
 <div class="section" id="coexp">
@@ -29,6 +39,7 @@
 
 <script>
     $(document).ready( function() {
+        $(window).trigger('resize');
         CoExpTable.initTabs();
         CoExpTable.initView();
     });

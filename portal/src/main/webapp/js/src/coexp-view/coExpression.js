@@ -66,13 +66,21 @@ var CoExpTable = (function() {
                 $("#" + divId).append(
                     "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>"
                 );
+                var description = "Pearson product-moment correlation coefficient, " +
+                    "a measure of the degree of linear dependence between two variables, " +
+                    "giving a value between +1 and -1 inclusive, where 1 is total positive correlation, " +
+                    "0 is no correlation, and -1 is total negative correlation. " +
+                    "The scores are ranked by absolute values.";
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
-                    "<tr><th>Compared Gene</th><th>Pearson's Score</th><th>Plots</th></tr>" +
+                    "<tr><th>Co-expressed Gene</th>" +
+                    "<th>Pearson's r (PPMCC)" +
+                    "<img class='profile_help' src='images/help.png' title='"+ description + "'></th>" +
+                    "<th>Plots</th></tr>" +
                     "</thead><tbody></tbody>"
                 );
                 var _coExpTable = $("#" + tableId).dataTable({
-                    "sDom": '<"H"if>t<"F"lp>',
+                    "sDom": '<"H"i<"coexp-table-filter-custom">f>t<"F"<"datatable-paging">lp>',
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
                     "bAutoWidth": false,
@@ -107,15 +115,30 @@ var CoExpTable = (function() {
                         this.src = "images/details_close.png";
                         var aData = _coExpTable.fnGetData( nTr );
                         var _divName = Names.plotPrefix + geneId + "_" + aData[0];
-                        console.log(_divName);
                         _coExpTable.fnOpen(
                             nTr,
                             "<div id='" + _divName + "'>" +
-                            "<img style='padding:100px; float: right;' id='" + _divName  + "_loading_img'" +
+                            "<img style='padding:20px; float: right;' id='" + _divName  + "_loading_img'" +
                             "src='images/ajax-loader.gif'></div>",
                             'coexp-details'
                         );
                         SimplePlot.init(_divName, geneId, aData[0]);
+                    }
+                } );
+
+                $('.coexp-table-filter-custom').append(
+                    "<select id='coexp-table-select'>" +
+                    "<option value='all'>Show all (Rank by absolute value)</option>" +
+                    "<option value='negative'>Show only negative values(-1 to 0)</option>" +
+                    "<option value='positive'>Show only positive values(0 to 1)</option>" +
+                    "</select>");
+                $('select#coexp-table-select').change( function () {
+                    if ($(this).val() === "negative") {
+                        _coExpTable.fnFilter("-", 1, false);
+                    } else if ($(this).val() === "positive") {
+                        _coExpTable.fnFilter('^[0-9]*\.[0-9]*$', 1, true);
+                    } else if ($(this).val() === "all") {
+                        _coExpTable.fnFilter("", 1);
                     }
                 } );
 
@@ -149,7 +172,7 @@ var CoExpTable = (function() {
             $.each(window.PortalGlobals.getGeneList(), function(index, value) {
                 $("#coexp-tabs-content").append("<div id='" + Names.divPrefix + value + "'>" +
                     "<div id='" + Names.loadingImgPrefix + value + "'>" +
-                    "<img style='padding:200px;' src='images/ajax-loader.gif'>" +
+                    "<img style='padding:20px;' src='images/ajax-loader.gif'>" +
                     "</div></div>");
             });
         }

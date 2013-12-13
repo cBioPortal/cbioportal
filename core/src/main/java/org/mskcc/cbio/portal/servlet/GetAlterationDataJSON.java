@@ -88,20 +88,20 @@ public class GetAlterationDataJSON extends HttpServlet {
 
         JSONObject _result = new JSONObject();
         for (Map.Entry<Long, HashMap<String, String>> entry : mapStr.entrySet()) {
-            Long gene = entry.getKey();
+            Long _gene = entry.getKey();
             Map<String, String> mapCaseValueStr = entry.getValue();
             ArrayList<JSONObject> _geneArr = new ArrayList<>();
             for (int i = 0; i < caseIds.size(); i++) {
                 String caseId = caseIds.get(i);
                 String value = mapCaseValueStr.get(caseId);
                 JSONObject _datum = new JSONObject();
-                _datum.put("Case Id: ", caseId);
-                _datum.put("Value: ", value);
+                _datum.put("caseId", caseId);
+                _datum.put("value", value);
                 _geneArr.add(_datum);
             }
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-            CanonicalGene geneObj = daoGeneOptimized.getGene(gene);
-            _result.put(geneObj.getHugoGeneSymbolAllCaps(), _geneArr);
+            CanonicalGene _geneObj = daoGeneOptimized.getGene(_gene);
+            _result.put(_geneObj.getHugoGeneSymbolAllCaps(), _geneArr);
         }
         return _result;
     }

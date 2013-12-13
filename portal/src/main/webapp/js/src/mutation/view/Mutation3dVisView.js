@@ -94,7 +94,8 @@ var Mutation3dVisView = Backbone.View.extend({
 		var zoomOut = self.$el.find(".mutation-3d-zoomout");
 		var zoomActual = self.$el.find(".mutation-3d-zoomactual");
 
-		self.$el.find(".mutation-3d-button").tipTip();
+		var zoomButtonSet = self.$el.find(".mutation-3d-button");
+		zoomButtonSet.tipTip();
 
 		// TODO add also tips
 		zoomIn.click(function() {

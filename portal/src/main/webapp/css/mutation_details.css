@@ -182,7 +182,8 @@ th.mutation-details-qtip-style {
 	opacity: 0.6;
 }
 .mutation-3d-button {
-	opacity: 0.6;
+	opacity: 0.8;
+	cursor: pointer;
 	width: 12px;
 	/* TODO add anim to click */
 }

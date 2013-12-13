@@ -70,6 +70,7 @@ import java.io.FileOutputStream;
 
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -182,35 +183,36 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
     }
 
     @Override
-	public DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception {
+	public List<DataMatrix> getDataMatrices(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception {
+
+        List<DataMatrix> dataMatrices = new ArrayList<DataMatrix>();
 
 		if (LOG.isInfoEnabled()) {
-			LOG.info("getFileContents(): " + importDataRecord);
+			LOG.info("getDataMatrices(): " + importDataRecord);
 		}
 
         // determine path to file (does override file exist?)
         String fileCanonicalPath = importDataRecord.getCanonicalPathToData();
 
-        // get filedata inputstream
-        InputStream fileContents;
-
         // data can be compressed
 		if (GzipUtils.isCompressedFilename(fileCanonicalPath.toLowerCase())) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
+                LOG.info("getDataMatrices(): processing file: " + fileCanonicalPath);
             }
-            fileContents = readContent(importDataRecord,
-                                       org.apache.commons.io.FileUtils.openInputStream(new File(fileCanonicalPath)));
+            dataMatrices.addAll(getDataMatricesFromArchive(importDataRecord, methylationCorrelation));
         }
         else {
             if (LOG.isInfoEnabled()) {
-                LOG.info("getFileContents(): processing file: " + fileCanonicalPath);
+                LOG.info("getDataMatrices(): processing file: " + fileCanonicalPath);
             }
-            fileContents = org.apache.commons.io.FileUtils.openInputStream(new File(fileCanonicalPath));
+            File dataFile = new File(fileCanonicalPath);
+            InputStream is = org.apache.commons.io.FileUtils.openInputStream(dataFile);
+            dataMatrices.add(getDataMatrix(dataFile.getName(), is, methylationCorrelation));
+            IOUtils.closeQuietly(is);
         }
 
         // outta here
-        return getDataMatrix(fileContents, methylationCorrelation);
+        return dataMatrices;
     }
 
 	@Override
@@ -1009,41 +1011,52 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
      * @param is InputStream
      * @return InputStream
      */
-    private InputStream readContent(ImportDataRecord importDataRecord, InputStream is) throws Exception {
+    private List<DataMatrix> getDataMatricesFromArchive(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception {
 
-        InputStream toReturn = null;
+        List<DataMatrix> toReturn = new ArrayList<DataMatrix>();
 
         try {
+            File dataFile = new File(importDataRecord.getCanonicalPathToData());
+            InputStream is = org.apache.commons.io.FileUtils.openInputStream(dataFile);
             // decompress .gz file
             if (LOG.isInfoEnabled()) {
-                LOG.info("readContent(), decompressing: " + importDataRecord.getCanonicalPathToData());
+                LOG.info("getDataMatricesFromArchive(), decompressing: " + importDataRecord.getCanonicalPathToData());
             }
 
             InputStream unzippedContent = new GzipCompressorInputStream(is);
             // if tarball, untar
-            if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
+            //if (importDataRecord.getCanonicalPathToData().toLowerCase().endsWith("tar.gz")) {
+            if (GzipUtils.isCompressedFilename(importDataRecord.getCanonicalPathToData().toLowerCase())) {
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("readContent(), gzip file is a tarball, untarring");
+                    LOG.info("getDataMatricesFromArchive(), gzip file is a tarball, untarring");
                 }
                 TarArchiveInputStream tis = new TarArchiveInputStream(unzippedContent);
                 TarArchiveEntry entry = null;
                 while ((entry = tis.getNextTarEntry()) != null) {
                     String entryName = entry.getName();
-                    String dataFile = importDataRecord.getDataFilename();
-                    if (dataFile.contains(DatatypeMetadata.TUMOR_TYPE_TAG)) {
-                        dataFile = dataFile.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorTypeLabel());
+                    String dataFilename = importDataRecord.getDataFilename();
+                    if (dataFilename.contains(DatatypeMetadata.TUMOR_TYPE_TAG)) {
+                        dataFilename = dataFilename.replaceAll(DatatypeMetadata.TUMOR_TYPE_TAG, importDataRecord.getTumorTypeLabel());
                     }
-                    if (entryName.contains(dataFile)) {
+                    if (dataFilename.contains(DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_VERSION)) {
+                        Matcher clinicalPatientFollowupMatcher = DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_FILE.matcher(entryName);
+                        if (clinicalPatientFollowupMatcher.find()) {
+                            dataFilename = dataFilename.replace(DatatypeMetadata.CLINICAL_PATIENT_FOLLOWUP_VERSION,
+                                                                clinicalPatientFollowupMatcher.group(1));
+                        }
+                    }
+                    if (entryName.contains(dataFilename)) {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("Processing tar-archive: " + importDataRecord.getDataFilename());
                         }
-                        toReturn = tis;
-                        break;
+                        toReturn.add(getDataMatrix(entryName, tis, methylationCorrelation));
                     }
                 }
+                IOUtils.closeQuietly(tis);
             }
             else {
-                toReturn = unzippedContent;
+                toReturn.add(getDataMatrix(dataFile.getName(), unzippedContent, methylationCorrelation));
+                IOUtils.closeQuietly(unzippedContent);
             }
         }
         catch (Exception e) {
@@ -1061,36 +1074,32 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 	 * @param methylationCorrelation DataMatrix
      * @return DataMatrix
      */
-    private DataMatrix getDataMatrix(InputStream data, DataMatrix methylationCorrelation) throws Exception {
+    private DataMatrix getDataMatrix(String dataFilename, InputStream data, DataMatrix methylationCorrelation) throws Exception {
 
         // iterate over all lines in byte[]
         List<String> columnNames = null;
         List<LinkedList<String>> rowData = null;
         LineIterator it = IOUtils.lineIterator(data, null);
 		Map<String,String> probeIdMap = initProbMap(methylationCorrelation);
-        try {
-            int count = -1;
-            while (it.hasNext()) {
-                // first row is our column heading, create column vector
-                if (++count == 0) {
-                    columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+
+        int count = -1;
+        while (it.hasNext()) {
+            // first row is our column heading, create column vector
+            if (++count == 0) {
+                columnNames = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+            }
+            // all other rows are rows in the table
+            else {
+                rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
+                LinkedList thisRow = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
+                if (methylationCorrelation == null) {
+                    rowData.add(thisRow);
                 }
-                // all other rows are rows in the table
-                else {
-                    rowData = (rowData == null) ? new LinkedList<LinkedList<String>>() : rowData;
-					LinkedList thisRow = new LinkedList(Arrays.asList(it.nextLine().split(Converter.VALUE_DELIMITER, -1)));
-					if (methylationCorrelation == null) {
-						rowData.add(thisRow);
-					}
-					// first line in methylation file is probeID
-					else if (probeIdMap.containsKey(thisRow.getFirst())) {
-						rowData.add(thisRow);
-					}
+                // first line in methylation file is probeID
+                else if (probeIdMap.containsKey(thisRow.getFirst())) {
+                    rowData.add(thisRow);
                 }
             }
-        }
-        finally {
-            LineIterator.closeQuietly(it);
         }
 
         // problem reading from data?
@@ -1107,7 +1116,7 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
         }
 
         // outta here
-        return new DataMatrix(rowData, columnNames);
+        return new DataMatrix(dataFilename, rowData, columnNames);
     }
 
 	/**

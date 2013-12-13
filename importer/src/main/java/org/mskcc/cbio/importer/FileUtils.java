@@ -135,7 +135,7 @@ public interface FileUtils {
 	 * @return DataMatrix
 	 * @throws Exception
 	 */
-	DataMatrix getFileContents(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
+	List<DataMatrix> getDataMatrices(ImportDataRecord importDataRecord, DataMatrix methylationCorrelation) throws Exception;
 
 	/**
 	 * Returns a list of missing caselists.  Applicable to

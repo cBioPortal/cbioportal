@@ -56,7 +56,6 @@ import java.io.InputStream;
 
 class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
 {
-    private static final String DATA_SOURCE = "tcga";
     private static final String TUMOR_TYPE_REGEX = "<TUMOR_TYPE>";
 	private static final Log LOG = LogFactory.getLog(BiotabFetcherImpl.class);
 
@@ -180,9 +179,11 @@ class BiotabFetcherImpl extends FetcherBaseImpl implements Fetcher
         for (DatatypeMetadata datatype : config.getFileDatatype(dataSourceMetadata, tcgaClinicalFilename)) {
             if (!datatype.isDownloaded()) continue;
             for (String archivedFile : datatype.getTCGAArchivedFiles(tcgaClinicalFilename)) {
-                ImportDataRecord importDataRecord = new ImportDataRecord(DATA_SOURCE, DATA_SOURCE, tumorType, tumorType,
+                ImportDataRecord importDataRecord = new ImportDataRecord(dataSourceMetadata.getDataSource(),
+                                                                         "tcga",
+                                                                         tumorType, tumorType,
                                                                          datatype.getDatatype(),
-                                                                         Admin.PORTAL_DATE_FORMAT.format(Calendar.getInstance().getTime()),
+                                                                         Fetcher.LATEST_RUN_INDICATOR,
                                                                          clinicalDataFile.getCanonicalPath(),
                                                                          computedDigest, archivedFile);
                 importDataRecordDAO.importDataRecord(importDataRecord);

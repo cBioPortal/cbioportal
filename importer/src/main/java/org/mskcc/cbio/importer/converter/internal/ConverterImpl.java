@@ -29,20 +29,8 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
-import org.mskcc.cbio.importer.Admin;
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.IDMapper;
-import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.DatabaseUtils;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
@@ -142,16 +130,16 @@ class ConverterImpl implements Converter {
 			for (DatatypeMetadata datatypeMetadata : config.getDatatypeMetadata(portalMetadata, cancerStudyMetadata)) {
 
 				// get DataMatrices (may be multiple in the case of methylation, median zscores, gistic-genes
-				DataMatrix[] dataMatrices;
-                                try {
-                                    dataMatrices = getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata, runDate, applyOverrides);
-                                } catch (Exception e) {
-                                    if (LOG.isInfoEnabled()) {
-                                        LOG.error("convertData(), exception:\n" + e.getMessage());
-                                    }
-                                    continue;
-                                }
-				if (dataMatrices == null || dataMatrices.length == 0) {
+				List<DataMatrix> dataMatrices = new ArrayList<DataMatrix>();
+                try {
+                    dataMatrices.addAll(getDataMatrices(portalMetadata, cancerStudyMetadata, datatypeMetadata, runDate, applyOverrides));
+                } catch (Exception e) {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.error("convertData(), exception:\n" + e.getMessage());
+                    }
+                    continue;
+                }
+				if (dataMatrices.isEmpty()) {
 					if (LOG.isInfoEnabled()) {
 						LOG.info("convertData(), no dataMatrices to process, skipping.");
 					}
@@ -165,7 +153,7 @@ class ConverterImpl implements Converter {
 				Object[] args = { config, fileUtils, caseIDs, idMapper };
 				Converter converter =
 					(Converter)ClassLoader.getInstance(datatypeMetadata.getConverterClassName(), args);
-				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices);
+				converter.createStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrices.toArray(new DataMatrix[0]));
 			}
 
 			if (createCancerStudyMetadataFile) {
@@ -279,23 +267,11 @@ class ConverterImpl implements Converter {
 		throw new UnsupportedOperationException();
 	}
 
-	/**
-	 * Helper function to get DataMatrix[] array.
-	 *  - may return null.
-	 *
-	 * @param portalMetadata PortalMetadata
-	 * @param cancerStudyMetadata CancerStudyMetadata
-	 * @param datatypeMetadata DatatypeMetadata
-	 * @param runDate String
-	 * @param applyOverrides Boolean
-	 * @return DataMatrix[]
-	 * @throws Exception
-	 */
-	private DataMatrix[] getDataMatrices(PortalMetadata portalMetadata,
-										 CancerStudyMetadata cancerStudyMetadata,
-										 DatatypeMetadata datatypeMetadata,
-										 String runDate,
-										 Boolean applyOverrides) throws Exception {
+	private List<DataMatrix> getDataMatrices(PortalMetadata portalMetadata,
+                                             CancerStudyMetadata cancerStudyMetadata,
+                                             DatatypeMetadata datatypeMetadata,
+                                             String runDate,
+                                             Boolean applyOverrides) throws Exception {
 
 
 		// this is what we are returing
@@ -314,7 +290,8 @@ class ConverterImpl implements Converter {
 			importDataRecordDAO.getImportDataRecordByTumorTypeAndDatatypeAndCenterAndRunDate(cancerStudyMetadata.getTumorType(),
 																							 datatype,
 																							 cancerStudyMetadata.getCenter(),
-																							 runDate);
+																							 datatype.contains("clinical") ?
+                                                                                             Fetcher.LATEST_RUN_INDICATOR : runDate);
 		if (importDataRecords.size() > 0) {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("getDataMatrices(), found " + importDataRecords.size() +
@@ -348,12 +325,13 @@ class ConverterImpl implements Converter {
 						importData.setCanonicalPathToData(overrideFile.getCanonicalPath());
 					}
 				}
-				DataMatrix dataMatrix = fileUtils.getFileContents(importData, methylationCorrelation);
-				if (dataMatrix != null) {
+				List<DataMatrix> dataMatrices = fileUtils.getDataMatrices(importData, methylationCorrelation);
+				if (!dataMatrices.isEmpty()) {
 					if (importData.getDataFilename().contains(DatatypeMetadata.CORRELATE_METHYL_FILE_ID)) {
-						methylationCorrelation = dataMatrix;
+                        assert dataMatrices.size() == 1;
+						methylationCorrelation = dataMatrices.get(0);
 					}
-					toReturn.add(dataMatrix);
+					toReturn.addAll(dataMatrices);
 				}
 			}
 		}
@@ -365,7 +343,7 @@ class ConverterImpl implements Converter {
 		}
 
 		// outta here
-		return toReturn.toArray(new DataMatrix[0]);
+		return toReturn;
 	}
 }
 

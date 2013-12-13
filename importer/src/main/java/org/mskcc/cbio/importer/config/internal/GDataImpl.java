@@ -30,7 +30,6 @@ package org.mskcc.cbio.importer.config.internal;
 
 // imports
 import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.converter.internal.ClinicalDataConverterImpl;
 import org.mskcc.cbio.importer.model.*;
 import org.mskcc.cbio.importer.util.ClassLoader;
 
@@ -450,7 +449,7 @@ class GDataImpl implements Config {
         }
     }
 
-    HashMap<String, ClinicalAttributesMetadata> makeClinicalAttributesHashMap()
+    private HashMap<String, ClinicalAttributesMetadata> makeClinicalAttributesHashMap()
     {
         HashMap toReturn = new HashMap<String, ClinicalAttributesMetadata>();
         for (ClinicalAttributesMetadata clinicalAttributeMetadata : getClinicalAttributesMetadata(Config.ALL)) {

@@ -68,7 +68,7 @@ var Mutation3dView = Backbone.View.extend({
 			if (panel == undefined)
 			{
 				var panelOpts = {el: "#mutation_pdb_panel_view_" + gene.toUpperCase(),
-					model: {geneSymbol: gene, pdbColl: pdbColl},
+					model: {geneSymbol: gene, pdbColl: pdbColl, pdbProxy: pdbProxy},
 					mut3dVisView: self.options.mut3dVisView,
 					diagram: self.options.diagram};
 

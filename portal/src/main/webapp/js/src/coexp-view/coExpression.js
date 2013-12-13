@@ -79,6 +79,19 @@ var CoExpTable = (function() {
                     "<th>Plots</th></tr>" +
                     "</thead><tbody></tbody>"
                 );
+
+                jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc']  = function(a,b) {
+                    if (Math.abs(a) > Math.abs(b)) return -1;
+                    else if (Math.abs(a) < Math.abs(b)) return 1;
+                    else return 0;
+                };
+
+                jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc']  = function(a,b) {
+                    if (Math.abs(a) > Math.abs(b)) return 1;
+                    else if (Math.abs(a) < Math.abs(b)) return -1;
+                    else return 0;
+                };
+
                 var _coExpTable = $("#" + tableId).dataTable({
                     "sDom": '<"H"i<"coexp-table-filter-custom">f>t<"F"<"datatable-paging">lp>',
                     "sPaginationType": "full_numbers",
@@ -92,6 +105,7 @@ var CoExpTable = (function() {
                             "aTargets": [ 0 ]
                         },
                         {
+                            "sType": 'coexp-absolute-value',
                             "bSearchable": false,
                             "aTargets": [ 1 ]
                         },

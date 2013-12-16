@@ -9,6 +9,9 @@
  *          }
  */
 var Mutation3dVisView = Backbone.View.extend({
+	initialize : function (options) {
+		this.options = options || {};
+	},
 	render: function()
 	{
 		var self = this;

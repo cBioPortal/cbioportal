@@ -30,6 +30,7 @@ package org.mskcc.cbio.importer;
 
 // imports
 import org.mskcc.cbio.importer.model.*;
+import java.util.Map;
 import java.util.Collection;
 
 /**
@@ -113,6 +114,15 @@ public interface Config {
 	Collection<CaseListMetadata> getCaseListMetadata(String caseListFilename);
 
 	/**
+	 * Gets a collection of ClinicalAttributesNamespace.
+	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeNamespaceColumnHeader String
+	 * @return Collection<ClinicalAttributesNamespace>
+	 */
+	Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader);
+
+	/**
 	 * Gets a collection of ClinicalAttributesMetadata.
 	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
 	 *
@@ -121,12 +131,23 @@ public interface Config {
 	 */
 	Collection<ClinicalAttributesMetadata> getClinicalAttributesMetadata(String clinicalAttributeColumnHeader);
 
+	/**
+	 * Gets a map of ClinicalAttributesMetadata (external column header key, metadata object value) given
+     * a collection of "external" column header values (column headers from incoming datafiles).
+	 *
+	 * @param Collection<String> 
+	 * @return Map<String,ClinicalAttributesMetadata>
+	 */
+	Map<String,ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders);
+
     /**
      * Imports the given collection of bcrs if they are unknown.
      *
      * @param Collection<BCRDictEntry> bcrs
      */
     void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs);
+
+    void flagMissingClinicalAttributes(Collection<String> missingAttributeColumnHeaders);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

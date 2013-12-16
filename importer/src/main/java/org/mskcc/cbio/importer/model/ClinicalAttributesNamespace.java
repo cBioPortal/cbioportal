@@ -28,29 +28,58 @@
 // package
 package org.mskcc.cbio.importer.model;
 
-public class ClinicalAttributesMetadata
-{
-	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "NORMALIZEDCOLUMNHEADER";
+// imports
+import java.util.Map;
+import java.util.HashMap;
 
+public class ClinicalAttributesNamespace
+{
+	// worksheet column header that is used as key to find row to update
+	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "EXTERNALCOLUMNHEADER";
+
+	// bean properties
+    private String externalColumnHeader;
 	private String normalizedColumnHeader;
+    private String tumorType;
+    private String cancerStudy;
     private String displayName;
     private String description;
     private String datatype;
 
-    public ClinicalAttributesMetadata(String[] properties) {
+    public ClinicalAttributesNamespace(String[] properties) {
 
-		if (properties.length < 4) {
+		if (properties.length < 7) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
-        this.normalizedColumnHeader = properties[0].trim();
-        this.displayName = properties[1].trim();
-        this.description = properties[2].trim();
-		this.datatype = properties[3].trim();
+        this.externalColumnHeader = properties[0].trim();
+        this.normalizedColumnHeader = properties[1].trim();
+        this.tumorType = properties[2].trim();
+        this.cancerStudy = properties[3].trim();
+        this.displayName = properties[4].trim();
+        this.description = properties[5].trim();
+		this.datatype = properties[6].trim();
 	}
 
+	public String getExternalColumnHeader() { return externalColumnHeader; }
 	public String getNormalizedColumnHeader() { return normalizedColumnHeader; }
+	public String getTumorType() { return tumorType; }
+	public String getCancerStudy() { return cancerStudy; }
 	public String getDisplayName() { return displayName; }
 	public String getDescription() { return description; }
 	public String getDatatype() { return datatype; }
+
+    public static Map<String,String> getPropertiesMap(BCRDictEntry bcr)
+    {
+        HashMap<String, String> toReturn = new HashMap<String,String>();
+        toReturn.put("EXTERNALCOLUMNHEADER", bcr.id);
+        toReturn.put("NORMALIZEDCOLUMNHEADER", "");
+        toReturn.put("TUMORTYPE", bcr.tumorType.toLowerCase());
+        toReturn.put("CANCERSTUDY", "");
+        toReturn.put("DISPLAYNAME", bcr.displayName);
+        toReturn.put("DESCRIPTION", bcr.description);
+        toReturn.put("DATATYPE", "");
+
+        return toReturn;
+    }
 }

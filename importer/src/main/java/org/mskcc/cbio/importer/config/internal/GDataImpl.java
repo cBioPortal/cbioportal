@@ -73,6 +73,7 @@ class GDataImpl implements Config {
 	ArrayList<ArrayList<String>> cancerStudiesMatrix;
 	ArrayList<ArrayList<String>> caseIDFiltersMatrix;
 	ArrayList<ArrayList<String>> caseListMatrix;
+	ArrayList<ArrayList<String>> clinicalAttributesNamespaceMatrix;
 	ArrayList<ArrayList<String>> clinicalAttributesMatrix;
 	ArrayList<ArrayList<String>> datatypesMatrix;
 	ArrayList<ArrayList<String>> dataSourcesMatrix;
@@ -86,6 +87,7 @@ class GDataImpl implements Config {
 	private String datatypesWorksheet;
 	private String caseIDFiltersWorksheet;
 	private String caseListWorksheet;
+	private String clinicalAttributesNamespaceWorksheet;
 	private String clinicalAttributesWorksheet;
 	private String portalsWorksheet;
 	private String referenceDataWorksheet;
@@ -108,6 +110,8 @@ class GDataImpl implements Config {
 	 * @param datatypesWorksheet String
 	 * @param caseIDFiltersWorksheet String
 	 * @param caseListWorksheet String
+	 * @param clinicalAttributesNamespaceWorksheet String
+	 * @param clinicalAttributesWorksheet String
 	 * @param portalsWorksheet String
 	 * @param referenceDataWorksheet String
 	 * @param dataSourceseWorksheet String
@@ -115,7 +119,8 @@ class GDataImpl implements Config {
 	 */
 	public GDataImpl(String gdataUser, String gdataPassword, SpreadsheetService spreadsheetService,
 					 String gdataSpreadsheet, String tumorTypesWorksheet, String datatypesWorksheet,
-					 String caseIDFiltersWorksheet, String caseListWorksheet, String clinicalAttributesWorksheet,
+					 String caseIDFiltersWorksheet, String caseListWorksheet,
+                     String clinicalAttributesNamespaceWorksheet, String clinicalAttributesWorksheet,
 					 String portalsWorksheet, String referenceDataWorksheet, String dataSourcesWorksheet, String cancerStudiesWorksheet) {
 
 		// set members
@@ -129,6 +134,7 @@ class GDataImpl implements Config {
 		this.datatypesWorksheet = datatypesWorksheet;
 		this.caseIDFiltersWorksheet = caseIDFiltersWorksheet;
 		this.caseListWorksheet = caseListWorksheet;
+		this.clinicalAttributesNamespaceWorksheet = clinicalAttributesNamespaceWorksheet;
 		this.clinicalAttributesWorksheet = clinicalAttributesWorksheet;
 		this.portalsWorksheet = portalsWorksheet;
 		this.referenceDataWorksheet = referenceDataWorksheet;
@@ -402,6 +408,42 @@ class GDataImpl implements Config {
 	}
 
 	/**
+	 * Gets a collection of ClinicalAttributesNamespace.
+	 * If clinicalAttributeNamespaceColumnHeader == Config.ALL, all are returned.
+	 *
+	 * @param clinicalAttributeNamespaceColumnHeader String
+	 * @return Collection<ClinicalAttributesNamespace>
+	 */
+	@Override
+	public Collection<ClinicalAttributesNamespace> getClinicalAttributesNamespace(String clinicalAttributesNamespaceColumnHeader) {
+
+		Collection<ClinicalAttributesNamespace> toReturn = new ArrayList<ClinicalAttributesNamespace>();
+
+		if (clinicalAttributesNamespaceMatrix == null) {
+			clinicalAttributesNamespaceMatrix = getWorksheetData(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet);
+		}
+
+		Collection<ClinicalAttributesNamespace> clinicalAttributesNamespace = 
+			(Collection<ClinicalAttributesNamespace>)getMetadataCollection(clinicalAttributesNamespaceMatrix,
+                                                                           "org.mskcc.cbio.importer.model.ClinicalAttributesNamespace");
+
+		// if user wants all, we're done
+		if (clinicalAttributesNamespaceColumnHeader.equals(Config.ALL)) {
+			return clinicalAttributesNamespace;
+		}
+
+		for (ClinicalAttributesNamespace clinicalAttributesNamespaceEntry : clinicalAttributesNamespace) {
+			if (clinicalAttributesNamespaceEntry.getExternalColumnHeader().equals(clinicalAttributesNamespaceColumnHeader)) {
+				toReturn.add(clinicalAttributesNamespaceEntry);
+				break;
+			}
+		}
+
+		// outta here
+		return toReturn;
+	}
+
+	/**
 	 * Gets a collection of ClinicalAttributesMetadata.
 	 * If clinicalAttributeColumnHeader == Config.ALL, all are returned.
 	 *
@@ -427,7 +469,7 @@ class GDataImpl implements Config {
 		}
 
 		for (ClinicalAttributesMetadata clinicalAttributesMetadata : clinicalAttributesMetadatas) {
-			if (clinicalAttributesMetadata.getExternalColumnHeader().equals(clinicalAttributesColumnHeader)) {
+			if (clinicalAttributesMetadata.getNormalizedColumnHeader().equals(clinicalAttributesColumnHeader)) {
 				toReturn.add(clinicalAttributesMetadata);
 				break;
 			}
@@ -437,23 +479,62 @@ class GDataImpl implements Config {
 		return toReturn;
 	}
 
+    @Override
+	public Map<String,ClinicalAttributesMetadata> getClinicalAttributesMetadata(Collection<String> externalColumnHeaders)
+    {
+        Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
+
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
+        for (String externalColumnHeader : externalColumnHeaders) {
+            if (clinicalAttributesNamespace.containsKey(externalColumnHeader)) {
+                ClinicalAttributesNamespace namespace = clinicalAttributesNamespace.get(externalColumnHeader);
+                if (!namespace.getNormalizedColumnHeader().isEmpty()) {
+                    Collection<ClinicalAttributesMetadata> metadata = getClinicalAttributesMetadata(namespace.getNormalizedColumnHeader());
+                    if (metadata.size() == 1) {
+                        toReturn.put(externalColumnHeader, metadata.iterator().next());
+                    }
+                }
+            }
+        }
+        return toReturn;
+    }
+
+    @Override
     public void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs) {
 
-        HashMap<String, ClinicalAttributesMetadata> clinicalAttributes = makeClinicalAttributesHashMap();
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
 
         for (BCRDictEntry bcr : bcrs) {
-            if (!clinicalAttributes.containsKey(bcr.id)) {
-                updateWorksheet(gdataSpreadsheet, clinicalAttributesWorksheet,
-                                true, null, null, ClinicalAttributesMetadata.getPropertiesMap(bcr));
+            if (!clinicalAttributesNamespace.containsKey(bcr.id)) {
+                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+                                true, null, null, ClinicalAttributesNamespace.getPropertiesMap(bcr));
             }
         }
     }
 
-    private HashMap<String, ClinicalAttributesMetadata> makeClinicalAttributesHashMap()
+    @Override
+    public void flagMissingClinicalAttributes(Collection<String> missingAttributeColumnHeaders)
     {
-        HashMap toReturn = new HashMap<String, ClinicalAttributesMetadata>();
-        for (ClinicalAttributesMetadata clinicalAttributeMetadata : getClinicalAttributesMetadata(Config.ALL)) {
-            toReturn.put(clinicalAttributeMetadata.getExternalColumnHeader(), clinicalAttributeMetadata);
+        BCRDictEntry bcr = new BCRDictEntry();
+        HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
+
+        for (String missingAttribute : missingAttributeColumnHeaders) {
+            if (!clinicalAttributesNamespace.containsKey(missingAttribute)) {
+                bcr.id = missingAttribute;
+                bcr.displayName = "";
+                bcr.description = "";
+                bcr.tumorType = "";
+                updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
+                                true, null, null, ClinicalAttributesNamespace.getPropertiesMap(bcr));
+            }
+        }
+    }
+
+    private HashMap<String, ClinicalAttributesNamespace> makeClinicalAttributesNamespaceHashMap()
+    {
+        HashMap toReturn = new HashMap<String, ClinicalAttributesNamespace>();
+        for (ClinicalAttributesNamespace clinicalAttributeNamespace : getClinicalAttributesNamespace(Config.ALL)) {
+            toReturn.put(clinicalAttributeNamespace.getExternalColumnHeader(), clinicalAttributeNamespace);
         }
 
         return toReturn;

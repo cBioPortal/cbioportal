@@ -33,6 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Handles SAX XML element events for parsing data from the Biospecimen Core Resource (BCR) Data Dictionary
@@ -43,6 +44,7 @@ public class BCRDictParser extends DefaultHandler
     private BCRDictEntry currBcr;
     private boolean inAttr = false;
     private StringBuilder content;
+    private ArrayList<String> tumorTypes = new ArrayList<String>();
 
     public BCRDictParser(List<BCRDictEntry> bcrs)
     {
@@ -65,6 +67,7 @@ public class BCRDictParser extends DefaultHandler
         if ("dictEntry".equals(qName)) {
             inAttr = true;
             currBcr = new BCRDictEntry();
+            currBcr.tumorType = "";
             currBcr.displayName = attributes.getValue("name");
         }
         else if ("XMLeltInfo".equals(qName)){
@@ -84,11 +87,18 @@ public class BCRDictParser extends DefaultHandler
     {
         if (inAttr) {
             if ("caDSRdefinition".equals(qName) &&
-                currBcr.description.isEmpty()) {
-                currBcr.description = content.toString();
+                currBcr.description == null) {
+                currBcr.description = getCleanContent(content.toString());
             }
             else if ("caDSRalternateDefinition".equals(qName)) {
-                currBcr.description = content.toString();
+                currBcr.description = getCleanContent(content.toString());
+            }
+            else if ("study".equals(qName)) {
+                tumorTypes.add(getCleanContent(content.toString()));
+            }
+            else if ("studies".equals(qName)) {
+                currBcr.tumorType = StringUtils.join(tumorTypes, ",");
+                tumorTypes.clear();
             }
             else if ("dictEntry".equals(qName)) {
                 // this goes last
@@ -108,5 +118,10 @@ public class BCRDictParser extends DefaultHandler
     public void characters(char ch[], int start, int end)
     {
         this.content.append(ch, start, end);
+    }
+
+    private String getCleanContent(String content)
+    {
+        return content.replaceAll("\"", "").trim();
     }
 }

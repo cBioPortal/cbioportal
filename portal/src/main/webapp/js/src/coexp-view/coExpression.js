@@ -194,13 +194,13 @@ var CoExpTable = (function() {
         function generateTabs() {
             $("#coexp-tabs").tabs();
             $("#coexp-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
-            $("#coexp-tabs").tabs('select', 0);
+            $("#coexp-tabs").tabs("option", "active", 0);
         }
 
         function bindListenerToTabs() {
-            $("#coexp-tabs").bind('tabsselect', function(event, ui) {
+            $("#coexp-tabs").on("tabsactivate", function(event, ui) {
                 var _genes = window.PortalGlobals.getGeneList();
-                var _gene = _genes[ui.index];
+                var _gene = _genes[ui.newTab.index()];
                 CoExpTable.init(_gene);
             });
         }

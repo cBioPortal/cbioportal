@@ -39,7 +39,7 @@
 
 <script>
     $(document).ready( function() {
-        $(window).trigger('resize');
+        $(window).resize();
         CoExpTable.initTabs();
         CoExpTable.initView();
     });

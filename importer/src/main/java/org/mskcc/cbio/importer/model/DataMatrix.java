@@ -293,7 +293,7 @@ public class DataMatrix {
 	 * @param newColumnName String
 	 * @throws Exception
 	 */
-	public void renameColumn(String columnName, String newColumnName) throws Exception {
+	public void renameColumn(String columnName, String newColumnName) {
 		
 		boolean foundColumnHeader = false;
 		for (ColumnHeader columnHeader : columnHeaders) {
@@ -301,9 +301,6 @@ public class DataMatrix {
 				columnHeader.label = newColumnName;
 				foundColumnHeader = true;
 			}
-		}
-		if (!foundColumnHeader) {
-			throw new IllegalArgumentException("column name not found: " + columnName);
 		}
 	}
 

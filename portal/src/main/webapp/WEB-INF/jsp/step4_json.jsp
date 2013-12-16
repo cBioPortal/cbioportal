@@ -31,7 +31,13 @@
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
-        out.print(org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
+	    String geneListWithSemis =
+			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
+	    // this is for xss security
+	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
+	    // ...but we want to keep newlines, so unescape the escaped newlines
+	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n");
+        out.print(geneListWithSemis);
     }
 %></textarea>
 

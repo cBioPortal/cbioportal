@@ -246,16 +246,18 @@ class ConverterImpl implements Converter {
 				if (excludeDatatypes.contains(datatypeMetadata.getDatatype())) continue;
 				// apply staging override
 				String stagingFilename = datatypeMetadata.getStagingFilename().replaceAll(DatatypeMetadata.CANCER_STUDY_TAG, cancerStudyMetadata.toString());
-				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
+				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+                                        cancerStudyMetadata, stagingFilename, stagingFilename);
 				// apply metadata override
 				if (datatypeMetadata.requiresMetafile()) {
-					fileUtils.applyOverride(portalMetadata, cancerStudyMetadata,
-											datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
+					fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+                                            cancerStudyMetadata, datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 				}
 			}
 			// case lists
 			if (applyCaseLists) {
-				fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, "case_lists", "case_lists");
+				fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+                                        cancerStudyMetadata, "case_lists", "case_lists");
 			}
 		}
 	}

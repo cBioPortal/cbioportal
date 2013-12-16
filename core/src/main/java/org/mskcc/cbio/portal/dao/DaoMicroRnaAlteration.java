@@ -87,7 +87,7 @@ public class DaoMicroRnaAlteration {
                 throw new IllegalArgumentException ("Value cannot contain delim:  " + DELIM
                     + " --> " + value);
             }
-            valueBuffer.append (value + DELIM);
+            valueBuffer.append(value).append(DELIM);
         }
         try {
             if (MySQLbulkLoader.isBulkLoad()) {
@@ -109,8 +109,7 @@ public class DaoMicroRnaAlteration {
                 pstmt.setInt(1, geneticProfileId);
                 pstmt.setString(2, microRnaId);
                 pstmt.setString(3, valueBuffer.toString());
-                int rows = pstmt.executeUpdate();
-                return rows;
+                return pstmt.executeUpdate();
              }
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -190,7 +189,6 @@ public class DaoMicroRnaAlteration {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         Set <String> microRNASet = new HashSet<String>();
-        DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         try {
             con = JdbcUtil.getDbConnection(DaoMicroRnaAlteration.class);

@@ -48,7 +48,6 @@ import java.util.Set;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 public class ClinicalAttributesServlet extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     private static Log log = LogFactory.getLog(ClinicalAttributesServlet.class);
 
     /**
@@ -58,11 +57,6 @@ public class ClinicalAttributesServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**

@@ -56,7 +56,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
     private static final String DATA_FILE_PREFIX = "data_";
     private static final String META_FILE_PREFIX = "meta_";
     private static final String CASE_LIST_DIRECTORY_NAME = "case_lists";
-    private static final String CASE_LIST_PREFIX = "cases_";
+    private static final String CASE_LIST_WILDCARD = "*.txt";
     private static final String CANCER_STUDY_FILENAME = "meta_study.txt";
     private static final String CANCER_TYPE_FILENAME = "cancer_type.txt";
     private static final int NUM_FIELDS_CANCER_TYPE_RECORD = 5;
@@ -84,7 +84,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         STABLE_ID("stable_id"),
         CASE_LIST_NAME("case_list_name"),
         CASE_LIST_DESCRIPTION("case_list_description"),
-        CASE_LIST_CATEGORY("case_list_category"),
+        //CASE_LIST_CATEGORY("case_list_category"),
         CASE_LIST_IDS("case_list_ids");
 
         private String propertyName;
@@ -117,7 +117,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         public String[] getImporterClassArgs()
         {
             return ((requiresMetadataFile) ?
-                    new String[] { "--returnFromMain", "--data", stagingFilename, "--meta", metadataFilename, "--loadMode", "bulkLoad" } :
+                    new String[] { "--data", stagingFilename, "--meta", metadataFilename, "--loadMode", "bulkLoad" } :
                     new String[] { stagingFilename, cancerStudy.getCancerStudyStableId() });
         }
     }
@@ -436,7 +436,7 @@ class CancerStudyImporterImpl implements Importer, Validator {
         File caseListDirectory = FileUtils.getFile(cancerStudyDirectoryName, CASE_LIST_DIRECTORY_NAME);
         if (caseListDirectory.exists()) {
             logMessage("Validating case list files found in: " + caseListDirectory.getCanonicalPath());
-            Collection<File> caseListFiles = listFiles(cancerStudyDirectoryName, FileFilterUtils.prefixFileFilter(CASE_LIST_PREFIX));
+            Collection<File> caseListFiles = listFiles(caseListDirectory.getCanonicalPath(), new WildcardFileFilter(CASE_LIST_WILDCARD));
             if (caseListFiles.isEmpty()) {
                 logMessage("Caselist directory is empty: " + caseListDirectory.getCanonicalPath());
                 status = setStatus(status, false);

@@ -4,7 +4,8 @@
  *
  * options: {el: [target container],
  *           parentEl: [parent container],
- *           mut3dVis: [optional] reference to the Mutation3dVis instance
+ *           mut3dVis: [optional] reference to the Mutation3dVis instance,
+ *           pdbProxy: [optional] PDB data proxy
  *          }
  */
 var Mutation3dVisView = Backbone.View.extend({
@@ -49,7 +50,23 @@ var Mutation3dVisView = Backbone.View.extend({
 			self.options.parentEl.find(".mutation-pdb-panel-view").hide();
 		};
 
+		// add listeners to panel (header) buttons
+
 		self.$el.find(".mutation-3d-close").click(closeHandler);
+
+		self.$el.find(".mutation-3d-minimize").click(function(){
+			if (mut3dVis != null)
+			{
+				mut3dVis.minimize();
+			}
+		});
+
+		self.$el.find(".mutation-3d-maximize").click(function(){
+			if (mut3dVis != null)
+			{
+				mut3dVis.maximize();
+			}
+		});
 
 		// format toolbar elements
 
@@ -66,7 +83,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		// style selection menu
 		var styleMenu = self.$el.find(".mutation-3d-style-select");
 
+		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
 		styleMenu.chosen({width: 120, disable_search: true});
+
 		styleMenu.change(function(){
 			var selected = $(this).val();
 
@@ -78,7 +97,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		});
 
 		// TODO this is an access to a global div out of this view's template...
-		$("#tabs").bind("tabsselect", function(event, ui){
+		$("#tabs").bind("tabsactivate", function(event, ui){
 			// close the vis panel only if the selected tab is one of the main tabs
 			// (i.e.: do not close panel if a gene tab selected)
 			if (ui.tab.className != "mutation-details-tabs-ref")
@@ -94,31 +113,59 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
-	 * @param color         color of the pdb id and chain text
 	 */
-	updateView: function(geneSymbol, pdbId, chain, color)
+	updateView: function(geneSymbol, pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 		var pdbProxy = self.options.pdbProxy;
 
-		var callback = function(positionMap) {
+		var mapCallback = function(positionMap) {
 			// update position map of the chain
 			chain.positionMap = positionMap;
-
-			// update info
-			// TODO it might be better to do this with backbone's internal mvc listeners
-			self.$el.find(".mutation-3d-pdb-id").text(pdbId).css('color', color);
-			self.$el.find(".mutation-3d-chain-id").text(chain.chainId).css('color', color);
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
 			mut3dVis.reload(pdbId, chain);
+
+			// store pdb id and chain for future reference
+			self.pdbId = pdbId;
+			self.chain = chain;
 		};
 
-		// update positionMap for the chain
-		// (retrieve data only once)
-		pdbProxy.getPositionMap(geneSymbol, chain, callback);
+		var infoCallback = function(pdbInfo) {
+			var model = {pdbId: pdbId,
+				chainId: chain.chainId,
+				pdbInfo: ""};
+
+			if (pdbInfo)
+			{
+				model.pdbInfo = pdbInfo;
+			}
+
+			// init info view
+			var infoView = new Mutation3dVisInfoView(
+				{el: self.$el.find(".mutation-3d-info"), model: model});
+			infoView.render();
+
+			// update positionMap for the chain
+			// (retrieve data only once)
+			pdbProxy.getPositionMap(geneSymbol, chain, mapCallback);
+		};
+
+		pdbProxy.getPdbInfo(pdbId, infoCallback);
+	},
+	/**
+	 * Refreshes (reloads) the 3D visualizer for the last pdb id
+	 * and chain.
+	 */
+	refreshView: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		// just reload with the last known pdb id and chain
+		mut3dVis.reload(self.pdbId, self.chain);
 	},
 	isVisible: function()
 	{
@@ -127,11 +174,27 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		return mut3dVis.isVisible();
 	},
+	/**
+	 * Focuses the 3D visualizer on the residue
+	 * corresponding to the given pileup of mutations.
+	 *
+	 * If this function is invoked without a parameter,
+	 * then resets the focus to the default state.
+	 *
+	 * @param pileup    Pileup instance
+	 */
 	focusView: function(pileup)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.focusOn(pileup);
+		if (pileup)
+		{
+			mut3dVis.focusOn(pileup);
+		}
+		else
+		{
+			mut3dVis.resetFocus();
+		}
 	}
 });

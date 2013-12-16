@@ -10,9 +10,9 @@
 %>
 
 <p>
-<div class='gene_set_summary'>
-    Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
-</div>
+    <div class='gene_set_summary'>
+        Gene Set / Pathway is altered in <%=percentCasesAffected%> of all cases. <br>
+    </div>
 </p>
 <p>
     <small><strong><%=smry%></strong></small>
@@ -63,7 +63,7 @@
 
 <div id="tabs">
     <ul>
-            <%
+    <%
         Boolean showMutTab = false;
         if (geneWithScoreList.size() > 0) {
 
@@ -155,8 +155,6 @@
             if (showIGVtab){
                 out.println ("<li><a href='#igv_tab' class='result-tab' title='Visualize copy number data via the Integrative Genomics Viewer (IGV).'>IGV</a></li>");
             }
-
-            out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed gene'>Co-Expression</a></li>");
             out.println ("<li><a href='#data_download' class='result-tab' title='Download all alterations or copy and paste into Excel'>Download</a></li>");
             out.println ("<li><a href='#bookmark_email' class='result-tab' title='Bookmark or generate a URL for email'>Bookmark</a></li>");
             out.println ("<!--<li><a href='index.do' class='result-tab'>Create new query</a> -->");
@@ -228,8 +226,6 @@
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-        <%@ include file="co_expression.jsp" %>
-
 </div> <!-- end tabs div -->
 <% } %>
 
@@ -248,14 +244,19 @@
 </form>
 
 <script type="text/javascript">
-    // to initially hide the network tab
+	// initially hide network tab
+	$("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
 
-    //index of network tab
-    var networkTabIndex = $('#tabs a[href="#network"]').parent().index();
-
-    if($.cookie(("results-tab-" + (typeof cancer_study_id_selected === 'undefined'? "" : cancer_study_id_selected))) != networkTabIndex){
-        $("div.section#network").attr('style', 'display: none !important; height: 0px; width: 0px; visibility: hidden;');
-    }
+	// it is better to check selected tab after document gets ready
+	$(document).ready(function() {
+		// check if network tab is initially selected
+		// TODO this depends on aria-hidden attribute which may not be safe...
+		if ($("div.section#network").attr('aria-hidden') == "false")
+		{
+			// make the network tab visible...
+			$("div.section#network").removeAttr('style');
+		}
+	});
 
     // to fix problem of flash repainting
     $("a.result-tab").click(function(){
@@ -263,7 +264,8 @@
         if($(this).attr("href")=="#network") {
             $("div.section#network").removeAttr('style');
         } else {
-            $("div.section#network").attr('style', 'display: block !important; height: 0px; width: 0px; visibility: hidden;');
+	        // since we never allow display:none we should adjust visibility, height, and width properties
+            $("div.section#network").attr('style', 'height: 0px; width: 0px; visibility: hidden;');
         }
     });
 

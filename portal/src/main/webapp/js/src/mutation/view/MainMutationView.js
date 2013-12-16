@@ -86,11 +86,6 @@ var MainMutationView = Backbone.View.extend({
 		{
 			// we also need the same changes (top label) in pdf
 			alterDiagramForSvg(diagram, rollback);
-
-			cbio.util.alterAxesAttrForPDFConverter(
-					diagram.svg.select(".mut-dia-x-axis"), 8,
-					diagram.svg.select(".mut-dia-y-axis"), 3,
-					rollback);
 		};
 
 		//add listener to the svg button
@@ -111,10 +106,11 @@ var MainMutationView = Backbone.View.extend({
 	 * Initializes the filter reset link, which is a part of filter info
 	 * text on top of the diagram.
 	 *
-	 * @param diagram   mutation diagram instance
-	 * @param tableView [optional] mutation table view instance
+	 * @param diagram       mutation diagram instance
+	 * @param tableView     [optional] mutation table view instance
+	 * @param mut3dVisView  [optional] 3D vis view instance
 	 */
-	initResetFilterInfo: function(diagram, tableView) {
+	initResetFilterInfo: function(diagram, tableView, mut3dVisView) {
 		var self = this;
 		var resetLink = self.$el.find(".mutation-details-filter-reset");
 
@@ -127,6 +123,12 @@ var MainMutationView = Backbone.View.extend({
 			{
 				// reset all previous table filters
 				tableView.resetFilters();
+			}
+			// also reset the 3d vis (if provided)
+			if (mut3dVisView)
+			{
+				// reset all previous visualizer filters
+				mut3dVisView.refreshView();
 			}
 			// hide the filter info text
 			self.hideFilterInfo();

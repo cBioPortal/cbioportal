@@ -581,7 +581,6 @@ public final class DaoMutation {
     
     /**
      * return the number of all mutations for a profile
-     * @param caseIds if null, return all case available
      * @param profileId
      * @return Map &lt; case id, mutation count &gt;
      * @throws DaoException 
@@ -757,7 +756,7 @@ public final class DaoMutation {
     
     
     /**
-     * @param concatEventIds event ids concatenated by comma (,)
+     * @param entrezGeneIds event ids concatenated by comma (,)
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
@@ -911,7 +910,7 @@ public final class DaoMutation {
         }
     }
     
-    public static Set<Long> getMutatedGenesForACase(String caseId, int profileId) throws DaoException {
+    public static Set<Long> getMutatedGenesForACase(String caseId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;

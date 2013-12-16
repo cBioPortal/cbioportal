@@ -54,8 +54,7 @@ public class DaoMutationFrequency {
             pstmt.setLong(1, entrezGeneId);
             pstmt.setDouble(2, mutationFrequency);
             pstmt.setInt(3, cancerStudyId);
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

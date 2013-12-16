@@ -50,6 +50,7 @@
       <intercept-url pattern="/co_expression.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/tutorial.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/visualize_your_data.jsp" access="isAuthenticated()"/>
 	  <intercept-url pattern="/index.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/cross_cancer_summary.do*" access="isAuthenticated()"/>

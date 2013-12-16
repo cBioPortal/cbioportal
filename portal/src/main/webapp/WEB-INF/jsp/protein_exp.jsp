@@ -170,7 +170,7 @@
             <%=ProteinArraySignificanceTestJSON.GENE%>:'Any',
             <%=ProteinArraySignificanceTestJSON.ALTERATION_TYPE%>:'Any'
         };
-        if ($.browser.msie) //TODO: this is a temporary fix for bug #74
+        if (cbio.util.browser.msie) //TODO: this is a temporary fix for bug #74
             params['<%=ProteinArraySignificanceTestJSON.DATA_SCALE%>'] = '100';
                         
         $.post("ProteinArraySignificanceTest.json", 
@@ -357,7 +357,7 @@
                  * Note that the indicator for showing which row is open is not controlled by DataTables,
                  * rather it is done here
                  */
-                $('.details_img').live('click', function () {
+	            $(document).on('click', '.details_img', function () {
                     var nTr = this.parentNode.parentNode;
                     if ( this.src.match('details_close') ) {
                             /* This row is already open - close it */

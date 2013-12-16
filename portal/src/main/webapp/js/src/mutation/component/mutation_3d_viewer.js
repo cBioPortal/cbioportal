@@ -16,7 +16,8 @@ var Mutation3dVis = function(name, options)
 	// Jmol applet reference
 	var _applet = null;
 
-	// current selection (mutation positions on the protein)
+	// current selection (mutation positions as Jmol script compatible strings)
+	// this is a map of <color, position array> pairs
 	var _selection = null;
 
 	// current chain (PdbChainModel instance)
@@ -48,8 +49,13 @@ var Mutation3dVis = function(name, options)
 		defaultColor: "xDDDDDD", // default color of ribbons
 		translucency: 5, // translucency (opacity) of the default color
 		chainColor: "x888888", // color of the selected chain
-		mutationColor: "xFF0000", // color of the selected mutations
-		containerPadding: 10 // padding for the vis container (this is to prevent overlapping)
+		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
+		highlightColor: "xFFDD00", // color of the user-selected mutations
+		defaultZoom: 100, // default (unfocused) zoom level
+		focusZoom: 250, // focused zoom level
+		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
+		// TODO minimized length is actually depends on padding values, it might be better to calculate it
+		minimizedHeight: 10 // minimized height of the container (assuming this will hide everything but the title)
 	};
 
 	// Predefined style scripts for Jmol
@@ -136,6 +142,9 @@ var Mutation3dVis = function(name, options)
 		if (_container != null)
 		{
 			_container.show();
+
+			// this is a workaround. see the hide() function below for details
+			_container.css('top', 0);
 		}
 	}
 
@@ -144,20 +153,56 @@ var Mutation3dVis = function(name, options)
 	 */
 	function hide()
 	{
+		// TODO jQuery.hide function is problematic after Jmol init
+		// Reloading the PDB data throws an error message (Error: Bad NPObject as private data!)
+		// see https://code.google.com/p/gdata-issues/issues/detail?id=4820
+
+		// So, the current workaround is to reposition instead of hiding
+
 		if (_wrapper != null)
 		{
-			_wrapper.hide();
+			//_wrapper.hide();
 		}
 
 		if (_container != null)
 		{
-			_container.hide();
+			//_container.hide();
+			_container.css('top', -9999);
+		}
+	}
+
+	/**
+	 * Minimizes the container (only title will be shown)
+	 */
+	function minimize()
+	{
+		// minimize container
+		if (_container != null)
+		{
+			_container.css("overflow", "hidden");
+			_container.css("height", _options.minimizedHeight);
+		}
+	}
+
+	/**
+	 * Maximizes the container to its full height
+	 */
+	function maximize()
+	{
+		if (_container != null)
+		{
+			_container.css("overflow", "");
+			_container.css("height", "");
 		}
 	}
 
 	function isVisible()
 	{
-		return !(_container.is(":hidden"));
+		var top = _container.css("top").replace("px", "");
+
+		var hidden = (top < 0) || _container.is(":hidden");
+
+		return !hidden;
 	}
 
 	/**
@@ -169,49 +214,79 @@ var Mutation3dVis = function(name, options)
 	 */
 	function reload(pdbId, chain)
 	{
-		// TODO pdbId and/or chainId may be null
+		// pdbId and/or chainId may be null
+		if (!pdbId || !chain)
+		{
+			// nothing to load
+			return;
+		}
 
-		// load the corresponding pdb
-		Jmol.script(_applet, "load=" + pdbId);
+		var selection = {};
+		var color = _options.mutationColor;
 
-		var selection = [];
-
-		// TODO focus on the current segment instead of the chain?
-
-		// highlight the positions (residues)
+		// color code the mutated positions (residues)
 		for (var mutationId in chain.positionMap)
 		{
 			var position = chain.positionMap[mutationId];
 
+			if (_.isFunction(_options.mutationColor))
+			{
+				color = _options.mutationColor(mutationId, pdbId, chain);
+			}
+
+			if (color == null)
+			{
+				//color = defaultOpts.mutationColor;
+
+				// do not color at all, this automatically hides user-filtered mutations
+				// TODO but this also hides unmapped mutations (if any)
+				continue;
+			}
+
+			if (selection[color] == null)
+			{
+				selection[color] = [];
+			}
+
 			// TODO remove duplicates from the array (use another data structure such as a map)
-			selection.push(generateScriptPos(position) + ":" + chain.chainId);
+			selection[color].push(generateScriptPos(position) + ":" + chain.chainId);
 		}
 
 		// save current chain & selection for a possible future restore
 		_selection = selection;
 		_chain = chain;
 
-		// if no positions to select, then select "none"
-		if (selection.length == 0)
+		// construct Jmol script string
+		var script = [];
+		script.push("load=" + pdbId + ";"); // load the corresponding pdb
+		script.push("select all;"); // select everything
+		script.push(styleScripts[_style]); // show selected style view
+		script.push("color [" + _options.defaultColor + "] "); // set default color
+		script.push("translucent [" + _options.translucency + "];"); // set default opacity
+		script.push("select :" + chain.chainId + ";"); // select the chain
+		script.push("color [" + _options.chainColor + "];"); // set chain color
+
+		// color each residue with a mapped color (this is to sync with diagram colors)
+		for (color in selection)
 		{
-			selection.push("none");
+			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("color [" + color + "];"); // color with corresponding mutation color
 		}
 
-		// construct Jmol script string
-		var script = "select all;" + // select everything
-		             styleScripts[_style] + // show selected style view
-		             "color [" + _options.defaultColor + "] " + // set default color
-		             "translucent [" + _options.translucency + "];" + // set default opacity
-		             "select :" + chain.chainId + ";" + // select the chain
-		             "color [" + _options.chainColor + "];" + // set chain color
-		             "select " + selection.join(", ") + ";" + // select positions (mutations)
-		             "color red;" + // highlight selected area
-		             "spin " + _spin; // set spin
+		script.push("spin " + _spin + ";"); // set spin
+
+		// convert array into a string (to pass to Jmol)
+		script = script.join(" ");
 
 		// run script
 		Jmol.script(_applet, script);
 	}
 
+	/**
+	 * Focuses on the residue corresponding to the given pileup
+	 *
+	 * @param pileup    Pileup instance
+	 */
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
@@ -226,13 +301,59 @@ var Mutation3dVis = function(name, options)
 
 		var position = _chain.positionMap[id];
 
+		// check if the mutation maps on this chain
 		if (position)
 		{
-			// TODO center and zoom to the selection
-			var script = "select " + generateScriptPos(position) + ":" + _chain.chainId + ";";
+			var scriptPos = generateScriptPos(position);
 
-			//Jmol.script(_applet, script);
+			// TODO turn on selection halos for the highlighted position?
+
+			var script = [];
+			// center and zoom to the selection
+			script.push("zoom " + _options.focusZoom +";");
+			script.push("center " + scriptPos + ":" + _chain.chainId + ";");
+			// reset previous highlights
+			for (var color in _selection)
+			{
+				script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+				script.push("color [" + color + "];"); // color with corresponding mutation color
+			}
+			// highlight the focused position
+		    script.push("select " + scriptPos + ":" + _chain.chainId + ";");
+			script.push("color [" + _options.highlightColor + "];");
+
+			script = script.join(" ");
+
+			Jmol.script(_applet, script);
 		}
+		// no mapping position for this mutation on this chain
+		else
+		{
+			// just reset focus
+			resetFocus();
+		}
+	}
+
+	/**
+	 * Resets the current focus to the default position and zoom level.
+	 */
+	function resetFocus()
+	{
+		// zoom out to default zoom level, center to default position,
+		// and remove all selection highlights
+		var script = [];
+		script.push("zoom " + _options.defaultZoom + ";"); // zoom to default zoom level
+		script.push("center;"); // center to default position
+
+		for (var color in _selection)
+		{
+			script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("color [" + color + "];"); // color with corresponding mutation color
+		}
+
+		script = script.join(" ");
+
+		Jmol.script(_applet, script);
 	}
 
 	/**
@@ -243,7 +364,7 @@ var Mutation3dVis = function(name, options)
 	 */
 	function generateScriptPos(position)
 	{
-		var posStr =position.start.pdbPos;
+		var posStr = position.start.pdbPos;
 
 		if (position.end.pdbPos > position.start.pdbPos)
 		{
@@ -253,14 +374,28 @@ var Mutation3dVis = function(name, options)
 		return posStr;
 	}
 
+	/**
+	 * Updates the options of the 3D visualizer.
+	 *
+	 * @param options   new options object
+	 */
+	function updateOptions(options)
+	{
+		_options = jQuery.extend(true, {}, _options, options);
+	}
+
 	// return public functions
 	return {init: init,
 		show: show,
 		hide: hide,
+		minimize: minimize,
+		maximize: maximize,
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,
+		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
-		changeStyle : changeStyle};
+		changeStyle : changeStyle,
+		updateOptions: updateOptions};
 };

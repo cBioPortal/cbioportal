@@ -39,17 +39,29 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.*;
 
 /**
- * PDB Data Servlet designed to provide PDB data for a specific uniprot id.
+ * PDB Data Servlet designed to provide PDB data.
+ *
+ * This servlet is designed to be queried with 3 different set of parameters,
+ * and for each set the servlet returns different information:
+ * 1) {uniprotId} : returns a list of pdb alignments for the given uniprot id (JSON array)
+ * 2) {positions, alignments} : returns a uniprotPos->pdbPos mapping (JSON object)
+ * 3) {pdbIds} : returns basic information about the given PDB ids (JSON object)
  *
  * @author Selcuk Onur Sumer
  */
 public class PdbDataServlet extends HttpServlet
 {
+	public static String PDB_DATA_SERVICE = "http://www.rcsb.org/pdb/files/";
+
 	@Override
 	protected void doGet(final HttpServletRequest request,
 			final HttpServletResponse response)
@@ -65,22 +77,29 @@ public class PdbDataServlet extends HttpServlet
 	{
 		// TODO sanitize id if necessary... and, allow more than one uniprot id?
 		String uniprotId = request.getParameter("uniprotId");
-		Set<Integer> positions = this.parsePositions(request.getParameter("positions"));
-		Set<Integer> alignments = this.parsePositions(request.getParameter("alignments"));
+
+		Set<Integer> positions = this.parseIntValues(request.getParameter("positions"));
+		Set<Integer> alignments = this.parseIntValues(request.getParameter("alignments"));
+		Set<String> pdbIds = this.parseStringValues(request.getParameter("pdbIds"));
 
 		try
 		{
 			if (positions != null &&
 			    alignments != null)
 			{
-				JSONObject jsonObject = this.getPositionMap(alignments, positions);
-				this.writeOutput(response, jsonObject);
+				JSONObject positionData = this.getPositionMap(alignments, positions);
+				this.writeOutput(response, positionData);
+			}
+			else if (pdbIds != null)
+			{
+				JSONObject pdbInfo = this.getPdbInfo(pdbIds);
+				this.writeOutput(response, pdbInfo);
 			}
 			else
 			{
 				// write back array of alignments for this uniprot id
-				JSONArray jsonArray = this.getAlignmentArray(uniprotId);
-				this.writeOutput(response, jsonArray);
+				JSONArray alignmentData = this.getAlignmentArray(uniprotId);
+				this.writeOutput(response, alignmentData);
 			}
 		}
 		catch (DaoException e)
@@ -88,6 +107,123 @@ public class PdbDataServlet extends HttpServlet
 			e.printStackTrace();
 			this.writeOutput(response, null);
 		}
+	}
+
+	/**
+	 * Retrieves PDB info data from the service
+	 * for each pdb id in the given set.
+	 *
+	 * @param pdbIds    a set of PDB ids
+	 * @return  a map of info string keyed on pdb id
+	 */
+	protected JSONObject getPdbInfo(Set<String> pdbIds)
+	{
+		JSONObject infoMap = new JSONObject();
+
+		for (String pdbId: pdbIds)
+		{
+			try
+			{
+				String info = this.makeRequest(pdbId);
+				infoMap.put(pdbId, this.parsePdbInfo(info));
+			}
+			catch (IOException e)
+			{
+				// unable to retrieve pdb info
+				infoMap.put(pdbId, null);
+			}
+		}
+
+		return infoMap;
+	}
+
+	/**
+	 * Parses the raw PDB info returned by the service, and creates
+	 * a human readable info string.
+	 *
+	 * @param rawInfo   raw data retrieved from the service
+	 * @return  a human readable info string
+	 */
+	protected String parsePdbInfo(String rawInfo)
+	{
+		String[] lines = rawInfo.split("\n");
+		StringBuilder sb = new StringBuilder();
+
+		// count for the number of "TITLE" lines
+		Integer count = 0;
+
+		for (String line: lines)
+		{
+			count++;
+
+			String str = line;
+
+			// if there is more than one "TITLE" lines,
+			// than the line starts with the line number
+			// we should get rid of the line number as well
+			if (count > 1)
+			{
+				str = str.replace(count.toString(), "");
+			}
+
+			// get rid of the "TITLE"
+			str = str.toLowerCase().replaceAll("title", "").trim();
+			sb.append(str);
+
+			// whether to add a space at the end or not
+			if (!str.endsWith("-"))
+			{
+				sb.append(" ");
+			}
+		}
+
+		return sb.toString().trim();
+	}
+
+	/**
+	 * Makes a request to the PDB info service.
+	 *
+	 * @param pdbId a specific PDB id
+	 * @return      pdb info retrieved from PDB service
+	 * @throws IOException
+	 */
+	protected String makeRequest(String pdbId) throws IOException
+	{
+		StringBuilder urlBuilder = new StringBuilder();
+
+		urlBuilder.append(PDB_DATA_SERVICE);
+		urlBuilder.append(pdbId.toUpperCase()).append(".pdb");
+		urlBuilder.append("?headerOnly=").append("YES");
+
+		String url = urlBuilder.toString();
+
+		URL pdbService = new URL(url);
+		URLConnection pdbCxn = pdbService.openConnection();
+		BufferedReader in = new BufferedReader(
+				new InputStreamReader(pdbCxn.getInputStream()));
+
+		String line;
+		StringBuilder sb = new StringBuilder();
+
+		// TODO break the loop after "TITLE" lines?
+		while((line = in.readLine()) != null)
+		{
+			// only append "TITLE" lines
+			if (line.toLowerCase().startsWith("title"))
+			{
+				sb.append(line).append("\n");
+			}
+		}
+
+		// Read all
+//		while((line = in.readLine()) != null)
+//		{
+//			sb.append(line);
+//		}
+
+		in.close();
+
+		return sb.toString();
 	}
 
 	protected JSONArray getAlignmentArray(String uniprotId) throws DaoException
@@ -184,70 +320,6 @@ public class PdbDataServlet extends HttpServlet
 		return sb.toString();
 	}
 
-
-	// TODO remove unused methods when done...
-
-	protected JSONArray segmentArray(List<PdbUniprotResidueMapping> mappingList)
-	{
-		Stack<Integer> specialPositions = new Stack<Integer>();
-		String lastMatch = "NA";
-
-		JSONArray segments = new JSONArray();
-
-		// assuming the mapping list is sorted by asc uniprot position
-		for (PdbUniprotResidueMapping mapping : mappingList)
-		{
-			String match = mapping.getMatch();
-			Integer pos = mapping.getUniprotPos();
-
-			Integer lastPos = specialPositions.empty() ? -1 : specialPositions.peek();
-
-			// check for special characters (empty string & plus sign)
-			if (match.length() == 0 ||
-			    match.equals("+"))
-			{
-				boolean adjacent = match.equals(lastMatch) &&
-					(pos == lastPos + 1);
-
-				// check for adjacency (which is very unlikely)
-				if (!adjacent)
-				{
-					// create segment by using the stack
-					segments.add(this.createSegment(specialPositions, lastMatch));
-
-					// clear stack for the next segment
-					specialPositions.clear();
-				}
-
-				specialPositions.push(pos);
-				lastMatch = match;
-			}
-		}
-
-		// create the last segment
-		if (!specialPositions.empty())
-		{
-			segments.add(this.createSegment(specialPositions, lastMatch));
-		}
-
-		return segments;
-	}
-
-	protected JSONObject createSegment(Stack<Integer> positions, String match)
-	{
-		JSONObject segment = null;
-
-		if (!positions.empty())
-		{
-			segment = new JSONObject();
-			segment.put("end", positions.peek());
-			segment.put("start", positions.firstElement());
-			segment.put("match", match);
-		}
-
-		return segment;
-	}
-
 	protected Map<Integer, JSONObject> positionMap(
 			Map<Integer, PdbUniprotResidueMapping> positionMap)
 	{
@@ -267,91 +339,60 @@ public class PdbDataServlet extends HttpServlet
 		return map;
 	}
 
-	/**
-	 * Creates a JSONArray of segment objects for the given positions.
-	 * Each segment object has two fields: {start, end}.
-	 *
-	 * If positions list is not empty, this function will return a JSONArray
-	 * containing at least one segment.
-	 *
-	 * @param positions a list of uniprot positions
-	 * @return  an array of segment objects
-	 * @throws DaoException
-	 */
-	protected JSONArray getSegmentArray(List<Integer> positions) throws DaoException
+	// TODO it might be better to extract parse functions to a utility class
+
+	protected Set<String> parseStringValues(String values)
 	{
-		JSONArray segments = new JSONArray();
-
-		Integer start = null;
-		Integer end = null;
-		HashMap<String, Integer> segment;
-
-		// iterate all positions to determine segment start and end
-		for (Integer pos : positions)
-		{
-			if (start == null)
-			{
-				// init start & end
-				start = pos;
-				end = pos;
-			}
-			// a distance greater than 1 means a gap
-			else if (pos - end > 1)
-			{
-				// add a new segment
-				segment = new HashMap<String, Integer>();
-				segment.put("start", start);
-				segment.put("end", end);
-				segments.add(segment);
-
-				// reset start & end
-				start = pos;
-				end = pos;
-			}
-			else
-			{
-				// update end position
-				end = pos;
-			}
-		}
-
-		// add the last segment
-		if (start != null)
-		{
-			segment = new HashMap<String, Integer>();
-			segment.put("start", start);
-			segment.put("end", end);
-			segments.add(segment);
-		}
-
-		return segments;
-	}
-
-	protected Set<Integer> parsePositions(String positions)
-	{
-		Set<Integer> set = new HashSet<Integer>();
+		Set<String> set = new HashSet<String>();
 
 		// return an empty set if no positions
-		if (positions == null ||
-		    positions.trim().length() == 0)
+		if (values == null ||
+		    values.trim().length() == 0)
 		{
 			return null;
 		}
 
 		// parse and add each position into the set of integers
-		for (String position: positions.trim().split("[\\s,]+"))
+		for (String value: values.trim().split("[\\s,]+"))
 		{
-			Integer pos = null;
+			if (value != null &&
+			    value.length() > 0)
+			{
+				set.add(value);
+			}
+		}
+
+		return set;
+	}
+
+
+	protected Set<Integer> parseIntValues(String values)
+	{
+		Set<Integer> set = new HashSet<Integer>();
+
+		// return an empty set if no positions
+		if (values == null ||
+		    values.trim().length() == 0)
+		{
+			return null;
+		}
+
+		// parse and add each position into the set of integers
+		for (String value: values.trim().split("[\\s,]+"))
+		{
+			Integer val = null;
 
 			try {
-				pos = Integer.parseInt(position);
+				val = Integer.parseInt(value);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 			}
 
-			if (pos != null && !pos.equals(-1))
+			// TODO do not exclude -1 values?
+			if (val != null &&
+			    !val.equals(-1))
 			{
-				set.add(pos);
+				set.add(val);
 			}
 		}
 

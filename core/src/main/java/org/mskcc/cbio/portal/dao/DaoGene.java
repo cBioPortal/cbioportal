@@ -198,7 +198,7 @@ final class DaoGene {
     private static Set<String> getAliases(long entrezGeneId) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null, rs1 = null;
+        ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement
@@ -220,7 +220,7 @@ final class DaoGene {
     private static Map<Long,Set<String>> getAllAliases() throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
-        ResultSet rs = null, rs1 = null;
+        ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoGene.class);
             pstmt = con.prepareStatement

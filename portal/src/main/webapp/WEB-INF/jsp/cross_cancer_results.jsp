@@ -1,10 +1,12 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
+	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -14,8 +16,17 @@
     } catch (Exception e) {
         dataPriority = 0;
     }
-    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
-    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
+
+	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// we need the raw gene list
+	if (request instanceof XssRequestWrapper)
+	{
+		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "");
+	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();
@@ -27,6 +38,7 @@
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%

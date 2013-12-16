@@ -55,6 +55,7 @@ var JSmolWrapper = function()
 
 		var _processMessage = function(event)
 		{
+			// TODO temp debug message
 			console.log("event.data: %o", event.data);
 
 			// only accept messages from the local origin

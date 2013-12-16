@@ -39,7 +39,12 @@
 
 <script>
     $(document).ready( function() {
-        $(window).resize();
+        $("#tabs").bind("tabsactivate", function(event, ui) {
+            if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
+                $(window).trigger("resize");
+
+            }
+        });
         CoExpTable.initTabs();
         CoExpTable.initView();
     });

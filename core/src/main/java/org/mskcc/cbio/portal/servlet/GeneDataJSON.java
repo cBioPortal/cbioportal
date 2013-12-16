@@ -105,6 +105,12 @@ public class GeneDataJSON extends HttpServlet {
 
         // OncoQuery Language string
         String oql = request.getParameter("oql");
+
+	    if (request instanceof XssRequestWrapper)
+	    {
+		    oql = ((XssRequestWrapper)request).getRawParameter("oql");
+	    }
+
         oql = oql.replaceAll("\n", " \n ");
 
         String sampleIds;

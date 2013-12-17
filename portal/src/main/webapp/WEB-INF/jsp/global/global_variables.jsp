@@ -46,6 +46,13 @@
 
     //Onco Query Language Parser Instance
 	String oql = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// onco print spec parser needs the raw parameter
+	if (request instanceof XssRequestWrapper)
+	{
+		oql = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
     ParserOutput theOncoPrintSpecParserOutput = OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver( oql,
             (HashSet<String>) request.getAttribute(QueryBuilder.GENETIC_PROFILE_IDS),
             (ArrayList<GeneticProfile>) request.getAttribute(QueryBuilder.PROFILE_LIST_INTERNAL),
@@ -101,9 +108,9 @@
         }
     }
     String cases = (String) request.getAttribute(QueryBuilder.SET_OF_CASE_IDS);
-    cases = xssUtil.getCleanerInput(cases);
+    //cases = xssUtil.getCleanerInput(cases);
     String caseIdsKey = (String) request.getAttribute(QueryBuilder.CASE_IDS_KEY);
-    caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
+    //caseIdsKey = xssUtil.getCleanerInput(caseIdsKey);
 
     //Clinical Data
     ArrayList <Patient> clinicalDataList = (ArrayList<Patient>)request.getAttribute(QueryBuilder.CLINICAL_DATA_LIST);
@@ -185,9 +192,9 @@
 //    String caseSetId4Network = xssUtil.getCleanerInput((String)request.getAttribute(QueryBuilder.CASE_SET_ID));
 
     //////////////from plots_tab.jsp
-    String cancer_study_id = xssUtil.getCleanerInput(request, "cancer_study_id");
-    String case_set_id = xssUtil.getCleanerInput(request, "case_set_id");
-    String genetic_profile_id = xssUtil.getCleanerInput(request, "genetic_profile_id");
+    String cancer_study_id = request.getParameter("cancer_study_id");
+    String case_set_id = request.getParameter("case_set_id");
+    String genetic_profile_id = request.getParameter("genetic_profile_id");
     //Translate Onco Query Language
     ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
     String tmpGeneStr = "";
@@ -197,8 +204,8 @@
     tmpGeneStr = tmpGeneStr.trim();
 
     //////////from protein_exp.jsp
-    String cancerStudyId_RPPA = xssUtil.getCleanerInput(
-            (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID));
+    String cancerStudyId_RPPA =
+            (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
 
 %>
 <script type="text/javascript">
@@ -226,10 +233,10 @@
     var gene_list = gene_list_str.split(/\s+/);
 
     //////////from protein_exp.jsp
-    //var case_set_id = "<%out.print(case_set_id);%>";
+    //var case_set_id = "<//%out.print(case_set_id);%>";
     //case_ids_key = "";
     //if (case_set_id === "-1") {
-    //    case_ids_key = "<%out.print(caseIdsKey);%>";
+    //    case_ids_key = "<//%out.print(caseIdsKey);%>";
     //}
 </script>
 

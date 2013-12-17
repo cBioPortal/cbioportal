@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
@@ -11,12 +12,21 @@
     Integer dataPriority;
     try {
         dataPriority
-                = Integer.parseInt(servletXssUtil.getCleanInput(request, QueryBuilder.DATA_PRIORITY).trim());
+                = Integer.parseInt(request.getParameter(QueryBuilder.DATA_PRIORITY).trim());
     } catch (Exception e) {
         dataPriority = 0;
     }
-	String geneList = servletXssUtil.getCleanerInput(
-			request.getParameter(QueryBuilder.GENE_LIST).replaceAll("\n", " ").replaceAll("\r", ""));
+
+	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// we need the raw gene list
+	if (request instanceof XssRequestWrapper)
+	{
+		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "");
+	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();

@@ -63,8 +63,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private ServletXssUtil servletXssUtil;
-
     private MutationDataUtils mutationDataUtils = new MutationDataUtils();
 
     public MutationDataUtils getMutationDataUtils() {
@@ -86,12 +84,6 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
-
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
 	protected void doGet(HttpServletRequest request,
@@ -110,7 +102,7 @@ public class CrossCancerMutationDataServlet extends HttpServlet
         JSONArray data = new JSONArray();
 
         // Get the gene list
-        String geneList = servletXssUtil.getCleanInput(request, "geneList");
+        String geneList = request.getParameter("geneList");
 
         // Get the priority
         Integer dataTypePriority;

@@ -170,16 +170,24 @@ public class QueryBuilder extends HttpServlet {
         }
 
         //  Get User Selected Action
-        String action = servletXssUtil.getCleanInput (httpServletRequest, ACTION_NAME);
+        String action = httpServletRequest.getParameter(ACTION_NAME);
 
         //  Get User Selected Cancer Type
-        String cancerTypeId = servletXssUtil.getCleanInput(httpServletRequest, CANCER_STUDY_ID);
+        String cancerTypeId = httpServletRequest.getParameter(CANCER_STUDY_ID);
 
         //  Get User Selected Genetic Profiles
         HashSet<String> geneticProfileIdSet = getGeneticProfileIds(httpServletRequest, xdebug);
 
         //  Get User Defined Gene List
-        String geneList = servletXssUtil.getCleanInput (httpServletRequest, GENE_LIST);
+	    // we need the raw gene list...
+	    String geneList = httpServletRequest.getParameter(GENE_LIST);
+
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENE_LIST);
+	    }
+
+        geneList = servletXssUtil.getCleanInput(geneList);
 
         // save the raw gene string as it was entered for other things to work on
         httpServletRequest.setAttribute(RAW_GENE_STR, geneList);
@@ -214,7 +222,7 @@ public class QueryBuilder extends HttpServlet {
             httpServletRequest.setAttribute(CASE_SETS_INTERNAL, caseSets);
 
             //  Get User Selected Case Set
-            String caseSetId = servletXssUtil.getCleanInput(httpServletRequest, CASE_SET_ID);
+            String caseSetId = httpServletRequest.getParameter(CASE_SET_ID);
             if (caseSetId != null) {
                 httpServletRequest.setAttribute(CASE_SET_ID, caseSetId);
             } else {
@@ -223,7 +231,7 @@ public class QueryBuilder extends HttpServlet {
                     httpServletRequest.setAttribute(CASE_SET_ID, zeroSet.getStableId());
                 }
             }
-            String caseIds = servletXssUtil.getCleanInput(httpServletRequest, CASE_IDS);
+            String caseIds = httpServletRequest.getParameter(CASE_IDS);
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 
@@ -282,11 +290,10 @@ public class QueryBuilder extends HttpServlet {
             if (currentName.startsWith(GENETIC_PROFILE_IDS)) {
                 String geneticProfileIds[] = httpServletRequest.getParameterValues(currentName);
                 if (geneticProfileIds != null && geneticProfileIds.length > 0) {
-                    for (String geneticProfileIdDirty : geneticProfileIds) {
-                        String geneticProfileIdClean = servletXssUtil.getCleanInput(geneticProfileIdDirty);
+                    for (String geneticProfileId : geneticProfileIds) {
                         xdebug.logMsg (this, "Received Genetic Profile ID:  "
-                                + currentName + ":  " + geneticProfileIdClean);
-                        geneticProfileIdSet.add(geneticProfileIdClean);
+                                + currentName + ":  " + geneticProfileId);
+                        geneticProfileIdSet.add(geneticProfileId);
                     }
                 }
             }
@@ -338,7 +345,7 @@ public class QueryBuilder extends HttpServlet {
         if (caseSetId.equals("-1") &&
         	caseIds == null)
         {
-        	caseIdsKey = servletXssUtil.getCleanInput(request, CASE_IDS_KEY);
+        	caseIdsKey = request.getParameter(CASE_IDS_KEY);
         	
         	if (caseIdsKey != null)
         	{
@@ -441,7 +448,7 @@ public class QueryBuilder extends HttpServlet {
         // Store download links in session (for possible future retrieval).
         request.getSession().setAttribute(DOWNLOAD_LINKS, downloadLinkSet);
 
-        String tabIndex = servletXssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
+        String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
         if (tabIndex != null && tabIndex.equals(QueryBuilder.TAB_VISUALIZE)) {
             xdebug.logMsg(this, "Merging Profile Data");
             ProfileMerger merger = new ProfileMerger(profileDataList);
@@ -467,8 +474,8 @@ public class QueryBuilder extends HttpServlet {
             request.setAttribute(MERGED_PROFILE_DATA_INTERNAL, mergedProfile);
             request.setAttribute(WARNING_UNION, warningUnion);
 
-            String output = servletXssUtil.getCleanInput(request, OUTPUT);
-            String format = servletXssUtil.getCleanInput(request, FORMAT);
+            String output = request.getParameter(OUTPUT);
+            String format = request.getParameter(FORMAT);
             double zScoreThreshold = ZScoreUtil.getZScore(geneticProfileIdSet, profileList, request);
             double rppaScoreThreshold = ZScoreUtil.getRPPAScore(request);
             request.setAttribute(Z_SCORE_THRESHOLD, zScoreThreshold);
@@ -513,7 +520,7 @@ public class QueryBuilder extends HttpServlet {
                                  String geneList, String caseSetId, String caseIds,
                                  HttpServletRequest httpServletRequest) throws DaoException {
         boolean errorsExist = false;
-        String tabIndex = servletXssUtil.getCleanInput(httpServletRequest, QueryBuilder.TAB_INDEX);
+        String tabIndex = httpServletRequest.getParameter(QueryBuilder.TAB_INDEX);
         if (action != null) {
             if (action.equals(ACTION_SUBMIT)) {
 				// is user authorized for the study
@@ -580,7 +587,7 @@ public class QueryBuilder extends HttpServlet {
                 //  Additional validation rules
                 //  If we have selected mRNA Expression Data Check Box, but failed to
                 //  select an mRNA profile, this is an error.
-                String mRNAProfileSelected = servletXssUtil.getCleanInput(httpServletRequest,
+                String mRNAProfileSelected = httpServletRequest.getParameter(
                         QueryBuilder.MRNA_PROFILES_SELECTED);
                 if (mRNAProfileSelected != null && mRNAProfileSelected.equalsIgnoreCase("on")) {
 

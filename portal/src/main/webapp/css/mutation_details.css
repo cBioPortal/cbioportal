@@ -176,12 +176,20 @@ th.mutation-details-qtip-style {
 	cursor: pointer;
 	opacity: 0.6;
 }
+.mutation-3d-button {
+	opacity: 0.6;
+	width: 12px;
+	/* TODO add anim to click */
+}
 .mutation-3d-pdb-id, .mutation-3d-chain-id {
 	font-weight: bold;
 	font-style: italic;
 }
 .mutation-3d-spin {
-	margin-left: 20px;
+	margin-left: 12px;
+}
+.mutation-3d-zoomout {
+	margin-left: 10px;
 }
 .mutation-3d-vis img{
 	width: 24px;

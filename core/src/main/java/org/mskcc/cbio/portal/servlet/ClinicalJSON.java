@@ -48,7 +48,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class ClinicalJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
 
     // our logger
     private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
@@ -63,11 +62,6 @@ public class ClinicalJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**

@@ -15,10 +15,9 @@
 	InputStream requestStream = request.getInputStream();
 	OutputStream outStream = response.getOutputStream();
 
-	ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 	// identify file type to download
-	
-	String type = xssUtil.getCleanInput(request, "type");
+
+	String type = request.getParameter("type");
 	
 	if (type.equals("png"))
 	{

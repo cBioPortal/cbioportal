@@ -55,7 +55,6 @@ import org.apache.commons.logging.LogFactory;
  * @author Gideon Dresdner
  */
 public class MutSigJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     private static Log log = LogFactory.getLog(MutSigJSON.class);
 
@@ -64,11 +63,6 @@ public class MutSigJSON extends HttpServlet {
     //
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     // Make a map out of every mutsig

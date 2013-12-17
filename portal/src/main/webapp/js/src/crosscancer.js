@@ -30,8 +30,8 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	//_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
-	//_mut3dVis.init();
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
     $(function(){
@@ -59,7 +59,7 @@
                 event: 'mouseover'
             },
             style: {
-                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip cc-ui-tooltip'
+                classes: 'qtip-light qtip-rounded qtip-shadow cc-study-tip cc-ui-tooltip'
             },
             position: {
                 my:'bottom left', at:'top center'
@@ -845,12 +845,11 @@
                             var el = "#mutation_details";
                             $(el).html("");
 
-                            var defaultView = new MutationDetailsView({
-                                el: el,
-                                model: model,
-                                mut3dVis: _mut3dVis
-                            });
-                            defaultView.render();
+                            var defaultView = MutationViewsUtil.initMutationDetailsView(
+	                            el, // target div
+	                            {el: el, model: model, mut3dVis: _mut3dVis}, // view options
+	                            "#tabs", // main tabs (containing the mutations tab)
+	                            "Mutations"); // name of the mutations tab
                             // end of mutation details
 
                         });

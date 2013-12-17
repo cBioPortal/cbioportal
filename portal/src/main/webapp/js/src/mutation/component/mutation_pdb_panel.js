@@ -45,22 +45,16 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 			proxy.getPdbInfo(datum.pdbId, function(pdbInfo) {
 
-				// TODO define a backbone view: PdbChainTipView
+				// init tip view
+				var tipView = new PdbChainTipView({model: {
+					pdbId: datum.pdbId,
+					pdbInfo: pdbInfo,
+					chain: datum.chain
+				}});
 
-				var tip = "<span class='pdb-chain-tip'>" +
-				          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
-				          "<b>Chain:</b> " + datum.chain.chainId +
-				          " (" + datum.chain.mergedAlignment.uniprotFrom +
-				          " - " + datum.chain.mergedAlignment.uniprotTo + ")<br>";
+				var content = tipView.compileTemplate();
 
-				if (pdbInfo)
-				{
-					tip += "<b>Summary:</b> " + pdbInfo;
-				}
-
-				tip += "</span>";
-
-				var options = {content: {text: tip},
+				var options = {content: {text: content},
 					hide: {fixed: true, delay: 100},
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center'}};

@@ -385,6 +385,13 @@
 	</span>
 </script>
 
+<script type="text/template" id="mutation_details_pdb_chain_tip_template">
+	<span class='pdb-chain-tip'>
+		<b>PDB id:</b> {{pdbId}}<br>
+		<b>Chain:</b> {{chainId}} ({{from}} - {{to}})<br>
+		{{pdbInfo}}
+	</span>
+</script>
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-link'>
@@ -404,6 +411,7 @@
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/PdbChainTipView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PredictedImpactTipView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/RegionTipView.js"></script>

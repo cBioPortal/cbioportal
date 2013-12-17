@@ -73,8 +73,8 @@ var CoExpTable = (function() {
                     "The scores are ranked by absolute values.";
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
-                    "<tr><th>Co-expressed Gene</th>" +
-                    "<th>Pearson's r (PPMCC)" +
+                    "<tr><th>Correlated/Anti-correlated Genes</th>" +
+                    "<th>Pearson's Correction" +
                     "<img class='profile_help' src='images/help.png' title='"+ description + "'></th>" +
                     "<th>Plots</th></tr>" +
                     "</thead><tbody></tbody>"
@@ -117,7 +117,8 @@ var CoExpTable = (function() {
                                 return "<img id='coexp_plot_icon' class='details_close' src='images/details_open.png'>";
                             }
                         }
-                    ]
+                    ],
+                    "sScrollY": "200px"
                 });  //close data table
 
                 $('#coexp_plot_icon').live('click', function () {
@@ -142,9 +143,9 @@ var CoExpTable = (function() {
 
                 $("#" + divId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
-                    "<option value='all'>Show all (Rank by absolute value)</option>" +
-                    "<option value='negative'>Show only negative values(-1 to 0)</option>" +
-                    "<option value='positive'>Show only positive values(0 to 1)</option>" +
+                    "<option value='all'>Show All</option>" +
+                    "<option value='positive'>Show Only Positive Correlated</option>" +
+                    "<option value='negative'>Show only Negative Correlated</option>" +
                     "</select>");
                 $('select#coexp-table-select').change( function () {
                     if ($(this).val() === "negative") {
@@ -169,6 +170,7 @@ var CoExpTable = (function() {
 
         return {
             init: function(geneId) {
+                $(window).trigger("resize");
                 var element =  document.getElementById(Names.tablePrefix + geneId);
                 if (typeof(element) === 'undefined' || element === null) {
                     getCoExpData(geneId);
@@ -195,12 +197,14 @@ var CoExpTable = (function() {
             $("#coexp-tabs").tabs();
             $("#coexp-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
             $("#coexp-tabs").tabs("option", "active", 0);
+            $(window).trigger("resize");
+
         }
 
         function bindListenerToTabs() {
             $("#coexp-tabs").on("tabsactivate", function(event, ui) {
-                var _genes = window.PortalGlobals.getGeneList();
-                var _gene = _genes[ui.newTab.index()];
+                var _gene = ui.newTab.text();
+                console.log(_gene);
                 CoExpTable.init(_gene);
             });
         }

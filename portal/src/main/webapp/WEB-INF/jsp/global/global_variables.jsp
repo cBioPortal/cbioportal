@@ -237,10 +237,10 @@
     var gene_list = gene_list_str.split(/\s+/);
 
     //////////from protein_exp.jsp
-    //var case_set_id = "<%out.print(case_set_id);%>";
+    //var case_set_id = "<//%out.print(case_set_id);%>";
     //case_ids_key = "";
     //if (case_set_id === "-1") {
-    //    case_ids_key = "<%out.print(caseIdsKey);%>";
+    //    case_ids_key = "<//%out.print(caseIdsKey);%>";
     //}
 </script>
 

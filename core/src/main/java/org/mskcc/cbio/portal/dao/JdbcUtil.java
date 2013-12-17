@@ -28,6 +28,7 @@
 package org.mskcc.cbio.portal.dao;
 
 import org.mskcc.cbio.portal.util.DatabaseProperties;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbcp.DelegatingPreparedStatement;
@@ -122,7 +123,7 @@ public class JdbcUtil {
             if (cxt == null) {
                 throw new Exception("Context for creating data source not found!");
             }
-            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/cbioportal" );
+            ds = (DataSource)cxt.lookup( "java:/comp/env/jdbc/" + GlobalProperties.getProperty("db.portal_db_name") );
             if (ds == null) {
                 throw new Exception("Data source not found!");
             }

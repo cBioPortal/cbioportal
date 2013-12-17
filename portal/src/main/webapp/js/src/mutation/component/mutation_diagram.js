@@ -36,6 +36,8 @@ function MutationDiagram(geneSymbol, options, data)
 	self.topLabel = null;   // label on top-left corner of the diagram
 	self.xAxisLabel = null; // label for x-axis
 	self.yAxisLabel = null; // label for y-axis
+	self.xMax = null; // max value on the x-axis
+	self.yMax = null; // max value on the y-axis
 
 	// color mapping for mutations: <mutation id, (pileup) color> pairs
 	self.mutationColorMap = {};
@@ -195,9 +197,9 @@ MutationDiagram.prototype.updateOptions = function(options)
 	self.options = jQuery.extend(true, {}, self.options, options);
 
 	// recalculate global values
-	var xMax = self.calcXMax(self.options, self.data);
+	var xMax = self.xMax = self.calcXMax(self.options, self.data);
 	// TODO use current.pileup instead?
-	var yMax = self.calcYMax(self.options, self.data.pileups);
+	var yMax = self.yMax = self.calcYMax(self.options, self.data.pileups);
 
 	self.bounds = this.calcBounds(self.options);
 	self.xScale = this.xScaleFn(self.bounds, xMax);
@@ -465,8 +467,8 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var self = this;
 	var sequenceLength = parseInt(data.sequence["length"]);
 
-	var xMax = self.calcXMax(options, data);
-	var yMax = self.calcYMax(options, data.pileups);
+	var xMax = self.xMax = self.calcXMax(options, data);
+	var yMax = self.yMax = self.calcYMax(options, data.pileups);
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
 	var seqTooltip = self.generateSequenceTooltip(data);
@@ -1761,4 +1763,14 @@ MutationDiagram.prototype.isFiltered = function()
 MutationDiagram.prototype.isInTransition = function()
 {
 	return this.inTransition;
+};
+
+MutationDiagram.prototype.getMaxY = function()
+{
+	return this.yMax;
+};
+
+MutationDiagram.prototype.getMinY = function()
+{
+	return this.options.minLengthY;
 };

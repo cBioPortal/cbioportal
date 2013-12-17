@@ -68,23 +68,7 @@
 		<button class='diagram-to-svg'>SVG</button>
 		<button class="diagram-customize">Customize</button>
 	</div>
-	<div class="mutation-diagram-customize ui-widget">
-		<div class="diagram-customize-close">
-			<a href="#">&times;</a>
-		</div>
-		<h4>Customize</h4>
-		<table>
-			<tr>
-				<td>
-					<span class="diagram-upper-limit">
-						<label>Max y-axis value: </label>
-						<input type="text" class="diagram-upper-limit-input"/>
-						<button class="diagram-customize-update">Update</button>
-					</span>
-				</td>
-			</tr>
-		</table>
-	</div>
+	<div class="mutation-diagram-customize ui-widget"></div>
 	<div>
 		<table>
 			<tr>
@@ -106,6 +90,25 @@
 	<div id='mutation_table_{{geneSymbol}}' class='mutation-table-container'>
 		<img src='images/ajax-loader.gif'/>
 	</div>
+</script>
+
+<script type="text/template" id="mutation_customize_panel_template">
+	<div class="diagram-customize-close">
+		<a href="#">&times;</a>
+	</div>
+	<h4>Customize</h4>
+	<table>
+		<tr>
+			<td>
+				<div class="diagram-y-axis-slider-area">
+					<div class="diagram-slider-title"><label>max y-axis value</label></div>
+					<div class="diagram-y-axis-slider"></div>
+					<span class="diagram-slider-min-label">{{minY}}</span>
+					<span class="diagram-slider-max-label">{{maxY}}</span>
+				</div>
+			</td>
+		</tr>
+	</table>
 </script>
 
 <script type="text/template" id="mutation_3d_view_template">
@@ -397,6 +400,7 @@
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>

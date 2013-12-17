@@ -122,8 +122,21 @@ th.mutation-details-qtip-style {
 .diagram-customize {
 	margin-left: 25px;
 }
-.diagram-upper-limit-input {
-	width: 4em;
+.diagram-y-axis-slider-area {
+	width: 120px;
+}
+.diagram-y-axis-slider-area .diagram-slider-min-label {
+	float: left;
+	text-align: right;
+}
+.diagram-y-axis-slider-area .diagram-slider-max-label {
+	float: right;
+	text-align: left;
+}
+.diagram-y-axis-slider-area .diagram-slider-title {
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 5px;
 }
 .mutation-details-filter-info {
 	font-size: 14px;

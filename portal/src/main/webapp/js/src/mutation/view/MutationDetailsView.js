@@ -267,7 +267,7 @@ var MutationDetailsView = Backbone.View.extend({
 			var view3d = self.mut3dVisView;
 
 			// refresh 3d view with filtered positions
-			if (view3d)
+			if (view3d && view3d.isVisible())
 			{
 				view3d.refreshView();
 			}
@@ -320,7 +320,7 @@ var MutationDetailsView = Backbone.View.extend({
 					}
 
 					// reset focus of the 3D view
-					if (view3d)
+					if (view3d && view3d.isVisible())
 					{
 						view3d.focusView(false);
 					}
@@ -341,7 +341,7 @@ var MutationDetailsView = Backbone.View.extend({
 					mainMutationView.showFilterInfo();
 
 					// focus on the corresponding residue in 3D view
-					if (view3d)
+					if (view3d && view3d.isVisible())
 					{
 						view3d.focusView(datum);
 					}
@@ -381,7 +381,7 @@ var MutationDetailsView = Backbone.View.extend({
 				}
 
 				// reset focus of the 3D view
-				if (view3d)
+				if (view3d && view3d.isVisible())
 				{
 					view3d.focusView(false);
 				}

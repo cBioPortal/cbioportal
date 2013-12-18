@@ -38,6 +38,7 @@ function MutationDiagram(geneSymbol, options, data)
 	self.yAxisLabel = null; // label for y-axis
 	self.xMax = null; // max value on the x-axis
 	self.yMax = null; // max value on the y-axis
+	self.maxCount = null; // mutation count of the highest data point
 
 	// color mapping for mutations: <mutation id, (pileup) color> pairs
 	self.mutationColorMap = {};
@@ -199,7 +200,8 @@ MutationDiagram.prototype.updateOptions = function(options)
 	// recalculate global values
 	var xMax = self.xMax = self.calcXMax(self.options, self.data);
 	// TODO use current.pileup instead?
-	var yMax = self.yMax = self.calcYMax(self.options, self.data.pileups);
+	var maxCount = self.maxCount = self.calcMaxCount(self.data.pileups);
+	var yMax = self.yMax = self.calcYMax(self.options, maxCount);
 
 	self.bounds = this.calcBounds(self.options);
 	self.xScale = this.xScaleFn(self.bounds, xMax);
@@ -215,7 +217,8 @@ MutationDiagram.prototype.rescaleYAxis = function()
 	var self = this;
 
 	// TODO use current.pileup instead?
-	var yMax = self.calcYMax(self.options, self.data.pileups);
+	var maxCount = self.maxCount = self.calcMaxCount(self.data.pileups);
+	var yMax = self.calcYMax(self.options, maxCount);
 
 	// remove & draw y-axis
 	self.svg.select(".mut-dia-y-axis").remove();
@@ -467,8 +470,10 @@ MutationDiagram.prototype.drawDiagram = function (svg, bounds, options, data)
 	var self = this;
 	var sequenceLength = parseInt(data.sequence["length"]);
 
+	var maxCount = self.maxCount = self.calcMaxCount(data.pileups);
 	var xMax = self.xMax = self.calcXMax(options, data);
-	var yMax = self.yMax = self.calcYMax(options, data.pileups);
+	var yMax = self.yMax = self.calcYMax(options, maxCount);
+
 	var regions = data.sequence.regions;
 	var pileups = data.pileups;
 	var seqTooltip = self.generateSequenceTooltip(data);
@@ -578,15 +583,13 @@ MutationDiagram.prototype.calcXMax = function(options, data)
  * Finds out the maximum value for the y-axis.
  *
  * @param options   options object
- * @param pileups   list of Pileup instances
+ * @param maxCount  number of mutations in the highest data point
  * @return {Number} maximum value for the y-axis
  */
-MutationDiagram.prototype.calcYMax = function(options, pileups)
+MutationDiagram.prototype.calcYMax = function(options, maxCount)
 {
-	var self = this;
-
 	return Math.min(options.maxLengthY,
-		Math.max(self.calcMaxCount(pileups), options.minLengthY));
+		Math.max(maxCount, options.minLengthY));
 };
 
 /**
@@ -849,15 +852,25 @@ MutationDiagram.prototype.drawYAxis = function(svg, yScale, yMax, options, bound
 	var tickValues = self.getTickValues(yMax, 2 * interval);
 
 	// formatter to hide all except first and last
+	// also determines to put a '>' sign before the max value
 	var formatter = function(value) {
-		if (value == yMax || value == 0)
+		var formatted = '';
+
+		if (value == yMax)
 		{
-			return value;
+			formatted = value;
+
+			if (self.maxCount > yMax)
+			{
+				formatted = ">" + value;
+			}
 		}
-		else
+		else if (value == 0)
 		{
-			return '';
+			formatted = value;
 		}
+
+		return formatted;
 	};
 
 	var tickSize = options.yAxisTickSize;
@@ -1015,8 +1028,9 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	// check if y-value (count) is out of the range
 	if (count > options.maxLengthY)
 	{
-		// set a different shape for out-of-the-range values
-		type = "triangle-up";
+		// TODO set a different shape for out-of-the-range values?
+		//type = "triangle-up";
+
 		// set y to the max value
 		y = yScale(options.maxLengthY);
 	}
@@ -1404,10 +1418,10 @@ MutationDiagram.prototype.drawSequence = function(svg, options, bounds)
 /**
  * Returns the number of mutations at the hottest spot.
  *
- * @param mutations array of piled up mutation data
+ * @param pileups array of piled up mutation data
  * @return {Number} number of mutations at the hottest spot
  */
-MutationDiagram.prototype.calcMaxCount = function(mutations)
+MutationDiagram.prototype.calcMaxCount = function(pileups)
 {
 	var maxCount = -1;
 //
@@ -1422,9 +1436,9 @@ MutationDiagram.prototype.calcMaxCount = function(mutations)
 //	return maxCount;
 
 	// assuming the list is sorted (descending)
-	if (mutations.length > 0)
+	if (pileups.length > 0)
 	{
-		maxCount = mutations[0].count;
+		maxCount = pileups[0].count;
 	}
 
 	return maxCount;

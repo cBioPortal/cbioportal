@@ -115,6 +115,8 @@ MutationDiagram.prototype.defaultOpts = {
 	lollipopHighlightSize: 100,     // size of the highlighted lollipop data points
 	lollipopStrokeWidth: 1,         // width of the lollipop lines
 	lollipopStrokeColor: "#BABDB6", // color of the lollipop line
+	lollipopShapeRegular: "circle", // shape of the regular lollipop data points
+	lollipopShapeSpecial: "circle", // shape of the special lollipop data points
 	xAxisPadding: 10,           // padding between x-axis and the sequence
 	xAxisTickIntervals: [       // valid major tick intervals for x-axis
 		100, 200, 400, 500, 1000, 2000, 5000, 10000, 20000, 50000
@@ -1017,7 +1019,7 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	var self = this;
 
 	// default data point type is circle
-	var type = "circle";
+	var type = options.lollipopShapeRegular;
 
 	var count = pileup.count;
 	var start = pileup.location;
@@ -1028,8 +1030,9 @@ MutationDiagram.prototype.drawLollipop = function (points, lines, pileup, option
 	// check if y-value (count) is out of the range
 	if (count > options.maxLengthY)
 	{
-		// TODO set a different shape for out-of-the-range values?
+		// set a different shape for out-of-the-range values
 		//type = "triangle-up";
+		type = options.lollipopShapeSpecial;
 
 		// set y to the max value
 		y = yScale(options.maxLengthY);
@@ -1102,11 +1105,12 @@ MutationDiagram.prototype.getLollipopShapeFn = function()
 	// actual function to use with d3.symbol.type(...)
 	var shapeFunction = function(datum)
 	{
-		var type = "circle";
+		var type = self.options.lollipopShapeRegular;
 
+		// set a different shape for out-of-the-range values
 		if (datum.count > self.options.maxLengthY)
 		{
-			type = "triangle-up";
+			type = self.options.lollipopShapeSpecial;
 		}
 
 		return type;

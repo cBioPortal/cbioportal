@@ -46,6 +46,7 @@ var MainMutationView = Backbone.View.extend({
 		var toolbar = self.$el.find(".mutation-diagram-toolbar");
 		var pdfButton = self.$el.find(".diagram-to-pdf");
 		var svgButton = self.$el.find(".diagram-to-svg");
+		var customizeButton = self.$el.find(".diagram-customize");
 
 		// helper function to trigger submit event for the svg and pdf button clicks
 		var submitForm = function(alterFn, diagram, formClass)
@@ -101,40 +102,43 @@ var MainMutationView = Backbone.View.extend({
 			submitForm(alterDiagramForPdf, diagram, "svg-to-pdf-form");
 		});
 
-
-		var customizeButton = self.$el.find(".diagram-customize");
-		var customizeClose = self.$el.find(".diagram-customize-close");
-		var updateButton = self.$el.find(".diagram-customize-update");
-
-		// add listeners to customize buttons
-
+		// add listeners to customize button
 		customizeButton.click(function(event) {
-			self.toggleControls();
-		});
+			var panel = self.customizePanelView;
 
-		customizeClose.click(function(event) {
-			event.preventDefault();
-			self.toggleControls();
-		});
-
-		updateButton.click(function(event) {
-			var inputField = self.$el.find(".diagram-upper-limit-input");
-			var input = inputField.val();
-
-			// remove the limit for empty/invalid values
-			if (isNaN(input) || input < 1)
+			// init view if not init yet
+			if (!panel)
 			{
-				diagram.updateOptions({maxLengthY: Infinity});
-				diagram.rescaleYAxis();
-				inputField.val("");
+				panel = new MutationCustomizePanelView({
+					el: self.$el.find(".mutation-diagram-customize"),
+					diagram: diagram});
+				panel.render();
+
+				self.customizePanelView = panel;
 			}
-			// update for valid values
-			else
-			{
-				diagram.updateOptions({maxLengthY: input});
-				diagram.rescaleYAxis();
-			}
+
+			// toggle view
+			panel.toggleView();
 		});
+
+//		updateButton.click(function(event) {
+//			var inputField = self.$el.find(".diagram-upper-limit-input");
+//			var input = inputField.val();
+//
+//			// remove the limit for empty/invalid values
+//			if (isNaN(input) || input < 1)
+//			{
+//				diagram.updateOptions({maxLengthY: Infinity});
+//				diagram.rescaleYAxis();
+//				inputField.val("");
+//			}
+//			// update for valid values
+//			else
+//			{
+//				diagram.updateOptions({maxLengthY: input});
+//				diagram.rescaleYAxis();
+//			}
+//		});
 
 		toolbar.show();
 	},
@@ -175,8 +179,5 @@ var MainMutationView = Backbone.View.extend({
 	},
 	hideFilterInfo: function() {
 		this.$el.find(".mutation-details-filter-info").slideUp();
-	},
-	toggleControls: function() {
-		this.$el.find(".mutation-diagram-customize").slideToggle();
 	}
 });

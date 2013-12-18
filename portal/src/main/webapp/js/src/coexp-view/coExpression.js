@@ -35,11 +35,20 @@
 var CoExpTable = (function() {
 
     var Names = {
-        divPrefix: "coexp_",
-        tablePrefix: "coexp_table_",
-        loadingImgPrefix: "coexp_loading_img_",
-        plotPrefix: "coexp_plot_"
-    };
+            divPrefix: "coexp_",
+            loadingImgPrefix: "coexp_loading_img_",
+            tableDivPreFix: "coexp_table_div_",
+            tablePrefix: "coexp_table_",
+            plotPrefix: "coexp_plot_"
+        },
+        Text = {
+            pearsonHelp: "Pearson product-moment correlation coefficient, " +
+                         "a measure of the degree of linear dependence between two variables, " +
+                         "giving a value between +1 and -1 inclusive, where 1 is total positive correlation, " +
+                         "0 is no correlation, and -1 is total negative correlation. " +
+                         "The scores are ranked by absolute values."
+        };
+
 
     var CoExpTable = (function() {
 
@@ -57,68 +66,56 @@ var CoExpTable = (function() {
             return function(result) {
                 //figure out div id
                 var divId = Names.divPrefix + geneId;
-                var tableId = Names.tablePrefix + geneId;
                 var loadingImgId = Names.loadingImgPrefix + geneId;
+                var tableId = Names.tablePrefix + geneId;
+                var tableDivId = Names.tableDivPreFix + geneId;
+                var plotId = Names.plotPrefix + geneId;
 
-                //Render
                 $("#" + loadingImgId).hide();
-
                 $("#" + divId).append(
+                    "<table width='100%'>" +
+                    "<tr>" +
+                    "<td width='50%'><div id='" + tableDivId + "'></div></td>" +
+                    "<td width='50%'><div id='" + plotId + "'></div></td>" +
+                    "</tr>" +
+                    "</table>");
+
+
+                $("#" + tableDivId).append(
                     "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>"
                 );
-                var description = "Pearson product-moment correlation coefficient, " +
-                    "a measure of the degree of linear dependence between two variables, " +
-                    "giving a value between +1 and -1 inclusive, where 1 is total positive correlation, " +
-                    "0 is no correlation, and -1 is total negative correlation. " +
-                    "The scores are ranked by absolute values.";
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
                     "<tr><th>Correlated/Anti-correlated Genes</th>" +
                     "<th>Pearson's Correction" +
-                    "<img class='profile_help' src='images/help.png' title='"+ description + "'></th>" +
-                    "<th>Plots</th></tr>" +
+                    "<img class='profile_help' src='images/help.png' title='"+ Text.pearsonHelp + "'></th>" +
+                    "</tr>" +
                     "</thead><tbody></tbody>"
                 );
 
-                jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc']  = function(a,b) {
-                    if (Math.abs(a) > Math.abs(b)) return -1;
-                    else if (Math.abs(a) < Math.abs(b)) return 1;
-                    else return 0;
-                };
-
-                jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc']  = function(a,b) {
-                    if (Math.abs(a) > Math.abs(b)) return 1;
-                    else if (Math.abs(a) < Math.abs(b)) return -1;
-                    else return 0;
-                };
 
                 var _coExpTable = $("#" + tableId).dataTable({
-                    "sDom": '<"H"i<"coexp-table-filter-custom">f>t<"F"<"datatable-paging">lp>',
+                    "sDom": '<"H"<"coexp-table-filter-custom">f>t<"F"i>',
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
                     "bAutoWidth": false,
                     "aaSorting": [[1, 'desc']],
-                    "iDisplayLength": 50,
                     "aoColumnDefs": [
                         {
                             "bSearchable": true,
-                            "aTargets": [ 0 ]
+                            "aTargets": [ 0 ],
+                            "sWidth": "60%"
                         },
                         {
                             "sType": 'coexp-absolute-value',
                             "bSearchable": false,
-                            "aTargets": [ 1 ]
-                        },
-                        {
-                            "bSearchable": false,
-                            "aTargets": [ 2 ],
-                            "bSortable": false,
-                            "fnRender": function() {
-                                return "<img id='coexp_plot_icon' class='details_close' src='images/details_open.png'>";
-                            }
+                            "aTargets": [ 1 ],
+                            "sWidth": "40%"
                         }
                     ],
-                    "sScrollY": "200px"
+                    "sScrollY": "500px",
+                    "bScrollCollapse": true,
+                    iDisplayLength: 250
                 });  //close data table
 
                 $('#coexp_plot_icon').live('click', function () {
@@ -141,7 +138,7 @@ var CoExpTable = (function() {
                     }
                 } );
 
-                $("#" + divId).find('.coexp-table-filter-custom').append(
+                $("#" + tableDivId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
                     "<option value='all'>Show All</option>" +
                     "<option value='positive'>Show Only Positive Correlated</option>" +
@@ -158,8 +155,26 @@ var CoExpTable = (function() {
                 } );
 
                 attachDataToTable(result, tableId);
+                attachRowListener(_coExpTable, tableId, plotId, geneId);
             }
 
+        }
+
+        function attachRowListener(_coExpTable, tableId, plotId, geneId) {
+            $("#" + tableId + " tbody tr").on('click', function (event) {
+                //Highlight selected row
+                $(_coExpTable.fnSettings().aoData).each(function (){
+                    $(this.nTr).removeClass('row_selected');
+                });
+                $(event.target.parentNode).addClass('row_selected');
+
+                //Get the gene name of the selected row
+                var aData = _coExpTable.fnGetData(this);
+                if (null !== aData) {
+                    $("#" + plotId).empty();
+                    SimplePlot.init(plotId, geneId, aData[0]);
+                }
+            })
         }
 
         function attachDataToTable(result, tableId) {
@@ -167,6 +182,18 @@ var CoExpTable = (function() {
                 $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3), "(+)"]);
             });
         }
+
+        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc']  = function(a,b) {
+            if (Math.abs(a) > Math.abs(b)) return -1;
+            else if (Math.abs(a) < Math.abs(b)) return 1;
+            else return 0;
+        };
+
+        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc']  = function(a,b) {
+            if (Math.abs(a) > Math.abs(b)) return 1;
+            else if (Math.abs(a) < Math.abs(b)) return -1;
+            else return 0;
+        };
 
         return {
             init: function(geneId) {
@@ -198,17 +225,14 @@ var CoExpTable = (function() {
             $("#coexp-tabs").tabs('paging', {tabsPerPage: 10, follow: true, cycle: false});
             $("#coexp-tabs").tabs("option", "active", 0);
             $(window).trigger("resize");
-
         }
 
         function bindListenerToTabs() {
             $("#coexp-tabs").on("tabsactivate", function(event, ui) {
                 var _gene = ui.newTab.text();
-                console.log(_gene);
                 CoExpTable.init(_gene);
             });
         }
-
 
         return {
             appendTabsContent: appendTabsContent,

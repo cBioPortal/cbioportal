@@ -1,39 +1,37 @@
 <script type="text/javascript" src="js/src/coexp-view/coExpression.js"></script>
 <script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script>
 <style>
-    #coexp .dataTables_info {
-        display : inline;
+    #coexp .coexp-table-filter-custom {
         width: 200px;
-        padding-left: 5px;
-        float:left;
-    }
-    #coexp .div.datatable-paging {
-        width: auto;
-        float: right;
+        float: left;
     }
     #coexp .datatable-filter {
         width: 200px;
         float: right;
     }
-    #coexp .datatable-length {
-        float: left;
-    }
-    #coexp .coexp-tabs{
-        /*height: 685px; */
+
+    #coexp .dataTables_info {
+        float:left;
     }
     #coexp .coexp-tabs-ref{
         font-size: 11px !important;
     }
-    #coexp .coexp-table-filter-custom {
-        width: 250px;
-        margin: 0px;
-        display: inline;
+    #coexp p{
+        font-size: 11px;
     }
+
 </style>
 <div class="section" id="coexp">
+    The Gene Coexpression table lists the top 250 genes that are correlated in mRNA expression.
+    Calculated with Pearson product-moment correlation method. (Threshold: +/-0.3)
+    <img class='profile_help' src='images/help.png'
+         title='A measure of the degree of linear dependence between two variables, giving a value between +1 and -1 inclusive,
+                    where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation. '>
+    <br>Click on specific row to explore the plots of samples distribution.
     <div id="coexp-tabs" class="coexp-tabs">
         <ul id='coexp-tabs-list'></ul>
-        <div id='coexp-tabs-content'></div>
+        <div id='coexp-tabs-content'>
+        </div>
     </div>
 </div>
 

@@ -37,8 +37,13 @@
 
 var SimplePlot = (function() {
     var canvas = {
-            width: 1200,
-            height: 600
+            width: 600,
+            height: 600,
+            xLeft: 90,   //The left/starting point for x axis
+            xRight: 590,   //The right/ending point for x axis
+            yTop: 50,  //The top/ending point for y axis
+            yBottom: 550  //The bottom/starting point for y axis
+
         },
         elem = {
             svg: "",
@@ -58,7 +63,6 @@ var SimplePlot = (function() {
             dots_fill_color: "#58ACFA",
             dots_stroke_color: "#0174DF"
         };
-
     var util = (function() {
         return {
             analyseData: function(inputArr) {
@@ -86,11 +90,11 @@ var SimplePlot = (function() {
         var _results_y = util.analyseData(_yValArr);
         elem.xScale = d3.scale.linear()
             .domain([_results_x.min, _results_x.max])
-            .range([600, 1100]);
+            .range([canvas.xLeft, canvas.xRight]);
 
         elem.yScale = d3.scale.linear()
             .domain([_results_y.min, _results_y.max])
-            .range([520, 20]);
+            .range([canvas.yBottom, canvas.yTop]);
     }
 
     function initAxis() {
@@ -104,7 +108,7 @@ var SimplePlot = (function() {
     }
 
     function initCanvas(divName) {
-        $("#" + divName + "_loading_img").hide();
+        $("#" + divName + "_plot_loading_img").hide();
         elem.svg = d3.select("#" + divName).append("svg")
             .attr("width", canvas.width)
             .attr("height", canvas.height);
@@ -116,11 +120,11 @@ var SimplePlot = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(0, 520)")
+            .attr("transform", "translate(0, " + canvas.yBottom + ")")
             .call(elem.xAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "13px")
+            .style("font-size", "11px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
@@ -129,18 +133,18 @@ var SimplePlot = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(0, 20)")
+            .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
         elem.svg.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(600, 0)")
+            .attr("transform", "translate(" + canvas.xLeft + ", 0)")
             .call(elem.yAxis)
             .selectAll("text")
             .style("font-family", "sans-serif")
-            .style("font-size", "13px")
+            .style("font-size", "11px")
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
@@ -149,20 +153,20 @@ var SimplePlot = (function() {
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("transform", "translate(1100, 0)")
+            .attr("transform", "translate(" + canvas.xRight + ", 0)")
             .call(elem.yAxis.orient("left").ticks(0));
         //Append Axis Titles
         var axisTitleGroup = elem.svg.append("svg:g");
         axisTitleGroup.append("text")
-            .attr("x", 860)
-            .attr("y", 560)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
+            .attr("y", canvas.yBottom + 40)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
             .text(gene1);
         axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("x", -250)
-            .attr("y", 550)
+            .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
+            .attr("y", canvas.yTop)
             .style("text-anchor", "middle")
             .style("font-size", "13px")
             .text(gene2);
@@ -265,6 +269,7 @@ var SimplePlot = (function() {
 
     return {
         init: function(divName, gene1, gene2) {
+            $("#" + divName).append("<img id='" + divName + "_plot_loading_img' style='padding:220px;' src='images/ajax-loader.gif'>");
             getAlterationData(divName, gene1, gene2);
         }
     }

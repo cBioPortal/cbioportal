@@ -5,12 +5,16 @@
  *
  * options: {el: [target container],
  *           model: {geneSymbol: hugo gene symbol,
- *                   pdbColl: collection of PdbModel instances},
+ *                   pdbColl: collection of PdbModel instances,
+ *                   pdbProxy: pdb data proxy},
  *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
  */
 var PdbPanelView = Backbone.View.extend({
+	initialize : function (options) {
+		this.options = options || {};
+	},
 	render: function()
 	{
 		var self = this;
@@ -34,7 +38,7 @@ var PdbPanelView = Backbone.View.extend({
 		var self = this;
 
 		// hide view initially
-		self.hideView();
+		self.$el.hide();
 
 		// format panel controls
 
@@ -60,12 +64,12 @@ var PdbPanelView = Backbone.View.extend({
 	hideView: function()
 	{
 		var self = this;
-		self.$el.hide();
+		self.$el.slideUp();
 	},
 	showView: function()
 	{
 		var self = this;
-		self.$el.show();
+		self.$el.slideDown();
 	},
 	/**
 	 * Loads the 3D visualizer for the default pdb and chain.
@@ -119,6 +123,7 @@ var PdbPanelView = Backbone.View.extend({
 
 		var gene = self.model.geneSymbol;
 		var pdbColl = self.model.pdbColl;
+		var pdbProxy = self.model.pdbProxy;
 		var mutationDiagram = self.options.diagram;
 		var vis = self.options.mut3dVisView;
 
@@ -132,7 +137,7 @@ var PdbPanelView = Backbone.View.extend({
 				marginRight: mutationDiagram.options.marginRight};
 
 			// init panel
-			panel = new MutationPdbPanel(options, pdbColl, xScale);
+			panel = new MutationPdbPanel(options, pdbColl, pdbProxy, xScale);
 			panel.init();
 
 			// add event listeners for chain selection

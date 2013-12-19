@@ -107,6 +107,42 @@ th.mutation-details-qtip-style {
 	padding-top: 10px;
 	padding-left: 10px;
 }
+.mutation-diagram-customize {
+	margin-top: 5px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-diagram-customize table {
+	width: 100%;
+}
+.diagram-customize-close {
+	float: right;
+}
+.diagram-customize {
+	margin-left: 25px;
+}
+.diagram-y-axis-slider-area {
+	width: 230px;
+}
+.diagram-y-axis-slider-area .diagram-slider-min-label {
+	float: left;
+	text-align: right;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-max-label {
+	float: right;
+	text-align: left;
+	font-size: 90%;
+}
+.diagram-y-axis-slider-area .diagram-slider-title {
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 5px;
+}
+.diagram-y-axis-limit-input {
+	margin-left: 8px;
+}
 .mutation-details-filter-info {
 	font-size: 14px;
 	font-family: verdana,arial,sans-serif;
@@ -158,12 +194,20 @@ th.mutation-details-qtip-style {
 	cursor: pointer;
 	opacity: 0.6;
 }
+.mutation-3d-button {
+	opacity: 0.6;
+	width: 12px;
+	/* TODO add anim to click */
+}
 .mutation-3d-pdb-id, .mutation-3d-chain-id {
 	font-weight: bold;
 	font-style: italic;
 }
 .mutation-3d-spin {
-	margin-left: 20px;
+	margin-left: 12px;
+}
+.mutation-3d-zoomout {
+	margin-left: 10px;
 }
 .mutation-3d-vis img{
 	width: 24px;

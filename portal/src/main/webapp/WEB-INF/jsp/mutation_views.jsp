@@ -102,9 +102,19 @@
 			<td>
 				<div class="diagram-y-axis-slider-area">
 					<div class="diagram-slider-title"><label>max y-axis value</label></div>
-					<div class="diagram-y-axis-slider"></div>
-					<span class="diagram-slider-min-label">{{minY}}</span>
-					<span class="diagram-slider-max-label">{{maxY}}</span>
+					<table>
+						<tr>
+							<td width="90%" valign="top">
+								<div class="diagram-y-axis-slider"></div>
+								<span class="diagram-slider-min-label">{{minY}}</span>
+								<span class="diagram-slider-max-label">{{maxY}}</span>
+							</td>
+							<td valign="top">
+								<input class="diagram-y-axis-limit-input" size="2" type='text'>
+							</td>
+						</tr>
+					</table>
+
 				</div>
 			</td>
 		</tr>

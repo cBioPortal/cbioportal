@@ -44,20 +44,57 @@ var MutationCustomizePanelView = Backbone.View.extend({
 
 		var customizeClose = self.$el.find(".diagram-customize-close");
 		var yAxisSlider = self.$el.find(".diagram-y-axis-slider");
+		var yAxisInput = self.$el.find(".diagram-y-axis-limit-input");
 
+		// add listener to close button
 		customizeClose.click(function(event) {
 			event.preventDefault();
 			self.toggleView();
 		});
 
+		// set initial value of the input field
+		var maxValY = diagram.getMaxY();
+		yAxisInput.val(maxValY);
+
 		// init y-axis slider controls
-		yAxisSlider.slider({value: diagram.getMaxY(),
+		yAxisSlider.slider({value: maxValY,
 			min: 2,
-			max: diagram.getMaxY(),
+			max: maxValY,
 			change: function(event, ui) {
+				// update input field
+				yAxisInput.val(ui.value);
+
+				// update diagram
 				diagram.updateOptions({maxLengthY: ui.value});
 				diagram.rescaleYAxis();
-		}});
+			},
+			slide: function(event, ui) {
+				// update input field only
+				yAxisInput.val(ui.value);
+			}
+		});
+
+		yAxisInput.keypress(function(event) {
+			var enterCode = 13;
+
+			if (event.keyCode == enterCode)
+			{
+				var input = yAxisInput.val();
+
+				// not a valid value, update with defaults
+				if (isNaN(input) ||
+				    input > maxValY ||
+				    input < 2)
+				{
+					yAxisInput.val(diagram.getMaxY());
+				}
+				// update weight slider position only if input is valid
+				else
+				{
+					yAxisSlider.slider("option", "value", Math.floor(input));
+				}
+			}
+		});
 	},
 	toggleView: function() {
 		var self = this;

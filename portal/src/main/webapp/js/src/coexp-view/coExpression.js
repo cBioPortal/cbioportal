@@ -80,10 +80,13 @@ var CoExpTable = (function() {
                     "</tr>" +
                     "</table>");
 
-
+                $("#" + tableDivId).addClass("coexp-table");
+                $("#" + tableDivId).addClass("coexp-plots");
                 $("#" + tableDivId).append(
-                    "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>"
+                    "<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'>" +
+                    "</table>"
                 );
+
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
                     "<tr><th>Correlated(+)/Anti-correlated(-) Genes</th>" +
@@ -91,7 +94,6 @@ var CoExpTable = (function() {
                     "</tr>" +
                     "</thead><tbody></tbody>"
                 );
-
 
                 var _coExpTable = $("#" + tableId).dataTable({
                     "sDom": '<"H"<"coexp-table-filter-custom">f>t<"F"i>',
@@ -126,7 +128,8 @@ var CoExpTable = (function() {
                         } else {
                             $('td:eq(1)', nRow).css("color", "#B40404");
                         }
-                    }
+                    },
+                    "bDeferRender": true
                 });  //close data table
 
 

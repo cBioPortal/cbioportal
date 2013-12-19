@@ -161,9 +161,10 @@ public class MutationConverterImpl implements Converter {
 				LOG.info("createStagingFile(), we found MAF in override directory, copying it to staging area directly: " +
 						 overrideFile.getPath());
 			}
-			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, stagingFilename, stagingFilename);
-			fileUtils.applyOverride(portalMetadata, cancerStudyMetadata, 
-									datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
+			fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+                                    cancerStudyMetadata, stagingFilename, stagingFilename);
+			fileUtils.applyOverride(portalMetadata.getOverrideDirectory(), portalMetadata.getStagingDirectory(),
+                                    cancerStudyMetadata, datatypeMetadata.getMetaFilename(), datatypeMetadata.getMetaFilename());
 		}
 		// override file does not exist, we will have to create a staging file - check if file needs to be oncotated
 		else if (MutationFileUtil.isOncotated(columnHeaders)) {
@@ -172,14 +173,14 @@ public class MutationConverterImpl implements Converter {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), MAF is already oncotated, create staging file straight-away.");
 			}
-			fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 		// override file does not exist, and we need to oncotate
 		else {
 			if (LOG.isInfoEnabled()) {
 				LOG.info("createStagingFile(), file requires a run through the Oncotator and OMA tool.");
 			}
-			fileUtils.writeMutationStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dataMatrix);
+			fileUtils.writeMutationStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dataMatrix);
 		}
 
 		if (LOG.isInfoEnabled()) {

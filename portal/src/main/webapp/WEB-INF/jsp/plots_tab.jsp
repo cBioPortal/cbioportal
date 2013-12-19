@@ -3,35 +3,8 @@
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.io.PrintWriter" %>
 <%@ page import="java.io.IOException" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.GeneratePlots" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticAlterationType" %>
-
-<%
-    String cancer_study_id = (String)request.getParameter("cancer_study_id");
-    String case_set_id = (String)request.getParameter("case_set_id");
-    String genetic_profile_id = (String)request.getParameter("genetic_profile_id");
-    //Translate Onco Query Language
-    ArrayList<String> _listOfGenes = theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-    String tmpGeneStr = "";
-    for(String gene: _listOfGenes) {
-        tmpGeneStr += gene + " ";
-    }
-    tmpGeneStr = tmpGeneStr.trim();
-
-%>
-
-<script>
-    var cancer_study_id = "<%out.print(cancer_study_id);%>",
-            case_set_id = "<%out.print(case_set_id);%>";
-    case_ids_key = "";
-    if (case_set_id === "-1") {
-        case_ids_key = "<%out.print(caseIdsKey);%>";
-    }
-    var genetic_profile_id = "<%out.print(genetic_profile_id);%>";
-    var gene_list_str = "<%out.print(tmpGeneStr);%>";
-    var gene_list = gene_list_str.split(/\s+/);
-</script>
 
 <script type="text/javascript" src="js/src/plots-view/plots_tab_model.js"></script>
 <script type="text/javascript" src="js/src/plots-view/plots_tab.js"></script>
@@ -193,7 +166,7 @@
     $(".plots-tabs-ref").tipTip(
             {defaultPosition: "top", delay:"200", edgeOffset: 10, maxWidth: 200});
     //Patch for fixing the font size in firefox
-    if ($.browser.mozilla) {
+    if (cbio.util.browser.mozilla) {
         var element = document.getElementById("plots-menus");
         element.className += " " + "plots-firefox";
     }

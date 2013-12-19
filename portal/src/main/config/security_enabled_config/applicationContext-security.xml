@@ -61,11 +61,8 @@
 	  <intercept-url pattern="/get3dPdb.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ClinicalFreeForm.json*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/CheckGeneSymbol.json*" access="isAuthenticated()"/>
-	  <intercept-url pattern="/survival_plot.pdf" access="isAuthenticated()"/>
 	  <intercept-url pattern="/show_data.do*" access="isAuthenticated()"/>
-	  <intercept-url pattern="/plot.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/svgtopdf.do*" access="isAuthenticated()"/>
-	  <intercept-url pattern="/plot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/generatePlots.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/plot-test.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/network.do*" access="isAuthenticated()"/>
@@ -73,10 +70,6 @@
 	  <intercept-url pattern="/bioGeneQuery.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/ProteinArraySignificanceTest.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/omaRedirect.do*" access="isAuthenticated()"/>
-      <intercept-url pattern="/boxplot.do*" access="isAuthenticated()"/>
-	  <intercept-url pattern="/boxplot.pdf*" access="isAuthenticated()"/>
-      <intercept-url pattern="/scatterplot.do*" access="isAuthenticated()"/>
-	  <intercept-url pattern="/scatterplot.pdf*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/swf/*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/link.do*" access="isAuthenticated()"/>
 	  <intercept-url pattern="/oncoprint_converter.svg*" access="isAuthenticated()"/>

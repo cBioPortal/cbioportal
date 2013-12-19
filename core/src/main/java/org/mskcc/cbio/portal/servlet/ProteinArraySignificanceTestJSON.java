@@ -56,6 +56,7 @@ import org.mskcc.cbio.portal.dao.DaoCancerStudy;
 
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.model.ProteinArrayInfo;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.mskcc.cbio.portal.web_api.GetProteinArrayData;
 
 /**
@@ -93,6 +94,14 @@ public class ProteinArraySignificanceTestJSON extends HttpServlet {
             String antibodyType = request.getParameter(ANTIBODY_TYPE);
             String excludeAntibodyType = request.getParameter(EXCLUDE_ANTIBODY_TYPE);
             String strDataScale = request.getParameter(DATA_SCALE);
+
+	        // TODO filtered heat map breaks the parsing, we need the raw parameter
+	        // (alternatively, we can change the parsing method)
+		    if (request instanceof XssRequestWrapper)
+		    {
+			    heatMap = ((XssRequestWrapper)request).getRawParameter(HEAT_MAP);
+		    }
+
             double dataScale = strDataScale==null?0:Double.parseDouble(strDataScale);
 
             Collection<String> antibodyTypes;

@@ -55,8 +55,7 @@ public class DaoUser {
          pstmt.setString(1, user.getEmail());
          pstmt.setString(2, user.getName());
          pstmt.setBoolean(3, user.isEnabled());
-         int rows = pstmt.executeUpdate();
-         return rows;
+         return pstmt.executeUpdate();
       } catch (SQLException e) {
          throw new DaoException(e);
       } finally {
@@ -82,8 +81,7 @@ public class DaoUser {
          pstmt.setString(1, email);
          rs = pstmt.executeQuery();
          if (rs.next()) {
-            User user = extractUser(rs);
-            return user;
+            return extractUser(rs);
          }
          return null;
       } catch (SQLException e) {

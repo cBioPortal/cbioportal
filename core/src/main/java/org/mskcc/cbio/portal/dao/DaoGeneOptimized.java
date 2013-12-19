@@ -46,11 +46,11 @@ import org.mskcc.cbio.portal.model.CanonicalGene;
 public class DaoGeneOptimized {
     private static final String CBIO_CANCER_GENES_FILE = "/cbio_cancer_genes.txt";
         
-    private static DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
-    private HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
-    private HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
-    private HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
-    private Set<String> cbioCancerGenes = new HashSet<String>();
+    private static final DaoGeneOptimized daoGeneOptimized = new DaoGeneOptimized();
+    private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
+    private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
+    private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
+    private final Set<String> cbioCancerGenes = new HashSet<String>();
     
     /**
      * Private Constructor, to enforce singleton pattern.

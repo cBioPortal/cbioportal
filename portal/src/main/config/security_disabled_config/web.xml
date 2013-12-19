@@ -7,6 +7,20 @@
     <display-name>Cancer Genomics Portal</display-name>
     <display-name>Apache-Axis</display-name>
 
+    <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/cgds_gdac</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
+    <resource-ref>
+      <description>DB Connection</description>
+      <res-ref-name>jdbc/cgds_public</res-ref-name>
+      <res-type>javax.sql.DataSource</res-type>
+      <res-auth>Container</res-auth>
+    </resource-ref>
+
     <!-- SPRING SECURITY SETTINGS START -->
 
     <!--
@@ -115,35 +129,6 @@
     <servlet>
         <servlet-name>portal_meta_data_json</servlet-name>
         <servlet-class>org.mskcc.cbio.portal.servlet.PortalMetaDataJSON</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>plot</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.PlotServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>boxplot</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.BoxPlotServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>scatterplot</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.ScatterPlotServlet</servlet-class>
-    </servlet>
-
-    <servlet>
-        <servlet-name>generatePlots</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.GeneratePlots</servlet-class>
-        <init-param>
-            <param-name>r_installed</param-name>
-            <param-value>${r_installed}</param-value>
-        </init-param>
-    </servlet>
-
-    <servlet>
-        <servlet-name>plot-test</servlet-name>
-        <servlet-class>org.mskcc.cbio.portal.servlet.PlotTestServlet</servlet-class>
     </servlet>
 
     <servlet>
@@ -277,53 +262,8 @@
 	</servlet-mapping>
 
     <servlet-mapping>
-        <servlet-name>query_builder</servlet-name>
-        <url-pattern>/survival_plot.pdf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
         <servlet-name>show_data</servlet-name>
         <url-pattern>/show_data.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>plot</servlet-name>
-        <url-pattern>/plot.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>plot</servlet-name>
-        <url-pattern>/plot.pdf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>boxplot</servlet-name>
-        <url-pattern>/boxplot.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>boxplot</servlet-name>
-        <url-pattern>/boxplot.pdf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>scatterplot</servlet-name>
-        <url-pattern>/scatterplot.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>scatterplot</servlet-name>
-        <url-pattern>/scatterplot.pdf</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>generatePlots</servlet-name>
-        <url-pattern>/generatePlots.do</url-pattern>
-    </servlet-mapping>
-
-    <servlet-mapping>
-        <servlet-name>plot-test</servlet-name>
-        <url-pattern>/plot-test.do</url-pattern>
     </servlet-mapping>
 
     <servlet-mapping>
@@ -606,6 +546,22 @@
         <filter-name>FileUpload</filter-name>
         <url-pattern>/oncoprint_converter.svg</url-pattern>
     </filter-mapping>
+
+	<filter>
+		<filter-name>XssFilter</filter-name>
+		<display-name>Xss Filter</display-name>
+		<description>
+			Applied to all requests to filter out malicious XSS attacks.
+			Wraps the request, allowing it to be used as a regular request,
+			'as if' it were parsed by the Servlet API.
+		</description>
+		<filter-class>org.mskcc.cbio.portal.util.XssFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>XssFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 
     <!-- Required by the Apache FileUpload tool. -->
     <listener>

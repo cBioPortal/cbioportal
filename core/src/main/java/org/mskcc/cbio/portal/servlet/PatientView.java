@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
@@ -66,8 +67,6 @@ public class PatientView extends HttpServlet {
     public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
     public static final String DRUG_TYPE_FDA_ONLY = "fda_approved";
     
-    private ServletXssUtil servletXssUtil;
-    
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
@@ -79,14 +78,10 @@ public class PatientView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-                        ApplicationContext context = 
-                                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-                        accessControl = (AccessControl)context.getBean("accessControl");
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+
+	    ApplicationContext context =
+			    new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+	    accessControl = (AccessControl)context.getBean("accessControl");
     }
     
     /** 

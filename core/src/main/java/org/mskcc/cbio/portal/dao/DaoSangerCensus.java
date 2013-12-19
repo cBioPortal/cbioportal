@@ -79,8 +79,7 @@ public class DaoSangerCensus {
             pstmt.setString(9, translocationPartner);
             pstmt.setBoolean(10, otherGermlineMut);
             pstmt.setString(11, otherDisease);
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

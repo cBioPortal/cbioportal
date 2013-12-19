@@ -29,6 +29,8 @@
 package org.mskcc.cbio.importer;
 
 // imports
+import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;                                                     
+
 import org.apache.commons.cli.*;
 
 import org.apache.commons.logging.Log;
@@ -64,10 +66,23 @@ public class PortalImporterTool implements Runnable {
 		// create each option
 		Option help = new Option("h", "Print this message.");
 
+        Option annotateMAF = (OptionBuilder.withArgName("maf:output")
+                              .hasArgs(2)
+                              .withValueSeparator(':')
+                              .withDescription("Annotates the MAF file with additional information from mutationassessor.org and Oncotator." +
+                                               "If output filename is not given, input filename will be used with a '.annotated' extension.")
+                              .create("a"));
+
         Option validateCancerStudy = (OptionBuilder.withArgName("dir")
                                       .hasArg()
-                                      .withDescription("Validates cancer studies within the given cancer study directory")
+                                      .withDescription("Validates cancer studies within the given cancer study directory.")
                                       .create("v"));
+
+        Option normalizeDataFile = (OptionBuilder.withArgName("cna-file:expression-file:output-file:normal-sample-suffix")
+                                    .hasArgs(4)
+                                    .withValueSeparator(':')
+                                    .withDescription("Given CNV & expression data for a set of samples, generate normalized expression values.")
+                                    .create("n"));
 
         Option importCancerStudy = (OptionBuilder.withArgName("dir:skip:force")
                                     .hasArgs(3)
@@ -83,7 +98,9 @@ public class PortalImporterTool implements Runnable {
 
 		// add options
 		toReturn.addOption(help);
+		toReturn.addOption(annotateMAF);
         toReturn.addOption(validateCancerStudy);
+        toReturn.addOption(normalizeDataFile );
 		toReturn.addOption(importCancerStudy);
 
 		// outta here
@@ -92,7 +109,6 @@ public class PortalImporterTool implements Runnable {
 
 	public void setCommandParameters(String[] args)
     {
-
 		// create our parser
 		CommandLineParser parser = new PosixParser();
 
@@ -127,10 +143,18 @@ public class PortalImporterTool implements Runnable {
             else if (commandLine.hasOption("v")) {
                 validateCancerStudy(commandLine.getOptionValue("v"));
             }
+            else if (commandLine.hasOption("n")) {
+                String[] values = commandLine.getOptionValues("n");
+				normalizeExpressionLevels(values[0], values[1], values[2], values[3]);
+            }
 			else if (commandLine.hasOption("i")) {
                 String[] values = commandLine.getOptionValues("i");
 				importCancerStudy(values[0], (values.length >= 2) ? values[1] : "", (values.length == 3) ? values[2] : "");
 			}
+            else if (commandLine.hasOption("a")) {
+                String[] values = commandLine.getOptionValues("a");
+                annotateMAF(values[0], (values.length == 2) ? values[1] : values[0] + ".annotated");
+            }
 			else {
 				Admin.usage(new PrintWriter(System.out, true));
 			}
@@ -201,6 +225,43 @@ public class PortalImporterTool implements Runnable {
 
         logMessage("importCancerStudy(), complete");
 	}
+
+	private void annotateMAF(String inputFilename, String outputFilename) throws Exception {
+
+        logMessage("annotateMAF(), mafFile: " + inputFilename);
+
+		// sanity check
+		File mafFile = new File(inputFilename);
+		if (!mafFile.exists()) {
+			throw new IllegalArgumentException("cannot find the give MAF: " + inputFilename);
+		}
+
+		// create fileUtils object
+		FileUtils fileUtils = (FileUtils)context.getBean("fileUtils");
+
+		// create output file
+		File outputMAF = 
+			org.apache.commons.io.FileUtils.getFile(outputFilename);
+
+		fileUtils.oncotateMAF(FileUtils.FILE_URL_PREFIX + mafFile.getCanonicalPath(),
+                              FileUtils.FILE_URL_PREFIX + outputMAF.getCanonicalPath());
+
+        logMessage("annotateMAF(), complete");
+	}
+
+    private void normalizeExpressionLevels(String cnaFile, String expressionFile, String normalizedFile, String normalSampleSuffix) throws Exception
+    {
+        logMessage("normalizeExpressionLevels()");
+        logMessage("cnaFile: " + cnaFile);
+        logMessage("expressionFile: " + expressionFile);
+        logMessage("outputFile: " + normalizedFile);
+        logMessage("normalSampleSuffix: " + normalSampleSuffix);
+
+		String[] args = { cnaFile, expressionFile, normalizedFile, normalSampleSuffix };
+        NormalizeExpressionLevels.driver(args);
+
+        logMessage("normalizeExpressionLevels(), complete");
+    }
 
 	private boolean getBoolean(String parameterValue)
     {

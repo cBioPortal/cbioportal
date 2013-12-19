@@ -36,9 +36,9 @@ import java.util.ArrayList;
  * @author Ethan Cerami.
  */
 public class MapBack {
-    private MapBackGene mapBackGene;
-    private ArrayList<Mapping> mappingList;
-    private long globalMutationLocation;
+    private final MapBackGene mapBackGene;
+    private final ArrayList<Mapping> mappingList;
+    private final long globalMutationLocation;
     private long ntPosition = -1;
 
     /**
@@ -59,8 +59,7 @@ public class MapBack {
         long sequenceLen = lastMapping.getQStart() + lastMapping.getBlockSize();
 
         Mapping matchedMapping = null;
-        for (int i =0; i< mappingList.size(); i++) {
-            Mapping mapping = mappingList.get(i);
+        for (Mapping mapping : mappingList) {
             if (globalMutationLocation > mapping.getTStart()
                     && globalMutationLocation < mapping.getTStop()) {
                 matchedMapping = mapping;

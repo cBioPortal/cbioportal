@@ -21,6 +21,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>gdac-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -31,6 +32,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>su2c-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -44,6 +46,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>public-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -54,6 +57,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>prostate-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -64,6 +68,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_enabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>target-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -74,6 +79,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/src/main/resources</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.Admin</importer-main-class>
+        <gpl-files-to-exclude>lorem-ipsum</gpl-files-to-exclude>
 		<final-war-name>ctd2-dashboard-portal</final-war-name>
 	  </properties>
 	</profile>
@@ -84,6 +90,7 @@
 		<application-context-security-xml-dir>${PORTAL_HOME}/portal/src/main/config/security_disabled_config</application-context-security-xml-dir>
         <property-file-dir>${PORTAL_HOME}/portal/src/main/config/external_lab_properties</property-file-dir>
         <importer-main-class>org.mskcc.cbio.importer.PortalImporterTool</importer-main-class>
+        <gpl-files-to-exclude>com/mysql/**</gpl-files-to-exclude>
 		<final-war-name>cbioportal</final-war-name>
 	  </properties>
 	</profile>
@@ -238,6 +245,11 @@
 		<artifactId>maven-resources-plugin</artifactId>
 		<version>2.6</version>
 	  </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.3</version>
+      </plugin>
 	</plugins>
   </build>
 
@@ -256,7 +268,7 @@
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-project-info-reports-plugin</artifactId>
-		<version>2.0.1</version>
+		<version>2.7</version>
 	  </plugin>
 	</plugins>
   </reporting>

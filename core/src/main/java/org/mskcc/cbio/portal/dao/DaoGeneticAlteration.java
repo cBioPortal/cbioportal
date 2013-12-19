@@ -89,7 +89,7 @@ public class DaoGeneticAlteration {
                 throw new IllegalArgumentException ("Value cannot contain delim:  " + DELIM
                     + " --> " + value);
             }
-            valueBuffer.append (value + DELIM);
+            valueBuffer.append(value).append(DELIM);
         }
 
         try {
@@ -109,8 +109,7 @@ public class DaoGeneticAlteration {
                 pstmt.setInt(1, geneticProfileId);
                 pstmt.setLong(2, entrezGeneId);
                 pstmt.setString(3, valueBuffer.toString());
-                int rows = pstmt.executeUpdate();
-                return rows;
+                return pstmt.executeUpdate();
            }
         } catch (SQLException e) {
             throw new DaoException(e);

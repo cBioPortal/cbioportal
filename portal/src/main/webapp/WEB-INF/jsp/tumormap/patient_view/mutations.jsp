@@ -439,7 +439,7 @@
                     },
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["bam"] ],
-                        "bVisible": viewBam,
+                        "bVisible": false,//viewBam,
                         "sClass": "right-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
@@ -781,7 +781,7 @@
                 content: {text: tip},
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 200, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                style: { classes: 'qtip-light qtip-rounded' },
                 position: {my:'top right',at:'bottom center'}
             });
         }
@@ -838,7 +838,7 @@
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: {my:'top right',at:'bottom center'}
         });
     }
@@ -894,7 +894,7 @@
                         <li>or with > 5 overlapping entries in COSMIC.</li></ul>'/>");
                 $('#mutations-summary-help').qtip({
                     content: { attr: 'title' },
-                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+                    style: { classes: 'qtip-light qtip-rounded' },
                     position: { my:'top center',at:'bottom center' }
                 });
                 $('.mutation-summary-table-name').addClass("datatable-name");

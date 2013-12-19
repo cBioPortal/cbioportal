@@ -86,9 +86,8 @@ var CoExpTable = (function() {
                 );
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
-                    "<tr><th>Correlated/Anti-correlated Genes</th>" +
-                    "<th>Pearson's Correction" +
-                    "<img class='profile_help' src='images/help.png' title='"+ Text.pearsonHelp + "'></th>" +
+                    "<tr><th>Correlated(+)/Anti-correlated(-) Genes</th>" +
+                    "<th>Pearson's Correlation" +
                     "</tr>" +
                     "</thead><tbody></tbody>"
                 );
@@ -115,34 +114,27 @@ var CoExpTable = (function() {
                     ],
                     "sScrollY": "500px",
                     "bScrollCollapse": true,
-                    iDisplayLength: 250
+                    iDisplayLength: 250,
+                    "oLanguage": {
+                        "sSearch": "Search Gene"
+                    },
+                    "fnRowCallback": function(nRow, aData) {
+                        $('td:eq(0)', nRow).css("font-weight", "bold");
+                        $('td:eq(1)', nRow).css("font-weight", "bold");
+                        if (aData[1] > 0) {
+                            $('td:eq(1)', nRow).css("color", "#173B0B");
+                        } else {
+                            $('td:eq(1)', nRow).css("color", "#B40404");
+                        }
+                    }
                 });  //close data table
 
-                $('#coexp_plot_icon').live('click', function () {
-                    var nTr = this.parentNode.parentNode;
-                    if ( this.src.match('details_close') ) {
-                        this.src = "images/details_open.png";
-                        _coExpTable.fnClose(nTr);
-                    } else {
-                        this.src = "images/details_close.png";
-                        var aData = _coExpTable.fnGetData( nTr );
-                        var _divName = Names.plotPrefix + geneId + "_" + aData[0];
-                        _coExpTable.fnOpen(
-                            nTr,
-                            "<div id='" + _divName + "'>" +
-                            "<img style='padding:20px; float: right;' id='" + _divName  + "_loading_img'" +
-                            "src='images/ajax-loader.gif'></div>",
-                            'coexp-details'
-                        );
-                        SimplePlot.init(_divName, geneId, aData[0]);
-                    }
-                } );
 
                 $("#" + tableDivId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
                     "<option value='all'>Show All</option>" +
                     "<option value='positive'>Show Only Positive Correlated</option>" +
-                    "<option value='negative'>Show only Negative Correlated</option>" +
+                    "<option value='negative'>Show Only Negative Correlated</option>" +
                     "</select>");
                 $('select#coexp-table-select').change( function () {
                     if ($(this).val() === "negative") {
@@ -156,8 +148,11 @@ var CoExpTable = (function() {
 
                 attachDataToTable(result, tableId);
                 attachRowListener(_coExpTable, tableId, plotId, geneId);
-            }
 
+                //Init with selecting the first row
+                $('#' + tableId + ' tbody tr:eq(0)').click();
+                $('#' + tableId + ' tbody tr:eq(0)').addClass("row_selected");
+            }
         }
 
         function attachRowListener(_coExpTable, tableId, plotId, geneId) {
@@ -179,7 +174,11 @@ var CoExpTable = (function() {
 
         function attachDataToTable(result, tableId) {
             $.each(result, function(i, _obj) {
-                $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3), "(+)"]);
+                if (_obj.pearson > 0) {
+                    $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3)]);
+                } else {
+                    $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3)]);
+                }
             });
         }
 

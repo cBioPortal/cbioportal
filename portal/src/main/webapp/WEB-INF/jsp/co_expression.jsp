@@ -17,17 +17,25 @@
         font-size: 11px !important;
     }
     #coexp p{
-        font-size: 11px;
+        font-size: 12px;
+        display: block;
+        text-align: left;
+        font-family: Verdana,Arial,sans-serif;
+        margin-bottom: 12px;
     }
 
 </style>
 <div class="section" id="coexp">
-    The Gene Coexpression table lists the top 250 genes that are correlated in mRNA expression.
-    Calculated with Pearson product-moment correlation method. (Threshold: +/-0.3)
-    <img class='profile_help' src='images/help.png'
-         title='A measure of the degree of linear dependence between two variables, giving a value between +1 and -1 inclusive,
-                    where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation. '>
-    <br>Click on specific row to explore the plots of samples distribution.
+    <p>
+        The co-expression table below lists the top <strong>250</strong> genes that are highly co-expressed in mRNA expression profile,
+        among the applied cancer study and case set. <br>
+        Score calculated by <strong>Pearson product-moment correlation</strong> (Threshold: <strong>+/-0.3</strong>).
+        <img class='profile_help' src='images/help.png'
+             title='A measure of the degree of linear dependence between two variables, giving a value between +1 and -1 inclusive,
+                        where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation.
+                        (Scores below -0.3 or above 0.3 are not listed).'>
+        Click on any single row for related plots view.
+    </p>
     <div id="coexp-tabs" class="coexp-tabs">
         <ul id='coexp-tabs-list'></ul>
         <div id='coexp-tabs-content'>

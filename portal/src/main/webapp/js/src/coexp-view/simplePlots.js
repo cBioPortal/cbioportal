@@ -269,7 +269,8 @@ var SimplePlot = (function() {
 
     return {
         init: function(divName, gene1, gene2) {
-            $("#" + divName).append("<img id='" + divName + "_plot_loading_img' style='padding:220px;' src='images/ajax-loader.gif'>");
+            $("#" + divName).append(
+                "<img id='" + divName + "_plot_loading_img' style='padding:220px;' src='images/ajax-loader.gif'>");
             getAlterationData(divName, gene1, gene2);
         }
     }

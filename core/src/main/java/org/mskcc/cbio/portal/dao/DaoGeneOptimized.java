@@ -31,6 +31,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +51,7 @@ public class DaoGeneOptimized {
     private final HashMap<String, CanonicalGene> geneSymbolMap = new HashMap <String, CanonicalGene>();
     private final HashMap<Long, CanonicalGene> entrezIdMap = new HashMap <Long, CanonicalGene>();
     private final HashMap<String, List<CanonicalGene>> geneAliasMap = new HashMap<String, List<CanonicalGene>>();
-    private final Set<String> cbioCancerGenes = new HashSet<String>();
+    private final Set<CanonicalGene> cbioCancerGenes = new HashSet<CanonicalGene>();
     
     /**
      * Private Constructor, to enforce singleton pattern.
@@ -77,7 +78,7 @@ public class DaoGeneOptimized {
                     String symbol = line.trim();
                     CanonicalGene gene = getNonAmbiguousGene(symbol);
                     if (gene!=null) {
-                        cbioCancerGenes.add(symbol);
+                        cbioCancerGenes.add(gene);
                     } else {
                         System.err.println(line+" in the cbio cancer gene list is not a HUGO gene symbol.");
                     }
@@ -244,12 +245,20 @@ public class DaoGeneOptimized {
         return genes.get(0);
     }
     
-    public Set<String> getCbioCancerGenes() {
+    public Set<Long> getEntrezGeneIds(Collection<CanonicalGene> genes) {
+        Set<Long> entrezGeneIds = new HashSet<Long>();
+        for (CanonicalGene gene : genes) {
+            entrezGeneIds.add(gene.getEntrezGeneId());
+        }
+        return entrezGeneIds;
+    }
+    
+    public Set<CanonicalGene> getCbioCancerGenes() {
         return Collections.unmodifiableSet(cbioCancerGenes);
     }
     
-    public boolean isCbioCancerGene(String hugoSymbolUpper) {
-        return cbioCancerGenes.contains(hugoSymbolUpper);
+    public boolean isCbioCancerGene(CanonicalGene gene) {
+        return cbioCancerGenes.contains(gene);
     }
 
     /**

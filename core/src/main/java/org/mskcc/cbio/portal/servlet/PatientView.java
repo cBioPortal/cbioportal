@@ -22,7 +22,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
@@ -31,7 +31,6 @@ import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
-import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -306,15 +305,6 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private Map<String,ClinicalData> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
-        List<ClinicalData> list = DaoClinicalData.getCasesById(cancerStudyId, patient);
-        Map<String,ClinicalData> map = new HashMap<String,ClinicalData>(list.size());
-        for (ClinicalData cff : list) {
-            map.put(cff.getAttrId().toLowerCase(), cff);
-        }
-        return map;
-    }
-    
     private String getTissueImageIframeUrl(String cancerStudyId, String caseId) {
         if (!caseId.toUpperCase().startsWith("TCGA-")) {
             return null;
@@ -324,7 +314,9 @@ public class PatientView extends HttpServlet {
         String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(caseId);
         MultiThreadedHttpConnectionManager connectionManager =
                     ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
+        HttpClientParams param = new HttpClientParams();
+        param.setConnectionManagerTimeout(2000);
+        HttpClient client = new HttpClient(param, connectionManager);
         GetMethod method = new GetMethod(metaUrl);
 
         Pattern p = Pattern.compile("<data total_count='([0-9]+)'>");
@@ -363,10 +355,10 @@ public class PatientView extends HttpServlet {
     static final Pattern tcgaPathReportPdfLinePattern = Pattern.compile("<a href=[^>]+>([^/]+\\.pdf)</a>");
     static final Pattern tcgaPathReportPattern = Pattern.compile("^(TCGA-..-....).+");
     private synchronized String getTCGAPathReport(String typeOfCancer, String caseId) {
+        if (true) return null;
         Map<String,String> map = pathologyReports.get(typeOfCancer);
         if (map==null) {
             map = new HashMap<String,String>();
-            pathologyReports.put(typeOfCancer, map);
             
             String pathReportUrl = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
             if (pathReportUrl!=null) {
@@ -390,6 +382,10 @@ public class PatientView extends HttpServlet {
                     }
                 }
             }
+            
+            if (!map.isEmpty()) {
+                pathologyReports.put(typeOfCancer, map);
+            }
 
         }
         
@@ -399,7 +395,9 @@ public class PatientView extends HttpServlet {
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
         MultiThreadedHttpConnectionManager connectionManager =
                 ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
+        HttpClientParams param = new HttpClientParams();
+        param.setConnectionManagerTimeout(2000);
+        HttpClient client = new HttpClient(param, connectionManager);
         GetMethod method = new GetMethod(reportsUrl);
         try {
             int statusCode = client.executeMethod(method);

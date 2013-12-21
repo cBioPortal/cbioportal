@@ -312,11 +312,9 @@ public class PatientView extends HttpServlet {
         
         // test if images exist for the case
         String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(caseId);
-        MultiThreadedHttpConnectionManager connectionManager =
-                    ConnectionManager.getConnectionManager();
-        HttpClientParams param = new HttpClientParams();
-        param.setConnectionManagerTimeout(2000);
-        HttpClient client = new HttpClient(param, connectionManager);
+        
+        HttpClient client = ConnectionManager.getHttpClient(5000);
+
         GetMethod method = new GetMethod(metaUrl);
 
         Pattern p = Pattern.compile("<data total_count='([0-9]+)'>");
@@ -355,7 +353,6 @@ public class PatientView extends HttpServlet {
     static final Pattern tcgaPathReportPdfLinePattern = Pattern.compile("<a href=[^>]+>([^/]+\\.pdf)</a>");
     static final Pattern tcgaPathReportPattern = Pattern.compile("^(TCGA-..-....).+");
     private synchronized String getTCGAPathReport(String typeOfCancer, String caseId) {
-        if (true) return null;
         Map<String,String> map = pathologyReports.get(typeOfCancer);
         if (map==null) {
             map = new HashMap<String,String>();
@@ -383,21 +380,14 @@ public class PatientView extends HttpServlet {
                 }
             }
             
-            if (!map.isEmpty()) {
-                pathologyReports.put(typeOfCancer, map);
-            }
-
+            pathologyReports.put(typeOfCancer, map);
         }
         
         return map.get(caseId);
     }
     
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
-        HttpClientParams param = new HttpClientParams();
-        param.setConnectionManagerTimeout(2000);
-        HttpClient client = new HttpClient(param, connectionManager);
+        HttpClient client = ConnectionManager.getHttpClient(5000);
         GetMethod method = new GetMethod(reportsUrl);
         try {
             int statusCode = client.executeMethod(method);

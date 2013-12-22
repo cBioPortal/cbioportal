@@ -59,8 +59,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		dataTableOpts: {
 			"sDom": '<"H"<"mutation_datatables_filter"f>C<"mutation_datatables_info"i>>t',
 			"bJQueryUI": true,
-			paginate: false,
-			filter: true
+			"bPaginate": false,
+			"bFilter": true
 		}
 	};
 

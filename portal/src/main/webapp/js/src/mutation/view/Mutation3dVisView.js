@@ -18,7 +18,9 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// compile the template using underscore
 		var template = _.template(
-				$("#mutation_3d_vis_template").html(), {});
+			$("#mutation_3d_vis_template").html(),
+			// TODO make the image customizable?
+			{loaderImage: "images/ajax-loader.gif"});
 
 		// load the compiled HTML into the Backbone "el"
 		this.$el.html(template);
@@ -148,7 +150,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
-			mut3dVis.reload(pdbId, chain);
+			self.refreshView(pdbId, chain);
 
 			// store pdb id and chain for future reference
 			self.pdbId = pdbId;
@@ -178,16 +180,39 @@ var Mutation3dVisView = Backbone.View.extend({
 		pdbProxy.getPdbInfo(pdbId, infoCallback);
 	},
 	/**
-	 * Refreshes (reloads) the 3D visualizer for the last pdb id
-	 * and chain.
+	 * Refreshes (reloads) the 3D visualizer for the given
+	 * pdb id and chain.
+	 *
+	 * If no pdb id and chain provided, then reloads with
+	 * the last known pdb id and chain.
+	 *
+	 * @param pdbId pdb id
+	 * @param chain PdbChainModel instance
 	 */
-	refreshView: function()
+	refreshView: function(pdbId, chain)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		// just reload with the last known pdb id and chain
-		mut3dVis.reload(self.pdbId, self.chain);
+		// check if pdb id and chain is provided
+		if (!pdbId && !chain)
+		{
+			// just reload with the last known pdb id and chain
+			pdbId = self.pdbId;
+			chain = self.chain;
+		}
+
+		// show loader image
+		self.showLoader();
+
+		// set a short delay to allow loader image to appear
+		setTimeout(function() {
+			// reload the visualizer
+			mut3dVis.reload(pdbId, chain, function() {
+				// hide the loader image after reload complete
+				self.hideLoader();
+			});
+		}, 50);
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.
@@ -238,5 +263,38 @@ var Mutation3dVisView = Backbone.View.extend({
 		{
 			mut3dVis.resetFocus();
 		}
+	},
+	/**
+	 * Shows the loader image for the 3D vis container.
+	 */
+	showLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-loader");
+		var container = self.$el.find(".mutation-3d-vis-container");
+
+		// hide actual vis container
+		// (jQuery.hide function is problematic with 3D visualizer,
+		// instead we are changing height)
+		self._actualHeight =  container.css("height");
+		container.css("height", 0);
+
+		// show image
+		loaderImage.show();
+	},
+	/**
+	 * Hides the loader image and shows the actual 3D visualizer content.
+	 */
+	hideLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-loader");
+		var container = self.$el.find(".mutation-3d-vis-container");
+
+		// hide image
+		loaderImage.hide();
+
+		// show actual vis container
+		container.css("height", self._actualHeight);
 	}
 });

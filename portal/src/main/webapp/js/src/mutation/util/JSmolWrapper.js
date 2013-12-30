@@ -16,6 +16,7 @@ var JSmolWrapper = function()
 	var _targetDocument = null;
 	var _container = null;
 	var _origin = cbio.util.getWindowOrigin();
+	var _scriptCallback = null;
 
 	// default options
 	var defaultOpts = {
@@ -55,15 +56,13 @@ var JSmolWrapper = function()
 
 		var _processMessage = function(event)
 		{
-			// TODO temp debug message
-			console.log("event.data: %o", event.data);
-
 			// only accept messages from the local origin
 			if (cbio.util.getWindowOrigin() != event.origin)
 			{
 				return;
 			}
 
+			// ready event: supposed to be fired when frame gets ready
 			if (event.data.type == "ready")
 			{
 				if (_targetWindow)
@@ -75,6 +74,7 @@ var JSmolWrapper = function()
 					//_targetWindow.postMessage(data, _origin);
 				}
 			}
+			// menu event: supposed to be fired when JSmol menu becomes active
 			else if (event.data.type == "menu")
 			{
 				// show or hide the overlay wrt the menu event
@@ -88,6 +88,19 @@ var JSmolWrapper = function()
 					{
 						_container.css("overflow", "hidden");
 					}
+				}
+			}
+			// done event: supposed to be fired when JSmol finishes executing a script
+			else if (event.data.type == "done")
+			{
+				if (_scriptCallback &&
+				    _.isFunction(_scriptCallback))
+				{
+					// call the registered callback function
+					_scriptCallback();
+
+					// reset the function after callback
+					_scriptCallback = null;
 				}
 			}
 		};
@@ -128,14 +141,19 @@ var JSmolWrapper = function()
 	 * Runs the given command as a script on the 3D visualizer object.
 	 *
 	 * @param command   command to send
+	 * @param callback  function to call after execution of the script
 	 */
-	function script(command)
+	function script(command, callback)
 	{
 		if (_targetWindow)
 		{
 			var data = {type: "script", content: command};
 			_targetWindow.postMessage(data, _origin);
 		}
+
+		// register a callback function
+		// (which is supposed to be called with a "reload" event)
+		_scriptCallback = callback;
 	}
 
 	/**

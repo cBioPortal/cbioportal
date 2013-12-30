@@ -216,10 +216,11 @@ var Mutation3dVis = function(name, options)
 	 * Reloads the protein view for the given PDB id
 	 * and the chain.
 	 *
-	 * @param pdbId   PDB id
-	 * @param chain   PdbChainModel instance
+	 * @param pdbId     PDB id
+	 * @param chain     PdbChainModel instance
+	 * @param callback  function to call after reload
 	 */
-	function reload(pdbId, chain)
+	function reload(pdbId, chain, callback)
 	{
 		// pdbId and/or chainId may be null
 		if (!pdbId || !chain)
@@ -286,7 +287,7 @@ var Mutation3dVis = function(name, options)
 		script = script.join(" ");
 
 		// run script
-		_3dApp.script(script);
+		_3dApp.script(script, callback);
 	}
 
 	/**

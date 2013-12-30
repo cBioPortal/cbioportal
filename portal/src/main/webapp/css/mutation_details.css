@@ -184,6 +184,9 @@ th.mutation-details-qtip-style {
 	z-index: 2;
 	overflow: hidden;
 }
+.mutation-3d-vis-loader {
+	text-align: center;
+}
 .mutation-3d-info {
 	font-size: 13px;
 	width: 400px;

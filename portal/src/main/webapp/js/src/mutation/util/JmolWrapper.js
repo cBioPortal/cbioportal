@@ -59,12 +59,20 @@ var JmolWrapper = function()
 
 	/**
 	 * Runs the given command as a script on the 3D visualizer object.
-	 * @param command
+	 *
+	 * @param command   command to send
+	 * @param callback  function to call after execution of the script
 	 */
-	function script(command)
+	function script(command, callback)
 	{
 		// run Jmol script
 		Jmol.script(_applet, command);
+
+		// call the callback function after script completed
+		if(_.isFunction(callback))
+		{
+			callback();
+		}
 	}
 
 	return {

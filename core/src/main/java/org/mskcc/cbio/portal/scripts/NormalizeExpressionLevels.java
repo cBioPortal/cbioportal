@@ -281,8 +281,10 @@ public class NormalizeExpressionLevels{
    private static int getFirstDataColumn( String[] values){
       // TODO: instead of guessing, we should normalizing
          for(int i=0;i<values.length;i++) {
-             if (!values[i].equalsIgnoreCase("HUGO_SYMBOL")
+             if (!values[i].equalsIgnoreCase("GENE SYMBOL")
+                     && !values[i].equalsIgnoreCase("HUGO_SYMBOL")
                      && !values[i].equalsIgnoreCase("ENTREZ_GENE_ID")
+                     && !values[i].equalsIgnoreCase("LOCUS ID")
                      && !values[i].equalsIgnoreCase("CYTOBAND")
                      && !values[i].equalsIgnoreCase("LOCUS")
                      && !values[i].equalsIgnoreCase("ID")) {

@@ -453,8 +453,8 @@ function cancerStudySelected() {
 
     var cancerStudyId = $("#select_cancer_type").val();
 
-    while( cancerStudyId == "" ) {
-        $("#select_cancer_type option:selected").next().attr('selected','selected');
+    if( !cancerStudyId ) {
+        $("#select_cancer_type option:first").prop("selected",true);
         cancerStudyId = $("#select_cancer_type").val();
     }
 

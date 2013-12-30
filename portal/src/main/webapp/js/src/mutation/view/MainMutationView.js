@@ -121,25 +121,6 @@ var MainMutationView = Backbone.View.extend({
 			panel.toggleView();
 		});
 
-//		updateButton.click(function(event) {
-//			var inputField = self.$el.find(".diagram-upper-limit-input");
-//			var input = inputField.val();
-//
-//			// remove the limit for empty/invalid values
-//			if (isNaN(input) || input < 1)
-//			{
-//				diagram.updateOptions({maxLengthY: Infinity});
-//				diagram.rescaleYAxis();
-//				inputField.val("");
-//			}
-//			// update for valid values
-//			else
-//			{
-//				diagram.updateOptions({maxLengthY: input});
-//				diagram.rescaleYAxis();
-//			}
-//		});
-
 		toolbar.show();
 	},
 	/**

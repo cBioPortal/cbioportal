@@ -291,16 +291,19 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Focuses on the residue corresponding to the given pileup
+	 * Focuses on the residue corresponding to the given pileup. If there is
+	 * no corresponding residue for the given pileup, this function does not
+	 * perform a focus operation, and returns false.
 	 *
 	 * @param pileup    Pileup instance
+	 * @return {boolean}    true if there there a matching residue, false o.w.
 	 */
 	function focus(pileup)
 	{
 		// no chain selected yet, terminate
 		if (!_chain)
 		{
-			return;
+			return false;
 		}
 
 		// assuming all other mutations in the same pileup have
@@ -339,7 +342,10 @@ var Mutation3dVis = function(name, options)
 		{
 			// just reset focus
 			resetFocus();
+			return false;
 		}
+
+		return true;
 	}
 
 	/**

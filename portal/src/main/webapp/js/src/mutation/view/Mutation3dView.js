@@ -47,6 +47,7 @@ var Mutation3dView = Backbone.View.extend({
 
 			if (vis != null)
 			{
+				vis.hideResidueWarning();
 				vis.maximizeView();
 			}
 		});

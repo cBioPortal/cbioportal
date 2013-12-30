@@ -37,6 +37,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		var container3d = self.$el;
 		container3d.hide();
 
+		// initially hide the residue warning message
+		self.hideResidueWarning();
+
 		// update the container of 3d visualizer
 		if (mut3dVis != null)
 		{
@@ -202,6 +205,9 @@ var Mutation3dVisView = Backbone.View.extend({
 			chain = self.chain;
 		}
 
+		// hide residue warning
+		self.hideResidueWarning();
+
 		// show loader image
 		self.showLoader();
 
@@ -249,6 +255,7 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * then resets the focus to the default state.
 	 *
 	 * @param pileup    Pileup instance
+	 * @return {boolean} true if focus successful, false otherwise
 	 */
 	focusView: function(pileup)
 	{
@@ -257,11 +264,12 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		if (pileup)
 		{
-			mut3dVis.focusOn(pileup);
+			return mut3dVis.focusOn(pileup);
 		}
 		else
 		{
 			mut3dVis.resetFocus();
+			return true;
 		}
 	},
 	/**
@@ -296,5 +304,25 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// show actual vis container
 		container.css("height", self._actualHeight);
+	},
+	/**
+	 * Shows a warning message for unmapped residues.
+	 */
+	showResidueWarning: function()
+	{
+		var self = this;
+		var residueWarning = self.$el.find(".mutation-3d-residue-warning");
+
+		residueWarning.show();
+	},
+	/**
+	 * Hides the residue warning message.
+	 */
+	hideResidueWarning: function()
+	{
+		var self = this;
+		var residueWarning = self.$el.find(".mutation-3d-residue-warning");
+
+		residueWarning.hide();
 	}
 });

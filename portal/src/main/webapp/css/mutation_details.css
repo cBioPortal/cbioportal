@@ -187,6 +187,11 @@ th.mutation-details-qtip-style {
 .mutation-3d-vis-loader {
 	text-align: center;
 }
+.mutation-3d-residue-warning {
+	text-align: center;
+	color: red;
+	font-weight: bold;
+}
 .mutation-3d-info {
 	font-size: 13px;
 	width: 400px;

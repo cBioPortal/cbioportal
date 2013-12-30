@@ -168,7 +168,7 @@ var MutationDetailsView = Backbone.View.extend({
 
 		// init view for the first gene only
 		contentSelector.bind('tabscreate', function(event, ui) {
-		self._initView(genes[0], cases, diagramOpts, tableOpts);
+			self._initView(genes[0], cases, diagramOpts, tableOpts);
 		});
 
 		// init other views upon selecting the corresponding tab
@@ -323,6 +323,7 @@ var MutationDetailsView = Backbone.View.extend({
 					if (view3d && view3d.isVisible())
 					{
 						view3d.focusView(false);
+						view3d.hideResidueWarning();
 					}
 				}
 				else
@@ -343,7 +344,17 @@ var MutationDetailsView = Backbone.View.extend({
 					// focus on the corresponding residue in 3D view
 					if (view3d && view3d.isVisible())
 					{
-						view3d.focusView(datum);
+						var focused = view3d.focusView(datum);
+
+						// display a warning message if there is no corresponding residue
+						if (!focused)
+						{
+							view3d.showResidueWarning();
+						}
+						else
+						{
+							view3d.hideResidueWarning();
+						}
 					}
 				}
 			});
@@ -384,6 +395,7 @@ var MutationDetailsView = Backbone.View.extend({
 				if (view3d && view3d.isVisible())
 				{
 					view3d.focusView(false);
+					view3d.hideResidueWarning();
 				}
 			});
 		};

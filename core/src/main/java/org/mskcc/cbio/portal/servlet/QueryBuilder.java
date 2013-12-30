@@ -232,6 +232,11 @@ public class QueryBuilder extends HttpServlet {
                 }
             }
             String caseIds = httpServletRequest.getParameter(CASE_IDS);
+	        // TODO allowing only new line and tab chars, getRawParameter may be vulnerable here...
+	        if (caseIds != null)
+	        {
+		        caseIds = caseIds.replaceAll("\\\\n", "\n").replaceAll("\\\\t", "\t");
+	        }
 
             httpServletRequest.setAttribute(XDEBUG_OBJECT, xdebug);
 

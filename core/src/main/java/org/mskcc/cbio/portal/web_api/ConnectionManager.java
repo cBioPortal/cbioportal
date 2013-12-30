@@ -27,7 +27,10 @@
 
 package org.mskcc.cbio.portal.web_api;
 
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.http.params.CoreConnectionPNames;
 
 /**
  * Singleton Instance of the Connection Manager.
@@ -47,5 +50,21 @@ public class ConnectionManager {
             connectionManager.getParams().setConnectionTimeout(5000);
         }
         return connectionManager;
+    }
+    
+    /**
+     * Get a HttpClient
+     * @param timeOut milliseconds
+     * @return 
+     */
+    public static HttpClient getHttpClient(int timeOut) {
+        if (timeOut<=0) {
+            return new HttpClient(getConnectionManager());
+        } else {
+            HttpClientParams params = new HttpClientParams();
+            params.setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, timeOut);
+            params.setIntParameter(CoreConnectionPNames.SO_TIMEOUT, timeOut);
+            return new HttpClient(params, getConnectionManager());
+        }
     }
 }

@@ -123,15 +123,17 @@ th.mutation-details-qtip-style {
 	margin-left: 25px;
 }
 .diagram-y-axis-slider-area {
-	width: 150px;
+	width: 230px;
 }
 .diagram-y-axis-slider-area .diagram-slider-min-label {
 	float: left;
 	text-align: right;
+	font-size: 90%;
 }
 .diagram-y-axis-slider-area .diagram-slider-max-label {
 	float: right;
 	text-align: left;
+	font-size: 90%;
 }
 .diagram-y-axis-slider-area .diagram-slider-title {
 	text-align: center;
@@ -139,7 +141,7 @@ th.mutation-details-qtip-style {
 	margin-bottom: 5px;
 }
 .diagram-y-axis-limit-input {
-	margin-left: 5px;
+	margin-left: 8px;
 }
 .mutation-details-filter-info {
 	font-size: 14px;

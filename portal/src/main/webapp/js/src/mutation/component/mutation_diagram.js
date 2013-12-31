@@ -54,7 +54,7 @@ MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
 	elHeight: 180,              // height of the container
-	marginLeft: 40,             // left margin for the plot area
+	marginLeft: 45,             // left margin for the plot area
 	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area

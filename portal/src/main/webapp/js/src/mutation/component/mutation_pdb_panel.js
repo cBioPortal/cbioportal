@@ -17,19 +17,21 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
 		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
-		marginLeft: 40,     // left margin
+		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 3,    // padding between chain rectangles
-		labelY: false,      // informative label of the y-axis (false means "do not draw")
+		labelY: "Chains",   // informative label of the y-axis (false means "do not draw")
 		labelYFont: "sans-serif",   // font type of the y-axis label
 		labelYFontColor: "#2E3436", // font color of the y-axis label
 		labelYFontSize: "12px",     // font size of y-axis label
 		labelYFontWeight: "normal", // font weight of y-axis label
-		labelYPaddingRight: 15, // padding between y-axis and its label
-		labelYPaddingTop: 20,   // padding between y-axis and its label
+		labelYPaddingRightH: 45, // padding between y-axis and its label (horizontal alignment)
+		labelYPaddingTopH: 7,    // padding between y-axis and its label (horizontal alignment)
+		labelYPaddingRightV: 25, // padding between y-axis and its label (vertical alignment)
+		labelYPaddingTopV: 20,   // padding between y-axis and its label (vertical alignment)
 		chainBorderColor: "#666666", // border color of the chain rectangles
 		chainBorderWidth: 0.5,       // border width of the chain rectangles
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
@@ -212,24 +214,30 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function drawYAxisLabel(svg, options)
 	{
-		// TODO this needs to be tuned to fit
+		// default (vertical) orientation
+		var x = options.marginLeft - options.labelYPaddingRightV;
+		var y =  options.marginTop + options.labelYPaddingTopV;
+		var textAnchor = "middle";
+		var rotation = "rotate(270, " + x + "," + y +")";
 
-		// set x, y of the label to the top left
-
-		var x = options.marginLeft -
-		        options.labelYPaddingRight;
-
-		var y =  options.marginTop +
-		         options.labelYPaddingTop;
+		// horizontal orientation for small number of rows
+		// TODO use a constant instead of calling hasMoreChains?
+		if (!hasMoreChains())
+		{
+			x = options.marginLeft - options.labelYPaddingRightH;
+			y = options.marginTop + options.labelYPaddingTopH;
+			textAnchor = "start";
+			rotation = "rotate(0, " + x + "," + y +")";
+		}
 
 		// append label
 		var label = svg.append("text")
 			.attr("fill", options.labelYFontColor)
-			.attr("text-anchor", "middle")
+			.attr("text-anchor", textAnchor)
 			.attr("x", x)
 			.attr("y", y)
 			.attr("class", "pdb-panel-y-axis-label")
-			.attr("transform", "rotate(270, " + x + "," + y +")")
+			.attr("transform", rotation)
 			.style("font-family", options.labelYFont)
 			.style("font-size", options.labelYFontSize)
 			.style("font-weight", options.labelYFontWeight)

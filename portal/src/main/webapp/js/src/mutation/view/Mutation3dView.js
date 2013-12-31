@@ -39,18 +39,51 @@ var Mutation3dView = Backbone.View.extend({
 	format: function()
 	{
 		var self = this;
+		var button3d = self.$el.find(".mutation-3d-vis");
 
-		// add click listener for the 3d visualizer initializer
-		self.$el.find(".mutation-3d-vis").click(function(){
-			self.resetView();
-			var vis = self.options.mut3dVisView;
+		// initially disable the 3D button
+		button3d.attr("disabled", "disabled");
 
-			if (vis != null)
+		var formatButton = function(hasData) {
+			if (hasData)
 			{
-				vis.hideResidueWarning();
-				vis.maximizeView();
+				// enable button if there is PDB data
+				button3d.removeAttr("disabled");
+
+				// add click listener for the 3d visualizer initializer
+				button3d.click(function() {
+					self.resetView();
+					var vis = self.options.mut3dVisView;
+
+					if (vis != null)
+					{
+						vis.hideResidueWarning();
+						vis.maximizeView();
+					}
+				});
 			}
-		});
+			else
+			{
+				var gene = self.model.geneSymbol;
+				var content = "No structure data for " + gene;
+
+				// set tooltip options
+				var qtipOpts = {content: {text: content},
+					hide: {fixed: true, delay: 100, event: 'mouseout'},
+					show: {event: 'mouseover'},
+					style: {classes: 'qtip-light qtip-rounded qtip-shadow cc-ui-tooltip'},
+					position: {my:'bottom center', at:'top center'}};
+
+				// disabled buttons do not trigger mouse events,
+				// so add tooltip to the wrapper div instead
+				self.$el.qtip(qtipOpts);
+			}
+		};
+
+		var pdbProxy = self.model.pdbProxy;
+		var uniprotId = self.model.uniprotId;
+
+		pdbProxy.hasPdbData(uniprotId, formatButton);
 	},
 	/**
 	 * Resets the 3D view to its initial state. This function also initializes

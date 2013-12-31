@@ -18,6 +18,9 @@ var PdbDataProxy = function(mutationUtil)
 	// map of <pdb id, pdb info> pairs
 	var _pdbInfoCache = {};
 
+	// map of <uniprot id, pdb data summary> pairs
+	var _pdbDataSummaryCache = {};
+
 	/**
 	 * Retrieves the position map for the given gene and chain.
 	 * Invokes the given callback function after retrieving the data.
@@ -158,6 +161,57 @@ var PdbDataProxy = function(mutationUtil)
 		}
 	}
 
+	/**
+	 * Retrieves the PDB data summary for the provided uniprot id. Passes
+	 * the retrieved data as a parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
+	 */
+	function getPdbDataSummary(uniprotId, callback)
+	{
+		// retrieve data from the server if not cached
+		if (_pdbDataSummaryCache[uniprotId] == undefined)
+		{
+			// process & cache the raw data
+			var processData = function(data) {
+				_pdbDataSummaryCache[uniprotId] = data;
+
+				// forward the processed data to the provided callback function
+				callback(data);
+			};
+
+			// retrieve data from the servlet
+			$.getJSON(_servletName,
+					{uniprotId: uniprotId, type: "summary"},
+					processData);
+		}
+		else
+		{
+			// data is already cached, just forward it
+			callback(_pdbDataSummaryCache[uniprotId]);
+		}
+	}
+
+	/**
+	 * Checks if there is structure (PDB) data available for the provided
+	 * uniprot id. Passes a boolean parameter to the given callback function
+	 * assuming that the callback function accepts a single parameter.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @param callback      callback function to be invoked
+	 */
+	function hasPdbData(uniprotId, callback)
+	{
+		var processData = function(data) {
+			var hasData = data && (data.alignmentCount > 0);
+			callback(hasData);
+		};
+
+		getPdbDataSummary(uniprotId, processData);
+	}
+
 	// TODO allow more than one pdb id
 	// ...see MutationDataProxy.getMutationData for a sample implementation
 	/**
@@ -198,6 +252,7 @@ var PdbDataProxy = function(mutationUtil)
 	}
 
 	return {
+		hasPdbData: hasPdbData,
 		getPdbData: getPdbData,
 		getPdbInfo: getPdbInfo,
 		getPositionMap: getPositionMap

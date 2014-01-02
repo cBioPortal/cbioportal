@@ -75,8 +75,8 @@ var CoExpTable = (function() {
                 $("#" + divId).append(
                     "<table width='100%'>" +
                     "<tr>" +
-                    "<td width='50%'><div id='" + tableDivId + "'></div></td>" +
-                    "<td width='50%'><div id='" + plotId + "'></div></td>" +
+                    "<td width='50%' valign='top'><div id='" + tableDivId + "'></div></td>" +
+                    "<td width='50%' valign='top'><div id='" + plotId + "'></div></td>" +
                     "</tr>" +
                     "</table>");
 
@@ -97,6 +97,7 @@ var CoExpTable = (function() {
 
                 var _coExpTable = $("#" + tableId).dataTable({
                     "sDom": '<"H"<"coexp-table-filter-custom">f>t<"F"i>',
+
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
                     "bAutoWidth": false,
@@ -124,7 +125,7 @@ var CoExpTable = (function() {
                         $('td:eq(0)', nRow).css("font-weight", "bold");
                         $('td:eq(1)', nRow).css("font-weight", "bold");
                         if (aData[1] > 0) {
-                            $('td:eq(1)', nRow).css("color", "#173B0B");
+                            $('td:eq(1)', nRow).css("color", "#3B7C3B");
                         } else {
                             $('td:eq(1)', nRow).css("color", "#B40404");
                         }

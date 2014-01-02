@@ -12,19 +12,15 @@
 
     #coexp .dataTables_info {
         float:left;
+        width: auto;
     }
     #coexp .coexp-tabs-ref {
         font-size: 11px !important;
     }
     #coexp .coexp-table {
-        position: absolute;
-        margin-top: -290px;
-        width: 50%;
+        width: 100%;
     }
     #coexp .coexp-plots {
-        position: absolute;
-        margin-top: -290px;
-        width: 45%;
         float: left;
     }
     #coexp p {

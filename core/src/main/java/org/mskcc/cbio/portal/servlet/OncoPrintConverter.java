@@ -119,10 +119,16 @@ public class OncoPrintConverter extends HttpServlet {
 
 		}
 
-		// sanity check
-		if (!format.equals("svg")) {
-			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
-		}
+        String xmlHeader = "<?xml version='1.0'?>";
+        xml = xmlHeader + xml;
+        if(!xml.contains("svg xmlns")) {
+            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+        }
+
+        // sanity check
+		//if (!format.equals("svg")) {
+		//	forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
+		//}
 
 		// outta here
 		convertToSVG(httpServletResponse, xml);

@@ -1752,6 +1752,24 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 };
 
 /**
+ * Returns selected (highlighted) elements as a list of svg elements.
+ *
+ * @return {Array}  a list of SVG elements
+ */
+MutationDiagram.prototype.getSelectedElements = function()
+{
+	var self = this;
+	var selected = [];
+
+	for (var key in self.highlighted)
+	{
+		selected.push(self.highlighted[key]);
+	}
+
+	return selected;
+};
+
+/**
  * Checks the diagram for filtering. If the current data set
  * is a subset of the initial data set, then it means
  * the diagram is filtered. If the current data set is the

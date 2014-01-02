@@ -140,8 +140,9 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
+	 * @param callback      function to be called after update
 	 */
-	updateView: function(geneSymbol, pdbId, chain)
+	updateView: function(geneSymbol, pdbId, chain, callback)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -153,7 +154,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
-			self.refreshView(pdbId, chain);
+			self.refreshView(pdbId, chain, callback);
 
 			// store pdb id and chain for future reference
 			self.pdbId = pdbId;
@@ -189,10 +190,11 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * If no pdb id and chain provided, then reloads with
 	 * the last known pdb id and chain.
 	 *
-	 * @param pdbId pdb id
-	 * @param chain PdbChainModel instance
+	 * @param pdbId     pdb id
+	 * @param chain     PdbChainModel instance
+	 * @param callback  function to be called after refresh
 	 */
-	refreshView: function(pdbId, chain)
+	refreshView: function(pdbId, chain, callback)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -217,6 +219,11 @@ var Mutation3dVisView = Backbone.View.extend({
 			mut3dVis.reload(pdbId, chain, function() {
 				// hide the loader image after reload complete
 				self.hideLoader();
+				// call the provided custom callback function, too
+				if (_.isFunction(callback))
+				{
+					callback();
+				}
 			});
 		}, 50);
 	},

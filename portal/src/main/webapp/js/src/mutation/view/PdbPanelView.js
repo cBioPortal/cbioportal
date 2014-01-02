@@ -108,8 +108,8 @@ var PdbPanelView = Backbone.View.extend({
 
 		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
 
-		// update the view with default chain
-		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
+		// update the view with the default chain
+		self._updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
 	},
 	/**
 	 * Initializes the PDB chain panel.
@@ -145,7 +145,7 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
 					// update view with the selected chain data
-					vis.updateView(gene, datum.pdbId, datum.chain);
+					self._updateView(gene, datum.pdbId, datum.chain);
 					// also highlight the selected chain on the pdb panel
 					panel.highlight(d3.select(this));
 				});
@@ -153,5 +153,44 @@ var PdbPanelView = Backbone.View.extend({
 		}
 
 		return panel;
+	},
+	/**
+	 * Updates the view for the given gene symbol, pdb id, and chain.
+	 *
+	 * This function is intended to solve the focusing problem upon
+	 * chain selection or initial 3D vis load.
+	 *
+	 * @param gene
+	 * @param pdbId
+	 * @param chain
+	 * @private
+	 */
+	_updateView: function(gene, pdbId, chain)
+	{
+		var self = this;
+		var vis = self.options.mut3dVisView;
+		var diagram = self.options.diagram;
+
+		// TODO ideally, we should queue every script call in JSmolWrapper,
+		// ...and send request to the frame one by one, but it is complicated
+
+		// calling another script immediately after updating the view
+		// does not work, so register a callback for update function
+		var callback = function() {
+			// focus view on already selected diagram location
+			if (diagram.isHighlighted())
+			{
+				var selected = diagram.getSelectedElements();
+
+				// TODO assuming there is only one selected element
+				if (!vis.focusView(selected[0].datum()))
+				{
+					vis.showResidueWarning();
+				}
+			}
+		};
+
+		// update view with the selected chain data
+		vis.updateView(gene, pdbId, chain, callback);
 	}
 });

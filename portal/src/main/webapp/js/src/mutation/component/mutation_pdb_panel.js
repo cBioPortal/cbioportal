@@ -221,8 +221,7 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		var rotation = "rotate(270, " + x + "," + y +")";
 
 		// horizontal orientation for small number of rows
-		// TODO use a constant instead of calling hasMoreChains?
-		if (!hasMoreChains())
+		if (_rowData.length < options.numRows[0])
 		{
 			x = options.marginLeft - options.labelYPaddingRightH;
 			y = options.marginTop + options.labelYPaddingTopH;

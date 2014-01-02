@@ -344,16 +344,15 @@ var MutationDetailsView = Backbone.View.extend({
 					// focus on the corresponding residue in 3D view
 					if (view3d && view3d.isVisible())
 					{
-						var focused = view3d.focusView(datum);
-
-						// display a warning message if there is no corresponding residue
-						if (!focused)
-						{
-							view3d.showResidueWarning();
-						}
-						else
+						// focus view for the selected datum
+						if (view3d.focusView(datum))
 						{
 							view3d.hideResidueWarning();
+						}
+						// display a warning message if there is no corresponding residue
+						else
+						{
+							view3d.showResidueWarning();
 						}
 					}
 				}

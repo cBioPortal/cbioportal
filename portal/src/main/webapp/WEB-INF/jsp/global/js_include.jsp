@@ -49,6 +49,7 @@
 <script type="text/javascript" src="js/src/global-tabs.js"></script>
 <script type="text/javascript" src="js/src/gene-symbol-validator.js"></script>
 <script type="text/javascript" src="js/src/d3.right-menu-stats.js"></script>
+<script type="text/javascript" src="js/src/DataProxyFactory.js"></script>
 
 <script type="text/javascript" src="js/src/mutation/component/mutation_diagram.js"></script>
 <script type="text/javascript" src="js/src/mutation/component/mutation_table.js"></script>

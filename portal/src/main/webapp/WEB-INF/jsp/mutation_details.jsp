@@ -20,19 +20,9 @@ _mut3dVis.init();
 $(document).ready(function(){
 	var sampleArray = PortalGlobals.getCases().trim().split(/\s+/);
 
-	var servletParams = {geneticProfiles: geneticProfiles,
-		caseList: PortalGlobals.getCases()};
-
-	var servletName = "getMutationData.json";
-
-	// TODO make proxy instance global (it should be shared with all other tabs)
-	// init mutation data proxy with the data servlet config
-	var proxy = new MutationDataProxy(PortalGlobals.getGeneListString());
-	proxy.initWithoutData(servletName, servletParams);
-
 	// init default mutation details view
 
-	var model = {mutationProxy: proxy,
+	var model = {mutationProxy: DataProxyFactory.getDefaultMutationDataProxy(),
 		sampleArray: sampleArray};
 
 	var options = {el: "#mutation_details",

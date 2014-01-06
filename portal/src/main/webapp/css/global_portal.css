@@ -125,6 +125,9 @@ A:hover {
 
 #network {
     height: 750px;
+	/* never allow setting display to none
+	   this is to fix flash (CytoWeb) repaint problem */
+	display: block !important;
 }
 
 .map table {
@@ -1217,10 +1220,6 @@ padding:4px;
   padding-left:5px;
 }
 
-#mutation_details td {
-  font-size:100%;
-}
-
 h2.cross_cancer_header {
     text-align: left;
     padding-left:  5px;
@@ -1248,15 +1247,6 @@ h2.cross_cancer_header {
 .exp_error_text {
     font-weight:bold;
     font-size: 90%;
-}
-
-.mutation_diagram_details {
-    font-size: 90%;
-    font-family:arial;
-    background-color:#eeeeee;
-    width:50%;
-    padding:10px;
-    margin-left:25px;
 }
 
 .crosscancer-info {
@@ -1291,13 +1281,32 @@ cc-ie-message {
     white-space: nowrap;
 }
 
-.ui-tooltip-lightyellow {
+.qtip-lightyellow {
     background-color: lightyellow;
 }
 
+.qtip-wide {
+    max-width: 600px;
+}
+
 /* Float on alright! */
-#ppy2 {
-    z-index: 9999999;
+#previewContainer {
+    /*z-index: 9999999;*/
+	width: 170px;
+	height: 145px;
+	float: right;
+	border: 2px solid #FFFFFF;
+	border-radius: 3px;
+	box-shadow: 0 0 7px #999999;
+	overflow-y: hidden;
+	margin-left: 15px;
+}
+
+/* This is a fix to remove the tiny bullet
+ * appearing on the preview image slider
+ */
+#previewContainer li {
+	list-style-type: none;
 }
 
 /* right menu d3 map */
@@ -1336,5 +1345,11 @@ ul.ui-autocomplete li.ui-menu-item { font-size: 0.6em; text-align: left; }
 
 .chzn-container .chzn-results {
     max-height: 350px !important;
+}
+
+/* this is required because of
+	.section ul css settings*/
+.chzn-results li {
+	font-size: 12px !important;
 }
 

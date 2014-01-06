@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.fileupload.FileItem;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 import java.io.PrintWriter;
@@ -53,7 +54,6 @@ import java.util.regex.Pattern;
 public class OncoPrintConverter extends HttpServlet {
 
 	private Pattern svgXPosPattern;
-    private ServletXssUtil servletXssUtil;
 
     /**
      * Initializes the servlet.
@@ -63,13 +63,7 @@ public class OncoPrintConverter extends HttpServlet {
     public void init() throws ServletException {
 
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-			svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
-        }
-		catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+	    svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
     }
 
     /**
@@ -114,15 +108,27 @@ public class OncoPrintConverter extends HttpServlet {
 			xml = wrapper.getParameter("xml");
 		}
 		else {
-			format = servletXssUtil.getCleanInput(httpServletRequest, "format");
-			// TODO - update antisamy.xml to support svg-xml
+			httpServletRequest.getParameter("format");
 			xml = httpServletRequest.getParameter("xml");
+
+			// TODO - update antisamy.xml to support svg-xml
+			if (httpServletRequest instanceof XssRequestWrapper)
+			{
+				xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("xml");
+			}
+
 		}
 
-		// sanity check
-		if (!format.equals("svg")) {
-			forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
-		}
+        String xmlHeader = "<?xml version='1.0'?>";
+        xml = xmlHeader + xml;
+        if(!xml.contains("svg xmlns")) {
+            xml = xml.replace("<svg", "<svg xmlns='http://www.w3.org/2000/svg' version='1.1'");
+        }
+
+        // sanity check
+		//if (!format.equals("svg")) {
+		//	forwardToErrorPage(getServletContext(), httpServletRequest, httpServletResponse, xdebug);
+		//}
 
 		// outta here
 		convertToSVG(httpServletResponse, xml);

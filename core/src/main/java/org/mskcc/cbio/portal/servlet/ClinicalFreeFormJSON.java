@@ -43,32 +43,25 @@ import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoClinicalAttribute;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalParameterMap;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.ClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalParameterMap;
 import org.mskcc.cbio.portal.util.CategoryLabelReader;
 import org.owasp.validator.html.PolicyException;
 
 public class ClinicalFreeFormJSON extends HttpServlet
 {
 	public static final String STUDY_ID = "studyId";
-	
-	private ServletXssUtil servletXssUtil;
 
     /**
      * Initializes the servlet.
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**

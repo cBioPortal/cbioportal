@@ -6,11 +6,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.*;
-import org.mskcc.cbio.cgds.util.WebserviceParserUtils;
-import org.mskcc.cbio.cgds.web_api.GetProfileData;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.web_api.GetProfileData;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.*;
@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class GeneDataJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
@@ -47,11 +46,6 @@ public class GeneDataJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -109,8 +103,15 @@ public class GeneDataJSON extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String _geneList = request.getParameter("genes");
-        // list of genes separated by a space
+        // OncoQuery Language string
+        String oql = request.getParameter("oql");
+
+	    if (request instanceof XssRequestWrapper)
+	    {
+		    oql = ((XssRequestWrapper)request).getRawParameter("oql");
+	    }
+
+        oql = oql.replaceAll("\n", " \n ");
 
         String sampleIds;
         // list of samples separated by a space.  This is so
@@ -151,16 +152,11 @@ public class GeneDataJSON extends HttpServlet {
         // For now, we cannot remove it from QueryBuilder because other parts use it...for now
         // ...this is a temporary solution
         ParserOutput theOncoPrintSpecParserOutput =
-                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(_geneList,
+                OncoPrintSpecificationDriver.callOncoPrintSpecParserDriver(oql,
                         geneticProfileIdSet, profileList, zScoreThreshold, rppaScoreThreshold);
 
         ArrayList<String> listOfGenes =
                 theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes();
-
-        // remove duplicates
-        Set setOfGenes = new LinkedHashSet(listOfGenes);
-        listOfGenes.clear();
-        listOfGenes.addAll(setOfGenes);
 
         String[] listOfGeneNames = new String[listOfGenes.size()];
         listOfGeneNames = listOfGenes.toArray(listOfGeneNames);

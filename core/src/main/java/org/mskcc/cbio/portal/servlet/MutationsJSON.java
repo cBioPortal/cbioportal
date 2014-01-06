@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.mskcc.cbio.cgds.dao.*;
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  *
@@ -60,7 +60,7 @@ public class MutationsJSON extends HttpServlet {
         processGetMutationsRequest(request, response);
     }
     
-    private static int DEFAULT_THERSHOLD_NUM_SMGS = 100;
+    private static int DEFAULT_THERSHOLD_NUM_SMGS = 500; // no limit if 0 or below
     private void processGetSmgRequest(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
@@ -68,6 +68,7 @@ public class MutationsJSON extends HttpServlet {
         GeneticProfile mutationProfile;
         Map<Long, Double> mutsig = Collections.emptyMap();
         Map<Long, Integer> smgs = Collections.emptyMap();
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
             if (mutationProfile!=null) {
@@ -76,6 +77,15 @@ public class MutationsJSON extends HttpServlet {
                 // get all recurrently mutation genes
                 smgs = DaoMutation.getSMGs(profileId, null, 2, DEFAULT_THERSHOLD_NUM_SMGS);
                 
+                // get all cbio cancer genes
+                Set<Long> cbioCancerGeneIds = daoGeneOptimized.getEntrezGeneIds(
+                        daoGeneOptimized.getCbioCancerGenes());
+                cbioCancerGeneIds.removeAll(smgs.keySet());
+                if (!cbioCancerGeneIds.isEmpty()) {
+                    smgs.putAll(DaoMutation.getSMGs(profileId, cbioCancerGeneIds, -1, -1));
+                }
+                
+                // added mutsig results
                 mutsig = getMutSig(mutationProfile.getCancerStudyId());
                 if (!mutsig.isEmpty()) {
                     Set<Long> mutsigGenes = new HashSet<Long>(mutsig.keySet());
@@ -90,7 +100,6 @@ public class MutationsJSON extends HttpServlet {
             throw new ServletException(ex);
         }
         
-        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         List<Map<String,Object>> data = new ArrayList<Map<String,Object>>();
         for (Map.Entry<Long, Integer> entry : smgs.entrySet()) {
             Map<String,Object> map = new HashMap<String,Object>();
@@ -180,7 +189,7 @@ public class MutationsJSON extends HttpServlet {
         for (ExtendedMutation mutation : mutations) {
             exportMutation(data, mapMutationEventIndex, mutation, cancerStudy,
                     drugs.get(mutation.getEntrezGeneId()), geneContextMap.get(mutation.getGeneSymbol()),
-                    keywordContextMap.get(mutation.getKeyword()),
+                    mutation.getKeyword()==null?1:keywordContextMap.get(mutation.getKeyword()),
                     cosmic.get(mutation.getMutationEventId()),
                     mrnaContext.get(mutation.getEntrezGeneId()),
                     daoGeneOptimized);
@@ -500,7 +509,7 @@ public class MutationsJSON extends HttpServlet {
         boolean isCbioCancerGene = false;
         try {
             isSangerGene = DaoSangerCensus.getInstance().getCancerGeneSet().containsKey(symbol);
-            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(symbol);
+            isCbioCancerGene = daoGeneOptimized.isCbioCancerGene(mutation.getGene());
         } catch (DaoException ex) {
             throw new ServletException(ex);
         }

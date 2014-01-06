@@ -27,16 +27,17 @@
 
 package org.mskcc.cbio.portal.servlet;
 
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.AccessControl;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
-import org.mskcc.cbio.cgds.validate.gene.GeneValidator;
-import org.mskcc.cbio.cgds.validate.gene.GeneValidationException;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.AccessControl;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.portal.validate.gene.GeneValidator;
+import org.mskcc.cbio.portal.validate.gene.GeneValidationException;
 import org.mskcc.cbio.portal.util.XDebug;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.RequestDispatcher;
@@ -57,9 +58,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @author Ethan Cerami.
  */
 public class CrossCancerStudyServlet extends HttpServlet {
-
-    private ServletXssUtil servletXssUtil;
-
 	// class which process access control to cancer studies
 	private AccessControl accessControl;
 
@@ -68,14 +66,10 @@ public class CrossCancerStudyServlet extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
+
+		ApplicationContext context =
+			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+		accessControl = (AccessControl)context.getBean("accessControl");
     }
 
     /**
@@ -96,17 +90,29 @@ public class CrossCancerStudyServlet extends HttpServlet {
         XDebug xdebug = new XDebug();
         xdebug.startTimer();
         try {
-            String geneList = servletXssUtil.getCleanInput(httpServletRequest,
-                    QueryBuilder.GENE_LIST);
+            String geneList = httpServletRequest.getParameter(QueryBuilder.GENE_LIST);
+
+	        // we need the raw gene list
+	        if (httpServletRequest instanceof XssRequestWrapper)
+	        {
+		        geneList = ((XssRequestWrapper)httpServletRequest).getRawParameter(
+				        QueryBuilder.GENE_LIST);
+	        }
+
             ArrayList<CancerStudy> cancerStudyList = getCancerStudiesWithData();
+
+            if (httpServletRequest.getRequestURL() != null) {
+                httpServletRequest.setAttribute(QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING,
+                        httpServletRequest.getRequestURL().toString());
+            }
 
             httpServletRequest.setAttribute(QueryBuilder.CANCER_STUDY_ID,
                     AccessControl.ALL_CANCER_STUDIES_ID);
             httpServletRequest.setAttribute(QueryBuilder.CANCER_TYPES_INTERNAL, cancerStudyList);
             httpServletRequest.setAttribute(QueryBuilder.XDEBUG_OBJECT, xdebug);
 
-            String action = servletXssUtil.getCleanInput(httpServletRequest,
-                    QueryBuilder.ACTION_NAME);
+            String action = httpServletRequest.getParameter(QueryBuilder.ACTION_NAME);
+
             if (action != null && action.equals(QueryBuilder.ACTION_SUBMIT)) {
                 GeneValidator geneValidator = new GeneValidator(geneList);
                 dispatchToResultsJSP(httpServletRequest, httpServletResponse);

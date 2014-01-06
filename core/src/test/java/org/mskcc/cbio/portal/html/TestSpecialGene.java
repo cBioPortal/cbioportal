@@ -28,8 +28,8 @@
 package org.mskcc.cbio.portal.html;
 
 import junit.framework.TestCase;
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGeneFactory;
 import org.mskcc.cbio.portal.html.special_gene.SpecialGene;
 

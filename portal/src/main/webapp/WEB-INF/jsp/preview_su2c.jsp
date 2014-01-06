@@ -1,4 +1,4 @@
-<div class="ppy" id="ppy2">
+<!--div class="ppy" id="ppy2">
     <ul class="ppy-imglist">
         <li>
             <a href="images/previews/ova_survival.png">
@@ -50,21 +50,32 @@
         </div>
     </div>
 
+</div-->
+
+<div id="previewContainer">
+	<ul class="rslides" id="previewList">
+		<li>
+			<img src="images/previews/thumb_ova_survival.png"
+			     alt="Survival Analysis of BRCA Mutated v. Non-BRCA Mutated in Serous Ovarian Cancer">
+		</li>
+		<li>
+			<img src="images/previews/thumb_brca1_meth.png"
+			     alt="Epigenetic Silencing of BRCA1 in Serous Ovarian Cancer">
+		</li>
+		<li>
+			<img src="images/previews/thumb_TP53_mutations_OV.png"
+			     alt="TP53 mutations in ovarian cancer">
+		</li>
+	</ul>
 </div>
 
 <script type="text/javascript">
-        <!--//<![CDATA[
-
         $(document).ready(function () {
-            var options = {
-                caption:    'hover',
-                navigation: 'hover',
-                //navigation: 'permanent',
-                direction:  'left'
-            }
+            // TODO we have code duplication here! (see preview.jsp)
+	        var options = {
+		        maxWidth: 170
+	        };
 
-            $('#ppy2').popeye(options);
+	        $('#previewList').responsiveSlides(options);
         });
-
-        //]]>-->
 </script>

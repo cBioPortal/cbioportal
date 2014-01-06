@@ -79,7 +79,7 @@ public class OncotateTool
 	    {
 		    System.out.println("command line usage: oncotateMaf.sh [-nocache] [-sort] [-std] " +
 		                       "<input_maf_file> <output_maf_file>");
-		    System.exit(1);
+                        return;
 	    }
 
 	    inputMaf = args[i];
@@ -99,7 +99,7 @@ public class OncotateTool
         {
             System.out.println("Fatal error: " + e.getMessage());
             e.printStackTrace();
-	        System.exit(1);
+                        return;
         }
         finally
         {
@@ -108,7 +108,6 @@ public class OncotateTool
 	        {
 		        // TODO produce different error codes, for different types of errors?
 		        System.out.println("Process completed with " + oncoResult + " error(s).");
-		        System.exit(2);
 	        }
         }
     }

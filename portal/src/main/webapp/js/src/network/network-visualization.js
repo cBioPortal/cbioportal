@@ -168,11 +168,11 @@ NetworkVis.prototype.initNetworkUI = function(vis)
         self.hideDialogs(evt, ui);
     };
 
-    $("#tabs").bind("tabsshow", hideDialogs);
+    $("#tabs").bind("tabsactivate", hideDialogs);
 
     // this is required to prevent hideDialogs function to be invoked
     // when clicked on a network tab
-    $(this.networkTabsSelector).bind("tabsshow", false);
+    $(this.networkTabsSelector).bind("tabsactivate", false);
 
     // init tabs
     $(this.networkTabsSelector).tabs();
@@ -2659,7 +2659,7 @@ NetworkVis.prototype._refreshGenesTab = function()
     var self = this;
 
     var showGeneDetails = function(evt){
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
     };
 
     // get visible genes
@@ -2887,7 +2887,7 @@ NetworkVis.prototype._initControlFunctions = function()
     // (this is required to pass "this" instance to the listener functions)
     var showNodeDetails = function(evt) {
         // open details tab instead
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
     };
 
     var handleEdgeSelect = function(evt) {
@@ -2897,7 +2897,7 @@ NetworkVis.prototype._initControlFunctions = function()
 
     var showEdgeDetails = function(evt) {
         self.isEdgeClicked = true;
-        $(self.networkTabsSelector).tabs("select", 2);
+        $(self.networkTabsSelector).tabs("option", "active", 2);
         self.updateDetailsTab(evt);
     };
 

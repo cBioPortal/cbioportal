@@ -175,14 +175,14 @@
 	<!-- plugins -->
 	<plugins>
 
-	  <!-- java 1.6 support -->
+	  <!-- java 1.7 support -->
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-compiler-plugin</artifactId>
 		<version>2.0.2</version>
 		<configuration>
-		  <source>1.6</source>
-		  <target>1.6</target>
+		  <source>1.7</source>
+		  <target>1.7</target>
 		</configuration>
 	  </plugin>
 
@@ -201,7 +201,17 @@
 			  <goal>shade</goal>
 			</goals>
 			<configuration>
+              <finalName>cbioportal-importer</finalName>
 			  <createDependencyReducedPom>false</createDependencyReducedPom>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>${gpl-files-to-exclude}</exclude>
+                    <exclude>org/gjt/**</exclude>
+                  </excludes>
+                </filter>
+              </filters>
 			  <artifactSet>
 				<excludes>
 				  <exclude>com.kenai.nbpwr:org-apache-commons-dbcp</exclude>
@@ -209,7 +219,7 @@
 			  </artifactSet>
 			  <transformers>
 				<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-				  <mainClass>org.mskcc.cbio.importer.Admin</mainClass>
+				  <mainClass>${importer-main-class}</mainClass>
 				</transformer>
 			  </transformers>
 			</configuration>
@@ -232,7 +242,7 @@
 			  <outputDirectory>${project.build.directory}/classes</outputDirectory>
 			  <resources>
 				<resource>
-				  <directory>${project.parent.basedir}/src/main/resources</directory>
+				  <directory>${property-file-dir}</directory>
 				  <includes>
 					<include>**/*.properties</include>
 				  </includes>

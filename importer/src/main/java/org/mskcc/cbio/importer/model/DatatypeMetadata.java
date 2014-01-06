@@ -70,6 +70,8 @@ public class DatatypeMetadata {
 	// indicate the list of sequenced samples
 	public static final String SEQUENCED_SAMPLES_FILENAME = "sequenced_samples.txt";
 
+    public static final String ZSCORE_STAGING_FILENAME_SUFFIX = "_Zscores.txt";
+
 	/*
 	 * The following is an example of a downloadArchive string which the following 
 	 * static delimiters are meant to address:

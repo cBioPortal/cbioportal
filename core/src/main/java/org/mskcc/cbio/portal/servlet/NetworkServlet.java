@@ -37,19 +37,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoGeneticAlteration;
-import org.mskcc.cbio.cgds.dao.DaoInteraction;
-import org.mskcc.cbio.cgds.dao.DaoMutation;
-import org.mskcc.cbio.cgds.model.*;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoGeneticAlteration;
+import org.mskcc.cbio.portal.dao.DaoInteraction;
+import org.mskcc.cbio.portal.dao.DaoMutation;
+import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.network.*;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
-import org.mskcc.cbio.portal.util.CaseSetUtil;
-import org.mskcc.cbio.portal.util.GeneticProfileUtil;
-import org.mskcc.cbio.portal.util.SkinUtil;
-import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.*;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
 
 /**
  * Retrieving 
@@ -97,7 +94,7 @@ public class NetworkServlet extends HttpServlet {
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to "
-                    + SkinUtil.getEmailContact()+ "!\n"+e.toString(), res);
+                    + GlobalProperties.getEmailContact()+ "!\n"+e.toString(), res);
             res.getWriter().write("");
         }
     }
@@ -339,7 +336,7 @@ public class NetworkServlet extends HttpServlet {
         } catch (Exception e) {
             //throw new ServletException (e);
             writeMsg("Error loading network. Please report this to "
-                    + SkinUtil.getEmailContact()+ "!\n"+e.toString(), res);
+                    + GlobalProperties.getEmailContact()+ "!\n"+e.toString(), res);
             res.getWriter().write("<graphml></graphml>");
         }
     }
@@ -473,7 +470,7 @@ public class NetworkServlet extends HttpServlet {
         if (strCaseIds==null || strCaseIds.length()==0) {
             String caseSetId = req.getParameter(QueryBuilder.CASE_SET_ID);
                 //  Get Case Sets for Selected Cancer Type
-                ArrayList<CaseList> caseSets = GetCaseSets.getCaseSets(cancerStudyId);
+                ArrayList<CaseList> caseSets = GetCaseLists.getCaseLists(cancerStudyId);
                 for (CaseList cs : caseSets) {
                     if (cs.getStableId().equals(caseSetId)) {
                         strCaseIds = cs.getCaseListAsString();
@@ -516,13 +513,23 @@ public class NetworkServlet extends HttpServlet {
         }
     }
     
-    private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req) {
+    private Map<String,Map<String,Integer>> getMapQueryGeneAlterationCaseNumber(HttpServletRequest req)
+    {
         String geneAlt = req.getParameter("query_alt");
+	    String heatMap = req.getParameter("heat_map");
+
+	    // TODO filtered variables breaks the parsing, we need the raw ones
+	    // (alternatively, we can change the parsing method)
+	    if (req instanceof XssRequestWrapper)
+	    {
+		    geneAlt = ((XssRequestWrapper)req).getRawParameter("query_alt");
+		    heatMap = ((XssRequestWrapper)req).getRawParameter("heatMap");
+	    }
+
         if (geneAlt!=null) {
             return decodeQueryAlteration(geneAlt);
         }
-        
-        String heatMap = req.getParameter("heat_map");
+
         if (heatMap!=null) {
             Map<String,Map<String,Integer>> mapQueryGeneAlterationCaseNumber 
                     = new HashMap<String,Map<String,Integer>>();

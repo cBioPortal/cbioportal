@@ -84,6 +84,20 @@ public class AnnotateNciClinicalAttributes implements Importer {
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Imports all cancer studies found within the given directory.
+     * If force is set, user will not be prompted to override existing cancer study.
+     *
+     * @param cancerStudyDirectoryName
+     * @param skip
+     * @param force
+     */
+    @Override
+    public void importCancerStudy(String cancerStudyDirectoryName, boolean skip, boolean force) throws Exception
+    {
+		throw new UnsupportedOperationException();
+    }
+
     @Override
     public void importReferenceData(ReferenceMetadata referenceMetadata) throws Exception {
         String bcrXmlFilename = referenceMetadata.getImporterArgs().get(0);

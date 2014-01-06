@@ -1,10 +1,8 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
-<%@ page import="org.mskcc.cbio.portal.util.Config" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <%
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
+    String siteTitle = GlobalProperties.getTitle();
 %>
 
 <% request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Video Tutorial"); %>

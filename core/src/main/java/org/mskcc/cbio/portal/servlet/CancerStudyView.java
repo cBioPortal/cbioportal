@@ -8,14 +8,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.mskcc.cbio.cgds.dao.DaoCancerStudy;
-import org.mskcc.cbio.cgds.dao.DaoCaseList;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneticProfile;
-import org.mskcc.cbio.cgds.model.CancerStudy;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.util.AccessControl;
+import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoCaseList;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneticProfile;
+import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.util.AccessControl;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
@@ -31,7 +31,6 @@ public class CancerStudyView extends HttpServlet {
     public static final String CANCER_STUDY = "cancer_study";
     public static final String MUTATION_PROFILE = "mutation_profile";
     public static final String CNA_PROFILE = "cna_profile";
-    private ServletXssUtil servletXssUtil;
     
     private static final DaoCaseList daoCaseList = new DaoCaseList();
 
@@ -46,14 +45,10 @@ public class CancerStudyView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-			ApplicationContext context = 
-				new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-			accessControl = (AccessControl)context.getBean("accessControl");
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+
+		ApplicationContext context =
+			new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+		accessControl = (AccessControl)context.getBean("accessControl");
     }
     
     /** 
@@ -85,7 +80,7 @@ public class CancerStudyView extends HttpServlet {
     }
     
     private boolean validate(HttpServletRequest request) throws DaoException {
-        String cancerStudyID = servletXssUtil.getCleanInput (request, QueryBuilder.CANCER_STUDY_ID);
+        String cancerStudyID = request.getParameter(QueryBuilder.CANCER_STUDY_ID);
         
         CancerStudy cancerStudy = DaoCancerStudy
                 .getCancerStudyByStableId(cancerStudyID);

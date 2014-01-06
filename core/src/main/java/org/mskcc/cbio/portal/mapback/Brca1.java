@@ -36,8 +36,8 @@ import java.util.ArrayList;
  *
  */
 public class Brca1 extends MapBackGene {
-    private ArrayList <Mapping> mappingList;
-    private String dna;
+    private final ArrayList <Mapping> mappingList;
+    private final String dna;
 
     public Brca1() {
         //  Mapping List is Derived from UCSC Table Browser

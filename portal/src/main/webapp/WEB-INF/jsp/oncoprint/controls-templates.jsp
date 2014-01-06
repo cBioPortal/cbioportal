@@ -57,24 +57,25 @@
     <div id="main" style="display:none;">
         <table style="padding-left:13px; padding-top:5px">
             <tr>
-                <td style="padding-right: 15px;"><span>Zoom</span><div id="zoom" style="display: inline-table;"></div></td>
+                <td style="padding-right: 15px;"><span>Zoom&nbsp;</span><div id="zoom" style="display: inline-table;"></div></td>
+            </tr>
+            <tr>
                 <td><label><input id='toggle_unaltered_cases' type='checkbox'>Remove Unaltered Cases</label></td>
             </tr>
             <tr>
-                <td>
-                    <span>Sort by: </span>
-                    <select id="sort_by" style="width: 200px;">
-                        <option value="genes">gene data</option>
-                        <option value="alphabetical">alphabetically by case id</option>
-                        <option value="custom">user-defined case list / default</option>
-                    </select>
-                </td>
                 <td><label><input id='toggle_whitespace' type='checkbox'>Remove Whitespace</label></td>
             </tr>
             <tr>
-                <td></td>
                 <td><label><input id='all_cna_levels' type='checkbox'>Show All CNA levels</label></td>
             </tr>
+            <%--<td>--%>
+            <%--<span>Sort by: </span>--%>
+            <%--<select id="sort_by" style="width: 200px;">--%>
+            <%--<option value="genes">gene data</option>--%>
+            <%--<option value="alphabetical">alphabetically by case id</option>--%>
+            <%--<option value="custom">user-defined case list / default</option>--%>
+            <%--</select>--%>
+            <%--</td>--%>
         </table>
     </div>
 </script>

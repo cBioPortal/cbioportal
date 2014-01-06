@@ -28,7 +28,7 @@
 package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.GeneticProfile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

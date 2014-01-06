@@ -31,8 +31,8 @@ package org.mskcc.cbio.importer.converter.internal;
 // imports
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.scripts.ImportClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
@@ -93,7 +93,6 @@ public class ClinicalDataConverterImpl implements Converter {
 
         if (args.length != 0) {
             System.out.println("command line usage:  no arguments!");
-            System.exit(1);
         }
     }
 
@@ -537,7 +536,7 @@ public class ClinicalDataConverterImpl implements Converter {
         outMatrix = processMatrix(outMatrix);
 
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), writing staging file."); }
-        fileUtils.writeStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, outMatrix);
+        fileUtils.writeStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, outMatrix);
 		if (LOG.isInfoEnabled()) { LOG.info("createStagingFile(), complete."); }
 
         // insert the new clinical attributes into google doc

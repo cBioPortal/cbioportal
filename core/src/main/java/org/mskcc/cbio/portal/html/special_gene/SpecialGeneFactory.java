@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.html.special_gene;
 
-import org.mskcc.cbio.cgds.model.ExtendedMutation;
+import org.mskcc.cbio.portal.model.ExtendedMutation;
 import org.mskcc.cbio.portal.mapback.MapBack;
 import org.mskcc.cbio.portal.mapback.Brca2;
 import org.mskcc.cbio.portal.mapback.Brca1;

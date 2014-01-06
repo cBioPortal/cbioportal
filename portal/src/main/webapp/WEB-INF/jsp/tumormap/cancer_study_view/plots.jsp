@@ -104,7 +104,7 @@
                     solo: true // ...and hide all other tooltips...
             },
             hide: false,
-            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+            style: 'qtip-light qtip-rounded qtip-wide'
         });
         
         $("#case-select-custom-submit-btn").click(function() {
@@ -136,7 +136,7 @@
                 wrapper.setDataMatrixAndFixTypes(matrix);
                 clincialDataTable = wrapper.dataTable;
                 waitAndDrawTable();
-            })
+            });
     }
     
     var mutCnaDataTable = null;
@@ -164,6 +164,14 @@
         waitAndDrawTable();
     }
     
+    function filterDataTable(dt, caseIds) {
+        var caseIdsInDt = dt.getDistinctValues(0);
+        var caseIdsAppend = $.grep(caseIds,function(x) {return $.inArray(x, caseIdsInDt) < 0});
+        for (var cId in caseIdsAppend) {
+            dt.setValue(dt.addRow(),0,caseIdsAppend[cId]);
+        }
+    }
+    
     function mergeDataTables() {
         if (clincialDataTable==null ||
             ((mutationProfileId!=null || hasCnaSegmentData) && mutCnaDataTable==null)) {
@@ -177,15 +185,18 @@
         if (clincialDataTable.getNumberOfColumns()==0)
             return mutCnaDataTable;
         
-        return google.visualization.data.join(clincialDataTable, mutCnaDataTable,
+        var dt = google.visualization.data.join(clincialDataTable, mutCnaDataTable,
                     'full', [[0,0]],
                     makeContInxArray(1,clincialDataTable.getNumberOfColumns()-1),
                     makeContInxArray(1,mutCnaDataTable.getNumberOfColumns()-1));
+        filterDataTable(dt, caseIds);
+        return dt;
     }
     
     function waitAndDrawTable() {
         var dt = mergeDataTables();
         if (dt) {
+            printNumberOfPatients(dt);
             $('#clinical-data-loading-wait').hide();
             $('#summary-plot-table').show();
             resetSmallPlots(dt);
@@ -195,6 +206,28 @@
             $('#clinical_table_filter').css('text-align','left');
             $('#clinical-data-table-div').show();
         }
+    }
+    
+    function printNumberOfPatients(dt) {
+        var noOfSamples = dt.getNumberOfRows();
+        var noOfPatients = noOfSamples;
+        var cols = dt.getNumberOfColumns();
+        var c=0;
+        for (; c<cols; c++) {
+            if (dt.getColumnLabel(c).toUpperCase() === 'PATIENT_ID') {
+                var patientIDs = {};
+                for (var r=0; r<noOfSamples; r++) {
+                    var patientId = dt.getValue(r,c);
+                    if (patientId!==null) {
+                        if (patientId in patientIDs) noOfPatients--;
+                        else patientIDs[patientId] = true;
+                    }
+                }
+                break;
+            }
+        }
+        
+        $("#study-desc").append("&nbsp;&nbsp;<b>"+(noOfSamples===noOfPatients?"":(noOfSamples+" samples from "))+noOfPatients+" cases</b>.");
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

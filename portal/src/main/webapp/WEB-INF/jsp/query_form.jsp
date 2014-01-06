@@ -1,23 +1,34 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.*" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 <%@ page import="java.util.HashSet" %>
 <%@ page import="java.io.IOException" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.apache.commons.lang.*" %>
 
 <%
     org.mskcc.cbio.portal.servlet.ServletXssUtil localXssUtil = ServletXssUtil.getInstance();
-    String localCancerTypeId = (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
-    String localCaseSetId = (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
+    String localCancerTypeId =
+		    (String) request.getAttribute(QueryBuilder.CANCER_STUDY_ID);
+    String localCaseSetId =
+		    (String) request.getAttribute(QueryBuilder.CASE_SET_ID);
     HashSet<String> localGeneticProfileIdSet = (HashSet<String>) request.getAttribute
             (QueryBuilder.GENETIC_PROFILE_IDS);
-    String localCaseIds = localXssUtil.getCleanInput(request, QueryBuilder.CASE_IDS);
-    String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+    String localCaseIds = request.getParameter(QueryBuilder.CASE_IDS);
+	//String localGeneList = localXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+	String localGeneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	if (request instanceof XssRequestWrapper)
+	{
+		localGeneList = localXssUtil.getCleanInput(
+			((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST));
+	}
     
-    String localTabIndex = localXssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
-    String localzScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.Z_SCORE_THRESHOLD);
+    String localTabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
+    String localzScoreThreshold = request.getParameter(QueryBuilder.Z_SCORE_THRESHOLD);
     if (localzScoreThreshold == null) {
         localzScoreThreshold = "2.0";
     }
-    String localRppaScoreThreshold = localXssUtil.getCleanInput(request, QueryBuilder.RPPA_SCORE_THRESHOLD);
+    String localRppaScoreThreshold = request.getParameter(QueryBuilder.RPPA_SCORE_THRESHOLD);
     if (localRppaScoreThreshold == null) {
         localRppaScoreThreshold = "2.0";
     }
@@ -28,7 +39,8 @@
     }
 
     String localGeneSetChoice = request.getParameter(QueryBuilder.GENE_SET_CHOICE);
-    String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+    //String clientTranspose = localXssUtil.getCleanInput(request, QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
+	String clientTranspose = request.getParameter(QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
     if (localGeneSetChoice == null) {
         localGeneSetChoice = "user-defined-list";
     }
@@ -75,6 +87,7 @@
     <%
         if (localGeneticProfileIdSet != null) {
             for (String geneticProfileId:  localGeneticProfileIdSet) {
+                geneticProfileId = localXssUtil.getCleanerInput(geneticProfileId);
                 out.println ("window.genomic_profile_id_selected['" + geneticProfileId + "']=1;");
             }
         }

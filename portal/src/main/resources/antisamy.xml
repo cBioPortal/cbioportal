@@ -16,7 +16,7 @@ Slashdot allowed tags taken from "Reply" page:
 	<directives>
 		<directive name="omitXmlDeclaration" value="true"/>
 		<directive name="omitDoctypeDeclaration" value="true"/>
-		<directive name="maxInputSize" value="20000"/>
+		<directive name="maxInputSize" value="100000"/>
 		<directive name="useXHTML" value="true"/>
 		<directive name="formatOutput" value="true"/>
 		
@@ -106,6 +106,18 @@ Slashdot allowed tags taken from "Reply" page:
 	</tags-to-encode>
 	
 	<tag-rules>
+		<!-- Tags related to JavaScript -->
+		<tag name="script" action="remove"/>
+		<tag name="noscript" action="remove"/>
+
+		<!-- Frame & related tags -->
+		<tag name="iframe" action="remove"/>
+		<tag name="frameset" action="remove"/>
+		<tag name="frame" action="remove"/>
+		<tag name="noframes" action="remove"/>
+
+		<!-- CSS related tags -->
+		<tag name="style" action="remove"/>
 	</tag-rules>
 
 	<!--  No CSS on Slashdot posts -->

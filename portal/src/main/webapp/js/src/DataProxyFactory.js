@@ -26,7 +26,8 @@ var DataProxyFactory = (function()
 			// note that gene list is not set as a servlet param, it is passed a constructor parameter
 			var servletParams = {};
 
-			servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
+			//servletParams.geneticProfiles = PortalGlobals.getGeneticProfiles();
+			servletParams.geneticProfiles = PortalGlobals.getCancerStudyId() + "_mutations";
 
 			var caseSetId = PortalGlobals.getCaseSetId();
 			var caseIdsKey = PortalGlobals.getCaseIdsKey();

@@ -67,6 +67,7 @@ public class BCRDictParser extends DefaultHandler
         if ("dictEntry".equals(qName)) {
             inAttr = true;
             currBcr = new BCRDictEntry();
+            currBcr.cancerStudy = "";
             currBcr.tumorType = "";
             currBcr.displayName = attributes.getValue("name");
         }
@@ -97,7 +98,7 @@ public class BCRDictParser extends DefaultHandler
                 tumorTypes.add(getCleanContent(content.toString()));
             }
             else if ("studies".equals(qName)) {
-                currBcr.tumorType = StringUtils.join(tumorTypes, ",");
+                currBcr.tumorType = StringUtils.join(tumorTypes, ",").toLowerCase();
                 tumorTypes.clear();
             }
             else if ("dictEntry".equals(qName)) {

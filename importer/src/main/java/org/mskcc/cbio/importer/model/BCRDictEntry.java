@@ -31,5 +31,6 @@ public class BCRDictEntry
     public String id;
     public String displayName;
     public String description;
+    public String cancerStudy;
     public String tumorType;
 }

@@ -51,6 +51,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 import java.io.IOException;
+import java.util.Calendar;
 import java.lang.reflect.Method;
 
 /**
@@ -507,13 +508,15 @@ class GDataImpl implements Config {
         for (BCRDictEntry bcr : bcrs) {
             if (!clinicalAttributesNamespace.containsKey(bcr.id)) {
                 updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
-                                true, null, null, ClinicalAttributesNamespace.getPropertiesMap(bcr));
+                                true, null, null,
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
             }
         }
     }
 
     @Override
-    public void flagMissingClinicalAttributes(Collection<String> missingAttributeColumnHeaders)
+    public void flagMissingClinicalAttributes(String cancerStudy, String tumorType, Collection<String> missingAttributeColumnHeaders)
     {
         BCRDictEntry bcr = new BCRDictEntry();
         HashMap<String, ClinicalAttributesNamespace> clinicalAttributesNamespace = makeClinicalAttributesNamespaceHashMap();
@@ -523,9 +526,12 @@ class GDataImpl implements Config {
                 bcr.id = missingAttribute;
                 bcr.displayName = "";
                 bcr.description = "";
-                bcr.tumorType = "";
+                bcr.tumorType = tumorType;
+                bcr.cancerStudy = cancerStudy;
                 updateWorksheet(gdataSpreadsheet, clinicalAttributesNamespaceWorksheet,
-                                true, null, null, ClinicalAttributesNamespace.getPropertiesMap(bcr));
+                                true, null, null,
+                                ClinicalAttributesNamespace.getPropertiesMap(bcr,
+                                                                             ClinicalAttributesNamespace.DATE_FORMAT.format(Calendar.getInstance().getTime())));
             }
         }
     }

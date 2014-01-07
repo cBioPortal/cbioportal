@@ -31,11 +31,14 @@ package org.mskcc.cbio.importer.model;
 // imports
 import java.util.Map;
 import java.util.HashMap;
+import java.text.SimpleDateFormat;
 
 public class ClinicalAttributesNamespace
 {
 	// worksheet column header that is used as key to find row to update
 	public static final String WORKSHEET_UPDATE_COLUMN_KEY = "EXTERNALCOLUMNHEADER";
+
+	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("MM/dd/yyyy");
 
 	// bean properties
     private String externalColumnHeader;
@@ -45,10 +48,11 @@ public class ClinicalAttributesNamespace
     private String displayName;
     private String description;
     private String datatype;
+    private String dateAdded;
 
     public ClinicalAttributesNamespace(String[] properties) {
 
-		if (properties.length < 7) {
+		if (properties.length < 8) {
             throw new IllegalArgumentException("corrupt properties array passed to contructor");
 		}
 
@@ -59,6 +63,7 @@ public class ClinicalAttributesNamespace
         this.displayName = properties[4].trim();
         this.description = properties[5].trim();
 		this.datatype = properties[6].trim();
+        this.dateAdded = properties[7].trim();
 	}
 
 	public String getExternalColumnHeader() { return externalColumnHeader; }
@@ -68,17 +73,19 @@ public class ClinicalAttributesNamespace
 	public String getDisplayName() { return displayName; }
 	public String getDescription() { return description; }
 	public String getDatatype() { return datatype; }
+    public String getDateAdded() { return dateAdded; }
 
-    public static Map<String,String> getPropertiesMap(BCRDictEntry bcr)
+    public static Map<String,String> getPropertiesMap(BCRDictEntry bcr, String dateAdded)
     {
         HashMap<String, String> toReturn = new HashMap<String,String>();
         toReturn.put("EXTERNALCOLUMNHEADER", bcr.id);
         toReturn.put("NORMALIZEDCOLUMNHEADER", "");
-        toReturn.put("TUMORTYPE", bcr.tumorType.toLowerCase());
-        toReturn.put("CANCERSTUDY", "");
+        toReturn.put("TUMORTYPE", bcr.tumorType);
+        toReturn.put("CANCERSTUDY", bcr.cancerStudy);
         toReturn.put("DISPLAYNAME", bcr.displayName);
         toReturn.put("DESCRIPTION", bcr.description);
         toReturn.put("DATATYPE", "");
+        toReturn.put("DATEADDED", dateAdded);
 
         return toReturn;
     }

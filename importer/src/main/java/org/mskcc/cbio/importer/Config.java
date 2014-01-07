@@ -147,7 +147,7 @@ public interface Config {
      */
     void importBCRClinicalAttributes(Collection<BCRDictEntry> bcrs);
 
-    void flagMissingClinicalAttributes(Collection<String> missingAttributeColumnHeaders);
+    void flagMissingClinicalAttributes(String cancerStudy, String tumorType, Collection<String> missingAttributeColumnHeaders);
 
 	/**
 	 * Gets a PortalMetadata object given a portal name.

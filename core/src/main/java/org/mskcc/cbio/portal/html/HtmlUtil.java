@@ -38,7 +38,7 @@ import java.util.ArrayList;
  * @author Ethan Cerami.
  */
 public class HtmlUtil {
-    public static final String EMPTY_STRING = "";
+    private static final String EMPTY_STRING = "";
 
     public static String createLink(String href, String text) {
         if (href==null || text == null) {
@@ -178,10 +178,10 @@ public class HtmlUtil {
 
 class HtmlWriter {
     private static final String NEW_LINE = "\n";
-    StringBuffer writer = new StringBuffer();
+    private final StringBuffer writer = new StringBuffer();
 
     void append(String html) {
-        writer.append(html + NEW_LINE);
+        writer.append(html).append(NEW_LINE);
     }
 
     String getHtml() {

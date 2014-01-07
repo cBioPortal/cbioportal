@@ -1,13 +1,10 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.util.*" %>
 <%@ page import="java.net.URLEncoder" %>
-<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 
 <%
-    org.mskcc.cbio.portal.servlet.ServletXssUtil xssUtil = ServletXssUtil.getInstance();
-    Config globalConfig = Config.getInstance();
-    String siteTitle = SkinUtil.getTitle();
-    String popeye = globalConfig.getProperty("popeye");
+    String siteTitle = GlobalProperties.getTitle();
+    String popeye = GlobalProperties.getProperty("popeye");
 
     if (popeye == null) {
         popeye = "preview.jsp";
@@ -15,7 +12,7 @@
     if (siteTitle == null) {
         siteTitle = "cBioPortal for Cancer Genomics";
     }
-    String tabIndex = xssUtil.getCleanInput(request, QueryBuilder.TAB_INDEX);
+    String tabIndex = request.getParameter(QueryBuilder.TAB_INDEX);
     if (tabIndex == null) {
         tabIndex = QueryBuilder.TAB_VISUALIZE;
     } else {
@@ -32,16 +29,47 @@
 <jsp:include page="global/header.jsp" flush="true" />
 
 <script type="text/javascript">
-    
+
+// non-jQuery function to display IE warning message
+// TODO we may want to move this function into cbio.util
+(function() {
+	if (cbio.util.browser.msie)
+	{
+		var detectIE = function()
+		{
+			var version = cbio.util.browser.version;
+			//version = /^([0-9]+)/.exec(version);
+			if (version && version.length && parseInt(version) <= 8)
+			{
+				// show warning messages for IE 8 or below
+				document.getElementById("ie8-warning").style.display = "block";
+			}
+		};
+
+		if (window.addEventListener)
+		{
+			window.addEventListener('load', detectIE, false);
+		}
+		else if (window.attachEvent)
+		{
+			window.attachEvent('onload', detectIE);
+		}
+	}
+})();
+
 $(document).ready(function(){
     $('#td-content').width("70%");
-    if ($.browser.msie) {
-        var version = $.browser.version;
-        version = /^([0-9]+)/.exec(version);
-        if (version && version.length && parseInt(version[0])<=8) {
-            $('#ie8-warning').show();
-        }
-    }
+
+	// TODO IE detection doesn't work inside document.ready because jQuery 2.0 functions
+	// don't work with IE8 or below! So, the check is moved outside document.ready
+//	if (cbio.util.browser.msie) {
+//        var version = cbio.util.browser.version;
+//        //version = /^([0-9]+)/.exec(version);
+//        if (version && version.length && parseInt(version) <= 8)
+//        {
+//            $('#ie8-warning').show();
+//        }
+//    }
 });
 </script>
 
@@ -59,7 +87,7 @@ $(document).ready(function(){
                 <tr>
                    <td valign=top>
 	              <div style="position: relative; z-index: 999;">
-                        <p><%= SkinUtil.getBlurb() %></p>
+                        <p><%= GlobalProperties.getBlurb() %></p>
                         <p>Please adhere to <a href="http://cancergenome.nih.gov/abouttcga/policies/publicationguidelines">
                             the TCGA publication guidelines</a> when using any TCGA data in your publications.</p>
                         <p>The portal is developed and maintained by

@@ -138,19 +138,19 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         numMut++;
     }
     
-    var maxCount = 0;
-    for (var i in pixelMap) {
-        var arr = pixelMap[i];
-        if (arr && arr.length>maxCount)
-            maxCount=arr.length;
-    }
+    var maxCount = 5; // set max height to 5 mutations
+//    for (var i in pixelMap) {
+//        var arr = pixelMap[i];
+//        if (arr && arr.length>maxCount)
+//            maxCount=arr.length;
+//    }
     
     var yRow = config.yRow(row)+config.rowHeight;
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         var pixil = parseInt(i);
         if (arr) {
-            var h = config.rowHeight*arr.length/maxCount;
+            var h = arr.length>maxCount ? config.rowHeight : (config.rowHeight*arr.length/maxCount);
             var r = p.rect(pixil,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
             r.attr("stroke", "#0f0");
@@ -245,7 +245,7 @@ function addToolTip(node,tip,showDelay,position) {
         content: {text:tip},
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event:"mouseout"},
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+        style: { classes: 'qtip-light qtip-rounded' }
     };
     if (showDelay)
         param['show'] = { delay: showDelay };

@@ -29,11 +29,12 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.model.CanonicalGene;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
 import org.mskcc.cbio.portal.util.OncoPrintSpecificationDriver;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -54,7 +55,6 @@ import java.util.Map;
  *
  */
 public class CheckGeneSymbolJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String GENES = "genes";
 
     /**
@@ -62,22 +62,31 @@ public class CheckGeneSymbolJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
+
+    protected void doGet(HttpServletRequest request,
+                         HttpServletResponse response) throws ServletException, IOException
+    {
+        this.doPost(request, response);
+    }
+
 
     /**
      * Handles HTTP GET Request.
      */
-    protected void doGet(HttpServletRequest httpServletRequest,
+    protected void doPost(HttpServletRequest httpServletRequest,
             HttpServletResponse httpServletResponse) throws ServletException,
             IOException {
         new HashMap();
         JSONArray geneArray = new JSONArray();
         String genes = httpServletRequest.getParameter(GENES);
+
+	    // we need the raw gene list
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    genes = ((XssRequestWrapper)httpServletRequest).getRawParameter(GENES);
+	    }
+
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
 
         //  Use the OQL Parser to Extract the Gene Symbols

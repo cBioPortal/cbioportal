@@ -80,13 +80,21 @@ var PlotsMenu = (function () {
             $(divId).append("<option value='" + value + "'>" + text + "</option>");
         }
 
-        function toggleVisibility(elemId, switchToStatus) {
+        function toggleVisibilityX(elemId) {
             var e = document.getElementById(elemId);
-            if (switchToStatus === "show") {
-                e.style.display = 'block';
-            } else if (switchToStatus === "hide") {
-                e.style.display = 'none';
-            }
+            e.style.display = 'block';
+            $("#" + elemId).append("<div id='one_gene_log_scale_x_div'></div>");
+        }
+
+        function toggleVisibilityY(elemId) {
+            var e = document.getElementById(elemId);
+            e.style.display = 'block';
+            $("#" + elemId).append("<div id='one_gene_log_scale_y_div'></div>");
+        }
+
+        function toggleVisibilityHide(elemId) {
+            var e = document.getElementById(elemId);
+            e.style.display = 'none';
         }
 
         function generateList(selectId, options) {
@@ -101,13 +109,16 @@ var PlotsMenu = (function () {
 
         return {
             appendDropDown: appendDropDown,
-            toggleVisibility: toggleVisibility,
+            toggleVisibilityX: toggleVisibilityX,
+            toggleVisibilityY: toggleVisibilityY,
+            toggleVisibilityHide: toggleVisibilityHide,
             generateList: generateList
         };
 
     }());
 
     function drawMenu() {
+
         $("#one_gene_type_specification").show();
         $("#plots_type").empty();
         $("#one_gene_platform_select_div").empty();
@@ -145,9 +156,6 @@ var PlotsMenu = (function () {
                 var item_profile = singleDataTypeObj.genetic_profile[index];
                 $("#" + singleDataTypeObj.value).append(
                     "<option value='" + item_profile[0] + "|" + item_profile[2] + "'>" + item_profile[1] + "</option>");
-            }
-            if (singleDataTypeObj.value === content.data_type.mrna.value ||
-                singleDataTypeObj.value === content.data_type.dna_methylation.value ) {
             }
         }
     }
@@ -227,60 +235,58 @@ var PlotsMenu = (function () {
         });
     }
 
+    function setDefaultMethylationSelection() {
+        $('#data_type_dna_methylation > option').each(function() {
+            if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+    }
+
     function updateVisibility() {
+        $("#one_gene_log_scale_x_div").remove();
+        $("#one_gene_log_scale_y_div").remove();
         var currentPlotsType = $('#plots_type').val();
         if (currentPlotsType.indexOf("copy_no") !== -1) {
-            Util.toggleVisibility("data_type_mrna_dropdown", "show");
-            Util.toggleVisibility("data_type_copy_no_dropdown", "show");
-            Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
-            Util.toggleVisibility("data_type_rppa_dropdown", "hide");
+            Util.toggleVisibilityX("data_type_copy_no_dropdown");
+            Util.toggleVisibilityY("data_type_mrna_dropdown");
+            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityHide("data_type_rppa_dropdown");
         } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-            Util.toggleVisibility("data_type_mrna_dropdown", "show");
-            Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
-            Util.toggleVisibility("data_type_dna_methylation_dropdown", "show");
-            Util.toggleVisibility("data_type_rppa_dropdown", "hide");
+            Util.toggleVisibilityX("data_type_dna_methylation_dropdown");
+            Util.toggleVisibilityY("data_type_mrna_dropdown");
+            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_rppa_dropdown");
         } else if (currentPlotsType.indexOf("rppa") !== -1) {
-            Util.toggleVisibility("data_type_mrna_dropdown", "show");
-            Util.toggleVisibility("data_type_copy_no_dropdown", "hide");
-            Util.toggleVisibility("data_type_dna_methylation_dropdown", "hide");
-            Util.toggleVisibility("data_type_rppa_dropdown", "show");
+            Util.toggleVisibilityX("data_type_mrna_dropdown");
+            Util.toggleVisibilityY("data_type_rppa_dropdown");
+            Util.toggleVisibilityHide("data_type_copy_no_dropdown");
+            Util.toggleVisibilityHide("data_type_dna_methylation_dropdown");
         }
         updateLogScaleOption();
     }
 
     function updateLogScaleOption() {
-        $("#log_scale_option_x").attr("disabled", true);
-        $("#log_scale_option_x").attr("checked", false);
-        $("#one_gene_apply_log_scale_div_x").attr("style", "color: #D8D8D8");
-        $("#log_scale_option_y").attr("disabled", true);
-        $("#log_scale_option_y").attr("checked", false);
-        $("#one_gene_apply_log_scale_div_y").attr("style", "color: #D8D8D8");
-        //Dynamically show only the plots type related drop div
-        var currentPlotsType = $('#plots_type').val();
-        //Append Log Scale Checkbox for certain profile
-        if (currentPlotsType.indexOf("copy_no") !== -1) {
-            if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
-                $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $("#log_scale_option_x").attr("disabled", true);
-                $("#one_gene_apply_log_scale_div_x").attr("style", "color: #D8D8D8");
-                $("#log_scale_option_y").attr("disabled", false);
-                $("#one_gene_apply_log_scale_div_y").attr("style", "color: black");
+        $("#one_gene_log_scale_x_div").empty();
+        $("#one_gene_log_scale_y_div").empty();
+        var _str_x = "<input type='checkbox' id='log_scale_option_x' checked onchange='PlotsView.applyLogScaleX();'/> log scale";
+        var _str_y = "<input type='checkbox' id='log_scale_option_y' checked onchange='PlotsView.applyLogScaleY();'/> log scale";
+        if ($("#plots_type").val() === content.plots_type.mrna_copyNo.value) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
+                $("#one_gene_log_scale_y_div").append(_str_y);
             }
-        } else if (currentPlotsType.indexOf("dna_methylation") !== -1) {
-            if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
-                $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $("#log_scale_option_y").attr("disabled", false);
-                $("#one_gene_apply_log_scale_div_y").attr("style", "color: black");
+        } else if ($("#plots_type").val() === content.plots_type.mrna_methylation.value) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
+                $("#one_gene_log_scale_y_div").append(_str_y);
             }
-            $("#log_scale_option_x").attr("disabled", false);
-            $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
-        } else if (currentPlotsType.indexOf("rppa") !== -1) {
-            if ($("#data_type_mrna option:selected").text().indexOf("RNA Seq") !== -1 &&
-                $("#data_type_mrna option:selected").text().indexOf("z-Scores") === -1) {
-                $("#log_scale_option_x").attr("disabled", false);
-                $("#one_gene_apply_log_scale_div_x").attr("style", "color: black");
-                $("#log_scale_option_y").attr("disabled", true);
-                $("#one_gene_apply_log_scale_div_y").attr("style", "color: #D8D8D8");
+        } else if ($("#plots_type").val() === content.plots_type.rppa_mrna.value) {
+            if ($("#data_type_mrna option:selected").val().toUpperCase().indexOf(("rna_seq").toUpperCase()) !== -1 &&
+                $("#data_type_mrna option:selected").val().toUpperCase().indexOf(("zscores").toUpperCase()) === -1) {
+                $("#one_gene_log_scale_x_div").append(_str_x);
             }
         }
     }
@@ -305,6 +311,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -317,6 +324,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -325,6 +333,7 @@ var PlotsMenu = (function () {
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
+            setDefaultMethylationSelection();
             updateVisibility();
         },
         updateLogScaleOption: updateLogScaleOption,
@@ -405,6 +414,13 @@ var PlotsView = (function () {
                 stroke : "#B40404",
                 legendText : "Missense"
             },
+            other: {
+                typeName: "other",
+                symbol: "square",
+                fill : "#1C1C1C",
+                stroke : "#B40404",
+                legendText : "Other"
+            },
             non : {
                 typeName : "non",
                 symbol : "circle",
@@ -443,7 +459,7 @@ var PlotsView = (function () {
                 fill : "none",
                 symbol : "circle",
                 legendText : "Homdel"
-            },
+            }
         },
         userSelection = {
             gene: "",
@@ -659,8 +675,8 @@ var PlotsView = (function () {
                             _mutationTypes.push(mutationStyle.nonstop.typeName);
                         } else if (val.mutationType === "Translation_Start_Site") {
                             _mutationTypes.push(mutationStyle.nonstart.typeName);
-                        } else {
-                            _mutationTypes.push(mutationStyle.non.typeName);
+                        } else { //Fusion etc. new mutation types
+                            _mutationTypes.push(mutationStyle.other.typeName);
                         }
                     });
                     //Re-order mutations in one case based on priority list
@@ -672,7 +688,8 @@ var PlotsView = (function () {
                     mutationPriorityList[mutationStyle.splice.typeName] = "4";
                     mutationPriorityList[mutationStyle.nonstop.typeName] = "5";
                     mutationPriorityList[mutationStyle.nonstart.typeName] = "6";
-                    mutationPriorityList[mutationStyle.non.typeName] = "7";
+                    mutationPriorityList[mutationStyle.other.typeName] = "7"
+                    mutationPriorityList[mutationStyle.non.typeName] = "8";
                     var _primaryMutation = _mutationTypes[0];
                     $.each(_mutationTypes, function(index, val) {
                         if (mutationPriorityList[_primaryMutation] > mutationPriorityList[val]) {
@@ -872,7 +889,7 @@ var PlotsView = (function () {
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
                     .attr("class", "plots-x-axis-class")
-                  .call(xAxis.ticks(textSet.length))
+                    .call(xAxis.ticks(textSet.length))
                     .selectAll("text")
                     .data(textSet)
                     .style("font-family", "sans-serif")
@@ -1080,8 +1097,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
-                        var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        if (_dataAttr.min_x <= (Plots.getLogScaleThreshold())) {
+                            var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
+                        }
+                        if (_dataAttr.max_x <= (Plots.getLogScaleThreshold())) {
+                            var max_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        }
                         var edge_x = (max_x - min_x) * 0.2;
                         attr.xScale = d3.scale.linear()
                             .domain([min_x - edge_x, max_x + edge_x])
@@ -1110,8 +1135,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
-                        var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        if (_dataAttr.min_y <= (Plots.getLogScaleThreshold())) {
+                            var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
+                        }
+                        if (_dataAttr.max_y <= (Plots.getLogScaleThreshold())) {
+                            var max_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        }
                         var edge_y = (max_y - min_y) * 0.1;
                         attr.yScale = d3.scale.linear()
                             .domain([min_y - edge_y, max_y + edge_y])
@@ -1193,9 +1226,9 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
-	                                hide: {fixed:true, delay: 100, event: "mouseout"},
+                                    hide: {fixed:true, delay: 100, event: "mouseout"},
                                     position: {my:'left bottom',at:'top right'}
                                 }
                             );
@@ -1306,25 +1339,30 @@ var PlotsView = (function () {
                         .data(value)
                         .enter()
                         .append("svg:path")
+                        .attr("class", function(d){ return d.caseId;})
                         .attr("transform", function(d){
                             var _x = attr.xScale(posVal) + (Math.random() * ramRatio - ramRatio/2);
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
-                            $(this).attr("xVal", d.xVal);
-                            $(this).attr("yVal", d.yVal);
+                            $(this).attr("x_val", d.xVal);
+                            $(this).attr("y_val", d.yVal);
+                            $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
                         .attr("d", d3.svg.symbol()
                             .size(20)
                             .type(function(d){
+                                $(this).attr("symbol", mutationStyle[d.mutationType].symbol);
                                 return mutationStyle[d.mutationType].symbol;
                             })
                         )
                         .attr("fill", function(d){
+                            $(this).attr("fill", mutationStyle[d.mutationType].fill);
                             return mutationStyle[d.mutationType].fill;
                         })
                         .attr("stroke", function(d){
+                            $(this).attr("stroke", mutationStyle[d.mutationType].stroke);
                             return mutationStyle[d.mutationType].stroke;
                         })
                         .attr("stroke-width", 1.2);
@@ -1340,7 +1378,11 @@ var PlotsView = (function () {
                 _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
                 if (applyLogScale) {
                     $.each(_dotsGroup, function(index, value) {
-                        value.yVal = Math.log(value.yVal) / Math.log(2);
+                        if (value.yVal <= (Plots.getLogScaleThreshold())) {
+                            value.yVal = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            value.yVal = Math.log(value.yVal) / Math.log(2);
+                        }
                     });
                 }
 
@@ -1470,6 +1512,7 @@ var PlotsView = (function () {
 
             function drawLog2Plots() {
                 elem.elemDotsGroup.selectAll("path")
+                    .attr("class", "dots")
                     .data(PlotsData.getDotsGroup())
                     .enter()
                     .append("svg:path")
@@ -1478,8 +1521,10 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("symbol", "circle");
+                        $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1489,12 +1534,15 @@ var PlotsView = (function () {
                         })
                     )
                     .attr("fill", function(d){
+                        $(this).attr("fill", mutationStyle[d.mutationType].fill);
                         return mutationStyle[d.mutationType].fill;
                     })
                     .attr("stroke", function(d){
+                        $(this).attr("stroke", mutationStyle[d.mutationType].stroke);
                         return mutationStyle[d.mutationType].stroke;
                     })
-                    .attr("stroke-width", 1.2);
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId});
             }
 
             function drawContinuousPlots() {  //RPPA, DNA Methylation Views
@@ -1507,8 +1555,10 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
+                        $(this).attr("symbol", "circle");
+                        $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
                     })
                     .attr("d", d3.svg.symbol()
@@ -1516,8 +1566,8 @@ var PlotsView = (function () {
                         .type("circle"))
                     .attr("fill", function(d) {
                         switch (d.mutationType) {
-                            case "non" : return "white";
-                            default: return "orange";
+                            case "non" : {$(this).attr("fill", "white");return "white";}
+                            default: {$(this).attr("fill", "orange");return "orange";}
                         }
                     })
                     .attr("fill-opacity", function(d) {
@@ -1529,7 +1579,8 @@ var PlotsView = (function () {
                     .attr("stroke", function(d) {
                         return gisticStyle[d.gisticType].stroke;
                     })
-                    .attr("stroke-width", 1.2);
+                    .attr("stroke-width", 1.2)
+                    .attr("class", function(d) { return d.caseId; });
             }
 
             return {
@@ -1549,12 +1600,16 @@ var PlotsView = (function () {
                 },
                 updateLogScaleX: function(applyLogScale) {
                     elem.elemDotsGroup.selectAll("path")
-                        .transition().duration(500)
+                        .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                if(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold())) {
+                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                } else {
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                                }
                             } else {
-                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _post_x = attr.xScale(d3.select(this).attr("x_val"));
                             }
                             var _pre_y = d3.select(this).attr("y_pos");
                             d3.select(this).attr("x_pos", _post_x);
@@ -1563,13 +1618,17 @@ var PlotsView = (function () {
                 },
                 updateLogScaleY: function(applyLogScale) {
                     elem.elemDotsGroup.selectAll("path")
-                        .transition().duration(500)
+                        .transition().duration(300)
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThreshold())) {
+                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                } else {
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                                }
                             } else {
-                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                var _post_y = attr.yScale(d3.select(this).attr("y_val"));
                             }
                             d3.select(this).attr("y_pos", _post_y);
                             return "translate(" + _pre_x + ", " + _post_y + ")";
@@ -1643,7 +1702,7 @@ var PlotsView = (function () {
                     stroke : "none",
                     symbol : "circle",
                     fill : "orange",
-                    legendText : "Mutated",
+                    legendText : "Mutated"
                 }
                 gisticStyleArr.push(mutatedStyle);
 
@@ -1772,6 +1831,20 @@ var PlotsView = (function () {
             $('#view_title').append(svgConverterForm);
         }
 
+        function applyLogScaleX(applyLogScale) {
+            //Update the axis
+            Axis.updateLogScaleX(applyLogScale);
+            //Update the position of the dots
+            ScatterPlots.updateLogScaleX(applyLogScale);
+        }
+
+        function applyLogScaleY(applyLogScale) {
+            //Update the axis
+            Axis.updateLogScaleY(applyLogScale);
+            //Update the position of the dots
+            ScatterPlots.updateLogScaleY(applyLogScale);
+        }
+
         return {
             init: function() {
                 initCanvas();
@@ -1781,22 +1854,20 @@ var PlotsView = (function () {
                     ScatterPlots.init();
                     Legends.init();
                     Qtips.init();
+                    if (document.getElementById("log_scale_option_x") !== null) {
+                        var _applyLogScaleX = document.getElementById("log_scale_option_x").checked;
+                        applyLogScaleX(_applyLogScaleX);
+                    }
+                    if (document.getElementById("log_scale_option_y") !== null) {
+                        var _applyLogScaleY = document.getElementById("log_scale_option_y").checked;
+                        applyLogScaleY(_applyLogScaleY);
+                    }
                 } else { //No available data
                     drawErrMsgs();
                 }
             },
-            applyLogScaleX: function(applyLogScale) {
-                //Update the axis
-                Axis.updateLogScaleX(applyLogScale);
-                //Update the position of the dots
-                ScatterPlots.updateLogScaleX(applyLogScale);
-            },
-            applyLogScaleY: function(applyLogScale) {
-                //Update the axis
-                Axis.updateLogScaleY(applyLogScale);
-                //Update the position of the dots
-                ScatterPlots.updateLogScaleY(applyLogScale);
-            }
+            applyLogScaleX: applyLogScaleX,
+            applyLogScaleY: applyLogScaleY
         }
     }());
 

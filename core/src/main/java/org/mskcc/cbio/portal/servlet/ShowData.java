@@ -64,13 +64,7 @@ public class ShowData extends HttpServlet {
     private static void showData(ServletContext servletContext, HttpServletRequest request,
                                  HttpServletResponse response, XDebug xdebug)
             throws ServletException, IOException {
-        ServletXssUtil servletXssUtil = null;
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
-        String index = servletXssUtil.getCleanInput(request, INDEX);
+        String index = request.getParameter(INDEX);
         if (index == null || index.trim().length() == 0) {
             forwardToErrorPage(servletContext, request, response, xdebug);
         } else {
@@ -97,12 +91,6 @@ public class ShowData extends HttpServlet {
                                                 HttpServletRequest request, HttpServletResponse response, int i,
                                                 XDebug xdebug)
             throws IOException, ServletException {
-        ServletXssUtil servletXssUtil = null;
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
         ArrayList<DownloadLink> downloadLinkList = (ArrayList<DownloadLink>)
                 request.getSession().getAttribute(QueryBuilder.DOWNLOAD_LINKS);
         if (downloadLinkList == null || downloadLinkList.size() == 0) {
@@ -113,7 +101,7 @@ public class ShowData extends HttpServlet {
                 DownloadLink downloadLink = downloadLinkList.get(i);
                 PrintWriter writer = response.getWriter();
                 response.setContentType("text/plain");
-                String transposeStr = servletXssUtil.getCleanInput(request,
+                String transposeStr = request.getParameter(
                         QueryBuilder.CLIENT_TRANSPOSE_MATRIX);
                 boolean transpose = false;
                 if (transposeStr != null) {

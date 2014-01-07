@@ -167,7 +167,7 @@ public class ZScoresConverterImpl implements Converter {
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), writing staging file.");
 		}
-		fileUtils.writeZScoresStagingFile(portalMetadata, cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
+		fileUtils.writeZScoresStagingFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, datatypeMetadata, dependenciesMetadata);
 
 		if (LOG.isInfoEnabled()) {
 			LOG.info("createStagingFile(), complete.");

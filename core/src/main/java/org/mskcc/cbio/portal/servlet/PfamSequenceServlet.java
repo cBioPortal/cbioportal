@@ -1,9 +1,12 @@
 package org.mskcc.cbio.portal.servlet;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.dao.DaoGeneOptimized;
-import org.mskcc.cbio.cgds.dao.DaoPfamGraphics;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.mskcc.cbio.portal.dao.DaoPfamGraphics;
+import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.mut_diagram.IdMappingService;
 import org.mskcc.cbio.portal.mut_diagram.impl.CgdsIdMappingService;
 
@@ -53,9 +56,23 @@ public class PfamSequenceServlet extends HttpServlet
 		// final json string to return
 		String jsonString = "";
 
+		// if no uniprot mapping, then try to get only the sequence length
 		if (uniProtIds.isEmpty())
 		{
-			this.writeOutput(response, JSONValue.parse(jsonString));
+			// try to create a dummy sequence data with only length info
+			JSONArray dummyData = this.generateDummyData(hugoGeneSymbol);
+
+			// write dummy (or empty) output
+			if (dummyData != null)
+			{
+				this.writeOutput(response, dummyData);
+			}
+			else
+			{
+				// last resort: send empty data
+				this.writeOutput(response, JSONValue.parse(jsonString));
+			}
+
 			return;
 		}
 
@@ -74,6 +91,28 @@ public class PfamSequenceServlet extends HttpServlet
 		}
 
 		this.writeOutput(response, JSONValue.parse(jsonString));
+	}
+
+	protected JSONArray generateDummyData(String hugoGeneSymbol)
+	{
+		CanonicalGene gene = DaoGeneOptimized.getInstance().getGene(hugoGeneSymbol);
+		JSONArray data = new JSONArray();
+
+		if (gene != null)
+		{
+			int length = gene.getLength() / 3;
+
+			JSONObject dummy = new JSONObject();
+			dummy.put("markups", new JSONArray());
+			dummy.put("length", length);
+			dummy.put("regions", new JSONArray());
+			dummy.put("motifs", new JSONArray());
+			dummy.put("metadata", new JSONObject());
+
+			data.add(dummy);
+		}
+
+		return data;
 	}
 
 	protected void writeOutput(HttpServletResponse response,

@@ -117,10 +117,15 @@
 	  <version>2.4</version>
 	</dependency>
 	<dependency>
-	  <groupId>org.apache.commons</groupId>
-	  <artifactId>commons-math</artifactId>
-	  <version>2.2</version>
-	</dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math</artifactId>
+      <version>2.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-math3</artifactId>
+      <version>3.2</version>
+    </dependency>
 
 	<!-- guava -->
 	<dependency>
@@ -183,7 +188,7 @@
 	</dependency>
 
 	<!-- rserve -->
-	<dependency>
+	<!--dependency>
 	  <groupId>org.nuiton.thirdparty</groupId>
 	  <artifactId>REngine</artifactId>
 	  <version>0.6-1</version>
@@ -192,7 +197,7 @@
 	  <groupId>org.nuiton.thirdparty</groupId>
 	  <artifactId>Rserve</artifactId>
 	  <version>0.6-1</version>
-	</dependency>
+	</dependency-->
 
     <!-- Mockito -->
     <dependency>
@@ -212,22 +217,22 @@
     <dependency>
       <groupId>batik</groupId>
       <artifactId>batik</artifactId>
-      <version>1.1.1</version>
+      <version>1.5</version>
     </dependency>
     <dependency>
       <groupId>batik</groupId>
       <artifactId>batik-rasterizer</artifactId>
-      <version>1.6</version>
+      <version>1.5</version>
     </dependency>
-    <!--dependency>
+    <!--dependency>                                                            `
       <groupId>batik</groupId>
       <artifactId>batik-svg-dom</artifactId>
       <version>1.6-1</version>
     </dependency-->
     <dependency>
-      <groupId>fop</groupId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>fop</artifactId>
-      <version>0.20.5</version>
+      <version>1.0</version>
     </dependency>
     <dependency>
       <groupId>xerces</groupId>
@@ -242,14 +247,14 @@
 
 	  <plugins>
 
-		<!-- java 1.6 support -->
+		<!-- java 1.7 support -->
 		<plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-compiler-plugin</artifactId>
 		  <version>2.0.2</version>
 		  <configuration>
-			<source>1.6</source>
-			<target>1.6</target>
+			<source>1.7</source>
+			<target>1.7</target>
 		  </configuration>
 		</plugin>
 

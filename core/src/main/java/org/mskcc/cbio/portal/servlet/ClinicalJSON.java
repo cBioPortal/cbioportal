@@ -30,11 +30,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.mskcc.cbio.cgds.dao.DaoClinicalData;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.model.ClinicalData;
-import org.mskcc.cbio.cgds.model.ClinicalAttribute;
-import org.mskcc.cbio.cgds.model.ClinicalData;
+import org.mskcc.cbio.portal.dao.DaoClinicalData;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.model.ClinicalData;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalData;
 import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.ServletException;
@@ -48,7 +48,6 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class ClinicalJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
 
     // our logger
     private static Log LOG = LogFactory.getLog(ClinicalJSON.class);
@@ -63,11 +62,6 @@ public class ClinicalJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**

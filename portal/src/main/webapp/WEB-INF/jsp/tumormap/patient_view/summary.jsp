@@ -1,9 +1,9 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
-<%@ page import="org.mskcc.cbio.cgds.dao.DaoCase" %>
-<%@ page import="org.mskcc.cbio.cgds.model.Case" %>
+<%@ page import="org.mskcc.cbio.portal.dao.DaoCase" %>
+<%@ page import="org.mskcc.cbio.portal.model.Case" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.util.List" %>
-<%@ page import="org.mskcc.cbio.portal.util.SkinUtil" %>
+<%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
 
 <style type="text/css" title="currentStyle">
 #genomic-overview-tip {
@@ -34,7 +34,7 @@ if (mutationProfile!=null && hasCnaSegmentData) {
     }
     jsonCaseIdsInStudy = jsonMapper.writeValueAsString(caseIdsInStudy);
 }
-String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
+String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy.getCancerStudyStableId());
 %>
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -152,7 +152,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
             content: $('#mut_cna_scatter_dialog').remove(),
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: {my:'top right',at:'top left'},
             events: {
                 render: function(event, api) {
@@ -286,7 +286,7 @@ String linkToCancerStudy = SkinUtil.getLinkToCancerStudyView(cancerStudy.getCanc
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
                 position: {my:'top right',at:'top right'},
             });

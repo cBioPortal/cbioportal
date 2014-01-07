@@ -29,14 +29,14 @@ package org.mskcc.cbio.portal.servlet;
 
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.model.LinkOutRequest;
-import org.mskcc.cbio.portal.remote.GetGeneticProfiles;
-import org.mskcc.cbio.portal.remote.GetCaseSets;
-import org.mskcc.cbio.cgds.model.GeneticProfile;
-import org.mskcc.cbio.cgds.model.CaseList;
-import org.mskcc.cbio.cgds.model.CategorizedGeneticProfileSet;
-import org.mskcc.cbio.cgds.model.AnnotatedCaseSets;
-import org.mskcc.cbio.cgds.dao.DaoException;
-import org.mskcc.cbio.cgds.web_api.ProtocolException;
+import org.mskcc.cbio.portal.web_api.GetGeneticProfiles;
+import org.mskcc.cbio.portal.web_api.GetCaseLists;
+import org.mskcc.cbio.portal.model.GeneticProfile;
+import org.mskcc.cbio.portal.model.CaseList;
+import org.mskcc.cbio.portal.model.CategorizedGeneticProfileSet;
+import org.mskcc.cbio.portal.model.AnnotatedCaseSets;
+import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.web_api.ProtocolException;
 import org.apache.commons.collections15.iterators.IteratorEnumeration;
 
 import javax.servlet.http.HttpServlet;
@@ -125,7 +125,7 @@ public class LinkOut extends HttpServlet {
     }
 
     private CaseList getDefaultCaseList(String cancerStudyId) throws DaoException {
-        ArrayList<CaseList> caseSetList = GetCaseSets.getCaseSets(cancerStudyId);
+        ArrayList<CaseList> caseSetList = GetCaseLists.getCaseLists(cancerStudyId);
         AnnotatedCaseSets annotatedCaseSets = new AnnotatedCaseSets(caseSetList);
         CaseList defaultCaseList = annotatedCaseSets.getDefaultCaseList();
         if (defaultCaseList == null) {

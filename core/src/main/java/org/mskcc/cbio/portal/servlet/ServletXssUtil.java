@@ -27,6 +27,7 @@
 
 package org.mskcc.cbio.portal.servlet;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.AntiSamy;
 import org.owasp.validator.html.PolicyException;
@@ -50,7 +51,7 @@ public class ServletXssUtil {
      * @throws PolicyException Policy Error.
      */
     private ServletXssUtil() throws PolicyException {
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("/antisamy.xml");
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("antisamy.xml");
         policy = Policy.getInstance(inputStream);
         as = new AntiSamy();
     }
@@ -108,4 +109,58 @@ public class ServletXssUtil {
             return null;
         }
     }
+
+	/**
+	 * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
+	 * this method also escapes JavaScript characters.
+	 *
+	 * @param dirty Dirty User Input.
+	 * @return Clean User Input.
+	 */
+	public String getCleanerInput(String dirty)
+	{
+		String clean = this.getCleanInput(dirty);
+
+		if (clean != null)
+		{
+			clean = this.getJavascriptFreeInput(clean);
+		}
+
+		return clean;
+	}
+
+	/**
+	 * /**
+	 * Gets Cleaner XSS User Input. In addition to applying antisamy rules,
+	 * this method also escapes JavaScript characters.
+	 *
+	 * @param request   HTTP servlet request
+	 * @param parameter name of the parameter
+	 * @return  cleaned and escaped user input
+	 */
+	public String getCleanerInput(HttpServletRequest request, String parameter)
+	{
+		String dirty = request.getParameter(parameter);
+
+		return this.getCleanerInput(dirty);
+	}
+
+	/**
+	 * Escapes JavaScript characters for the given string. Also strips all
+	 * occurrences of the word "javascript" from the string.
+	 *
+	 * @param dirty unescaped input string
+	 * @return  JavaScript escaped string
+	 */
+	public String getJavascriptFreeInput(String dirty)
+	{
+		String clean = null;
+
+		if (dirty != null)
+		{
+			clean = StringEscapeUtils.escapeJavaScript(dirty).replaceAll("(?i)javascript", "");
+		}
+
+		return clean;
+	}
 }

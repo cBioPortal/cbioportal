@@ -80,7 +80,7 @@ public class CnaJSON extends HttpServlet {
         try {
             cnaProfile = DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId);
             cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cnaProfile.getCancerStudyId());
-            cnaEvents = DaoCnaEvent.getCnaEvents(caseIds, cnaProfile.getGeneticProfileId());
+            cnaEvents = DaoCnaEvent.getCnaEvents(caseIds, cnaProfile.getGeneticProfileId(), Arrays.asList((short)-2,(short)2));
             String concatEventIds = getConcatEventIds(cnaEvents);
             int profileId = cnaProfile.getGeneticProfileId();
             drugs = getDrugs(cnaEvents, fdaOnly, cancerDrug);

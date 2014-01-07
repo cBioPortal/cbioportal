@@ -95,12 +95,20 @@ var CoExpTable = (function() {
                     "</thead><tbody></tbody>"
                 );
 
+                var coexp_table_arr = [];
+                $.each(result, function(i, obj) {
+                    var tmp_arr = [];
+                    tmp_arr.push(obj.gene);
+                    tmp_arr.push(obj.pearson.toFixed(3));
+                    coexp_table_arr.push(tmp_arr);
+                });
+
                 var _coExpTable = $("#" + tableId).dataTable({
                     "sDom": '<"H"<"coexp-table-filter-custom">f>t<"F"i>',
-
                     "sPaginationType": "full_numbers",
                     "bJQueryUI": true,
                     "bAutoWidth": false,
+                    "aaData" : coexp_table_arr,
                     "aaSorting": [[1, 'desc']],
                     "aoColumnDefs": [
                         {
@@ -150,7 +158,6 @@ var CoExpTable = (function() {
                     }
                 } );
 
-                attachDataToTable(result, tableId);
                 attachRowListener(_coExpTable, tableId, plotId, geneId);
 
                 //Init with selecting the first row
@@ -174,16 +181,6 @@ var CoExpTable = (function() {
                     SimplePlot.init(plotId, geneId, aData[0]);
                 }
             })
-        }
-
-        function attachDataToTable(result, tableId) {
-            $.each(result, function(i, _obj) {
-                if (_obj.pearson > 0) {
-                    $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3)]);
-                } else {
-                    $("#" + tableId).dataTable().fnAddData([_obj.gene, _obj.pearson.toFixed(3)]);
-                }
-            });
         }
 
         jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc']  = function(a,b) {

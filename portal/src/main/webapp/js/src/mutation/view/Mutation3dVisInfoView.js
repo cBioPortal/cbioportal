@@ -6,6 +6,8 @@
  *                   chainId: String,
  *                   pdbInfo: String}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var Mutation3dVisInfoView = Backbone.View.extend({
 	render: function()

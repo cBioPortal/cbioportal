@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for PDB data related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbDataUtil = (function()
 {

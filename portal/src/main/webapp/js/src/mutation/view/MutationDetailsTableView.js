@@ -7,6 +7,8 @@
  *                   syncFn: sync function for outside sources,
  *                   tableOpts: [mutation table options -- optional]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsTableView = Backbone.View.extend({
 	render: function()

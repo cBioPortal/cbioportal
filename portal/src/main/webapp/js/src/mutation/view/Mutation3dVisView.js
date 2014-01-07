@@ -7,6 +7,8 @@
  *           mut3dVis: [optional] reference to the Mutation3dVis instance,
  *           pdbProxy: [optional] PDB data proxy
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var Mutation3dVisView = Backbone.View.extend({
 	initialize : function (options) {

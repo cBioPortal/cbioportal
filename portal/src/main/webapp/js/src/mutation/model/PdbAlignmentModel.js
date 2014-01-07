@@ -1,3 +1,5 @@
+
+
 var PdbAlignmentModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		this.alignmentId = attributes.alignmentId;

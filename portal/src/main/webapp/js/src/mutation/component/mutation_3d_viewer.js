@@ -1,9 +1,11 @@
 /**
- * 3D Mutation Visualizer, currently based on Jmol applet.
+ * 3D Mutation Visualizer, currently built on Jmol/JSmol lib.
  *
  * @param name      name of the visualizer (applet/application name)
  * @param options   visualization (Jmol) options
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var Mutation3dVis = function(name, options)
 {
@@ -370,17 +372,27 @@ var Mutation3dVis = function(name, options)
 		_3dApp.script(script);
 	}
 
-	// TODO implement zoom functions
+	/**
+	 * Performs the default zoom in operation.
+	 * (Uses default zoom level defined by the underlying 3D visualizer)
+	 */
 	function zoomIn()
 	{
 		_3dApp.script("zoom in;");
 	}
 
+	/**
+	 * Performs the default zoom out operation.
+	 * (Uses default zoom value defined by the underlying 3D visualizer)
+	 */
 	function zoomOut()
 	{
 		_3dApp.script("zoom out;");
 	}
 
+	/**
+	 * Zooms to default zoom level.
+	 */
 	function zoomActual()
 	{
 		_3dApp.script("zoom " + _options.defaultZoom + ";");

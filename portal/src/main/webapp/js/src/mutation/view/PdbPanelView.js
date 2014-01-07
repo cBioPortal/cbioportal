@@ -10,6 +10,8 @@
  *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {

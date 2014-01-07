@@ -6,6 +6,8 @@
  *                   mutationSummary: [single line summary text],
  *                   uniprotId: [gene identifier]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MainMutationView = Backbone.View.extend({
 	render: function() {

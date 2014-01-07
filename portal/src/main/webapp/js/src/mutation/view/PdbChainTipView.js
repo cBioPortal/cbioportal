@@ -4,6 +4,8 @@
  * options: {el: [target container],
  *           model: {pdbId, pdbInfo, chain}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbChainTipView = Backbone.View.extend({
 	render: function()

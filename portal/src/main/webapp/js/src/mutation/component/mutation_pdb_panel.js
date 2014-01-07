@@ -6,6 +6,8 @@
  * @param proxy     PDB data proxy
  * @param xScale    scale function for the x axis
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 function MutationPdbPanel(options, data, proxy, xScale)
 {

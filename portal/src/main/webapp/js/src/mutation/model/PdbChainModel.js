@@ -1,3 +1,8 @@
+/**
+ * PDB Chain Model.
+ *
+ * @author Selcuk Onur Sumer
+ */
 var PdbChainModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		// chain id (A, B, C, X, etc.)

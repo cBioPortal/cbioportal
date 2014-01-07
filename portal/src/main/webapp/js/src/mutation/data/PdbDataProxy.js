@@ -2,6 +2,8 @@
  * This class is designed to retrieve PDB data on demand.
  *
  * @param mutationUtil  an instance of MutationDetailsUtil class
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbDataProxy = function(mutationUtil)
 {

@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for pileup related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PileupUtil = (function()
 {

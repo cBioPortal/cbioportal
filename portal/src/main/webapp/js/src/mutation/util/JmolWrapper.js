@@ -2,7 +2,10 @@
  * Utility class to initialize the 3D mutation visualizer with Jmol (Java)
  * instance.
  *
- * @constructor
+ * Note: This class is assumed to have the same interface
+ * (the same signature for all public functions) with the JSmolWrapper.
+ *
+ * @author Selcuk Onur Sumer
  */
 var JmolWrapper = function()
 {

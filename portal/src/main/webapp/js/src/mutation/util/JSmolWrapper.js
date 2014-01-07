@@ -5,7 +5,10 @@
  * This class is designed to initialize the JSmol visualizer within
  * a separate frame (due to JSmol incompatibilities with jQuery lib)
  *
- * @constructor
+ * Note: This class is assumed to have the same interface
+ * (the same signature for all public functions) with the JmolWrapper.
+ *
+ * @author Selcuk Onur Sumer
  */
 var JSmolWrapper = function()
 {

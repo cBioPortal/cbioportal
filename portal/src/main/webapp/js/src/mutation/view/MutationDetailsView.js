@@ -9,6 +9,8 @@
  *                   tableOpts: [mutation table options -- optional]}
  *           mut3dVis: [optional] reference to the 3d structure visualizer
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsView = Backbone.View.extend({
 	initialize : function (options) {

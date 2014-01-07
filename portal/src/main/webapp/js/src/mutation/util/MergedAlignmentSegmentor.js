@@ -4,6 +4,8 @@
  *
  * @param mergedAlignment   merged alignment object (see PdbChainModel.mergedAlignment field)
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var MergedAlignmentSegmentor = function(mergedAlignment)
 {

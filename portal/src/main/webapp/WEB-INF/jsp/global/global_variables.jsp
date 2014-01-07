@@ -140,19 +140,25 @@
     String bitlyKey = GlobalProperties.getBitlyApiKey();
 
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle+"::Results");
+
+    //Escape quotes in the returned strings
+    cases = cases.replaceAll("'", "\\'");
+    cases = cases.replaceAll("\"", "\\\"");
+    caseSetName = caseSetName.replaceAll("'", "\\'");
+    caseSetName = caseSetName.replaceAll("\"", "\\\"");
 %>
 
 <script type="text/javascript">
     window.PortalGlobals = {
         getCancerStudyId: function() { return '<%=cancerTypeId%>'},
-        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it may contain onco query language)
-        getGeneListString: function() {  // gene list without onco query language
+        getGenes: function() { return '<%=genes%>'},  // raw gene list (as it is entered by the user, it MAY CONTAIN onco query language)
+        getGeneListString: function() {  // gene list WITHOUT onco query language
             return '<%=StringUtils.join(theOncoPrintSpecParserOutput.getTheOncoPrintSpecification().listOfGenes(), " ")%>'
         },
-        getCaseSetId: function() { return '<%= caseSetId %>';},
-        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },
+        getCaseSetId: function() { return '<%= caseSetId %>';},  //Id for user chosen standard case set
+        getCaseSetName: function() { return '<%= caseSetName %>'},  //Name for user chose standard case set
+        getCaseIdsKey: function() { return '<%= caseIdsKey %>'; },   //A key arrsigned to use build case set
         getCases: function() { return '<%= cases %>'; }, // list of queried case ids
-        getCaseSets: function() { return '<%= caseSets %>'},
         getOqlString: (function() {     // raw gene list (as it is entered by the user, it may contain onco query language)
             var oql = '<%=oql%>'
                     .replace("&gt;", ">", "gm")

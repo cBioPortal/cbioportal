@@ -255,12 +255,20 @@ var Mutation3dVis = function(name, options)
 
 			if (selection[color] == null)
 			{
-				selection[color] = [];
+				// use an object instead of an array (to avoid duplicates)
+				selection[color] = {};
 			}
 
-			// TODO remove duplicates from the array (use another data structure such as a map)
-			selection[color].push(generateScriptPos(position) + ":" + chain.chainId);
+			var scriptPos = generateScriptPos(position);
+			selection[color][scriptPos] = (scriptPos + ":" + chain.chainId);
 		}
+
+		// convert maps to arrays
+		_.each(selection, function(value, key, list) {
+			// key is a "color"
+			// value is a "position script string" map
+			list[key] = _.values(value);
+		});
 
 		// save current chain & selection for a possible future restore
 		_selection = selection;

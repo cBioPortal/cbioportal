@@ -68,7 +68,7 @@ public final class DaoCnaEvent {
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     

@@ -168,6 +168,7 @@ public class ImportTabDelimData {
         if (discritizedCnaProfile) {
             existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
             cnaEventId = DaoCnaEvent.getLargestCnaEventId();
+            MySQLbulkLoader.bulkLoadOn();
         }
         
         int lenParts = parts.length;

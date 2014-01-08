@@ -108,6 +108,7 @@ public class CnaEvent {
     }
 
     public CnaEvent(String caseId, int cnaProfileId, long entrezGeneId, short alteration) {
+        event = new Event();
         setEntrezGeneId(entrezGeneId);
         this.caseId = caseId;
         this.cnaProfileId = cnaProfileId;

@@ -66,7 +66,9 @@
 		</form>
 		<button class='diagram-to-pdf'>PDF</button>
 		<button class='diagram-to-svg'>SVG</button>
+		<button class="diagram-customize">Customize</button>
 	</div>
+	<div class="mutation-diagram-customize ui-widget"></div>
 	<div>
 		<table>
 			<tr>
@@ -90,6 +92,35 @@
 	</div>
 </script>
 
+<script type="text/template" id="mutation_customize_panel_template">
+	<div class="diagram-customize-close">
+		<a href="#">&times;</a>
+	</div>
+	<h4>Customize</h4>
+	<table>
+		<tr>
+			<td>
+				<div class="diagram-y-axis-slider-area">
+					<div class="diagram-slider-title"><label>max y-axis value</label></div>
+					<table>
+						<tr>
+							<td width="90%" valign="top">
+								<div class="diagram-y-axis-slider"></div>
+								<span class="diagram-slider-min-label">{{minY}}</span>
+								<span class="diagram-slider-max-label">{{maxY}}</span>
+							</td>
+							<td valign="top">
+								<input class="diagram-y-axis-limit-input" size="2" type='text'>
+							</td>
+						</tr>
+					</table>
+
+				</div>
+			</td>
+		</tr>
+	</table>
+</script>
+
 <script type="text/template" id="mutation_3d_view_template">
 	<button class='mutation-3d-vis'>
 		<label>Show in 3D &#187</label>
@@ -110,7 +141,6 @@
 <script type="text/template" id="mutation_3d_vis_template">
 	<div class='mutation-3d-vis-header'>
 		<span class='mutation-3d-close ui-icon ui-icon-circle-close' title='close'></span>
-		<span class='mutation-3d-maximize ui-icon ui-icon-circle-plus' title='maximize'></span>
 		<span class='mutation-3d-minimize ui-icon ui-icon-circle-minus' title='minimize'></span>
 		<div class='mutation-3d-info'></div>
 	</div>
@@ -134,6 +164,18 @@
 			    </td>
 			    <td>
 				    <label>Turn on Spin</label>
+			    </td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'
+						  title='zoom out'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'
+				          title='zoom to default'></span>
+				</td>
+			    <td>
+				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'
+				          title='zoom in'></span>
 			    </td>
 		    </tr>
 		</table>
@@ -368,6 +410,7 @@
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/Mutation3dVisInfoView.js"></script>
+<script type="text/javascript" src="js/src/mutation/view/MutationCustomizePanelView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsTableView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/MutationDetailsView.js"></script>
 <script type="text/javascript" src="js/src/mutation/view/PdbPanelView.js"></script>

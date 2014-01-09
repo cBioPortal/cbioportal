@@ -258,9 +258,9 @@ public class ImportTabDelimData {
                                     int i = values[0].equals(""+entrezGeneId) ? 1:0;
                                     for (; i<n; i++) {
                                         if (values[i].equals(GeneticAlterationType.AMPLIFICATION) 
-                                                || values[i].equals(GeneticAlterationType.GAIN)
-                                                || values[i].equals(GeneticAlterationType.ZERO)
-                                                || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
+                                               // || values[i].equals(GeneticAlterationType.GAIN)
+                                               // || values[i].equals(GeneticAlterationType.ZERO)
+                                               // || values[i].equals(GeneticAlterationType.HEMIZYGOUS_DELETION)
                                                 || values[i].equals(GeneticAlterationType.HOMOZYGOUS_DELETION)) {
                                             CnaEvent cnaEvent = new CnaEvent(orderedCaseList.get(i), geneticProfileId, entrezGeneId, Short.parseShort(values[i]));
                                             

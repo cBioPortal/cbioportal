@@ -11,7 +11,7 @@
     }
 
     #coexp .dataTables_info {
-        float:left;
+        float: left;
         width: auto;
     }
     #coexp .coexp-tabs-ref {

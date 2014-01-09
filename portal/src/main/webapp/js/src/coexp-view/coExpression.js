@@ -40,15 +40,7 @@ var CoExpTable = (function() {
             tableDivPreFix: "coexp_table_div_",
             tablePrefix: "coexp_table_",
             plotPrefix: "coexp_plot_"
-        },
-        Text = {
-            pearsonHelp: "Pearson product-moment correlation coefficient, " +
-                         "a measure of the degree of linear dependence between two variables, " +
-                         "giving a value between +1 and -1 inclusive, where 1 is total positive correlation, " +
-                         "0 is no correlation, and -1 is total negative correlation. " +
-                         "The scores are ranked by absolute values."
         };
-
 
     var CoExpTable = (function() {
 
@@ -123,7 +115,7 @@ var CoExpTable = (function() {
                             "sWidth": "40%"
                         }
                     ],
-                    "sScrollY": "500px",
+                    "sScrollY": "560px",
                     "bScrollCollapse": true,
                     iDisplayLength: 250,
                     "oLanguage": {
@@ -183,13 +175,13 @@ var CoExpTable = (function() {
             })
         }
 
-        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc']  = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-desc'] = function(a,b) {
             if (Math.abs(a) > Math.abs(b)) return -1;
             else if (Math.abs(a) < Math.abs(b)) return 1;
             else return 0;
         };
 
-        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc']  = function(a,b) {
+        jQuery.fn.dataTableExt.oSort['coexp-absolute-value-asc'] = function(a,b) {
             if (Math.abs(a) > Math.abs(b)) return 1;
             else if (Math.abs(a) < Math.abs(b)) return -1;
             else return 0;

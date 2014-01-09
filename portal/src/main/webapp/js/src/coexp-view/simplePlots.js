@@ -37,13 +37,12 @@
 
 var SimplePlot = (function() {
     var canvas = {
-            width: 600,
-            height: 600,
-            xLeft: 90,   //The left/starting point for x axis
-            xRight: 590,   //The right/ending point for x axis
-            yTop: 50,  //The top/ending point for y axis
-            yBottom: 550  //The bottom/starting point for y axis
-
+            width: 580,
+            height: 580,
+            xLeft: 60,   //The left/starting point for x axis
+            xRight: 560,   //The right/ending point for x axis
+            yTop: 20,  //The top/ending point for y axis
+            yBottom: 520  //The bottom/starting point for y axis
         },
         elem = {
             svg: "",
@@ -62,6 +61,10 @@ var SimplePlot = (function() {
         style = {
             dots_fill_color: "#58ACFA",
             dots_stroke_color: "#0174DF"
+        },
+        names = {
+            header: "",
+            plots: ""
         };
     var util = (function() {
         return {
@@ -108,8 +111,12 @@ var SimplePlot = (function() {
     }
 
     function initCanvas(divName) {
+        names.header = divName + "_header";
+        names.plots = divName + "_plots";
         $("#" + divName + "_plot_loading_img").hide();
-        elem.svg = d3.select("#" + divName).append("svg")
+        $("#" + divName).append("<div id='" + names.header + "' style='padding-left: 100px; padding-top: 30px;'></div>");
+        $("#" + divName).append("<div id='" + names.plots + "'></div>")
+        elem.svg = d3.select("#" + names.plots).append("svg")
             .attr("width", canvas.width)
             .attr("height", canvas.height);
     }
@@ -255,10 +262,35 @@ var SimplePlot = (function() {
         );
     }
 
+    function appendHeader(gene1, gene2) {
+        $("#" + names.header).append("<b>mRNA Expression: " + gene1 + " vs. " + gene2 + "</b>");
+        var pdfConverterForm =
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=SimplePlot.loadCoexpPlotsSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='pdf'>" +
+                "<input type='hidden' name='filename' value='coexpression_plots-" + gene1 + "_" + gene2 + ".pdf'>" +
+                "<input type='submit' value='PDF'></form>";
+        $("#" + names.header).append(pdfConverterForm);
+        var svgConverterForm =
+            "<form style='display:inline-block' action='svgtopdf.do' method='post' " +
+                "onsubmit=\"this.elements['svgelement'].value=SimplePlot.loadCoexpPlotsSVG();\">" +
+                "<input type='hidden' name='svgelement'>" +
+                "<input type='hidden' name='filetype' value='svg'>" +
+                "<input type='hidden' name='filename' value='coexpression_plots-" + gene1 + "_" + gene2 + ".svg'>" +
+                "<input type='submit' value='SVG'></form>";
+        $("#" + names.header).append(svgConverterForm);
+    }
+
+    function loadCoexpPlotsSVG() {
+        return $("#" + names.plots).html();
+    }
+
     function getAlterationDataCallBack(divName, gene1, gene2) {
         return function(result) {
             convertData(result, gene1, gene2);
             initCanvas(divName);
+            appendHeader(gene1, gene2);
             initScales();
             initAxis();
             drawAxis(gene1, gene2);
@@ -272,7 +304,8 @@ var SimplePlot = (function() {
             $("#" + divName).append(
                 "<img id='" + divName + "_plot_loading_img' style='padding:220px;' src='images/ajax-loader.gif'>");
             getAlterationData(divName, gene1, gene2);
-        }
+        },
+        loadCoexpPlotsSVG: loadCoexpPlotsSVG
     }
 
 }());

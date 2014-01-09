@@ -49,6 +49,7 @@ import java.util.regex.Matcher;
 public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implements Converter
 {
     private static final String PLACEHOLDER = "MISSING_ATTRIBUTE_VALUE";
+    private static final String PLACEHOLDER_DATATYPE = "STRING";
 	private static final Log LOG = LogFactory.getLog(ClinicalDataConverterImpl.class);
 
 	protected Config config;
@@ -114,14 +115,15 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 ClinicalAttributesMetadata metadata = clinicalAttributes.get(externalColumnHeader);
                 dataMatrix.renameColumn(externalColumnHeader, attributeValue(metadata.getDisplayName()));
                 descriptions.add(attributeValue(metadata.getDescription()));
-                datatypes.add(attributeValue(metadata.getDatatype()));
+                String datatype = attributeValue(metadata.getDatatype());
+                datatypes.add((datatype.isEmpty()) ? PLACEHOLDER_DATATYPE : datatype);
                 columnHeaders.add(attributeValue(metadata.getNormalizedColumnHeader()));
             }
             else {
-                // the colmun is ignored
+                // the column is ignored
                 // but we still need a correct number of rows in the column
                 descriptions.add(PLACEHOLDER);
-                datatypes.add(PLACEHOLDER);
+                datatypes.add(PLACEHOLDER_DATATYPE);
                 columnHeaders.add(PLACEHOLDER);
             }
         }

@@ -5,9 +5,10 @@
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
 <script type="text/javascript">
-    var mutTableIndices = {id:0,case_ids:1,gene:2,aa:3,chr:4,start:5,end:6,ref:7,_var:8,validation:9,type:10,
-                  tumor_freq:11,tumor_var_reads:12,tumor_ref_reads:13,norm_freq:14,norm_var_reads:15,
-                  norm_ref_reads:16,bam:17,mrna:18,altrate:19,cosmic:20,ma:21,cons:22,'3d':23,drug:24};
+    var mutTableIndices = cbio.util.arrayToAssociatedArrayIndices(
+            ["id","case_ids","gene","aa","chr","start","end","ref","_var","validation","type",
+             "tumor_freq","tumor_var_reads","tumor_ref_reads","norm_freq","norm_var_reads",
+             "norm_ref_reads","bam","cna","mrna","altrate","cosmic","ma","cons","3d","drug"]);
     function buildMutationsDataTable(mutations,mutEventIds, table_id, sDom, iDisplayLength, sEmptyInfo, compact) {
         var data = [];
         for (var i=0, nEvents=mutEventIds.length; i<nEvents; i++) {
@@ -462,6 +463,42 @@
                         },
                         "asSorting": ["desc", "asc"]
                     },
+                    {// cna
+                        "aTargets": [ mutTableIndices['cna'] ],
+                        "bVisible": !mutations.colAllNull('cna'),
+                        "sClass": "center-align-td",
+                        "bSearchable": false,
+                        "mDataProp": 
+                            function(source,type,value) {
+                            if (type==='set') {
+                                return;
+                            } else if (type==='display') {
+                                var cna = mutations.getValue(source[0], 'cna');
+                                switch (cna) {
+                                    case -2: return "<span style='color:blue;' class='"
+                                           +table_id+"-tip' alt='Homozygously deleted'><b>HOMDEL</b></span>";
+                                    case -1: return "<span style='color:blue;font-size:smaller;' class='"
+                                           +table_id+"-tip' alt='Heterozygously deleted'><b>hetloss</b></span>";
+                                    case 0: return "<span style='color:black;font-size:xx-small;' class='"
+                                           +table_id+"-tip' alt='Diploid / normal'>diploid</span>";
+                                    case 1: return "<span style='color:red;font-size:smaller;' class='"
+                                           +table_id+"-tip' alt='Low-level gain'><b>gain</b></span>";
+                                    case 2: return "<span style='color:red;' class='"
+                                           +table_id+"-tip' alt='High-level amplification'><b>AMP</b></span>";
+                                    default: return "<span style='color:gray;font-size:xx-small;' class='"
+                                           +table_id+"-tip' alt='CNA data is not available for this gene.'>NA</span>";
+                                }
+                            } else if (type==='sort') {
+                                var cna = mutations.getValue(source[0], 'cna');
+                                return cna?cna:0;
+                            } else if (type==='type') {
+                                return 0.0;
+                            } else {
+                                return '';
+                            }
+                        },
+                        "asSorting": ["desc", "asc"]
+                    },
                     {// mrna
                         "aTargets": [ mutTableIndices['mrna'] ],
                         "bVisible": !mutations.colAllNull('mrna'),
@@ -473,7 +510,7 @@
                                 return;
                             } else if (type==='display') {
                                 var mrna = mutations.getValue(source[0], 'mrna');
-                                if (mrna===null) return "<span style='color:gray;' class='"
+                                if (mrna===null) return "<span style='color:gray;font-size:xx-small;' class='"
                                            +table_id+"-tip' alt='mRNA data is not available for this gene.'>NA</span>";
                                 return "<div class='"+table_id+"-mrna' alt='"+source[0]+"'></div>";
                             } else if (type==='sort') {
@@ -852,6 +889,10 @@
             <%=PatientView.CASE_ID%>:caseIdsStr,
             <%=PatientView.MUTATION_PROFILE%>:mutationProfileId
         };
+        
+        if (cnaProfileId) {
+            params['<%=PatientView.CNA_PROFILE%>'] = cnaProfileId;
+        }
         
         if (mrnaProfileId) {
             params['<%=PatientView.MRNA_PROFILE%>'] = mrnaProfileId;

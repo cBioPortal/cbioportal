@@ -86,6 +86,17 @@ public class MutationDataUtils {
         Map<Long, Set<CosmicMutationFrequency>> cosmic = DaoCosmicData.getCosmicForMutationEvents(mutationList);
 
         Map<String, Integer> countMap = this.getMutationCountMap(mutationList);
+        
+        DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
+        
+        GeneticProfile cnaProfile = DaoCancerStudy.getCancerStudyByInternalId(geneticProfile.getCancerStudyId()).getCopyNumberAlterationProfile(true);
+        Map<String,Map<String,String>> cnaDataMap = new HashMap<String,Map<String,String>>();
+        if (cnaProfile!=null) {
+            for (String geneSymbol : targetGeneList) {
+                cnaDataMap.put(geneSymbol,
+                        DaoGeneticAlteration.getInstance().getGeneticAlterationMap(cnaProfile.getGeneticProfileId(), daoGeneOptimized.getGene(geneSymbol).getEntrezGeneId()));
+            }
+        }
 
         for (ExtendedMutation mutation : mutationList)
         {
@@ -93,7 +104,7 @@ public class MutationDataUtils {
 
             if (targetCaseList.contains(caseId))
             {
-                mutationArray.add(getMutationDataMap(mutation, geneticProfile, countMap, cosmic));
+                mutationArray.add(getMutationDataMap(mutation, geneticProfile, countMap,cnaDataMap, cosmic));
             }
         }
 
@@ -104,6 +115,7 @@ public class MutationDataUtils {
             ExtendedMutation mutation,
             GeneticProfile geneticProfile,
             Map<String, Integer> countMap,
+            Map<String,Map<String,String>> cnaDataMap,
             Map<Long, Set<CosmicMutationFrequency>> cosmic) throws DaoException
     {
         HashMap<String, Object> mutationData = new HashMap<String, Object>();
@@ -160,8 +172,13 @@ public class MutationDataUtils {
         mutationData.put("proteinPosEnd", mutation.getOncotatorProteinPosEnd());
         mutationData.put("mutationCount", countMap.get(mutation.getCaseId()));
         mutationData.put("specialGeneData", this.getSpecialGeneData(mutation));
+        mutationData.put("cna", getCnaData(cnaDataMap, mutation));
 
         return mutationData;
+    }
+    
+    private String getCnaData(Map<String,Map<String,String>> cnaDataMap, ExtendedMutation mutation) {
+        return cnaDataMap.get(mutation.getGeneSymbol()).get(mutation.getCaseId());
     }
 
     public String generateMutationId(ExtendedMutation mutation) {

@@ -293,8 +293,13 @@ var Mutation3dVisView = Backbone.View.extend({
 		// hide actual vis container
 		// (jQuery.hide function is problematic with 3D visualizer,
 		// instead we are changing height)
-		self._actualHeight =  container.css("height");
-		container.css("height", 0);
+		var height = container.css("height");
+
+		if (!(height === 0 || height === "0px"))
+		{
+			self._actualHeight = height;
+			container.css("height", 0);
+		}
 
 		// show image
 		loaderImage.show();

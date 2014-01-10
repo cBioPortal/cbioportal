@@ -164,7 +164,7 @@ public class MutationsJSON extends HttpServlet {
         Map<String, Integer> keywordContextMap = Collections.emptyMap();
         DaoGeneOptimized daoGeneOptimized = null;
         Map<Long, Map<String,Object>> mrnaContext = Collections.emptyMap();
-        Map<Long, Short> cnaContext = Collections.emptyMap();
+        Map<Long, String> cnaContext = Collections.emptyMap();
         
         try {
             mutationProfile = DaoGeneticProfile.getGeneticProfileByStableId(mutationProfileId);
@@ -344,9 +344,9 @@ public class MutationsJSON extends HttpServlet {
         return ret;
     }
     
-    private Map<Long, Short> getCnaContext(String caseId, List<ExtendedMutation> mutations,
+    private Map<Long, String> getCnaContext(String caseId, List<ExtendedMutation> mutations,
             String cnaProfileId) throws DaoException {
-        Map<Long, Short> mapGeneCna = new HashMap<Long, Short>();
+        Map<Long, String> mapGeneCna = new HashMap<Long, String>();
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         for (ExtendedMutation mutEvent : mutations) {
             long gene = mutEvent.getEntrezGeneId();
@@ -354,20 +354,11 @@ public class MutationsJSON extends HttpServlet {
                 continue;
             }
             
-            String cnaStr = daoGeneticAlteration.getGeneticAlteration(
+            String cna = daoGeneticAlteration.getGeneticAlteration(
                     DaoGeneticProfile.getGeneticProfileByStableId(cnaProfileId).getGeneticProfileId(),
                     caseId, gene);
             
-            Short cna;
-            try {
-                cna = Short.parseShort(cnaStr);
-            } catch (Exception ex) {
-                continue;
-            }
-            
-            if (cna>=-2 && cna<=2) {
-                mapGeneCna.put(gene, cna);
-            }
+            mapGeneCna.put(gene, cna);
         }
         
         return mapGeneCna;
@@ -486,7 +477,7 @@ public class MutationsJSON extends HttpServlet {
     private void exportMutation(Map<String,List> data, Map<Long, Integer> mapMutationEventIndex,
             ExtendedMutation mutation, CancerStudy cancerStudy, Set<String> drugs,
             int geneContext, int keywordContext, Set<CosmicMutationFrequency> cosmic, Map<String,Object> mrna,
-            Short cna, DaoGeneOptimized daoGeneOptimized) throws ServletException {
+            String cna, DaoGeneOptimized daoGeneOptimized) throws ServletException {
         Long eventId = mutation.getMutationEventId();
         Integer ix = mapMutationEventIndex.get(eventId);
         if (ix!=null) { // multiple samples

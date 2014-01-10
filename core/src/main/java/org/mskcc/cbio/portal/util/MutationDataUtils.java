@@ -178,7 +178,11 @@ public class MutationDataUtils {
     }
     
     private String getCnaData(Map<String,Map<String,String>> cnaDataMap, ExtendedMutation mutation) {
-        return cnaDataMap.get(mutation.getGeneSymbol()).get(mutation.getCaseId());
+        Map<String,String> map = cnaDataMap.get(mutation.getGeneSymbol());
+        if (map==null) {
+            return null;
+        }
+        return map.get(mutation.getCaseId());
     }
 
     public String generateMutationId(ExtendedMutation mutation) {

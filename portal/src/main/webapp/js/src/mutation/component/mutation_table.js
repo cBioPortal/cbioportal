@@ -286,6 +286,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["var ref"],
 		                indexMap["norm alt"],
 		                indexMap["norm ref"],
+		                indexMap["cna"],
 	                    indexMap["#mut in sample"]]},
 	            {"sType": 'label-float-col',
 	                "sClass": "right-align-td",

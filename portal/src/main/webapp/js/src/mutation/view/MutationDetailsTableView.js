@@ -378,6 +378,10 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var mutationCount = self._getIntValue(mutation.mutationCount);
 		vars.mutationCount = mutationCount.text;
 		vars.mutationCountClass = mutationCount.style;
+                
+                var cna = self._getIntValue(mutation.cna);
+                vars.cna = cna.text;
+                vars.cnaClass = cna.style;
 
 		return vars;
 	},

@@ -18,13 +18,6 @@ var CoexpPlots = (function() {
         return function(result) {
             CoexpPlotsProxy.init(result, geneX, geneY);
             CoexpPlotsView.init(divName, geneX, geneY);
-            initCanvas(divName);
-            appendHeader(gene1, gene2);
-            initScales();
-            initAxis();
-            drawAxis(gene1, gene2);
-            drawPlots();
-            addQtips();
         }
     }
 

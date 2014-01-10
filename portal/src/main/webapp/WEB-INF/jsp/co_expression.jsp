@@ -1,5 +1,10 @@
+<script type="text/javascript" src="js/src/plots-view/PlotsBoilerplate.js"></script>
+<script type="text/javascript" src="js/src/plots-view/data/CoexpPlotsProxy.js"></script>
+<script type="text/javascript" src="js/src/plots-view/view/CoexpPlotsView.js"></script>
+<script type="text/javascript" src="js/src/plots-view/CoexpPlots.js"></script>
 <script type="text/javascript" src="js/src/coexp-view/coExpression.js"></script>
-<script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script>
+<script type="text/javascript" src="js/src/plots-view/component/ScatterPlots.js"></script>
+<!--script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script-->
 <style>
     #coexp .coexp-table-filter-custom {
         width: 200px;

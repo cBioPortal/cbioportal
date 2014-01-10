@@ -170,7 +170,8 @@ var CoExpTable = (function() {
                 var aData = _coExpTable.fnGetData(this);
                 if (null !== aData) {
                     $("#" + plotId).empty();
-                    SimplePlot.init(plotId, geneId, aData[0]);
+                    //SimplePlot.init(plotId, geneId, aData[0]);
+                    CoexpPlots.init(plotId, geneId, aData[0]);
                 }
             })
         }

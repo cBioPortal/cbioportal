@@ -5,22 +5,26 @@ var CoexpPlotsView = (function() {
         elem = {},
         names = {};
 
-    function init(divName, geneX, geneY) {
-        style = jQuery.extend(true, {}, PlotsBoilerplate.getStyle());
-        canvas = jQuery.extend(true, {}, PlotsBoilerplate.getCanvas());
-        elem = jQuery.extend(true, {}, PlotsBoilerplate.getElem());
-        names = jQuery.extend(true, {}, PlotsBoilerplate.getNames(divName));
-        ScatterPlots.init(style, canvas, elem, divName, CoexpPlotsProxy.getData());
+    function settings() {
+        //css style
+        style = jQuery.extend(true, {}, PlotsBoilerplate.style);
+        //positions
+        canvas = jQuery.extend(true, {}, PlotsBoilerplate.canvas);
+        //svg elements
+        elem = jQuery.extend(true, {}, PlotsBoilerplate.elem);
+        //div ids
+        names = jQuery.extend(true, {}, PlotsBoilerplate.names);
+        names.header = divName + names.header;
+        names.body = divName + names.body;   //the actual svg plots
     }
 
-    function initDiv(divName) {
-        $("#" + divName + "_plot_loading_img").hide();
+    function layout(divName) {
         $("#" + divName).append("<div id='" + names.header + "' style='padding-left: 100px; padding-top: 30px;'></div>");
-        $("#" + divName).append("<div id='" + names.plots + "'></div>")
+        $("#" + divName).append("<div id='" + names.plots + "'></div>");
     }
 
     function show() {
-        ScatterPlots.show();
+        ScatterPlots.init();
     }
 
     function update() {
@@ -28,7 +32,11 @@ var CoexpPlotsView = (function() {
     }
 
     return {
-        init: init,
+        init: function(divName, geneX, geneY) {
+            settings(divName);
+            layout(divName);
+
+        },
         show: show,
         update: update
     }

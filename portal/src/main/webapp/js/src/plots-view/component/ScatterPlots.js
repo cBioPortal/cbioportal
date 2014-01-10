@@ -108,13 +108,10 @@ var ScatterPlots = (function() {
             initSvgCanvas(divName);
             initScales(dataArr);
             initAxis();
-        },
-        update: function() {   //Update with new options
-
-        },
-        show: function() { //Render the view (used by both init and update)
             generateAxis();
             appendAxisTitles();
+        },
+        update: function() {   //Update with new options
         }
     }
 

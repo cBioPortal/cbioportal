@@ -259,7 +259,7 @@
                     {// tumor read count frequency
                         "aTargets": [ mutTableIndices["tumor_freq"] ],
                         "bVisible": hasAlleleFrequencyData,
-                        "sClass": caseIds.length>1 ? "center-align-td":"right-align-td",
+                        "sClass": "center-align-td",
                         "mDataProp": function(source,type,value) {
                             if (type==='set') {
                                 return;

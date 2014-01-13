@@ -69,7 +69,7 @@ public class CancerStudyView extends HttpServlet {
             }
             
             RequestDispatcher dispatcher =
-                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/tumormap/cancer_study_view/cancer_study_view.jsp");
+                    getServletContext().getRequestDispatcher("/WEB-INF/jsp/study_view/cancer_study_view.jsp");
             dispatcher.forward(request, response);
         
         } catch (DaoException e) {

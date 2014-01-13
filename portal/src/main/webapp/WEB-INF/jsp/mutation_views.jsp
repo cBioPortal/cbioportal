@@ -153,7 +153,10 @@
 		<img src='{{loaderImage}}'/>
 	</div>
 	<div class='mutation-3d-residue-warning'>
-		No matching residue for the selected mutation(s)
+		Selected mutation cannot be mapped onto this structure.
+	</div>
+	<div class='mutation-3d-nomap-warning'>
+		None of the mutations can be mapped onto this structure.
 	</div>
 	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>

@@ -41,6 +41,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// initially hide the residue warning message
 		self.hideResidueWarning();
+		self.hideNoMapWarning();
 
 		// update the container of 3d visualizer
 		if (mut3dVis != null)
@@ -211,6 +212,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// hide residue warning
 		self.hideResidueWarning();
+		self.hideNoMapWarning();
 
 		// show loader image
 		self.showLoader();
@@ -218,7 +220,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		// set a short delay to allow loader image to appear
 		setTimeout(function() {
 			// reload the visualizer
-			mut3dVis.reload(pdbId, chain, function() {
+			var mapped = mut3dVis.reload(pdbId, chain, function() {
 				// hide the loader image after reload complete
 				self.hideLoader();
 				// call the provided custom callback function, too
@@ -227,6 +229,15 @@ var Mutation3dVisView = Backbone.View.extend({
 					callback();
 				}
 			});
+
+			if (!mapped)
+			{
+				self.showNoMapWarning();
+			}
+			else
+			{
+				self.hideNoMapWarning();
+			}
 		}, 50);
 	},
 	/**
@@ -325,9 +336,13 @@ var Mutation3dVisView = Backbone.View.extend({
 	showResidueWarning: function()
 	{
 		var self = this;
-		var residueWarning = self.$el.find(".mutation-3d-residue-warning");
+		var warning = self.$el.find(".mutation-3d-residue-warning");
 
-		residueWarning.show();
+		// show warning only if no other warning is visible
+		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
+		{
+			warning.show();
+		}
 	},
 	/**
 	 * Hides the residue warning message.
@@ -335,8 +350,28 @@ var Mutation3dVisView = Backbone.View.extend({
 	hideResidueWarning: function()
 	{
 		var self = this;
-		var residueWarning = self.$el.find(".mutation-3d-residue-warning");
+		var warning = self.$el.find(".mutation-3d-residue-warning");
 
-		residueWarning.hide();
+		warning.hide();
+	},
+	/**
+	 * Shows a warning message for unmapped residues.
+	 */
+	showNoMapWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-nomap-warning");
+
+		warning.show();
+	},
+	/**
+	 * Hides the residue warning message.
+	 */
+	hideNoMapWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-nomap-warning");
+
+		warning.hide();
 	}
 });

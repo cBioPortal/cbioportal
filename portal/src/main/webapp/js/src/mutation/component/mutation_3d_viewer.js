@@ -215,12 +215,17 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Reloads the protein view for the given PDB id
-	 * and the chain.
+	 * Reloads the protein view for the given PDB id and the chain.
+	 *
+	 * This functions returns true if at least there is one mapping residue.
+	 * If there is no mapping residue for currently visible mutations on
+	 * the diagram, then functions returns false. Note that this function
+	 * returns without waiting the callback function to be invoked.
 	 *
 	 * @param pdbId     PDB id
 	 * @param chain     PdbChainModel instance
 	 * @param callback  function to call after reload
+	 * @return  {Boolean} true if there is a mapping residue, false otherwise
 	 */
 	function reload(pdbId, chain, callback)
 	{
@@ -298,6 +303,8 @@ var Mutation3dVis = function(name, options)
 
 		// run script
 		_3dApp.script(script, callback);
+
+		return !(_.isEmpty(selection));
 	}
 
 	/**

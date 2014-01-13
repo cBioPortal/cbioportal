@@ -71,8 +71,7 @@ public class SampleClinicalDataConverterImpl extends ClinicalDataConverterImpl i
 
     private void processSampleMatrix(CancerStudyMetadata cancerStudyMetadata, DataMatrix sampleMatrix)
     {
-        Map<String, ClinicalAttributesMetadata> clinicalAttributes =
-            config.getClinicalAttributesMetadata(sampleMatrix.getColumnHeaders());
+        Map<String, ClinicalAttributesMetadata> clinicalAttributes = getClinicalAttributes(sampleMatrix.getColumnHeaders());
 
         config.flagMissingClinicalAttributes(cancerStudyMetadata.toString() + " (sample file)", cancerStudyMetadata.getTumorType(),
                                              removeUnknownColumnsFromMatrix(sampleMatrix, clinicalAttributes));

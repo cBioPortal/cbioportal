@@ -360,36 +360,6 @@ public class DataMatrix {
 
     /**
      *
-     * Gets the data for a given row by index.  Returns
-     * a copy of the data stored in the internal data structure,
-     * so changes in the returned List will *not* be reflected
-     * in subsequent calls into the class.
-     *
-     * @param rowIndex String
-     * @return List<String>
-     */
-    public List<String> getRowData(int rowIndex) {
-        // todo: someday this might beg for refactoring
-        // w.r.t a DataMatrix class that is row/column agnostic,
-        // i.e. a two level hashmap
-        // this would be a good idea especially if this class moves
-        // to the core module, since it's so handy.
-        // Check out Google Guava Tables.
-
-        LinkedList<String> toReturn = new LinkedList<String>();
-
-        for (int col = 0 ; col < columnHeaders.size(); col++) {
-            List<String> columnData = getColumnData(col);
-            String datum =  columnData.get(rowIndex);
-
-            toReturn.add(datum);
-        }
-
-        return toReturn;
-    }
-
-    /**
-     *
      * @return number of rows in the dataMatrix
      */
     public int getNumberOfRows() {
@@ -644,18 +614,6 @@ public class DataMatrix {
 		dataMatrix.write(System.out);
 		System.out.println();
 		System.out.println();
-
-        // get a row
-        List<String> aRow = dataMatrix.getRowData(0);
-        List<String> bRow = dataMatrix.getRowData(1);
-        System.out.println("Row 0:");
-        System.out.println(aRow);
-        System.out.println("Row 1:");
-        System.out.println(bRow);
-        System.out.println("From:");
-        dataMatrix.write(System.out);
-        System.out.println();
-        System.out.println();
 
 		// ignore a few rows
 		dataMatrix.ignoreRow(0, true);

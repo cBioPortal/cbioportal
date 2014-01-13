@@ -147,4 +147,5 @@
 	<b:constructor-arg ref="caseIDs"/>
 	<b:constructor-arg ref="idMapper"/>
   </b:bean>
+  <b:bean id="tcgaSurvivalDataCalculator" class="org.mskcc.cbio.importer.util.TCGASurvivalDataCalculator"/>
 </b:beans>

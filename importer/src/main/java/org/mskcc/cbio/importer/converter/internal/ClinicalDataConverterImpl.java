@@ -35,6 +35,9 @@ import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,6 +91,21 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
 	public abstract void createStagingFile(PortalMetadata portalMetadata, CancerStudyMetadata cancerStudyMetadata,
                                            DatatypeMetadata datatypeMetadata, DataMatrix[] dataMatrices) throws Exception;
 
+    protected Map<String, ClinicalAttributesMetadata> getClinicalAttributes(List<String> externalColumnHeaders)
+    {
+        Map<String, ClinicalAttributesMetadata> clinicalAttributes =
+            config.getClinicalAttributesMetadata(externalColumnHeaders);
+
+        // add overall survival attributes
+        clinicalAttributes.put(ClinicalAttribute.OS_STATUS,
+                               config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
+        clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
+                               config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
+        
+
+        return clinicalAttributes;
+    }
+
     protected List<String> removeUnknownColumnsFromMatrix(DataMatrix dataMatrix, Map<String, ClinicalAttributesMetadata> clinicalAttributes)
     {
         List<String> missingAttributes = new ArrayList<String>();
@@ -116,7 +134,7 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 dataMatrix.renameColumn(externalColumnHeader, attributeValue(metadata.getDisplayName()));
                 descriptions.add(attributeValue(metadata.getDescription()));
                 String datatype = attributeValue(metadata.getDatatype());
-                datatypes.add((datatype.isEmpty()) ? PLACEHOLDER_DATATYPE : datatype);
+                datatypes.add(datatype.equals(PLACEHOLDER) ? PLACEHOLDER_DATATYPE : datatype);
                 columnHeaders.add(attributeValue(metadata.getNormalizedColumnHeader()));
             }
             else {
@@ -127,6 +145,13 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 columnHeaders.add(PLACEHOLDER);
             }
         }
+
+        // prepend required "#"
+        dataMatrix.renameColumn(dataMatrix.getColumnHeaders().get(0),
+                                ImportClinicalData.METADATA_PREFIX + dataMatrix.getColumnHeaders().get(0));
+        datatypes.set(0, ImportClinicalData.METADATA_PREFIX + datatypes.get(0));
+        descriptions.set(0, ImportClinicalData.METADATA_PREFIX + descriptions.get(0));
+
         // insert row in reverse order 
         dataMatrix.insertRow(columnHeaders);
         dataMatrix.insertRow(datatypes);

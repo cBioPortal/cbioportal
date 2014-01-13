@@ -29,12 +29,18 @@
 package org.mskcc.cbio.importer.converter.internal;
 
 // imports
+import org.mskcc.cbio.importer.Admin;
 import org.mskcc.cbio.importer.Config;
 import org.mskcc.cbio.importer.CaseIDs;
 import org.mskcc.cbio.importer.IDMapper;
 import org.mskcc.cbio.importer.Converter;
 import org.mskcc.cbio.importer.FileUtils;
+import org.mskcc.cbio.importer.SurvivalDataCalculator;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,6 +56,8 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
 {
 	private static Log LOG = LogFactory.getLog(PatientClinicalDataConverterImpl.class);
 
+	private	SurvivalDataCalculator survivalDataCalculator;
+
     class PatientFollowUpMatrixComparator implements Comparator {
         public int compare (Object o, Object o1) {
             DataMatrix matrix0 = (DataMatrix)o;
@@ -62,6 +70,9 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
                                             CaseIDs caseIDs, IDMapper idMapper)
     {
         super(config, fileUtils, caseIDs, idMapper);
+
+        ApplicationContext context = new ClassPathXmlApplicationContext(Admin.contextFile);
+        survivalDataCalculator = (SurvivalDataCalculator)context.getBean("tcgaSurvivalDataCalculator");
 	}
 
 	@Override
@@ -101,8 +112,7 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
 
     private void processPatientMatrix(CancerStudyMetadata cancerStudyMetadata, DataMatrix patientMatrix, List<DataMatrix> followUps)
     {
-        Map<String, ClinicalAttributesMetadata> clinicalAttributes =
-            config.getClinicalAttributesMetadata(patientMatrix.getColumnHeaders());
+        Map<String, ClinicalAttributesMetadata> clinicalAttributes = getClinicalAttributes(patientMatrix.getColumnHeaders());
 
         config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
                                              removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
@@ -113,5 +123,13 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
 
     private void computeSurvivalData(DataMatrix patientMatrix, List<DataMatrix> followUps)
     {
+        ArrayList<DataMatrix> allMatrices = new ArrayList<DataMatrix>();
+        allMatrices.add(patientMatrix);
+        //allMatrices.addAll(followUps);
+        OverallSurvivalStatus oss = survivalDataCalculator.computeSurvivalData(allMatrices);
+        patientMatrix.addColumn(ClinicalAttribute.OS_STATUS, oss.osStatus);
+        patientMatrix.addColumn(ClinicalAttribute.OS_MONTHS, oss.osMonths);
+        //patientMatrix.addColumn(ClinicalAttribute.DFS_STATUS, oss.dfStatus);
+        //patientMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
     }
 }

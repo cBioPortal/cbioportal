@@ -51,7 +51,7 @@ var MutationModel = Backbone.Model.extend({
 		this.mutationCount = attributes.mutationCount;
 		this.specialGeneData = attributes.specialGeneData;
 		this.keyword = attributes.keyword;
-                this.cna = attributes.cna;
+		this.cna = attributes.cna;
 	},
 	url: function() {
 		// TODO implement this to get the data from a web service

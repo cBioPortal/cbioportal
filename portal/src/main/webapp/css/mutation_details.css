@@ -103,6 +103,32 @@ th.mutation-details-qtip-style {
 	color: gray;
 	font-weight: bold;
 }
+.cna-homdel {
+	color:blue;
+	font-weight: bold;
+}
+.cna-hetloss {
+	color:blue;
+	font-weight: bold;
+	font-size:smaller;
+}
+.cna-diploid {
+	color:black;
+	font-size:xx-small;
+}
+.cna-gain {
+	color:red;
+	font-weight: bold;
+	font-size:smaller;
+}
+.cna-amp {
+	color:red;
+	font-weight: bold;
+}
+.cna-unknown {
+	color:gray;
+	font-size:xx-small;
+}
 .diagram_toolbar {
 	padding-top: 10px;
 	padding-left: 10px;

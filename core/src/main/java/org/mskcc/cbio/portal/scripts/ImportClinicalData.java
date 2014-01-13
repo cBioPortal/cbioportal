@@ -42,7 +42,7 @@ import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 
 public class ImportClinicalData {
 
-    public static final String METADATA_PREIX = "#";
+    public static final String METADATA_PREFIX = "#";
     public static final String DELIMITER = "\t";
     public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
 
@@ -81,7 +81,7 @@ public class ImportClinicalData {
         while ((line = buff.readLine()) != null) {
             line = line.trim();
             
-            if (line.isEmpty() || line.substring(0,1).equals(METADATA_PREIX)) {
+            if (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX)) {
                 // ignore lines with the METADATA_PREFIX
                 continue;
             }
@@ -160,7 +160,7 @@ public class ImportClinicalData {
         String line = buff.readLine();
         String[] displayNames = splitFields(line);
         String[] descriptions, datatypes, colnames;
-        if (line.startsWith(METADATA_PREIX)) {
+        if (line.startsWith(METADATA_PREFIX)) {
             // contains meta data about the attributes
             descriptions = splitFields(buff.readLine());
             datatypes = splitFields(buff.readLine());
@@ -208,7 +208,7 @@ public class ImportClinicalData {
      * @return
      */
     private String[] splitFields(String line) throws IOException {
-        line = line.replaceAll("^"+METADATA_PREIX+"+", "");
+        line = line.replaceAll("^"+METADATA_PREFIX+"+", "");
         String[] fields = line.split(DELIMITER);
 
         return fields;

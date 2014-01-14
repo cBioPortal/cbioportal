@@ -75,7 +75,8 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: container3d,
 					parentEl: self.$el,
 					mut3dVis: self.options.mut3dVis,
-					pdbProxy: self.pdbProxy});
+					pdbProxy: self.pdbProxy,
+					mutationProxy: self.model.mutationProxy});
 
 			mutation3dVisView.render();
 

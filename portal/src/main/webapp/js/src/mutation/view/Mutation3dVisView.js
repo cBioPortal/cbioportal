@@ -4,8 +4,9 @@
  *
  * options: {el: [target container],
  *           parentEl: [parent container],
- *           mut3dVis: [optional] reference to the Mutation3dVis instance,
- *           pdbProxy: [optional] PDB data proxy
+ *           mut3dVis: reference to the Mutation3dVis instance,
+ *           pdbProxy: PDB data proxy,
+ *           mutationProxy: mutation data proxy
  *          }
  *
  * @author Selcuk Onur Sumer
@@ -230,12 +231,23 @@ var Mutation3dVisView = Backbone.View.extend({
 				}
 			});
 
-			if (!mapped)
+			if (mapped.length == 0)
 			{
 				self.showNoMapWarning();
 			}
 			else
 			{
+				var proxy = self.options.mutationProxy;
+				var types = [];
+
+				_.each(mapped, function(id, idx) {
+					var mutation = proxy.getMutationUtil().getMutationIdMap()[id];
+					types.push(mutation.mutationType);
+				});
+
+				types = _.unique(types);
+				// TODO display current types in the view
+
 				self.hideNoMapWarning();
 			}
 		}, 50);

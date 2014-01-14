@@ -129,9 +129,9 @@
 
 <script type="text/template" id="mutation_3d_vis_info_template">
 	<div class='mutation-3d-info-title'>
-		3D Protein Structure
+		3D Structure
 	</div>
-	<div>
+	<div class='mutation-3d-info-main'>
 		Chain <span class='mutation-3d-chain-id'>{{chainId}}</span> of PDB
 		<span class='mutation-3d-pdb-id'>
 			<a href="http://www.rcsb.org/pdb/explore/explore.do?structureId={{pdbId}}"
@@ -139,7 +139,7 @@
 				{{pdbId}}
 			</a>
 		</span>
-		<span class='mutation-3d-pdb-info'>({{pdbInfo}})</span>
+		<span class='mutation-3d-pdb-info'>: {{pdbInfo}}</span>
 	</div>
 </script>
 

@@ -65,10 +65,10 @@ var CoExpTable = (function() {
 
                 $("#" + loadingImgId).hide();
                 $("#" + divId).append(
-                    "<table width='100%'>" +
+                    "<table width='95%'>" +
                     "<tr>" +
-                    "<td width='50%' valign='top'><div id='" + tableDivId + "'></div></td>" +
-                    "<td width='50%' valign='top'><div id='" + plotId + "'></div></td>" +
+                    "<td width='45%' valign='top'><div id='" + tableDivId + "'></div></td>" +
+                    "<td width='55%' valign='top'><div id='" + plotId + "'></div></td>" +
                     "</tr>" +
                     "</table>");
 

@@ -17,7 +17,7 @@ var CoexpPlots = (function() {
     function getAlterationDataCallBack(divName, geneX, geneY) {
         return function(result) {
             CoexpPlotsProxy.init(result, geneX, geneY);
-            CoexpPlotsView.init(divName, geneX, geneY);
+            CoexpPlotsView.init(divName, geneX, geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
         }
     }
 

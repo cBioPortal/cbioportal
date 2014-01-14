@@ -68,7 +68,7 @@ public class GetAlterationDataJSON extends HttpServlet {
                 queriedGeneIds.add(geneObj.getEntrezGeneId());
             }
             GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
-            JSONObject result = getExpressionMap(queriedGeneIds, final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
+            JSONObject result = getExpressionMap(queriedGeneIds, final_gp.getGeneticProfileId(), caseSetId, caseIdsKey, final_gp.getProfileName());
 
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
@@ -79,7 +79,7 @@ public class GetAlterationDataJSON extends HttpServlet {
         }
     }
 
-    private JSONObject getExpressionMap(Collection<Long> genes, int profileId, String caseSetId, String caseIdsKey) throws DaoException {
+    private JSONObject getExpressionMap(Collection<Long> genes, int profileId, String caseSetId, String caseIdsKey, String profileName) throws DaoException {
 
         ArrayList<String> caseIds = CoExpUtil.getCaseIds(caseSetId, caseIdsKey);
 
@@ -97,6 +97,7 @@ public class GetAlterationDataJSON extends HttpServlet {
                 JSONObject _datum = new JSONObject();
                 _datum.put("caseId", caseId);
                 _datum.put("value", value);
+                _datum.put("profile", profileName);
                 _geneArr.add(_datum);
             }
             DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();

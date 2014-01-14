@@ -4,7 +4,7 @@
 <script type="text/javascript" src="js/src/plots-view/CoexpPlots.js"></script>
 <script type="text/javascript" src="js/src/coexp-view/coExpression.js"></script>
 <script type="text/javascript" src="js/src/plots-view/component/ScatterPlots.js"></script>
-<!--script type="text/javascript" src="js/src/coexp-view/simplePlots.js"></script-->
+<script type="text/javascript" src="js/src/plots-view/component/PlotsHeader.js"></script>
 <style>
     #coexp .coexp-table-filter-custom {
         width: 200px;
@@ -39,7 +39,7 @@
 </style>
 <div class="section" id="coexp">
     <p>
-        The co-expression table below lists the top <strong>250</strong> genes that are highly co-expressed in mRNA expression profile,
+        The co-expression table below lists the top <strong>250</strong> genes that are highly co-expressed in selected mRNA expression profile,<img class='profile_help' src='images/help.png' title='We prefer RNA seq profile, if none for certain query, then we would use other mRNA profiles.'> 
         among the applied cancer study and case set. <br>
         Scores calculated by <strong>Pearson's product-moment correlation</strong> (Threshold: <strong>+/-0.3</strong>).
         <img class='profile_help' src='images/help.png'

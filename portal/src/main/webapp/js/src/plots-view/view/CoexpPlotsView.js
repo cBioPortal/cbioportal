@@ -1,41 +1,65 @@
 var CoexpPlotsView = (function() {
 
-    var style = {},
-        canvas = {},
-        elem = {},
-        names = {};
+    var options = {
+        style: "",
+        canvas: "",
+        elem: "",
+        names: {
+            div: "",
+            header: "",
+            body: ""
+        },
+        text: {
+            xTitle: "",
+            yTitle: "",
+            title: "",
+            fileName: "",
+        }
+    };
 
-    function settings() {
+    function settings(_divName, _geneX, _geneY, _dataAttr) {
         //css style
-        style = jQuery.extend(true, {}, PlotsBoilerplate.style);
+        options.style = jQuery.extend(true, {}, PlotsBoilerplate.style);
         //positions
-        canvas = jQuery.extend(true, {}, PlotsBoilerplate.canvas);
+        options.canvas = jQuery.extend(true, {}, PlotsBoilerplate.canvas);
         //svg elements
-        elem = jQuery.extend(true, {}, PlotsBoilerplate.elem);
+        options.elem = jQuery.extend(true, {}, PlotsBoilerplate.elem);
         //div ids
-        names = jQuery.extend(true, {}, PlotsBoilerplate.names);
-        names.header = divName + names.header;
-        names.body = divName + names.body;   //the actual svg plots
+        options.names = jQuery.extend(true, {}, PlotsBoilerplate.names);
+        options.names.div = _divName;
+        options.names.header = _divName + options.names.header;
+        options.names.body = _divName + options.names.body;   //the actual svg plots
+        //construct axis titles
+        options.text.xTitle = _geneX + ", " + _dataAttr.profile_name;
+        options.text.yTitle = _geneY + ", " + _dataAttr.profile_name;
+        options.text.title = "Co-expression in mRNA Expression: " + _geneX + " vs. " + _geneY + "  ";
+        options.text.fileName = "co_expression_result-" + _geneX + "-" + _geneY;
+
     }
 
-    function layout(divName) {
-        $("#" + divName).append("<div id='" + names.header + "' style='padding-left: 100px; padding-top: 30px;'></div>");
-        $("#" + divName).append("<div id='" + names.plots + "'></div>");
+    function layout() {
+        $("#" + options.names.div).append(
+            "<div id='" + options.names.header + 
+            "' style='padding-left: " + options.canvas.xLeft + "px; padding-top: 20px;'>" + 
+            "</div>");
+        $("#" + options.names.div).append("<div id='" + options.names.body + "'></div>");
     }
 
-    function show() {
-        ScatterPlots.init();
+    function show(_dataArr, _dataAttr) {
+        PlotsHeader.init(options.names.header, options.text.title, options.text.fileName, options.names.body);
+        ScatterPlots.init(options, _dataArr, _dataAttr);
     }
 
     function update() {
-        ScatterPlots.update();
+       // ScatterPlots.update();
     }
 
     return {
-        init: function(divName, geneX, geneY) {
-            settings(divName);
-            layout(divName);
-
+        init: function(_divName, _geneX, _geneY, _dataArr, _dataAttr) {
+            $("#" + _divName).empty();
+            settings(_divName, _geneX, _geneY, _dataAttr);
+            layout();
+            show(_dataArr, _dataAttr);
         },
         show: show,
         update: update

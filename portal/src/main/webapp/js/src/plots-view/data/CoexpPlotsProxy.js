@@ -5,7 +5,8 @@ var CoexpPlotsProxy = (function() {
             min_x: "",
             max_x: "",
             min_y: "",
-            max_y: ""
+            max_y: "",
+            profile_name: ""
         };
 
     function convertData(result, geneX, geneY) {
@@ -36,10 +37,20 @@ var CoexpPlotsProxy = (function() {
         attr.max_y = Math.max.apply(Math, _yValArr);
     }
 
+    function getProfile(_result) {
+        for (var prop in _result) {
+            var _tmp = _result[prop];
+            attr.profile_name = _tmp[0].profile;
+            return;
+        }
+    }
+
     return {
         init: function(result, geneX, geneY) {
+            dataArr.length = 0;
             convertData(result, geneX, geneY);
             analyseData();
+            getProfile(result);
         },
         getData: function() { return dataArr; },
         getDataAttr: function() { return attr; }

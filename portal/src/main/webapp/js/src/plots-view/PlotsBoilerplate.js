@@ -7,14 +7,17 @@ var PlotsBoilerplate = {
         qtip: ""
     },
     style : {
-        stroke: "#58ACFA",
-        fill: "#0174DF"
+        fill: "#58ACFA",
+        stroke: "#0174DF",
+        stroke_width: "1.2",
+        size: "20",
+        shape: "circle"
     },
     canvas : {  //position of components
-        width: 580,
-        height: 580,
-        xLeft: 60,     //The left/starting point for x axis
-        xRight: 560,   //The right/ending point for x axis
+        width: 600,
+        height: 595,
+        xLeft: 90,     //The left/starting point for x axis
+        xRight: 590,   //The right/ending point for x axis
         yTop: 20,      //The top/ending point for y axis
         yBottom: 520   //The bottom/starting point for y axis
     },
@@ -23,10 +26,12 @@ var PlotsBoilerplate = {
         xScale: "",
         yScale: "",
         xAxis: "",
-        yAxis: ""
+        yAxis: "",
+        dotsGroup: ""
     },
     names: { //naming conventions
-        header: "_header",
-        body: "_body"
+        header: "_header", 
+        body: "_body",  // the actual plots
+        div: "" // the overall div name
     }
 };

@@ -123,7 +123,7 @@
 
 <script type="text/template" id="mutation_3d_view_template">
 	<button class='mutation-3d-vis'>
-		<label>Show in 3D &#187</label>
+		<label>3D Structure &#187</label>
 	</button>
 </script>
 

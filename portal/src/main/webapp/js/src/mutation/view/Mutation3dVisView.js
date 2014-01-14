@@ -305,6 +305,31 @@ var Mutation3dVisView = Backbone.View.extend({
 		}
 	},
 	/**
+	 * Highlights the 3D visualizer for the residue
+	 * corresponding to the given pileup of mutations.
+	 *
+	 * If this function is invoked without a parameter,
+	 * then resets all residue highlights.
+	 *
+	 * @param pileup    Pileup instance
+	 * @return {boolean} true if focus successful, false otherwise
+	 */
+	highlightView: function(pileup)
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		if (pileup)
+		{
+			return mut3dVis.highlight(pileup);
+		}
+		else
+		{
+			mut3dVis.resetHighlight();
+			return true;
+		}
+	},
+	/**
 	 * Shows the loader image for the 3D vis container.
 	 */
 	showLoader: function()

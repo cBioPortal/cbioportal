@@ -185,7 +185,7 @@ var PdbPanelView = Backbone.View.extend({
 				var selected = diagram.getSelectedElements();
 
 				// TODO assuming there is only one selected element
-				if (!vis.focusView(selected[0].datum()))
+				if (!vis.highlightView(selected[0].datum()))
 				{
 					vis.showResidueWarning();
 				}

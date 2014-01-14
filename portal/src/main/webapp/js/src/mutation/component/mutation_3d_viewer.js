@@ -330,31 +330,17 @@ var Mutation3dVis = function(name, options)
 		// the same (or very close) mutation position.
 		var id = pileup.mutations[0].mutationId;
 
-		var position = _chain.positionMap[id];
+		// get script
+		var script = getFocusScript(id);
+		script = script.concat(getHighlightScript(id));
 
-		// check if the mutation maps on this chain
-		if (position)
+		// check if the script is valid
+		if (script.length > 0)
 		{
-			var scriptPos = generateScriptPos(position);
-
-			// TODO turn on selection halos for the highlighted position?
-
-			var script = [];
-			// center and zoom to the selection
-			script.push("zoom " + _options.focusZoom +";");
-			script.push("center " + scriptPos + ":" + _chain.chainId + ";");
-			// reset previous highlights
-			for (var color in _selection)
-			{
-				script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
-				script.push("color [" + color + "];"); // color with corresponding mutation color
-			}
-			// highlight the focused position
-		    script.push("select " + scriptPos + ":" + _chain.chainId + ";");
-			script.push("color [" + _options.highlightColor + "];");
-
+			// convert array to string
 			script = script.join(" ");
 
+			// send script string to the app
 			_3dApp.script(script);
 		}
 		// no mapping position for this mutation on this chain
@@ -388,6 +374,125 @@ var Mutation3dVis = function(name, options)
 		script = script.join(" ");
 
 		_3dApp.script(script);
+	}
+
+	/**
+	 * Highlights the residue corresponding to the given pileup. If there is
+	 * no corresponding residue for the given pileup, this function does not
+	 * perform a highlight operation, and returns false.
+	 *
+	 * @param pileup    Pileup instance
+	 * @return {boolean}    true if there there a matching residue, false o.w.
+	 */
+	function highlight(pileup)
+	{
+		// no chain selected yet, terminate
+		if (!_chain)
+		{
+			return false;
+		}
+
+		// assuming all other mutations in the same pileup have
+		// the same (or very close) mutation position.
+		var id = pileup.mutations[0].mutationId;
+
+		var script = getHighlightScript(id);
+
+		// check if the script is valid
+		if (script.length > 0)
+		{
+			// convert array to string
+			script = script.join(" ");
+
+			// send script string to the app
+			_3dApp.script(script);
+		}
+		// no mapping position for this mutation on this chain
+		else
+		{
+			// just reset highlight
+			resetHighlight();
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Remove all highlights.
+	 */
+	function resetHighlight()
+	{
+		// remove all selection highlights
+		var script = [];
+
+		for (var color in _selection)
+		{
+			script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+			script.push("color [" + color + "];"); // color with corresponding mutation color
+		}
+
+		script = script.join(" ");
+
+		_3dApp.script(script);
+	}
+
+	/**
+	 * Generates the highlight script to be sent to the 3D app.
+	 *
+	 * @param mutationId    id of the mutation to highlight
+	 * @return {Array}      script lines as an array
+	 */
+	function getHighlightScript(mutationId)
+	{
+		var script = [];
+		var position = _chain.positionMap[mutationId];
+
+		// TODO currently highlighting only by color
+		// ...add an option to highlight by side chain as well
+
+		// check if the mutation maps on this chain
+		if (position)
+		{
+			var scriptPos = generateScriptPos(position);
+
+			// reset previous highlights
+			for (var color in _selection)
+			{
+				script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
+				script.push("color [" + color + "];"); // color with corresponding mutation color
+			}
+
+			// highlight the selected position
+			script.push("select " + scriptPos + ":" + _chain.chainId + ";");
+			script.push("color [" + _options.highlightColor + "];");
+		}
+
+		return script;
+	}
+
+	/**
+	 * Generates the focus script to be sent to the 3D app.
+	 *
+	 * @param mutationId    id of the mutation to highlight
+	 * @return {Array}      script lines as an array
+	 */
+	function getFocusScript(mutationId)
+	{
+		var script = [];
+		var position = _chain.positionMap[mutationId];
+
+		// check if the mutation maps on this chain
+		if (position)
+		{
+			var scriptPos = generateScriptPos(position);
+
+			// center and zoom to the selection
+			script.push("zoom " + _options.focusZoom +";");
+			script.push("center " + scriptPos + ":" + _chain.chainId + ";");
+		}
+
+		return script;
 	}
 
 	/**
@@ -454,6 +559,8 @@ var Mutation3dVis = function(name, options)
 		isVisible: isVisible,
 		reload: reload,
 		focusOn: focus,
+		highlight: highlight,
+		resetHighlight: resetHighlight,
 		zoomIn: zoomIn,
 		zoomOut: zoomOut,
 		zoomActual: zoomActual,

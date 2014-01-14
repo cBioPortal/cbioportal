@@ -114,7 +114,6 @@
 							</td>
 						</tr>
 					</table>
-
 				</div>
 			</td>
 		</tr>
@@ -161,37 +160,79 @@
 	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
 		<table>
-		    <tr>
-			    <td>
-					<label><b>Select style:</b></label>
-			    </td>
-			    <td>
-					<select class='mutation-3d-style-select'>
-						<option value='cartoon'
-						        title='Switch to Cartoon View'>cartoon</option>
-						<option value='ballAndStick'
-						        title='Switch to Ball and Stick View'>ball & stick</option>
-					</select>
-				</td>
-			    <td>
+			<tr>
+				<!--td>
 					<input class='mutation-3d-spin' type='checkbox'>
-			    </td>
-			    <td>
-				    <label>Turn on Spin</label>
-			    </td>
-			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomout ui-icon ui-icon-minus'
-						  title='zoom out'></span>
+					<label>Spin</label>
+				</td-->
+				<td class="mutation-3d-zoom-label">
+					<label>Zoom</label>
 				</td>
-			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomactual ui-icon ui-icon-arrow-2-se-nw'
-				          title='zoom to default'></span>
+				<td>
+					<div class="mutation-3d-zoom-slider"></div>
 				</td>
-			    <td>
-				    <span class='mutation-3d-button mutation-3d-zoomin ui-icon ui-icon-plus'
-				          title='zoom in'></span>
-			    </td>
-		    </tr>
+			</tr>
+		</table>
+		<table>
+			<tr>
+				<td class="mutation-3d-protein-style-menu">
+					<div class="mutation-3d-style-header">
+						<label>Protein Style</label>
+					</div>
+					<table>
+						<tr>
+							<td>
+								<label>Scheme:</label>
+								<select class='mutation-3d-protein-style-select'>
+									<option value='cartoon'
+									        title='Switch to Cartoon Style'>cartoon</option>
+									<option value='spaceFilling'
+									        title='Switch to Space-filling Style'>space-filling</option>
+									<option value='trace'
+									        title='Switch to Trace Style'>trace</option>
+								</select>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Color:</label>
+								<select class='mutation-3d-protein-color-select'>
+									<option value='uniform'
+									        title='Uniform color'>uniform</option>
+									<option value='secondaryStructure'
+									        title='Color by secondary structure'>by secondary structure</option>
+									<option value='atomType'
+									        title='Color by atom type'>by atom type</option>
+								</select>
+							</td>
+						</tr>
+					</table>
+				</td>
+				<td class="mutation-3d-mutation-style-menu">
+					<div class="mutation-3d-style-header">
+						<label>Mutation Style</label>
+					</div>
+					<table>
+						<tr>
+							<td>
+								<input class='mutation-3d-side-chain' type='checkbox'>
+								<label>Display side chain</label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Color:</label>
+								<select class='mutation-3d-mutation-color-select'>
+									<option value='mutationType'
+									        title='Uniform color'>by mutation type</option>
+									<option value='atomType'
+									        title='Color by secondary structure'>by atom type</option>
+								</select>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
 		</table>
 	</div>
 </script>

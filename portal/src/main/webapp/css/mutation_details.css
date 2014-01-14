@@ -165,6 +165,10 @@ th.mutation-details-qtip-style {
 .mutation-table-header {
 	font-weight: bold !important;
 }
+
+/**
+ * 3D visualizer panel
+ */
 .mutation-3d-container {
 	position: fixed;
 	float: right;
@@ -173,8 +177,11 @@ th.mutation-details-qtip-style {
 	z-index: 100;
 	border-style: outset;
 	border-color: #BABDB6;
+	border-radius: 15px;
 	background-color: #FFFFFF;
 	padding: 5px 10px 10px;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
 }
 .mutation-3d-vis-header {
 	padding-bottom: 5px;
@@ -214,20 +221,35 @@ th.mutation-details-qtip-style {
 	width: 12px;
 	/* TODO add anim to click */
 }
-.mutation-3d-pdb-id, .mutation-3d-chain-id {
+.mutation-3d-pdb-id,
+.mutation-3d-chain-id {
 	font-weight: bold;
 	font-style: italic;
 }
 .mutation-3d-spin {
 	margin-left: 12px;
 }
-.mutation-3d-zoomout {
-	margin-left: 10px;
+.mutation-3d-zoom-label {
+	text-align: right;
+	width: 300px; /* TODO not a good solution to align right */
 }
-.mutation-3d-vis img{
+.mutation-3d-zoom-slider {
+	margin-left: 2px;
+	width: 80px;
+}
+.mutation-3d-protein-style-menu {
+	border-right: 1px solid #AAAAAA;
+}
+.mutation-3d-style-header {
+	text-align: center;
+	font-weight: bold;
+}
+.mutation-3d-vis img {
 	width: 24px;
 	height: 24px
 }
+
+
 .cosmic-details-tip-info {
 	padding-bottom: 5px;
 }

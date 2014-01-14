@@ -86,10 +86,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		});
 
 		// style selection menu
-		var styleMenu = self.$el.find(".mutation-3d-style-select");
+		var styleMenu = self.$el.find(".mutation-3d-protein-style-select");
 
 		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
-		styleMenu.chosen({width: 120, disable_search: true});
+		//styleMenu.chosen({width: 120, disable_search: true});
 
 		styleMenu.change(function(){
 			var selected = $(this).val();
@@ -100,41 +100,32 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		});
 
-		// zoom buttons
+		// mutation color selection menu
+		var mutationColorMenu = self.$el.find(".mutation-3d-mutation-color-select");
 
-		var zoomIn = self.$el.find(".mutation-3d-zoomin");
-		var zoomOut = self.$el.find(".mutation-3d-zoomout");
-		var zoomActual = self.$el.find(".mutation-3d-zoomactual");
-
-		var zoomButtonSet = self.$el.find(".mutation-3d-button");
-		zoomButtonSet.tipTip();
-
-		// TODO add also tips
-		zoomIn.click(function() {
-			if (mut3dVis != null)
-			{
-				mut3dVis.zoomIn();
-			}
-		});
-
-		zoomOut.click(function() {
-			if (mut3dVis != null)
-			{
-				mut3dVis.zoomOut();
-			}
-		});
-
-		zoomActual.click(function() {
-			if (mut3dVis != null)
-			{
-				mut3dVis.zoomActual();
-			}
-		});
-
+		// zoom slider
+		self._zoomSlider();
 
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
 			closeHandler();
+		});
+	},
+	_zoomSlider: function()
+	{
+		var self = this;
+		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+
+		// init y-axis slider controls
+		zoomSlider.slider({value: 100,
+			min: 25,
+			max: 500,
+			change: function(event, ui) {
+				// TODO send actual zoom request
+			},
+			slide: function(event, ui) {
+				// TODO zoom for every slide action?
+			}
 		});
 	},
 	/**

@@ -54,65 +54,8 @@
     </div>
 -->
     <div id="pie">
-         <!-- 
-        <div id='DFS_STATUS' class='pie-chart'>
-            <pieH4>MRNA EXPRESSION  <a class="reset" href="javascript:varChart[0].filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-  
-        <div id='tumor-stage-2009-chart' class='pie-chart' style="display:block">
-            <pieH4>TUMOR STAGE 2009  <a class="reset" href="javascript:tumorStage2009Chart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='subtype-chart' class='pie-chart'  style="display:block">
-            <pieH4>SUBTYPE DESCRIPTION <a class="reset" href="javascript:subtypeChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='histology-chart' class='pie-chart'>
-            <pieH4>HISTOLOGY <a class="reset" href="javascript:histologyChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='tumor-grade-chart' class='pie-chart'>
-            <pieH4>TUMOR GRADE  <a class="reset" href="javascript:tumorGradeChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='msi-status-7-marker-call-chart' class='pie-chart'>
-            <pieH4>MSI STATUS 7 MARKER CALL  <a class="reset" href="javascript:msiStatus7MarkerCallChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='msi-status-5-marker-call-chart' class='pie-chart'>
-            <pieH4>MSI STATUS 5 MARKER CALL  <a class="reset" href="javascript:msiStatus5MarkerCallChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-        <div id='methylation-cluster-chart' class='pie-chart'>
-            <pieH4>METHYLATION CLUSTER  <a class="reset" href="javascript:methylationClusterChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='mlh1-silencing-chart' class='pie-chart'>
-            <pieH4>MLH1 SILENCING  <a class="reset" href="javascript:mlh1SilencingChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='cna-cluster-k4-chart' class='pie-chart'>
-            <pieH4>CNA CLUSTER K4  <a class="reset" href="javascript:cnaClusterK4Chart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='mutation-rate-cluster-chart' class='pie-chart'>
-            <pieH4>MUTATION RATE CLUSTER  <a class="reset" href="javascript:mutationRateClusterChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='micro-rna-cluster-chart' class='pie-chart'>
-            <pieH4>MICRO RNA CLUSTER  <a class="reset" href="javascript:microRnaClusterChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='os-status-chart' class='pie-chart'>
-            <pieH4>OVERALL SURVIVAL STATUS  <a class="reset" href="javascript:osStatusChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='dfs-status-chart' class='pie-chart'>
-            <pieH4>DISEASE FREE STATUS  <a class="reset" href="javascript:dfsStatusChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH4>
-        </div>			
-
-        <div id='data-chart'>
-            <pieH4>DATA</pieH4>
-            <br />
+         
+            <!--
             <div id='data-maf-chart' class='data-pie-chart'>
                 <pieH3>MAF <a class="reset" href="javascript:dataMafChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
             </div>
@@ -125,8 +68,8 @@
             <div id='data-core-sample-chart' class='data-pie-chart'>
                 <pieH3>CORE SAMPLE <a class="reset" href="javascript:dataCoreSampleChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
             </div>
-        </div>
-        -->
+            -->
+        
     </div>
 
 

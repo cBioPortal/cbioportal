@@ -175,7 +175,7 @@ var studyView = function(){
         var dataA = new Array();
         var dataB = new Array();
         var pie = new Array();
-        var smailPie = new Array();
+        var smallPie = new Array();
         var row = new Array();
         var bar = new Array();
         var combine = new Array();
@@ -194,8 +194,7 @@ var studyView = function(){
             //console.log(dataA[i]["datatype"]);
             if(dataA[i]["attr_id"] === "CASE_ID"){
                 continue;
-            }
-            else if(dataA[i]["datatype"] === "NUMBER"){
+            }else if(dataA[i]["datatype"] === "NUMBER"){
                 var varValues = new Array();
                 for(var j=0;j<dataB.length;j++){
                     //console.log(dataB[j][dataA[i]["attr_id"]])
@@ -211,8 +210,9 @@ var studyView = function(){
             }else if(dataA[i]["datatype"] === "STRING"){
                 pie.push(dataA[i]);
             }
-            else if(dataA[i]["datatype"] === "BOOLEAN")
-                smailPie.push(dataA[i]);
+            else if(dataA[i]["datatype"] === "BOOLEAN"){
+                smallPie.push(dataA[i]);
+            }
             else 
                 combine.push(dataA[i]);
         }
@@ -225,13 +225,22 @@ var studyView = function(){
             varChart.push(dc.pieChart("#" + pie[i]["attr_id"]));
         }
         
-        for(var i=0; i< bar.length ; i++){
-            $("#bar").append("<div id=\"" + bar[i]["attr_id"] + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+        for(var i=0,j=pie.length; i< bar.length ; i++,j++){
+            $("#bar").append("<div id=\"" + bar[i]["attr_id"] + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
             varName.push(bar[i]["attr_id"]);
             varDisplay.push(bar[i]["display_name"]);
             varChart.push(dc.barChart("#" + bar[i]["attr_id"]));
         }
         
+        if(smallPie.length > 0){
+            $("#pie").append("<div id='data-chart'></div>");            
+            for(var i=0,j=pie.length+bar.length; i< smallPie.length ; i++,j++){
+                $("#data-chart").append("<div id=\"" + smallPie[i]["attr_id"] + "\" class='data-pie-chart'><pieH4>" + smallPie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+                varName.push(smallPie[i]["attr_id"]);
+                varDisplay.push(smallPie[i]["display_name"]);
+                varChart.push(dc.pieChart("#" + smallPie[i]["attr_id"]));
+            }
+        }
         
         var ndx = crossfilter(dataB);
         var all = ndx.groupAll();
@@ -253,23 +262,31 @@ var studyView = function(){
             .transitionDuration(800)
             .label(function (d) {
                 return d.key + ":" + d.value;
-            })
+            });
         }
         
-        for(var i=pie.length; i< pie.length + bar.length ; i++){
-            varCluster[i] = ndx.dimension(function (d) {
-                if(!d[varName[i]])
-                    return "NA";
-                return d[varName[i]];
-            });
-            
+        for(var i=pie.length; i< pie.length + bar.length ; i++){           
             
             var varValues = new Array();
             for(var j=0;j<dataB.length;j++){
                 if(dataB[j][varName[i]] && dataB[j][varName[i]]!=="NA" && dataB[j][varName[i]]!=="")
-                    varValues.push(dataB[j][varName[i]]);
-                    
+                    varValues.push(dataB[j][varName[i]]);                    
             }
+            
+            //This should be changed later: run the loop i times which should only run once
+            varCluster[i] = ndx.dimension(function (d) {
+                var returnValue = d[varName[i]];
+                if(d[varName[i]] % 1 !== 0 && decimalPlaces(d[varName[i]]) > 3)
+                    if(Math.max.apply( Math, varValues ) - Math.min.apply( Math, varValues )<2){
+                        returnValue = d3.round(d[varName[i]],2);
+                    }
+                    else
+                        returnValue = d3.round(d[varName[i]]);
+                if(returnValue === 'NA' || returnValue === '')
+                    returnValue = 'NaN';
+                console.log(returnValue);    
+                return returnValue;
+            });
             //if(varValues.length===0)
                 //continue;
             
@@ -285,9 +302,34 @@ var studyView = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(800)
-            .round(dc.round.floor)
             .x(d3.scale.linear().domain([Math.min.apply( Math, varValues ), Math.max.apply( Math, varValues )]))
             .yAxis().tickFormat(d3.format("d"));
+                      
+        }
+        
+        for(var i=pie.length + bar.length; i< pie.length + bar.length + smallPie.length; i++){
+            varCluster[i] = ndx.dimension(function (d) {
+                return d[varName[i]];
+            });
+            
+            
+            var varValues = new Array();
+            for(var j=0;j<dataB.length;j++){
+                if(dataB[j][varName[i]] && dataB[j][varName[i]]!=="NA" && dataB[j][varName[i]]!=="")
+                    varValues.push(dataB[j][varName[i]]);                    
+            }
+            
+            varGroup[i] = varCluster[i].group();
+            console.log(varName[i]);
+            varChart[i]
+            .width(100)
+            .height(82)
+            .radius(40)
+            .dimension(varCluster[i])
+            .group(varGroup[i])
+            .label(function (d) {
+                return d.key + ":" + d.value;
+            });
                       
         }
         
@@ -418,9 +460,7 @@ var studyView = function(){
         })
         .transitionDuration(800);
         
-        console.log(dataTable.columns);
-        dc.renderAll();
-        
+        dc.renderAll();        
     };    
     
     function restyle(){
@@ -451,6 +491,17 @@ var studyView = function(){
                     dc.redrawAll();
             }
         });
+    }
+    
+    function decimalPlaces(num) {
+        var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
+        if (!match) { return 0; }
+        return Math.max(
+            0,
+            // Number of digits right of decimal point.
+            (match[1] ? match[1].length : 0)
+            // Adjust for scientific notation.
+            - (match[2] ? +match[2] : 0));
     }
 };
 

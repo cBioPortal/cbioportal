@@ -221,6 +221,7 @@ var studyView = function(){
                 else
                     pie.push(dataA[i]);
             }else if(dataA[i]["datatype"] === "STRING"){
+                /*
                 var keyMaxLength = 0;
                 var keys = Object.keys(varValues);
                 for(var j=0; j< keys.length ; j++)
@@ -232,6 +233,7 @@ var studyView = function(){
                     rowKeys.push(keys);
                 }
                 else
+                */
                     pie.push(dataA[i]);
             }
             /*
@@ -378,8 +380,8 @@ var studyView = function(){
             .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
     
-            console.log(varValues.length);
-            varChart[i].xUnits(function(){return varValues.length;});
+            //console.log(varValues.length);
+            varChart[i].xUnits(function(){return 1000;});
         }
         
         /*

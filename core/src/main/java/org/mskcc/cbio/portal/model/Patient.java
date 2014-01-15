@@ -39,27 +39,34 @@ public class Patient {
 
     private int internalId;
     private String stableId;
+    private CancerStudy cancerStudy;
 
     private String sampleId;
 	private Map<String, ClinicalData> clinicalDataMap;
     private static final Logger logger = Logger.getLogger(Patient.class);
 
-    public Patient(String stableId)
+    public Patient(CancerStudy cancerStudy, String stableId)
     {
-        this(stableId, stableId, new HashMap<String, ClinicalData>());
+        this(cancerStudy, stableId, stableId, new HashMap<String, ClinicalData>());
     }
 
-    public Patient(int internalId, String stableId)
+    public Patient(CancerStudy cancerStudy, int internalId, String stableId)
     {
-        this(stableId, stableId, new HashMap<String, ClinicalData>());
+        this(cancerStudy, stableId, stableId, new HashMap<String, ClinicalData>());
         this.internalId = internalId;
     }
 
-    public Patient(String stableId, String sampleId, Map<String, ClinicalData> clinicalDataMap)
+    public Patient(CancerStudy cancerStudy, String stableId, String sampleId, Map<String, ClinicalData> clinicalDataMap)
     {
+        this.cancerStudy = cancerStudy;
         this.stableId = stableId;
         this.sampleId = sampleId;
 		this.clinicalDataMap = clinicalDataMap;
+    }
+
+    public CancerStudy getCancerStudy()
+    {
+        return cancerStudy;
     }
 
     public int getInternalId()

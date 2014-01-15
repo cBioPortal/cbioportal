@@ -27,15 +27,11 @@
 
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.model.Patient;
-import org.mskcc.cbio.portal.dao.DaoPatient;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.util.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Scanner;
 
 /**
@@ -47,19 +43,26 @@ public class ImportPatientList
 {
     public static void main(String[] args) throws IOException, DaoException
     {
-        if (args.length != 1) {
-            System.out.println("command line usage: java ... org.mskcc.cbio.portal.scripts.ImportPatientList <patient_list.txt>");
+        if (args.length != 2) {
+            System.out.println("command line usage: java ... org.mskcc.cbio.portal.scripts.ImportPatientList <patient_list.txt> <cancer_study_id>");
             return;
         }
 
-        ProgressMonitor pMonitor = new ProgressMonitor();
-        pMonitor.setConsoleMode(true);
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(args[1]);
+        if (cancerStudy == null) {
+            System.err.println("Unknown cancer study: " + args[1]);
+            
+        }
+        else {
+            ProgressMonitor pMonitor = new ProgressMonitor();
+            pMonitor.setConsoleMode(true);
 
-        File file = new File(args[0]);
-        load(pMonitor, file);
+            File file = new File(args[0]);
+            load(pMonitor, file, cancerStudy);
+        }
     }
 
-    public static void load(ProgressMonitor pMonitor, File file) throws IOException, DaoException
+    private static void load(ProgressMonitor pMonitor, File file, CancerStudy cancerStudy) throws IOException, DaoException
     {
 
         int patientCount = 0;
@@ -68,7 +71,7 @@ public class ImportPatientList
             String[] tokens = scanner.nextLine().split("\t", -1);
             assert tokens.length == 1;
 
-            Patient aPatient = new Patient(tokens[0].trim());
+            Patient aPatient = new Patient(cancerStudy, tokens[0].trim());
             DaoPatient.addPatient(aPatient);
             ++patientCount;
         }

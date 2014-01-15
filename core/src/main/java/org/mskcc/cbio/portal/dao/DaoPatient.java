@@ -27,7 +27,7 @@
 
 package org.mskcc.cbio.portal.dao;
 
-import org.mskcc.cbio.portal.model.Patient;
+import org.mskcc.cbio.portal.model.*;
 
 import java.sql.*;
 import java.util.*;
@@ -90,13 +90,14 @@ public class DaoPatient {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_ID`) VALUES (?)",
+            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_ID`) VALUES (?,?)",
                                          Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, patient.getStableId());
+            pstmt.setInt(2, patient.getCancerStudy().getInternalId());
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                cachePatient(new Patient(rs.getInt(1), patient.getStableId()));
+                cachePatient(new Patient(patient.getCancerStudy(), rs.getInt(1), patient.getStableId()));
             }
         }
         catch (SQLException e) {
@@ -144,7 +145,9 @@ public class DaoPatient {
 
     private static Patient extractPatient(ResultSet rs) throws SQLException
     {
-        return new Patient(rs.getInt("INTERNAL_ID"),
+        CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(rs.getInt("CANCER_STUDY_ID"));
+        return new Patient(cancerStudy,
+                           rs.getInt("INTERNAL_ID"),
                            rs.getString("STABLE_ID"));
     }
 }

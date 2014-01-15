@@ -328,7 +328,7 @@ class ImporterImpl implements Importer {
                                                fileUtils.getPatientListFromAllCases(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
 				createdPatientListFile = true;
 			}
-            args = new String[] { patientListFile };
+            args = new String[] { patientListFile, cancerStudyMetadata.toString() };
             ImportPatientList.main(args);
 
 			// iterate over all datatypes

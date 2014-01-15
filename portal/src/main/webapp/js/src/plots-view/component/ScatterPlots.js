@@ -25,6 +25,21 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA.
  */
 
+ /** 
+ *
+ * Basic Scatter Plots Component. 
+ *
+ * @param: options -- includes style, canvas(position), elem(svg), text(titles, etc.)
+ * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, case id, etc.)
+ * @param: dataAttr -- attributes of input data object (max, min, etc.)
+ *
+ * @output: a simple scatter plot 
+ * 
+ * @author: Yichao S
+ * @date: Jan 2014
+ *
+ */
+
 var ScatterPlots = (function() {
 
     var style = {},
@@ -36,13 +51,21 @@ var ScatterPlots = (function() {
 
     var axis_edge = 0.1;
 
-    function initSettings(options, _dataArr, _dataAttr) { //Init with options
+    function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
         canvas = jQuery.extend(true, {}, options.canvas);
         elem = jQuery.extend(true, {}, options.elem);
         text = jQuery.extend(true, {}, options.text)
-        dataArr = jQuery.extend(true, {}, _dataArr);
         dataAttr = jQuery.extend(true, {}, _dataAttr);
+    }
+
+    function convertData(_dataArr) {
+        dataArr.length = 0;
+        //convert json to array
+        $.each(_dataArr, function(index, obj) {
+            obj.qtip = "new qtip";
+            dataArr.push(obj);
+        });
     }
 
     function initSvgCanvas(divName) {
@@ -52,12 +75,6 @@ var ScatterPlots = (function() {
     }
 
     function initScales() {
-        var _yValArr = [];
-        var _xValArr = [];
-        $.each(dataArr, function(index, val){
-            _xValArr.push(val.x_val);
-            _yValArr.push(val.y_val);
-        });
         var _edge_x = (dataAttr.max_x - dataAttr.min_x) * axis_edge;
         var _edge_y = (dataAttr.max_y - dataAttr.min_y) * axis_edge;
         elem.xScale = d3.scale.linear()
@@ -71,10 +88,12 @@ var ScatterPlots = (function() {
     function initAxis() {
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
-            .orient("bottom");
+            .orient("bottom")
+            .tickSize(6, 0, 0);
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
-            .orient("left");
+            .orient("left")
+            .tickSize(6, 0, 0);
     }
 
     function generateAxis() {
@@ -140,19 +159,14 @@ var ScatterPlots = (function() {
     }
 
     function drawPlots() {
-        var _dataArr = [];
-        _dataArr.length = 0;
-        $.each(dataArr, function(index, obj) {
-            _dataArr.push(obj);
-        });
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
         elem.dotsGroup.selectAll("path")
-            .data(_dataArr)
+            .data(dataArr)
             .enter()
             .append("svg:path")
             .attr("transform", function(d){
-                return "translate(" + elem.xScale(parseFloat(d.x_val)) + ", " + elem.yScale(parseFloat(d.y_val)) + ")";
+                return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
             })
             .attr("d", d3.svg.symbol()
                 .size(style.size)
@@ -162,15 +176,58 @@ var ScatterPlots = (function() {
             .attr("stroke-width", style.stroke_width);
     }
 
+    function addQtips() {
+        elem.dotsGroup.selectAll('path').each(
+            function(d) {
+                var content = "<font size='2'>";
+                content += "<strong><a href='tumormap.do?case_id=" + d.case_id +
+                           "&cancer_study_id=" + window.PortalGlobals.getCancerStudyId() +
+                           "' target = '_blank'>" + d.case_id + "</a></strong><br></font>";
+
+                $(this).qtip(
+                    {
+                        content: {text: content},
+                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
+
+            }
+        );
+        //Hover Animation
+        var mouseOn = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(style.size * 10).type(style.shape));
+        };
+        var mouseOff = function() {
+            var dot = d3.select(this);
+            dot.transition()
+                .ease("elastic")
+                .duration(600)
+                .delay(100)
+                .attr("d", d3.svg.symbol().size(style.size).type(style.shape));
+        };
+        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+    }
+
     return {
         init: function(options, _dataArr, _dataAttr) {    //Init with options
-            initSettings(options, _dataArr, _dataAttr);
+            initSettings(options, _dataAttr);
+            convertData(_dataArr);
             initSvgCanvas(options.names.body);
             initScales();
             initAxis();
             generateAxis();
             appendAxisTitles();
             drawPlots();
+            addQtips();
         },
         update: function() {   //Update with new options
         }

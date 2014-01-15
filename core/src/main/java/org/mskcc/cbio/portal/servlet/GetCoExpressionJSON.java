@@ -54,7 +54,7 @@ import org.mskcc.cbio.portal.util.CoExpUtil;
 public class GetCoExpressionJSON extends HttpServlet  {
 
     private double coExpScoreThreshold = 0.3;
-    private int resultLength = 150;
+    private int resultLength = 250;
 
     /**
      * Handles HTTP GET Request.
@@ -80,7 +80,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
 
         String cancerStudyIdentifier = httpServletRequest.getParameter("cancer_study_id");
         String geneSymbol = httpServletRequest.getParameter("gene");
-	    String caseSetId = httpServletRequest.getParameter("case_set_id");
+	      String caseSetId = httpServletRequest.getParameter("case_set_id");
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
@@ -91,8 +91,8 @@ public class GetCoExpressionJSON extends HttpServlet  {
         CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
         Long queryGeneId = geneObj.getEntrezGeneId();
 
-    	GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
-	    if (final_gp != null) {
+    	  GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+	      if (final_gp != null) {
             try {
                 Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
                 int mapSize = map.size();

@@ -26,7 +26,8 @@
  */
 
 /**
- * Render the Co-expression view using dataTable Jquery Plugin
+ * Render the Co-expression view using dataTable Jquery Plugin,
+ * along side a plot for selected row
  *
  * User: yichao
  * Date: 12/5/13
@@ -170,7 +171,7 @@ var CoExpTable = (function() {
                 var aData = _coExpTable.fnGetData(this);
                 if (null !== aData) {
                     $("#" + plotId).empty();
-                    //SimplePlot.init(plotId, geneId, aData[0]);
+                    $("#" + plotId).append("<img style='padding:220px;' src='images/ajax-loader.gif'>");
                     CoexpPlots.init(plotId, geneId, aData[0]);
                 }
             })

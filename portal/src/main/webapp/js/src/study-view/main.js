@@ -50,6 +50,8 @@ $(function() {
     });	
 
     $("#pie").sortable();
+    $("#row").sortable();
+    $("#bar").sortable();
     $("#dialog-form li").click(function() { 
         var strings = this.id.split("-menu");
         if(strings[0] != 'data-table'){
@@ -177,6 +179,7 @@ var studyView = function(){
         var pie = new Array();
         var smallPie = new Array();
         var row = new Array();
+        var rowKeys = new Array();
         var bar = new Array();
         var combine = new Array();
         var table = new Array();
@@ -186,6 +189,15 @@ var studyView = function(){
         var varCluster = new Array();
         var varGroup = new Array();
         //var varType = new Array();
+        var chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
+        "#990099","#0099c6","#dd4477","#66aa00",
+        "#b82e2e","#316395","#994499","#22aa99",
+        "#aaaa11","#6633cc","#e67300","#8b0707",
+        "#651067","#329262","#5574a6","#3b3eac",
+        "#b77322","#16d620","#b91383","#f4359e",
+        "#9c5935","#a9c413","#2a778d","#668d1c",
+        "#bea413","#0c5922","#743411"];
+    
         dataA = attr;
         dataB = dataObjectM;
 
@@ -203,7 +215,7 @@ var studyView = function(){
             
             if(dataA[i]["attr_id"] === "CASE_ID"){
                 continue;
-            }else if(dataA[i]["datatype"] === "NUMBER"){                
+            }else if(dataA[i]["datatype"] === "NUMBER" || dataA[i]["datatype"] === "BOOLEAN"){                
                 if(Object.keys(varValues).length>10)
                     bar.push(dataA[i]);
                 else
@@ -215,15 +227,18 @@ var studyView = function(){
                     if(keys[j].length > keyMaxLength)
                         keyMaxLength = keys[j].length;
                 
-                if(keyMaxLength > 10){
+                if(keyMaxLength > 10 || keys.length > 10){
                     row.push(dataA[i]);
+                    rowKeys.push(keys);
                 }
                 else
                     pie.push(dataA[i]);
             }
+            /*
             else if(dataA[i]["datatype"] === "BOOLEAN"){
                 smallPie.push(dataA[i]);
             }
+            */
             else 
                 combine.push(dataA[i]);
         }
@@ -249,7 +264,7 @@ var studyView = function(){
             varDisplay.push(bar[i]["display_name"]);
             varChart.push(dc.barChart("#" + bar[i]["attr_id"]));
         }
-        
+        /*
         if(smallPie.length > 0){
             $("#pie").append("<div id='data-chart'></div>");            
             for(var i=0,j=pie.length+row.length+bar.length; i< smallPie.length ; i++,j++){
@@ -259,6 +274,7 @@ var studyView = function(){
                 varChart.push(dc.pieChart("#" + smallPie[i]["attr_id"]));
             }
         }
+        */
         
         var ndx = crossfilter(dataB);
         var all = ndx.groupAll();
@@ -266,18 +282,19 @@ var studyView = function(){
         //Initial all pie charts
         for(var i=0; i< pie.length ; i++){
             varCluster[i] = ndx.dimension(function (d) {
-                if(!d[varName[i]])
+                if(!d[varName[i]] || d[varName[i]].toLowerCase()==="unknown" || d[varName[i]].toLowerCase()==="none")
                     return "NA";
                 return d[varName[i]];
             });
             varGroup[i] = varCluster[i].group();
             varChart[i]
-            .width(120)
-            .height(120)
-            .radius(50)
+            .width(140)
+            .height(140)
+            .radius(60)
             .dimension(varCluster[i])
             .group(varGroup[i])
             .transitionDuration(800)
+            .ordinalColors(chartColors)
             .label(function (d) {
                 return d.key + ":" + d.value;
             });
@@ -285,6 +302,8 @@ var studyView = function(){
         
         //Initial all row charts
         for(var i=pie.length; i< pie.length + row.length ; i++){
+            var rowChartHeight = rowKeys[i-pie.length].length * 25 +50;
+            $(varName[i]).css("height",rowChartHeight+50+"px")
             varCluster[i] = ndx.dimension(function (d) {
                 if(!d[varName[i]])
                     return "NA";
@@ -293,12 +312,13 @@ var studyView = function(){
             varGroup[i] = varCluster[i].group();
             
             varChart[i]
-            .width(400)
-            .height(180)
+            .width(300)
+            .height(rowChartHeight)
             .dimension(varCluster[i])
             .group(varGroup[i])
             .transitionDuration(800)
             .elasticX(true)
+            .ordinalColors(chartColors)
             .title(function (d) {
                     return d.value;
             })
@@ -327,7 +347,7 @@ var studyView = function(){
                     }
                     else
                         returnValue = d3.round(d[varName[i]]);
-                if(returnValue === 'NA' || returnValue === '')
+                if(returnValue === "NA" || returnValue === '')
                     returnValue = Math.min.apply( Math, varValues )-100;
                 //if(i===15)
                 //console.log("original Value:" + d[varName[i]] + " Return Value:" + returnValue);
@@ -337,8 +357,11 @@ var studyView = function(){
                 //continue;
             var xunitsWidth = 1;
             
-            if(distanceMinMax !== 0)
-                xunitsWidth = varValues.length / distanceMinMax / 2;
+            if(distanceMinMax !== 0){
+                //xunitsWidth = varValues.length / distanceMinMax / 2;
+                xunitsWidth = distanceMinMax * 3;
+                        //console.log(xunitsWidth);
+            }
                 
             varGroup[i] = varCluster[i].group();
             varChart[i]
@@ -354,9 +377,12 @@ var studyView = function(){
             .transitionDuration(800)
             .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
-            varChart[i].xUnits(function(){return xunitsWidth;});
+    
+            console.log(varValues.length);
+            varChart[i].xUnits(function(){return varValues.length;});
         }
         
+        /*
         //Initial all small pie charts
         for(var i=pie.length + row.length + bar.length; i< pie.length + row.length + bar.length + smallPie.length; i++){
             varCluster[i] = ndx.dimension(function (d) {
@@ -368,6 +394,7 @@ var studyView = function(){
             .width(100)
             .height(82)
             .radius(40)
+            .ordinalColors(chartColors)
             .dimension(varCluster[i])
             .group(varGroup[i])
             .label(function (d) {
@@ -375,7 +402,8 @@ var studyView = function(){
             });
                       
         }
-        
+        */
+       
         dataTable = dc.dataTableDataOnly("#dataTable");
         var CASEID = ndx.dimension(function (d) {
                 return d.CASE_ID;

@@ -111,20 +111,40 @@ var Mutation3dVisView = Backbone.View.extend({
 			closeHandler();
 		});
 	},
+	/**
+	 * Initializes the zoom slider with default values.
+	 */
 	_zoomSlider: function()
 	{
 		var self = this;
 		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+		var mut3dVis = self.options.mut3dVis;
+
+		// TODO make slider values customizable?
+
+		// helper function to transform slider value into an actual zoom value
+		var transformValue = function (value)
+		{
+			if (value < 0)
+			{
+				return 100 + value;
+			}
+			else
+			{
+				return 100 + (value * 5);
+			}
+		};
 
 		// init y-axis slider controls
-		zoomSlider.slider({value: 100,
-			min: 25,
-			max: 500,
-			change: function(event, ui) {
-				// TODO send actual zoom request
+		zoomSlider.slider({value: 0,
+			min: -80,
+			max: 80,
+			stop: function(event, ui) {
+				mut3dVis.zoomTo(transformValue(ui.value));
 			},
 			slide: function(event, ui) {
-				// TODO zoom for every slide action?
+				// TODO zooming for every move, this may reduce performance
+				mut3dVis.zoomTo(transformValue(ui.value));
 			}
 		});
 	},
@@ -208,6 +228,10 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// show loader image
 		self.showLoader();
+
+		// reset zoom slider
+		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+		zoomSlider.slider("value", 0);
 
 		// set a short delay to allow loader image to appear
 		setTimeout(function() {

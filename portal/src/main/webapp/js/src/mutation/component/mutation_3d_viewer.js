@@ -522,6 +522,16 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
+	 * Zooms to the given zoom level.
+	 *
+	 * @param value desired zoom level
+	 */
+	function zoomTo(value)
+	{
+		_3dApp.script("zoom " + value + ";");
+	}
+
+	/**
 	 * Generates a position string for Jmol scripting.
 	 *
 	 * @position object containing PDB position info
@@ -564,6 +574,7 @@ var Mutation3dVis = function(name, options)
 		zoomIn: zoomIn,
 		zoomOut: zoomOut,
 		zoomActual: zoomActual,
+		zoomTo: zoomTo,
 		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,

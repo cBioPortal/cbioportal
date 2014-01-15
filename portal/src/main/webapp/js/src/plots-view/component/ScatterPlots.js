@@ -43,9 +43,10 @@
 var ScatterPlots = (function() {
 
     var style = {},
-        canvas = {},
+        canvas = {}, //positions
         elem = {},
         text = {},
+        names = {}, //ids
         dataArr = [],
         dataAttr = [];
 
@@ -55,7 +56,8 @@ var ScatterPlots = (function() {
         style = jQuery.extend(true, {}, options.style);
         canvas = jQuery.extend(true, {}, options.canvas);
         elem = jQuery.extend(true, {}, options.elem);
-        text = jQuery.extend(true, {}, options.text)
+        text = jQuery.extend(true, {}, options.text);
+        names = jQuery.extend(true, {}, options.names);
         dataAttr = jQuery.extend(true, {}, _dataAttr);
     }
 
@@ -72,36 +74,47 @@ var ScatterPlots = (function() {
         elem.svg = d3.select("#" + divName).append("svg")
             .attr("width", canvas.width)
             .attr("height", canvas.height);
+        elem.dotsGroup = elem.svg.append("svg:g");
+        elem.axisGroup = elem.svg.append("svg:g");
+        elem.axisTitleGroup = elem.svg.append("svg:g");
     }
 
-    function initScales() {
+    function initScaleX() {
         var _edge_x = (dataAttr.max_x - dataAttr.min_x) * axis_edge;
-        var _edge_y = (dataAttr.max_y - dataAttr.min_y) * axis_edge;
         elem.xScale = d3.scale.linear()
             .domain([dataAttr.min_x - _edge_x, dataAttr.max_x + _edge_x])
             .range([canvas.xLeft, canvas.xRight]);
+    }
+
+    function initScaleY() {
+        var _edge_y = (dataAttr.max_y - dataAttr.min_y) * axis_edge;
         elem.yScale = d3.scale.linear()
             .domain([dataAttr.min_y - _edge_y, dataAttr.max_y + _edge_y])
             .range([canvas.yBottom, canvas.yTop]);
     }
 
-    function initAxis() {
+    function initAxisX() {
         elem.xAxis = d3.svg.axis()
             .scale(elem.xScale)
             .orient("bottom")
             .tickSize(6, 0, 0);
+    }
+
+    function initAxisY() {
         elem.yAxis = d3.svg.axis()
             .scale(elem.yScale)
             .orient("left")
             .tickSize(6, 0, 0);
     }
 
-    function generateAxis() {
-        elem.svg.append("g")
+    function generateAxisX() {
+        d3.select("#" + names.body).select(".coexp-x-axis").remove();
+        elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
+            .attr("class", "coexp-x-axis")
             .attr("transform", "translate(0, " + canvas.yBottom + ")")
             .call(elem.xAxis)
             .selectAll("text")
@@ -110,18 +123,24 @@ var ScatterPlots = (function() {
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
-        elem.svg.append("g")
+        elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
-        elem.svg.append("g")
+
+    }
+
+    function generateAxisY() {
+        d3.select("#" + names.body).select(".coexp-y-axis").remove();
+        elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
+            .attr("class", "coexp-y-axis")
             .attr("transform", "translate(" + canvas.xLeft + ", 0)")
             .call(elem.yAxis)
             .selectAll("text")
@@ -130,7 +149,7 @@ var ScatterPlots = (function() {
             .style("stroke-width", 0.5)
             .style("stroke", "black")
             .style("fill", "black");
-        elem.svg.append("g")
+        elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
@@ -139,33 +158,53 @@ var ScatterPlots = (function() {
             .call(elem.yAxis.orient("left").ticks(0));
     }
 
-    function appendAxisTitles() {
-        var axisTitleGroup = elem.svg.append("svg:g");
-        axisTitleGroup.append("text")
+    function appendAxisTitleX(_applyLogScale) {
+        d3.select("#" + names.body).select(".coexp-title-x").remove();
+        if (_applyLogScale) {
+            text.xTitle = text.xTitle + " (log2)";
+        } else {
+            text.xTitle = text.xTitle.replace(" (log2)", "");
+        }
+        elem.axisTitleGroup.append("text")
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
             .attr("y", canvas.yBottom + 40)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold") 
+            .attr("class", "coexp-title-x")
             .text(text.xTitle);
-        axisTitleGroup.append("text")
+    }
+
+    function appendAxisTitleY(_applyLogScale) {
+        d3.select("#" + names.body).select(".coexp-title-y").remove();
+        if (_applyLogScale) {
+            text.yTitle = text.yTitle + " (log2)";
+        } else {
+            text.yTitle = text.yTitle.replace(" (log2)", "");
+        }
+        elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
             .attr("y", 50)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
-            .style("font-weight", "bold") 
+            .style("font-weight", "bold")
+            .attr("class", "coexp-title-y") 
             .text(text.yTitle);
     }
 
     function drawPlots() {
-        elem.dotsGroup = elem.svg.append("svg:g");
         elem.dotsGroup.selectAll("path").remove();
         elem.dotsGroup.selectAll("path")
             .data(dataArr)
             .enter()
             .append("svg:path")
             .attr("transform", function(d){
+                //Remember current positions for the later transition animation
+                $(this).attr("x_val", d.x_val);
+                $(this).attr("y_val", d.y_val);
+                $(this).attr("x_pos", elem.xScale(d.x_val)); 
+                $(this).attr("y_pos", elem.xScale(d.y_val));
                 return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
             })
             .attr("d", d3.svg.symbol()
@@ -217,19 +256,112 @@ var ScatterPlots = (function() {
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
     }
 
+    function updatePlotsLogScale(_axis, _applyLogScale, _threshold) {
+        elem.dotsGroup.selectAll("path")
+            .transition().duration(300)
+            .attr("transform", function() {
+                if (_applyLogScale) {
+                    if (_axis === "x") {
+                        if (parseFloat(d3.select(this).attr("x_val")) <= _threshold) {
+                            var _post_x = elem.xScale(Math.log(_threshold) / Math.log(2));
+                        } else {
+                            var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                        }
+                        var _post_y = d3.select(this).attr("y_pos");
+                    } else if (axis === "y") {
+                        var _post_x = d3.select(this).attr("x_pos");
+                        if (parseFloat(d3.select(this).attr("y_val")) <= _threshold) {
+                            var _post_y = elem.yScale(Math.log(_threshold) / Math.log(2));
+                        } else {
+                            var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                        }
+
+                    }
+                    d3.select(this).attr("x_pos", _post_x);
+                    d3.select(this).attr("y_pos", _post_y);
+                    return "translate(" + _post_x + ", " + _post_y + ")";
+                } else {
+                    if (_axis === "x") {
+                        var _post_x = elem.xScale(d3.select(this).attr("x_val"));
+                        var _post_y = d3.select(this).attr("y_pos");
+                    } else if (axis === "y") {
+                        var _post_x = d3.select(this).attr("x_pos");
+                        var _post_y = elem.yScale(d3.select(this).attr("y_val"));
+                    }
+                    d3.select(this).attr("x_pos", _post_x);
+                    d3.select(this).attr("y_pos", _post_y);
+                    return "translate(" + _post_x + ", " + _post_y + ")";
+                }
+            });
+    }
+
+    function updateAxisScaleX(_threshold) {
+        var _min_x, _max_x, _edge_x;
+        if (dataAttr.min_x <= _threshold) {
+            _min_x = Math.log(_threshold) / Math.log(2);
+        } else {
+            _min_x = Math.log(dataAttr.min_x) / Math.log(2);
+        }
+        _max_x = Math.log(dataAttr.max_x) / Math.log(2);
+        _edge_x = (_max_x - _min_x) * axis_edge;
+        elem.xScale = d3.scale.linear()
+            .domain([_min_x - _edge_x, _max_x + _edge_x])
+            .range([canvas.xLeft, canvas.xRight]);
+
+    }
+
+    function updateAxisScaleY(_threshold) {
+        var _min_y, _max_y, _edge_y;
+        if (dataAttr.min_y <= _threshold) {
+            _min_y = Math.log(_threshold) / Math.log(2);
+        } else {
+            _min_y = Math.log(dataAttr.min_y) / Math.log(2);
+        }
+        _max_y = Math.log(dataAttr.max_y) / Math.log(2);
+        _edge_y = (_max_y - _min_y) * axis_edge;
+        elem.yScale = d3.scale.linear()
+            .domain([_min_y - _edge_y, _max_y + _edge_y])
+            .range([canvas.yBottom, canvas.yTop]);
+    }
+
     return {
         init: function(options, _dataArr, _dataAttr) {    //Init with options
             initSettings(options, _dataAttr);
             convertData(_dataArr);
-            initSvgCanvas(options.names.body);
-            initScales();
-            initAxis();
-            generateAxis();
-            appendAxisTitles();
+            initSvgCanvas(names.body);
+            initScaleX();
+            initScaleY();
+            initAxisX();
+            initAxisY();
+            generateAxisX();
+            generateAxisY();
+            appendAxisTitleX(false);
+            appendAxisTitleY(false);
             drawPlots();
             addQtips();
         },
-        update: function() {   //Update with new options
+        // !!! Log Scale are only used by using RNA Seq Profile
+        updateScaleX: function(_applyLogScale, _threshold) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+            if (_applyLogScale) {
+                updateAxisScaleX(_threshold);
+            } else {
+                initScaleX();
+            }
+            initAxisX();
+            generateAxisX();
+            appendAxisTitleX(_applyLogScale);
+            //updatePlotsLogScale("x", _applyLogScale, _threshold);
+        },
+        updateScaleY: function(_applyLogScale, _threshold) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+            if (_applyLogScale) {
+                updateAxisScaleY(_threshold);
+            } else {
+                initScaleY();
+            }
+            initAxisY();
+            generateAxisY();
+            appendAxisTitleY(_applyLogScale);
+            //updatePlotsLogScale("y", _applyLogScale, _threshold);
         }
     }
 

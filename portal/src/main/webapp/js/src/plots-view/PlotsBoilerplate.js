@@ -62,7 +62,9 @@ var PlotsBoilerplate = {
         yScale: "",
         xAxis: "",
         yAxis: "",
-        dotsGroup: ""
+        dotsGroup: "",
+        axisGroup: "",
+        axisTitleGroup: ""
     },
     names: { //naming conventions
         header: "_header", 

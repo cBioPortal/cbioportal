@@ -40,7 +40,7 @@
 
 <div class="section" id="coexp">
     <p>
-        The co-expression table below lists the top <strong>250</strong> genes that are highly co-expressed in selected mRNA expression profile,<img class='profile_help' src='images/help.png' title='We prefer RNA seq profile, if none for certain query, then we would use other mRNA profiles.'> 
+        The co-expression table below lists the top <strong>250</strong><img class='profile_help' src='images/help.png' title='If found more than 250 highly related gene, we would only display the the top-ranked 250 genes.'> genes that are highly co-expressed in selected mRNA expression profile,<img class='profile_help' src='images/help.png' title='We prefer RNA seq profile, if none for certain query, then we would use other mRNA profiles.'> 
         among the applied cancer study and case set. <br>
         Scores calculated by <strong>Pearson's product-moment correlation</strong> (Threshold: <strong>+/-0.3</strong>).
         <img class='profile_help' src='images/help.png'

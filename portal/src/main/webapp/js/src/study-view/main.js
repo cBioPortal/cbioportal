@@ -273,23 +273,27 @@ var studyView = function(){
                     varValues.push(dataB[j][varName[i]]);                    
             }
             
+            var distanceMinMax = Math.max.apply( Math, varValues ) - Math.min.apply( Math, varValues );
+            
             //This should be changed later: run the loop i times which should only run once
             varCluster[i] = ndx.dimension(function (d) {
                 var returnValue = d[varName[i]];
                 if(d[varName[i]] % 1 !== 0 && decimalPlaces(d[varName[i]]) > 3)
-                    if(Math.max.apply( Math, varValues ) - Math.min.apply( Math, varValues )<2){
+                    if(distanceMinMax < 2){
                         returnValue = d3.round(d[varName[i]],2);
                     }
                     else
                         returnValue = d3.round(d[varName[i]]);
                 if(returnValue === 'NA' || returnValue === '')
-                    returnValue = 'NaN';
-                console.log(returnValue);    
+                    returnValue = Math.min.apply( Math, varValues )-100;
+                if(i===15)
+                console.log("original Value:" + d[varName[i]] + " Return Value:" + returnValue);
                 return returnValue;
             });
             //if(varValues.length===0)
                 //continue;
-            
+            var xunitsWidth = 1/(distanceMinMax / (varValues.length/2));
+            console.log(xunitsWidth);
             varGroup[i] = varCluster[i].group();
             varChart[i]
             .width(1200)
@@ -302,9 +306,10 @@ var studyView = function(){
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(800)
-            .x(d3.scale.linear().domain([Math.min.apply( Math, varValues ), Math.max.apply( Math, varValues )]))
+            .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
-                      
+            varChart[i].xUnits(function(){return xunitsWidth;});
+            console.log(varChart[i])
         }
         
         for(var i=pie.length + bar.length; i< pie.length + bar.length + smallPie.length; i++){

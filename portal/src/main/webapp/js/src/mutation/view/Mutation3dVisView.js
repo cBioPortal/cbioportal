@@ -85,36 +85,84 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		});
 
-		// style selection menu
-		var styleMenu = self.$el.find(".mutation-3d-protein-style-select");
+		// protein style selector
+		self._initProteinSchemeSelector();
 
-		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
-		//styleMenu.chosen({width: 120, disable_search: true});
-
-		styleMenu.change(function(){
-			var selected = $(this).val();
-
-			if (mut3dVis != null)
-			{
-				mut3dVis.changeStyle(selected);
-			}
-		});
-
-		// mutation color selection menu
-		var mutationColorMenu = self.$el.find(".mutation-3d-mutation-color-select");
+		// protein color selector
+		self._initProteinColorSelector();
 
 		// zoom slider
-		self._zoomSlider();
+		self._initZoomSlider();
 
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
 			closeHandler();
 		});
 	},
+	_initProteinColorSelector: function()
+	{
+		var self = this;
+		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
+
+		colorMenu.change(function() {
+			var selected = $(this).val();
+
+			// TODO update color options and refresh view
+		});
+	},
+	_initProteinSchemeSelector: function()
+	{
+		var self = this;
+
+		var mut3dVis = self.options.mut3dVis;
+
+		// selection menus
+		var styleMenu = self.$el.find(".mutation-3d-protein-style-select");
+		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
+
+		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
+		//styleMenu.chosen({width: 120, disable_search: true});
+
+		styleMenu.change(function() {
+			var selected = $(this).val();
+
+			// re-enable every color selection for protein
+			colorMenu.find("option").removeAttr("disabled");
+
+			var toDisable = null;
+
+			// find the option to disable
+			if (selected == "spaceFilling")
+			{
+				// disable color by secondary structure option
+				toDisable = colorMenu.find("option[value='secondaryStructure']");
+			}
+			else
+			{
+				// disable color by atom type option
+				toDisable = colorMenu.find("option[value='atomType']");
+			}
+
+			// if the option to disable is currently selected, select the default option
+			if (toDisable.is(":selected"))
+			{
+				toDisable.removeAttr("selected");
+				colorMenu.find("option[value='uniform']").attr("selected", "selected");
+			}
+
+			toDisable.attr("disabled", "disabled");
+
+			if (mut3dVis != null)
+			{
+				// TODO update options (including color opts) and refresh view with new settings
+				mut3dVis.changeStyle(selected);
+			}
+		});
+	},
 	/**
 	 * Initializes the zoom slider with default values.
 	 */
-	_zoomSlider: function()
+	_initZoomSlider: function()
 	{
 		var self = this;
 		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");

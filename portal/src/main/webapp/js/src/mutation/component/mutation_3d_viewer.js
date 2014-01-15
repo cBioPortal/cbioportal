@@ -28,9 +28,6 @@ var Mutation3dVis = function(name, options)
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
-	// selected style (default: cartoon)
-	var _style = "cartoon";
-
 	// default visualization options
 	var defaultOpts = {
 		// applet/application (Jmol/JSmol) options
@@ -40,9 +37,26 @@ var Mutation3dVis = function(name, options)
 			debug: false,
 			color: "white"
 		},
-		defaultColor: "xDDDDDD", // default color of ribbons
-		translucency: 5, // translucency (opacity) of the default color
+		proteinScheme: "cartoon", // default style of the protein structure
+		defaultColor: "xDDDDDD", // default color of the whole structure
+		structureColors: { // default colors for special structures
+			alphaHelix: "orange", // TODO use actual color code
+			betaStrand: "blue",
+			loop: "xDDDDDD"
+		}, // (takes effect only when corresponding flag is set)
+		defaultTranslucency: 5, // translucency (opacity) of the whole structure
 		chainColor: "x888888", // color of the selected chain
+		chainTranslucency: 0, // translucency (opacity) of the selected chain
+		colorProteins: { // color proteins (by default use a single color)
+			uniform: true, // effective for all schemes
+			byStructure: false, // not effective for space-filling scheme
+			byAtomType: false, // effective only for space-filling scheme
+			byChain: false // not effective for space-filling scheme -- TODO rainbow coloring
+		},
+		colorMutations: { // color mutations (by default use mutation colors for type)
+			byMutationType: true,
+			byAtomType: false
+		},
 		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
 		highlightColor: "xFFDD00", // color of the user-selected mutations
 		defaultZoom: 100, // default (unfocused) zoom level
@@ -54,9 +68,10 @@ var Mutation3dVis = function(name, options)
 
 	// Predefined style scripts for Jmol
 	var styleScripts = {
-		ballAndStick: "wireframe ONLY; wireframe 0.15; spacefill 20%;",
+		spaceFilling: "wireframe ONLY; wireframe 0.15; spacefill 100%;",
 		ribbon: "ribbon ONLY;",
-		cartoon: "cartoon ONLY;"
+		cartoon: "cartoon ONLY;",
+		trace: "trace ONLY;"
 	};
 
 	var _options = jQuery.extend(true, {}, defaultOpts, options);
@@ -124,7 +139,7 @@ var Mutation3dVis = function(name, options)
 	function changeStyle(style)
 	{
 		// update selected style
-		_style = style;
+		_options.proteinScheme = style;
 
 		var script = "select all;" +
 		             styleScripts[style];
@@ -286,9 +301,9 @@ var Mutation3dVis = function(name, options)
 		var script = [];
 		script.push("load=" + pdbId + ";"); // load the corresponding pdb
 		script.push("select all;"); // select everything
-		script.push(styleScripts[_style]); // show selected style view
+		script.push(styleScripts[_options.proteinScheme]); // show selected style view
 		script.push("color [" + _options.defaultColor + "] "); // set default color
-		script.push("translucent [" + _options.translucency + "];"); // set default opacity
+		script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
 		script.push("select :" + chain.chainId + ";"); // select the chain
 		script.push("color [" + _options.chainColor + "];"); // set chain color
 

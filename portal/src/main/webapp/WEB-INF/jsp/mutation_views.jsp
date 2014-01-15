@@ -202,7 +202,8 @@
 									<option value='secondaryStructure'
 									        title='Color by secondary structure'>by secondary structure</option>
 									<option value='atomType'
-									        title='Color by atom type'>by atom type</option>
+									        title='Color by atom type'
+									        disabled="disabled">by atom type</option>
 								</select>
 							</td>
 						</tr>

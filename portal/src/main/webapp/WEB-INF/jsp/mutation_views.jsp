@@ -173,13 +173,13 @@
 				</td>
 			</tr>
 		</table>
-		<table>
+		<table cellpadding="0">
 			<tr>
-				<td class="mutation-3d-protein-style-menu">
+				<td class="mutation-3d-protein-style-menu" valign="top">
 					<div class="mutation-3d-style-header">
 						<label>Protein Style</label>
 					</div>
-					<table>
+					<table cellpadding="0">
 						<tr>
 							<td>
 								<label>Scheme:</label>
@@ -208,26 +208,50 @@
 						</tr>
 					</table>
 				</td>
-				<td class="mutation-3d-mutation-style-menu">
+				<td class="mutation-3d-mutation-style-menu" valign="top">
 					<div class="mutation-3d-style-header">
 						<label>Mutation Style</label>
 					</div>
-					<table>
+					<table cellpadding="0">
 						<tr>
 							<td>
-								<input class='mutation-3d-side-chain' type='checkbox'>
-								<label>Display side chain</label>
+								<label>
+									<input class='mutation-3d-side-chain'
+									       type='checkbox'>Display side chain
+								</label>
 							</td>
 						</tr>
 						<tr>
 							<td>
-								<label>Color:</label>
-								<select class='mutation-3d-mutation-color-select'>
+								<table cellpadding="0">
+									<tr>
+										<td>
+											<label>Color:</label>
+										</td>
+										<td>
+											<label>
+												<input class='mutation-3d-mutation-color-by-type'
+												       type='checkbox'
+												       checked="checked">by mutation type
+											</label>
+										</td>
+									</tr>
+									<tr>
+										<td></td>
+										<td>
+											<label>
+												<input class='mutation-3d-mutation-color-by-atom'
+												       type='checkbox'>by atom type
+											</label>
+										</td>
+									</tr>
+								</table>
+								<!--select class='mutation-3d-mutation-color-select'>
 									<option value='mutationType'
 									        title='Uniform color'>by mutation type</option>
 									<option value='atomType'
 									        title='Color by secondary structure'>by atom type</option>
-								</select>
+								</select-->
 							</td>
 						</tr>
 					</table>

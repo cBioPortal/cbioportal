@@ -246,7 +246,11 @@ th.mutation-details-qtip-style {
 }
 .mutation-3d-vis img {
 	width: 24px;
-	height: 24px
+	height: 24px;
+}
+.mutation-3d-mutation-style-menu input
+{
+	margin: 0;
 }
 
 

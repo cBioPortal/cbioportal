@@ -192,23 +192,34 @@ var studyView = function(){
         
         for(var i=0; i< dataA.length ; i++){
             //console.log(dataA[i]["datatype"]);
+            var varValues = new Array();
+            for(var j=0;j<dataB.length;j++){
+                //console.log(dataB[j][dataA[i]["attr_id"]])
+                if(varValues.hasOwnProperty(dataB[j][dataA[i]["attr_id"]]))
+                    varValues[dataB[j][dataA[i]["attr_id"]]]++;
+                else
+                    varValues[dataB[j][dataA[i]["attr_id"]]]=0;
+            }
+            
             if(dataA[i]["attr_id"] === "CASE_ID"){
                 continue;
-            }else if(dataA[i]["datatype"] === "NUMBER"){
-                var varValues = new Array();
-                for(var j=0;j<dataB.length;j++){
-                    //console.log(dataB[j][dataA[i]["attr_id"]])
-                    if(varValues.hasOwnProperty(dataB[j][dataA[i]["attr_id"]]))
-                        varValues[dataB[j][dataA[i]["attr_id"]]]++;
-                    else
-                        varValues[dataB[j][dataA[i]["attr_id"]]]=0;
-                }
+            }else if(dataA[i]["datatype"] === "NUMBER"){                
                 if(Object.keys(varValues).length>10)
                     bar.push(dataA[i]);
                 else
                     pie.push(dataA[i]);
             }else if(dataA[i]["datatype"] === "STRING"){
-                pie.push(dataA[i]);
+                var keyMaxLength = 0;
+                var keys = Object.keys(varValues);
+                for(var j=0; j< keys.length ; j++)
+                    if(keys[j].length > keyMaxLength)
+                        keyMaxLength = keys[j].length;
+                
+                if(keyMaxLength > 10){
+                    row.push(dataA[i]);
+                }
+                else
+                    pie.push(dataA[i]);
             }
             else if(dataA[i]["datatype"] === "BOOLEAN"){
                 smallPie.push(dataA[i]);
@@ -225,7 +236,14 @@ var studyView = function(){
             varChart.push(dc.pieChart("#" + pie[i]["attr_id"]));
         }
         
-        for(var i=0,j=pie.length; i< bar.length ; i++,j++){
+        for(var i=0,j=pie.length; i< row.length; i++,j++){
+            $("#row").append("<div id=\"" + row[i]["attr_id"] + "\" class='row-chart'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+            varName.push(row[i]["attr_id"]);
+            varDisplay.push(row[i]["display_name"]);
+            varChart.push(dc.rowChart("#" + row[i]["attr_id"]));
+        }
+        
+        for(var i=0,j=pie.length+row.length; i< bar.length ; i++,j++){
             $("#bar").append("<div id=\"" + bar[i]["attr_id"] + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
             varName.push(bar[i]["attr_id"]);
             varDisplay.push(bar[i]["display_name"]);
@@ -234,7 +252,7 @@ var studyView = function(){
         
         if(smallPie.length > 0){
             $("#pie").append("<div id='data-chart'></div>");            
-            for(var i=0,j=pie.length+bar.length; i< smallPie.length ; i++,j++){
+            for(var i=0,j=pie.length+row.length+bar.length; i< smallPie.length ; i++,j++){
                 $("#data-chart").append("<div id=\"" + smallPie[i]["attr_id"] + "\" class='data-pie-chart'><pieH4>" + smallPie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
                 varName.push(smallPie[i]["attr_id"]);
                 varDisplay.push(smallPie[i]["display_name"]);
@@ -245,6 +263,7 @@ var studyView = function(){
         var ndx = crossfilter(dataB);
         var all = ndx.groupAll();
 
+        //Initial all pie charts
         for(var i=0; i< pie.length ; i++){
             varCluster[i] = ndx.dimension(function (d) {
                 if(!d[varName[i]])
@@ -253,10 +272,9 @@ var studyView = function(){
             });
             varGroup[i] = varCluster[i].group();
             varChart[i]
-            .width(180)
-            .height(180)
-            .radius(86)
-            .innerRadius(30)
+            .width(120)
+            .height(120)
+            .radius(50)
             .dimension(varCluster[i])
             .group(varGroup[i])
             .transitionDuration(800)
@@ -265,7 +283,32 @@ var studyView = function(){
             });
         }
         
-        for(var i=pie.length; i< pie.length + bar.length ; i++){           
+        //Initial all row charts
+        for(var i=pie.length; i< pie.length + row.length ; i++){
+            varCluster[i] = ndx.dimension(function (d) {
+                if(!d[varName[i]])
+                    return "NA";
+                return d[varName[i]];
+            });
+            varGroup[i] = varCluster[i].group();
+            
+            varChart[i]
+            .width(400)
+            .height(180)
+            .dimension(varCluster[i])
+            .group(varGroup[i])
+            .transitionDuration(800)
+            .elasticX(true)
+            .title(function (d) {
+                    return d.value;
+            })
+            .label(function (d) {
+                return d.key + ":" + d.value;
+            });
+        }
+        
+        //Initial all bar charts
+        for(var i=pie.length + row.length; i< pie.length + row.length + bar.length ; i++){           
             
             var varValues = new Array();
             for(var j=0;j<dataB.length;j++){
@@ -286,14 +329,17 @@ var studyView = function(){
                         returnValue = d3.round(d[varName[i]]);
                 if(returnValue === 'NA' || returnValue === '')
                     returnValue = Math.min.apply( Math, varValues )-100;
-                if(i===15)
-                console.log("original Value:" + d[varName[i]] + " Return Value:" + returnValue);
+                //if(i===15)
+                //console.log("original Value:" + d[varName[i]] + " Return Value:" + returnValue);
                 return returnValue;
             });
             //if(varValues.length===0)
                 //continue;
-            var xunitsWidth = 1/(distanceMinMax / (varValues.length/2));
-            console.log(xunitsWidth);
+            var xunitsWidth = 1;
+            
+            if(distanceMinMax !== 0)
+                xunitsWidth = varValues.length / distanceMinMax / 2;
+                
             varGroup[i] = varCluster[i].group();
             varChart[i]
             .width(1200)
@@ -309,23 +355,15 @@ var studyView = function(){
             .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
             varChart[i].xUnits(function(){return xunitsWidth;});
-            console.log(varChart[i])
         }
         
-        for(var i=pie.length + bar.length; i< pie.length + bar.length + smallPie.length; i++){
+        //Initial all small pie charts
+        for(var i=pie.length + row.length + bar.length; i< pie.length + row.length + bar.length + smallPie.length; i++){
             varCluster[i] = ndx.dimension(function (d) {
                 return d[varName[i]];
             });
             
-            
-            var varValues = new Array();
-            for(var j=0;j<dataB.length;j++){
-                if(dataB[j][varName[i]] && dataB[j][varName[i]]!=="NA" && dataB[j][varName[i]]!=="")
-                    varValues.push(dataB[j][varName[i]]);                    
-            }
-            
             varGroup[i] = varCluster[i].group();
-            console.log(varName[i]);
             varChart[i]
             .width(100)
             .height(82)

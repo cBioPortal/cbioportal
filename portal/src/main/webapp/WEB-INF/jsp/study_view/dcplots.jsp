@@ -72,7 +72,8 @@
         
     </div>
 
-
+    <div id="row">
+    </div>
     <div id="bar">
         <!--
         <div id='age-chart' class="bar-chart">

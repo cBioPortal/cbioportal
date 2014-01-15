@@ -235,6 +235,16 @@ var PlotsMenu = (function () {
         });
     }
 
+    function setDefaultMethylationSelection() {
+        $('#data_type_dna_methylation > option').each(function() {
+            if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                $(this).prop('selected', true);
+                return false;
+            }
+        });
+
+    }
+
     function updateVisibility() {
         $("#one_gene_log_scale_x_div").remove();
         $("#one_gene_log_scale_y_div").remove();
@@ -301,6 +311,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -313,6 +324,7 @@ var PlotsMenu = (function () {
                 drawMenu();
                 setDefaultMrnaSelection();
                 setDefaultCopyNoSelection();
+                setDefaultMethylationSelection();
                 updateVisibility();
             } else {
                 drawErrMsgs();
@@ -321,6 +333,7 @@ var PlotsMenu = (function () {
         updateDataType: function() {
             setDefaultMrnaSelection();
             setDefaultCopyNoSelection();
+            setDefaultMethylationSelection();
             updateVisibility();
         },
         updateLogScaleOption: updateLogScaleOption,
@@ -446,7 +459,7 @@ var PlotsView = (function () {
                 fill : "none",
                 symbol : "circle",
                 legendText : "Homdel"
-            },
+            }
         },
         userSelection = {
             gene: "",
@@ -876,7 +889,7 @@ var PlotsView = (function () {
                     .style("shape-rendering", "crispEdges")
                     .attr("transform", "translate(0, 520)")
                     .attr("class", "plots-x-axis-class")
-                  .call(xAxis.ticks(textSet.length))
+                    .call(xAxis.ticks(textSet.length))
                     .selectAll("text")
                     .data(textSet)
                     .style("font-family", "sans-serif")
@@ -1084,8 +1097,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".x-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
-                        var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        if (_dataAttr.min_x <= (Plots.getLogScaleThreshold())) {
+                            var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var min_x = Math.log(_dataAttr.min_x) / Math.log(2);
+                        }
+                        if (_dataAttr.max_x <= (Plots.getLogScaleThreshold())) {
+                            var max_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var max_x = Math.log(_dataAttr.max_x) / Math.log(2);
+                        }
                         var edge_x = (max_x - min_x) * 0.2;
                         attr.xScale = d3.scale.linear()
                             .domain([min_x - edge_x, max_x + edge_x])
@@ -1114,8 +1135,16 @@ var PlotsView = (function () {
                     d3.select("#plots_box").select(".y-title-help").remove();
                     var _dataAttr = PlotsData.getDataAttr();
                     if (applyLogScale) {
-                        var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
-                        var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        if (_dataAttr.min_y <= (Plots.getLogScaleThreshold())) {
+                            var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var min_y = Math.log(_dataAttr.min_y) / Math.log(2);
+                        }
+                        if (_dataAttr.max_y <= (Plots.getLogScaleThreshold())) {
+                            var max_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            var max_y = Math.log(_dataAttr.max_y) / Math.log(2);
+                        }
                         var edge_y = (max_y - min_y) * 0.1;
                         attr.yScale = d3.scale.linear()
                             .domain([min_y - edge_y, max_y + edge_y])
@@ -1197,9 +1226,9 @@ var PlotsView = (function () {
                             $(this).qtip(
                                 {
                                     content: {text: content},
-                                    style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                                     show: {event: "mouseover"},
-	                                hide: {fixed:true, delay: 100, event: "mouseout"},
+                                    hide: {fixed:true, delay: 100, event: "mouseout"},
                                     position: {my:'left bottom',at:'top right'}
                                 }
                             );
@@ -1316,8 +1345,8 @@ var PlotsView = (function () {
                             var _y = attr.yScale(d.yVal);
                             $(this).attr("x_pos", _x);
                             $(this).attr("y_pos", _y);
-                            $(this).attr("xVal", d.xVal);
-                            $(this).attr("yVal", d.yVal);
+                            $(this).attr("x_val", d.xVal);
+                            $(this).attr("y_val", d.yVal);
                             $(this).attr("size", 20);
                             return "translate(" + _x + "," + _y + ")";
                         })
@@ -1349,7 +1378,11 @@ var PlotsView = (function () {
                 _dotsGroup = jQuery.extend(true, {}, PlotsData.getDotsGroup());
                 if (applyLogScale) {
                     $.each(_dotsGroup, function(index, value) {
-                        value.yVal = Math.log(value.yVal) / Math.log(2);
+                        if (value.yVal <= (Plots.getLogScaleThreshold())) {
+                            value.yVal = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
+                        } else {
+                            value.yVal = Math.log(value.yVal) / Math.log(2);
+                        }
                     });
                 }
 
@@ -1488,8 +1521,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 20);
                         return "translate(" + _x + ", " + _y + ")";
@@ -1522,8 +1555,8 @@ var PlotsView = (function () {
                         var _y = attr.yScale(d.yVal);
                         $(this).attr("x_pos", _x);
                         $(this).attr("y_pos", _y);
-                        $(this).attr("xVal", d.xVal);
-                        $(this).attr("yVal", d.yVal);
+                        $(this).attr("x_val", d.xVal);
+                        $(this).attr("y_val", d.yVal);
                         $(this).attr("symbol", "circle");
                         $(this).attr("size", 35);
                         return "translate(" + attr.xScale(d.xVal) + ", " + attr.yScale(d.yVal) + ")";
@@ -1570,9 +1603,13 @@ var PlotsView = (function () {
                         .transition().duration(300)
                         .attr("transform", function() {
                             if (applyLogScale) {
-                                var _post_x = attr.xScale(Math.log(d3.select(this).attr("xVal")) / Math.log(2));
+                                if(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold())) {
+                                    var _post_x = attr.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                } else {
+                                    var _post_x = attr.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
+                                }
                             } else {
-                                var _post_x = attr.xScale(d3.select(this).attr("xVal"));
+                                var _post_x = attr.xScale(d3.select(this).attr("x_val"));
                             }
                             var _pre_y = d3.select(this).attr("y_pos");
                             d3.select(this).attr("x_pos", _post_x);
@@ -1585,9 +1622,13 @@ var PlotsView = (function () {
                         .attr("transform", function() {
                             var _pre_x = d3.select(this).attr("x_pos");
                             if (applyLogScale) {
-                                var _post_y = attr.yScale(Math.log(d3.select(this).attr("yVal")) / Math.log(2));
+                                if (parseFloat(d3.select(this).attr("y_val")) <= (Plots.getLogScaleThreshold())) {
+                                    var _post_y = attr.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
+                                } else {
+                                    var _post_y = attr.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
+                                }
                             } else {
-                                var _post_y = attr.yScale(d3.select(this).attr("yVal"));
+                                var _post_y = attr.yScale(d3.select(this).attr("y_val"));
                             }
                             d3.select(this).attr("y_pos", _post_y);
                             return "translate(" + _pre_x + ", " + _post_y + ")";
@@ -1661,7 +1702,7 @@ var PlotsView = (function () {
                     stroke : "none",
                     symbol : "circle",
                     fill : "orange",
-                    legendText : "Mutated",
+                    legendText : "Mutated"
                 }
                 gisticStyleArr.push(mutatedStyle);
 

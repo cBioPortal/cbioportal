@@ -60,9 +60,7 @@ public class DaoMicroRna {
                               + "VALUES (?,?)");
               pstmt.setString(1, id);
               pstmt.setString(2, variantId);
-              int rows = pstmt.executeUpdate();
-              return rows;
-              
+              return pstmt.executeUpdate();
            }
            
         } catch (SQLException e) {

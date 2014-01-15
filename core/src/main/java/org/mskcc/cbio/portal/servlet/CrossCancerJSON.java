@@ -30,6 +30,7 @@ package org.mskcc.cbio.portal.servlet;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.DaoException;
+import org.mskcc.cbio.portal.dao.DaoTypeOfCancer;
 import org.mskcc.cbio.portal.model.*;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.GeneticTypeLevel;
 import org.mskcc.cbio.portal.oncoPrintSpecLanguage.ParserOutput;
@@ -56,9 +57,6 @@ public class CrossCancerJSON extends HttpServlet {
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
-    private ServletXssUtil servletXssUtil;
-
-
     /**
      * Initializes the servlet.
      *
@@ -69,12 +67,6 @@ public class CrossCancerJSON extends HttpServlet {
         ApplicationContext context =
                 new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
         accessControl = (AccessControl)context.getBean("accessControl");
-
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -97,7 +89,7 @@ public class CrossCancerJSON extends HttpServlet {
             List resultsList = new LinkedList();
 
             // Get the gene list
-            String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST);
+            String geneList = request.getParameter(QueryBuilder.GENE_LIST);
 
             // Get the priority
             Integer dataTypePriority;
@@ -117,6 +109,7 @@ public class CrossCancerJSON extends HttpServlet {
 
                 Map cancerMap = new LinkedHashMap();
                 cancerMap.put("studyId", cancerStudyId);
+                cancerMap.put("typeOfCancer", cancerStudy.getTypeOfCancerId());
                 resultsList.add(cancerMap);
 
                 //  Get all Genetic Profiles Associated with this Cancer Study ID.

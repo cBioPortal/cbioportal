@@ -102,9 +102,6 @@ public class Node {
     
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Node)) {
-            return false;
-        }
-        return id.equals(((Node)obj).id);
+        return obj instanceof Node && id.equals(((Node) obj).id);
     }
 }

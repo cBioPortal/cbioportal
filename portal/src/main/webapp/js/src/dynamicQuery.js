@@ -431,7 +431,7 @@ function updateCaseListSmart() {
             $(e).qtip({
                 content: "<font size='2'>" + $($("#select_case_set option")[i]).attr("title") + "</font>",
                 style: {
-                    classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow'
+                    classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'
                 },
                 position: {
                     my: 'left middle',
@@ -453,8 +453,8 @@ function cancerStudySelected() {
 
     var cancerStudyId = $("#select_cancer_type").val();
 
-    while( cancerStudyId == "" ) {
-        $("#select_cancer_type option:selected").next().attr('selected','selected');
+    if( !cancerStudyId ) {
+        $("#select_cancer_type option:first").prop("selected",true);
         cancerStudyId = $("#select_cancer_type").val();
     }
 

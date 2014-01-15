@@ -22,13 +22,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.fileupload.FileItem;
 import org.mskcc.cbio.portal.util.FileUploadRequestWrapper;
 import org.mskcc.cbio.portal.util.XDebug;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.owasp.validator.html.PolicyException;
 
 public class SvgConverter extends HttpServlet {
 
     private Pattern svgXPosPattern;
-    private ServletXssUtil servletXssUtil;
-	private static String DEFAULT_FILENAME = "result";
+    private static String DEFAULT_FILENAME = "result";
 
     /**
      * Initializes the servlet.
@@ -38,13 +38,7 @@ public class SvgConverter extends HttpServlet {
     public void init() throws ServletException {
 
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-            svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
-        }
-        catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+	    svgXPosPattern = Pattern.compile("( x=\"(\\d+)\")");
     }
 
     /**
@@ -75,29 +69,15 @@ public class SvgConverter extends HttpServlet {
         XDebug xdebug = new XDebug( httpServletRequest );
         xdebug.logMsg(this, "Attempting to parse request parameters.");
 
-        String xml = "";
-        String format = "";
-	String filename = "";
+        String format = httpServletRequest.getParameter("filetype");
+        String xml = httpServletRequest.getParameter("svgelement");
+        String filename = httpServletRequest.getParameter("filename");
 
-        if (httpServletRequest instanceof FileUploadRequestWrapper) {
-
-            // get instance of our request wrapper
-            FileUploadRequestWrapper wrapper = (FileUploadRequestWrapper)httpServletRequest;
-
-            // get format parameter
-            format = wrapper.getParameter("filetype");
-
-            // get xml parameter
-            xml = wrapper.getParameter("svgelement");
-
-	    // get filename parameter
-	    filename = wrapper.getParameter("filename");
-        }
-        else {
-            format = servletXssUtil.getCleanInput(httpServletRequest, "filetype");
-            xml = httpServletRequest.getParameter("svgelement");
-            filename = servletXssUtil.getCleanInput(httpServletRequest, "filename");
-        }
+	    // TODO - update antisamy.xml to support svg-xml
+	    if (httpServletRequest instanceof XssRequestWrapper)
+	    {
+		    xml = ((XssRequestWrapper) httpServletRequest).getRawParameter("svgelement");
+	    }
 
         String xmlHeader = "<?xml version='1.0'?>";
         xml = xmlHeader + xml;
@@ -106,8 +86,8 @@ public class SvgConverter extends HttpServlet {
         }
 
         if (filename == null || filename.length() == 0) {
-		    filename = DEFAULT_FILENAME;
-	    }
+            filename = DEFAULT_FILENAME;
+        }
 
         if (format.equals("pdf")) {
             convertToPDF(httpServletResponse, xml, filename);
@@ -125,7 +105,7 @@ public class SvgConverter extends HttpServlet {
      * @throws IOException
      */
     private void convertToSVG(HttpServletResponse response, String xml, String filename)
-		    throws ServletException, IOException {
+            throws ServletException, IOException {
         try {
             response.setContentType("application/svg+xml");
             response.setHeader("content-disposition", "inline; filename=" + filename);
@@ -152,7 +132,7 @@ public class SvgConverter extends HttpServlet {
      * @throws IOException
      */
     private void convertToPDF(HttpServletResponse response, String xml, String filename)
-		    throws ServletException, IOException {
+            throws ServletException, IOException {
         OutputStream out = response.getOutputStream();
         try {
             InputStream is = new ByteArrayInputStream(xml.getBytes());

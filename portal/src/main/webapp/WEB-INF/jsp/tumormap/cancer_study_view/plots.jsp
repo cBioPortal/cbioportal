@@ -104,7 +104,7 @@
                     solo: true // ...and hide all other tooltips...
             },
             hide: false,
-            style: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide'
+            style: 'qtip-light qtip-rounded qtip-wide'
         });
         
         $("#case-select-custom-submit-btn").click(function() {
@@ -164,6 +164,14 @@
         waitAndDrawTable();
     }
     
+    function filterDataTable(dt, caseIds) {
+        var caseIdsInDt = dt.getDistinctValues(0);
+        var caseIdsAppend = $.grep(caseIds,function(x) {return $.inArray(x, caseIdsInDt) < 0});
+        for (var cId in caseIdsAppend) {
+            dt.setValue(dt.addRow(),0,caseIdsAppend[cId]);
+        }
+    }
+    
     function mergeDataTables() {
         if (clincialDataTable==null ||
             ((mutationProfileId!=null || hasCnaSegmentData) && mutCnaDataTable==null)) {
@@ -177,10 +185,12 @@
         if (clincialDataTable.getNumberOfColumns()==0)
             return mutCnaDataTable;
         
-        return google.visualization.data.join(clincialDataTable, mutCnaDataTable,
+        var dt = google.visualization.data.join(clincialDataTable, mutCnaDataTable,
                     'full', [[0,0]],
                     makeContInxArray(1,clincialDataTable.getNumberOfColumns()-1),
                     makeContInxArray(1,mutCnaDataTable.getNumberOfColumns()-1));
+        filterDataTable(dt, caseIds);
+        return dt;
     }
     
     function waitAndDrawTable() {
@@ -217,7 +227,7 @@
             }
         }
         
-        $("#study-desc").append("&nbsp;&nbsp;<b>"+noOfSamples+" samples from "+noOfPatients+" cases</b>.");
+        $("#study-desc").append("&nbsp;&nbsp;<b>"+(noOfSamples===noOfPatients?"":(noOfSamples+" samples from "))+noOfPatients+" cases</b>.");
     }
     
     function mutCnaAxisScaleChanged(dt,colCna,colMut,caseMap) {

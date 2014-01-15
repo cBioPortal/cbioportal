@@ -1,3 +1,6 @@
+<!-- TODO this is the old code for the previous preview content
+     ...we may need to revisit this during the redesign of the front page
+
 <div class="ppy" id="ppy2">
     <ul class="ppy-imglist">
         <li>
@@ -109,19 +112,54 @@
 
 </div>
 
+-->
+
+<div id="previewContainer">
+	<ul class="rslides" id="previewList">
+		<li>
+			<img src="images/previews/thumb_cross_cancer.png"
+			     alt="Cross cancer query of CDKN2A">
+		</li>
+		<li>
+			<img src="images/previews/thumb_patient_view.png"
+			     alt="Patient-specific view for a TCGA endometrial cancer case">
+		</li>
+		<li>
+			<img src="images/previews/thumb_ova_network.png"
+			     alt="Network of genomic alterations in Serous Ovarian Cancer">
+		</li>
+		<li>
+			<img src="images/previews/thumb_cna_mrna.png"
+			     alt="EGFR Amplifications in Gliobastoma">
+		</li>
+		<li>
+			<img src="images/previews/thumb_ova_survival.png"
+			     alt="Survival Analysis of BRCA Mutated v. Non-BRCA Mutated in Serous Ovarian Cancer">
+		</li>
+		<li>
+			<img src="images/previews/thumb_brca1_meth.png"
+			     alt="Epigenetic Silencing of BRCA1 in Serous Ovarian Cancer">
+		</li>
+		<li>
+			<img src="images/previews/thumb_PIK3R1_structural_mutation_view_GBM.png"
+			     alt="Structural view of a PIK3R1 mutation in Glioblastoma">
+		</li>
+		<li>
+			<img src="images/previews/thumb_TP53_mutations_OV.png"
+			     alt="TP53 mutations in ovarian cancer">
+		</li>
+	</ul>
+</div>
+
 <script type="text/javascript">
         <!--//<![CDATA[
 
         $(document).ready(function () {
-            var options = {
-                caption:    'hover',
-                navigation: 'hover',
-                //navigation: 'permanent',
-                direction:  'left',
-                slidespeed: 5000
-            };
+	        var options = {
+		        maxWidth: 170
+	        };
 
-            $('#ppy2').popeye(options);
+	        $('#previewList').responsiveSlides(options);
         });
 
         //]]>-->

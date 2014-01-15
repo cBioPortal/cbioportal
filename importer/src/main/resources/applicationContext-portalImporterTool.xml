@@ -23,6 +23,10 @@
   <!-- importer beans -->
   <b:bean id="cancerStudyImporter" class="org.mskcc.cbio.importer.internal.CancerStudyImporterImpl"/>
   <b:bean id="cancerStudyValidator" class="org.mskcc.cbio.importer.internal.CancerStudyImporterImpl"/>
+  <b:bean id="fileUtils" class="org.mskcc.cbio.importer.io.internal.FileUtilsImpl">
+	<b:constructor-arg index="0"><b:null/></b:constructor-arg>
+	<b:constructor-arg index="1"><b:null/></b:constructor-arg>
+  </b:bean>
 
   <b:bean name="importerClassMap" class="java.util.HashMap">
     <b:constructor-arg index="0" type="java.util.Map">

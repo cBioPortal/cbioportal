@@ -26,7 +26,14 @@
  */
 
 (function($, _, Backbone, d3) {
-    // Prepare eveything only if the page is ready to load
+
+	// TODO 3d Visualizer should be initialized before document get ready
+	// ...due to incompatible Jmol initialization behavior
+	var _mut3dVis = null;
+	//_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	//_mut3dVis.init();
+
+	// Prepare eveything only if the page is ready to load
     $(function(){
         // Some semi-global utilities
         // Here are some options that we will use in this view
@@ -52,7 +59,7 @@
                 event: 'mouseover'
             },
             style: {
-                classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow cc-study-tip cc-ui-tooltip'
+                classes: 'qtip-light qtip-rounded qtip-shadow cc-study-tip cc-ui-tooltip'
             },
             position: {
                 my:'bottom left', at:'top center'
@@ -61,7 +68,7 @@
 
         var getStudyAbbr = function(study, metaData) {
             var tokens = study.studyId.split("_", 2);
-            var firstPart = metaData.short_names[tokens[0]];
+            var firstPart = metaData.short_names[study.typeOfCancer];
             var secondPart = " (" + tokens[1].toLocaleUpperCase().replace("_") + ")";
 
             return firstPart + secondPart;
@@ -826,18 +833,23 @@
                                 sampleArray: [],
                                 diagramOpts: {
                                     showStats: true
-                                }
+                                },
+	                            tableOpts: {
+		                            columnVisibility: {
+			                            // TODO "excludeIfHidden" instead?
+			                            "cancer study": "visible"
+		                            }
+	                            }
                             };
 
                             var el = "#mutation_details";
                             $(el).html("");
 
-                            var defaultView = new MutationDetailsView({
-                                el: el,
-                                model: model,
-                                mut3dVis: null // nope, not yet
-                            });
-                            defaultView.render();
+                            var defaultView = MutationViewsUtil.initMutationDetailsView(
+	                            el, // target div
+	                            {el: el, model: model, mut3dVis: _mut3dVis}, // view options
+	                            "#tabs", // main tabs (containing the mutations tab)
+	                            "Mutations"); // name of the mutations tab
                             // end of mutation details
 
                         });

@@ -56,19 +56,12 @@ import org.owasp.validator.html.PolicyException;
 public class ClinicalFreeFormJSON extends HttpServlet
 {
 	public static final String STUDY_ID = "studyId";
-	
-	private ServletXssUtil servletXssUtil;
 
     /**
      * Initializes the servlet.
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**

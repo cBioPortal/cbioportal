@@ -25,7 +25,6 @@ import java.io.PrintWriter;
 import java.util.*;
 
 public class GeneDataJSON extends HttpServlet {
-    private ServletXssUtil servletXssUtil;
     public static final String SELECTED_CANCER_STUDY = "selected_cancer_type";
     public static final String GENE_LIST = "gene_list";
     public static final String ACTION_NAME = "Action";
@@ -47,11 +46,6 @@ public class GeneDataJSON extends HttpServlet {
      */
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-        } catch (PolicyException e) {
-            throw new ServletException(e);
-        }
     }
 
     /**
@@ -111,6 +105,12 @@ public class GeneDataJSON extends HttpServlet {
 
         // OncoQuery Language string
         String oql = request.getParameter("oql");
+
+	    if (request instanceof XssRequestWrapper)
+	    {
+		    oql = ((XssRequestWrapper)request).getRawParameter("oql");
+	    }
+
         oql = oql.replaceAll("\n", " \n ");
 
         String sampleIds;

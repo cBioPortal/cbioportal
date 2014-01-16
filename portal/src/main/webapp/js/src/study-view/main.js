@@ -118,13 +118,23 @@ $(function() {
 var studyId = getParameterByName("cancer_study_id");
 var varChart = new Array();
 var dataTable;
+var removeKeyIndex = new Array();
 //console.log(studyId);
 
 var studyView = function(){
     var studyId;
     var dataObjectM = new Array();
     var attr = new Array();
-        
+    var columnNameTotal =  ["CASE_ID","SUBTYPE","GENDER","AGE",
+                            "TUMOR_STAGE_2009","HISTOLOGY","TUMOR_GRADE",
+                            "MSI_STATUS_7_MARKER_CALL","DATA_MAF",
+                            "DATA_GISTIC","DATA_CORE_SAMPLE","DATA_RNASEQ",
+                            "MRNA_EXPRESSION_CLUSTER","METHYLATION_CLUSTER",
+                            "MLH1_SILENCING","CNA_CLUSTER_K4",
+                            "MUTATION_RATE_CLUSTER","MICRO_RNA_CLUSTER",
+                            "MICRO_RNA_SCORE","OS_STATUS","DFS_STATUS",
+                            "DFS_MONTHS"];
+    
     return {
         set_studyId: function (s) {studyId = s;},
         getData: function(){
@@ -164,8 +174,9 @@ var studyView = function(){
                 //in case the length of url beyong the maximum length, we use ajax instead of getJSON(which by using POST method instead of GET)
                 $.post("clinicalAttributes.json?cancer_study_id="+studyId+"&case_list=" + tmpStr,function(data){
                     attr = data;
-                    initCharts();
-                    restyle();
+                    var columnNameSelected = initCharts();
+                    columnNameSelected.unshift("CASE_ID");
+                    restyle(columnNameSelected,columnNameTotal);
                     //dcFunc(dataObjectM);
                     //printHTML();
                 });
@@ -367,9 +378,9 @@ var studyView = function(){
                 
             varGroup[i] = varCluster[i].group();
             varChart[i]
-            .width(1200)
+            .width(560)
             .height(200)
-            .margins({top: 10, right: 50, bottom: 30, left: 40})
+            .margins({top: 10, right: 10, bottom: 30, left: 40})
             .dimension(varCluster[i])
             .group(varGroup[i])
             .centerBar(true)
@@ -449,10 +460,13 @@ var studyView = function(){
                         return d.SUBTYPE;
                 },
                 function (d) {
-                        if(!isNaN(d.AGE))
-                                return d.AGE;
-                        else
-                                return '';
+                    if(!isNaN(d.GENDER))
+                        return d.GENDER;
+                    else 
+                        return "";
+                },
+                function (d) {
+                        return d.AGE;
                 },
                 function (d) {
                         return d.TUMOR_STAGE_2009;
@@ -500,31 +514,19 @@ var studyView = function(){
                         return d.MICRO_RNA_CLUSTER;
                 },
                 function (d) {
-                        if(!isNaN(d.MICRO_RNA_SCORE))
-                                return d.MICRO_RNA_SCORE;
-                        else
-                                return '';
-                },
-                function (d) {
-                        return d.CASE_ID;
+                        return d.MICRO_RNA_SCORE;
                 },
                 function (d) {
                         return d.OS_STATUS;
                 },
                 function (d) {
-                        if(!isNaN(d.OS_MONTHS))
-                                return d.OS_MONTHS;
-                        else
-                                return '';
+                    return d.OS_MONTHS;
                 },
                 function (d) {
-                        return d.DFS_STATUS;
+                    return d.DFS_STATUS;
                 },
                 function (d) {
-                        if(!isNaN(d.DFS_MONTHS))
-                                return d.DFS_MONTHS;
-                        else
-                                return '';
+                    return d.DFS_MONTHS;
                 }
         ])
         .size(500)
@@ -533,17 +535,39 @@ var studyView = function(){
         })
         .transitionDuration(800);
         
-        dc.renderAll();        
+        dc.renderAll();
+        
+        return varName;
     };    
     
-    function restyle(){
-        var dataTable1 = $('#dataTable').dataTable({
+    function restyle(columnNameSelected,columnNameTotal){
+        var dataTable = $('#dataTable').dataTable({
                 "sScrollX": "1200px",
                 "sScrollY": "2000px",
                 "bPaginate": false,
                 "bFilter":true
         });
-        
+        /*
+        console.log(columnNameSelected);
+        console.log(columnNameTotal);
+        var keyIndex = new Array();
+        for(var i =0 ; i< columnNameSelected.length ; i++){
+            var key = columnNameTotal.indexOf(columnNameSelected[i])
+            if(key>=0){
+                console.log(columnNameSelected[i]);
+                keyIndex.push(key);
+            }
+        }
+        console.log(keyIndex);
+        for(var i =0 ; i< columnNameTotal.length ; i++){
+            if(keyIndex.indexOf(i) === -1) {       
+                console.log(i);
+                removeKeyIndex.push(i);
+                dataTable.fnSetColumnVis(i,false);
+            }
+        }
+        */
+        $('#dataTable').css('width','width:100%');    
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");

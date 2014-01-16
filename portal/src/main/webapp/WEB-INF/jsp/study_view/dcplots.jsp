@@ -98,30 +98,30 @@
         <table id="dataTable">
             <thead>
                 <tr class="header">
-                <th class="th_6">CASE ID</th>
-                <th class="th_10">SUBTYPE</th>
-                <th class="th_2">AGE</th>
-                <th class="th_4">2009 STAGE GROUP</th>					
-                <th class="th_4">HISTOLOGY</th>					
-                <th class="th_4">TUMOR GRADE</th>					
-                <th class="th_4">MSI STATUS 7 MARKER CALL</th>					
-                <th class="th_4">MSI STATUS 5 MARKER CALL</th>					
-                <th class="th_2">DATA MAF</th>					
-                <th class="th_2">DATA GISTIC</th>					
-                <th class="th_2">DATA RNA SEQ</th>					
-                <th class="th_2">DATA CORE SAMPLE</th>					
-                <th class="th_2">MRNA EXPRESSION CLUSTER</th>					
-                <th class="th_2">METHYLATION CLUSTER</th>					
-                <th class="th_2">MLH1 SILENCING</th>					
-                <th class="th_2">CNA CLUSTER K4</th>					
-                <th class="th_4">MUTATION RATE CLUSTER</th>					
-                <th class="th_2">MICRO RNA CLUSTER</th>
-                <th class="th_6">MICRO RNA SCORE</th>
-                <th class="th_6">CASE ID</th>
-                <th class="th_4">OVERALL SURVIVAL STATUS</th>
-                <th class="th_6">OVERALL SURVIVAL (MONTHS)</th>
-                <th class="th_4">DISEASE FREE STATUS)</th>
-                <th class="th_6">DISEASE FREE (MONTHS)</th>
+                <th>CASE ID</th>
+                <th>SUBTYPE</th>
+                <th>GENDER</th>
+                <th >AGE</th>
+                <th>2009 STAGE GROUP</th>					
+                <th>HISTOLOGY</th>					
+                <th>TUMOR GRADE</th>					
+                <th>MSI STATUS 7 MARKER CALL</th>					
+                <th>MSI STATUS 5 MARKER CALL</th>					
+                <th>DATA MAF</th>					
+                <th>DATA GISTIC</th>					
+                <th>DATA RNA SEQ</th>					
+                <th>DATA CORE SAMPLE</th>					
+                <th>MRNA EXPRESSION CLUSTER</th>					
+                <th>METHYLATION CLUSTER</th>					
+                <th>MLH1 SILENCING</th>					
+                <th>CNA CLUSTER K4</th>					
+                <th>MUTATION RATE CLUSTER</th>					
+                <th>MICRO RNA CLUSTER</th>
+                <th>MICRO RNA SCORE</th>
+                <th>OVERALL SURVIVAL STATUS</th>
+                <th>OVERALL SURVIVAL (MONTHS)</th>
+                <th>DISEASE FREE STATUS)</th>
+                <th>DISEASE FREE (MONTHS)</th>
                 </tr>
             </thead>
         </table>		

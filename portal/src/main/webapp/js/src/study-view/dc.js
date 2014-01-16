@@ -174,7 +174,7 @@ dc.redrawAll = function(group) {
     for (var i = 0; i < charts.length; ++i) {
         charts[i].redraw();
     }
-
+    
     if(dc._renderlet !== null)
         dc._renderlet(group);
 		

@@ -127,12 +127,12 @@ var studyView = function(){
     var attr = new Array();
     var columnNameTotal =  ["CASE_ID","SUBTYPE","GENDER","AGE",
                             "TUMOR_STAGE_2009","HISTOLOGY","TUMOR_GRADE",
-                            "MSI_STATUS_7_MARKER_CALL","DATA_MAF",
+                            "MSI_STATUS_7_MARKER_CALL","MSI_STATUS_5_MARKER_CALL","DATA_MAF",
                             "DATA_GISTIC","DATA_CORE_SAMPLE","DATA_RNASEQ",
                             "MRNA_EXPRESSION_CLUSTER","METHYLATION_CLUSTER",
                             "MLH1_SILENCING","CNA_CLUSTER_K4",
                             "MUTATION_RATE_CLUSTER","MICRO_RNA_CLUSTER",
-                            "MICRO_RNA_SCORE","OS_STATUS","DFS_STATUS",
+                            "MICRO_RNA_SCORE","OS_STATUS","OS_MONTHS","DFS_STATUS",
                             "DFS_MONTHS"];
     
     return {
@@ -301,12 +301,12 @@ var studyView = function(){
             });
             varGroup[i] = varCluster[i].group();
             varChart[i]
-            .width(140)
-            .height(140)
-            .radius(60)
+            .width(200)
+            .height(200)
+            .radius(70)
             .dimension(varCluster[i])
             .group(varGroup[i])
-            .transitionDuration(800)
+            .transitionDuration(1200)
             .ordinalColors(chartColors)
             .label(function (d) {
                 return d.key + ":" + d.value;
@@ -329,7 +329,7 @@ var studyView = function(){
             .height(rowChartHeight)
             .dimension(varCluster[i])
             .group(varGroup[i])
-            .transitionDuration(800)
+            .transitionDuration(1200)
             .elasticX(true)
             .ordinalColors(chartColors)
             .title(function (d) {
@@ -387,7 +387,7 @@ var studyView = function(){
             .elasticY(true)
             .mouseZoomable(false)
             .brushOn(true)
-            .transitionDuration(800)
+            .transitionDuration(1200)
             .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
     
@@ -425,7 +425,7 @@ var studyView = function(){
                                 .dimension(ndx)
                                 .group(all);
                         
-                /*
+                
         var dataTableColumns = new Array();
         
         for(var i=0; i< varChart.length ; i++){
@@ -445,8 +445,8 @@ var studyView = function(){
         .sortBy(function (d) {
                 return d.CASE_ID;
         })
-        .transitionDuration(800)
-        */
+        .transitionDuration(1200)
+        
         dataTable
         .dimension(CASEID)
         .group(function (d) {
@@ -454,70 +454,67 @@ var studyView = function(){
         })
         .columns([
                 function (d) {
-                        return d.CASE_ID;
+                    return d.CASE_ID;
                 },
                 function (d) {
-                        return d.SUBTYPE;
+                    return d.SUBTYPE;
                 },
                 function (d) {
-                    if(!isNaN(d.GENDER))
-                        return d.GENDER;
-                    else 
-                        return "";
+                    return d.GENDER;
                 },
                 function (d) {
-                        return d.AGE;
+                    return d.AGE;
                 },
                 function (d) {
-                        return d.TUMOR_STAGE_2009;
+                    return d.TUMOR_STAGE_2009;
                 },
                 function (d) {
-                        return d.HISTOLOGY;
+                    return d.HISTOLOGY;
                 },
                 function (d) {
-                        return d.TUMOR_GRADE;
+                    return d.TUMOR_GRADE;
                 },
                 function (d) {
-                        return d.MSI_STATUS_7_MARKER_CALL;
+                    return d.MSI_STATUS_7_MARKER_CALL;
                 },
                 function (d) {
-                        return d.MSI_STATUS_5_MARKER_CALL;
+                    return d.MSI_STATUS_5_MARKER_CALL;
                 },
                 function (d) {
-                        return d.DATA_MAF;
+                    return d.DATA_MAF;
                 },
                 function (d) {
-                        return d.DATA_GISTIC;
+                    return d.DATA_GISTIC;
                 },
                 function (d) {
-                        return d.DATA_RNASEQ;
+                    return d.DATA_RNASEQ;
                 },
                 function (d) {
-                        return d.DATA_CORE_SAMPLE;
+                    return d.DATA_CORE_SAMPLE;
                 },
                 function (d) {
-                        return d.MRNA_EXPRESSION_CLUSTER;
+                    return d.MRNA_EXPRESSION_CLUSTER;
                 },
                 function (d) {
-                        return d.METHYLATION_CLUSTER;
+                    return d.METHYLATION_CLUSTER;
                 },
                 function (d) {
-                        return d.MLH1_SILENCING;
+                    return d.MLH1_SILENCING;
                 },
                 function (d) {
-                        return d.CNA_CLUSTER_K4;
+                    return d.CNA_CLUSTER_K4;
                 },
                 function (d) {
-                        return d.MUTATION_RATE_CLUSTER;
+                    return d.MUTATION_RATE_CLUSTER;
                 },
                 function (d) {
-                        return d.MICRO_RNA_CLUSTER;
+                    return d.MICRO_RNA_CLUSTER;
                 },
                 function (d) {
-                        return d.MICRO_RNA_SCORE;
+                    return d.MICRO_RNA_SCORE;
                 },
                 function (d) {
-                        return d.OS_STATUS;
+                    return d.OS_STATUS;
                 },
                 function (d) {
                     return d.OS_MONTHS;
@@ -533,7 +530,7 @@ var studyView = function(){
         .sortBy(function (d) {
                 return d.CASE_ID;
         })
-        .transitionDuration(800);
+        .transitionDuration(1200);
         
         dc.renderAll();
         
@@ -547,7 +544,7 @@ var studyView = function(){
                 "bPaginate": false,
                 "bFilter":true
         });
-        /*
+        
         console.log(columnNameSelected);
         console.log(columnNameTotal);
         var keyIndex = new Array();
@@ -566,8 +563,9 @@ var studyView = function(){
                 dataTable.fnSetColumnVis(i,false);
             }
         }
-        */
-        $('#dataTable').css('width','width:100%');    
+        
+        $('#dataTable').css('width','3000px');
+        $('.dataTables_scrollHeadInner table').css('width','3000px');
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");
@@ -618,3 +616,55 @@ function getParameterByName(name) {
         results = regex.exec(location.search);
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
+
+dc.redrawAll = function(group) {
+    var dataTable = $('#dataTable').dataTable();
+    
+    dataTable.fnDestroy();
+	
+    var charts = dc.chartRegistry.list(group);
+    for (var i = 0; i < charts.length; ++i) {
+        charts[i].redraw();
+    }
+    
+    if(dc._renderlet !== null)
+        dc._renderlet(group);
+		
+	
+    $('#dataTable').dataTable({
+            "sScrollX": "900px",
+            "sScrollY": "500px",
+            "bPaginate": false,
+            "bFilter":true
+    });
+    
+    for(var i =0 ; i< removeKeyIndex.length ; i++){
+        dataTable.fnSetColumnVis(removeKeyIndex[i],false);
+    }
+    $('#dataTable').css('width','3000px');
+    $('table tr').css('width','3000px');
+    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\" />");
+    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
+    $("#dataTable_filter label input").attr("value","");
+    $('#dataTable_header').click(function(){
+            if($("#dataTable_filter label input").val() !== ""){			
+                    console.log("Inside...2");
+                    var items=[];
+                    $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
+                       items.push( $(this).text() );       
+                    });
+                    var items = $.unique( items );
+                    console.log(items);
+                    dataTable.filter(null);
+                    dataTable.filter([items]);
+                    dc.redrawAll();
+            }else{
+                    dataTable.filter(null);
+                    dc.redrawAll();
+            }
+    });
+    $('#dataTable_reset').click(function(){
+            dataTable.filter(null);
+            dc.redrawAll();
+    });
+};

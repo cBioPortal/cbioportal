@@ -101,7 +101,7 @@
                 <th>CASE ID</th>
                 <th>SUBTYPE</th>
                 <th>GENDER</th>
-                <th >AGE</th>
+                <th>AGE</th>
                 <th>2009 STAGE GROUP</th>					
                 <th>HISTOLOGY</th>					
                 <th>TUMOR GRADE</th>					

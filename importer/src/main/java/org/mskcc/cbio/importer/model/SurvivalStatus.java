@@ -28,7 +28,7 @@ package org.mskcc.cbio.importer.model;
 
 import java.util.List;
 
-public class OverallSurvivalStatus
+public class SurvivalStatus
 {
     public List<String> osStatus;
     public List<String> osMonths;

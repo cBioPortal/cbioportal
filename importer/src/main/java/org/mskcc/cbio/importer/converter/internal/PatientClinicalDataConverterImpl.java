@@ -116,20 +116,24 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
 
         config.flagMissingClinicalAttributes(cancerStudyMetadata.toString(), cancerStudyMetadata.getTumorType(),
                                              removeUnknownColumnsFromMatrix(patientMatrix, clinicalAttributes));
-        computeSurvivalData(patientMatrix, followUps);
+        addSurvivalDataToMatrix(patientMatrix, computeSurvivalData(patientMatrix, followUps));
         // comes last - modifying original column headers
         modifyMatrixHeaderToPortalSpec(patientMatrix, clinicalAttributes);
     }
 
-    private void computeSurvivalData(DataMatrix patientMatrix, List<DataMatrix> followUps)
+    private SurvivalStatus computeSurvivalData(DataMatrix patientMatrix, List<DataMatrix> followUps)
     {
         ArrayList<DataMatrix> allMatrices = new ArrayList<DataMatrix>();
         allMatrices.add(patientMatrix);
         //allMatrices.addAll(followUps);
-        OverallSurvivalStatus oss = survivalDataCalculator.computeSurvivalData(allMatrices);
-        patientMatrix.addColumn(ClinicalAttribute.OS_STATUS, oss.osStatus);
-        patientMatrix.addColumn(ClinicalAttribute.OS_MONTHS, oss.osMonths);
-        //patientMatrix.addColumn(ClinicalAttribute.DFS_STATUS, oss.dfStatus);
-        //patientMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
+        return survivalDataCalculator.computeSurvivalData(allMatrices);
+    }
+
+    private void addSurvivalDataToMatrix(DataMatrix dataMatrix, SurvivalStatus oss)
+    {
+        dataMatrix.addColumn(ClinicalAttribute.OS_STATUS, oss.osStatus);
+        dataMatrix.addColumn(ClinicalAttribute.OS_MONTHS, oss.osMonths);
+        dataMatrix.addColumn(ClinicalAttribute.DFS_STATUS, oss.dfStatus);
+        dataMatrix.addColumn(ClinicalAttribute.DFS_MONTHS, oss.dfMonths);
     }
 }

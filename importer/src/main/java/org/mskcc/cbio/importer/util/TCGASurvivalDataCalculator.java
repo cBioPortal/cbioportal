@@ -30,7 +30,7 @@ package org.mskcc.cbio.importer.util;
 import org.mskcc.cbio.importer.model.DataMatrix;
 import org.mskcc.cbio.importer.SurvivalDataCalculator;
 import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.importer.model.OverallSurvivalStatus;
+import org.mskcc.cbio.importer.model.SurvivalStatus;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -47,6 +47,7 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     private static final String DAYS_TO_DEATH = "days_to_death";
     private static final String LAST_FOLLOW_UP = "days_to_last_followup";
     private static final String LAST_KNOWN_ALIVE = "days_to_last_known_alive";
+    private static final String NEW_TUMOR_EVENT = "days_to_new_tumor_event_after_initial_treatment";
 
     private static final Pattern FOLLOW_UP_PATIENT_ID_REGEX = Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)-.*$");
 
@@ -117,6 +118,17 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         }
     }
 
+    private static enum DiseaseFreeStatus
+    {
+        DISEASE_FREE("DiseaseFree"),
+        DISEASED("Recurred/Progressed");
+
+        private String propertyName;
+        
+        DiseaseFreeStatus(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+    }
+
     private class SurvivalData
     {
         String vitalStatus;
@@ -125,148 +137,22 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         String lastKnownAlive;
     }
 
+    private class DiseaseFreeData
+    {
+        String daysToNewTumorEventAfterInitialTreatment;
+    }
+
     /**
      * The list is in ascending (time) order,
      * i.e., patient matrix would come before follow-up matrices.
      */
     @Override
-    public OverallSurvivalStatus computeSurvivalData(List<DataMatrix> dataMatrices)
+    public SurvivalStatus computeSurvivalData(List<DataMatrix> dataMatrices)
     {
-        Map<String, List<SurvivalData>> survivalData = getSurvivalData(dataMatrices);
-        dumpSurvivalData(survivalData);
-        return computeAndAddSurvivalDataToMatrix(dataMatrices, survivalData);
-    }
-
-    private OverallSurvivalStatus computeAndAddSurvivalDataToMatrix(List<DataMatrix> dataMatrices, Map<String, List<SurvivalData>> survivalData)
-    {
-        OverallSurvivalStatus oss = new OverallSurvivalStatus();
-        oss.osStatus = computeOverallSurvivalStatus(survivalData);
-        oss.osMonths = computeOverallSurvivalMonths(survivalData);
-
+        SurvivalStatus oss = new SurvivalStatus();
+        computeSurvivalData(oss, dataMatrices, getSurvivalData(dataMatrices));
+        computeDiseaseFreeData(oss, dataMatrices, getDiseaseFreeData(dataMatrices));
         return oss;
-    }
-
-    private List<String> computeOverallSurvivalStatus(Map<String, List<SurvivalData>> survivalData)
-    {
-        List<String> osStatus = initializeOverallSurvivalList(survivalData.keySet().size());
-        int osStatusIndex = -1;
-        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
-            ++osStatusIndex;
-            for (SurvivalData sd : survivalData.get(patientId)) {
-                if (VitalStatusAlive.has(sd.vitalStatus)) {
-                    osStatus.set(osStatusIndex, VitalStatusAlive.LIVING.toString());
-                }
-                else if (VitalStatusDead.has(sd.vitalStatus)) {
-                    osStatus.set(osStatusIndex, VitalStatusDead.DECEASED.toString());
-                }
-                else {
-                    osStatus.set(osStatusIndex, ClinicalAttribute.MISSING);
-                }
-            }
-        }
-        return osStatus;
-    }
-
-    private List<String> computeOverallSurvivalMonths(Map<String, List<SurvivalData>> survivalData)
-    {
-        List<String> osStatusMonths = initializeOverallSurvivalList(survivalData.keySet().size());
-        int osStatusMonthsIndex = -1;
-        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
-            ++osStatusMonthsIndex;
-            for (SurvivalData sd : survivalData.get(patientId)) {
-                if (VitalStatusAlive.has(sd.vitalStatus)) {
-                    osStatusMonths.set(osStatusMonthsIndex, convertDaysToMonths(sd.lastFollowUp, sd.lastKnownAlive));
-                }
-                else if (VitalStatusDead.has(sd.vitalStatus)) {
-                    osStatusMonths.set(osStatusMonthsIndex, convertDaysToMonths(sd.daysToDeath));
-                }
-                else {
-                    osStatusMonths.set(osStatusMonthsIndex, ClinicalAttribute.MISSING);
-                }
-            }
-        }
-
-        return osStatusMonths;
-    }
-
-    private String convertDaysToMonths(String... sdValues)
-    {
-        if (sdValues.length == 1)
-        {
-            return (MissingAttributeValues.has(sdValues[0])) ? 
-                    ClinicalAttribute.MISSING :
-                    convertDaysToMonthsAsString(Integer.parseInt(sdValues[0]));
-        }
-        else if (sdValues.length == 2)
-        {
-            boolean sdValue0Missing = MissingAttributeValues.has(sdValues[0]);
-            boolean sdValue1Missing = MissingAttributeValues.has(sdValues[1]);
-            if (sdValue0Missing && sdValue1Missing) {
-                return ClinicalAttribute.MISSING;
-            }
-            else if (!sdValue0Missing && sdValue1Missing) {
-                return convertDaysToMonthsAsString(Integer.parseInt(sdValues[0]));
-            }
-            else if (sdValue0Missing && !sdValue1Missing) {
-                return convertDaysToMonthsAsString(Integer.parseInt(sdValues[1]));
-            }
-            else {
-                return convertDaysToMonthsAsString(Math.max(Integer.parseInt(sdValues[0]),
-                                                            Integer.parseInt(sdValues[1])));
-            }
-        }
-
-        return ClinicalAttribute.MISSING;
-    }
-
-    private String convertDaysToMonthsAsString(int days)
-    {
-        return Integer.toString(Math.round(days / AVG_NUM_DAYS_MONTH));
-    }
-
-    private void dumpSurvivalData(Map<String, List<SurvivalData>> survivalData)
-    {
-        List<String> daysToDeath = new ArrayList<String>();
-        List<String> lastFollowUp = new ArrayList<String>();
-        List<String> lastKnownAlive = new ArrayList<String>();
-        List<String> vitalStatus = new ArrayList<String>();
-
-        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
-            for (SurvivalData sd : survivalData.get(patientId)) {
-                daysToDeath.add(sd.daysToDeath);
-                lastFollowUp.add(sd.lastFollowUp);
-                lastKnownAlive.add(sd.lastKnownAlive);
-                vitalStatus.add(sd.vitalStatus);
-            }
-
-            System.out.print(patientId + "\t\t");
-            printList(daysToDeath);
-            printList(lastFollowUp);
-            printList(lastKnownAlive);
-            printList(vitalStatus);
-            System.out.println();
-
-            daysToDeath.clear();
-            lastFollowUp.clear();
-            lastKnownAlive.clear();
-            vitalStatus.clear();
-        }
-    }
-
-    private void printList(List<String> list)
-    {
-        System.out.print("(");
-        int ct = 0;
-        for (String value : list) {
-            if (value.isEmpty()) {
-                value = "[]";
-            }
-            System.out.print(value);
-            if (++ct < list.size()) {
-                System.out.print(", ");
-            }
-        }
-        System.out.print(")\t\t");
     }
 
     private Map<String, List<SurvivalData>> getSurvivalData(List<DataMatrix> dataMatrices)
@@ -278,21 +164,6 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         }
 
         return survivalData;
-    }
-
-    private void mergeSurvivalData(Map<String,SurvivalData> sourceMap, Map<String, List<SurvivalData>> destMap)
-    {
-        for (String patientId : sourceMap.keySet()) {
-            SurvivalData survivalData = sourceMap.get(patientId);
-            if (destMap.containsKey(patientId)) {
-                destMap.get(patientId).add(survivalData);
-            }
-            else {
-                List<SurvivalData> survivalDataList = new ArrayList<SurvivalData>();
-                survivalDataList.add(survivalData);
-                destMap.put(patientId, survivalDataList);
-            }
-        }
     }
 
     private Map<String,SurvivalData> getSurvivalDataForMatrix(DataMatrix dataMatrix)
@@ -349,12 +220,258 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         return (columnData.isEmpty()) ? "" : columnData.get(0).get(index);
     }
 
-    private List<String> initializeOverallSurvivalList(int size)
+    private void mergeSurvivalData(Map<String,SurvivalData> sourceMap, Map<String, List<SurvivalData>> destMap)
+    {
+        for (String patientId : sourceMap.keySet()) {
+            SurvivalData survivalData = sourceMap.get(patientId);
+            if (destMap.containsKey(patientId)) {
+                destMap.get(patientId).add(survivalData);
+            }
+            else {
+                List<SurvivalData> survivalDataList = new ArrayList<SurvivalData>();
+                survivalDataList.add(survivalData);
+                destMap.put(patientId, survivalDataList);
+            }
+        }
+    }
+
+    private void computeSurvivalData(SurvivalStatus oss, List<DataMatrix> dataMatrices, Map<String, List<SurvivalData>> survivalData)
+    {
+        oss.osStatus = computeOverallSurvivalStatus(survivalData);
+        oss.osMonths = computeOverallSurvivalMonths(survivalData);
+    }
+
+    private List<String> computeOverallSurvivalStatus(Map<String, List<SurvivalData>> survivalData)
+    {
+        List<String> osStatus = initializeList(survivalData.keySet().size());
+        int osStatusIndex = -1;
+        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
+            ++osStatusIndex;
+            for (SurvivalData sd : survivalData.get(patientId)) {
+                if (VitalStatusAlive.has(sd.vitalStatus)) {
+                    osStatus.set(osStatusIndex, VitalStatusAlive.LIVING.toString());
+                }
+                else if (VitalStatusDead.has(sd.vitalStatus)) {
+                    osStatus.set(osStatusIndex, VitalStatusDead.DECEASED.toString());
+                }
+                else {
+                    osStatus.set(osStatusIndex, ClinicalAttribute.NA);
+                }
+            }
+        }
+        return osStatus;
+    }
+
+    private List<String> computeOverallSurvivalMonths(Map<String, List<SurvivalData>> survivalData)
+    {
+        List<String> osStatusMonths = initializeList(survivalData.keySet().size());
+        int osStatusMonthsIndex = -1;
+        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
+            ++osStatusMonthsIndex;
+            for (SurvivalData sd : survivalData.get(patientId)) {
+                if (VitalStatusAlive.has(sd.vitalStatus)) {
+                    osStatusMonths.set(osStatusMonthsIndex, convertDaysToMonths(sd.lastFollowUp, sd.lastKnownAlive));
+                }
+                else if (VitalStatusDead.has(sd.vitalStatus)) {
+                    osStatusMonths.set(osStatusMonthsIndex, convertDaysToMonths(sd.daysToDeath));
+                }
+                else {
+                    osStatusMonths.set(osStatusMonthsIndex, ClinicalAttribute.NA);
+                }
+            }
+        }
+
+        return osStatusMonths;
+    }
+
+    private String convertDaysToMonths(String... sdValues)
+    {
+        if (sdValues.length == 1)
+        {
+            return (MissingAttributeValues.has(sdValues[0])) ? 
+                    ClinicalAttribute.MISSING :
+                    convertDaysToMonthsAsString(Integer.parseInt(sdValues[0]));
+        }
+        else if (sdValues.length == 2)
+        {
+            boolean sdValue0Missing = MissingAttributeValues.has(sdValues[0]);
+            boolean sdValue1Missing = MissingAttributeValues.has(sdValues[1]);
+            if (sdValue0Missing && sdValue1Missing) {
+                return ClinicalAttribute.NA;
+            }
+            else if (!sdValue0Missing && sdValue1Missing) {
+                return convertDaysToMonthsAsString(Integer.parseInt(sdValues[0]));
+            }
+            else if (sdValue0Missing && !sdValue1Missing) {
+                return convertDaysToMonthsAsString(Integer.parseInt(sdValues[1]));
+            }
+            else {
+                return convertDaysToMonthsAsString(Math.max(Integer.parseInt(sdValues[0]),
+                                                            Integer.parseInt(sdValues[1])));
+            }
+        }
+
+        return ClinicalAttribute.NA;
+    }
+
+    private String convertDaysToMonthsAsString(int days)
+    {
+        return String.format("%.2f", days / AVG_NUM_DAYS_MONTH);
+    }
+
+    private Map<String, List<DiseaseFreeData>> getDiseaseFreeData(List<DataMatrix> dataMatrices)
+    {
+        Map<String, List<DiseaseFreeData>> diseaseFreeData = new HashMap<String, List<DiseaseFreeData>>();
+
+        for (DataMatrix dataMatrix : dataMatrices) {
+            mergeDiseaseFreeData(getDiseaseFreeDataForMatrix(dataMatrix), diseaseFreeData);
+        }
+
+        return diseaseFreeData;
+    }
+
+    private Map<String,DiseaseFreeData> getDiseaseFreeDataForMatrix(DataMatrix dataMatrix)
+    {
+        Map<String, DiseaseFreeData> diseaseFreeDataMap = new HashMap<String, DiseaseFreeData>();
+
+        List<String> patientIds = getPatientIds(dataMatrix);
+        for (String patientId : patientIds) {
+            diseaseFreeDataMap.put(patientId, getDiseaseFreeDataForPatient(patientIds.indexOf(patientId), dataMatrix));
+        }
+
+        return diseaseFreeDataMap;
+    }
+
+    private DiseaseFreeData getDiseaseFreeDataForPatient(int patientIndex, DataMatrix dataMatrix)
+    {
+        DiseaseFreeData diseaseFreeData = new DiseaseFreeData();
+
+        diseaseFreeData.daysToNewTumorEventAfterInitialTreatment = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
+        
+        return diseaseFreeData;
+    }
+
+    private void mergeDiseaseFreeData(Map<String,DiseaseFreeData> sourceMap, Map<String, List<DiseaseFreeData>> destMap)
+    {
+        for (String patientId : sourceMap.keySet()) {
+            DiseaseFreeData diseaseFreeData = sourceMap.get(patientId);
+            if (destMap.containsKey(patientId)) {
+                destMap.get(patientId).add(diseaseFreeData);
+            }
+            else {
+                List<DiseaseFreeData> diseaseFreeDataList = new ArrayList<DiseaseFreeData>();
+                diseaseFreeDataList.add(diseaseFreeData);
+                destMap.put(patientId, diseaseFreeDataList);
+            }
+        }
+    }
+
+    private void computeDiseaseFreeData(SurvivalStatus oss, List<DataMatrix> dataMatrices, Map<String, List<DiseaseFreeData>> diseaseFreeData)
+    {
+        oss.dfStatus = computeDiseaseFreeStatus(diseaseFreeData);
+        oss.dfMonths = computeDiseaseFreeMonths(diseaseFreeData);
+    }
+
+    private List<String> computeDiseaseFreeStatus(Map<String, List<DiseaseFreeData>> diseaseFreeData)
+    {
+        List<String> dfStatus = initializeList(diseaseFreeData.keySet().size());
+        int dfStatusIndex = -1;
+        for (String patientId : new TreeSet<String>(diseaseFreeData.keySet())) {
+            ++dfStatusIndex;
+            for (DiseaseFreeData df : diseaseFreeData.get(patientId)) {
+                if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
+                    dfStatus.set(dfStatusIndex, DiseaseFreeStatus.DISEASE_FREE.toString());
+                }
+                else {
+                    try {
+                        Integer.parseInt(df.daysToNewTumorEventAfterInitialTreatment);
+                        dfStatus.set(dfStatusIndex, DiseaseFreeStatus.DISEASED.toString());
+                    }
+                    catch(NumberFormatException e) {
+                        dfStatus.set(dfStatusIndex, ClinicalAttribute.NA);
+                    }
+                }
+            }
+        }
+        return dfStatus;
+    }
+
+    private List<String> computeDiseaseFreeMonths(Map<String, List<DiseaseFreeData>> diseaseFreeData)
+    {
+        List<String> dfStatusMonths = initializeList(diseaseFreeData.keySet().size());
+        int dfStatusMonthsIndex = -1;
+        for (String patientId : new TreeSet<String>(diseaseFreeData.keySet())) {
+            ++dfStatusMonthsIndex;
+            for (DiseaseFreeData df : diseaseFreeData.get(patientId)) {
+                if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
+                    dfStatusMonths.set(dfStatusMonthsIndex, ClinicalAttribute.NA);
+                }
+                else {
+                    try {
+                        int dfStatusDays = Integer.parseInt(df.daysToNewTumorEventAfterInitialTreatment);
+                        dfStatusMonths.set(dfStatusMonthsIndex, convertDaysToMonths(Integer.toString(dfStatusDays)));
+                    }
+                    catch(NumberFormatException e) {
+                        dfStatusMonths.set(dfStatusMonthsIndex, ClinicalAttribute.NA);
+                    }
+                }
+            }
+        }
+
+        return dfStatusMonths;
+    }
+
+    private List<String> initializeList(int size)
     {
         List<String> os = new ArrayList<String>(size);
         for (int lc = 0; lc < size; lc++) {
             os.add(lc, "");
         }
         return os;
+    }
+
+    private void dumpSurvivalData(Map<String, List<SurvivalData>> survivalData)
+    {
+        List<String> daysToDeath = new ArrayList<String>();
+        List<String> lastFollowUp = new ArrayList<String>();
+        List<String> lastKnownAlive = new ArrayList<String>();
+        List<String> vitalStatus = new ArrayList<String>();
+
+        for (String patientId : new TreeSet<String>(survivalData.keySet())) {
+            for (SurvivalData sd : survivalData.get(patientId)) {
+                daysToDeath.add(sd.daysToDeath);
+                lastFollowUp.add(sd.lastFollowUp);
+                lastKnownAlive.add(sd.lastKnownAlive);
+                vitalStatus.add(sd.vitalStatus);
+            }
+
+            System.out.print(patientId + "\t\t");
+            printList(daysToDeath);
+            printList(lastFollowUp);
+            printList(lastKnownAlive);
+            printList(vitalStatus);
+            System.out.println();
+
+            daysToDeath.clear();
+            lastFollowUp.clear();
+            lastKnownAlive.clear();
+            vitalStatus.clear();
+        }
+    }
+
+    private void printList(List<String> list)
+    {
+        System.out.print("(");
+        int ct = 0;
+        for (String value : list) {
+            if (value.isEmpty()) {
+                value = "[]";
+            }
+            System.out.print(value);
+            if (++ct < list.size()) {
+                System.out.print(", ");
+            }
+        }
+        System.out.print(")\t\t");
     }
 }

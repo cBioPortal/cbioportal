@@ -101,8 +101,13 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                                config.getClinicalAttributesMetadata(ClinicalAttribute.OS_STATUS).iterator().next());
         clinicalAttributes.put(ClinicalAttribute.OS_MONTHS,
                                config.getClinicalAttributesMetadata(ClinicalAttribute.OS_MONTHS).iterator().next());
-        
 
+        // add disease free attributes
+        clinicalAttributes.put(ClinicalAttribute.DFS_STATUS,
+                               config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_STATUS).iterator().next());
+        clinicalAttributes.put(ClinicalAttribute.DFS_MONTHS,
+                               config.getClinicalAttributesMetadata(ClinicalAttribute.DFS_MONTHS).iterator().next());
+        
         return clinicalAttributes;
     }
 

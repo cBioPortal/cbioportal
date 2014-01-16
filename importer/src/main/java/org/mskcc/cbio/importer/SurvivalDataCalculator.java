@@ -29,7 +29,8 @@
 package org.mskcc.cbio.importer;
 
 import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.OverallSurvivalStatus;
+import org.mskcc.cbio.importer.model.SurvivalStatus;
+
 import java.util.List;
 
 /**
@@ -41,5 +42,5 @@ public interface SurvivalDataCalculator
      * The list is in ascending (time) order,
      * i.e., patient matrix would come before follow-up matrices.
      */
-    OverallSurvivalStatus computeSurvivalData(List<DataMatrix> dataMatrices);
+    SurvivalStatus computeSurvivalData(List<DataMatrix> dataMatrices);
 }

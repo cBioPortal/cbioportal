@@ -51,6 +51,7 @@ var ScatterPlots = (function() {
         dataAttr = [];
 
     var axis_edge = 0.1;
+        log_scale_threshold = 0.17677669529;
 
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
@@ -63,10 +64,11 @@ var ScatterPlots = (function() {
 
     function convertData(_dataArr) {
         dataArr.length = 0;
-        //convert json to array
+        //convert json to array, and filter out null 
         $.each(_dataArr, function(index, obj) {
-            obj.qtip = "new qtip";
-            dataArr.push(obj);
+            if (!isNaN(parseFloat(obj.x_val)) && !isNaN(parseFloat(obj.y_val))) {
+                dataArr.push(obj);
+            }
         });
     }
 
@@ -185,7 +187,7 @@ var ScatterPlots = (function() {
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
-            .attr("y", 50)
+            .attr("y", 45)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold")
@@ -204,7 +206,7 @@ var ScatterPlots = (function() {
                 $(this).attr("x_val", d.x_val);
                 $(this).attr("y_val", d.y_val);
                 $(this).attr("x_pos", elem.xScale(d.x_val)); 
-                $(this).attr("y_pos", elem.xScale(d.y_val));
+                $(this).attr("y_pos", elem.yScale(d.y_val));
                 return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
             })
             .attr("d", d3.svg.symbol()
@@ -218,14 +220,9 @@ var ScatterPlots = (function() {
     function addQtips() {
         elem.dotsGroup.selectAll('path').each(
             function(d) {
-                var content = "<font size='2'>";
-                content += "<strong><a href='tumormap.do?case_id=" + d.case_id +
-                           "&cancer_study_id=" + window.PortalGlobals.getCancerStudyId() +
-                           "' target = '_blank'>" + d.case_id + "</a></strong><br></font>";
-
                 $(this).qtip(
                     {
-                        content: {text: content},
+                        content: {text: d.qtip},
                         style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -256,22 +253,22 @@ var ScatterPlots = (function() {
         elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
     }
 
-    function updatePlotsLogScale(_axis, _applyLogScale, _threshold) {
+    function updatePlotsLogScale(_axis, _applyLogScale) {
         elem.dotsGroup.selectAll("path")
             .transition().duration(300)
             .attr("transform", function() {
                 if (_applyLogScale) {
                     if (_axis === "x") {
-                        if (parseFloat(d3.select(this).attr("x_val")) <= _threshold) {
-                            var _post_x = elem.xScale(Math.log(_threshold) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("x_val")) <= log_scale_threshold) {
+                            var _post_x = elem.xScale(Math.log(log_scale_threshold) / Math.log(2));
                         } else {
                             var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
-                    } else if (axis === "y") {
+                    } else if (_axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
-                        if (parseFloat(d3.select(this).attr("y_val")) <= _threshold) {
-                            var _post_y = elem.yScale(Math.log(_threshold) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("y_val")) <= log_scale_threshold) {
+                            var _post_y = elem.yScale(Math.log(log_scale_threshold) / Math.log(2));
                         } else {
                             var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                         }
@@ -284,7 +281,7 @@ var ScatterPlots = (function() {
                     if (_axis === "x") {
                         var _post_x = elem.xScale(d3.select(this).attr("x_val"));
                         var _post_y = d3.select(this).attr("y_pos");
-                    } else if (axis === "y") {
+                    } else if (_axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
                         var _post_y = elem.yScale(d3.select(this).attr("y_val"));
                     }
@@ -295,10 +292,10 @@ var ScatterPlots = (function() {
             });
     }
 
-    function updateAxisScaleX(_threshold) {
+    function updateAxisScaleX() {
         var _min_x, _max_x, _edge_x;
-        if (dataAttr.min_x <= _threshold) {
-            _min_x = Math.log(_threshold) / Math.log(2);
+        if (dataAttr.min_x <= log_scale_threshold) {
+            _min_x = Math.log(log_scale_threshold) / Math.log(2);
         } else {
             _min_x = Math.log(dataAttr.min_x) / Math.log(2);
         }
@@ -310,10 +307,10 @@ var ScatterPlots = (function() {
 
     }
 
-    function updateAxisScaleY(_threshold) {
+    function updateAxisScaleY() {
         var _min_y, _max_y, _edge_y;
-        if (dataAttr.min_y <= _threshold) {
-            _min_y = Math.log(_threshold) / Math.log(2);
+        if (dataAttr.min_y <= log_scale_threshold) {
+            _min_y = Math.log(log_scale_threshold) / Math.log(2);
         } else {
             _min_y = Math.log(dataAttr.min_y) / Math.log(2);
         }
@@ -341,27 +338,29 @@ var ScatterPlots = (function() {
             addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
-        updateScaleX: function(_applyLogScale, _threshold) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+        updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+            var _applyLogScale = document.getElementById(_divName).checked;
             if (_applyLogScale) {
-                updateAxisScaleX(_threshold);
+                updateAxisScaleX();
             } else {
                 initScaleX();
             }
             initAxisX();
             generateAxisX();
             appendAxisTitleX(_applyLogScale);
-            //updatePlotsLogScale("x", _applyLogScale, _threshold);
+            updatePlotsLogScale("x", _applyLogScale);
         },
-        updateScaleY: function(_applyLogScale, _threshold) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+        updateScaleY: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
+            var _applyLogScale = document.getElementById(_divName).checked;
             if (_applyLogScale) {
-                updateAxisScaleY(_threshold);
+                updateAxisScaleY();
             } else {
                 initScaleY();
             }
             initAxisY();
             generateAxisY();
             appendAxisTitleY(_applyLogScale);
-            //updatePlotsLogScale("y", _applyLogScale, _threshold);
+            updatePlotsLogScale("y", _applyLogScale);
         }
     }
 

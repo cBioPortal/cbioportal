@@ -53,8 +53,8 @@ var PlotsBoilerplate = {
         height: 595,
         xLeft: 90,     //The left/starting point for x axis
         xRight: 590,   //The right/ending point for x axis
-        yTop: 20,      //The top/ending point for y axis
-        yBottom: 520   //The bottom/starting point for y axis
+        yTop: 5,      //The top/ending point for y axis
+        yBottom: 505   //The bottom/starting point for y axis
     },
     elem : {
         svg: "",
@@ -70,6 +70,13 @@ var PlotsBoilerplate = {
         header: "_header", 
         body: "_body",  // the actual plots
         div: "", // the overall div name
-        loading_img: "_loading_img" //place holding img
+        loading_img: "_loading_img", //place holding img
+        control_panel: "_control_panel" 
+    },
+    text: {
+        xTitle: "",
+        yTitle: "",
+        title: "",
+        fileName: "",
     }
 };

@@ -41,17 +41,8 @@ var CoexpPlotsView = (function() {
         style: "",
         canvas: "",
         elem: "",
-        names: {
-            div: "",
-            header: "",
-            body: ""
-        },
-        text: {
-            xTitle: "",
-            yTitle: "",
-            title: "",
-            fileName: "",
-        }
+        names: "",
+        text: ""
     };
 
     function settings(_divName, _geneX, _geneY, _dataAttr) {
@@ -67,7 +58,9 @@ var CoexpPlotsView = (function() {
         options.names.header = _divName + options.names.header;
         options.names.body = _divName + options.names.body;   //the actual svg plots
         options.names.loading_img = _divName + options.names.loading_img;
+        options.names.control_panel = _divName + options.names.control_panel;
         //construct axis titles
+        options.text = jQuery.extend(true, {}, PlotsBoilerplate.text);
         options.text.xTitle = _geneX + ", " + _dataAttr.profile_name;
         options.text.yTitle = _geneY + ", " + _dataAttr.profile_name;
         options.text.title = "Co-expression in mRNA Expression: " + _geneX + " vs. " + _geneY + "  ";
@@ -85,7 +78,19 @@ var CoexpPlotsView = (function() {
     }
 
     function show(_dataArr, _dataAttr) {
-        PlotsHeader.init(options.names.header, options.text.title, options.text.fileName, options.names.body);
+        var enable_log_scale = false;
+        if (_dataAttr.profile_name.indexOf("RNA Seq") !== -1) {
+            enable_log_scale = true;
+        }
+        PlotsHeader.init(
+            options.names.div,
+            options.names.header, 
+            options.text.title, 
+            options.text.fileName, 
+            options.names.body, 
+            options.names.control_panel,
+            enable_log_scale, 
+            enable_log_scale);
         ScatterPlots.init(options, _dataArr, _dataAttr);
     }
 

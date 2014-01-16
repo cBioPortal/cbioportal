@@ -38,7 +38,8 @@ var PlotsHeader = (function() {
     var divName = "", 
         title = "",
         fileName = "",
-        targetDiv = "";
+        targetDiv = "",
+        controlPanelDiv = "";
 
     function appendTitle() {
         $("#" + divName).append("<b>" + title + "</b>");
@@ -66,15 +67,49 @@ var PlotsHeader = (function() {
         $("#" + divName).append(svgConverterForm);
     }
 
+    function appendControlPanel(_log_x, _log_y) {
+        $("#" + divName).append(
+            "<div id='" + controlPanelDiv + "' " +
+            "style='margin-top: 15px; margin-bottom: 0px; margin-right: 30px; float:right;'></div>");
+        $("#" + controlPanelDiv).append(
+            "Show Mutations" +
+            "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' /> " 
+            );
+        if (_log_x) {
+            $("#" + controlPanelDiv).append(
+                "Log Scale X<input type='checkbox' id='" + controlPanelDiv + "_x' " + 
+                "onchange=\"ScatterPlots.updateScaleX('" + controlPanelDiv + "_x');\" /> ");
+        }
+        if (_log_y) {
+            $("#" + controlPanelDiv).append(
+                "Log Scale Y<input type='checkbox' id='" + controlPanelDiv + "_y' " +
+                "onchange=\"ScatterPlots.updateScaleY('" + controlPanelDiv + "_y');\" /> "); 
+        }
+    }
+
+    function addEventListener(_plotsDiv) {
+        var _svgElement = document.getElementById(_plotsDiv);
+        _svgElement.addEventListener("mouseover", function() { 
+            $("#" + controlPanelDiv).css("opacity", "1.0");
+        });
+        _svgElement.addEventListener("mouseout", function() {
+            $("#" + controlPanelDiv).css("opacity", "0.3");
+        });
+        $("#" + controlPanelDiv).css("opacity", "0.3");
+    }
+
     return {
-        init: function(_divName, _title, _fileName, _targetDiv) {
+        init: function(_plotsDiv, _divName, _title, _fileName, _targetDiv, _controlPanelDiv, _log_x, _log_y) { //log scale x/y on/off, 
             divName = _divName;
             title = _title;
             fileName = _fileName;
-            targetDiv = _targetDiv;
+            targetDiv = _targetDiv; //The actual svg div name 
+            controlPanelDiv = _controlPanelDiv;
             appendTitle();
             appendPdfConverter();
             appendSvgConverter();
+            appendControlPanel(_log_x, _log_y);
+            addEventListener(_plotsDiv);
         },
         loadSvg: function(_divName) {
             return $("#" + _divName).html();

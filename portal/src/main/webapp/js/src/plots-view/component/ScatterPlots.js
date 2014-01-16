@@ -304,7 +304,6 @@ var ScatterPlots = (function() {
         elem.xScale = d3.scale.linear()
             .domain([_min_x - _edge_x, _max_x + _edge_x])
             .range([canvas.xLeft, canvas.xRight]);
-
     }
 
     function updateAxisScaleY() {
@@ -361,6 +360,9 @@ var ScatterPlots = (function() {
             generateAxisY();
             appendAxisTitleY(_applyLogScale);
             updatePlotsLogScale("y", _applyLogScale);
+        },
+        showMutations: function() {
+
         }
     }
 

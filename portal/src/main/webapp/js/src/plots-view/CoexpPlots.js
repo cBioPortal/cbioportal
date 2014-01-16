@@ -28,7 +28,8 @@
 /**
  *
  * JS functions for generating the detailed plots for selected row
- * under co-expression view, mostly for grabbing data (through CoexpPlotsProxy)
+ * under co-expression view, mostly for grabbing data (through two AJAX calls)
+ * send to Data to "formatting" proxy (CoexpPlotsProxy)
  * and init the overall view (CoexpPlotsView).
  *
  * @author: yichao S
@@ -52,10 +53,23 @@ var CoexpPlots = (function() {
         $.post("getAlterationData.json", paramsGetAlterationData, getAlterationDataCallBack(divName, geneX, geneY), "json");
     }
 
-    function getAlterationDataCallBack(divName, geneX, geneY) {
+    function getAlterationDataCallBack(_divName, _geneX, _geneY) {
         return function(result) {
-            CoexpPlotsProxy.init(result, geneX, geneY);
-            CoexpPlotsView.init(divName, geneX, geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
+            var alteration_data_result = jQuery.extend(result, {}, true);
+            //get mutation data
+            var proxy = DataProxyFactory.getDefaultMutationDataProxy();
+            proxy.getMutationData(gene, getMutationDataCallBack(alteration_data_result, _divName, _geneX, _geneY));
+
+
+
+        }
+    }
+
+    function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY) {
+        return function(result) {
+            console.log(result);
+            CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY);
+            CoexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
         }
     }
 

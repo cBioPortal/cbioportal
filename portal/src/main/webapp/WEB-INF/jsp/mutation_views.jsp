@@ -198,11 +198,11 @@
 								<label>Color:</label>
 								<select class='mutation-3d-protein-color-select'>
 									<option value='uniform'
-									        title='Uniform color'>uniform</option>
-									<option value='secondaryStructure'
-									        title='Color by secondary structure'>by secondary structure</option>
-									<option value='atomType'
-									        title='Color by atom type'
+									        title='Uniform Color'>uniform</option>
+									<option value='bySecondaryStructure'
+									        title='Color by Secondary Structure'>by secondary structure</option>
+									<option value='byAtomType'
+									        title='Color by Atom Type'
 									        disabled="disabled">by atom type</option>
 								</select>
 							</td>
@@ -237,7 +237,7 @@
 											</label>
 										</td>
 									</tr>
-									<tr>
+									<!--tr>
 										<td></td>
 										<td>
 											<label>
@@ -245,14 +245,17 @@
 												       type='checkbox'>by atom type
 											</label>
 										</td>
-									</tr>
+									</tr-->
 								</table>
-								<!--select class='mutation-3d-mutation-color-select'>
+								<!-- alternative UI (with a dropdown menu)
+								<label>Color:</label>
+								<select class='mutation-3d-mutation-color-select'>
 									<option value='mutationType'
-									        title='Uniform color'>by mutation type</option>
+									        title='Color by mutation type'>by mutation type</option>
 									<option value='atomType'
-									        title='Color by secondary structure'>by atom type</option>
-								</select-->
+									        title='Color by atom type'>by atom type</option>
+								</select>
+								-->
 							</td>
 						</tr>
 					</table>

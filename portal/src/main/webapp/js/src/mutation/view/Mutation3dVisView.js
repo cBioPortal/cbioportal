@@ -26,10 +26,10 @@ var Mutation3dVisView = Backbone.View.extend({
 			{loaderImage: "images/ajax-loader.gif"});
 
 		// load the compiled HTML into the Backbone "el"
-		this.$el.html(template);
+		self.$el.html(template);
 
 		// format after rendering
-		this.format();
+		self.format();
 	},
 	format: function()
 	{
@@ -75,15 +75,16 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// format toolbar elements
 
-		// spin toggle
-		var spinChecker = self.$el.find(".mutation-3d-spin");
+//		var spinChecker = self.$el.find(".mutation-3d-spin");
+//		spinChecker.change(function(){
+//			if (mut3dVis != null)
+//			{
+//				mut3dVis.toggleSpin();
+//			}
+//		});
 
-		spinChecker.change(function(){
-			if (mut3dVis != null)
-			{
-				mut3dVis.toggleSpin();
-			}
-		});
+		// mutation style checkboxes
+		self._initMutationControls();
 
 		// protein style selector
 		self._initProteinSchemeSelector();
@@ -99,17 +100,73 @@ var Mutation3dVisView = Backbone.View.extend({
 			closeHandler();
 		});
 	},
+	/**
+	 * Initializes the mutation style options UI and
+	 * the corresponding event handlers.
+	 */
+	_initMutationControls: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var sideChain = self.$el.find(".mutation-3d-side-chain");
+		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
+
+		// handler for side chain checkbox
+		sideChain.change(function() {
+			var display = sideChain.is(":checked");
+
+			if (mut3dVis)
+			{
+				// update flag
+				mut3dVis.updateOptions({displaySideChain: display});
+				// TODO mut3dVis.reHighlight(); or use mut3dVis.reapplyStyle();
+			}
+		});
+
+		// handler for color type checkbox
+		colorByType.change(function() {
+			var color = colorByType.is(":checked");
+			var type = "byMutationType";
+
+			// if not coloring by mutation type, then use default atom colors
+			if (!color)
+			{
+				type = "byAtomType";
+			}
+
+			if (mut3dVis)
+			{
+				// update and reapply visual style
+				mut3dVis.updateOptions({colorMutations: type});
+				mut3dVis.reapplyStyle();
+			}
+		});
+	},
+	/**
+	 * Initializes the protein color selector drop-down menu
+	 * with its default action handler.
+	 */
 	_initProteinColorSelector: function()
 	{
 		var self = this;
 		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
+		var mut3dVis = self.options.mut3dVis;
 
 		colorMenu.change(function() {
 			var selected = $(this).val();
 
-			// TODO update color options and refresh view
+			// update color options
+			mut3dVis.updateOptions({colorProteins: selected});
+
+			// refresh view with new options
+			mut3dVis.reapplyStyle();
 		});
 	},
+	/**
+	 * Initializes the protein scheme selector dropdown menu
+	 * with its default action handler.
+	 */
 	_initProteinSchemeSelector: function()
 	{
 		var self = this;
@@ -120,11 +177,13 @@ var Mutation3dVisView = Backbone.View.extend({
 		var styleMenu = self.$el.find(".mutation-3d-protein-style-select");
 		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
 
-		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
+		// TODO chosen is somehow problematic...
 		//styleMenu.chosen({width: 120, disable_search: true});
 
 		styleMenu.change(function() {
-			var selected = $(this).val();
+
+			var selectedScheme = $(this).val();
+			var selectedColor = false;
 
 			// re-enable every color selection for protein
 			colorMenu.find("option").removeAttr("disabled");
@@ -132,15 +191,15 @@ var Mutation3dVisView = Backbone.View.extend({
 			var toDisable = null;
 
 			// find the option to disable
-			if (selected == "spaceFilling")
+			if (selectedScheme == "spaceFilling")
 			{
 				// disable color by secondary structure option
-				toDisable = colorMenu.find("option[value='secondaryStructure']");
+				toDisable = colorMenu.find("option[value='bySecondaryStructure']");
 			}
 			else
 			{
 				// disable color by atom type option
-				toDisable = colorMenu.find("option[value='atomType']");
+				toDisable = colorMenu.find("option[value='byAtomType']");
 			}
 
 			// if the option to disable is currently selected, select the default option
@@ -148,14 +207,27 @@ var Mutation3dVisView = Backbone.View.extend({
 			{
 				toDisable.removeAttr("selected");
 				colorMenu.find("option[value='uniform']").attr("selected", "selected");
+				selectedColor = "uniform";
 			}
 
 			toDisable.attr("disabled", "disabled");
 
-			if (mut3dVis != null)
+			if (mut3dVis)
 			{
-				// TODO update options (including color opts) and refresh view with new settings
-				mut3dVis.changeStyle(selected);
+				var opts = {};
+
+				opts.proteinScheme = selectedScheme;
+
+				if (selectedColor)
+				{
+					opts.colorProteins = selectedColor;
+				}
+
+				mut3dVis.updateOptions(opts);
+
+				// reapply view with new settings
+				//mut3dVis.changeStyle(selectedScheme);
+				mut3dVis.reapplyStyle();
 			}
 		});
 	},
@@ -183,17 +255,21 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		};
 
+		// handler function for zoom slider events
+		var zoomHandler = function(event, ui)
+		{
+			if (mut3dVis)
+			{
+				mut3dVis.zoomTo(transformValue(ui.value));
+			}
+		};
+
 		// init y-axis slider controls
 		zoomSlider.slider({value: 0,
 			min: -80,
 			max: 80,
-			stop: function(event, ui) {
-				mut3dVis.zoomTo(transformValue(ui.value));
-			},
-			slide: function(event, ui) {
-				// TODO zooming for every move, this may reduce performance
-				mut3dVis.zoomTo(transformValue(ui.value));
-			}
+			stop: zoomHandler,
+			slide: zoomHandler
 		});
 	},
 	/**
@@ -323,7 +399,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.minimize();
+		if (mut3dVis)
+		{
+			mut3dVis.minimize();
+		}
 	},
 	/**
 	 * Restores the 3D visualizer panel to its full size.
@@ -333,7 +412,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.maximize();
+		if (mut3dVis)
+		{
+			mut3dVis.maximize();
+		}
 	},
 	isVisible: function()
 	{

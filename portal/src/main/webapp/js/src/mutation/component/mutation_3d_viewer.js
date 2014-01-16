@@ -40,25 +40,22 @@ var Mutation3dVis = function(name, options)
 		proteinScheme: "cartoon", // default style of the protein structure
 		defaultColor: "xDDDDDD", // default color of the whole structure
 		structureColors: { // default colors for special structures
-			alphaHelix: "orange", // TODO use actual color code
-			betaStrand: "blue",
+			alphaHelix: "xFFA500",
+			betaStrand: "x0000FF",
 			loop: "xDDDDDD"
-		}, // (takes effect only when corresponding flag is set)
+		}, // structure color takes effect only when corresponding flag is set
 		defaultTranslucency: 5, // translucency (opacity) of the whole structure
 		chainColor: "x888888", // color of the selected chain
 		chainTranslucency: 0, // translucency (opacity) of the selected chain
-		colorProteins: { // color proteins (by default use a single color)
-			uniform: true, // effective for all schemes
-			byStructure: false, // not effective for space-filling scheme
-			byAtomType: false, // effective only for space-filling scheme
-			byChain: false // not effective for space-filling scheme -- TODO rainbow coloring
-		},
-		colorMutations: { // color mutations (by default use mutation colors for type)
-			byMutationType: true,
-			byAtomType: false
-		},
+		colorProteins: "uniform", // "uniform": single color, effective for all schemes
+		                          // "bySecondaryStructure": not effective for space-filling scheme
+		                          // "byAtomType": effective only for space-filling scheme
+		                          // "byChain": not effective for space-filling scheme -- TODO rainbow coloring
+		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
+		                                  // "byAtomType": use default atom colors
 		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
 		highlightColor: "xFFDD00", // color of the user-selected mutations
+		displaySideChain: true, // whether to display side chain for highlighted mutations
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
@@ -67,7 +64,7 @@ var Mutation3dVis = function(name, options)
 	};
 
 	// Predefined style scripts for Jmol
-	var styleScripts = {
+	var _styleScripts = {
 		spaceFilling: "wireframe ONLY; wireframe 0.15; spacefill 100%;",
 		ribbon: "ribbon ONLY;",
 		cartoon: "cartoon ONLY;",
@@ -132,17 +129,15 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
-	 * Changes the style of the visualizer.
-	 *
-	 * @param style name of the style
+	 * Reapply the visual style for the current options.
 	 */
-	function changeStyle(style)
+	function reapplyStyle()
 	{
-		// update selected style
-		_options.proteinScheme = style;
+//		var script = "select all;" +
+//		             _styleScripts[style];
+		var script = generateVisualStyleScript(_selection, _chain);
 
-		var script = "select all;" +
-		             styleScripts[style];
+		script = script.join(" ");
 
 		_3dApp.script(script);
 	}
@@ -299,21 +294,9 @@ var Mutation3dVis = function(name, options)
 
 		// construct Jmol script string
 		var script = [];
+
 		script.push("load=" + pdbId + ";"); // load the corresponding pdb
-		script.push("select all;"); // select everything
-		script.push(styleScripts[_options.proteinScheme]); // show selected style view
-		script.push("color [" + _options.defaultColor + "] "); // set default color
-		script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
-		script.push("select :" + chain.chainId + ";"); // select the chain
-		script.push("color [" + _options.chainColor + "];"); // set chain color
-
-		// color each residue with a mapped color (this is to sync with diagram colors)
-		for (color in selection)
-		{
-			script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
-			script.push("color [" + color + "];"); // color with corresponding mutation color
-		}
-
+		script = script.concat(generateVisualStyleScript(selection, chain));
 		script.push("spin " + _spin + ";"); // set spin
 
 		// convert array into a string (to pass to Jmol)
@@ -346,8 +329,8 @@ var Mutation3dVis = function(name, options)
 		var id = pileup.mutations[0].mutationId;
 
 		// get script
-		var script = getFocusScript(id);
-		script = script.concat(getHighlightScript(id));
+		var script = generateFocusScript(id);
+		script = script.concat(generateHighlightScript(id));
 
 		// check if the script is valid
 		if (script.length > 0)
@@ -411,7 +394,7 @@ var Mutation3dVis = function(name, options)
 		// the same (or very close) mutation position.
 		var id = pileup.mutations[0].mutationId;
 
-		var script = getHighlightScript(id);
+		var script = generateHighlightScript(id);
 
 		// check if the script is valid
 		if (script.length > 0)
@@ -453,12 +436,45 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
+	 * Generates the visual style (scheme, coloring, selection, etc.) script
+	 * to be sent to the 3D app.
+	 *
+	 * @return {Array}  script lines as an array
+	 */
+	function generateVisualStyleScript(selection, chain)
+	{
+		var script = [];
+
+		// TODO use newly introduced style options:
+		// ...structureColors, colorProteins, colorMutations, chainTranslucency
+
+		script.push("select all;"); // select everything
+		script.push(_styleScripts[_options.proteinScheme]); // show selected style view
+		script.push("color [" + _options.defaultColor + "] "); // set default color
+		script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
+		script.push("select :" + chain.chainId + ";"); // select the chain
+		script.push("color [" + _options.chainColor + "];"); // set chain color
+
+		if (_options.colorMutations == "byMutationType")
+		{
+			// color each residue with a mapped color (this is to sync with diagram colors)
+			for (var color in selection)
+			{
+				script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
+				script.push("color [" + color + "];"); // color with corresponding mutation color
+			}
+		}
+
+		return script;
+	}
+
+	/**
 	 * Generates the highlight script to be sent to the 3D app.
 	 *
 	 * @param mutationId    id of the mutation to highlight
 	 * @return {Array}      script lines as an array
 	 */
-	function getHighlightScript(mutationId)
+	function generateHighlightScript(mutationId)
 	{
 		var script = [];
 		var position = _chain.positionMap[mutationId];
@@ -492,7 +508,7 @@ var Mutation3dVis = function(name, options)
 	 * @param mutationId    id of the mutation to highlight
 	 * @return {Array}      script lines as an array
 	 */
-	function getFocusScript(mutationId)
+	function generateFocusScript(mutationId)
 	{
 		var script = [];
 		var position = _chain.positionMap[mutationId];
@@ -593,6 +609,6 @@ var Mutation3dVis = function(name, options)
 		resetFocus: resetFocus,
 		updateContainer: updateContainer,
 		toggleSpin: toggleSpin,
-		changeStyle : changeStyle,
+		reapplyStyle : reapplyStyle,
 		updateOptions: updateOptions};
 };

@@ -79,7 +79,7 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li><a href='#clinical-plots' class='study-tab' title='Plots'>Study Summary</a></li>
+    <li id="li-1"><a href='#clinical-plots' class='study-tab' title='Plots'>Study Summary</a></li>
     <li><a href='#dc-plots' class='study-tab' title='Plots'>DC Plots</a></li>
     <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
@@ -193,12 +193,23 @@ function initTabs() {
     tabContainers.hide().filter(':first').show();
 
     $('.study-tab').click(function () {
-            tabContainers.hide();
-            tabContainers.filter(this.hash).show();
-            $('.study-tab').removeClass('selected');
-            $(this).addClass('selected');
-            return false;
-    }).filter(':first').click();   
+        tabContainers.hide();
+        tabContainers.filter(this.hash).show();
+        $('.study-tab').removeClass('selected');
+        $(this).addClass('selected');
+        
+        if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
+            var oTable = $('#dataTable').dataTable();
+            if ( oTable.length > 0 ) {
+                    oTable.fnAdjustColumnSizing();
+                    console.log("--3--");
+            }else{
+                console.log("--1--");
+            }
+        }
+        
+        return false;
+    }).filter(':first').click();
 }
 
 function switchToTab(toTab) {

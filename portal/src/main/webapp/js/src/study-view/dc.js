@@ -166,10 +166,6 @@ Redraw all charts belong to the given chart group. If the chart group is not giv
   the graphic incrementally instead of starting from scratch.
 **/
 dc.redrawAll = function(group) {
-	$(function(){
-		$('#dataTable').dataTable().fnDestroy();
-	});
-	
     var charts = dc.chartRegistry.list(group);
     for (var i = 0; i < charts.length; ++i) {
         charts[i].redraw();
@@ -177,40 +173,6 @@ dc.redrawAll = function(group) {
     
     if(dc._renderlet !== null)
         dc._renderlet(group);
-		
-	$(function(){
-		$('#dataTable').dataTable({
-			"sScrollX": "900px",
-			"sScrollY": "500px",
-			"bPaginate": false,
-			"bFilter":true
-		});
-		$('#dataTable').css('width','3000px');
-		$('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\" />");
-		$('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
-		$("#dataTable_filter label input").attr("value","");
-		$('#dataTable_header').click(function(){
-			if($("#dataTable_filter label input").val() !== ""){			
-				console.log("Inside...2");
-				var items=[];
-				$('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
-				   items.push( $(this).text() );       
-				});
-				var items = $.unique( items );
-				console.log(items);
-				dataTable.filter(null);
-				dataTable.filter([items]);
-				dc.redrawAll();
-			}else{
-				dataTable.filter(null);
-				dc.redrawAll();
-			}
-		});
-		$('#dataTable_reset').click(function(){
-			dataTable.filter(null);
-			dc.redrawAll();
-		});
-	});
 };
 
 dc.disableTransitions = false;

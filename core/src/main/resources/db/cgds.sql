@@ -679,6 +679,8 @@ CREATE TABLE `lab_test` (
   `TEST` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
   `RESULT` float,
   `UNIT` varchar(20),
+  `NORMAL_RANGE` varchar(255),
+  `NOTES` text,
   PRIMARY KEY (`LAB_TEST_ID`),
   KEY (`CANCER_STUDY_ID`, `CASE_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE

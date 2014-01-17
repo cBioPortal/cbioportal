@@ -27,7 +27,9 @@ public final class DaoLabTest {
                 Integer.toString(labTest.getDate()),
                 labTest.getTest(),
                 Double.toString(labTest.getResult()),
-                labTest.getUnit()
+                labTest.getUnit(),
+                labTest.getNormalRange(),
+                labTest.getNotes()
                 );
         return 1;
     }

@@ -16,6 +16,8 @@ public class LabTest {
     private String test;
     private double result;
     private String unit;
+    private String normalRange;
+    private String notes;
 
     public long getLabTestId() {
         return labTestId;
@@ -71,6 +73,22 @@ public class LabTest {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public String getNormalRange() {
+        return normalRange;
+    }
+
+    public void setNormalRange(String normalRange) {
+        this.normalRange = normalRange;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
     

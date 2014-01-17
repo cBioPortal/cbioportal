@@ -26,83 +26,149 @@
  **/
 package org.mskcc.cbio.portal.scripts;
 
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoClinicalData;
-import org.mskcc.cbio.portal.dao.DaoClinicalAttribute;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 import java.io.*;
 import java.util.*;
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
+import java.util.regex.*;
 
 public class ImportClinicalData {
 
-    public static final String METADATA_PREFIX = "#";
     public static final String DELIMITER = "\t";
-    public static final String CASE_ID_COLUMN_NAME = "CASE_ID";
+    public static final String METADATA_PREFIX = "#";
+    public static final String SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
+    public static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
 
+    private static final Pattern TCGA_SAMPLE_BARCODE_REGEX = Pattern.compile("(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d[A-Q]$");
+
+    private boolean isSampleData;
 	private File clinicalDataFile;
 	private CancerStudy cancerStudy;
     private ProgressMonitor pMonitor;
 	
-    /**
-     * Constructor.
-     *
-     * @param cancerStudy   Cancer Study
-     * @param clinicalDataFile File
-     * @param pMonitor         ProgressMonitor
-     */
-    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, ProgressMonitor pMonitor) {
-        this.cancerStudy = cancerStudy;
+    public ImportClinicalData(CancerStudy cancerStudy, File clinicalDataFile, boolean isSampleData, ProgressMonitor pMonitor)
+    {
         this.pMonitor = pMonitor;
+        this.cancerStudy = cancerStudy;
+        this.isSampleData = isSampleData;
         this.clinicalDataFile = clinicalDataFile;
     }
 
-    /**
-     * Method to import data.
-     *
-     * @throws java.io.IOException
-     * @throws org.mskcc.cbio.portal.dao.DaoException
-     */
-    public void importData() throws IOException, DaoException {
+    public void importData() throws Exception
+    {
         MySQLbulkLoader.bulkLoadOn();
+
         FileReader reader =  new FileReader(clinicalDataFile);
         BufferedReader buff = new BufferedReader(reader);
-
         List<ClinicalAttribute> columnAttrs = grabAttrs(buff);
-        int iCaseId = findCaseIDColumn(columnAttrs);
 
-        String line;
-        while ((line = buff.readLine()) != null) {
-            line = line.trim();
-            
-            if (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX)) {
-                // ignore lines with the METADATA_PREFIX
-                continue;
-            }
-
-            String[] fields = line.split(DELIMITER);
-            if (fields.length > columnAttrs.size()) {
-                System.err.println("more attributes than header: "+line);
-                continue;
-            }
-            
-            String caseId = fields[iCaseId];
-            for (int i = 0; i < fields.length; i++) {
-                if (i!=iCaseId && !fields[i].isEmpty()) {
-                    DaoClinicalData.addDatum(cancerStudy.getInternalId(), caseId, columnAttrs.get(i).getAttrId(), fields[i]);
-                }
-            }
-        }
+        importData(buff, columnAttrs);
         
         if (MySQLbulkLoader.isBulkLoad()) {
             MySQLbulkLoader.flushAll();
         }
+    }
+
+    private void importData(BufferedReader buff, List<ClinicalAttribute> columnAttrs) throws Exception
+    {
+        String line;
+        while ((line = buff.readLine()) != null) {
+
+            line = line.trim();
+            if (skipLine(line)) {
+                continue;
+            }
+
+            String[] fields = line.split(DELIMITER);
+            if (validLine(fields, columnAttrs)) {
+                addDatum(fields, columnAttrs);
+            }
+            else {
+                System.err.println("Corrupt line in data file, skipping: " + line);
+            }
+        }
+    }
+
+    private boolean skipLine(String line)
+    {
+        return (line.isEmpty() || line.substring(0,1).equals(METADATA_PREFIX));
+    }
+
+    private boolean validLine(String[] fields, List<ClinicalAttribute> columnAttrs)
+    {
+        return (fields.length == columnAttrs.size());
+    }
+
+    private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    {
+        int indexOfIdColumn = getIndexOfIdColumn(columnAttrs);
+        if (indexOfIdColumn < 0) {
+            throw new java.lang.UnsupportedOperationException("Clinical file is missing Id column header");
+        }
+        String id = fields[indexOfIdColumn];
+
+        if (isSampleData) {
+            boolean addedSampleToDatabase = addSampleToDatabase(id, fields, columnAttrs);
+            if (!addedSampleToDatabase) {
+                System.err.println("Could not add sample to table (most likely because patient id for sample could not be determined), skipping: " + id);
+                return;
+            }
+        }
+
+        for (int lc = 0; lc < fields.length; lc++) {
+            if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {
+                DaoClinicalData.addDatum(cancerStudy.getInternalId(), id, columnAttrs.get(lc).getAttrId(), fields[lc]);
+            }
+        }
+    }
+
+    private int getIndexOfIdColumn(List<ClinicalAttribute> columnAttrs)
+    {
+        return (isSampleData) ? findSampleIdColumn(columnAttrs) : findPatientIdColumn(columnAttrs);
+    }
+
+    private boolean addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    {
+        boolean success = false;
+        String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
+        if (validPatientId(stablePatientId)) {
+            Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
+            if (patient != null) {
+                DaoSample.addSample(new Sample(sampleId, patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
+                success = true;
+            }
+        }
+
+        return success;
+    }
+
+    private String getStablePatientId(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs)
+    {
+        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(sampleId);
+        if (tcgaSampleBarcodeMatcher.find()) {
+            return tcgaSampleBarcodeMatcher.group(1);
+        }
+        else {
+            // internal studies should have a patient id column
+            int patientIdIndex = findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, columnAttrs);
+            if (patientIdIndex >= 0) {
+                return fields[patientIdIndex];
+            }
+        }
+
+        return "";
+    }
+
+    private boolean validPatientId(String patientId)
+    {
+        return (patientId != null && !patientId.isEmpty());
+    }
+
+    private boolean addAttributeToDatabase(int attributeIndex, int indexOfIdColumn, String attributeValue)
+    {
+        return (attributeIndex != indexOfIdColumn && !attributeValue.isEmpty());
     }
 
     /**
@@ -117,8 +183,8 @@ public class ImportClinicalData {
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(true);
 
-        if (args.length != 2) {
-            System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id>");
+        if (args.length < 2) {
+            System.out.println("command line usage:  importClinical <clinical.txt> <cancer_study_id> [is_sample_data]");
             return;
         }
 
@@ -134,7 +200,10 @@ public class ImportClinicalData {
 				System.out.println(" --> total number of lines:  " + numLines);
 				pMonitor.setMaxValue(numLines);
 
-				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, clinical_f, pMonitor);
+				ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy,
+                                                                               clinical_f,
+                                                                               (args.length == 3) ? isSampleData(args[2]) : false,
+                                                                               pMonitor);
                 importClinicalData.importData();
                 System.out.println("Success!");
 			}
@@ -172,7 +241,7 @@ public class ImportClinicalData {
                 throw new DaoException("attribute and metadata mismatch in clinical staging file");
             }
         } else {
-            // attribute ID header only
+            // attribute Id header only
             descriptions = displayNames;
             colnames = displayNames;
             datatypes = new String[displayNames.length] ;
@@ -190,15 +259,25 @@ public class ImportClinicalData {
 
         return attrs;
     }
+
+    private int findPatientIdColumn(List<ClinicalAttribute> attrs)
+    {
+        return findAttributeColumnIndex(PATIENT_ID_COLUMN_NAME, attrs);
+    }
+
+    private int findSampleIdColumn(List<ClinicalAttribute> attrs)
+    {
+        return findAttributeColumnIndex(SAMPLE_ID_COLUMN_NAME, attrs);
+    }
     
-    private int findCaseIDColumn(List<ClinicalAttribute> attrs) {
-        for (int i=0; i<attrs.size(); i++) {
-            if (attrs.get(i).getAttrId().equals(CASE_ID_COLUMN_NAME)) {
-                return i;
+    private int findAttributeColumnIndex(String columnHeader, List<ClinicalAttribute> attrs)
+    {
+        for (int lc = 0; lc < attrs.size(); lc++) {
+            if (attrs.get(lc).getAttrId().equals(columnHeader)) {
+                return lc;
             }
         }
-        
-        throw new java.lang.UnsupportedOperationException("Clinicla file must contain a column of "+CASE_ID_COLUMN_NAME);
+        return -1;
     }
 
     /**
@@ -213,4 +292,8 @@ public class ImportClinicalData {
 
         return fields;
     }
+
+	private static boolean isSampleData(String parameterValue) {
+		return (parameterValue.equalsIgnoreCase("t")) ?	true : false;
+	}
 }

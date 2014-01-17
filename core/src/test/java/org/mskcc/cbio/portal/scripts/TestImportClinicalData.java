@@ -55,14 +55,14 @@ public class TestImportClinicalData extends TestCase {
      * @throws DaoException Database Access Error.
      * @throws IOException  IO Error.
      */
-    public void testImportClinicalData() throws DaoException, IOException {
+    public void testImportClinicalData() throws Exception {
         ResetDatabase.resetDatabase();
         ProgressMonitor pMonitor = new ProgressMonitor();
 		// TBD: change this to use getResourceAsStream()
         File file = new File("target/test-classes/clinical_test.txt");
         CancerStudy cancerStudy = new CancerStudy("test","test","test","test",true);
         cancerStudy.setInternalId(CANCER_STUDY_ID);
-        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, pMonitor);
+        ImportClinicalData importClinicalData = new ImportClinicalData(cancerStudy, file, false, pMonitor);
         importClinicalData.importData();
 
         LinkedHashSet <String> caseSet = new LinkedHashSet<String>();

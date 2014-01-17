@@ -360,6 +360,9 @@ class ImporterImpl implements Importer {
 					String metaFilename = getImportFilename(rootDirectory, cancerStudyMetadata, datatypeMetadata.getMetaFilename());
 					args = new String[] { "--data", stagingFilename, "--meta", metaFilename, "--loadMode", "bulkLoad" };
 				}
+                else if (stagingFilename.endsWith(DatatypeMetadata.SAMPLE_CLINICAL_DATA_FILENAME)) {
+                    args = new String[] { stagingFilename, cancerStudyMetadata.toString(), "t" };
+                }
 				else {
 					args = new String[] { stagingFilename, cancerStudyMetadata.toString() };
 				}

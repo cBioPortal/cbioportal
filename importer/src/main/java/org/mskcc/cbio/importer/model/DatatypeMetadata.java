@@ -61,8 +61,8 @@ public class DatatypeMetadata {
 	// - used by at least ConverterImpl
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
-	// mutation data staging filename
 	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
+    public static final String SAMPLE_CLINICAL_DATA_FILENAME = "data_clinical_sample.txt";
 
 	// clinical data staging filename
 	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";

@@ -201,10 +201,8 @@ function initTabs() {
         if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
             var oTable = $('#dataTable').dataTable();
             if ( oTable.length > 0 ) {
-                    oTable.fnAdjustColumnSizing();
-                    console.log("--3--");
-            }else{
-                console.log("--1--");
+                    oTable.fnAdjustColumnSizing();        
+                    $('#dataTable_header').click();
             }
         }
         

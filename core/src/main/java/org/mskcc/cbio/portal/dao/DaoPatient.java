@@ -90,7 +90,7 @@ public class DaoPatient {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoPatient.class);
-            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_ID`) VALUES (?,?)",
+            pstmt = con.prepareStatement("INSERT INTO patient (`STABLE_ID`, `CANCER_STUDY_ID`) VALUES (?,?)",
                                          Statement.RETURN_GENERATED_KEYS);
             pstmt.setString(1, patient.getStableId());
             pstmt.setInt(2, patient.getCancerStudy().getInternalId());

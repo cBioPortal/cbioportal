@@ -644,23 +644,41 @@ CREATE TABLE `treatment` (
   `CASE_ID` varchar(255) NOT NULL,
   `START_DATE` int,
   `STOP_DATE` int,
-  `TYPE` varchar(20), # Medical, Radiation
+  `TYPE` varchar(20), # STEROID, Radiation, HORM, CHEMO, ...
   `AGENT` varchar(50),
-  `NOTES` varchar(500),
+  `DOSE` float,
+  `UNIT` varchar(20),
+  `SCHEDULE` varchar(20), # daily, three times daily, ...
   PRIMARY KEY (`TREATMENT_ID`),
   KEY (`CANCER_STUDY_ID`, `CASE_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
 
-drop table IF EXISTS clinical_event;
-CREATE TABLE `clinical_event` (
-  `CLINICAL_EVENT_ID` int(255) NOT NULL auto_increment,
+drop table IF EXISTS diagnostic;
+CREATE TABLE `diagnostic` (
+  `DIAGOSTIC_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `CASE_ID` varchar(255) NOT NULL,
   `DATE` int,
-  `TYPE` varchar(20), # diagnostics, lab test
-  `SUBTYPE` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
-  `NOTES` varchar(500),
+  `TYPE` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
+  `SIDE` varchar(50), 
+  `TARGET` varchar(255),
+  `RESULT` varchar(255),
+  `STATUS` varchar(255),
+  PRIMARY KEY (`CLINICAL_EVENT_ID`),
+  KEY (`CANCER_STUDY_ID`, `CASE_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+
+drop table IF EXISTS lab_test;
+CREATE TABLE `lab_test` (
+  `LAB_TEST_ID` int(255) NOT NULL auto_increment,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  `CASE_ID` varchar(255) NOT NULL,
+  `DATE` int,
+  `TEST` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
+  `RESULT` float,
+  `UNIT` varchar(20),
   PRIMARY KEY (`CLINICAL_EVENT_ID`),
   KEY (`CANCER_STUDY_ID`, `CASE_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE

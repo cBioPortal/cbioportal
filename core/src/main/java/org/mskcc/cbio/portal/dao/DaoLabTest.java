@@ -17,7 +17,7 @@ public final class DaoLabTest {
     
     public static int addDatum(LabTest labTest) {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new IllegalStateException("Only build load mode is allowed for importing lab test data");
+            throw new IllegalStateException("Only buld load mode is allowed for importing lab test data");
         }
         
         MySQLbulkLoader.getMySQLbulkLoader("lab_test").insertRecord(

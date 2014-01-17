@@ -17,7 +17,7 @@ public final class DaoTreatment {
     
     public static int addDatum(Treatment treatment) {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new IllegalStateException("Only build load mode is allowed for importing treatment data");
+            throw new IllegalStateException("Only buld load mode is allowed for importing treatment data");
         }
         
         MySQLbulkLoader.getMySQLbulkLoader("treatment").insertRecord(

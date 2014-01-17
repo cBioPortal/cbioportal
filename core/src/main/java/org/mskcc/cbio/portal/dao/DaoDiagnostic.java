@@ -17,7 +17,7 @@ public final class DaoDiagnostic {
     
     public static int addDatum(Diagnostic diagnostic) {
         if (!MySQLbulkLoader.isBulkLoad()) {
-            throw new IllegalStateException("Only build load mode is allowed for importing diagnostic data");
+            throw new IllegalStateException("Only buld load mode is allowed for importing diagnostic data");
         }
         
         MySQLbulkLoader.getMySQLbulkLoader("diagnostic").insertRecord(

@@ -97,12 +97,13 @@ drop table IF EXISTS sample;
 CREATE TABLE `sample` (
   `INTERNAL_ID` int(11) NOT NULL auto_increment,
   `STABLE_ID` varchar(50) NOT NULL,
+  `SAMPLE_TYPE` varchar(255) NOT NULL,
   `PATIENT_ID` int(11) NOT NULL,
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
   FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`),
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 

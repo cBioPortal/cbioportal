@@ -37,22 +37,57 @@ import org.apache.log4j.Logger;
  */
 public class Sample {
 
+    public static enum Type
+    {
+        BLOOD_DERIVED_NORMAL("Blood Derived Normal"),
+        NORMAL("Normal"),
+        PRIMARY_TUMOR("Primary Tumor");
+
+        private String propertyName;
+        
+        Type(String propertyName) { this.propertyName = propertyName; }
+        public String toString() { return propertyName; }
+
+        static public boolean has(String value) {
+            if (value == null) return false;
+            try { 
+                return valueOf(value.toUpperCase()) != null; 
+            }
+            catch (IllegalArgumentException x) { 
+                return false;
+            }
+        }
+    }
+
     private int internalId;
     private String stableId;
+    private Type sampleType;
     private int internalPatientId;
     private String cancerTypeId;
 
-    public Sample(int internalId, String stableId, int internalPatientId, String cancerTypeId)
+    public Sample(int internalId, String stableId, String sampleType, int internalPatientId, String cancerTypeId)
     {
-        this(stableId, internalPatientId, cancerTypeId);
+        this(stableId, sampleType, internalPatientId, cancerTypeId);
         this.internalId = internalId;
     }
 
-    public Sample(String stableId, int internalPatientId, String cancerTypeId)
+    public Sample(String stableId, String sampleType, int internalPatientId, String cancerTypeId)
     {
         this.stableId = stableId;
+        this.sampleType = Sample.getType(sampleType);
         this.internalPatientId = internalPatientId;
 		this.cancerTypeId = cancerTypeId;
+    }
+
+    private static Type getType(String sampleType)
+    {
+        sampleType = sampleType.replaceAll(" ", "_");
+        if (Type.has(sampleType)) {
+            return Type.valueOf(sampleType.toUpperCase());
+        }
+        else {
+            return Type.PRIMARY_TUMOR;
+        }
     }
 
     public int getInternalId()
@@ -63,6 +98,11 @@ public class Sample {
     public String getStableId()
     {
         return stableId;
+    }
+   
+    public Type getType()
+    {
+        return sampleType;
     }
 
     public int getInternalPatientId()

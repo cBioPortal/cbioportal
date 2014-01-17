@@ -40,6 +40,7 @@ public class ImportClinicalData {
     public static final String METADATA_PREFIX = "#";
     public static final String SAMPLE_ID_COLUMN_NAME = "SAMPLE_ID";
     public static final String PATIENT_ID_COLUMN_NAME = "PATIENT_ID";
+    public static final String SAMPLE_TYPE_COLUMN_NAME = "SAMPLE_TYPE";
 
     private static final Pattern TCGA_SAMPLE_BARCODE_REGEX = Pattern.compile("(TCGA-\\w\\w-\\w\\w\\w\\w)\\-\\d\\d[A-Q]$");
 
@@ -136,12 +137,23 @@ public class ImportClinicalData {
         if (validPatientId(stablePatientId)) {
             Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
             if (patient != null) {
-                DaoSample.addSample(new Sample(sampleId, patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
+                DaoSample.addSample(new Sample(sampleId, getSampleType(fields, columnAttrs),
+                                               patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
                 success = true;
             }
         }
 
         return success;
+    }
+
+    private String getSampleType(String[] fields, List<ClinicalAttribute> columnAttrs)
+    {
+        int sampleTypeIndex = findAttributeColumnIndex(SAMPLE_TYPE_COLUMN_NAME, columnAttrs);
+        if (sampleTypeIndex > 0) {
+            return fields[sampleTypeIndex];
+        }
+
+        return Sample.Type.PRIMARY_TUMOR.toString();
     }
 
     private String getStablePatientId(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs)

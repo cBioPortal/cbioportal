@@ -78,7 +78,7 @@ public final class DaoClinicalData {
             pstmt = con.prepareStatement
                     ("INSERT INTO clinical(" +
                             "`CANCER_STUDY_ID`," +
-                            "`SAMPLE_ID`," +
+                            "`PATIENT_OR_SAMPLE_ID`," +
                             "`ATTR_ID`," +
                             "`ATTR_VALUE`)" +
                             " VALUES(?,?,?,?)");
@@ -113,7 +113,7 @@ public final class DaoClinicalData {
 
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
                     "CANCER_STUDY_ID=? " +
-                    "AND SAMPLE_ID=? " +
+                    "AND PATIENT_OR_SAMPLE_ID=? " +
                     "AND ATTR_ID=?");
 
             pstmt.setInt(1, cancerStudyId);
@@ -150,7 +150,7 @@ public final class DaoClinicalData {
 
             pstmt = con.prepareStatement("SELECT * FROM clinical WHERE " +
 										 "CANCER_STUDY_ID=? " +
-										 "AND SAMPLE_ID=? ");
+										 "AND PATIENT_OR_SAMPLE_ID=? ");
 
             pstmt.setInt(1, cancerStudyId);
             pstmt.setString(2, caseId);
@@ -237,7 +237,7 @@ public final class DaoClinicalData {
         String caseIdsSql = generateCaseIdsSql(caseIds);
 
         String sql = "SELECT * FROM clinical WHERE `CANCER_STUDY_ID`=" + cancerStudyId
-                + " " + "AND `SAMPLE_ID` IN (" + caseIdsSql + ")";
+                + " " + "AND `PATIENT_OR_SAMPLE_ID` IN (" + caseIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -270,7 +270,7 @@ public final class DaoClinicalData {
         String sql = "SELECT * FROM clinical WHERE"
                 + " `CANCER_STUDY_ID`=" + "'" + cancerStudy.getInternalId() + "'"
                 + " AND `ATTR_ID`=" + "'" + attr.getAttrId() + "'"
-                + " AND `SAMPLE_ID` IN (" + caseIdsSql + ")";
+                + " AND `PATIENT_OR_SAMPLE_ID` IN (" + caseIdsSql + ")";
 
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
@@ -339,7 +339,7 @@ public final class DaoClinicalData {
      */
     private static ClinicalData extract(ResultSet rs) throws SQLException {
 		return new ClinicalData(rs.getInt("CANCER_STUDY_ID"),
-								rs.getString("SAMPLE_ID"),
+								rs.getString("PATIENT_OR_SAMPLE_ID"),
 								rs.getString("ATTR_ID"),
 								rs.getString("ATTR_VALUE"));
     }
@@ -374,6 +374,7 @@ public final class DaoClinicalData {
 
 	public static List<Patient> getSurvivalData(int cancerStudyId, Collection<String> caseSet) throws DaoException {
             List<ClinicalData> data = getData(cancerStudyId, caseSet);
+            CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId);
             Map<String,Map<String,ClinicalData>> clinicalData = new LinkedHashMap<String,Map<String,ClinicalData>>();
             for (ClinicalData cd : data) {
                 String caseId = cd.getCaseId();
@@ -387,7 +388,7 @@ public final class DaoClinicalData {
 
             ArrayList<Patient> toReturn = new ArrayList<Patient>();
             for (Map.Entry<String,Map<String,ClinicalData>> entry : clinicalData.entrySet()) {
-                toReturn.add(new Patient(entry.getKey(), entry.getKey(), entry.getValue()));
+                toReturn.add(new Patient(cancerStudy, entry.getKey(), entry.getKey(), entry.getValue()));
             }
             return toReturn;
 	}
@@ -490,7 +491,7 @@ public final class DaoClinicalData {
 
             try{
                 con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-                pstmt = con.prepareStatement ("SELECT SAMPLE_ID FROM `clinical`"
+                pstmt = con.prepareStatement ("SELECT PATIENT_OR_SAMPLE_ID FROM `clinical`"
                         + "WHERE CANCER_STUDY_ID=? AND ATTR_ID=? AND ATTR_VALUE=?");
                 pstmt.setInt(1, cancerStudyId);
                 pstmt.setString(2, paramName);
@@ -501,7 +502,7 @@ public final class DaoClinicalData {
 
                 while (rs.next())
                 {
-                    cases.add(rs.getString("SAMPLE_ID"));
+                    cases.add(rs.getString("PATIENT_OR_SAMPLE_ID"));
                 }
 
                 return cases;

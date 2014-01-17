@@ -539,10 +539,10 @@ var studyView = function(){
     
     function restyle(columnNameSelected,columnNameTotal){
         var dataTable = $('#dataTable').dataTable({
-                "sScrollX": "1200px",
-                "sScrollY": "2000px",
-                "bPaginate": false,
-                "bFilter":true
+            "sScrollX": "1200px",    
+            "sScrollY": "2000px",
+            "bPaginate": false,
+            "bFilter":true                
         });
         
         console.log(columnNameSelected);
@@ -640,7 +640,7 @@ dc.redrawAll = function(group) {
     
     for(var i =0 ; i< removeKeyIndex.length ; i++){
         dataTable.fnSetColumnVis(removeKeyIndex[i],false);
-    }
+    }    
     $('#dataTable').css('width','3000px');
     $('table tr').css('width','3000px');
     $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\" />");

@@ -10,7 +10,7 @@
 <script src="js/src/study-view/dc.js"></script>
 <script src="js/src/study-view/crossfilter.js"></script>
 <script src="js/src/study-view/jquery.dataTables.js"></script>
-<!--<script src="js/src/study-view/loadData.js"></script>-->
+<script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/main.js"></script> 
 
 <!--

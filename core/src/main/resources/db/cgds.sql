@@ -382,7 +382,7 @@ drop table IF EXISTS clinical_attribute;
 CREATE TABLE `clinical_attribute` (
   `ATTR_ID` varchar(255) NOT NULL,
   `DISPLAY_NAME` varchar(255) NOT NULL,
-  `DESCRIPTION` varchar(255) NOT NULL,
+  `DESCRIPTION` varchar(2048) NOT NULL,
   `DATATYPE` varchar(255) NOT NULL,
   PRIMARY KEY (`ATTR_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='DATATYPE can be NUMBER, BOOLEAN, STRING';

@@ -8,14 +8,45 @@ var CoexpPlotsProxy = (function() {
             max_y: "",
             profile_name: ""
         };
+    var mutationMap = {};   
 
-    function convertData(result, geneX, geneY) {
-        var geneXArr = result[geneX];
-        var geneYArr = result[geneY];
+    function convertData(_alteration_data_result, geneX, geneY) {
+        var geneXArr = _alteration_data_result[geneX];
+        var geneYArr = _alteration_data_result[geneY];
+
         $.each(geneXArr, function(index) {
+
             var datum = jQuery.extend(true, {}, PlotsBoilerplate.datum);
             var _obj_x = geneXArr[index];
             var _obj_y = geneYArr[index];
+
+            //Find if having mutation(s)
+            if (mutationMap.hasOwnProperty(_obj_x["caseId"].toLowerCase())) {
+                var _mut_obj = {};
+                $.each(mutationMap[(_obj_x["caseId"]).toLowerCase()], function(index, obj) {
+                    var _tmp_obj = {};
+                    _tmp_obj["protein_change"] = obj.proteinChange;
+                    _tmp_obj["mutation_type"] = obj.mutationType;
+                    if (obj.geneSymbol === geneX) {
+                        if (!_mut_obj.hasOwnProperty(geneX)) {
+                            var _tmp_arr = [];
+                            _tmp_arr.push(_tmp_obj);
+                            _mut_obj[geneX] = _tmp_arr;   
+                        } else {
+                            _mut_obj[geneX].push(_tmp_obj);
+                        }
+                    } else if(obj.geneSymbol === geneY) {
+                        if (!_mut_obj.hasOwnProperty(geneY)) {
+                            var _tmp_arr = [];
+                            _tmp_arr.push(_tmp_obj);
+                            _mut_obj[geneY] =  _tmp_arr;   
+                        } else {
+                            _mut_obj[geneY].push(_tmp_obj);
+                        }
+                    }
+                }); 
+                datum["mutation"] = _mut_obj;
+            }
             datum.x_val = _obj_x["value"];
             datum.y_val = _obj_y["value"];
             datum.case_id = _obj_x["caseId"];
@@ -50,12 +81,19 @@ var CoexpPlotsProxy = (function() {
         }
     }
 
+    function getMutationMaps() {
+        var _mutationUtil = DataProxyFactory.getDefaultMutationDataProxy().getMutationUtil();  
+        mutationMap = jQuery.extend(true, {}, _mutationUtil.getMutationCaseMap()); 
+    }
+
     return {
-        init: function(result, geneX, geneY) {
+        init: function(_alteration_data_result, _geneX, _geneY) {
             dataArr.length = 0;
-            convertData(result, geneX, geneY);
+            getMutationMaps();
+            convertData(_alteration_data_result, _geneX, _geneY);
+            console.log(dataArr);
             analyseData();
-            getProfile(result);
+            getProfile(_alteration_data_result);
         },
         getData: function() { return dataArr; },
         getDataAttr: function() { return attr; }

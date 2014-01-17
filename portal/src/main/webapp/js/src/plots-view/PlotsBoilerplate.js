@@ -39,7 +39,9 @@ var PlotsBoilerplate = {
         x_val: "",
         y_val: "",
         case_id: "",
-        qtip: "" //content for qtip
+        qtip: "", //content for qtip
+        stroke: "",
+        fill: ""
     },
     style : {
         fill: "#58ACFA", //light blue

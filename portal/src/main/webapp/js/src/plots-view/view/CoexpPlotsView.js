@@ -48,6 +48,14 @@ var CoexpPlotsView = (function() {
     function settings(_divName, _geneX, _geneY, _dataAttr) {
         //css style
         options.style = jQuery.extend(true, {}, PlotsBoilerplate.style);
+        options.style["mutations"] = {
+            gene_x_mutate_fill: "red",
+            gene_x_mutate_stroke: "black",
+            gene_y_mutate_fill: "yellow",
+            gene_y_mutate_stroke: "black",
+            gene_both_mutate_fill: "green",
+            gene_both_mutate_stroke: "black"
+        };
         //positions
         options.canvas = jQuery.extend(true, {}, PlotsBoilerplate.canvas);
         //svg elements
@@ -94,6 +102,31 @@ var CoexpPlotsView = (function() {
         ScatterPlots.init(options, _dataArr, _dataAttr);
     }
 
+    function styleMutatedCases(_dataArr, _geneX, _geneY) { //style the mutated cases based on this specific scenario
+        $.each(_dataArr, function(index, obj) {
+            if (obj.hasOwnProperty("mutation")) {
+                if (obj["mutation"].hasOwnProperty(_geneX) &&
+                    obj["mutation"].hasOwnProperty(_geneY)) {
+                    obj.stroke = options.style.gene_both_mutate_stroke;
+                    obj.fill = options.style.gene_both_mutate_fill;
+                } else if (obj["mutation"].hasOwnProperty(_geneX) &&
+                    !obj["mutation"].hasOwnProperty(_geneY)) {
+                    obj.stroke = options.style.gene_x_mutate_stroke;
+                    obj.fill = options.style.gene_x_mutate_fill;
+                } else if (!obj["mutation"].hasOwnProperty(_geneX) &&
+                    obj["mutation"].hasOwnProperty(_geneY)) {
+                    obj.stroke = options.style.gene_y_mutate_stroke;
+                    obj.fill = options.style.gene_y_mutate_fill;
+                } else {
+                    obj.stroke = options.style.stroke;
+                    obj.fill = options.style.fill;
+                }
+            }
+
+        });
+        console.log(_dataArr);
+    }
+
     function update() {
        // ScatterPlots.update();
     }
@@ -101,6 +134,7 @@ var CoexpPlotsView = (function() {
     return {
         init: function(_divName, _geneX, _geneY, _dataArr, _dataAttr) {
             settings(_divName, _geneX, _geneY, _dataAttr);
+            styleMutatedCases(_dataArr, _geneX, _geneY);
             layout(_divName);
             show(_dataArr, _dataAttr);
         },

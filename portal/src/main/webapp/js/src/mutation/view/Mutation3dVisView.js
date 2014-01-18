@@ -120,7 +120,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			{
 				// update flag
 				mut3dVis.updateOptions({displaySideChain: display});
-				// TODO mut3dVis.reHighlight(); or use mut3dVis.reapplyStyle();
+				mut3dVis.refreshHighlight();
 			}
 		});
 
@@ -453,25 +453,38 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * Highlights the 3D visualizer for the residue
 	 * corresponding to the given pileup of mutations.
 	 *
+	 * @param pileup    Pileup instance
+	 * @param reset     whether to reset previous highlights
+	 * @return {boolean} true if highlight successful, false otherwise
+	 */
+	highlightView: function(pileup, reset)
+	{
+		// TODO allow highlighting of multiple pileups in one function call
+
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		return mut3dVis.highlight(pileup, reset);
+	},
+	/**
+	 * Removes the highlight for the given pileup.
+	 *
 	 * If this function is invoked without a parameter,
 	 * then resets all residue highlights.
-	 *
-	 * @param pileup    Pileup instance
-	 * @return {boolean} true if focus successful, false otherwise
 	 */
-	highlightView: function(pileup)
+	removeHighlight: function(pileup)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
 		if (pileup)
 		{
-			return mut3dVis.highlight(pileup);
+			// TODO reset only the provided pileup, not all of 'em!
+			mut3dVis.resetHighlight();
 		}
 		else
 		{
 			mut3dVis.resetHighlight();
-			return true;
 		}
 	},
 	/**

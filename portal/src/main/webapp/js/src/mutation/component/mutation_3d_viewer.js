@@ -22,6 +22,9 @@ var Mutation3dVis = function(name, options)
 	// this is a map of <color, position array> pairs
 	var _selection = null;
 
+	// map of mutation ids to corresponding residue positions
+	var _highlighted = {};
+
 	// current chain (PdbChainModel instance)
 	var _chain = null;
 
@@ -41,7 +44,7 @@ var Mutation3dVis = function(name, options)
 		defaultColor: "xDDDDDD", // default color of the whole structure
 		structureColors: { // default colors for special structures
 			alphaHelix: "xFFA500",
-			betaStrand: "x0000FF",
+			betaSheet: "x0000FF",
 			loop: "xDDDDDD"
 		}, // structure color takes effect only when corresponding flag is set
 		defaultTranslucency: 5, // translucency (opacity) of the whole structure
@@ -135,10 +138,14 @@ var Mutation3dVis = function(name, options)
 	{
 //		var script = "select all;" +
 //		             _styleScripts[style];
+		// regenerate visual style script
 		var script = generateVisualStyleScript(_selection, _chain);
 
-		script = script.join(" ");
+		// regenerate highlight script
+		script = script.concat(generateHighlightScript(_highlighted));
 
+		// convert array to a single string
+		script = script.join(" ");
 		_3dApp.script(script);
 	}
 
@@ -241,6 +248,9 @@ var Mutation3dVis = function(name, options)
 	{
 		var mappedMutations = [];
 
+		// reset highlights
+		_highlighted = {};
+
 		// pdbId and/or chainId may be null
 		if (!pdbId || !chain)
 		{
@@ -272,7 +282,7 @@ var Mutation3dVis = function(name, options)
 
 			if (selection[color] == null)
 			{
-				// use an object instead of an array (to avoid duplicates)
+				// using an object instead of an array (to avoid duplicates)
 				selection[color] = {};
 			}
 
@@ -330,12 +340,12 @@ var Mutation3dVis = function(name, options)
 
 		// get script
 		var script = generateFocusScript(id);
-		script = script.concat(generateHighlightScript(id));
+		//script = script.concat(generateHighlightScript(id));
 
 		// check if the script is valid
 		if (script.length > 0)
 		{
-			// convert array to string
+			// convert array to a single string
 			script = script.join(" ");
 
 			// send script string to the app
@@ -363,14 +373,10 @@ var Mutation3dVis = function(name, options)
 		script.push("zoom " + _options.defaultZoom + ";"); // zoom to default zoom level
 		script.push("center;"); // center to default position
 
-		for (var color in _selection)
-		{
-			script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
-			script.push("color [" + color + "];"); // color with corresponding mutation color
-		}
-
+		// convert array to a single string
 		script = script.join(" ");
 
+		// send script string to the app
 		_3dApp.script(script);
 	}
 
@@ -380,40 +386,65 @@ var Mutation3dVis = function(name, options)
 	 * perform a highlight operation, and returns false.
 	 *
 	 * @param pileup    Pileup instance
+	 * @param reset     indicates whether to reset previous highlights
 	 * @return {boolean}    true if there there a matching residue, false o.w.
 	 */
-	function highlight(pileup)
+	function highlight(pileup, reset)
 	{
+		// TODO allow passing of a Pileup array
+
 		// no chain selected yet, terminate
 		if (!_chain)
 		{
 			return false;
 		}
 
+		if (reset)
+		{
+			// reset all previous highlights
+			_highlighted = {};
+		}
+
+		// init script generation
+		var script = generateVisualStyleScript(_selection, _chain);
+
 		// assuming all other mutations in the same pileup have
 		// the same (or very close) mutation position.
 		var id = pileup.mutations[0].mutationId;
+		var position = _chain.positionMap[id];
 
-		var script = generateHighlightScript(id);
-
-		// check if the script is valid
-		if (script.length > 0)
+		if (position)
 		{
-			// convert array to string
-			script = script.join(" ");
-
-			// send script string to the app
-			_3dApp.script(script);
-		}
-		// no mapping position for this mutation on this chain
-		else
-		{
-			// just reset highlight
-			resetHighlight();
-			return false;
+			// add position to the highlighted ones
+			_highlighted[id] = position;
 		}
 
-		return true;
+		// add highlight script string
+		script = script.concat(generateHighlightScript(_highlighted));
+
+		// convert array to a single string
+		script = script.join(" ");
+
+		// send script string to the app
+		_3dApp.script(script);
+
+		// return false if no mapping position found for this pileup,
+		// return true otherwise
+		return (position != null);
+	}
+
+	/**
+	 * Refreshes the current highlights.
+	 */
+	function refreshHighlight()
+	{
+		var script = generateHighlightScript(_highlighted);
+
+		// convert array to a single string
+		script = script.join(" ");
+
+		// send script string to the app
+		_3dApp.script(script);
 	}
 
 	/**
@@ -421,15 +452,13 @@ var Mutation3dVis = function(name, options)
 	 */
 	function resetHighlight()
 	{
+		// reset highlight map
+		_highlighted = {};
+
 		// remove all selection highlights
-		var script = [];
+		var script = generateVisualStyleScript(_selection, _chain);
 
-		for (var color in _selection)
-		{
-			script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
-			script.push("color [" + color + "];"); // color with corresponding mutation color
-		}
-
+		// convert array to a single string
 		script = script.join(" ");
 
 		_3dApp.script(script);
@@ -445,15 +474,32 @@ var Mutation3dVis = function(name, options)
 	{
 		var script = [];
 
-		// TODO use newly introduced style options:
-		// ...structureColors, colorProteins, colorMutations, chainTranslucency
-
 		script.push("select all;"); // select everything
 		script.push(_styleScripts[_options.proteinScheme]); // show selected style view
-		script.push("color [" + _options.defaultColor + "] "); // set default color
-		script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
-		script.push("select :" + chain.chainId + ";"); // select the chain
-		script.push("color [" + _options.chainColor + "];"); // set chain color
+
+		// overwrite default color if not coloring protein by atom type
+		if (_options.colorProteins == "byAtomType")
+		{
+			// TODO is this the default coloring?
+			script.push("color atoms CPK;");
+		}
+		else
+		{
+			script.push("color [" + _options.defaultColor + "];"); // set default color
+			//script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
+			script.push("select :" + chain.chainId + ";"); // select the chain
+			script.push("color [" + _options.chainColor + "];"); // set chain color
+			//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
+		}
+
+		// color specific structures
+		if (_options.colorProteins == "bySecondaryStructure")
+		{
+			script.push("select helix;"); // select alpha helices
+			script.push("color [" + _options.structureColors.alphaHelix + "];"); // set color
+			script.push("select sheet;"); // select alpha helices
+			script.push("color [" + _options.structureColors.betaSheet + "];"); // set color
+		}
 
 		if (_options.colorMutations == "byMutationType")
 		{
@@ -465,39 +511,43 @@ var Mutation3dVis = function(name, options)
 			}
 		}
 
+		// TODO see if it is possible to set translucency value without specifying a color
+		// ...right now ignoring _options.defaultTranslucency and _options.chainTranslucency
+
+		script.push("select all;");
+		script.push("color translucent;");
+		//script.push("color translucent [" + _options.defaultTranslucency + "];");
+		script.push("select :" + chain.chainId + ";");
+		script.push("color opaque;");
+
 		return script;
 	}
 
 	/**
 	 * Generates the highlight script to be sent to the 3D app.
 	 *
-	 * @param mutationId    id of the mutation to highlight
-	 * @return {Array}      script lines as an array
+	 * @param positions mutation positions to highlight
+	 * @return {Array}  script lines as an array
 	 */
-	function generateHighlightScript(mutationId)
+	function generateHighlightScript(positions)
 	{
 		var script = [];
-		var position = _chain.positionMap[mutationId];
 
-		// TODO currently highlighting only by color
-		// ...add an option to highlight by side chain as well
-
-		// check if the mutation maps on this chain
-		if (position)
-		{
+		// highlight the selected positions
+		_.each(positions, function(position) {
 			var scriptPos = generateScriptPos(position);
-
-			// reset previous highlights
-			for (var color in _selection)
-			{
-				script.push("select " + _selection[color].join(", ") + ";"); // select positions (mutations)
-				script.push("color [" + color + "];"); // color with corresponding mutation color
-			}
-
-			// highlight the selected position
 			script.push("select " + scriptPos + ":" + _chain.chainId + ";");
 			script.push("color [" + _options.highlightColor + "];");
-		}
+
+			// display side chain (no effect for spacefilling)
+			if (_options.displaySideChain &&
+			    !(_options.proteinScheme == "spaceFilling"))
+			{
+				script.push("select " + scriptPos + ":" + _chain.chainId + " and sidechain;");
+				// display the side chain with spacefill style
+				script.push("wireframe 0.15; spacefill 100%;");
+			}
+		});
 
 		return script;
 	}
@@ -602,6 +652,7 @@ var Mutation3dVis = function(name, options)
 		focusOn: focus,
 		highlight: highlight,
 		resetHighlight: resetHighlight,
+		refreshHighlight: refreshHighlight,
 		zoomIn: zoomIn,
 		zoomOut: zoomOut,
 		zoomActual: zoomActual,

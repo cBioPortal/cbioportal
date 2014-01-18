@@ -165,21 +165,21 @@
 					<input class='mutation-3d-spin' type='checkbox'>
 					<label>Spin</label>
 				</td-->
-				<td class="mutation-3d-zoom-label">
+				<td class='mutation-3d-zoom-label'>
 					<label>Zoom</label>
 				</td>
 				<td>
-					<div class="mutation-3d-zoom-slider"></div>
+					<div class='mutation-3d-zoom-slider'></div>
 				</td>
 			</tr>
 		</table>
 		<table cellpadding="0">
 			<tr>
-				<td class="mutation-3d-protein-style-menu" valign="top">
-					<div class="mutation-3d-style-header">
+				<td class='mutation-3d-protein-style-menu' valign='top'>
+					<div class='mutation-3d-style-header'>
 						<label>Protein Style</label>
 					</div>
-					<table cellpadding="0">
+					<table cellpadding='0'>
 						<tr>
 							<td>
 								<label>Scheme:</label>
@@ -203,14 +203,14 @@
 									        title='Color by Secondary Structure'>by secondary structure</option>
 									<option value='byAtomType'
 									        title='Color by Atom Type'
-									        disabled="disabled">by atom type</option>
+									        disabled='disabled'>by atom type</option>
 								</select>
 							</td>
 						</tr>
 					</table>
 				</td>
-				<td class="mutation-3d-mutation-style-menu" valign="top">
-					<div class="mutation-3d-style-header">
+				<td class='mutation-3d-mutation-style-menu' valign='top'>
+					<div class='mutation-3d-style-header'>
 						<label>Mutation Style</label>
 					</div>
 					<table cellpadding="0">
@@ -218,7 +218,8 @@
 							<td>
 								<label>
 									<input class='mutation-3d-side-chain'
-									       type='checkbox'>Display side chain
+									       type='checkbox'
+									       checked='checked'>Display side chain
 								</label>
 							</td>
 						</tr>
@@ -233,7 +234,7 @@
 											<label>
 												<input class='mutation-3d-mutation-color-by-type'
 												       type='checkbox'
-												       checked="checked">by mutation type
+												       checked='checked'>by mutation type
 											</label>
 										</td>
 									</tr>

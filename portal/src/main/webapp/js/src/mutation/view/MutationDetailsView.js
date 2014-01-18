@@ -321,7 +321,7 @@ var MutationDetailsView = Backbone.View.extend({
 					// reset highlight of the 3D view
 					if (view3d && view3d.isVisible())
 					{
-						view3d.highlightView(false);
+						view3d.removeHighlight(datum);
 						view3d.hideResidueWarning();
 					}
 				}
@@ -344,7 +344,9 @@ var MutationDetailsView = Backbone.View.extend({
 					if (view3d && view3d.isVisible())
 					{
 						// highlight view for the selected datum
-						if (view3d.highlightView(datum))
+						// TODO for now removing previous highlights,
+						// ...we need to change this to allow multiple selection
+						if (view3d.highlightView(datum, true))
 						{
 							view3d.hideResidueWarning();
 						}
@@ -392,7 +394,7 @@ var MutationDetailsView = Backbone.View.extend({
 				// reset highlight of the 3D view
 				if (view3d && view3d.isVisible())
 				{
-					view3d.highlightView(false);
+					view3d.removeHighlight();
 					view3d.hideResidueWarning();
 				}
 			});

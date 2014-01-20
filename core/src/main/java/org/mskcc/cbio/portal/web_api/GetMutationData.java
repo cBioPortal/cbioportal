@@ -159,21 +159,9 @@ public class GetMutationData {
         buf.append("# DATA_TYPE\t ").append(geneticProfile.getProfileName()).append("\n");
 
         //  Ouput Column Headings
-        buf.append("entrez_gene_id\tgene_symbol\tcase_id\tsequencing_center\t");
-        buf.append("mutation_status\tmutation_type\tvalidation_status\t");
-        buf.append("amino_acid_change\t");
-        buf.append("functional_impact_score\t");
-        buf.append("xvar_link\t");
-        buf.append("xvar_link_pdb\t");
-        buf.append("xvar_link_msa\t");
-        buf.append("chr\t");
-        buf.append("start_position\t");
-        buf.append("end_position\t");
-	    buf.append("reference_allele\t");
-	    buf.append("variant_allele\t");
-        buf.append("genetic_profile_id");
-        buf.append("\n");
+        buf.append(getColumnHeaders()).append("\n");
 
+	    // TODO get data directly from MutationDataUtils and iterate the returned data
         //  Iterate through all validated genes, and extract mutation data.
         for (Gene gene : geneList) {
             CanonicalGene canonicalGene = (CanonicalGene) gene;
@@ -200,6 +188,10 @@ public class GetMutationData {
                     buf.append(mutation.getEndPosition()).append(TAB);
 	                buf.append(mutation.getReferenceAllele()).append(TAB);
 	                buf.append(mutation.getTumorSeqAllele()).append(TAB);
+	                buf.append(getAlleleCount(mutation.getTumorRefCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getTumorAltCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getNormalRefCount())).append(TAB);
+	                buf.append(getAlleleCount(mutation.getNormalAltCount())).append(TAB);
                     buf.append(geneticProfileId);
                     buf.append("\n");
                 }
@@ -207,4 +199,47 @@ public class GetMutationData {
         }
         return buf.toString();
     }
+
+	private static String getAlleleCount(Integer count)
+	{
+		if (count < 0)
+		{
+			return "NA";
+		}
+		else
+		{
+			return count.toString();
+		}
+	}
+
+	private static String getColumnHeaders()
+	{
+		StringBuffer buf = new StringBuffer();
+
+		// TODO externalize headers to an array and pair with corresponding data fields
+		buf.append("entrez_gene_id").append(TAB);
+		buf.append("gene_symbol").append(TAB);
+		buf.append("case_id").append(TAB);
+		buf.append("sequencing_center").append(TAB);
+		buf.append("mutation_status").append(TAB);
+		buf.append("mutation_type").append(TAB);
+		buf.append("validation_status").append(TAB);
+		buf.append("amino_acid_change").append(TAB);
+		buf.append("functional_impact_score").append(TAB);
+		buf.append("xvar_link").append(TAB);
+		buf.append("xvar_link_pdb").append(TAB);
+		buf.append("xvar_link_msa").append(TAB);
+		buf.append("chr").append(TAB);
+		buf.append("start_position").append(TAB);
+		buf.append("end_position").append(TAB);
+		buf.append("reference_allele").append(TAB);
+		buf.append("variant_allele").append(TAB);
+		buf.append("reference_read_count_tumor").append(TAB);
+		buf.append("variant_read_count_tumor").append(TAB);
+		buf.append("reference_read_count_normal").append(TAB);
+		buf.append("variant_read_count_normal").append(TAB);
+		buf.append("genetic_profile_id");
+
+		return buf.toString();
+	}
 }

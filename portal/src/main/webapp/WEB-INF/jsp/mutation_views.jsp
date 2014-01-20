@@ -200,11 +200,12 @@
 									<option value='uniform'
 									        title='Uniform Color'>uniform</option>
 									<option value='bySecondaryStructure'
-									        title='Color by Secondary Structure'>by secondary structure</option>
+									        title='Color by Secondary Structure'>secondary structure</option>
 									<option value='byAtomType'
 									        title='Color by Atom Type'
-									        disabled='disabled'>by atom type</option>
+									        disabled='disabled'>atom type</option>
 								</select>
+								<img class='protein-struct-color-help' src='{{helpImage}}'/>
 							</td>
 						</tr>
 					</table>
@@ -234,8 +235,9 @@
 											<label>
 												<input class='mutation-3d-mutation-color-by-type'
 												       type='checkbox'
-												       checked='checked'>by mutation type
+												       checked='checked'>mutation type
 											</label>
+											<img class='mutation-type-color-help' src='{{helpImage}}'/>
 										</td>
 									</tr>
 									<!--tr>

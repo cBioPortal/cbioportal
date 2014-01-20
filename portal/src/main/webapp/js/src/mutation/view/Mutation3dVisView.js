@@ -22,8 +22,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		// compile the template using underscore
 		var template = _.template(
 			$("#mutation_3d_vis_template").html(),
-			// TODO make the image customizable?
-			{loaderImage: "images/ajax-loader.gif"});
+			// TODO make the images customizable?
+			{loaderImage: "images/ajax-loader.gif",
+				helpImage: "images/help.png"});
 
 		// load the compiled HTML into the Backbone "el"
 		self.$el.html(template);
@@ -180,6 +181,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		// TODO chosen is somehow problematic...
 		//styleMenu.chosen({width: 120, disable_search: true});
 
+		// add the tooltip
+		self._initProteinColorInfo();
+
+		// bind the change event listener
 		styleMenu.change(function() {
 
 			var selectedScheme = $(this).val();
@@ -385,11 +390,52 @@ var Mutation3dVisView = Backbone.View.extend({
 				});
 
 				types = _.unique(types);
-				// TODO display current types in the view
+				self._refreshMutationTypeInfo(types);
 
 				self.hideNoMapWarning();
 			}
 		}, 50);
+	},
+	_refreshMutationTypeInfo: function(types)
+	{
+		var self = this;
+
+		var info = self.$el.find(".mutation-type-color-help");
+
+		// TODO define a separate view class for the tooltip?
+		//var content = tooltipView.compileTemplate();
+
+		// TODO define a tooltip template with actual colors and corresponding mapping.
+		var content = "Enables coloring by mutation type.";
+
+		var options = {content: {text: content},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			show: {event: 'mouseover'},
+			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+			position: {my:'bottom right', at:'top center'}};
+
+		info.qtip(options);
+	},
+	_initProteinColorInfo: function()
+	{
+		// TODO init tooltip for
+		var self = this;
+
+		var info = self.$el.find(".protein-struct-color-help");
+
+		// TODO define a separate view class for the tooltip?
+		//var content = tooltipView.compileTemplate();
+
+		// TODO define a tooltip template with actual colors and corresponding mapping.
+		var content = "Color options for the whole protein structure.";
+
+		var options = {content: {text: content},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			show: {event: 'mouseover'},
+			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+			position: {my:'bottom right', at:'top center'}};
+
+		info.qtip(options);
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.

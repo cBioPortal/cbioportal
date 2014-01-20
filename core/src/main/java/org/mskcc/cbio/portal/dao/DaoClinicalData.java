@@ -45,28 +45,27 @@ import java.util.*;
  * @author Gideon Dresdner dresdnerg@cbio.mskcc.org
  */
 public final class DaoClinicalData {
-    private DaoClinicalData() {}
 
-    /**
-     * add a new clinical datum
-     *
-     * @param cancerStudyId
-     * @param caseId
-     * @param attrId
-     * @param attrVal
-     * @return number of rows added to the database
-     */
-    public static int addDatum(int cancerStudyId,
-                        String caseId,
-                        String attrId,
-                        String attrVal) throws DaoException {
+    private static final String SAMPLE_INSERT = "INSERT INTO clinical_sample(`SAMPLE_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
+    private static final String PATIENT_INSERT = "INSERT INTO clinical_patient(`PATIENT_ID`,`ATTR_ID`,`ATTR_VALUE` VALUES(?,?,?)";
+
+    public static int addSampleDatum(int internalSampleId, String attrId, String attrVal) throws DaoException
+    {
+        return addDatum(SAMPLE_INSERT, "clinical_sample", internalSampleId, attrId, attrVal);
+    }
+
+    public static int addPatientDatum(int internalPatientId, String attrId, String attrVal) throws DaoException
+    {
+        return addDatum(PATIENT_INSERT, "clinical_patient", internalPatientId, attrId, attrVal);
+    }
+
+    public static int addDatum(String query, String tableName,
+                               int patientOrSampleId, String attrId, String attrVal) throws DaoException
+    {
         if (MySQLbulkLoader.isBulkLoad()) {
-            MySQLbulkLoader.getMySQLbulkLoader("clinical").insertRecord(
-                    Integer.toString(cancerStudyId),
-                    caseId,
-                    attrId,
-                    attrVal
-                    );
+            MySQLbulkLoader.getMySQLbulkLoader(tableName).insertRecord(Integer.toString(patientOrSampleId),
+                                                                       attrId,
+                                                                       attrVal);
             return 1;
         }
         
@@ -75,17 +74,10 @@ public final class DaoClinicalData {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-            pstmt = con.prepareStatement
-                    ("INSERT INTO clinical(" +
-                            "`CANCER_STUDY_ID`," +
-                            "`PATIENT_OR_SAMPLE_ID`," +
-                            "`ATTR_ID`," +
-                            "`ATTR_VALUE`)" +
-                            " VALUES(?,?,?,?)");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, caseId);
-            pstmt.setString(3, attrId);
-            pstmt.setString(4, attrVal);
+            pstmt = con.prepareStatement(query);
+            pstmt.setInt(1, patientOrSampleId);
+            pstmt.setString(2, attrId);
+            pstmt.setString(3, attrVal);
 
             return pstmt.executeUpdate();
         } catch (SQLException e) {

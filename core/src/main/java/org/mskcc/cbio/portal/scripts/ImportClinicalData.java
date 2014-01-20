@@ -105,45 +105,62 @@ public class ImportClinicalData {
     private void addDatum(String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
     {
         int indexOfIdColumn = getIndexOfIdColumn(columnAttrs);
-        if (indexOfIdColumn < 0) {
-            throw new java.lang.UnsupportedOperationException("Clinical file is missing Id column header");
-        }
-        String id = fields[indexOfIdColumn];
+        String stablePatientOrSampleId = fields[indexOfIdColumn];
 
-        if (isSampleData) {
-            boolean addedSampleToDatabase = addSampleToDatabase(id, fields, columnAttrs);
-            if (!addedSampleToDatabase) {
-                System.err.println("Could not add sample to table (most likely because patient id for sample could not be determined), skipping: " + id);
-                return;
-            }
+        int internalPatientOrSampleId = (isSampleData)  ? 
+            addSampleToDatabase(stablePatientOrSampleId, fields, columnAttrs) : 
+            getInternalPatientId(stablePatientOrSampleId);
+
+        if (internalPatientOrSampleId == -1) {
+            System.err.println("Could not add sample to table (most likely because patient for sample could not be determined), skipping: " +
+                               stablePatientOrSampleId);
+            return;
         }
 
         for (int lc = 0; lc < fields.length; lc++) {
             if (addAttributeToDatabase(lc, indexOfIdColumn, fields[lc])) {
-                DaoClinicalData.addDatum(cancerStudy.getInternalId(), id, columnAttrs.get(lc).getAttrId(), fields[lc]);
+                addDatum(internalPatientOrSampleId, columnAttrs.get(lc).getAttrId(), fields[lc]);
             }
         }
     }
 
-    private int getIndexOfIdColumn(List<ClinicalAttribute> columnAttrs)
+    private int getIndexOfIdColumn(List<ClinicalAttribute> columnAttrs) throws Exception
     {
-        return (isSampleData) ? findSampleIdColumn(columnAttrs) : findPatientIdColumn(columnAttrs);
+        int indexOfIdColumn = (isSampleData) ? findSampleIdColumn(columnAttrs) : findPatientIdColumn(columnAttrs);
+
+        if (indexOfIdColumn < 0) {
+            throw new java.lang.UnsupportedOperationException("Clinical file is missing Id column header");
+        }
+        else {
+            return indexOfIdColumn;
+        }
     }
 
-    private boolean addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    private int getInternalPatientId(String stableId)
     {
-        boolean success = false;
+       if (validPatientId(stableId)) {
+           Patient patient = DaoPatient.getPatientByStableId(stableId);
+           if (patient != null) {
+               return patient.getInternalId();
+           }
+       }
+
+       return -1;
+    }
+
+    private int addSampleToDatabase(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs) throws Exception
+    {
+        int internalSampleId = -1;
         String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
         if (validPatientId(stablePatientId)) {
             Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
             if (patient != null) {
-                DaoSample.addSample(new Sample(sampleId, getSampleType(fields, columnAttrs),
-                                               patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
-                success = true;
+                internalSampleId = DaoSample.addSample(new Sample(sampleId, getSampleType(fields, columnAttrs),
+                                                                  patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
             }
         }
 
-        return success;
+g        return internalSampleId;
     }
 
     private String getSampleType(String[] fields, List<ClinicalAttribute> columnAttrs)
@@ -181,6 +198,16 @@ public class ImportClinicalData {
     private boolean addAttributeToDatabase(int attributeIndex, int indexOfIdColumn, String attributeValue)
     {
         return (attributeIndex != indexOfIdColumn && !attributeValue.isEmpty());
+    }
+
+    private void addDatum(int internalId, String attrId, String attrVal) throws Exception
+    {
+        if (isSampleData) {
+            DaoClinicalData.addSampleDatum(internalId, attrId, attrVal);
+        }
+        else {
+            DaoClinicalData.addPatientDatum(internalId, attrId, attrVal);
+        }
     }
 
     /**

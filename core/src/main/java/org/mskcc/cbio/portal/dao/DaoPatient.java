@@ -83,7 +83,7 @@ public class DaoPatient {
         byInternalId.put(patient.getInternalId(), patient);
     }
 
-    public static void addPatient(Patient patient) throws DaoException
+    public static int addPatient(Patient patient) throws DaoException
     {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -98,7 +98,9 @@ public class DaoPatient {
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
                 cachePatient(new Patient(patient.getCancerStudy(), rs.getInt(1), patient.getStableId()));
+                return rs.getInt(1);
             }
+            return -1;
         }
         catch (SQLException e) {
             throw new DaoException(e);

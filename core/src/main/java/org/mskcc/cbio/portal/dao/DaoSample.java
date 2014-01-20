@@ -97,7 +97,7 @@ public class DaoSample {
         byCancerTypeId.get(sample.getCancerTypeId()).add(sample);
     }
 
-    public static void addSample(Sample sample) throws DaoException
+    public static int addSample(Sample sample) throws DaoException
     {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -117,7 +117,9 @@ public class DaoSample {
             if (rs.next()) {
                 cacheSample(new Sample(rs.getInt(1), sample.getStableId(), sample.getType().toString(),
                                        sample.getInternalPatientId(), sample.getCancerTypeId()));
+                return rs.getInt(1);
             }
+            return -1;
         }
         catch (SQLException e) {
             throw new DaoException(e);

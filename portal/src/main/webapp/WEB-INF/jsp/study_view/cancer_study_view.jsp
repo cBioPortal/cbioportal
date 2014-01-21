@@ -213,7 +213,7 @@ function initTabs() {
                 }
                 maxX -= 28;
                 for(var i =1;i<=numColumns ; i++){
-                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
+                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
                 }     
                     
                 oTable.fnAdjustColumnSizing();

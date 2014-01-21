@@ -158,7 +158,7 @@ dc.redrawAll = function(group) {
     }
     maxX -= 28;
     for(var i =1;i<=numColumns ; i++){
-        $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
+        $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
     }  
                 
     new FixedColumns( dataTable1);
@@ -460,7 +460,7 @@ var studyView = function(){
             .yAxis().tickFormat(d3.format("d"));
     
             //console.log(varValues.length);
-            varChart[i].xUnits(function(){return 20;});
+            varChart[i].xUnits(function(){return 50;});
         }
         
         /*

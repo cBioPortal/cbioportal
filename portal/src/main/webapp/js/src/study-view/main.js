@@ -146,11 +146,24 @@ dc.redrawAll = function(group) {
     for(var i =0 ; i< removeKeyIndex.length ; i++){
         dataTable1.fnSetColumnVis(removeKeyIndex[i],false);
     }
+    
+    var rotationAngle = 315;
+    var radians = Math.PI * (rotationAngle/180);
+    var numColumns = dataTable1.fnSettings().aoColumns.length;
+    var maxX = 0;
+
+    for(var i =1;i<=numColumns ; i++){
+        var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+        if(rotatedX > maxX)
+            maxX = rotatedX;
+    }
+    for(var i =1;i<=numColumns ; i++){
+        $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
+    }  
+                
     new FixedColumns( dataTable1);
     dataTable1.fnAdjustColumnSizing();
     
-    $('#dataTable').css('width','3000px');
-    $('table tr').css('width','3000px');
     $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\" />");
     $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
     $("#dataTable_filter label input").attr("value","");
@@ -162,7 +175,6 @@ dc.redrawAll = function(group) {
                        items.push( $(this).text() );       
                     });
                     var items = $.unique( items );
-                    console.log(items);
                     dataTable.filter(null);
                     dataTable.filter([items]);
                     dc.redrawAll();
@@ -622,7 +634,7 @@ var studyView = function(){
         }
         
         $('#dataTable').css('width','3000px');
-        $('.dataTables_scrollHeadInner table').css('width','3000px');
+        $('.dataTables_scrollHeadInner table').css('width','3000px');        
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");

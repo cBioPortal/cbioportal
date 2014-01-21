@@ -201,11 +201,24 @@ function initTabs() {
         if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
             var oTable = $('#dataTable').dataTable();
             if ( oTable.length > 0 ) {
-                    oTable.fnAdjustColumnSizing();
-                    console.log("--3--");                    
-                    new FixedColumns( oTable);
+                var rotationAngle = 315;
+                var radians = Math.PI * (rotationAngle/180);
+                var numColumns = oTable.fnSettings().aoColumns.length;
+                var maxX = 0;
+                
+                for(var i =1;i<=numColumns ; i++){
+                    var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+                    if(rotatedX > maxX)
+                        maxX = rotatedX;
+                }
+                for(var i =1;i<=numColumns ; i++){
+                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
+                }     
+                    
+                oTable.fnAdjustColumnSizing();
+                new FixedColumns( oTable);
             }else{
-                console.log("--1--");
+                console.log("No DataTable");
             }
         }
         

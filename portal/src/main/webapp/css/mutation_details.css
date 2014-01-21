@@ -200,6 +200,26 @@ th.mutation-details-qtip-style {
 	color: red;
 	font-weight: bold;
 }
+.mutation-3d-alpha-helix {
+	font-weight: bold;
+	color: #FFA500;
+}
+.mutation-3d-beta-sheet {
+	font-weight: bold;
+	color: #0000FF;
+}
+.mutation-3d-loop {
+	font-weight: bold;
+	color: #888888;
+}
+.mutation-3d-tied {
+	color: #800080;
+	font-weight: bold;
+}
+.mutation-3d-highlighted {
+	color: #FFDD00;
+	font-weight: bold;
+}
 .mutation-3d-info {
 	font-size: 13px;
 	width: 400px;

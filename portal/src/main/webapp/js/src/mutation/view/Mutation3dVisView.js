@@ -143,6 +143,10 @@ var Mutation3dVisView = Backbone.View.extend({
 				mut3dVis.reapplyStyle();
 			}
 		});
+
+		// add info tooltip for the color and side chain checkboxes
+		self._initMutationTypeInfo();
+		self._initSideChainInfo();
 	},
 	/**
 	 * Initializes the protein color selector drop-down menu
@@ -181,7 +185,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		// TODO chosen is somehow problematic...
 		//styleMenu.chosen({width: 120, disable_search: true});
 
-		// add the tooltip
+		// add info tooltip for the color selector
 		self._initProteinColorInfo();
 
 		// bind the change event listener
@@ -377,26 +381,32 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			if (mapped.length == 0)
 			{
+				// show the warning text
 				self.showNoMapWarning();
 			}
 			else
 			{
-				var proxy = self.options.mutationProxy;
-				var types = [];
+				// TODO display exactly what is mapped?
+//				var proxy = self.options.mutationProxy;
+//				var types = [];
+//
+//				_.each(mapped, function(id, idx) {
+//					var mutation = proxy.getMutationUtil().getMutationIdMap()[id];
+//					types.push(mutation.mutationType);
+//				});
+//
+//				types = _.unique(types);
 
-				_.each(mapped, function(id, idx) {
-					var mutation = proxy.getMutationUtil().getMutationIdMap()[id];
-					types.push(mutation.mutationType);
-				});
-
-				types = _.unique(types);
-				self._refreshMutationTypeInfo(types);
-
+				// hide the warning text
 				self.hideNoMapWarning();
 			}
 		}, 50);
 	},
-	_refreshMutationTypeInfo: function(types)
+	/**
+	 * Initializes the mutation type color information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initMutationTypeInfo: function()
 	{
 		var self = this;
 
@@ -405,20 +415,16 @@ var Mutation3dVisView = Backbone.View.extend({
 		// TODO define a separate view class for the tooltip?
 		//var content = tooltipView.compileTemplate();
 
-		// TODO define a tooltip template with actual colors and corresponding mapping.
-		var content = "Enables coloring by mutation type.";
-
-		var options = {content: {text: content},
-			hide: {fixed: true, delay: 100, event: 'mouseout'},
-			show: {event: 'mouseover'},
-			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-			position: {my:'bottom right', at:'top center'}};
-
+		var content = _.template($("#mutation_3d_type_color_tip_template").html());
+		var options = self._generateTooltipOpts(content);
 		info.qtip(options);
 	},
+	/**
+	 * Initializes the protein structure color information as a tooltip
+	 * for the corresponding selection menu.
+	 */
 	_initProteinColorInfo: function()
 	{
-		// TODO init tooltip for
 		var self = this;
 
 		var info = self.$el.find(".protein-struct-color-help");
@@ -426,16 +432,40 @@ var Mutation3dVisView = Backbone.View.extend({
 		// TODO define a separate view class for the tooltip?
 		//var content = tooltipView.compileTemplate();
 
-		// TODO define a tooltip template with actual colors and corresponding mapping.
-		var content = "Color options for the whole protein structure.";
+		var content = _.template($("#mutation_3d_structure_color_tip_template").html());
+		var options = self._generateTooltipOpts(content);
+		info.qtip(options);
+	},
+	/**
+	 * Initializes the side chain information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initSideChainInfo: function()
+	{
+		var self = this;
 
-		var options = {content: {text: content},
+		var info = self.$el.find(".display-side-chain-help");
+
+		var content = "Displays the side chain atoms for the highlighted residues. " +
+		              "This option has no effect for space-filling protein scheme.";
+
+		var options = self._generateTooltipOpts(content);
+		info.qtip(options);
+	},
+	/**
+	 * Generates the default tooltip (qTip) options for the given
+	 * tooltip content.
+	 *
+	 * @param content  actual tooltip content
+	 * @return {Object}    qTip options for the given content
+	 */
+	_generateTooltipOpts: function(content)
+	{
+		return {content: {text: content},
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
 			position: {my:'bottom right', at:'top center'}};
-
-		info.qtip(options);
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.

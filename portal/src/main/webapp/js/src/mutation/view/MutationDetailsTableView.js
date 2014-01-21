@@ -229,6 +229,9 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		var self = this;
 
+		// TODO these maps are moved to MutationViewsUtil class,
+		// ...remove these ones after merging with patient view
+
 		/**
 		 * Mapping between the mutation type (data) values and
 		 * view values. The first element of an array corresponding to a

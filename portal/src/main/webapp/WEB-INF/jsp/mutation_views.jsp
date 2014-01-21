@@ -220,8 +220,10 @@
 								<label>
 									<input class='mutation-3d-side-chain'
 									       type='checkbox'
-									       checked='checked'>Display side chain
+									       checked='checked'>
+									Display side chain
 								</label>
+								<img class='display-side-chain-help' src='{{helpImage}}'/>
 							</td>
 						</tr>
 						<tr>
@@ -235,7 +237,8 @@
 											<label>
 												<input class='mutation-3d-mutation-color-by-type'
 												       type='checkbox'
-												       checked='checked'>mutation type
+												       checked='checked'>
+												mutation type
 											</label>
 											<img class='mutation-type-color-help' src='{{helpImage}}'/>
 										</td>
@@ -266,6 +269,37 @@
 			</tr>
 		</table>
 	</div>
+</script>
+
+<script type="text/template" id="mutation_3d_type_color_tip_template">
+	Enables residue coloring by mutation type. Mutation types
+	and corresponding color codes are as follows:<br>
+	<br>
+	<span class='missense_mutation'>Missense Mutations</span><br>
+	<span class='trunc_mutation'>Truncating Mutations</span>
+		(Nonsense, Nonstop, FS del, FS ins)<br>
+	<span class='inframe_mutation'>Inframe Mutations</span>
+		(IF del, IF ins)<br>
+	<br>
+	Residues colored with <span class='mutation-3d-tied'>purple</span> indicate tie condition,
+	and highlighted residues are colored with <span class='mutation-3d-highlighted'>yellow</span>.
+</script>
+
+<script type="text/template" id="mutation_3d_structure_color_tip_template">
+	Color options for the protein structure.<br>
+	<br>
+	<b>Uniform:</b> Colors the whole protein structure with a
+	<span class='mutation-3d-loop'>single color</span>.<br>
+	<b>Secondary structure:</b> Colors the protein by secondary structure.
+	Assigns different colors for <span class='mutation-3d-alpha-helix'>alpha helices</span>,
+	<span class='mutation-3d-beta-sheet'>beta sheets</span>, and
+	<span class='mutation-3d-loop'>loops</span>.
+	This color option is not available for space-filling protein scheme.<br>
+	<b>Atom Type:</b> Colors the structure with respect to the atom type (CPK color scheme).
+	This color option is only available for space-filling protein scheme.<br>
+	<br>
+	Note that, selected chain is always displayed with full opacity while other parts of the protein
+	have some transparency to help better focusing on the selected chain.
 </script>
 
 <script type="text/template" id="pdb_panel_view_template">

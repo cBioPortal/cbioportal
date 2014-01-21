@@ -520,6 +520,26 @@
 		{{pdbInfo}}
 	</span>
 </script>
+
+<script type="text/template" id="mutation_details_pdb_help_tip_template">
+	<span class='pdb-chain-tip'>
+		This panel displays a list of PDB chains for the corresponding uniprot ID.
+		PDB chains are ranked with respect to their sequence similarity ratio,
+		and aligned to the y-axis of the mutation diagram.
+		Highly ranked chains have darker color than the lowly ranked ones.<br>
+		<br>
+		Each chain is represented by a single rectangle.
+		Gaps within the chains are represented by a thin line connecting the segments of the chain.<br>
+		<br>
+		By default, only a first few rows are displayed.
+		To see more chains, click on the expand/collapse button below the panel.<br>
+		<br>
+		To select a chain, simply click on it.
+		Selected chain is highlighted with a different frame color.
+		Selecting a chain reloads the PDB data for the 3D structure visualizer.
+	</span>
+</script>
+
 <script type="text/template" id="mutation_details_fis_tip_template">
 	Predicted impact score: <b>{{impact}}</b>
 	<div class='mutation-assessor-link'>

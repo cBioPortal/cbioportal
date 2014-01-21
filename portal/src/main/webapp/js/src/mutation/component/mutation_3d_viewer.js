@@ -68,7 +68,7 @@ var Mutation3dVis = function(name, options)
 
 	// Predefined style scripts for Jmol
 	var _styleScripts = {
-		spaceFilling: "wireframe ONLY; wireframe 0.15; spacefill 100%;",
+		spaceFilling: "spacefill ONLY; spacefill 100%;",
 		ribbon: "ribbon ONLY;",
 		cartoon: "cartoon ONLY;",
 		trace: "trace ONLY;"
@@ -540,12 +540,21 @@ var Mutation3dVis = function(name, options)
 			script.push("color [" + _options.highlightColor + "];");
 
 			// display side chain (no effect for spacefilling)
-			if (_options.displaySideChain &&
-			    !(_options.proteinScheme == "spaceFilling"))
+			if (!(_options.proteinScheme == "spaceFilling"))
 			{
+				// select the corresponding chain
 				script.push("select " + scriptPos + ":" + _chain.chainId + " and sidechain;");
-				// display the side chain with spacefill style
-				script.push("wireframe 0.15; spacefill 100%;");
+
+				if (_options.displaySideChain)
+				{
+					// display the side chain with space-filling style
+					script.push("spacefill 100%;");
+				}
+				else
+				{
+					// hide the side chain
+					script.push("spacefill OFF;");
+				}
 			}
 		});
 

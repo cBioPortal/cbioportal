@@ -121,6 +121,62 @@ var dataTable;
 var removeKeyIndex = new Array();
 //console.log(studyId);
 
+dc.redrawAll = function(group) {
+    var dataTable1 = $('#dataTable').dataTable();
+    
+    dataTable1.fnDestroy();
+	
+    var charts = dc.chartRegistry.list(group);
+    for (var i = 0; i < charts.length; ++i) {
+        charts[i].redraw();
+    }
+    
+    if(dc._renderlet !== null)
+        dc._renderlet(group);
+		
+	
+    $('#dataTable').dataTable({
+            "sScrollX": "900px",
+            "sScrollY": "500px",
+            "bPaginate": false,
+            "bFilter":true,
+            "bScrollCollapse": true
+    });
+    
+    for(var i =0 ; i< removeKeyIndex.length ; i++){
+        dataTable1.fnSetColumnVis(removeKeyIndex[i],false);
+    }
+    new FixedColumns( dataTable1);
+    dataTable1.fnAdjustColumnSizing();
+    
+    $('#dataTable').css('width','3000px');
+    $('table tr').css('width','3000px');
+    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\" />");
+    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
+    $("#dataTable_filter label input").attr("value","");
+    $('#dataTable_header').click(function(){
+            if($("#dataTable_filter label input").val() !== ""){			
+                    console.log("Inside...2");
+                    var items=[];
+                    $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
+                       items.push( $(this).text() );       
+                    });
+                    var items = $.unique( items );
+                    console.log(items);
+                    dataTable.filter(null);
+                    dataTable.filter([items]);
+                    dc.redrawAll();
+            }else{
+                    dataTable.filter(null);
+                    dc.redrawAll();
+            }
+    });
+    $('#dataTable_reset').click(function(){
+            dataTable.filter(null);
+            dc.redrawAll();
+    });
+};
+
 var studyView = function(){
     var studyId;
     var dataObjectM = new Array();
@@ -538,11 +594,12 @@ var studyView = function(){
     };    
     
     function restyle(columnNameSelected,columnNameTotal){
-        var dataTable = $('#dataTable').dataTable({
+        var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",    
             "sScrollY": "2000px",
             "bPaginate": false,
-            "bFilter":true                
+            "bFilter":true,
+            "bScrollCollapse": true
         });
         
         console.log(columnNameSelected);
@@ -560,13 +617,13 @@ var studyView = function(){
             if(keyIndex.indexOf(i) === -1) {       
                 console.log(i);
                 removeKeyIndex.push(i);
-                dataTable.fnSetColumnVis(i,false);
+                dataTable1.fnSetColumnVis(i,false);
             }
         }
         
         $('#dataTable').css('width','3000px');
         $('.dataTables_scrollHeadInner table').css('width','3000px');
-        $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\"/>");
+        $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");
         $('#dataTable_header').click(function(){
@@ -616,55 +673,3 @@ function getParameterByName(name) {
         results = regex.exec(location.search);
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }
-
-dc.redrawAll = function(group) {
-    var dataTable = $('#dataTable').dataTable();
-    
-    dataTable.fnDestroy();
-	
-    var charts = dc.chartRegistry.list(group);
-    for (var i = 0; i < charts.length; ++i) {
-        charts[i].redraw();
-    }
-    
-    if(dc._renderlet !== null)
-        dc._renderlet(group);
-		
-	
-    $('#dataTable').dataTable({
-            "sScrollX": "900px",
-            "sScrollY": "500px",
-            "bPaginate": false,
-            "bFilter":true
-    });
-    
-    for(var i =0 ; i< removeKeyIndex.length ; i++){
-        dataTable.fnSetColumnVis(removeKeyIndex[i],false);
-    }    
-    $('#dataTable').css('width','3000px');
-    $('table tr').css('width','3000px');
-    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Refresh Charts\" />");
-    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
-    $("#dataTable_filter label input").attr("value","");
-    $('#dataTable_header').click(function(){
-            if($("#dataTable_filter label input").val() !== ""){			
-                    console.log("Inside...2");
-                    var items=[];
-                    $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
-                       items.push( $(this).text() );       
-                    });
-                    var items = $.unique( items );
-                    console.log(items);
-                    dataTable.filter(null);
-                    dataTable.filter([items]);
-                    dc.redrawAll();
-            }else{
-                    dataTable.filter(null);
-                    dc.redrawAll();
-            }
-    });
-    $('#dataTable_reset').click(function(){
-            dataTable.filter(null);
-            dc.redrawAll();
-    });
-};

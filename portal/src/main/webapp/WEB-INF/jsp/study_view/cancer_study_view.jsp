@@ -202,7 +202,8 @@ function initTabs() {
             var oTable = $('#dataTable').dataTable();
             if ( oTable.length > 0 ) {
                     oTable.fnAdjustColumnSizing();
-                    console.log("--3--");
+                    console.log("--3--");                    
+                    new FixedColumns( oTable);
             }else{
                 console.log("--1--");
             }

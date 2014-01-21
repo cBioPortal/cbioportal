@@ -141,7 +141,6 @@ dc.redrawAll = function(group) {
             "bFilter":true,
             "bScrollCollapse": true
     });
-    
     for(var i =0 ; i< removeKeyIndex.length ; i++){
         dataTable1.fnSetColumnVis(removeKeyIndex[i],false);
     }
@@ -163,7 +162,7 @@ dc.redrawAll = function(group) {
                 
     new FixedColumns( dataTable1);
     dataTable1.fnAdjustColumnSizing();
-    
+
     $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\" />");
     $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
     $("#dataTable_filter label input").attr("value","");
@@ -421,7 +420,7 @@ var studyView = function(){
             
             //This should be changed later: run the loop i times which should only run once
             varCluster[i] = ndx.dimension(function (d) {
-                var returnValue = d[varName[i]];
+                var returnValue = d[varName[i]]; 
                 if(d[varName[i]] % 1 !== 0 && decimalPlaces(d[varName[i]]) > 3)
                     if(distanceMinMax < 2){
                         returnValue = d3.round(d[varName[i]],2);
@@ -458,8 +457,6 @@ var studyView = function(){
             .transitionDuration(1200)
             .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
             .yAxis().tickFormat(d3.format("d"));
-    
-            //console.log(varValues.length);
             varChart[i].xUnits(function(){return 50;});
         }
         
@@ -600,33 +597,29 @@ var studyView = function(){
             "bFilter":true,
             "bScrollCollapse": true
         });
-        
-        console.log(columnNameSelected);
-        console.log(columnNameTotal);
+        new FixedColumns( dataTable1 );
+        //console.log(columnNameTotal);
         var keyIndex = new Array();
         for(var i =0 ; i< columnNameSelected.length ; i++){
             var key = columnNameTotal.indexOf(columnNameSelected[i])
             if(key>=0){
-                console.log(columnNameSelected[i]);
                 keyIndex.push(key);
             }
         }
-        console.log(keyIndex);
         for(var i =0 ; i< columnNameTotal.length ; i++){
             if(keyIndex.indexOf(i) === -1) {       
-                console.log(i);
+                
                 removeKeyIndex.push(i);
                 dataTable1.fnSetColumnVis(i,false);
             }
         }
-        
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");
         $('#dataTable_header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){			
-                    //console.log("Inside...1");
-
+                    console.log("Inside...1");
+                    
                     var items=[];
                     $('#dataTable>tbody>tr>td:nth-child(1)').each( function(){
                        items.push( $(this).text() );       

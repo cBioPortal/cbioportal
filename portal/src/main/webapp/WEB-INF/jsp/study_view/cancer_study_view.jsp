@@ -80,7 +80,7 @@ if (cancerStudyViewError!=null) {
     <ul>
         
     <li id="li-1"><a href='#clinical-plots' class='study-tab' title='Plots'>Study Summary</a></li>
-    <li><a href='#dc-plots' class='study-tab' title='Plots'>DC Plots</a></li>
+    <li><a href='#dc-plots' class='study-tab' title='DC Plots'>DC Plots</a></li>
     <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>
@@ -211,6 +211,7 @@ function initTabs() {
                     if(rotatedX > maxX)
                         maxX = rotatedX;
                 }
+                maxX -= 28;
                 for(var i =1;i<=numColumns ; i++){
                     $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
                 }     

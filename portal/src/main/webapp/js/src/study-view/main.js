@@ -136,8 +136,7 @@ dc.redrawAll = function(group) {
 		
 	
     $('#dataTable').dataTable({
-            "sScrollX": "900px",
-            "sScrollY": "500px",
+            "sScrollX": "1200px",
             "bPaginate": false,
             "bFilter":true,
             "bScrollCollapse": true
@@ -157,6 +156,7 @@ dc.redrawAll = function(group) {
         if(rotatedX > maxX)
             maxX = rotatedX;
     }
+    maxX -= 28;
     for(var i =1;i<=numColumns ; i++){
         $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX*Math.cos(radians));
     }  
@@ -460,7 +460,7 @@ var studyView = function(){
             .yAxis().tickFormat(d3.format("d"));
     
             //console.log(varValues.length);
-            varChart[i].xUnits(function(){return 1000;});
+            varChart[i].xUnits(function(){return 20;});
         }
         
         /*
@@ -501,19 +501,7 @@ var studyView = function(){
                 return d[varName[i]];
             };
         }
-        dataTable
-        .dimension(CASEID)
-        .group(function (d) {
-                return 1 ;
-        })
-        .columns(
-            dataTableColumns
-        )
-        .size(500)
-        .sortBy(function (d) {
-                return d.CASE_ID;
-        })
-        .transitionDuration(1200)
+        
         
         dataTable
         .dimension(CASEID)
@@ -594,7 +582,7 @@ var studyView = function(){
                     return d.DFS_MONTHS;
                 }
         ])
-        .size(500)
+        .size(2000)
         .sortBy(function (d) {
                 return d.CASE_ID;
         })
@@ -607,8 +595,7 @@ var studyView = function(){
     
     function restyle(columnNameSelected,columnNameTotal){
         var dataTable1 = $('#dataTable').dataTable({
-            "sScrollX": "1200px",    
-            "sScrollY": "2000px",
+            "sScrollX": "1200px",
             "bPaginate": false,
             "bFilter":true,
             "bScrollCollapse": true
@@ -633,8 +620,6 @@ var studyView = function(){
             }
         }
         
-        $('#dataTable').css('width','3000px');
-        $('.dataTables_scrollHeadInner table').css('width','3000px');        
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\"/>");
         $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");

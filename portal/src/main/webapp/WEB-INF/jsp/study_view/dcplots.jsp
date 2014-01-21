@@ -53,46 +53,10 @@
         <pieH4>TUMOR SAMPLE ANALYSIS</pieH4>
     </div>
 -->
-    <div id="pie">
-         
-            <!--
-            <div id='data-maf-chart' class='data-pie-chart'>
-                <pieH3>MAF <a class="reset" href="javascript:dataMafChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
-            </div>
-            <div id='data-gistic-chart' class='data-pie-chart'>
-                <pieH3>GISTIC <a class="reset" href="javascript:dataGisticChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
-            </div>
-            <div id='data-rnaseq-chart' class='data-pie-chart'>
-                <pieH3>RNASEQ <a class="reset" href="javascript:dataRnaseqChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
-            </div>
-            <div id='data-core-sample-chart' class='data-pie-chart'>
-                <pieH3>CORE SAMPLE <a class="reset" href="javascript:dataCoreSampleChart.filterAll();dc.redrawAll();" style="display: none;">reset</a></pieH3>
-            </div>
-            -->
-        
-    </div>
+    <div id="pie"></div>
 
-    <div id="row">
-    </div>
-    <div id="bar">
-        <!--
-        <div id='age-chart' class="bar-chart">
-            <pieH4>NUMBER OF PATIENTS BASED ON AGE DISTRIBUTION  <a class="reset" href="javascript:ageChart.filterAll(); dc.redrawAll(); " style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='micro-rna-score-chart' class="bar-chart">
-            <pieH4>MICRO RNA SCORE  <a class="reset" href="javascript:microRnaScoreChart.filterAll(); dc.redrawAll(); " style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='os-months-chart' class="bar-chart">
-            <pieH4>OVERALL SURVIVAL IN MONTHS SINCE DIAGNOSIS  <a class="reset" href="javascript:osMonthsChart.filterAll(); dc.redrawAll(); " style="display: none;">reset</a></pieH4>
-        </div>
-
-        <div id='dfs-months-chart' class="bar-chart">
-            <pieH4>DISEASE FREE IN MONTHS SINCE TREATMENT  <a class="reset" href="javascript:dfsMonthsChart.filterAll(); dc.redrawAll(); " style="display: none;">reset</a></pieH4>
-        </div>	
-        -->
-    </div>
+    <div id="row"></div>
+    <div id="bar"></div>
 
     <div id='data-table-chart'>
         <table id="dataTable">

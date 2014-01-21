@@ -43,7 +43,7 @@ var PlotsBoilerplate = {
         stroke: "",
         fill: ""
     },
-    style : {
+    style : { //Default style setting
         fill: "#58ACFA", //light blue
         stroke: "#0174DF", //dark blue
         stroke_width: "1.2",

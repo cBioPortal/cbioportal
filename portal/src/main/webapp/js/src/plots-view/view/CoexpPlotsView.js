@@ -49,12 +49,12 @@ var CoexpPlotsView = (function() {
         //css style
         options.style = jQuery.extend(true, {}, PlotsBoilerplate.style);
         options.style["mutations"] = {
-            gene_x_mutate_fill: "red",
-            gene_x_mutate_stroke: "black",
-            gene_y_mutate_fill: "yellow",
-            gene_y_mutate_stroke: "black",
-            gene_both_mutate_fill: "green",
-            gene_both_mutate_stroke: "black"
+            gene_x_mutate_fill: "#DBA901",
+            gene_x_mutate_stroke: "#886A08",
+            gene_y_mutate_fill: "#F5A9F2",
+            gene_y_mutate_stroke: "#F7819F",
+            gene_both_mutate_fill: "#FF0000",
+            gene_both_mutate_stroke: "#B40404"
         };
         //positions
         options.canvas = jQuery.extend(true, {}, PlotsBoilerplate.canvas);
@@ -105,24 +105,27 @@ var CoexpPlotsView = (function() {
     function styleMutatedCases(_dataArr, _geneX, _geneY) { //style the mutated cases based on this specific scenario
         $.each(_dataArr, function(index, obj) {
             if (obj.hasOwnProperty("mutation")) {
+                console.log(obj);
                 if (obj["mutation"].hasOwnProperty(_geneX) &&
                     obj["mutation"].hasOwnProperty(_geneY)) {
-                    obj.stroke = options.style.gene_both_mutate_stroke;
-                    obj.fill = options.style.gene_both_mutate_fill;
+                    obj.stroke = options.style.mutations.gene_both_mutate_stroke;
+                    obj.fill = options.style.mutations.gene_both_mutate_fill;
+                    obj.qtip = obj.qtip + " mutated in both";
                 } else if (obj["mutation"].hasOwnProperty(_geneX) &&
                     !obj["mutation"].hasOwnProperty(_geneY)) {
-                    obj.stroke = options.style.gene_x_mutate_stroke;
-                    obj.fill = options.style.gene_x_mutate_fill;
+                    obj.stroke = options.style.mutations.gene_x_mutate_stroke;
+                    obj.fill = options.style.mutations.gene_x_mutate_fill;
+                    obj.qtip - obj.qtip + " mutated in gene x";
                 } else if (!obj["mutation"].hasOwnProperty(_geneX) &&
                     obj["mutation"].hasOwnProperty(_geneY)) {
-                    obj.stroke = options.style.gene_y_mutate_stroke;
-                    obj.fill = options.style.gene_y_mutate_fill;
-                } else {
-                    obj.stroke = options.style.stroke;
-                    obj.fill = options.style.fill;
-                }
+                    obj.stroke = options.style.mutations.gene_y_mutate_stroke;
+                    obj.fill = options.style.mutations.gene_y_mutate_fill;
+                    obj.qtip = obj.qtip + " mutated in gene y";
+                } 
+            } else {
+                obj.stroke = options.style.stroke;
+                obj.fill = options.style.fill;
             }
-
         });
     }
 

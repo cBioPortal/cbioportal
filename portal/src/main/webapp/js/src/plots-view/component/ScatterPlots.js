@@ -201,7 +201,7 @@ var ScatterPlots = (function() {
             .data(dataArr)
             .enter()
             .append("svg:path")
-            .attr("transform", function(d){
+            .attr("transform", function(d) {
                 //Remember current positions for the later transition animation
                 $(this).attr("x_val", d.x_val);
                 $(this).attr("y_val", d.y_val);
@@ -212,8 +212,12 @@ var ScatterPlots = (function() {
             .attr("d", d3.svg.symbol()
                 .size(style.size)
                 .type(style.shape))
-            .attr("fill", style.fill)
-            .attr("stroke", style.stroke)
+            .attr("fill", function(d) {
+                return d.fill;
+            })
+            .attr("stroke", function(d) {
+                return d.stroke;
+            })
             .attr("stroke-width", style.stroke_width);
     }
 

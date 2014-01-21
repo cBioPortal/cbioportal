@@ -60,6 +60,26 @@ var CoexpPlotsProxy = (function() {
         });
     }
 
+    function prioritizeMutatedCases() {
+        var nonMutatedData = [];
+        var mutatedData= [];
+        var dataBuffer = [];
+        $.each(dataArr, function(index, obj) {
+            if (obj.hasOwnProperty("mutation")) {
+                mutatedData.push(obj);
+            } else {
+                nonMutatedData.push(obj);
+            }
+        });
+        $.each(nonMutatedData, function(index, obj) {
+            dataBuffer.push(obj);
+        });
+        $.each(mutatedData, function(index, obj) {
+            dataBuffer.push(obj);
+        });
+        dataArr = dataBuffer;
+    }
+
     function analyseData() {
         var _yValArr = [];
         var _xValArr = [];
@@ -91,6 +111,7 @@ var CoexpPlotsProxy = (function() {
             dataArr.length = 0;
             getMutationMaps();
             convertData(_alteration_data_result, _geneX, _geneY);
+            prioritizeMutatedCases();
             analyseData();
             getProfile(_alteration_data_result);
         },

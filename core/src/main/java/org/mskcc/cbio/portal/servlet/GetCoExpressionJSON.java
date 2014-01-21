@@ -41,6 +41,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.*;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
+import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.mskcc.cbio.portal.util.CoExpUtil;
 
 /**
@@ -84,6 +85,7 @@ public class GetCoExpressionJSON extends HttpServlet  {
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
+        SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
         ArrayList<JSONObject> fullResult = new ArrayList<JSONObject>();
 
@@ -107,10 +109,13 @@ public class GetCoExpressionJSON extends HttpServlet  {
                         double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
                         if ((pearson > coExpScoreThreshold || pearson < (-1) * coExpScoreThreshold ) &&
                            (compared_gene_id != queryGeneId)){
+                            //Only calculate spearman with high scored pearson gene pairs.
+                            double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
                             JSONObject _scores = new JSONObject();
                             CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                             _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
                             _scores.put("pearson", pearson);
+                            _scores.put("spearman", spearman);
                             fullResult.add(_scores);
                         }
                     }

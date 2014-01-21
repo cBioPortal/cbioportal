@@ -91,7 +91,6 @@ var CoexpPlotsProxy = (function() {
             dataArr.length = 0;
             getMutationMaps();
             convertData(_alteration_data_result, _geneX, _geneY);
-            console.log(dataArr);
             analyseData();
             getProfile(_alteration_data_result);
         },

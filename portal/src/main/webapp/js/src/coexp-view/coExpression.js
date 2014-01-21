@@ -68,8 +68,8 @@ var CoExpTable = (function() {
                 $("#" + divId).append(
                     "<table width='95%'>" +
                     "<tr>" +
-                    "<td width='45%' valign='top'><div id='" + tableDivId + "'></div></td>" +
-                    "<td width='55%' valign='top'><div id='" + plotId + "'></div></td>" +
+                    "<td width='40%' valign='top'><div id='" + tableDivId + "'></div></td>" +
+                    "<td width='60%' valign='top'><div id='" + plotId + "'></div></td>" +
                     "</tr>" +
                     "</table>");
 
@@ -82,8 +82,10 @@ var CoExpTable = (function() {
 
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
-                    "<tr><th>Correlated(+)/Anti-correlated(-) Genes</th>" +
-                    "<th>Pearson's Correlation" +
+                    "<tr>" + 
+                    "<th>Correlated(+)/Anti-correlated(-) Genes</th>" +
+                    "<th>Pearson's Correlation</th>" +
+                    "<th>Spearman's Correlation</th>" +
                     "</tr>" +
                     "</thead><tbody></tbody>"
                 );
@@ -92,7 +94,8 @@ var CoExpTable = (function() {
                 $.each(result, function(i, obj) {
                     var tmp_arr = [];
                     tmp_arr.push(obj.gene);
-                    tmp_arr.push(obj.pearson.toFixed(3));
+                    tmp_arr.push(obj.pearson.toFixed(2));
+                    tmp_arr.push(obj.spearman.toFixed(2));
                     coexp_table_arr.push(tmp_arr);
                 });
 
@@ -107,13 +110,18 @@ var CoExpTable = (function() {
                         {
                             "bSearchable": true,
                             "aTargets": [ 0 ],
-                            "sWidth": "60%"
+                            "sWidth": "42%"
                         },
                         {
                             "sType": 'coexp-absolute-value',
                             "bSearchable": false,
                             "aTargets": [ 1 ],
-                            "sWidth": "40%"
+                            "sWidth": "29%"
+                        },
+                        {
+                            "bSearchable": false,
+                            "aTargets": [ 2 ],
+                            "sWidth": "29%"
                         }
                     ],
                     "sScrollY": "560px",
@@ -127,8 +135,10 @@ var CoExpTable = (function() {
                         $('td:eq(1)', nRow).css("font-weight", "bold");
                         if (aData[1] > 0) {
                             $('td:eq(1)', nRow).css("color", "#3B7C3B");
+                            $('td:eq(2)', nRow).css("color", "#3B7C3B");
                         } else {
                             $('td:eq(1)', nRow).css("color", "#B40404");
+                            $('td:eq(2)', nRow).css("color", "#B40404");
                         }
                     },
                     "bDeferRender": true

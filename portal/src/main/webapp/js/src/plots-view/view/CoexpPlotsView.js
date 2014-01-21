@@ -124,7 +124,6 @@ var CoexpPlotsView = (function() {
             }
 
         });
-        console.log(_dataArr);
     }
 
     function update() {

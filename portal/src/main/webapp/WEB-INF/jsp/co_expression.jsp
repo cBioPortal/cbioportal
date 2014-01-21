@@ -40,13 +40,14 @@
 
 <div class="section" id="coexp">
     <p>
-        The co-expression table below lists the top <strong>250</strong><img class='profile_help' src='images/help.png' title='If found more than 250 highly related gene, we would only display the the top-ranked 250 genes.'> genes that are highly co-expressed in selected mRNA expression profile,<img class='profile_help' src='images/help.png' title='We prefer RNA seq profile, if none for certain query, then we would use other mRNA profiles.'> 
+        The co-expression table below lists the top <strong>250</strong><img class='profile_help' src='images/help.png' title='If found more than 250 highly related gene, we would only display the the top-ranked 250 genes.'> genes that are highly co-expressed in selected mRNA expression profile<img class='profile_help' src='images/help.png' title='We prefer RNA seq profile, if none for certain query, then we would use other mRNA profiles.'>,  
         among the applied cancer study and case set. <br>
-        Scores calculated by <strong>Pearson's product-moment correlation</strong> (Threshold: <strong>+/-0.3</strong>).
+        Scores calculated by <strong>Pearson's product-moment correlation</strong> (Threshold: <strong>+/-0.3</strong>)
         <img class='profile_help' src='images/help.png'
-             title='A measure of the degree of linear dependence between two variables, giving a value between +1 and -1 inclusive,
-                        where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation.
-                        (Scores below -0.3 or above 0.3 are not listed).'>
+             title='A measure of the degree of linear dependence between two variables, giving a value between +1 and -1 inclusive, where 1 is total positive correlation, 0 is no correlation, and -1 is total negative correlation.
+            (Scores below -0.3 or above 0.3 are not listed).'>, 
+        and <strong>Spearman's correlation</strong><img class='profile_help' src='images/help.png'
+             title='For genes pairs with Pearson scores above the threshold, they are further calculated by the Spearmans, therefore, we can more precisely determine the monotonic relationship, regardless of data distribution.'>.
         Click on any single row for related plots view.
     </p>
     <div id="coexp-tabs" class="coexp-tabs">

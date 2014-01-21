@@ -360,8 +360,10 @@ function updateDefaultCaseList() {
     } else if (!mutSelect && !cnaSelect && expSelect && !rppaSelect) {
         if ($('#'+selectedCancerStudy+'_mrna_median_Zscores').prop('checked')) {
             defaultCaseList = selectedCancerStudy+"_mrna";
-        } else {
+        } else if ($('#'+selectedCancerStudy+'_rna_seq_mrna_median_Zscores').prop('checked')) {
             defaultCaseList = selectedCancerStudy+"_rna_seq_mrna";
+        } else if ($('#'+selectedCancerStudy+'_rna_seq_v2_mrna_median_Zscores').prop('checked')) {
+            defaultCaseList = selectedCancerStudy+"_rna_seq_v2_mrna";
         }
     } else if ((mutSelect || cnaSelect) && expSelect && !rppaSelect) {
         defaultCaseList = selectedCancerStudy+"_3way_complete";
@@ -370,6 +372,19 @@ function updateDefaultCaseList() {
     }
     
     $('#select_case_set').val(defaultCaseList);
+    
+    // HACKY CODE START -- TO SOLVE THE PROBLEM THAT WE HAVE BOTH _complete and _3way_complete
+    if (!$('#select_case_set').val()) {
+        if (defaultCaseList===selectedCancerStudy+"_3way_complete") {
+            $('#select_case_set').val(selectedCancerStudy+"_complete");
+        }
+    }// HACKY CODE END
+    
+    if (!$('#select_case_set').val()) {     
+        // in case no match
+        $('#select_case_set').val(selectedCancerStudy+"_all");
+    }
+    
     updateCaseListSmart();
 }
 

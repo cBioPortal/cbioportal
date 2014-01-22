@@ -28,13 +28,20 @@ public final class DaoTreatment {
                 Long.toString(treatment.getTreatmentId()),
                 Integer.toString(treatment.getCancerStudyId()),
                 treatment.getPatientId(),
-                Integer.toString(treatment.getStartDate()),
-                Integer.toString(treatment.getStopDate()),
+                treatment.getStartDate().toString(),
+                treatment.getStopDate()==null?null:treatment.getStopDate().toString(),
                 treatment.getType(),
+                treatment.getSubtype(),
+                treatment.getIndication(),
+                treatment.getIntent(),
+                treatment.getTarget(),
                 treatment.getAgent(),
-                Double.toString(treatment.getDose()),
+                treatment.getIsotope(),
+                treatment.getDose()==null?null:treatment.getDose().toString(),
+                treatment.getTotalDose()==null?null:treatment.getTotalDose().toString(),
                 treatment.getUnit(),
-                treatment.getSchedule()
+                treatment.getSchedule(),
+                treatment.getRoute()
                 );
         return 1;
     }

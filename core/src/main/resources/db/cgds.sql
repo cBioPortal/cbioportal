@@ -644,11 +644,18 @@ CREATE TABLE `treatment` (
   `PATIENT_ID` varchar(255) NOT NULL,
   `START_DATE` int,
   `STOP_DATE` int,
-  `TYPE` varchar(20), # STEROID, Radiation, HORM, CHEMO, ...
+  `TYPE` varchar(20), # MEDICAL, Radiation
+  `SUBTYPE` varchar(20), # HORM, CHEMO, ...
+  `INDICATION` varchar(50),
+  `INTENT` varchar(50),
+  `TARGET` varchar(50),
   `AGENT` varchar(50),
+  `ISOTOPE` varchar(50),
   `DOSE` float,
+  `TOTAL_DOSE` float,
   `UNIT` varchar(20),
   `SCHEDULE` varchar(20), # daily, three times daily, ...
+  `ROUTE` varchar(20),
   PRIMARY KEY (`TREATMENT_ID`),
   KEY (`CANCER_STUDY_ID`, `PATIENT_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
@@ -680,7 +687,7 @@ CREATE TABLE `lab_test` (
   `PATIENT_ID` varchar(255) NOT NULL,
   `DATE` int,
   `TEST` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
-  `RESULT` float,
+  `RESULT` varchar(30),
   `UNIT` varchar(20),
   `NORMAL_RANGE` varchar(255),
   `NOTES` text,

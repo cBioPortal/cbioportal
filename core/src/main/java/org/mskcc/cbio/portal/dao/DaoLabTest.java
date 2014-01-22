@@ -30,7 +30,7 @@ public final class DaoLabTest {
                 labTest.getPatientId(),
                 labTest.getDate().toString(),
                 labTest.getTest(),
-                labTest.getResult().toString(),
+                labTest.getResult(),
                 labTest.getUnit(),
                 labTest.getNormalRange(),
                 labTest.getNotes()

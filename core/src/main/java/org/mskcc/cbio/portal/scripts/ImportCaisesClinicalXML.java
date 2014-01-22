@@ -26,6 +26,7 @@ import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.Diagnostic;
 import org.mskcc.cbio.portal.model.LabTest;
+import org.mskcc.cbio.portal.model.Treatment;
 
 /**
  *
@@ -93,6 +94,7 @@ public final class ImportCaisesClinicalXML {
         
         long labTestId = 0;
         long diagnosticId = 0;
+        long treatmentId = 0;
         
         for (Node patientNode : patientNodes) {
             String patientInternalId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
@@ -103,6 +105,17 @@ public final class ImportCaisesClinicalXML {
             }
             
             System.out.println("Importing "+patientId+" ("+patientInternalId+")");
+            
+            List<Treatment> treatments = new ArrayList<Treatment>();
+            parseMedicalTherapies(treatments, patientNode, patientId, cancerStudyId);
+            parseRadiationTherapies(treatments, patientNode, patientId, cancerStudyId);
+            parseBrachyTherapies(treatments, patientNode, patientId, cancerStudyId);
+            for (Treatment treatment : treatments) {
+                if (validateTreatment(treatment)) {
+                    treatment.setTreatmentId(++treatmentId);
+                    DaoTreatment.addDatum(treatment);
+                }
+            }
             
             List<Diagnostic> diagnostics = parseDiagnostics(patientNode, patientId, cancerStudyId);
             for (Diagnostic diagnostic : diagnostics) {
@@ -124,6 +137,173 @@ public final class ImportCaisesClinicalXML {
         MySQLbulkLoader.flushAll();
     }
     
+    private static void parseMedicalTherapies(List<Treatment> treatments, Node patientNode, String patientId, int cancerStudyId) {
+        List<Node> treatmentNodes = patientNode.selectNodes("MedicalTherapies/MedicalTherapy");
+        
+        for (Node treatmentNode : treatmentNodes) {
+            Treatment treatment = new Treatment();
+            treatment.setCancerStudyId(cancerStudyId);
+            treatment.setPatientId(patientId);
+            treatment.setType("Medical therapy");
+            
+            Node node = treatmentNode.selectSingleNode("MedTxDate");
+            if (node!=null) {
+                treatment.setStartDate(parseInt(node.getText(), false));
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxStopDate");
+            if (node!=null) {
+                treatment.setStopDate(parseInt(node.getText(), false));
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxType");
+            if (node!=null) {
+                treatment.setSubtype(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxIndication");
+            if (node!=null) {
+                treatment.setIndication(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxAgent");
+            if (node!=null) {
+                treatment.setAgent(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxDose");
+            if (node!=null) {
+                treatment.setDose(parseDouble(node.getText(),true));
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxTotalDose");
+            if (node!=null) {
+                treatment.setTotalDose(parseDouble(node.getText(),true));
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxUnits");
+            if (node!=null) {
+                treatment.setUnit(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxSchedule");
+            if (node!=null) {
+                treatment.setSchedule(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("MedTxRoute");
+            if (node!=null) {
+                treatment.setRoute(node.getText());
+            }
+            
+            treatments.add(treatment);
+        }
+    }
+    
+    private static void parseRadiationTherapies(List<Treatment> treatments, Node patientNode, String patientId, int cancerStudyId) {
+        List<Node> treatmentNodes = patientNode.selectNodes("RadiationTherapies/RadiationTherapy");
+        
+        for (Node treatmentNode : treatmentNodes) {
+            Treatment treatment = new Treatment();
+            treatment.setCancerStudyId(cancerStudyId);
+            treatment.setPatientId(patientId);
+            treatment.setType("Radiation therapy");
+            
+            Node node = treatmentNode.selectSingleNode("RadTxDate");
+            if (node!=null) {
+                treatment.setStartDate(parseInt(node.getText(), false));
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxStopDate");
+            if (node!=null) {
+                treatment.setStopDate(parseInt(node.getText(), false));
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxType");
+            if (node!=null) {
+                treatment.setSubtype(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxIndication");
+            if (node!=null) {
+                treatment.setIndication(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxIntent");
+            if (node!=null) {
+                treatment.setIntent(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxDosePerFraction");
+            if (node!=null) {
+                treatment.setDose(parseDouble(node.getText(),true));
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxTotalDose");
+            if (node!=null) {
+                treatment.setTotalDose(parseDouble(node.getText(),true));
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxUnits");
+            if (node!=null) {
+                treatment.setUnit(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxNumFractions");
+            if (node!=null) {
+                treatment.setSchedule(node.getText() + " fractions");
+            }
+            
+            node = treatmentNode.selectSingleNode("RadTxTarget");
+            if (node!=null) {
+                treatment.setTarget(node.getText());
+            }
+            
+            treatments.add(treatment);
+        }
+    }
+    
+    private static void parseBrachyTherapies(List<Treatment> treatments, Node patientNode, String patientId, int cancerStudyId) {
+        List<Node> treatmentNodes = patientNode.selectNodes("BrachyTherapies/BrachyTherapy");
+        
+        for (Node treatmentNode : treatmentNodes) {
+            Treatment treatment = new Treatment();
+            treatment.setCancerStudyId(cancerStudyId);
+            treatment.setPatientId(patientId);
+            treatment.setType("Brachytherapy");
+            
+            Node node = treatmentNode.selectSingleNode("BrachyDate");
+            if (node!=null) {
+                treatment.setStartDate(parseInt(node.getText(), false));
+            }
+            
+            node = treatmentNode.selectSingleNode("BrachyIsotope");
+            if (node!=null) {
+                treatment.setIsotope(node.getText());
+            }
+            
+            node = treatmentNode.selectSingleNode("BrachyPrescribedDose");
+            if (node!=null) {
+                treatment.setTotalDose(parseDouble(node.getText(),true));
+            }
+            
+//            node = treatmentNode.selectSingleNode("BrachyDoseNotes");
+//            if (node!=null) {
+//                treatment.(node.getText());
+//            }
+            
+            treatments.add(treatment);
+        }
+    }
+    
+    private static boolean validateTreatment(Treatment treatment) {
+        if (treatment.getStartDate()==null) {
+            return false;
+        }
+        
+        return true;
+    }
+    
     private static List<Diagnostic> parseDiagnostics(Node patientNode, String patientId, int cancerStudyId) {
         List<Node> diagnosticNodes = patientNode.selectNodes("Diagnostics/Diagnostic");
         List<Diagnostic> diagnostics = new ArrayList<Diagnostic>(diagnosticNodes.size());
@@ -134,11 +314,7 @@ public final class ImportCaisesClinicalXML {
             
             Node node = diagnosticNode.selectSingleNode("DxDate");
             if (node!=null) {
-                try {
-                    diagnostic.setDate(Integer.parseInt(node.getText()));
-                } catch (NumberFormatException e) {
-
-                }
+                diagnostic.setDate(parseInt(node.getText(),false));
             }
             
             node = diagnosticNode.selectSingleNode("DxType");
@@ -178,11 +354,7 @@ public final class ImportCaisesClinicalXML {
             
             node = diagnosticNode.selectSingleNode("DxNumNewTumors");
             if (node!=null) {
-                try {
-                    diagnostic.setNumNewTumors(Integer.parseInt(node.getText()));
-                } catch (NumberFormatException e) {
-
-                }
+                diagnostic.setNumNewTumors(parseInt(node.getText(),false));
             }
             
             node = diagnosticNode.selectSingleNode("DxNotes");
@@ -226,11 +398,7 @@ public final class ImportCaisesClinicalXML {
             
             Node node  = labTestNode.selectSingleNode("LabDate");
             if (node!=null) {
-                try {
-                    labTest.setDate(Integer.parseInt(node.getText()));
-                } catch (NumberFormatException e) {
-
-                }
+                labTest.setDate(parseInt(node.getText(),false));
             }
             
             node  = labTestNode.selectSingleNode("LabTest");
@@ -240,10 +408,7 @@ public final class ImportCaisesClinicalXML {
             
             node  = labTestNode.selectSingleNode("LabResult");
             if (node!=null) {
-                try {
-                    labTest.setResult(Double.parseDouble(node.getText()));
-                } catch (NumberFormatException e) {
-                }
+                labTest.setResult(node.getText());
             }
             
             node  = labTestNode.selectSingleNode("LabUnits");
@@ -279,5 +444,45 @@ public final class ImportCaisesClinicalXML {
             return false;
         }
         return true;
+    }
+    
+    private static Double parseDouble(String str, boolean takeFirstPart) {
+        if (str==null) {
+            return null;
+        }
+        
+        if (takeFirstPart) {
+            int ix = str.indexOf(" ");
+            if (ix>0) {
+                str = str.substring(0, ix);
+            }
+        }
+        
+        try {
+            return Double.valueOf(str);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    private static Integer parseInt(String str, boolean takeFirstPart) {
+        if (str==null) {
+            return null;
+        }
+        
+        if (takeFirstPart) {
+            int ix = str.indexOf(" ");
+            if (ix>0) {
+                str = str.substring(0, ix);
+            }
+        }
+        
+        try {
+            return Integer.valueOf(str);
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

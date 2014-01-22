@@ -14,7 +14,7 @@ public class LabTest {
     private String patientId;
     private Integer date;
     private String test;
-    private Double result;
+    private String result;
     private String unit;
     private String normalRange;
     private String notes;
@@ -59,11 +59,11 @@ public class LabTest {
         this.test = test;
     }
 
-    public Double getResult() {
+    public String getResult() {
         return result;
     }
 
-    public void setResult(Double result) {
+    public void setResult(String result) {
         this.result = result;
     }
 

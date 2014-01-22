@@ -42,6 +42,7 @@ public class DaoPatient {
 
     private static final Map<String, Patient> byStableId = new ConcurrentHashMap<String, Patient>();
     private static final Map<Integer, Patient> byInternalId = new ConcurrentHashMap<Integer, Patient>();
+    private static final Map<String, List<Patient>> byStableCancerStudyId = new ConcurrentHashMap<String, List<Patient>>();
 
     static {
         cache();
@@ -51,6 +52,7 @@ public class DaoPatient {
     {
         byStableId.clear();
         byInternalId.clear();
+        byStableCancerStudyId.clear();
     }
 
     private static void cache()
@@ -81,6 +83,14 @@ public class DaoPatient {
     {
         byStableId.put(patient.getStableId(), patient);
         byInternalId.put(patient.getInternalId(), patient);
+        if (byStableCancerStudyId.containsKey(patient.getCancerStudy().getCancerStudyStableId())) {
+            byStableCancerStudyId.get(patient.getCancerStudy().getCancerStudyStableId()).add(patient);
+        }
+        else {
+            List<Patient> patientList = new ArrayList<Patient>();
+            patientList.add(patient);
+            byStableCancerStudyId.put(patient.getCancerStudy().getCancerStudyStableId(), patientList);
+        }
     }
 
     public static int addPatient(Patient patient) throws DaoException
@@ -118,6 +128,11 @@ public class DaoPatient {
     public static Patient getPatientByStableId(String stableId)
     {
         return byStableId.get(stableId);
+    }
+
+    public static List<Patient> getPatientsByStableCancerStudyId(String cancerStudyId)
+    {
+        return byStableCancerStudyId.get(cancerStudyId);
     }
 
     public static List<Patient> getAllPatients()

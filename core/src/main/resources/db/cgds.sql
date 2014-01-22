@@ -379,11 +379,11 @@ CREATE TABLE `clinical` (
 --
 drop table IF EXISTS clinical_patient;
 CREATE TABLE `clinical_patient` (
-  `PATIENT_ID` varchar(255) NOT NULL,
+  `INTERNAL_ID` int(11) NOT NULL,
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`PATIENT_ID`),
-  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
@@ -391,11 +391,11 @@ CREATE TABLE `clinical_patient` (
 --
 drop table IF EXISTS clinical_sample;
 CREATE TABLE `clinical_sample` (
-  `SAMPLE_ID` varchar(255) NOT NULL,
+  `INTERNAL_ID` int(11) NOT NULL,
   `ATTR_ID` varchar(255) NOT NULL,
   `ATTR_VALUE` varchar(255) NOT NULL,
-  PRIMARY KEY (`SAMPLE_ID`),
-  FOREIGN KEY (`SAMPLE_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
+  PRIMARY KEY (`INTERNAL_ID`),
+  FOREIGN KEY (`INTERNAL_ID`) REFERENCES `sample` (`INTERNAL_ID`) ON DELETE CASCADE
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------

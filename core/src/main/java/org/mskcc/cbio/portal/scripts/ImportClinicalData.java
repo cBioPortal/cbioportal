@@ -112,7 +112,7 @@ public class ImportClinicalData {
             getInternalPatientId(stablePatientOrSampleId);
 
         if (internalPatientOrSampleId == -1) {
-            System.err.println("Could not add sample to table (most likely because patient for sample could not be determined), skipping: " +
+            System.err.println("Could not add sample to table (most likely because the patient associated with a sample could not be determined), skipping: " +
                                stablePatientOrSampleId);
             return;
         }
@@ -160,7 +160,7 @@ public class ImportClinicalData {
             }
         }
 
-g        return internalSampleId;
+        return internalSampleId;
     }
 
     private String getSampleType(String[] fields, List<ClinicalAttribute> columnAttrs)

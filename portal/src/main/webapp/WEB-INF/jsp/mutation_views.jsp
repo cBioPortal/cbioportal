@@ -201,6 +201,8 @@
 									        title='Uniform Color'>uniform</option>
 									<option value='bySecondaryStructure'
 									        title='Color by Secondary Structure'>secondary structure</option>
+									<option value='byChain'
+									        title='Color by Chain'>chain</option>
 									<option value='byAtomType'
 									        title='Color by Atom Type'
 									        disabled='disabled'>atom type</option>
@@ -295,10 +297,13 @@
 	<span class='mutation-3d-beta-sheet'>beta sheets</span>, and
 	<span class='mutation-3d-loop'>loops</span>.
 	This color option is not available for space-filling protein scheme.<br>
+	<b>Chain:</b> Colors the selected chain residues with rainbow colors.
+	This is a gradient coloring from red to blue.
+	Low residue positions get red, while high positions get blue.<br>
 	<b>Atom Type:</b> Colors the structure with respect to the atom type (CPK color scheme).
 	This color option is only available for space-filling protein scheme.<br>
 	<br>
-	Note that, selected chain is always displayed with full opacity while other parts of the protein
+	Note that, the selected chain is always displayed with full opacity while other parts of the protein
 	have some transparency to help better focusing on the selected chain.
 </script>
 

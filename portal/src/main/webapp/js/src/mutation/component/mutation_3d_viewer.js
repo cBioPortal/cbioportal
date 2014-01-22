@@ -53,7 +53,7 @@ var Mutation3dVis = function(name, options)
 		colorProteins: "uniform", // "uniform": single color, effective for all schemes
 		                          // "bySecondaryStructure": not effective for space-filling scheme
 		                          // "byAtomType": effective only for space-filling scheme
-		                          // "byChain": not effective for space-filling scheme -- TODO rainbow coloring
+		                          // "byChain": not effective for space-filling scheme
 		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
 		                                  // "byAtomType": use default atom colors
 		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
@@ -477,30 +477,52 @@ var Mutation3dVis = function(name, options)
 		script.push("select all;"); // select everything
 		script.push(_styleScripts[_options.proteinScheme]); // show selected style view
 
-		// overwrite default color if not coloring protein by atom type
+		// do the initial (uniform) coloring
+
+		script.push("color [" + _options.defaultColor + "];"); // set default color
+		//script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
+		script.push("select :" + chain.chainId + ";"); // select the chain
+		script.push("color [" + _options.chainColor + "];"); // set chain color
+		//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
+
+		// TODO color only atoms of the selected chain?
+		//script.push("select :" + chain.chainId + ";"); // select the chain
+
+		// additional coloring (if selected)
+
 		if (_options.colorProteins == "byAtomType")
 		{
+			script.push("select all;"); // select everything
 			// TODO is this the default coloring?
 			script.push("color atoms CPK;");
 		}
-		else
+		else if (_options.colorProteins == "bySecondaryStructure")
 		{
-			script.push("color [" + _options.defaultColor + "];"); // set default color
-			//script.push("translucent [" + _options.defaultTranslucency + "];"); // set default opacity
-			script.push("select :" + chain.chainId + ";"); // select the chain
-			script.push("color [" + _options.chainColor + "];"); // set chain color
-			//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
-		}
-
-		// color specific structures
-		if (_options.colorProteins == "bySecondaryStructure")
-		{
+			script.push("select all;"); // select everything
+			// color secondary structure (including all chains)
 			script.push("select helix;"); // select alpha helices
 			script.push("color [" + _options.structureColors.alphaHelix + "];"); // set color
-			script.push("select sheet;"); // select alpha helices
+			script.push("select sheet;"); // select beta sheets
 			script.push("color [" + _options.structureColors.betaSheet + "];"); // set color
 		}
+		else if (_options.colorProteins == "byChain")
+		{
+			var resMin = chain.mergedAlignment.pdbFrom;
+			// TODO this is not exact max value, but should be visually OK
+			var resMax = resMin + chain.mergedAlignment.mergedString.length;
 
+			// select the chain
+			script.push("select :" + chain.chainId + ";");
+
+			// TODO atomIndex property creates smoother gradient, but we need the actual range,
+			// ...not specifying a range value actually works for some chains, but not for all.
+
+			// color the chain by rainbow coloring scheme (gradient coloring)
+			script.push('color atoms property resNo "roygb" ' +
+			            'range ' + resMin + ' ' + resMax + ';');
+		}
+
+		// color mapped residues
 		if (_options.colorMutations == "byMutationType")
 		{
 			// color each residue with a mapped color (this is to sync with diagram colors)
@@ -514,6 +536,7 @@ var Mutation3dVis = function(name, options)
 		// TODO see if it is possible to set translucency value without specifying a color
 		// ...right now ignoring _options.defaultTranslucency and _options.chainTranslucency
 
+		// adjust structure transparency
 		script.push("select all;");
 		script.push("color translucent;");
 		//script.push("color translucent [" + _options.defaultTranslucency + "];");

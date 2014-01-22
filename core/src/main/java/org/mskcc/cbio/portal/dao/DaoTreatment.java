@@ -27,7 +27,7 @@ public final class DaoTreatment {
         MySQLbulkLoader.getMySQLbulkLoader("treatment").insertRecord(
                 Long.toString(treatment.getTreatmentId()),
                 Integer.toString(treatment.getCancerStudyId()),
-                treatment.getCaseId(),
+                treatment.getPatientId(),
                 Integer.toString(treatment.getStartDate()),
                 Integer.toString(treatment.getStopDate()),
                 treatment.getType(),

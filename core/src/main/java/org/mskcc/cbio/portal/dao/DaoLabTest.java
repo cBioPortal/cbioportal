@@ -27,7 +27,7 @@ public final class DaoLabTest {
         MySQLbulkLoader.getMySQLbulkLoader("lab_test").insertRecord(
                 Long.toString(labTest.getLabTestId()),
                 Integer.toString(labTest.getCancerStudyId()),
-                labTest.getCaseId(),
+                labTest.getPatientId(),
                 Integer.toString(labTest.getDate()),
                 labTest.getTest(),
                 Double.toString(labTest.getResult()),

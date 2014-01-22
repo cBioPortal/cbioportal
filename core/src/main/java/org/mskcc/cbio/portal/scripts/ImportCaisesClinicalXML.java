@@ -120,7 +120,7 @@ public final class ImportCaisesClinicalXML {
         for (Node labTestNode : labTestNodes) {
             LabTest labTest = new LabTest();
             labTest.setCancerStudyId(cancerStudyId);
-            labTest.setCaseId(patientId);
+            labTest.setPatientId(patientId);
             
             Node node  = labTestNode.selectSingleNode("LabDate");
             if (node!=null) {

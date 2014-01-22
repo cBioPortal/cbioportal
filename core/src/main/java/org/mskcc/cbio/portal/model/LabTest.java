@@ -11,7 +11,7 @@ package org.mskcc.cbio.portal.model;
 public class LabTest {
     private Long labTestId;
     private Integer cancerStudyId;
-    private String caseId;
+    private String patientId;
     private Integer date;
     private String test;
     private Double result;
@@ -35,12 +35,12 @@ public class LabTest {
         this.cancerStudyId = cancerStudyId;
     }
 
-    public String getCaseId() {
-        return caseId;
+    public String getPatientId() {
+        return patientId;
     }
 
-    public void setCaseId(String caseId) {
-        this.caseId = caseId;
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public Integer getDate() {

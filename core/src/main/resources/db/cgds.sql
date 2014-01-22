@@ -641,7 +641,7 @@ drop table IF EXISTS treatment;
 CREATE TABLE `treatment` (
   `TREATMENT_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  `CASE_ID` varchar(255) NOT NULL,
+  `PATIENT_ID` varchar(255) NOT NULL,
   `START_DATE` int,
   `STOP_DATE` int,
   `TYPE` varchar(20), # STEROID, Radiation, HORM, CHEMO, ...
@@ -658,7 +658,7 @@ drop table IF EXISTS diagnostic;
 CREATE TABLE `diagnostic` (
   `DIAGOSTIC_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  `CASE_ID` varchar(255) NOT NULL,
+  `PATIENT_ID` varchar(255) NOT NULL,
   `DATE` int,
   `TYPE` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
   `SIDE` varchar(50), 
@@ -674,7 +674,7 @@ drop table IF EXISTS lab_test;
 CREATE TABLE `lab_test` (
   `LAB_TEST_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
-  `CASE_ID` varchar(255) NOT NULL,
+  `PATIENT_ID` varchar(255) NOT NULL,
   `DATE` int,
   `TEST` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
   `RESULT` float,

@@ -18,8 +18,10 @@ import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.mskcc.cbio.portal.dao.DaoCancerStudy;
+import org.mskcc.cbio.portal.dao.DaoDiagnostic;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoLabTest;
+import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.LabTest;
@@ -53,6 +55,11 @@ public final class ImportCaisesClinicalXML {
             return;
         }
         
+        int cancerStudyId = cancerStudy.getInternalId();
+        DaoTreatment.deleteByCancerStudyId(cancerStudyId);
+        DaoLabTest.deleteByCancerStudyId(cancerStudyId);
+        DaoDiagnostic.deleteByCancerStudyId(cancerStudyId);
+        
         Map<String,String> patientIDMapping = readPatientIDMapping(urlIDMappingFile);
         importData(urlXml, cancerStudy.getInternalId(), patientIDMapping);
 
@@ -65,10 +72,12 @@ public final class ImportCaisesClinicalXML {
 
         Map<String,String> map = new HashMap<String,String>();
         
-        String line;
+        String line = buff.readLine(); // skip the first line
         while ((line = buff.readLine()) != null) {
             String[] parts = line.split("\t");
-            map.put(parts[0], parts[1]);
+            if (!parts[1].isEmpty()) {
+                map.put(parts[2], parts[1]);
+            }
         }
         return map;
     }
@@ -81,11 +90,13 @@ public final class ImportCaisesClinicalXML {
         
         List<Node> patientNodes = document.selectNodes("//Patients/Patient");
         
+        long labTestId = 0;
+        
         for (Node patientNode : patientNodes) {
             String patientInternalId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
             String patientId = patientIDMapping.get(patientInternalId);
             if (patientId==null) {
-                System.err.println(patientId+" is not found in the mapping file. Skip...");
+                System.err.println(patientInternalId+" is not found in the mapping file. Skip...");
                 continue;
             }
             
@@ -93,6 +104,7 @@ public final class ImportCaisesClinicalXML {
             
             List<LabTest> labTests = parseLabTests(patientNode, patientId, cancerStudyId);
             for (LabTest labTest : labTests) {
+                labTest.setLabTestId(++labTestId);
                 DaoLabTest.addDatum(labTest);
             }
         }
@@ -108,22 +120,33 @@ public final class ImportCaisesClinicalXML {
             labTest.setCancerStudyId(cancerStudyId);
             labTest.setCaseId(patientId);
             
-            Node node  = labTestNode.selectSingleNode("labDate");
-            if (node!=null) {
+            Node node  = labTestNode.selectSingleNode("LabDate");
+            if (node==null) {
+                continue;
+            }
+            try {
                 labTest.setDate(Integer.parseInt(node.getText()));
+            } catch (NumberFormatException e) {
+                continue;
             }
             
-            node  = labTestNode.selectSingleNode("labTest");
-            if (node!=null) {
-                labTest.setTest(node.getText());
+            node  = labTestNode.selectSingleNode("LabTest");
+            if (node==null) {
+                continue;
             }
+            labTest.setTest(node.getText());
             
-            node  = labTestNode.selectSingleNode("labResult");
-            if (node!=null) {
+            node  = labTestNode.selectSingleNode("LabResult");
+            if (node==null) {
+                continue;
+            }
+            try {
                 labTest.setResult(Double.parseDouble(node.getText()));
+            } catch (NumberFormatException e) {
+                continue;
             }
             
-            node  = labTestNode.selectSingleNode("labUnites");
+            node  = labTestNode.selectSingleNode("LabUnites");
             if (node!=null) {
                 labTest.setUnit(node.getText());
             }

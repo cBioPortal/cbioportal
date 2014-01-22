@@ -4,6 +4,10 @@
  */
 package org.mskcc.cbio.portal.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.mskcc.cbio.portal.model.LabTest;
 
 /**
@@ -32,5 +36,22 @@ public final class DaoLabTest {
                 labTest.getNotes()
                 );
         return 1;
+    }
+    
+    
+    public static void deleteByCancerStudyId(int cancerStudyId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoLabTest.class);
+            pstmt = con.prepareStatement("DELETE FROM lab_test WHERE CANCER_STUDY_ID=?");
+            pstmt.setInt(1, cancerStudyId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoLabTest.class, con, pstmt, rs);
+        }
     }
 }

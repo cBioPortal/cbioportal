@@ -9,29 +9,29 @@ package org.mskcc.cbio.portal.model;
  * @author jgao
  */
 public class Diagnostic {
-    private long diagosticId;
-    private int cancerStudyId;
+    private Long diagosticId;
+    private Integer cancerStudyId;
     private String caseId;
-    private int date;
+    private Integer date;
     private String type;
     private String side;
     private String target;
     private String result;
     private String status;
 
-    public long getDiagosticId() {
+    public Long getDiagosticId() {
         return diagosticId;
     }
 
-    public void setDiagosticId(long diagosticId) {
+    public void setDiagosticId(Long diagosticId) {
         this.diagosticId = diagosticId;
     }
 
-    public int getCancerStudyId() {
+    public Integer getCancerStudyId() {
         return cancerStudyId;
     }
 
-    public void setCancerStudyId(int cancerStudyId) {
+    public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
     }
 
@@ -43,11 +43,11 @@ public class Diagnostic {
         this.caseId = caseId;
     }
 
-    public int getDate() {
+    public Integer getDate() {
         return date;
     }
 
-    public void setDate(int date) {
+    public void setDate(Integer date) {
         this.date = date;
     }
 

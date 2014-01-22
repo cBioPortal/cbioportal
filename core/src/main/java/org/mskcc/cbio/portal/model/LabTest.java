@@ -9,12 +9,12 @@ package org.mskcc.cbio.portal.model;
  * @author jgao
  */
 public class LabTest {
-    private long labTestId;
-    private int cancerStudyId;
+    private Long labTestId;
+    private Integer cancerStudyId;
     private String caseId;
-    private int date;
+    private Integer date;
     private String test;
-    private double result;
+    private Double result;
     private String unit;
     private String normalRange;
     private String notes;
@@ -23,15 +23,15 @@ public class LabTest {
         return labTestId;
     }
 
-    public void setLabTestId(long labTestId) {
+    public void setLabTestId(Long labTestId) {
         this.labTestId = labTestId;
     }
 
-    public int getCancerStudyId() {
+    public Integer getCancerStudyId() {
         return cancerStudyId;
     }
 
-    public void setCancerStudyId(int cancerStudyId) {
+    public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
     }
 
@@ -43,11 +43,11 @@ public class LabTest {
         this.caseId = caseId;
     }
 
-    public int getDate() {
+    public Integer getDate() {
         return date;
     }
 
-    public void setDate(int date) {
+    public void setDate(Integer date) {
         this.date = date;
     }
 
@@ -59,11 +59,11 @@ public class LabTest {
         this.test = test;
     }
 
-    public double getResult() {
+    public Double getResult() {
         return result;
     }
 
-    public void setResult(double result) {
+    public void setResult(Double result) {
         this.result = result;
     }
 

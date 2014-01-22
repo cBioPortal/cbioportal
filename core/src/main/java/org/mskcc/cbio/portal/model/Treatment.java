@@ -9,30 +9,30 @@ package org.mskcc.cbio.portal.model;
  * @author jgao
  */
 public class Treatment {
-    private long treatmentId;
-    private int cancerStudyId;
+    private Long treatmentId;
+    private Integer cancerStudyId;
     private String caseId;
-    private int startDate;
-    private int stopDate;
+    private Integer startDate;
+    private Integer stopDate;
     private String type;
     private String agent;
-    private double dose;
+    private Double dose;
     private String unit;
     private String schedule;
 
-    public long getTreatmentId() {
+    public Long getTreatmentId() {
         return treatmentId;
     }
 
-    public void setTreatmentId(long treatmentId) {
+    public void setTreatmentId(Long treatmentId) {
         this.treatmentId = treatmentId;
     }
 
-    public int getCancerStudyId() {
+    public Integer getCancerStudyId() {
         return cancerStudyId;
     }
 
-    public void setCancerStudyId(int cancerStudyId) {
+    public void setCancerStudyId(Integer cancerStudyId) {
         this.cancerStudyId = cancerStudyId;
     }
 
@@ -44,19 +44,19 @@ public class Treatment {
         this.caseId = caseId;
     }
 
-    public int getStartDate() {
+    public Integer getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(int startDate) {
+    public void setStartDate(Integer startDate) {
         this.startDate = startDate;
     }
 
-    public int getStopDate() {
+    public Integer getStopDate() {
         return stopDate;
     }
 
-    public void setStopDate(int stopDate) {
+    public void setStopDate(Integer stopDate) {
         this.stopDate = stopDate;
     }
 
@@ -76,11 +76,11 @@ public class Treatment {
         this.agent = agent;
     }
 
-    public double getDose() {
+    public Double getDose() {
         return dose;
     }
 
-    public void setDose(double dose) {
+    public void setDose(Double dose) {
         this.dose = dose;
     }
 

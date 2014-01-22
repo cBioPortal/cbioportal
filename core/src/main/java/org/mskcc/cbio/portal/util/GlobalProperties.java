@@ -344,6 +344,6 @@ public class GlobalProperties {
     
     public static String getTemporaryDir() {
         String tmp = GlobalProperties.getProperty(TEMPORARY_DIR);
-        return tmp == null ? "/tmp" : tmp;
+        return tmp == null || tmp.isEmpty() ? "/tmp" : tmp;
     }
 }

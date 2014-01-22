@@ -24,6 +24,7 @@ import org.mskcc.cbio.portal.dao.DaoLabTest;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.Diagnostic;
 import org.mskcc.cbio.portal.model.LabTest;
 
 /**
@@ -91,6 +92,7 @@ public final class ImportCaisesClinicalXML {
         List<Node> patientNodes = document.selectNodes("//Patients/Patient");
         
         long labTestId = 0;
+        long diagnosticId = 0;
         
         for (Node patientNode : patientNodes) {
             String patientInternalId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
@@ -101,6 +103,14 @@ public final class ImportCaisesClinicalXML {
             }
             
             System.out.println("Importing "+patientId+" ("+patientInternalId+")");
+            
+            List<Diagnostic> diagnostics = parseDiagnostics(patientNode, patientId, cancerStudyId);
+            for (Diagnostic diagnostic : diagnostics) {
+                if (validateDiagnostic(diagnostic)) {
+                    diagnostic.setDiagosticId(++diagnosticId);
+                    DaoDiagnostic.addDatum(diagnostic);
+                }
+            }
             
             List<LabTest> labTests = parseLabTests(patientNode, patientId, cancerStudyId);
             for (LabTest labTest : labTests) {
@@ -113,6 +123,98 @@ public final class ImportCaisesClinicalXML {
         
         MySQLbulkLoader.flushAll();
     }
+    
+    private static List<Diagnostic> parseDiagnostics(Node patientNode, String patientId, int cancerStudyId) {
+        List<Node> diagnosticNodes = patientNode.selectNodes("Diagnostics/Diagnostic");
+        List<Diagnostic> diagnostics = new ArrayList<Diagnostic>(diagnosticNodes.size());
+        for (Node diagnosticNode : diagnosticNodes) {
+            Diagnostic diagnostic = new Diagnostic();
+            diagnostic.setCancerStudyId(cancerStudyId);
+            diagnostic.setPatientId(patientId);
+            
+            Node node = diagnosticNode.selectSingleNode("DxDate");
+            if (node!=null) {
+                try {
+                    diagnostic.setDate(Integer.parseInt(node.getText()));
+                } catch (NumberFormatException e) {
+
+                }
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxType");
+            if (node!=null) {
+                diagnostic.setType(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxTarget");
+            if (node!=null) {
+                diagnostic.setTarget(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxResult");
+            if (node!=null) {
+                diagnostic.setResult(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxNotes");
+            if (node!=null) {
+                diagnostic.setNotes(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxSide");
+            if (node!=null) {
+                diagnostic.setSide(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxStatus");
+            if (node!=null) {
+                diagnostic.setStatus(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("ImgBaseline");
+            if (node!=null) {
+                diagnostic.setImageBaseLine(node.getText());
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxNumNewTumors");
+            if (node!=null) {
+                try {
+                    diagnostic.setNumNewTumors(Integer.parseInt(node.getText()));
+                } catch (NumberFormatException e) {
+
+                }
+            }
+            
+            node = diagnosticNode.selectSingleNode("DxNotes");
+            if (node!=null) {
+                diagnostic.setNotes(node.getText());
+            }
+            
+            diagnostics.add(diagnostic);
+        }
+        
+        return diagnostics;
+    }
+    
+    private static boolean validateDiagnostic(Diagnostic diagnostic) {
+        if (diagnostic.getDate()==null) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+//     `DIAGOSTIC_ID` int(255) NOT NULL auto_increment,
+//  `CANCER_STUDY_ID` int(11) NOT NULL,
+//  `PATIENT_ID` varchar(255) NOT NULL,
+//  `DATE` int,
+//  `TYPE` varchar(30), # Bone scan, CT scan (for diagnostics), PCA, ACP (for lab tests)
+//  `SIDE` varchar(50), 
+//  `TARGET` varchar(255),
+//  `RESULT` varchar(255),
+//  `STATUS` varchar(255),
+//  `IMAGE_BASELINE` varchar(20),
+//  `NUM_NEW_TUMORS` int,
     
     private static List<LabTest> parseLabTests(Node patientNode, String patientId, int cancerStudyId) {
         List<Node> labTestNodes = patientNode.selectNodes("LabTests/LabTest");

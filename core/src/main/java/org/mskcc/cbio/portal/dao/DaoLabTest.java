@@ -28,9 +28,9 @@ public final class DaoLabTest {
                 Long.toString(labTest.getLabTestId()),
                 Integer.toString(labTest.getCancerStudyId()),
                 labTest.getPatientId(),
-                Integer.toString(labTest.getDate()),
+                labTest.getDate().toString(),
                 labTest.getTest(),
-                Double.toString(labTest.getResult()),
+                labTest.getResult().toString(),
                 labTest.getUnit(),
                 labTest.getNormalRange(),
                 labTest.getNotes()

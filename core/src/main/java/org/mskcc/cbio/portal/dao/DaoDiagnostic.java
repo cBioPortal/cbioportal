@@ -28,12 +28,15 @@ public final class DaoDiagnostic {
                 Long.toString(diagnostic.getDiagosticId()),
                 Integer.toString(diagnostic.getCancerStudyId()),
                 diagnostic.getPatientId(),
-                Integer.toString(diagnostic.getDate()),
+                diagnostic.getDate().toString(),
                 diagnostic.getType(),
                 diagnostic.getSide(),
                 diagnostic.getTarget(),
                 diagnostic.getResult(),
-                diagnostic.getStatus()
+                diagnostic.getStatus(),
+                diagnostic.getImageBaseLine(),
+                diagnostic.getNumNewTumors()==null?null:diagnostic.getNumNewTumors().toString(),
+                diagnostic.getNotes()
                 );
         return 1;
     }

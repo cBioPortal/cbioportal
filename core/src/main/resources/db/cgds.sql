@@ -665,6 +665,9 @@ CREATE TABLE `diagnostic` (
   `TARGET` varchar(255),
   `RESULT` varchar(255),
   `STATUS` varchar(255),
+  `IMAGE_BASELINE` varchar(20),
+  `NUM_NEW_TUMORS` int,
+  `NOTES` text,
   PRIMARY KEY (`DIAGOSTIC_ID`),
   KEY (`CANCER_STUDY_ID`, `PATIENT_ID`),
   FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE

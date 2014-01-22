@@ -18,6 +18,9 @@ public class Diagnostic {
     private String target;
     private String result;
     private String status;
+    private String imageBaseLine;
+    private Integer numNewTumors;
+    private String notes;
 
     public Long getDiagosticId() {
         return diagosticId;
@@ -89,6 +92,30 @@ public class Diagnostic {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getImageBaseLine() {
+        return imageBaseLine;
+    }
+
+    public void setImageBaseLine(String imageBaseLine) {
+        this.imageBaseLine = imageBaseLine;
+    }
+
+    public Integer getNumNewTumors() {
+        return numNewTumors;
+    }
+
+    public void setNumNewTumors(Integer numNewTumors) {
+        this.numNewTumors = numNewTumors;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
     
     

@@ -68,8 +68,8 @@ var CoExpTable = (function() {
                 $("#" + divId).append(
                     "<table width='95%'>" +
                     "<tr>" +
-                    "<td width='40%' valign='top'><div id='" + tableDivId + "'></div></td>" +
-                    "<td width='60%' valign='top'><div id='" + plotId + "'></div></td>" +
+                    "<td width='30%' valign='top'><div id='" + tableDivId + "'></div></td>" +
+                    "<td width='70%' valign='top'><div id='" + plotId + "'></div></td>" +
                     "</tr>" +
                     "</table>");
 
@@ -83,7 +83,7 @@ var CoExpTable = (function() {
                 $("#" + tableId).append(
                     "<thead style='font-size:70%;' >" +
                     "<tr>" + 
-                    "<th>Correlated(+)/Anti-correlated(-) Genes</th>" +
+                    "<th>Correlated(+)/<br>Anti-correlated(-) Genes</th>" +
                     "<th>Pearson's Correlation</th>" +
                     "<th>Spearman's Correlation</th>" +
                     "</tr>" +
@@ -110,18 +110,19 @@ var CoExpTable = (function() {
                         {
                             "bSearchable": true,
                             "aTargets": [ 0 ],
-                            "sWidth": "42%"
+                            "sWidth": "44%"
                         },
                         {
                             "sType": 'coexp-absolute-value',
                             "bSearchable": false,
                             "aTargets": [ 1 ],
-                            "sWidth": "29%"
+                            "sWidth": "28%"
                         },
                         {
+                            "sType": 'coexp-absolute-value',
                             "bSearchable": false,
                             "aTargets": [ 2 ],
-                            "sWidth": "29%"
+                            "sWidth": "28%"
                         }
                     ],
                     "sScrollY": "560px",
@@ -135,9 +136,12 @@ var CoExpTable = (function() {
                         $('td:eq(1)', nRow).css("font-weight", "bold");
                         if (aData[1] > 0) {
                             $('td:eq(1)', nRow).css("color", "#3B7C3B");
-                            $('td:eq(2)', nRow).css("color", "#3B7C3B");
                         } else {
                             $('td:eq(1)', nRow).css("color", "#B40404");
+                        }
+                        if (aData[2] > 0) {
+                            $('td:eq(2)', nRow).css("color", "#3B7C3B");
+                        } else {
                             $('td:eq(2)', nRow).css("color", "#B40404");
                         }
                     },
@@ -148,13 +152,13 @@ var CoExpTable = (function() {
                 $("#" + tableDivId).find('.coexp-table-filter-custom').append(
                     "<select id='coexp-table-select'>" +
                     "<option value='all'>Show All</option>" +
-                    "<option value='positive'>Show Only Positive Correlated</option>" +
-                    "<option value='negative'>Show Only Negative Correlated</option>" +
+                    "<option value='positivePearson'>Show Only Positive Correlated (Pearson's)</option>" +
+                    "<option value='negativePearson'>Show Only Negative Correlated (Pearson's)</option>" +
                     "</select>");
                 $('select#coexp-table-select').change( function () {
-                    if ($(this).val() === "negative") {
+                    if ($(this).val() === "negativePearson") {
                         _coExpTable.fnFilter("-", 1, false);
-                    } else if ($(this).val() === "positive") {
+                    } else if ($(this).val() === "positivePearson") {
                         _coExpTable.fnFilter('^[0-9]*\.[0-9]*$', 1, true);
                     } else if ($(this).val() === "all") {
                         _coExpTable.fnFilter("", 1);

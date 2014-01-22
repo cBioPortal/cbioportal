@@ -70,20 +70,22 @@ var PlotsHeader = (function() {
     function appendControlPanel(_log_x, _log_y) {
         $("#" + divName).append(
             "<div id='" + controlPanelDiv + "' " +
-            "style='margin-top: 15px; margin-bottom: 0px; margin-right: 30px; float:right;'></div>");
+            "style='margin-top: 15px; margin-bottom: 0px; margin-right: 53px; float:right;'></div>");
         $("#" + controlPanelDiv).append(
-            "Show Mutations" +
-            "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' /> " 
-            );
+            "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' checked/>" +
+            "Show Mutations &nbsp;&nbsp;&nbsp;" 
+        );
         if (_log_x) {
             $("#" + controlPanelDiv).append(
-                "Log Scale X<input type='checkbox' id='" + controlPanelDiv + "_x' " + 
-                "onchange=\"ScatterPlots.updateScaleX('" + controlPanelDiv + "_x');\" /> ");
+                "<input type='checkbox' id='" + controlPanelDiv + "_x' " + 
+                "onchange=\"ScatterPlots.updateScaleX('" + controlPanelDiv + "_x');\" />" + 
+                "Log Scale X &nbsp;&nbsp;&nbsp;");
         }
         if (_log_y) {
             $("#" + controlPanelDiv).append(
-                "Log Scale Y<input type='checkbox' id='" + controlPanelDiv + "_y' " +
-                "onchange=\"ScatterPlots.updateScaleY('" + controlPanelDiv + "_y');\" /> "); 
+                "<input type='checkbox' id='" + controlPanelDiv + "_y' " +
+                "onchange=\"ScatterPlots.updateScaleY('" + controlPanelDiv + "_y');\" />" +
+                "Log Scale Y &nbsp;&nbsp;&nbsp;"); 
         }
     }
 
@@ -109,7 +111,7 @@ var PlotsHeader = (function() {
             appendPdfConverter();
             appendSvgConverter();
             appendControlPanel(_log_x, _log_y);
-            addEventListener(_plotsDiv);
+            //addEventListener(_plotsDiv);
         },
         loadSvg: function(_divName) {
             return $("#" + _divName).html();

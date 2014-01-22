@@ -47,8 +47,9 @@ var ScatterPlots = (function() {
         elem = {},
         text = {},
         names = {}, //ids
+        legends = [],
         dataArr = [],
-        dataAttr = [];
+        dataAttr = {};
 
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
@@ -59,6 +60,7 @@ var ScatterPlots = (function() {
         elem = jQuery.extend(true, {}, options.elem);
         text = jQuery.extend(true, {}, options.text);
         names = jQuery.extend(true, {}, options.names);
+        legends = options.legends;
         dataAttr = jQuery.extend(true, {}, _dataAttr);
     }
 
@@ -132,7 +134,6 @@ var ScatterPlots = (function() {
             .style("shape-rendering", "crispEdges")
             .attr("transform", "translate(0, " + canvas.yTop + ")")
             .call(elem.xAxis.orient("bottom").ticks(0));
-
     }
 
     function generateAxisY() {
@@ -221,6 +222,32 @@ var ScatterPlots = (function() {
             .attr("stroke-width", style.stroke_width);
     }
 
+
+    function drawLegends() {
+        var legend = elem.svg.selectAll(".legend")
+            .data(legends)
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d, i) {
+                return "translate(600, " + (24 + i * 14) + ")";
+            })
+        
+        legend.append("path")
+            .attr("d", d3.svg.symbol()
+                .size(function(d) { return d.size; })
+                .type(function(d) { return d.shape; }))
+            .attr("fill", function (d) { return d.fill; })
+            .attr("stroke", function (d) { return d.stroke; })
+            .attr("stroke-width", function(d) { return d.stroke_width; });
+
+        legend.append("text")
+            .attr("dx", ".75em")
+            .attr("dy", ".35em")
+            .attr("text-anchor", "front")
+            .style("font-size", "11")
+            .text(function(d) { return d.text; });
+    }
+
     function addQtips() {
         elem.dotsGroup.selectAll('path').each(
             function(d) {
@@ -233,7 +260,6 @@ var ScatterPlots = (function() {
                         position: {my:'left bottom',at:'top right'}
                     }
                 );
-
             }
         );
         //Hover Animation
@@ -339,6 +365,7 @@ var ScatterPlots = (function() {
             appendAxisTitleY(false);
             drawPlots();
             addQtips();
+            drawLegends();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)

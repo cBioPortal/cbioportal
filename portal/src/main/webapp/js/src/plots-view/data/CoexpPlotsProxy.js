@@ -6,19 +6,35 @@ var CoexpPlotsProxy = (function() {
             max_x: "",
             min_y: "",
             max_y: "",
-            profile_name: ""
+            profile_name: "",
+            mut_x : false, //have case(s) mutated in only gene x
+            mut_y : false,  //have case(s) mutated in only gene y
+            mut_both: false, //have case(s) mutated in both genes
         };
     var mutationMap = {};   
 
     function convertData(_alteration_data_result, geneX, geneY) {
+        attr.mut_both = false;
+        attr.mut_x = false;
+        attr.mut_y = false;
         var geneXArr = _alteration_data_result[geneX];
         var geneYArr = _alteration_data_result[geneY];
-
+        
         $.each(geneXArr, function(index) {
 
             var datum = jQuery.extend(true, {}, PlotsBoilerplate.datum);
             var _obj_x = geneXArr[index];
             var _obj_y = geneYArr[index];
+
+            datum.x_val = _obj_x["value"];
+            datum.y_val = _obj_y["value"];
+            datum.case_id = _obj_x["caseId"];
+            datum.qtip = "Case ID: <strong><a href='tumormap.do?case_id=" + 
+                         _obj_x["caseId"] + "&cancer_study_id=" +
+                         window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
+                         _obj_x["caseId"] + "</a></strong><br>" + 
+                         geneX + ": <strong>" + parseFloat(_obj_x["value"]).toFixed(3) + "</strong><br>" +
+                         geneY + ": <strong>" + parseFloat(_obj_y["value"]).toFixed(3) + "</strong>";
 
             //Find if having mutation(s)
             if (mutationMap.hasOwnProperty(_obj_x["caseId"].toLowerCase())) {
@@ -27,35 +43,46 @@ var CoexpPlotsProxy = (function() {
                     var _tmp_obj = {};
                     _tmp_obj["protein_change"] = obj.proteinChange;
                     _tmp_obj["mutation_type"] = obj.mutationType;
-                    if (obj.geneSymbol === geneX) {
-                        if (!_mut_obj.hasOwnProperty(geneX)) {
-                            var _tmp_arr = [];
-                            _tmp_arr.push(_tmp_obj);
-                            _mut_obj[geneX] = _tmp_arr;   
-                        } else {
-                            _mut_obj[geneX].push(_tmp_obj);
+                    if (obj.geneSymbol === geneX || obj.geneSymbol === geneY) {
+                        if (obj.geneSymbol === geneX) {
+                            attr.mut_x = true;
+                            if (!_mut_obj.hasOwnProperty(geneX)) {
+                                var _tmp_arr = [];
+                                _tmp_arr.length = 0;
+                                _tmp_arr.push(_tmp_obj);
+                                _mut_obj[geneX] = _tmp_arr;   
+                                datum.qtip = datum.qtip + "<br>" + geneX + " Mutation: " + 
+                                             "<strong>" + obj.proteinChange + "</strong>";
+                            } else {
+                                _mut_obj[geneX].push(_tmp_obj);
+                                datum.qtip = datum.qtip + ", " + "<strong>" + obj.proteinChange + "</strong>";
+                            }
+                        } else if(obj.geneSymbol === geneY) {
+                            attr.mut_y = true;
+                            if (!_mut_obj.hasOwnProperty(geneY)) {
+                                var _tmp_arr = [];
+                                _tmp_arr.length = 0;
+                                _tmp_arr.push(_tmp_obj);
+                                _mut_obj[geneY] =  _tmp_arr; 
+                                datum.qtip = datum.qtip + "<br>" + geneY + " Mutation: " + 
+                                             "<strong>" + obj.proteinChange + "</strong>";  
+                            } else {
+                                _mut_obj[geneY].push(_tmp_obj);
+                                datum.qtip = datum.qtip + ", " + "<strong>" + obj.proteinChange + "</strong>";
+                            }
                         }
-                    } else if(obj.geneSymbol === geneY) {
-                        if (!_mut_obj.hasOwnProperty(geneY)) {
-                            var _tmp_arr = [];
-                            _tmp_arr.push(_tmp_obj);
-                            _mut_obj[geneY] =  _tmp_arr;   
-                        } else {
-                            _mut_obj[geneY].push(_tmp_obj);
-                        }
+                        datum["mutation"] = _mut_obj;
+                        //construct data mut attr
+                        if (_mut_obj.hasOwnProperty(geneX) && _mut_obj.hasOwnProperty(geneY)) {
+                            attr.mut_both = true;
+                        } else if (_mut_obj.hasOwnProperty(geneX) && !_mut_obj.hasOwnProperty(geneY)) {
+                            attr.mut_x = true;
+                        } else if (!_mut_obj.hasOwnProperty(geneX) && _mut_obj.hasOwnProperty(geneY)) {
+                            attr.mut_y = true;
+                        } 
                     }
                 }); 
-                datum["mutation"] = _mut_obj;
             }
-            datum.x_val = _obj_x["value"];
-            datum.y_val = _obj_y["value"];
-            datum.case_id = _obj_x["caseId"];
-            datum.qtip = "Case ID : <strong><a href='tumormap.do?case_id=" + 
-                         _obj_x["caseId"] + "&cancer_study_id=" +
-                         window.PortalGlobals.getCancerStudyId() + "' target='_blank'>" + 
-                         _obj_x["caseId"] + "</a></strong><br>" + 
-                         geneX + " : <strong>" + parseFloat(_obj_x["value"]).toFixed(3) + "</strong><br>" +
-                         geneY + " : <strong>" + parseFloat(_obj_y["value"]).toFixed(3) + "</strong>";
             dataArr.push(datum);
         });
     }

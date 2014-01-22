@@ -51,7 +51,7 @@ var PlotsBoilerplate = {
         shape: "circle" //default, may vary for different mutation types
     },
     canvas : {  //position of components
-        width: 600,
+        width: 700,
         height: 595,
         xLeft: 90,     //The left/starting point for x axis
         xRight: 590,   //The right/ending point for x axis
@@ -80,5 +80,11 @@ var PlotsBoilerplate = {
         yTitle: "",
         title: "",
         fileName: "",
-    }
+        legends: {
+            gene_x_mut: "gene_x mutated",
+            gene_y_mut: "gene_y mutated",
+            gene_both_mut: "Both mutated",
+            non_mut: "Neither mutated"
+        }
+    },
 };

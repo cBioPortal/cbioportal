@@ -42,7 +42,8 @@ var CoexpPlotsView = (function() {
         canvas: "",
         elem: "",
         names: "",
-        text: ""
+        text: "",
+        legends: []
     };
 
     function settings(_divName, _geneX, _geneY, _dataAttr) {
@@ -73,7 +74,47 @@ var CoexpPlotsView = (function() {
         options.text.yTitle = _geneY + ", " + _dataAttr.profile_name;
         options.text.title = "Co-expression in mRNA Expression: " + _geneX + " vs. " + _geneY + "  ";
         options.text.fileName = "co_expression_result-" + _geneX + "-" + _geneY;
-
+        //construct legend items
+        options.legends.length = 0;
+        if (_dataAttr.mut_x) {
+            var _tmp_obj = {};
+            _tmp_obj["fill"] = options.style.mutations.gene_x_mutate_fill;
+            _tmp_obj["stroke"] = options.style.mutations.gene_x_mutate_stroke;
+            //TODO: set the info for individual cases
+            _tmp_obj["size"] = options.style.size;
+            _tmp_obj["shape"] = options.style.shape;
+            _tmp_obj["stroke_width"] = options.style.stroke_width;
+            _tmp_obj["text"] = options.text.legends.gene_x_mut.replace("gene_x", _geneX);
+            options.legends.push(_tmp_obj);
+        }
+        if (_dataAttr.mut_y) {
+            var _tmp_obj = {};
+            _tmp_obj["fill"] = options.style.mutations.gene_y_mutate_fill;
+            _tmp_obj["stroke"] = options.style.mutations.gene_y_mutate_stroke;
+            _tmp_obj["size"] = options.style.size;
+            _tmp_obj["shape"] = options.style.shape;
+            _tmp_obj["stroke_width"] = options.style.stroke_width;
+            _tmp_obj["text"] = options.text.legends.gene_y_mut.replace("gene_y", _geneY);
+            options.legends.push(_tmp_obj);
+        }
+        if (_dataAttr.mut_both) {
+            var _tmp_obj = {};
+            _tmp_obj["fill"] = options.style.mutations.gene_both_mutate_fill;
+            _tmp_obj["stroke"] = options.style.mutations.gene_both_mutate_stroke;
+            _tmp_obj["size"] = options.style.size;
+            _tmp_obj["shape"] = options.style.shape;
+            _tmp_obj["stroke_width"] = options.style.stroke_width;
+            _tmp_obj["text"] = options.text.legends.gene_both_mut;
+            options.legends.push(_tmp_obj);
+        }
+        var _tmp_obj = {};
+        _tmp_obj["fill"] = options.style.fill;
+        _tmp_obj["stroke"] = options.style.stroke;
+        _tmp_obj["size"] = options.style.size;
+        _tmp_obj["shape"] = options.style.shape;
+        _tmp_obj["stroke_width"] = options.style.stroke_width;
+        _tmp_obj["text"] = options.text.legends.non_mut;
+        options.legends.push(_tmp_obj);
     }
 
     function layout(_divName) {
@@ -105,22 +146,18 @@ var CoexpPlotsView = (function() {
     function styleMutatedCases(_dataArr, _geneX, _geneY) { //style the mutated cases based on this specific scenario
         $.each(_dataArr, function(index, obj) {
             if (obj.hasOwnProperty("mutation")) {
-                console.log(obj);
                 if (obj["mutation"].hasOwnProperty(_geneX) &&
                     obj["mutation"].hasOwnProperty(_geneY)) {
                     obj.stroke = options.style.mutations.gene_both_mutate_stroke;
                     obj.fill = options.style.mutations.gene_both_mutate_fill;
-                    obj.qtip = obj.qtip + " mutated in both";
                 } else if (obj["mutation"].hasOwnProperty(_geneX) &&
                     !obj["mutation"].hasOwnProperty(_geneY)) {
                     obj.stroke = options.style.mutations.gene_x_mutate_stroke;
                     obj.fill = options.style.mutations.gene_x_mutate_fill;
-                    obj.qtip - obj.qtip + " mutated in gene x";
                 } else if (!obj["mutation"].hasOwnProperty(_geneX) &&
                     obj["mutation"].hasOwnProperty(_geneY)) {
                     obj.stroke = options.style.mutations.gene_y_mutate_stroke;
                     obj.fill = options.style.mutations.gene_y_mutate_fill;
-                    obj.qtip = obj.qtip + " mutated in gene y";
                 } 
             } else {
                 obj.stroke = options.style.stroke;

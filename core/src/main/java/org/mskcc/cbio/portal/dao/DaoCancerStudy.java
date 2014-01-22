@@ -278,7 +278,8 @@ public final class DaoCancerStudy {
                 "delete from protein_array_data where CANCER_STUDY_ID=?;",
                 "delete from protein_array_cancer_study where CANCER_STUDY_ID=?;",
                 "delete from treatment where CANCER_STUDY_ID=?;",
-                "delete from clinical_event where CANCER_STUDY_ID=?;",
+                "delete from diagnostic where CANCER_STUDY_ID=?;",
+                "delete from lab_test where CANCER_STUDY_ID=?;",
                 "delete from cancer_study where CANCER_STUDY_ID=?;"
                 };
             for (String sql : sqls) {    

@@ -207,13 +207,13 @@ function initTabs() {
                 var maxX = 0;
                 
                 for(var i =1;i<=numColumns ; i++){
-                    var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+                    var rotatedX = $("#dataTable>thead>tr>th:nth-child("+i+")").width();
                     if(rotatedX > maxX)
                         maxX = rotatedX;
                 }
                 maxX -= 28;
                 for(var i =1;i<=numColumns ; i++){
-                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
+                    $("#dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
                 }     
                     
                 oTable.fnAdjustColumnSizing();

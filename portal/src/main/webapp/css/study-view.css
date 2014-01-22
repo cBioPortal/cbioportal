@@ -66,6 +66,31 @@ margin-left:20px;
 text-align: center;
 float:left;
 }
+#update {
+    float:left;
+    width:1000px;
+    margin:auto;
+}
+#dataTableLoading {
+    float:left;
+    width:1000px;
+    margin:auto;
+}
+#updateContent {
+    text-align:right;
+    width: 500px;
+    height: auto;
+    margin-left:auto;
+    margin-right:auto;
+    margin-bottom: 10px;
+    margin-top: 20px;
+}
+#dataTable_reset {
+    margin-right: 10px;
+}
+#dataTable_updateTable {
+    margin-right: 75px;
+}
 /* CLASS styles */
 .bar-chart g.brush rect.extent {
 fill:steelblue;

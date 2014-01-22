@@ -121,7 +121,7 @@ var dataTable;
 var removeKeyIndex = new Array();
 //console.log(studyId);
 
-dc.redrawAll = function(group) {
+dc.redrawAllDataTable = function(group) {
     var dataTable1 = $('#dataTable').dataTable();
     
     dataTable1.fnDestroy();
@@ -133,10 +133,10 @@ dc.redrawAll = function(group) {
     
     if(dc._renderlet !== null)
         dc._renderlet(group);
-		
-	
+        
     $('#dataTable').dataTable({
             "sScrollX": "1200px",
+            "sScrollY": "300px",
             "bPaginate": false,
             "bFilter":true,
             "bScrollCollapse": true
@@ -159,13 +159,17 @@ dc.redrawAll = function(group) {
     for(var i =1;i<=numColumns ; i++){
         $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
     }  
-                
+    
+    $("#dataTableLoading").css("display","none");
+    $("#data-table-chart").css("display","block");
+    
     new FixedColumns( dataTable1);
+               
+    
+    
     dataTable1.fnAdjustColumnSizing();
 
-    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\" />");
-    $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
-    $("#dataTable_filter label input").attr("value","");
+    $("#dataTable_filter label input").attr("value","");    
     $('#dataTable_header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){			
                     console.log("Inside...2");
@@ -182,10 +186,20 @@ dc.redrawAll = function(group) {
                     dc.redrawAll();
             }
     });
+    $('#dataTable_updateTable').click(function(){
+            document.getElementById("dataTableLoading").style.display = "block";
+            
+            $("#data-table-chart").css("display","none");
+            dc.redrawAllDataTable("group1");            
+            $("#dataTableLoading").css("display","none");
+            $("#data-table-chart").css("display","block");
+    });
     $('#dataTable_reset').click(function(){
             dataTable.filter(null);
             dc.redrawAll();
+            dc.redrawAll("group1");
     });
+    
 };
 
 var studyView = function(){
@@ -357,6 +371,7 @@ var studyView = function(){
         */
         
         var ndx = crossfilter(dataB);
+        //var ndx1 = crossfilter(dataB);
         var all = ndx.groupAll();
 
         //Initial all pie charts
@@ -482,7 +497,7 @@ var studyView = function(){
         }
         */
        
-        dataTable = dc.dataTableDataOnly("#dataTable");
+        dataTable = dc.dataTableDataOnly("#dataTable","group1");
         var CASEID = ndx.dimension(function (d) {
                 return d.CASE_ID;
         });	
@@ -586,6 +601,7 @@ var studyView = function(){
         .transitionDuration(1200);
         
         dc.renderAll();
+        dc.renderAll("group1");
         
         return varName;
     };    
@@ -593,11 +609,12 @@ var studyView = function(){
     function restyle(columnNameSelected,columnNameTotal){
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
+            "sScrollY": "300px",
             "bPaginate": false,
             "bFilter":true,
             "bScrollCollapse": true
         });
-        new FixedColumns( dataTable1 );
+        //new FixedColumns( dataTable1 );
         //console.log(columnNameTotal);
         var keyIndex = new Array();
         for(var i =0 ; i< columnNameSelected.length ; i++){
@@ -613,8 +630,6 @@ var studyView = function(){
                 dataTable1.fnSetColumnVis(i,false);
             }
         }
-        $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_header\" class='header_button' value = \"Update Charts\"/>");
-        $('#dataTable_filter').append("<input type=\"button\" id=\"dataTable_reset\" class='header_button' value = \"Reset\" />");
         $("#dataTable_filter label input").attr("value","");
         $('#dataTable_header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){			
@@ -632,6 +647,10 @@ var studyView = function(){
                     dataTable.filter(null);
                     dc.redrawAll();
             }
+        });
+        $('#dataTable_updateTable').click(function(){
+            document.getElementById("dataTableLoading").style.display = "block";
+            dc.redrawAllDataTable("group1"); 
         });
     }
     

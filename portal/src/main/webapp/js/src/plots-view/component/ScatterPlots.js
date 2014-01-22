@@ -222,6 +222,32 @@ var ScatterPlots = (function() {
             .attr("stroke-width", style.stroke_width);
     }
 
+    function hideMutations() { //remove special styles for mutated cases
+        elem.dotsGroup.selectAll("path").remove();
+        elem.dotsGroup.selectAll("path")
+            .data(dataArr)
+            .enter()
+            .append("svg:path")
+            .attr("transform", function(d) {
+                //Remember current positions for the later transition animation
+                $(this).attr("x_val", d.x_val);
+                $(this).attr("y_val", d.y_val);
+                $(this).attr("x_pos", elem.xScale(d.x_val)); 
+                $(this).attr("y_pos", elem.yScale(d.y_val));
+                return "translate(" + elem.xScale(d.x_val) + ", " + elem.yScale(d.y_val) + ")";
+            })
+            .attr("d", d3.svg.symbol()
+                .size(style.size)
+                .type(style.shape))
+            .attr("fill", function(d) {
+                return style.fill;
+            })
+            .attr("stroke", function(d) {
+                return style.stroke;
+            })
+            .attr("stroke-width", style.stroke_width);
+    }
+
 
     function drawLegends() {
         var legend = elem.svg.selectAll(".legend")
@@ -392,8 +418,18 @@ var ScatterPlots = (function() {
             appendAxisTitleY(_applyLogScale);
             updatePlotsLogScale("y", _applyLogScale);
         },
-        showMutations: function() {
-
+        updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
+            var _showMutations = document.getElementById(_divName).checked;
+            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            if (_showMutations) {
+                drawPlots();
+            } else {
+                hideMutations();
+            }
+            updatePlotsLogScale("x", _applyLogScale_x);
+            updatePlotsLogScale("y", _applyLogScale_y);
+            addQtips();
         }
     }
 

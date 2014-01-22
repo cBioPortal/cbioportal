@@ -72,7 +72,11 @@ var PlotsHeader = (function() {
             "<div id='" + controlPanelDiv + "' " +
             "style='margin-top: 15px; margin-bottom: 0px; margin-right: 53px; float:right;'></div>");
         $("#" + controlPanelDiv).append(
-            "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' checked/>" +
+            "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' checked " +
+            "onchange=\"ScatterPlots.updateMutations(" + 
+            "'" + controlPanelDiv + "_show_mutation'" + ", " +  
+            "'" + controlPanelDiv + "_x'" + ", " + 
+            "'" + controlPanelDiv + "_y'" + ");\" />" +
             "Show Mutations &nbsp;&nbsp;&nbsp;" 
         );
         if (_log_x) {

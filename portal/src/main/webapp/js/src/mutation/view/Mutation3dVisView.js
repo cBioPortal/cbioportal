@@ -434,6 +434,10 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var content = _.template($("#mutation_3d_structure_color_tip_template").html());
 		var options = self._generateTooltipOpts(content);
+
+		// make it wider
+		options.style.classes += " qtip-wide";
+
 		info.qtip(options);
 	},
 	/**
@@ -465,7 +469,7 @@ var Mutation3dVisView = Backbone.View.extend({
 			hide: {fixed: true, delay: 100, event: 'mouseout'},
 			show: {event: 'mouseover'},
 			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
-			position: {my:'bottom right', at:'top center'}};
+			position: {my:'top right', at:'bottom center'}};
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.

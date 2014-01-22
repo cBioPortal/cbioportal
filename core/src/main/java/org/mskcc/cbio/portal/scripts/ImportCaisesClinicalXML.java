@@ -104,8 +104,10 @@ public final class ImportCaisesClinicalXML {
             
             List<LabTest> labTests = parseLabTests(patientNode, patientId, cancerStudyId);
             for (LabTest labTest : labTests) {
-                labTest.setLabTestId(++labTestId);
-                DaoLabTest.addDatum(labTest);
+                if (validateLabTest(labTest)) {
+                    labTest.setLabTestId(++labTestId);
+                    DaoLabTest.addDatum(labTest);
+                }
             }
         }
         
@@ -121,32 +123,28 @@ public final class ImportCaisesClinicalXML {
             labTest.setCaseId(patientId);
             
             Node node  = labTestNode.selectSingleNode("LabDate");
-            if (node==null) {
-                continue;
-            }
-            try {
-                labTest.setDate(Integer.parseInt(node.getText()));
-            } catch (NumberFormatException e) {
-                continue;
+            if (node!=null) {
+                try {
+                    labTest.setDate(Integer.parseInt(node.getText()));
+                } catch (NumberFormatException e) {
+
+                }
             }
             
             node  = labTestNode.selectSingleNode("LabTest");
-            if (node==null) {
-                continue;
+            if (node!=null) {
+                labTest.setTest(node.getText());
             }
-            labTest.setTest(node.getText());
             
             node  = labTestNode.selectSingleNode("LabResult");
-            if (node==null) {
-                continue;
-            }
-            try {
-                labTest.setResult(Double.parseDouble(node.getText()));
-            } catch (NumberFormatException e) {
-                continue;
+            if (node!=null) {
+                try {
+                    labTest.setResult(Double.parseDouble(node.getText()));
+                } catch (NumberFormatException e) {
+                }
             }
             
-            node  = labTestNode.selectSingleNode("LabUnites");
+            node  = labTestNode.selectSingleNode("LabUnits");
             if (node!=null) {
                 labTest.setUnit(node.getText());
             }
@@ -166,5 +164,18 @@ public final class ImportCaisesClinicalXML {
         
         
         return labTests;
+    }
+    
+    private static boolean validateLabTest(LabTest labTest) {
+        if (labTest.getDate()==null) {
+            return false;
+        }
+        if (labTest.getTest()==null) {
+            return false;
+        }
+        if (labTest.getResult()==null) {
+            return false;
+        }
+        return true;
     }
 }

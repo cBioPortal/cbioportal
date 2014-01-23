@@ -118,7 +118,14 @@ var PlotsHeader = (function() {
             //addEventListener(_plotsDiv);
         },
         loadSvg: function(_divName) {
-            return $("#" + _divName).html();
+            //Remove the help icons
+            var elem_x_help = $("#" + _divName + " .plots-title-x-help").remove();
+            var elem_y_help = $("#" + _divName + " .plots-title-y-help").remove();
+            //extract the "clean" svg
+            var result = $("#" + _divName).html();
+            //Add help icons back on
+            ScatterPlots.updateTitleHelp(controlPanelDiv + "_x", controlPanelDiv + "_y");
+            return result;
         }
     }
 

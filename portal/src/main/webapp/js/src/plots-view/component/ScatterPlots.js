@@ -112,13 +112,13 @@ var ScatterPlots = (function() {
     }
 
     function generateAxisX() {
-        d3.select("#" + names.body).select(".coexp-x-axis").remove();
+        d3.select("#" + names.body).select(".plots-x-axis").remove();
         elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("class", "coexp-x-axis")
+            .attr("class", "plots-x-axis")
             .attr("transform", "translate(0, " + canvas.yBottom + ")")
             .call(elem.xAxis)
             .selectAll("text")
@@ -137,13 +137,13 @@ var ScatterPlots = (function() {
     }
 
     function generateAxisY() {
-        d3.select("#" + names.body).select(".coexp-y-axis").remove();
+        d3.select("#" + names.body).select(".plots-y-axis").remove();
         elem.axisGroup.append("g")
             .style("stroke-width", 2)
             .style("fill", "none")
             .style("stroke", "grey")
             .style("shape-rendering", "crispEdges")
-            .attr("class", "coexp-y-axis")
+            .attr("class", "plots-y-axis")
             .attr("transform", "translate(" + canvas.xLeft + ", 0)")
             .call(elem.yAxis)
             .selectAll("text")
@@ -162,8 +162,8 @@ var ScatterPlots = (function() {
     }
 
     function appendAxisTitleX(_applyLogScale) {
-        d3.select("#" + names.body).select(".coexp-title-x").remove();
-        d3.select("#" + names.body).select(".coexp-title-x-help").remove();
+        d3.select("#" + names.body).select(".plots-title-x").remove();
+        d3.select("#" + names.body).select(".plots-title-x-help").remove();
         if (_applyLogScale) {
             text.xTitle = text.xTitle + " (log2)";
         } else {
@@ -175,16 +175,16 @@ var ScatterPlots = (function() {
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold") 
-            .attr("class", "coexp-title-x")
+            .attr("class", "plots-title-x")
             .text(text.xTitle);
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "coexp-title-x-help")
+            .attr("class", "plots-title-x-help")
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + text.xTitle.length / 2 * 8)
             .attr("y", canvas.yBottom + 28)
             .attr("width", "16")
             .attr("height", "16");
-        elem.svg.select(".coexp-title-x-help").each(
+        elem.svg.select(".plots-title-x-help").each(
             function() {
                 $(this).qtip(
                     {
@@ -200,8 +200,8 @@ var ScatterPlots = (function() {
     }
 
     function appendAxisTitleY(_applyLogScale) {
-        d3.select("#" + names.body).select(".coexp-title-y").remove();
-        d3.select("#" + names.body).select(".coexp-title-y-help").remove();
+        d3.select("#" + names.body).select(".plots-title-y").remove();
+        d3.select("#" + names.body).select(".plots-title-y-help").remove();
         if (_applyLogScale) {
             text.yTitle = text.yTitle + " (log2)";
         } else {
@@ -214,16 +214,16 @@ var ScatterPlots = (function() {
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold")
-            .attr("class", "coexp-title-y") 
+            .attr("class", "plots-title-y") 
             .text(text.yTitle);
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
-            .attr("class", "coexp-title-y-help")
+            .attr("class", "plots-title-y-help")
             .attr("x", 33)
             .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - text.yTitle.length / 2 * 8 - 20)
             .attr("width", "16")
             .attr("height", "16");
-        elem.svg.select(".coexp-title-y-help").each(
+        elem.svg.select(".plots-title-y-help").each(
             function() {
                 $(this).qtip(
                     {
@@ -474,6 +474,12 @@ var ScatterPlots = (function() {
             updatePlotsLogScale("x", _applyLogScale_x);
             updatePlotsLogScale("y", _applyLogScale_y);
             addQtips();
+        },
+        updateTitleHelp: function(_divName_x_scale, _divName_y_scale) {
+            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            appendAxisTitleX(_applyLogScale_x);
+            appendAxisTitleY(_applyLogScale_y);
         }
     }
 

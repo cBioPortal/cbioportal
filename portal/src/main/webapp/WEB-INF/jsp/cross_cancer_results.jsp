@@ -25,7 +25,7 @@
 		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
 	}
 
-	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "");
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
 	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();

@@ -1074,7 +1074,7 @@
                     model: {
                         tab: tab,
                         priority: priority,
-                        genes: genes
+                        genes: genes.replace(/_/g, "/")
                     }
                 })).render();
             }

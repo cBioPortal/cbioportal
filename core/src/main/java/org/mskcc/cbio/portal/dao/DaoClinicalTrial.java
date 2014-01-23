@@ -120,7 +120,7 @@ public class DaoClinicalTrial {
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalTrial.class);
             pstmt = con.prepareStatement(
-                    "SELECT * FROM `clinical_trial_keywords` WHERE keyword LIKE ?"
+		    "SELECT PROTOCOLID FROM `clinical_trial_keywords` WHERE keyword LIKE ? GROUP BY PROTOCOLID"
             );
             pstmt.setString(1, "%" + keyword + "%");
             rs = pstmt.executeQuery();

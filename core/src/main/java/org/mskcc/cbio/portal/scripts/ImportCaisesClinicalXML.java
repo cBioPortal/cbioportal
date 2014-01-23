@@ -357,11 +357,6 @@ public final class ImportCaisesClinicalXML {
                 diagnostic.setNumNewTumors(parseInt(node.getText(),false));
             }
             
-            node = diagnosticNode.selectSingleNode("DxNotes");
-            if (node!=null) {
-                diagnostic.setNotes(node.getText());
-            }
-            
             diagnostics.add(diagnostic);
         }
         

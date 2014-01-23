@@ -819,6 +819,11 @@
                                 redrawHistogram();
                             });
 
+			    // By default hide unaltered studies and animate this to warn user about this change
+			    if( $("#histogram-remove-notaltered").trigger("click") ) {
+                                setTimeout(redrawHistogram, 3000);
+			    }
+
                             // Let's load the mutation details as well
                             var servletParams = {
                                 data_priority: priority

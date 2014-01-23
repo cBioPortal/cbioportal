@@ -213,11 +213,12 @@ function initTabs() {
                 }
                 maxX -= 28;
                 for(var i =1;i<=numColumns ; i++){
-                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
+                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
                 }     
                     
                 oTable.fnAdjustColumnSizing();
                 new FixedColumns( oTable);
+                $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
             }else{
                 console.log("No DataTable");
             }

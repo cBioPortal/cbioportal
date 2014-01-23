@@ -189,7 +189,7 @@ stroke: none;
 fill: #ccc;
 }
 .dc-chart .pie-slice {
-fill: black;
+fill: white;
 font-size: 10px;
 cursor: pointer;
 }

@@ -133,14 +133,14 @@ dc.redrawAllDataTable = function(group) {
     dataTable1.fnDestroy();
 	
     var charts = dc.chartRegistry.list(group);
-    for (var i = 0; i < charts.length; ++i) {
+    for (var i = 0; i < charts.length; i++) {
         charts[i].redraw();
     }
     
     if(dc._renderlet !== null)
         dc._renderlet(group);
         
-    $('#dataTable').dataTable({
+    dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
             "sScrollY": "300px",
             "bPaginate": false,
@@ -157,17 +157,17 @@ dc.redrawAllDataTable = function(group) {
     var maxX = 0;
 
     for(var i =1;i<=numColumns ; i++){
-        var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+        var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").height();
         if(rotatedX > maxX)
             maxX = rotatedX;
     }
-    maxX -= 28;
+    
     for(var i =1;i<=numColumns ; i++){
         $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
     }  
     
     new FixedColumns( dataTable1);
-               
+    $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");           
     
     
     dataTable1.fnAdjustColumnSizing();
@@ -450,30 +450,40 @@ var studyView = function(){
             var barScale = 50;
             
             varGroup[i] = varCluster[i].group();
-                varChart[i]
+                
+            varChart[i]
                 .width(560)
                 .height(200)
                 .margins({top: 10, right: 10, bottom: 30, left: 40})
                 .dimension(varCluster[i])
                 .group(varGroup[i])
-                .gap(0)
+                .gap(5)
                 .centerBar(true)
-                .elasticY(true)
+                .elasticY(false)
                 .mouseZoomable(false)
                 .brushOn(true)
                 .transitionDuration(1200)
         
-            if(varDisplay[i].search(/month/i) != -1){                
-                varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
-                varChart[i].yAxis().tickFormat(d3.format("d"));
-                varChart[i].xUnits(function(){return barScale;});
-            }else if(distanceMinMax < 1){
+            if(distanceMinMax < 1){
                 varChart[i].x(d3.scale.linear().nice([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
                 varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xAxis().ticks(10);
                 varChart[i].xUnits(function(){return barScale;});
+            }else if(distanceMinMax < 2){
+                varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
+                varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xAxis().ticks(10);
+                varChart[i].xUnits(function(){return barScale;});
+            }else if(varDisplay[i].search(/month/i) != -1){                
+                varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
+                varChart[i].xAxis().ticks(10);
+                varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xAxis().tickFormat(d3.format("d"));
             }else{
                 varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
                 varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xAxis().tickFormat(d3.format("d"));
+                varChart[i].xAxis().ticks(10);
                 varChart[i].xUnits(function(){return barScale;});
             }
         }

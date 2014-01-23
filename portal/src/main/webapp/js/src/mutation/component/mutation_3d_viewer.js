@@ -68,6 +68,7 @@ var Mutation3dVis = function(name, options)
 
 	// Predefined style scripts for Jmol
 	var _styleScripts = {
+		ballAndStick: "wireframe ONLY; wireframe 0.15; spacefill 20%;",
 		spaceFilling: "spacefill ONLY; spacefill 100%;",
 		ribbon: "ribbon ONLY;",
 		cartoon: "cartoon ONLY;",
@@ -485,41 +486,40 @@ var Mutation3dVis = function(name, options)
 		script.push("color [" + _options.chainColor + "];"); // set chain color
 		//script.push("translucent [" + _options.chainTranslucency + "];"); // set chain opacity
 
-		// TODO color only atoms of the selected chain?
-		//script.push("select :" + chain.chainId + ";"); // select the chain
-
-		// additional coloring (if selected)
+		// additional coloring for the selected chain
+		script.push("select :" + chain.chainId + ";");
 
 		if (_options.colorProteins == "byAtomType")
 		{
-			script.push("select all;"); // select everything
 			// TODO is this the default coloring?
 			script.push("color atoms CPK;");
 		}
 		else if (_options.colorProteins == "bySecondaryStructure")
 		{
-			script.push("select all;"); // select everything
-			// color secondary structure (including all chains)
-			script.push("select helix;"); // select alpha helices
+			// color secondary structure (for the selected chain)
+			script.push("select :" + chain.chainId + " and helix;"); // select alpha helices
 			script.push("color [" + _options.structureColors.alphaHelix + "];"); // set color
-			script.push("select sheet;"); // select beta sheets
+			script.push("select :" + chain.chainId + " and sheet;"); // select beta sheets
 			script.push("color [" + _options.structureColors.betaSheet + "];"); // set color
 		}
 		else if (_options.colorProteins == "byChain")
 		{
-			var resMin = chain.mergedAlignment.pdbFrom;
-			// TODO this is not exact max value, but should be visually OK
-			var resMax = resMin + chain.mergedAlignment.mergedString.length;
+			// min atom no within the selected chain
+			var rangeMin = "@{{:" + chain.chainId + "}.atomNo.min}";
+			// max atom no within the selected chain
+			var rangeMax = "@{{:" + chain.chainId + "}.atomNo.max}";
+
+			// max residue no within the selected chain
+			//var rangeMin = "@{{:" + chain.chainId + "}.resNo.min}";
+			// max residue no within the selected chain
+			//var rangeMax = "@{{:" + chain.chainId + "}.resNo.max}";
 
 			// select the chain
 			script.push("select :" + chain.chainId + ";");
 
-			// TODO atomIndex property creates smoother gradient, but we need the actual range,
-			// ...not specifying a range value actually works for some chains, but not for all.
-
 			// color the chain by rainbow coloring scheme (gradient coloring)
-			script.push('color atoms property resNo "roygb" ' +
-			            'range ' + resMin + ' ' + resMax + ';');
+			script.push('color atoms property atomNo "roygb" ' +
+			            'range ' + rangeMin + ' ' + rangeMax + ';');
 		}
 
 		// color mapped residues
@@ -562,21 +562,23 @@ var Mutation3dVis = function(name, options)
 			script.push("select " + scriptPos + ":" + _chain.chainId + ";");
 			script.push("color [" + _options.highlightColor + "];");
 
-			// display side chain (no effect for spacefilling)
+			// display side chain (no effect for space-filling)
 			if (!(_options.proteinScheme == "spaceFilling"))
 			{
-				// select the corresponding chain
+				// select the corresponding side chain
 				script.push("select " + scriptPos + ":" + _chain.chainId + " and sidechain;");
 
 				if (_options.displaySideChain)
 				{
-					// display the side chain with space-filling style
-					script.push("spacefill 100%;");
+					// display the side chain with ball&stick style
+					script.push("wireframe 0.15; spacefill 25%;");
+
+					// TODO also color side chain wrt atom type (CPK)?
 				}
 				else
 				{
 					// hide the side chain
-					script.push("spacefill OFF;");
+					script.push("wireframe OFF; spacefill OFF;");
 				}
 			}
 		});

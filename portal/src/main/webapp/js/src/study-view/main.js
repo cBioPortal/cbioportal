@@ -40,6 +40,15 @@ $(function() {
 });
 */ 
 $(function() {
+    $("#pie").sortable();
+    $("#row").sortable();
+    $("#bar").sortable();
+    
+    /*
+     * left panel : disabled 
+     * 
+     * 
+     *  
     var w = window.innerWidth;
     
     $("#dialog-form").css("left",w/2-450-260);
@@ -48,10 +57,7 @@ $(function() {
         var w = window.innerWidth;
         $("#dialog-form").css("left",w/2-450-260);
     });	
-
-    $("#pie").sortable();
-    $("#row").sortable();
-    $("#bar").sortable();
+    
     $("#dialog-form li").click(function() { 
         var strings = this.id.split("-menu");
         if(strings[0] != 'data-table'){
@@ -110,7 +116,7 @@ $(function() {
             }					
         }
     });
-
+    */
 });
         
 
@@ -160,9 +166,6 @@ dc.redrawAllDataTable = function(group) {
         $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
     }  
     
-    $("#dataTableLoading").css("display","none");
-    $("#data-table-chart").css("display","block");
-    
     new FixedColumns( dataTable1);
                
     
@@ -187,12 +190,7 @@ dc.redrawAllDataTable = function(group) {
             }
     });
     $('#dataTable_updateTable').click(function(){
-            document.getElementById("dataTableLoading").style.display = "block";
-            
-            $("#data-table-chart").css("display","none");
-            dc.redrawAllDataTable("group1");            
-            $("#dataTableLoading").css("display","none");
-            $("#data-table-chart").css("display","block");
+            dc.redrawAllDataTable("group1");
     });
     $('#dataTable_reset').click(function(){
             dataTable.filter(null);
@@ -339,24 +337,24 @@ var studyView = function(){
 
 
         for(var i=0; i< pie.length ; i++){
-            $("#pie").append("<div id=\"" + pie[i]["attr_id"] + "\" class='pie-chart'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+            $("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
             varName.push(pie[i]["attr_id"]);
             varDisplay.push(pie[i]["display_name"]);
-            varChart.push(dc.pieChart("#" + pie[i]["attr_id"]));
+            varChart.push(dc.pieChart("#pie_" + i));
         }
         
         for(var i=0,j=pie.length; i< row.length; i++,j++){
-            $("#row").append("<div id=\"" + row[i]["attr_id"] + "\" class='row-chart'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+            $("#row").append("<div id=\"row_" + i + "\" class='row-chart'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
             varName.push(row[i]["attr_id"]);
             varDisplay.push(row[i]["display_name"]);
-            varChart.push(dc.rowChart("#" + row[i]["attr_id"]));
+            varChart.push(dc.rowChart("#row_" + i));
         }
         
         for(var i=0,j=pie.length+row.length; i< bar.length ; i++,j++){
-            $("#bar").append("<div id=\"" + bar[i]["attr_id"] + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
+            $("#bar").append("<div id=\"bar_" + i + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
             varName.push(bar[i]["attr_id"]);
             varDisplay.push(bar[i]["display_name"]);
-            varChart.push(dc.barChart("#" + bar[i]["attr_id"]));
+            varChart.push(dc.barChart("#bar_" + i));
         }
         /*
         if(smallPie.length > 0){
@@ -448,31 +446,36 @@ var studyView = function(){
                 //console.log("original Value:" + d[varName[i]] + " Return Value:" + returnValue);
                 return returnValue;
             });
-            //if(varValues.length===0)
-                //continue;
-            var xunitsWidth = 1;
             
-            if(distanceMinMax !== 0){
-                //xunitsWidth = varValues.length / distanceMinMax / 2;
-                xunitsWidth = distanceMinMax * 3;
-                        //console.log(xunitsWidth);
-            }
-                
+            var barScale = 50;
+            
             varGroup[i] = varCluster[i].group();
-            varChart[i]
-            .width(560)
-            .height(200)
-            .margins({top: 10, right: 10, bottom: 30, left: 40})
-            .dimension(varCluster[i])
-            .group(varGroup[i])
-            .centerBar(true)
-            .elasticY(true)
-            .mouseZoomable(false)
-            .brushOn(true)
-            .transitionDuration(1200)
-            .x(d3.scale.linear().domain([d3.round(Math.min.apply( Math, varValues ),2), d3.round(Math.max.apply( Math, varValues ),2)]))
-            .yAxis().tickFormat(d3.format("d"));
-            varChart[i].xUnits(function(){return 50;});
+                varChart[i]
+                .width(560)
+                .height(200)
+                .margins({top: 10, right: 10, bottom: 30, left: 40})
+                .dimension(varCluster[i])
+                .group(varGroup[i])
+                .gap(0)
+                .centerBar(true)
+                .elasticY(true)
+                .mouseZoomable(false)
+                .brushOn(true)
+                .transitionDuration(1200)
+        
+            if(varDisplay[i].search(/month/i) != -1){                
+                varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
+                varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xUnits(function(){return barScale;});
+            }else if(distanceMinMax < 1){
+                varChart[i].x(d3.scale.linear().nice([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
+                varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xUnits(function(){return barScale;});
+            }else{
+                varChart[i].x(d3.scale.linear().domain([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
+                varChart[i].yAxis().tickFormat(d3.format("d"));
+                varChart[i].xUnits(function(){return barScale;});
+            }
         }
         
         /*
@@ -649,7 +652,7 @@ var studyView = function(){
             }
         });
         $('#dataTable_updateTable').click(function(){
-            document.getElementById("dataTableLoading").style.display = "block";
+            $//("#dataTableLoading").css("display", "block");
             dc.redrawAllDataTable("group1"); 
         });
     }

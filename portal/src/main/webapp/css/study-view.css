@@ -82,7 +82,6 @@ float:left;
     height: auto;
     margin-left:auto;
     margin-right:auto;
-    margin-bottom: 10px;
     margin-top: 20px;
 }
 #dataTable_reset {
@@ -123,6 +122,11 @@ border-color: lightgrey;
 .pie-chart g{
 font-size:11px;
 }
+
+.pie-chart :active{
+    cursor: move;
+}
+
 .row-chart {
 float:left;
 width:300px;	

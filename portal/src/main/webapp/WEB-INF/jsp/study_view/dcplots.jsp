@@ -60,15 +60,15 @@
     <div id="update">
         <div id="updateContent">
             <div style="float: right">
-                <input type='button' id='dataTable_header' class='header_button' value = 'Update Charts'/>
+                <input type='button' id='dataTable_header' class='header_button' value = 'Update Charts'/><!--
                 <input type='button' id='dataTable_reset' class='header_button' value = 'Reset'/>
+                                                                                                            -->
             </div>
             <img src="images/arrow_top.png" height='25px' alt='Update Charts' style="float: right"/>
-            <br/><br/>
             <div style="float: right">
                 <input type='button' id='dataTable_updateTable' class='header_button' value = 'Update Table' />
             </div>
-            <img src="images/arrow_bottom.png" height='25px' alt='Update  Table' style="float: right"/><br/>
+            <img src="images/arrow_bottom.png" height='25px' alt='Update  Table' style="float: right"/>
         </div>
     </div>
     <div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>

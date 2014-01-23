@@ -55,15 +55,20 @@ var Mutation3dVis = function(name, options)
 		                          // "byAtomType": effective only for space-filling scheme
 		                          // "byChain": not effective for space-filling scheme
 		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
-		                                  // "byAtomType": use default atom colors
-		mutationColor: "xFF0000", // color of the mutated residues (can also be a function)
+		                                  // "uniform": use a single color
+		                                  // "none": do not color (use default atom colors)
+		mutationColor: "xFF0000", // uniform color of the mutated residues
 		highlightColor: "xFFDD00", // color of the user-selected mutations
 		displaySideChain: true, // whether to display side chain for highlighted mutations
 		defaultZoom: 100, // default (unfocused) zoom level
 		focusZoom: 250, // focused zoom level
 		containerPadding: 10, // padding for the vis container (this is to prevent overlapping)
 		// TODO minimized length is actually depends on padding values, it might be better to calculate it
-		minimizedHeight: 10 // minimized height of the container (assuming this will hide everything but the title)
+		minimizedHeight: 10, // minimized height of the container (assuming this will hide everything but the title)
+		// color mapper function for mutations
+		mutationColorMapper: function (mutationId, pdbId, chain) {
+			return "xFF0000"; // just return the default color for all
+		}
 	};
 
 	// Predefined style scripts for Jmol
@@ -262,14 +267,14 @@ var Mutation3dVis = function(name, options)
 		var selection = {};
 		var color = _options.mutationColor;
 
-		// color code the mutated positions (residues)
+		// update the residue selection map wrt mutation color mapper
 		for (var mutationId in chain.positionMap)
 		{
 			var position = chain.positionMap[mutationId];
 
-			if (_.isFunction(_options.mutationColor))
+			if (_.isFunction(_options.mutationColorMapper))
 			{
-				color = _options.mutationColor(mutationId, pdbId, chain);
+				color = _options.mutationColorMapper(mutationId, pdbId, chain);
 			}
 
 			if (color == null)
@@ -523,13 +528,25 @@ var Mutation3dVis = function(name, options)
 		}
 
 		// color mapped residues
-		if (_options.colorMutations == "byMutationType")
+		if (_options.colorMutations != "none")
 		{
 			// color each residue with a mapped color (this is to sync with diagram colors)
 			for (var color in selection)
 			{
 				script.push("select " + selection[color].join(", ") + ";"); // select positions (mutations)
-				script.push("color [" + color + "];"); // color with corresponding mutation color
+
+				// use the actual mapped color
+				if (_options.colorMutations == "byMutationType")
+				{
+					// color with corresponding mutation color
+					script.push("color [" + color + "];");
+				}
+				// use a uniform color
+				else // if (_options.colorMutations == "uniform")
+				{
+					// color with a uniform mutation color
+					script.push("color [" + _options.mutationColor + "];");
+				}
 			}
 		}
 

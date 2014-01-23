@@ -108,7 +108,7 @@ var PdbPanelView = Backbone.View.extend({
 			return color;
 		};
 
-		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
+		vis.options.mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 
 		// update the view with the default chain
 		self._updateView(gene, defaultDatum.pdbId, defaultDatum.chain);

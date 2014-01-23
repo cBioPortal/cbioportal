@@ -111,7 +111,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		var mut3dVis = self.options.mut3dVis;
 
 		var sideChain = self.$el.find(".mutation-3d-side-chain");
-		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
 
 		// handler for side chain checkbox
 		sideChain.change(function() {
@@ -125,24 +124,37 @@ var Mutation3dVisView = Backbone.View.extend({
 			}
 		});
 
-		// handler for color type checkbox
-		colorByType.change(function() {
-			var color = colorByType.is(":checked");
-			var type = "byMutationType";
+		var colorMenu = self.$el.find(".mutation-3d-mutation-color-select");
 
-			// if not coloring by mutation type, then use default atom colors
-			if (!color)
-			{
-				type = "byAtomType";
-			}
+		colorMenu.change(function() {
+			var selected = $(this).val();
 
-			if (mut3dVis)
-			{
-				// update and reapply visual style
-				mut3dVis.updateOptions({colorMutations: type});
-				mut3dVis.reapplyStyle();
-			}
+			// update color options
+			mut3dVis.updateOptions({colorMutations: selected});
+
+			// refresh view with new options
+			mut3dVis.reapplyStyle();
 		});
+
+//		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
+//		// handler for color type checkbox
+//		colorByType.change(function() {
+//			var color = colorByType.is(":checked");
+//			var type = "byMutationType";
+//
+//			// if not coloring by mutation type, then use default atom colors
+//			if (!color)
+//			{
+//				type = "byAtomType";
+//			}
+//
+//			if (mut3dVis)
+//			{
+//				// update and reapply visual style
+//				mut3dVis.updateOptions({colorMutations: type});
+//				mut3dVis.reapplyStyle();
+//			}
+//		});
 
 		// add info tooltip for the color and side chain checkboxes
 		self._initMutationTypeInfo();
@@ -417,6 +429,10 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var content = _.template($("#mutation_3d_type_color_tip_template").html());
 		var options = self._generateTooltipOpts(content);
+
+		// make it wider
+		options.style.classes += " qtip-wide";
+
 		info.qtip(options);
 	},
 	/**

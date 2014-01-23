@@ -230,7 +230,7 @@
 						</tr>
 						<tr>
 							<td>
-								<table cellpadding="0">
+								<!--table cellpadding="0">
 									<tr>
 										<td>
 											<label>Color:</label>
@@ -245,25 +245,28 @@
 											<img class='mutation-type-color-help' src='{{helpImage}}'/>
 										</td>
 									</tr>
-									<!--tr>
+									<tr>
 										<td></td>
 										<td>
 											<label>
 												<input class='mutation-3d-mutation-color-by-atom'
-												       type='checkbox'>by atom type
+												       type='checkbox'>
+												atom type
 											</label>
 										</td>
-									</tr-->
-								</table>
-								<!-- alternative UI (with a dropdown menu)
+									</tr>
+								</table-->
 								<label>Color:</label>
 								<select class='mutation-3d-mutation-color-select'>
-									<option value='mutationType'
-									        title='Color by mutation type'>by mutation type</option>
-									<option value='atomType'
-									        title='Color by atom type'>by atom type</option>
+									<option value='uniform'
+									        title='Uniform color'>uniform</option>
+									<option value='byMutationType'
+									        selected='selected'
+									        title='Color by mutation type'>mutation type</option>
+									<option value='none'
+									        title='Do not color'>none</option>
 								</select>
-								-->
+								<img class='mutation-type-color-help' src='{{helpImage}}'/>
 							</td>
 						</tr>
 					</table>
@@ -274,17 +277,26 @@
 </script>
 
 <script type="text/template" id="mutation_3d_type_color_tip_template">
-	Enables residue coloring by mutation type. Mutation types
-	and corresponding color codes are as follows:<br>
+	Color options for the mapped mutations.<br>
 	<br>
-	<span class='missense_mutation'>Missense Mutations</span><br>
-	<span class='trunc_mutation'>Truncating Mutations</span>
-		(Nonsense, Nonstop, FS del, FS ins)<br>
-	<span class='inframe_mutation'>Inframe Mutations</span>
-		(IF del, IF ins)<br>
+	<b>Uniform:</b> Colors all mutated residues with a
+	<span class='trunc_mutation'>single color</span>.<br>
+	<b>Mutation type:</b> Enables residue coloring by mutation type.
+	Mutation types and corresponding color codes are as follows:
+	<ul>
+		<li><span class='missense_mutation'>Missense Mutations</span></li>
+		<li><span class='trunc_mutation'>Truncating Mutations</span>
+			(Nonsense, Nonstop, FS del, FS ins)</li>
+		<li><span class='inframe_mutation'>Inframe Mutations</span>
+			(IF del, IF ins)</li>
+		<li>
+			Residues colored with <span class='mutation-3d-tied'>purple</span> indicate tie condition
+		</li>
+	</ul>
+	<b>None:</b> Disables any special coloring for the mutated residues
+	except manually selected (highlighted) residues.<br>
 	<br>
-	Residues colored with <span class='mutation-3d-tied'>purple</span> indicate tie condition,
-	and highlighted residues are colored with <span class='mutation-3d-highlighted'>yellow</span>.
+	Note that, highlighted residues are colored with <span class='mutation-3d-highlighted'>yellow</span>.
 </script>
 
 <script type="text/template" id="mutation_3d_structure_color_tip_template">

@@ -151,8 +151,6 @@ dc.redrawAllDataTable = function(group) {
         dataTable1.fnSetColumnVis(removeKeyIndex[i],false);
     }
     
-    var rotationAngle = 315;
-    var radians = Math.PI * (rotationAngle/180);
     var numColumns = dataTable1.fnSettings().aoColumns.length;
     var maxX = 0;
 
@@ -167,7 +165,8 @@ dc.redrawAllDataTable = function(group) {
     }  
     
     new FixedColumns( dataTable1);
-    $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");           
+    $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");      
+    $(".DTFC_LeftHeadWrapper").css("background-color","white");     
     
     
     dataTable1.fnAdjustColumnSizing();
@@ -229,7 +228,6 @@ var studyView = function(){
                 for(var i=0; i < usefulData.length;i++){
                     if(usefulData[i]["caseId"] in dataObject){
                         dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
-                        //console.log(usefulData[i]["caseId"]);                
                     }
                     else{
                         dataObject[usefulData[i]["caseId"]] = new Array();
@@ -267,18 +265,14 @@ var studyView = function(){
         var dataA = new Array();
         var dataB = new Array();
         var pie = new Array();
-        var smallPie = new Array();
         var row = new Array();
         var rowKeys = new Array();
         var bar = new Array();
         var combine = new Array();
-        var table = new Array();
-        var num=0;
         var varName = new Array();
         var varDisplay = new Array();
         var varCluster = new Array();
         var varGroup = new Array();
-        //var varType = new Array();
         var chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
         "#990099","#0099c6","#dd4477","#66aa00",
         "#b82e2e","#316395","#994499","#22aa99",
@@ -293,10 +287,8 @@ var studyView = function(){
 
         
         for(var i=0; i< dataA.length ; i++){
-            //console.log(dataA[i]["datatype"]);
             var varValues = new Array();
             for(var j=0;j<dataB.length;j++){
-                //console.log(dataB[j][dataA[i]["attr_id"]])
                 if(varValues.hasOwnProperty(dataB[j][dataA[i]["attr_id"]]))
                     varValues[dataB[j][dataA[i]["attr_id"]]]++;
                 else
@@ -311,26 +303,8 @@ var studyView = function(){
                 else
                     pie.push(dataA[i]);
             }else if(dataA[i]["datatype"] === "STRING"){
-                /*
-                var keyMaxLength = 0;
-                var keys = Object.keys(varValues);
-                for(var j=0; j< keys.length ; j++)
-                    if(keys[j].length > keyMaxLength)
-                        keyMaxLength = keys[j].length;
-                
-                if(keyMaxLength > 10 || keys.length > 10){
-                    row.push(dataA[i]);
-                    rowKeys.push(keys);
-                }
-                else
-                */
-                    pie.push(dataA[i]);
+                pie.push(dataA[i]);
             }
-            /*
-            else if(dataA[i]["datatype"] === "BOOLEAN"){
-                smallPie.push(dataA[i]);
-            }
-            */
             else 
                 combine.push(dataA[i]);
         }
@@ -356,20 +330,8 @@ var studyView = function(){
             varDisplay.push(bar[i]["display_name"]);
             varChart.push(dc.barChart("#bar_" + i));
         }
-        /*
-        if(smallPie.length > 0){
-            $("#pie").append("<div id='data-chart'></div>");            
-            for(var i=0,j=pie.length+row.length+bar.length; i< smallPie.length ; i++,j++){
-                $("#data-chart").append("<div id=\"" + smallPie[i]["attr_id"] + "\" class='data-pie-chart'><pieH4>" + smallPie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
-                varName.push(smallPie[i]["attr_id"]);
-                varDisplay.push(smallPie[i]["display_name"]);
-                varChart.push(dc.pieChart("#" + smallPie[i]["attr_id"]));
-            }
-        }
-        */
         
         var ndx = crossfilter(dataB);
-        //var ndx1 = crossfilter(dataB);
         var all = ndx.groupAll();
 
         //Initial all pie charts
@@ -487,28 +449,6 @@ var studyView = function(){
                 varChart[i].xUnits(function(){return barScale;});
             }
         }
-        
-        /*
-        //Initial all small pie charts
-        for(var i=pie.length + row.length + bar.length; i< pie.length + row.length + bar.length + smallPie.length; i++){
-            varCluster[i] = ndx.dimension(function (d) {
-                return d[varName[i]];
-            });
-            
-            varGroup[i] = varCluster[i].group();
-            varChart[i]
-            .width(100)
-            .height(82)
-            .radius(40)
-            .ordinalColors(chartColors)
-            .dimension(varCluster[i])
-            .group(varGroup[i])
-            .label(function (d) {
-                return d.key + ":" + d.value;
-            });
-                      
-        }
-        */
        
         dataTable = dc.dataTableDataOnly("#dataTable","group1");
         var CASEID = ndx.dimension(function (d) {
@@ -627,8 +567,7 @@ var studyView = function(){
             "bFilter":true,
             "bScrollCollapse": true
         });
-        //new FixedColumns( dataTable1 );
-        //console.log(columnNameTotal);
+        
         var keyIndex = new Array();
         for(var i =0 ; i< columnNameSelected.length ; i++){
             var key = columnNameTotal.indexOf(columnNameSelected[i])
@@ -637,8 +576,7 @@ var studyView = function(){
             }
         }
         for(var i =0 ; i< columnNameTotal.length ; i++){
-            if(keyIndex.indexOf(i) === -1) {       
-                
+            if(keyIndex.indexOf(i) === -1) {
                 removeKeyIndex.push(i);
                 dataTable1.fnSetColumnVis(i,false);
             }
@@ -662,7 +600,6 @@ var studyView = function(){
             }
         });
         $('#dataTable_updateTable').click(function(){
-            $//("#dataTableLoading").css("display", "block");
             dc.redrawAllDataTable("group1"); 
         });
     }

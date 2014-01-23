@@ -225,10 +225,10 @@ function initTabs() {
                 oTable.fnAdjustColumnSizing();
                 new FixedColumns( oTable);
                 $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+                $(".DTFC_LeftHeadWrapper").css("background-color","white");
             }else{
                 console.log("No DataTable");
             }
-            console.log(tabLoaded);
         }
         
         return false;

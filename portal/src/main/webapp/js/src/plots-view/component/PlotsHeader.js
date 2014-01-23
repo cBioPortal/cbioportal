@@ -70,7 +70,7 @@ var PlotsHeader = (function() {
     function appendControlPanel(_log_x, _log_y) {
         $("#" + divName).append(
             "<div id='" + controlPanelDiv + "' " +
-            "style='margin-top: 15px; margin-bottom: 0px; margin-right: 53px; float:right;'></div>");
+            "style='margin-top: 15px; margin-bottom: 0px; margin-right: 100px; float:right;'></div>");
         $("#" + controlPanelDiv).append(
             "<input type='checkbox' id='" + controlPanelDiv + "_show_mutation' checked " +
             "onchange=\"ScatterPlots.updateMutations(" + 

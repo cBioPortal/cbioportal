@@ -85,85 +85,101 @@ public class GetCoExpressionJSON extends HttpServlet  {
         String caseIdsKey = httpServletRequest.getParameter("case_ids_key");
         boolean isFullResult = Boolean.parseBoolean(httpServletRequest.getParameter("is_full_result"));
 
-        //adjust the threshold if download request as full result
-        if (isFullResult) {
-          coExpScoreThreshold = 0;
-        }
-
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
         SpearmansCorrelation spearmansCorrelation = new SpearmansCorrelation();
         DaoGeneOptimized daoGeneOptimized = DaoGeneOptimized.getInstance();
-        ArrayList<JSONObject> fullResult = new ArrayList<JSONObject>();
 
         CanonicalGene geneObj = daoGeneOptimized.getGene(geneSymbol);
         Long queryGeneId = geneObj.getEntrezGeneId();
 
-    	  GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
-	      if (final_gp != null) {
+        if (!isFullResult) {
+          ArrayList<JSONObject> fullResultJson = new ArrayList<JSONObject>();
+          ArrayList<JSONObject> resultJson = new ArrayList<JSONObject>();
+          GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+          if (final_gp != null) {
             try {
                 Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
                 int mapSize = map.size();
                 List<Long> genes = new ArrayList<Long>(map.keySet());
-
                 for (int i = 0; i < mapSize; i++) {
                     double[] query_gene_exp = map.get(queryGeneId);
                     long compared_gene_id = genes.get(i);
                     double[] compared_gene_exp = map.get(compared_gene_id);
-
                     if (compared_gene_exp != null && query_gene_exp != null) {
                         double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
                         if ((pearson >= coExpScoreThreshold || pearson <= (-1) * coExpScoreThreshold ) &&
                            (compared_gene_id != queryGeneId)){
                             //Only calculate spearman with high scored pearson gene pairs.
                             double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            JSONObject _scores = new JSONObject();
                             CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                            JSONObject _scores = new JSONObject();
                             _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
                             _scores.put("pearson", pearson);
                             _scores.put("spearman", spearman);
-                            fullResult.add(_scores);
+                            fullResultJson.add(_scores);
                         }
                     }
                 }
-                fullResult = CoExpUtil.sortJsonArr(fullResult, "pearson");
-                ArrayList<JSONObject> result = new ArrayList<JSONObject>();
-                //Adjust the maxium length of final result based on if full result request
-                int _len = 0;
-                if (isFullResult) {
-                  _len = fullResult.size();
-                } else {
-                  _len = (fullResult.size() > resultLength ? resultLength : fullResult.size());
-                }
+                fullResultJson = CoExpUtil.sortJsonArr(fullResultJson, "pearson");
+                int _len = (fullResultJson.size() > resultLength ? resultLength : fullResultJson.size());
                 for (int i = 0; i < _len; i++) {
-                    result.add(fullResult.get(i));
+                    resultJson.add(fullResultJson.get(i));
                 }
-
-                //If requested full result, return text
-                if (isFullResult) {
-                  httpServletResponse.setContentType("text/html");
-                  PrintWriter out = httpServletResponse.getWriter();
-                  JSONValue.writeJSONString(result, out);
-                } else {
-                  System.out.println("IN NOT FULL RESULT");
-                  System.out.println("coExpScoreThreshold: " + coExpScoreThreshold);
-                  System.out.println("_len: " + _len);
-
-                  httpServletResponse.setContentType("application/json");
-                  PrintWriter out = httpServletResponse.getWriter();
-                  JSONValue.writeJSONString(result, out);
-                }
+                httpServletResponse.setContentType("application/json");
+                PrintWriter out = httpServletResponse.getWriter();
+                JSONValue.writeJSONString(resultJson, out);
             } catch (DaoException e) {
                 System.out.println(e.getMessage());
             }
-        } else {
+          } else {
             JSONObject emptyResult = new JSONObject();
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();
-            JSONValue.writeJSONString(emptyResult, out);
+            JSONValue.writeJSONString(emptyResult, out);            
+          }
+        } else {
+          StringBuilder fullResutlStr = new StringBuilder();
+          fullResutlStr.append("Gene Symbol\tPearson Score\tSpearman Score\n");
+          GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerStudyIdentifier);
+          if (final_gp != null) {
+            try {
+              Map<Long,double[]> map = CoExpUtil.getExpressionMap(final_gp.getGeneticProfileId(), caseSetId, caseIdsKey);
+              int mapSize = map.size();
+              List<Long> genes = new ArrayList<Long>(map.keySet());
+              for (int i = 0; i < mapSize; i++) {
+                  double[] query_gene_exp = map.get(queryGeneId);
+                  long compared_gene_id = genes.get(i);
+                  double[] compared_gene_exp = map.get(compared_gene_id);
+                  if (compared_gene_exp != null && query_gene_exp != null) {
+                      double pearson = pearsonsCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                      if(compared_gene_id != queryGeneId){
+                        double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
+                        CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                        fullResutlStr.append(
+                          comparedGene.getHugoGeneSymbolAllCaps() + "\t" + 
+                          pearson + "\t" + 
+                          spearman + "\n"
+                        );
+                      }
+                  }
+              }
+              httpServletResponse.setContentType("text/html");
+              httpServletResponse.setContentType("application/force-download");
+              httpServletResponse.setHeader("content-disposition", "inline; filename=coexp_result.txt");
+              PrintWriter out = httpServletResponse.getWriter();
+              JSONValue.writeJSONString(fullResutlStr, out);
+            } catch (DaoException e) {
+                System.out.println(e.getMessage());
+            }
+          } else {
+            JSONObject emptyResult = new JSONObject();
+            httpServletResponse.setContentType("application/json");
+            PrintWriter out = httpServletResponse.getWriter();
+            JSONValue.writeJSONString(emptyResult, out);            
+          }
         }
-
+      
     }
-
 }
 
 

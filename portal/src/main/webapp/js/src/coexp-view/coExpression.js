@@ -41,6 +41,10 @@ var CoExpTable = (function() {
             tableDivPreFix: "coexp_table_div_",
             tablePrefix: "coexp_table_",
             plotPrefix: "coexp_plot_"
+        },
+        dim = {
+            coexp_table_width: "350px",
+            coexp_plots_width: "720px"
         };
 
     var CoExpTable = (function() {
@@ -70,21 +74,25 @@ var CoExpTable = (function() {
 
                     $("#" + loadingImgId).hide();
                     $("#" + divId).append(
-                        "<table width='96%'>" +
+                        "<table>" +
                         "<tr>" +
-                        "<td width='45%' valign='top'><div id='" + tableDivId + "'></div></td>" +
-                        "<td width='55%' valign='top'><div id='" + plotId + "'></div></td>" +
+                        "<td width='" + dim.coexp_table_width + "' valign='top'><div id='" + tableDivId + "'></div></td>" +
+                        "<td width='" + dim.coexp_plots_width + "' valign='top'><div id='" + plotId + "'></div></td>" +
                         "</tr>" +
                         "</table>");
 
                     $("#" + tableDivId).addClass("coexp-table");
                     $("#" + tableDivId).addClass("coexp-plots");
                     $("#" + tableDivId).append("<table id='" + tableId + "' cellpadding='0' cellspacing='0' border='0' class='display'></table>");
-                    $("#" + tableDivId).append(
-                        "<a onclick=\"return CoExpTable.downloadFullResult('" + geneId + "');\" " + 
-                        "style='padding: 5px; font-weight: bold; color: #336699; float: right;'>" + 
-                        "[Download Full Result]</a>"
-                    );
+
+                    var downloadFullResultForm = "<form style='float:right;' action='getCoExp.do' method='post'>" +
+                        "<input type='hidden' name='cancer_study_id' value='" + window.PortalGlobals.getCancerStudyId() + "'>" +
+                        "<input type='hidden' name='gene' value='" + geneId + "'>" +
+                        "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
+                        "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
+                        "<input type='hidden' name='is_full_result' value='true'>" +
+                        "<input type='submit' value='Download Full Result'></form>";
+                    $("#" + tableDivId).append(downloadFullResultForm);
 
                     $("#" + tableId).append(
                         "<thead style='font-size:70%;' >" +
@@ -106,7 +114,7 @@ var CoExpTable = (function() {
                     });
 
                     var _coExpTable = $("#" + tableId).dataTable({
-                        "sDom": '<"H"<"coexp-table-filter-custom">f>t<"F"i>',
+                        "sDom": '<"H"f<"coexp-table-filter-custom">>t<"F"i>',
                         "sPaginationType": "full_numbers",
                         "bJQueryUI": true,
                         "bAutoWidth": false,
@@ -116,26 +124,26 @@ var CoExpTable = (function() {
                             {
                                 "bSearchable": true,
                                 "aTargets": [ 0 ],
-                                "sWidth": "44%"
+                                "sWidth": "56%"
                             },
                             {
                                 "sType": 'coexp-absolute-value',
                                 "bSearchable": false,
                                 "aTargets": [ 1 ],
-                                "sWidth": "28%"
+                                "sWidth": "22%"
                             },
                             {
                                 "sType": 'coexp-absolute-value',
                                 "bSearchable": false,
                                 "aTargets": [ 2 ],
-                                "sWidth": "28%"
+                                "sWidth": "22%"
                             }
                         ],
                         "sScrollY": "550px",
                         "bScrollCollapse": true,
                         iDisplayLength: 250,
                         "oLanguage": {
-                            "sSearch": "<font size='1.2px'>Search Gene</font>"
+                            "sSearch": "Search Gene"
                         },
                         "fnRowCallback": function(nRow, aData) {
                             $('td:eq(0)', nRow).css("font-weight", "bold");
@@ -274,9 +282,7 @@ var CoExpTable = (function() {
                 case_ids_key: window.PortalGlobals.getCaseIdsKey(),
                 is_full_result: "true"
             };
-            console.log(paramsGetCoExpData);
-            
-            //$.post("getCoExp.do", paramsGetCoExpData, getCoExpDataCallBack(geneId), "text");
+            $.post("getCoExp.do", paramsGetCoExpData);
         }
     };
 

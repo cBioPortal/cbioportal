@@ -8,12 +8,13 @@
 
 <style>
     #coexp .coexp-table-filter-custom {
-        width: 200px;
-        float: left;
+        width: 100%;
     }
-    #coexp .datatable-filter {
-        width: 180px;
-        float: right;
+    #coexp .datatables_filter {
+        width: 350px;
+        text-align: left;
+        font-size: 11px;
+        padding-left: 6px;
     }
 
     #coexp .dataTables_info {

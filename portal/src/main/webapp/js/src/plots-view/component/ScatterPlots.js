@@ -164,10 +164,11 @@ var ScatterPlots = (function() {
     function appendAxisTitleX(_applyLogScale) {
         d3.select("#" + names.body).select(".plots-title-x").remove();
         d3.select("#" + names.body).select(".plots-title-x-help").remove();
+        var _xTitle = "";
         if (_applyLogScale) {
-            text.xTitle = text.xTitle + " (log2)";
+            _xTitle = text.xTitle + " (log2)";
         } else {
-            text.xTitle = text.xTitle.replace(" (log2)", "");
+            _xTitle = text.xTitle;
         }
         elem.axisTitleGroup.append("text")
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
@@ -176,11 +177,11 @@ var ScatterPlots = (function() {
             .style("font-size", "12px")
             .style("font-weight", "bold") 
             .attr("class", "plots-title-x")
-            .text(text.xTitle);
+            .text(_xTitle);
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
-            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + text.xTitle.length / 2 * 8)
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
             .attr("y", canvas.yBottom + 28)
             .attr("width", "16")
             .attr("height", "16");
@@ -202,10 +203,11 @@ var ScatterPlots = (function() {
     function appendAxisTitleY(_applyLogScale) {
         d3.select("#" + names.body).select(".plots-title-y").remove();
         d3.select("#" + names.body).select(".plots-title-y-help").remove();
+        var _yTitle = "";
         if (_applyLogScale) {
-            text.yTitle = text.yTitle + " (log2)";
+            _yTitle = text.yTitle + " (log2)";
         } else {
-            text.yTitle = text.yTitle.replace(" (log2)", "");
+            _yTitle = text.yTitle;
         }
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
@@ -215,12 +217,12 @@ var ScatterPlots = (function() {
             .style("font-size", "12px")
             .style("font-weight", "bold")
             .attr("class", "plots-title-y") 
-            .text(text.yTitle);
+            .text(_yTitle);
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-y-help")
             .attr("x", 33)
-            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - text.yTitle.length / 2 * 8 - 20)
+            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
             .attr("width", "16")
             .attr("height", "16");
         elem.svg.select(".plots-title-y-help").each(
@@ -298,7 +300,7 @@ var ScatterPlots = (function() {
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function(d, i) {
-                return "translate(600, " + (24 + i * 14) + ")";
+                return "translate(" + (canvas.xRight + 10) + ", " + (24 + i * 14) + ")";
             })
         
         legend.append("path")

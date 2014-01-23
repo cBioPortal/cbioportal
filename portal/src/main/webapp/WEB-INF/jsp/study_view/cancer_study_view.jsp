@@ -190,6 +190,8 @@ function setUpStudyTabs() {
 
 function initTabs() {
     var tabContainers = $('.study-section');
+    var tabLoaded = false;
+    var maxX = 0;
     tabContainers.hide().filter(':first').show();
 
     $('.study-tab').click(function () {
@@ -204,24 +206,29 @@ function initTabs() {
                 var rotationAngle = 315;
                 var radians = Math.PI * (rotationAngle/180);
                 var numColumns = oTable.fnSettings().aoColumns.length;
-                var maxX = 0;
-                
-                for(var i =1;i<=numColumns ; i++){
-                    var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
-                    if(rotatedX > maxX)
-                        maxX = rotatedX;
+                if(!tabLoaded){
+                    for(var i =1;i<=numColumns ; i++){
+                        var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+                        if(rotatedX > maxX)
+                            maxX = rotatedX;
+                    }
+                    maxX -= 28;
+                    for(var i =1;i<=numColumns ; i++){
+                        $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
+                    }
+                    tabLoaded = true;
+                }else {
+                    for(var i =1;i<=numColumns ; i++){
+                        $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
+                    }
                 }
-                maxX -= 28;
-                for(var i =1;i<=numColumns ; i++){
-                    $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
-                }     
-                    
                 oTable.fnAdjustColumnSizing();
                 new FixedColumns( oTable);
                 $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
             }else{
                 console.log("No DataTable");
             }
+            console.log(tabLoaded);
         }
         
         return false;

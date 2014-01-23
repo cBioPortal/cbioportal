@@ -12,7 +12,7 @@
         float: left;
     }
     #coexp .datatable-filter {
-        width: 200px;
+        width: 180px;
         float: right;
     }
 
@@ -36,6 +36,9 @@
         font-family: Verdana,Arial,sans-serif;
         margin-bottom: 12px;
     }
+    .ui-state-disabled {
+        display: none;
+    }   
 </style>
 
 <div class="section" id="coexp">
@@ -61,13 +64,14 @@
 
 <script>
     $(document).ready( function() {
+        CoExpTable.initTabs();
+        CoExpTable.initView();
         var coexp_tab_init = false;
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
-                    CoExpTable.initTabs();
-                    CoExpTable.initView();
                     coexp_tab_init = true;
+                    $(window).trigger("resize");
                 } else {
                     $(window).trigger("resize");
                 }

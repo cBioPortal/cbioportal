@@ -163,6 +163,7 @@ var ScatterPlots = (function() {
 
     function appendAxisTitleX(_applyLogScale) {
         d3.select("#" + names.body).select(".coexp-title-x").remove();
+        d3.select("#" + names.body).select(".coexp-title-x-help").remove();
         if (_applyLogScale) {
             text.xTitle = text.xTitle + " (log2)";
         } else {
@@ -176,10 +177,31 @@ var ScatterPlots = (function() {
             .style("font-weight", "bold") 
             .attr("class", "coexp-title-x")
             .text(text.xTitle);
+        elem.axisTitleGroup.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", "coexp-title-x-help")
+            .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + text.xTitle.length / 2 * 8)
+            .attr("y", canvas.yBottom + 28)
+            .attr("width", "16")
+            .attr("height", "16");
+        elem.svg.select(".coexp-title-x-help").each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=1>" + text.xTitle + "</font>" },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'left bottom',at:'top right'}
+                    }
+                );
+            }
+        );
     }
 
     function appendAxisTitleY(_applyLogScale) {
         d3.select("#" + names.body).select(".coexp-title-y").remove();
+        d3.select("#" + names.body).select(".coexp-title-y-help").remove();
         if (_applyLogScale) {
             text.yTitle = text.yTitle + " (log2)";
         } else {
@@ -194,6 +216,26 @@ var ScatterPlots = (function() {
             .style("font-weight", "bold")
             .attr("class", "coexp-title-y") 
             .text(text.yTitle);
+        elem.axisTitleGroup.append("svg:image")
+            .attr("xlink:href", "images/help.png")
+            .attr("class", "coexp-title-y-help")
+            .attr("x", 33)
+            .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - text.yTitle.length / 2 * 8 - 20)
+            .attr("width", "16")
+            .attr("height", "16");
+        elem.svg.select(".coexp-title-y-help").each(
+            function() {
+                $(this).qtip(
+                    {
+                        content: {text: "<font size=1>" + text.yTitle + "</font>"},
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                        show: {event: "mouseover"},
+                        hide: {fixed:true, delay: 100, event: "mouseout"},
+                        position: {my:'right bottom',at:'top left'}
+                    }
+                );
+            }
+        );
     }
 
     function drawPlots() {
@@ -246,6 +288,7 @@ var ScatterPlots = (function() {
                 return style.stroke;
             })
             .attr("stroke-width", style.stroke_width);
+        elem.svg.selectAll(".legend").remove();
     }
 
 
@@ -424,6 +467,7 @@ var ScatterPlots = (function() {
             var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
             if (_showMutations) {
                 drawPlots();
+                drawLegends();
             } else {
                 hideMutations();
             }

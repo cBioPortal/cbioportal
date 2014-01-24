@@ -286,12 +286,16 @@ var MutationDetailsTableView = Backbone.View.extend({
 
 		vars.mutationId = mutation.mutationId;
         vars.mutationSid = mutation.mutationSid;
-        vars.caseId = mutation.caseId;
 		vars.linkToPatientView = mutation.linkToPatientView;
         vars.cancerType = mutation.cancerType;
         vars.cancerStudy = mutation.cancerStudy;
         vars.cancerStudyShort = mutation.cancerStudyShort;
         vars.cancerStudyLink = mutation.cancerStudyLink;
+
+		var caseId = self._getCaseId(mutation.caseId);
+		vars.caseId = caseId.text;
+		vars.caseIdClass = caseId.style;
+		vars.caseIdTip = caseId.tip;
 
         var proteinChange = self._getProteinChange(mutation);
 		vars.proteinChange = proteinChange.text;
@@ -380,6 +384,33 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.mutationCountClass = mutationCount.style;
 
 		return vars;
+	},
+    /**
+     * Returns the text content, the css class, and the tooltip
+     * for the given case id value. If the length of the actual
+     * case id string is too long, then creates a short form of
+     * the case id ending with an ellipsis.
+     *
+     * @param caseId    actual case id string
+     * @return {{style: string, text: string, tip: string}}
+     * @private
+     */
+	_getCaseId: function(caseId)
+	{
+		// TODO customize this length?
+		var maxLength = 16;
+
+		var text = caseId;
+		var style = ""; // no style for short case id strings
+		var tip = caseId; // display full case id as a tip
+
+		if (caseId.length > maxLength)
+		{
+			text = caseId.substring(0, maxLength) + "...";
+			style = "simple-tip"; // enable tooltip for long strings
+		}
+
+		return {style: style, tip: tip, text: text};
 	},
     /**
      * Returns the text content and the css class for the given

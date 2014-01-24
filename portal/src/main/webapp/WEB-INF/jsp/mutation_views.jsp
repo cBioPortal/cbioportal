@@ -216,7 +216,7 @@
 		<td>{{mutationId}}-{{mutationSid}}</td>
 		<td>
 			<a href='{{linkToPatientView}}' target='_blank'>
-				<b>{{caseId}}</b>
+				<b alt="{{caseIdTip}}" class="{{caseIdClass}}">{{caseId}}</b>
 			</a>
 		</td>
         <td>

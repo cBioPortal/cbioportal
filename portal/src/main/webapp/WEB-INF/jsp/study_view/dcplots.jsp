@@ -1,4 +1,3 @@
-
 <%@ page import="org.mskcc.cbio.portal.servlet.MutationsJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.CnaJSON" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
@@ -95,10 +94,12 @@
                 <th>MUTATION RATE CLUSTER</th>					
                 <th>MICRO RNA CLUSTER</th>
                 <th>MICRO RNA SCORE</th>
-                <th>OVERALL SURVIVAL STATUS</th>
+                <th>OVERALL SURVIVAL (STATUS)</th>
                 <th>OVERALL SURVIVAL (MONTHS)</th>
-                <th>DISEASE FREE STATUS)</th>
+                <th>DISEASE FREE (STATUS)</th>
                 <th>DISEASE FREE (MONTHS)</th>
+                <th>MUTATION COUNT</th>
+                <th>COPY NUMBER ALTERATIONS</th>
                 </tr>
             </thead>
         </table>		

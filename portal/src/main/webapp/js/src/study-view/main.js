@@ -38,7 +38,9 @@ $(function() {
 		$("#"+ disable[i] +"-chart").css("display","none");
 	}
 });
-*/ 
+*/
+
+
 $(function() {
     $("#pie").sortable();
     $("#row").sortable();
@@ -118,12 +120,9 @@ $(function() {
     });
     */
 });
-        
 
-
-var studyId = getParameterByName("cancer_study_id");
 var varChart = new Array();
-var dataTable;
+var dataTableDC;
 var removeKeyIndex = new Array();
 //console.log(studyId);
 
@@ -180,11 +179,11 @@ dc.redrawAllDataTable = function(group) {
                        items.push( $(this).text() );       
                     });
                     var items = $.unique( items );
-                    dataTable.filter(null);
-                    dataTable.filter([items]);
+                    dataTableDC.filter(null);
+                    dataTableDC.filter([items]);
                     dc.redrawAll();
             }else{
-                    dataTable.filter(null);
+                    dataTableDC.filter(null);
                     dc.redrawAll();
             }
     });
@@ -192,7 +191,7 @@ dc.redrawAllDataTable = function(group) {
             dc.redrawAllDataTable("group1");
     });
     $('#dataTable_reset').click(function(){
-            dataTable.filter(null);
+            dataTableDC.filter(null);
             dc.redrawAll();
             dc.redrawAll("group1");
     });
@@ -201,8 +200,13 @@ dc.redrawAllDataTable = function(group) {
 
 var studyView = function(){
     var studyId;
+    var caseIds;
+    var cnaProfileId;
+    var mutationProfileId;
+    
     var dataObjectM = new Array();
     var attr = new Array();
+    
     var columnNameTotal =  ["CASE_ID","SUBTYPE","GENDER","AGE",
                             "TUMOR_STAGE_2009","HISTOLOGY","TUMOR_GRADE",
                             "MSI_STATUS_7_MARKER_CALL","MSI_STATUS_5_MARKER_CALL","DATA_MAF",
@@ -211,53 +215,80 @@ var studyView = function(){
                             "MLH1_SILENCING","CNA_CLUSTER_K4",
                             "MUTATION_RATE_CLUSTER","MICRO_RNA_CLUSTER",
                             "MICRO_RNA_SCORE","OS_STATUS","OS_MONTHS","DFS_STATUS",
-                            "DFS_MONTHS"];
+                            "DFS_MONTHS","MUTATION_COUNT","COPY_NUMBER_ALTERATIONS"];
     
     return {
         set_studyId: function (s) {studyId = s;},
+        set_caseIds: function (s) {caseIds = s;},
+        set_cnaProfileId: function (s) {cnaProfileId = s;},
+        set_mutationProfileId: function (s) {mutationProfileId = s;},
         getData: function(){
             var usefulData;
             var dataObject = new Array(); 
+            var caseIdStr = caseIds.join('+');
+            
+            $.when( $.ajax("ClinicalFreeForm.json?studyId="+studyId), 
+                    $.ajax("clinicalAttributes.json?cancer_study_id="+studyId+"&case_list=" + caseIdStr),
+                    $.ajax("mutations.json?cmd=count_mutations&case_ids="+caseIdStr+"&mutation_profile="+mutationProfileId),
+                    $.ajax("cna.json?cmd=get_cna_fraction&case_ids="+caseIdStr+"&cancer_study_id="+studyId))
+                .done(function(a1, a2, a3, a4){
+                   $.each(a1[0], function(i, field){
+                        if(i == "freeFormData")
+                            usefulData = field;
+                    });
 
-            $.getJSON("ClinicalFreeForm.json?studyId="+studyId,function(data) {
-                $.each(data, function(i, field){
-                    if(i == "freeFormData")
-                        usefulData = field;
-                });
-
-                for(var i=0; i < usefulData.length;i++){
-                    if(usefulData[i]["caseId"] in dataObject){
-                        dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+                    for(var i=0; i < usefulData.length;i++){
+                        if(usefulData[i]["caseId"] in dataObject){
+                            dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+                        }
+                        else{
+                            dataObject[usefulData[i]["caseId"]] = new Array();
+                            dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+                        }
                     }
-                    else{
-                        dataObject[usefulData[i]["caseId"]] = new Array();
-                        dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+
+                    var keys = Object.keys(dataObject);
+                    var keyNumMapping = [];
+                    for(var j = 0; j< keys.length ; j++){
+                        dataObjectM[j] = new Array();
+                        dataObjectM[j]["CASE_ID"] = keys[j];
+                        dataObjectM[j]["MUTATION_COUNT"] = "";
+                        dataObjectM[j]["COPY_NUMBER_ALTERATIONS"] = "";
+                        keyNumMapping[keys[j]] = j;
+                        for (var key in dataObject[keys[j]])
+                            dataObjectM[j][key] = dataObject[keys[j]][key];
                     }
-                }
-
-                var keys = Object.keys(dataObject);
-
-                for(var j = 0; j< keys.length ; j++){
-                    dataObjectM[j] = new Array();
-                    dataObjectM[j]["CASE_ID"] = keys[j];
-                    for (var key in dataObject[keys[j]])
-                        dataObjectM[j][key] = dataObject[keys[j]][key];
-                }
-                var tmpStr = "";
-                for (var j = 0; j< keys.length ; j++)
-                    tmpStr += keys[j] + "+";
-                tmpStr = tmpStr.substr(0,tmpStr.length-1);  
-
-                //in case the length of url beyong the maximum length, we use ajax instead of getJSON(which by using POST method instead of GET)
-                $.post("clinicalAttributes.json?cancer_study_id="+studyId+"&case_list=" + tmpStr,function(data){
-                    attr = data;
+                    
+                    attr = a2[0];
+                    if(a3[0].length != 0){
+                        var newAttri1 = new Array();
+                        newAttri1.attr_id = 'MUTATION_COUNT';
+                        newAttri1.display_name = 'Mutation Count';
+                        newAttri1.description = 'Mutation Count';
+                        newAttri1.datatype = 'NUMBER';                        
+                        
+                        jQuery.each(a3[0], function(i,val){
+                            dataObjectM[keyNumMapping[i]]['MUTATION_COUNT'] = val.toString();
+                        });    
+                        attr.push(newAttri1);
+                    }
+                    if(a4[0].length != 0){
+                        var newAttri2 = new Array();
+                        newAttri2.attr_id = 'COPY_NUMBER_ALTERATIONS';
+                        newAttri2.display_name = 'Copy Number Alterations';
+                        newAttri2.description = 'Copy Number Alterations';
+                        newAttri2.datatype = 'NUMBER';
+                        
+                        jQuery.each(a4[0], function(i,val){
+                            dataObjectM[keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val.toString();
+                        }); 
+                        attr.push(newAttri2);
+                    }
+                    
                     var columnNameSelected = initCharts();
                     columnNameSelected.unshift("CASE_ID");
                     restyle(columnNameSelected,columnNameTotal);
-                    //dcFunc(dataObjectM);
-                    //printHTML();
                 });
-            });
         }        
     };
     
@@ -284,7 +315,7 @@ var studyView = function(){
     
         dataA = attr;
         dataB = dataObjectM;
-
+        
         
         for(var i=0; i< dataA.length ; i++){
             var varValues = new Array();
@@ -450,7 +481,7 @@ var studyView = function(){
             }
         }
        
-        dataTable = dc.dataTableDataOnly("#dataTable","group1");
+        dataTableDC = dc.dataTableDataOnly("#dataTable","group1");
         var CASEID = ndx.dimension(function (d) {
                 return d.CASE_ID;
         });	
@@ -468,7 +499,7 @@ var studyView = function(){
         }
         
         
-        dataTable
+        dataTableDC
         .dimension(CASEID)
         .group(function (d) {
                 return 1 ;
@@ -545,6 +576,12 @@ var studyView = function(){
                 },
                 function (d) {
                     return d.DFS_MONTHS;
+                },
+                function (d) {
+                    return d.MUTATION_COUNT;
+                },
+                function (d) {
+                    return d.COPY_NUMBER_ALTERATIONS;
                 }
         ])
         .size(2000)
@@ -591,11 +628,11 @@ var studyView = function(){
                        items.push( $(this).text() );       
                     });
                     var items = $.unique( items );
-                    dataTable.filter(null);
-                    dataTable.filter([items]);
+                    dataTableDC.filter(null);
+                    dataTableDC.filter([items]);
                     dc.redrawAll();
             }else{
-                    dataTable.filter(null);
+                    dataTableDC.filter(null);
                     dc.redrawAll();
             }
         });
@@ -616,19 +653,20 @@ var studyView = function(){
     }
 };
 
-var study_view = studyView();
-study_view.set_studyId(studyId);
-study_view.getData();
-
-
-$('#dataTable_reset').click(function(){
-        dataTable.filter(null);
-        dc.redrawAll();
+$(document).ready(function(){    
+    var study_view = studyView();
+    study_view.set_studyId(cancerStudyId);
+    study_view.set_caseIds(caseIds);
+    study_view.set_mutationProfileId(mutationProfileId);
+    study_view.set_cnaProfileId(cnaProfileId);
+    study_view.getData();
 });
-        
+  
 function getParameterByName(name) {
     name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);
+    console.log(regex);
+    console.log(results);
     return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }

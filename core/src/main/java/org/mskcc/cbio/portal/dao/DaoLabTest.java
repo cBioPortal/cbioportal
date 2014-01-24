@@ -38,6 +38,22 @@ public final class DaoLabTest {
         return 1;
     }
     
+    public static long getLargestLabTestId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoLabTest.class);
+            pstmt = con.prepareStatement
+                    ("SELECT MAX(`LAB_TEST_ID`) FROM `lab_test`");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getLong(1) : 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoLabTest.class, con, pstmt, rs);
+        }
+    }
     
     public static void deleteByCancerStudyId(int cancerStudyId) throws DaoException {
         Connection con = null;

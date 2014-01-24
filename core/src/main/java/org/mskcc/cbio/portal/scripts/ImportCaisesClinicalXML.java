@@ -24,6 +24,8 @@ import org.mskcc.cbio.portal.dao.DaoLabTest;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.Diagnostic;
 import org.mskcc.cbio.portal.model.LabTest;
 import org.mskcc.cbio.portal.model.Treatment;
@@ -37,7 +39,7 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-        args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/patient_id_mapping.txt","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+        //args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/patient_id_mapping.txt","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
         
         if (args.length != 3) {
             System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <patient_id_mapping.txt> <meta_clinical_caises.txt>");
@@ -92,9 +94,9 @@ public final class ImportCaisesClinicalXML {
         
         List<Node> patientNodes = document.selectNodes("//Patients/Patient");
         
-        long labTestId = 0;
-        long diagnosticId = 0;
-        long treatmentId = 0;
+        long labTestId = DaoLabTest.getLargestLabTestId();
+        long diagnosticId = DaoDiagnostic.getLargestDiagnosticId();
+        long treatmentId = DaoTreatment.getLargestTreatmentId();
         
         for (Node patientNode : patientNodes) {
             String patientInternalId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
@@ -105,6 +107,8 @@ public final class ImportCaisesClinicalXML {
             }
             
             System.out.println("Importing "+patientId+" ("+patientInternalId+")");
+            
+//            List<ClinicalData> clinicalData = 
             
             List<Treatment> treatments = new ArrayList<Treatment>();
             parseMedicalTherapies(treatments, patientNode, patientId, cancerStudyId);
@@ -136,6 +140,26 @@ public final class ImportCaisesClinicalXML {
         
         MySQLbulkLoader.flushAll();
     }
+    
+//    private static List<ClinicalData> parseClinicalData(Node patientNode, String patientId, int cancerStudyId) {
+//        List<ClinicalData> clinicalData = new ArrayList<ClinicalData>();
+//        Node node = patientNode.selectSingleNode("PtProtocolStudyId");
+//        if (node!=null) {
+//            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "AGE", node.getText()));
+//        }
+//        
+//        node = patientNode.selectSingleNode("PtRace");
+//        if (node!=null) {
+//            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "RACE", node.getText()));
+//        }
+//        
+//        node = patientNode.selectSingleNode("PtRegistrationAge");
+//        if (node!=null) {
+//            clinicalData.add(new ClinicalData(cancerStudyId, patientId, "AGE", node.getText()));
+//        }
+//        
+//        return clinicalData;
+//    }
     
     private static void parseMedicalTherapies(List<Treatment> treatments, Node patientNode, String patientId, int cancerStudyId) {
         List<Node> treatmentNodes = patientNode.selectNodes("MedicalTherapies/MedicalTherapy");

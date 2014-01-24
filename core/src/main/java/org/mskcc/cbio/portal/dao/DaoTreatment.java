@@ -46,6 +46,22 @@ public final class DaoTreatment {
         return 1;
     }
     
+    public static long getLargestTreatmentId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+            con = JdbcUtil.getDbConnection(DaoTreatment.class);
+            pstmt = con.prepareStatement
+                    ("SELECT MAX(`TREATMENT_ID`) FROM `treatment`");
+            rs = pstmt.executeQuery();
+            return rs.next() ? rs.getLong(1) : 0;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        } finally {
+            JdbcUtil.closeAll(DaoTreatment.class, con, pstmt, rs);
+        }
+    }
     
     public static void deleteByCancerStudyId(int cancerStudyId) throws DaoException {
         Connection con = null;

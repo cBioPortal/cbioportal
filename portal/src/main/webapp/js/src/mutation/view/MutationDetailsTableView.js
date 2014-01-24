@@ -404,7 +404,8 @@ var MutationDetailsTableView = Backbone.View.extend({
 		var style = ""; // no style for short case id strings
 		var tip = caseId; // display full case id as a tip
 
-		if (caseId.length > maxLength)
+		// no need to bother with clipping the text for 1 or 2 chars.
+		if (caseId.length > maxLength + 2)
 		{
 			text = caseId.substring(0, maxLength) + "...";
 			style = "simple-tip"; // enable tooltip for long strings

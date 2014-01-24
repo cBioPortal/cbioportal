@@ -842,16 +842,14 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var state = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
-        if (state!==null) {
-            ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
-
-            var stateLower = state.toLowerCase();
-            if (stateLower === "metastatic" || stateLower === "metastasis") {
+        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
+        if (caseType!==null) {
+            ret = "<font color='"+getCaseColor(caseType)+"'>"+caseType+"</font>";
+            //if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
                 var loc = guessClinicalData(clinicalData,["TUMOR_SITE"]);
                 if (loc!==null) 
                     ret += " ("+loc+")";
-            }
+            //}
         }
         return ret;
     }
@@ -964,13 +962,24 @@ function outputClinicalData() {
 
     function getCaseColor(caseType) {
         if (!caseType) return "black";
-        var caseTypeLower = caseType.toLowerCase();
-        if (caseTypeLower==="primary") return "black";
-        if (caseTypeLower==="metastatic" || caseTypeLower==="metastasis") return "red";
-        if (caseTypeLower==="progressed"
-                ||caseTypeLower==="locally progressed"
-                || caseTypeLower==="local progression") return "orange";
+        var caseTypeNorm = normalizedCaseType(caseType.toLowerCase());
+        if (caseTypeNorm==="primary") return "black";
+        if (caseTypeNorm==="metastasis") return "red";
+        if (caseTypeNorm==="progressed") return "orange";
         return "black";
+    }
+    
+    function normalizedCaseType(caseType) {
+        var caseTypeLower = caseType.toLowerCase();
+        if (caseTypeLower.indexOf("metastatic")>=0 || caseTypeLower.indexOf("metastasis")>=0)
+            return "metastasis";
+        if (caseTypeLower.indexOf("progressed")>=0
+                || caseTypeLower.indexOf("progression")>=0
+                || caseTypeLower.indexOf("recurred")>=0
+                || caseTypeLower.indexOf("recurrence")>=0)
+            return "progressed";
+        
+        return "primary";
     }
 }
 

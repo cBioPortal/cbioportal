@@ -75,11 +75,12 @@ public class GetAlterationDataJSON extends HttpServlet {
                     JSONObject _datum = new JSONObject();
                     _datum.put("caseId", caseIds.get(i));
                     _datum.put("value", Float.parseFloat(tmpProfileDataArr.get(i)));
-                    _datum.put("profile", final_gp.getProfileName());
                     _geneArr.add(_datum);
                 }
                 _result.put(geneId, _geneArr);
             }
+            _result.put("profile_name", final_gp.getProfileName());
+            _result.put("profile_description", final_gp.getProfileDescription());
 
             httpServletResponse.setContentType("application/json");
             PrintWriter out = httpServletResponse.getWriter();

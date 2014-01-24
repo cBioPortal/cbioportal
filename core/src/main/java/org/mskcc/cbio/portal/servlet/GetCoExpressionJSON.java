@@ -29,6 +29,7 @@ package org.mskcc.cbio.portal.servlet;
 
 import java.io.*;
 import java.util.*;
+import java.lang.Math;
 
 import org.json.simple.JSONObject;
 import javax.servlet.ServletException;
@@ -157,15 +158,21 @@ public class GetCoExpressionJSON extends HttpServlet  {
                         CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
                         fullResutlStr.append(
                           comparedGene.getHugoGeneSymbolAllCaps() + "\t" + 
-                          pearson + "\t" + 
-                          spearman + "\n"
+                          (double)Math.round(pearson * 100) / 100 + "\t" + 
+                          (double)Math.round(spearman * 100) / 100  + "\n"
                         );
                       }
                   }
               }
+
+              //construct file name
+              String fileName = "coexpression_" + geneSymbol + "_" + 
+                final_gp.getProfileName().replaceAll("\\s+", "_") + "_" + 
+                cancerStudyIdentifier.replaceAll("\\s+", "_") + ".txt";
+
               httpServletResponse.setContentType("text/html");
               httpServletResponse.setContentType("application/force-download");
-              httpServletResponse.setHeader("content-disposition", "inline; filename=coexp_result.txt");
+              httpServletResponse.setHeader("content-disposition", "inline; filename='" + fileName + "'");
               PrintWriter out = httpServletResponse.getWriter();
               JSONValue.writeJSONString(fullResutlStr, out);
             } catch (DaoException e) {

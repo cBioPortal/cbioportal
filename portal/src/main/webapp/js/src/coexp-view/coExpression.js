@@ -43,8 +43,8 @@ var CoExpTable = (function() {
             plotPrefix: "coexp_plot_"
         },
         dim = {
-            coexp_table_width: "350px",
-            coexp_plots_width: "720px"
+            coexp_table_width: "380px",
+            coexp_plots_width: "750px"
         };
 
     var CoExpTable = (function() {
@@ -97,7 +97,7 @@ var CoExpTable = (function() {
                     $("#" + tableId).append(
                         "<thead style='font-size:70%;' >" +
                         "<tr>" + 
-                        "<th>Correlated(+)/<br>Anti-correlated(-) Genes</th>" +
+                        "<th>Correlated(+)/<br>Anti-correlated(-)<br>Genes</th>" +
                         "<th>Pearson's Correlation</th>" +
                         "<th>Spearman's Correlation</th>" +
                         "</tr>" +
@@ -188,7 +188,7 @@ var CoExpTable = (function() {
             }   
         }
 
-        function attachRowListener(_coExpTable, tableId, plotId, geneId) {
+        function attachRowListener(_coExpTable, tableId, plotId, geneId, profileDescription) {
             $("#" + tableId + " tbody tr").on('click', function (event) {
                 //Highlight selected row
                 $(_coExpTable.fnSettings().aoData).each(function (){

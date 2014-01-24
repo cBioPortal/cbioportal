@@ -172,7 +172,7 @@ var ScatterPlots = (function() {
         }
         elem.axisTitleGroup.append("text")
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2)
-            .attr("y", canvas.yBottom + 40)
+            .attr("y", canvas.yBottom + 60)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold") 
@@ -182,14 +182,14 @@ var ScatterPlots = (function() {
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-x-help")
             .attr("x", canvas.xLeft + (canvas.xRight - canvas.xLeft) / 2 + _xTitle.length / 2 * 8)
-            .attr("y", canvas.yBottom + 28)
+            .attr("y", canvas.yBottom + 48)
             .attr("width", "16")
             .attr("height", "16");
         elem.svg.select(".plots-title-x-help").each(
             function() {
                 $(this).qtip(
                     {
-                        content: {text: "<font size=1>" + text.xTitle + "</font>" },
+                        content: {text: "<font size=1>" + text.xTitleHelp + "</font>" },
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -212,7 +212,7 @@ var ScatterPlots = (function() {
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
-            .attr("y", 45)
+            .attr("y", canvas.xLeft - 60)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
             .style("font-weight", "bold")
@@ -221,7 +221,7 @@ var ScatterPlots = (function() {
         elem.axisTitleGroup.append("svg:image")
             .attr("xlink:href", "images/help.png")
             .attr("class", "plots-title-y-help")
-            .attr("x", 33)
+            .attr("x", canvas.xLeft - 72)
             .attr("y", canvas.yBottom - (canvas.yBottom - canvas.yTop) / 2 - _yTitle.length / 2 * 8 - 20)
             .attr("width", "16")
             .attr("height", "16");
@@ -229,7 +229,7 @@ var ScatterPlots = (function() {
             function() {
                 $(this).qtip(
                     {
-                        content: {text: "<font size=1>" + text.yTitle + "</font>"},
+                        content: {text: "<font size=1>" + text.yTitleHelp + "</font>"},
                         style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
@@ -316,7 +316,15 @@ var ScatterPlots = (function() {
             .attr("dy", ".35em")
             .attr("text-anchor", "front")
             .style("font-size", "11")
-            .text(function(d) { return d.text; });
+            .text(function(d) { 
+                var firstWord = d.text.substr(0, d.text.indexOf(" "));
+                if (firstWord.length <= 7) {
+                    return d.text; 
+                } else {
+                    return; 
+                }
+            });
+
     }
 
     function addQtips() {

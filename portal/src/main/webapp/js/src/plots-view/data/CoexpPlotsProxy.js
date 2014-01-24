@@ -7,6 +7,7 @@ var CoexpPlotsProxy = (function() {
             min_y: "",
             max_y: "",
             profile_name: "",
+            profile_description: "",
             mut_x : false, //have case(s) mutated in only gene x
             mut_y : false,  //have case(s) mutated in only gene y
             mut_both: false, //have case(s) mutated in both genes
@@ -121,11 +122,8 @@ var CoexpPlotsProxy = (function() {
     }
 
     function getProfile(_result) {
-        for (var prop in _result) {
-            var _tmp = _result[prop];
-            attr.profile_name = _tmp[0].profile;
-            return;
-        }
+        attr.profile_description = _result["profile_description"]; 
+        attr.profile_name = _result["profile_name"];
     }
 
     function getMutationMaps() {

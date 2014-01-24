@@ -9,9 +9,12 @@
 <style>
     #coexp .coexp-table-filter-custom {
         width: 100%;
+        float: left;
     }
     #coexp .datatables_filter {
-        width: 350px;
+        width: 300px;
+        float: left;
+        margin-left: 0px;
         text-align: left;
         font-size: 11px;
         padding-left: 6px;
@@ -65,14 +68,13 @@
 
 <script>
     $(document).ready( function() {
-        CoExpTable.initTabs();
-        CoExpTable.initView();
         var coexp_tab_init = false;
         $("#tabs").bind("tabsactivate", function(event, ui) {
             if (ui.newTab.text().trim().toLowerCase() === "co-expression") {
                 if (coexp_tab_init === false) {
+                    CoExpTable.initTabs();
+                    CoExpTable.initView();
                     coexp_tab_init = true;
-                    $(window).trigger("resize");
                 } else {
                     $(window).trigger("resize");
                 }

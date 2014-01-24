@@ -72,6 +72,8 @@ var CoexpPlotsView = (function() {
         options.text = jQuery.extend(true, {}, PlotsBoilerplate.text);
         options.text.xTitle = _geneX + ", " + _dataAttr.profile_name;
         options.text.yTitle = _geneY + ", " + _dataAttr.profile_name;
+        options.text.xTitleHelp = _dataAttr.profile_description;
+        options.text.yTitleHelp = _dataAttr.profile_description;
         options.text.title = "Co-expression in mRNA Expression: " + _geneX + " vs. " + _geneY + "  ";
         options.text.fileName = "co_expression_result-" + _geneX + "-" + _geneY;
         //construct legend items

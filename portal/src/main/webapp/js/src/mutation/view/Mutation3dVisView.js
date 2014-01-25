@@ -157,7 +157,7 @@ var Mutation3dVisView = Backbone.View.extend({
 //		});
 
 		// add info tooltip for the color and side chain checkboxes
-		self._initMutationTypeInfo();
+		self._initMutationColorInfo();
 		self._initSideChainInfo();
 	},
 	/**
@@ -359,38 +359,13 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		// check if pdb id and chain is provided
-		if (!pdbId && !chain)
-		{
-			// just reload with the last known pdb id and chain
-			pdbId = self.pdbId;
-			chain = self.chain;
-		}
-
-		// hide residue warning
+		// hide warning messages
 		self.hideResidueWarning();
 		self.hideNoMapWarning();
 
-		// show loader image
-		self.showLoader();
-
-		// reset zoom slider
-		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-		zoomSlider.slider("value", 0);
-
-		// set a short delay to allow loader image to appear
-		setTimeout(function() {
-			// reload the visualizer
-			var mapped = mut3dVis.reload(pdbId, chain, function() {
-				// hide the loader image after reload complete
-				self.hideLoader();
-				// call the provided custom callback function, too
-				if (_.isFunction(callback))
-				{
-					callback();
-				}
-			});
-
+		// helper function to show/hide mapping information
+		var showMapInfo = function(mapped)
+		{
 			if (mapped.length == 0)
 			{
 				// show the warning text
@@ -412,13 +387,49 @@ var Mutation3dVisView = Backbone.View.extend({
 				// hide the warning text
 				self.hideNoMapWarning();
 			}
-		}, 50);
+		};
+
+		// if no pdb id or chain is provided, then do not reload
+		if (!pdbId && !chain)
+		{
+			// just refresh
+			var mapped = mut3dVis.refresh();
+
+			// update mapping info
+			showMapInfo(mapped);
+		}
+		// reload the new pdb structure
+		else
+		{
+			// reset zoom slider
+			var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+			zoomSlider.slider("value", 0);
+
+			// show loader image
+			self.showLoader();
+
+			// set a short delay to allow loader image to appear
+			setTimeout(function() {
+				// reload the visualizer
+				var mapped = mut3dVis.reload(pdbId, chain, function() {
+					// hide the loader image after reload complete
+					self.hideLoader();
+					// call the provided custom callback function
+					if (_.isFunction(callback))
+					{
+						callback();
+					}
+				});
+				// update mapping info if necessary
+				showMapInfo(mapped);
+			}, 50);
+		}
 	},
 	/**
-	 * Initializes the mutation type color information as a tooltip
+	 * Initializes the mutation color information as a tooltip
 	 * for the corresponding checkbox.
 	 */
-	_initMutationTypeInfo: function()
+	_initMutationColorInfo: function()
 	{
 		var self = this;
 

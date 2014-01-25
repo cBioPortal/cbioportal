@@ -28,6 +28,9 @@ var Mutation3dVis = function(name, options)
 	// current chain (PdbChainModel instance)
 	var _chain = null;
 
+	// current pdb id
+	var _pdbId = null;
+
 	// spin indicator (initially off)
 	var _spin = "OFF";
 
@@ -240,7 +243,7 @@ var Mutation3dVis = function(name, options)
 	/**
 	 * Reloads the protein view for the given PDB id and the chain.
 	 *
-	 * This function returns true if at least there is one mapping residue.
+	 * This function returns an array of mapping mutations (residues).
 	 * If there is no mapping residue for currently visible mutations on
 	 * the diagram, then function returns false. Note that this function
 	 * returns without waiting the callback function to be invoked.
@@ -264,7 +267,81 @@ var Mutation3dVis = function(name, options)
 			return mappedMutations;
 		}
 
+		// save current pdb id & chain for a possible future access
+		_chain = chain;
+		_pdbId = pdbId;
+
+		// update selection map
+		mappedMutations = updateSelectionMap(pdbId, chain);
+
+		// construct Jmol script string
+		var script = [];
+
+		script.push("load=" + pdbId + ";"); // load the corresponding pdb
+		script = script.concat(generateVisualStyleScript(_selection, _chain));
+
+		// TODO spin is currently disabled...
+		//script.push("spin " + _spin + ";");
+
+		// convert array into a string (to pass to Jmol)
+		script = script.join(" ");
+
+		// run script
+		_3dApp.script(script, callback);
+
+		return mappedMutations;
+	}
+
+	/**
+	 * Refreshes the view without reloading the pdb structure.
+	 * Using this function instead of reload makes things
+	 * a lot faster for filtering operations.
+	 *
+	 * @return  {Array} array of mapped mutation ids
+	 */
+	function refresh()
+	{
+		var mappedMutations = [];
+
+		// reset highlights
+		_highlighted = {};
+
+		// pdbId and/or chainId may be null
+		if (!_pdbId || !_chain)
+		{
+			// nothing to refresh
+			return mappedMutations;
+		}
+
+		// update selection map
+		mappedMutations = updateSelectionMap(_pdbId, _chain);
+
+		var script = [];
+
+		// update visual style by using the updated selection map
+		script = script.concat(generateVisualStyleScript(_selection, _chain));
+
+		// convert array into a string (to pass to Jmol)
+		script = script.join(" ");
+
+		// run script
+		_3dApp.script(script);
+
+		return mappedMutations;
+	}
+
+	/**
+	 * Updates the selection map for the current pdbId and chain
+	 * by using the corresponding color mapper function.
+	 *
+	 * @param pdbId     PDB id
+	 * @param chain     PdbChainModel instance
+	 * @return {Array}  array of mapped mutation ids
+	 */
+	function updateSelectionMap(pdbId, chain)
+	{
 		var selection = {};
+		var mappedMutations = [];
 		var color = _options.mutationColor;
 
 		// update the residue selection map wrt mutation color mapper
@@ -304,22 +381,8 @@ var Mutation3dVis = function(name, options)
 			list[key] = _.values(value);
 		});
 
-		// save current chain & selection for a possible future restore
+		// update selection for a possible future restore
 		_selection = selection;
-		_chain = chain;
-
-		// construct Jmol script string
-		var script = [];
-
-		script.push("load=" + pdbId + ";"); // load the corresponding pdb
-		script = script.concat(generateVisualStyleScript(selection, chain));
-		script.push("spin " + _spin + ";"); // set spin
-
-		// convert array into a string (to pass to Jmol)
-		script = script.join(" ");
-
-		// run script
-		_3dApp.script(script, callback);
 
 		return mappedMutations;
 	}
@@ -700,6 +763,7 @@ var Mutation3dVis = function(name, options)
 		toggleSize: toggleSize,
 		isVisible: isVisible,
 		reload: reload,
+		refresh: refresh,
 		focusOn: focus,
 		highlight: highlight,
 		resetHighlight: resetHighlight,

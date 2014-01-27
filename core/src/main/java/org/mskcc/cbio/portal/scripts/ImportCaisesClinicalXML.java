@@ -115,7 +115,7 @@ public final class ImportCaisesClinicalXML {
             List<Diagnostic> diagnostics = parseDiagnostics(patientNode, patientId, cancerStudyId);
             for (Diagnostic diagnostic : diagnostics) {
                 if (validateDiagnostic(diagnostic)) {
-                    diagnostic.setDiagosticId(++diagnosticId);
+                    diagnostic.setDiagnosticId(++diagnosticId);
                     DaoDiagnostic.addDatum(diagnostic);
                 }
             }
@@ -364,7 +364,7 @@ public final class ImportCaisesClinicalXML {
             
             node = diagnosticNode.selectSingleNode("ImgBaseline");
             if (node!=null) {
-                diagnostic.setImageBaseLine(node.getText());
+                diagnostic.setImageBaseline(node.getText());
             }
             
             node = diagnosticNode.selectSingleNode("DxNumNewTumors");

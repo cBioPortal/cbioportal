@@ -9,7 +9,7 @@ package org.mskcc.cbio.portal.model;
  * @author jgao
  */
 public class Diagnostic {
-    private Long diagosticId;
+    private Long diagnosticId;
     private Integer cancerStudyId;
     private String patientId;
     private Integer date;
@@ -18,16 +18,16 @@ public class Diagnostic {
     private String target;
     private String result;
     private String status;
-    private String imageBaseLine;
+    private String imageBaseline;
     private Integer numNewTumors;
     private String notes;
 
-    public Long getDiagosticId() {
-        return diagosticId;
+    public Long getDiagnosticId() {
+        return diagnosticId;
     }
 
-    public void setDiagosticId(Long diagosticId) {
-        this.diagosticId = diagosticId;
+    public void setDiagnosticId(Long diagosticId) {
+        this.diagnosticId = diagosticId;
     }
 
     public Integer getCancerStudyId() {
@@ -94,12 +94,12 @@ public class Diagnostic {
         this.status = status;
     }
 
-    public String getImageBaseLine() {
-        return imageBaseLine;
+    public String getImageBaseline() {
+        return imageBaseline;
     }
 
-    public void setImageBaseLine(String imageBaseLine) {
-        this.imageBaseLine = imageBaseLine;
+    public void setImageBaseline(String imageBaseline) {
+        this.imageBaseline = imageBaseline;
     }
 
     public Integer getNumNewTumors() {

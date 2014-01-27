@@ -8,7 +8,10 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.mskcc.cbio.portal.model.Treatment;
+import org.mskcc.cbio.portal.model.User;
 
 /**
  *
@@ -44,6 +47,52 @@ public final class DaoTreatment {
                 treatment.getRoute()
                 );
         return 1;
+    }
+    
+    public static List<Treatment> getTreatment(int cancerStudyId, String patientId) throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        try {
+           con = JdbcUtil.getDbConnection(DaoTreatment.class);
+           pstmt = con.prepareStatement("SELECT * FROM treatment WHERE CANCER_STUDY_ID=? AND PATIENT_ID=?");
+           pstmt.setInt(1, cancerStudyId);
+           pstmt.setString(2, patientId);
+           
+           rs = pstmt.executeQuery();
+           List<Treatment> list = new ArrayList<Treatment>();
+           while (rs.next()) {
+              Treatment treatment = extractTreatment(rs);
+              list.add(treatment);
+           }
+           return list;
+        } catch (SQLException e) {
+           throw new DaoException(e);
+        } finally {
+           JdbcUtil.closeAll(DaoTreatment.class, con, pstmt, rs);
+        }
+    }
+    
+    private static Treatment extractTreatment(ResultSet rs) throws SQLException {
+        Treatment treatment = new Treatment();
+        treatment.setTreatmentId(rs.getLong("TREATMENT_ID"));
+        treatment.setCancerStudyId(rs.getInt("CANCER_STUDY_ID"));
+        treatment.setPatientId(rs.getString("PATIENT_ID"));
+        treatment.setStartDate(JdbcUtil.readIntegerFromResultSet(rs, "START_DATE"));
+        treatment.setStopDate(JdbcUtil.readIntegerFromResultSet(rs, "STOP_DATE"));
+        treatment.setType(rs.getString("TYPE"));
+        treatment.setSubtype(rs.getString("SUBTYPE"));
+        treatment.setIndication(rs.getString("INDICATION"));
+        treatment.setIntent(rs.getString("INTENT"));
+        treatment.setTarget(rs.getString("TARGET"));
+        treatment.setAgent(rs.getString("AGENT"));
+        treatment.setIsotope(rs.getString("ISOTOPE"));
+        treatment.setDose(JdbcUtil.readDoubleFromResultSet(rs, "DOSE"));
+        treatment.setTotalDose(JdbcUtil.readDoubleFromResultSet(rs, "TOTAL_DOSE"));
+        treatment.setUnit(rs.getString("UNIT"));
+        treatment.setSchedule(rs.getString("SCHEDULE"));
+        treatment.setRoute(rs.getString("ROUTE"));
+        return treatment;
     }
     
     public static long getLargestTreatmentId() throws DaoException {

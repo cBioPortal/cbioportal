@@ -105,7 +105,7 @@ A genomic overview with events aligned across patients goes here...
     }
     
     function ajaxBuildSimilarPatientsDataTable() {
-        var params = {<%=PatientView.CASE_ID%>::caseIdsStr,cancer_study_id:cancerStudyId};
+        var params = {<%=PatientView.CASE_ID%>:caseIdsStr,cancer_study_id:cancerStudyId};
         if (genomicEventObs.hasMut) {
             params['<%=SimilarPatientsJSON.MUTATION%>'] = genomicEventObs.mutations.getEventIds(true).join(',');
         }

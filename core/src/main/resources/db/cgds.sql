@@ -90,6 +90,14 @@ CREATE TABLE `patient` (
 
 -- --------------------------------------------------------
 
+drop table IF EXISTS _sample;
+CREATE TABLE `_sample` (
+  `SAMPLE_ID` varchar(255) NOT NULL,
+  `CANCER_STUDY_ID` int(11) NOT NULL,
+  PRIMARY KEY (`SAMPLE_ID`,`CANCER_STUDY_ID`),
+  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
 --
 -- Table structure for table `sample`
 --
@@ -101,7 +109,7 @@ CREATE TABLE `sample` (
   `PATIENT_ID` int(11) NOT NULL,
   `TYPE_OF_CANCER_ID` varchar(25) NOT NULL,
   PRIMARY KEY (`INTERNAL_ID`),
-  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`),
+  FOREIGN KEY (`PATIENT_ID`) REFERENCES `patient` (`INTERNAL_ID`) ON DELETE CASCADE,
   FOREIGN KEY (`TYPE_OF_CANCER_ID`) REFERENCES `type_of_cancer` (`TYPE_OF_CANCER_ID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 

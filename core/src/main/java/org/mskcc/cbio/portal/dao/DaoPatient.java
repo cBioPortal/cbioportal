@@ -42,7 +42,7 @@ public class DaoPatient {
 
     private static final Map<String, Patient> byStableId = new ConcurrentHashMap<String, Patient>();
     private static final Map<Integer, Patient> byInternalId = new ConcurrentHashMap<Integer, Patient>();
-    private static final Map<String, List<Patient>> byStableCancerStudyId = new ConcurrentHashMap<String, List<Patient>>();
+    private static final Map<Integer, List<Patient>> byInternalCancerStudyId = new ConcurrentHashMap<Integer, List<Patient>>();
 
     static {
         cache();
@@ -52,7 +52,7 @@ public class DaoPatient {
     {
         byStableId.clear();
         byInternalId.clear();
-        byStableCancerStudyId.clear();
+        byInternalCancerStudyId.clear();
     }
 
     private static void cache()
@@ -83,13 +83,13 @@ public class DaoPatient {
     {
         byStableId.put(patient.getStableId(), patient);
         byInternalId.put(patient.getInternalId(), patient);
-        if (byStableCancerStudyId.containsKey(patient.getCancerStudy().getCancerStudyStableId())) {
-            byStableCancerStudyId.get(patient.getCancerStudy().getCancerStudyStableId()).add(patient);
+        if (byInternalCancerStudyId.containsKey(patient.getCancerStudy().getInternalId())) {
+            byInternalCancerStudyId.get(patient.getCancerStudy().getInternalId()).add(patient);
         }
         else {
             List<Patient> patientList = new ArrayList<Patient>();
             patientList.add(patient);
-            byStableCancerStudyId.put(patient.getCancerStudy().getCancerStudyStableId(), patientList);
+            byInternalCancerStudyId.put(patient.getCancerStudy().getInternalId(), patientList);
         }
     }
 
@@ -130,9 +130,19 @@ public class DaoPatient {
         return byStableId.get(stableId);
     }
 
-    public static List<Patient> getPatientsByStableCancerStudyId(String cancerStudyId)
+    public static Patient getPatient(int cancerStudyId, String patientId) throws DaoException
     {
-        return byStableCancerStudyId.get(cancerStudyId);
+        for (Patient patient : getPatientsByInternalCancerStudyId(cancerStudyId)) {
+            if (patient.getStableId().equals(patientId)) {
+                return patient;
+            }
+        }
+        throw new DaoException(String.format("Unknown cancer study/patient Id combination: %s/%s", cancerStudyId, patientId));
+    }
+
+    public static List<Patient> getPatientsByInternalCancerStudyId(int cancerStudyId)
+    {
+        return byInternalCancerStudyId.get(cancerStudyId);
     }
 
     public static List<Patient> getAllPatients()

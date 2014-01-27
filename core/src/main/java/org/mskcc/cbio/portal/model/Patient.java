@@ -63,6 +63,11 @@ public class Patient {
         this.sampleId = sampleId;
 		this.clinicalDataMap = clinicalDataMap;
     }
+    
+    public String toString()
+    {
+        return stableId;
+    }
 
     public CancerStudy getCancerStudy()
     {

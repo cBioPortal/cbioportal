@@ -663,7 +663,7 @@ CREATE TABLE `treatment` (
 
 drop table IF EXISTS diagnostic;
 CREATE TABLE `diagnostic` (
-  `DIAGOSTIC_ID` int(255) NOT NULL auto_increment,
+  `DIAGNOSTIC_ID` int(255) NOT NULL auto_increment,
   `CANCER_STUDY_ID` int(11) NOT NULL,
   `PATIENT_ID` varchar(255) NOT NULL,
   `DATE` int,

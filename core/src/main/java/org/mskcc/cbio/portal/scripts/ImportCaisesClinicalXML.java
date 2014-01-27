@@ -37,9 +37,9 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-        //args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+//        args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
         
-        if (args.length != 3) {
+        if (args.length != 2) {
             System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <meta_clinical_caises.txt>");
             return;
         }

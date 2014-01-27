@@ -205,7 +205,8 @@ public class ImportTabDelimData {
 
                             genes = daoGene.guessGene(hugo);
                         }
-                        else {
+
+                        if (genes == null) {
                             genes = Collections.emptyList();
                         }
 

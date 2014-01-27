@@ -300,7 +300,9 @@ $(function() {
             var bar = new Array();
             var combine = new Array();
             var varName = new Array();
-            var varDisplay = new Array();
+            var varNameIDMapping = new Array();
+            var varDisplay = new Array();            
+            var varType = new Array();
             var varCluster = new Array();
             var varGroup = new Array();
             var chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
@@ -332,8 +334,10 @@ $(function() {
                         bar.push(dataA[i]);
                     else
                         pie.push(dataA[i]);
+                    varType[dataA[i]["attr_id"]] = "pie,bar,row";
                 }else if(dataA[i]["datatype"] === "STRING"){
                     pie.push(dataA[i]);
+                    varType[dataA[i]["attr_id"]] = "pie,row";
                 }
                 else 
                     combine.push(dataA[i]);
@@ -341,20 +345,23 @@ $(function() {
 
 
             for(var i=0; i< pie.length ; i++){
+                /*
                 if(i % 3 ==0)
                     $("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><input class='pie-chart-delete-button' type='button' value='Delete' style='float:right' /></div></div>");
                 else if(i % 3 ==1)
-                    $("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart w2'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><input class='pie-chart-delete-button' type='button' value='Delete' style='float:right' /></div></div>");
-                else
-                    $("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart w3'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><input class='pie-chart-delete-button' type='button' value='Delete' style='float:right' /></div></div>");
+                    */$("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart w2'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='pie-chart-delete'>x</span></div></div>");
+                //else
+                  //  $("#pie").append("<div id=\"pie_" + i + "\" class='pie-chart w3'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + i + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><input class='pie-chart-delete-button' type='button' value='Delete' style='float:right' /></div></div>");
                 varName.push(pie[i]["attr_id"]);
-                varDisplay.push(pie[i]["display_name"]);
+                varNameIDMapping["pie_" + i] = pie[i]["attr_id"];
+                varDisplay.push(pie[i]["display_name"]); 
                 varChart.push(dc.pieChart("#pie_" + i));
             }
 
             for(var i=0,j=pie.length; i< row.length; i++,j++){
                 $("#row").append("<div id=\"row_" + i + "\" class='row-chart'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
                 varName.push(row[i]["attr_id"]);
+                varNameIDMapping["row_" + i] = row[i]["attr_id"];
                 varDisplay.push(row[i]["display_name"]);
                 varChart.push(dc.rowChart("#row_" + i));
             }
@@ -362,6 +369,7 @@ $(function() {
             for(var i=0,j=pie.length+row.length; i< bar.length ; i++,j++){
                 $("#bar").append("<div id=\"bar_" + i + "\" class='bar-chart'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + j + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4></div>");
                 varName.push(bar[i]["attr_id"]);
+                varNameIDMapping["bar_" + i] = bar[i]["attr_id"];
                 varDisplay.push(bar[i]["display_name"]);
                 varChart.push(dc.barChart("#bar_" + i));
             }
@@ -378,13 +386,15 @@ $(function() {
                 });
                 varGroup[i] = varCluster[i].group();
                 
-                var pieWidth = 100;
+                var pieWidth = 200;
+                /*
                 if(i % 3 == 0)
                     pieWidth = 100;
                 else if (i % 3 == 1)
                     pieWidth = 200;
                 else
                     pieWidth = 400;
+                    */
                 var pieRadius = (pieWidth - 60) /2;
                 varChart[i]
                 .width(pieWidth)
@@ -606,6 +616,67 @@ $(function() {
             dc.renderAll();
             dc.renderAll("group1");
             
+            $('#selectAttr')
+                .find('option:gt(0)')
+                .remove()
+                .end()
+        
+            $.each(varName, function(key, value) {   
+                $('#selectAttr')
+                    .append($("<option></option>")
+                        .attr("value",value)
+                        .text(varDisplay[key]));                
+            });
+            
+            $('#selectAttr').change(function(){
+                
+                var chartType = varType[$(this).val()].split(',');
+                
+                $('#selectChartType')
+                    .find('option:gt(0)')
+                    .remove()
+                    .end();
+            
+                $.each(chartType, function(key, value) {
+                    $('#selectChartType')
+                        .append($("<option></option>")
+                            .attr("value",value)
+                            .text(value + " chart"));
+                });
+                
+               $('#add-chart-button').attr('disabled','disabled');  
+            });
+            
+            $('#selectChartType').change(function(){
+                
+                if($('#selectChartType').find(":selected").val() !== "" && $('#selectAttr').find(":selected").val())
+                    $('#add-chart-button').removeAttr('disabled');
+            });
+            
+            var container = document.querySelector('#pie');
+            var msnry = new Masonry( container, {
+              columnWidth: 220,
+              itemSelector: '.pie-chart',
+              gutter:1
+            });
+            
+            $('.pie-chart-delete').click(function(event){
+                var id = $(this).parent().parent().attr("id");
+                $("div").remove("#" + id);
+                
+                var uniqID = varNameIDMapping[id];
+                
+                $.each(varName, function(key, value) {
+                    if(value == uniqID){
+                        varChart[key-1].filterAll();
+                        dc.redrawAll();
+                        dc.deregisterChart(varChart[key-1]);
+                        return false;
+                    }
+                });
+                msnry.layout();
+            });
+            
             return varName;
         };    
 
@@ -652,16 +723,8 @@ $(function() {
             $('#dataTable_updateTable').click(function(){
                 dc.redrawAllDataTable("group1"); 
             });
-            $('.pie-chart-delete-button').click(function(event){
-                $("div").remove("#" + $(this).parent().parent().attr("id"));
-                msnry.layout();
-            });
             
-            var container = document.querySelector('#pie');
-            var msnry = new Masonry( container, {
-              columnWidth: 100,
-              itemSelector: '.pie-chart'
-            });
+            
         }
 
         function decimalPlaces(num) {

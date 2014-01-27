@@ -52,6 +52,16 @@
         <pieH4>TUMOR SAMPLE ANALYSIS</pieH4>
     </div>
 -->
+    <div id="add-chart">
+        <select id='selectAttr'>
+            <option>Please select attribute</option>
+        </select>
+        <select id='selectChartType'>
+            <option>Please select chart type</option>
+        </select>
+        <input type='button' value='Add Chart' id='add-chart-button' class='header_button' disabled/>
+    </div>
+    <br/><hr/><br/>
     <div id="pie"></div>
 
     <div id="row"></div>

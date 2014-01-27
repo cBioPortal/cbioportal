@@ -225,6 +225,7 @@ function initTabs() {
                 oTable.fnAdjustColumnSizing();
                 new FixedColumns( oTable);
                 $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+                $(".dataTables_scroll").css("overflow-x","scroll");
                 $(".DTFC_LeftHeadWrapper").css("background-color","white");
             }else{
                 console.log("No DataTable");

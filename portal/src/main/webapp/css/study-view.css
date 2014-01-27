@@ -9,9 +9,10 @@ height:auto;
 overflow: hidden;
 }
 #pie {	
-    width:100%;
+    width:1200px;
     height:auto;
     margin:0 auto;
+    float:left;
 }
 #bar {
     height:auto;
@@ -97,11 +98,28 @@ overflow: hidden;
 .dc-table-group {
     background-color:lightblue;
 }
-.pie-chart {
-    margin-left:20px;
-    margin-bottom:20px;
+.pie-chart{
     float:left;
-    width:200px;	
+    width:100px;
+    height:100px;
+    text-align:center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+}
+.pie-chart.w2 {
+    float:left;
+    width:200px;
+    height:200px;
+    text-align:center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+}
+.pie-chart.w3 {
+    float:left;
+    width:400px;
+    height:400px;
     text-align:center;
     border-style: solid;
     border-width: 1px;

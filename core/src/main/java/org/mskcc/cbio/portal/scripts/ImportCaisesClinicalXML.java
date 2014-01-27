@@ -24,8 +24,6 @@ import org.mskcc.cbio.portal.dao.DaoLabTest;
 import org.mskcc.cbio.portal.dao.DaoTreatment;
 import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.ClinicalAttribute;
-import org.mskcc.cbio.portal.model.ClinicalData;
 import org.mskcc.cbio.portal.model.Diagnostic;
 import org.mskcc.cbio.portal.model.LabTest;
 import org.mskcc.cbio.portal.model.Treatment;
@@ -39,16 +37,15 @@ public final class ImportCaisesClinicalXML {
     private ImportCaisesClinicalXML() {}
     
     public static void main(String[] args) throws Exception {
-        //args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/patient_id_mapping.txt","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
+        //args = new String[]{"/Users/jj/projects/cbio-portal-data/studies/prad/su2c/data_clinical_caises.xml","/Users/jj/projects/cbio-portal-data/studies/prad/su2c/meta_clinical_caises.txt"};
         
         if (args.length != 3) {
-            System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <patient_id_mapping.txt> <meta_clinical_caises.txt>");
+            System.out.println("command line usage:  importCaisesXml <data_clinical_caises.xml> <meta_clinical_caises.txt>");
             return;
         }
         
         String urlXml = args[0];
-        String urlIDMappingFile = args[1];
-        String meta = args[2];
+        String meta = args[1];
         
         Properties properties = new Properties();
         properties.load(new FileInputStream(meta));
@@ -64,8 +61,7 @@ public final class ImportCaisesClinicalXML {
         DaoLabTest.deleteByCancerStudyId(cancerStudyId);
         DaoDiagnostic.deleteByCancerStudyId(cancerStudyId);
         
-        Map<String,String> patientIDMapping = readPatientIDMapping(urlIDMappingFile);
-        importData(urlXml, cancerStudy.getInternalId(), patientIDMapping);
+        importData(urlXml, cancerStudy.getInternalId());
 
         System.out.println("Done!");
     }
@@ -86,7 +82,7 @@ public final class ImportCaisesClinicalXML {
         return map;
     }
     
-    private static void importData(String urlXml, int cancerStudyId, Map<String,String> patientIDMapping) throws DocumentException, DaoException {
+    private static void importData(String urlXml, int cancerStudyId) throws DocumentException, DaoException {
         MySQLbulkLoader.bulkLoadOn();
         
         SAXReader reader = new SAXReader();
@@ -99,14 +95,9 @@ public final class ImportCaisesClinicalXML {
         long treatmentId = DaoTreatment.getLargestTreatmentId();
         
         for (Node patientNode : patientNodes) {
-            String patientInternalId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
-            String patientId = patientIDMapping.get(patientInternalId);
-            if (patientId==null) {
-                System.err.println(patientInternalId+" is not found in the mapping file. Skip...");
-                continue;
-            }
+            String patientId = patientNode.selectSingleNode("PtProtocolStudyId").getText();
             
-            System.out.println("Importing "+patientId+" ("+patientInternalId+")");
+            System.out.println("Importing "+patientId);
             
 //            List<ClinicalData> clinicalData = 
             

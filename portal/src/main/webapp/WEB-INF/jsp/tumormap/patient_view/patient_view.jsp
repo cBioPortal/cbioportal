@@ -42,7 +42,7 @@ String jsonClinicalData = jsonMapper.writeValueAsString((Map<String,String>)requ
 String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
 boolean showTissueImages = tissueImageUrl!=null;
 
-String patientID = (String)request.getAttribute(PatientView.PATIENT_ID_ATTR_NAME);
+String patientID = (String)request.getAttribute(PatientView.PATIENT_ID);
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
@@ -320,6 +320,7 @@ var hasAlleleFrequencyData = <%=hasAlleleFrequencyData%>;
 var showGenomicOverview = <%=showGenomicOverview%>;
 var caseIdsStr = '<%=caseIdStr%>';
 var caseIds = <%=jsonCaseIds%>;
+var patientId = '<%=patientID%>';
 var cancerStudyName = "<%=cancerStudy.getName()%>";
 var cancerStudyId = '<%=cancerStudy.getCancerStudyStableId()%>';
 var genomicEventObs =  new GenomicEventObserver(<%=showMutations%>,<%=showCNA%>, hasCnaSegmentData);

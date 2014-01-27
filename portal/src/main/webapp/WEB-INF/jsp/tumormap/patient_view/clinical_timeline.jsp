@@ -19,7 +19,7 @@
       font-size: 12px;
     }
     
-    #timeline2 .axis {
+    #timeline .axis {
       transform: translate(0px,30px);
       -ms-transform: translate(0px,30px); /* IE 9 */
       -webkit-transform: translate(0px,30px); /* Safari and Chrome */
@@ -35,28 +35,99 @@
   <script type="text/javascript">
 
     $(document).ready(function(){
+        
+        var params = {
+            type:"diagnostic,treatment,lab_test",
+            cancer_study_id:cancerStudyId,
+            patient_id:patientId
+        }
+        
+        $.post("clinical_timeline_data.json", 
+            params,
+            function(data){
+                if (cbio.util.getObjectLength(data)===0) return;
+                
+                var timeData = prepareTimelineData(data);
 
-      var testData = [
-        {label:"Diagnostics", display:"circle", times: [{"starting_time": 0, "tooltip":"First diagonosis"},{"starting_time": 200}, {"starting_time": 500}]},
-        {label:"Lab Tests", display:"circle", times: [{"starting_time": -10}, ]},
-        {label:"Therapy", display:"rect", times: [{"starting_time": 140, "ending_time": 360, "tooltip":"Chemo"}]},
-      ];
+                var width = $("#td-content").width() - 50;
+                var timeline = clinicalTimeline().itemHeight(12).stack();
+                var svg = d3.select("#timeline").append("svg").attr("width", width).datum(timeData).call(timeline);
+                $("#timeline-container").show();
+            }
+            ,"json"
+        );
+            
+        function prepareTimelineData(timelineData) {
+            var ret = [];
+            
+            if ("diagnostic" in timelineData) {
+                ret.push({
+                    label:"Diagnostics",
+                    display:"circle",
+                    times:formatTimePoints(timelineData["diagnostic"])});
+            }
+            
+            if ("lab_test" in timelineData) {
+                ret.push({
+                    label:"Lab Tests",
+                    display:"circle",
+                    times:formatTimePoints(timelineData["lab_test"])});
+            }
+            
+            if ("treatment" in timelineData) {
+                ret.push({
+                    label:"Therapy",
+                    display:"rect",
+                    times:formatTimePoints(timelineData["treatment"])});
+            }
+            
+            return ret;
+//            return [
+//                    {label:"Diagnostics", display:"circle", times: [{"starting_time": 0, "tooltip":"First diagonosis"},{"starting_time": 200}, {"starting_time": 500}]},
+//                    {label:"Lab Tests", display:"circle", times: [{"starting_time": -10}, ]},
+//                    {label:"Therapy", display:"rect", times: [{"starting_time": 140, "ending_time": 360, "tooltip":"Chemo"}]},
+//                  ];
+        }
+        
+        function formatTimePoints(timePointsData) {
+            var times = [];
+            timePointsData.forEach(function(timePointData){
+                times.push(formatATimePoint(timePointData));
+            });
+            return times;
+        }
+        
+        function formatATimePoint(timePointData) {
+            var startDate, stopDate;
+            if ("date" in timePointData) {
+                startDate = timePointData["date"];
+                stopDate = startDate;
+            } else {
+                startDate = timePointData["startDate"];
+                stopDate = timePointData["stopDate"];
+            }
+            
+            var tooltip = [];
+            for (var key in timePointData) {
+                if (key.match(/(diagnosticId)|(treatmentId)|(diagnosticId)|(cancerStudyId)|(patientId)/)) continue;
+                var value = timePointData[key];
+                if (value===null) continue;
+                tooltip.push("<td>"+key+"</td><td>"+value+"</td>");
+            }
+            
+            return {
+                starting_time : startDate,
+                ending_time : stopDate,
+                tooltip : "<table class='timeline-tooltip-table'><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
+            };
+        }
 
-      var width = $("#td-content").width() - 50;
-
-      function timelineCircle() {
-        var timeline = clinicalTimeline()
-          .itemHeight(12)
-          .stack(); // toggle between rectangles and circles
-
-        var svg = d3.select("#timeline2").append("svg").attr("width", width)
-          .datum(testData).call(timeline);
-      }
-
-      timelineCircle();
     });
   </script>
 
-  <div>
-    <div id="timeline2"></div>
+  <div id="timeline-container" style="display:hidden">
+  <div id="timeline">
+  
+  </div>
+      <br/>
   </div>

@@ -272,11 +272,26 @@ public class PatientView extends HttpServlet {
         }
         request.setAttribute(CLINICAL_DATA, clinicalData);
         
+        String caseId = cases.iterator().next();
+        
+        // other cases with the same patient id
+        Map<String,String> attrMap = clinicalData.get(caseId);
+        if (attrMap!=null) {
+            String patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
+//            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
+//                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
+            
+            if (patientId==null) {
+                patientId = caseId;
+            }
+            //if (samples.size()>1) {
+                request.setAttribute(PATIENT_ID, patientId);
+            //}
+        }
+        
         if (cases.size()>1) {
             return;
         }
-        
-        String caseId = cases.iterator().next();
         
         // images
         String tisImageUrl = getTissueImageIframeUrl(cancerStudy.getCancerStudyStableId(), caseId);
@@ -290,17 +305,6 @@ public class PatientView extends HttpServlet {
             String pathReport = getTCGAPathReport(typeOfCancer, caseId);
             if (pathReport!=null) {
                 request.setAttribute(PATH_REPORT_URL, pathReport);
-            }
-        }
-        
-        // other cases with the same patient id
-        Map<String,String> attrMap = clinicalData.get(caseId);
-        if (attrMap!=null) {
-            String patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
-            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
-                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
-            if (samples.size()>1) {
-                request.setAttribute(PATIENT_ID_ATTR_NAME, patientId);
             }
         }
     }

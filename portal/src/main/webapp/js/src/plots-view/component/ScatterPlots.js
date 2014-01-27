@@ -68,7 +68,7 @@ var ScatterPlots = (function() {
         dataArr.length = 0;
         //convert json to array, and filter out null 
         $.each(_dataArr, function(index, obj) {
-            if (!isNaN(parseFloat(obj.x_val)) && !isNaN(parseFloat(obj.y_val))) {
+            if (!isNaN(parseFloat(obj.x_val)) && !isNaN(parseFloat(obj.y_val))) { //filter nan data points
                 dataArr.push(obj);
             }
         });
@@ -295,8 +295,34 @@ var ScatterPlots = (function() {
 
 
     function drawLegends() {
+        //separate long legends into two lines
+        var _legends = [];
+        $.each(legends, function(index, obj) {
+            var firstWord = obj.text.substr(0, obj.text.indexOf(" "));
+            if (firstWord.length <= 7) {
+                _legends.push(obj);
+            } else {
+                var _tmp_obj_1 = {};
+                _tmp_obj_1.size = obj.size;
+                _tmp_obj_1.shape = obj.shape;
+                _tmp_obj_1.fill = obj.fill;
+                _tmp_obj_1.stroke = obj.stroke;
+                _tmp_obj_1.stroke_width = obj.stroke_width;
+                _tmp_obj_1.text = firstWord;
+                _legends.push(_tmp_obj_1);
+                var _tmp_obj_2 = {};
+                _tmp_obj_2.size = "0"; //invisible
+                _tmp_obj_2.shape = obj.shape;
+                _tmp_obj_2.fill = obj.fill;
+                _tmp_obj_2.stroke = obj.stroke;
+                _tmp_obj_2.stroke_width = obj.stroke_width;
+                _tmp_obj_2.text = "mutated";
+                _legends.push(_tmp_obj_2);
+            }
+        });
+
         var legend = elem.svg.selectAll(".legend")
-            .data(legends)
+            .data(_legends)
             .enter().append("g")
             .attr("class", "legend")
             .attr("transform", function(d, i) {
@@ -317,12 +343,7 @@ var ScatterPlots = (function() {
             .attr("text-anchor", "front")
             .style("font-size", "11")
             .text(function(d) { 
-                var firstWord = d.text.substr(0, d.text.indexOf(" "));
-                if (firstWord.length <= 7) {
-                    return d.text; 
-                } else {
-                    return; 
-                }
+                return d.text; 
             });
 
     }

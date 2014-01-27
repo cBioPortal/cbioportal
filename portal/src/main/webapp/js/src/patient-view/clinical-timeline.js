@@ -2,6 +2,7 @@
   
   clinicalTimeline = function() {
     var orient = "top",
+        daysPerMonth = 365.242199/12,
         width = null,
         height = null,
         tickFormat = { format: d3.time.format("%I %p"), 
@@ -27,14 +28,13 @@
 
       var yAxisMapping = {},
         maxStack = 1,
-        minTime = Number.POSITIVE_INFINITY,
+        minTime = 0,
         maxTime = Number.NEGATIVE_INFINITY;
       
       setWidth();
 
       // check how many stacks we're gonna need
       // do this here so that we can draw the axis before the graph
-      if (stacked || (ending == 0 && beginning == 0)) {
         g.each(function (d, i) {
           d.forEach(function (datum, index) {
 
@@ -58,11 +58,10 @@
           });
         });
 
-        if (ending == 0 && beginning == 0) {
-          beginning = minTime;
-          ending = maxTime;
-        }
-      }
+        beginning = minTime;
+        ending = maxTime;
+        
+        setTickFormat();
 
       var scaleFactor = (1/(ending - beginning)) * (width - margin.left - margin.right);
 
@@ -101,7 +100,7 @@
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
             .attr("height", itemHeight)
-            .attr("tooltip",  function (d, i) {
+            .attr("tip",  function (d, i) {
               return d.tooltip;
             })
             .attr("class", "timeline-viz-elem")
@@ -141,9 +140,41 @@
 
       var gSize = g[0][0].getBoundingClientRect();
       setHeight();
+          
+      addToolTip();
 
       function getXPos(d, i) {
         return margin.left + (d.starting_time - beginning) * scaleFactor;
+      }
+      
+      function setTickFormat() {
+          var tickValues = [];
+          if (beginning<0) {
+              for (var i=-1; i*6*daysPerMonth>=beginning; i++) {
+                  tickValues.push(i*6*daysPerMonth);
+              }
+          }
+          
+          for (var i=0; i*6*daysPerMonth<=ending; i++) {
+              tickValues.push(i*6*daysPerMonth);
+          }
+          
+          tickFormat = {
+            format: function(d) {return (d/daysPerMonth).toFixed(0)+" months";}, 
+            tickValues: tickValues, 
+            tickSize: 8
+          };
+      }
+      
+      function addToolTip() {
+            var param = {
+                content: {attr:"tip"},
+                show: {event: "mouseover"},
+                hide: {fixed: true, delay: 100, event:"mouseout"},
+                style: { classes: 'qtip-light qtip-rounded' },
+                position: {my:'top middle',at:'bottom middle'}
+            };
+            $(".timeline-viz-elem").qtip(param);
       }
 
       function setHeight() {
@@ -218,18 +249,6 @@
     timeline.colors = function (colorFormat) {
       if (!arguments.length) return colorCycle;
       colorCycle = colorFormat;
-      return timeline;
-    };
-
-    timeline.beginning = function (b) {
-      if (!arguments.length) return beginning;
-      beginning = b;
-      return timeline;
-    };
-
-    timeline.ending = function (e) {
-      if (!arguments.length) return ending;
-      ending = e;
       return timeline;
     };
 

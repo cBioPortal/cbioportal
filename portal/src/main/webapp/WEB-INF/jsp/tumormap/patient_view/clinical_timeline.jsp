@@ -37,20 +37,15 @@
     $(document).ready(function(){
 
       var testData = [
-        {label:"Diagnostics", display:"circle", times: [{"starting_time": 0, "tooltip":"First diagonosis"},{"starting_time": 5}, {"starting_time": 30}]},
-        {label:"Lab Tests", display:"circle", times: [{"starting_time": 10}, ]},
-        {label:"Therapy", display:"rect", times: [{"starting_time": 14, "ending_time": 20}]},
+        {label:"Diagnostics", display:"circle", times: [{"starting_time": 0, "tooltip":"First diagonosis"},{"starting_time": 200}, {"starting_time": 500}]},
+        {label:"Lab Tests", display:"circle", times: [{"starting_time": -10}, ]},
+        {label:"Therapy", display:"rect", times: [{"starting_time": 140, "ending_time": 360, "tooltip":"Chemo"}]},
       ];
 
       var width = $("#td-content").width() - 50;
 
       function timelineCircle() {
         var timeline = clinicalTimeline()
-          .tickFormat({
-            format: function(d) {return "day "+d;}, 
-            tickValues: [0,5,10,15,20,25,30], 
-            tickSize: 8
-          })
           .itemHeight(12)
           .stack(); // toggle between rectangles and circles
 

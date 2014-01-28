@@ -43,6 +43,8 @@ String tissueImageUrl = (String)request.getAttribute(PatientView.TISSUE_IMAGES);
 boolean showTissueImages = tissueImageUrl!=null;
 
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID);
+int numTumors = (Integer)request.getAttribute("num_tumors");
+
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
 //String drugType = xssUtil.getCleanerInput(request, "drug_type");
@@ -113,9 +115,9 @@ if (patientViewError!=null) {
 
 <jsp:include page="../../global/header.jsp" flush="true" />
 
-<%if(patientID!=null) {%>
+<%if(numTumors>1) {%>
     <p style="background-color: lightyellow;"> This patient has 
-        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&patient_id=<%=patientID%>">multiple tumors</a>.
+        <a title="Go to multi-sample view" href="case.do?cancer_study_id=<%=cancerStudy.getCancerStudyStableId()%>&patient_id=<%=patientID%>"><%=numTumors%> tumor samples</a>.
     </p>
 <%}%>
 

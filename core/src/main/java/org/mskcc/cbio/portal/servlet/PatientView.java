@@ -274,23 +274,27 @@ public class PatientView extends HttpServlet {
         
         String caseId = cases.iterator().next();
         
+        request.setAttribute("num_tumors", 1);
+        
         // other cases with the same patient id
+        String patientId = null;
         Map<String,String> attrMap = clinicalData.get(caseId);
         if (attrMap!=null) {
-            String patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
-//            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
-//                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
-            
-            if (patientId==null) {
-                patientId = caseId;
-            }
-            //if (samples.size()>1) {
-                request.setAttribute(PATIENT_ID, patientId);
-            //}
+            patientId = attrMap.get(PATIENT_ID_ATTR_NAME);
         }
+
+        request.setAttribute(PATIENT_ID, patientId==null?caseId:patientId);
         
         if (cases.size()>1) {
             return;
+        }
+        
+        if (patientId!=null) {
+            List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
+                    cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
+            if (samples.size()>1) {
+                request.setAttribute("num_tumors", samples.size());
+            }
         }
         
         // images

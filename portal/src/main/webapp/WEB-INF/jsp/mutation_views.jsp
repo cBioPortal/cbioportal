@@ -182,6 +182,17 @@
 					<table cellpadding='0'>
 						<tr>
 							<td>
+								<label>
+									<input class='mutation-3d-display-non-protein'
+									       type='checkbox'
+									       checked='checked'>
+									Display non-protein
+								</label>
+								<img class='display-non-protein-help' src='{{helpImage}}'/>
+							</td>
+						</tr>
+						<tr>
+							<td>
 								<label>Scheme:</label>
 								<select class='mutation-3d-protein-style-select'>
 									<option value='cartoon'

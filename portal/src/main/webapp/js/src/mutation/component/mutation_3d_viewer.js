@@ -44,6 +44,7 @@ var Mutation3dVis = function(name, options)
 			color: "white"
 		},
 		proteinScheme: "cartoon", // default style of the protein structure
+		restrictProtein: false, // restrict to protein only (hide other atoms)
 		defaultColor: "xDDDDDD", // default color of the whole structure
 		structureColors: { // default colors for special structures
 			alphaHelix: "xFFA500",
@@ -622,6 +623,11 @@ var Mutation3dVis = function(name, options)
 		//script.push("color translucent [" + _options.defaultTranslucency + "];");
 		script.push("select :" + chain.chainId + ";");
 		script.push("color opaque;");
+
+		if (_options.restrictProtein)
+		{
+			script.push("restrict protein;");
+		}
 
 		return script;
 	}

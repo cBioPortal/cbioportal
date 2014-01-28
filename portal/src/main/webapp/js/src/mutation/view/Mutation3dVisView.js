@@ -84,14 +84,11 @@ var Mutation3dVisView = Backbone.View.extend({
 //			}
 //		});
 
-		// mutation style checkboxes
+		// mutation style controls
 		self._initMutationControls();
 
-		// protein style selector
-		self._initProteinSchemeSelector();
-
-		// protein color selector
-		self._initProteinColorSelector();
+		// protein style controls
+		self._initProteinControls();
 
 		// zoom slider
 		self._initZoomSlider();
@@ -159,6 +156,39 @@ var Mutation3dVisView = Backbone.View.extend({
 		// add info tooltip for the color and side chain checkboxes
 		self._initMutationColorInfo();
 		self._initSideChainInfo();
+	},
+	/**
+	 * Initializes the protein style options UI and
+	 * the corresponding event handlers.
+	 */
+	_initProteinControls: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var displayNonProtein = self.$el.find(".mutation-3d-display-non-protein");
+
+		// handler for hide non protein checkbox
+		displayNonProtein.change(function() {
+			var display = displayNonProtein.is(":checked");
+
+			if (mut3dVis)
+			{
+				// update flag
+				mut3dVis.updateOptions({restrictProtein: !display});
+				// refresh view with new options
+				mut3dVis.reapplyStyle();
+			}
+		});
+
+		// add info tooltip for the checkbox
+		self._initHideNonProteinInfo();
+
+		// protein scheme selector
+		self._initProteinSchemeSelector();
+
+		// protein color selector
+		self._initProteinColorSelector();
 	},
 	/**
 	 * Initializes the protein color selector drop-down menu
@@ -479,6 +509,23 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var content = "Displays the side chain atoms for the highlighted residues. " +
 		              "This option has no effect for space-filling protein scheme.";
+
+		var options = self._generateTooltipOpts(content);
+		info.qtip(options);
+	},
+	/**
+	 * Initializes the side chain information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initHideNonProteinInfo: function()
+	{
+		var self = this;
+
+		var info = self.$el.find(".display-non-protein-help");
+
+		var content = "Displays the non-protein sections. " +
+		              "This option has no effect if the current structure " +
+		              "does not contain any non-protein sections.";
 
 		var options = self._generateTooltipOpts(content);
 		info.qtip(options);

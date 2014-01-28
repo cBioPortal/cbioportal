@@ -268,7 +268,8 @@ th.mutation-details-qtip-style {
 	width: 24px;
 	height: 24px;
 }
-.mutation-3d-mutation-style-menu input
+.mutation-3d-mutation-style-menu input,
+.mutation-3d-protein-style-menu input,
 {
 	margin: 0;
 }

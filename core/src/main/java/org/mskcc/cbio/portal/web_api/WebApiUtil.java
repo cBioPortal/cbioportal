@@ -30,10 +30,12 @@ package org.mskcc.cbio.portal.web_api;
 import org.mskcc.cbio.portal.model.Gene;
 import org.mskcc.cbio.portal.model.MicroRna;
 import org.mskcc.cbio.portal.model.GeneticAlterationType;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
 import org.mskcc.cbio.portal.util.GeneComparator;
 import org.mskcc.cbio.portal.dao.DaoMicroRna;
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
+import org.owasp.validator.html.PolicyException;
 
 import java.util.Date;
 import java.util.ArrayList;
@@ -59,7 +61,15 @@ public class WebApiUtil {
             variantMicroRnaIdSet = daoMicroRna.getEntireVariantSet();
         }
 
-        //  Iterate through all the genes specified by the client
+	    ServletXssUtil xssUtil = null;
+
+	    try {
+		    xssUtil = ServletXssUtil.getInstance();
+	    }
+	    catch (Exception e) {
+	    }
+
+	    //  Iterate through all the genes specified by the client
         //  Genes might be specified as Integers, e.g. Entrez Gene Ids or Strings, e.g. HUGO
         //  Symbols or microRNA Ids or aliases.
         ArrayList <Gene> geneList = new ArrayList<Gene>();
@@ -90,11 +100,17 @@ public class WebApiUtil {
                             geneList.add(microRna);
                         }
                     } else {
+	                    if (xssUtil != null) {
+		                    geneId = xssUtil.getCleanerInput(geneId);
+	                    }
                         String msg = "# Warning:  Unknown microRNA:  " + geneId;
                         warningBuffer.append(msg).append ("\n");
                         warningList.add(msg);
                     }
                 } else {
+	                if (xssUtil != null) {
+		                geneId = xssUtil.getCleanerInput(geneId);
+	                }
                     String msg = "# Warning:  Unknown gene:  " + geneId;
                     warningBuffer.append(msg).append ("\n");
                     warningList.add(msg);

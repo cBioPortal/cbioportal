@@ -46,36 +46,32 @@
         </ul>
 </div>
 -->
-<div id="main">	
+<div id="study-view-main">	
     <!--
     <div id="mainTitle">
         <pieH4>TUMOR SAMPLE ANALYSIS</pieH4>
     </div>
 -->
-    <div id="add-chart">
-        <select id='selectAttr'>
+    <div id="study-view-add-chart">
+        <select id='study-view-selectAttr'>
             <option>Please select attribute</option>
         </select>
-        <select id='selectChartType'>
+        <select id='study-view-selectChartType'>
             <option>Please select chart type</option>
         </select>
-        <input type='button' value='Add Chart' id='add-chart-button' class='header_button' disabled/>
+        <input type='button' value='Add Chart' id='study-view-add-chart-button' class='study-view-header-button' disabled/>
     </div>
-    <br/><hr/><br/>
-    <div id="pie"></div>
-
-    <div id="row"></div>
-    <div id="bar"></div>
-    <div id="update">
-        <div id="updateContent">
+    <hr/>
+    <div id="study-view-charts"></div>
+    
+    <div id="study-view-update">
+        <div id="study-view-updateContent">
             <div style="float: right">
-                <input type='button' id='dataTable_header' class='header_button' value = 'Update Charts'/><!--
-                <input type='button' id='dataTable_reset' class='header_button' value = 'Reset'/>
-                                                                                                            -->
+                <input type='button' id='study-view-dataTable-header' class='study-view-header-button' value = 'Update Charts'/>
             </div>
             <img src="images/arrow_top.png" height='25px' alt='Update Charts' style="float: right"/>
             <div style="float: right">
-                <input type='button' id='dataTable_updateTable' class='header_button' value = 'Update Table' />
+                <input type='button' id='study-view-dataTable-updateTable' class='study-view-header-button' value = 'Update Table' />
             </div>
             <img src="images/arrow_bottom.png" height='25px' alt='Update  Table' style="float: right"/>
         </div>

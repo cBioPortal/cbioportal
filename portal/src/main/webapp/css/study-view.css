@@ -1,281 +1,266 @@
+
+
 /* main style */
+#study-view-main {
+	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin: 0 auto;
+	overflow: hidden;
+	width: 1200px; }
 
-#main {
-margin-left: auto;
-margin-right: auto;
-width:1200px;
-margin:0 auto;
-height:auto;
-overflow: hidden;
-}
-#pie {	
-    width:1200px;
-    height:auto;
-    margin:0 auto;
-    float:left;
-}
-#bar {
-    height:auto;
-    margin:0 auto;
-}
+#study-view-charts {
+	float: left;
+	height: auto;
+	margin-top: 10px;
+	margin: 0 auto;
+	width: 1200px; }
+
 #data-table-chart {
-    width:100%;
-    float:left;
-    height:100%;
-    margin-top:30px;
-}
-#bar h4 {
-    font-size:12px;
-}
+	float: left;
+	height: 100%;
+	margin-top: 30px;
+	width: 100%; }
+
 #dialog-form {
-    position:fixed;
-    left:50px;
-    top:90px;
-    width:250px;
-    text-align:right;
-    font-size:12px;
-}
-#dialog-form h4{
-    font-size:15px;
-}
-#data-chart h4{
-    margin-top:0px;
-    margin-bottom:5px;
-    font-size:10px;
-}
-#data-chart h3{
-    margin-bottom:5px;
-    font-size:12px;
-    text-align:center;
-}
+	font-size: 12px;
+	left: 50px;
+	position: fixed;
+	text-align: right;
+	top: 90px;
+	width: 250px; }
+
+	#dialog-form h4 { font-size: 15px; }
+
+#data-chart h4 {
+	font-size: 10px;
+	margin-bottom: 5px;
+	margin-top: 0px; }
+
+#data-chart h3 {
+	font-size: 12px;
+	margin-bottom: 5px;
+	text-align: center; }
+
 #data-chart {
-    width:200px;
-    margin-bottom:10px;
-    margin-left:20px;
-    text-align: center;
-    float:left;
-}
-#update {
-    float:left;
-    width:1000px;
-    margin:auto;
-}
+	float: left;
+	margin-bottom: 10px;
+	margin-left: 20px;
+	text-align: center;
+	width: 200px; }
+
+#study-view-update {
+	float: left;
+	margin: auto;
+	width: 1000px; }
+
 #dataTableLoading {
-    float:left;
-    width:1000px;
-    margin:auto;
-}
-#updateContent {
-    text-align:right;
-    width: 500px;
-    height: auto;
-    margin-left:auto;
-    margin-right:auto;
-    margin-top: 20px;
-}
-#dataTable_reset {
-    margin-right: 10px;
-}
-#dataTable_updateTable {
-    margin-right: 75px;
-}
+	float: left;
+	margin: auto;
+	width: 1000px; }
+
+#study-view-updateContent {
+	height: auto;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 20px;
+	text-align: right;
+	width: 500px; }
+
+#study-view-dataTable-updateTable { margin-right: 75px; }
+
+#study-view-add-chart {
+	float: left;
+	margin-bottom: 10px;
+	margin-top: 10px;
+	width: 100%; }
+
 /* CLASS styles */
-.bar-chart g.brush rect.extent {
-    fill:steelblue;
-    fill-opacity:0.2;
-}
-.bar-chart g.brush .resize path {
-    fill: #eee;
-    stroke: #666;
-}
-.bar-chart g.brush rect.background {
-    z-index: -999;
-}
+.study-view-bar-chart g.brush rect.extent {
+	fill-opacity: 0.2;
+	fill: steelblue; }
+
+.study-view-bar-chart g.brush .resize path {
+	fill: #eee;
+	stroke: #666; }
+
+.study-view-bar-chart g.brush rect.background { z-index: -999; }
+
 .header {
-    font-size:10px;
-    width:3000px;
-}
-.dc-table-group {
-    background-color:lightblue;
-}
-.pie-chart{
-    float:left;
-    width:100px;
-    height:100px;
-    text-align:center;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-}
-.pie-chart.w2 {
-    float:left;
-    width:200px;
-    height:200px;
-    text-align:center;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-    margin-bottom: 10px;
-}
-.pie-chart.w3 {
-    float:left;
-    width:400px;
-    height:400px;
-    text-align:center;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-}
-.pie-chart g{
-    font-size:11px;
-}
+	font-size: 10px;
+	width: 3000px; }
 
-.pie-chart :active{
-    cursor: move;
-}
-.pie-chart-delete {
-    float: right;
-    margin-right: 5px;
-    color: lightgray;
-    cursor: pointer;
-}
-.row-chart {
-    float:left;
-    width:300px;	
-    text-align:center;
-}
-.row-chart g{
-    font-size:11px;
-}
-pieH4{
-    font-size: 11px;
-    color: blue;
-    font-weight: bold;
-}
-pieH3{
-    font-size: 10px;
-    color: blue;
-}
+.dc-table-group { background-color: lightblue; }
+
+.study-view-pie-chart {
+	border-color: lightgrey;
+	border-style: solid;
+	border-width: 1px;
+	float: left;
+	height: 100px;
+	text-align: center;
+	width: 100px; }
+
+	.study-view-pie-chart.w2 {
+		border-color: lightgrey;
+		border-style: solid;
+		border-width: 1px;
+		float: left;
+		height: 200px;
+		margin-bottom: 10px;
+		text-align: center;
+		width: 180px; }
+
+	.study-view-pie-chart.w3 {
+		border-color: lightgrey;
+		border-style: solid;
+		border-width: 1px;
+		float: left;
+		height: 400px;
+		text-align: center;
+		width: 400px; }
+
+	.study-view-pie-chart g { font-size: 11px; }
+
+	.study-view-pie-chart :active { cursor: move; }
+
+.study-view-dc-chart-delete {
+	color: lightgray;
+	cursor: pointer;
+	float: right;
+	margin-right: 5px; }
+
+.study-view-row-chart {
+	float: left;
+	text-align: center;
+	width: 300px; }
+
+	.study-view-row-chart g { font-size: 11px; }
+
+pieH4 {
+	color: blue;
+	font-size: 11px;
+	font-weight: bold; }
+
+pieH3 {
+	color: blue;
+	font-size: 10px; }
+
 .data-pie-chart {
-    width:100px;
-    float:left;	
-    text-align:center;
-}
-.subData {
-    font-size:10px;
-}
-.dc-chart .axis {
-    fill:steelblue;
-    fill-opacity:1;
-    stroke:grey;
-    stroke-opacity:0.5;
-    stroke-width:0.5;
-}
-.bar-chart {
-    margin-top:20px;
-    float:left;
-    width:560px;
-    border:1px;
-    border-color:lightgrey;
-    border-style:solid;
-    margin-left:15px;
-    margin-right:15px;
-}
-.dc-chart rect.bar {
-    stroke: none;
-    cursor: pointer;
-}
-.dc-chart rect.bar:hover {
-    fill-opacity: .5;
-}
-.dc-chart rect.stack1 {
-    stroke: none;
-    fill: red;
-}
-.dc-chart rect.stack2 {
-    stroke: none;
-    fill: green;
-}
-.dc-chart rect.deselected {
-    stroke: none;
-    fill: #ccc;
-}
-.dc-chart .pie-slice {
-    fill: white;
-    font-size: 10px;
-    cursor: pointer;
-}
-.dc-chart .pie-slice :hover {
-    fill-opacity: .8;
-}
-.dc-chart .selected path {
-    stroke-width: 3;
-    stroke: #ccc;
-    fill-opacity: 1;
-}
-.dc-chart .deselected path {
-    stroke: none;
-    fill-opacity: .5;
-    fill: #ccc;
-}
-.dc-data-count {
-    float: right;
-    margin-top: 15px;
-    margin-right: 15px;
-    margin-bottom: 10px;
-}
-.dc-data-count .filter-count {
-    color: #3182bd;
-    font-weight: bold;
-}
-.dc-data-count .total-count {
-    color: #3182bd;
-    font-weight: bold;
-}
-.header_button{
-    background-color:#D3D6FF;
-    border: none;
-    border-radius: 10px;
-    -webkit-border-radius: 10px;
-    -moz-border-radius: 10px;
-    cursor:pointer;
-    -webkit-transition: All 0.5s ease;
-    -moz-transition: All 0.5s ease;
-    -o-transition: All 0.5s ease;
-    -ms-transition: All 0.5s ease;
-    transition: All 0.5s ease;
-}
-.header_button:hover:enabled{
-    background-color:#BDC0E5;
-}
-/* tag styles */
-ul {
-    list-style-type: none;
-}
-ul li{
-    cursor:pointer;
-    margin: 2px 0px 0px 0px;
-}
-ul li a {
-    display:block;
-}
-ul li a:hover, ul li a:focus {
-    color:skyblue;
-}
-table.dataTable{
-    width:100%;
-    font-size:12px;
-}
+	float: left;
+	text-align: center;
+	width: 100px; }
 
-table.dataTable>tbody>tr>td {white-space:nowrap}
-table.dataTable>thead>tr>th:nth-child(1) {background-color: white;}
-table.dataTable>thead>tr>th {
-    //white-space:nowrap;
-    -webkit-transform: rotate(315deg);  
-    -moz-transform: rotate(315deg);
-    -ms-transform: rotate(315deg);
-    -o-transform: rotate(315deg);
-    border-style: hidden;
-    text-align: center;
-    vertical-align: middle;
-}
+.subData { font-size: 10px; }
+
+.dc-chart .axis {
+	fill-opacity: 1;
+	fill: steelblue;
+	stroke-opacity: 0.5;
+	stroke-width: 0.5;
+	stroke: grey; }
+
+.study-view-bar-chart {
+	border-color: lightgrey;
+	border-style: solid;
+	border: 1px;
+	float: left;
+	height: 200px;
+	margin-bottom: 10px;
+	width: 560px; }
+
+.dc-chart rect.bar {
+	cursor: pointer;
+	stroke: none; }
+
+	.dc-chart rect.bar:hover { fill-opacity: .5; }
+
+.dc-chart rect.stack1 {
+	fill: red;
+	stroke: none; }
+
+.dc-chart rect.stack2 {
+	fill: green;
+	stroke: none; }
+
+.dc-chart rect.deselected {
+	fill: #ccc;
+	stroke: none; }
+
+.dc-chart .pie-slice {
+	cursor: pointer;
+	fill: white;
+	font-size: 10px; }
+
+	.dc-chart .pie-slice :hover { fill-opacity: .8; }
+
+.dc-chart .selected path {
+	fill-opacity: 1;
+	stroke-width: 3;
+	stroke: #ccc; }
+
+.dc-chart .deselected path {
+	fill-opacity: .5;
+	fill: #ccc;
+	stroke: none; }
+
+.dc-data-count {
+	float: right;
+	margin-bottom: 10px;
+	margin-right: 15px;
+	margin-top: 15px; }
+
+	.dc-data-count .filter-count {
+		color: #3182bd;
+		font-weight: bold; }
+
+	.dc-data-count .total-count {
+		color: #3182bd;
+		font-weight: bold; }
+
+.study-view-header-button {
+	-moz-border-radius: 10px;
+	-moz-transition: All 0.5s ease;
+	-ms-transition: All 0.5s ease;
+	-o-transition: All 0.5s ease;
+	-webkit-border-radius: 10px;
+	-webkit-transition: All 0.5s ease;
+	background-color: #D3D6FF;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+	transition: All 0.5s ease; }
+
+	.study-view-header-button:hover:enabled { background-color: #BDC0E5; }
+
+	.study-view-header-button:hover:disabled { cursor: default; }
+
+/* tag styles */
+ul { list-style-type: none; }
+
+	ul li {
+		cursor: pointer;
+		margin: 2px 0px 0px 0px; }
+
+		ul li a { display: block; }
+
+			ul li a:hover, ul li a:focus { color: skyblue; }
+
+table.dataTable {
+	font-size: 12px;
+	width: 100%; }
+
+	table.dataTable>tbody>tr>td { white-space: nowrap }
+
+	table.dataTable>thead>tr>th:nth-child(1) { background-color: white; }
+
+	table.dataTable>thead>tr>th {
+		-moz-transform: rotate(315deg);
+		-ms-transform: rotate(315deg);
+		-o-transform: rotate(315deg);
+		-webkit-transform: rotate(315deg);
+		//white-space: nowrap;
+		border-style: hidden;
+		text-align: center;
+		vertical-align: middle; }
+

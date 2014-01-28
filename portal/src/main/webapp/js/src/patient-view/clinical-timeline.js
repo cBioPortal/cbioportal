@@ -99,7 +99,7 @@
             .attr("cy", getStackPosition)
             .attr("cx", getXPos)
             .attr("r", itemHeight/2)
-            .attr("height", itemHeight)
+            .attr("height", 3)
             .attr("tip",  function (d, i) {
               return d.tooltip;
             })

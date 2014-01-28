@@ -75,10 +75,14 @@
             }
             
             if ("treatment" in timelineData) {
-                ret.push({
-                    label:"Therapies",
-                    display:"rect",
-                    times:formatTimePoints(timelineData["treatment"])});
+                var treatments = timelineData["treatment"].sort(function(a,b){return a.startDate-b.startDate});
+                var treatmentGroups = separateTreatmentsByAgent(treatments);
+                for (var agent in treatmentGroups) {
+                    ret.push({
+                        label:agent,
+                        display:"rect",
+                        times:formatTimePoints(treatmentGroups[agent])});
+                }
             }
             
             return ret;
@@ -120,6 +124,24 @@
                 ending_time : stopDate,
                 tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
+        }
+        
+        function separateTreatmentsByAgent(treatments) {
+            var ret = {};
+            treatments.forEach(function(treatment) {
+                var agent = treatment.agent;
+                if (agent===null) {
+                    agent = treatment.subtype;
+                }
+                if (agent===null) {
+                    agent = treatment.type;
+                }
+                if (!(agent in ret)) {
+                    ret[agent] = [];
+                }
+                ret[agent].push(treatment);
+            });
+            return ret;
         }
 
     });

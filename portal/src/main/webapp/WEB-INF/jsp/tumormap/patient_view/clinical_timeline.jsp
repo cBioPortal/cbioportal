@@ -76,7 +76,7 @@
             
             if ("treatment" in timelineData) {
                 ret.push({
-                    label:"Therapy",
+                    label:"Therapies",
                     display:"rect",
                     times:formatTimePoints(timelineData["treatment"])});
             }
@@ -118,7 +118,7 @@
             return {
                 starting_time : startDate,
                 ending_time : stopDate,
-                tooltip : "<table class='timeline-tooltip-table'><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
+                tooltip : "<table class='timeline-tooltip-table uninitialized'><thead><tr><th>&nbsp;</th><th>&nbsp;</th></tr></thead><tr>" + tooltip.join("</tr><tr>") + "</tr></table>"
             };
         }
 

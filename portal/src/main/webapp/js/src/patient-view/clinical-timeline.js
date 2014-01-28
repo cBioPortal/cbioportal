@@ -167,14 +167,37 @@
       }
       
       function addToolTip() {
-            var param = {
+            var params = {
                 content: {attr:"tip"},
                 show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event:"mouseout"},
                 style: { classes: 'qtip-light qtip-rounded' },
-                position: {my:'top middle',at:'bottom middle'}
-            };
-            $(".timeline-viz-elem").qtip(param);
+                position: {my:'top middle',at:'bottom middle'},
+                events: {
+                    render: function(event, api) {
+                        $(".timeline-tooltip-table.uninitialized").dataTable( 
+                            {
+                            "sDom": 't',
+                            "bJQueryUI": true,
+                            "bDestroy": true,
+                            "aoColumnDefs": [
+                                
+                            ],
+                            "oLanguage": {
+                                "sInfo": "&nbsp;&nbsp;(_START_ to _END_ of _TOTAL_)&nbsp;&nbsp;",
+                                "sInfoFiltered": "",
+                            },
+                            "fnDrawCallback": function ( oSettings ) {
+    $(oSettings.nTHead).hide();
+},
+                            "aaSorting": [[0,'asc']],
+                            "iDisplayLength": -1
+                            } 
+                        ).removeClass('uninitialized');
+                    }
+                }
+             };
+            $(".timeline-viz-elem").qtip(params);
       }
 
       function setHeight() {

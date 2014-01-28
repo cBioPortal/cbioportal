@@ -109,7 +109,7 @@
             
             var tooltip = [];
             for (var key in timePointData) {
-                if (key.match(/(diagnosticId)|(treatmentId)|(diagnosticId)|(cancerStudyId)|(patientId)/)) continue;
+                if (key.match(/(diagnosticId)|(treatmentId)|(labTestId)|(cancerStudyId)|(patientId)/)) continue;
                 var value = timePointData[key];
                 if (value===null) continue;
                 tooltip.push("<td>"+key+"</td><td>"+value+"</td>");

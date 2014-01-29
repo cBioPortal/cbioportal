@@ -304,6 +304,9 @@
 			</a>
 		</td>
 		<td>
+			<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
+		</td>
+		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>
 		</td>
 	</tr>
@@ -338,6 +341,7 @@
 	<th alt='Normal Ref Count' class='mutation-table-header'>Norm Ref</th>
 	<th alt='Normal Alt Count' class='mutation-table-header'>Norm Alt</th>
 	<th alt='Link to BAM file' class='mutation-table-header'>BAM</th>
+	<th alt='Copy-number status of the mutated gene' class='mutation-table-header'>Copy #</th>
 	<th alt='Total number of<br> nonsynonymous mutations<br> in the sample'
 	    class='mutation-table-header'>#Mut in Sample</th>
 </script>

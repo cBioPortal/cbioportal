@@ -194,7 +194,8 @@ $(function() {
             dataA = attr;
             dataB = dataObjectM;
 
-
+            //c.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(fraction_of_copy_number_altered_genome)/)
+            
             for(var i=0; i< dataA.length ; i++){
                 var varValues = new Array();
                 for(var j=0;j<dataB.length;j++){
@@ -208,10 +209,12 @@ $(function() {
                 if(dataA[i]["attr_id"] === "CASE_ID"){
                     continue;
                 }else if(dataA[i]["datatype"] === "NUMBER" || dataA[i]["datatype"] === "BOOLEAN"){                
-                    if(keys.length>10)
-                        bar.push(dataA[i]);
-                    else
-                        pie.push(dataA[i]);
+                    if(selectedCol(dataA[i]["attr_id"])){                    
+                        if(keys.length>10)
+                            bar.push(dataA[i]);
+                        else
+                            pie.push(dataA[i]);
+                    }
                     
                     if(keys.length > 10)
                         varType[dataA[i]["attr_id"]] = "bar,row";
@@ -221,12 +224,17 @@ $(function() {
                         varType[dataA[i]["attr_id"]] = "pie,row";
                     
                 }else if(dataA[i]["datatype"] === "STRING"){
-                    pie.push(dataA[i]);
+                    if(selectedCol(dataA[i]["attr_id"])){
+                        pie.push(dataA[i]);
+                    }
+                    
                     varType[dataA[i]["attr_id"]] = "pie,row";
                 }
                 else 
                     combine.push(dataA[i]);
                 
+                varDisplay.push(dataA[i]["display_name"]);                
+                varName.push(dataA[i]["attr_id"]);
                 rowKeys[dataA[i]["attr_id"]] = keys;
             }
             
@@ -235,27 +243,21 @@ $(function() {
             
             for(var i=0; i< pie.length ; i++){
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-pie-chart'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-                varName.push(pie[i]["attr_id"]);
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
-                varDisplay.push(pie[i]["display_name"]); 
                 varChart.push(dc.pieChart("#study-view-dc-chart-" + createdChartID));
                 createdChartID++;
             }
 
             for(var i=0; i< row.length; i++){
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-row-chart'><div style='width:100%; float:left'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-                varName.push(row[i]["attr_id"]);
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
-                varDisplay.push(row[i]["display_name"]);
                 varChart.push(dc.rowChart("#study-view-dc-chart-" + createdChartID));
                 createdChartID++;
             }
 
             for(var i=0; i< bar.length ; i++){
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-bar-chart'><div style='width:100%; float:left'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-                varName.push(bar[i]["attr_id"]);
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
-                varDisplay.push(bar[i]["display_name"]);
                 varChart.push(dc.barChart("#study-view-dc-chart-" + createdChartID));
                 createdChartID++;
             }
@@ -271,11 +273,11 @@ $(function() {
             //Initial all pie charts
             createdChartID = 0;
             
-            while(createdChartID < pie.length){
+            for(var i=0; createdChartID < pie.length ;i++){
                 varCluster[createdChartID] = ndx.dimension(function (d) {
-                    if(!d[varName[createdChartID]] || d[varName[createdChartID]].toLowerCase()==="unknown" || d[varName[createdChartID]].toLowerCase()==="none")
+                    if(!d[pie[i]["attr_id"]] || d[pie[i]["attr_id"]].toLowerCase()==="unknown" || d[pie[i]["attr_id"]].toLowerCase()==="none")
                         return "NA";
-                    return d[varName[createdChartID]];
+                    return d[pie[i]["attr_id"]];
                 });
                 varGroup[createdChartID] = varCluster[createdChartID].group();
                 
@@ -297,6 +299,7 @@ $(function() {
             }
 
             //Initial all row charts
+            /*
             while(createdChartID < pie.length+row.length){
                 var rowChartHeight = rowKeys[createdChartID-pie.length].length * 25 +50;
                 $(varName[createdChartID]).css("height",rowChartHeight+50+"px")
@@ -324,32 +327,32 @@ $(function() {
                 
                 createdChartID++;
             }
-            
+            */
             //Initial all bar charts
-            while(createdChartID < pie.length+row.length+bar.length){           
+            for(var i = 0 ; createdChartID < pie.length+row.length+bar.length ; i++){           
 
                 var varValues = new Array();
                 for(var j=0;j<dataB.length;j++){
-                    if(dataB[j][varName[createdChartID]] && dataB[j][varName[createdChartID]]!=="NA" && dataB[j][varName[createdChartID]]!=="")
-                        varValues.push(dataB[j][varName[createdChartID]]);                    
+                    if(dataB[j][bar[i]["attr_id"]] && dataB[j][bar[i]["attr_id"]]!=="NA" && dataB[j][bar[i]["attr_id"]]!=="")
+                        varValues.push(dataB[j][bar[i]["attr_id"]]);                    
                 }
 
-                distanceMinMaxArray[varName[createdChartID]] = {
+                distanceMinMaxArray[bar[i]["attr_id"]] = {
                     distance : Math.max.apply( Math, varValues ) - Math.min.apply( Math, varValues ),
                     min: Math.min.apply( Math, varValues ),
                     max:Math.max.apply( Math, varValues )
                 };
                         
-                var distanceMinMax = distanceMinMaxArray[varName[createdChartID]].distance;
+                var distanceMinMax = distanceMinMaxArray[bar[i]["attr_id"]].distance;
                 
                 varCluster[createdChartID] = ndx.dimension(function (d) {
-                    var returnValue = d[varName[createdChartID]]; 
-                    if(d[varName[createdChartID]] % 1 !== 0 && decimalPlaces(d[varName[createdChartID]]) > 3)
+                    var returnValue = d[bar[i]["attr_id"]]; 
+                    if(d[bar[i]["attr_id"]] % 1 !== 0 && decimalPlaces(d[bar[i]["attr_id"]]) > 3)
                         if(distanceMinMax < 2){
-                            returnValue = d3.round(d[varName[createdChartID]],2);
+                            returnValue = d3.round(d[bar[i]["attr_id"]],2);
                         }
                         else
-                            returnValue = d3.round(d[varName[createdChartID]]);
+                            returnValue = d3.round(d[bar[i]["attr_id"]]);
                     if(returnValue === "NA" || returnValue === '')
                         returnValue = Math.min.apply( Math, varValues )-100;
                     return returnValue;
@@ -727,8 +730,6 @@ $(function() {
                 $('.study-view-dc-chart-delete').click(function(event){
                     var id = $(this).parent().parent().attr("id");
                     $("div").remove("#" + id); 
-                    console.log(id);
-                    console.log(varNameIDMapping[id]);
                     varChart[varNameIDMapping[id]].filterAll();
                     dc.redrawAll();
                     dc.deregisterChart(varChart[varNameIDMapping[id]]);
@@ -814,6 +815,10 @@ $(function() {
         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
             results = regex.exec(location.search);
         return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    }
+    
+    function selectedCol(col) {
+        return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
 
 });

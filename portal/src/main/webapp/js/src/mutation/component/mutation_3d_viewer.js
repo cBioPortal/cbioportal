@@ -389,6 +389,51 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
+	 * Centers the view onto the currently highlighted residue.
+	 *
+	 * @return {boolean} true if center successful, false otherwise
+	 */
+	function centerOnHighlighted()
+	{
+		// perform action if there is only one highlighted position
+		if (_.size(_highlighted) != 1)
+		{
+			return false;
+		}
+
+		var script = [];
+
+		_.each(_highlighted, function (position) {
+			script = script.concat(generateCenterScript(position));
+		});
+
+		// convert array to a single string
+		script = script.join(" ");
+
+		// send script string to the app
+		_3dApp.script(script);
+
+		return true;
+	}
+
+	/**
+	 * Resets the current center to the default position.
+	 */
+	function resetCenter()
+	{
+		var script = [];
+
+		// center to default position
+		script.push("center;");
+
+		// convert array to a single string
+		script = script.join(" ");
+
+		// send script string to the app
+		_3dApp.script(script);
+	}
+
+	/**
 	 * Focuses on the residue corresponding to the given pileup. If there is
 	 * no corresponding residue for the given pileup, this function does not
 	 * perform a focus operation, and returns false.
@@ -673,6 +718,24 @@ var Mutation3dVis = function(name, options)
 	}
 
 	/**
+	 * Generates the center script to be sent to the 3D app.
+	 *
+	 * @param position  position to center onto
+	 * @return {Array}  script lines as an array
+	 */
+	function generateCenterScript(position)
+	{
+		var script = [];
+
+		var scriptPos = generateScriptPos(position);
+
+		// center to the selection
+		script.push("center " + scriptPos + ":" + _chain.chainId + ";");
+
+		return script;
+	}
+
+	/**
 	 * Generates the focus script to be sent to the 3D app.
 	 *
 	 * @param mutationId    id of the mutation to highlight
@@ -771,6 +834,8 @@ var Mutation3dVis = function(name, options)
 		reload: reload,
 		refresh: refresh,
 		focusOn: focus,
+		center: centerOnHighlighted,
+		resetCenter: resetCenter,
 		highlight: highlight,
 		resetHighlight: resetHighlight,
 		refreshHighlight: refreshHighlight,

@@ -236,10 +236,12 @@ th.mutation-details-qtip-style {
 	opacity: 0.6;
 }
 .mutation-3d-button {
-	opacity: 0.8;
-	cursor: pointer;
-	width: 12px;
-	/* TODO add anim to click */
+	padding-bottom: 4px;
+	padding-top: 4px;
+}
+.mutation-3d-buttons {
+	padding-right: 10px;
+	width: 250px; /* TODO not a good solution to align right */
 }
 .mutation-3d-pdb-id,
 .mutation-3d-chain-id {
@@ -251,7 +253,6 @@ th.mutation-details-qtip-style {
 }
 .mutation-3d-zoom-label {
 	text-align: right;
-	width: 300px; /* TODO not a good solution to align right */
 }
 .mutation-3d-zoom-slider {
 	margin-left: 2px;

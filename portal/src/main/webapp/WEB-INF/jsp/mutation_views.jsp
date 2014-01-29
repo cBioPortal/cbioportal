@@ -165,6 +165,12 @@
 					<input class='mutation-3d-spin' type='checkbox'>
 					<label>Spin</label>
 				</td-->
+				<td class='mutation-3d-buttons'>
+					<button class='mutation-3d-button mutation-3d-center-selected'
+							alt='Center the view on the highlighted residue'></button>
+					<button class='mutation-3d-button mutation-3d-center-default'
+							alt='Restore the view to its default center'></button>
+				</td>
 				<td class='mutation-3d-zoom-label'>
 					<label>Zoom</label>
 				</td>

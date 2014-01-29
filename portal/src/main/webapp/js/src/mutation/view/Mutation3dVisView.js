@@ -93,10 +93,49 @@ var Mutation3dVisView = Backbone.View.extend({
 		// zoom slider
 		self._initZoomSlider();
 
+		// init buttons
+		self._initButtons();
+
 		// TODO this is an access to a global div out of this view's template...
 		$("#tabs").bind("tabsactivate", function(event, ui){
 			closeHandler();
 		});
+	},
+	/**
+	 * Initializes the control buttons.
+	 */
+	_initButtons: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var centerSelected = self.$el.find(".mutation-3d-center-selected");
+
+		centerSelected.button(
+			{icons: {primary: "ui-icon-arrow-4"},
+			text: false});
+
+		centerSelected.click(function() {
+			// center on the selected mutation
+			mut3dVis.center();
+		});
+
+		var centerDefault = self.$el.find(".mutation-3d-center-default");
+
+		centerDefault.button(
+			{icons: {primary: "ui-icon-arrowreturn-1-w"},
+			text: false});
+
+		centerDefault.click(function() {
+			// restore to the default center
+			mut3dVis.resetCenter();
+		});
+
+		var qtipOpts = self._generateTooltipOpts("NA");
+		qtipOpts.content = {attr: 'alt'};
+
+		centerSelected.qtip(qtipOpts);
+		centerDefault.qtip(qtipOpts);
 	},
 	/**
 	 * Initializes the mutation style options UI and
@@ -126,11 +165,13 @@ var Mutation3dVisView = Backbone.View.extend({
 		colorMenu.change(function() {
 			var selected = $(this).val();
 
-			// update color options
-			mut3dVis.updateOptions({colorMutations: selected});
-
-			// refresh view with new options
-			mut3dVis.reapplyStyle();
+			if (mut3dVis)
+			{
+				// update color options
+				mut3dVis.updateOptions({colorMutations: selected});
+				// refresh view with new options
+				mut3dVis.reapplyStyle();
+			}
 		});
 
 //		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");

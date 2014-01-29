@@ -107,9 +107,6 @@
     border-color: lightgrey;
     margin-bottom: 10px;
 }
-.study-view-pie-chart g{
-    font-size:11px;
-}
 
 .study-view-pie-chart :active{
     cursor: move;
@@ -122,12 +119,20 @@
 }
 .study-view-row-chart {
     float:left;
-    width:180px;
     text-align:center;
     border-style: solid;
     border-width: 1px;
     border-color: lightgrey;
     margin-bottom: 10px;
+}
+.study-view-row-chart.w1 {
+    width:180px;
+}
+.study-view-row-chart.w2 {
+    width:370px;
+}
+.study-view-row-chart.w3 {
+    width:560px;
 }
 .study-view-row-chart g{
     font-size:11px;
@@ -151,11 +156,9 @@ pieH3{
     font-size:10px;
 }
 .dc-chart .axis {
-    fill:steelblue;
-    fill-opacity:1;
-    stroke:grey;
-    stroke-opacity:0.5;
-    stroke-width:1px;
+    fill:none;
+    stroke:steelblue;
+    stroke-width:1.5px;
 }
 .study-view-bar-chart {
     float:left;
@@ -165,9 +168,6 @@ pieH3{
     border-color:lightgrey;
     border-style:solid;
     margin-bottom: 10px;
-}
-.study-view-bar-chart g.axis.x path.domain {
-    height: 0;
 }
 
 .dc-chart rect.bar {
@@ -193,6 +193,8 @@ pieH3{
     fill: white;
     font-size: 10px;
     cursor: pointer;
+    stroke:white;
+    stroke-width:1px;
 }
 .dc-chart .pie-slice :hover {
     fill-opacity: .8;

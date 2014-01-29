@@ -371,6 +371,8 @@ $(function() {
                     .mouseZoomable(false)
                     .brushOn(true)
                     .transitionDuration(1200)
+                    .renderHorizontalGridLines(true)
+                    .renderVerticalGridLines(true)
 
                 if(distanceMinMax < 1){
                     varChart[createdChartID].x(d3.scale.linear().nice([Math.min.apply( Math, varValues )-distanceMinMax/barScale, Math.max.apply( Math, varValues )+distanceMinMax/barScale]))
@@ -605,9 +607,27 @@ $(function() {
                     });
                    
                 }else if(selectedChartType == 'row'){
-                    $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + totalCharts + "\" class='study-view-dc-chart study-view-row-chart w2'><div style='width:100%; float:left'><pieH4>" + selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + totalCharts + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-                    varChart.push(dc.rowChart("#study-view-dc-chart-" + totalCharts));
                     var rowChartHeight = rowKeys[selectedAttr].length * 25 +50;
+                    var keyMaxLength = 0;
+                    var chartWidth = 0;
+                    for(var i=0 ; i < rowKeys[selectedAttr].length ; i++){
+                        if(rowKeys[selectedAttr][i].length > keyMaxLength)
+                            keyMaxLength = rowKeys[selectedAttr][i].length;
+                    }
+                    
+                    if(keyMaxLength > 30){
+                        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + totalCharts + "\" class='study-view-dc-chart study-view-row-chart w3'><div style='width:100%; float:left'><pieH4>" + selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + totalCharts + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
+                        chartWidth = "560px";
+                    }else if(keyMaxLength > 20){
+                        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + totalCharts + "\" class='study-view-dc-chart study-view-row-chart w2'><div style='width:100%; float:left'><pieH4>" + selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + totalCharts + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
+                        chartWidth = "370";
+                    }else{
+                        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + totalCharts + "\" class='study-view-dc-chart study-view-row-chart w1'><div style='width:100%; float:left'><pieH4>" + selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + totalCharts + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
+                        chartWidth = "180";
+                    }
+                    
+                    varChart.push(dc.rowChart("#study-view-dc-chart-" + totalCharts));  
+                    
                     varCluster[totalCharts] = ndx.dimension(function (d) {
                         if(!d[selectedAttr])
                             return "NA";
@@ -616,7 +636,7 @@ $(function() {
                     varGroup[totalCharts] = varCluster[totalCharts].group();
 
                     varChart[totalCharts]
-                    .width(180)
+                    .width(chartWidth)
                     .margins({top: 10, right: 10, bottom: 20, left: 10})
                     .height(rowChartHeight)
                     .dimension(varCluster[totalCharts])
@@ -665,6 +685,8 @@ $(function() {
                         .mouseZoomable(false)
                         .brushOn(true)
                         .transitionDuration(1200)
+                        .renderHorizontalGridLines(true)
+                        .renderVerticalGridLines(true)
 
                     if(distanceMinMax < 1){
                         varChart[totalCharts].x(d3.scale.linear().nice([distanceMin-distanceMinMax/barScale, distanceMax+distanceMinMax/barScale]))

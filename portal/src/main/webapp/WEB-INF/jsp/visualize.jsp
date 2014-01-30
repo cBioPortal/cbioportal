@@ -48,7 +48,6 @@
     $(document).ready(function(){
         // Init Tool Tips
         $("#toggle_query_form").tipTip();
-
     });
 </script>
 
@@ -137,7 +136,9 @@
                  + "Mutations</a></li>");
             }
 
-            out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed gene'>Co-Expression</a></li>");
+            if (showCoexpTab) {
+                out.println ("<li><a href='#coexp' class='result-tab' title='List of top co-expressed genes'>Co-Expression</a></li>");
+            }
 
             if (has_rppa) {
                 out.println ("<li><a href='#protein_exp' class='result-tab' title='Protein and Phopshoprotein changes using Reverse Phase Protein Array (RPPA) data'>"
@@ -228,7 +229,11 @@
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>
-        <%@ include file="co_expression.jsp" %>
+        
+        <% if (showCoexpTab) { %>
+            <%@ include file="co_expression.jsp" %>
+        <% } %>
+
 </div> <!-- end tabs div -->
 <% } %>
 

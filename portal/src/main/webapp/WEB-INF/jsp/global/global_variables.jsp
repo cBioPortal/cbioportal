@@ -146,6 +146,13 @@
     cases = cases.replaceAll("\"", "\\\"");
     caseSetName = caseSetName.replaceAll("'", "\\'");
     caseSetName = caseSetName.replaceAll("\"", "\\\"");
+
+    //check if show co-expression tab
+    boolean showCoexpTab = false;
+    GeneticProfile final_gp = CoExpUtil.getPreferedGeneticProfile(cancerTypeId);
+    if (final_gp != null) {
+        showCoexpTab = true;
+    } 
 %>
 
 <script type="text/javascript">

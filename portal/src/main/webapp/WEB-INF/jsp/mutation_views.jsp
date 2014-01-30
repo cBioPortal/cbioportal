@@ -327,8 +327,8 @@
 	<span class='mutation-3d-beta-sheet'>beta sheets</span>, and
 	<span class='mutation-3d-loop'>loops</span>.
 	This color option is not available for the space-filling protein scheme.<br>
-	<b>Chain:</b> Colors the protein with a gradient coloring from red to blue (rainbow).
-	Low residue positions get red, while high positions get blue.<br>
+	<b>Chain:</b> Colors the protein with a rainbow gradient
+	from red (N-terminus) to blue (C-terminus).<br>
 	<b>Atom Type:</b> Colors the structure with respect to the atom type (CPK color scheme).
 	This color option is only available for the space-filling protein scheme.<br>
 	<br>

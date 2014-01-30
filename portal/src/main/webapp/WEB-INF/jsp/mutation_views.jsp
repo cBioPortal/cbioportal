@@ -297,7 +297,7 @@
 	Color options for the mapped mutations.<br>
 	<br>
 	<b>Uniform:</b> Colors all mutated residues with a
-	<span class='trunc_mutation'>single color</span>.<br>
+	<span class='uniform_mutation'>single color</span>.<br>
 	<b>Mutation type:</b> Enables residue coloring by mutation type.
 	Mutation types and corresponding color codes are as follows:
 	<ul>

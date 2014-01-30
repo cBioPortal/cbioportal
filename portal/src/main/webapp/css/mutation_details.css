@@ -103,6 +103,10 @@ th.mutation-details-qtip-style {
 	color: gray;
 	font-weight: bold;
 }
+.uniform_mutation {
+	color: #8A2BE2;
+	font-weight: bold;
+}
 .diagram_toolbar {
 	padding-top: 10px;
 	padding-left: 10px;

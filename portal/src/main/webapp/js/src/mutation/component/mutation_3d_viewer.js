@@ -61,7 +61,7 @@ var Mutation3dVis = function(name, options)
 		colorMutations: "byMutationType", // "byMutationType": use mutation colors for type
 		                                  // "uniform": use a single color
 		                                  // "none": do not color (use default atom colors)
-		mutationColor: "xFF0000", // uniform color of the mutated residues
+		mutationColor: "x8A2BE2",  // uniform color of the mutated residues
 		highlightColor: "xFFDD00", // color of the user-selected mutations
 		displaySideChain: true, // whether to display side chain for highlighted mutations
 		defaultZoom: 100, // default (unfocused) zoom level

@@ -192,7 +192,7 @@
 									<input class='mutation-3d-display-non-protein'
 									       type='checkbox'
 									       checked='checked'>
-									Display non-protein
+									Display bound molecules
 								</label>
 								<img class='display-non-protein-help' src='{{helpImage}}'/>
 							</td>
@@ -202,11 +202,11 @@
 								<label>Scheme:</label>
 								<select class='mutation-3d-protein-style-select'>
 									<option value='cartoon'
-									        title='Switch to Cartoon Style'>cartoon</option>
+									        title='Switch to the Cartoon Scheme'>cartoon</option>
 									<option value='spaceFilling'
-									        title='Switch to Space-filling Style'>space-filling</option>
+									        title='Switch to the Space-filling Scheme'>space-filling</option>
 									<option value='trace'
-									        title='Switch to Trace Style'>trace</option>
+									        title='Switch to the Trace Scheme'>trace</option>
 								</select>
 							</td>
 						</tr>
@@ -307,33 +307,44 @@
 		<li><span class='inframe_mutation'>Inframe Mutations</span>
 			(IF del, IF ins)</li>
 		<li>
-			Residues colored with <span class='mutation-3d-tied'>purple</span> indicate tie condition
+			Residues colored with <span class='mutation-3d-tied'>purple</span> indicate residues
+			that are affected by different mutation types at the same proportion.
 		</li>
 	</ul>
-	<b>None:</b> Disables any special coloring for the mutated residues
-	except manually selected (highlighted) residues.<br>
+	<b>None:</b> Disables coloring of the mutated residues
+	except for manually selected (highlighted) residues.<br>
 	<br>
-	Note that, highlighted residues are colored with <span class='mutation-3d-highlighted'>yellow</span>.
+	Highlighted residues are colored with <span class='mutation-3d-highlighted'>yellow</span>.
 </script>
 
 <script type="text/template" id="mutation_3d_structure_color_tip_template">
 	Color options for the protein structure.<br>
 	<br>
-	<b>Uniform:</b> Colors the whole protein structure with a
+	<b>Uniform:</b> Colors the entire protein structure with a
 	<span class='mutation-3d-loop'>single color</span>.<br>
 	<b>Secondary structure:</b> Colors the protein by secondary structure.
 	Assigns different colors for <span class='mutation-3d-alpha-helix'>alpha helices</span>,
 	<span class='mutation-3d-beta-sheet'>beta sheets</span>, and
 	<span class='mutation-3d-loop'>loops</span>.
-	This color option is not available for space-filling protein scheme.<br>
-	<b>Chain:</b> Colors the selected chain residues with rainbow colors.
-	This is a gradient coloring from red to blue.
+	This color option is not available for the space-filling protein scheme.<br>
+	<b>Chain:</b> Colors the protein with a gradient coloring from red to blue (rainbow).
 	Low residue positions get red, while high positions get blue.<br>
 	<b>Atom Type:</b> Colors the structure with respect to the atom type (CPK color scheme).
-	This color option is only available for space-filling protein scheme.<br>
+	This color option is only available for the space-filling protein scheme.<br>
 	<br>
-	Note that, the selected chain is always displayed with full opacity while other parts of the protein
-	have some transparency to help better focusing on the selected chain.
+	The selected chain is always displayed with full opacity while the rest of the structure
+	has some transparency to help better focusing on the selected chain.
+</script>
+
+<script type="text/template" id="mutation_3d_side_chain_tip_template">
+	Displays the side chain atoms for the highlighted residues.
+	This option has no effect for the space-filling protein scheme.
+</script>
+
+<script type="text/template" id="mutation_3d_non_protein_tip_template">
+	Displays co-crystalized molecules.
+	This option has no effect if the current structure
+	does not contain any co-crystalized bound molecules.
 </script>
 
 <script type="text/template" id="pdb_panel_view_template">

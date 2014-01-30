@@ -506,9 +506,6 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".mutation-type-color-help");
 
-		// TODO define a separate view class for the tooltip?
-		//var content = tooltipView.compileTemplate();
-
 		var content = _.template($("#mutation_3d_type_color_tip_template").html());
 		var options = self._generateTooltipOpts(content);
 
@@ -526,9 +523,6 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 
 		var info = self.$el.find(".protein-struct-color-help");
-
-		// TODO define a separate view class for the tooltip?
-		//var content = tooltipView.compileTemplate();
 
 		var content = _.template($("#mutation_3d_structure_color_tip_template").html());
 		var options = self._generateTooltipOpts(content);
@@ -548,8 +542,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".display-side-chain-help");
 
-		var content = "Displays the side chain atoms for the highlighted residues. " +
-		              "This option has no effect for space-filling protein scheme.";
+		var content = _.template($("#mutation_3d_side_chain_tip_template").html());
 
 		var options = self._generateTooltipOpts(content);
 		info.qtip(options);
@@ -564,9 +557,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		var info = self.$el.find(".display-non-protein-help");
 
-		var content = "Displays the non-protein sections. " +
-		              "This option has no effect if the current structure " +
-		              "does not contain any non-protein sections.";
+		var content = _.template($("#mutation_3d_non_protein_tip_template").html());
 
 		var options = self._generateTooltipOpts(content);
 		info.qtip(options);

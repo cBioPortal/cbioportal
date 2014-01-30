@@ -696,8 +696,9 @@ var Mutation3dVis = function(name, options)
 			// display side chain (no effect for space-filling)
 			if (!(_options.proteinScheme == "spaceFilling"))
 			{
-				// select the corresponding side chain
-				script.push("select " + scriptPos + ":" + _chain.chainId + " and sidechain;");
+				// select the corresponding side chain and also the CA atom on the backbone
+				script.push("select (" + scriptPos + ":" + _chain.chainId + " and sidechain) or " +
+				            "(" + scriptPos + ":" + _chain.chainId + ".CA);");
 
 				if (_options.displaySideChain)
 				{

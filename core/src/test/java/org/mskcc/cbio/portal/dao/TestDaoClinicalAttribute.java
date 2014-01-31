@@ -37,7 +37,7 @@ public class TestDaoClinicalAttribute extends TestCase {
         ResetDatabase.resetDatabase();
 
         DaoClinicalAttribute daoClinicalAttribute = new DaoClinicalAttribute();
-        int added = daoClinicalAttribute.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense"));
+        int added = daoClinicalAttribute.addDatum(new ClinicalAttribute("attrId", "some attribute", "test attribute", "nonsense", true));
         assertTrue(added == 1);
 
         ClinicalAttribute clinicalAttribute = daoClinicalAttribute.getDatum("attrId");

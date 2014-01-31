@@ -50,12 +50,14 @@ public class ClinicalAttribute  {
     private String displayName;
     private String description;
     private String datatype;
+    private boolean patientAttribute;
 
-    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype) {
+    public ClinicalAttribute(String attributeId, String displayName, String description, String datatype, boolean patientAttribute) {
         this.attributeId = attributeId;
 		this.displayName = displayName;
 		this.description = description;
         this.datatype = datatype;
+        this.patientAttribute = patientAttribute;
     }
 
     @Override
@@ -98,4 +100,12 @@ public class ClinicalAttribute  {
     public void setDatatype(String datatype) {
         this.datatype = datatype;
     }
+
+	public boolean isPatientAttribute() {
+		return patientAttribute;
+	}
+
+	public void setPatientAttribute(boolean patientAttribute) {
+		this.patientAttribute = patientAttribute;
+	}
 }

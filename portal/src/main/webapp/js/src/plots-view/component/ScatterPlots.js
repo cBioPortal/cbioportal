@@ -258,14 +258,14 @@ var ScatterPlots = (function() {
                 .size(style.size)
                 .type(style.shape))
             .attr("fill", function(d) {
-                if (isNaN(d.fill) || d.fill === "") {
+                if (d.fill === null || d.fill === "") {
                     return style.fill;
                 } else {
                     return d.fill;
                 }
             })
             .attr("stroke", function(d) {
-                if (isNaN(d.stroke) || d.stroke === "") {
+                if (d.stroke === null || d.stroke === "") {
                     return style.stroke;
                 } else {
                     return d.stroke;
@@ -502,14 +502,24 @@ var ScatterPlots = (function() {
         },
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
-            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
-            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            
+            //Get applying log scale status
+            var _applyLogScale_x = false;
+            var _applyLogScale_y = false;
+            if(!(document.getElementById(_divName_x_scale) === null) && 
+               !(document.getElementById(_divName_y_scale) === null)) { 
+               //for studies wihtout log scale option
+                _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+                _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            }  
+
             if (_showMutations) {
                 drawPlots();
                 drawLegends();
             } else {
                 hideMutations();
             }
+            //Reapply log scale (lost during re-draw dots)
             updatePlotsLogScale("x", _applyLogScale_x);
             updatePlotsLogScale("y", _applyLogScale_y);
             addQtips();

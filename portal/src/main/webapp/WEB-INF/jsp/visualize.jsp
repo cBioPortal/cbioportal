@@ -219,13 +219,13 @@
         <%@ include file="mutation_details.jsp" %>
             <%  } %>
 
-            <% if (has_rppa) { %>
-        <%@ include file="protein_exp.jsp" %>
-            <% } %>
+        <% if (has_rppa) { %>
+            <%@ include file="protein_exp.jsp" %>
+        <% } %>
 
-            <% if (includeNetworks) { %>
-        <%@ include file="networks.jsp" %>
-            <% } %>
+        <% if (includeNetworks) { %>
+            <%@ include file="networks.jsp" %>
+        <% } %>
 
         <%@ include file="data_download.jsp" %>
         <%@ include file="image_tabs_data.jsp" %>

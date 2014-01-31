@@ -154,7 +154,7 @@ $(function() {
                             for (var key in dataObject[keys[j]])
                                 dataObjectM[j][key] = dataObject[keys[j]][key];
                         }
-
+                        
                         attr = a2[0];
                         if(a3[0].length != 0){
                             var newAttri1 = new Array();
@@ -164,7 +164,7 @@ $(function() {
                             newAttri1.datatype = 'NUMBER';                        
 
                             jQuery.each(a3[0], function(i,val){
-                                dataObjectM[keyNumMapping[i]]['MUTATION_COUNT'] = val.toString();
+                                dataObjectM[keyNumMapping[i]]['MUTATION_COUNT'] = val;
                             });    
                             attr.push(newAttri1);
                         }
@@ -176,7 +176,7 @@ $(function() {
                             newAttri2.datatype = 'NUMBER';
 
                             jQuery.each(a4[0], function(i,val){
-                                dataObjectM[keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val.toString();
+                                dataObjectM[keyNumMapping[i]]['COPY_NUMBER_ALTERATIONS'] = val;
                             }); 
                             attr.push(newAttri2);
                         }
@@ -287,7 +287,7 @@ $(function() {
                 console.log("Initial charts function error: the number of created charts not equal to number of totalCharts. --1");
                 return false;
             }
-                
+            
             var ndx = crossfilter(dataB);
             var all = ndx.groupAll();
 
@@ -584,11 +584,99 @@ $(function() {
                     $('#study-view-add-chart-button').removeAttr('disabled');
             });
             
+                
+            var scatterPlotDataAttr = {
+                min_x: distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min,
+                max_x: distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max,
+                min_y: distanceMinMaxArray['MUTATION_COUNT'].min,
+                max_y: distanceMinMaxArray['MUTATION_COUNT'].max,
+                mut_x : false, //have case(s) mutated in only gene x
+                mut_y : false,  //have case(s) mutated in only gene y
+                mut_both: false, //have case(s) mutated in both genes
+            };
+            var scatterPlotOptions = {
+                canvas : {  //position of components
+                    width: 760,
+                    height: 400,
+                    xLeft: 100,     //The left/starting point for x axis
+                    xRight: 630,   //The right/ending point for x axis
+                    yTop: 10,      //The top/ending point for y axis
+                    yBottom: 320   //The bottom/starting point for y axis
+                },
+                style : { //Default style setting
+                    fill: "#58ACFA", //light blue
+                    stroke: "#0174DF", //dark blue
+                    stroke_width: "1.2",
+                    size: "20",
+                    shape: "circle" //default, may vary for different mutation types
+                },
+    
+                names: { 
+                    div: "study-view-scatter-plot",
+                    header: "study-view-scatter-plot-header",
+                    body: "study-view-scatter-plot-body",
+                    loading_img: "study-view-scatter-plot-loading-img",
+                    control_panel: "study-view-scatter-plot-control-panel"
+                },
+                elem : {
+                    svg: "",
+                    xScale: "",
+                    yScale: "",
+                    xAxis: "",
+                    yAxis: "",
+                    dotsGroup: "",
+                    axisGroup: "",
+                    axisTitleGroup: ""
+                },
+                text: {
+                    xTitle: "Fraction of copy number altered genome",
+                    yTitle: "# of mutations Fraction of copy",
+                    title: "Mutation Count vs Copy Number Alterations",
+                    fileName: "",
+                    xTitleHelp: "",
+                    yTitleHelp: "",
+                },
+                legends: [{
+                    fill: "#58ACFA", //light blue
+                    stroke: "#0174DF", //dark blue
+                    stroke_width: "1.2",
+                    size: "20",
+                    shape: "circle", //default, may vary for different mutation types
+                    text: "Neither mutated"
+                }]
+            };            
+            var scatterPlotDatum = {              
+                x_val: "",
+                y_val: "",
+                case_id: "",
+                qtip: "",
+                stroke: "",
+                fill: ""
+            };
+            var scatterPlotArr = [];
+            
+            $.each(dataB, function(i,value) {
+                if(!isNaN(value['COPY_NUMBER_ALTERATIONS']) && !isNaN(value['MUTATION_COUNT']) && value['COPY_NUMBER_ALTERATIONS'] !="" && value['MUTATION_COUNT']!="") {                  
+                    var scatterPlotDatumTmp= {};
+                    scatterPlotDatumTmp.x_val = value['COPY_NUMBER_ALTERATIONS'];
+                    scatterPlotDatumTmp.y_val = value['MUTATION_COUNT'];
+                    scatterPlotDatumTmp.case_id = value['CASE_ID'];
+                    scatterPlotDatumTmp.qtip = "Case ID: <strong><a href='tumormap.do?case_id=" + 
+                         value['CASE_ID'] + "&cancer_study_id=" +
+                         studyId + "' target='_blank'>" + 
+                         value['CASE_ID'] + "</a></strong>";
+                    scatterPlotArr.push(scatterPlotDatumTmp);
+                }
+            });
+            
+            ScatterPlots.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr);
+            
+            
             var container = document.querySelector('#study-view-charts');
             var msnry = new Masonry( container, {
-              columnWidth: 190,
-              itemSelector: '.study-view-dc-chart',
-              gutter:1
+                columnWidth: 190,
+                itemSelector: '.study-view-dc-chart',
+                gutter:1
             });
             
             $('.study-view-dc-chart-delete').click(function(event){

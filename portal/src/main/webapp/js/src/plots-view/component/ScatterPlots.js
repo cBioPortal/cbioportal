@@ -211,7 +211,7 @@ var ScatterPlots = (function() {
         }
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
+            .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
             .attr("y", canvas.xLeft - 60)
             .style("text-anchor", "middle")
             .style("font-size", "12px")
@@ -258,10 +258,18 @@ var ScatterPlots = (function() {
                 .size(style.size)
                 .type(style.shape))
             .attr("fill", function(d) {
-                return d.fill;
+                if (isNaN(d.fill) || d.fill === "") {
+                    return style.fill;
+                } else {
+                    return d.fill;
+                }
             })
             .attr("stroke", function(d) {
-                return d.stroke;
+                if (isNaN(d.stroke) || d.stroke === "") {
+                    return style.stroke;
+                } else {
+                    return d.stroke;
+                }
             })
             .attr("stroke-width", style.stroke_width);
     }

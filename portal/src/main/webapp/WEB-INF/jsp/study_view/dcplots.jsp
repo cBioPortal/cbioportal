@@ -11,6 +11,7 @@
 <script src="js/src/study-view/jquery.dataTables.js"></script>
 <script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
+<script src="js/src/plots-view/component/ScatterPlots.js"></script>
 <script src="js/src/study-view/main.js"></script> 
 
 <div id="study-view-main">
@@ -24,7 +25,14 @@
         <input type='button' value='Add Chart' id='study-view-add-chart-button' class='study-view-header-button' disabled/>
     </div>
     <hr/>
-    <div id="study-view-charts"></div>
+    <div id="study-view-charts">
+        <div id='study-view-scatter-plot' class='study-view-dc-chart study-view-pie-chart w4 h2'>
+            <div id='study-view-scatter-plot-header'></div>
+            <div id='study-view-scatter-plot-body'></div>
+            <div id='study-view-scatter-plot-loading-img'></div>     
+            <div id='study-view-scatter-plot-control-panel'></div>
+        </div>
+    </div>
     
     <div id="study-view-update">
         <div id="study-view-updateContent">

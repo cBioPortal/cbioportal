@@ -29,7 +29,7 @@
  *
  * Basic Scatter Plots Component. 
  *
- * @param: options -- includes style, canvas(position), elem(svg), text(titles, etc.)
+ * @param: options -- includes customized style, canvas(position), elem(svg), text(titles, etc.)
  * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, case id, etc.)
  * @param: dataAttr -- attributes of input data object (max, min, etc.)
  *
@@ -211,7 +211,7 @@ var ScatterPlots = (function() {
         }
         elem.axisTitleGroup.append("text")
             .attr("transform", "rotate(-90)")
-            .attr("x", (canvas.xLeft - canvas.xRight) / 2 - canvas.yTop)
+            .attr("x", (canvas.yTop - canvas.yBottom) / 2 - canvas.yTop)
             .attr("y", canvas.xLeft - 60)
             .style("text-anchor", "middle")
             .style("font-size", "12px")

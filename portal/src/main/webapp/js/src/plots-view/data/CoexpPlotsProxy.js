@@ -27,7 +27,8 @@ var CoexpPlotsProxy = (function() {
             var _obj_x = geneXArr[index];
             var _obj_y = geneYArr[index];
 
-            if (!isNaN(_obj_x["value"]) && !isNaN(_obj_y["value"])) {
+            if (!isNaN(_obj_x["value"]) && !isNaN(_obj_y["value"]) &&
+                _obj_x["value"] !== null && _obj_y["value"] !== null) {
                 datum.x_val = _obj_x["value"];  
                 datum.y_val = _obj_y["value"];
                 datum.case_id = _obj_x["caseId"];
@@ -37,7 +38,7 @@ var CoexpPlotsProxy = (function() {
                          _obj_x["caseId"] + "</a></strong><br>" + 
                          geneX + ": <strong>" + parseFloat(_obj_x["value"]).toFixed(3) + "</strong><br>" +
                          geneY + ": <strong>" + parseFloat(_obj_y["value"]).toFixed(3) + "</strong>";
-                                     //Find if having mutation(s)
+                //Find if having mutation(s)
                 if (mutationMap.hasOwnProperty(_obj_x["caseId"].toLowerCase())) {
                     var _mut_obj = {};
                     $.each(mutationMap[(_obj_x["caseId"]).toLowerCase()], function(index, obj) {

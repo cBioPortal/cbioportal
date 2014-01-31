@@ -91,13 +91,13 @@ var CoExpTable = (function() {
                         "<input type='hidden' name='case_set_id' value='" + window.PortalGlobals.getCaseSetId() + "'>" +
                         "<input type='hidden' name='case_ids_key' value='" + window.PortalGlobals.getCaseIdsKey() + "'>" +
                         "<input type='hidden' name='is_full_result' value='true'>" +
-                        "<input type='submit' value='Download Full Result'></form>";
+                        "<input type='submit' value='Download Full Results'></form>";
                     $("#" + tableDivId).append(downloadFullResultForm);
 
                     $("#" + tableId).append(
                         "<thead style='font-size:70%;' >" +
                         "<tr>" + 
-                        "<th>Correlated(+)/<br>Anti-correlated(-)<br>Genes</th>" +
+                        "<th>Correlated Gene</th>" +
                         "<th>Pearson's Correlation</th>" +
                         "<th>Spearman's Correlation</th>" +
                         "</tr>" +
@@ -166,8 +166,8 @@ var CoExpTable = (function() {
                     $("#" + tableDivId).find('.coexp-table-filter-custom').append(
                         "<select id='coexp-table-select'>" +
                         "<option value='all'>Show All</option>" +
-                        "<option value='positivePearson'>Show Only Positive Correlated (Pearson's)</option>" +
-                        "<option value='negativePearson'>Show Only Negative Correlated (Pearson's)</option>" +
+                        "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
+                        "<option value='negativePearson'>Show Only Negatively Correlated (Pearson's)</option>" +
                         "</select>");
                     $('select#coexp-table-select').change(function () {
                         if ($(this).val() === "negativePearson") {

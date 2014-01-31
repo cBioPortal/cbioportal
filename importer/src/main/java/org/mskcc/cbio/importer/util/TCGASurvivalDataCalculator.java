@@ -33,6 +33,7 @@ import org.mskcc.cbio.portal.model.ClinicalAttribute;
 import org.mskcc.cbio.importer.model.SurvivalStatus;
 
 import java.util.*;
+import java.text.*;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -48,6 +49,9 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
     private static final String LAST_FOLLOW_UP = "days_to_last_followup";
     private static final String LAST_KNOWN_ALIVE = "days_to_last_known_alive";
     private static final String NEW_TUMOR_EVENT = "days_to_new_tumor_event_after_initial_treatment";
+    private static final String DATE_OF_FORM_COMPLETION = "date_of_form_completion";
+
+    public static final SimpleDateFormat FORM_COMPLETION_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
     private static final Pattern FOLLOW_UP_PATIENT_ID_REGEX = Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w)-.*$");
 
@@ -129,15 +133,20 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         public String toString() { return propertyName; }
     }
 
-    private class SurvivalData
+    private class ClinicalDataRecord
+    {
+        String lastFollowUp;
+        String lastKnownAlive;
+        Date dateOfFormCompletion;
+    }
+
+    private class SurvivalData extends ClinicalDataRecord
     {
         String vitalStatus;
         String daysToDeath;
-        String lastFollowUp;
-        String lastKnownAlive;
     }
 
-    private class DiseaseFreeData
+    private class DiseaseFreeData extends ClinicalDataRecord
     {
         String daysToNewTumorEventAfterInitialTreatment;
     }
@@ -171,8 +180,15 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         Map<String, SurvivalData> survivalDataMap = new HashMap<String, SurvivalData>();
 
         List<String> patientIds = getPatientIds(dataMatrix);
-        for (String patientId : patientIds) {
-            survivalDataMap.put(patientId, getSurvivalDataForPatient(patientIds.indexOf(patientId), dataMatrix));
+        for (int lc = 0; lc < patientIds.size(); lc++) {
+            String patientId = patientIds.get(lc);
+            SurvivalData sd = getSurvivalDataForPatient(lc, dataMatrix);
+            if (sd != null) {
+                if (survivalDataMap.containsKey(patientId)) {
+                    sd = resolveByFormCompletion(survivalDataMap.get(patientId), sd);
+                }
+                survivalDataMap.put(patientId, sd);
+            }
         }
 
         return survivalDataMap;
@@ -210,14 +226,28 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         survivalData.daysToDeath = getValue(patientIndex, DAYS_TO_DEATH, dataMatrix);
         survivalData.lastFollowUp = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
         survivalData.lastKnownAlive = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
+        survivalData.dateOfFormCompletion = getDateOfFormCompletion(patientIndex, dataMatrix);
         
-        return survivalData;
+        return (validSurvivalData(survivalData)) ? survivalData : null;
+    }
+
+    private boolean validSurvivalData(SurvivalData survivalData)
+    {
+        return (!survivalData.vitalStatus.isEmpty() &&
+                !survivalData.daysToDeath.isEmpty() &&
+                !survivalData.lastFollowUp.isEmpty() &&
+                !survivalData.lastKnownAlive.isEmpty());
     }
 
     private String getValue(int index, String columnName, DataMatrix dataMatrix)
     {
         List<LinkedList<String>> columnData = dataMatrix.getColumnData(columnName);
         return (columnData.isEmpty()) ? "" : columnData.get(0).get(index);
+    }
+
+    private <T extends ClinicalDataRecord> T resolveByFormCompletion(T existing, T newest)
+    {
+        return (newest.dateOfFormCompletion.after(existing.dateOfFormCompletion)) ? (T) newest : (T) existing;
     }
 
     private void mergeSurvivalData(Map<String,SurvivalData> sourceMap, Map<String, List<SurvivalData>> destMap)
@@ -335,8 +365,15 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         Map<String, DiseaseFreeData> diseaseFreeDataMap = new HashMap<String, DiseaseFreeData>();
 
         List<String> patientIds = getPatientIds(dataMatrix);
-        for (String patientId : patientIds) {
-            diseaseFreeDataMap.put(patientId, getDiseaseFreeDataForPatient(patientIds.indexOf(patientId), dataMatrix));
+        for (int lc = 0; lc < patientIds.size(); lc++) {
+            String patientId = patientIds.get(lc);
+            DiseaseFreeData df = getDiseaseFreeDataForPatient(lc, dataMatrix);
+            if (df != null) {
+                if (diseaseFreeDataMap.containsKey(patientId)) {
+                    df = resolveByFormCompletion(diseaseFreeDataMap.get(patientId), df);
+                }
+                diseaseFreeDataMap.put(patientId, df);
+            }
         }
 
         return diseaseFreeDataMap;
@@ -347,10 +384,31 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         DiseaseFreeData diseaseFreeData = new DiseaseFreeData();
 
         diseaseFreeData.daysToNewTumorEventAfterInitialTreatment = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
-        
-        return diseaseFreeData;
+        diseaseFreeData.lastFollowUp = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
+        diseaseFreeData.lastKnownAlive = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
+        diseaseFreeData.dateOfFormCompletion = getDateOfFormCompletion(patientIndex, dataMatrix);
+
+        return (validDiseaseFreeData(diseaseFreeData)) ? diseaseFreeData : null;
     }
 
+    private Date getDateOfFormCompletion(int patientIndex, DataMatrix dataMatrix)
+    {
+        try {
+            String dateOfFormCompletion = getValue(patientIndex, DATE_OF_FORM_COMPLETION, dataMatrix);
+            return FORM_COMPLETION_DATE_FORMAT.parse(dateOfFormCompletion);
+        }
+        catch(Exception e) {}
+        return null;
+    }
+
+
+    private boolean validDiseaseFreeData(DiseaseFreeData diseaseFreeData)
+    {
+        return (!diseaseFreeData.daysToNewTumorEventAfterInitialTreatment.isEmpty() &&
+                !diseaseFreeData.lastFollowUp.isEmpty() &&
+                !diseaseFreeData.lastKnownAlive.isEmpty());
+    }
+    
     private void mergeDiseaseFreeData(Map<String,DiseaseFreeData> sourceMap, Map<String, List<DiseaseFreeData>> destMap)
     {
         for (String patientId : sourceMap.keySet()) {
@@ -403,17 +461,17 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
         for (String patientId : new TreeSet<String>(diseaseFreeData.keySet())) {
             ++dfStatusMonthsIndex;
             for (DiseaseFreeData df : diseaseFreeData.get(patientId)) {
-                if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
-                    dfStatusMonths.set(dfStatusMonthsIndex, ClinicalAttribute.NA);
-                }
-                else {
-                    try {
+                try {
+                    if (df.daysToNewTumorEventAfterInitialTreatment.equals(MissingAttributeValues.NULL.toString())) {
+                        dfStatusMonths.set(dfStatusMonthsIndex, convertDaysToMonths(df.lastFollowUp, df.lastKnownAlive));
+                    }
+                    else {
                         int dfStatusDays = Integer.parseInt(df.daysToNewTumorEventAfterInitialTreatment);
                         dfStatusMonths.set(dfStatusMonthsIndex, convertDaysToMonths(Integer.toString(dfStatusDays)));
                     }
-                    catch(NumberFormatException e) {
-                        dfStatusMonths.set(dfStatusMonthsIndex, ClinicalAttribute.NA);
-                    }
+                }
+                catch(NumberFormatException e) {
+                    dfStatusMonths.set(dfStatusMonthsIndex, ClinicalAttribute.NA);
                 }
             }
         }

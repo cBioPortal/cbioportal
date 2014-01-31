@@ -125,7 +125,7 @@ public class PatientClinicalDataConverterImpl extends ClinicalDataConverterImpl 
     {
         ArrayList<DataMatrix> allMatrices = new ArrayList<DataMatrix>();
         allMatrices.add(patientMatrix);
-        //allMatrices.addAll(followUps);
+        allMatrices.addAll(followUps);
         return survivalDataCalculator.computeSurvivalData(allMatrices);
     }
 

@@ -63,10 +63,37 @@ public class Patient {
         this.sampleId = sampleId;
 		this.clinicalDataMap = clinicalDataMap;
     }
-    
+
+    @Override
     public String toString()
     {
         return stableId;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Patient)) {
+            return false;
+        }
+        
+        Patient anotherPatient = (Patient)obj;
+        if (!stableId.equals(anotherPatient.getStableId())) {
+            return false;
+        }
+        
+        if (this.cancerStudy.getInternalId() != anotherPatient.getCancerStudy().getInternalId()) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 41 * hash + (this.stableId != null ? this.stableId.hashCode() : 0);
+        hash = 41 * hash + this.cancerStudy.getInternalId();
+        return hash;
     }
 
     public CancerStudy getCancerStudy()

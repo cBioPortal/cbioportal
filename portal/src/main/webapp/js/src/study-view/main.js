@@ -143,21 +143,31 @@ $(function() {
                             }
                         }
                         
+                        var dataAttrA1 = a1[0]['attributes'];
                         var keys = Object.keys(dataObject);
                         var keyNumMapping = [];
-                        for(var j = 0; j< keys.length ; j++){
+                        
+                        for(var j = 0; j< caseIds.length ; j++){
                             dataObjectM[j] = new Array();
-                            dataObjectM[j]["CASE_ID"] = keys[j];
-                            dataObjectM[j]["MUTATION_COUNT"] = "";
-                            dataObjectM[j]["COPY_NUMBER_ALTERATIONS"] = "";
-                            keyNumMapping[keys[j]] = j;
-                            for (var key in dataObject[keys[j]])
-                                dataObjectM[j][key] = dataObject[keys[j]][key];
+                            dataObjectM[j]["CASE_ID"] = caseIds[j];
+                            dataObjectM[j]["MUTATION_COUNT"] = "NA";
+                            dataObjectM[j]["COPY_NUMBER_ALTERATIONS"] = "NA";
+                            keyNumMapping[caseIds[j]] = j;
+                            $.each(dataAttrA1,function(key,value){
+                                dataObjectM[j][value['attr_id']] = "NA";
+                            });
+                                
+                        }
+                        console.log(dataAttrA1);
+                        for(var key in dataObject){
+                            for (var i = 0 ; i < dataAttrA1.length ; i++)
+                                dataObjectM[keyNumMapping[key]][dataAttrA1[i]['attr_id']] = dataObject[key][dataAttrA1[i]['attr_id']];
                         }
                         
+                        console.log(dataObjectM);
                         attr = a2[0];
                         if(a3[0].length != 0){
-                            var newAttri1 = new Array();
+                            var newAttri1 = {};
                             newAttri1.attr_id = 'MUTATION_COUNT';
                             newAttri1.display_name = 'Mutation Count';
                             newAttri1.description = 'Mutation Count';
@@ -169,7 +179,7 @@ $(function() {
                             attr.push(newAttri1);
                         }
                         if(a4[0].length != 0){
-                            var newAttri2 = new Array();
+                            var newAttri2 = {};
                             newAttri2.attr_id = 'COPY_NUMBER_ALTERATIONS';
                             newAttri2.display_name = 'Copy Number Alterations';
                             newAttri2.description = 'Copy Number Alterations';
@@ -180,7 +190,7 @@ $(function() {
                             }); 
                             attr.push(newAttri2);
                         }
-
+                        
                         var columnNameSelected = initCharts();
                         columnNameSelected.unshift("CASE_ID");
                         restyle(columnNameSelected,columnNameTotal);

@@ -16,12 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.json.simple.JSONValue;
-import org.mskcc.cbio.portal.dao.DaoCancerStudy;
-import org.mskcc.cbio.portal.dao.DaoCase;
-import org.mskcc.cbio.portal.dao.DaoCaseProfile;
-import org.mskcc.cbio.portal.dao.DaoCopyNumberSegment;
-import org.mskcc.cbio.portal.dao.DaoException;
-import org.mskcc.cbio.portal.dao.DaoMutation;
+import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.model.GeneticProfile;
 import org.mskcc.cbio.portal.util.AccessControl;
@@ -128,7 +123,7 @@ public class TumorMapServlet extends HttpServlet {
                     if (citation!=null) {
                         row.put("citation", citation);
                     }
-                    row.put("cases",DaoCase.countCases(cancerStudy.getInternalId()));
+                    row.put("cases", DaoPatient.getPatientsByInternalCancerStudyId(cancerStudy.getInternalId()).size());
                 }
                 
                 if (includeMut) {

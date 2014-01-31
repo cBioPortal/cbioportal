@@ -170,14 +170,14 @@ public class PatientView extends HttpServlet {
             return false;
         }
 
-        Set<Case> cases = new HashSet<Case>();
+        Set<Patient> cases = new HashSet<Patient>();
         Set<String> sampleIds = new HashSet<String>();
         if (caseIdsStr!=null) {
             for (String caseId : caseIdsStr.split(" +")) {
-                Case _case = DaoCase.getCase(caseId, cancerStudy.getInternalId());
-                if (_case != null) {
-                    cases.add(_case);
-                    sampleIds.add(_case.getCaseId());
+                Patient _patient = DaoPatient.getPatient(cancerStudy.getInternalId(), caseId);
+                if (_patient != null) {
+                    cases.add(_patient);
+                    sampleIds.add(_patient.getStableId());
                 }
             }
         }
@@ -187,10 +187,10 @@ public class PatientView extends HttpServlet {
                 List<String> samples = DaoClinicalData.getCaseIdsByAttribute(
                     cancerStudy.getInternalId(), PATIENT_ID_ATTR_NAME, patientId);
                 for (String sample : samples) {
-                    Case _case = DaoCase.getCase(sample, cancerStudy.getInternalId());
-                    if (_case != null) {
-                        cases.add(_case);
-                        sampleIds.add(_case.getCaseId());
+                    Patient _patient = DaoPatient.getPatient(cancerStudy.getInternalId(), sample);
+                    if (_patient != null) {
+                        cases.add(_patient);
+                        sampleIds.add(_patient.getStableId());
                     }
                 }
             }
@@ -251,7 +251,7 @@ public class PatientView extends HttpServlet {
     
     private void setNumCases(HttpServletRequest request) throws DaoException {
         CancerStudy cancerStudy = (CancerStudy)request.getAttribute(CANCER_STUDY);
-        request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoCase.countCases(cancerStudy.getInternalId()));
+        request.setAttribute(NUM_CASES_IN_SAME_STUDY,DaoPatient.getPatientsByInternalCancerStudyId(cancerStudy.getInternalId()).size());
     }
     
     private void setClinicalInfo(HttpServletRequest request) throws DaoException {

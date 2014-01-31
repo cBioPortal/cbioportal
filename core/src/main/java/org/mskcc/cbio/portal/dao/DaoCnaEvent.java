@@ -7,8 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.model.Case;
-import org.mskcc.cbio.portal.model.CnaEvent;
+import org.mskcc.cbio.portal.model.*;
 
 /**
  *
@@ -98,12 +97,12 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static Map<Case, Set<Long>> getCasesWithAlterations(
+    public static Map<Patient, Set<Long>> getCasesWithAlterations(
             Collection<Long> eventIds) throws DaoException {
         return getCasesWithAlterations(StringUtils.join(eventIds, ","));
     }
     
-    public static Map<Case, Set<Long>> getCasesWithAlterations(String concatEventIds)
+    public static Map<Patient, Set<Long>> getCasesWithAlterations(String concatEventIds)
             throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -118,18 +117,18 @@ public final class DaoCnaEvent {
                     + concatEventIds + ")";
             pstmt = con.prepareStatement(sql);
             
-            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
+            Map<Patient, Set<Long>>  map = new HashMap<Patient, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("SAMPLE_ID");
                 int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
                         rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Case _case = new Case(caseId, cancerStudyId);
+                Patient _patient = new Patient(DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId), caseId);
                 long eventId = rs.getLong("CNA_EVENT_ID");
-                Set<Long> events = map.get(_case);
+                Set<Long> events = map.get(_patient);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(_case, events);
+                    map.put(_patient, events);
                 }
                 events.add(eventId);
             }

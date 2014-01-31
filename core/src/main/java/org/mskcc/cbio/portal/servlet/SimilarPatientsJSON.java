@@ -13,7 +13,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
-import org.mskcc.cbio.portal.model.Case;
+import org.mskcc.cbio.portal.model.Patient;
 
 /**
  *
@@ -44,21 +44,21 @@ public class SimilarPatientsJSON extends HttpServlet {
         try {
             CancerStudy cancerStudy = DaoCancerStudy.getCancerStudyByStableId(cancerStudyId);
             if (cancerStudy!=null) {
-                Case _case = DaoCase.getCase(patient, cancerStudy.getInternalId());
-                if (_case!=null) {
-                    Map<Case, Set<Long>> similarMutations;
+                Patient _patient = DaoPatient.getPatient(cancerStudy.getInternalId(), patient);
+                if (_patient!=null) {
+                    Map<Patient, Set<Long>> similarMutations;
                     if (strMutations==null||strMutations.isEmpty()) {
                         similarMutations = Collections.emptyMap();
                     } else {
                         similarMutations = DaoMutation.getSimilarCasesWithMutationsByKeywords(strMutations);
-                        similarMutations.remove(_case);
+                        similarMutations.remove(_patient);
                     }
-                    Map<Case, Set<Long>> similarCnas;
+                    Map<Patient, Set<Long>> similarCnas;
                     if (strCna==null||strCna.isEmpty()) {
                         similarCnas = Collections.emptyMap();
                     } else {
                         similarCnas = DaoCnaEvent.getCasesWithAlterations(strCna);
-                        similarCnas.remove(_case);
+                        similarCnas.remove(_patient);
                     }
 
                     export(table, similarMutations, similarCnas);
@@ -90,19 +90,18 @@ public class SimilarPatientsJSON extends HttpServlet {
 //        return ret;
 //    }
     
-    private void export(JSONArray table, Map<Case, Set<Long>> similarMutations, Map<Case, Set<Long>> similarCnas) 
+    private void export(JSONArray table, Map<Patient, Set<Long>> similarMutations, Map<Patient, Set<Long>> similarCnas) 
             throws DaoException {
-        Set<Case> patients = new HashSet<Case>();
+        Set<Patient> patients = new HashSet<Patient>();
         patients.addAll(similarMutations.keySet());
         patients.addAll(similarCnas.keySet());
-        for (Case patient : patients) {
+        for (Patient patient : patients) {
             JSONArray row = new JSONArray();
-            row.add(patient.getCaseId());
+            row.add(patient.getStableId());
             
             String[] cancerStudy = {"unknown","unknown"};
             try {
-                CancerStudy study = DaoCancerStudy.getCancerStudyByInternalId(
-                    patient.getCancerStudyId());
+                CancerStudy study = patient.getCancerStudy();
                 cancerStudy[0] = study.getCancerStudyStableId();
                 cancerStudy[1] = study.getName();
             } catch (Exception e) {

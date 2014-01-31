@@ -68,11 +68,6 @@ public class DaoCaseList {
             JdbcUtil.closeAll(DaoCaseList.class, con, pstmt, rs);
         }
         
-        // added to _sample
-        for (String caseId : caseList.getCaseList()) {
-            rows += DaoCase.addCase(new Case(caseId, caseList.getCancerStudyId()));
-        }
-            
         return rows;
     }
 

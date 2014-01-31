@@ -42,8 +42,8 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.mskcc.cbio.portal.model.Case;
-import org.mskcc.cbio.portal.model.ExtendedMutation.MutationEvent;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.model.ExtendedMutation.*;
 import org.mskcc.cbio.portal.util.MutationKeywordUtils;
 
 /**
@@ -703,7 +703,7 @@ public final class DaoMutation {
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
-    public static Map<Case, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+    public static Map<Patient, Set<Long>> getSimilarCasesWithMutationsByKeywords(
             Collection<Long> eventIds) throws DaoException {
         return getSimilarCasesWithMutationsByKeywords(StringUtils.join(eventIds, ","));
     }
@@ -714,7 +714,7 @@ public final class DaoMutation {
      * @return Map &lt; case id, list of event ids &gt;
      * @throws DaoException 
      */
-    public static Map<Case, Set<Long>> getSimilarCasesWithMutationsByKeywords(
+    public static Map<Patient, Set<Long>> getSimilarCasesWithMutationsByKeywords(
             String concatEventIds) throws DaoException {
         if (concatEventIds.isEmpty()) {
             return Collections.emptyMap();
@@ -731,18 +731,18 @@ public final class DaoMutation {
                     + " AND cme.`MUTATION_EVENT_ID`=me2.`MUTATION_EVENT_ID`";
             pstmt = con.prepareStatement(sql);
             
-            Map<Case, Set<Long>>  map = new HashMap<Case, Set<Long>> ();
+            Map<Patient, Set<Long>>  map = new HashMap<Patient, Set<Long>> ();
             rs = pstmt.executeQuery();
             while (rs.next()) {
                 String caseId = rs.getString("SAMPLE_ID");
                 int cancerStudyId = DaoGeneticProfile.getGeneticProfileById(
                         rs.getInt("GENETIC_PROFILE_ID")).getCancerStudyId();
-                Case _case = new Case(caseId, cancerStudyId);
+                Patient _patient = new Patient(DaoCancerStudy.getCancerStudyByInternalId(cancerStudyId), caseId);
                 long eventId = rs.getLong("MUTATION_EVENT_ID");
-                Set<Long> events = map.get(_case);
+                Set<Long> events = map.get(_patient);
                 if (events == null) {
                     events = new HashSet<Long>();
-                    map.put(_case, events);
+                    map.put(_patient, events);
                 }
                 events.add(eventId);
             }

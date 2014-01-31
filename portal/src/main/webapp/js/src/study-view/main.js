@@ -100,28 +100,49 @@ $(function() {
             getData: function(){
                 var usefulData;
                 var dataObject = new Array(); 
-                var caseIdStr = caseIds.join('+');
-
-                $.when( $.ajax("ClinicalFreeForm.json?studyId="+studyId), 
-                        $.ajax("clinicalAttributes.json?cancer_study_id="+studyId+"&case_list=" + caseIdStr),
-                        $.ajax("mutations.json?cmd=count_mutations&case_ids="+caseIdStr+"&mutation_profile="+mutationProfileId),
-                        $.ajax("cna.json?cmd=get_cna_fraction&case_ids="+caseIdStr+"&cancer_study_id="+studyId))
+                var caseIdStr = caseIds.join(' ');
+                var webserviceData = {
+                    cmd: "getClinicalData",
+                    format: "json",
+                    cancer_study_id: studyId,
+                    case_list: caseIdStr
+                };
+                var clinicalAttributesData = {
+                    cancer_study_id: studyId,
+                    case_list: caseIdStr
+                };
+                var mutationsData = {
+                    cmd: "count_mutations",
+                    cases_ids: caseIdStr,
+                    mutation_profile: mutationProfileId
+                };
+                var cnaData = {
+                    cmd: "get_cna_fraction",
+                    case_ids: caseIdStr,
+                    cancer_study_id: studyId
+                };
+                
+                $.when(  $.ajax({type: "POST", url: "webservice.do", data: webserviceData}), 
+                        $.ajax({type: "POST", url: "clinicalAttributes.json", data: clinicalAttributesData}),
+                        $.ajax({type: "POST", url: "mutations.json", data: mutationsData}),
+                        $.ajax({type: "POST", url: "cna.json", data: cnaData}))
+                
                     .done(function(a1, a2, a3, a4){
                         $.each(a1[0], function(i, field){
-                            if(i == "freeFormData")
+                            if(i == "data")
                                 usefulData = field;
                         });
 
                         for(var i=0; i < usefulData.length;i++){
-                            if(usefulData[i]["caseId"] in dataObject){
-                                dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+                            if(usefulData[i]["sample"] in dataObject){
+                                dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
                             }
                             else{
-                                dataObject[usefulData[i]["caseId"]] = new Array();
-                                dataObject[usefulData[i]["caseId"]][usefulData[i]["paramName"]] = usefulData[i]["paramValue"];
+                                dataObject[usefulData[i]["sample"]] = new Array();
+                                dataObject[usefulData[i]["sample"]][usefulData[i]["attr_id"]] = usefulData[i]["attr_val"];
                             }
                         }
-
+                        
                         var keys = Object.keys(dataObject);
                         var keyNumMapping = [];
                         for(var j = 0; j< keys.length ; j++){

@@ -258,10 +258,18 @@ var ScatterPlots = (function() {
                 .size(style.size)
                 .type(style.shape))
             .attr("fill", function(d) {
-                return d.fill;
+                if (isNaN(d.fill) || d.fill === "") {
+                    return style.fill;
+                } else {
+                    return d.fill;
+                }
             })
             .attr("stroke", function(d) {
-                return d.stroke;
+                if (isNaN(d.stroke) || d.stroke === "") {
+                    return style.stroke;
+                } else {
+                    return d.stroke;
+                }
             })
             .attr("stroke-width", style.stroke_width);
     }

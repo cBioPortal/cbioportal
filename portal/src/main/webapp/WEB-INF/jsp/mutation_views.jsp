@@ -159,12 +159,28 @@
 	</div>
 	<div id='mutation_3d_visualizer' class='mutation-3d-vis-container'></div>
 	<div class='mutation-3d-vis-toolbar'>
+		<div class='mutation-3d-vis-help-init'>
+			<a href="#">how to pan/zoom/rotate?</a>
+		</div>
+		<div class='mutation-3d-vis-help-content'>
+			<div class="mutation-3d-vis-help-close">
+				<a href="#"><b>&times;</b></a>
+			</div>
+			<h4>3D visualizer basic interaction</h4>
+			<b>Zoom in/out:</b> Press and hold the SHIFT key and the left mouse button,
+			and then move the mouse backward/forward.<br>
+			<b>Pan:</b> Press and hold the SHIFT key, double click and hold the left mouse button,
+			and then move the mouse in the desired direction.<br>
+			<b>Rotate:</b> Press and hold the left mouse button, and then move the mouse in the desired
+			direction to rotate on the x and y axes. To be able to rotate on the z-axis, you need to
+			press and hold the SHIFT key and the left mouse button, and then move the mouse left or right.
+		</div>
 		<table>
 			<tr>
 				<!--td>
 					<input class='mutation-3d-spin' type='checkbox'>
 					<label>Spin</label>
-				</td-->
+				</td>
 				<td class='mutation-3d-buttons'>
 					<button class='mutation-3d-button mutation-3d-center-selected'
 							alt='Center the view on the highlighted residue'></button>
@@ -176,7 +192,7 @@
 				</td>
 				<td>
 					<div class='mutation-3d-zoom-slider'></div>
-				</td>
+				</td-->
 			</tr>
 		</table>
 		<table cellpadding="0">

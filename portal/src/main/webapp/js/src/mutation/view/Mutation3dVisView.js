@@ -45,6 +45,9 @@ var Mutation3dVisView = Backbone.View.extend({
 		self.hideResidueWarning();
 		self.hideNoMapWarning();
 
+		// initially hide the help content
+		self.$el.find(".mutation-3d-vis-help-content").hide();
+
 		// update the container of 3d visualizer
 		if (mut3dVis != null)
 		{
@@ -136,6 +139,25 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		centerSelected.qtip(qtipOpts);
 		centerDefault.qtip(qtipOpts);
+
+		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
+		//var helpLink = self.$el.find(".mutation-3d-vis-help-link");
+		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
+		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
+
+		// add listener to help link
+		helpInit.click(function(event) {
+			event.preventDefault();
+			helpContent.slideToggle();
+			helpInit.slideToggle();
+		});
+
+		// add listener to help close button
+		helpClose.click(function(event) {
+			event.preventDefault();
+			helpContent.slideToggle();
+			helpInit.slideToggle();
+		});
 	},
 	/**
 	 * Initializes the mutation style options UI and

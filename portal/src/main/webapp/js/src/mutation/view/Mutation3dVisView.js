@@ -99,10 +99,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		// init buttons
 		self._initButtons();
 
-		// TODO this is an access to a global div out of this view's template...
-		$("#tabs").bind("tabsactivate", function(event, ui){
-			closeHandler();
-		});
+		// this is an access to a global div out of this view's template...
+//		$("#tabs").bind("tabsactivate", function(event, ui){
+//			closeHandler();
+//		});
 	},
 	/**
 	 * Initializes the control buttons.

@@ -158,13 +158,12 @@ $(function() {
                             });
                                 
                         }
-                        console.log(dataAttrA1);
+                        
                         for(var key in dataObject){
                             for (var i = 0 ; i < dataAttrA1.length ; i++)
                                 dataObjectM[keyNumMapping[key]][dataAttrA1[i]['attr_id']] = dataObject[key][dataAttrA1[i]['attr_id']];
                         }
                         
-                        console.log(dataObjectM);
                         attr = a2[0];
                         if(a3[0].length != 0){
                             var newAttri1 = {};
@@ -208,6 +207,7 @@ $(function() {
             var combine = new Array();
             var varName = new Array();
             var varNameIDMapping = new Array();
+            var displayedID = new Array();
             var varDisplay = new Array();            
             var varType = new Array();
             var varCluster = new Array();
@@ -276,6 +276,7 @@ $(function() {
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-pie-chart'><div style='width:100%; float:left'><pieH4>" + pie[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
                 varChart.push(dc.pieChart("#study-view-dc-chart-" + createdChartID));
+                displayedID.push(pie[i]["attr_id"]);
                 createdChartID++;
             }
 
@@ -283,6 +284,7 @@ $(function() {
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-row-chart'><div style='width:100%; float:left'><pieH4>" + row[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
                 varChart.push(dc.rowChart("#study-view-dc-chart-" + createdChartID));
+                displayedID.push(pie[i]["attr_id"]);
                 createdChartID++;
             }
 
@@ -290,6 +292,7 @@ $(function() {
                 $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + createdChartID + "\" class='study-view-dc-chart study-view-bar-chart'><div style='width:100%; float:left'><pieH4>" + bar[i]["display_name"] + "<a class='reset' href='javascript:varChart[" + createdChartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
                 varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
                 varChart.push(dc.barChart("#study-view-dc-chart-" + createdChartID));
+                displayedID.push(pie[i]["attr_id"]);
                 createdChartID++;
             }
             
@@ -556,11 +559,13 @@ $(function() {
                 .remove()
                 .end()
         
-            $.each(varName, function(key, value) {   
-                $('#study-view-selectAttr')
-                    .append($("<option></option>")
-                        .attr("value",value)
-                        .text(varDisplay[key]));                
+            $.each(varName, function(key, value) {
+                if(displayedID.indexOf(value) == -1){
+                    $('#study-view-selectAttr')
+                        .append($("<option></option>")
+                            .attr("value",value)
+                            .text(varDisplay[key]));
+                }
             });
             
             $('#study-view-selectAttr').change(function(){
@@ -654,7 +659,7 @@ $(function() {
                     shape: "circle", //default, may vary for different mutation types
                     text: "Neither mutated"
                 }]
-            };            
+            };    
             var scatterPlotDatum = {              
                 x_val: "",
                 y_val: "",

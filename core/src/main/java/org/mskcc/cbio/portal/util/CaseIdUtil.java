@@ -27,13 +27,15 @@
 
 package org.mskcc.cbio.portal.util;
 
+import org.mskcc.cbio.portal.model.Sample;
+import java.util.regex.*;
+
 public class CaseIdUtil
 {
-	public static String getCaseId(String barCode)
+	public static String getSampleId(String barCode)
 	{
 		// do not process non-TCGA bar codes...
-		if (!barCode.startsWith("TCGA"))
-		{
+		if (!barCode.startsWith("TCGA")) {
 			return barCode;
 		}
 
@@ -41,26 +43,16 @@ public class CaseIdUtil
 		// an example bar code looks like this:  TCGA-13-1479-01A-01W
 
 		String barCodeParts[] = barCode.split("-");
-
-		String caseId = null;
-
-		try
-		{
-			caseId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
-
-			// the following condition was prompted by case ids coming from
-			// private cancer studies (like SKCM_BROAD) with case id's of
-			// the form MEL-JWCI-WGS-XX or MEL-Ma-Mel-XX or MEL-UKRV-Mel-XX
-			// TODO this causes problems for some cases, so disabling it
-//			if (!barCode.startsWith("TCGA") &&
-//			    barCodeParts.length == 4)
-//			{
-//				caseId += "-" + barCodeParts[3];
-//			}
-		} catch (ArrayIndexOutOfBoundsException e) {
-			caseId = barCode;
+		String sampleId = null;
+		try {
+			sampleId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2] + "-" + barCodeParts[3];
+            Matcher tcgaSampleBarcodeMatcher = Sample.TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(sampleId);
+            sampleId = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : sampleId;
+		}
+        catch (ArrayIndexOutOfBoundsException e) {
+			sampleId = barCode;
 		}
 
-		return caseId;
+		return sampleId;
 	}
 }

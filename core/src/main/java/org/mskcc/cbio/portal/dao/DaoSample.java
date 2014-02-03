@@ -115,7 +115,7 @@ public class DaoSample {
             pstmt.executeUpdate();
             rs = pstmt.getGeneratedKeys();
             if (rs.next()) {
-                cacheSample(new Sample(rs.getInt(1), sample.getStableId(), sample.getType().toString(),
+                cacheSample(new Sample(rs.getInt(1), sample.getStableId(),
                                        sample.getInternalPatientId(), sample.getCancerTypeId()));
                 return rs.getInt(1);
             }
@@ -178,7 +178,6 @@ public class DaoSample {
     {
         return new Sample(rs.getInt("INTERNAL_ID"),
                           rs.getString("STABLE_ID"),
-                          rs.getString("SAMPLE_TYPE"),
                           rs.getInt("PATIENT_ID"),
                           rs.getString("TYPE_OF_CANCER_ID"));
     }

@@ -66,6 +66,8 @@ public class GeneticAlterationUtil {
         DaoGeneticAlteration daoGeneticAlteration = DaoGeneticAlteration.getInstance();
         DaoMicroRnaAlteration daoMicroRnaAlteration = DaoMicroRnaAlteration.getInstance();
 
+        targetCaseList = getSampleIdsFromPatientIds(targetCaseList);
+
         //  First branch:  are we dealing with a canonical (protein-coding) gene or a microRNA?
         if (targetGene instanceof CanonicalGene) {
             CanonicalGene canonicalGene = (CanonicalGene) targetGene;
@@ -121,6 +123,8 @@ public class GeneticAlterationUtil {
             ArrayList<String> targetCaseList, ArrayList<String> correlatedToData)
             throws DaoException {
         ArrayList<String> dataRow = new ArrayList<String>();
+
+        targetCaseList = getSampleIdsFromPatientIds(targetCaseList);
         
         String type = targetGene.isPhosphoProtein() ? 
                 GeneticAlterationType.PHOSPHORYLATION.toString():GeneticAlterationType.PROTEIN_LEVEL.toString();
@@ -279,5 +283,17 @@ public class GeneticAlterationUtil {
         } catch (Exception e) {
             return -2.0;
         }
+    }
+
+    private static ArrayList<String> getSampleIdsFromPatientIds(List<String> targetCaseList)
+    {
+        ArrayList<String> sampleIds = new ArrayList<String>();
+        for (String patientId : targetCaseList) {
+            Patient patient = DaoPatient.getPatientByStableId(patientId);
+            for (Sample sample : DaoSample.getSamplesByInternalPatientId(patient.getInternalId())) {
+                sampleIds.add(sample.getStableId());
+            }
+        }
+        return sampleIds;
     }
 }

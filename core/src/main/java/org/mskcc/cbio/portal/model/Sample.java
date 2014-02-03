@@ -28,6 +28,7 @@ package org.mskcc.cbio.portal.model;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.regex.*;
 import org.apache.log4j.Logger;
 
 /**
@@ -37,18 +38,26 @@ import org.apache.log4j.Logger;
  */
 public class Sample {
 
+    public static final Pattern TCGA_FULL_SAMPLE_BARCODE_REGEX =
+        Pattern.compile("^(TCGA-\\w\\w-\\w\\w\\w\\w-\\w\\w)[A-Z]$");
+
     public static enum Type
     {
-        BLOOD_DERIVED_NORMAL("Blood Derived Normal"),
-        NORMAL("Normal"),
-        PRIMARY_TUMOR("Primary Tumor");
+        PRIMARY_SOLID_TUMOR("Primary Solid Tumor"),
+        RECURRENT_SOLID_TUMOR("Recurrent Solid Tumor"),
+        PRIMARY_BLOOD_TUMOR("Primary Blood Tumor"),
+        RECURRENT_BLOOD_TUMOR("Recurrent Blood Tumor"),
+        METASTATIC("Metastatic"),
+        BLOOD_NORMAL("Blood Derived Normal"),
+        SOLID_NORMAL("Solid Tissues Normal");
 
         private String propertyName;
         
         Type(String propertyName) { this.propertyName = propertyName; }
         public String toString() { return propertyName; }
 
-        static public boolean has(String value) {
+        static public boolean has(String value)
+        {
             if (value == null) return false;
             try { 
                 return valueOf(value.toUpperCase()) != null; 
@@ -57,7 +66,38 @@ public class Sample {
                 return false;
             }
         }
+
+        static public Type getTypeByTCGACode(String tcgaCode)
+        {
+            if (tcgaCode.equals("01")) {
+                return PRIMARY_SOLID_TUMOR;
+            }
+            else if (tcgaCode.equals("02")) {
+                return RECURRENT_SOLID_TUMOR;
+            }
+            else if (tcgaCode.equals("03")) {
+                return PRIMARY_BLOOD_TUMOR;
+            }
+            else if (tcgaCode.equals("04")) {
+                return RECURRENT_BLOOD_TUMOR;
+            }
+            else if (tcgaCode.equals("06")) {
+                return METASTATIC;
+            }
+            else if (tcgaCode.equals("10")) {
+                return BLOOD_NORMAL;
+            }
+            else if (tcgaCode.equals("11")) {
+                return SOLID_NORMAL;
+            }
+            else {
+                return PRIMARY_SOLID_TUMOR;
+            }
+        }
     }
+
+    private static final Pattern TCGA_SAMPLE_BARCODE_REGEX =
+        Pattern.compile("^TCGA-\\w\\w-\\w\\w\\w\\w-(\\w\\w)$");
 
     private int internalId;
     private String stableId;
@@ -65,28 +105,28 @@ public class Sample {
     private int internalPatientId;
     private String cancerTypeId;
 
-    public Sample(int internalId, String stableId, String sampleType, int internalPatientId, String cancerTypeId)
+    public Sample(int internalId, String stableId, int internalPatientId, String cancerTypeId)
     {
-        this(stableId, sampleType, internalPatientId, cancerTypeId);
+        this(stableId, internalPatientId, cancerTypeId);
         this.internalId = internalId;
     }
 
-    public Sample(String stableId, String sampleType, int internalPatientId, String cancerTypeId)
+    public Sample(String stableId, int internalPatientId, String cancerTypeId)
     {
         this.stableId = stableId;
-        this.sampleType = Sample.getType(sampleType);
+        this.sampleType = getType(stableId);
         this.internalPatientId = internalPatientId;
 		this.cancerTypeId = cancerTypeId;
     }
 
-    private static Type getType(String sampleType)
+    private Type getType(String stableId)
     {
-        sampleType = sampleType.replaceAll(" ", "_");
-        if (Type.has(sampleType)) {
-            return Type.valueOf(sampleType.toUpperCase());
+        Matcher tcgaSampleBarcodeMatcher = TCGA_SAMPLE_BARCODE_REGEX.matcher(stableId);
+        if (tcgaSampleBarcodeMatcher.find()) {
+            return Type.getTypeByTCGACode(tcgaSampleBarcodeMatcher.group(1));
         }
         else {
-            return Type.PRIMARY_TUMOR;
+            return Type.PRIMARY_SOLID_TUMOR;
         }
     }
 

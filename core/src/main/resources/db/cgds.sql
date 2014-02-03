@@ -90,14 +90,6 @@ CREATE TABLE `patient` (
 
 -- --------------------------------------------------------
 
-drop table IF EXISTS _sample;
-CREATE TABLE `_sample` (
-  `SAMPLE_ID` varchar(255) NOT NULL,
-  `CANCER_STUDY_ID` int(11) NOT NULL,
-  PRIMARY KEY (`SAMPLE_ID`,`CANCER_STUDY_ID`),
-  FOREIGN KEY (`CANCER_STUDY_ID`) REFERENCES `cancer_study` (`CANCER_STUDY_ID`) ON DELETE CASCADE
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
 --
 -- Table structure for table `sample`
 --

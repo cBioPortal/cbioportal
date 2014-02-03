@@ -107,7 +107,7 @@ public class ImportFusionData
 
 				// process case id
 				String barCode = record.getTumorSampleID();
-				String caseId = CaseIdUtil.getCaseId(barCode);
+				String caseId = CaseIdUtil.getSampleId(barCode);
 
 				if (!DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId))
 				{

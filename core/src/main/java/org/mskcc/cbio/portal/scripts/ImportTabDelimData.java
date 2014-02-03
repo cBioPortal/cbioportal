@@ -337,7 +337,7 @@ public class ImportTabDelimData {
 	private void convertBarcodes(String caseIds[])
 	{
 		for (int lc = 0; lc < caseIds.length; lc++) {
-			caseIds[lc] = CaseIdUtil.getCaseId(caseIds[lc]);
+			caseIds[lc] = CaseIdUtil.getSampleId(caseIds[lc]);
 		}
 	}
 }

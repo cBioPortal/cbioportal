@@ -155,22 +155,12 @@ public class ImportClinicalData {
         if (validPatientId(stablePatientId)) {
             Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
             if (patient != null) {
-                internalSampleId = DaoSample.addSample(new Sample(sampleId, getSampleType(fields, columnAttrs),
+                internalSampleId = DaoSample.addSample(new Sample(CaseIdUtil.getSampleId(sampleId),
                                                                   patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
             }
         }
 
         return internalSampleId;
-    }
-
-    private String getSampleType(String[] fields, List<ClinicalAttribute> columnAttrs)
-    {
-        int sampleTypeIndex = findAttributeColumnIndex(SAMPLE_TYPE_COLUMN_NAME, columnAttrs);
-        if (sampleTypeIndex > 0) {
-            return fields[sampleTypeIndex];
-        }
-
-        return Sample.Type.PRIMARY_TUMOR.toString();
     }
 
     private String getStablePatientId(String sampleId, String[] fields, List<ClinicalAttribute> columnAttrs)

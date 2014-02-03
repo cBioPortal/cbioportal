@@ -5,6 +5,8 @@
  * @param options       visual options object
  * @param data          collection of Mutation models (MutationCollection)
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 function MutationDiagram(geneSymbol, options, data)
 {
@@ -54,7 +56,7 @@ MutationDiagram.prototype.defaultOpts = {
 	el: "#mutation_diagram_d3", // id of the container
 	elWidth: 740,               // width of the container
 	elHeight: 180,              // height of the container
-	marginLeft: 40,             // left margin for the plot area
+	marginLeft: 45,             // left margin for the plot area
 	marginRight: 30,            // right margin for the plot area
 	marginTop: 30,              // top margin for the plot area
 	marginBottom: 60,           // bottom margin for the plot area
@@ -1749,6 +1751,24 @@ MutationDiagram.prototype.removeHighlight = function(selector)
 	// remove data point from the map
 	var location = element.datum().location;
 	delete self.highlighted[location];
+};
+
+/**
+ * Returns selected (highlighted) elements as a list of svg elements.
+ *
+ * @return {Array}  a list of SVG elements
+ */
+MutationDiagram.prototype.getSelectedElements = function()
+{
+	var self = this;
+	var selected = [];
+
+	for (var key in self.highlighted)
+	{
+		selected.push(self.highlighted[key]);
+	}
+
+	return selected;
 };
 
 /**

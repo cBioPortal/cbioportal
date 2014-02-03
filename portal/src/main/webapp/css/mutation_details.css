@@ -103,6 +103,10 @@ th.mutation-details-qtip-style {
 	color: gray;
 	font-weight: bold;
 }
+.uniform_mutation {
+	color: #8A2BE2;
+	font-weight: bold;
+}
 .cna-homdel {
 	color:blue;
 	font-weight: bold;
@@ -191,6 +195,10 @@ th.mutation-details-qtip-style {
 .mutation-table-header {
 	font-weight: bold !important;
 }
+
+/**
+ * 3D visualizer panel
+ */
 .mutation-3d-container {
 	position: fixed;
 	float: right;
@@ -199,11 +207,60 @@ th.mutation-details-qtip-style {
 	z-index: 100;
 	border-style: outset;
 	border-color: #BABDB6;
+	border-radius: 15px;
 	background-color: #FFFFFF;
 	padding: 5px 10px 10px;
+	-moz-border-radius: 15px;
+	-webkit-border-radius: 15px;
 }
 .mutation-3d-vis-header {
 	padding-bottom: 5px;
+}
+.mutation-3d-vis-container {
+	position: relative;
+	z-index: 2;
+	overflow: hidden;
+}
+.mutation-3d-vis-loader {
+	text-align: center;
+}
+.mutation-3d-vis-help-init {
+	text-align: right;
+}
+.mutation-3d-vis-help-close {
+	float: right;
+}
+.mutation-3d-vis-help-content {
+	width: 386px;
+	padding: 5px;
+	background-color: #eeeeee;
+	border: 1px solid #d3d3d3;
+}
+.mutation-3d-residue-warning,
+.mutation-3d-nomap-warning {
+	text-align: center;
+	color: red;
+	font-weight: bold;
+}
+.mutation-3d-alpha-helix {
+	font-weight: bold;
+	color: #FFA500;
+}
+.mutation-3d-beta-sheet {
+	font-weight: bold;
+	color: #0000FF;
+}
+.mutation-3d-loop {
+	font-weight: bold;
+	color: #888888;
+}
+.mutation-3d-tied {
+	color: #800080;
+	font-weight: bold;
+}
+.mutation-3d-highlighted {
+	color: #FFDD00;
+	font-weight: bold;
 }
 .mutation-3d-info {
 	font-size: 13px;
@@ -221,24 +278,46 @@ th.mutation-details-qtip-style {
 	opacity: 0.6;
 }
 .mutation-3d-button {
-	opacity: 0.6;
-	width: 12px;
-	/* TODO add anim to click */
+	padding-bottom: 4px;
+	padding-top: 4px;
 }
-.mutation-3d-pdb-id, .mutation-3d-chain-id {
+.mutation-3d-buttons {
+	padding-right: 10px;
+	width: 250px; /* TODO not a good solution to align right */
+}
+.mutation-3d-pdb-id,
+.mutation-3d-chain-id {
 	font-weight: bold;
 	font-style: italic;
 }
 .mutation-3d-spin {
 	margin-left: 12px;
 }
-.mutation-3d-zoomout {
-	margin-left: 10px;
+.mutation-3d-zoom-label {
+	text-align: right;
 }
-.mutation-3d-vis img{
+.mutation-3d-zoom-slider {
+	margin-left: 2px;
+	width: 80px;
+}
+.mutation-3d-protein-style-menu {
+	border-right: 1px solid #AAAAAA;
+}
+.mutation-3d-style-header {
+	text-align: center;
+	font-weight: bold;
+}
+.mutation-3d-vis img {
 	width: 24px;
-	height: 24px
+	height: 24px;
 }
+.mutation-3d-mutation-style-menu input,
+.mutation-3d-protein-style-menu input,
+{
+	margin: 0;
+}
+
+
 .cosmic-details-tip-info {
 	padding-bottom: 5px;
 }

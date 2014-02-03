@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for PDB data related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbDataUtil = (function()
 {
@@ -77,10 +79,11 @@ var PdbDataUtil = (function()
 	 * they are sorted by uniprotFrom field.
 	 *
 	 * @param alignments    an array of PdbAlignmentModel instances
+	 * @return {Object}     merged alignment object
 	 */
 	function mergeSortedAlignments(alignments)
 	{
-		var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1};
+		var mergedAlignment = {mergedString: "", uniprotFrom: -1, uniprotTo: -1, pdbFrom: -1};
 		var mergedStr = "";
 		var end = -1;
 		var prev;
@@ -159,6 +162,7 @@ var PdbDataUtil = (function()
 
 		mergedAlignment.uniprotFrom = alignments[0].uniprotFrom;
 		mergedAlignment.uniprotTo = mergedAlignment.uniprotFrom + mergedStr.length;
+		mergedAlignment.pdbFrom = alignments[0].pdbFrom;
 		mergedAlignment.mergedString = mergedStr;
 		mergedAlignment.score = calcScore(mergedStr);
 

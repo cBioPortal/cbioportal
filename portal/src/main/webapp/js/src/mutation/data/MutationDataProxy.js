@@ -3,6 +3,8 @@
  * initialized with the full mutation data already retrieved from the server.
  *
  * @param geneList  list of target genes (genes of interest) as a string
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDataProxy = function(geneList)
 {

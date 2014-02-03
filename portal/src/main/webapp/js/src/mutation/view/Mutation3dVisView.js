@@ -4,9 +4,12 @@
  *
  * options: {el: [target container],
  *           parentEl: [parent container],
- *           mut3dVis: [optional] reference to the Mutation3dVis instance,
- *           pdbProxy: [optional] PDB data proxy
+ *           mut3dVis: reference to the Mutation3dVis instance,
+ *           pdbProxy: PDB data proxy,
+ *           mutationProxy: mutation data proxy
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var Mutation3dVisView = Backbone.View.extend({
 	initialize : function (options) {
@@ -18,13 +21,16 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// compile the template using underscore
 		var template = _.template(
-				$("#mutation_3d_vis_template").html(), {});
+			$("#mutation_3d_vis_template").html(),
+			// TODO make the images customizable?
+			{loaderImage: "images/ajax-loader.gif",
+				helpImage: "images/help.png"});
 
 		// load the compiled HTML into the Backbone "el"
-		this.$el.html(template);
+		self.$el.html(template);
 
 		// format after rendering
-		this.format();
+		self.format();
 	},
 	format: function()
 	{
@@ -34,6 +40,13 @@ var Mutation3dVisView = Backbone.View.extend({
 		// initially hide the 3d visualizer container
 		var container3d = self.$el;
 		container3d.hide();
+
+		// initially hide the residue warning message
+		self.hideResidueWarning();
+		self.hideNoMapWarning();
+
+		// initially hide the help content
+		self.$el.find(".mutation-3d-vis-help-content").hide();
 
 		// update the container of 3d visualizer
 		if (mut3dVis != null)
@@ -66,66 +79,311 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		// format toolbar elements
 
-		// spin toggle
-		var spinChecker = self.$el.find(".mutation-3d-spin");
+//		var spinChecker = self.$el.find(".mutation-3d-spin");
+//		spinChecker.change(function(){
+//			if (mut3dVis != null)
+//			{
+//				mut3dVis.toggleSpin();
+//			}
+//		});
 
-		spinChecker.change(function(){
-			if (mut3dVis != null)
+		// mutation style controls
+		self._initMutationControls();
+
+		// protein style controls
+		self._initProteinControls();
+
+		// zoom slider
+		self._initZoomSlider();
+
+		// init buttons
+		self._initButtons();
+
+		// this is an access to a global div out of this view's template...
+//		$("#tabs").bind("tabsactivate", function(event, ui){
+//			closeHandler();
+//		});
+	},
+	/**
+	 * Initializes the control buttons.
+	 */
+	_initButtons: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var centerSelected = self.$el.find(".mutation-3d-center-selected");
+
+		centerSelected.button(
+			{icons: {primary: "ui-icon-arrow-4"},
+			text: false});
+
+		centerSelected.click(function() {
+			// center on the selected mutation
+			mut3dVis.center();
+		});
+
+		var centerDefault = self.$el.find(".mutation-3d-center-default");
+
+		centerDefault.button(
+			{icons: {primary: "ui-icon-arrowreturn-1-w"},
+			text: false});
+
+		centerDefault.click(function() {
+			// restore to the default center
+			mut3dVis.resetCenter();
+		});
+
+		var qtipOpts = self._generateTooltipOpts("NA");
+		qtipOpts.content = {attr: 'alt'};
+
+		centerSelected.qtip(qtipOpts);
+		centerDefault.qtip(qtipOpts);
+
+		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
+		//var helpLink = self.$el.find(".mutation-3d-vis-help-link");
+		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
+		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
+
+		// add listener to help link
+		helpInit.click(function(event) {
+			event.preventDefault();
+			helpContent.slideToggle();
+			helpInit.slideToggle();
+		});
+
+		// add listener to help close button
+		helpClose.click(function(event) {
+			event.preventDefault();
+			helpContent.slideToggle();
+			helpInit.slideToggle();
+		});
+	},
+	/**
+	 * Initializes the mutation style options UI and
+	 * the corresponding event handlers.
+	 */
+	_initMutationControls: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var sideChain = self.$el.find(".mutation-3d-side-chain");
+
+		// handler for side chain checkbox
+		sideChain.change(function() {
+			var display = sideChain.is(":checked");
+
+			if (mut3dVis)
 			{
-				mut3dVis.toggleSpin();
+				// update flag
+				mut3dVis.updateOptions({displaySideChain: display});
+				mut3dVis.refreshHighlight();
 			}
 		});
 
-		// style selection menu
-		var styleMenu = self.$el.find(".mutation-3d-style-select");
+		var colorMenu = self.$el.find(".mutation-3d-mutation-color-select");
 
-		// TODO chosen is sometimes problematic in Firefox when overflow is hidden...
-		styleMenu.chosen({width: 120, disable_search: true});
-
-		styleMenu.change(function(){
+		colorMenu.change(function() {
 			var selected = $(this).val();
 
-			if (mut3dVis != null)
+			if (mut3dVis)
 			{
-				mut3dVis.changeStyle(selected);
-			}
-
-		});
-
-		// zoom buttons
-
-		var zoomIn = self.$el.find(".mutation-3d-zoomin");
-		var zoomOut = self.$el.find(".mutation-3d-zoomout");
-		var zoomActual = self.$el.find(".mutation-3d-zoomactual");
-
-		self.$el.find(".mutation-3d-button").tipTip();
-
-		// TODO add also tips
-		zoomIn.click(function() {
-			if (mut3dVis != null)
-			{
-				mut3dVis.zoomIn();
+				// update color options
+				mut3dVis.updateOptions({colorMutations: selected});
+				// refresh view with new options
+				mut3dVis.reapplyStyle();
 			}
 		});
 
-		zoomOut.click(function() {
-			if (mut3dVis != null)
+//		var colorByType = self.$el.find(".mutation-3d-mutation-color-by-type");
+//		// handler for color type checkbox
+//		colorByType.change(function() {
+//			var color = colorByType.is(":checked");
+//			var type = "byMutationType";
+//
+//			// if not coloring by mutation type, then use default atom colors
+//			if (!color)
+//			{
+//				type = "byAtomType";
+//			}
+//
+//			if (mut3dVis)
+//			{
+//				// update and reapply visual style
+//				mut3dVis.updateOptions({colorMutations: type});
+//				mut3dVis.reapplyStyle();
+//			}
+//		});
+
+		// add info tooltip for the color and side chain checkboxes
+		self._initMutationColorInfo();
+		self._initSideChainInfo();
+	},
+	/**
+	 * Initializes the protein style options UI and
+	 * the corresponding event handlers.
+	 */
+	_initProteinControls: function()
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		var displayNonProtein = self.$el.find(".mutation-3d-display-non-protein");
+
+		// handler for hide non protein checkbox
+		displayNonProtein.change(function() {
+			var display = displayNonProtein.is(":checked");
+
+			if (mut3dVis)
 			{
-				mut3dVis.zoomOut();
+				// update flag
+				mut3dVis.updateOptions({restrictProtein: !display});
+				// refresh view with new options
+				mut3dVis.reapplyStyle();
 			}
 		});
 
-		zoomActual.click(function() {
-			if (mut3dVis != null)
+		// add info tooltip for the checkbox
+		self._initHideNonProteinInfo();
+
+		// protein scheme selector
+		self._initProteinSchemeSelector();
+
+		// protein color selector
+		self._initProteinColorSelector();
+	},
+	/**
+	 * Initializes the protein color selector drop-down menu
+	 * with its default action handler.
+	 */
+	_initProteinColorSelector: function()
+	{
+		var self = this;
+		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
+		var mut3dVis = self.options.mut3dVis;
+
+		colorMenu.change(function() {
+			var selected = $(this).val();
+
+			// update color options
+			mut3dVis.updateOptions({colorProteins: selected});
+
+			// refresh view with new options
+			mut3dVis.reapplyStyle();
+		});
+	},
+	/**
+	 * Initializes the protein scheme selector dropdown menu
+	 * with its default action handler.
+	 */
+	_initProteinSchemeSelector: function()
+	{
+		var self = this;
+
+		var mut3dVis = self.options.mut3dVis;
+
+		// selection menus
+		var styleMenu = self.$el.find(".mutation-3d-protein-style-select");
+		var colorMenu = self.$el.find(".mutation-3d-protein-color-select");
+
+		// TODO chosen is somehow problematic...
+		//styleMenu.chosen({width: 120, disable_search: true});
+
+		// add info tooltip for the color selector
+		self._initProteinColorInfo();
+
+		// bind the change event listener
+		styleMenu.change(function() {
+
+			var selectedScheme = $(this).val();
+			var selectedColor = false;
+
+			// re-enable every color selection for protein
+			colorMenu.find("option").removeAttr("disabled");
+
+			var toDisable = null;
+
+			// find the option to disable
+			if (selectedScheme == "spaceFilling")
 			{
-				mut3dVis.zoomActual();
+				// disable color by secondary structure option
+				toDisable = colorMenu.find("option[value='bySecondaryStructure']");
+			}
+			else
+			{
+				// disable color by atom type option
+				toDisable = colorMenu.find("option[value='byAtomType']");
+			}
+
+			// if the option to disable is currently selected, select the default option
+			if (toDisable.is(":selected"))
+			{
+				toDisable.removeAttr("selected");
+				colorMenu.find("option[value='uniform']").attr("selected", "selected");
+				selectedColor = "uniform";
+			}
+
+			toDisable.attr("disabled", "disabled");
+
+			if (mut3dVis)
+			{
+				var opts = {};
+
+				opts.proteinScheme = selectedScheme;
+
+				if (selectedColor)
+				{
+					opts.colorProteins = selectedColor;
+				}
+
+				mut3dVis.updateOptions(opts);
+
+				// reapply view with new settings
+				//mut3dVis.changeStyle(selectedScheme);
+				mut3dVis.reapplyStyle();
 			}
 		});
+	},
+	/**
+	 * Initializes the zoom slider with default values.
+	 */
+	_initZoomSlider: function()
+	{
+		var self = this;
+		var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+		var mut3dVis = self.options.mut3dVis;
 
+		// TODO make slider values customizable?
 
-		// TODO this is an access to a global div out of this view's template...
-		$("#tabs").bind("tabsactivate", function(event, ui){
-			closeHandler();
+		// helper function to transform slider value into an actual zoom value
+		var transformValue = function (value)
+		{
+			if (value < 0)
+			{
+				return 100 + value;
+			}
+			else
+			{
+				return 100 + (value * 5);
+			}
+		};
+
+		// handler function for zoom slider events
+		var zoomHandler = function(event, ui)
+		{
+			if (mut3dVis)
+			{
+				mut3dVis.zoomTo(transformValue(ui.value));
+			}
+		};
+
+		// init y-axis slider controls
+		zoomSlider.slider({value: 0,
+			min: -80,
+			max: 80,
+			stop: zoomHandler,
+			slide: zoomHandler
 		});
 	},
 	/**
@@ -135,8 +393,9 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * @param geneSymbol    hugo gene symbol
 	 * @param pdbId         pdb id
 	 * @param chain         PdbChainModel instance
+	 * @param callback      function to be called after update
 	 */
-	updateView: function(geneSymbol, pdbId, chain)
+	updateView: function(geneSymbol, pdbId, chain, callback)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
@@ -148,7 +407,7 @@ var Mutation3dVisView = Backbone.View.extend({
 
 			// reload the selected pdb and chain data
 			mut3dVis.show();
-			mut3dVis.reload(pdbId, chain);
+			self.refreshView(pdbId, chain, callback);
 
 			// store pdb id and chain for future reference
 			self.pdbId = pdbId;
@@ -178,16 +437,167 @@ var Mutation3dVisView = Backbone.View.extend({
 		pdbProxy.getPdbInfo(pdbId, infoCallback);
 	},
 	/**
-	 * Refreshes (reloads) the 3D visualizer for the last pdb id
-	 * and chain.
+	 * Refreshes (reloads) the 3D visualizer for the given
+	 * pdb id and chain.
+	 *
+	 * If no pdb id and chain provided, then reloads with
+	 * the last known pdb id and chain.
+	 *
+	 * @param pdbId     pdb id
+	 * @param chain     PdbChainModel instance
+	 * @param callback  function to be called after refresh
 	 */
-	refreshView: function()
+	refreshView: function(pdbId, chain, callback)
 	{
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		// just reload with the last known pdb id and chain
-		mut3dVis.reload(self.pdbId, self.chain);
+		// hide warning messages
+		self.hideResidueWarning();
+		self.hideNoMapWarning();
+
+		// helper function to show/hide mapping information
+		var showMapInfo = function(mapped)
+		{
+			if (mapped.length == 0)
+			{
+				// show the warning text
+				self.showNoMapWarning();
+			}
+			else
+			{
+				// TODO display exactly what is mapped?
+//				var proxy = self.options.mutationProxy;
+//				var types = [];
+//
+//				_.each(mapped, function(id, idx) {
+//					var mutation = proxy.getMutationUtil().getMutationIdMap()[id];
+//					types.push(mutation.mutationType);
+//				});
+//
+//				types = _.unique(types);
+
+				// hide the warning text
+				self.hideNoMapWarning();
+			}
+		};
+
+		// if no pdb id or chain is provided, then do not reload
+		if (!pdbId && !chain)
+		{
+			// just refresh
+			var mapped = mut3dVis.refresh();
+
+			// update mapping info
+			showMapInfo(mapped);
+		}
+		// reload the new pdb structure
+		else
+		{
+			// reset zoom slider
+			var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+			zoomSlider.slider("value", 0);
+
+			// show loader image
+			self.showLoader();
+
+			// set a short delay to allow loader image to appear
+			setTimeout(function() {
+				// reload the visualizer
+				var mapped = mut3dVis.reload(pdbId, chain, function() {
+					// hide the loader image after reload complete
+					self.hideLoader();
+					// call the provided custom callback function
+					if (_.isFunction(callback))
+					{
+						callback();
+					}
+				});
+				// update mapping info if necessary
+				showMapInfo(mapped);
+			}, 50);
+		}
+	},
+	/**
+	 * Initializes the mutation color information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initMutationColorInfo: function()
+	{
+		var self = this;
+
+		var info = self.$el.find(".mutation-type-color-help");
+
+		var content = _.template($("#mutation_3d_type_color_tip_template").html());
+		var options = self._generateTooltipOpts(content);
+
+		// make it wider
+		options.style.classes += " qtip-wide";
+
+		info.qtip(options);
+	},
+	/**
+	 * Initializes the protein structure color information as a tooltip
+	 * for the corresponding selection menu.
+	 */
+	_initProteinColorInfo: function()
+	{
+		var self = this;
+
+		var info = self.$el.find(".protein-struct-color-help");
+
+		var content = _.template($("#mutation_3d_structure_color_tip_template").html());
+		var options = self._generateTooltipOpts(content);
+
+		// make it wider
+		options.style.classes += " qtip-wide";
+
+		info.qtip(options);
+	},
+	/**
+	 * Initializes the side chain information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initSideChainInfo: function()
+	{
+		var self = this;
+
+		var info = self.$el.find(".display-side-chain-help");
+
+		var content = _.template($("#mutation_3d_side_chain_tip_template").html());
+
+		var options = self._generateTooltipOpts(content);
+		info.qtip(options);
+	},
+	/**
+	 * Initializes the side chain information as a tooltip
+	 * for the corresponding checkbox.
+	 */
+	_initHideNonProteinInfo: function()
+	{
+		var self = this;
+
+		var info = self.$el.find(".display-non-protein-help");
+
+		var content = _.template($("#mutation_3d_non_protein_tip_template").html());
+
+		var options = self._generateTooltipOpts(content);
+		info.qtip(options);
+	},
+	/**
+	 * Generates the default tooltip (qTip) options for the given
+	 * tooltip content.
+	 *
+	 * @param content  actual tooltip content
+	 * @return {Object}    qTip options for the given content
+	 */
+	_generateTooltipOpts: function(content)
+	{
+		return {content: {text: content},
+			hide: {fixed: true, delay: 100, event: 'mouseout'},
+			show: {event: 'mouseover'},
+			style: {classes: 'qtip-light qtip-rounded qtip-shadow'},
+			position: {my:'top right', at:'bottom center'}};
 	},
 	/**
 	 * Minimizes the 3D visualizer panel.
@@ -197,7 +607,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.minimize();
+		if (mut3dVis)
+		{
+			mut3dVis.minimize();
+		}
 	},
 	/**
 	 * Restores the 3D visualizer panel to its full size.
@@ -207,7 +620,10 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		mut3dVis.maximize();
+		if (mut3dVis)
+		{
+			mut3dVis.maximize();
+		}
 	},
 	isVisible: function()
 	{
@@ -224,6 +640,7 @@ var Mutation3dVisView = Backbone.View.extend({
 	 * then resets the focus to the default state.
 	 *
 	 * @param pileup    Pileup instance
+	 * @return {boolean} true if focus successful, false otherwise
 	 */
 	focusView: function(pileup)
 	{
@@ -232,11 +649,132 @@ var Mutation3dVisView = Backbone.View.extend({
 
 		if (pileup)
 		{
-			mut3dVis.focusOn(pileup);
+			return mut3dVis.focusOn(pileup);
 		}
 		else
 		{
 			mut3dVis.resetFocus();
+			return true;
 		}
+	},
+	/**
+	 * Highlights the 3D visualizer for the residue
+	 * corresponding to the given pileup of mutations.
+	 *
+	 * @param pileup    Pileup instance
+	 * @param reset     whether to reset previous highlights
+	 * @return {boolean} true if highlight successful, false otherwise
+	 */
+	highlightView: function(pileup, reset)
+	{
+		// TODO allow highlighting of multiple pileups in one function call
+
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		return mut3dVis.highlight(pileup, reset);
+	},
+	/**
+	 * Removes the highlight for the given pileup.
+	 *
+	 * If this function is invoked without a parameter,
+	 * then resets all residue highlights.
+	 */
+	removeHighlight: function(pileup)
+	{
+		var self = this;
+		var mut3dVis = self.options.mut3dVis;
+
+		if (pileup)
+		{
+			// TODO reset only the provided pileup, not all of 'em!
+			mut3dVis.resetHighlight();
+		}
+		else
+		{
+			mut3dVis.resetHighlight();
+		}
+	},
+	/**
+	 * Shows the loader image for the 3D vis container.
+	 */
+	showLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-loader");
+		var container = self.$el.find(".mutation-3d-vis-container");
+
+		// hide actual vis container
+		// (jQuery.hide function is problematic with 3D visualizer,
+		// instead we are changing height)
+		var height = container.css("height");
+
+		if (!(height === 0 || height === "0px"))
+		{
+			self._actualHeight = height;
+			container.css("height", 0);
+		}
+
+		// show image
+		loaderImage.show();
+	},
+	/**
+	 * Hides the loader image and shows the actual 3D visualizer content.
+	 */
+	hideLoader: function()
+	{
+		var self = this;
+		var loaderImage = self.$el.find(".mutation-3d-vis-loader");
+		var container = self.$el.find(".mutation-3d-vis-container");
+
+		// hide image
+		loaderImage.hide();
+
+		// show actual vis container
+		container.css("height", self._actualHeight);
+	},
+	/**
+	 * Shows a warning message for unmapped residues.
+	 */
+	showResidueWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-residue-warning");
+
+		// show warning only if no other warning is visible
+		if (!self.$el.find(".mutation-3d-nomap-warning").is(":visible"))
+		{
+			warning.show();
+		}
+	},
+	/**
+	 * Hides the residue warning message.
+	 */
+	hideResidueWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-residue-warning");
+
+		warning.hide();
+	},
+	/**
+	 * Shows a warning message for unmapped residues.
+	 */
+	showNoMapWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-nomap-warning");
+
+		warning.show();
+	},
+	/**
+	 * Hides the residue warning message.
+	 */
+	hideNoMapWarning: function()
+	{
+		var self = this;
+		var warning = self.$el.find(".mutation-3d-nomap-warning");
+
+		warning.hide();
 	}
 });

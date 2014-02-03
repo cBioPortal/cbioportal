@@ -8,6 +8,8 @@
  * @param mutations     mutations as an array of raw JSON objects
  * @param options       visual options object
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationTable = function(tableSelector, gene, mutations, options)
 {

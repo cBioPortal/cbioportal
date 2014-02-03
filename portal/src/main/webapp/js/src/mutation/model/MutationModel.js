@@ -3,6 +3,8 @@
  *
  * Current model is sufficient to visualize both the table and the diagram.
  * Later we may add more data if necessary.
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationModel = Backbone.Model.extend({
 	initialize: function(attributes) {

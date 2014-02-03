@@ -244,12 +244,17 @@ public final class DaoClinicalData {
 	}
     public static List<ClinicalData> getData(int cancerStudyId) throws DaoException
     {
+        
+        return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, getPatientIdsByCancerStudy(cancerStudyId));
+    }
+
+    private static List<Integer> getPatientIdsByCancerStudy(int cancerStudyId)
+    {
         List<Integer> patientIds = new ArrayList<Integer>();
         for (Patient patient : DaoPatient.getPatientsByInternalCancerStudyId(cancerStudyId)) {
             patientIds.add(patient.getInternalId());
         }
-
-        return getDataByInternalIds(cancerStudyId, PATIENT_TABLE, patientIds);
+        return patientIds;
     }
 
     public static List<ClinicalData> getData(String cancerStudyId, Collection<String> caseIds) throws DaoException
@@ -318,13 +323,17 @@ public final class DaoClinicalData {
 		try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
 
-            pstmt = con.prepareStatement("SELECT * FROM clinical WHERE" +
-                    " CANCER_STUDY_ID= " + internalCancerStudyId +
-                    " AND ATTR_ID IN ('" + StringUtils.join(attributeIds, "','") +"') ");
+            pstmt = con.prepareStatement("SELECT * FROM clinical_patient WHERE" +
+                                         " ATTR_ID IN ('" + StringUtils.join(attributeIds, "','") +"') ");
+
+            List<Integer> patients = getPatientIdsByCancerStudy(internalCancerStudyId);
 
             rs = pstmt.executeQuery();
             while(rs.next()) {
-                clinicals.add(extract(internalCancerStudyId, rs));
+                Integer patientId = rs.getInt("INTERNAL_ID");
+                if (patients.contains(patientId)) {
+                    clinicals.add(extract(internalCancerStudyId, rs));
+                }
             }
 		}
 		catch (SQLException e) {
@@ -337,15 +346,15 @@ public final class DaoClinicalData {
         return clinicals;
     }
 
-    private static String generateCaseIdsSql(Collection<Integer> caseIds) {
-        return "'" + StringUtils.join(caseIds, "','") + "'";
-    }
-
     private static ClinicalData extract(int internalCancerStudyId, ResultSet rs) throws SQLException {
 		return new ClinicalData(internalCancerStudyId,
 								rs.getString("INTERNAL_ID"),
 								rs.getString("ATTR_ID"),
 								rs.getString("ATTR_VALUE"));
+    }
+
+    private static String generateCaseIdsSql(Collection<Integer> caseIds) {
+        return "'" + StringUtils.join(caseIds, "','") + "'";
     }
 
     public static void deleteAllRecords() throws DaoException {
@@ -354,7 +363,9 @@ public final class DaoClinicalData {
         ResultSet rs = null;
         try {
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-            pstmt = con.prepareStatement("TRUNCATE TABLE clinical");
+            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_patient");
+            pstmt.executeUpdate();
+            pstmt = con.prepareStatement("TRUNCATE TABLE clinical_sample");
             pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
@@ -457,18 +468,21 @@ public final class DaoClinicalData {
 
         try{
             con = JdbcUtil.getDbConnection(DaoClinicalData.class);
-            pstmt = con.prepareStatement ("SELECT PATIENT_OR_SAMPLE_ID FROM `clinical`"
-                                          + " WHERE CANCER_STUDY_ID=? AND ATTR_ID=? AND ATTR_VALUE=?");
-            pstmt.setInt(1, cancerStudyId);
-            pstmt.setString(2, paramName);
-            pstmt.setString(3, paramValue);
+            pstmt = con.prepareStatement ("SELECT INTERNAL_ID FROM `clinical_patient`"
+                                          + " WHERE ATTR_ID=? AND ATTR_VALUE=?");
+            pstmt.setString(1, paramName);
+            pstmt.setString(2, paramValue);
             rs = pstmt.executeQuery();
 
             List<String> cases = new ArrayList<String>();
+            List<Integer> patients = getPatientIdsByCancerStudy(cancerStudyId);
 
             while (rs.next())
             {
-                cases.add(rs.getString("PATIENT_OR_SAMPLE_ID"));
+                Integer patientId = rs.getInt("INTERNAL_ID");
+                if (patients.contains(patientId)) {
+                    cases.add(patientId.toString());
+                }
             }
 
             return cases;
@@ -477,6 +491,5 @@ public final class DaoClinicalData {
         } finally {
             JdbcUtil.closeAll(DaoClinicalData.class, con, pstmt, rs);
         }
-
     }
 }

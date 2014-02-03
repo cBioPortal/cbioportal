@@ -12,6 +12,10 @@
 <script src="js/src/study-view/dataTables.fixedColumns.js"></script>
 <script src="js/src/study-view/masonry.pkgd.min.js"></script>
 <script src="js/src/plots-view/component/ScatterPlots.js"></script>
+<script src="js/src/study-view/view/DcRedrawAllDataTable.js"></script>
+<script src="js/src/study-view/StudyViewControl.js"></script>
+<script src="js/src/study-view/data/StudyViewProxy.js"></script>
+<script src="js/src/study-view/view/StudyViewInitCharts.js"></script>
 <script src="js/src/study-view/main.js"></script> 
 
 <div id="study-view-main">

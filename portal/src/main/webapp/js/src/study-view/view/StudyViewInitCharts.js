@@ -155,114 +155,7 @@ var StudyViewInitCharts = (function(){
             return false;
         }
 
-        dataTableDC = dc.dataTableDataOnly("#dataTable","group1");
-        var CASEID = ndx.dimension(function (d) {
-                return d.CASE_ID;
-        });	
-        dc.dataCount(".dc-data-count")
-                                .dimension(ndx)
-                                .group(all);
-
-
-        var dataTableColumns = [];
-
-        for(var i=0; i< varChart.length ; i++){
-            dataTableColumns[i] = function (d) {
-                return d[varName[i]];
-            };
-        }
-
-
-        dataTableDC
-        .dimension(CASEID)
-        .group(function (d) {
-                return 1 ;
-        })
-        .columns([
-                function (d) {
-                    return d.CASE_ID;
-                },
-                function (d) {
-                    return d.SUBTYPE;
-                },
-                function (d) {
-                    return d.GENDER;
-                },
-                function (d) {
-                    return d.AGE;
-                },
-                function (d) {
-                    return d.TUMOR_STAGE_2009;
-                },
-                function (d) {
-                    return d.HISTOLOGY;
-                },
-                function (d) {
-                    return d.TUMOR_GRADE;
-                },
-                function (d) {
-                    return d.MSI_STATUS_7_MARKER_CALL;
-                },
-                function (d) {
-                    return d.MSI_STATUS_5_MARKER_CALL;
-                },
-                function (d) {
-                    return d.DATA_MAF;
-                },
-                function (d) {
-                    return d.DATA_GISTIC;
-                },
-                function (d) {
-                    return d.DATA_RNASEQ;
-                },
-                function (d) {
-                    return d.DATA_CORE_SAMPLE;
-                },
-                function (d) {
-                    return d.MRNA_EXPRESSION_CLUSTER;
-                },
-                function (d) {
-                    return d.METHYLATION_CLUSTER;
-                },
-                function (d) {
-                    return d.MLH1_SILENCING;
-                },
-                function (d) {
-                    return d.CNA_CLUSTER_K4;
-                },
-                function (d) {
-                    return d.MUTATION_RATE_CLUSTER;
-                },
-                function (d) {
-                    return d.MICRO_RNA_CLUSTER;
-                },
-                function (d) {
-                    return d.MICRO_RNA_SCORE;
-                },
-                function (d) {
-                    return d.OS_STATUS;
-                },
-                function (d) {
-                    return d.OS_MONTHS;
-                },
-                function (d) {
-                    return d.DFS_STATUS;
-                },
-                function (d) {
-                    return d.DFS_MONTHS;
-                },
-                function (d) {
-                    return d.MUTATION_COUNT;
-                },
-                function (d) {
-                    return d.COPY_NUMBER_ALTERATIONS;
-                }
-        ])
-        .size(2000)
-        .sortBy(function (d) {
-                return d.CASE_ID;
-        })
-        .transitionDuration(1200);
+        initDataTable(varName);
 
         dc.renderAll();
         dc.renderAll("group1");
@@ -603,6 +496,117 @@ var StudyViewInitCharts = (function(){
 
     }
 
+    function initDataTable(varName) {
+        dataTableDC = dc.dataTableDataOnly("#dataTable","group1");
+        var CASEID = ndx.dimension(function (d) {
+                return d.CASE_ID;
+        });	
+        dc.dataCount(".dc-data-count")
+                                .dimension(ndx)
+                                .group(all);
+
+
+        var dataTableColumns = [];
+
+        for(var i=0; i< varChart.length ; i++){
+            dataTableColumns[i] = function (d) {
+                return d[varName[i]];
+            };
+        }
+
+
+        dataTableDC
+        .dimension(CASEID)
+        .group(function (d) {
+                return 1 ;
+        })
+        .columns([
+                function (d) {
+                    return d.CASE_ID;
+                },
+                function (d) {
+                    return d.SUBTYPE;
+                },
+                function (d) {
+                    return d.GENDER;
+                },
+                function (d) {
+                    return d.AGE;
+                },
+                function (d) {
+                    return d.TUMOR_STAGE_2009;
+                },
+                function (d) {
+                    return d.HISTOLOGY;
+                },
+                function (d) {
+                    return d.TUMOR_GRADE;
+                },
+                function (d) {
+                    return d.MSI_STATUS_7_MARKER_CALL;
+                },
+                function (d) {
+                    return d.MSI_STATUS_5_MARKER_CALL;
+                },
+                function (d) {
+                    return d.DATA_MAF;
+                },
+                function (d) {
+                    return d.DATA_GISTIC;
+                },
+                function (d) {
+                    return d.DATA_RNASEQ;
+                },
+                function (d) {
+                    return d.DATA_CORE_SAMPLE;
+                },
+                function (d) {
+                    return d.MRNA_EXPRESSION_CLUSTER;
+                },
+                function (d) {
+                    return d.METHYLATION_CLUSTER;
+                },
+                function (d) {
+                    return d.MLH1_SILENCING;
+                },
+                function (d) {
+                    return d.CNA_CLUSTER_K4;
+                },
+                function (d) {
+                    return d.MUTATION_RATE_CLUSTER;
+                },
+                function (d) {
+                    return d.MICRO_RNA_CLUSTER;
+                },
+                function (d) {
+                    return d.MICRO_RNA_SCORE;
+                },
+                function (d) {
+                    return d.OS_STATUS;
+                },
+                function (d) {
+                    return d.OS_MONTHS;
+                },
+                function (d) {
+                    return d.DFS_STATUS;
+                },
+                function (d) {
+                    return d.DFS_MONTHS;
+                },
+                function (d) {
+                    return d.MUTATION_COUNT;
+                },
+                function (d) {
+                    return d.COPY_NUMBER_ALTERATIONS;
+                }
+        ])
+        .size(2000)
+        .sortBy(function (d) {
+                return d.CASE_ID;
+        })
+        .transitionDuration(1200);
+    }
+    
     function restyle(columnNameSelected,columnNameTotal) {
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",

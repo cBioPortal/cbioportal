@@ -172,7 +172,7 @@
 			<b>Pan:</b> Press and hold the SHIFT key, double click and hold the left mouse button,
 			and then move the mouse in the desired direction.<br>
 			<b>Rotate:</b> Press and hold the left mouse button, and then move the mouse in the desired
-			direction to rotate on the x and y axes. To be able to rotate on the z-axis, you need to
+			direction to rotate along the x and y axes. To be able to rotate along the z-axis, you need to
 			press and hold the SHIFT key and the left mouse button, and then move the mouse left or right.
 		</div>
 		<table>

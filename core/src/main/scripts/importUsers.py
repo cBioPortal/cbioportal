@@ -84,7 +84,7 @@ STATUS_APPROVED = "APPROVED"
 
 # consts used in email
 SMTP_SERVER = "cbio.mskcc.org"
-MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
+MESSAGE_FROM = "cbioportal@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
 MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "cBioPortal for TCGA Access",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",

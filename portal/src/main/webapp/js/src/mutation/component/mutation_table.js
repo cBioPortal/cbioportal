@@ -37,6 +37,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 			"3d": "visible",
 			"vs": "visible",
 			"allele freq (t)": "visible",
+			"copy #" : "visible",
 			"#mut in sample": "visible",
 			"mutation id": "exclude",
 			"cancer study": "exclude",
@@ -591,6 +592,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	function _addSortFunctions()
 	{
+		//TODO add a function for the "copy #" column
+
 		/**
 		 * Ascending sort function for protein (amino acid) change column.
 		 */

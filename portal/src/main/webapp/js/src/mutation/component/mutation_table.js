@@ -47,7 +47,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		// i.e: columns whose visibility set to either "conditional" or "excludeIfHidden".
 		// if no method is provided for conditionally hidden columns, then these columns
 		// will be initially visible
-		// TODO we may need more parameters than these two
+		// TODO we may need more parameters than these two (util, gene)
 		visibilityFn: {
 			"bam": function (util, gene) {
 				return util.containsIgvLink(gene);
@@ -630,8 +630,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	 */
 	function _addSortFunctions()
 	{
-		//TODO add a function for the "copy #" column
-
 		/**
 		 * Ascending sort function for protein (amino acid) change column.
 		 */

@@ -54,6 +54,9 @@ var ScatterPlots = (function() {
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
+    //Interaction Results 
+    var brushedCases = [];
+
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
         canvas = jQuery.extend(true, {}, options.canvas);
@@ -77,7 +80,8 @@ var ScatterPlots = (function() {
     function initSvgCanvas(divName) {
         elem.svg = d3.select("#" + divName).append("svg")
             .attr("width", canvas.width)
-            .attr("height", canvas.height);
+            .attr("height", canvas.height)
+            .attr('pointer-events', 'all');
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.axisGroup = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g");
@@ -109,6 +113,19 @@ var ScatterPlots = (function() {
             .scale(elem.yScale)
             .orient("left")
             .tickSize(6, 0, 0);
+    }
+
+    function initBrush() {
+        elem.brush = d3.svg.brush()
+            .x(elem.xScale)
+            .y(elem.yScale)
+            .extent([[0, 0], [0, 0]])
+            .on("brush", brushed);
+        elem.svg.append("svg:g")
+            .attr("class", "brush")
+            .attr("z-index", "-5")
+            .attr('pointer-events', 'all')
+            .call(elem.brush);
     }
 
     function generateAxisX() {
@@ -271,7 +288,8 @@ var ScatterPlots = (function() {
                     return d.stroke;
                 }
             })
-            .attr("stroke-width", style.stroke_width);
+            .attr("stroke-width", style.stroke_width)
+            .attr("z-index", "100");
     }
 
     function hideMutations() { //remove special styles for mutated cases
@@ -379,7 +397,7 @@ var ScatterPlots = (function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(style.size * 10).type(style.shape));
         };
-        var mouseOff = function() {
+        var mouseOff = function(d) {
             var dot = d3.select(this);
             dot.transition()
                 .ease("elastic")
@@ -387,8 +405,26 @@ var ScatterPlots = (function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(style.size).type(style.shape));
         };
-        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+        elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseout", mouseOff);
+    }
+
+    function brushed() {
+        brushedCases.length = 0;
+        var extent = elem.brush.extent();
+            _result = [];
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
+                d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
+                d.brushed = "true";
+                $(this).attr("fill", "red");
+                brushedCases.push(d.case_id);
+            } else {
+                d.brushed = "false";    
+                $(this).attr("fill", d.fill);
+            }
+        });
+        console.log(brushedCases);
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {
@@ -467,13 +503,14 @@ var ScatterPlots = (function() {
             initScaleY();
             initAxisX();
             initAxisY();
+            initBrush();
             generateAxisX();
             generateAxisY();
             appendAxisTitleX(false);
             appendAxisTitleY(false);
             drawPlots();
-            addQtips();
             drawLegends();
+            addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
@@ -529,6 +566,9 @@ var ScatterPlots = (function() {
             var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
             appendAxisTitleX(_applyLogScale_x);
             appendAxisTitleY(_applyLogScale_y);
+        },
+        getSelectedCaseIds: function() {
+            return brushedCases;
         }
     }
 

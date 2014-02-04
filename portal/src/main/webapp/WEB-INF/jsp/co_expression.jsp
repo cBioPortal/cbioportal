@@ -5,6 +5,7 @@
 <script type="text/javascript" src="js/src/plots-view/CoexpPlots.js"></script>
 <script type="text/javascript" src="js/src/plots-view/component/ScatterPlots.js"></script>
 <script type="text/javascript" src="js/src/plots-view/component/PlotsHeader.js"></script>
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 
 <style>
     #coexp .coexp-table-filter-custom {
@@ -42,7 +43,13 @@
     }
     .ui-state-disabled {
         display: none;
-    }   
+    }  
+    .brush .extent {
+        stroke: #fff;
+        fill-opacity: .125;
+        shape-rendering: crispEdges;
+        z-index: -1;
+    } 
 </style>
 
 <div class="section" id="coexp">

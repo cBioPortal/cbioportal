@@ -41,7 +41,8 @@ var PlotsBoilerplate = {
         case_id: "",
         qtip: "", //content for qtip
         stroke: "",
-        fill: ""
+        fill: "",
+        brushed: "false"
     },
     style : { //Default style setting
         fill: "#58ACFA", //light blue
@@ -66,7 +67,8 @@ var PlotsBoilerplate = {
         yAxis: "",
         dotsGroup: "",
         axisGroup: "",
-        axisTitleGroup: ""
+        axisTitleGroup: "",
+        brush: ""
     },
     names: { //naming conventions
         header: "_header", 

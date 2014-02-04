@@ -53,7 +53,8 @@ var StudyViewInitCharts = (function(){
         var bar = []; //Displayed attributes info, dataType: NUMBER
         var combine = []; //Combine charts which created for unrecognizable data type
         var varName = []; //Store all attributes in all data
-        var varNameIDMapping = []; //The relationshio between "The ID of div standing for each Chart in HTML" and "The unique ID number in whole page"
+        var HTMLtagsMapUID = []; //The relationshio between "The ID of div standing for each Chart in HTML" and "The unique ID number in whole page"
+        var attrNameMapUID = []; //The relationshio between "The unique attribute name" and "The unique ID number in whole page"
         var displayedID = []; //Displayed Charts ID number
         var varDisplay = []; //Displayed Charts Name -- the display_name in each attribute       
         var varType = []; //Could be displayed Charts Type 'pie,bar or row'. Mix combination, seperate by comma
@@ -131,21 +132,24 @@ var StudyViewInitCharts = (function(){
 
         for(var i=0; i< pie.length ; i++){
             initPieChart(createdChartID,'study-view-dc-chart study-view-pie-chart',pie[i]["attr_id"],pie[i]["display_name"]);
-            varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
+            HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+            attrNameMapUID[pie[i]["attr_id"]] = createdChartID;
             displayedID.push(pie[i]["attr_id"]);
             createdChartID++;
         }
 
         for(var i=0; i< row.length; i++){
             initRowChart(createdChartID,'study-view-dc-chart study-view-row-chart',row[i]["attr_id"],row[i]["display_name"],rowKeys);
-            varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
+            HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+            attrNameMapUID[row[i]["attr_id"]] = createdChartID;
             displayedID.push(row[i]["attr_id"]);
             createdChartID++;
         }
 
         for(var i=0; i< bar.length ; i++){
             initBarChart(createdChartID,'study-view-dc-chart study-view-bar-chart',bar[i]["attr_id"],bar[i]["display_name"],distanceMinMaxArray);
-            varNameIDMapping["study-view-dc-chart-" + createdChartID] = createdChartID;
+            HTMLtagsMapUID["study-view-dc-chart-" + createdChartID] = createdChartID;
+            attrNameMapUID[bar[i]["attr_id"]] = createdChartID;
             displayedID.push(bar[i]["attr_id"]);            
             createdChartID++;
         }
@@ -174,38 +178,7 @@ var StudyViewInitCharts = (function(){
             }
         });
 
-        $('#study-view-selectAttr').change(function(){
-
-            var chartType = varType[$(this).val()].split(',');
-
-            if(chartType.length > 1){
-                $('#study-view-selectChartType')
-                    .find('option:gt(0)')
-                    .remove()
-                    .end();                    
-            }else{
-                $('#study-view-selectChartType')
-                    .remove()
-                    .end();
-            }
-
-            $.each(chartType, function(key, value) {
-                $('#study-view-selectChartType')
-                    .append($("<option></option>")
-                        .attr("value",value)
-                        .text(value + " chart"));
-            });
-
-           $('#study-view-add-chart-button').attr('disabled','disabled');  
-        });
-
-        $('#study-view-selectChartType').change(function(){
-
-            if($('#study-view-selectChartType').find(":selected").val() !== "" && $('#study-view-selectAttr').find(":selected").val())
-                $('#study-view-add-chart-button').removeAttr('disabled');
-        });
-
-
+        
         var scatterPlotDataAttr = {
             min_x: distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].min,
             max_x: distanceMinMaxArray['COPY_NUMBER_ALTERATIONS'].max,
@@ -301,15 +274,48 @@ var StudyViewInitCharts = (function(){
             gutter:1
         });
 
+
+        $('#study-view-selectAttr').change(function(){
+
+            var chartType = varType[$(this).val()].split(',');
+
+            if(chartType.length > 1){
+                $('#study-view-selectChartType')
+                    .find('option:gt(0)')
+                    .remove()
+                    .end();                    
+            }else{
+                $('#study-view-selectChartType')
+                    .remove()
+                    .end();
+            }
+
+            $.each(chartType, function(key, value) {
+                $('#study-view-selectChartType')
+                    .append($("<option></option>")
+                        .attr("value",value)
+                        .text(value + " chart"));
+            });
+
+           $('#study-view-add-chart-button').attr('disabled','disabled');  
+        });
+
+        $('#study-view-selectChartType').change(function(){
+
+            if($('#study-view-selectChartType').find(":selected").val() !== "" && $('#study-view-selectAttr').find(":selected").val())
+                $('#study-view-add-chart-button').removeAttr('disabled');
+        });
+
+
         $('.study-view-dc-chart-delete').click(function(event){
                 var id = $(this).parent().parent().attr("id");
                 var valueA = $(this).parent().parent().attr("value").split(',');
                 var attrID = valueA[0];
                 var attrName = valueA[1];
                 $("div").remove("#" + id); 
-                varChart[varNameIDMapping[id]].filterAll();
+                varChart[HTMLtagsMapUID[id]].filterAll();
                 dc.redrawAll();
-                dc.deregisterChart(varChart[varNameIDMapping[id]]);
+                dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
                 msnry.layout();
                 $('#study-view-selectAttr')
                     .append($("<option></option>")
@@ -321,18 +327,26 @@ var StudyViewInitCharts = (function(){
             var selectedAttr = $('#study-view-selectAttr').find(":selected").val();
             var selectedAttrDisplay = $('#study-view-selectAttr').find(":selected").text();
             var selectedChartType = $('#study-view-selectChartType').find(":selected").val();
-
-
-            if(selectedChartType == 'pie'){
-                initPieChart(totalCharts,'study-view-dc-chart study-view-pie-chart',selectedAttr,selectedAttrDisplay);       
-            }else if(selectedChartType == 'row'){
-                initRowChart(totalCharts,'study-view-dc-chart study-view-row-chart',selectedAttr,selectedAttrDisplay,rowKeys);
+            var chartTmpID = -1;
+            
+            if(Object.keys(attrNameMapUID).indexOf(selectedAttr) !== -1){
+                chartTmpID = attrNameMapUID[selectedAttr];
             }else{
-                initBarChart(totalCharts,'study-view-dc-chart study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
+                chartTmpID = totalCharts;
+                HTMLtagsMapUID["study-view-dc-chart-" + totalCharts] = totalCharts;
+                attrNameMapUID[selectedAttr] = totalCharts;
+                totalCharts++;       
+            }
+            if(selectedChartType == 'pie'){
+                initPieChart(chartTmpID,'study-view-dc-chart study-view-pie-chart',selectedAttr,selectedAttrDisplay);       
+            }else if(selectedChartType == 'row'){
+                initRowChart(chartTmpID,'study-view-dc-chart study-view-row-chart',selectedAttr,selectedAttrDisplay,rowKeys);
+            }else{
+                initBarChart(chartTmpID,'study-view-dc-chart study-view-bar-chart',selectedAttr,selectedAttrDisplay,distanceMinMaxArray);                
             }
 
-            varNameIDMapping["study-view-dc-chart-" + totalCharts] = totalCharts;
-
+            $("#study-view-selectAttr option[value='"+ selectedAttr +"']").remove();
+            
             msnry.destroy();
             var container = document.querySelector('#study-view-charts');
             msnry = new Masonry( container, {
@@ -340,28 +354,26 @@ var StudyViewInitCharts = (function(){
               itemSelector: '.study-view-dc-chart',
               gutter:1
             });
-            varChart[totalCharts].render();
+            
+            varChart[chartTmpID].render();
             msnry.layout();
             
             //Register the delete fucntion after adding new chart
-            $('.study-view-dc-chart-delete').click(function(event){
+            $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
                 var id = $(this).parent().parent().attr("id");
                 var valueA = $(this).parent().parent().attr("value").split(',');
                 var attrID = valueA[0];
                 var attrName = valueA[1];
                 $("div").remove("#" + id); 
-                varChart[varNameIDMapping[id]].filterAll();
+                varChart[HTMLtagsMapUID[id]].filterAll();
                 dc.redrawAll();
-                dc.deregisterChart(varChart[varNameIDMapping[id]]);
+                dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
                 msnry.layout();
                 $('#study-view-selectAttr')
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
-            });
-
-
-            totalCharts++;                
+            });         
         });
         
         return varName;
@@ -369,7 +381,7 @@ var StudyViewInitCharts = (function(){
 
     function initPieChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay) {
         $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-        varChart.push(dc.pieChart("#study-view-dc-chart-" + _chartID));
+        varChart[_chartID] = dc.pieChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
             if(!d[_selectedAttr] || d[_selectedAttr].toLowerCase()==="unknown" || d[_selectedAttr].toLowerCase()==="none")
                 return "NA";
@@ -411,7 +423,7 @@ var StudyViewInitCharts = (function(){
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w1' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
             chartWidth = "180";
         } 
-       varChart.push(dc.rowChart("#study-view-dc-chart-" + _chartID));
+       varChart[_chartID] = dc.rowChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
             if(!d[_selectedAttr])
                 return "NA";
@@ -436,7 +448,7 @@ var StudyViewInitCharts = (function(){
     
     function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
         $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='"+ _className +"' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-        varChart.push(dc.barChart("#study-view-dc-chart-" + _chartID));
+        varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
 
         varCluster[_chartID] = ndx.dimension(function (d) {

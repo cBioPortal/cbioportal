@@ -296,6 +296,8 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		                indexMap["allele freq (n)"]]},
 	            {"sType": 'predicted-impact-col',
 	                "aTargets": [indexMap["fis"]]},
+		        {"sType": 'copy-number-col',
+			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],
 		                indexMap["fis"],
@@ -459,6 +461,42 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 		{
 			//assuming FIS values cannot exceed 1000
 			value += score / 1000;
+		}
+
+		return value;
+	}
+
+	function _assignValueToCna(text)
+	{
+		var value;
+		text = text.toLowerCase();
+
+		// TODO this is actually reverse mapping of MutationDetailsUtil._cnaMap
+		if (text == "homdel") {
+			value = 1;
+		} else if (text == "hetloss") {
+			value = 2;
+		} else if (text == "diploid") {
+			value = 3;
+		} else if (text == "gain") {
+			value = 4;
+		} else if (text == "amp") {
+			value = 5;
+		} else { // unknown
+			value = -1;
+		}
+
+		return value;
+	}
+
+	function _getAltTextValue(a)
+	{
+		var altValue = $(a).attr("alt");
+		var value = parseFloat(altValue);
+
+		if (isNaN(value))
+		{
+			value = "";
 		}
 
 		return value;
@@ -640,6 +678,26 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 					return a==b ? 0 : (a<b ? 1:-1);
 				}
 			}
+		};
+
+		/**
+		 * Ascending sort function for the copy number column.
+		 */
+		jQuery.fn.dataTableExt.oSort['copy-number-col-asc']  = function(a,b) {
+			var av = _assignValueToCna(_getLabelTextValue(a));
+			var bv = _assignValueToCna(_getLabelTextValue(b));
+
+			return _compareSortAsc(a, b, av, bv);
+		};
+
+		/**
+		 * Descending sort function for the copy number column.
+		 */
+		jQuery.fn.dataTableExt.oSort['copy-number-col-desc']  = function(a,b) {
+			var av = _assignValueToCna(_getLabelTextValue(a));
+			var bv = _assignValueToCna(_getLabelTextValue(b));
+
+			return _compareSortDesc(a, b, av, bv);
 		};
 
 		/**

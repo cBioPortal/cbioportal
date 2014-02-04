@@ -7,6 +7,8 @@
  *                   syncFn: sync function for outside sources,
  *                   tableOpts: [mutation table options -- optional]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsTableView = Backbone.View.extend({
 	render: function()
@@ -227,6 +229,9 @@ var MutationDetailsTableView = Backbone.View.extend({
 	{
 		var self = this;
 
+		// TODO these maps are moved to MutationViewsUtil class,
+		// ...remove these ones after merging with patient view
+
 		/**
 		 * Mapping between the mutation type (data) values and
 		 * view values. The first element of an array corresponding to a
@@ -280,6 +285,15 @@ var MutationDetailsTableView = Backbone.View.extend({
 			m: {label: "M", style: "oma_medium", tooltip: "Medium"},
 			l: {label: "L", style: "oma_low", tooltip: "Low"},
 			n: {label: "N", style: "oma_neutral", tooltip: "Neutral"}
+		};
+
+		var cnaMap = {
+			"-2": {label: "HOMDEL", style: "cna-homdel", tooltip: "Homozygously deleted"},
+			"-1": {label: "hetloss", style: "cna-hetloss", tooltip: "Heterozygously deleted"},
+			"0": {label: "diploid", style: "cna-diploid", tooltip: "Diploid / normal"},
+			"1": {label: "gain", style: "cna-gain", tooltip: "Low-level gain"},
+			"2": {label: "AMP", style: "cna-amp", tooltip: "High-level amplification"},
+			"unknown" : {label: "NA", style: "cna-unknown", tooltip: "CNA data is not available for this gene"}
 		};
 
 		var vars = {};
@@ -383,7 +397,32 @@ var MutationDetailsTableView = Backbone.View.extend({
 		vars.mutationCount = mutationCount.text;
 		vars.mutationCountClass = mutationCount.style;
 
+		var cna = self._getCNA(cnaMap, mutation.cna);
+		vars.cna = cna.text;
+		vars.cnaClass = cna.style;
+		vars.cnaTip = cna.tip;
+
 		return vars;
+	},
+	// TODO identify duplicate/similar get functions
+	_getCNA : function(map, value)
+	{
+		var style, label, tip;
+
+		if (map[value] != null)
+		{
+			style = map[value].style;
+			label = map[value].label;
+			tip = map[value].tooltip;
+		}
+		else
+		{
+			style = map.unknown.style;
+			label = map.unknown.label;
+			tip = map.unknown.tooltip;
+		}
+
+		return {style: style, tip: tip, text: label};
 	},
     /**
      * Returns the text content, the css class, and the tooltip

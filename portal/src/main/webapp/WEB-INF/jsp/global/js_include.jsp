@@ -25,7 +25,6 @@
 <script type="text/javascript" src="js/lib/d3.min.js"></script>
 <script type="text/javascript" src="js/lib/igv_webstart.js"></script>
 
-<!--script type="text/javascript" src="js/lib/jsmol/JSmol.min.nojq.js"></script-->
 <script type="text/javascript" src="js/lib/jmol/JmolCore.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolApplet.js"></script>
 <script type="text/javascript" src="js/lib/jmol/JmolControls.js"></script>
@@ -66,6 +65,8 @@
 <script type="text/javascript" src="js/src/mutation/util/MergedAlignmentSegmentor.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PdbDataUtil.js"></script>
 <script type="text/javascript" src="js/src/mutation/util/PileupUtil.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/JmolWrapper.js"></script>
+<script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
 

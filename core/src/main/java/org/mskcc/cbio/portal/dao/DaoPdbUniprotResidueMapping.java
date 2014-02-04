@@ -117,6 +117,40 @@ public final class DaoPdbUniprotResidueMapping {
 	}
 
 	/**
+	 * Retrieves the total number alignments for the given Uniprot id.
+	 *
+	 * @param uniprotId     uniprot id
+	 * @return  total number of alignments for the given Uniprot id.
+	 * @throws DaoException
+	 */
+	public static Integer getAlignmentCount(String uniprotId) throws DaoException
+	{
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		try {
+			con = JdbcUtil.getDbConnection(DaoPdbUniprotResidueMapping.class);
+			pstmt = con.prepareStatement("SELECT COUNT(*) FROM pdb_uniprot_alignment " +
+			                             "WHERE UNIPROT_ID=?");
+			pstmt.setString(1, uniprotId);
+			rs = pstmt.executeQuery();
+
+			Integer count = -1;
+
+			if (rs.next())
+			{
+				count = rs.getInt(1);
+			}
+
+			return count;
+		} catch (SQLException e) {
+			throw new DaoException(e);
+		} finally {
+			JdbcUtil.closeAll(DaoPdbUniprotResidueMapping.class, con, pstmt, rs);
+		}
+	}
+
+	/**
 	 * Retrieves all residue mappings (position mappings)
 	 * for the given alignment id.
 	 *

@@ -84,28 +84,28 @@ STATUS_APPROVED = "APPROVED"
 
 # consts used in email
 SMTP_SERVER = "cbio.mskcc.org"
-MESSAGE_FROM = "cancergenomics@cbio.mskcc.org"
+MESSAGE_FROM = "cbioportal@cbio.mskcc.org"
 MESSAGE_BCC = ["jgao@cbio.mskcc.org", "schultz@cbio.mskcc.org", "grossb@cbio.mskcc.org"]
 MESSAGE_SUBJECT = { GDAC_USER_SPREADSHEET : "cBioPortal for TCGA Access",
                     PROSTATE_USER_SPREADSHEET : "cBioPortal for Prostate Cancer Access",
                     SU2C_USER_SPREADSHEET : "cBioPortal for SU2C Access",
                     TARGET_USER_SPREADSHEET : "cBioPortal for NCI-TARGET" }
-GDAC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for TCGA. We have granted you access. You can login at http://cbio.mskcc.org/gdac-portal/. Please let us know if you have any problems logging in.
+GDAC_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for TCGA. We have granted you access. You can login at http://cbioportal.org/gdac-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the data provided in this Portal are preliminary and subject to change. The data are only available to researchers funded through TCGA or involved in the TCGA Disease and Analysis Working Groups.
 """
 
-SU2C_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for SU2C. We have granted you access. You can login at http://cbio.mskcc.org/su2c-portal/. Please let us know if you have any problems logging in.
+SU2C_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for SU2C. We have granted you access. You can login at http://cbioportal.org/su2c-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Prostate. We have granted you access. You can login at http://cbio.mskcc.org/prostate-portal/. Please let us know if you have any problems logging in.
+PROSTATE_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for Prostate. We have granted you access. You can login at http://cbioportal.org/prostate-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """
 
-TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-TARGET. We have granted you access. You can login at http://cbio.mskcc.org/target-portal/. Please let us know if you have any problems logging in.
+TARGET_MESSAGE_BODY = """Thank you for your interest in the cBioPortal for NCI-TARGET. We have granted you access. You can login at http://cbioportal.org/target-portal/. Please let us know if you have any problems logging in.
 
 Please keep in mind that the most of the data provided in this Portal are preliminary, unpublished and subject to change.
 """

@@ -2,6 +2,8 @@
  * PDB data model.
  *
  * Contains PDB id and a chain list.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbModel = Backbone.Model.extend({
 	initialize: function(attributes) {

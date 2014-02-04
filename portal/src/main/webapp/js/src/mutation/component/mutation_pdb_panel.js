@@ -6,6 +6,8 @@
  * @param proxy     PDB data proxy
  * @param xScale    scale function for the x axis
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 function MutationPdbPanel(options, data, proxy, xScale)
 {
@@ -17,19 +19,21 @@ function MutationPdbPanel(options, data, proxy, xScale)
 		elWidth: 740,       // width of the container
 		elHeight: "auto",   // height of the container
 		numRows: [5, 10, 20], // number of rows to be to be displayed for each expand request
-		marginLeft: 40,     // left margin
+		marginLeft: 45,     // left margin
 		marginRight: 30,    // right margin
 		marginTop: 2,       // top margin
 		marginBottom: 0,    // bottom margin
 		chainHeight: 6,     // height of a rectangle representing a single pdb chain
 		chainPadding: 3,    // padding between chain rectangles
-		labelY: false,      // informative label of the y-axis (false means "do not draw")
+		labelY: ["PDB", "Chains"],  // label of the y-axis. use array for multi lines, false: "do not draw"
 		labelYFont: "sans-serif",   // font type of the y-axis label
 		labelYFontColor: "#2E3436", // font color of the y-axis label
 		labelYFontSize: "12px",     // font size of y-axis label
 		labelYFontWeight: "normal", // font weight of y-axis label
-		labelYPaddingRight: 15, // padding between y-axis and its label
-		labelYPaddingTop: 20,   // padding between y-axis and its label
+		labelYPaddingRightH: 45, // padding between y-axis and its label (horizontal alignment)
+		labelYPaddingTopH: 7,    // padding between y-axis and its label (horizontal alignment)
+		labelYPaddingRightV: 25, // padding between y-axis and its label (vertical alignment)
+		labelYPaddingTopV: 20,   // padding between y-axis and its label (vertical alignment)
 		chainBorderColor: "#666666", // border color of the chain rectangles
 		chainBorderWidth: 0.5,       // border width of the chain rectangles
 		highlightBorderColor: "#FF9900", // color of the highlight rect border
@@ -45,28 +49,38 @@ function MutationPdbPanel(options, data, proxy, xScale)
 
 			proxy.getPdbInfo(datum.pdbId, function(pdbInfo) {
 
-				// TODO define a backbone view: PdbChainTipView
+				// init tip view
+				var tipView = new PdbChainTipView({model: {
+					pdbId: datum.pdbId,
+					pdbInfo: pdbInfo,
+					chain: datum.chain
+				}});
 
-				var tip = "<span class='pdb-chain-tip'>" +
-				          "<b>PDB id:</b> " + datum.pdbId + "<br>" +
-				          "<b>Chain:</b> " + datum.chain.chainId +
-				          " (" + datum.chain.mergedAlignment.uniprotFrom +
-				          " - " + datum.chain.mergedAlignment.uniprotTo + ")<br>";
+				var content = tipView.compileTemplate();
 
-				if (pdbInfo)
-				{
-					tip += "<b>Summary:</b> " + pdbInfo;
-				}
-
-				tip += "</span>";
-
-				var options = {content: {text: tip},
+				var options = {content: {text: content},
 					hide: {fixed: true, delay: 100},
 					style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow'},
 					position: {my:'bottom left', at:'top center'}};
 
 				$(element).qtip(options);
 			});
+		},
+		/**
+		 * Default y-axis help tooltip function.
+		 *
+		 * @param element   target svg element (help icon)
+		 */
+		yHelpTipFn: function (element) {
+			var content = _.template(
+				$("#mutation_details_pdb_help_tip_template").html());
+
+			var options = {content: {text: content},
+				hide: {fixed: true, delay: 100},
+				style: {classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
+				position: {my:'bottom left', at:'top center'}};
+
+			$(element).qtip(options);
 		}
 	};
 
@@ -218,30 +232,95 @@ function MutationPdbPanel(options, data, proxy, xScale)
 	 */
 	function drawYAxisLabel(svg, options)
 	{
-		// TODO this needs to be tuned to fit
+		// default (vertical) orientation
+		var x = options.marginLeft - options.labelYPaddingRightV;
+		var y =  options.marginTop + options.labelYPaddingTopV;
+		var textAnchor = "middle";
+		var rotation = "rotate(270, " + x + "," + y +")";
+		var orient = "vertical";
 
-		// set x, y of the label to the top left
-
-		var x = options.marginLeft -
-		        options.labelYPaddingRight;
-
-		var y =  options.marginTop +
-		         options.labelYPaddingTop;
+		// horizontal orientation for small number of rows
+		if (_rowData.length < options.numRows[0])
+		{
+			x = options.marginLeft - options.labelYPaddingRightH;
+			y = options.marginTop + options.labelYPaddingTopH;
+			textAnchor = "start";
+			rotation = "rotate(0, " + x + "," + y +")";
+			orient = "horizontal";
+		}
 
 		// append label
 		var label = svg.append("text")
 			.attr("fill", options.labelYFontColor)
-			.attr("text-anchor", "middle")
+			.attr("text-anchor", textAnchor)
 			.attr("x", x)
 			.attr("y", y)
 			.attr("class", "pdb-panel-y-axis-label")
-			.attr("transform", "rotate(270, " + x + "," + y +")")
+			.attr("transform", rotation)
 			.style("font-family", options.labelYFont)
 			.style("font-size", options.labelYFontSize)
-			.style("font-weight", options.labelYFontWeight)
-			.text(options.labelY);
+			.style("font-weight", options.labelYFontWeight);
+
+		// for an array, create multi-line label
+		if (_.isArray(options.labelY))
+		{
+			_.each(options.labelY, function(text, idx) {
+				var dy = (idx == 0) ? 0 : 10;
+
+				// TODO this is an adjustment to fit the help icon image
+				var dx = (idx == 0 && orient == "vertical") ? -5 : 0;
+
+				label.append('tspan')
+					.attr('x', x + dx)
+					.attr('dy', dy).
+					text(text);
+			});
+		}
+		// regular string, just set the text
+		else
+		{
+			label.text(options.labelY);
+		}
+
+		var help = drawYAxisHelp(svg, x, y, orient, options);
+
+		var addTooltip = options.yHelpTipFn;
+		addTooltip(help);
 
 		return label;
+	}
+
+	/**
+	 *
+	 * @param svg       svg to append the label element
+	 * @param labelX    x coord of y-axis label
+	 * @param labelY    y coord of y-axis label
+	 * @param orient    orientation of the label (vertical or horizontal)
+	 * @param options   general options object
+	 * @return {object} help image (svg element)
+	 */
+	function drawYAxisHelp(svg, labelX, labelY, orient, options)
+	{
+		// TODO all these values are fine tuned for the label "PDB Chains",
+		// ...setting another label text would probably mess things up
+		var w = 12;
+		var h = 12;
+		var x = labelX - w + 2;
+		var y = options.marginTop;
+
+		if (orient == "horizontal")
+		{
+			x = options.marginLeft - w - 5;
+			y = labelY - h + 2;
+		}
+
+		return svg.append("svg:image")
+			.attr("xlink:href", "images/help.png")
+			.attr("class", "pdb-panel-y-axis-help")
+			.attr("x", x)
+			.attr("y", y)
+			.attr("width", w)
+			.attr("height", h);
 	}
 
 	/**

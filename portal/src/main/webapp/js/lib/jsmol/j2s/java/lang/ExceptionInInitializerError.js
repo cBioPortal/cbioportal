@@ -1,0 +1,30 @@
+$_L(["java.lang.LinkageError"],"java.lang.ExceptionInInitializerError",null,function(){
+c$=$_C(function(){
+this.exception=null;
+$_Z(this,arguments);
+},java.lang,"ExceptionInInitializerError",LinkageError);
+$_K(c$,
+function(){
+$_R(this,ExceptionInInitializerError);
+this.initCause(null);
+});
+$_K(c$,
+function(detailMessage){
+$_R(this,ExceptionInInitializerError,[detailMessage]);
+this.initCause(null);
+},"~S");
+$_K(c$,
+function(exception){
+$_R(this,ExceptionInInitializerError);
+this.exception=exception;
+this.initCause(exception);
+},"Throwable");
+$_M(c$,"getException",
+function(){
+return this.exception;
+});
+$_V(c$,"getCause",
+function(){
+return this.exception;
+});
+});

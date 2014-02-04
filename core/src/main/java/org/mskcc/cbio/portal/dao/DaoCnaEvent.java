@@ -17,30 +17,21 @@ import org.mskcc.cbio.portal.model.CnaEvent;
 public final class DaoCnaEvent {
     private DaoCnaEvent() {}
     
-    public static int addCaseCnaEvent(CnaEvent cnaEvent) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
-            long eventId = addCnaEvent(cnaEvent, con);
+    public static int addCaseCnaEvent(CnaEvent cnaEvent, boolean newCnaEvent) throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert case_cna_event");
+        } else {
+            MySQLbulkLoader.getMySQLbulkLoader("case_cna_event").insertRecord(
+                    Long.toString(cnaEvent.getEventId()),
+                    cnaEvent.getCaseId(),
+                    Integer.toString(cnaEvent.getCnaProfileId())
+                    );
             
-            if (eventExists(eventId, cnaEvent.getCaseId(), cnaEvent.getCnaProfileId(), con)) {
-                return 0;
+            if (newCnaEvent) {
+                return addCnaEvent(cnaEvent) + 1;
+            } else {
+                return 1;
             }
-            
-            pstmt = con.prepareStatement
-		("INSERT INTO case_cna_event (`CNA_EVENT_ID`, `CASE_ID`,"
-                    + " `GENETIC_PROFILE_ID`) VALUES(?,?,?)");
-            pstmt.setLong(1, eventId);
-            pstmt.setString(2, cnaEvent.getCaseId());
-            pstmt.setInt(3, cnaEvent.getCnaProfileId());
-            
-            return pstmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -51,50 +42,33 @@ public final class DaoCnaEvent {
      * @return
      * @throws DaoException 
      */
-    private static long addCnaEvent(CnaEvent cnaEvent, Connection con) throws DaoException {
-        PreparedStatement pstmt  ;
-        ResultSet rs = null;
-        try {
-            pstmt = con.prepareStatement
-		("SELECT `CNA_EVENT_ID` FROM cna_event"
-                    + " WHERE `ENTREZ_GENE_ID`=? AND `ALTERATION`=?");
-            pstmt.setLong(1, cnaEvent.getEntrezGeneId());
-            pstmt.setShort(2, cnaEvent.getAlteration().getCode());
-            rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return rs.getLong(1);
-            }
-            
-            // no existing, create new
-            pstmt = con.prepareStatement
-		("INSERT INTO cna_event (`ENTREZ_GENE_ID`, `ALTERATION`) VALUES(?,?)");
-            pstmt.setLong(1, cnaEvent.getEntrezGeneId());
-            pstmt.setInt(2, cnaEvent.getAlteration().getCode());
-            pstmt.executeUpdate();
-            return addCnaEvent(cnaEvent, con);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(rs);
+    private static int addCnaEvent(CnaEvent cnaEvent) throws DaoException {
+        if (!MySQLbulkLoader.isBulkLoad()) {
+            throw new DaoException("You have to turn on MySQLbulkLoader in order to insert cna_event");
+        } else {
+            MySQLbulkLoader.getMySQLbulkLoader("cna_event").insertRecord(
+                    Long.toString(cnaEvent.getEventId()),
+                    Long.toString(cnaEvent.getEntrezGeneId()),
+                    Short.toString(cnaEvent.getAlteration().getCode())
+                    );
+            return 1;
         }
     }
     
-    private static boolean eventExists(long eventId, String caseId, int cnaProfileId, Connection con)
-            throws DaoException {
-        PreparedStatement pstmt  ;
+    public static long getLargestCnaEventId() throws DaoException {
+        Connection con = null;
+        PreparedStatement pstmt = null;
         ResultSet rs = null;
         try {
+            con = JdbcUtil.getDbConnection(DaoCnaEvent.class);
             pstmt = con.prepareStatement
-		("SELECT count(*) FROM case_cna_event WHERE `CNA_EVENT_ID`=? AND `CASE_ID`=? AND `GENETIC_PROFILE_ID`=?");
-            pstmt.setLong(1, eventId);
-            pstmt.setString(2, caseId);
-            pstmt.setInt(3, cnaProfileId);
+                    ("SELECT MAX(`CNA_EVENT_ID`) FROM `cna_event`");
             rs = pstmt.executeQuery();
-            return rs.next() && rs.getInt(1) > 0;
-            } catch (SQLException e) {
+            return rs.next() ? rs.getLong(1) : 0;
+        } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
-            JdbcUtil.closeAll(rs);
+            JdbcUtil.closeAll(DaoCnaEvent.class, con, pstmt, rs);
         }
     }
     
@@ -141,7 +115,7 @@ public final class DaoCnaEvent {
         }
     }
     
-    public static List<CnaEvent> getCnaEvents(String[] caseIds, int profileId) throws DaoException {
+    public static List<CnaEvent> getCnaEvents(String[] caseIds, int profileId, Collection<Short> cnaLevels) throws DaoException {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -152,6 +126,7 @@ public final class DaoCnaEvent {
                     + " ENTREZ_GENE_ID, ALTERATION FROM case_cna_event, cna_event"
                     + " WHERE `GENETIC_PROFILE_ID`=?"
                     + " AND case_cna_event.CNA_EVENT_ID=cna_event.CNA_EVENT_ID"
+                    + " AND ALTERATION IN (" + StringUtils.join(cnaLevels,",") + ")"
                     + " AND CASE_ID in ('"+StringUtils.join(caseIds, "','")+"')");
             pstmt.setInt(1, profileId);
             rs = pstmt.executeQuery();

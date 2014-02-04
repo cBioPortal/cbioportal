@@ -9,6 +9,8 @@
  *                   tableOpts: [mutation table options -- optional]}
  *           mut3dVis: [optional] reference to the 3d structure visualizer
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsView = Backbone.View.extend({
 	initialize : function (options) {
@@ -73,7 +75,8 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: container3d,
 					parentEl: self.$el,
 					mut3dVis: self.options.mut3dVis,
-					pdbProxy: self.pdbProxy});
+					pdbProxy: self.pdbProxy,
+					mutationProxy: self.model.mutationProxy});
 
 			mutation3dVisView.render();
 
@@ -168,7 +171,7 @@ var MutationDetailsView = Backbone.View.extend({
 
 		// init view for the first gene only
 		contentSelector.bind('tabscreate', function(event, ui) {
-		self._initView(genes[0], cases, diagramOpts, tableOpts);
+			self._initView(genes[0], cases, diagramOpts, tableOpts);
 		});
 
 		// init other views upon selecting the corresponding tab
@@ -194,10 +197,6 @@ var MutationDetailsView = Backbone.View.extend({
 				if (self.geneTabView[gene].mut3dView)
 				{
 					self.geneTabView[gene].mut3dView.resetView();
-					// TODO also focus on selection?
-					// ...to focus we need the selected pileup datum
-					// (need to get it from the diagram)
-					// self.geneTabView[gene].mut3dView.focusView(datum);
 				}
 			}
 		});
@@ -267,7 +266,7 @@ var MutationDetailsView = Backbone.View.extend({
 			var view3d = self.mut3dVisView;
 
 			// refresh 3d view with filtered positions
-			if (view3d)
+			if (view3d && view3d.isVisible())
 			{
 				view3d.refreshView();
 			}
@@ -319,10 +318,11 @@ var MutationDetailsView = Backbone.View.extend({
 						mainMutationView.hideFilterInfo();
 					}
 
-					// reset focus of the 3D view
-					if (view3d)
+					// reset highlight of the 3D view
+					if (view3d && view3d.isVisible())
 					{
-						view3d.focusView(false);
+						view3d.removeHighlight(datum);
+						view3d.hideResidueWarning();
 					}
 				}
 				else
@@ -340,10 +340,21 @@ var MutationDetailsView = Backbone.View.extend({
 					// show filter reset info
 					mainMutationView.showFilterInfo();
 
-					// focus on the corresponding residue in 3D view
-					if (view3d)
+					// highlight the corresponding residue in 3D view
+					if (view3d && view3d.isVisible())
 					{
-						view3d.focusView(datum);
+						// highlight view for the selected datum
+						// TODO for now removing previous highlights,
+						// ...we need to change this to allow multiple selection
+						if (view3d.highlightView(datum, true))
+						{
+							view3d.hideResidueWarning();
+						}
+						// display a warning message if there is no corresponding residue
+						else
+						{
+							view3d.showResidueWarning();
+						}
 					}
 				}
 			});
@@ -380,10 +391,11 @@ var MutationDetailsView = Backbone.View.extend({
 					mainMutationView.hideFilterInfo();
 				}
 
-				// reset focus of the 3D view
-				if (view3d)
+				// reset highlight of the 3D view
+				if (view3d && view3d.isVisible())
 				{
-					view3d.focusView(false);
+					view3d.removeHighlight();
+					view3d.hideResidueWarning();
 				}
 			});
 		};

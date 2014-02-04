@@ -176,10 +176,10 @@ var MutationDetailsView = Backbone.View.extend({
 
 		// init other views upon selecting the corresponding tab
 		contentSelector.bind('tabsactivate', function(event, ui) {
-			// TODO using index() causes problems with ui.tabs.paging plugin
 			// note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
 			//var gene = genes[ui.newTab.index()];
 
+			// using index() causes problems with ui.tabs.paging plugin,
 			// get the gene name directly from the html content
 			var gene = ui.newTab.text().trim();
 

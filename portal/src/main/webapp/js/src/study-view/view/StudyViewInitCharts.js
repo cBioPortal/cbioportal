@@ -199,7 +199,7 @@ var StudyViewInitCharts = (function(){
                 yBottom: 320   //The bottom/starting point for y axis
             },
             style : { //Default style setting
-                fill: "#58ACFA", //light blue
+                fill: "#3366cc", //light blue
                 stroke: "#0174DF", //dark blue
                 stroke_width: "1.2",
                 size: "20",
@@ -232,7 +232,7 @@ var StudyViewInitCharts = (function(){
                 yTitleHelp: ""
             },
             legends: [{
-                fill: "#58ACFA", //light blue
+                fill: "#3366cc", //light blue
                 stroke: "#0174DF", //dark blue
                 stroke_width: "1.2",
                 size: "20",
@@ -305,7 +305,97 @@ var StudyViewInitCharts = (function(){
             if($('#study-view-selectChartType').find(":selected").val() !== "" && $('#study-view-selectAttr').find(":selected").val())
                 $('#study-view-add-chart-button').removeAttr('disabled');
         });
+        
+        $('.study-view-dc-chart-change').click(function(e){
+            //var tagID = $(this).parent().parent().attr("id");
+            var valueA = $(this).parent().parent().attr("value").split(',');
+            var attrID = valueA[0];
+            var tmpChartType = valueA[2];
+            
+            if($('#tmpChartSelection').length > 0)
+                $('#tmpChartSelection').remove()
+            
+            var positionX = $(this).position().left+5;
+            var positionY = $(this).position().top+20;
 
+            if(positionX + 150 > $(this).width())
+                positionX -= 150;
+            
+            var div = $("<div />");
+            div.attr({id: 'tmpChartSelection'});
+            div.css({
+                position:'absolute', 
+                top: positionY, 
+                left: positionX,
+                'z-index':99,
+                width:'150px', 
+                float: 'center',
+                'background-color': 'white',
+                'border-radius': '10px',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                'border-style': 'solid' , 
+                'border-width': '1px', 
+                'border-color':'lightgrey'})
+            
+            var chartType = varType[attrID].split(',');
+            div.append("<div style=\"width:100%;height:20px; color:grey;\">Select Chart Type<span style='float:right; cursor:pointer;margin-right:10px' id='change-tmpClose'>X</span></div><hr / >");
+            var tmpDiv = $("<div />");
+            tmpDiv.css({width:'100%'});    
+            $.each(chartType, function(key, value) {
+                if(value != tmpChartType){
+                    var tmpButton = $("<input />")
+                    tmpButton.attr({value:value+' chart', type:'button', name:'tmpRadio', class:'study-view-dc-chart-change-button' })
+                            .css({float:'center', 'margin-bottom':'10px', height: '10px'});
+                    tmpDiv.append(tmpButton);               
+                    tmpDiv.append('<br />');
+                }
+            });
+            
+            div.append(tmpDiv);
+            $(this).parent().append(div);
+            
+            $('#change-tmpClose').click(function(event){
+                var id = $(this).parent().parent().attr("id");
+                $("#"+id).remove(); 
+            });   
+            
+            $('.study-view-dc-chart-change-button').click(function(e){
+                var id = $(this).parent().parent().parent().parent().attr("id");
+                var valueA = $(this).parent().parent().parent().parent().attr("value").split(',');
+                var attrID = valueA[0];
+                var attrName = valueA[1];
+                var valueB = $(this).val().split(' ');
+                var changeToChartType = valueB[0];
+                $("#"+id).remove("svg"); 
+                varChart[HTMLtagsMapUID[id]].filterAll();
+                dc.redrawAll();
+                dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
+                
+                console.log(changeToChartType);
+                
+                if(changeToChartType == 'pie')
+                    initPieChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-pie-chart',attrID,attrName);
+                else if(changeToChartType == 'row')
+                    initRowChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-row-chart',attrID,attrName,rowKeys);
+                else if(changeToChartType == 'bar')
+                    initBarChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-bar-chart',attrID,attrName,distanceMinMaxArray);
+                
+                msnry.destroy();
+                var container = document.querySelector('#study-view-charts');
+                msnry = new Masonry( container, {
+                  columnWidth: 190,
+                  itemSelector: '.study-view-dc-chart',
+                  gutter:1
+                });
+
+                varChart[HTMLtagsMapUID[id]].render();
+                msnry.layout();
+                
+                var id1 = $(this).parent().parent().attr("id");
+                $("#"+id1).remove(); 
+            });
+        });
 
         $('.study-view-dc-chart-delete').click(function(event){
                 var id = $(this).parent().parent().attr("id");
@@ -358,6 +448,9 @@ var StudyViewInitCharts = (function(){
             varChart[chartTmpID].render();
             msnry.layout();
             
+            $('#study-view-selectChartType :nth-child(1)').prop('selected', true); 
+            $('#study-view-add-chart-button').attr("disabled", "disabled");
+            
             //Register the delete fucntion after adding new chart
             $('#study-view-dc-chart-'+ chartTmpID +' .study-view-dc-chart-delete').click(function(event){
                 var id = $(this).parent().parent().attr("id");
@@ -373,14 +466,109 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
-            });         
+            });            
+            
+            $('#study-view-dc-chart-'+ chartTmpID +' img.study-view-dc-chart-change').click(function(e){
+                //var tagID = $(this).parent().parent().attr("id");
+                var valueA = $(this).parent().parent().attr("value").split(',');
+                var attrID = valueA[0];
+                var tmpChartType = valueA[2];
+
+                if($('#tmpChartSelection').length > 0)
+                    $('#tmpChartSelection').remove()
+
+                var positionX = $(this).position().left+5;
+                var positionY = $(this).position().top+20;
+
+                if(positionX + 150 > $(this).width())
+                    positionX -= 150;
+
+                var div = $("<div />");
+                div.attr({id: 'tmpChartSelection'});
+                div.css({
+                    position:'absolute', 
+                    top: positionY, 
+                    left: positionX,
+                    'z-index':99,
+                    width:'150px', 
+                    float: 'center',
+                    'background-color': 'white',
+                    'border-radius': '10px',
+                    '-webkit-border-radius': '10px',
+                    '-moz-border-radius': '10px',
+                    'border-style': 'solid' , 
+                    'border-width': '1px', 
+                    'border-color':'lightgrey'})
+
+                var chartType = varType[attrID].split(',');
+                div.append("<div style=\"width:100%;height:20px; color:grey;\">Select Chart Type<span style='float:right; cursor:pointer;margin-right:10px' id='change-tmpClose'>X</span></div><hr / >");
+                var tmpDiv = $("<div />");
+                tmpDiv.css({width:'100%'});    
+                $.each(chartType, function(key, value) {
+                    if(value != tmpChartType){
+                        var tmpButton = $("<input />")
+                        tmpButton.attr({value:value+' chart', type:'button', name:'tmpRadio', class:'study-view-dc-chart-change-button' })
+                                .css({float:'center', 'margin-bottom':'10px', height: '10px'});
+                        tmpDiv.append(tmpButton);               
+                        tmpDiv.append('<br />');
+                    }
+                });
+
+                div.append(tmpDiv);
+                $(this).parent().append(div);
+
+                $('#change-tmpClose').click(function(event){
+                    var id = $(this).parent().parent().attr("id");
+                    $("#"+id).remove(); 
+                });   
+
+                $('.study-view-dc-chart-change-button').click(function(e){
+                    var id = $(this).parent().parent().parent().parent().attr("id");
+                    var valueA = $(this).parent().parent().parent().parent().attr("value").split(',');
+                    var attrID = valueA[0];
+                    var attrName = valueA[1];
+                    var valueB = $(this).val().split(' ');
+                    var changeToChartType = valueB[0];
+                    $("#"+id).remove("svg"); 
+                    varChart[HTMLtagsMapUID[id]].filterAll();
+                    dc.redrawAll();
+                    dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
+
+                    console.log(changeToChartType);
+
+                    if(changeToChartType == 'pie')
+                        initPieChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-pie-chart',attrID,attrName);
+                    else if(changeToChartType == 'row')
+                        initRowChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-row-chart',attrID,attrName,rowKeys);
+                    else if(changeToChartType == 'bar')
+                        initBarChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-bar-chart',attrID,attrName,distanceMinMaxArray);
+                    
+                    msnry.destroy();
+                    var container = document.querySelector('#study-view-charts');
+                    msnry = new Masonry( container, {
+                      columnWidth: 190,
+                      itemSelector: '.study-view-dc-chart',
+                      gutter:1
+                    });
+
+                    varChart[HTMLtagsMapUID[id]].render();
+                    msnry.layout();
+
+                    var id1 = $(this).parent().parent().attr("id");
+                    $("#"+id1).remove(); 
+                });
+            });
         });
         
         return varName;
     }
 
     function initPieChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay) {
-        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
+        if($("#study-view-dc-chart-" + _chartID).length > 0){
+            $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",pie",class:_className});
+        }else
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+        
         varChart[_chartID] = dc.pieChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
             if(!d[_selectedAttr] || d[_selectedAttr].toLowerCase()==="unknown" || d[_selectedAttr].toLowerCase()==="none")
@@ -405,6 +593,7 @@ var StudyViewInitCharts = (function(){
     }
     
     function initRowChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,_rowKeys) {
+        
         var rowChartHeight = _rowKeys[_selectedAttr].length * 25 +50;            
         var keyMaxLength = 0;
         var chartWidth = 0;
@@ -412,18 +601,45 @@ var StudyViewInitCharts = (function(){
             if(_rowKeys[_selectedAttr][i].length > keyMaxLength)
                 keyMaxLength = _rowKeys[_selectedAttr][i].length;
         }
-
-        if(keyMaxLength > 30){
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w3' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-            chartWidth = "560px";
-        }else if(keyMaxLength > 20){
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w2' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-            chartWidth = "370";
+        
+        if($("#study-view-dc-chart-" + _chartID).length > 0){
+            $("#study-view-dc-chart-" + _chartID).attr({
+                value: _selectedAttr + "," + _selectedAttrDisplay + ",row"
+            });
+            if(keyMaxLength > 30){
+                $("#study-view-dc-chart-" + _chartID).attr({
+                    class: _className + " w3"
+                });
+                chartWidth = "560px";
+            }else if(keyMaxLength > 20){
+                $("#study-view-dc-chart-" + _chartID).attr({
+                    class: _className + " w2"
+                });
+                chartWidth = "370";
+            }else{
+                $("#study-view-dc-chart-" + _chartID).attr({
+                    class: _className + " w1"
+                });
+                chartWidth = "180";
+            } 
         }else{
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w1' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
-            chartWidth = "180";
-        } 
-       varChart[_chartID] = dc.rowChart("#study-view-dc-chart-" + _chartID);
+           if(keyMaxLength > 30){
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w3' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                chartWidth = "560px";
+            }else if(keyMaxLength > 20){
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w2' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                chartWidth = "370";
+            }else{
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w1' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                chartWidth = "180";
+            } 
+        }
+        
+        varChart[_chartID] = "";
+        varCluster[_chartID] = "";
+        varGroup[_chartID] = "";
+        
+        varChart[_chartID] = dc.rowChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
             if(!d[_selectedAttr])
                 return "NA";
@@ -447,7 +663,11 @@ var StudyViewInitCharts = (function(){
     }
     
     function initBarChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay,distanceMinMaxArray) {
-        $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='"+ _className +"' value='" + _selectedAttr + "," + _selectedAttrDisplay + "'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span></div></div>");
+        if($("#study-view-dc-chart-" + _chartID).length > 0){
+            $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",bar",class:_className});
+        }else
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='"+ _className +"' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",bar'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+        
         varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;
 

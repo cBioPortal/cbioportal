@@ -79,8 +79,11 @@
 
 
 /* CLASS styles */
+.study-view-bar-chart rect{
+    fill: #3366cc;
+}
 .study-view-bar-chart g.brush rect.extent {
-    fill:steelblue;
+    fill:#3366cc;
     fill-opacity:0.2;
 }
 .study-view-bar-chart g.brush .resize path {
@@ -129,6 +132,12 @@
     color: lightgray;
     cursor: pointer;
 }
+.study-view-dc-chart-change {
+    float: right;
+    margin-right: 5px;
+    margin-top: 3px;
+    cursor: pointer;
+}
 .study-view-row-chart {
     float:left;
     text-align:center;
@@ -152,7 +161,7 @@
 }
 pieH4{
     font-size: 11px;
-    color: blue;
+    color: black;
     font-weight: bold;
 }
 pieH3{
@@ -169,8 +178,10 @@ pieH3{
 }
 .dc-chart .axis {
     fill:none;
-    stroke:steelblue;
+    stroke:grey;
     stroke-width:1.5px;
+    font-size:10px;
+    stroke-opacity:0.8
 }
 .study-view-bar-chart {
     float:left;
@@ -206,7 +217,7 @@ pieH3{
     font-size: 10px;
     cursor: pointer;
     stroke:white;
-    stroke-width:1px;
+    stroke-width:0.5px;
 }
 .dc-chart .pie-slice :hover {
     fill-opacity: .8;
@@ -236,7 +247,8 @@ pieH3{
     font-weight: bold;
 }
 .study-view-header-button{
-    background-color:#D3D6FF;
+    color:white;
+    background-color:#3366ff;
     border: none;
     border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -249,7 +261,10 @@ pieH3{
     transition: All 0.5s ease;
 }
 .study-view-header-button:hover:enabled{
-    background-color:#BDC0E5;
+    background-color:#3366cc;
+}
+.study-view-header-button:disabled {
+    background-color:lightgray;
 }
 .study-view-header-button:hover:disabled{
     cursor: default;

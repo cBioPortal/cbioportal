@@ -101,6 +101,7 @@
       <intercept-url pattern="/getSurvivalData.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/jsmol_frame.jsp*" access="isAuthenticated()"/>
 
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

@@ -191,7 +191,7 @@ var StudyViewInitCharts = (function(){
         
         var scatterPlotOptions = {
             canvas : {  //position of components
-                width: 760,
+                width: 750,
                 height: 400,
                 xLeft: 100,     //The left/starting point for x axis
                 xRight: 630,   //The right/ending point for x axis
@@ -276,36 +276,41 @@ var StudyViewInitCharts = (function(){
 
 
         $('#study-view-selectAttr').change(function(){
+            if($("#study-view-selectAttr")[0].selectedIndex != 0){
+                $('#study-view-selectChartType').removeAttr('disabled');
 
-            var chartType = varType[$(this).val()].split(',');
+                var chartType = varType[$(this).val()].split(',');
 
-            if(chartType.length > 1){
                 $('#study-view-selectChartType')
-                    .find('option:gt(0)')
-                    .remove()
-                    .end();                    
+                        .find('option')
+                        .remove()
+                        .end();
+
+                $.each(chartType, function(key, value) {
+                    $('#study-view-selectChartType')
+                        .append($("<option></option>")
+                            .attr("value",value)
+                            .text(value + " chart"));
+                });
+                if($('#study-view-selectAttr').find(":selected").val())
+                    $('#study-view-add-chart-button').removeAttr('disabled');  
             }else{
                 $('#study-view-selectChartType')
-                    .remove()
-                    .end();
+                        .find('option')
+                        .remove()
+                        .end()
+                        .append('<option>No chart type could be selected</option>')
+                        .attr('disabled','disabled');
+                $('#study-view-add-chart-button').attr('disabled','disabled');
             }
-
-            $.each(chartType, function(key, value) {
-                $('#study-view-selectChartType')
-                    .append($("<option></option>")
-                        .attr("value",value)
-                        .text(value + " chart"));
-            });
-
-           $('#study-view-add-chart-button').attr('disabled','disabled');  
         });
-
+        /*
         $('#study-view-selectChartType').change(function(){
 
             if($('#study-view-selectChartType').find(":selected").val() !== "" && $('#study-view-selectAttr').find(":selected").val())
                 $('#study-view-add-chart-button').removeAttr('disabled');
         });
-        
+        */
         $('.study-view-dc-chart-change').click(function(e){
             //var tagID = $(this).parent().parent().attr("id");
             var valueA = $(this).parent().parent().attr("value").split(',');
@@ -345,7 +350,7 @@ var StudyViewInitCharts = (function(){
             $.each(chartType, function(key, value) {
                 if(value != tmpChartType){
                     var tmpButton = $("<input />")
-                    tmpButton.attr({value:value+' chart', type:'button', name:'tmpRadio', class:'study-view-dc-chart-change-button' })
+                    tmpButton.attr({value:value+' chart', type:'button', class:'study-view-dc-chart-change-button' })
                             .css({float:'center', 'margin-bottom':'10px', height: '10px'});
                     tmpDiv.append(tmpButton);               
                     tmpDiv.append('<br />');
@@ -371,8 +376,6 @@ var StudyViewInitCharts = (function(){
                 varChart[HTMLtagsMapUID[id]].filterAll();
                 dc.redrawAll();
                 dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
-                
-                console.log(changeToChartType);
                 
                 if(changeToChartType == 'pie')
                     initPieChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-pie-chart',attrID,attrName);
@@ -448,7 +451,13 @@ var StudyViewInitCharts = (function(){
             varChart[chartTmpID].render();
             msnry.layout();
             
-            $('#study-view-selectChartType :nth-child(1)').prop('selected', true); 
+            $('#study-view-selectChartType')
+                    .find('option')
+                    .remove()
+                    .end()
+                    .append('<option>No chart type could be selected</option>')
+                    .attr('disabled', 'disabled');
+            
             $('#study-view-add-chart-button').attr("disabled", "disabled");
             
             //Register the delete fucntion after adding new chart
@@ -507,7 +516,7 @@ var StudyViewInitCharts = (function(){
                 $.each(chartType, function(key, value) {
                     if(value != tmpChartType){
                         var tmpButton = $("<input />")
-                        tmpButton.attr({value:value+' chart', type:'button', name:'tmpRadio', class:'study-view-dc-chart-change-button' })
+                        tmpButton.attr({value:value+' chart', type:'button', class:'study-view-dc-chart-change-button' })
                                 .css({float:'center', 'margin-bottom':'10px', height: '10px'});
                         tmpDiv.append(tmpButton);               
                         tmpDiv.append('<br />');
@@ -533,8 +542,6 @@ var StudyViewInitCharts = (function(){
                     varChart[HTMLtagsMapUID[id]].filterAll();
                     dc.redrawAll();
                     dc.deregisterChart(varChart[HTMLtagsMapUID[id]]);
-
-                    console.log(changeToChartType);
 
                     if(changeToChartType == 'pie')
                         initPieChart(HTMLtagsMapUID[id],'study-view-dc-chart study-view-pie-chart',attrID,attrName);
@@ -567,7 +574,7 @@ var StudyViewInitCharts = (function(){
         if($("#study-view-dc-chart-" + _chartID).length > 0){
             $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",pie",class:_className});
         }else
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
         
         varChart[_chartID] = dc.pieChart("#study-view-dc-chart-" + _chartID);
         varCluster[_chartID] = ndx.dimension(function (d) {
@@ -624,13 +631,13 @@ var StudyViewInitCharts = (function(){
             } 
         }else{
            if(keyMaxLength > 30){
-                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w3' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w3' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
                 chartWidth = "560px";
             }else if(keyMaxLength > 20){
-                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w2' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w2' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
                 chartWidth = "370";
             }else{
-                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w1' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+                $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + " w1' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",row'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
                 chartWidth = "180";
             } 
         }
@@ -666,7 +673,7 @@ var StudyViewInitCharts = (function(){
         if($("#study-view-dc-chart-" + _chartID).length > 0){
             $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",bar",class:_className});
         }else
-            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='"+ _className +"' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",bar'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/update_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='"+ _className +"' value='" + _selectedAttr + "," + _selectedAttrDisplay + ",bar'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
         
         varChart[_chartID] = dc.barChart("#study-view-dc-chart-" + _chartID);
         var distanceMinMax = distanceMinMaxArray[_selectedAttr].distance;

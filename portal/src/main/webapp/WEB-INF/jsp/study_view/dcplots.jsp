@@ -23,8 +23,8 @@
         <select id='study-view-selectAttr'>
             <option>Please select attribute</option>
         </select>
-        <select id='study-view-selectChartType'>
-            <option>Please select chart type</option>
+        <select id='study-view-selectChartType' disabled="disabled">
+            <option>No chart type could be selected</option>
         </select>
         <input type='button' value='Add Chart' id='study-view-add-chart-button' class='study-view-header-button' disabled/>
     </div>

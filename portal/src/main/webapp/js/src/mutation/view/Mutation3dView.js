@@ -52,6 +52,7 @@ var Mutation3dView = Backbone.View.extend({
 				// enable button if there is PDB data
 				button3d.removeAttr("disabled");
 
+				// TODO better to define this handler in the 3D Mutation controller
 				// add click listener for the 3d visualizer initializer
 				button3d.click(function() {
 					self.resetView();

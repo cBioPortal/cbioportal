@@ -79,6 +79,8 @@ var PdbPanelView = Backbone.View.extend({
 	 */
 	loadDefaultChain: function()
 	{
+		// TODO code related to 3D vis and the diagram should go into Mutation3dController
+
 		var self = this;
 
 		var panel = self.pdbPanel;

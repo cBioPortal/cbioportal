@@ -94,7 +94,7 @@ var Mutation3dVisView = Backbone.View.extend({
 		self._initProteinControls();
 
 		// zoom slider
-		self._initZoomSlider();
+		//self._initZoomSlider();
 
 		// init buttons
 		self._initButtons();
@@ -112,36 +112,37 @@ var Mutation3dVisView = Backbone.View.extend({
 		var self = this;
 		var mut3dVis = self.options.mut3dVis;
 
-		var centerSelected = self.$el.find(".mutation-3d-center-selected");
+//		var centerSelected = self.$el.find(".mutation-3d-center-selected");
+//
+//		centerSelected.button(
+//			{icons: {primary: "ui-icon-arrow-4"},
+//			text: false});
+//
+//		centerSelected.click(function() {
+//			// center on the selected mutation
+//			mut3dVis.center();
+//		});
+//
+//		var centerDefault = self.$el.find(".mutation-3d-center-default");
+//
+//		centerDefault.button(
+//			{icons: {primary: "ui-icon-arrowreturn-1-w"},
+//			text: false});
+//
+//		centerDefault.click(function() {
+//			// restore to the default center
+//			mut3dVis.resetCenter();
+//		});
+//
+//		var qtipOpts = self._generateTooltipOpts("NA");
+//		qtipOpts.content = {attr: 'alt'};
+//
+//		centerSelected.qtip(qtipOpts);
+//		centerDefault.qtip(qtipOpts);
 
-		centerSelected.button(
-			{icons: {primary: "ui-icon-arrow-4"},
-			text: false});
-
-		centerSelected.click(function() {
-			// center on the selected mutation
-			mut3dVis.center();
-		});
-
-		var centerDefault = self.$el.find(".mutation-3d-center-default");
-
-		centerDefault.button(
-			{icons: {primary: "ui-icon-arrowreturn-1-w"},
-			text: false});
-
-		centerDefault.click(function() {
-			// restore to the default center
-			mut3dVis.resetCenter();
-		});
-
-		var qtipOpts = self._generateTooltipOpts("NA");
-		qtipOpts.content = {attr: 'alt'};
-
-		centerSelected.qtip(qtipOpts);
-		centerDefault.qtip(qtipOpts);
+		// init help text controls
 
 		var helpContent = self.$el.find(".mutation-3d-vis-help-content");
-		//var helpLink = self.$el.find(".mutation-3d-vis-help-link");
 		var helpInit = self.$el.find(".mutation-3d-vis-help-init");
 		var helpClose = self.$el.find(".mutation-3d-vis-help-close");
 
@@ -495,8 +496,8 @@ var Mutation3dVisView = Backbone.View.extend({
 		else
 		{
 			// reset zoom slider
-			var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
-			zoomSlider.slider("value", 0);
+			//var zoomSlider = self.$el.find(".mutation-3d-zoom-slider");
+			//zoomSlider.slider("value", 0);
 
 			// show loader image
 			self.showLoader();

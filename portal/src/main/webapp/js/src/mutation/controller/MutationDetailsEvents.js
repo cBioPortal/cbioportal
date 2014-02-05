@@ -14,6 +14,8 @@ var MutationDetailsEvents = (function()
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
 	var _diagramPlotReset = "mutationDiagramPlotReset";
 	var _mutationTableFiltered = "mutationTableFiltered";
+	var _chainSelected = "pdbPanelChainSelected";
+	var _pdbPanelInit = "pdbPanelInitialized";
 
 	return {
 		LOLLIPOP_SELECTED: _lollipopSelected,
@@ -23,7 +25,8 @@ var MutationDetailsEvents = (function()
 		ALL_LOLLIPOPS_DESELECTED: _allLollipopsDeselected,
 		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
-		MUTATION_TABLE_FILTERED: _mutationTableFiltered
+		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
+		PDB_PANEL_INIT: _pdbPanelInit,
+		CHAIN_SELECTED: _chainSelected
 	};
-
 })();

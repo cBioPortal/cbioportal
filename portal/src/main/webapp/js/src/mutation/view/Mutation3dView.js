@@ -22,6 +22,10 @@
 var Mutation3dView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
 	},
 	render: function()
 	{
@@ -51,18 +55,6 @@ var Mutation3dView = Backbone.View.extend({
 			{
 				// enable button if there is PDB data
 				button3d.removeAttr("disabled");
-
-				// TODO better to define this handler in the 3D Mutation controller
-				// add click listener for the 3d visualizer initializer
-				button3d.click(function() {
-					self.resetView();
-					var vis = self.options.mut3dVisView;
-
-					if (vis != null)
-					{
-						vis.maximizeView();
-					}
-				});
 			}
 			else
 			{
@@ -86,6 +78,18 @@ var Mutation3dView = Backbone.View.extend({
 		var uniprotId = self.model.uniprotId;
 
 		pdbProxy.hasPdbData(uniprotId, formatButton);
+	},
+	/**
+	 * Adds a callback function for the 3D visualizer init button.
+	 *
+	 * @param callback      function to be invoked on click
+	 */
+	addInitCallback: function(callback) {
+		var self = this;
+		var button3d = self.$el.find(".mutation-3d-vis");
+
+		// add listener to diagram reset link
+		button3d.click(callback);
 	},
 	/**
 	 * Resets the 3D view to its initial state. This function also initializes
@@ -115,6 +119,11 @@ var Mutation3dView = Backbone.View.extend({
 				panel = self.pdbPanelView = pdbPanelView;
 
 				pdbPanelView.render();
+
+				// trigger corresponding event
+				self.dispatcher.trigger(
+					MutationDetailsEvents.PDB_PANEL_INIT,
+					panel.pdbPanel);
 			}
 
 			if (vis != null &&

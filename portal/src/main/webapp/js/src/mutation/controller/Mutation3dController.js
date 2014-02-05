@@ -4,11 +4,13 @@
  * on the view wrt each event type.
  *
  * @param mut3dVisView      a Mutation3dVisView instance
+ * @param mut3dView         a Mutation3dView instance
  * @param mutationDiagram   a MutationDiagram instance
+ * @param geneSymbol        hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
-var Mutation3dController = function (mut3dVisView, mutationDiagram)
+var Mutation3dController = function (mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
 {
 	function init()
 	{
@@ -20,11 +22,11 @@ var Mutation3dController = function (mut3dVisView, mutationDiagram)
 
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_DESELECTED,
-			deselectHandler);
+			diagramDeselectHandler);
 
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_SELECTED,
-			selectHandler);
+			diagramSelectHandler);
 
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
@@ -33,6 +35,61 @@ var Mutation3dController = function (mut3dVisView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
 			diagramResetHandler);
+
+		// add listeners for the mutation 3d view
+		mut3dView.dispatcher.on(
+			MutationDetailsEvents.PDB_PANEL_INIT,
+			pdbPanelInitHandler);
+
+		mut3dView.addInitCallback(mut3dInitHandler);
+	}
+
+	function pdbPanelInitHandler(pdbPanel)
+	{
+		// we cannot add pdbPanel listeners at actual init of the controller,
+		// since pdb panel is conditionally initialized at a later point
+
+		// add listeners to the custom event dispatcher of the pdb panel
+		pdbPanel.dispatcher.on(
+			MutationDetailsEvents.CHAIN_SELECTED,
+			chainSelectHandler);
+	}
+
+	function mut3dInitHandler(event)
+	{
+		mut3dView.resetView();
+
+		if (mut3dVisView != null)
+		{
+			mut3dVisView.maximizeView();
+		}
+	}
+
+	function chainSelectHandler(element)
+	{
+		// TODO ideally, we should queue every script call in JSmolWrapper,
+		// ...and send request to the frame one by one, but it is complicated
+
+		// calling another script immediately after updating the view
+		// does not work, so register a callback for update function
+		var callback = function() {
+			// focus view on already selected diagram location
+			if (mut3dVisView.isHighlighted())
+			{
+				var selected = mut3dVisView.getSelectedElements();
+
+				// TODO assuming there is only one selected element
+				// ... we need to update this part for multiple selection
+				if (!mut3dVisView.highlightView(selected[0].datum(), true))
+				{
+					mut3dVisView.showResidueWarning();
+				}
+			}
+		};
+
+		// update view with the selected chain data
+		var datum = element.datum();
+		mut3dVisView.updateView(geneSymbol, datum.pdbId, datum.chain, callback);
 	}
 
 	function diagramResetHandler()
@@ -62,13 +119,13 @@ var Mutation3dController = function (mut3dVisView, mutationDiagram)
 		}
 	}
 
-	function deselectHandler(datum, index)
+	function diagramDeselectHandler(datum, index)
 	{
 		// TODO need to change this for multiple selection
 		allDeselectHandler();
 	}
 
-	function selectHandler(datum, index)
+	function diagramSelectHandler(datum, index)
 	{
 		// highlight the corresponding residue in 3D view
 		if (mut3dVisView && mut3dVisView.isVisible())

@@ -257,6 +257,8 @@ var MutationDetailsView = Backbone.View.extend({
 			var diagram = self._drawMutationDiagram(
 					gene, mutationData, sequence, diagramOpts);
 
+			var view3d = null;
+
 			// check if diagram is initialized successfully.
 			if (diagram)
 			{
@@ -266,7 +268,7 @@ var MutationDetailsView = Backbone.View.extend({
 				if (self.mut3dVisView)
 				{
 					// init the 3d view
-					var view3d = new Mutation3dView({
+					view3d = new Mutation3dView({
 						el: "#mutation_3d_" + gene,
 						model: {uniprotId: sequence.metadata.identifier,
 							geneSymbol: gene,
@@ -307,7 +309,7 @@ var MutationDetailsView = Backbone.View.extend({
 			// init controllers
 			new MainMutationController(mainMutationView, mutationDiagram);
 			new MutationDetailsTableController(mutationTableView, mutationDiagram);
-			new Mutation3dController(self.mut3dVisView, mutationDiagram);
+			new Mutation3dController(self.mut3dVisView, view3d, mutationDiagram, gene);
 			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);
 		};
 

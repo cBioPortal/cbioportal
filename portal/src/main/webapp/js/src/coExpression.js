@@ -45,7 +45,8 @@ var CoExpTable = (function() {
         dim = {
             coexp_table_width: "380px",
             coexp_plots_width: "750px"
-        };
+        },
+        threshold = 0.3;
 
     var CoExpTable = (function() {
 
@@ -114,7 +115,7 @@ var CoExpTable = (function() {
                     });
 
                     var _coExpTable = $("#" + tableId).dataTable({
-                        "sDom": '<"H"f<"coexp-table-filter-custom">>t<"F"i>',
+                        "sDom": '<"H"f<"coexp-table-filter-pearson"><"coexp-table-filter-score-conbination">>t<"F"i>',
                         "sPaginationType": "full_numbers",
                         "bJQueryUI": true,
                         "bAutoWidth": false,
@@ -162,8 +163,8 @@ var CoExpTable = (function() {
                         "bDeferRender": true
                     });  //close data table
 
-
-                    $("#" + tableDivId).find('.coexp-table-filter-custom').append(
+                    //Drop down filter for positive/negative pearson display
+                    $("#" + tableDivId).find('.coexp-table-filter-pearson').append(
                         "<select id='coexp-table-select'>" +
                         "<option value='all'>Show All</option>" +
                         "<option value='positivePearson'>Show Only Positively Correlated (Pearson's)</option>" +
@@ -179,6 +180,34 @@ var CoExpTable = (function() {
                         }
                     });
 
+                    //Check box for display agree/disagree score combination
+                    $("#" + tableDivId).find('.coexp-table-filter-score-conbination').append(
+                        "<input type='checkbox' id='check-score-conbination-filter' checked>" +
+                        "Display only genes with score agreement" + 
+                        "<img class='profile_help' src='images/help.png' title='something'>");
+                    $("#check-score-conbination-filter").change(function() {
+                        if ($(this).attr('checked')) {
+                            threshold = 0.3;
+                            _coExpTable.fnDraw();
+                        } else {
+                            threshold = 0.0;
+                            _coExpTable.fnDraw();
+                        }
+                    });
+                    $.fn.dataTableExt.afnFiltering.push(
+                        function( oSettings, aData, iDataIndex ) {
+                            var iPearson = oSettings.aoData[iDataIndex]._aData[1];
+                            var iSpearman = oSettings.aoData[iDataIndex]._aData[2];
+                            if ((iPearson >= threshold || iPearson <= threshold * (-1)) && 
+                                (iSpearman >= threshold || iSpearman <= threshold * (-1))) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }
+                    );
+                    _coExpTable.fnDraw();
+        
                     attachRowListener(_coExpTable, tableId, plotId, geneId);
 
                     //Init with selecting the first row

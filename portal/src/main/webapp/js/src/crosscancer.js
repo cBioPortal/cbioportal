@@ -67,11 +67,7 @@
         };
 
         var getStudyAbbr = function(study, metaData) {
-            var tokens = study.studyId.split("_", 2);
-            var firstPart = metaData.short_names[study.typeOfCancer];
-            var secondPart = " (" + tokens[1].toLocaleUpperCase().replace("_") + ")";
-
-            return firstPart + secondPart;
+            return metaData.cancer_studies[study.studyId].short_name;
         };
 
         var calculateFrequency = function(d, i, type) {

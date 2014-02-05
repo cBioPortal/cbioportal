@@ -37,13 +37,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
-import org.mskcc.cbio.portal.dao.MySQLbulkLoader;
-import org.mskcc.cbio.portal.model.GeneticAlterationType;
-import org.mskcc.cbio.portal.model.GeneticProfile;
-import org.mskcc.cbio.portal.util.ConsoleUtil;
-import org.mskcc.cbio.portal.util.FileUtil;
-import org.mskcc.cbio.portal.util.GeneticProfileReader;
-import org.mskcc.cbio.portal.util.ProgressMonitor;
+import org.mskcc.cbio.portal.dao.*;
+import org.mskcc.cbio.portal.model.*;
+import org.mskcc.cbio.portal.util.*;
 
 /**
  * Import 'profile' files that contain data matrices indexed by gene, case. 
@@ -194,5 +190,55 @@ public class ImportProfileData{
         long totalTime = end.getTime() - start.getTime();
         System.out.println ("Total time:  " + totalTime + " ms");
     }
-    
+
+    public static void addPatients(String barCodes[], int geneticProfileId) throws DaoException
+    {
+        for (String barCode : barCodes) {
+            String patientId = CaseIdUtil.getPatientId(barCode);
+            if (unknownPatient(patientId)) {
+                addPatient(patientId, geneticProfileId);
+            }
+        }
+    }
+
+    private static boolean unknownPatient(String stableId)
+    {
+        return (DaoPatient.getPatientByStableId(stableId) == null);
+    }
+
+    private static void addPatient(String stableId, int geneticProfileId) throws DaoException
+    {
+        DaoPatient.addPatient(new Patient(getCancerStudy(geneticProfileId),
+                                          stableId));
+    }
+
+    public static void addSamples(String barCodes[], int geneticProfileId) throws DaoException
+    {
+        for (String barCode : barCodes) {
+            String patientId = CaseIdUtil.getPatientId(barCode);
+            String sampleId = CaseIdUtil.getSampleId(barCode);
+            if (unknownSample(sampleId)) {
+                addSample(sampleId, patientId, geneticProfileId);
+            }
+        }
+    }
+
+    private static boolean unknownSample(String stableId)
+    {
+        return (DaoSample.getSampleByStableId(stableId) == null);
+    }
+
+    private static void addSample(String sampleId, String patientId, int geneticProfileId) throws DaoException
+    {
+        Patient patient = DaoPatient.getPatientByStableId(patientId);
+        DaoSample.addSample(new Sample(sampleId,
+                                       patient.getInternalId(),
+                                       getCancerStudy(geneticProfileId).getTypeOfCancerId()));
+    }
+
+    private static CancerStudy getCancerStudy(int geneticProfileId)
+    {
+        GeneticProfile gp = DaoGeneticProfile.getGeneticProfileById(geneticProfileId);
+        return DaoCancerStudy.getCancerStudyByInternalId(gp.getCancerStudyId());
+    }
 }

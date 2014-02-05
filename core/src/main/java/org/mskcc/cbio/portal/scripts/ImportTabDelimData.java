@@ -135,6 +135,8 @@ public class ImportTabDelimData {
             caseIds = new String[parts.length - caseStartIndex];
             System.arraycopy(parts, caseStartIndex, caseIds, 0, parts.length - caseStartIndex);
         }
+        ImportProfileData.addPatients(caseIds, geneticProfileId);
+        ImportProfileData.addSamples(caseIds, geneticProfileId);
 		convertBarcodes(caseIds);
         pMonitor.setCurrentMessage("Import tab delimited data for " + caseIds.length + " cases.");
 

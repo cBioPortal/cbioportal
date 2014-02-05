@@ -170,6 +170,8 @@ public class ImportExtendedMutationData{
 
 				// process case id
 				String barCode = record.getTumorSampleID();
+                ImportProfileData.addPatients(new String[] { CaseIdUtil.getPatientId(barCode) }, geneticProfileId);
+                ImportProfileData.addSamples(new String[] { CaseIdUtil.getSampleId(barCode) }, geneticProfileId);
 				String caseId = CaseIdUtil.getSampleId(barCode);
 
 				if( !DaoCaseProfile.caseExistsInGeneticProfile(caseId, geneticProfileId)) {

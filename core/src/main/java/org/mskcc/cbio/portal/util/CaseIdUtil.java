@@ -32,27 +32,38 @@ import java.util.regex.*;
 
 public class CaseIdUtil
 {
+	public static String getPatientId(String barCode)
+	{
+        return getId(barCode, false);
+	}
+
 	public static String getSampleId(String barCode)
 	{
+        return getId(barCode, true);
+	}
+
+    private static String getId(String barCode, boolean forSample)
+    {
 		// do not process non-TCGA bar codes...
 		if (!barCode.startsWith("TCGA")) {
 			return barCode;
 		}
 
-		// process bar code
-		// an example bar code looks like this:  TCGA-13-1479-01A-01W
-
+        String id = null;
 		String barCodeParts[] = barCode.split("-");
-		String sampleId = null;
 		try {
-			sampleId = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2] + "-" + barCodeParts[3];
-            Matcher tcgaSampleBarcodeMatcher = Sample.TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(sampleId);
-            sampleId = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : sampleId;
+            // an example bar code looks like this:  TCGA-13-1479-01A-01W
+			id = barCodeParts[0] + "-" + barCodeParts[1] + "-" + barCodeParts[2];
+            if (forSample) {
+                id += "-" + barCodeParts[3];
+                Matcher tcgaSampleBarcodeMatcher = Sample.TCGA_FULL_SAMPLE_BARCODE_REGEX.matcher(id);
+                id = (tcgaSampleBarcodeMatcher.find()) ? tcgaSampleBarcodeMatcher.group(1) : id;
+            }
 		}
         catch (ArrayIndexOutOfBoundsException e) {
-			sampleId = barCode;
+			id = barCode;
 		}
 
-		return sampleId;
-	}
+		return id;
+    }
 }

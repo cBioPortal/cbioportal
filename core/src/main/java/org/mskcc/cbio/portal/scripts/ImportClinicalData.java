@@ -109,10 +109,10 @@ public class ImportClinicalData {
 
         int internalPatientOrSampleId = (isSampleData)  ? 
             addSampleToDatabase(stablePatientOrSampleId, fields, columnAttrs) : 
-            getInternalPatientId(stablePatientOrSampleId);
+            addPatientToDatabase(stablePatientOrSampleId);
 
         if (internalPatientOrSampleId == -1) {
-            System.err.println("Could not add sample to table (most likely because the patient associated with a sample could not be determined), skipping: " +
+            System.err.println("Could not add patient or sample to table, skipping: " +
                                stablePatientOrSampleId);
             return;
         }
@@ -136,13 +136,11 @@ public class ImportClinicalData {
         }
     }
 
-    private int getInternalPatientId(String stableId)
+    private int addPatientToDatabase(String stableId) throws Exception
     {
-       if (validPatientId(stableId)) {
-           Patient patient = DaoPatient.getPatientByStableId(stableId);
-           if (patient != null) {
-               return patient.getInternalId();
-           }
+        if (validPatientId(stableId) && DaoPatient.getPatientByStableId(stableId) == null) {
+           Patient patient = new Patient(cancerStudy, stableId);
+           return DaoPatient.addPatient(patient);
        }
 
        return -1;
@@ -154,9 +152,11 @@ public class ImportClinicalData {
         String stablePatientId = getStablePatientId(sampleId, fields, columnAttrs);
         if (validPatientId(stablePatientId)) {
             Patient patient = DaoPatient.getPatientByStableId(stablePatientId);
-            if (patient != null) {
-                internalSampleId = DaoSample.addSample(new Sample(CaseIdUtil.getSampleId(sampleId),
-                                                                  patient.getInternalId(), cancerStudy.getTypeOfCancerId()));
+            sampleId = CaseIdUtil.getSampleId(sampleId);
+            if (patient != null && DaoSample.getSampleByStableId(sampleId) == null) {
+                internalSampleId = DaoSample.addSample(new Sample(sampleId,
+                                                                  patient.getInternalId(),
+                                                                  cancerStudy.getTypeOfCancerId()));
             }
         }
 

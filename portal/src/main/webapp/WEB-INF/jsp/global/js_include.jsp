@@ -69,5 +69,9 @@
 <script type="text/javascript" src="js/src/mutation/util/JSmolWrapper.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/PdbDataProxy.js"></script>
 <script type="text/javascript" src="js/src/mutation/data/MutationDataProxy.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsEvents.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MainMutationController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js"></script>
 
 

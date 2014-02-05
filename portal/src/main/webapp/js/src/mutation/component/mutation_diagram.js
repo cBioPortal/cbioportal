@@ -15,6 +15,10 @@ function MutationDiagram(geneSymbol, options, data)
 	// event listeners
 	self.listeners = {};
 
+	// custom event dispatcher
+	self.dispatcher = {};
+	_.extend(self.dispatcher, Backbone.Events);
+
 	// merge options with default options to use defaults for missing values
 	self.options = jQuery.extend(true, {}, self.defaultOpts, options);
 
@@ -273,6 +277,9 @@ MutationDiagram.prototype.initDiagram = function(sequenceData)
 				bounds,
 				self.options,
 				data);
+
+		// add default listeners
+		self.addDefaultListeners();
 	};
 
 	// if no sequence data is provided, try to get it from the servlet
@@ -1645,6 +1652,87 @@ MutationDiagram.prototype.removeListener = function(selector, event)
 	{
 		delete self.listeners[selector][event];
 	}
+};
+
+MutationDiagram.prototype.addDefaultListeners = function()
+{
+	var self = this;
+
+	// diagram background click
+	self.addListener(".mut-dia-background", "click", function(datum, index) {
+		// just ignore the action if the diagram is already in a graphical transition.
+		// this is to prevent inconsistency due to fast clicks on the diagram.
+		if (self.isInTransition())
+		{
+			return;
+		}
+
+		// check if there is a highlighted circle
+		// no action required if no circle is highlighted
+		if (!self.isHighlighted())
+		{
+			return;
+		}
+
+		// remove all diagram highlights
+		self.clearHighlights();
+
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.ALL_LOLLIPOPS_DESELECTED);
+	});
+
+	// lollipop circle click
+	self.addListener(".mut-dia-data-point", "click", function(datum, index) {
+		// just ignore the action if the diagram is already in a graphical transition.
+		// this is to prevent inconsistency due to fast clicks on the diagram.
+		if (self.isInTransition())
+		{
+			return;
+		}
+
+		// if already highlighted, remove highlight on a second click
+		if (self.isHighlighted(this))
+		{
+			// remove highlight for the target circle
+			self.removeHighlight(this);
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.LOLLIPOP_DESELECTED,
+				datum, index);
+		}
+		else
+		{
+			// TODO do not clear previous highlights to enable multiple selection
+			// remove all diagram highlights
+			self.clearHighlights();
+
+			// highlight the target circle on the diagram
+			self.highlight(this);
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.LOLLIPOP_SELECTED,
+				datum, index);
+		}
+	});
+
+	// lollipop circle mouse over
+	self.addListener(".mut-dia-data-point", "mouseout", function(datum, index) {
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
+			datum, index);
+	});
+
+	// lollipop circle mouse out
+	self.addListener(".mut-dia-data-point", "mouseover", function(datum, index) {
+		// trigger corresponding event
+		self.dispatcher.trigger(
+			MutationDetailsEvents.LOLLIPOP_MOUSEOVER,
+			datum, index);
+	});
 };
 
 /**

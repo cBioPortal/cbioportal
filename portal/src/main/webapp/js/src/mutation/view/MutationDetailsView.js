@@ -217,6 +217,8 @@ var MutationDetailsView = Backbone.View.extend({
 		var mutationData = null;
 		var mutationUtil = self.model.mutationProxy.getMutationUtil();
 
+		// TODO remove syncFn option of the mutation table,
+		// and migrate the logic of this function into corresponding controller(s)
 		/**
 		 * Updates the other components of the mutation view after each change
 		 * in the mutation table. This maintains synchronizing between the table
@@ -270,134 +272,6 @@ var MutationDetailsView = Backbone.View.extend({
 			{
 				view3d.refreshView();
 			}
-		};
-
-		/**
-		 * Add listeners to the diagram plot elements.
-		 *
-		 * @param diagram   mutation diagram
-		 * @param tableView mutation table view
-		 * @param view3d    3D mutation visualizer view
-		 */
-		var addPlotListeners = function(diagram, tableView, view3d)
-		{
-			diagram.addListener(".mut-dia-data-point", "mouseout", function() {
-				// remove all highlights
-				tableView.clearHighlights();
-			});
-
-			diagram.addListener(".mut-dia-data-point", "mouseover", function(datum, index) {
-				// highlight mutations for the provided mutations
-				tableView.highlight(datum.mutations);
-			});
-
-			diagram.addListener(".mut-dia-data-point", "click", function(datum, index) {
-				// just ignore the action if the diagram is already in a graphical transition.
-				// this is to prevent inconsistency due to fast clicks on the diagram.
-				if (diagram.isInTransition())
-				{
-					return;
-				}
-
-				// if already highlighted, remove highlight on a second click
-				if (diagram.isHighlighted(this))
-				{
-					// remove highlight for the target circle
-					diagram.removeHighlight(this);
-
-					// remove all table highlights
-					tableView.clearHighlights();
-
-					// roll back the table to its previous state
-					// (to the last state when a manual filtering applied)
-					tableView.rollBack();
-
-					// hide filter reset info
-					if (!diagram.isFiltered())
-					{
-						mainMutationView.hideFilterInfo();
-					}
-
-					// reset highlight of the 3D view
-					if (view3d && view3d.isVisible())
-					{
-						view3d.removeHighlight(datum);
-						view3d.hideResidueWarning();
-					}
-				}
-				else
-				{
-					// remove all table & diagram highlights
-					diagram.clearHighlights();
-					tableView.clearHighlights();
-
-					// highlight the target circle on the diagram
-					diagram.highlight(this);
-
-					// filter table for the given mutations
-					tableView.filter(datum.mutations);
-
-					// show filter reset info
-					mainMutationView.showFilterInfo();
-
-					// highlight the corresponding residue in 3D view
-					if (view3d && view3d.isVisible())
-					{
-						// highlight view for the selected datum
-						// TODO for now removing previous highlights,
-						// ...we need to change this to allow multiple selection
-						if (view3d.highlightView(datum, true))
-						{
-							view3d.hideResidueWarning();
-						}
-						// display a warning message if there is no corresponding residue
-						else
-						{
-							view3d.showResidueWarning();
-						}
-					}
-				}
-			});
-
-			// add listener to the diagram background to remove highlights
-			diagram.addListener(".mut-dia-background", "click", function(datum, index) {
-				// just ignore the action if the diagram is already in a graphical transition.
-				// this is to prevent inconsistency due to fast clicks on the diagram.
-				if (diagram.isInTransition())
-				{
-					return;
-				}
-
-				// check if there is a highlighted circle
-				// no action required if no circle is highlighted
-				if (!diagram.isHighlighted())
-				{
-					return;
-				}
-
-				// remove all diagram highligts
-				diagram.clearHighlights('circle');
-
-				// remove all table highlights
-				tableView.clearHighlights();
-
-				// roll back the table to its previous state
-				// (to the last state when a manual filtering applied)
-				tableView.rollBack();
-
-				// hide filter reset info
-				if (!diagram.isFiltered())
-				{
-					mainMutationView.hideFilterInfo();
-				}
-
-				// reset highlight of the 3D view
-				if (view3d && view3d.isVisible())
-				{
-					view3d.removeHighlight();
-					view3d.hideResidueWarning();
-				}
-			});
 		};
 
 		// callback function to init view after retrieving
@@ -488,11 +362,13 @@ var MutationDetailsView = Backbone.View.extend({
 			// update reference after rendering the table
 			mutationDiagram = diagram;
 
-			// add default event listeners for the diagram
-			addPlotListeners(diagram, mutationTableView, self.mut3dVisView);
-
 			// init reset info text content for the diagram
 			mainView.initResetFilterInfo(diagram, mutationTableView, self.mut3dVisView);
+
+			// init controllers
+			new MainMutationController(mainView, mutationDiagram);
+			new MutationDetailsTableController(mutationTableView, mutationDiagram);
+			new Mutation3dController(self.mut3dVisView, mutationDiagram);
 		};
 
 		// get mutation data for the current gene

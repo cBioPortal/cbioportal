@@ -159,6 +159,9 @@
     font-size:11px;
     color: white;
 }
+.study-view-row-chart svg{
+    float:right;
+}
 pieH4{
     font-size: 11px;
     color: black;

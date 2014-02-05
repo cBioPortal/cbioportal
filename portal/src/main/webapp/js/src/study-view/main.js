@@ -16,7 +16,7 @@ var removeKeyIndex = new Array();
  * and open the template in the editor.
  */
 
-
+     
 $(document).ready(function(){
     var parObject = {
         studyId: cancerStudyId,

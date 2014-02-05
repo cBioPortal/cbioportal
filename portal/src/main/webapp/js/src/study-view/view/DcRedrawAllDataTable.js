@@ -42,14 +42,12 @@ dc.redrawAllDataTable = function(group) {
             $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX);
         }  
 
-        new FixedColumns( dataTable1);
-        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");   
-        $(".dataTables_scroll").css("overflow-x","hidden");      
-        $(".DTFC_LeftHeadWrapper").css("background-color","white");     
-
-
+        new FixedColumns( dataTable1); 
         dataTable1.fnAdjustColumnSizing();
-
+        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+        $(".dataTables_scroll").css("overflow-x","scroll");
+        $(".DTFC_LeftHeadWrapper").css("background-color","white");
+        
         $("#dataTable_filter label input").attr("value","");    
         $('#study-view-dataTable-header').click(function(){
                 if($("#dataTable_filter label input").val() !== ""){			

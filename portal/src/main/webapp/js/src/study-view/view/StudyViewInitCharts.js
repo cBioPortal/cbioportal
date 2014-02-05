@@ -639,10 +639,10 @@ var StudyViewInitCharts = (function(){
         var offsetX = 10;
         if(keyMaxLength > 30){
             chartWidth = 560;
-            offsetX= 450;           
+            offsetX= 470;           
         }else if(keyMaxLength > 20){
             chartWidth = 370;
-            offsetX= 250;
+            offsetX= 290;
         }else{
             chartWidth = 180;  
             offsetX= 100;         
@@ -668,11 +668,11 @@ var StudyViewInitCharts = (function(){
         .dimension(varCluster[_chartID])
         .group(varGroup[_chartID])
         .transitionDuration(1200)
-        .elasticX(false)
+        .elasticX(true)
         .ordinalColors(chartColors)
         .label(function (d) {
-            if(d.key.length > 10)
-                return d.key.substring(0,9) + "...";
+            if(d.key.length > 8)
+                return d.key.substring(0,7) + "...";
             else
                 return d.key;
         });
@@ -867,7 +867,7 @@ var StudyViewInitCharts = (function(){
             "bFilter":true,
             "bScrollCollapse": true
         });
-
+        
         var keyIndex = [];
         for(var i =0 ; i< columnNameSelected.length ; i++){
             var key = columnNameTotal.indexOf(columnNameSelected[i]);
@@ -902,8 +902,8 @@ var StudyViewInitCharts = (function(){
         $('#study-view-dataTable-updateTable').click(function(){
             dc.redrawAllDataTable("group1"); 
         });
-    }
-
+    }    
+ 
     function decimalPlaces(num) {
         var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
         if (!match) { return 0; }

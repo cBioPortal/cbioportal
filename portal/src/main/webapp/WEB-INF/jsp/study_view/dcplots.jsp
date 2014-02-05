@@ -18,7 +18,11 @@
 <script src="js/src/study-view/view/StudyViewInitCharts.js"></script>
 <script src="js/src/study-view/main.js"></script> 
 
-<div id="study-view-main">
+<div id="dc-plots-loading-wait">
+    <img src="images/ajax-loader.gif"/>
+</div>
+
+<div id="study-view-main" style="display: none;">
     <div id="study-view-add-chart">
         <select id='study-view-selectAttr'>
             <option>Please select attribute</option>

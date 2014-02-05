@@ -79,8 +79,8 @@ if (cancerStudyViewError!=null) {
 <div id="study-tabs">
     <ul>
         
-    <li id="li-1"><a href='#clinical-plots' class='study-tab' title='Plots'>Study Summary</a></li>
-    <li><a href='#dc-plots' class='study-tab' title='DC Plots'>DC Plots</a></li>
+    <li id="li-1"><a href='#dc-plots' class='study-tab' title='Plots'>DC Plots</a></li>
+    <li><a href='#clinical-plots' class='study-tab' title='DC Plots'>Study Summary</a></li>
     <li><a href='#clinical' class='study-tab' title='Clinical Data'>Clinical Data</a></li>
     
     <%if(showMutationsTab){%>
@@ -200,6 +200,7 @@ function initTabs() {
         $('.study-tab').removeClass('selected');
         $(this).addClass('selected');
         
+        /*
         if($( "#study-tabs" ).tabs( "option", "active" ) === 1){
             var oTable = $('#dataTable').dataTable();
             if ( oTable.length > 0 ) {
@@ -231,7 +232,7 @@ function initTabs() {
                 console.log("No DataTable");
             }
         }
-        
+        */
         return false;
     }).filter(':first').click();
 }

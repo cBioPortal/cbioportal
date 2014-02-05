@@ -24,7 +24,7 @@ $(document).ready(function(){
         cnaProfileId: cnaProfileId,
         mutationProfileId: mutationProfileId,
     };
-    StudyViewControl.init(parObject);   
+    StudyViewControl.init(parObject);
 });
 
 

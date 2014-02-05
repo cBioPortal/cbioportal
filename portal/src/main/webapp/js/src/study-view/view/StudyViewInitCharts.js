@@ -925,13 +925,43 @@ var StudyViewInitCharts = (function(){
     function selectedCol(col) {
         return col.toLowerCase().match(/(^age)|(gender)|(os_status)|(os_months)|(dfs_status)|(dfs_months)|(race)|(ethnicity)|(.*grade.*)|(.*stage.*)|(histology)|(tumor_type)|(subtype)|(tumor_site)|(.*score.*)|(mutation_count)|(copy_number_alterations)/);
     }
+    
+    function resizeTable(){                 
+        $('#dc-plots-loading-wait').hide();
+        $('#study-view-main').show();
 
+        var rotationAngle = 315;
+        var radians = Math.PI * (rotationAngle/180);
+        var numColumns = 0;
+        var maxX =0;
+        $('table.dataTable>thead>tr>th').each(function(){
+            numColumns++;
+        });
+        
+        for(var i =1;i<=numColumns ; i++){
+            var rotatedX = $("table.dataTable>thead>tr>th:nth-child("+i+")").width();
+            if(rotatedX > maxX)
+                maxX = rotatedX;
+        }
+        maxX -= 28;
+        for(var i =1;i<=numColumns ; i++){
+            $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
+        }
+
+        var oTable = $('#dataTable').dataTable();
+        oTable.fnAdjustColumnSizing();
+        new FixedColumns( oTable);
+        $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");
+        $(".dataTables_scroll").css("overflow-x","scroll");
+        $(".DTFC_LeftHeadWrapper").css("background-color","white");
+    }
     return {
         init: function(o,data){
             initParameters(o);
             var columnNameSelected = initCharts(data);
             columnNameSelected.unshift("CASE_ID");
             restyle(columnNameSelected,columnNameTotal);
+            resizeTable();
         }
     };
 })();

@@ -25,6 +25,24 @@ var MainMutationController = function (mainMutationView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_SELECTED,
 			selectHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
+			diagramUpdateHandler);
+	}
+
+	function diagramUpdateHandler()
+	{
+		if (mutationDiagram.isFiltered())
+		{
+			// display info text
+			mainMutationView.showFilterInfo();
+		}
+		else
+		{
+			// hide info text
+			mainMutationView.hideFilterInfo();
+		}
 	}
 
 	function allDeselectHandler()

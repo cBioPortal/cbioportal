@@ -25,6 +25,19 @@ var Mutation3dController = function (mut3dVisView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_SELECTED,
 			selectHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
+			diagramUpdateHandler);
+	}
+
+	function diagramUpdateHandler()
+	{
+		// refresh 3d view with filtered positions
+		if (mut3dVisView && mut3dVisView.isVisible())
+		{
+			mut3dVisView.refreshView();
+		}
 	}
 
 	function allDeselectHandler()

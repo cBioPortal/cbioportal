@@ -217,63 +217,6 @@ var MutationDetailsView = Backbone.View.extend({
 		var mutationData = null;
 		var mutationUtil = self.model.mutationProxy.getMutationUtil();
 
-		// TODO remove syncFn option of the mutation table,
-		// and migrate the logic of this function into corresponding controller(s)
-		/**
-		 * Updates the other components of the mutation view after each change
-		 * in the mutation table. This maintains synchronizing between the table
-		 * and other view components (diagram and 3d visualizer).
-		 *
-		 * @param tableSelector selector for the mutation table
-		 */
-		var syncWithMutationTable = function(tableSelector)
-		{
-			var mutationMap = mutationUtil.getMutationIdMap();
-			var currentMutations = [];
-
-			// add current mutations into an array
-			var rows = tableSelector.find("tr");
-			_.each(rows, function(element, index) {
-				var mutationId = $(element).attr("id");
-
-				if (mutationId)
-				{
-					var mutation = mutationMap[mutationId];
-
-					if (mutation)
-					{
-						currentMutations.push(mutation);
-					}
-				}
-			});
-
-			// update mutation diagram with the current mutations
-			if (mutationDiagram !== null)
-			{
-				var mutationData = new MutationCollection(currentMutations);
-				mutationDiagram.updatePlot(mutationData);
-
-				if (mutationDiagram.isFiltered())
-				{
-					// display info text
-					mainMutationView.showFilterInfo();
-				}
-				else
-				{
-					// hide info text
-					mainMutationView.hideFilterInfo();
-				}
-			}
-
-			var view3d = self.mut3dVisView;
-
-			// refresh 3d view with filtered positions
-			if (view3d && view3d.isVisible())
-			{
-				view3d.refreshView();
-			}
-		};
-
 		// callback function to init view after retrieving
 		// sequence information.
 		var init = function(sequenceData)
@@ -354,7 +297,6 @@ var MutationDetailsView = Backbone.View.extend({
 					{el: "#mutation_table_" + gene,
 					model: {geneSymbol: gene,
 						mutations: mutationData,
-						syncFn: syncWithMutationTable,
 						tableOpts: tableOpts}});
 
 			mutationTableView.render();
@@ -369,6 +311,7 @@ var MutationDetailsView = Backbone.View.extend({
 			new MainMutationController(mainView, mutationDiagram);
 			new MutationDetailsTableController(mutationTableView, mutationDiagram);
 			new Mutation3dController(self.mut3dVisView, mutationDiagram);
+			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);
 		};
 
 		// get mutation data for the current gene

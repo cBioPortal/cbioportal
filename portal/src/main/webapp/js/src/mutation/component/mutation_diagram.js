@@ -1536,6 +1536,10 @@ MutationDiagram.prototype.updatePlot = function(mutationData)
 	// reset highlight map
 	self.highlighted = {};
 
+	// trigger corresponding event
+	self.dispatcher.trigger(
+		MutationDetailsEvents.DIAGRAM_PLOT_UPDATED);
+
 	return self.isFiltered();
 };
 

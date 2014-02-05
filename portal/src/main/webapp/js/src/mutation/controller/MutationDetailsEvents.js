@@ -12,6 +12,7 @@ var MutationDetailsEvents = (function()
 	var _lollipopMouseover = "mutationDiagramLollipopMouseover";
 	var _lollipopMouseout = "mutationDiagramLollipopMouseout";
 	var _diagramPlotUpdated = "mutationDiagramPlotUpdated";
+	var _mutationTableFiltered = "mutationTableFiltered";
 
 	return {
 		LOLLIPOP_SELECTED: _lollipopSelected,
@@ -19,7 +20,8 @@ var MutationDetailsEvents = (function()
 		LOLLIPOP_MOUSEOVER: _lollipopMouseover,
 		LOLLIPOP_MOUSEOUT: _lollipopMouseout,
 		ALL_LOLLIPOPS_DESELECTED: _allLollipopsDeselected,
-		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated
+		DIAGRAM_PLOT_UPDATED: _diagramPlotUpdated,
+		MUTATION_TABLE_FILTERED: _mutationTableFiltered
 	};
 
 })();

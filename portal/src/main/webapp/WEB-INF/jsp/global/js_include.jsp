@@ -73,5 +73,7 @@
 <script type="text/javascript" src="js/src/mutation/controller/MainMutationController.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/Mutation3dController.js"></script>
 <script type="text/javascript" src="js/src/mutation/controller/MutationDetailsTableController.js"></script>
+<script type="text/javascript" src="js/src/mutation/controller/MutationDiagramController.js"></script>
+
 
 

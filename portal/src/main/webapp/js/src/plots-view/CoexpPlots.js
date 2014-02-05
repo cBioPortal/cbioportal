@@ -39,33 +39,47 @@
 
 var CoexpPlots = (function() {
 
-    function init(divName, geneX, geneY)  {
-        getAlterationData(divName, geneX, geneY);
+    function init(divName, geneX, geneY, pearson, spearman)  {
+        getAlterationData(divName, geneX, geneY, pearson, spearman);
     }
 
-    function getAlterationData(divName, geneX, geneY) {
+    function getAlterationData(divName, geneX, geneY, pearson, spearman) {
         var paramsGetAlterationData = {
             cancer_study_id: window.PortalGlobals.getCancerStudyId(),
             gene_list: geneX + " " + geneY,
             case_set_id: window.PortalGlobals.getCaseSetId(),
             case_ids_key: window.PortalGlobals.getCaseIdsKey()
         };
-        $.post("getAlterationData.json", paramsGetAlterationData, getAlterationDataCallBack(divName, geneX, geneY), "json");
+        $.post(
+            "getAlterationData.json", 
+            paramsGetAlterationData, 
+            getAlterationDataCallBack(divName, geneX, geneY, pearson, spearman), 
+            "json");
     }
 
-    function getAlterationDataCallBack(_divName, _geneX, _geneY) {
+    function getAlterationDataCallBack(_divName, _geneX, _geneY, _pearson, _spearman) {
         return function(result) {
             var alteration_data_result = jQuery.extend(result, {}, true);
             //get mutation data
             var proxy = DataProxyFactory.getDefaultMutationDataProxy();
             var _genes = _geneX + " " + _geneY;
-            proxy.getMutationData(_genes, getMutationDataCallBack(alteration_data_result, _divName, _geneX, _geneY));
+            proxy.getMutationData(
+                _genes, 
+                getMutationDataCallBack(
+                    alteration_data_result, 
+                    _divName, 
+                    _geneX, 
+                    _geneY, 
+                    _pearson, 
+                    _spearman
+                )
+            );
         }
     }
 
-    function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY) {
+    function getMutationDataCallBack(_alteration_data_result, _divName, _geneX, _geneY, _pearson, _spearman) {
         return function(result) {
-            CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY);
+            CoexpPlotsProxy.init(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             CoexpPlotsView.init(_divName, _geneX, _geneY, CoexpPlotsProxy.getData(), CoexpPlotsProxy.getDataAttr());
         }
     }

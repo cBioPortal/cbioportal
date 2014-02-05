@@ -325,7 +325,8 @@ var ScatterPlots = (function() {
         var _legends = [];
         $.each(legends, function(index, obj) {
             var firstWord = obj.text.substr(0, obj.text.indexOf(" "));
-            if (firstWord.length <= 7) {
+            var secondWord = obj.text.substr(obj.text.indexOf(" "), obj.text.length);
+            if (firstWord.length <= 9) {
                 _legends.push(obj);
             } else {
                 var _tmp_obj_1 = {};
@@ -342,7 +343,7 @@ var ScatterPlots = (function() {
                 _tmp_obj_2.fill = obj.fill;
                 _tmp_obj_2.stroke = obj.stroke;
                 _tmp_obj_2.stroke_width = obj.stroke_width;
-                _tmp_obj_2.text = "mutated";
+                _tmp_obj_2.text = secondWord;
                 _legends.push(_tmp_obj_2);
             }
         });
@@ -503,7 +504,7 @@ var ScatterPlots = (function() {
             initScaleY();
             initAxisX();
             initAxisY();
-            initBrush();
+            //initBrush();
             generateAxisX();
             generateAxisY();
             appendAxisTitleX(false);
@@ -562,8 +563,15 @@ var ScatterPlots = (function() {
             addQtips();
         },
         updateTitleHelp: function(_divName_x_scale, _divName_y_scale) {
-            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
-            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            //Get applying log scale status
+            var _applyLogScale_x = false;
+            var _applyLogScale_y = false;
+            if(!(document.getElementById(_divName_x_scale) === null) && 
+               !(document.getElementById(_divName_y_scale) === null)) { 
+               //for studies wihtout log scale option
+                _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+                _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            }  
             appendAxisTitleX(_applyLogScale_x);
             appendAxisTitleY(_applyLogScale_y);
         },

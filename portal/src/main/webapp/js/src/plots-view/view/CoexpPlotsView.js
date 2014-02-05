@@ -117,6 +117,40 @@ var CoexpPlotsView = (function() {
         _tmp_obj["stroke_width"] = options.style.stroke_width;
         _tmp_obj["text"] = options.text.legends.non_mut;
         options.legends.push(_tmp_obj);
+        //Add scores info
+        var _tmp_obj = {}; //act as an empty line
+        _tmp_obj["fill"] = options.style.fill;
+        _tmp_obj["stroke"] = options.style.stroke;
+        _tmp_obj["size"] = 0;
+        _tmp_obj["shape"] = options.style.shape;
+        _tmp_obj["stroke_width"] = options.style.stroke_width;
+        _tmp_obj["text"] = "";
+        options.legends.push(_tmp_obj);
+        var _tmp_obj = {}; //act as an empty line
+        _tmp_obj["fill"] = options.style.fill;
+        _tmp_obj["stroke"] = options.style.stroke;
+        _tmp_obj["size"] = 0;
+        _tmp_obj["shape"] = options.style.shape;
+        _tmp_obj["stroke_width"] = options.style.stroke_width;
+        _tmp_obj["text"] = "";
+        options.legends.push(_tmp_obj);
+        var _tmp_obj = {};
+        _tmp_obj["fill"] = options.style.fill;
+        _tmp_obj["stroke"] = options.style.stroke;
+        _tmp_obj["size"] = 0;
+        _tmp_obj["shape"] = options.style.shape;
+        _tmp_obj["stroke_width"] = options.style.stroke_width;
+        _tmp_obj["text"] = "Pearson: " + _dataAttr.pearson;
+        options.legends.push(_tmp_obj);
+        var _tmp_obj = {};
+        _tmp_obj["fill"] = options.style.fill;
+        _tmp_obj["stroke"] = options.style.stroke;
+        _tmp_obj["size"] = 0;
+        _tmp_obj["shape"] = options.style.shape;
+        _tmp_obj["stroke_width"] = options.style.stroke_width;
+        _tmp_obj["text"] = "Spearman: " + _dataAttr.spearman;
+        options.legends.push(_tmp_obj);
+
     }
 
     function layout(_divName) {

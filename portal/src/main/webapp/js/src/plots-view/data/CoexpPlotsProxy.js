@@ -11,6 +11,8 @@ var CoexpPlotsProxy = (function() {
             mut_x : false, //have case(s) mutated in only gene x
             mut_y : false,  //have case(s) mutated in only gene y
             mut_both: false, //have case(s) mutated in both genes
+            pearson: "",
+            spearman: ""
         };
     var mutationMap = {};   
 
@@ -136,10 +138,12 @@ var CoexpPlotsProxy = (function() {
     }
 
     return {
-        init: function(_alteration_data_result, _geneX, _geneY) {
+        init: function(_alteration_data_result, _geneX, _geneY, _pearson, _spearman) {
+            attr.pearson = _pearson;
+            attr.spearman = _spearman;
             dataArr.length = 0;
             getMutationMaps();
-            convertData(_alteration_data_result, _geneX, _geneY);
+            convertData(_alteration_data_result, _geneX, _geneY, _pearson, _spearman);
             prioritizeMutatedCases();
             analyseData();
             getProfile(_alteration_data_result);

@@ -29,6 +29,18 @@ var MainMutationController = function (mainMutationView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
 			diagramUpdateHandler);
+
+		// also init reset link call back
+		mainMutationView.addResetCallback(handleReset);
+	}
+
+	function handleReset(event)
+	{
+		// reset the diagram contents
+		mutationDiagram.resetPlot();
+
+		// hide the filter info text
+		mainMutationView.hideFilterInfo();
 	}
 
 	function diagramUpdateHandler()

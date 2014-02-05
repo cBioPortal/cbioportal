@@ -291,7 +291,7 @@ var MutationDetailsView = Backbone.View.extend({
 				console.log("Error initializing mutation diagram: %s", gene);
 			}
 
-			// draw mutation table
+			// init mutation table view
 
 			var mutationTableView = new MutationDetailsTableView(
 					{el: "#mutation_table_" + gene,
@@ -301,14 +301,11 @@ var MutationDetailsView = Backbone.View.extend({
 
 			mutationTableView.render();
 
-			// update reference after rendering the table
+			// update diagram reference after rendering the table
 			mutationDiagram = diagram;
 
-			// init reset info text content for the diagram
-			mainView.initResetFilterInfo(diagram, mutationTableView, self.mut3dVisView);
-
 			// init controllers
-			new MainMutationController(mainView, mutationDiagram);
+			new MainMutationController(mainMutationView, mutationDiagram);
 			new MutationDetailsTableController(mutationTableView, mutationDiagram);
 			new Mutation3dController(self.mut3dVisView, mutationDiagram);
 			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);

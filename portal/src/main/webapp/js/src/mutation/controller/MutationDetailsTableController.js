@@ -33,48 +33,76 @@ var MutationDetailsTableController = function(tableView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.LOLLIPOP_MOUSEOUT,
 			mouseoutHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
+			diagramResetHandler);
+	}
+
+	function diagramResetHandler()
+	{
+		if (tableView)
+		{
+			// reset all previous table filters
+			tableView.resetFilters();
+		}
 	}
 
 	function allDeselectHandler()
 	{
-		// remove all table highlights
-		tableView.clearHighlights();
+		if (tableView)
+		{
+			// remove all table highlights
+			tableView.clearHighlights();
 
-		// roll back the table to its previous state
-		// (to the last state when a manual filtering applied)
-		tableView.rollBack();
+			// roll back the table to its previous state
+			// (to the last state when a manual filtering applied)
+			tableView.rollBack();
+		}
 	}
 
 	function deselectHandler(datum, index)
 	{
-		// remove all table highlights
-		tableView.clearHighlights();
+		if (tableView)
+		{
+			// remove all table highlights
+			tableView.clearHighlights();
 
-		// TODO this needs revision for multiple select
-		// roll back the table to its previous state
-		// (to the last state when a manual filtering applied)
-		tableView.rollBack();
+			// TODO this needs revision for multiple select
+			// roll back the table to its previous state
+			// (to the last state when a manual filtering applied)
+			tableView.rollBack();
+		}
 	}
 
 	function selectHandler(datum, index)
 	{
-		// remove all table highlights
-		tableView.clearHighlights();
+		if (tableView)
+		{
+			// remove all table highlights
+			tableView.clearHighlights();
 
-		// filter table for the given mutations
-		tableView.filter(datum.mutations);
+			// filter table for the given mutations
+			tableView.filter(datum.mutations);
+		}
 	}
 
 	function mouseoverHandler(datum, index)
 	{
-		// highlight mutations for the provided mutations
-		tableView.highlight(datum.mutations);
+		if (tableView)
+		{
+			// highlight mutations for the provided mutations
+			tableView.highlight(datum.mutations);
+		}
 	}
 
 	function mouseoutHandler(datum, index)
 	{
-		// remove all highlights
-		tableView.clearHighlights();
+		if (tableView)
+		{
+			// remove all highlights
+			tableView.clearHighlights();
+		}
 	}
 
 	init();

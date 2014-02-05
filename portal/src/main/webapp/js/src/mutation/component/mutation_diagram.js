@@ -1595,6 +1595,10 @@ MutationDiagram.prototype.resetPlot = function()
 	var self = this;
 
 	self.updatePlot(self.rawData);
+
+	// trigger corresponding event
+	self.dispatcher.trigger(
+		MutationDetailsEvents.DIAGRAM_PLOT_RESET);
 };
 
 /**

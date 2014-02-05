@@ -29,6 +29,19 @@ var Mutation3dController = function (mut3dVisView, mutationDiagram)
 		mutationDiagram.dispatcher.on(
 			MutationDetailsEvents.DIAGRAM_PLOT_UPDATED,
 			diagramUpdateHandler);
+
+		mutationDiagram.dispatcher.on(
+			MutationDetailsEvents.DIAGRAM_PLOT_RESET,
+			diagramResetHandler);
+	}
+
+	function diagramResetHandler()
+	{
+		if (mut3dVisView && mut3dVisView.isVisible())
+		{
+			// reset all previous visualizer filters
+			mut3dVisView.refreshView();
+		}
 	}
 
 	function diagramUpdateHandler()

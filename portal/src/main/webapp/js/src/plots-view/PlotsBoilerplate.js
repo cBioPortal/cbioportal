@@ -41,15 +41,14 @@ var PlotsBoilerplate = {
         case_id: "",
         qtip: "", //content for qtip
         stroke: "",
-        fill: "",
-        brushed: "false"
+        fill: ""
     },
-    style : { //Default style setting
+    style : { //Default style setting for data points
         fill: "#58ACFA", //light blue
         stroke: "#0174DF", //dark blue
         stroke_width: "1.2",
         size: "20",
-        shape: "circle" //default, may vary for different mutation types
+        shape: "circle" //may vary for different mutation types
     },
     canvas : {  //position of components
         width: 755,

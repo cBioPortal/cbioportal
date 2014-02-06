@@ -39,6 +39,8 @@
  * @interface: updateMutations -- pass the ID of a checkbox, to show/hide mutation from plots
  * @interface: jointBrushCallback -- pass a function to be set as a callback function  
  *                                   whenever the brush behavior occur
+ * @interface: updateStyle -- pass an array of datum (fields: case_id, fill, stroke), 
+ *                            the corresponding plots style will be upated
  *
  * @output: a simple scatter plot 
  * 
@@ -580,8 +582,21 @@ var ScatterPlots = (function() {
             appendAxisTitleX(_applyLogScale_x);
             appendAxisTitleY(_applyLogScale_y);
         },
-        jointBrushCallback: function(refreshCallback) {
-            updateBrushCallback = refreshCallback;
+        jointBrushCallback: function(_refreshCallback) {
+            updateBrushCallback = _refreshCallback;
+        },
+        updateStyle: function(_datumArr) {
+            var _caseIdList = [];
+            $.each(_datumArr, function(index, obj) {
+                _caseIdList.push(_datumArr[index].case_id);
+            });
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                if (_caseIdList.indexOf(d.case_id) !== -1) {
+                    var _index = _caseIdList.indexOf(d.case_id);
+                    $(this).attr("fill", _datumArr[_index].fill);
+                    $(this).attr("stroke", _datumArr[_index].fill);
+                }
+            });
         }
     }
 

@@ -52,7 +52,7 @@ var PlotsBoilerplate = {
         shape: "circle" //default, may vary for different mutation types
     },
     canvas : {  //position of components
-        width: 750,
+        width: 755,
         height: 595,
         xLeft: 120,     //The left/starting point for x axis
         xRight: 620,   //The right/ending point for x axis

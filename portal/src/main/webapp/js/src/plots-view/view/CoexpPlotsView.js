@@ -118,7 +118,7 @@ var CoexpPlotsView = (function() {
         _tmp_obj["text"] = options.text.legends.non_mut;
         options.legends.push(_tmp_obj);
         //Add scores info
-        var _tmp_obj = {}; //act as an empty line
+        var _tmp_obj = {}; //act as anb empty line
         _tmp_obj["fill"] = options.style.fill;
         _tmp_obj["stroke"] = options.style.stroke;
         _tmp_obj["size"] = 0;
@@ -176,7 +176,7 @@ var CoexpPlotsView = (function() {
             options.names.control_panel,
             enable_log_scale, 
             enable_log_scale);
-        ScatterPlots.init(options, _dataArr, _dataAttr);
+        ScatterPlots.init(options, _dataArr, _dataAttr, false);
     }
 
     function styleMutatedCases(_dataArr, _geneX, _geneY) { //style the mutated cases based on this specific scenario

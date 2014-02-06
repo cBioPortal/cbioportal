@@ -195,13 +195,26 @@ var CoExpTable = (function() {
             });
         }
 
-        function attachSpearmanFilter(_tableDivId, _coExpTable) {
+        function attachSpearmanFilter(_tableDivId, _coExpTable, _geneId) {
             //Add check box for display agree/disagree score combination
             $("#" + _tableDivId).find('.coexp-table-filter-score-conbination').append(
-                "<input type='checkbox' id='check-score-conbination-filter' checked>" +
+                "<input type='checkbox' id='check-score-conbination-filter-" + _geneId + "' checked>" +
                 "Display only genes with score agreement" + 
-                "<img class='profile_help' src='images/help.png' title='something'>");
-            $("#check-score-conbination-filter").change(function() {
+                "<img class='profile_help' src='images/help.png' id='score-combination-filter' " +
+                "title='something'>");
+            $("#score-combination-filter").qtip(
+                {
+                    content: {text: "<font size=1>something</font>"},
+                    style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
+                    show: {event: "mouseover"},
+                    hide: {fixed:true, delay: 100, event: "mouseout"},
+                    position: {my:'left bottom',at:'top right'}
+                }
+            );
+            //init with a Spearman filtering when the page first loaded
+            _coExpTable.fnDraw(); 
+            //event listener binding
+            $("#check-score-conbination-filter-" + _geneId).change(function() {
                 if ($(this).attr('checked')) {
                     threshold = 0.3;
                     _coExpTable.fnDraw();
@@ -234,8 +247,6 @@ var CoExpTable = (function() {
             //Init with selecting the first row
             $('#' + Names.tableId + ' tbody tr:eq(0)').click();
             $('#' + Names.tableId + ' tbody tr:eq(0)').addClass("row_selected");
-            //init with a Spearman filtering when the page first loaded
-            _coExpTable.fnDraw();  
         }
 
         //Overwrite some datatable function for custom filtering
@@ -291,7 +302,7 @@ var CoExpTable = (function() {
                             configTable();
                             attachDownloadFullResultButton(Names.tableDivId, geneId);
                             attachPearsonFilter(Names.tableDivId, _coExpTable);
-                            attachSpearmanFilter(Names.tableDivId, _coExpTable);
+                            attachSpearmanFilter(Names.tableDivId, _coExpTable, geneId);
                             attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
                             initTable(_coExpTable);
                         }

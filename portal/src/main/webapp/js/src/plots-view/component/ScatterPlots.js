@@ -54,8 +54,7 @@ var ScatterPlots = (function() {
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
-    //Interaction Results 
-    var brushedCases = [];
+    var updateBrushCallback = "";
 
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
@@ -77,15 +76,30 @@ var ScatterPlots = (function() {
         });
     }
 
-    function initSvgCanvas(divName) {
+    function initSvgCanvas(divName, _brushOn) {
         elem.svg = d3.select("#" + divName).append("svg")
             .attr("width", canvas.width)
             .attr("height", canvas.height)
             .attr('pointer-events', 'all');
+
+        if (_brushOn) {
+            //Init the brush (before init the dots!)
+            elem.brush = d3.svg.brush()
+                .x(elem.xScale)
+                .y(elem.yScale)
+                .extent([[0, 0], [0, 0]])
+                .on("brushend", brushended);
+            elem.svg.append("g")
+                .attr("class", "brush")
+                .call(elem.brush);
+        }
+      
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.axisGroup = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g");
     }
+
+
 
     function initScaleX() {
         var _edge_x = (dataAttr.max_x - dataAttr.min_x) * axis_edge;
@@ -113,19 +127,6 @@ var ScatterPlots = (function() {
             .scale(elem.yScale)
             .orient("left")
             .tickSize(6, 0, 0);
-    }
-
-    function initBrush() {
-        elem.brush = d3.svg.brush()
-            .x(elem.xScale)
-            .y(elem.yScale)
-            .extent([[0, 0], [0, 0]])
-            .on("brush", brushed);
-        elem.svg.append("svg:g")
-            .attr("class", "brush")
-            .attr("z-index", "-5")
-            .attr('pointer-events', 'all')
-            .call(elem.brush);
     }
 
     function generateAxisX() {
@@ -319,7 +320,6 @@ var ScatterPlots = (function() {
         elem.svg.selectAll(".legend").remove();
     }
 
-
     function drawLegends() {
         //separate long legends into two lines
         var _legends = [];
@@ -410,22 +410,20 @@ var ScatterPlots = (function() {
         elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseout", mouseOff);
     }
 
-    function brushed() {
+    function brushended() {
+        var brushedCases = [];
         brushedCases.length = 0;
         var extent = elem.brush.extent();
-            _result = [];
         elem.dotsGroup.selectAll("path").each(function(d) {
             if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
                 d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
-                d.brushed = "true";
-                $(this).attr("fill", "red");
+                $(this).attr("stroke", "red");
                 brushedCases.push(d.case_id);
             } else {
-                d.brushed = "false";    
-                $(this).attr("fill", d.fill);
+                $(this).attr("stroke", d.stroke);
             }
         });
-        console.log(brushedCases);
+        updateBrushCallback(brushedCases);
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {
@@ -496,15 +494,14 @@ var ScatterPlots = (function() {
     }
 
     return {
-        init: function(options, _dataArr, _dataAttr) {    //Init with options
+        init: function(options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(options, _dataAttr);
             convertData(_dataArr);
-            initSvgCanvas(names.body);
             initScaleX();
             initScaleY();
+            initSvgCanvas(names.body, _brushOn);
             initAxisX();
             initAxisY();
-            //initBrush();
             generateAxisX();
             generateAxisY();
             appendAxisTitleX(false);
@@ -575,11 +572,12 @@ var ScatterPlots = (function() {
             appendAxisTitleX(_applyLogScale_x);
             appendAxisTitleY(_applyLogScale_y);
         },
-        getSelectedCaseIds: function() {
-            return brushedCases;
+        jointBrushCallback: function(refreshCallback) {
+            updateBrushCallback = refreshCallback;
         }
     }
 
 }());
+
 
 

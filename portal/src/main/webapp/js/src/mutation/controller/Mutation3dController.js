@@ -3,14 +3,16 @@
  * Listens to the various events and make necessary changes
  * on the view wrt each event type.
  *
- * @param mut3dVisView      a Mutation3dVisView instance
- * @param mut3dView         a Mutation3dView instance
- * @param mutationDiagram   a MutationDiagram instance
- * @param geneSymbol        hugo gene symbol (string value)
+ * @param mutationDetailsView   a MutationDetailsView instance
+ * @param mut3dVisView          a Mutation3dVisView instance
+ * @param mut3dView             a Mutation3dView instance
+ * @param mutationDiagram       a MutationDiagram instance
+ * @param geneSymbol            hugo gene symbol (string value)
  *
  * @author Selcuk Onur Sumer
  */
-var Mutation3dController = function (mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
+var Mutation3dController = function (
+	mutationDetailsView, mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
 {
 	function init()
 	{
@@ -42,6 +44,29 @@ var Mutation3dController = function (mut3dVisView, mut3dView, mutationDiagram, g
 			pdbPanelInitHandler);
 
 		mut3dView.addInitCallback(mut3dInitHandler);
+
+		// add listeners for the mutation details view
+		mutationDetailsView.dispatcher.on(
+			MutationDetailsEvents.GENE_TAB_SELECTED,
+			geneTabSelectHandler);
+	}
+
+	function geneTabSelectHandler(gene)
+	{
+		var reset = gene.toLowerCase() == geneSymbol.toLowerCase() &&
+					mut3dVisView &&
+		            mut3dVisView.isVisible() &&
+		            mut3dView;
+
+		// reset if the 3D panel is visible,
+		// and selected gene is this controller's gene
+		if (reset)
+		{
+			// TODO instead of reset, restore to previous config:
+			// may need to update resetView and loadDefaultChain methods
+			// (see issue #456)
+			mut3dView.resetView();
+		}
 	}
 
 	function pdbPanelInitHandler(pdbPanel)
@@ -74,9 +99,9 @@ var Mutation3dController = function (mut3dVisView, mut3dView, mutationDiagram, g
 		// does not work, so register a callback for update function
 		var callback = function() {
 			// focus view on already selected diagram location
-			if (mut3dVisView.isHighlighted())
+			if (mutationDiagram.isHighlighted())
 			{
-				var selected = mut3dVisView.getSelectedElements();
+				var selected = mutationDiagram.getSelectedElements();
 
 				// TODO assuming there is only one selected element
 				// ... we need to update this part for multiple selection

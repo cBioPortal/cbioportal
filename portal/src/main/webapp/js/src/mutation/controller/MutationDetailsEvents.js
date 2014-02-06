@@ -16,6 +16,7 @@ var MutationDetailsEvents = (function()
 	var _mutationTableFiltered = "mutationTableFiltered";
 	var _chainSelected = "pdbPanelChainSelected";
 	var _pdbPanelInit = "pdbPanelInitialized";
+	var _geneTabSelected = "mutationDetailsGeneTabSelected";
 
 	return {
 		LOLLIPOP_SELECTED: _lollipopSelected,
@@ -27,6 +28,7 @@ var MutationDetailsEvents = (function()
 		DIAGRAM_PLOT_RESET: _diagramPlotReset,
 		MUTATION_TABLE_FILTERED: _mutationTableFiltered,
 		PDB_PANEL_INIT: _pdbPanelInit,
-		CHAIN_SELECTED: _chainSelected
+		CHAIN_SELECTED: _chainSelected,
+		GENE_TAB_SELECTED: _geneTabSelected
 	};
 })();

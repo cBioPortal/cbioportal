@@ -15,6 +15,10 @@
 var MutationDetailsView = Backbone.View.extend({
 	initialize : function (options) {
 		this.options = options || {};
+
+		// custom event dispatcher
+		this.dispatcher = {};
+		_.extend(this.dispatcher, Backbone.Events);
 	},
 	render: function() {
 		var self = this;
@@ -189,16 +193,11 @@ var MutationDetailsView = Backbone.View.extend({
 				// init view (self.geneTabView mapping is updated within this function)
 				self._initView(gene, cases, diagramOpts, tableOpts);
 			}
-			// check if 3D panel is visible
-			else if (self.mut3dVisView &&
-				self.mut3dVisView.isVisible())
-			{
-				// reset the 3d vis content for the current tab
-				if (self.geneTabView[gene].mut3dView)
-				{
-					self.geneTabView[gene].mut3dView.resetView();
-				}
-			}
+
+			// trigger corresponding event
+			self.dispatcher.trigger(
+				MutationDetailsEvents.GENE_TAB_SELECTED,
+				gene);
 		});
 	},
     /**
@@ -265,9 +264,9 @@ var MutationDetailsView = Backbone.View.extend({
 				// init diagram toolbar
 				mainView.initToolbar(diagram, gene);
 
+				// init the 3d view
 				if (self.mut3dVisView)
 				{
-					// init the 3d view
 					view3d = new Mutation3dView({
 						el: "#mutation_3d_" + gene,
 						model: {uniprotId: sequence.metadata.identifier,
@@ -277,9 +276,6 @@ var MutationDetailsView = Backbone.View.extend({
 						diagram: diagram});
 
 					view3d.render();
-
-					// update reference for future use
-					self.geneTabView[gene].mut3dView = view3d;
 
 					// also reset (init) the 3D view if the 3D panel is already active
 					if (self.mut3dVisView.isVisible())
@@ -309,7 +305,7 @@ var MutationDetailsView = Backbone.View.extend({
 			// init controllers
 			new MainMutationController(mainMutationView, mutationDiagram);
 			new MutationDetailsTableController(mutationTableView, mutationDiagram);
-			new Mutation3dController(self.mut3dVisView, view3d, mutationDiagram, gene);
+			new Mutation3dController(self, self.mut3dVisView, view3d, mutationDiagram, gene);
 			new MutationDiagramController(mutationDiagram, mutationTableView.tableUtil, mutationUtil);
 		};
 

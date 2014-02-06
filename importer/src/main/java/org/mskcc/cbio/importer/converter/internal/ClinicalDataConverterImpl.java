@@ -51,8 +51,6 @@ import java.util.regex.Matcher;
  */
 public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implements Converter
 {
-    private static final String PLACEHOLDER = "MISSING_ATTRIBUTE_VALUE";
-    private static final String PLACEHOLDER_DATATYPE = "STRING";
 	private static final Log LOG = LogFactory.getLog(ClinicalDataConverterImpl.class);
 
 	protected Config config;
@@ -139,15 +137,15 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 dataMatrix.renameColumn(externalColumnHeader, attributeValue(metadata.getDisplayName()));
                 descriptions.add(attributeValue(metadata.getDescription()));
                 String datatype = attributeValue(metadata.getDatatype());
-                datatypes.add(datatype.equals(PLACEHOLDER) ? PLACEHOLDER_DATATYPE : datatype);
+                datatypes.add(datatype.equals(Converter.CLINICAL_DATA_PLACEHOLDER) ? Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER : datatype);
                 columnHeaders.add(attributeValue(metadata.getNormalizedColumnHeader()));
             }
             else {
                 // the column is ignored
                 // but we still need a correct number of rows in the column
-                descriptions.add(PLACEHOLDER);
-                datatypes.add(PLACEHOLDER_DATATYPE);
-                columnHeaders.add(PLACEHOLDER);
+                descriptions.add(Converter.CLINICAL_DATA_PLACEHOLDER);
+                datatypes.add(Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER);
+                columnHeaders.add(Converter.CLINICAL_DATA_PLACEHOLDER);
             }
         }
 
@@ -166,6 +164,6 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
 
     private String attributeValue(String attribute)
     {
-        return (attribute.isEmpty()) ? PLACEHOLDER : attribute;
+        return (attribute.isEmpty()) ? Converter.CLINICAL_DATA_PLACEHOLDER : attribute;
     }
 }

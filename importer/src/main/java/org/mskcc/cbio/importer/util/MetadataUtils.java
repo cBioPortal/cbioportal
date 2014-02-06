@@ -29,14 +29,13 @@
 package org.mskcc.cbio.importer.util;
 
 // imports
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+import java.util.regex.*;
+import java.lang.reflect.Method;
 
 /**
  * Class which provides utilities shared across metadata objects (yes this could be in an abstract class).
@@ -101,4 +100,52 @@ public class MetadataUtils {
 		// outta here
 		return toReturn;
 	}
+
+    public static String getClinicalDataHeader(Config config, List<String> normalizedColumnHeaderNames) throws Exception
+    {
+		StringBuilder clinicalDataHeader = new StringBuilder();
+        Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata = getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
+
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDisplayName"));
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
+        clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            clinicalDataHeader.append(columnHeader + "\t");
+        }
+        return clinicalDataHeader.toString().trim() + "\n";
+    }
+
+    private static Map <String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Config config, List<String> normalizedColumnHeaderNames)
+    {
+        Map<String, ClinicalAttributesMetadata> toReturn = new HashMap<String, ClinicalAttributesMetadata>();
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            Collection<ClinicalAttributesMetadata> metadata = config.getClinicalAttributesMetadata(columnHeader);
+            if (!metadata.isEmpty()) {
+                toReturn.put(columnHeader, metadata.iterator().next());
+            }
+        }
+        return toReturn;
+    }
+
+    private static String addClinicalDataHeader(List<String> normalizedColumnHeaderNames,
+                                                Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata,
+                                                String metadataAccessor) throws Exception
+    {
+        StringBuilder header = new StringBuilder();
+        for (String columnHeader : normalizedColumnHeaderNames) {
+            ClinicalAttributesMetadata metadata = clinicalAttributesMetadata.get(columnHeader);
+            if (metadata != null) {
+                Method m = clinicalAttributesMetadata.get(columnHeader).getClass().getMethod(metadataAccessor);
+                header.append((String)m.invoke(clinicalAttributesMetadata) + "\t");
+            }
+            else if (metadataAccessor.equals("getDatatype")) {
+                header.append(Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER);
+            }
+            else {
+                header.append(Converter.CLINICAL_DATA_PLACEHOLDER);
+            }
+
+        }
+        return header.toString().trim() + "\n";
+    }
 }

@@ -43,6 +43,9 @@ import java.util.Set;
  */
 public interface Converter {
 
+    public static final String CLINICAL_DATA_PLACEHOLDER = "MISSING_ATTRIBUTE_VALUE";
+    public static final String CLINICAL_DATA_DATATYPE_PLACEHOLDER = "STRING";
+
 	public static final String VALUE_DELIMITER = "\t";
 	public static final String GENE_ID_COLUMN_HEADER_NAME = "Entrez_Gene_Id";
 	public static final String GENE_SYMBOL_COLUMN_HEADER_NAME = "Hugo_Symbol";

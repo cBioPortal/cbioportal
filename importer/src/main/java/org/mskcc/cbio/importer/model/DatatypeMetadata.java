@@ -54,18 +54,13 @@ public class DatatypeMetadata {
 	// delimiter when specifying datatypes on worksheet
     public static final String DATATYPES_DELIMITER = ":"; 
 
-	// MAF file extension - used (at least) by FileUtils.oncotateAllMAFs
 	public static final String MAF_FILE_EXT = ".maf.annotated";
+	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
 
-	// correlate methylation file v mrna file id - used to id a correlation file
-	// - used by at least ConverterImpl
 	public static final String CORRELATE_METHYL_FILE_ID = "Correlate";
 
-	public static final String MUTATIONS_STAGING_FILENAME = "data_mutations_extended.txt";
-    public static final String SAMPLE_CLINICAL_DATA_FILENAME = "data_bcr_clinical_sample.txt";
-
-	// clinical data staging filename
-	public static final String CLINICAL_STAGING_FILENAME = "data_clinical.txt";
+    public static final String CLINICAL_SAMPLE_FILENAME_SUFFIX = "_sample.txt";
+	public static final String CLINICAL_SAMPLE_FILENAME = "data_clinical_sample.txt";
 
 	// fusion data staging filename
 	public static final String FUSIONS_STAGING_FILENAME = "data_fusions.txt";

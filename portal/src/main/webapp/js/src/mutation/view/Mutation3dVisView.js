@@ -62,6 +62,9 @@ var Mutation3dVisView = Backbone.View.extend({
 				mut3dVis.hide();
 			}
 
+			// TODO move this part (or the whole handler) into Mutation3dController,
+			// define a custom event, and get rid of parentEl
+
 			// also hide all pdb panel views
 			self.options.parentEl.find(".mutation-pdb-panel-view").slideUp();
 		};

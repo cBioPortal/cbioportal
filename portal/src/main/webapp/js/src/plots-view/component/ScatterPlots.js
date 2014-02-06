@@ -32,6 +32,13 @@
  * @param: options -- includes customized style, canvas(position), elem(svg), text(titles, etc.)
  * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, case id, etc.)
  * @param: dataAttr -- attributes of input data object (max, min, etc.)
+ * @param: brushOn -- signal for turning on the brush feature or not
+ *
+ * @interface: updateScaleX -- pass the ID of a checkbox, to apply log scale on x axis
+ * @interface: updateScaleY -- pass the ID of a checkbox, to apply log scale on y axis
+ * @interface: updateMutations -- pass the ID of a checkbox, to show/hide mutation from plots
+ * @interface: jointBrushCallback -- pass a function to be set as a callback function  
+ *                                   whenever the brush behavior occur
  *
  * @output: a simple scatter plot 
  * 
@@ -417,6 +424,7 @@ var ScatterPlots = (function() {
         elem.dotsGroup.selectAll("path").each(function(d) {
             if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
                 d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
+                //TODO: does not work with log scale applied scenario
                 $(this).attr("stroke", "red");
                 brushedCases.push(d.case_id);
             } else {

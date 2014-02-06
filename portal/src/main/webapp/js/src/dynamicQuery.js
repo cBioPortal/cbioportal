@@ -530,7 +530,7 @@ function cancerStudySelected() {
     jQuery.each(cancer_study.case_sets,function(i, case_set) {
         $("#select_case_set").append("<option class='case_set_option' value='"
                 + case_set.id + "' title='"
-                + case_set.description + "'>" + case_set.name + "</option>");
+                + case_set.description + "'>" + case_set.name + " ("+ case_set.size +")" + "</option>");
     }); //  end for each case study loop
 
     //  Add the user-defined case list option

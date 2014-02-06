@@ -187,6 +187,9 @@ var MutationDetailsView = Backbone.View.extend({
 			// get the gene name directly from the html content
 			var gene = ui.newTab.text().trim();
 
+			// TODO we can get rid of self.geneTabView[gene] mapping by moving _initView
+			// into MainMutationController class (init controller before binding this listener!)
+
 			// init view for the selected tab (if not initialized before)
 			if (self.geneTabView[gene] == undefined)
 			{

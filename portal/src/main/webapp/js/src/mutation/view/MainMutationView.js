@@ -127,35 +127,16 @@ var MainMutationView = Backbone.View.extend({
 	},
 	/**
 	 * Initializes the filter reset link, which is a part of filter info
-	 * text on top of the diagram.
+	 * text on top of the diagram, with the given callback function.
 	 *
-	 * @param diagram       mutation diagram instance
-	 * @param tableView     [optional] mutation table view instance
-	 * @param mut3dVisView  [optional] 3D vis view instance
+	 * @param callback      function to be invoked on click
 	 */
-	initResetFilterInfo: function(diagram, tableView, mut3dVisView) {
+	addResetCallback: function(callback) {
 		var self = this;
 		var resetLink = self.$el.find(".mutation-details-filter-reset");
 
 		// add listener to diagram reset link
-		resetLink.click(function (event) {
-			// reset the diagram contents
-			diagram.resetPlot();
-			// also reset the table filters (if provided)
-			if (tableView)
-			{
-				// reset all previous table filters
-				tableView.resetFilters();
-			}
-			// also reset the 3d vis (if provided)
-			if (mut3dVisView && mut3dVisView.isVisible())
-			{
-				// reset all previous visualizer filters
-				mut3dVisView.refreshView();
-			}
-			// hide the filter info text
-			self.hideFilterInfo();
-		});
+		resetLink.click(callback);
 	},
 	showFilterInfo: function() {
 		this.$el.find(".mutation-details-filter-info").slideDown();

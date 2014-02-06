@@ -185,7 +185,7 @@ public class MutationDataUtils {
         mutationData.put(LINK_TO_PATIENT_VIEW, linkToPatientView);
         mutationData.put(CANCER_TYPE, typeOfCancer);
         mutationData.put(CANCER_STUDY, cancerStudy.getName());
-        mutationData.put(CANCER_STUDY_SHORT, getShortName(cancerStudy));
+        mutationData.put(CANCER_STUDY_SHORT, cancerStudy.getShortName());
         mutationData.put(CANCER_STUDY_LINK, GlobalProperties.getLinkToCancerStudyView(cancerStudyStableId));
         mutationData.put(PROTEIN_CHANGE, mutation.getProteinChange());
         mutationData.put(MUTATION_TYPE, mutation.getMutationType());
@@ -316,16 +316,6 @@ public class MutationDataUtils {
         }
 
         return counts;
-    }
-
-    private String getShortName(CancerStudy cancerStudy) throws DaoException {
-        String sName = cancerStudy.getCancerStudyStableId();
-        String tumorType = cancerStudy.getTypeOfCancerId();
-        sName = sName.replace(tumorType + "_", "").replaceAll("_", " ").toUpperCase();
-        TypeOfCancer typeOfCancerById = DaoTypeOfCancer.getTypeOfCancerById(tumorType);
-        sName = typeOfCancerById.getShortName() + " (" + sName + ")";
-
-        return sName;
     }
 
     /**

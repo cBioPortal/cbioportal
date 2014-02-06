@@ -415,6 +415,15 @@ var StudyViewInitCharts = (function(){
                     .append($("<option></option>")
                         .attr("value",attrID)
                         .text(attrName));
+                
+                var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
+                var filterString = "";
+                for(var i=0 ; i<filteredResult.length ; i++){
+                    filterString += filteredResult[i].CASE_ID + '|';
+                }
+                filterString = filterString.substr(0,filterString.length-1);
+                var dataTable1 = $('#dataTable').dataTable();
+                dataTable1.fnFilter(filterString,0,true);
         });
 
         $('#study-view-add-chart-button').click(function(){
@@ -867,21 +876,19 @@ var StudyViewInitCharts = (function(){
         var tmpA = [];
         var tmpB = [];
         
-        var _data = data;
-        
-        tmpA.push({sTitle:"CASE_ID"});
+        tmpA.push({sTitle:"CASE ID"});
         for(var i=0; i< data.attr.length;i++){
             if(data.attr[i].attr_id !== 'CASE_ID'){
                 var tmp = {};
-                tmp.sTitle = data.attr[i].attr_id;
+                tmp.sTitle = data.attr[i].attr_id.replace(/[_]/g,' ');
                 tmpA.push(tmp);
             }
         }
         
-        $.each(data.dataObjectM, function(key,value){
+        $.each(data.dataObjectM, function(key,value){ 
             tmpB[key] = [];
             $.each(tmpA, function(key1,value1){
-                tmpB[key].push(value[value1.sTitle]);
+                tmpB[key].push(value[value1.sTitle.replace(/[ ]/g,'_')]);
             });
         });
         
@@ -931,7 +938,14 @@ var StudyViewInitCharts = (function(){
             }
         });
         $('#study-view-dataTable-updateTable').click(function(){
-            dc.redrawAllDataTable("group1"); 
+            var filteredResult = varCluster[attrNameMapUID['CASE_ID']].top(Infinity);
+            var filterString = "";
+            for(var i=0 ; i<filteredResult.length ; i++){
+                filterString += filteredResult[i].CASE_ID + '|';
+            }
+            filterString = filterString.substr(0,filterString.length-1);
+            dataTable1.fnFilter(filterString,0,true);
+            //dc.redrawAllDataTable("group1");
         });
     }  
  

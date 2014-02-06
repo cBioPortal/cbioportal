@@ -91,8 +91,15 @@ var StudyViewProxy = (function() {
                 }
                 
                 for(var key in dataObject){
-                    for (var i = 0 ; i < dataAttrA1.length ; i++)
-                        obtainDataObject['dataObjectM'][keyNumMapping[key]][dataAttrA1[i]['attr_id']] = dataObject[key][dataAttrA1[i]['attr_id']];
+                    for (var i = 0 ; i < dataAttrA1.length ; i++){
+                        var tmpValue = dataObject[key][dataAttrA1[i]['attr_id']];
+                        if(tmpValue === '' || tmpValue === undefined || tmpValue === 'na' || tmpValue === 'NA'){
+                            tmpValue = 'NA';
+                            obtainDataObject['dataObjectM'][keyNumMapping[key]][dataAttrA1[i]['attr_id']] = tmpValue;
+                        }else
+                            obtainDataObject['dataObjectM'][keyNumMapping[key]][dataAttrA1[i]['attr_id']] = dataObject[key][dataAttrA1[i]['attr_id']];
+                    }
+                       
                 }
 
                 obtainDataObject['attr'] = a1[0]['attributes'];

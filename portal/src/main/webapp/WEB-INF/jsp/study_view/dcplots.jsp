@@ -57,36 +57,6 @@
     <div id="dataTableLoading" style="text-align:center;display:none"><img src="images/ajax-loader.gif"></div>
     <div id='data-table-chart'>
         <table id="dataTable">
-            <thead>
-                <tr class="header">
-                <th>CASE ID</th>
-                <th>SUBTYPE</th>
-                <th>GENDER</th>
-                <th>AGE</th>
-                <th>2009 STAGE GROUP</th>					
-                <th>HISTOLOGY</th>					
-                <th>TUMOR GRADE</th>					
-                <th>MSI STATUS 7 MARKER CALL</th>					
-                <th>MSI STATUS 5 MARKER CALL</th>					
-                <th>DATA MAF</th>					
-                <th>DATA GISTIC</th>					
-                <th>DATA RNA SEQ</th>					
-                <th>DATA CORE SAMPLE</th>					
-                <th>MRNA EXPRESSION CLUSTER</th>					
-                <th>METHYLATION CLUSTER</th>					
-                <th>MLH1 SILENCING</th>					
-                <th>CNA CLUSTER K4</th>					
-                <th>MUTATION RATE CLUSTER</th>					
-                <th>MICRO RNA CLUSTER</th>
-                <th>MICRO RNA SCORE</th>
-                <th>OVERALL SURVIVAL (STATUS)</th>
-                <th>OVERALL SURVIVAL (MONTHS)</th>
-                <th>DISEASE FREE (STATUS)</th>
-                <th>DISEASE FREE (MONTHS)</th>
-                <th>MUTATION COUNT</th>
-                <th>COPY NUMBER ALTERATIONS</th>
-                </tr>
-            </thead>
         </table>		
     </div>
 

@@ -16,6 +16,7 @@ var StudyViewInitCharts = (function(){
     
     var ndx = "";
     var all = "";
+    var attrNameMapUID = []; //The relationshio between "The unique attribute name" and "The unique ID number in whole page"        
     var varCluster = []; //Clusters of displayed charts -- DC.JS require
     var varGroup = []; //Groups of displayed charts -- DC.JS require
     var chartColors = ["#3366cc","#dc3912","#ff9900","#109618",
@@ -54,7 +55,6 @@ var StudyViewInitCharts = (function(){
         var combine = []; //Combine charts which created for unrecognizable data type
         var varName = []; //Store all attributes in all data
         var HTMLtagsMapUID = []; //The relationshio between "The ID of div standing for each Chart in HTML" and "The unique ID number in whole page"
-        var attrNameMapUID = []; //The relationshio between "The unique attribute name" and "The unique ID number in whole page"
         var displayedID = []; //Displayed Charts ID number
         var varDisplay = []; //Displayed Charts Name -- the display_name in each attribute       
         var varType = []; //Could be displayed Charts Type 'pie,bar or row'. Mix combination, seperate by comma
@@ -78,7 +78,8 @@ var StudyViewInitCharts = (function(){
             var keys = Object.keys(varValuesNum);
 
             if(dataA[i]["attr_id"] === "CASE_ID"){
-                continue;
+                pie.push(dataA[i]);
+                //continue;
             }else if(dataA[i]["datatype"] === "NUMBER" || dataA[i]["datatype"] === "BOOLEAN"){                
                 if(selectedCol(dataA[i]["attr_id"])){                    
                     if(keys.length>10)
@@ -159,7 +160,7 @@ var StudyViewInitCharts = (function(){
             return false;
         }
 
-        initDataTable(varName);
+        //initDataTable(varName);
 
         dc.renderAll();
         dc.renderAll("group1");
@@ -573,6 +574,9 @@ var StudyViewInitCharts = (function(){
     function initPieChart(_chartID,_className,_selectedAttr,_selectedAttrDisplay) {
         if($("#study-view-dc-chart-" + _chartID).length > 0){
             $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",pie",class:_className});
+        }else if(_selectedAttr === 'CASE_ID'){
+            $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie' style='display:none'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
+            console.log(_chartID);
         }else
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
         
@@ -859,15 +863,39 @@ var StudyViewInitCharts = (function(){
         .transitionDuration(1200);
     }
     
-    function restyle(columnNameSelected,columnNameTotal) {
+    function restyle(columnNameSelected,columnNameTotal,data) {
+        var tmpA = [];
+        var tmpB = [];
+        
+        var _data = data;
+        
+        tmpA.push({sTitle:"CASE_ID"});
+        for(var i=0; i< data.attr.length;i++){
+            if(data.attr[i].attr_id !== 'CASE_ID'){
+                var tmp = {};
+                tmp.sTitle = data.attr[i].attr_id;
+                tmpA.push(tmp);
+            }
+        }
+        
+        $.each(data.dataObjectM, function(key,value){
+            tmpB[key] = [];
+            $.each(tmpA, function(key1,value1){
+                tmpB[key].push(value[value1.sTitle]);
+            });
+        });
+        
         var dataTable1 = $('#dataTable').dataTable({
             "sScrollX": "1200px",
+            "sWidth": "1200px",
             "sScrollY": "300px",
             "bPaginate": false,
             "bFilter":true,
-            "bScrollCollapse": true
+            "bScrollCollapse": true,
+            "aoColumns": tmpA,
+            "aaData":tmpB
         });
-        
+        /*
         var keyIndex = [];
         for(var i =0 ; i< columnNameSelected.length ; i++){
             var key = columnNameTotal.indexOf(columnNameSelected[i]);
@@ -881,6 +909,7 @@ var StudyViewInitCharts = (function(){
                 dataTable1.fnSetColumnVis(i,false);
             }
         }
+        */
         $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){			
@@ -891,18 +920,20 @@ var StudyViewInitCharts = (function(){
                        items.push( $(this).text() );       
                     });
                     var items = $.unique( items );
-                    dataTableDC.filter(null);
-                    dataTableDC.filter([items]);
+                    
+                    
+                    varChart[attrNameMapUID['CASE_ID']].filterAll();
+                    varChart[attrNameMapUID['CASE_ID']].filter([items]);
                     dc.redrawAll();
             }else{
-                    dataTableDC.filter(null);
+                    varChart[attrNameMapUID['CASE_ID']].filterAll();
                     dc.redrawAll();
             }
         });
         $('#study-view-dataTable-updateTable').click(function(){
             dc.redrawAllDataTable("group1"); 
         });
-    }    
+    }  
  
     function decimalPlaces(num) {
         var match = (''+num).match(/(?:\.(\d+))?(?:[eE]([+-]?\d+))?$/);
@@ -960,7 +991,7 @@ var StudyViewInitCharts = (function(){
             initParameters(o);
             var columnNameSelected = initCharts(data);
             columnNameSelected.unshift("CASE_ID");
-            restyle(columnNameSelected,columnNameTotal);
+            restyle(columnNameSelected,columnNameTotal,data);
             resizeTable();
         }
     };

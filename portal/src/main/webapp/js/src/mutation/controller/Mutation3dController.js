@@ -14,6 +14,10 @@
 var Mutation3dController = function (
 	mutationDetailsView, mut3dVisView, mut3dView, mutationDiagram, geneSymbol)
 {
+	// we cannot get pdb panel view as a constructor parameter,
+	// since it is initialized after initializing the controller
+	var pdbPanelView = null;
+
 	function init()
 	{
 		// add listeners to the custom event dispatcher of the diagram
@@ -45,6 +49,11 @@ var Mutation3dController = function (
 
 		mut3dView.addInitCallback(mut3dInitHandler);
 
+		// add listeners for the mutation 3d vis view
+		mut3dVisView.dispatcher.on(
+			MutationDetailsEvents.VIEW_3D_PANEL_CLOSED,
+			view3dPanelCloseHandler);
+
 		// add listeners for the mutation details view
 		mutationDetailsView.dispatcher.on(
 			MutationDetailsEvents.GENE_TAB_SELECTED,
@@ -53,29 +62,49 @@ var Mutation3dController = function (
 
 	function geneTabSelectHandler(gene)
 	{
-		var reset = gene.toLowerCase() == geneSymbol.toLowerCase() &&
-					mut3dVisView &&
-		            mut3dVisView.isVisible() &&
-		            mut3dView;
+//		var sameGene = (gene.toLowerCase() == geneSymbol.toLowerCase());
+//		var reset = sameGene &&
+//		            mut3dView &&
+//					mut3dVisView &&
+//		            mut3dVisView.isVisible();
 
 		// reset if the 3D panel is visible,
 		// and selected gene is this controller's gene
-		if (reset)
+//		if (reset)
+//		{
+//			// TODO instead of reset, restore to previous config:
+//			// may need to update resetView and loadDefaultChain methods
+//			// (see issue #456)
+//			mut3dView.resetView();
+//		}
+
+		// just hide the 3D view for now
+
+		if (mut3dVisView &&
+		    mut3dVisView.isVisible())
 		{
-			// TODO instead of reset, restore to previous config:
-			// may need to update resetView and loadDefaultChain methods
-			// (see issue #456)
-			mut3dView.resetView();
+			mut3dVisView.hideView();
 		}
 	}
 
-	function pdbPanelInitHandler(pdbPanel)
+	function view3dPanelCloseHandler()
 	{
+		// hide the corresponding pdb panel view
+		if (pdbPanelView)
+		{
+			pdbPanelView.hideView();
+		}
+	}
+
+	function pdbPanelInitHandler(panelView)
+	{
+		pdbPanelView = panelView;
+
 		// we cannot add pdbPanel listeners at actual init of the controller,
 		// since pdb panel is conditionally initialized at a later point
 
 		// add listeners to the custom event dispatcher of the pdb panel
-		pdbPanel.dispatcher.on(
+		panelView.pdbPanel.dispatcher.on(
 			MutationDetailsEvents.CHAIN_SELECTED,
 			chainSelectHandler);
 	}

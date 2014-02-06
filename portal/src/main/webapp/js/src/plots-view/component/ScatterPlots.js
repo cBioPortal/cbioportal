@@ -29,9 +29,18 @@
  *
  * Basic Scatter Plots Component. 
  *
- * @param: options -- includes style, canvas(position), elem(svg), text(titles, etc.)
+ * @param: options -- includes customized style, canvas(position), elem(svg), text(titles, etc.)
  * @param: dataArr -- Json object from data proxy (x value, y value, qtip content, case id, etc.)
  * @param: dataAttr -- attributes of input data object (max, min, etc.)
+ * @param: brushOn -- signal for turning on the brush feature or not
+ *
+ * @interface: updateScaleX -- pass the ID of a checkbox, to apply log scale on x axis
+ * @interface: updateScaleY -- pass the ID of a checkbox, to apply log scale on y axis
+ * @interface: updateMutations -- pass the ID of a checkbox, to show/hide mutation from plots
+ * @interface: jointBrushCallback -- pass a function to be set as a callback function  
+ *                                   whenever the brush behavior occur
+ * @interface: updateStyle -- pass an array of datum (fields: case_id, fill, stroke), 
+ *                            the corresponding plots style will be upated
  *
  * @output: a simple scatter plot 
  * 
@@ -54,6 +63,8 @@ var ScatterPlots = (function() {
     var axis_edge = 0.1;
         log_scale_threshold = 0.17677669529;
 
+    var updateBrushCallback = "";
+
     function initSettings(options, _dataAttr) { //Init with options
         style = jQuery.extend(true, {}, options.style);
         canvas = jQuery.extend(true, {}, options.canvas);
@@ -74,14 +85,30 @@ var ScatterPlots = (function() {
         });
     }
 
-    function initSvgCanvas(divName) {
+    function initSvgCanvas(divName, _brushOn) {
         elem.svg = d3.select("#" + divName).append("svg")
             .attr("width", canvas.width)
-            .attr("height", canvas.height);
+            .attr("height", canvas.height)
+            .attr('pointer-events', 'all');
+
+        if (_brushOn) {
+            //Init the brush (before init the dots!)
+            elem.brush = d3.svg.brush()
+                .x(elem.xScale)
+                .y(elem.yScale)
+                .extent([[0, 0], [0, 0]])
+                .on("brushend", brushended);
+            elem.svg.append("g")
+                .attr("class", "brush")
+                .call(elem.brush);
+        }
+      
         elem.dotsGroup = elem.svg.append("svg:g");
         elem.axisGroup = elem.svg.append("svg:g");
         elem.axisTitleGroup = elem.svg.append("svg:g");
     }
+
+
 
     function initScaleX() {
         var _edge_x = (dataAttr.max_x - dataAttr.min_x) * axis_edge;
@@ -258,20 +285,21 @@ var ScatterPlots = (function() {
                 .size(style.size)
                 .type(style.shape))
             .attr("fill", function(d) {
-                if (isNaN(d.fill) || d.fill === "") {
+                if (d.fill === null || d.fill === "") {
                     return style.fill;
                 } else {
                     return d.fill;
                 }
             })
             .attr("stroke", function(d) {
-                if (isNaN(d.stroke) || d.stroke === "") {
+                if (d.stroke === null || d.stroke === "") {
                     return style.stroke;
                 } else {
                     return d.stroke;
                 }
             })
-            .attr("stroke-width", style.stroke_width);
+            .attr("stroke-width", style.stroke_width)
+            .attr("z-index", "100");
     }
 
     function hideMutations() { //remove special styles for mutated cases
@@ -301,13 +329,13 @@ var ScatterPlots = (function() {
         elem.svg.selectAll(".legend").remove();
     }
 
-
     function drawLegends() {
         //separate long legends into two lines
         var _legends = [];
         $.each(legends, function(index, obj) {
             var firstWord = obj.text.substr(0, obj.text.indexOf(" "));
-            if (firstWord.length <= 7) {
+            var secondWord = obj.text.substr(obj.text.indexOf(" "), obj.text.length);
+            if (firstWord.length <= 9) {
                 _legends.push(obj);
             } else {
                 var _tmp_obj_1 = {};
@@ -324,7 +352,7 @@ var ScatterPlots = (function() {
                 _tmp_obj_2.fill = obj.fill;
                 _tmp_obj_2.stroke = obj.stroke;
                 _tmp_obj_2.stroke_width = obj.stroke_width;
-                _tmp_obj_2.text = "mutated";
+                _tmp_obj_2.text = secondWord;
                 _legends.push(_tmp_obj_2);
             }
         });
@@ -379,7 +407,7 @@ var ScatterPlots = (function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(style.size * 10).type(style.shape));
         };
-        var mouseOff = function() {
+        var mouseOff = function(d) {
             var dot = d3.select(this);
             dot.transition()
                 .ease("elastic")
@@ -387,8 +415,25 @@ var ScatterPlots = (function() {
                 .delay(100)
                 .attr("d", d3.svg.symbol().size(style.size).type(style.shape));
         };
-        elem.dotsGroup.selectAll("path").on("mouseover", mouseOn);
-        elem.dotsGroup.selectAll("path").on("mouseout", mouseOff);
+        elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseover", mouseOn);
+        elem.dotsGroup.selectAll("path").attr('pointer-events', 'all').on("mouseout", mouseOff);
+    }
+
+    function brushended() {
+        var brushedCases = [];
+        brushedCases.length = 0;
+        var extent = elem.brush.extent();
+        elem.dotsGroup.selectAll("path").each(function(d) {
+            if (d.x_val > extent[0][0] && d.x_val < extent[1][0] &&
+                d.y_val > extent[0][1] && d.y_val < extent[1][1]) {
+                //TODO: does not work with log scale applied scenario
+                $(this).attr("stroke", "red");
+                brushedCases.push(d.case_id);
+            } else {
+                $(this).attr("stroke", d.stroke);
+            }
+        });
+        updateBrushCallback(brushedCases);
     }
 
     function updatePlotsLogScale(_axis, _applyLogScale) {
@@ -459,12 +504,12 @@ var ScatterPlots = (function() {
     }
 
     return {
-        init: function(options, _dataArr, _dataAttr) {    //Init with options
+        init: function(options, _dataArr, _dataAttr, _brushOn) {    //Init with options
             initSettings(options, _dataAttr);
             convertData(_dataArr);
-            initSvgCanvas(names.body);
             initScaleX();
             initScaleY();
+            initSvgCanvas(names.body, _brushOn);
             initAxisX();
             initAxisY();
             generateAxisX();
@@ -472,8 +517,8 @@ var ScatterPlots = (function() {
             appendAxisTitleX(false);
             appendAxisTitleY(false);
             drawPlots();
-            addQtips();
             drawLegends();
+            addQtips();
         },
         // !!! Log Scale are only used by using RNA Seq Profile
         updateScaleX: function(_divName) {   //_applyLogScale: boolean, true for apply scale, false for  original value)
@@ -502,26 +547,57 @@ var ScatterPlots = (function() {
         },
         updateMutations: function(_divName, _divName_x_scale, _divName_y_scale) {
             var _showMutations = document.getElementById(_divName).checked;
-            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
-            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            
+            //Get applying log scale status
+            var _applyLogScale_x = false;
+            var _applyLogScale_y = false;
+            if(!(document.getElementById(_divName_x_scale) === null) && 
+               !(document.getElementById(_divName_y_scale) === null)) { 
+               //for studies wihtout log scale option
+                _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+                _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            }  
+
             if (_showMutations) {
                 drawPlots();
                 drawLegends();
             } else {
                 hideMutations();
             }
+            //Reapply log scale (lost during re-draw dots)
             updatePlotsLogScale("x", _applyLogScale_x);
             updatePlotsLogScale("y", _applyLogScale_y);
             addQtips();
         },
         updateTitleHelp: function(_divName_x_scale, _divName_y_scale) {
-            var _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
-            var _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            //Get applying log scale status
+            var _applyLogScale_x = false;
+            var _applyLogScale_y = false;
+            if(!(document.getElementById(_divName_x_scale) === null) && 
+               !(document.getElementById(_divName_y_scale) === null)) { 
+               //for studies wihtout log scale option
+                _applyLogScale_x = document.getElementById(_divName_x_scale).checked;
+                _applyLogScale_y = document.getElementById(_divName_y_scale).checked;
+            }  
             appendAxisTitleX(_applyLogScale_x);
             appendAxisTitleY(_applyLogScale_y);
+        },
+        jointBrushCallback: function(_refreshCallback) {
+            updateBrushCallback = _refreshCallback;
+        },
+        updateStyle: function(_datumArr) {
+            var _caseIdList = [];
+            $.each(_datumArr, function(index, obj) {
+                _caseIdList.push(_datumArr[index].case_id);
+            });
+            elem.dotsGroup.selectAll("path").each(function(d) {
+                if (_caseIdList.indexOf(d.case_id) !== -1) {
+                    var _index = _caseIdList.indexOf(d.case_id);
+                    $(this).attr("fill", _datumArr[_index].fill);
+                    $(this).attr("stroke", _datumArr[_index].fill);
+                }
+            });
         }
     }
 
 }());
-
-

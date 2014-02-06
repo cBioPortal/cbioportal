@@ -222,15 +222,16 @@ var StudyViewInitCharts = (function(){
                 yAxis: "",
                 dotsGroup: "",
                 axisGroup: "",
-                axisTitleGroup: ""
+                axisTitleGroup: "",
+                brush: ""
             },
             text: {
                 xTitle: "Fraction of copy number altered genome",
-                yTitle: "# of mutations Fraction of copy",
+                yTitle: "# of mutations",
                 title: "Mutation Count vs Copy Number Alterations",
                 fileName: "",
-                xTitleHelp: "",
-                yTitleHelp: ""
+                xTitleHelp: "Fraction of genome that has log2 copy number value above 0.2 or bellow -0.2",
+                yTitleHelp: "Number of sometic non-synonymous mutations"
             },
             legends: [{
                 fill: "#3366cc", //light blue
@@ -265,8 +266,8 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        ScatterPlots.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr);
-
+        ScatterPlots.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
+        ScatterPlots.jointBrushCallback(scatterPlotCallBack);
 
         var container = document.querySelector('#study-view-charts');
         var msnry = new Masonry( container, {
@@ -585,7 +586,6 @@ var StudyViewInitCharts = (function(){
             $("#study-view-dc-chart-" + _chartID).attr({value: _selectedAttr + "," + _selectedAttrDisplay + ",pie",class:_className});
         }else if(_selectedAttr === 'CASE_ID'){
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie' style='display:none'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
-            console.log(_chartID);
         }else
             $("#study-view-charts").append("<div id=\"study-view-dc-chart-" + _chartID + "\" class='" + _className + "'  value='"+ _selectedAttr + "," + _selectedAttrDisplay + ",pie'><div style='width:100%; float:left'><pieH4>" + _selectedAttrDisplay + "<a class='reset' href='javascript:varChart[" + _chartID + "].filterAll();dc.redrawAll();' style='display: none;'>  reset</a></pieH4><span class='study-view-dc-chart-delete'>x</span><img src='images/more_12px.jpg' title='Change Chart Type' class='study-view-dc-chart-change'></img></div></div>");
         
@@ -727,9 +727,8 @@ var StudyViewInitCharts = (function(){
             .margins({top: 10, right: 10, bottom: 30, left: 40})
             .dimension(varCluster[_chartID])
             .group(varGroup[_chartID])
-            .gap(5)
             .centerBar(true)
-            .elasticY(false)
+            .elasticY(true)
             .mouseZoomable(false)
             .brushOn(true)
             .transitionDuration(1200)
@@ -1000,6 +999,25 @@ var StudyViewInitCharts = (function(){
         $(".dataTables_scroll").css("overflow-x","scroll");
         $(".DTFC_LeftHeadWrapper").css("background-color","white");
     }
+    
+    function scatterPlotCallBack(_brushedCaseIds) {
+        /*
+        var dataTable1 = $("#dataTable").dataTable();
+        var filteredResult = _brushedCaseIds;
+        var filterString = "";
+        for(var i=0 ; i<filteredResult.length ; i++){
+            filterString += filteredResult[i].CASE_ID + '|';
+        }
+        filterString = filterString.substr(0,filterString.length-1);
+        dataTable1.fnFilter(filterString,0,true);
+        */
+        if(_brushedCaseIds.length > 0){
+            varChart[attrNameMapUID['CASE_ID']].filterAll();
+            varChart[attrNameMapUID['CASE_ID']].filter([_brushedCaseIds]);
+            dc.redrawAll();
+        }
+    }
+    
     return {
         init: function(o,data){
             initParameters(o);

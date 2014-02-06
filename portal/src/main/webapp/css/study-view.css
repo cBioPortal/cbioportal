@@ -181,10 +181,9 @@ pieH3{
 }
 .dc-chart .axis {
     fill:none;
-    stroke:grey;
-    stroke-width:1.5px;
-    font-size:10px;
-    stroke-opacity:0.8
+    stroke:black;
+    stroke-width:1px;
+    font-size:9px;
 }
 .study-view-bar-chart {
     float:left;
@@ -220,7 +219,7 @@ pieH3{
     font-size: 10px;
     cursor: pointer;
     stroke:white;
-    stroke-width:0.5px;
+    stroke-width:1px;
 }
 .dc-chart .pie-slice :hover {
     fill-opacity: .8;
@@ -272,6 +271,13 @@ pieH3{
 .study-view-header-button:hover:disabled{
     cursor: default;
 }
+.brush .extent {
+    stroke: #fff;
+    fill-opacity: .125;
+    shape-rendering: crispEdges;
+    z-index: -1;
+} 
+
 /* tag styles */
 ul {
     list-style-type: none;

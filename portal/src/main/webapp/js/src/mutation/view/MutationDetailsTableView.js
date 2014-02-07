@@ -4,7 +4,6 @@
  * options: {el: [target container],
  *           model: {mutations: [mutation data as an array of JSON objects],
  *                   geneSymbol: [hugo gene symbol as a string],
- *                   syncFn: sync function for outside sources,
  *                   tableOpts: [mutation table options -- optional]}
  *          }
  *
@@ -80,9 +79,6 @@ var MutationDetailsTableView = Backbone.View.extend({
 			self.model.geneSymbol,
 			self.model.mutations,
 			self.model.tableOpts);
-
-		// add a callback function for sync purposes
-		tableUtil.registerCallback(self.model.syncFn);
 
 		// format the table (convert to a DataTable)
 		tableUtil.formatTable();

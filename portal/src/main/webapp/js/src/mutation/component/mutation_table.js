@@ -73,8 +73,9 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	var _mutationUtil = new MutationDetailsUtil(
 		new MutationCollection(mutations));
 
-	// a list of registered callback functions
-	var _callbackFunctions = [];
+	// custom event dispatcher
+	var _dispatcher = {};
+	_.extend(_dispatcher, Backbone.Events);
 
 	// flag used to switch callbacks on/off
 	var _callbackActive = true;
@@ -316,19 +317,18 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 
 		        var currSearch = oSettings.oPreviousSearch.sSearch;
 
-		        // call the functions only if the corresponding flag is set
+		        // trigger the event only if the corresponding flag is set
 		        // and there is a change in the search term
 		        if (_callbackActive &&
 		            _prevSearch != currSearch)
 		        {
-			        // call registered callback functions
-			        for (var i=0; i < _callbackFunctions.length; i++)
-			        {
-				        _callbackFunctions[i](tableSelector);
-			        }
+			        // trigger corresponding event
+			        _dispatcher.trigger(
+				        MutationDetailsEvents.MUTATION_TABLE_FILTERED,
+				        tableSelector);
 
-			        // assuming callbacks are active for only manual filtering
-			        // so update manual search string only if callbacks are active
+			        // assuming events are active for only manual filtering
+			        // so update manual search string only after triggering the event
 			        _manualSearch = currSearch;
 		        }
 
@@ -796,37 +796,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	};
 
 	/**
-	 * Registers a callback function which is to be called
-	 * for each rendering of the table.
-	 *
-	 * @param callbackFn    function to register
-	 */
-	this.registerCallback = function(callbackFn)
-	{
-		if (_.isFunction(callbackFn))
-		{
-			_callbackFunctions.push(callbackFn);
-		}
-	};
-
-	/**
-	 * Removes a previously registered callback function.
-	 *
-	 * @param callbackFn    function to unregister
-	 */
-	this.unregisterCallback = function(callbackFn)
-	{
-		var index = $.inArray(callbackFn);
-
-		// remove the function at the specified index
-		if (index >= 0)
-		{
-			_callbackFunctions.splice(index, 1);
-		}
-	};
-
-	/**
-	 * Enables/disables callback functions.
+	 * Enables/disables callback functions (event triggering).
 	 *
 	 * @param active    boolean value
 	 */
@@ -849,4 +819,6 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	{
 		return _manualSearch;
 	};
+
+	this.dispatcher = _dispatcher;
 };

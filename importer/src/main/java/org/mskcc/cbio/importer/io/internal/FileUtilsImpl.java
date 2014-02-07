@@ -29,20 +29,10 @@
 package org.mskcc.cbio.importer.io.internal;
 
 // imports
-import org.mskcc.cbio.importer.Config;
-import org.mskcc.cbio.importer.CaseIDs;
-import org.mskcc.cbio.importer.FileUtils;
-import org.mskcc.cbio.importer.Converter;
-import org.mskcc.cbio.importer.model.ImportDataRecord;
-import org.mskcc.cbio.importer.model.PortalMetadata;
-import org.mskcc.cbio.importer.model.DataMatrix;
-import org.mskcc.cbio.importer.model.DatatypeMetadata;
-import org.mskcc.cbio.importer.model.CaseListMetadata;
-import org.mskcc.cbio.portal.scripts.NormalizeExpressionLevels;
-import org.mskcc.cbio.importer.model.CancerStudyMetadata;
-import org.mskcc.cbio.importer.model.DataSourcesMetadata;
-import org.mskcc.cbio.importer.util.MetadataUtils;
-import org.mskcc.cbio.importer.util.Shell;
+import org.mskcc.cbio.importer.*;
+import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.scripts.*;
+import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.importer.converter.internal.MethylationConverterImpl;
 
 import org.mskcc.cbio.liftover.Hg18ToHg19;
@@ -62,11 +52,7 @@ import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 
 import org.springframework.beans.factory.annotation.Value;
 
-import java.io.File;
-import java.io.PrintWriter;
-import java.io.InputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.*;
 
 import java.net.URL;
 import java.util.*;
@@ -706,8 +692,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 																   stagingFilename);
 
 		// call oncotateAF
-		oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-					FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
+		oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+					org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + stagingFile.getCanonicalPath());
 
 		// clean up
 		if (oncotatorInputFile.exists()) {
@@ -877,8 +863,8 @@ class FileUtilsImpl implements org.mskcc.cbio.importer.FileUtils {
 														""+System.currentTimeMillis()+".oncotatorInputFile");
 			org.apache.commons.io.FileUtils.copyFile(maf, oncotatorInputFile);
 			// input is tmp file we just created, we want output to go into the original maf
-			oncotateMAF(FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
-						FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
+			oncotateMAF(org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + oncotatorInputFile.getCanonicalPath(),
+						org.mskcc.cbio.importer.FileUtils.FILE_URL_PREFIX + maf.getCanonicalPath());
 			// clean up
 			org.apache.commons.io.FileUtils.forceDelete(oncotatorInputFile);
 		}

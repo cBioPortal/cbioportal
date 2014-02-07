@@ -1029,7 +1029,7 @@
 
                 var pancanMutationsUrl = "pancancerMutations.json";
                 $.post(pancanMutationsUrl,
-                        { cmd: "byKeywords", q: JSON.stringify(genomicEventObs.mutations.data.key)}, function(byKeywordResponse) {
+                        { cmd: "byKeywords", q: genomicEventObs.mutations.data.key.join(",") }, function(byKeywordResponse) {
 
                             function munge(response, key) {
                                 // munge data to get it into the format: keyword -> corresponding datum
@@ -1039,7 +1039,7 @@
 
                             genomicEventObs.pancan_mutation_frequencies =  munge(byKeywordResponse, "keyword");
 
-                            $.post(pancanMutationsUrl, {cmd: "byHugos", q: JSON.stringify(genomicEventObs.mutations.data.gene)}, function(byHugoResponse) {
+                            $.post(pancanMutationsUrl, {cmd: "byHugos", q: genomicEventObs.mutations.data.gene.join(",") }, function(byHugoResponse) {
 
                                 genomicEventObs.pancan_mutation_frequencies
                                         = _.extend(munge(byKeywordResponse, "keyword"), munge(byHugoResponse, "hugo"));

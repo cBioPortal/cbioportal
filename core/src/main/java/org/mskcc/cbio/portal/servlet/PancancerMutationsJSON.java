@@ -48,10 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Gideon Dresdner <dresdnerg@cbio.mskcc.org>
@@ -180,7 +177,7 @@ public class PancancerMutationsJSON extends HttpServlet {
         if (query == null || query.equals("")) {
             throw new ServletException("no q parameter provided");
         }
-        JSONArray queryTerms = (JSONArray) JSONValue.parse(query);
+	List<String> queryTerms = Arrays.asList(query.split(","));
 
         if (cmd.equals("byKeywords")) {
             try {

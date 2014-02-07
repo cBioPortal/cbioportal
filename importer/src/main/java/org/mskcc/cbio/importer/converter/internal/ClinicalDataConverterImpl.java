@@ -53,6 +53,12 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
 {
 	private static final Log LOG = LogFactory.getLog(ClinicalDataConverterImpl.class);
 
+    private static final List<String> blacklistedColumns = initializeBlacklisted();
+    private static List<String> initializeBlacklisted() {
+        String[] blacklist = { "patient_id" };
+        return Arrays.asList(blacklist);
+    }
+
 	protected Config config;
 	protected FileUtils fileUtils;
 	protected CaseIDs caseIDs;
@@ -120,6 +126,10 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 logMessage(LOG, "removeUnknownColumnsFromMatrix(), unknown clinical attribute: " +
                            externalColumnHeader + " (" + dataMatrix.getFilename() + ")");
             }
+            // tcga data has "patient_id" in addition to "bcr_patient_barcode"
+            else if (blacklistedColumns.contains(externalColumnHeader)) {
+                dataMatrix.ignoreColumn(externalColumnHeader, true);
+            }
         }
 
         return missingAttributes;
@@ -137,15 +147,15 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
                 dataMatrix.renameColumn(externalColumnHeader, attributeValue(metadata.getDisplayName()));
                 descriptions.add(attributeValue(metadata.getDescription()));
                 String datatype = attributeValue(metadata.getDatatype());
-                datatypes.add(datatype.equals(Converter.CLINICAL_DATA_PLACEHOLDER) ? Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER : datatype);
+                datatypes.add(datatype.equals(ClinicalAttribute.MISSING) ? ClinicalAttribute.DEFAULT_DATATYPE : datatype);
                 columnHeaders.add(attributeValue(metadata.getNormalizedColumnHeader()));
             }
             else {
                 // the column is ignored
                 // but we still need a correct number of rows in the column
-                descriptions.add(Converter.CLINICAL_DATA_PLACEHOLDER);
-                datatypes.add(Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER);
-                columnHeaders.add(Converter.CLINICAL_DATA_PLACEHOLDER);
+                descriptions.add(ClinicalAttribute.MISSING);
+                datatypes.add(ClinicalAttribute.DEFAULT_DATATYPE);
+                columnHeaders.add(ClinicalAttribute.MISSING);
             }
         }
 
@@ -164,6 +174,6 @@ public abstract class ClinicalDataConverterImpl extends ConverterBaseImpl implem
 
     private String attributeValue(String attribute)
     {
-        return (attribute.isEmpty()) ? Converter.CLINICAL_DATA_PLACEHOLDER : attribute;
+        return (attribute.isEmpty()) ? ClinicalAttribute.MISSING : attribute;
     }
 }

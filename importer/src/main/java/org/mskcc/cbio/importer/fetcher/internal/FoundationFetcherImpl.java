@@ -35,6 +35,7 @@ import org.mskcc.cbio.importer.util.*;
 import org.mskcc.cbio.importer.util.soap.*;
 import org.mskcc.cbio.importer.dao.ImportDataRecordDAO;
 import org.mskcc.cbio.maf.*;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -229,7 +230,7 @@ class FoundationFetcherImpl implements Fetcher
 		StringBuilder headerBuilder = new StringBuilder();
         headerBuilder.append(MetadataUtils.getClinicalMetadataHeaders(config, clinicalAttributes));
         for (String attribute : clinicalAttributes) {
-            headerBuilder.append(attribute + "\t");
+            headerBuilder.append(attribute + ImportClinicalData.DELIMITER);
         }
         String header = headerBuilder.toString().trim() + "\n";
 

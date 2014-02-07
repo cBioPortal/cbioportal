@@ -160,8 +160,6 @@ class ConverterImpl implements Converter {
 				// create cancer study metadata file
 				// note - we call this again after we compute the number of cases
 				fileUtils.writeCancerStudyMetadataFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata, -1);
-                fileUtils.writePatientListFile(portalMetadata.getStagingDirectory(), cancerStudyMetadata,
-                                               fileUtils.getPatientListFromStagingData(portalMetadata.getStagingDirectory(), cancerStudyMetadata));
 			}
 		}
 	}

@@ -75,6 +75,11 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
                 return false;
             }
         }
+
+        static public String getNotAvailable()
+        {
+            return "[" + NOT_AVAILABLE.toString() + "]";
+        }
     }
 
     private static enum VitalStatusAlive
@@ -495,11 +500,20 @@ public class TCGASurvivalDataCalculator implements SurvivalDataCalculator
 
     private DiseaseFreeData getDiseaseFreeDataForPatient(int patientIndex, DataMatrix dataMatrix)
     {
+        String value = "";
         DiseaseFreeData diseaseFreeData = new DiseaseFreeData();
 
-        diseaseFreeData.daysToNewTumorEventAfterInitialTreatment = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
-        diseaseFreeData.lastFollowUp = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
-        diseaseFreeData.lastKnownAlive = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
+        value = getValue(patientIndex, NEW_TUMOR_EVENT, dataMatrix);
+        diseaseFreeData.daysToNewTumorEventAfterInitialTreatment =
+            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
+
+        value = getValue(patientIndex, LAST_FOLLOW_UP, dataMatrix);
+        diseaseFreeData.lastFollowUp = 
+            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
+
+        value = getValue(patientIndex, LAST_KNOWN_ALIVE, dataMatrix);
+        diseaseFreeData.lastKnownAlive = 
+            (value.isEmpty()) ? MissingAttributeValues.getNotAvailable() : value;
 
         return (validDiseaseFreeData(diseaseFreeData)) ? diseaseFreeData : null;
     }

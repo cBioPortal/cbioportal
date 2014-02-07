@@ -285,14 +285,17 @@ var ScatterPlots = function() {
                 .size(style.size)
                 .type(style.shape))
             .attr("fill", function(d) {
-                if (d.fill === null || d.fill === "") {
+                if (d.fill === null || d.fill === "" || typeof d.fill === "undefined") {
+                    console.log("using style.fill");
                     return style.fill;
                 } else {
+                    console.log("using d.fill");
+                    console.log(d.fill);
                     return d.fill;
                 }
             })
             .attr("stroke", function(d) {
-                if (d.stroke === null || d.stroke === "") {
+                if (d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
                     return style.stroke;
                 } else {
                     return d.stroke;
@@ -430,6 +433,9 @@ var ScatterPlots = function() {
                 $(this).attr("stroke", "red");
                 brushedCases.push(d.case_id);
             } else {
+                if(d.stroke === null || d.stroke === "" || typeof d.stroke === "undefined") {
+                    $(this).attr("stroke", style.stroke);    
+                }
                 $(this).attr("stroke", d.stroke);
             }
         });
@@ -504,8 +510,8 @@ var ScatterPlots = function() {
     }
 
     return {
-        init: function(options, _dataArr, _dataAttr, _brushOn) {    //Init with options
-            initSettings(options, _dataAttr);
+        init: function(_options, _dataArr, _dataAttr, _brushOn) {    //Init with options
+            initSettings(_options, _dataAttr);
             convertData(_dataArr);
             initScaleX();
             initScaleY();
@@ -598,17 +604,7 @@ var ScatterPlots = function() {
                 }
             });
         },
-        loadSvg: function(_divName, _divName_x_scale, _divName_y_scale) {
-           //Remove the help icons
-            var elem_x_help = $("#" + _divName + " .plots-title-x-help").remove();
-            var elem_y_help = $("#" + _divName + " .plots-title-y-help").remove();
-            //extract the "clean" svg
-            var result = $("#" + _divName).html();
-            //Add help icons back on
-            updateTitleHelp(_divName_x_scale, _divName_y_scale);
-            return result;
 
-        }
     }
 }
 

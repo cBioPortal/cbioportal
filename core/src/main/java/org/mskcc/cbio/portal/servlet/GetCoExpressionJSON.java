@@ -56,7 +56,7 @@ import org.mskcc.cbio.portal.util.CoExpUtil;
 public class GetCoExpressionJSON extends HttpServlet  {
 
     private double coExpScoreThreshold = 0.3;
-    private int resultLength = 250;
+    //private int resultLength = 250;
 
     /**
      * Handles HTTP GET Request.
@@ -112,23 +112,27 @@ public class GetCoExpressionJSON extends HttpServlet  {
                            (compared_gene_id != queryGeneId)){
                             //Only calculate spearman with high scored pearson gene pairs.
                             double spearman = spearmansCorrelation.correlation(query_gene_exp, compared_gene_exp);
-                            CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
-                            JSONObject _scores = new JSONObject();
-                            _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
-                            _scores.put("pearson", pearson);
-                            _scores.put("spearman", spearman);
-                            fullResultJson.add(_scores);
+                            if (spearman >= coExpScoreThreshold || spearman <= (-1) * coExpScoreThreshold) {
+                              CanonicalGene comparedGene = daoGeneOptimized.getGene(compared_gene_id);
+                              JSONObject _scores = new JSONObject();
+                              _scores.put("gene", comparedGene.getHugoGeneSymbolAllCaps());
+                              _scores.put("pearson", pearson);
+                              _scores.put("spearman", spearman);
+                              fullResultJson.add(_scores);                             
+                            }
+
                         }
                     }
                 }
                 fullResultJson = CoExpUtil.sortJsonArr(fullResultJson, "pearson");
-                int _len = (fullResultJson.size() > resultLength ? resultLength : fullResultJson.size());
-                for (int i = 0; i < _len; i++) {
-                    resultJson.add(fullResultJson.get(i));
-                }
+                //int _len = (fullResultJson.size() > resultLength ? resultLength : fullResultJson.size());
+                //for (int i = 0; i < _len; i++) {
+                //    resultJson.add(fullResultJson.get(i));
+                //}
                 httpServletResponse.setContentType("application/json");
                 PrintWriter out = httpServletResponse.getWriter();
-                JSONValue.writeJSONString(resultJson, out);
+                //JSONValue.writeJSONString(resultJson, out);
+                JSONValue.writeJSONString(fullResultJson, out);
             } catch (DaoException e) {
                 System.out.println(e.getMessage());
             }

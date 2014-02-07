@@ -226,7 +226,12 @@ class FoundationFetcherImpl implements Fetcher
 
 	protected File generateClinicalDataFile(StringBuilder content) throws Exception
 	{
-		String header = MetadataUtils.getClinicalDataHeader(config, clinicalAttributes);
+		StringBuilder headerBuilder = new StringBuilder();
+        headerBuilder.append(MetadataUtils.getClinicalMetadataHeaders(config, clinicalAttributes));
+        for (String attribute : clinicalAttributes) {
+            headerBuilder.append(attribute + "\t");
+        }
+        String header = headerBuilder.toString().trim() + "\n";
 
 		File clinicalFile = fileUtils.createFileWithContents(
 			dataSourceMetadata.getDownloadDirectory() + File.separator +

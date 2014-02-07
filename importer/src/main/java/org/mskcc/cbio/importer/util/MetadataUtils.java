@@ -101,7 +101,7 @@ public class MetadataUtils {
 		return toReturn;
 	}
 
-    public static String getClinicalDataHeader(Config config, List<String> normalizedColumnHeaderNames) throws Exception
+    public static String getClinicalMetadataHeaders(Config config, List<String> normalizedColumnHeaderNames) throws Exception
     {
 		StringBuilder clinicalDataHeader = new StringBuilder();
         Map<String, ClinicalAttributesMetadata> clinicalAttributesMetadata = getClinicalAttributesMetadata(config, normalizedColumnHeaderNames);
@@ -109,9 +109,7 @@ public class MetadataUtils {
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDisplayName"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
-        for (String columnHeader : normalizedColumnHeaderNames) {
-            clinicalDataHeader.append(columnHeader + "\t");
-        }
+
         return clinicalDataHeader.toString().trim() + "\n";
     }
 

@@ -153,6 +153,9 @@ public class ImportTabDelimData {
         
         if (discritizedCnaProfile) {
             existingCnaEvents = new HashMap<CnaEvent.Event, CnaEvent.Event>();
+            for (CnaEvent.Event event : DaoCnaEvent.getAllCnaEvents()) {
+                existingCnaEvents.put(event, event);
+            }
             cnaEventId = DaoCnaEvent.getLargestCnaEventId();
             MySQLbulkLoader.bulkLoadOn();
         }
@@ -261,6 +264,7 @@ public class ImportTabDelimData {
                                             } else {
                                                 cnaEvent.setEventId(++cnaEventId);
                                                 DaoCnaEvent.addCaseCnaEvent(cnaEvent, true);
+                                                existingCnaEvents.put(cnaEvent.getEvent(), cnaEvent.getEvent());
                                             }
                                         }
                                     }

@@ -298,6 +298,7 @@ var MutationTable = function(tableSelector, gene, mutations, options)
 	            {"sType": 'predicted-impact-col',
 	                "aTargets": [indexMap["fis"]]},
 		        {"sType": 'copy-number-col',
+			        "sClass": "center-align-td",
 			        "aTargets": [indexMap["copy #"]]},
 	            {"asSorting": ["desc", "asc"],
 	                "aTargets": [indexMap["cosmic"],

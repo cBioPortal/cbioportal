@@ -3,6 +3,8 @@
  *
  * This model is designed to represent multiple mutations at the same
  * position. This is intended to be used for mutation diagram.
+ *
+ * @author Selcuk Onur Sumer
  */
 var Pileup = Backbone.Model.extend({
 	initialize: function(attributes) {

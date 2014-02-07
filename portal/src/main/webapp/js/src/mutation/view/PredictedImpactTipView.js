@@ -5,6 +5,8 @@
  *           model: {xvia: [link to Mutation Assessor],
  *                   impact: [impact text or value]}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PredictedImpactTipView = Backbone.View.extend({
 	render: function()

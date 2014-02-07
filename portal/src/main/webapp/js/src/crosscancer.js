@@ -30,8 +30,8 @@
 	// TODO 3d Visualizer should be initialized before document get ready
 	// ...due to incompatible Jmol initialization behavior
 	var _mut3dVis = null;
-	//_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
-	//_mut3dVis.init();
+	_mut3dVis = new Mutation3dVis("crossCancer3dView", {});
+	_mut3dVis.init();
 
 	// Prepare eveything only if the page is ready to load
     $(function(){
@@ -819,6 +819,11 @@
                                 redrawHistogram();
                             });
 
+			    // By default hide unaltered studies and animate this to warn user about this change
+			    if( $("#histogram-remove-notaltered").trigger("click") ) {
+                                setTimeout(redrawHistogram, 3000);
+			    }
+
                             // Let's load the mutation details as well
                             var servletParams = {
                                 data_priority: priority
@@ -1069,7 +1074,7 @@
                     model: {
                         tab: tab,
                         priority: priority,
-                        genes: genes
+                        genes: genes.replace(/_/g, "/")
                     }
                 })).render();
             }

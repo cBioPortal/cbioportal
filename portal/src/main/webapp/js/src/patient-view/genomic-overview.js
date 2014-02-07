@@ -138,19 +138,19 @@ function plotMuts(p,config,chmInfo,row,mutations,caseId) {
         numMut++;
     }
     
-    var maxCount = 0;
-    for (var i in pixelMap) {
-        var arr = pixelMap[i];
-        if (arr && arr.length>maxCount)
-            maxCount=arr.length;
-    }
+    var maxCount = 5; // set max height to 5 mutations
+//    for (var i in pixelMap) {
+//        var arr = pixelMap[i];
+//        if (arr && arr.length>maxCount)
+//            maxCount=arr.length;
+//    }
     
     var yRow = config.yRow(row)+config.rowHeight;
     for (var i in pixelMap) {
         var arr = pixelMap[i];
         var pixil = parseInt(i);
         if (arr) {
-            var h = config.rowHeight*arr.length/maxCount;
+            var h = arr.length>maxCount ? config.rowHeight : (config.rowHeight*arr.length/maxCount);
             var r = p.rect(pixil,yRow-h,config.pixelsPerBinMut,h);
             r.attr("fill","#0f0");
             r.attr("stroke", "#0f0");
@@ -233,7 +233,7 @@ function plotCnSegs(p,config,chmInfo,row,segs,chrCol,startCol,endCol,segCol,case
     
     var label = genomeMeasured===0 ? 'N/A' : (100*genomeAltered/genomeMeasured).toFixed(1)+'%';
     var tip = genomeMeasured===0 ? 'Copy number segment data not available' : 
-                ("Percentage of copy number altered chromosome regions (mean copy number log vaule >0.2 or <-0.2) out of measured regions.");
+                ("Percentage of copy number altered chromosome regions (mean copy number log value >0.2 or <-0.2) out of measured regions.");
     
     var t = p.text(config.xRightText(),yRow+config.rowHeight/2,label).attr({'text-anchor': 'start','font-weight': 'bold'});
     underlineText(t,p);

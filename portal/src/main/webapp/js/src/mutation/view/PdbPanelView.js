@@ -10,6 +10,8 @@
  *           mut3dVisView: [optional] reference to the Mutation3dVisView instance,
  *           diagram: [optional] reference to the MutationDiagram instance
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var PdbPanelView = Backbone.View.extend({
 	initialize : function (options) {
@@ -106,10 +108,10 @@ var PdbPanelView = Backbone.View.extend({
 			return color;
 		};
 
-		vis.options.mut3dVis.updateOptions({mutationColor: colorMapper});
+		vis.options.mut3dVis.updateOptions({mutationColorMapper: colorMapper});
 
-		// update the view with default chain
-		vis.updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
+		// update the view with the default chain
+		self._updateView(gene, defaultDatum.pdbId, defaultDatum.chain);
 	},
 	/**
 	 * Initializes the PDB chain panel.
@@ -145,7 +147,7 @@ var PdbPanelView = Backbone.View.extend({
 			{
 				panel.addListener(".pdb-chain-group", "click", function(datum, index) {
 					// update view with the selected chain data
-					vis.updateView(gene, datum.pdbId, datum.chain);
+					self._updateView(gene, datum.pdbId, datum.chain);
 					// also highlight the selected chain on the pdb panel
 					panel.highlight(d3.select(this));
 				});
@@ -153,5 +155,45 @@ var PdbPanelView = Backbone.View.extend({
 		}
 
 		return panel;
+	},
+	/**
+	 * Updates the view for the given gene symbol, pdb id, and chain.
+	 *
+	 * This function is intended to solve the focusing problem upon
+	 * chain selection or initial 3D vis load.
+	 *
+	 * @param gene
+	 * @param pdbId
+	 * @param chain
+	 * @private
+	 */
+	_updateView: function(gene, pdbId, chain)
+	{
+		var self = this;
+		var vis = self.options.mut3dVisView;
+		var diagram = self.options.diagram;
+
+		// TODO ideally, we should queue every script call in JSmolWrapper,
+		// ...and send request to the frame one by one, but it is complicated
+
+		// calling another script immediately after updating the view
+		// does not work, so register a callback for update function
+		var callback = function() {
+			// focus view on already selected diagram location
+			if (diagram.isHighlighted())
+			{
+				var selected = diagram.getSelectedElements();
+
+				// TODO assuming there is only one selected element
+				// ... we need to update this part for multiple selection
+				if (!vis.highlightView(selected[0].datum(), true))
+				{
+					vis.showResidueWarning();
+				}
+			}
+		};
+
+		// update view with the selected chain data
+		vis.updateView(gene, pdbId, chain, callback);
 	}
 });

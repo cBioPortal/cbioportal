@@ -1,8 +1,13 @@
+/**
+ * PDB Chain Model.
+ *
+ * @author Selcuk Onur Sumer
+ */
 var PdbChainModel = Backbone.Model.extend({
 	initialize: function(attributes) {
 		// chain id (A, B, C, X, etc.)
 		this.chainId = attributes.chainId;
-		//  map of (uniprot position, pdb position) pairs
+		//  map of (mutation id, pdb position) pairs
 		this.positionMap = attributes.positionMap;
 		// collection of PdbAlignmentModel instances
 		this.alignments = new PdbAlignmentCollection(attributes.alignments);

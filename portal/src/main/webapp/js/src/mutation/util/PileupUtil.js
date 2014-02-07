@@ -1,5 +1,7 @@
 /**
  * Singleton utility class for pileup related tasks.
+ *
+ * @author Selcuk Onur Sumer
  */
 var PileupUtil = (function()
 {
@@ -69,8 +71,7 @@ var PileupUtil = (function()
 	 */
 	var generateTypeGroupArray = function (pileup)
 	{
-		// TODO a very similar mapping is also used in the mutation table view
-		// ...it might be better to merge these two mappings to avoid duplication
+		// TODO get the map from MutationViewsUtil class
 		var typeToGroupMap = {
 			missense_mutation: "missense_mutation",
 			nonsense_mutation: "trunc_mutation",

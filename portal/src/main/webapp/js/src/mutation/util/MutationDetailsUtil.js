@@ -3,6 +3,8 @@
  *
  * @param mutations     [optional] a MutationCollection instance
  * @constructor
+ *
+ * @author Selcuk Onur Sumer
  */
 var MutationDetailsUtil = function(mutations)
 {

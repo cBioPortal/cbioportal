@@ -6,6 +6,8 @@
  *                   chainId: String,
  *                   pdbInfo: String}
  *          }
+ *
+ * @author Selcuk Onur Sumer
  */
 var Mutation3dVisInfoView = Backbone.View.extend({
 	render: function()
@@ -34,5 +36,35 @@ var Mutation3dVisInfoView = Backbone.View.extend({
 		{
 			self.$el.find(".mutation-3d-pdb-info").hide();
 		}
+		else
+		{
+			// make information text expandable/collapsible
+			self._addExpander();
+		}
+	},
+	/**
+	 * Applies expander plugin to the PDB info area. The options are
+	 * optimized to have at most 2 lines of PDB description at init.
+	 */
+	_addExpander: function()
+	{
+		var self = this;
+
+		var expanderOpts = {slicePoint: 80, // default is 100
+			widow: 2,
+			expandPrefix: ' ',
+			expandText: '[...]',
+			//collapseTimer: 5000, // default is 0, so no re-collapsing
+			userCollapseText: '[^]',
+			moreClass: 'expander-read-more',
+			lessClass: 'expander-read-less',
+			detailClass: 'expander-details',
+			// do not use default effects
+			// (see https://github.com/kswedberg/jquery-expander/issues/46)
+			expandEffect: 'fadeIn',
+			collapseEffect: 'fadeOut'};
+
+		//self.$el.find(".mutation-3d-info-main").expander(expanderOpts);
+		self.$el.find(".mutation-3d-pdb-info").expander(expanderOpts);
 	}
 });

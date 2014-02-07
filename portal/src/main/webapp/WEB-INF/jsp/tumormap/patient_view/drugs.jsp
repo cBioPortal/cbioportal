@@ -184,7 +184,7 @@
                             + '</tr>'
                         );
 
-                        drugMap[drug[2]] = drug[0];
+                        drugMap[drug[2].toLowerCase()] = drug[0];
                         keywords.push(drug[2]);
                     }
 
@@ -284,7 +284,7 @@
                     // Add tooltips to the drug-keywords
                     $(".highlight").each(function(idx) {
                         var drugName = $(this).text();
-                        var drugId = drugMap[drugName];
+                        var drugId = drugMap[drugName.toLowerCase()];
                         if(drugId != undefined) {
                             $(this).attr("alt", drugId);
                         }

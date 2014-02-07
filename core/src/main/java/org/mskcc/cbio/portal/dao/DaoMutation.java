@@ -1046,30 +1046,6 @@ public final class DaoMutation {
             JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
         }
     }
-
-    public static Set<Long> getMutatedGenesForACase(String caseId, int profileId) throws DaoException {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        try {
-            con = JdbcUtil.getDbConnection(DaoMutation.class);
-            String sql = "SELECT DISTINCT ENTREZ_GENE_ID"
-                    + " FROM mutation"
-                    + " AND CASE_ID='" + caseId + "'";
-            pstmt = con.prepareStatement(sql);
-            
-            Set<Long> set = new HashSet<Long>();
-            rs = pstmt.executeQuery();
-            while (rs.next()) {
-                set.add(rs.getLong(1));
-            }
-            return set;
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        } finally {
-            JdbcUtil.closeAll(DaoMutation.class, con, pstmt, rs);
-        }
-    }
     
     public static Set<Long> getGenesOfMutations(
             Collection<Long> eventIds, int profileId) throws DaoException {

@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.mskcc.cbio.portal.dao.*;
@@ -34,7 +35,6 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.util.XDebug;
 import org.mskcc.cbio.portal.web_api.ConnectionManager;
 import org.mskcc.cbio.portal.web_api.ProtocolException;
-import org.owasp.validator.html.PolicyException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -71,8 +71,6 @@ public class PatientView extends HttpServlet {
     public static final String DRUG_TYPE_CANCER_DRUG = "cancer_drug";
     public static final String DRUG_TYPE_FDA_ONLY = "fda_approved";
     
-    private ServletXssUtil servletXssUtil;
-    
     // class which process access control to cancer studies
     private AccessControl accessControl;
 
@@ -93,14 +91,10 @@ public class PatientView extends HttpServlet {
     @Override
     public void init() throws ServletException {
         super.init();
-        try {
-            servletXssUtil = ServletXssUtil.getInstance();
-                        ApplicationContext context = 
-                                new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
-                        accessControl = (AccessControl)context.getBean("accessControl");
-        } catch (PolicyException e) {
-            throw new ServletException (e);
-        }
+
+	    ApplicationContext context =
+			    new ClassPathXmlApplicationContext("classpath:applicationContext-security.xml");
+	    accessControl = (AccessControl)context.getBean("accessControl");
     }
     
     /** 
@@ -337,15 +331,6 @@ public class PatientView extends HttpServlet {
         }
     }
     
-    private Map<String,ClinicalData> getClinicalFreeform(int cancerStudyId, String patient) throws DaoException {
-        List<ClinicalData> list = DaoClinicalData.getCasesById(cancerStudyId, patient);
-        Map<String,ClinicalData> map = new HashMap<String,ClinicalData>(list.size());
-        for (ClinicalData cff : list) {
-            map.put(cff.getAttrId().toLowerCase(), cff);
-        }
-        return map;
-    }
-    
     private String getTissueImageIframeUrl(String cancerStudyId, String caseId) {
         if (!caseId.toUpperCase().startsWith("TCGA-")) {
             return null;
@@ -353,9 +338,9 @@ public class PatientView extends HttpServlet {
         
         // test if images exist for the case
         String metaUrl = GlobalProperties.getDigitalSlideArchiveMetaUrl(caseId);
-        MultiThreadedHttpConnectionManager connectionManager =
-                    ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
+        
+        HttpClient client = ConnectionManager.getHttpClient(5000);
+
         GetMethod method = new GetMethod(metaUrl);
 
         Pattern p = Pattern.compile("<data total_count='([0-9]+)'>");
@@ -397,7 +382,6 @@ public class PatientView extends HttpServlet {
         Map<String,String> map = pathologyReports.get(typeOfCancer);
         if (map==null) {
             map = new HashMap<String,String>();
-            pathologyReports.put(typeOfCancer, map);
             
             String pathReportUrl = GlobalProperties.getTCGAPathReportUrl(typeOfCancer);
             if (pathReportUrl!=null) {
@@ -421,16 +405,15 @@ public class PatientView extends HttpServlet {
                     }
                 }
             }
-
+            
+            pathologyReports.put(typeOfCancer, map);
         }
         
         return map.get(caseId);
     }
     
     private static List<String> extractLinksByPattern(String reportsUrl, Pattern p) {
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
+        HttpClient client = ConnectionManager.getHttpClient(5000);
         GetMethod method = new GetMethod(reportsUrl);
         try {
             int statusCode = client.executeMethod(method);

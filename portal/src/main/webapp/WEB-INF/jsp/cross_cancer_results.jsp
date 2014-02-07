@@ -1,10 +1,12 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
+<%@ page import="org.mskcc.cbio.portal.util.XssRequestWrapper" %>
 
 <%
     String siteTitle = GlobalProperties.getTitle();
     request.setAttribute(QueryBuilder.HTML_TITLE, siteTitle);
+	ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
 
     // Get priority settings
     Integer dataPriority;
@@ -14,8 +16,17 @@
     } catch (Exception e) {
         dataPriority = 0;
     }
-    ServletXssUtil servletXssUtil = ServletXssUtil.getInstance();
-    String geneList = servletXssUtil.getCleanInput(request, QueryBuilder.GENE_LIST).replaceAll("\n", " ");
+
+	String geneList = request.getParameter(QueryBuilder.GENE_LIST);
+
+	// we need the raw gene list
+	if (request instanceof XssRequestWrapper)
+	{
+		geneList = ((XssRequestWrapper)request).getRawParameter(QueryBuilder.GENE_LIST);
+	}
+
+	geneList = geneList.replaceAll("\n", " ").replaceAll("\r", "").replaceAll("/", "_");
+	geneList = servletXssUtil.getCleanerInput(geneList);
 
     String bitlyUser = GlobalProperties.getBitlyUser();
     String bitlyKey = GlobalProperties.getBitlyApiKey();
@@ -24,10 +35,10 @@
 <jsp:include page="global/header.jsp" flush="true"/>
 
 <!-- for now, let's include these guys here and prevent clashes with the rest of the portal -->
-<script type="text/javascript" src="js/src/mutation_model.js"></script>
 <script type="text/javascript" src="js/src/crosscancer.js"></script>
 <link href="css/data_table_ColVis.css" type="text/css" rel="stylesheet" />
 <link href="css/data_table_jui.css" type="text/css" rel="stylesheet" />
+<link href="css/mutation_details.css" type="text/css" rel="stylesheet" />
 <link href="css/crosscancer.css" type="text/css" rel="stylesheet" />
 
 <%
@@ -212,28 +223,28 @@
             </p>
             <table class="cc-tip-table">
                 <thead>
-                    <tr>
-                        <th>Alteration</th>
-                        <th>Frequency</th>
-                    </tr>
+                <tr>
+                    <th>Alteration</th>
+                    <th>Frequency</th>
+                </tr>
                 </thead>
                 <tbody>
-                    <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Mutation</td>
-                        <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Deletion</td>
-                        <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Amplification</td>
-                        <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
-                    </tr>
-                    <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
-                        <td class="cc-alt-type">Multiple alterations</td>
-                        <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
-                    </tr>
+                <tr class='{{ mutationCount > 0 ? "cc-mutation" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Mutation</td>
+                    <td>{{mutationFrequency}}% ({{mutationCount}} cases)</td>
+                </tr>
+                <tr class='{{ deletionCount > 0 ? "cc-del" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Deletion</td>
+                    <td>{{deletionFrequency}}% ({{deletionCount}} cases)</td>
+                </tr>
+                <tr class='{{ amplificationCount > 0 ? "cc-amp" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Amplification</td>
+                    <td>{{amplificationFrequency}}% ({{amplificationCount}} cases)</td>
+                </tr>
+                <tr class='{{ multipleCount > 0 ? "cc-mtpl" : "cc-hide"}}'>
+                    <td class="cc-alt-type">Multiple alterations</td>
+                    <td>{{multipleFrequency}}% ({{multipleCount}} cases)</td>
+                </tr>
                 </tbody>
             </table>
 

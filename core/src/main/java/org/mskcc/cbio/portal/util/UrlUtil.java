@@ -29,6 +29,8 @@ package org.mskcc.cbio.portal.util;
 
 import org.mskcc.cbio.portal.dao.DaoException;
 import org.mskcc.cbio.portal.servlet.QueryBuilder;
+import org.mskcc.cbio.portal.servlet.ServletXssUtil;
+import org.owasp.validator.html.PolicyException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
@@ -81,7 +83,14 @@ public class UrlUtil {
         Enumeration paramEnum = request.getParameterNames();
         StringBuffer buf = new StringBuffer(request.getAttribute
                 (QueryBuilder.ATTRIBUTE_URL_BEFORE_FORWARDING) + "?");
-        
+	    ServletXssUtil xssUtil = null;
+
+	    try {
+		    xssUtil = ServletXssUtil.getInstance();
+	    } catch (PolicyException e) {
+		    //logger.error("Could not instantiate XSS Util:  " + e.toString());
+	    }
+
         while (paramEnum.hasMoreElements())
         {
             String paramName = (String) paramEnum.nextElement();
@@ -92,7 +101,7 @@ public class UrlUtil {
                 for (int i=0; i<values.length; i++)
                 {
                     String currentValue = values[i];
-                    
+
                     if (paramName.equals(QueryBuilder.GENE_LIST)
                         && currentValue != null)
                     {
@@ -114,7 +123,13 @@ public class UrlUtil {
                     		currentValue = CaseSetUtil.shortenCaseIds(currentValue);
                     	}
                     }
-                    
+
+	                // TODO remove and test...
+	                if (xssUtil != null)
+	                {
+		                currentValue = xssUtil.getCleanerInput(currentValue);
+	                }
+
                     buf.append(paramName + "=" + currentValue + "&");
                 }
             }

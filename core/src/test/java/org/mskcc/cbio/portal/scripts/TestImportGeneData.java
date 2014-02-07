@@ -28,6 +28,7 @@
 package org.mskcc.cbio.portal.scripts;
 
 import junit.framework.TestCase;
+import org.mskcc.cbio.portal.util.GlobalProperties;
 import org.mskcc.cbio.portal.dao.DaoGeneOptimized;
 import org.mskcc.cbio.portal.model.CanonicalGene;
 import org.mskcc.cbio.portal.scripts.ImportGeneData;
@@ -41,21 +42,34 @@ import java.io.File;
  */
 public class TestImportGeneData extends TestCase {
 
+    private static String geneDataFilename = initializeGeneDataFilename();
+    private static String initializeGeneDataFilename()
+    {
+        String home = System.getenv(GlobalProperties.HOME_DIR);
+        return (home != null) ? 
+            home + File.separator + "core/target/test-classes/genes_test.txt" : null;
+    }
+
     public void testImportGeneData() throws Exception {
         ResetDatabase.resetDatabase();
         DaoGeneOptimized daoGene = DaoGeneOptimized.getInstance();
         ProgressMonitor pMonitor = new ProgressMonitor();
         pMonitor.setConsoleMode(false);
 		// TBD: change this to use getResourceAsStream()
-        File file = new File("target/test-classes/genes_test.txt");
-        ImportGeneData.importData(pMonitor, file);
+        if (geneDataFilename != null) {
+            File file = new File(geneDataFilename);
+            ImportGeneData.importData(pMonitor, file);
 
-        CanonicalGene gene = daoGene.getGene(10);
-        assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
-        gene = daoGene.getGene(15);
-        assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
+            CanonicalGene gene = daoGene.getGene(10);
+            assertEquals("NAT2", gene.getHugoGeneSymbolAllCaps());
+            gene = daoGene.getGene(15);
+            assertEquals("AANAT", gene.getHugoGeneSymbolAllCaps());
 
-        gene = daoGene.getGene("ABCA3");
-        assertEquals(21, gene.getEntrezGeneId());
+            gene = daoGene.getGene("ABCA3");
+            assertEquals(21, gene.getEntrezGeneId());
+        }
+        else {
+            throw new IllegalArgumentException("Cannot find test gene file, is PORTAL_HOME set?");
+        }
     }
 }

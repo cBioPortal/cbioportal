@@ -42,7 +42,8 @@ var Plots = (function(){
             genetic_profile_rppa : [],
             genetic_profile_dna_methylation : []
         },
-        genetic_profiles = {};
+        genetic_profiles = {}
+        log_scale_threshold = 0.17677669529;  // 2 to the -2.5
 
     function getGeneticProfileCallback(result) {
         for (var gene in result) {
@@ -71,12 +72,13 @@ var Plots = (function(){
         PlotsCustomMenu.init();
         PlotsView.init();
 
-        $('#plots-menus').bind('tabsshow', function(event, ui) {
-            if (ui.index === 0) {
+        $('#plots-menus').bind('tabsactivate', function(event, ui) {
+	        // note: ui.index is replaced with ui.newTab.index() after jQuery 1.9
+	        if (ui.newTab.index() === 0) {
                 PlotsView.init();
-            } else if (ui.index === 1) {
+            } else if (ui.newTab.index() === 1) {
                 PlotsTwoGenesView.init();
-            } else if (ui.index === 2) {
+            } else if (ui.newTab.index() === 2) {
                 PlotsCustomView.init();
             } else {
                 //TODO: error handle
@@ -98,7 +100,7 @@ var Plots = (function(){
                 $(this).qtip(
                     {
                         content: {text: "<font size=2>" + xText + "</font>" },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}
@@ -121,7 +123,7 @@ var Plots = (function(){
                 $(this).qtip(
                     {
                         content: {text: "<font size=2>" + yText + "</font>"},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
                         show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'right bottom',at:'top left'}
@@ -198,7 +200,10 @@ var Plots = (function(){
         },
         addxAxisHelp: addxAxisHelp,
         addyAxisHelp: addyAxisHelp,
-        searchPlots: searchPlots
+        searchPlots: searchPlots,
+        getLogScaleThreshold: function() {
+            return log_scale_threshold;
+        }
     };
 
 }());    //Closing Plots
@@ -218,14 +223,14 @@ function loadPlotsSVG() {
     $(".axis").append(elemYHelp);
     $(".x-title-help").qtip({
         content: {text: elemXHelpTxt },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'left bottom',at:'top right'}
     });
     $(".y-title-help").qtip({
         content: {text: elemYHelpTxt },
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
         show: {event: "mouseover"},
         hide: {fixed:true, delay: 100, event: "mouseout"},
         position: {my:'right bottom',at:'top left'}

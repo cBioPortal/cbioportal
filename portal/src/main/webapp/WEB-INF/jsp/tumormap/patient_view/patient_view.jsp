@@ -1,6 +1,7 @@
 <%@ page import="org.mskcc.cbio.portal.servlet.QueryBuilder" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.PatientView" %>
 <%@ page import="org.mskcc.cbio.portal.servlet.DrugsJSON" %>
+<%@ page import="org.mskcc.cbio.portal.servlet.ServletXssUtil" %>
 <%@ page import="org.mskcc.cbio.portal.model.CancerStudy" %>
 <%@ page import="org.mskcc.cbio.portal.model.GeneticProfile" %>
 <%@ page import="org.mskcc.cbio.portal.util.GlobalProperties" %>
@@ -14,6 +15,7 @@
 
 
 <%
+ServletXssUtil xssUtil = ServletXssUtil.getInstance();
 ObjectMapper jsonMapper = new ObjectMapper();
 boolean print = "1".equals(request.getParameter("print"));
 request.setAttribute("tumormap", true);
@@ -43,6 +45,7 @@ boolean showTissueImages = tissueImageUrl!=null;
 String patientID = (String)request.getAttribute(PatientView.PATIENT_ID_ATTR_NAME);
 String pathReportUrl = (String)request.getAttribute(PatientView.PATH_REPORT_URL);
 
+//String drugType = xssUtil.getCleanerInput(request, "drug_type");
 String drugType = request.getParameter("drug_type");
 
 GeneticProfile mutationProfile = (GeneticProfile)request.getAttribute(PatientView.MUTATION_PROFILE);
@@ -287,7 +290,7 @@ if (patientViewError!=null) {
                 display: block;
                 float: right;
         }
-        .ui-tooltip-wide {
+        .qtip-wide {
             max-width: 600px;
         }
         .datatable-name {
@@ -376,7 +379,9 @@ function fixCytoscapeWebRedraw() {
 function switchToTab(toTab) {
     $('.patient-section').hide();
     $('.patient-section#'+toTab).show();
-    $('#patient-tabs').tabs('select',$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
+    $('#patient-tabs').tabs("option",
+		"active",
+		$('#patient-tabs ul a[href="#'+toTab+'"]').parent().index());
     if (toTab==='images') {
         loadImages();
     }
@@ -404,7 +409,7 @@ function addNoteTooltip(elem, content, position) {
         content: (typeof content === 'undefined' ? {attr: 'alt'} : content),
 	    show: {event: "mouseover"},
         hide: {fixed: true, delay: 100, event: "mouseout"},
-        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+        style: { classes: 'qtip-light qtip-rounded' },
         position: (typeof position === 'undefined' ? {my:'top left',at:'bottom center'} : position)
     });
 }
@@ -453,7 +458,7 @@ function addMoreClinicalTooltip(elemId, caseId) {
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: {my:'top right',at:'bottom right'}
         });
     }
@@ -518,7 +523,7 @@ function addDrugsTooltip(elem, my, at) {
             },
             show: {event: "mouseover"},
             hide: {fixed: true, delay: 100, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: { my: my, at: at }
         });
     });
@@ -609,7 +614,7 @@ function plotMrna(div,alts) {
                         +mrna.zscore.toFixed(2)+"<br/><b>Percentile</b>: "+mrna.perc+"%"},
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            style: { classes: 'qtip-light qtip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });
     });
@@ -683,7 +688,7 @@ function plotAlleleFreq(div,mutations,altReadCount,refReadCount) {
             },
 	        show: {event: "mouseover"},
             hide: {fixed: true, delay: 10, event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded' },
+            style: { classes: 'qtip-light qtip-rounded' },
             position: {my:'top left',at:'bottom center'}
         });
     });
@@ -837,16 +842,14 @@ function outputClinicalData() {
     
     function formatStateInfo(clinicalData) {
         var ret = null;
-        var state = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
-        if (state!==null) {
-            ret = "<font color='"+getCaseColor(state)+"'>"+state+"</font>";
-
-            var stateLower = state.toLowerCase();
-            if (stateLower === "metastatic" || stateLower === "metastasis") {
+        var caseType = guessClinicalData(clinicalData, ["TUMOR_TYPE"]);
+        if (caseType!==null) {
+            ret = "<font color='"+getCaseColor(caseType)+"'>"+caseType+"</font>";
+            //if (normalizedCaseType(caseType.toLowerCase()) === "metastasis") {
                 var loc = guessClinicalData(clinicalData,["TUMOR_SITE"]);
                 if (loc!==null) 
                     ret += " ("+loc+")";
-            }
+            //}
         }
         return ret;
     }
@@ -959,13 +962,24 @@ function outputClinicalData() {
 
     function getCaseColor(caseType) {
         if (!caseType) return "black";
-        var caseTypeLower = caseType.toLowerCase();
-        if (caseTypeLower==="primary") return "black";
-        if (caseTypeLower==="metastatic" || caseTypeLower==="metastasis") return "red";
-        if (caseTypeLower==="progressed"
-                ||caseTypeLower==="locally progressed"
-                || caseTypeLower==="local progression") return "orange";
+        var caseTypeNorm = normalizedCaseType(caseType.toLowerCase());
+        if (caseTypeNorm==="primary") return "black";
+        if (caseTypeNorm==="metastasis") return "red";
+        if (caseTypeNorm==="progressed") return "orange";
         return "black";
+    }
+    
+    function normalizedCaseType(caseType) {
+        var caseTypeLower = caseType.toLowerCase();
+        if (caseTypeLower.indexOf("metastatic")>=0 || caseTypeLower.indexOf("metastasis")>=0)
+            return "metastasis";
+        if (caseTypeLower.indexOf("progressed")>=0
+                || caseTypeLower.indexOf("progression")>=0
+                || caseTypeLower.indexOf("recurred")>=0
+                || caseTypeLower.indexOf("recurrence")>=0)
+            return "progressed";
+        
+        return "primary";
     }
 }
 

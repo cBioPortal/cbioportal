@@ -184,7 +184,7 @@
                             + '</tr>'
                         );
 
-                        drugMap[drug[2]] = drug[0];
+                        drugMap[drug[2].toLowerCase()] = drug[0];
                         keywords.push(drug[2]);
                     }
 
@@ -205,17 +205,17 @@
 
                     $(".drug-synoynms").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     $(".drug-targets").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     $(".annotated-target").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                     populateClinicalTrialsTable(keywords, 'both');
@@ -228,7 +228,7 @@
                     $(".drugs-summary-table-name").html("" + data.length + " drugs of interest " + infoBox);
                     $("#drug-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                 }
@@ -284,7 +284,7 @@
                     // Add tooltips to the drug-keywords
                     $(".highlight").each(function(idx) {
                         var drugName = $(this).text();
-                        var drugId = drugMap[drugName];
+                        var drugId = drugMap[drugName.toLowerCase()];
                         if(drugId != undefined) {
                             $(this).attr("alt", drugId);
                         }
@@ -323,7 +323,7 @@
                     $(".trials-summary-table-name").html(data.length + " clinical trials of interest " + infoBox);
                     $("#trial-summary-help").qtip({
                         content: { attr: 'title' },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded' }
+                        style: { classes: 'qtip-light qtip-rounded' }
                     });
 
                 }

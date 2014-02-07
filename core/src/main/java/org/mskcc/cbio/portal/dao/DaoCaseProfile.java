@@ -23,7 +23,7 @@ import java.util.Map;
 public final class DaoCaseProfile {
     private DaoCaseProfile() {}
    
-    public static final int NO_SUCH_PROFILE_ID = -1;
+    private static final int NO_SUCH_PROFILE_ID = -1;
 
     public static int addCaseProfile(String caseId, int geneticProfileId) throws DaoException {
         if (caseId == null || caseId.trim().length() == 0) {
@@ -40,8 +40,7 @@ public final class DaoCaseProfile {
                                 + "VALUES (?,?)");
                 pstmt.setString(1, caseId);
                 pstmt.setInt(2, geneticProfileId);
-                int rows = pstmt.executeUpdate();
-                return rows;
+                return pstmt.executeUpdate();
             } else {
                 return 0;
             }
@@ -64,11 +63,7 @@ public final class DaoCaseProfile {
             pstmt.setString(1, caseId);
             pstmt.setInt(2, geneticProfileId);
             rs = pstmt.executeQuery();
-            if (rs.next()) {
-                return true;
-            } else {
-                return false;
-            }
+            return (rs.next());
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

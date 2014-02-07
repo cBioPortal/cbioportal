@@ -135,9 +135,7 @@ public final class ImportUniProtIdMapping {
     
     private int getLengthOfUniprotEntry(String uniprotId) throws IOException {
         String strURL = "http://www.uniprot.org/uniprot/"+uniprotId+".fasta";
-        MultiThreadedHttpConnectionManager connectionManager =
-                ConnectionManager.getConnectionManager();
-        HttpClient client = new HttpClient(connectionManager);
+        HttpClient client = ConnectionManager.getHttpClient(2000);
         GetMethod method = new GetMethod(strURL);
         
         try {

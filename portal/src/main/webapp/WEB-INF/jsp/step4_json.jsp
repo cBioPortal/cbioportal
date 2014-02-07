@@ -18,6 +18,9 @@
     
     <div style='padding-top:10px;'>
         <select id="select_gene_set" name="<%= QueryBuilder.GENE_SET_CHOICE %>"></select>
+    </div>
+        
+    <div>
         <button id="toggle_mutsig_dialog" onclick="promptMutsigTable(); return false;" style="font-size: 1em;">Select From Recurrently Mutated Genes (MutSig)</button>
         <button id="toggle_gistic_dialog_button" onclick="Gistic.UI.open_dialog(); return false;" style="font-size: 1em; display: none;">Select Genes from Recurrent CNAs (Gistic)</button>
     </div>
@@ -31,7 +34,13 @@
 <textarea rows='5' cols='80' id='gene_list' placeholder="Enter HUGO Gene Symbols or Gene Aliases" required
 name='<%= QueryBuilder.GENE_LIST %>'><%
     if (localGeneList != null && localGeneList.length() > 0) {
-        out.print(org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList));
+	    String geneListWithSemis =
+			    org.mskcc.cbio.portal.oncoPrintSpecLanguage.Utilities.appendSemis(localGeneList);
+	    // this is for xss security
+	    geneListWithSemis = StringEscapeUtils.escapeJavaScript(geneListWithSemis);
+	    // ...but we want to keep newlines, so unescape the escaped newlines
+	    geneListWithSemis = geneListWithSemis.replaceAll("\\\\n", "\n");
+        out.print(geneListWithSemis);
     }
 %></textarea>
 

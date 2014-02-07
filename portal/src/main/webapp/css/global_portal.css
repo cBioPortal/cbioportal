@@ -125,6 +125,9 @@ A:hover {
 
 #network {
     height: 750px;
+	/* never allow setting display to none
+	   this is to fix flash (CytoWeb) repaint problem */
+	display: block !important;
 }
 
 .map table {
@@ -1278,17 +1281,32 @@ cc-ie-message {
     white-space: nowrap;
 }
 
-.ui-tooltip-lightyellow {
+.qtip-lightyellow {
     background-color: lightyellow;
 }
 
-.ui-tooltip-wide {
+.qtip-wide {
     max-width: 600px;
 }
 
 /* Float on alright! */
-#ppy2 {
-    z-index: 9999999;
+#previewContainer {
+    /*z-index: 9999999;*/
+	width: 170px;
+	height: 145px;
+	float: right;
+	border: 2px solid #FFFFFF;
+	border-radius: 3px;
+	box-shadow: 0 0 7px #999999;
+	overflow-y: hidden;
+	margin-left: 15px;
+}
+
+/* This is a fix to remove the tiny bullet
+ * appearing on the preview image slider
+ */
+#previewContainer li {
+	list-style-type: none;
 }
 
 /* right menu d3 map */

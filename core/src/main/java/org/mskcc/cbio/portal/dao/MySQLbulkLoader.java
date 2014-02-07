@@ -52,7 +52,7 @@ import org.mskcc.cbio.portal.util.GlobalProperties;
 public class MySQLbulkLoader {
    private static boolean bulkLoad = false;
    
-   private static Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
+   private static final Map<String,MySQLbulkLoader> mySQLbulkLoaders = new HashMap<String,MySQLbulkLoader>();
    /**
     * Get a MySQLbulkLoader
     * @param dbName database name
@@ -89,7 +89,7 @@ public class MySQLbulkLoader {
    private final String tempTableSuffix = ".tempTable";
    private int rows;
    // TODO: make configurable
-   private static long numDebuggingRowsToPrint = 0;
+   private static final long numDebuggingRowsToPrint = 0;
    
    private MySQLbulkLoader( String tableName ){
       try {
@@ -175,9 +175,9 @@ public class MySQLbulkLoader {
     * @throws DaoException
     * @throws IOException 
     */
-   public int loadDataFromTempFileIntoDBMS() throws DaoException, IOException {
+   private int loadDataFromTempFileIntoDBMS() throws DaoException, IOException {
       Connection con = null;
-      Statement stmt = null;
+      Statement stmt;
 
       PreparedStatement pstmt = null;
       ResultSet rs = null;
@@ -194,11 +194,8 @@ public class MySQLbulkLoader {
          
          // will throw error if attempts to overwrite primary keys in table
          String command = "LOAD DATA LOCAL INFILE '" + tempFileName + "' INTO TABLE " + tableName;
-         long startTime = System.currentTimeMillis();
-         boolean rv = stmt.execute( command );
-         // TODO: throw exception if rv == true
+         stmt.execute( command );
          int updateCount = stmt.getUpdateCount();
-         long duration = (System.currentTimeMillis() - startTime)/1000;
 
          // reopen empty temp file
          this.tempFileWriter = new BufferedWriter(new FileWriter( this.tempFileHandle, false));

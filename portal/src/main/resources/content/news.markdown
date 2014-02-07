@@ -1,17 +1,27 @@
-# November 5, 2013
+# December 9, 2014
+* Added mutation data of 99 bladder cancer samples (BGI, Nature Genetics 2013)
 
-* All TCGA data updated to the May Firehose run (September 23, 2013).
+# December 6, 2014
+* Data sets matching four recently submitted or published TCGA studies are now available
+    * Glioblastoma (Cell 2013)
+    * Bladder carcinoma (Nature, in press)
+    * Head & neck squamous cell carcinoma (submitted)
+    * Lung adenocarcinoma (submitted)
+
+# November 8, 2013
+
+* All TCGA data updated to the Firehose run of September 23, 2013.
 * Updated to the latest COSMIC data (v67).
-* Added mutation data from 9 cancer studies.
+* Added mutation data of 792 samples from 9 published cancer studies:
     * Esophageal Adenocarcinoma (Broad, Nature Genetics 2013)
     * Head and Neck Squamous Cell Carcinoma (Broad, Science 2011)
     * Head and Neck Squamous Cell Carcinoma (Johns Hopkins, Science 2011)
     * Kidney Renal Clear Cell Carcinoma (BGI, Nature Genetics 2012)
+    * Prostate Adenocarcinoma, Metastatic (Michigan, Nature 2012)
+    * Prostate Adenocarcinoma (Broad/Cornell, Nature Genetics 2012)
+    * Prostate Adenocarcinoma (Broad/Cornell, Cell 2013)
     * Skin Cutaneous Melanoma (Yale, Nature Genetics 2012)
     * Skin Cutaneous Melanoma (Broad, Cell 2012)
-    * Prostate Adenocarcinoma, Metastatic (Michigan, Nature 2012)
-    * Prostate Adenocarcinoma (Broad/Cornell, Cell 2013)
-    * Prostate Adenocarcinoma (Broad/Cornell, Nature Genetics 2012)
 
 # October 21, 2013
  

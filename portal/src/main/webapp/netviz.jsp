@@ -17,16 +17,22 @@
 
 
 <script type="text/javascript" src="js/lib/jquery.min.js"></script>
+<script type="text/javascript" src="js/lib/jquery-migrate.js"></script>
 <script type="text/javascript" src="js/lib/jquery.tipTip.minified.js"></script>
-<script type="text/javascript" src="js/lib/jquery.address.js"></script>
+<script type="text/javascript" src="js/lib/jquery.address.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery-ui.min.js"></script>
-<script type="text/javascript" src="js/lib/jquery.popeye-2.1.min.js"></script>
+<script type="text/javascript" src="js/lib/responsiveslides.min.js"></script>
 <script type="text/javascript" src="js/lib/jquery.quovolver.mini.js"></script>
+<script type="text/javascript" src="js/lib/jquery.expander.min.js"></script>
+<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+<script type="text/javascript" src="js/lib/backbone-min.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/AC_OETags.min.js"></script>
 <script type="text/javascript" src="js/lib/cytoscape_web/cytoscapeweb.min.js"></script>
 
 <script type="text/javascript" src="js/src/network/network-visualization.js"></script>
 <script type="text/javascript" src="js/src/network/network-viz.js"></script>
+
+<jsp:include page="WEB-INF/jsp/network_views.jsp"/>
 
 <table width="100%" cellspacing="0px" cellpadding="2px" border="0px">
 	<tr valign="middle">
@@ -45,6 +51,14 @@
 </table>
 <script type="text/javascript">
     //alert('< %=org.mskcc.cbio.portal.util.ResponseUtil.getResponseString(request.getInputStream())%>');
+
+    // TODO duplicate code, see js_include.jsp
+	// This is for the moustache-like templates
+	// prevents collisions with JSP tags
+	_.templateSettings = {
+		interpolate : /\{\{(.+?)\}\}/g
+	};
+
 </script>
                         
 <%

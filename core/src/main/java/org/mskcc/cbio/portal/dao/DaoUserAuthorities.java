@@ -73,7 +73,6 @@ public class DaoUserAuthorities {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		UserAuthorities toReturn;
 		try {
 			con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 			pstmt = con.prepareStatement("SELECT * FROM authorities where EMAIL=?");
@@ -95,7 +94,6 @@ public class DaoUserAuthorities {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		UserAuthorities toReturn;
 		try {
 			con = JdbcUtil.getDbConnection(DaoUserAuthorities.class);
 			pstmt = con.prepareStatement("DELETE FROM authorities where EMAIL=?");

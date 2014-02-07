@@ -82,8 +82,7 @@ public class DaoProteinArrayTarget {
                             + "VALUES (?,?)");
             pstmt.setString(1, proteinArrayId);
             pstmt.setLong(2, entrezGeneId);
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {
@@ -100,8 +99,7 @@ public class DaoProteinArrayTarget {
             pstmt = con.prepareStatement
                     ("DELETE FROM protein_array_target WHERE `PROTEIN_ARRAY_ID`=?");
             pstmt.setString(1, proteinArrayId);
-            int rows = pstmt.executeUpdate();
-            return rows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new DaoException(e);
         } finally {

@@ -100,13 +100,14 @@ var survivalCurves = (function() {
         function setOSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].os_months;
                     _datum.status = result[caseId].os_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             os_altered_group.push(_datum);
                             _totalAlter += 1;
@@ -135,13 +136,14 @@ var survivalCurves = (function() {
         function setDFSGroups(result, caseLists) {
             var _totalAlter = 0,
                 _totalUnalter = 0;
+
             for (var caseId in result) {
                 if (result.hasOwnProperty(caseId) && (result[caseId] !== "")) {
                     var _datum = jQuery.extend(true, {}, datum);
                     _datum.case_id = result[caseId].case_id;
                     _datum.time = result[caseId].dfs_months;
                     _datum.status = result[caseId].dfs_status;
-                    if (_datum.time !== "NA") {
+                    if (_datum.time !== "NA" && _datum.status !== "NA") {
                         if (caseLists[caseId] === "altered") {
                             dfs_altered_group.push(_datum);
                             _totalAlter += 1;
@@ -314,7 +316,7 @@ var survivalCurves = (function() {
                 dfsUnalterCensoredDots: ""
             },
             settings = {
-                canvas_width: 800,
+                canvas_width: 1000,
                 canvas_height: 620,
                 altered_line_color: "red",
                 unaltered_line_color: "blue",
@@ -337,7 +339,8 @@ var survivalCurves = (function() {
                 axisY_title_pos_x: -270,
                 axisY_title_pos_y: 45,
                 axis_color: "black"
-            }
+            };
+
 
         function initOSCanvas() {
             $('#os_survival_curve').empty();
@@ -403,26 +406,68 @@ var survivalCurves = (function() {
                 .y(function(d) { return elem.yScale(d.survival_rate); });
         }
 
+        //Append a virtual point for time zero if needed (no actual data point at time zero, therefore cause the graph not starting from 0)
+        function appendZeroPoint(_num_at_risk) {
+            var datum = {
+                case_id: "",
+                time: "",    //num of months
+                status: "", //os: DECEASED-->1, LIVING-->0; dfs: Recurred/Progressed --> 1, Disease Free-->0
+                num_at_risk: -1,
+                survival_rate: 0
+            };
+            var _datum = jQuery.extend(true, {}, datum);
+            _datum.case_id = "NA";
+            _datum.time = 0;
+            _datum.status = "NA";
+            _datum.num_at_risk = _num_at_risk;
+            _datum.survival_rate = 1;
+            return _datum;
+        }
+
         function drawOSLines() {
-            elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSAlteredData()))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgOS.append("path")
-                .attr("d", elem.line(data.getOSUnalteredData()))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            var _os_altered_data = data.getOSAlteredData();
+            var _os_unaltered_data = data.getOSUnalteredData();
+            if (_os_altered_data !== null) {
+                if (_os_altered_data[0].time !== 0) {
+                    _os_altered_data.unshift(appendZeroPoint(_os_altered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
+            }
+            if (_os_unaltered_data !== null) {
+                if (_os_unaltered_data[0].time !== 0) {
+                    _os_unaltered_data.unshift(appendZeroPoint(_os_unaltered_data[0].num_at_risk));
+                }
+                elem.svgOS.append("path")
+                    .attr("d", elem.line(_os_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawDFSLines() {
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSAlteredData()))
-                .style("fill", "none")
-                .style("stroke", settings.altered_line_color);
-            elem.svgDFS.append("path")
-                .attr("d", elem.line(data.getDFSUnalteredData()))
-                .style("fill", "none")
-                .style("stroke", settings.unaltered_line_color);
+            var _dfs_altered_data = data.getDFSAlteredData();
+            var _dfs_unaltered_data = data.getDFSUnalteredData();
+            if (_dfs_altered_data !== null) {
+                if (_dfs_altered_data[0].time !== 0) {
+                    _dfs_altered_data.unshift(appendZeroPoint(_dfs_altered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_altered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.altered_line_color);
+            }
+            if (_dfs_unaltered_data !== null) {
+                if (_dfs_unaltered_data[0].time !== 0) {
+                    _dfs_unaltered_data.unshift(appendZeroPoint(_dfs_unaltered_data[0].num_at_risk));
+                }
+                elem.svgDFS.append("path")
+                    .attr("d", elem.line(_dfs_unaltered_data))
+                    .style("fill", "none")
+                    .style("stroke", settings.unaltered_line_color);
+            }
         }
 
         function drawInvisiableDots(svg, color, data) {
@@ -466,7 +511,7 @@ var survivalCurves = (function() {
                     $(this).qtip(
                         {
                             content: {text: content},
-                            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow ui-tooltip-wide'},
+                            style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow qtip-wide'},
                             show: {event: "mouseover"},
                             hide: {fixed:true, delay: 100, event: "mouseout"},
                             position: {my:'left bottom',at:'top right'}
@@ -585,14 +630,8 @@ var survivalCurves = (function() {
                 .enter().append("g")
                 .attr("class", "legend")
                 .attr("transform", function(d, i) {
-                    return "translate(680, " + (70 + i * 15) + ")";
+                    return "translate(715, " + (70 + i * 15) + ")";
                 })
-
-            legend.append("text")
-                .attr("x", -10)
-                .attr("y", 4)
-                .style("text-anchor", "end")
-                .text(function(d) { return d.text });
 
             legend.append("path")
                 .attr("width", 18)
@@ -603,6 +642,13 @@ var survivalCurves = (function() {
                 .attr("fill", function (d) { return d.color; })
                 .attr("stroke", "black")
                 .attr("stroke-width",.9);
+
+            legend.append("text")
+                .attr("x", 15)
+                .attr("y", 4)
+                .style("text-anchor", "front")
+                .text(function(d) { return d.text });
+
         }
 
         function appendAxisTitles(svg, xTitle, yTitle) {
@@ -625,9 +671,9 @@ var survivalCurves = (function() {
 
         function addPvals(svg, pVal) {
             svg.append("text")
-                .attr("x", 680)
+                .attr("x", 710)
                 .attr("y", 110)
-                .style("text-anchor", "end")
+                .style("text-anchor", "front")
                 .text("Logrank Test P-Value: " + pVal);
         }
 

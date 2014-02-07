@@ -43,6 +43,7 @@ import org.mskcc.cbio.portal.dao.*;
 import org.mskcc.cbio.portal.model.CancerStudy;
 import org.mskcc.cbio.portal.util.DatabaseProperties;
 import org.mskcc.cbio.portal.util.WebserviceParserUtils;
+import org.mskcc.cbio.portal.util.XssRequestWrapper;
 import org.mskcc.cbio.portal.web_api.*;
 
 /**
@@ -485,7 +486,10 @@ public class WebService extends HttpServlet {
     }
 
     private ArrayList<String> getGeneList(HttpServletRequest request) {
-        String geneList = request.getParameter(GENE_LIST);
+        // bypassing security filtering for the gene list..
+	    //String geneList = request.getParameter(GENE_LIST);
+	    String geneList = ((XssRequestWrapper)request).getRawParameter(GENE_LIST);
+
         //  Split on white space or commas
         Pattern p = Pattern.compile("[,\\s]+");
         String genes[] = p.split(geneList);

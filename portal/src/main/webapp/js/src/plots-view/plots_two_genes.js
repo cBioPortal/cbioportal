@@ -123,6 +123,16 @@ var PlotsTwoGenesMenu = (function(){
                 }
             });
         }
+
+        //----DNA methylation priority list: hm450, hm27
+        if ($("#two_genes_plots_type").val() === "methylation") {
+            $('#two_genes_platform > option').each(function() {
+                if (this.text.toLowerCase().indexOf("hm450") !== -1) {
+                    $(this).prop('selected', true);
+                    return false;
+                }
+            });
+        }
     }
 
     function drawPlatFormList() {
@@ -273,22 +283,22 @@ var PlotsTwoGenesView = (function(){
             geneX_mut : {
                 fill : "#DBA901",
                 stroke : "#886A08",
-                text : "GeneX Mutated"
+                text : "GeneX mutated"
             },
             geneY_mut : {
                 fill : "#F5A9F2",
                 stroke : "#F7819F",
-                text : "GeneY Mutated"
+                text : "GeneY mutated"
             },
             both_mut : {
                 fill : "#FF0000",
                 stroke : "#B40404",
-                text : "Both Mutated"
+                text : "Both mutated"
             },
             non_mut : {
                 fill : "#00AAF8",
                 stroke : "#0089C6",
-                text : "Neither Mutated"
+                text : "Neither mutated"
             }
         },
         text = {
@@ -446,8 +456,8 @@ var PlotsTwoGenesView = (function(){
     function initXAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_x <= 1) {
-                var min_x = Math.log(1) / Math.log(2);
+            if (analyseResult.min_x <= (Plots.getLogScaleThreshold())) {
+                var min_x = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
             } else {
                 var min_x = Math.log(analyseResult.min_x) / Math.log(2);
             }
@@ -476,8 +486,8 @@ var PlotsTwoGenesView = (function(){
     function initYAxis(applyLogScale) {
         var analyseResult = analyseData();
         if (applyLogScale) {
-            if (analyseResult.min_y <= 1) {
-                var min_y = Math.log(1) / Math.log(2);
+            if (analyseResult.min_y <= (Plots.getLogScaleThreshold())) {
+                var min_y = Math.log(Plots.getLogScaleThreshold()) / Math.log(2);
             } else {
                 var min_y = Math.log(analyseResult.min_y) / Math.log(2);
             }
@@ -688,16 +698,16 @@ var PlotsTwoGenesView = (function(){
             .attr("transform", function() {
                 if (applyLogScale) {
                     if (axis === "x") {
-                        if (parseFloat(d3.select(this).attr("x_val")) <= 1) {
-                            var _post_x = elem.xScale(Math.log(1) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("x_val")) <= (Plots.getLogScaleThreshold())) {
+                            var _post_x = elem.xScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                         } else {
                             var _post_x = elem.xScale(Math.log(d3.select(this).attr("x_val")) / Math.log(2));
                         }
                         var _post_y = d3.select(this).attr("y_pos");
                     } else if (axis === "y") {
                         var _post_x = d3.select(this).attr("x_pos");
-                        if (parseFloat(d3.select(this).attr("x_val") <= 1)) {
-                            var _post_y = elem.yScale(Math.log(1) / Math.log(2));
+                        if (parseFloat(d3.select(this).attr("x_val") <= (Plots.getLogScaleThreshold()))) {
+                            var _post_y = elem.yScale(Math.log(Plots.getLogScaleThreshold()) / Math.log(2));
                         } else {
                             var _post_y = elem.yScale(Math.log(d3.select(this).attr("y_val")) / Math.log(2));
                         }
@@ -763,6 +773,12 @@ var PlotsTwoGenesView = (function(){
                         var tmp_legend = d.text.replace("GeneX", menu.geneX);
                     } else if (d.text.indexOf("GeneY") !== -1) {
                         var tmp_legend = d.text.replace("GeneY", menu.geneY);
+                    } else if (d.text.indexOf("Neither") !== -1) {
+                        if (menu.geneX === menu.geneY) {
+                            var tmp_legend = "No mutation";
+                        } else {
+                            var tmp_legend = d.text;
+                        }
                     } else {
                         var tmp_legend = d.text;
                     }
@@ -864,7 +880,7 @@ var PlotsTwoGenesView = (function(){
                 $(this).qtip(
                     {
                         content: {text: content},
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow' },
 	                    show: {event: "mouseover"},
                         hide: {fixed:true, delay: 100, event: "mouseout"},
                         position: {my:'left bottom',at:'top right'}

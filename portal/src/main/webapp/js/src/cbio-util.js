@@ -42,6 +42,18 @@ cbio.util = (function() {
         }
         return aa;
     };
+        
+    var uniqueElementsOfArray = function(arr) {
+        var ret = [];
+        var aa = {};
+        for (var i=0, n=arr.length; i<n; i++) {
+            if (!(arr[i] in aa)) {
+                ret.push(arr[i]);
+                aa[arr[i]] = 1;
+            }
+        }
+        return ret;
+    };
 
     var alterAxesAttrForPDFConverter = function(xAxisGrp, shiftValueOnX, yAxisGrp, shiftValueOnY, rollback) {
 
@@ -110,13 +122,74 @@ cbio.util = (function() {
         return str1.substring(0, i);
     };
 
+	/**
+	 * Detects browser and its version.
+	 * This function is implemented as an alternative to the deprecated jQuery.browser object.
+	 *
+	 * @return {object} browser information as an object
+	 */
+	var detectBrowser = function ()
+	{
+		var browser = {};
+		var uagent = navigator.userAgent.toLowerCase();
+
+		browser.firefox = /mozilla/.test(uagent) &&
+		                  /firefox/.test(uagent);
+
+		browser.mozilla = browser.firefox; // this is just an alias
+
+		browser.chrome = /webkit/.test(uagent) &&
+		                 /chrome/.test(uagent);
+
+		browser.safari = /applewebkit/.test(uagent) &&
+		                 /safari/.test(uagent) &&
+		                 !/chrome/.test(uagent);
+
+		browser.opera = /opera/.test(uagent);
+
+		browser.msie = /msie/.test(uagent);
+
+		browser.version = "";
+
+		// check for IE 11
+		if (!(browser.msie ||
+		      browser.firefox ||
+		      browser.chrome ||
+		      browser.safari ||
+		      browser.opera))
+		{
+			// TODO probably we need to update this for future IE versions
+			if (/trident/.test(uagent))
+			{
+				browser.msie = true;
+				browser.version = 11;
+			}
+		}
+
+		if (browser.version === "")
+		{
+			for (var x in browser)
+			{
+				if (browser[x])
+				{
+					browser.version = uagent.match(new RegExp("(" + x + ")( |/)([0-9]+)"))[3];
+					break;
+				}
+			}
+		}
+
+		return browser;
+	};
+
     return {
         toPrecision: toPrecision,
         getObjectLength: getObjectLength,
         checkNullOrUndefined: checkNullOrUndefined,
+        uniqueElementsOfArray: uniqueElementsOfArray,
         arrayToAssociatedArrayIndices: arrayToAssociatedArrayIndices,
         alterAxesAttrForPDFConverter: alterAxesAttrForPDFConverter,
-        lcss: lcss
+        lcss: lcss,
+	    browser: detectBrowser() // returning the browser object, not the function itself
     };
 
 })();

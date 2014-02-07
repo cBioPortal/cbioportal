@@ -152,7 +152,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
             content: $('#mut_cna_scatter_dialog').remove(),
             show: {delay: 200, event: "mouseover" },
             hide: {fixed: true, delay: 100,  event: "mouseout"},
-            style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-wide' },
+            style: { classes: 'qtip-light qtip-rounded qtip-wide' },
             position: {my:'top right',at:'top left'},
             events: {
                 render: function(event, api) {
@@ -287,7 +287,7 @@ String linkToCancerStudy = GlobalProperties.getLinkToCancerStudyView(cancerStudy
                 },
 	            show: {event: "mouseover"},
                 hide: {fixed: true, delay: 100, event: "mouseout"},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow qtip-lightyellow', tip: false},
                 //position: {my:'left top',at:'bottom center'}
                 position: {my:'top right',at:'top right'}
             });

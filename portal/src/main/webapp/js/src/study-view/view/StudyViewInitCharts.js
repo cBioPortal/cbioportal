@@ -520,6 +520,13 @@ var StudyViewInitCharts = (function(){
             "aaData":tmpB
         });
         
+        $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
+            this.innerHTML = fnCreateSelect( dataTable1.fnGetColumnData(i) );
+            $('select', this).change( function () {
+                dataTable1.fnFilter( $(this).val(), i );
+            } );
+        } );
+        
         $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){
@@ -585,7 +592,7 @@ var StudyViewInitCharts = (function(){
         for(var i =1;i<=numColumns ; i++){
             $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
         }
-
+        
         var oTable = $('#dataTable').dataTable();
         oTable.fnAdjustColumnSizing();
         new FixedColumns( oTable);
@@ -602,6 +609,16 @@ var StudyViewInitCharts = (function(){
         }
     }
     
+    function fnCreateSelect( aData )
+    {
+        var r='<select><option value=""></option>', i, iLen=aData.length;
+        for ( i=0 ; i<iLen ; i++ )
+        {
+            r += '<option value="'+aData[i]+'">'+aData[i]+'</option>';
+        }
+        return r+'</select>';
+    }
+
     return {
         init: function(o,data){
             initParameters(o);

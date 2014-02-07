@@ -71,12 +71,26 @@ public class CnaEvent {
             this.gene = gene;
         }
 
+        public void setEntrezGeneId(long entrezGeneId) {
+            setGene(DaoGeneOptimized.getInstance().getGene(entrezGeneId));
+            if (gene == null) {
+                throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
+            } 
+        }
+
         public CNA getAlteration() {
             return alteration;
         }
 
         public void setAlteration(CNA alteration) {
             this.alteration = alteration;
+        }
+        
+        public void setAlteration(short alteration) {
+            this.alteration = CNA.getByCode(alteration);
+            if (this.alteration == null) {
+                throw new IllegalArgumentException("wrong copy number alteration");
+            }
         }
 
         @Override
@@ -112,10 +126,7 @@ public class CnaEvent {
         setEntrezGeneId(entrezGeneId);
         this.caseId = caseId;
         this.cnaProfileId = cnaProfileId;
-        event.alteration = CNA.getByCode(alteration);
-        if (event.alteration == null) {
-            throw new IllegalArgumentException("wrong copy number alteration");
-        }
+        event.setAlteration(alteration);
     }
 
     public CNA getAlteration() {
@@ -155,7 +166,7 @@ public class CnaEvent {
     }
 
     public void setEntrezGeneId(long entrezGeneId) {
-        event.setGene(DaoGeneOptimized.getInstance().getGene(entrezGeneId));
+        event.setEntrezGeneId(entrezGeneId);
         if (event.gene == null) {
             throw new IllegalArgumentException("Could not find entrez gene id: "+entrezGeneId);
         } 

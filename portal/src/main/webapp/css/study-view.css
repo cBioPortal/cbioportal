@@ -15,6 +15,16 @@
     margin-top: 10px;
     float:left;
 }
+#study-view-scatter-plot {
+    position: relative;
+    top: 1em;
+    right: 1em;
+    text-align:center;
+    border-style: solid;
+    border-width: 1px;
+    border-color: lightgrey;
+    margin-bottom: 10px;
+}
 #data-table-chart {
     width:100%;
     float:left;
@@ -102,25 +112,36 @@
 }
 .study-view-pie-chart {
     float:left;
-    width:180px;
-    height:200px;
-    text-align:center;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-    margin-bottom: 10px;
 }
 
-.study-view-pie-chart.w2{
+.w2{
     width:370px;
 }
 
-.study-view-pie-chart.w4{
+.w4{
     width:750px;
 }
 
-.study-view-pie-chart.h2{
-    height:410px;
+.h2{
+    height:450px;
+}
+.study-view-bar-main {
+    float:left;
+    width:370px;
+    height:220px;
+    border:1px;
+    border-color:lightgrey;
+    border-style:solid;
+    margin-bottom: 10px;
+}
+.study-view-pie-main {
+    float:left;
+    width:180px;
+    height:220px;
+    border:1px;
+    border-color:lightgrey;
+    border-style:solid;
+    margin-bottom: 10px;
 }
 
 .study-view-pie-chart :active{
@@ -186,13 +207,7 @@ pieH3{
     font-size:9px;
 }
 .study-view-bar-chart {
-    float:left;
-    width:560px;
-    height:200px;
-    border:1px;
-    border-color:lightgrey;
-    border-style:solid;
-    margin-bottom: 10px;
+    width:100%;
 }
 
 .dc-chart rect.bar {

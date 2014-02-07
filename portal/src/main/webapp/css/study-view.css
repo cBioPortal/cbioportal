@@ -159,30 +159,6 @@
     margin-top: 3px;
     cursor: pointer;
 }
-.study-view-row-chart {
-    float:left;
-    text-align:center;
-    border-style: solid;
-    border-width: 1px;
-    border-color: lightgrey;
-    margin-bottom: 10px;
-}
-.study-view-row-chart.w1 {
-    width:180px;
-}
-.study-view-row-chart.w2 {
-    width:370px;
-}
-.study-view-row-chart.w3 {
-    width:580px;
-}
-.study-view-row-chart g{
-    font-size:11px;
-    color: white;
-}
-.study-view-row-chart svg{
-    float:right;
-}
 pieH4{
     font-size: 11px;
     color: black;

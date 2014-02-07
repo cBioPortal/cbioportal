@@ -31,6 +31,8 @@ package org.mskcc.cbio.importer.util;
 // imports
 import org.mskcc.cbio.importer.*;
 import org.mskcc.cbio.importer.model.*;
+import org.mskcc.cbio.portal.model.ClinicalAttribute;
+import org.mskcc.cbio.portal.scripts.ImportClinicalData;
 
 import java.io.File;
 import java.util.*;
@@ -110,7 +112,7 @@ public class MetadataUtils {
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDescription"));
         clinicalDataHeader.append(addClinicalDataHeader(normalizedColumnHeaderNames, clinicalAttributesMetadata, "getDatatype"));
 
-        return clinicalDataHeader.toString().trim() + "\n";
+        return clinicalDataHeader.toString();
     }
 
     private static Map <String, ClinicalAttributesMetadata> getClinicalAttributesMetadata(Config config, List<String> normalizedColumnHeaderNames)
@@ -130,17 +132,18 @@ public class MetadataUtils {
                                                 String metadataAccessor) throws Exception
     {
         StringBuilder header = new StringBuilder();
+        header.append(ImportClinicalData.METADATA_PREFIX);
         for (String columnHeader : normalizedColumnHeaderNames) {
             ClinicalAttributesMetadata metadata = clinicalAttributesMetadata.get(columnHeader);
             if (metadata != null) {
                 Method m = clinicalAttributesMetadata.get(columnHeader).getClass().getMethod(metadataAccessor);
-                header.append((String)m.invoke(clinicalAttributesMetadata) + "\t");
+                header.append((String)m.invoke(metadata) + ImportClinicalData.DELIMITER);
             }
             else if (metadataAccessor.equals("getDatatype")) {
-                header.append(Converter.CLINICAL_DATA_DATATYPE_PLACEHOLDER);
+                header.append(ClinicalAttribute.DEFAULT_DATATYPE);
             }
             else {
-                header.append(Converter.CLINICAL_DATA_PLACEHOLDER);
+                header.append(ClinicalAttribute.MISSING);
             }
 
         }

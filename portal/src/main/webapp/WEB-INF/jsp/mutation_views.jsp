@@ -485,7 +485,7 @@
 			</a>
 		</td>
 		<td>
-			<label alt='{{cnaTip}}' class='simple-tip {{cnaClass}}'>{{cna}}</label>
+			<label alt='{{cnaTip}}' class='simple-tip-left {{cnaClass}}'>{{cna}}</label>
 		</td>
 		<td>
 			<label class='{{mutationCountClass}}'>{{mutationCount}}</label>

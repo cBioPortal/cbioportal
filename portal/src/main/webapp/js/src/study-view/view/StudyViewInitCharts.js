@@ -249,8 +249,9 @@ var StudyViewInitCharts = (function(){
             }
         });
         
-        //ScatterPlots.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
-        //ScatterPlots.jointBrushCallback(scatterPlotCallBack);
+        var scatterStudyView = new ScatterPlots();
+        scatterStudyView.init(scatterPlotOptions, scatterPlotArr, scatterPlotDataAttr,true);
+        scatterStudyView.jointBrushCallback(scatterPlotCallBack);
 
         var container = document.querySelector('#study-view-charts');
         var msnry = new Masonry( container, {

@@ -406,10 +406,10 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                         var bygene = data.filter(function(d) { return !_.has(d, "keyword"); })[0] || {};
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
-                            + "<p style='color: " + googleblue + "; margin-bottom:0;'>"
-                            + bykeyword.hugo +  ": "  + qtip_template(bygene) + "</p>"
-                            + "<p style='color: " + googlered + "; margin-top:0;'>"
-                            + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>";
+                            + "<p style='color: " + googlered + "; margin-bottom:0;'>"
+                            + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>"
+                            + "<p style='color: " + googleblue + "; margin-top:0;'>"
+                            + "Other " + hugo_gene_name +  " mutations: "  + qtip_template(bygene) + "</p>";
 
                         api.set('content.text', text);
                     }

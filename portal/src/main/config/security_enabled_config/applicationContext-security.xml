@@ -47,6 +47,7 @@
       <intercept-url pattern="/cgds_r.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/networks.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/protein_exp.jsp" access="isAuthenticated()"/>
+      <intercept-url pattern="/co_expression.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/tutorial.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/onco_query_lang_desc.jsp" access="isAuthenticated()"/>
       <intercept-url pattern="/visualize_your_data.jsp" access="isAuthenticated()"/>
@@ -102,6 +103,8 @@
       <intercept-url pattern="/igvlinking.json*" access="isAuthenticated()"/>
       <intercept-url pattern="/calcPval.do*" access="isAuthenticated()"/>
       <intercept-url pattern="/jsmol_frame.jsp*" access="isAuthenticated()"/>
+      <intercept-url pattern="/getCoExp.do*" access="isAuthenticated()"/>
+      <intercept-url pattern="/getAlterationData.json" access="isAuthenticated()"/>
 
       <!-- everything else locked down by default -->
 	  <intercept-url pattern="/**" access="denyAll"/>

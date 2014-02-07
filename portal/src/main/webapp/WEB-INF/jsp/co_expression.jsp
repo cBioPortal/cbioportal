@@ -43,16 +43,11 @@
     .ui-state-disabled {
         display: none;
     }  
-    .brush .extent {
-        stroke: #fff;
-        fill-opacity: .125;
-        shape-rendering: crispEdges;
-        z-index: -1;
-    } 
+
 </style>
 
 <div class="section" id="coexp">
-    <p>
+    <p style='margin-top: -25px;'>
         This table below lists the genes with the highest expression correlation with the query genes. Click on a row to see the corresponding correlation plot. 
         <img class='profile_help' src='images/help.png' title='
             Pearson correlations are computed first.  For genes with an absolute correlation greater than 0.3, the Spearman correlations are also computed. By default, only gene pairs with an absolute value > 0.3 in both measures are shown. Only the top 250 genes are shown.

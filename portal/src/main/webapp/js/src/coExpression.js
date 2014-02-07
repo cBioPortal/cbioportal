@@ -70,7 +70,7 @@ var CoExpTable = (function() {
                 tmp_arr.push(obj.pearson.toFixed(2));
                 tmp_arr.push(obj.spearman.toFixed(2));
                 coexp_table_arr.push(tmp_arr);
-            });            
+            });           
         }
 
         function drawLayout() {
@@ -115,8 +115,8 @@ var CoExpTable = (function() {
 
             //Configure the datatable with  jquery
             _coExpTable = $("#" + Names.tableId).dataTable({
-                "sDom": '<"H"f<"coexp-table-filter-pearson"><"coexp-table-filter-score-conbination">>t<"F"i>',
-                "sPaginationType": "full_numbers",
+                "sDom": '<"H"f<"coexp-table-filter-pearson">>t<"F"i>',
+                "sPaginationType": "scrolling",
                 "bJQueryUI": true,
                 "bAutoWidth": false,
                 "aaData" : coexp_table_arr,
@@ -142,7 +142,7 @@ var CoExpTable = (function() {
                 ],
                 "sScrollY": "550px",
                 "bScrollCollapse": true,
-                iDisplayLength: 250,
+                iDisplayLength: coexp_table_arr.length,
                 "oLanguage": {
                     "sSearch": "Search Gene"
                 },
@@ -198,7 +198,7 @@ var CoExpTable = (function() {
         function attachSpearmanFilter(_tableDivId, _coExpTable, _geneId) {
             //Add check box for display agree/disagree score combination
             $("#" + _tableDivId).find('.coexp-table-filter-score-conbination').append(
-                "<input type='checkbox' id='check-score-conbination-filter-" + _geneId + "' checked>" +
+                "<input type='checkbox' id='check-score-conbination-filter-" + _geneId + "'>" +
                 "Display only genes with score agreement" + 
                 "<img class='profile_help' src='images/help.png' id='score-combination-filter' " +
                 "title='something'>");
@@ -302,7 +302,7 @@ var CoExpTable = (function() {
                             configTable();
                             attachDownloadFullResultButton(Names.tableDivId, geneId);
                             attachPearsonFilter(Names.tableDivId, _coExpTable);
-                            attachSpearmanFilter(Names.tableDivId, _coExpTable, geneId);
+                            //attachSpearmanFilter(Names.tableDivId, _coExpTable, geneId);
                             attachRowListener(_coExpTable, Names.tableId, Names.plotId, geneId);
                             initTable(_coExpTable);
                         }

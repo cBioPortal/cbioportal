@@ -521,13 +521,17 @@ var StudyViewInitCharts = (function(){
             "aaData":tmpB
         });
         
+        /*       
         $(".dataTables_scrollFoot tfoot th").each( function ( i ) {
             this.innerHTML = fnCreateSelect( dataTable1.fnGetColumnData(i) );
+            //console.log(this);
+            $(this).attr('class','dataTableSelect');
             $('select', this).change( function () {
                 dataTable1.fnFilter( $(this).val(), i );
             } );
         } );
-        
+        */
+        //$(".dataTables_scrollFoot>tfoot>th:nth-child(1)").chosen();
         $("#dataTable_filter label input").attr("value","");
         $('#study-view-dataTable-header').click(function(){
             if($("#dataTable_filter label input").val() !== ""){
@@ -594,7 +598,8 @@ var StudyViewInitCharts = (function(){
             $("table.dataTable>thead>tr>th:nth-child("+i+")").height(maxX/Math.cos(radians));
         }
         
-        var oTable = $('#dataTable').dataTable();
+        var oTable = $('#dataTable').dataTable();        
+        $('#dataTable').dataTable().columnFilter();
         oTable.fnAdjustColumnSizing();
         new FixedColumns( oTable);
         $(".DTFC_LeftBodyLiner").css("overflow-y","hidden");

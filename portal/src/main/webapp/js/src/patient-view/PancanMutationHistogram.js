@@ -397,7 +397,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
             $(this).qtip({
                 content: {text: 'mouseover failed'},
                 position: {my:'left top', at:'center right'},
-                style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow' },
+                style: { classes: 'qtip-light qtip-rounded qtip-shadow' },
                 hide: { fixed: true, delay: 100 },
                 events: {
                     render: function(event, api) {
@@ -407,7 +407,7 @@ function PancanMutationHistogram(byKeywordData, byGeneData, cancer_study_meta_da
                         var cancer_study = bygene.cancer_study;     // there should always be a bygene datum
                         var text = "<p style='font-weight:bold;'>" + cancer_study + "</p>"
                             + "<p style='color: " + googleblue + "; margin-bottom:0;'>"
-                            + bykeyword.keyword  +  ": "  + qtip_template(bygene) + "</p>"
+                            + bykeyword.hugo +  ": "  + qtip_template(bygene) + "</p>"
                             + "<p style='color: " + googlered + "; margin-top:0;'>"
                             + bykeyword.keyword  + ": "  + qtip_template(bykeyword) + "</p>";
 

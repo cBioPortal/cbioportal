@@ -819,9 +819,8 @@
                             }
                         },
                         hide: { fixed: true, delay: 100 },
-                        style: { classes: 'ui-tooltip-light ui-tooltip-rounded ui-tooltip-shadow ui-tooltip-lightyellow', tip: false },
-                        //position: {my:'left top',at:'bottom center'}
-                        position: {my:'top right',at:'top right'}
+                        style: { classes: 'qtip-light qtip-rounded qtip-shadow', tip: true },
+                        position: {my:'top right',at:'bottom center'}
                     });
                 });
             })($('.pancan_mutations_histogram_thumbnail'));
